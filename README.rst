@@ -7,5 +7,5 @@ Eine Zusammenstellung von Tools zur Untestützung von Verwaltungsaufgaben der Of
 Instalieren von Abhängigkeiten
 ==============================
     ..bash::
-    
+
     pip install -r requirements.txt
