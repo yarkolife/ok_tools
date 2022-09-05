@@ -85,6 +85,12 @@ class LicenseRequestAdmin(admin.ModelAdmin):
         return super().changeform_view(
             request, object_id, form_url, extra_context)
 
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        """Exclude the number field from the create form."""
+        if obj is None:
+            self.exclude = ['number']
+        return super().get_form(request, obj, change, **kwargs)
+
 
 admin.site.register(LicenseRequest, LicenseRequestAdmin)
 
