@@ -460,3 +460,21 @@ def test__licenses__admin__LicenseRequestAdmin__5(browser, license_request):
     lr = LicenseRequest.objects.get(id=license_request.id)
     assert 'was changed successfully' in browser.contents
     assert license_request == lr
+
+
+def test__licenses__admin__LicenseRequestAdmin__6(browser):
+    """The number field is not visible when a LR gets add by an admin."""
+    browser.login_admin()
+    browser.follow('License Request')
+    browser.follow('Add License Request')
+
+    assert 'Number:' not in browser.contents
+
+
+def test__licenses__admin__LicenseRequestAdmin__7(browser, license_request):
+    """The number field is not visible when a LR gets add by an admin."""
+    browser.login_admin()
+    browser.follow('License Request')
+    browser.follow(license_request.title)
+
+    assert 'Number:' in browser.contents
