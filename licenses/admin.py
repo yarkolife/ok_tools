@@ -68,6 +68,10 @@ class LicenseRequestAdmin(admin.ModelAdmin):
     def changeform_view(
             self, request, object_id, form_url="", extra_context=None):
         """Don't show the save buttons if LR is confirmed."""
+        if object_id is None:
+            return super().changeform_view(
+                request, object_id, form_url, extra_context)
+
         license = get_object_or_404(LicenseRequest, pk=object_id)
         extra_context = extra_context or {}
 
