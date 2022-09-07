@@ -321,6 +321,23 @@ def test__licenses__models__3(db, license_request):
     assert n1 == n2
 
 
+def test__licenses__models__4(browser, license_template_dict, user):
+    """A new LR must have a duration greater zero."""
+    browser.login_admin()
+    browser.follow('License Requests')
+    browser.follow('Add License Request')
+
+    browser.getControl('Title').value = license_template_dict['title']
+    browser.getControl(
+        'Description').value = license_template_dict['description']
+    browser.getControl('Duration').value = '00:00'
+    browser.getControl(user.email).click()  # select user
+
+    browser.getControl(name='_save').click()
+
+    assert 'Duration must not be null.' in browser.contents
+
+
 def test__licenses__generate_file__1(browser, user, license_request):
     """The printed license contains the necessary data."""
     browser.login()

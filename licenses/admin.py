@@ -14,6 +14,7 @@ logger = logging.getLogger('django')
 class LicenseRequestAdmin(admin.ModelAdmin):
     """How should the LicenseRequests be shown on the admin site."""
 
+    exclude = []  # show all fields in the form
     change_form_template = 'admin/licenses_change_form_edit.html'
     list_display = (
         '__str__',
