@@ -67,10 +67,21 @@ class DisaImport(models.Model):
         null=False,
     )
 
+    imported = models.BooleanField(
+        _('Imported'),
+        default=False,
+        blank=False,
+        null=False,
+    )
+
     def clean(self) -> None:
         """Validate the uploaded file."""
         validate(self.file)
         return super().clean()
+
+    def __str__(self) -> str:
+        """Represent DISA import as its file name."""
+        return str(self.file.name)
 
     class Meta:
         """Defines the message IDs."""
