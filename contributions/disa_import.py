@@ -100,7 +100,11 @@ def validate(file):
 
 
 def disa_import(request, file):
-    """Import contributions from DISA export."""
+    """
+    Import contributions from DISA export.
+
+    All valid data gets imported even if an error ocures.
+    """
     wb = load_workbook(file)
     ws = wb[WS_NAME]
     rows = ws.rows

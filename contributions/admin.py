@@ -1,6 +1,7 @@
 from .disa_import import disa_import
 from .models import Contribution
 from .models import DisaImport
+from django import http
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.decorators import display
@@ -34,6 +35,8 @@ admin.site.register(Contribution, ContributionAdmin)
 class DisaImportAdmin(admin.ModelAdmin):
     """How should the DISA export data and import options be shown."""
 
+    change_form_template = 'admin/disa_import_change_form.html'
+
     list_display = (
         '__str__',
         'imported',
@@ -60,6 +63,18 @@ class DisaImportAdmin(admin.ModelAdmin):
             '%d files successfully imported.',
             imported
         ) % imported, messages.SUCCESS)
+
+    def response_change(self, request, obj: DisaImport):
+        """Add 'Import' button to change view."""
+        if '_import_disa' in request.POST:
+            disa_import(request, obj.file)
+            obj.imported = True
+            obj.save()
+            self.message_user(request, _('"%(obj)s" successfully imported.') %
+                              {'obj': obj}, level=messages.ERROR)
+
+            return http.HttpResponseRedirect(request.path_info)
+        return super().response_change(request, obj)
 
 
 admin.site.register(DisaImport, DisaImportAdmin)
