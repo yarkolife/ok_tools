@@ -72,6 +72,8 @@ class DisaImport(models.Model):
         default=False,
         blank=False,
         null=False,
+        help_text=_('Just marking the file as imported does not import'
+                    ' the file!')
     )
 
     def clean(self) -> None:

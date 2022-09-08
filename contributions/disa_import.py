@@ -35,7 +35,7 @@ def validate(file):
         errors.append(ValidationError(message))
 
     if WS_NAME not in wb.sheetnames:
-        e(_('The worksheet needs to be named "%(name)s"') % {'name': WS_NAME})
+        e(_('The worksheet needs to be named "%(name)s".') % {'name': WS_NAME})
         raise ValidationError(errors)
 
     ws = wb[WS_NAME]
@@ -86,6 +86,8 @@ def validate(file):
             break
 
     for row in rows:
+        if not any([row[i].value for i in range(TYPE)]):
+            break
         if (not re.match(r'^\d+_', row[TITLE].value) and
                 row[TYPE].value != INFO):
             e(_('Invalid title in cell %(c)s%(r)s. Title needs the format'
@@ -112,6 +114,8 @@ def disa_import(request, file):
     next(rows)  # ignore empty row
 
     for row in rows:
+        if not any([row[i].value for i in range(TYPE)]):
+            break
         if row[TYPE].value == INFO:
             continue
 

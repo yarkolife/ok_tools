@@ -50,13 +50,10 @@ class DisaImportAdmin(admin.ModelAdmin):
         """Import selected files."""
         imported = 0
         for i in queryset:
-            if i.imported:
-                continue
-            else:
-                disa_import(request, i.file)
-                i.imported = True
-                i.save()
-                imported += 1
+            disa_import(request, i.file)
+            i.imported = True
+            i.save()
+            imported += 1
 
         self.message_user(request, _p(
             '%d file successfully imported.',
