@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<h1> {% translate 'Your contributions' %}</h1>
+
+<table class=table>
+    <thead>
+        <tr>
+            <th scope="col">{% translate 'Title' %}</th>
+            <th scope="col">{% translate 'Start' %}</th>
+            <th scope="col">{% translate 'Duration' %}</th>
+            <th scope="col">{% translate 'Live' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contribution in object_list %}
+            <tr>
+                <td>
+                    {{ contribution }}
+                </td>
+                <td>
+                    {{ contribution.broadcast_date }}
+                </td>
+                <td>
+                    {{ contribution.license.duration }}
+                </td>
+                <td>
+                    {% if license.confirmed %}
+                        <img src="{% static 'admin/img/icon-yes.svg' %}"
+                            alt="{% translate 'Yes'%}">
+                    {% else %}
+                        <img src="{% static 'admin/img/icon-no.svg' %}"
+                            alt="{% translate 'No'%}">
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <td>{% translate 'No contributions yet.' %}</td>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}
