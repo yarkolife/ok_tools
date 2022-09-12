@@ -80,13 +80,6 @@ class CreateLicenseView(generic.CreateView):
             return _no_profile_error(request)
         return super().get(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        """Screen Boards always have a fixed duration."""
-        if form.instance.is_screen_board:
-            form.instance.duration = datetime.timedelta(
-                seconds=settings.SCREEN_BOARD_DURATION)
-        return super().form_valid(form)
-
 
 @method_decorator(login_required, name='dispatch')
 class UpdateLicensesView(generic.edit.UpdateView):
