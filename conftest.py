@@ -1,5 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
+from django.conf import settings
 from django.core import mail
 from django.urls import reverse_lazy
 from licenses.models import default_category
@@ -9,6 +10,7 @@ from ok_tools.testing import PWD
 from ok_tools.testing import create_contribution
 from ok_tools.testing import create_license_request
 from ok_tools.testing import create_user
+from zoneinfo import ZoneInfo
 import ok_tools.wsgi
 import pytest
 import zope.testbrowser.browser
@@ -108,7 +110,12 @@ def license_request(user, license_template_dict):
 def contribution_dict() -> dict:
     """Return a dictionary with  all additional data for a contribution."""
     return {
-        'broadcast_date': datetime(year=2022, month=8, day=25, hour=12),
+        'broadcast_date': datetime(year=2022,
+                                   month=8,
+                                   day=25,
+                                   hour=12,
+                                   tzinfo=ZoneInfo(settings.TIME_ZONE)
+                                   ),
         'live': False,
     }
 

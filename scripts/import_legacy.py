@@ -15,9 +15,9 @@ from projects.models import ProjectCategory
 from projects.models import ProjectLeader
 from projects.models import TargetGroup
 from registration.models import Profile
+from zoneinfo import ZoneInfo
 import datetime
 import logging
-import pytz
 
 
 User = get_user_model()
@@ -243,7 +243,7 @@ def import_users(ws: Worksheet) -> IdNumberMap:
             city=row[CITY].value,
             created_at=(_get_datetime(row[CREATED_AT])
                         or datetime.datetime.now(
-                            pytz.timezone(settings.TIME_ZONE))
+                            ZoneInfo(settings.TIME_ZONE))
                         ),
         )
 
@@ -738,8 +738,7 @@ def _get_datetime(cell: Cell) -> datetime.datetime:
     """Return a Datetime or None if the cell is not a date."""
     if cell.is_date:
         aware_datetime = cell.value.replace(
-            # TODO über settings
-            tzinfo=datetime.timezone(-datetime.timedelta(hours=2)))
+            tzinfo=datetime.timezone(ZoneInfo(settings.TIME_ZONE)))
         return aware_datetime
     else:
         if cell.value:
