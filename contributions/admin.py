@@ -16,6 +16,12 @@ class ContributionAdmin(admin.ModelAdmin):
 
     ordering = ['-broadcast_date']
 
+    readonly_fields = ('_is_primary',)
+
+    @display(boolean=True, description=(_('Is primary')))
+    def _is_primary(self, obj):
+        return obj.is_primary()
+
     @display(description=_('User'))
     def get_user(self, obj):
         """Return the first an last name of the contributions user."""
