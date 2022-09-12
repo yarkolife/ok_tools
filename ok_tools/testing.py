@@ -1,7 +1,9 @@
 from contributions.models import Contribution
+from contributions.models import DisaImport
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files import File
 from licenses.models import LicenseRequest
 from registration.models import Profile
 import PyPDF2
@@ -81,3 +83,19 @@ def create_contribution(license_request, contribution_dict):
         broadcast_date=contribution_dict['broadcast_date'],
         live=contribution_dict['live'],
     )
+
+
+def _open(file: str):
+    """Open a file from the test data directory."""
+    return open(f'ok_tools/test_data/{file}', 'rb')
+
+
+def create_disaimport() -> DisaImport:
+    """Create a DISA import."""
+    obj = DisaImport()
+
+    with _open('valid.xlsx') as f:
+        obj.file.save('test.xlsx', File(f), save=True)
+
+    obj.save()
+    return obj

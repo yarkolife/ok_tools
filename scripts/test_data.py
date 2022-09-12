@@ -2,10 +2,12 @@ from contributions.models import Contribution
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from licenses.models import LicenseRequest
 from registration.models import Profile
+from zoneinfo import ZoneInfo
 
 
 User = get_user_model()
@@ -97,13 +99,25 @@ def run():
     Contribution.objects.create(
         license=l1,
         broadcast_date=datetime(
-            year=2022, month=10, day=19, hour=18, minute=30),
+            year=2022,
+            month=10,
+            day=19,
+            hour=18,
+            minute=30,
+            tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
         live=False,
     )
 
     Contribution.objects.create(
         license=l2,
         broadcast_date=datetime(
-            year=2022, month=10, day=19, hour=19, minute=30),
+            year=2022,
+            month=10,
+            day=19,
+            hour=19,
+            minute=30,
+            tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
         live=False,
     )
