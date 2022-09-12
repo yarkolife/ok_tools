@@ -37,6 +37,7 @@ urlpatterns = [
     path('profile/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
     path('licenses/', include('licenses.urls')),
+    path('contributions/', include('contributions.urls')),
     path('profile/', include('registration.urls')),
     path(
         'privacy_policy/',
