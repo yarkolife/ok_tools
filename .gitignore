@@ -30,3 +30,6 @@ test
 .coverage
 
 response.html
+
+*.xlsx
+!ok_tools/test_data/*.xlsx

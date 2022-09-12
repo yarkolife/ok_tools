@@ -226,12 +226,14 @@ LOGOUT_REDIRECT_URL = 'home'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # bootstrap message tags
+# For warnings and errors both, the bootstrap tag (alert-*) and the django tag,
+# is set to support the user side and the admin side with colorfully messages.
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-secondary',
     messages.INFO: 'alert-info',
     messages.SUCCESS: 'alert-success',
-    messages.WARNING: 'alert-warning',
-    messages.ERROR: 'alert-danger',
+    messages.WARNING: 'alert-warning warning',
+    messages.ERROR: 'alert-danger error',
 }
 
 # path to legacy data
