@@ -1,3 +1,4 @@
+from contributions.models import DisaImport
 from datetime import datetime
 from datetime import timedelta
 from django.conf import settings
@@ -8,6 +9,7 @@ from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
 from ok_tools.testing import create_contribution
+from ok_tools.testing import create_disaimport
 from ok_tools.testing import create_license_request
 from ok_tools.testing import create_user
 from zoneinfo import ZoneInfo
@@ -127,3 +129,9 @@ def contribution(license_request, contribution_dict):
         license_request,
         contribution_dict,
     )
+
+
+@pytest.fixture(scope='function')
+def disaimport() -> DisaImport:
+    """Create a DISA import."""
+    return create_disaimport()
