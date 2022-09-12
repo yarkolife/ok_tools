@@ -73,7 +73,7 @@ class LicenseRequestAdmin(admin.ModelAdmin):
 
         return updated
 
-    def changeform_view(
+    def change_view(
             self, request, object_id, form_url="", extra_context=None):
         """Don't show the save buttons if LR is confirmed."""
         license = get_object_or_404(LicenseRequest, pk=object_id)
@@ -88,6 +88,15 @@ class LicenseRequestAdmin(admin.ModelAdmin):
 
         return super().changeform_view(
             request, object_id, form_url, extra_context)
+
+    def add_view(self, request, form_url="", extra_context=None):
+        """Exclude the number field."""
+        self.exclude = ['number']
+        result = super().add_view(request, form_url, extra_context)
+        # Because exclude is also used by change_view
+        self.exclude = None
+
+        return result
 
 
 admin.site.register(LicenseRequest, LicenseRequestAdmin)
