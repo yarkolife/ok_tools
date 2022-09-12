@@ -340,6 +340,23 @@ def test__licenses__models__3(db, license_request):
     assert n1 == n2
 
 
+def test__licenses__models__4(browser, license_template_dict, user):
+    """A new LR must have a duration greater zero."""
+    browser.login_admin()
+    browser.follow('License Requests')
+    browser.follow('Add License Request')
+
+    browser.getControl('Title').value = license_template_dict['title']
+    browser.getControl(
+        'Description').value = license_template_dict['description']
+    browser.getControl('Duration').value = '00:00'
+    browser.getControl(str(user.profile)).click()  # select user
+
+    browser.getControl(name='_save').click()
+
+    assert 'Duration must not be null.' in browser.contents
+
+
 def test__licenses__generate_file__1(browser, user, license_request):
     """The printed license contains the necessary data."""
     browser.login()
@@ -469,7 +486,25 @@ def test__licenses__admin__LicenseRequestAdmin__5(browser, license_request):
     assert license_request == lr
 
 
-def test__licenses__admin__LicenseRequestAdmin__6(
+def test__licenses__admin__LicenseRequestAdmin__6(browser):
+    """The number field is not visible when a LR gets add by an admin."""
+    browser.login_admin()
+    browser.follow('License Request')
+    browser.follow('Add License Request')
+
+    assert 'Number:' not in browser.contents
+
+
+def test__licenses__admin__LicenseRequestAdmin__7(browser, license_request):
+    """The number field is not visible when a LR gets add by an admin."""
+    browser.login_admin()
+    browser.follow('License Request')
+    browser.follow(license_request.title)
+
+    assert 'Number:' in browser.contents
+
+
+def test__licenses__admin__LicenseRequestAdmin__8(
         browser, license_template_dict, user_dict):
     """Show LRs with a profile without user."""
     profile = Profile.objects.create(

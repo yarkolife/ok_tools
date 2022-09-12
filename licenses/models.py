@@ -1,3 +1,6 @@
+from datetime import timedelta
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
@@ -164,6 +167,20 @@ class LicenseRequest(LicenseTemplate, models.Model):
         null=False,
         default=False,
     )
+
+    def clean(self) -> None:
+        """Either the LR is a screen_board or the duration isn't null."""
+        if self.is_screen_board:
+            # it's a screen board, we are fine
+            self.duration = timedelta(
+                seconds=settings.SCREEN_BOARD_DURATION)
+            return super().clean()
+
+        if not self.duration:
+            raise ValidationError(
+                {'duration': _('Duration must not be null.')})
+
+        return super().clean()
 
     @transaction.atomic
     def save(self, update_fields=None, *args, **kwargs) -> None:
