@@ -19,7 +19,7 @@
         {% for contribution in object_list %}
             <tr>
                 <td>
-                    {{ contribution }}
+                    <a href="{% url 'licenses:details' contribution.license.id %}" class="link-dark"> {{contribution.license}} </a>
                 </td>
                 <td>
                     {{ contribution.broadcast_date }}
