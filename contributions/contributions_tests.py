@@ -2,13 +2,32 @@ from .disa_import import disa_import
 from .disa_import import validate
 from .models import Contribution
 from .models import DisaImport
+from datetime import datetime
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.urls import reverse_lazy
 from ok_tools.testing import DOMAIN
+from ok_tools.testing import EMAIL
+from ok_tools.testing import PWD
 from ok_tools.testing import _open
+from ok_tools.testing import create_contribution
 from ok_tools.testing import create_disaimport
+from ok_tools.testing import create_user
+from zoneinfo import ZoneInfo
 import pytest
+
+
+User = get_user_model()
+
+CONTRIBUTION_URL = f'{DOMAIN}{reverse_lazy("contributions:contributions")}'
+
+
+def con_change_url(id: int) -> str:
+    """Create the change url for the given id."""
+    url = reverse_lazy("admin:contributions_contribution_change", args=[id])
+    return (f'{DOMAIN}'f'{url}')
 
 
 A_CON_URL = (f'{DOMAIN}'
@@ -41,7 +60,98 @@ def test__contributions__admin__ContributionsAdmin__1(browser, contribution):
     assert contribution.license.profile.last_name in browser.contents
 
 
-# möglichst nur in Funktion testen
+def test__contributions__view__ListContributionsView__1(
+        browser, contribution_dict, license_request):
+    """A user can see his/her contributions."""
+    con1 = create_contribution(license_request, contribution_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022, month=9, day=12, hour=12)
+    con2 = create_contribution(license_request, contribution_dict)
+
+    browser.login()
+    browser.open(CONTRIBUTION_URL)
+
+    assert str(con1) in browser.contents
+    assert str(con2) in browser.contents
+
+
+def test__contributions__view__ListContributionsView__2(browser):
+    """If the user doesn't have a profile, no contribution is shown."""
+    User.objects.create_user(email=EMAIL, password=PWD)
+    browser.login()
+    browser.open(CONTRIBUTION_URL)
+
+    assert 'No contributions yet' in browser.contents
+
+
+def test__contributions__view__ListContributionsView__3(
+        browser, contribution, user_dict):
+    """Only the own contributions are shown to the user."""
+    user_dict['email'] = f'new_{EMAIL}'
+    user2 = create_user(user_dict)
+
+    browser.login(email=user2.email)
+    browser.open(CONTRIBUTION_URL)
+
+    assert str(contribution) not in browser.contents
+    assert 'No contributions yet' in browser.contents
+
+
+def test__contributions__admin__ContributionsAdmin__4(
+        db, license_request, contribution_dict, browser):
+    """Show primary contributions as those."""
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=8,
+        tzinfo=ZoneInfo(settings.TIME_ZONE),
+    )
+    early_contr = create_contribution(license_request, contribution_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=18,
+        tzinfo=ZoneInfo(settings.TIME_ZONE),
+    )
+    late_contr = create_contribution(license_request, contribution_dict)
+
+    browser.login_admin()
+
+    browser.open(con_change_url(early_contr.id))
+    assert 'alt="True"' in browser.contents
+
+    browser.open(con_change_url(late_contr.id))
+    assert 'alt="False"' in browser.contents
+
+
+def test__contributions__models__1(db, license_request, contribution_dict):
+    """Mark the primary contribution."""
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=8,
+        tzinfo=ZoneInfo(settings.TIME_ZONE),
+    )
+    early_contr = create_contribution(license_request, contribution_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=18,
+        tzinfo=ZoneInfo(settings.TIME_ZONE),
+    )
+    late_contr = create_contribution(license_request, contribution_dict)
+
+    assert early_contr.is_primary()
+    assert not late_contr.is_primary()
+
+
 def test__contributions__disa_import__validate__1(browser):
     """It is possible to upload a valid DISA export file."""
     browser.login_admin()

@@ -33,6 +33,14 @@ class Contribution(models.Model):
         null=False,
     )
 
+    def is_primary(self) -> bool:
+        """Determine weather the contribution is primary."""
+        contributions = (self.__class__.objects
+                         .filter(license=self.license)
+                         .order_by('broadcast_date'))
+
+        return self.broadcast_date == contributions[0].broadcast_date
+
     def __str__(self) -> str:
         """Represent a contribution by its title and subtitle."""
         return str(self.license)
