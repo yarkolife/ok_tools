@@ -583,6 +583,40 @@ def test__licenses__admin__LicenseRequestAdmin__9(
     _a(over_1h.title)
 
 
+def test__licenses__admin__LicenseRequestAdmin__10(browser, license_request):
+    """Try to confirm a LR with unverified profile."""
+    browser.login_admin()
+    browser.follow('License Request')
+    browser.follow(license_request.title)
+
+    profile = license_request.profile
+    profile.verified = False
+    profile.save()
+
+    browser.getControl('Confirmed').click()
+    browser.getControl(name='_save').click()
+
+    assert 'corresponding profile is not verified' in browser.contents
+    assert not license_request.confirmed
+
+
+def test__licenses__admin__LicenseRequestAdmin__11(browser, license_request):
+    """Try to confirm LRs with unverified profiles."""
+    profile = license_request.profile
+    profile.verified = False
+    profile.save()
+
+    browser.login_admin()
+    browser.follow('License Request')
+
+    browser.getControl(name='_selected_action').controls[0].selected = True
+    browser.getControl('Action').value = 'confirm'
+    browser.getControl('Go').click()
+
+    assert f'profile of {license_request} is not verified' in browser.contents
+    assert '0 License Requests were successfully confirmed' in browser.contents
+
+
 def test__licenses__admin__DurationFilter__1():
     """Handle invalid values."""
     with patch.object(DurationFilter, 'value', return_value='invalid'):
