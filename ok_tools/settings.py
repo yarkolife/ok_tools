@@ -140,17 +140,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# CSRF settings
 
-CSRF_TRUSTED_ORIGINS = [f'https://{h}' for h in hosts]
+use_secure_settings = config.get('django', 'use_secure_settings', fallback=False)
 
-# SESSION_COOKIE_SECURE = True
-
-# CSRF_COOKIE_SECURE = True
-
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-# CORS_ORIGIN_WHITELIST = ['https://okmq.gocept.fcio.net/']
+if use_secure_settings:
+    CSRF_TRUSTED_ORIGINS = [f'https://{h}' for h in hosts]
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    CORS_ORIGIN_WHITELIST = ['https://okmq.gocept.fcio.net/']
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
