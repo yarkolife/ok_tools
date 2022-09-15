@@ -141,7 +141,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # CSRF settings
-# CSRF_TRUSTED_ORIGINS = ['https://okmq.gocept.fcio.net', 'https://localhost']
+
+CSRF_TRUSTED_ORIGINS = [f'https://{h}' for h in hosts]
 
 # SESSION_COOKIE_SECURE = True
 
