@@ -58,9 +58,12 @@ INSTALLED_APPS = [
     'projects',
     'contributions',
 
+    'admin_searchable_dropdown',
     'bootstrap_datepicker_plus',
     'crispy_forms',
     'django_extensions',
+    'django_admin_listfilter_dropdown',
+    'rangefilter',
 
     'django.contrib.admin',
     'django.contrib.auth',
