@@ -141,7 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-use_secure_settings = config.get('django', 'use_secure_settings', fallback=False)
+use_secure_settings = config.getboolean('django', 'use_secure_settings', fallback=False)
 
 if use_secure_settings:
     CSRF_TRUSTED_ORIGINS = [f'https://{h}' for h in hosts]
@@ -207,14 +207,15 @@ ZIPCODE = '06217'
 # send the mails to stdout
 
 
-mail_dev_settings = config.get('django', 'mail_dev_settings', fallback=True)
+mail_dev_settings = config.getboolean('django', 'mail_dev_settings', fallback=True)
+
 
 if mail_dev_settings:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_HOST = config.get('django', 'email_host', fallback='')
-EMAIL_PORT = config.get('django', 'email_port', fallback=587)
-EMAIL_USE_TLS = config.get('django', 'email_use_tls', fallback=True)
+EMAIL_PORT = config.getint('django', 'email_port', fallback=587)
+EMAIL_USE_TLS = config.getboolean('django', 'email_use_tls', fallback=True)
 EMAIL_HOST_USER = config.get('django', 'email_host_user', fallback='')
 EMAIL_HOST_PASSWORD = config.get('django', 'email_host_password', fallback='')
 
