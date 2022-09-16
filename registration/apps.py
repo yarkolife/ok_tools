@@ -9,5 +9,5 @@ class RegistrationConfig(AppConfig):
     verbose_name = _('Registration')
 
     def ready(self):
-        """Import Signals to set permissions on profile change."""
+        """Import Signals to set send email after verification."""
         from . import signals  # noqa F401

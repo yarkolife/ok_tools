@@ -169,13 +169,3 @@ class Profile(models.Model):
     def __str__(self):
         """Represent Profile by first and last name."""
         return f'{self.first_name} {self.last_name}'
-
-    class Meta:
-        """Define permission to log in."""
-
-        permissions = [
-            (
-                "verified",
-                "Can access functionalities for verified users"
-            )
-        ]

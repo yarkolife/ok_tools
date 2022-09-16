@@ -101,8 +101,12 @@ def license_template_dict() -> dict:
 @pytest.fixture(scope='function')
 def license_request(user, license_template_dict):
     """Return a license request."""
+    profile = user.profile
+    profile.verified = True
+    profile.save()
+
     return create_license_request(
-        user.profile,
+        profile,
         default_category(),
         license_template_dict,
     )
