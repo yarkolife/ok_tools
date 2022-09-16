@@ -205,12 +205,21 @@ ZIPCODE = '06217'
 
 # email
 # send the mails to stdout
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = ''
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+
+
+mail_dev_settings = config.get('django', 'mail_dev_settings', fallback=True)
+
+if mail_dev_settings:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = config.get('django', 'email_host', fallback='')
+EMAIL_PORT = config.get('django', 'email_port', fallback=587)
+EMAIL_USE_TLS = config.get('django', 'email_use_tls', fallback=True)
+EMAIL_HOST_USER = config.get('django', 'email_host_user', fallback='')
+EMAIL_HOST_PASSWORD = config.get('django', 'email_host_password', fallback='')
+
+
+
 
 # name of the OK
 OK_NAME = 'Offener Kanal Merseburg-Querfurt e.V.'
