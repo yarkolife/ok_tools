@@ -144,10 +144,10 @@ AUTH_PASSWORD_VALIDATORS = [
 use_secure_settings = config.getboolean('django', 'use_secure_settings', fallback=False)
 
 if use_secure_settings:
-    CSRF_TRUSTED_ORIGINS = [f'https://{h}' for h in hosts]
+    CSRF_TRUSTED_ORIGINS = [f'https://{hosts}']
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    CORS_ORIGIN_WHITELIST = ['https://okmq.gocept.fcio.net/']
+    CORS_ORIGIN_WHITELIST = [f'https://{hosts}']
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -218,7 +218,7 @@ EMAIL_PORT = config.getint('django', 'email_port', fallback=587)
 EMAIL_USE_TLS = config.getboolean('django', 'email_use_tls', fallback=True)
 EMAIL_HOST_USER = config.get('django', 'email_host_user', fallback='')
 EMAIL_HOST_PASSWORD = config.get('django', 'email_host_password', fallback='')
-
+SERVER_EMAIL = config.get('django', 'server_email', fallback='webmaster@localhost')
 
 
 
