@@ -218,7 +218,7 @@ EMAIL_PORT = config.getint('django', 'email_port', fallback=587)
 EMAIL_USE_TLS = config.getboolean('django', 'email_use_tls', fallback=True)
 EMAIL_HOST_USER = config.get('django', 'email_host_user', fallback='')
 EMAIL_HOST_PASSWORD = config.get('django', 'email_host_password', fallback='')
-SERVER_EMAIL = config.get('django', 'server_email', fallback='webmaster@localhost')
+DEFAULT_FROM_EMAIL = config.get('django', 'default_from_email', fallback='webmaster@localhost')
 
 
 
