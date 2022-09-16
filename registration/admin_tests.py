@@ -3,20 +3,17 @@ from .admin import Profile
 from .admin import ProfileAdmin
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
 from unittest.mock import patch
 import datetime
 import pytest
-import registration.signals
 
 
 User = get_user_model()
 
 PWD = 'testpassword'
-VERIFIED_PERM = 'registration.verified'
 
 
 def test__registration__admin__1(browser):
@@ -44,79 +41,6 @@ def test__registration__admin__2(browser, user_dict):
     assert User.objects.get(email=user_dict['email'])
 
 
-def test__registration__signals__is_staff__1(db, user_dict):
-    """A staff member has the permission 'verified'."""
-    testuser = User(email=user_dict['email'], password=PWD, is_staff=True)
-    testuser.save()
-
-    assert testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__signals__is_staff__2(db, user, browser):
-    """If a user gets staff status he/she has the permission 'verified'."""
-    user.profile.verified = True
-    user.profile.save()
-    browser.login_admin()
-
-    browser.getLink('User').click()
-    browser.getLink(user.email).click()
-    browser.getControl('Staff status').click()
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=user.email)
-    assert testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__signals__is_staff__3(db, user, browser):
-    """If a user is no longer staff, the permission 'verified' gets revoked."""
-    user.is_staff = True
-    user.save()
-    browser.login_admin()
-
-    browser.getLink('User').click()
-    browser.getLink(user.email).click()
-    browser.getControl('Staff status').click()
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=user.email)
-    assert not testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__signals__verify_profile__1(db, user, browser):
-    """After verification a user has the permission 'verified'."""
-    browser.login_admin()
-    browser.getLink('Profiles').click()
-    browser.getLink(user.email).click()
-    browser.getControl('Verified').selected = True
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=user.email)
-    assert testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__signals__verify_profile__2(db, user_dict):
-    """A User created as verified has the permission 'verified'."""
-    user = create_user(user_dict, verified=True)
-
-    testuser = User.objects.get(email=user.email)
-    assert testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__signals__verify_profile__3(db, user, browser):
-    """If a user is no longer verified the permission gets revoked."""
-    user.profile.verified = True
-    user.profile.save()
-    browser.login_admin()
-
-    browser.getLink('Profiles').click()
-    browser.getLink(user.email).click()
-    browser.getControl('Verified').selected = False
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=user.email)
-    assert not testuser.has_perm(VERIFIED_PERM)
-
-
 def test__registration__signals__send_verification_mail__1(
         db, user, browser, mail_outbox):
     """After verification a user gets send an email."""
@@ -134,69 +58,6 @@ def test__registration__signals__send_verification_mail__1(
         ' account is now fully activated.' in mail_outbox[-1].body
     )
     assert user.profile.first_name in mail_outbox[-1].body
-
-
-def test__registration__signals___get_permission__1(db):
-    """
-    Helper function '_get_permission'.
-
-    The function raises an error if Permission does not exist.
-    """
-    with pytest.raises(Permission.DoesNotExist):
-        registration.signals._get_permission(Profile, 'testpermission')
-
-
-def test__registration__admin__UserAdmin__1(db, user, browser):
-    """Modify a user without a change."""
-    browser.login_admin()
-
-    browser.getLink('User').click()
-    browser.getLink(user.email).click()
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=user.email)
-    assert not testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__admin__UserAdmin__2(db, user, browser):
-    """Modify a user with a change which not changes staff status."""
-    browser.login_admin()
-
-    browser.getLink('User').click()
-    browser.getLink(user.email).click()
-    new_email = 'new_' + user.email
-    browser.getControl('Email').value = new_email
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=new_email)
-    assert not testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__admin__ProfileAdmin__1(db, user, browser):
-    """Modify a profile without a change."""
-    browser.login_admin()
-
-    browser.getLink('Profile').click()
-    browser.getLink(user.email).click()
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=user.email)
-    assert not testuser.has_perm(VERIFIED_PERM)
-
-
-def test__registration__admin__ProfileAdmin__2(db, user, browser):
-    """Modify a profile without changing 'verified'."""
-    browser.login_admin()
-
-    browser.getLink('Profile').click()
-    browser.getLink(user.email).click()
-
-    new_first_name = 'new_' + user.profile.first_name
-    browser.getControl('First name').value = new_first_name
-    browser.getControl(name='_save').click()
-
-    testuser = User.objects.get(email=user.email)
-    assert not testuser.has_perm(VERIFIED_PERM)
 
 
 def test__registration__admin__ProfileAdmin__3(db, user_dict, browser):

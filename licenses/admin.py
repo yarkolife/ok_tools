@@ -1,6 +1,7 @@
 from .models import Category
 from .models import LicenseRequest
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
+from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -58,8 +59,26 @@ class DurationFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
+class LicenseRequestAdminForm(forms.ModelForm):
+    """Override the clean method for the forms used on the admin site."""
+
+    def clean(self):
+        """Raise an error if the LR of an unverified user gets confirmed."""
+        if (self.cleaned_data['confirmed'] and
+                not self.cleaned_data['profile'].verified):
+            raise forms.ValidationError(
+                {'confirmed': _('The corresponding profile is not verified.'
+                                ' The License can not be confirmed until the'
+                                ' profile is verified.')}
+            )
+
+        return super().clean()
+
+
 class LicenseRequestAdmin(admin.ModelAdmin):
     """How should the LicenseRequests be shown on the admin site."""
+
+    form = LicenseRequestAdminForm
 
     change_form_template = 'admin/licenses_change_form_edit.html'
     list_display = (
@@ -95,7 +114,7 @@ class LicenseRequestAdmin(admin.ModelAdmin):
     @admin.action(description=_('Confirm selected License Requests'))
     def confirm(self, request, queryset):
         """Confirm all selected profiles."""
-        updated = self._set_confirmed(queryset, True)
+        updated = self._set_confirmed(request, queryset, True)
         self.message_user(request, _p(
             '%d License Request was successfully confirmed.',
             '%d License Requests were successfully confirmed.',
@@ -105,14 +124,14 @@ class LicenseRequestAdmin(admin.ModelAdmin):
     @admin.action(description=_('Unconfirm selected License Requests'))
     def unconfirm(self, request, queryset):
         """Unconfirm all selected profiles."""
-        updated = self._set_confirmed(queryset, False)
+        updated = self._set_confirmed(request, queryset, False)
         self.message_user(request, _p(
             '%d License Request was successfully unconfirmed.',
             '%d License Requests were successfully unconfirmed.',
             updated
         ) % updated, messages.SUCCESS)
 
-    def _set_confirmed(self, queryset, value: bool):
+    def _set_confirmed(self, request, queryset, value: bool):
         """
         Set the 'confirmed' attribute.
 
@@ -120,12 +139,25 @@ class LicenseRequestAdmin(admin.ModelAdmin):
         """
         updated = 0
         for obj in queryset:
-            if obj.confirmed != value:
-                obj.confirmed = value
-                # in case we need to do further actions when a license is
-                # confirmed later
-                obj.save(update_fields=['confirmed'])
-                updated += 1
+            if obj.confirmed == value:
+                continue
+
+            if value and not obj.profile.verified:
+                # do not confirm LR of unverified users
+                self.message_user(
+                    request,
+                    _('The corresponding profile of %(obj)s is not verified.'
+                      ' The License can not be confirmed until the'
+                      ' profile is verified.') % {'obj': obj},
+                    messages.ERROR
+                )
+                continue
+
+            obj.confirmed = value
+            # in case we need to do further actions when a license is
+            # confirmed later
+            obj.save(update_fields=['confirmed'])
+            updated += 1
 
         return updated
 

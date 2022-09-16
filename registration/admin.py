@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from django_admin_listfilter_dropdown.filters import DropdownFilter
-from registration.signals import profile_verified
+from registration.signals import signal
 import logging
 
 
@@ -53,23 +53,6 @@ class UserAdmin(BaseUserAdmin):
     list_display = ['email', 'last_login', 'is_superuser', 'is_staff']
     ordering = ['email']
     search_fields = ['email']
-
-    # inspired by https://stackoverflow.com/a/54579134
-    def save_model(self, request, obj, form, change):
-        """
-        Set update_fields.
-
-        Observed field is 'is_staff'.
-        Set update_fields to use the post_save signal to set permissions.
-        Necessary for registration/signals.py/is_staff .
-        """
-        if form and form.changed_data:
-            initial = form.initial.get('is_staff')
-            new = form.cleaned_data.get('is_staff')
-            if not (initial is None or new is None) and initial != new:
-                obj.save(update_fields=['is_staff'])
-
-        return super(UserAdmin, self).save_model(request, obj, form, change)
 
 
 admin.site.register(User, UserAdmin)
@@ -156,8 +139,7 @@ class ProfileAdmin(admin.ModelAdmin):
             initial = form.initial.get('verified')
             new = form.cleaned_data.get('verified')
             if not (initial is None or new is None) and initial != new:
-                obj.save(update_fields=['verified'])
-                profile_verified.send(sender=self, obj=obj, request=request)
+                signal.send(sender=self, obj=obj, request=request)
 
         return super().save_model(request, obj, form, change)
 
@@ -191,9 +173,9 @@ class ProfileAdmin(admin.ModelAdmin):
             if obj.verified == value:
                 continue
             obj.verified = value
-            obj.save(update_fields=['verified'])
+            obj.save()
             if obj.verified:
-                profile_verified.send(sender=self, obj=obj, request=request)
+                signal.send(sender=self, obj=obj, request=request)
             updated += 1
         return updated
 
