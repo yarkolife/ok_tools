@@ -70,11 +70,11 @@ class YearFilter(admin.SimpleListFilter):
         """Define labels to filter after this or last year."""
         return (
             ('this', _('This year')),
-            ('last', _('Last year'))
+            ('last', _('Last year')),
         )
 
     def queryset(self, request, queryset):
-        """Filter the after creation date for this or last year."""
+        """Filter after creation date for this or last year."""
         if self.value() is None:
             return
 
