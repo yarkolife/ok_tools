@@ -66,7 +66,7 @@ class YearFilter(admin.SimpleListFilter):
 
     parameter_name = 'created_at'
 
-    def lookups(self, request, model_amdin):
+    def lookups(self, request, model_admin):
         """Define labels to filter after this or last year."""
         return (
             ('this', _('This year')),
