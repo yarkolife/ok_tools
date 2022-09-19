@@ -52,12 +52,6 @@ class LicenseRequestResource(resources.ModelResource):
         model = LicenseRequest
         fields = []
 
-        def dehydrate_profile(self, profile):
-            """Export profile as first and last name."""
-            first = getattr(profile, "first_name", "")
-            last = getattr(profile, "last_name", "")
-            return f'{first} {last}'
-
 
 class YearFilter(admin.SimpleListFilter):
     """Filter after this or last year."""

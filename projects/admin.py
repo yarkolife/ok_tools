@@ -52,12 +52,18 @@ class ProjectResource(resources.ModelResource):
     male = _f('tn_male', _('männlich'))
     diverse = _f('tn_divers', _('diverse'))
     no_gender = _f('tn_gender_not_given', _('ohne Angabe'))
+    supervisors = Field()
 
     class Meta:
         """Define meta properties for the Project export."""
 
         model = Project
         fields = []
+
+    def dehydrate_supervisors(self, project):
+        """Convert all supervisors to one string."""
+        return ', '.join(
+            [str(x) for x in project.media_education_supervisors.all()])
 
 
 class YearFilter(admin.SimpleListFilter):
