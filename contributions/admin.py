@@ -40,12 +40,6 @@ class ContributionResource(resources.ModelResource):
         model = Contribution
         fields = ['live']
 
-        def dehydrate_profile(self, profile):
-            """Show profile in export as first and last name."""
-            first = getattr(profile, 'first_name', '')
-            last = getattr(profile, 'last_name', '')
-            return f'{first} {last}'
-
 
 class YearFilter(admin.SimpleListFilter):
     """Filter after this or last years broadcast_date."""
