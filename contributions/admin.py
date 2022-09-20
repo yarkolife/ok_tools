@@ -103,7 +103,7 @@ class DisaImportAdmin(admin.ModelAdmin):
             obj.imported = True
             obj.save()
             self.message_user(request, _('"%(obj)s" successfully imported.') %
-                              {'obj': obj}, level=messages.ERROR)
+                              {'obj': obj}, level=messages.SUCCESS)
 
             return http.HttpResponseRedirect(request.path_info)
         return super().response_change(request, obj)
