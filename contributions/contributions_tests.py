@@ -1,3 +1,6 @@
+from .admin import ContributionAdmin
+from .admin import ContributionResource
+from .admin import YearFilter
 from .disa_import import disa_import
 from .disa_import import validate
 from .models import Contribution
@@ -8,13 +11,16 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.urls import reverse_lazy
+from licenses.models import default_category
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
 from ok_tools.testing import _open
 from ok_tools.testing import create_contribution
 from ok_tools.testing import create_disaimport
+from ok_tools.testing import create_license_request
 from ok_tools.testing import create_user
+from unittest.mock import patch
 from zoneinfo import ZoneInfo
 import pytest
 
@@ -288,3 +294,84 @@ def test__contributions__admin__2(browser, disaimport):
 
     assert DisaImport.objects.get(id=disaimport.id).imported
     assert not Contribution.objects.filter()
+
+
+def test__contributions__admin__YearFilter__1(
+        browser, user, license_template_dict, contribution_dict):
+    """Filter contributions after year."""
+    license_template_dict['title'] = 'new_title'
+    lr1 = create_license_request(
+        user.profile, default_category(), license_template_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        day=8, month=9, year=datetime.now().year)
+    contr1 = create_contribution(lr1, contribution_dict)
+
+    license_template_dict['title'] = 'old_title'
+    lr2 = create_license_request(
+        user.profile, default_category(), license_template_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        day=8, month=9, year=datetime.now().year-1)
+    contr2 = create_contribution(lr2, contribution_dict)
+
+    browser.login_admin()
+    browser.open(A_CON_URL)
+
+    browser.follow('This year')
+    assert str(contr1) in browser.contents
+    assert str(contr2) not in browser.contents
+
+    browser.follow('Last year')
+    assert str(contr1) not in browser.contents
+    assert str(contr2) in browser.contents
+
+
+def test__contributions__admin__YearFilter__2():
+    """Handle invalid values."""
+    with patch.object(YearFilter, 'value', return_value='invalid'):
+        with pytest.raises(ValueError, match=r'Invalid value .*'):
+            filter = YearFilter(
+                {}, {}, Contribution, ContributionAdmin)
+            filter.queryset(None, None)
+
+
+def test__contributions__admin__ContributionResource__1(
+        browser, license_request, contribution_dict):
+    """Export primary contributions only."""
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=20,
+        hour=9,
+        tzinfo=ZoneInfo(settings.TIME_ZONE)
+    )
+    contr1 = create_contribution(license_request, contribution_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=21,
+        hour=18,
+        tzinfo=ZoneInfo(settings.TIME_ZONE)
+    )
+    contr2 = create_contribution(license_request, contribution_dict)
+
+    assert contr1.is_primary()
+    assert not contr2.is_primary()
+
+    browser.login_admin()
+    browser.open(A_CON_URL)
+
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert browser.headers['Content-Type'] == 'text/csv'
+    assert str(contr1.broadcast_date.date()) in str(browser.contents)
+    assert str(contr2.broadcast_date.date()) not in str(browser.contents)
+
+
+def test__contributions__admin__ContributionResource__2(db):
+    """Export with no given queryset."""
+    ContributionResource().export(None, None)
