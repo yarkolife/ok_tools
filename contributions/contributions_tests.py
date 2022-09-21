@@ -181,13 +181,6 @@ def test__contributions__disa_import__validate__3():
             validate(f)
 
 
-def test__contributions__disa_import__validate__4():
-    """Files without a blank line after the header are not valid."""
-    with _raises(r'.*is not empty.*'):
-        with _open('no_blank.xlsx') as f:
-            validate(f)
-
-
 def test__contributions__disa_import__validate__5():
     """Files with an invalid title are not valid."""
     with _raises(r'.*Title needs the format <nr>_<title>.*'):
@@ -195,26 +188,26 @@ def test__contributions__disa_import__validate__5():
             validate(f)
 
 
-def test__contributions__disa_import__1(db, license_request):
+def test__contributions__disa_import__1(db, mocked_request, license_request):
     """Import a contribution from DISA export."""
     with _open('valid.xlsx') as f:
-        disa_import(None, f)
+        disa_import(mocked_request, f)
 
     assert Contribution.objects.filter()
 
 
-def test__contributions__disa_import__2(db, license_request):
+def test__contributions__disa_import__2(db, mocked_request, license_request):
     """Do not create duplicated contributions."""
     with _open('double.xlsx') as f:
-        disa_import(None, f)
+        disa_import(mocked_request, f)
 
     assert len(Contribution.objects.filter()) == 1
 
 
-def test__contributions__disa_import__3(db, license_request):
+def test__contributions__disa_import__3(db, mocked_request, license_request):
     """Ignore everything after a blank line."""
     with _open('blank_line.xlsx') as f:
-        disa_import(None, f)
+        disa_import(mocked_request, f)
 
     assert len(Contribution.objects.filter()) == 1
 
@@ -247,15 +240,15 @@ def test__contributions__disa_import__5(browser, db, license_request):
     assert 'No repetitions for number 1 allowed' in browser.contents
 
 
-def test__contributions__disa_import__6(db, license_request):
+def test__contributions__disa_import__6(db, mocked_request, license_request):
     """Update contributions with another import."""
     with _open('valid.xlsx') as f:
-        disa_import(None, f)
+        disa_import(mocked_request, f)
 
     assert len(Contribution.objects.filter()) == 1
 
     with _open('valid_update.xlsx') as f:
-        disa_import(None, f)
+        disa_import(mocked_request, f)
 
     assert len(Contribution.objects.filter()) == 2
 

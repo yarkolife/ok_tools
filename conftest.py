@@ -2,7 +2,9 @@ from contributions.models import DisaImport
 from datetime import datetime
 from datetime import timedelta
 from django.conf import settings
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core import mail
+from django.http import HttpRequest
 from django.urls import reverse_lazy
 from licenses.models import default_category
 from ok_tools.testing import DOMAIN
@@ -139,3 +141,12 @@ def contribution(license_request, contribution_dict):
 def disaimport() -> DisaImport:
     """Create a DISA import."""
     return create_disaimport()
+
+
+@pytest.fixture(scope='function')
+def mocked_request() -> HttpRequest:
+    """Return a mocked HttpRequest object."""
+    request = HttpRequest()
+    setattr(request, 'session', 'session')
+    setattr(request, '_messages', FallbackStorage(request))
+    return request
