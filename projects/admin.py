@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from ok_tools.datetime import TZ
 from rangefilter.filters import DateTimeRangeFilter
 import datetime
 import logging
@@ -70,16 +71,28 @@ class ProjectResource(resources.ModelResource):
     no_gender = _f('tn_gender_not_given', _('ohne Angabe'))
     supervisors = Field()
 
+    def dehydrate_begin_date(self, project: Project) -> str:
+        """Return the begin datetime in the current time zone."""
+        tz_datetime = project.begin_date.astimezone(
+            tz=TZ)
+        return f'{tz_datetime.date()} {tz_datetime.time()}'
+
+    def dehydrate_end_date(self, project: Project) -> str:
+        """Return the end datetime in the current time zone."""
+        tz_datetime = project.end_date.astimezone(
+            tz=TZ)
+        return f'{tz_datetime.date()} {tz_datetime.time()}'
+
+    def dehydrate_supervisors(self, project: Project) -> str:
+        """Convert all supervisors to one string."""
+        return ', '.join(
+            [str(x) for x in project.media_education_supervisors.all()])
+
     class Meta:
         """Define meta properties for the Project export."""
 
         model = Project
         fields = []
-
-    def dehydrate_supervisors(self, project):
-        """Convert all supervisors to one string."""
-        return ', '.join(
-            [str(x) for x in project.media_education_supervisors.all()])
 
 
 class YearFilter(admin.SimpleListFilter):
@@ -148,6 +161,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'end_date',
                 'external_venue',
                 'jugendmedienschutz',
+                'democracy_project',
                 'project_category',
                 'target_group',
                 'project_leader',
