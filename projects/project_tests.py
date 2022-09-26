@@ -119,3 +119,71 @@ def test__projects__admin__ProjectResource__1(browser, project_dict):
 def test__projects__models__1(db, project):
     """Project gets represented by its title."""
     assert str(project) == project.title
+
+
+def test__projects__admin__ProjectAdmin__1(browser, project_dict):
+    """Export the projects date to ics."""
+    project_dict['begind_date'] = datetime(
+        year=2022,
+        month=9,
+        day=26,
+        tzinfo=TZ,
+    )
+    project_dict['title'] = 'new_project'
+    proj1 = create_project(project_dict)
+
+    project_dict['begin_date'] = datetime(
+        year=2021,
+        month=9,
+        day=26,
+        tzinfo=TZ,
+    )
+    project_dict['title'] = 'old_project'
+    proj2 = create_project(project_dict)
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('Export dates')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert proj1.title in str(browser.contents)
+    assert proj2.title in str(browser.contents)
+
+
+def test__projects__admin__ProjectAdmin__2(browser, project_dict):
+    """Export the projects date of this year to ics."""
+    project_dict['begind_date'] = datetime(
+        year=2022,
+        month=9,
+        day=26,
+        tzinfo=TZ,
+    )
+    project_dict['title'] = 'new_project'
+    proj1 = create_project(project_dict)
+
+    project_dict['begin_date'] = datetime(
+        year=2021,
+        month=9,
+        day=26,
+        tzinfo=TZ,
+    )
+    project_dict['title'] = 'old_project'
+    proj2 = create_project(project_dict)
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('This year')
+    browser.follow('Export dates')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert proj1.title in str(browser.contents)
+    assert proj2.title not in str(browser.contents)
+
+
+def test__projects__admin__ProjectAdmin__3(browser, project):
+    """Export the project date without accessing the admin site."""
+    browser.login_admin()
+    browser.open(f'{DOMAIN}{reverse_lazy("admin:calender_export")}')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert project.title in str(browser.contents)

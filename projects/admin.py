@@ -189,7 +189,10 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
 
     def ics_export_view(self, request):
         """Export project dates as ics."""
-        return ics_export(self.get_queryset(request))
+        # This method belongs to the ExportMixin and creates a queryset from
+        # the urls query string.
+        queryset = self.get_export_queryset(request)
+        return ics_export(queryset)
 
 
 admin.site.register(Project, ProjectAdmin)

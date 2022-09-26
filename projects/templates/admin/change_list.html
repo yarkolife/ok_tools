@@ -8,7 +8,7 @@
 {% block object-tools %}
   <ul class="object-tools">
     {% block object-tools-items %}
-      <li><a class='export_link' href="{% url 'admin:calender_export' %}">{% trans "Export dates" %}</a></li>
+      <li><a class='export_link' href="{% url 'admin:calender_export' %}{{cl.get_query_string}}">{% trans "Export dates" %}</a></li>
       {% if has_add_permission %}
         {{ block.super }}
       {% endif %}
