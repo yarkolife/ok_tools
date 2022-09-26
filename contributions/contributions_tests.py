@@ -11,10 +11,10 @@ from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.urls import reverse_lazy
 from licenses.models import default_category
+from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
-from ok_tools.testing import TZ
 from ok_tools.testing import _open
 from ok_tools.testing import create_contribution
 from ok_tools.testing import create_disaimport
@@ -381,3 +381,26 @@ def test__contributions__admin__ContributionResource__1(
 def test__contributions__admin__ContributionResource__2(db):
     """Export with no given queryset."""
     ContributionResource().export(None, None)
+
+
+def test__contributions__admin__ContributionResource__3(
+        browser, license_request, contribution_dict):
+    """Export the broadcast date with the right timezone."""
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=20,
+        hour=0,
+        tzinfo=TZ,
+    )
+    contr1 = create_contribution(license_request, contribution_dict)
+    browser.login_admin()
+    browser.open(A_CON_URL)
+
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert browser.headers['Content-Type'] == 'text/csv'
+    assert str(contr1.broadcast_date.date()) in str(browser.contents)
+    assert str(contr1.broadcast_date.time()) in str(browser.contents)

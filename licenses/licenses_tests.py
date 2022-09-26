@@ -6,10 +6,10 @@ from .models import default_category
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
+from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
-from ok_tools.testing import TZ
 from ok_tools.testing import create_license_request
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
@@ -667,3 +667,35 @@ def test__licenses__admin__YearFilter__2():
             filter = YearFilter(
                 {}, {}, LicenseRequest, LicenseRequestAdmin)
             filter.queryset(None, None)
+
+
+def test__licenses__admin__LicenseRequestResource__1(browser, license_request):
+    """Export the datetime properties using the current time zone."""
+    license_request.suggested_date = datetime.datetime(
+        year=2022,
+        month=9,
+        day=21,
+        hour=0,
+        tzinfo=TZ,
+    )
+
+    license_request.created_at = datetime.datetime(
+        year=2022,
+        month=9,
+        day=20,
+        hour=0,
+        tzinfo=TZ,
+    )
+
+    license_request.save()
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert str(license_request.suggested_date.date()) in str(browser.contents)
+    assert str(license_request.suggested_date.time()) in str(browser.contents)
+    assert str(license_request.created_at.date()) in str(browser.contents)
+    assert str(license_request.created_at.time()) in str(browser.contents)

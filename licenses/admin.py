@@ -10,6 +10,7 @@ from django.utils.translation import ngettext as _p
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from ok_tools.datetime import TZ
 from rangefilter.filters import DateTimeRangeFilter
 import datetime
 import logging
@@ -33,7 +34,8 @@ class LicenseRequestResource(resources.ModelResource):
     further_persons = _f('further_persons', _('Further involved persons'))
     duration = _f('duration', _('Duration'))
     category = _f('category__name', _('Category'))
-    suggested_date = _f('suggested_date', _('Suggested broadcast date'))
+    suggested_date = _f('suggested_date__date', _('Suggested broadcast date'))
+    suggested_time = _f('suggested_date__time', _('Suggested broadcast time'))
     repetition_allowed = _f('repetitions_allowed', _('Repetitions allowed'))
     exchange = _f(
         'media_authority_exchange_allowed',
@@ -45,6 +47,25 @@ class LicenseRequestResource(resources.ModelResource):
         'store_in_ok_media_library', _('Store in OK media library'))
     screen_board = _f('is_screen_board', _('Screen Board'))
     created_at = _f('created_at', _('created at'))
+
+    def dehydrate_suggested_date(self, license: LicenseRequest):
+        """Return the suggested date in the current time zone."""
+        return str(license
+                   .suggested_date
+                   .astimezone(TZ)
+                   .date())
+
+    def dehydrate_suggested_time(self, license: LicenseRequest):
+        """Return the suggested time in the current time zone."""
+        return str(license
+                   .suggested_date
+                   .astimezone(TZ)
+                   .time())
+
+    def dehydrate_created_at(self, license: LicenseRequest):
+        """Return the created_at datetime in the current time zone."""
+        tz_datetime = license.created_at.astimezone(TZ)
+        return f'{tz_datetime.date()} {tz_datetime.time()}'
 
     class Meta:
         """Define meta properties for the LicenseRequest export."""
