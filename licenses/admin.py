@@ -96,7 +96,7 @@ class DurationFilter(admin.SimpleListFilter):
             ('10m', _('<= 10 minutes')),
             ('30m', _('<= 30 minutes, > 10 minutes')),
             ('1h', _('<= 1 hour, > 30 minutes')),
-            ('1h+', _('> 1 hour ')),
+            ('1h+', _('> 1 hour')),
         )
 
     def queryset(self, request, queryset):
