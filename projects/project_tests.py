@@ -209,6 +209,34 @@ def test__projects__admin__ProjectAdmin__5(browser, project):
             in str(browser.contents))
 
 
+def test__projects__admin__ProjectAdmin__6(browser, project_dict):
+    """The duration and end_date does not match."""
+    project_dict['begin_date'] = datetime(
+        year=2022,
+        month=9,
+        day=3,
+        hour=9,
+        tzinfo=TZ
+    )
+    project_dict['end_date'] = datetime(
+        year=2022,
+        month=9,
+        day=3,
+        hour=10,
+        tzinfo=TZ
+    )
+    project_dict['duration'] = timedelta(hours=1, minutes=30)
+
+    project = create_project(project_dict)
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('Export dates')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert _f_ics_date(project.end_date) in str(browser.contents)
+
+
 def _f_ics_date(dt: datetime):
     """Convert datetime objects to ics format."""
     return dt.strftime('%Y%m%dT%H%M%S')

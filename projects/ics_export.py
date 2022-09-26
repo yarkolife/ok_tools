@@ -6,6 +6,10 @@ from icalendar import Calendar
 from icalendar import Event
 from zoneinfo import ZoneInfo
 import io
+import logging
+
+
+logger = logging.getLogger('django')
 
 
 def ics_export(queryset) -> FileResponse:
@@ -22,7 +26,10 @@ def ics_export(queryset) -> FileResponse:
         if end_date is None:
             end_date = begin_date + project.duration
         else:
-            assert end_date == begin_date + project.duration
+            if end_date != begin_date + project.duration:
+                msg = _('The duration does not match the end date.'
+                        ' Taking the end date instead.')
+                logger.warning(msg)
 
         e = Event()
         e.add('summary', project.title)
