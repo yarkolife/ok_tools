@@ -40,7 +40,7 @@ setup(
         'django-extensions',
         'django-import-export',
         'django-revproxy>=0.10.0',
-        'ics',
+        'icalendar',
         'openpyxl',
         'reportlab',
     ],

@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django_extensions',
     'django_admin_listfilter_dropdown',
-    'ics',
+    'icalendar',
     'import_export',
     'rangefilter',
 
