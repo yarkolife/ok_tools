@@ -60,6 +60,12 @@ class OKUser(AbstractUser):
         """Represent OKUser by e-mail address."""
         return self.email
 
+    class Meta:
+        """Define the message IDs."""
+
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
+
 
 class MediaAuthority(models.Model):
     """
@@ -78,6 +84,12 @@ class MediaAuthority(models.Model):
     def __str__(self) -> str:
         """Represent a MediaAuthority by its name."""
         return self.name
+
+    class Meta:
+        """Define the message IDs."""
+
+        verbose_name = _('Media Authority')
+        verbose_name_plural = _('Media Authorities')
 
 
 def now():
@@ -169,3 +181,9 @@ class Profile(models.Model):
     def __str__(self):
         """Represent Profile by first and last name."""
         return f'{self.first_name} {self.last_name}'
+
+    class Meta:
+        """Define the message IDs."""
+
+        verbose_name = _('Profile')
+        verbose_name_plural = _('Profiles')

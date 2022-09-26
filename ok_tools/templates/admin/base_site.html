@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %} {{ OK_NAME_SHORT}} | {% translate 'Administrationinterface' %} {% endblock %}
+
+{% block branding %}
+
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}"><img width=75% height=75% src="{% static 'admin/img/logo.png'%}" alt="{% translate 'Administrationinterface' %}" /></a>
+</h1>
+
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
