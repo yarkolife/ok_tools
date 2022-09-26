@@ -29,7 +29,7 @@ def test__registration__admin__2(browser, user_dict):
 
     browser.login_admin()
     browser.follow('Users')
-    browser.follow('Add user')
+    browser.follow('Add User')
 
     browser.getControl('Email').value = user_dict['email']
     browser.getControl('Password:').value = password
@@ -66,7 +66,7 @@ def test__registration__admin__ProfileAdmin__3(db, user_dict, browser):
 
     browser.login_admin()
     browser.follow('Profile')
-    browser.follow('Add profile')
+    browser.follow('Add Profile')
 
     browser.getControl(name='okuser')._control.force_value(
         user.id)  # select user

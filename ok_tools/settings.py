@@ -53,6 +53,7 @@ DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL', 'INFO')
 # Application definition
 
 INSTALLED_APPS = [
+    'ok_tools',
     'registration',
     'licenses',
     'projects',
