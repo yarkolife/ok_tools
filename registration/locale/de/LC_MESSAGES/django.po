@@ -275,7 +275,7 @@ msgid ""
 "until the profile is verified."
 msgstr ""
 "Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann nicht "
-"bestätigt werden, bis das Profile verifiziert ist."
+"bestätigt werden, bis das Profil verifiziert ist."
 
 #: licenses/admin.py:174
 msgid "title, subtitle, number, description, further persons"
@@ -528,7 +528,7 @@ msgstr "Projektkategorie"
 
 #: projects/admin.py:57 projects/models.py:30
 msgid "Project leader"
-msgstr "Projektleiter"
+msgstr "Projektleiter*in"
 
 #: projects/admin.py:58 projects/models.py:195
 msgid "bis 6 Jahre"
@@ -617,7 +617,7 @@ msgstr "Vollständiger Name"
 
 #: projects/models.py:31
 msgid "Project leaders"
-msgstr "Projektleiter"
+msgstr "Projektleiter*innen"
 
 #: projects/models.py:55
 msgid "Media education supervisor"
@@ -788,7 +788,7 @@ msgstr "E-Mail-Adresse"
 
 #: registration/models.py:67
 msgid "Users"
-msgstr "Nutzer"
+msgstr "Nutzer*innen"
 
 #: registration/models.py:79 registration/models.py:91
 msgid "Media Authority"
