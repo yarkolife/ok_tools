@@ -124,7 +124,7 @@ def test__projects__models__1(db, project):
 def test__projects__admin__ProjectAdmin__1(browser, project_dict):
     """Export the projects date to ics."""
     project_dict['begind_date'] = datetime(
-        year=2022,
+        year=datetime.now().year,
         month=9,
         day=26,
         tzinfo=TZ,
@@ -133,7 +133,7 @@ def test__projects__admin__ProjectAdmin__1(browser, project_dict):
     proj1 = create_project(project_dict)
 
     project_dict['begin_date'] = datetime(
-        year=2021,
+        year=datetime.now().year-1,
         month=9,
         day=26,
         tzinfo=TZ,
@@ -153,7 +153,7 @@ def test__projects__admin__ProjectAdmin__1(browser, project_dict):
 def test__projects__admin__ProjectAdmin__2(browser, project_dict):
     """Export the projects date of this year to ics."""
     project_dict['begind_date'] = datetime(
-        year=2022,
+        year=datetime.now().year,
         month=9,
         day=26,
         tzinfo=TZ,
@@ -162,7 +162,7 @@ def test__projects__admin__ProjectAdmin__2(browser, project_dict):
     proj1 = create_project(project_dict)
 
     project_dict['begin_date'] = datetime(
-        year=2021,
+        year=datetime.now().year-1,
         month=9,
         day=26,
         tzinfo=TZ,
