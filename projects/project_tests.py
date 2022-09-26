@@ -187,3 +187,11 @@ def test__projects__admin__ProjectAdmin__3(browser, project):
 
     assert browser.headers['Content-Type'] == 'text/calendar'
     assert project.title in str(browser.contents)
+
+
+def test__projects__admin__ProjectAdmin__4(browser, project):
+    """The export dates button only appears on the project site."""
+    browser.login_admin()
+    browser.open(f'{DOMAIN}{reverse_lazy("contributions:contributions")}')
+
+    assert 'Export dates' not in browser.contents
