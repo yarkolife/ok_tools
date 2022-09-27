@@ -8,11 +8,97 @@ from django.contrib import messages
 from django.contrib.admin.decorators import display
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
+from import_export import resources
+from import_export.admin import ExportMixin
+from import_export.fields import Field
+from ok_tools.datetime import TZ
 from rangefilter.filters import DateTimeRangeFilter
+import datetime
+import logging
 
 
-class ContributionAdmin(admin.ModelAdmin):
+logger = logging.getLogger('django')
+
+
+class ContributionResource(resources.ModelResource):
+    """Define the export for Contributions."""
+
+    def export(self, queryset=None, *args, **kwargs):
+        """Only export primary contributions."""
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        queryset = [x for x in queryset if x.is_primary()]
+        return super().export(queryset, *args, **kwargs)
+
+    def _f(field, name=None):
+        """Shortcut for field creation."""
+        return Field(attribute=field, column_name=name)
+
+    number = _f('license__number', _('License number'))
+    title = _f('license__title', _('Title'))
+    subtitle = _f('license__subtitle', _('Subtitle'))
+    broadcast_date = _f('broadcast_date__date', _('Broadcast Date'))
+    broadcast_time = _f('broadcast_date__time', _('Broadcast Time'))
+    profile = _f('license__profile', _('Profile'))
+    duration = _f('license__duration', _('Duration'))
+
+    def dehydrate_broadcast_date(self, contribution: Contribution):
+        """Show broadcast date in current time zone."""
+        return str(contribution
+                   .broadcast_date
+                   .astimezone(tz=TZ)
+                   .date())
+
+    def dehydrate_broadcast_time(self, contribution: Contribution):
+        """Show broadcast date in current time zone."""
+        return str(contribution
+                   .broadcast_date
+                   .astimezone(tz=TZ)
+                   .time())
+
+    class Meta:
+        """Define meta properties for Contribution export."""
+
+        model = Contribution
+        fields = ['live']
+
+
+class YearFilter(admin.SimpleListFilter):
+    """Filter after this or last years broadcast_date."""
+
+    title = _('Broadcast year')
+    parameter_name = 'broadcast_date'
+
+    def lookups(self, request, model_admin):
+        """Define labels to filter after this or last year."""
+        return (
+            ('this', _('This year')),
+            ('last', _('Last year')),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter after broadcast date for this or last year."""
+        match self.value():
+            case None:
+                return
+            case 'this':
+                return queryset.filter(
+                    broadcast_date__year=datetime.datetime.now().year)
+            case 'last':
+                return queryset.filter(
+                    broadcast_date__year=datetime.datetime.now().year-1)
+            case _:
+                msg = f'Invalid value {self.value()}.'
+                logger.error(msg)
+                raise ValueError(msg)
+
+
+class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     """How should the Contribution be shown on the admin site."""
+
+    resource_class = ContributionResource
+    export_template_name = 'admin/export.html'
 
     list_display = (
         'get_title',
@@ -34,6 +120,7 @@ class ContributionAdmin(admin.ModelAdmin):
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'license__profile'),
         ('broadcast_date', DateTimeRangeFilter),
+        YearFilter,
     ]
 
     readonly_fields = ('_is_primary',)
@@ -103,7 +190,7 @@ class DisaImportAdmin(admin.ModelAdmin):
             obj.imported = True
             obj.save()
             self.message_user(request, _('"%(obj)s" successfully imported.') %
-                              {'obj': obj}, level=messages.ERROR)
+                              {'obj': obj}, level=messages.SUCCESS)
 
             return http.HttpResponseRedirect(request.path_info)
         return super().response_change(request, obj)

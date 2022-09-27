@@ -1,10 +1,12 @@
 from .admin import DurationFilter
 from .admin import LicenseRequestAdmin
+from .admin import YearFilter
 from .models import LicenseRequest
 from .models import default_category
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
+from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
@@ -24,6 +26,8 @@ HOME_URL = f'{DOMAIN}{reverse_lazy("home")}'
 LIST_URL = f'{DOMAIN}{reverse_lazy("licenses:licenses")}'
 CREATE_URL = f'{DOMAIN}{reverse_lazy("licenses:create")}'
 LOGIN_URL = f'{DOMAIN}{reverse_lazy("login")}'
+A_LICENSE_URL = (f'{DOMAIN}'
+                 f'{reverse_lazy("admin:licenses_licenserequest_changelist")}')
 
 
 def details_url(id):
@@ -624,3 +628,74 @@ def test__licenses__admin__DurationFilter__1():
             filter = DurationFilter(
                 {}, {}, LicenseRequest, LicenseRequestAdmin)
             filter.queryset(None, None)
+
+
+def test__licenses__admin__YearFilter__1(browser, user, license_template_dict):
+    """Licenses can be filtered by the year of its creation date."""
+    created_at = datetime.datetime(
+        day=8, month=9, year=datetime.datetime.now().year, tzinfo=TZ)
+    license_template_dict['title'] = 'new_title'
+    lr1 = create_license_request(
+        user.profile, default_category(), license_template_dict)
+    lr1.created_at = created_at
+    lr1.save()
+
+    created_at = datetime.datetime(
+        day=8, month=9, year=(datetime.datetime.now().year-1), tzinfo=TZ)
+    license_template_dict['title'] = 'old_title'
+    lr2 = create_license_request(
+        user.profile, default_category(), license_template_dict)
+    lr2.created_at = created_at
+    lr2.save()
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+
+    browser.follow('This year')
+    assert str(lr1) in browser.contents
+    assert str(lr2) not in browser.contents
+
+    browser.follow('Last year')
+    assert str(lr1) not in browser.contents
+    assert str(lr2) in browser.contents
+
+
+def test__licenses__admin__YearFilter__2():
+    """Handle invalid values."""
+    with patch.object(YearFilter, 'value', return_value='invalid'):
+        with pytest.raises(ValueError, match=r'Invalid value .*'):
+            filter = YearFilter(
+                {}, {}, LicenseRequest, LicenseRequestAdmin)
+            filter.queryset(None, None)
+
+
+def test__licenses__admin__LicenseRequestResource__1(browser, license_request):
+    """Export the datetime properties using the current time zone."""
+    license_request.suggested_date = datetime.datetime(
+        year=2022,
+        month=9,
+        day=21,
+        hour=0,
+        tzinfo=TZ,
+    )
+
+    license_request.created_at = datetime.datetime(
+        year=2022,
+        month=9,
+        day=20,
+        hour=0,
+        tzinfo=TZ,
+    )
+
+    license_request.save()
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert str(license_request.suggested_date.date()) in str(browser.contents)
+    assert str(license_request.suggested_date.time()) in str(browser.contents)
+    assert str(license_request.created_at.date()) in str(browser.contents)
+    assert str(license_request.created_at.time()) in str(browser.contents)

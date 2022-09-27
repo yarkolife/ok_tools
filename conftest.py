@@ -1,18 +1,24 @@
 from contributions.models import DisaImport
 from datetime import datetime
 from datetime import timedelta
-from django.conf import settings
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core import mail
+from django.http import HttpRequest
 from django.urls import reverse_lazy
 from licenses.models import default_category
+from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
 from ok_tools.testing import create_contribution
 from ok_tools.testing import create_disaimport
 from ok_tools.testing import create_license_request
+from ok_tools.testing import create_project
 from ok_tools.testing import create_user
-from zoneinfo import ZoneInfo
+from projects.models import Project
+from projects.models import ProjectLeader
+from projects.models import default_category as default_project_category
+from projects.models import default_target_group
 import ok_tools.wsgi
 import pytest
 import zope.testbrowser.browser
@@ -120,7 +126,7 @@ def contribution_dict() -> dict:
                                    month=8,
                                    day=25,
                                    hour=12,
-                                   tzinfo=ZoneInfo(settings.TIME_ZONE)
+                                   tzinfo=TZ,
                                    ),
         'live': False,
     }
@@ -139,3 +145,38 @@ def contribution(license_request, contribution_dict):
 def disaimport() -> DisaImport:
     """Create a DISA import."""
     return create_disaimport()
+
+
+@pytest.fixture(scope='function')
+def project_dict() -> dict:
+    """Create a dict with all necessary properties to create a project."""
+    return {
+        'title': 'title',
+        'topic': 'topic',
+        'duration': timedelta(hours=1, minutes=30),
+        'begin_date': datetime(year=2022, month=9, day=20, hour=9, tzinfo=TZ),
+        'end_date': datetime(
+            year=2022, month=9, day=20, hour=10, minute=30, tzinfo=TZ),
+        'external_venue': False,
+        'jugendmedienschutz': False,
+        'target_group': default_target_group(),
+        'project_category': default_project_category(),
+        'project_leader': ProjectLeader.objects.create(name='leader'),
+    }
+
+
+@pytest.fixture(scope='function')
+def project(project_dict) -> Project:
+    """Create a project."""
+    return create_project(project_dict)
+
+
+@pytest.fixture(scope='function')
+def mocked_request() -> HttpRequest:
+    """Return a mocked HttpRequest object."""
+    request = HttpRequest()
+    # The request object needs an additional middleware.
+    # https://code.djangoproject.com/ticket/17971
+    setattr(request, 'session', 'session')
+    setattr(request, '_messages', FallbackStorage(request))
+    return request
