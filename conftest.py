@@ -1,7 +1,9 @@
 from contributions.models import DisaImport
 from datetime import datetime
 from datetime import timedelta
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core import mail
+from django.http import HttpRequest
 from django.urls import reverse_lazy
 from licenses.models import default_category
 from ok_tools.datetime import TZ
@@ -166,3 +168,14 @@ def project_dict() -> dict:
 def project(project_dict) -> Project:
     """Create a project."""
     return create_project(project_dict)
+
+
+@pytest.fixture(scope='function')
+def mocked_request() -> HttpRequest:
+    """Return a mocked HttpRequest object."""
+    request = HttpRequest()
+    # The request object needs an additional middleware.
+    # https://code.djangoproject.com/ticket/17971
+    setattr(request, 'session', 'session')
+    setattr(request, '_messages', FallbackStorage(request))
+    return request

@@ -1,10 +1,12 @@
 from . import models
 from datetime import datetime
+from django.conf import settings
 from django.contrib import messages
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 from licenses.models import LicenseRequest
 from openpyxl import load_workbook
+from zoneinfo import ZoneInfo
 import logging
 import re
 
@@ -19,7 +21,22 @@ TYPE = 11
 
 WS_NAME = 'Auftragsfenster'
 INFO = 'Infoblock'
+LIVE = 'Live-Quelle'
 IGNORED_PREFIXES = ['Trailer', 'Programmvorschau']
+
+
+def _check_title(title: str, type: str) -> bool:
+    """Check weather the title is valid."""
+    if re.match(r'^\d+_', title):
+        return True
+
+    if type == INFO:
+        return True
+
+    if any([title.startswith(x) for x in IGNORED_PREFIXES]):
+        return True
+
+    return False
 
 
 def validate(file):
@@ -78,19 +95,10 @@ def validate(file):
             'name': NAME
         })
 
-    blank = next(rows)
-
-    for i in range(TYPE):
-        if blank[i].value:
-            e(_('Row %(row)s is not empty.') %
-              {'row': blank[i].row})
-            break
-
     for row in rows:
         if not any([row[i].value for i in range(TYPE)]):
-            break
-        if (not re.match(r'^\d+_', row[TITLE].value) and
-                row[TYPE].value != INFO):
+            continue
+        if (not _check_title(row[TITLE].value, row[TYPE].value)):
             e(_('Invalid title in cell %(c)s%(r)s. Title needs the format'
                 ' <nr>_<title>.') %
               {
@@ -115,6 +123,7 @@ def disa_import(request, file):
     next(rows)  # ignore empty row
 
     dates = {}
+    created_counter = 0
     for row in rows:
         if not any([row[i].value for i in range(TYPE)]):
             break
@@ -146,6 +155,7 @@ def disa_import(request, file):
             minute=b_lst[4],
             second=b_lst[5],
             microsecond=b_lst[6]*10**4,
+            tzinfo=ZoneInfo(settings.TIME_ZONE)
         )
 
         if not dates.get(hash(broadcast_date.date())):
@@ -164,10 +174,15 @@ def disa_import(request, file):
         contr, contr_created = models.Contribution.objects.get_or_create(
             license=license,
             broadcast_date=broadcast_date,
-            live=False,
+            live=(row[TYPE].value == LIVE),
         )
 
         if not contr_created:
             logger.warning(f'Contribution for license {nr} already exists.')
         else:
+            created_counter += 1
             logger.info(f'Contribution {contr} created.')
+
+    msg = _('Successfully created %d contributions.') % created_counter
+    logger.info(msg)
+    messages.info(request, msg)
