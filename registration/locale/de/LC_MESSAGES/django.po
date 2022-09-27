@@ -124,7 +124,7 @@ msgid ""
 "No repetitions for number %(n)s allowed and already found a primary "
 "contribution."
 msgstr ""
-"Für die Freistellung mit Nummer %(n)s sind keine Wiederholungen erlaubt.Ein "
+"Für die Freistellung mit Nummer %(n)s sind keine Wiederholungen erlaubt. Ein "
 "Primärbeitrag existiert bereits."
 
 #: contributions/disa_import.py:186
