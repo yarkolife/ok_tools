@@ -49,6 +49,8 @@ def test__admin__2(db):
         project_category=pc,
         project_leader=pl,
         target_group=tg,
+        begin_date=datetime(year=2022, month=9, day=27, hour=9, tzinfo=TZ),
+        end_date=datetime(year=2022, month=9, day=27, hour=11, tzinfo=TZ),
         duration=timedelta(days=1),
         external_venue=False,
         jugendmedienschutz=False
@@ -193,20 +195,6 @@ def test__projects__admin__ProjectAdmin__4(browser, project):
     browser.open(f'{DOMAIN}{reverse_lazy("contributions:contributions")}')
 
     assert 'Export dates' not in browser.contents
-
-
-def test__projects__admin__ProjectAdmin__5(browser, project):
-    """Change the duration to an end date when exporting dates."""
-    project.end_date = None
-    project.save()
-
-    browser.login_admin()
-    browser.open(A_PROJ_URL)
-    browser.follow('Export dates')
-
-    assert browser.headers['Content-Type'] == 'text/calendar'
-    assert (_f_ics_date(project.begin_date + project.duration)
-            in str(browser.contents))
 
 
 def test__projects__admin__ProjectAdmin__6(browser, project_dict):

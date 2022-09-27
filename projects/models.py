@@ -140,19 +140,20 @@ class Project(models.Model):
     )
     duration = models.DurationField(  # timedelta
         _('Duration'),
-        blank=False,
-        null=False,
+        help_text=_('Total amount of time spend.'),
+        blank=True,
+        null=True,
     )
 
     begin_date = models.DateTimeField(  # datetime
         _('Start date'),
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
     )
     end_date = models.DateTimeField(  # datetime
         _('End date'),
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
     )
 
     external_venue = models.BooleanField(
