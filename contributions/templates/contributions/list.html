@@ -12,7 +12,7 @@
             <th scope="col">{% translate 'Title' %}</th>
             <th scope="col">{% translate 'Start' %}</th>
             <th scope="col">{% translate 'Duration' %}</th>
-            <th scope="col">{% translate 'Live' %}</th>
+            <th scope="col">{% translate 'Category' %}</th>
         </tr>
     </thead>
     <tbody>
@@ -28,12 +28,10 @@
                     {{ contribution.license.duration }}
                 </td>
                 <td>
-                    {% if license.confirmed %}
-                        <img src="{% static 'admin/img/icon-yes.svg' %}"
-                            alt="{% translate 'Yes'%}">
-                    {% else %}
-                        <img src="{% static 'admin/img/icon-no.svg' %}"
-                            alt="{% translate 'No'%}">
+                    <span class="badge rounded-pill text-bg-secondary">{{ contribution.license.category }} </span>
+
+                    {% if contribution.live %}
+                        <span class="badge rounded-pill text-bg-danger"> {% translate 'Live' %}</span>
                     {% endif %}
                 </td>
             </tr>
