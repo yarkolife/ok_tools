@@ -1075,7 +1075,7 @@ msgid ""
 msgstr ""
 "\n"
 "Sie erhatlen diese E-Mail, weil Sie Ihr Passowrt bei %(ok_name)s "
-"ändernwollen.\n"
+"ändern wollen.\n"
 "Bitte nutzen Sie den folgenden Link um ein neues Passwort zu wählen:\n"
 
 #: registration/templates/registration/password_reset_email.html:15
@@ -1085,7 +1085,7 @@ msgid ""
 "Your username, in case you’ve forgotten: %(user.get_username)s\n"
 msgstr ""
 "\n"
-"Ihr Benutzernahme lautet: %(user.get_username)s\n"
+"Ihr Benutzername lautet: %(user.get_username)s\n"
 
 #: registration/templates/registration/password_reset_form.html:7
 msgid "Change Password"
