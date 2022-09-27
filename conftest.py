@@ -175,6 +175,8 @@ def project(project_dict) -> Project:
 def mocked_request() -> HttpRequest:
     """Return a mocked HttpRequest object."""
     request = HttpRequest()
+    # The request object needs an additional middleware.
+    # https://code.djangoproject.com/ticket/17971
     setattr(request, 'session', 'session')
     setattr(request, '_messages', FallbackStorage(request))
     return request

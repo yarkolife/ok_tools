@@ -25,6 +25,20 @@ LIVE = 'Live-Quelle'
 IGNORED_PREFIXES = ['Trailer', 'Programmvorschau']
 
 
+def _check_title(title: str, type: str) -> bool:
+    """Check weather the title is valid."""
+    if re.match(r'^\d+_', title):
+        return True
+
+    if type == INFO:
+        return True
+
+    if any([title.startswith(x) for x in IGNORED_PREFIXES]):
+        return True
+
+    return False
+
+
 def validate(file):
     """
     Validate the DISA export file.
@@ -84,11 +98,7 @@ def validate(file):
     for row in rows:
         if not any([row[i].value for i in range(TYPE)]):
             continue
-        if (
-            not re.match(r'^\d+_', row[TITLE].value) and
-            row[TYPE].value != INFO and
-            not any([row[TITLE].value.startswith(x) for x in IGNORED_PREFIXES])
-        ):
+        if (not _check_title(row[TITLE].value, row[TYPE].value)):
             e(_('Invalid title in cell %(c)s%(r)s. Title needs the format'
                 ' <nr>_<title>.') %
               {

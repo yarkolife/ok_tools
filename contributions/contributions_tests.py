@@ -1,6 +1,7 @@
 from .admin import ContributionAdmin
 from .admin import ContributionResource
 from .admin import YearFilter
+from .disa_import import _check_title
 from .disa_import import disa_import
 from .disa_import import validate
 from .models import Contribution
@@ -263,6 +264,17 @@ def test__contributions__disa_import__6(db, mocked_request, license_request):
             datetime(2022, 9, 8, 9, 30, tzinfo=ZoneInfo(settings.TIME_ZONE)))
     assert (contributions[1].broadcast_date ==
             datetime(2022, 9, 8, 10, 30, tzinfo=ZoneInfo(settings.TIME_ZONE)))
+
+
+def test__contributions__disa_import___check_title():
+    """Check the title for a valid format."""
+    assert _check_title('3_title', '')
+    assert _check_title('test', 'Infoblock')
+    assert _check_title('Trailertest', '')
+    assert _check_title('Programmvorschau_test', '')
+
+    assert not _check_title('3title', '')
+    assert not _check_title('2022Trailer', '')
 
 
 def test__contributions__admin__1(browser, db, license_request):
