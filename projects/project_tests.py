@@ -132,3 +132,111 @@ def test__projects__admin__ProjectResource__2(browser, project):
 def test__projects__models__1(db, project):
     """Project gets represented by its title."""
     assert str(project) == project.title
+
+
+def test__projects__admin__ProjectAdmin__1(browser, project):
+    """Export the projects date to ics."""
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('Export dates')
+
+    begin_date = project.begin_date
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert project.title in str(browser.contents)
+    assert datetime.tzname(begin_date) in str(browser.contents)
+    assert _f_ics_date(begin_date) in str(browser.contents)
+    assert project.topic in str(browser.contents)
+
+
+def test__projects__admin__ProjectAdmin__2(browser, project_dict):
+    """Export the projects date of this year to ics."""
+    project_dict['begind_date'] = datetime(
+        year=datetime.now().year,
+        month=9,
+        day=26,
+        tzinfo=TZ,
+    )
+    project_dict['title'] = 'new_project'
+    proj1 = create_project(project_dict)
+
+    project_dict['begin_date'] = datetime(
+        year=datetime.now().year-1,
+        month=9,
+        day=26,
+        tzinfo=TZ,
+    )
+    project_dict['title'] = 'old_project'
+    proj2 = create_project(project_dict)
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('This year')
+    browser.follow('Export dates')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert proj1.title in str(browser.contents)
+    assert proj2.title not in str(browser.contents)
+
+
+def test__projects__admin__ProjectAdmin__3(browser, project):
+    """Export the project date without accessing the admin site."""
+    browser.login_admin()
+    browser.open(f'{DOMAIN}{reverse_lazy("admin:calender_export")}')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert project.title in str(browser.contents)
+
+
+def test__projects__admin__ProjectAdmin__4(browser, project):
+    """The export dates button only appears on the project site."""
+    browser.login_admin()
+    browser.open(f'{DOMAIN}{reverse_lazy("contributions:contributions")}')
+
+    assert 'Export dates' not in browser.contents
+
+
+def test__projects__admin__ProjectAdmin__5(browser, project):
+    """Change the duration to an end date when exporting dates."""
+    project.end_date = None
+    project.save()
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('Export dates')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert (_f_ics_date(project.begin_date + project.duration)
+            in str(browser.contents))
+
+
+def test__projects__admin__ProjectAdmin__6(browser, project_dict):
+    """The duration and end_date does not match."""
+    project_dict['begin_date'] = datetime(
+        year=2022,
+        month=9,
+        day=3,
+        hour=9,
+        tzinfo=TZ
+    )
+    project_dict['end_date'] = datetime(
+        year=2022,
+        month=9,
+        day=3,
+        hour=10,
+        tzinfo=TZ
+    )
+    project_dict['duration'] = timedelta(hours=1, minutes=30)
+
+    project = create_project(project_dict)
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('Export dates')
+
+    assert browser.headers['Content-Type'] == 'text/calendar'
+    assert _f_ics_date(project.end_date) in str(browser.contents)
+
+
+def _f_ics_date(dt: datetime):
+    """Convert datetime objects to ics format."""
+    return dt.strftime('%Y%m%dT%H%M%S')

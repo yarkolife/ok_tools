@@ -1,3 +1,4 @@
+from .ics_export import ics_export
 from .models import MediaEducationSupervisor
 from .models import Project
 from .models import ProjectCategory
@@ -5,6 +6,7 @@ from .models import ProjectLeader
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django.contrib import admin
+from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
 from import_export.admin import ExportMixin
@@ -130,6 +132,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface definitions for Projects."""
 
     resource_class = ProjectResource
+    change_list_template = 'admin/change_list_ics_export.html'
 
     list_display = (
         'title',
@@ -187,6 +190,23 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_gender_not_given',)
         }),
     )
+
+    def get_urls(self):
+        """Add the ics_export_view to the admin urls."""
+        return super().get_urls() + [
+            path(
+                'calender_export',
+                self.ics_export_view,
+                name='calender_export',
+            )
+        ]
+
+    def ics_export_view(self, request):
+        """Export project dates as ics."""
+        # This method belongs to the ExportMixin and creates a queryset from
+        # the urls query string.
+        queryset = self.get_export_queryset(request)
+        return ics_export(queryset)
 
 
 admin.site.register(Project, ProjectAdmin)

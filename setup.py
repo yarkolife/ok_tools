@@ -30,7 +30,6 @@ setup(
         ],
     ),
     install_requires=[
-        'bidict',
         'Django>=4.0.5',
         'PyPDF2!=2.10.1',
         'django-admin-list-filter-dropdown',
@@ -41,6 +40,7 @@ setup(
         'django-extensions',
         'django-import-export',
         'django-revproxy>=0.10.0',
+        'icalendar',
         'openpyxl',
         'reportlab',
     ],

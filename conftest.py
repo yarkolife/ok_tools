@@ -155,7 +155,8 @@ def project_dict() -> dict:
         'topic': 'topic',
         'duration': timedelta(hours=1, minutes=30),
         'begin_date': datetime(year=2022, month=9, day=20, hour=9, tzinfo=TZ),
-        'end_date': datetime(year=2022, month=9, day=20, hour=10, tzinfo=TZ),
+        'end_date': datetime(
+            year=2022, month=9, day=20, hour=10, minute=30, tzinfo=TZ),
         'external_venue': False,
         'jugendmedienschutz': False,
         'target_group': default_target_group(),
