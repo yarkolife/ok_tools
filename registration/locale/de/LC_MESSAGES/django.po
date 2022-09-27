@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-14 15:55+0200\n"
+"POT-Creation-Date: 2022-09-26 12:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,52 +17,113 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: contributions/admin.py:27
+#: contributions/admin.py:37
+msgid "License number"
+msgstr "Freistellungsnummer"
+
+#: contributions/admin.py:38 contributions/admin.py:117
+#: contributions/templates/contributions/list.html:12 licenses/admin.py:29
+#: licenses/models.py:52 projects/admin.py:48
+msgid "Title"
+msgstr "Titel"
+
+#: contributions/admin.py:39 contributions/admin.py:122 licenses/admin.py:30
+#: licenses/models.py:59
+msgid "Subtitle"
+msgstr "Untertitel"
+
+#: contributions/admin.py:40 contributions/models.py:25
+msgid "Broadcast Date"
+msgstr "Sendedatum"
+
+#: contributions/admin.py:41
+msgid "Broadcast Time"
+msgstr "Sendezeit"
+
+#: contributions/admin.py:42 contributions/admin.py:106 licenses/admin.py:32
+#: licenses/admin.py:179 licenses/models.py:145 registration/models.py:188
+#: registration/templates/navbar.html:30
+msgid "Profile"
+msgstr "Profil"
+
+#: contributions/admin.py:43 contributions/templates/contributions/list.html:14
+#: licenses/admin.py:34 licenses/admin.py:90 licenses/models.py:77
+#: projects/admin.py:50 projects/models.py:142
+msgid "Duration"
+msgstr "Dauer"
+
+#: contributions/admin.py:55
+msgid "Broadcast year"
+msgstr "Sendejahr"
+
+#: contributions/admin.py:61 licenses/admin.py:66 projects/admin.py:95
+msgid "This year"
+msgstr "Dieses Jahr"
+
+#: contributions/admin.py:62 licenses/admin.py:67 projects/admin.py:96
+msgid "Last year"
+msgstr "Letztes Jahr"
+
+#: contributions/admin.py:103
+msgid "Title, Subtitle, Number"
+msgstr "Titel, Untertitel, Nummer"
+
+#: contributions/admin.py:113
 msgid "Is primary"
 msgstr "Primärbeitrag"
 
-#: contributions/admin.py:31 licenses/admin.py:33
+#: contributions/admin.py:127 registration/models.py:66
 msgid "User"
 msgstr "Nutzer"
 
-#: contributions/admin.py:54
+#: contributions/admin.py:133 licenses/admin.py:28 licenses/models.py:135
+msgid "Number"
+msgstr "Nummer"
+
+#: contributions/admin.py:155
 msgid "Import selected DISA exports."
 msgstr "Ausgewählten DISA-Export importieren."
 
-#: contributions/admin.py:76
+#: contributions/admin.py:177
+#, python-format
 msgid "\"%(obj)s\" successfully imported."
 msgstr "\"%(obj)s\" erfolgreich importiert."
 
-#: contributions/disa_import.py:38
+#: contributions/apps.py:10 contributions/models.py:52
+#: registration/templates/navbar.html:69
+msgid "Contributions"
+msgstr "Beiträge"
+
+#: contributions/disa_import.py:39
 #, python-format
 msgid "The worksheet needs to be named \"%(name)s\"."
 msgstr "Die Tabelle muss \"%(name)s\" heißen."
 
-#: contributions/disa_import.py:46 contributions/disa_import.py:53
-#: contributions/disa_import.py:60 contributions/disa_import.py:67
-#: contributions/disa_import.py:74
+#: contributions/disa_import.py:47 contributions/disa_import.py:54
+#: contributions/disa_import.py:61 contributions/disa_import.py:68
+#: contributions/disa_import.py:75
 #, python-format
 msgid "Column %(nr)s needs to be named %(name)s"
 msgstr "Spalte %(nr)s muss \"%(name)s\" heißen."
 
-#: contributions/disa_import.py:84
+#: contributions/disa_import.py:85
 #, python-format
 msgid "Row %(row)s is not empty."
 msgstr "Zeile %(row)s ist nicht leer."
 
-#: contributions/disa_import.py:93
+#: contributions/disa_import.py:94
 #, python-format
 msgid "Invalid title in cell %(c)s%(r)s. Title needs the format <nr>_<title>."
 msgstr ""
 "Ungültiger Titel in Zelle %(c)s%(r)s. Der Titel muss das Format <Nr>_<Titel> "
 "haben."
 
-#: contributions/disa_import.py:128
+#: contributions/disa_import.py:133
 #, python-format
 msgid "No license with number %(n)s found."
 msgstr "Keine Lizenz mit der Nummer %(n)s gefunden."
 
-#: contributions/disa_import.py:153
+#: contributions/disa_import.py:158
 #, python-format
 msgid ""
 "No repetitions for number %(n)s allowed and already found a primary "
@@ -75,10 +136,6 @@ msgstr ""
 msgid "License"
 msgstr "Freistellung"
 
-#: contributions/models.py:25
-msgid "Broadcast Date"
-msgstr "Sendedatum"
-
 #: contributions/models.py:31
 msgid "Is live"
 msgstr "Live"
@@ -86,10 +143,6 @@ msgstr "Live"
 #: contributions/models.py:51
 msgid "Contribution"
 msgstr "Beitrag"
-
-#: contributions/models.py:52 registration/templates/navbar.html:69
-msgid "Contributions"
-msgstr "Beiträge"
 
 #: contributions/models.py:69
 msgid "DISA export file"
@@ -115,22 +168,25 @@ msgstr "DISA-Importe"
 msgid "Import"
 msgstr "Import"
 
+#: contributions/templates/admin/export.html:7
+msgid "Export"
+msgstr "Export"
+
+#: contributions/templates/admin/export.html:29
+msgid "This will only export primary contributions."
+msgstr "Es werden nur Primärbeiträge exportiert."
+
+#: contributions/templates/admin/export.html:32
+msgid "Submit"
+msgstr "Bestätigen"
+
 #: contributions/templates/contributions/list.html:7
 msgid "Your contributions"
 msgstr "Ihre Beiträge"
 
-#: contributions/templates/contributions/list.html:12 licenses/models.py:52
-msgid "Title"
-msgstr "Titel"
-
 #: contributions/templates/contributions/list.html:13
 msgid "Start"
 msgstr "Start"
-
-#: contributions/templates/contributions/list.html:14 licenses/models.py:77
-#: projects/models.py:136
-msgid "Duration"
-msgstr "Dauer"
 
 #: contributions/templates/contributions/list.html:15
 msgid "Live"
@@ -152,13 +208,99 @@ msgstr "Nein"
 msgid "No contributions yet."
 msgstr "Es sind keine Beiträge vorhanden."
 
-#: licenses/admin.py:39
+#: licenses/admin.py:31 licenses/models.py:66
+msgid "Description"
+msgstr "Beschreibung"
+
+#: licenses/admin.py:33 licenses/models.py:72
+msgid "Further involved persons"
+msgstr "Weitere Personen"
+
+#: licenses/admin.py:35 licenses/models.py:25 licenses/models.py:39
+#: licenses/models.py:154 licenses/templates/licenses/details.html:16
+msgid "Category"
+msgstr "Kategorie"
+
+#: licenses/admin.py:36 licenses/models.py:85
+msgid "Suggested broadcast date"
+msgstr "Gewünschtes Sendedatum"
+
+#: licenses/admin.py:37 licenses/models.py:91
+msgid "Repetitions allowed"
+msgstr "Wiederholungen erlauben"
+
+#: licenses/admin.py:40 licenses/models.py:97
+msgid "Media Authority exchange allowed"
+msgstr "Austausch zwischen Bürgermedien erlauben"
+
+#: licenses/admin.py:43 licenses/models.py:103
+msgid "Youth protection necessary"
+msgstr "Jugendschutz notwendig"
+
+#: licenses/admin.py:45 licenses/models.py:109
+msgid "Store in OK media library"
+msgstr "In OK-Mediathek speichern"
+
+#: licenses/admin.py:46 licenses/models.py:165
+msgid "Screen Board"
+msgstr "Bildschirmtafel"
+
+#: licenses/admin.py:47
+msgid "created at"
+msgstr "erstellt am"
+
+#: licenses/admin.py:59
+msgid "Creation year"
+msgstr "Erstellungsjahr"
+
+#: licenses/admin.py:96
+msgid "<= 10 minutes"
+msgstr "<= 10 Minuten"
+
+#: licenses/admin.py:97
+msgid "<= 30 minutes, > 10 minutes"
+msgstr "<= 30 Minuten, > 10 Minuten"
+
+#: licenses/admin.py:98
+msgid "<= 1 hour, > 30 minutes"
+msgstr "<= 1 Stunde, > 30 Minuten"
+
+#: licenses/admin.py:99
+msgid "> 1 hour"
+msgstr "> 1 Stunde"
+
+#: licenses/admin.py:139
+msgid ""
+"The corresponding profile is not verified. The License can not be confirmed "
+"until the profile is verified."
+msgstr ""
+"Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann nicht "
+"bestätigt werden, bis das Profil verifiziert ist."
+
+#: licenses/admin.py:174
+msgid "title, subtitle, number, description, further persons"
+msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
+
+#: licenses/admin.py:185
 msgid "Confirm selected License Requests"
 msgstr "Ausgewählte Freistellungen genehmigen"
 
-#: licenses/admin.py:49
+#: licenses/admin.py:195
 msgid "Unconfirm selected License Requests"
 msgstr "Ausgewählte Freistellungen zurückziehen"
+
+#: licenses/admin.py:220
+#, python-format
+msgid ""
+"The corresponding profile of %(obj)s is not verified. The License can not be "
+"confirmed until the profile is verified."
+msgstr ""
+"Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Lizenz kann nicht "
+"bestätigt werden, bis das Profil verifiziert ist."
+
+#: licenses/apps.py:10 registration/templates/navbar.html:56
+msgid "Licenses"
+msgstr "Freistellungen"
 
 #: licenses/forms.py:47
 msgid "Invalid format. Please use the format hh:mm:ss or mm:ss."
@@ -176,54 +318,17 @@ msgstr "Speichern"
 msgid "license_request.pdf"
 msgstr "freistellung.pdf"
 
-#: licenses/models.py:25 licenses/models.py:39 licenses/models.py:154
-#: licenses/templates/licenses/details.html:16
-msgid "Category"
-msgstr "Kategorie"
-
 #: licenses/models.py:40
 msgid "Categories"
 msgstr "Kategorien"
 
-#: licenses/models.py:45 projects/models.py:111 projects/models.py:116
+#: licenses/models.py:45 projects/models.py:117 projects/models.py:122
 msgid "Not Selected"
 msgstr "Nicht ausgewählt"
-
-#: licenses/models.py:59
-msgid "Subtitle"
-msgstr "Untertitel"
-
-#: licenses/models.py:66
-msgid "Description"
-msgstr "Beschreibung"
-
-#: licenses/models.py:72
-msgid "Further involved persons"
-msgstr "Weitere Personen"
 
 #: licenses/models.py:78
 msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
-
-#: licenses/models.py:85
-msgid "Suggested broadcast date"
-msgstr "Gewünschtes Sendedatum"
-
-#: licenses/models.py:91
-msgid "Repetitions allowed"
-msgstr "Wiederholungen erlauben"
-
-#: licenses/models.py:97
-msgid "Media Authority exchange allowed"
-msgstr "Austausch zwischen Bürgermedien erlauben"
-
-#: licenses/models.py:103
-msgid "Youth protection necessary"
-msgstr "Jugendschutz notwendig"
-
-#: licenses/models.py:109
-msgid "Store in OK media library"
-msgstr "In OK-Mediathek speichern"
 
 #: licenses/models.py:126
 msgid "License Template"
@@ -233,21 +338,9 @@ msgstr "Freistellungstemplate"
 msgid "License Templates"
 msgstr "Freistellungstemplates"
 
-#: licenses/models.py:135
-msgid "Number"
-msgstr "Nummer"
-
-#: licenses/models.py:145 registration/templates/navbar.html:30
-msgid "Profile"
-msgstr "Profil"
-
 #: licenses/models.py:158 licenses/templates/licenses/list.html:13
 msgid "Confirmed"
 msgstr "Genehmigt"
-
-#: licenses/models.py:165
-msgid "Screen Board"
-msgstr "Bildschirmtafel"
 
 #: licenses/models.py:181
 msgid "Duration must not be null."
@@ -368,6 +461,11 @@ msgstr ""
 "Die Freistellung %(license)s ist bereits genehmigt und somit nicht mehr "
 "veränderbar."
 
+#: ok_tools/templates/admin/base_site.html:6
+#: ok_tools/templates/admin/base_site.html:11
+msgid "Administrationinterface"
+msgstr "Verwaltungsoberfläche"
+
 #: ok_tools/templates/home.html:13
 msgid ""
 "\n"
@@ -400,29 +498,126 @@ msgstr ""
 msgid "You are not logged in"
 msgstr "Sie sind nicht angemeldet."
 
-#: projects/admin.py:21
+#: projects/admin.py:49 projects/models.py:136
+msgid "Topic"
+msgstr "Thema"
+
+#: projects/admin.py:51 projects/models.py:148
+msgid "Start date"
+msgstr "Startdatum"
+
+#: projects/admin.py:52 projects/models.py:153
+msgid "End date"
+msgstr "Enddatum"
+
+#: projects/admin.py:53 projects/models.py:159
+msgid "External venue"
+msgstr "Externer Veranstaltungsort"
+
+#: projects/admin.py:54 projects/models.py:165
+msgid "Jugendmedienschutz"
+msgstr "Jugendmedienschutz"
+
+#: projects/admin.py:55 projects/models.py:95 projects/models.py:108
+msgid "Target group"
+msgstr "Zielgruppe"
+
+#: projects/admin.py:56 projects/models.py:67 projects/models.py:80
+msgid "Project category"
+msgstr "Projektkategorie"
+
+#: projects/admin.py:57 projects/models.py:30
+msgid "Project leader"
+msgstr "Projektleiter*in"
+
+#: projects/admin.py:58 projects/models.py:195
+msgid "bis 6 Jahre"
+msgstr "bis 6 Jahre"
+
+#: projects/admin.py:59 projects/models.py:201
+msgid "7-10 Jahre"
+msgstr "7-10 Jahre"
+
+#: projects/admin.py:60 projects/models.py:207
+msgid "11-14 Jahre"
+msgstr "11-14 Jahre"
+
+#: projects/admin.py:61 projects/models.py:213
+msgid "15-18 Jahre"
+msgstr "15-18 Jahre"
+
+#: projects/admin.py:62 projects/models.py:219
+msgid "19-34 Jahre"
+msgstr "19-34 Jahre"
+
+#: projects/admin.py:63 projects/models.py:225
+msgid "35-50 Jahre"
+msgstr "35-50 Jahre"
+
+#: projects/admin.py:64 projects/models.py:231
+msgid "51-65 Jahre"
+msgstr "51-65 Jahre"
+
+#: projects/admin.py:65 projects/models.py:237
+msgid "über 65 Jahre"
+msgstr "über 65 Jahre"
+
+#: projects/admin.py:66 projects/admin.py:70 projects/models.py:243
+#: projects/models.py:262
+msgid "ohne Angabe"
+msgstr "ohne Angabe"
+
+#: projects/admin.py:67 projects/models.py:250
+msgid "weiblich"
+msgstr "weiblich"
+
+#: projects/admin.py:68 projects/models.py:256
+msgid "männlich"
+msgstr "männlich"
+
+#: projects/admin.py:69 projects/models.py:268
+msgid "diverse"
+msgstr "divers"
+
+#: projects/admin.py:88
+msgid "start year"
+msgstr "Startjahr"
+
+#: projects/admin.py:131
+msgid "title, topic"
+msgstr "Titel, Thema"
+
+#: projects/admin.py:134
+msgid "Target Group"
+msgstr "Zielgruppe"
+
+#: projects/admin.py:135
+msgid "Project Category"
+msgstr "Projektkategorie"
+
+#: projects/admin.py:142
 msgid "Project data"
 msgstr "Projektdaten"
 
-#: projects/admin.py:36
+#: projects/admin.py:157
 msgid "Participant numbers - by age"
 msgstr "Teilnehmerzahlen - nach alter"
 
-#: projects/admin.py:48
+#: projects/admin.py:169
 msgid "Participant numbers - by gender"
 msgstr "Teilnehmerzahlen - nach Geschlecht"
+
+#: projects/apps.py:10 projects/models.py:300
+msgid "Projects"
+msgstr "Projekte"
 
 #: projects/models.py:17 projects/models.py:42
 msgid "Full name"
 msgstr "Vollständiger Name"
 
-#: projects/models.py:30
-msgid "Project leader"
-msgstr "Projektleiter"
-
 #: projects/models.py:31
 msgid "Project leaders"
-msgstr "Projektleiter"
+msgstr "Projektleiter*innen"
 
 #: projects/models.py:55
 msgid "Media education supervisor"
@@ -432,136 +627,117 @@ msgstr "Medienpädagogische*r Betreuer*in"
 msgid "Media education supervisors"
 msgstr "Medienpädagogische Betreuer"
 
-#: projects/models.py:67 projects/models.py:80
-msgid "Project category"
-msgstr "Projektkategorie"
-
 #: projects/models.py:81
 msgid "Project categories"
 msgstr "Projekt Kategorien"
 
-#: projects/models.py:92 projects/models.py:105
-msgid "Target group"
-msgstr "Zielgruppe"
-
-#: projects/models.py:106
+#: projects/models.py:109
 msgid "Target groups"
 msgstr "Zielgruppen"
 
-#: projects/models.py:123
+#: projects/models.py:129
 msgid "Project title"
 msgstr "Projekttitel"
 
-#: projects/models.py:130
-msgid "Topic"
-msgstr "Thema"
-
-#: projects/models.py:142
-msgid "Start date"
-msgstr "Startdatum"
-
-#: projects/models.py:147
-msgid "End date"
-msgstr "Enddatum"
-
-#: projects/models.py:153
-msgid "External venue"
-msgstr "Externer Veranstaltungsort"
-
-#: projects/models.py:159
-msgid "Jugendmedienschutz"
-msgstr "Jugendmedienschutz"
-
-#: projects/models.py:189
-msgid "bis 6 Jahre"
-msgstr "bis 6 Jahre"
-
-#: projects/models.py:195
-msgid "7-10 Jahre"
-msgstr "7-10 Jahre"
-
-#: projects/models.py:201
-msgid "11-14 Jahre"
-msgstr "11-14 Jahre"
-
-#: projects/models.py:207
-msgid "15-18 Jahre"
-msgstr "15-18 Jahre"
-
-#: projects/models.py:213
-msgid "19-34 Jahre"
-msgstr "19-34 Jahre"
-
-#: projects/models.py:219
-msgid "35-50 Jahre"
-msgstr "35-50 Jahre"
-
-#: projects/models.py:225
-msgid "51-65 Jahre"
-msgstr "51-65 Jahre"
-
-#: projects/models.py:231
-msgid "über 65 Jahre"
-msgstr "über 65 Jahre"
-
-#: projects/models.py:237 projects/models.py:256
-msgid "ohne Angabe"
-msgstr "ohne Angabe"
-
-#: projects/models.py:244
-msgid "weiblich"
-msgstr "weiblich"
-
-#: projects/models.py:250
-msgid "männlich"
-msgstr "männlich"
-
-#: projects/models.py:262
-msgid "diverse"
-msgstr "divers"
-
-#: projects/models.py:278
+#: projects/models.py:284
 #, python-format
 msgid ""
 "The sum of participants by age (%(age)s) does not match the sum of "
 "participants by gender (%(gender)s). Please correct your data."
 msgstr ""
 "Die Summe von Teilnehmern nach alter (%(age)s) stimmt nicht mit der Summe "
-"von Teilnehmern nach Geschlecht (%(gender)s) überin. Bitte korrigieren Sie die Angaben."
+"von Teilnehmern nach Geschlecht (%(gender)s) überin. Bitte korrigieren Sie "
+"die Angaben."
 
-#: projects/models.py:289
+#: projects/models.py:299
 msgid "Project"
 msgstr "Projekt"
 
-#: projects/models.py:290
-msgid "Projects"
-msgstr "Projekte"
-
-#: registration/admin.py:24 registration/admin.py:39
+#: registration/admin.py:28 registration/admin.py:43
 msgid "E-Mail address"
 msgstr "E-Mail-Adresse"
 
-#: registration/admin.py:27 registration/admin.py:42
+#: registration/admin.py:31 registration/admin.py:46
 msgid "Password"
 msgstr "Passwort"
 
-#: registration/admin.py:34 registration/admin.py:45
+#: registration/admin.py:38 registration/admin.py:49
 msgid "Staff"
 msgstr "Mitarbeiter"
 
-#: registration/admin.py:111
+#: registration/admin.py:65
+msgid "birthmonth"
+msgstr "Geburtsmonat"
+
+#: registration/admin.py:71
+msgid "January"
+msgstr "Januar"
+
+#: registration/admin.py:72
+msgid "February"
+msgstr "Februar"
+
+#: registration/admin.py:73
+msgid "March"
+msgstr "Mai"
+
+#: registration/admin.py:74
+msgid "April"
+msgstr "April"
+
+#: registration/admin.py:75
+msgid "May"
+msgstr "Mai"
+
+#: registration/admin.py:76
+msgid "June"
+msgstr "Juni"
+
+#: registration/admin.py:77
+msgid "July"
+msgstr "Juli"
+
+#: registration/admin.py:78
+msgid "August"
+msgstr "August"
+
+#: registration/admin.py:79
+msgid "September"
+msgstr "September"
+
+#: registration/admin.py:80
+msgid "October"
+msgstr "Oktober"
+
+#: registration/admin.py:81
+msgid "November"
+msgstr "November"
+
+#: registration/admin.py:82
+msgid "December"
+msgstr "Dezember"
+
+#: registration/admin.py:120
+msgid "e-mail, first name, last name"
+msgstr "E-Mail, Vorname, Nachname"
+
+#: registration/admin.py:146
 msgid "Verify selected profiles"
 msgstr "Ausgewählte Profile verifizieren"
 
-#: registration/admin.py:121
+#: registration/admin.py:156
 msgid "Unverify selected profiles"
 msgstr "Ausgewählte Profile deverifizieren"
 
-#: registration/forms.py:26 registration/forms.py:80
+#: registration/apps.py:9
+msgid "Registration"
+msgstr "Registrierung"
+
+#: registration/forms.py:26 registration/forms.py:86
 msgid "Email address"
 msgstr "E-Mail-Adresse"
 
-#: registration/forms.py:60
+#: registration/forms.py:66
 msgid ""
 "Your profile is already verified. To change further data please contact an "
 "employee."
@@ -569,28 +745,28 @@ msgstr ""
 "Ihr Profile ist bereits verifiziert. Wenden Sie sich bitte an einen "
 "Mitarbeiter um weitere Daten zu ändern."
 
-#: registration/forms.py:64
+#: registration/forms.py:70
 msgid "Submit changes"
 msgstr "Änderungen bestätigen"
 
-#: registration/forms.py:82
+#: registration/forms.py:88
 msgid "I accept"
 msgstr "I stimme zu"
 
-#: registration/forms.py:86
+#: registration/forms.py:92
 msgid "Birthday"
 msgstr "Geburtstag"
 
-#: registration/forms.py:122 registration/templates/navbar.html:86
+#: registration/forms.py:128 registration/templates/navbar.html:86
 #: registration/templates/registration/register.html:7
 msgid "Register"
 msgstr "Registrieren"
 
-#: registration/forms.py:133
+#: registration/forms.py:139
 msgid "Please accept our "
 msgstr "Bitte akzeptieren sie unsere "
 
-#: registration/forms.py:135
+#: registration/forms.py:141
 msgid "privacy policy"
 msgstr "Datenschutzerklärung"
 
@@ -610,73 +786,89 @@ msgstr ""
 msgid "email address"
 msgstr "E-Mail-Adresse"
 
-#: registration/models.py:73
+#: registration/models.py:67
+msgid "Users"
+msgstr "Nutzer*innen"
+
+#: registration/models.py:79 registration/models.py:91
 msgid "Media Authority"
 msgstr "Bürgermedium"
 
-#: registration/models.py:106
+#: registration/models.py:92
+msgid "Media Authorities"
+msgstr "Bürgermedien"
+
+#: registration/models.py:118
 msgid "first name"
 msgstr "Vorname"
 
-#: registration/models.py:108
+#: registration/models.py:120
 msgid "last name"
 msgstr "Nachname"
 
-#: registration/models.py:113
+#: registration/models.py:125
 msgid "Not Given"
 msgstr "Nicht angegeben"
 
-#: registration/models.py:114
+#: registration/models.py:126
 msgid "Male"
 msgstr "Männlich"
 
-#: registration/models.py:115
+#: registration/models.py:127
 msgid "Female"
 msgstr "Weiblich"
 
-#: registration/models.py:116
+#: registration/models.py:128
 msgid "Diverse"
 msgstr "Divers"
 
-#: registration/models.py:119
+#: registration/models.py:131
 msgid "gender"
 msgstr "Geschlecht"
 
-#: registration/models.py:128
+#: registration/models.py:140
 msgid "phone number"
 msgstr "Telefonnummer"
 
-#: registration/models.py:131
+#: registration/models.py:143
 msgid "mobile number"
 msgstr "Handynummer"
 
-#: registration/models.py:135
+#: registration/models.py:147
 msgid "birthday"
 msgstr "Geburtstag"
 
-#: registration/models.py:138
+#: registration/models.py:150
 msgid "street"
 msgstr "Straße"
 
-#: registration/models.py:140
+#: registration/models.py:152
 msgid "house number"
 msgstr "Hausnummer"
 
-#: registration/models.py:142
+#: registration/models.py:154
 msgid "zipcode"
 msgstr "Postleitzahl"
 
-#: registration/models.py:144
+#: registration/models.py:156
 msgid "city"
 msgstr "Stadt"
 
-#: registration/models.py:148
+#: registration/models.py:160
 msgid "verified"
 msgstr "verifiziert"
 
-#: registration/models.py:150
+#: registration/models.py:162
 msgid "The profile data was verified by showing the ID to an employee."
 msgstr "Das Profil wurde unter Vorlage eines Personalausweises verifiziert."
+
+#: registration/models.py:175
+msgid "member"
+msgstr "Mitglied"
+
+#: registration/models.py:189
+msgid "Profiles"
+msgstr "Profile"
 
 #: registration/print.py:81
 msgid "registration_form.pdf"
@@ -750,10 +942,6 @@ msgstr "Passwort ändern"
 #: registration/templates/navbar.html:42
 msgid "Print Registration Form"
 msgstr "Nutzer*innenantrag drucken"
-
-#: registration/templates/navbar.html:56
-msgid "Licenses"
-msgstr "Freistellungen"
 
 #: registration/templates/navbar.html:60
 msgid "Overview"

@@ -11,6 +11,7 @@ from django.utils.translation import ngettext as _p
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from ok_tools.datetime import TZ
 from rangefilter.filters import DateTimeRangeFilter
 import datetime
 import logging
@@ -41,6 +42,20 @@ class ContributionResource(resources.ModelResource):
     broadcast_time = _f('broadcast_date__time', _('Broadcast Time'))
     profile = _f('license__profile', _('Profile'))
     duration = _f('license__duration', _('Duration'))
+
+    def dehydrate_broadcast_date(self, contribution: Contribution):
+        """Show broadcast date in current time zone."""
+        return str(contribution
+                   .broadcast_date
+                   .astimezone(tz=TZ)
+                   .date())
+
+    def dehydrate_broadcast_time(self, contribution: Contribution):
+        """Show broadcast date in current time zone."""
+        return str(contribution
+                   .broadcast_date
+                   .astimezone(tz=TZ)
+                   .time())
 
     class Meta:
         """Define meta properties for Contribution export."""

@@ -7,12 +7,12 @@ from .disa_import import validate
 from .models import Contribution
 from .models import DisaImport
 from datetime import datetime
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.urls import reverse_lazy
 from licenses.models import default_category
+from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
@@ -22,7 +22,6 @@ from ok_tools.testing import create_disaimport
 from ok_tools.testing import create_license_request
 from ok_tools.testing import create_user
 from unittest.mock import patch
-from zoneinfo import ZoneInfo
 import pytest
 
 
@@ -73,7 +72,7 @@ def test__contributions__view__ListContributionsView__1(
     con1 = create_contribution(license_request, contribution_dict)
 
     contribution_dict['broadcast_date'] = datetime(
-        year=2022, month=9, day=12, hour=12)
+        year=2022, month=9, day=12, hour=12, tzinfo=TZ)
     con2 = create_contribution(license_request, contribution_dict)
 
     browser.login()
@@ -113,7 +112,7 @@ def test__contributions__admin__ContributionsAdmin__4(
         month=9,
         day=12,
         hour=8,
-        tzinfo=ZoneInfo(settings.TIME_ZONE),
+        tzinfo=TZ,
     )
     early_contr = create_contribution(license_request, contribution_dict)
 
@@ -122,7 +121,7 @@ def test__contributions__admin__ContributionsAdmin__4(
         month=9,
         day=12,
         hour=18,
-        tzinfo=ZoneInfo(settings.TIME_ZONE),
+        tzinfo=TZ,
     )
     late_contr = create_contribution(license_request, contribution_dict)
 
@@ -142,7 +141,7 @@ def test__contributions__models__1(db, license_request, contribution_dict):
         month=9,
         day=12,
         hour=8,
-        tzinfo=ZoneInfo(settings.TIME_ZONE),
+        tzinfo=TZ,
     )
     early_contr = create_contribution(license_request, contribution_dict)
 
@@ -151,7 +150,7 @@ def test__contributions__models__1(db, license_request, contribution_dict):
         month=9,
         day=12,
         hour=18,
-        tzinfo=ZoneInfo(settings.TIME_ZONE),
+        tzinfo=TZ,
     )
     late_contr = create_contribution(license_request, contribution_dict)
 
@@ -261,9 +260,9 @@ def test__contributions__disa_import__6(db, mocked_request, license_request):
 
     contributions = Contribution.objects.filter().order_by('broadcast_date')
     assert (contributions[0].broadcast_date ==
-            datetime(2022, 9, 8, 9, 30, tzinfo=ZoneInfo(settings.TIME_ZONE)))
+            datetime(2022, 9, 8, 9, 30, tzinfo=TZ))
     assert (contributions[1].broadcast_date ==
-            datetime(2022, 9, 8, 10, 30, tzinfo=ZoneInfo(settings.TIME_ZONE)))
+            datetime(2022, 9, 8, 10, 30, tzinfo=TZ))
 
 
 def test__contributions__disa_import___check_title():
@@ -316,7 +315,7 @@ def test__contributions__admin__YearFilter__1(
         user.profile, default_category(), license_template_dict)
 
     contribution_dict['broadcast_date'] = datetime(
-        day=8, month=9, year=datetime.now().year)
+        day=8, month=9, year=datetime.now().year, tzinfo=TZ)
     contr1 = create_contribution(lr1, contribution_dict)
 
     license_template_dict['title'] = 'old_title'
@@ -324,7 +323,7 @@ def test__contributions__admin__YearFilter__1(
         user.profile, default_category(), license_template_dict)
 
     contribution_dict['broadcast_date'] = datetime(
-        day=8, month=9, year=datetime.now().year-1)
+        day=8, month=9, year=datetime.now().year-1, tzinfo=TZ)
     contr2 = create_contribution(lr2, contribution_dict)
 
     browser.login_admin()
@@ -356,7 +355,7 @@ def test__contributions__admin__ContributionResource__1(
         month=9,
         day=20,
         hour=9,
-        tzinfo=ZoneInfo(settings.TIME_ZONE)
+        tzinfo=TZ,
     )
     contr1 = create_contribution(license_request, contribution_dict)
 
@@ -365,7 +364,7 @@ def test__contributions__admin__ContributionResource__1(
         month=9,
         day=21,
         hour=18,
-        tzinfo=ZoneInfo(settings.TIME_ZONE)
+        tzinfo=TZ,
     )
     contr2 = create_contribution(license_request, contribution_dict)
 
@@ -387,3 +386,26 @@ def test__contributions__admin__ContributionResource__1(
 def test__contributions__admin__ContributionResource__2(db):
     """Export with no given queryset."""
     ContributionResource().export(None, None)
+
+
+def test__contributions__admin__ContributionResource__3(
+        browser, license_request, contribution_dict):
+    """Export the broadcast date with the right timezone."""
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=20,
+        hour=0,
+        tzinfo=TZ,
+    )
+    contr1 = create_contribution(license_request, contribution_dict)
+    browser.login_admin()
+    browser.open(A_CON_URL)
+
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert browser.headers['Content-Type'] == 'text/csv'
+    assert str(contr1.broadcast_date.date()) in str(browser.contents)
+    assert str(contr1.broadcast_date.time()) in str(browser.contents)

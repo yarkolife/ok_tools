@@ -178,7 +178,7 @@ def disa_import(request, file):
         )
 
         if not contr_created:
-            logger.warn(f'Contribution for license {nr} already exists.')
+            logger.warning(f'Contribution for license {nr} already exists.')
         else:
             created_counter += 1
             logger.info(f'Contribution {contr} created.')

@@ -9,6 +9,7 @@ from datetime import datetime
 from datetime import timedelta
 from django import forms
 from django.urls import reverse_lazy
+from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import create_project
 from unittest.mock import patch
@@ -66,12 +67,12 @@ def test__projects__admin__YearFilter__1(browser, project_dict):
     """Projects can be filtered by the year of the start date."""
     project_dict['title'] = 'new_title'
     project_dict['begin_date'] = datetime(
-        year=datetime.now().year, month=9, day=20, hour=9)
+        year=datetime.now().year, month=9, day=20, hour=9, tzinfo=TZ)
     proj1 = create_project(project_dict)
 
     project_dict['title'] = 'old_title'
     project_dict['begin_date'] = datetime(
-        year=datetime.now().year-1, month=9, day=20, hour=9)
+        year=datetime.now().year-1, month=9, day=20, hour=9, tzinfo=TZ)
     proj2 = create_project(project_dict)
 
     browser.login_admin()
@@ -113,6 +114,19 @@ def test__projects__admin__ProjectResource__1(browser, project_dict):
     assert browser.headers['Content-Type'] == 'text/csv'
     assert str(s1) in str(browser.contents)
     assert str(s2) in str(browser.contents)
+
+
+def test__projects__admin__ProjectResource__2(browser, project):
+    """Export begin and end date in correct timezone."""
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert str(project.begin_date.time()) in str(browser.contents)
+    assert str(project.end_date.time()) in str(browser.contents)
 
 
 def test__projects__models__1(db, project):
