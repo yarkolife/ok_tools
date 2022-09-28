@@ -513,12 +513,14 @@ def import_projects(ws: Worksheet):
         if not begin_date:
             logger.warning(f'No begin_date for project "{row[TITLE].value}')
 
+        end_date = begin_date + duration
+
         try:
             project, project_created = Project.objects.get_or_create(
                 title=row[TITLE].value,
                 topic=row[TOPIC].value,
-                duration=duration,
                 begin_date=begin_date,
+                end_date=end_date,
                 external_venue=_get_bool(row[EXTERNAL_V]),
                 jugendmedienschutz=_get_bool(row[YOUTH_PROTECTION]),
                 target_group=target_gr,
