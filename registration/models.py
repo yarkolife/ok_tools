@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -92,11 +91,6 @@ class MediaAuthority(models.Model):
         verbose_name_plural = _('Media Authorities')
 
 
-def now():
-    """Provide the current datetime for created_at."""
-    return timezone.now()
-
-
 def default_media_authority():
     """Provide the default MediaAuthority."""
     return MediaAuthority.objects.get_or_create(
@@ -163,7 +157,7 @@ class Profile(models.Model):
                     ' employee.')
     )
 
-    created_at = models.DateTimeField(default=now)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     media_authority = models.ForeignKey(
         MediaAuthority,
