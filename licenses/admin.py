@@ -1,9 +1,11 @@
+from .forms import RangeNumericForm
 from .models import Category
 from .models import LicenseRequest
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
+from django.db.models.fields import DurationField
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
@@ -165,6 +167,71 @@ class LicenseRequestAdminForm(forms.ModelForm):
         return super().clean()
 
 
+class DurationRangeFilter(admin.FieldListFilter):
+    """Filter the duration using the given range of minutes."""
+
+    request = None
+    parameter_name = 'duration'
+    template = 'admin/filter_numeric_range.html'
+
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        """Initialize filter and set parameters."""
+        super().__init__(
+            field, request, params, model, model_admin, field_path)
+        breakpoint
+        if not isinstance(field, DurationField):
+            raise TypeError('Class {} is not supported for {}.'.format(
+                type(self.field), self.__class__.__name__))
+
+        self.request = request
+        if self.parameter_name is None:
+            self.parameter_name = self.field_path
+
+        if self.parameter_name + '_from' in params:
+            # get the from parameter in used_
+            value = params.pop(self.field_path + '_from')
+            self.used_parameters[self.field_path + '_from'] = value
+
+        if self.parameter_name + '_to' in params:
+            value = params.pop(self.field_path + '_to')
+            self.used_parameters[self.field_path + '_to'] = value
+
+    def queryset(self, request, queryset):
+        """Filter the licenses after their duration."""
+        value_from = self.used_parameters.get(
+            self.parameter_name + '_from', None)
+        if value_from is not None and value_from != '':
+            time_from = datetime.timedelta(minutes=int(value_from))
+            queryset = queryset.filter(duration__gte=time_from)
+
+        value_to = self.used_parameters.get(self.parameter_name + '_to', None)
+        if value_to is not None and value_to != '':
+            time_to = datetime.timedelta(minutes=int(value_to))
+            queryset = queryset.filter(duration__lte=time_to)
+
+        return queryset
+
+    def expected_parameters(self):
+        """Define expected parameters."""
+        return [
+            '{}_from'.format(self.parameter_name),
+            '{}_to'.format(self.parameter_name),
+        ]
+
+    def choices(self, changelist):
+        """Set the form."""
+        return ({
+            'request': self.request,
+            'parameter_name': self.parameter_name,
+            'form': RangeNumericForm(name=self.parameter_name, data={
+                self.parameter_name + '_from': self.used_parameters.get(
+                    self.parameter_name + '_from', None),
+                self.parameter_name + '_to': self.used_parameters.get(
+                    self.parameter_name + '_to', None),
+            }),
+        }, )
+
+
 class LicenseRequestAdmin(ExportMixin, admin.ModelAdmin):
     """How should the LicenseRequests be shown on the admin site."""
 
@@ -201,6 +268,7 @@ class LicenseRequestAdmin(ExportMixin, admin.ModelAdmin):
         ('created_at', DateTimeRangeFilter),
         DurationFilter,
         YearFilter,
+        ('duration', DurationRangeFilter),
     ]
 
     @admin.action(description=_('Confirm selected License Requests'))
