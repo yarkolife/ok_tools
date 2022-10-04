@@ -194,17 +194,60 @@ class ContributionResource(resources.ModelResource):
         fields = ['live']
 
 
+class WeekFilter(admin.SimpleListFilter):
+    """Filter the contributions for the next 3 weeks."""
+
+    title = _('Broadcast week')
+    parameter_name = 'broadcast_week'
+
+    def lookups(self, request, model_admin):
+        """Define labels to filter after the broadcast week."""
+        return (
+            ('this_week', _('In this week')),
+            ('next_week', _('Until next week')),
+            ('after_next_week', _('Until week after next')),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter after broadcast date for the chosen weeks."""
+        week = datetime.datetime.now().date().isocalendar().week
+        year = datetime.datetime.now().year
+
+        match self.value():
+            case None:
+                return
+            case 'this_week':
+                return queryset.filter(broadcast_date__week=week,
+                                       broadcast_date__year=year)
+            case 'next_week':
+                return (queryset
+                        .filter(broadcast_date__week__gte=week,
+                                broadcast_date__year=year)
+                        .filter(broadcast_date__week__lte=week+1,
+                                broadcast_date__year=year))
+            case 'after_next_week':
+                return (queryset
+                        .filter(broadcast_date__week__gte=week,
+                                broadcast_date__year=year)
+                        .filter(broadcast_date__week__lte=week+2,
+                                broadcast_date__year=year))
+            case _:
+                msg = f'Invalid value {self.value()}.'
+                logger.error(msg)
+                raise ValueError(msg)
+
+
 class YearFilter(admin.SimpleListFilter):
     """Filter after this or last years broadcast_date."""
 
     title = _('Broadcast year')
-    parameter_name = 'broadcast_date'
+    parameter_name = 'broadcast_year'
 
     def lookups(self, request, model_admin):
         """Define labels to filter after this or last year."""
         return (
-            ('this', _('This year')),
-            ('last', _('Last year')),
+            ('this_year', _('This year')),
+            ('last_year', _('Last year')),
         )
 
     def queryset(self, request, queryset):
@@ -212,10 +255,10 @@ class YearFilter(admin.SimpleListFilter):
         match self.value():
             case None:
                 return
-            case 'this':
+            case 'this_year':
                 return queryset.filter(
                     broadcast_date__year=datetime.datetime.now().year)
-            case 'last':
+            case 'last_year':
                 return queryset.filter(
                     broadcast_date__year=datetime.datetime.now().year-1)
             case _:
@@ -251,6 +294,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
         AutocompleteFilterFactory(_('Profile'), 'license__profile'),
         ('broadcast_date', DateTimeRangeFilter),
         YearFilter,
+        WeekFilter,
     ]
 
     readonly_fields = ('_is_primary',)
