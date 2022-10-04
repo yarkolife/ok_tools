@@ -695,7 +695,23 @@ def test__licenses__admin__LicenseRequestResource__1(browser, license_request):
     browser.getControl('csv').click()
     browser.getControl('Submit').click()
 
+    assert browser.headers['Content-Type'] == 'text/csv'
     assert str(license_request.suggested_date.date()) in str(browser.contents)
     assert str(license_request.suggested_date.time()) in str(browser.contents)
     assert str(license_request.created_at.date()) in str(browser.contents)
     assert str(license_request.created_at.time()) in str(browser.contents)
+
+
+def test__licenses__admin__LicenseRequestResource__2(browser, license_request):
+    """Export a license without a suggested broadcast date."""
+    license_request.suggested_date = None
+    license_request.save()
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert browser.headers['Content-Type'] == 'text/csv'
+    assert str(license_request.title) in str(browser.contents)

@@ -1,6 +1,7 @@
 from .admin import ContributionAdmin
 from .admin import ContributionResource
 from .admin import ProgramResource
+from .admin import WeekFilter
 from .admin import YearFilter
 from .disa_import import _check_title
 from .disa_import import disa_import
@@ -462,3 +463,70 @@ def test__contributions__admin__ProgramResource__1(
 def test__contributions__admin__ProgramResource__2(db):
     """Export with no given queryset."""
     ProgramResource().export(None, None)
+
+
+def test__contributions__admin__WeekFilter__1(
+        browser, user, license_template_dict, contribution_dict):
+    """Filter contributions are filterable after their broadcast week."""
+    category = default_category()
+    now = datetime.now()
+    week = now.date().isocalendar().week
+    year = now.year
+
+    license_template_dict['title'] = 'This week'
+    license1 = create_license_request(
+        user.profile, category, license_template_dict)
+    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
+        year, week, 1)
+    contr1 = create_contribution(license1, contribution_dict)
+
+    license_template_dict['title'] = 'Next week'
+    license2 = create_license_request(
+        user.profile, category, license_template_dict)
+    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
+        year, week+1, 1)
+    contr2 = create_contribution(license2, contribution_dict)
+
+    license_template_dict['title'] = 'After next week'
+    license3 = create_license_request(
+        user.profile, category, license_template_dict)
+    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
+        year, week+2, 1)
+    contr3 = create_contribution(license3, contribution_dict)
+
+    license_template_dict['title'] = 'Far away'
+    license4 = create_license_request(
+        user.profile, category, license_template_dict)
+    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
+        year, week+3, 1)
+    contr4 = create_contribution(license4, contribution_dict)
+
+    browser.login_admin()
+    browser.open(A_CON_URL)
+
+    browser.follow('In this week')
+    assert contr1.license.title in browser.contents
+    assert contr2.license.title not in browser.contents
+    assert contr3.license.title not in browser.contents
+    assert contr4.license.title not in browser.contents
+
+    browser.follow('Until next week')
+    assert contr1.license.title in browser.contents
+    assert contr2.license.title in browser.contents
+    assert contr3.license.title not in browser.contents
+    assert contr4.license.title not in browser.contents
+
+    browser.follow('Until week after next')
+    assert contr1.license.title in browser.contents
+    assert contr2.license.title in browser.contents
+    assert contr3.license.title in browser.contents
+    assert contr4.license.title not in browser.contents
+
+
+def test__contributions__admin__WeekFilter__2():
+    """Handle invalid values."""
+    with patch.object(WeekFilter, 'value', return_value='invalid'):
+        with pytest.raises(ValueError, match=r'Invalid value .*'):
+            filter = WeekFilter(
+                {}, {}, Contribution, ContributionAdmin)
+            filter.queryset(None, None)
