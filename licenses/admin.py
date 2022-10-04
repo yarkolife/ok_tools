@@ -50,17 +50,17 @@ class LicenseRequestResource(resources.ModelResource):
 
     def dehydrate_suggested_date(self, license: LicenseRequest):
         """Return the suggested date in the current time zone."""
-        return str(license
-                   .suggested_date
-                   .astimezone(TZ)
-                   .date())
+        if (date := license.suggested_date):
+            return date.astimezone(TZ).date()
+        else:
+            return None
 
     def dehydrate_suggested_time(self, license: LicenseRequest):
         """Return the suggested time in the current time zone."""
-        return str(license
-                   .suggested_date
-                   .astimezone(TZ)
-                   .time())
+        if (date := license.suggested_date):
+            return date.astimezone(TZ).time()
+        else:
+            return None
 
     def dehydrate_created_at(self, license: LicenseRequest):
         """Return the created_at datetime in the current time zone."""
