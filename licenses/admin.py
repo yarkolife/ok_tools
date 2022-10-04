@@ -5,7 +5,6 @@ from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
-from django.db.models.fields import DurationField
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
@@ -173,28 +172,6 @@ class DurationRangeFilter(admin.FieldListFilter):
     request = None
     parameter_name = 'duration'
     template = 'admin/filter_numeric_range.html'
-
-    def __init__(self, field, request, params, model, model_admin, field_path):
-        """Initialize filter and set parameters."""
-        super().__init__(
-            field, request, params, model, model_admin, field_path)
-        breakpoint
-        if not isinstance(field, DurationField):
-            raise TypeError('Class {} is not supported for {}.'.format(
-                type(self.field), self.__class__.__name__))
-
-        self.request = request
-        if self.parameter_name is None:
-            self.parameter_name = self.field_path
-
-        if self.parameter_name + '_from' in params:
-            # get the from parameter in used_
-            value = params.pop(self.field_path + '_from')
-            self.used_parameters[self.field_path + '_from'] = value
-
-        if self.parameter_name + '_to' in params:
-            value = params.pop(self.field_path + '_to')
-            self.used_parameters[self.field_path + '_to'] = value
 
     def queryset(self, request, queryset):
         """Filter the licenses after their duration."""
