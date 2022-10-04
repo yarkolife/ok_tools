@@ -80,7 +80,7 @@ class ProfileResource(resources.ModelResource):
     mobile_number = _f('mobile_number', _('mobile number'))
     birthday = _f('birthday', _('birthday'))
     street = _f('street', _('street'))
-    house_number = _f('house number', _('houser number'))
+    house_number = _f('house number', _('house number'))
     zipcode = _f('zipcode', _('zipcode'))
     city = _f('city', _('city'))
     created_at = _f('created_at', _('created at'))
