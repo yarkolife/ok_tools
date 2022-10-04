@@ -1,8 +1,10 @@
 from .admin import BirthmonthFilter
 from .admin import Profile
 from .admin import ProfileAdmin
+from .admin import YearFilter
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.urls import reverse_lazy
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
@@ -14,6 +16,9 @@ import pytest
 User = get_user_model()
 
 PWD = 'testpassword'
+
+LIST_URL = (f'{DOMAIN}'
+            f'{reverse_lazy("admin:registration_profile_changelist")}')
 
 
 def test__registration__admin__1(browser):
@@ -221,3 +226,50 @@ def test__registration__admin__response_change__1(db, user, browser):
     assert browser.headers['Content-Type'] == 'application/pdf'
     assert user.profile.first_name in pdfToText(browser.contents)
     assert user.profile.last_name in pdfToText(browser.contents)
+
+
+def test__registration__admin__YearFilter__1(browser, user_dict):
+    """Filter profiles after creation year."""
+    year = datetime.datetime.now().year
+
+    user_dict['email'] = 'user1@example.com'
+    user1 = create_user(user_dict)
+    user1.save()
+
+    user_dict['email'] = 'user2@example.com'
+    user2 = create_user(user_dict)
+    user2.profile.created_at = datetime.datetime.now().replace(year=year-1)
+    user2.profile.save()
+
+    browser.login_admin()
+    browser.open(LIST_URL)
+
+    browser.follow('This year')
+    assert user1.email in str(browser.contents)
+    assert user2.email not in str(browser.contents)
+
+    browser.follow('Last year')
+    assert user1.email not in str(browser.contents)
+    assert user2.email in str(browser.contents)
+
+
+def test__registration__admin__YearFilter__2():
+    """Handle invalid values."""
+    with patch.object(YearFilter, 'value', return_value='invalid'):
+        with pytest.raises(ValueError, match=r'Invalid value .*'):
+            filter = YearFilter(
+                {}, {}, Profile, ProfileAdmin)
+            filter.queryset(None, None)
+
+
+def test__registration__admin__ProfileResource__1(browser, user):
+    """Export profiles."""
+    browser.login_admin()
+    browser.open(LIST_URL)
+
+    browser.follow('Export')
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert browser.headers['Content-Type'] == 'text/csv'
+    assert str(user.email) in str(browser.contents)
