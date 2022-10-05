@@ -56,8 +56,8 @@ def create_user(
     return user
 
 
-def create_license_request(
-        profile, category, license_template_dict) -> License:
+def create_license(
+        profile, license_template_dict) -> License:
     """
     Create a License.
 
@@ -65,7 +65,7 @@ def create_license_request(
     """
     return License.objects.create(
         profile=profile,
-        category=category,
+        category=license_template_dict['category'],
         title=license_template_dict['title'],
         subtitle=license_template_dict['subtitle'],
         description=license_template_dict['description'],
@@ -82,10 +82,10 @@ def create_license_request(
     )
 
 
-def create_contribution(license_request, contribution_dict):
+def create_contribution(license, contribution_dict):
     """Create and store a contribution."""
     return Contribution.objects.create(
-        license=license_request,
+        license=license,
         broadcast_date=contribution_dict['broadcast_date'],
         live=contribution_dict['live'],
     )

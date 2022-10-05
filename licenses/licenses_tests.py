@@ -10,7 +10,7 @@ from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
-from ok_tools.testing import create_license_request
+from ok_tools.testing import create_license
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
 from registration.models import Profile
@@ -62,42 +62,42 @@ def test__licenses__views__ListLicensesView__2(browser):
         browser.open(LIST_URL)
 
 
-def test__licenses__views__ListLicensesView__3(db, browser, license_request):
+def test__licenses__views__ListLicensesView__3(db, browser, license):
     """All licenses of the user are listed."""
     browser.login()
     browser.open(LIST_URL)
 
-    assert str(license_request) in browser.contents
+    assert str(license) in browser.contents
     assert 'No' in browser.contents  # the License Request is not confirmed
 
 
-def test__licenses__views__ListLicensesView__4(browser, license_request):
+def test__licenses__views__ListLicensesView__4(browser, license):
     """If a LR is confirmed, it is shown in the overview."""
-    license_request.confirmed = True
-    license_request.save()
+    license.confirmed = True
+    license.save()
     browser.login()
     browser.open(LIST_URL)
 
-    assert str(license_request) in browser.contents
+    assert str(license) in browser.contents
     assert 'Yes' in browser.contents  # the License Request is confirmed
 
 
-def test__licenses__views__ListLicensesView__5(browser, user, license_request):
+def test__licenses__views__ListLicensesView__5(browser, user, license):
     """It is possible to edit a license from the list view."""
     browser.login()
     browser.open(LIST_URL)
-    browser.follow(id=f'id_edit_{license_request.id}')
+    browser.follow(id=f'id_edit_{license.id}')
 
-    assert browser.url == edit_url(license_request.id)
+    assert browser.url == edit_url(license.id)
 
 
-def test__licenses__views__ListLicensesView__6(browser, user, license_request):
+def test__licenses__views__ListLicensesView__6(browser, user, license):
     """It is possible to print a license from the list view."""
     browser.login()
     browser.open(LIST_URL)
-    browser.follow(id=f'id_print_{license_request.id}')
+    browser.follow(id=f'id_print_{license.id}')
 
-    assert browser.url == print_url(license_request.id)
+    assert browser.url == print_url(license.id)
 
 
 def test__licenses__views__ListLicensesView__7(browser):
@@ -109,35 +109,35 @@ def test__licenses__views__ListLicensesView__7(browser):
     assert 'No licenses yet.' in browser.contents
 
 
-def test__licenses__views__DetailsLicensesView__1(browser, license_request):
+def test__licenses__views__DetailsLicensesView__1(browser, license):
     """If no user is logged in the details view returns a 404."""
     with pytest.raises(HTTPError, match=r'.*404.*'):
-        browser.open(details_url(license_request.id))
+        browser.open(details_url(license.id))
 
 
-def test__licenses__views__DetailsLicensesView__2(browser, license_request):
+def test__licenses__views__DetailsLicensesView__2(browser, license):
     """The details view can be reached using the Overview."""
     browser.login()
     browser.open(LIST_URL)
-    browser.follow(str(license_request))
+    browser.follow(str(license))
 
-    assert f'Details for {str(license_request)}' in browser.contents
-    assert license_request.description in browser.contents
+    assert f'Details for {str(license)}' in browser.contents
+    assert license.description in browser.contents
 
 
-def test__licenses__views__DetailsLicensesView__3(browser, license_request):
+def test__licenses__views__DetailsLicensesView__3(browser, license):
     """It is possible to edit a LR over the details view."""
     browser.login()
-    browser.open(details_url(license_request.id))
+    browser.open(details_url(license.id))
     browser.follow(id='id_edit_LR')
 
-    assert f'Edit {license_request}:' in browser.contents
+    assert f'Edit {license}:' in browser.contents
 
 
-def test__licenses__views__UpdateLicensesView__1(browser, license_request):
+def test__licenses__views__UpdateLicensesView__1(browser, license):
     """The Description can be changed using the edit site."""
     browser.login()
-    browser.open(edit_url(license_request.id))
+    browser.open(edit_url(license.id))
 
     new_description = "This is the new description."
     browser.getControl('Description').value = new_description
@@ -148,45 +148,45 @@ def test__licenses__views__UpdateLicensesView__1(browser, license_request):
     assert 'successfully edited.' in browser.contents
 
 
-def test__licenses__views__UpdateLicensesView__2(browser, license_request):
+def test__licenses__views__UpdateLicensesView__2(browser, license):
     """It is not possible to edit a confirmed LR."""
-    license_request.confirmed = True
-    license_request.save()
+    license.confirmed = True
+    license.save()
 
     browser.login()
-    browser.open(edit_url(license_request.id))
+    browser.open(edit_url(license.id))
 
     assert 'Your License is already confirmed and no longer editable.'\
         in browser.contents
 
 
-def test__licenses__views__UpdateLicensesView__3(browser, license_request):
+def test__licenses__views__UpdateLicensesView__3(browser, license):
     """Even if the form is still available, a confirmed LR is not editable."""
     browser.login()
-    browser.open(edit_url(license_request.id))
+    browser.open(edit_url(license.id))
 
-    license_request.confirmed = True
-    license_request.save()
+    license.confirmed = True
+    license.save()
 
-    old_description = license_request.description
+    old_description = license.description
     browser.getControl('Description').value = "This is the new description."
     browser.getControl('Save').click()
 
     assert 'is already confirmed and therefor no longer editable.'\
         in browser.contents
-    lr = License.objects.get(id=license_request.id)
+    lr = License.objects.get(id=license.id)
     assert lr.description == old_description
 
 
-def test__licenses__views__UpdateLicensesView__4(browser, license_request):
+def test__licenses__views__UpdateLicensesView__4(browser, license):
     """After a license was changed to a screen board, the duration is fixed."""
     browser.login()
-    browser.open(edit_url(license_request.id))
+    browser.open(edit_url(license.id))
 
     browser.getControl('Screen Board').click()
     browser.getControl('Save').click()
 
-    assert (License.objects.get(id=license_request.id).duration ==
+    assert (License.objects.get(id=license.id).duration ==
             datetime.timedelta(seconds=settings.SCREEN_BOARD_DURATION))
 
 
@@ -238,18 +238,18 @@ def test__licenses__views__CreateLicenseView__4(browser, user):
 
 
 def test__licenses__views__CreateLicenseView__5(
-        db, browser, user, license_template_dict):
+        db, browser, user, license_dict):
     """A license representing a Screen Board has a fixed duration."""
     browser.login()
     browser.open(CREATE_URL)
-    browser.getControl('Title').value = license_template_dict['title']
+    browser.getControl('Title').value = license_dict['title']
     browser.getControl(
-        'Description').value = license_template_dict['description']
+        'Description').value = license_dict['description']
     browser.getControl('Screen Board').click()
     browser.getControl('Save').click()
 
     assert (lr := License.objects.get(
-        title=license_template_dict['title']))
+        title=license_dict['title']))
     assert lr.duration == datetime.timedelta(
         seconds=settings.SCREEN_BOARD_DURATION)
 
@@ -263,13 +263,13 @@ def test__licenses__views__CreateLicenseView__6(browser):
 
 
 def test__licenses__forms__CreateLicenseForm__1(
-        browser, user, license_template_dict):
+        browser, user, license_dict):
     """A LR needs a duration or needs to be a Screen Board."""
     browser.login()
     browser.open(CREATE_URL)
-    browser.getControl('Title').value = license_template_dict['title']
+    browser.getControl('Title').value = license_dict['title']
     browser.getControl(
-        'Description').value = license_template_dict['description']
+        'Description').value = license_dict['description']
     browser.getControl('Save').click()
 
     assert 'The duration field is required.' in browser.contents
@@ -277,13 +277,13 @@ def test__licenses__forms__CreateLicenseForm__1(
 
 
 def test__licenses__forms__CreateLicenseForm__2(
-        browser, user, license_template_dict):
+        browser, user, license_dict):
     """The duration field gets validated."""
     browser.login()
     browser.open(CREATE_URL)
-    browser.getControl('Title').value = license_template_dict['title']
+    browser.getControl('Title').value = license_dict['title']
     browser.getControl(
-        'Description').value = license_template_dict['description']
+        'Description').value = license_dict['description']
     browser.getControl('Duration').value = 'invalid00:01:20'
     browser.getControl('Save').click()
 
@@ -292,23 +292,23 @@ def test__licenses__forms__CreateLicenseForm__2(
 
 
 def test__licenses__forms__CreateLicenseForm__3(
-        browser, user, license_template_dict):
+        browser, user, license_dict):
     """The duration field can have the input format mm:ss."""
     browser.login()
     browser.open(CREATE_URL)
-    browser.getControl('Title').value = license_template_dict['title']
+    browser.getControl('Title').value = license_dict['title']
     browser.getControl(
-        'Description').value = license_template_dict['description']
+        'Description').value = license_dict['description']
     browser.getControl('Duration').value = '30:20'
     browser.getControl('Save').click()
 
     assert (License.objects.get(
-            title=license_template_dict['title']).duration ==
+            title=license_dict['title']).duration ==
             datetime.timedelta(minutes=30, seconds=20))
 
 
 def test__licenses__models__1(
-        browser, user, license_request, license_template_dict):
+        browser, user, license, license_dict):
     """
     String representation.
 
@@ -317,45 +317,43 @@ def test__licenses__models__1(
     """
     browser.login()
     subtitle = 'Test Subtitle'
-    license_template_dict['subtitle'] = subtitle
-    license_with_subtitle = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    license_dict['subtitle'] = subtitle
+    license_with_subtitle = create_license(user.profile, license_dict)
 
-    assert str(license_request) == license_request.title
+    assert str(license) == license.title
     assert str(license_with_subtitle) in str(license_with_subtitle)
-    assert license_request.category.__str__() == default_category().name
+    assert license.category.__str__() == default_category().name
 
 
 def test__licenses__models__2(
-        db, license_request, license_template_dict, user):
+        db, license, license_dict, user):
     """Each new LR gets a unique, visible number."""
-    lr1 = license_request
-    lr2 = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    lr1 = license
+    lr2 = create_license(user.profile, license_dict)
 
     assert lr1.number == 1
     assert lr2.number == 2
 
 
-def test__licenses__models__3(db, license_request):
+def test__licenses__models__3(db, license):
     """The LR number always stays the same."""
-    n1 = license_request.number
-    license_request.subtitle = 'new_subtitle'
-    license_request.save()
-    n2 = license_request.number
+    n1 = license.number
+    license.subtitle = 'new_subtitle'
+    license.save()
+    n2 = license.number
 
     assert n1 == n2
 
 
-def test__licenses__models__4(browser, license_template_dict, user):
+def test__licenses__models__4(browser, license_dict, user):
     """A new LR must have a duration greater zero."""
     browser.login_admin()
     browser.follow('License Requests')
     browser.follow('Add License Request')
 
-    browser.getControl('Title').value = license_template_dict['title']
+    browser.getControl('Title').value = license_dict['title']
     browser.getControl(
-        'Description').value = license_template_dict['description']
+        'Description').value = license_dict['description']
     browser.getControl('Duration').value = '00:00'
     browser.getControl(str(user.profile)).click()  # select user
 
@@ -364,23 +362,23 @@ def test__licenses__models__4(browser, license_template_dict, user):
     assert 'Duration must not be null.' in browser.contents
 
 
-def test__licenses__generate_file__1(browser, user, license_request):
+def test__licenses__generate_file__1(browser, user, license):
     """The printed license contains the necessary data."""
     browser.login()
-    browser.open(details_url(license_request.id))
+    browser.open(details_url(license.id))
     browser.follow(id='id_print_LR')
 
     assert browser.headers['Content-Type'] == 'application/pdf'
     pdftext = pdfToText(browser.contents)
     assert user.email in pdftext
-    assert license_request.title in pdftext
+    assert license.title in pdftext
     assert 'x' in pdftext
 
 
-def test__licenses__views__FilledLicenseFile__1(browser, license_request):
+def test__licenses__views__FilledLicenseFile__1(browser, license):
     """If no user is logged in the site returns a 404."""
     with pytest.raises(HTTPError, match=r'.*404.*'):
-        browser.open(print_url(license_request.id))
+        browser.open(print_url(license.id))
 
 
 def test__licenses__views__FilledLicenseFile__2(db, user, browser):
@@ -393,12 +391,11 @@ def test__licenses__views__FilledLicenseFile__2(db, user, browser):
 
 
 def test__licenses__views__FilledLicenseFile__3(
-        browser, user, user_dict, license_request, license_template_dict):
+        browser, user, user_dict, license, license_dict):
     """A LR from another user can not be printed."""
     user_dict['email'] = f'new_{user_dict["email"]}'
     second_user = create_user(user_dict)
-    second_lr = create_license_request(
-        second_user.profile, default_category(), license_template_dict)
+    second_lr = create_license(second_user.profile, license_dict)
 
     browser.login()  # login with user
     browser.open(print_url(second_lr.id))
@@ -408,13 +405,12 @@ def test__licenses__views__FilledLicenseFile__3(
 
 
 def test__licenses__admin__LicenseAdmin__1(
-        browser, user, license_request, license_template_dict):
+        browser, user, license, license_dict):
     """Confirm multiple LRs."""
-    license_request.confirmed = True
-    license_request.save()
+    license.confirmed = True
+    license.save()
     for _ in range(3):
-        create_license_request(
-            user.profile, default_category(), license_template_dict)
+        create_license(user.profile, license_dict)
 
     browser.login_admin()
     browser.follow('License Requests')
@@ -431,12 +427,11 @@ def test__licenses__admin__LicenseAdmin__1(
 
 
 def test__licenses__admin__LicenseAdmin__2(
-        browser, user, license_request, license_template_dict):
+        browser, user, license, license_dict):
     """Unconfirm multiple LRs."""
-    license_request.save()
+    license.save()
     for _ in range(3):
-        lr = create_license_request(
-            user.profile, default_category(), license_template_dict)
+        lr = create_license(user.profile, license_dict)
         lr.confirmed = True
         lr.save()
 
@@ -454,43 +449,43 @@ def test__licenses__admin__LicenseAdmin__2(
         assert not lr.confirmed
 
 
-def test__licenses__admin__LicenseAdmin__3(browser, license_request):
+def test__licenses__admin__LicenseAdmin__3(browser, license):
     """Try to edit an confirmed License Request."""
-    license_request.confirmed = True
-    license_request.save()
+    license.confirmed = True
+    license.save()
 
     browser.login_admin()
     browser.follow('License Request')
-    browser.follow(license_request.title)
+    browser.follow(license.title)
 
     assert 'Confirmed licenses are not editable!' in browser.contents
 
 
-def test__licenses__admin__LicenseAdmin__4(browser, license_request):
+def test__licenses__admin__LicenseAdmin__4(browser, license):
     """Change a license request in the admin view."""
-    new_title = f'new_{license_request.title}'
+    new_title = f'new_{license.title}'
 
     browser.login_admin()
     browser.follow('License Request')
-    browser.follow(license_request.title)
+    browser.follow(license.title)
     browser.getControl('Title').value = new_title
     browser.getControl(name='_save').click()
 
-    lr = License.objects.get(id=license_request.id)
+    lr = License.objects.get(id=license.id)
     assert 'was changed successfully' in browser.contents
     assert lr.title == new_title
 
 
-def test__licenses__admin__LicenseAdmin__5(browser, license_request):
+def test__licenses__admin__LicenseAdmin__5(browser, license):
     """Change a LR without an actual change."""
     browser.login_admin()
     browser.follow('License Request')
-    browser.follow(license_request.title)
+    browser.follow(license.title)
     browser.getControl(name='_save').click()
 
-    lr = License.objects.get(id=license_request.id)
+    lr = License.objects.get(id=license.id)
     assert 'was changed successfully' in browser.contents
-    assert license_request == lr
+    assert license == lr
 
 
 def test__licenses__admin__LicenseAdmin__6(browser):
@@ -502,23 +497,23 @@ def test__licenses__admin__LicenseAdmin__6(browser):
     assert 'Number:' not in browser.contents
 
 
-def test__licenses__admin__LicenseAdmin__7(browser, license_request):
+def test__licenses__admin__LicenseAdmin__7(browser, license):
     """The number field is not visible when a LR gets add by an admin."""
     browser.login_admin()
     browser.follow('License Request')
-    browser.follow(license_request.title)
+    browser.follow(license.title)
 
     assert 'Number:' in browser.contents
 
 
 def test__licenses__admin__LicenseAdmin__8(
-        browser, license_template_dict, user_dict):
+        browser, license_dict, user_dict):
     """Show LRs with a profile without user."""
     profile = Profile.objects.create(
         first_name=user_dict['first_name'],
         last_name=user_dict['last_name']
     )
-    create_license_request(profile, default_category(), license_template_dict)
+    create_license(profile, license_dict)
 
     browser.login_admin()
     browser.follow('License Request')
@@ -527,11 +522,10 @@ def test__licenses__admin__LicenseAdmin__8(
 
 
 def test__licenses__admin__LicenseAdmin__9(
-        browser, license_template_dict, user):
+        browser, license_dict, user):
     """Filter LR by duration."""
     def _lr():
-        return create_license_request(
-            user.profile, default_category(), license_template_dict, )
+        return create_license(user.profile, license_dict, )
 
     def _a(str):
         assert str in browser.contents
@@ -587,13 +581,13 @@ def test__licenses__admin__LicenseAdmin__9(
     _a(over_1h.title)
 
 
-def test__licenses__admin__LicenseAdmin__10(browser, license_request):
+def test__licenses__admin__LicenseAdmin__10(browser, license):
     """Try to confirm a LR with unverified profile."""
     browser.login_admin()
     browser.follow('License Request')
-    browser.follow(license_request.title)
+    browser.follow(license.title)
 
-    profile = license_request.profile
+    profile = license.profile
     profile.verified = False
     profile.save()
 
@@ -601,12 +595,12 @@ def test__licenses__admin__LicenseAdmin__10(browser, license_request):
     browser.getControl(name='_save').click()
 
     assert 'corresponding profile is not verified' in browser.contents
-    assert not license_request.confirmed
+    assert not license.confirmed
 
 
-def test__licenses__admin__LicenseAdmin__11(browser, license_request):
+def test__licenses__admin__LicenseAdmin__11(browser, license):
     """Try to confirm LRs with unverified profiles."""
-    profile = license_request.profile
+    profile = license.profile
     profile.verified = False
     profile.save()
 
@@ -617,7 +611,7 @@ def test__licenses__admin__LicenseAdmin__11(browser, license_request):
     browser.getControl('Action').value = 'confirm'
     browser.getControl('Go').click()
 
-    assert f'profile of {license_request} is not verified' in browser.contents
+    assert f'profile of {license} is not verified' in browser.contents
     assert '0 License Requests were successfully confirmed' in browser.contents
 
 
@@ -630,21 +624,19 @@ def test__licenses__admin__DurationFilter__1():
             filter.queryset(None, None)
 
 
-def test__licenses__admin__YearFilter__1(browser, user, license_template_dict):
+def test__licenses__admin__YearFilter__1(browser, user, license_dict):
     """Licenses can be filtered by the year of its creation date."""
     created_at = datetime.datetime(
         day=8, month=9, year=datetime.datetime.now().year, tzinfo=TZ)
-    license_template_dict['title'] = 'new_title'
-    lr1 = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    license_dict['title'] = 'new_title'
+    lr1 = create_license(user.profile, license_dict)
     lr1.created_at = created_at
     lr1.save()
 
     created_at = datetime.datetime(
         day=8, month=9, year=(datetime.datetime.now().year-1), tzinfo=TZ)
-    license_template_dict['title'] = 'old_title'
-    lr2 = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    license_dict['title'] = 'old_title'
+    lr2 = create_license(user.profile, license_dict)
     lr2.created_at = created_at
     lr2.save()
 
@@ -669,9 +661,9 @@ def test__licenses__admin__YearFilter__2():
             filter.queryset(None, None)
 
 
-def test__licenses__admin__LicenseResource__1(browser, license_request):
+def test__licenses__admin__LicenseResource__1(browser, license):
     """Export the datetime properties using the current time zone."""
-    license_request.suggested_date = datetime.datetime(
+    license.suggested_date = datetime.datetime(
         year=2022,
         month=9,
         day=21,
@@ -679,7 +671,7 @@ def test__licenses__admin__LicenseResource__1(browser, license_request):
         tzinfo=TZ,
     )
 
-    license_request.created_at = datetime.datetime(
+    license.created_at = datetime.datetime(
         year=2022,
         month=9,
         day=20,
@@ -687,7 +679,7 @@ def test__licenses__admin__LicenseResource__1(browser, license_request):
         tzinfo=TZ,
     )
 
-    license_request.save()
+    license.save()
 
     browser.login_admin()
     browser.open(A_LICENSE_URL)
@@ -696,16 +688,16 @@ def test__licenses__admin__LicenseResource__1(browser, license_request):
     browser.getControl('Submit').click()
 
     assert browser.headers['Content-Type'] == 'text/csv'
-    assert str(license_request.suggested_date.date()) in str(browser.contents)
-    assert str(license_request.suggested_date.time()) in str(browser.contents)
-    assert str(license_request.created_at.date()) in str(browser.contents)
-    assert str(license_request.created_at.time()) in str(browser.contents)
+    assert str(license.suggested_date.date()) in str(browser.contents)
+    assert str(license.suggested_date.time()) in str(browser.contents)
+    assert str(license.created_at.date()) in str(browser.contents)
+    assert str(license.created_at.time()) in str(browser.contents)
 
 
-def test__licenses__admin__LicenseResource__2(browser, license_request):
+def test__licenses__admin__LicenseResource__2(browser, license):
     """Export a license without a suggested broadcast date."""
-    license_request.suggested_date = None
-    license_request.save()
+    license.suggested_date = None
+    license.save()
 
     browser.login_admin()
     browser.open(A_LICENSE_URL)
@@ -714,28 +706,23 @@ def test__licenses__admin__LicenseResource__2(browser, license_request):
     browser.getControl('Submit').click()
 
     assert browser.headers['Content-Type'] == 'text/csv'
-    assert str(license_request.title) in str(browser.contents)
+    assert str(license.title) in str(browser.contents)
 
 
 def test__licenses__admin__DurationRangeFilter__1(
-        browser, license_template_dict, user):
+        browser, license_dict, user):
     """Filter licenses after duration."""
-    category = default_category()
+    license_dict['duration'] = datetime.timedelta(minutes=5)
+    license_dict['title'] = 'license1'
+    license1 = create_license(user.profile, license_dict)
 
-    license_template_dict['duration'] = datetime.timedelta(minutes=5)
-    license_template_dict['title'] = 'license1'
-    license1 = create_license_request(
-        user.profile, category, license_template_dict)
+    license_dict['duration'] = datetime.timedelta(minutes=10)
+    license_dict['title'] = 'license2'
+    license2 = create_license(user.profile, license_dict)
 
-    license_template_dict['duration'] = datetime.timedelta(minutes=10)
-    license_template_dict['title'] = 'license2'
-    license2 = create_license_request(
-        user.profile, category, license_template_dict)
-
-    license_template_dict['title'] = 'license3'
-    license_template_dict['duration'] = datetime.timedelta(minutes=15)
-    license3 = create_license_request(
-        user.profile, category, license_template_dict)
+    license_dict['title'] = 'license3'
+    license_dict['duration'] = datetime.timedelta(minutes=15)
+    license3 = create_license(user.profile, license_dict)
 
     browser.login_admin()
     browser.open(A_LICENSE_URL)

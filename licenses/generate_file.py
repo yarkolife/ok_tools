@@ -151,4 +151,4 @@ def generate_license_file(user, lr: License) -> FileResponse:
 
         apl_stream.seek(0)
 
-    return FileResponse(apl_stream, filename=_('license_request.pdf'))
+    return FileResponse(apl_stream, filename=_('license.pdf'))

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-04 16:30+0200\n"
+"POT-Creation-Date: 2022-10-05 11:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,7 +52,7 @@ msgstr "Beteiligt"
 
 #: contributions/admin.py:99 contributions/templates/contributions/list.html:15
 #: licenses/admin.py:37 licenses/models.py:25 licenses/models.py:39
-#: licenses/models.py:154 licenses/templates/licenses/details.html:16
+#: licenses/models.py:137 licenses/templates/licenses/details.html:16
 msgid "Category"
 msgstr "Kategorie"
 
@@ -69,7 +69,7 @@ msgid "Broadcast Time"
 msgstr "Sendezeit"
 
 #: contributions/admin.py:172 contributions/admin.py:294 licenses/admin.py:34
-#: licenses/admin.py:244 licenses/models.py:145 registration/models.py:182
+#: licenses/admin.py:244 licenses/models.py:128 registration/models.py:182
 #: registration/templates/navbar.html:30
 msgid "Profile"
 msgstr "Profil"
@@ -127,7 +127,7 @@ msgstr "Primärbeitrag"
 msgid "User"
 msgstr "Nutzer"
 
-#: contributions/admin.py:322 licenses/admin.py:30 licenses/models.py:135
+#: contributions/admin.py:322 licenses/admin.py:30 licenses/models.py:118
 msgid "Number"
 msgstr "Nummer"
 
@@ -275,7 +275,7 @@ msgstr "Jugendschutz notwendig"
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: licenses/admin.py:49 licenses/models.py:165
+#: licenses/admin.py:49 licenses/models.py:148
 msgid "Screen Board"
 msgstr "Bildschirmtafel"
 
@@ -357,7 +357,7 @@ msgid "To"
 msgstr "Bis"
 
 #: licenses/generate_file.py:154
-msgid "license_request.pdf"
+msgid "license.pdf"
 msgstr "freistellung.pdf"
 
 #: licenses/models.py:40
@@ -372,27 +372,19 @@ msgstr "Nicht ausgewählt"
 msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
-#: licenses/models.py:126
-msgid "License Template"
-msgstr "Freistellungstemplate"
-
-#: licenses/models.py:127
-msgid "License Templates"
-msgstr "Freistellungstemplates"
-
-#: licenses/models.py:158 licenses/templates/licenses/list.html:13
+#: licenses/models.py:141 licenses/templates/licenses/list.html:13
 msgid "Confirmed"
 msgstr "Genehmigt"
 
-#: licenses/models.py:181
+#: licenses/models.py:171
 msgid "Duration must not be null."
 msgstr "Die Dauer darf nicht Null sein."
 
-#: licenses/models.py:217
+#: licenses/models.py:207
 msgid "License Request"
 msgstr "Freistellungsantrag"
 
-#: licenses/models.py:218
+#: licenses/models.py:208
 msgid "License Requests"
 msgstr "Freistellungsanträge"
 
