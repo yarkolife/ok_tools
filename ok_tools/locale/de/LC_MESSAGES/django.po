@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 12:18+0200\n"
+"POT-Creation-Date: 2022-10-05 14:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -512,43 +512,6 @@ msgstr ""
 "Die Freistellung %(license)s ist bereits genehmigt und somit nicht mehr "
 "veränderbar."
 
-#: ok_tools/templates/admin/base_site.html:6
-#: ok_tools/templates/admin/base_site.html:11
-msgid "Administrationinterface"
-msgstr "Verwaltungsoberfläche"
-
-#: ok_tools/templates/home.html:13
-msgid ""
-"\n"
-"    This account is not verified. Please print the application form, sign it "
-"and bring it with your personal ID back to us. The account will then be "
-"verified.\n"
-"    "
-msgstr ""
-"\n"
-"   Dieser Account ist nicht verifiziert. Bitte drucken Sie zuerst das "
-"Antragsformular (Nutzer*innenantrag) aus und bringen Sie es unterschrieben, "
-"zusammen mit Ihrem Personalausweis bei uns vorbei. Ihr Account wird dann von "
-"uns verifiziert."
-
-#: ok_tools/templates/home.html:18
-msgid "Application form"
-msgstr "Nutzer*innenantrag"
-
-#: ok_tools/templates/home.html:22
-msgid ""
-"\n"
-"    This account is verified.\n"
-"    "
-msgstr ""
-"\n"
-"    Ihr Account ist verifiziert.\n"
-"    "
-
-#: ok_tools/templates/home.html:27
-msgid "You are not logged in"
-msgstr "Sie sind nicht angemeldet."
-
 #: projects/admin.py:52 projects/models.py:136
 msgid "Topic"
 msgstr "Thema"
@@ -977,16 +940,12 @@ msgstr ""
 "Account ist jetzt vollständig aktiviert.\n"
 
 #: registration/templates/email/confirm_verification_body.html:11
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "You can now login and file a license request.\n"
 msgid ""
 "\n"
 "You can now login and file a license.\n"
 msgstr ""
 "\n"
-"Sie können sich jetzt einloggen und Freistellungsanträge erstellen.\n"
+"Sie können sich jetzt einloggen und Freistellungeng erstellen.\n"
 
 #: registration/templates/email/confirm_verification_body.html:20
 #: registration/templates/registration/password_reset_email.html:19
@@ -1236,3 +1195,40 @@ msgstr "Es existiert kein Profil für %(user)s"
 #: registration/views.py:200
 msgid "Your profile was successfully updated."
 msgstr "Ihr Profil wurde erfolgreich aktualisiert."
+
+#: ok_tools/templates/admin/base_site.html:6
+#: ok_tools/templates/admin/base_site.html:11
+msgid "Administrationinterface"
+msgstr "Verwaltungsoberfläche"
+
+#: ok_tools/templates/home.html:13
+msgid ""
+"\n"
+"    This account is not verified. Please print the application form, sign it "
+"and bring it with your personal ID back to us. The account will then be "
+"verified.\n"
+"    "
+msgstr ""
+"\n"
+"   Dieser Account ist nicht verifiziert. Bitte drucken Sie zuerst das "
+"Antragsformular (Nutzer*innenantrag) aus und bringen Sie es unterschrieben, "
+"zusammen mit Ihrem Personalausweis bei uns vorbei. Ihr Account wird dann von "
+"uns verifiziert."
+
+#: ok_tools/templates/home.html:18
+msgid "Application form"
+msgstr "Nutzer*innenantrag"
+
+#: ok_tools/templates/home.html:22
+msgid ""
+"\n"
+"    This account is verified.\n"
+"    "
+msgstr ""
+"\n"
+"    Ihr Account ist verifiziert.\n"
+"    "
+
+#: ok_tools/templates/home.html:27
+msgid "You are not logged in"
+msgstr "Sie sind nicht angemeldet."
