@@ -173,7 +173,7 @@ class YearFilter(admin.SimpleListFilter):
 class ProfileAdmin(ExportMixin, admin.ModelAdmin):
     """How should the profile be shown on the admin site."""
 
-    resource_class = ProfileResource
+    resource_classes = [ProfileResource]
 
     change_form_template = 'admin/registration_change_form_edit.html'
 

@@ -469,26 +469,26 @@ def test__contributions__admin__WeekFilter__1(
 
     license_dict['title'] = 'This week'
     license1 = create_license(user.profile, license_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week, 1)
+    bc_date = datetime.fromisocalendar(year, week, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr1 = create_contribution(license1, contribution_dict)
 
     license_dict['title'] = 'Next week'
     license2 = create_license(user.profile, license_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week+1, 1)
+    bc_date = datetime.fromisocalendar(year, week+1, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr2 = create_contribution(license2, contribution_dict)
 
     license_dict['title'] = 'After next week'
     license3 = create_license(user.profile, license_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week+2, 1)
+    bc_date = datetime.fromisocalendar(year, week+2, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr3 = create_contribution(license3, contribution_dict)
 
     license_dict['title'] = 'Far away'
     license4 = create_license(user.profile, license_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week+3, 1)
+    bc_date = datetime.fromisocalendar(year, week+3, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr4 = create_contribution(license4, contribution_dict)
 
     browser.login_admin()

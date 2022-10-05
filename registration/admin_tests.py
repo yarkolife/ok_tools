@@ -5,6 +5,7 @@ from .admin import YearFilter
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
+from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
@@ -238,7 +239,8 @@ def test__registration__admin__YearFilter__1(browser, user_dict):
 
     user_dict['email'] = 'user2@example.com'
     user2 = create_user(user_dict)
-    user2.profile.created_at = datetime.datetime.now().replace(year=year-1)
+    user2.profile.created_at = datetime.datetime.now().replace(
+        year=year-1, tzinfo=TZ)
     user2.profile.save()
 
     browser.login_admin()

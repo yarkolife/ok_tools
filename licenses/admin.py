@@ -213,7 +213,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     """How should the Licenses be shown on the admin site."""
 
     form = LicenseAdminForm
-    resource_class = LicenseResource
+    resource_classes = [LicenseResource]
 
     change_form_template = 'admin/licenses_change_form_edit.html'
     list_display = (
