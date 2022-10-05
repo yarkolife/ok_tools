@@ -715,3 +715,35 @@ def test__licenses__admin__LicenseRequestResource__2(browser, license_request):
 
     assert browser.headers['Content-Type'] == 'text/csv'
     assert str(license_request.title) in str(browser.contents)
+
+
+def test__licenses__admin__DurationRangeFilter__1(
+        browser, license_template_dict, user):
+    """Filter licenses after duration."""
+    category = default_category()
+
+    license_template_dict['duration'] = datetime.timedelta(minutes=5)
+    license_template_dict['title'] = 'license1'
+    license1 = create_license_request(
+        user.profile, category, license_template_dict)
+
+    license_template_dict['duration'] = datetime.timedelta(minutes=10)
+    license_template_dict['title'] = 'license2'
+    license2 = create_license_request(
+        user.profile, category, license_template_dict)
+
+    license_template_dict['title'] = 'license3'
+    license_template_dict['duration'] = datetime.timedelta(minutes=15)
+    license3 = create_license_request(
+        user.profile, category, license_template_dict)
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+
+    browser.getControl(name='duration_from').value = 6
+    browser.getControl(name='duration_to').value = 10
+    browser.getControl('Search', index=2).click()
+
+    assert license1.title not in browser.contents
+    assert license2.title in browser.contents
+    assert license3.title not in browser.contents
