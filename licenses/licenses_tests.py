@@ -1,7 +1,7 @@
 from .admin import DurationFilter
-from .admin import LicenseRequestAdmin
+from .admin import LicenseAdmin
 from .admin import YearFilter
-from .models import LicenseRequest
+from .models import License
 from .models import default_category
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -27,7 +27,7 @@ LIST_URL = f'{DOMAIN}{reverse_lazy("licenses:licenses")}'
 CREATE_URL = f'{DOMAIN}{reverse_lazy("licenses:create")}'
 LOGIN_URL = f'{DOMAIN}{reverse_lazy("login")}'
 A_LICENSE_URL = (f'{DOMAIN}'
-                 f'{reverse_lazy("admin:licenses_licenserequest_changelist")}')
+                 f'{reverse_lazy("admin:licenses_license_changelist")}')
 
 
 def details_url(id):
@@ -143,7 +143,7 @@ def test__licenses__views__UpdateLicensesView__1(browser, license_request):
     browser.getControl('Description').value = new_description
     browser.getControl('Save').click()
 
-    assert LicenseRequest.objects.get(description=new_description)
+    assert License.objects.get(description=new_description)
     assert browser.url == LIST_URL
     assert 'successfully edited.' in browser.contents
 
@@ -174,7 +174,7 @@ def test__licenses__views__UpdateLicensesView__3(browser, license_request):
 
     assert 'is already confirmed and therefor no longer editable.'\
         in browser.contents
-    lr = LicenseRequest.objects.get(id=license_request.id)
+    lr = License.objects.get(id=license_request.id)
     assert lr.description == old_description
 
 
@@ -186,7 +186,7 @@ def test__licenses__views__UpdateLicensesView__4(browser, license_request):
     browser.getControl('Screen Board').click()
     browser.getControl('Save').click()
 
-    assert (LicenseRequest.objects.get(id=license_request.id).duration ==
+    assert (License.objects.get(id=license_request.id).duration ==
             datetime.timedelta(seconds=settings.SCREEN_BOARD_DURATION))
 
 
@@ -221,7 +221,7 @@ def test__licenses__views__CreateLicenseView__3(browser, user):
     assert LIST_URL == browser.url
     assert 'Your licenses' in browser.contents
     assert 'successfully created' in browser.contents
-    assert LicenseRequest.objects.get(title=title)
+    assert License.objects.get(title=title)
 
 
 def test__licenses__views__CreateLicenseView__4(browser, user):
@@ -234,7 +234,7 @@ def test__licenses__views__CreateLicenseView__4(browser, user):
 
     assert CREATE_URL == browser.url
     assert 'This field is required' in browser.contents
-    assert not LicenseRequest.objects.filter()
+    assert not License.objects.filter()
 
 
 def test__licenses__views__CreateLicenseView__5(
@@ -248,7 +248,7 @@ def test__licenses__views__CreateLicenseView__5(
     browser.getControl('Screen Board').click()
     browser.getControl('Save').click()
 
-    assert (lr := LicenseRequest.objects.get(
+    assert (lr := License.objects.get(
         title=license_template_dict['title']))
     assert lr.duration == datetime.timedelta(
         seconds=settings.SCREEN_BOARD_DURATION)
@@ -262,7 +262,7 @@ def test__licenses__views__CreateLicenseView__6(browser):
     assert 'There is no profile' in browser.contents
 
 
-def test__licenses__forms__CreateLicenseRequestForm__1(
+def test__licenses__forms__CreateLicenseForm__1(
         browser, user, license_template_dict):
     """A LR needs a duration or needs to be a Screen Board."""
     browser.login()
@@ -273,10 +273,10 @@ def test__licenses__forms__CreateLicenseRequestForm__1(
     browser.getControl('Save').click()
 
     assert 'The duration field is required.' in browser.contents
-    assert not LicenseRequest.objects.filter()
+    assert not License.objects.filter()
 
 
-def test__licenses__forms__CreateLicenseRequestForm__2(
+def test__licenses__forms__CreateLicenseForm__2(
         browser, user, license_template_dict):
     """The duration field gets validated."""
     browser.login()
@@ -291,7 +291,7 @@ def test__licenses__forms__CreateLicenseRequestForm__2(
             in browser.contents)
 
 
-def test__licenses__forms__CreateLicenseRequestForm__3(
+def test__licenses__forms__CreateLicenseForm__3(
         browser, user, license_template_dict):
     """The duration field can have the input format mm:ss."""
     browser.login()
@@ -302,7 +302,7 @@ def test__licenses__forms__CreateLicenseRequestForm__3(
     browser.getControl('Duration').value = '30:20'
     browser.getControl('Save').click()
 
-    assert (LicenseRequest.objects.get(
+    assert (License.objects.get(
             title=license_template_dict['title']).duration ==
             datetime.timedelta(minutes=30, seconds=20))
 
@@ -312,7 +312,7 @@ def test__licenses__models__1(
     """
     String representation.
 
-    A LicenseRequest gets represented by its title and subtitle.
+    A License gets represented by its title and subtitle.
     A Category get represented by its name.
     """
     browser.login()
@@ -407,7 +407,7 @@ def test__licenses__views__FilledLicenseFile__3(
     assert 'License not found.' in browser.contents
 
 
-def test__licenses__admin__LicenseRequestAdmin__1(
+def test__licenses__admin__LicenseAdmin__1(
         browser, user, license_request, license_template_dict):
     """Confirm multiple LRs."""
     license_request.confirmed = True
@@ -426,11 +426,11 @@ def test__licenses__admin__LicenseRequestAdmin__1(
 
     assert '3 License Requests were successfully confirmed.'\
         in browser.contents
-    for lr in LicenseRequest.objects.filter():
+    for lr in License.objects.filter():
         assert lr.confirmed
 
 
-def test__licenses__admin__LicenseRequestAdmin__2(
+def test__licenses__admin__LicenseAdmin__2(
         browser, user, license_request, license_template_dict):
     """Unconfirm multiple LRs."""
     license_request.save()
@@ -450,11 +450,11 @@ def test__licenses__admin__LicenseRequestAdmin__2(
 
     assert '3 License Requests were successfully unconfirmed.'\
         in browser.contents
-    for lr in LicenseRequest.objects.filter():
+    for lr in License.objects.filter():
         assert not lr.confirmed
 
 
-def test__licenses__admin__LicenseRequestAdmin__3(browser, license_request):
+def test__licenses__admin__LicenseAdmin__3(browser, license_request):
     """Try to edit an confirmed License Request."""
     license_request.confirmed = True
     license_request.save()
@@ -466,7 +466,7 @@ def test__licenses__admin__LicenseRequestAdmin__3(browser, license_request):
     assert 'Confirmed licenses are not editable!' in browser.contents
 
 
-def test__licenses__admin__LicenseRequestAdmin__4(browser, license_request):
+def test__licenses__admin__LicenseAdmin__4(browser, license_request):
     """Change a license request in the admin view."""
     new_title = f'new_{license_request.title}'
 
@@ -476,24 +476,24 @@ def test__licenses__admin__LicenseRequestAdmin__4(browser, license_request):
     browser.getControl('Title').value = new_title
     browser.getControl(name='_save').click()
 
-    lr = LicenseRequest.objects.get(id=license_request.id)
+    lr = License.objects.get(id=license_request.id)
     assert 'was changed successfully' in browser.contents
     assert lr.title == new_title
 
 
-def test__licenses__admin__LicenseRequestAdmin__5(browser, license_request):
+def test__licenses__admin__LicenseAdmin__5(browser, license_request):
     """Change a LR without an actual change."""
     browser.login_admin()
     browser.follow('License Request')
     browser.follow(license_request.title)
     browser.getControl(name='_save').click()
 
-    lr = LicenseRequest.objects.get(id=license_request.id)
+    lr = License.objects.get(id=license_request.id)
     assert 'was changed successfully' in browser.contents
     assert license_request == lr
 
 
-def test__licenses__admin__LicenseRequestAdmin__6(browser):
+def test__licenses__admin__LicenseAdmin__6(browser):
     """The number field is not visible when a LR gets add by an admin."""
     browser.login_admin()
     browser.follow('License Request')
@@ -502,7 +502,7 @@ def test__licenses__admin__LicenseRequestAdmin__6(browser):
     assert 'Number:' not in browser.contents
 
 
-def test__licenses__admin__LicenseRequestAdmin__7(browser, license_request):
+def test__licenses__admin__LicenseAdmin__7(browser, license_request):
     """The number field is not visible when a LR gets add by an admin."""
     browser.login_admin()
     browser.follow('License Request')
@@ -511,7 +511,7 @@ def test__licenses__admin__LicenseRequestAdmin__7(browser, license_request):
     assert 'Number:' in browser.contents
 
 
-def test__licenses__admin__LicenseRequestAdmin__8(
+def test__licenses__admin__LicenseAdmin__8(
         browser, license_template_dict, user_dict):
     """Show LRs with a profile without user."""
     profile = Profile.objects.create(
@@ -526,7 +526,7 @@ def test__licenses__admin__LicenseRequestAdmin__8(
     assert '-' in browser.contents
 
 
-def test__licenses__admin__LicenseRequestAdmin__9(
+def test__licenses__admin__LicenseAdmin__9(
         browser, license_template_dict, user):
     """Filter LR by duration."""
     def _lr():
@@ -587,7 +587,7 @@ def test__licenses__admin__LicenseRequestAdmin__9(
     _a(over_1h.title)
 
 
-def test__licenses__admin__LicenseRequestAdmin__10(browser, license_request):
+def test__licenses__admin__LicenseAdmin__10(browser, license_request):
     """Try to confirm a LR with unverified profile."""
     browser.login_admin()
     browser.follow('License Request')
@@ -604,7 +604,7 @@ def test__licenses__admin__LicenseRequestAdmin__10(browser, license_request):
     assert not license_request.confirmed
 
 
-def test__licenses__admin__LicenseRequestAdmin__11(browser, license_request):
+def test__licenses__admin__LicenseAdmin__11(browser, license_request):
     """Try to confirm LRs with unverified profiles."""
     profile = license_request.profile
     profile.verified = False
@@ -626,7 +626,7 @@ def test__licenses__admin__DurationFilter__1():
     with patch.object(DurationFilter, 'value', return_value='invalid'):
         with pytest.raises(ValueError, match=r'Invalid value .*'):
             filter = DurationFilter(
-                {}, {}, LicenseRequest, LicenseRequestAdmin)
+                {}, {}, License, LicenseAdmin)
             filter.queryset(None, None)
 
 
@@ -665,11 +665,11 @@ def test__licenses__admin__YearFilter__2():
     with patch.object(YearFilter, 'value', return_value='invalid'):
         with pytest.raises(ValueError, match=r'Invalid value .*'):
             filter = YearFilter(
-                {}, {}, LicenseRequest, LicenseRequestAdmin)
+                {}, {}, License, LicenseAdmin)
             filter.queryset(None, None)
 
 
-def test__licenses__admin__LicenseRequestResource__1(browser, license_request):
+def test__licenses__admin__LicenseResource__1(browser, license_request):
     """Export the datetime properties using the current time zone."""
     license_request.suggested_date = datetime.datetime(
         year=2022,
@@ -702,7 +702,7 @@ def test__licenses__admin__LicenseRequestResource__1(browser, license_request):
     assert str(license_request.created_at.time()) in str(browser.contents)
 
 
-def test__licenses__admin__LicenseRequestResource__2(browser, license_request):
+def test__licenses__admin__LicenseResource__2(browser, license_request):
     """Export a license without a suggested broadcast date."""
     license_request.suggested_date = None
     license_request.save()

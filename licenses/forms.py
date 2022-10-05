@@ -1,4 +1,4 @@
-from .models import LicenseRequest
+from .models import License
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML
@@ -12,13 +12,13 @@ from django.utils.translation import gettext_lazy as _
 import re
 
 
-class CreateLicenseRequestForm(forms.ModelForm):
+class CreateLicenseForm(forms.ModelForm):
     """Form to create a license."""
 
     class Meta:
         """The okuser field is not visible for the user."""
 
-        model = LicenseRequest
+        model = License
         exclude = ('profile', 'confirmed', 'number')
 
         # TODO better widgets

@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
-from licenses.models import LicenseRequest
+from licenses.models import License
 from openpyxl import load_workbook
 from zoneinfo import ZoneInfo
 import logging
@@ -137,8 +137,8 @@ def disa_import(request, file):
         nr = re.match(r'^\d+', row[TITLE].value)[0]
 
         try:
-            license: LicenseRequest = LicenseRequest.objects.get(number=nr)
-        except LicenseRequest.DoesNotExist:
+            license: License = License.objects.get(number=nr)
+        except License.DoesNotExist:
             msg = _('No license with number %(n)s found.') % {'n': nr}
             logger.error(msg)
             messages.error(request, msg)

@@ -4,7 +4,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
-from licenses.models import LicenseRequest
+from licenses.models import License
 from projects.models import MediaEducationSupervisor
 from projects.models import Project
 from registration.models import Profile
@@ -57,13 +57,13 @@ def create_user(
 
 
 def create_license_request(
-        profile, category, license_template_dict) -> LicenseRequest:
+        profile, category, license_template_dict) -> License:
     """
-    Create a LicenseRequest.
+    Create a License.
 
     license_template_dict contains all data of an LicenseTemplate.
     """
-    return LicenseRequest.objects.create(
+    return License.objects.create(
         profile=profile,
         category=category,
         title=license_template_dict['title'],

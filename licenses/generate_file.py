@@ -1,4 +1,4 @@
-from .models import LicenseRequest
+from .models import License
 from PyPDF2 import PdfReader
 from PyPDF2 import PdfWriter
 from datetime import date
@@ -17,14 +17,14 @@ def f(p):
         return '  -------  '
 
 
-def generate_license_file(user, lr: LicenseRequest) -> FileResponse:
+def generate_license_file(user, lr: License) -> FileResponse:
     """
     Generate a License as pdf file.
 
     As template the '2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf' from
     https://www.okmq.de/images/Formulare/2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf
     is used.
-    The function assumes that the LicenseRequest has a user with profile.
+    The function assumes that the License has a user with profile.
     """
     TEXTSIZE = 7.5
 
