@@ -175,7 +175,7 @@ class License(models.Model):
     @transaction.atomic
     def save(self, update_fields=None, *args, **kwargs) -> None:
         """
-        Make confirmed License Requests not editable.
+        Make confirmed Licenses not editable.
 
         Nevertheless the confirmed status itself should stay editable.
         """
@@ -204,5 +204,5 @@ class License(models.Model):
     class Meta:
         """Defines the message IDs."""
 
-        verbose_name = _('License Request')
-        verbose_name_plural = _('License Requests')
+        verbose_name = _('License')
+        verbose_name_plural = _('Licenses')

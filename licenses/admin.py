@@ -248,23 +248,23 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         ('duration', DurationRangeFilter),
     ]
 
-    @admin.action(description=_('Confirm selected License Requests'))
+    @admin.action(description=_('Confirm selected Licenses'))
     def confirm(self, request, queryset):
         """Confirm all selected profiles."""
         updated = self._set_confirmed(request, queryset, True)
         self.message_user(request, _p(
-            '%d License Request was successfully confirmed.',
-            '%d License Requests were successfully confirmed.',
+            '%d License was successfully confirmed.',
+            '%d Licenses were successfully confirmed.',
             updated
         ) % updated, messages.SUCCESS)
 
-    @admin.action(description=_('Unconfirm selected License Requests'))
+    @admin.action(description=_('Unconfirm selected Licenses'))
     def unconfirm(self, request, queryset):
         """Unconfirm all selected profiles."""
         updated = self._set_confirmed(request, queryset, False)
         self.message_user(request, _p(
-            '%d License Request was successfully unconfirmed.',
-            '%d License Requests were successfully unconfirmed.',
+            '%d License was successfully unconfirmed.',
+            '%d Licenses were successfully unconfirmed.',
             updated
         ) % updated, messages.SUCCESS)
 

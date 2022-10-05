@@ -68,7 +68,7 @@ def test__licenses__views__ListLicensesView__3(db, browser, license):
     browser.open(LIST_URL)
 
     assert str(license) in browser.contents
-    assert 'No' in browser.contents  # the License Request is not confirmed
+    assert 'No' in browser.contents  # the License is not confirmed
 
 
 def test__licenses__views__ListLicensesView__4(browser, license):
@@ -79,7 +79,7 @@ def test__licenses__views__ListLicensesView__4(browser, license):
     browser.open(LIST_URL)
 
     assert str(license) in browser.contents
-    assert 'Yes' in browser.contents  # the License Request is confirmed
+    assert 'Yes' in browser.contents  # the License is confirmed
 
 
 def test__licenses__views__ListLicensesView__5(browser, user, license):
@@ -194,8 +194,8 @@ def test__licenses__views__CreateLicenseView__1(browser, user):
     """A logged in user can access the create site."""
     browser.login()
     browser.open(HOME_URL)
-    browser.follow('Licenses')
-    browser.follow('Create')
+    open('response.html', 'w').write(browser.contents)
+    browser.follow('Create license')
 
     assert CREATE_URL == browser.url
     assert 'Create a license' in browser.contents
@@ -348,8 +348,8 @@ def test__licenses__models__3(db, license):
 def test__licenses__models__4(browser, license_dict, user):
     """A new LR must have a duration greater zero."""
     browser.login_admin()
-    browser.follow('License Requests')
-    browser.follow('Add License Request')
+    browser.open(A_LICENSE_URL)
+    browser.follow('Add License')
 
     browser.getControl('Title').value = license_dict['title']
     browser.getControl(
@@ -413,15 +413,15 @@ def test__licenses__admin__LicenseAdmin__1(
         create_license(user.profile, license_dict)
 
     browser.login_admin()
-    browser.follow('License Requests')
+    browser.open(A_LICENSE_URL)
     for i in range(4):
         # select all LRs
         browser.getControl(name='_selected_action').controls[i].click()
     browser.getControl('Action').value = 'confirm'
     browser.getControl('Go').click()
 
-    assert '3 License Requests were successfully confirmed.'\
-        in browser.contents
+    assert ('3 Licenses were successfully confirmed.'
+            in browser.contents)
     for lr in License.objects.filter():
         assert lr.confirmed
 
@@ -436,37 +436,37 @@ def test__licenses__admin__LicenseAdmin__2(
         lr.save()
 
     browser.login_admin()
-    browser.follow('License Requests')
+    browser.open(A_LICENSE_URL)
     for i in range(4):
         # select all LRs
         browser.getControl(name='_selected_action').controls[i].click()
     browser.getControl('Action').value = 'unconfirm'
     browser.getControl('Go').click()
 
-    assert '3 License Requests were successfully unconfirmed.'\
-        in browser.contents
+    assert ('3 Licenses were successfully unconfirmed.'
+            in browser.contents)
     for lr in License.objects.filter():
         assert not lr.confirmed
 
 
 def test__licenses__admin__LicenseAdmin__3(browser, license):
-    """Try to edit an confirmed License Request."""
+    """Try to edit an confirmed License."""
     license.confirmed = True
     license.save()
 
     browser.login_admin()
-    browser.follow('License Request')
+    browser.open(A_LICENSE_URL)
     browser.follow(license.title)
 
     assert 'Confirmed licenses are not editable!' in browser.contents
 
 
 def test__licenses__admin__LicenseAdmin__4(browser, license):
-    """Change a license request in the admin view."""
+    """Change a license in the admin view."""
     new_title = f'new_{license.title}'
 
     browser.login_admin()
-    browser.follow('License Request')
+    browser.open(A_LICENSE_URL)
     browser.follow(license.title)
     browser.getControl('Title').value = new_title
     browser.getControl(name='_save').click()
@@ -479,7 +479,7 @@ def test__licenses__admin__LicenseAdmin__4(browser, license):
 def test__licenses__admin__LicenseAdmin__5(browser, license):
     """Change a LR without an actual change."""
     browser.login_admin()
-    browser.follow('License Request')
+    browser.open(A_LICENSE_URL)
     browser.follow(license.title)
     browser.getControl(name='_save').click()
 
@@ -491,8 +491,8 @@ def test__licenses__admin__LicenseAdmin__5(browser, license):
 def test__licenses__admin__LicenseAdmin__6(browser):
     """The number field is not visible when a LR gets add by an admin."""
     browser.login_admin()
-    browser.follow('License Request')
-    browser.follow('Add License Request')
+    browser.open(A_LICENSE_URL)
+    browser.follow('Add License')
 
     assert 'Number:' not in browser.contents
 
@@ -500,7 +500,7 @@ def test__licenses__admin__LicenseAdmin__6(browser):
 def test__licenses__admin__LicenseAdmin__7(browser, license):
     """The number field is not visible when a LR gets add by an admin."""
     browser.login_admin()
-    browser.follow('License Request')
+    browser.open(A_LICENSE_URL)
     browser.follow(license.title)
 
     assert 'Number:' in browser.contents
@@ -516,7 +516,7 @@ def test__licenses__admin__LicenseAdmin__8(
     create_license(profile, license_dict)
 
     browser.login_admin()
-    browser.follow('License Request')
+    browser.follow('License')
 
     assert '-' in browser.contents
 
@@ -554,7 +554,7 @@ def test__licenses__admin__LicenseAdmin__9(
     over_1h.save()
 
     browser.login_admin()
-    browser.follow('License Request')
+    browser.open(A_LICENSE_URL)
 
     browser.follow('<= 10 minutes')
     _a(until_10.title)
@@ -584,7 +584,7 @@ def test__licenses__admin__LicenseAdmin__9(
 def test__licenses__admin__LicenseAdmin__10(browser, license):
     """Try to confirm a LR with unverified profile."""
     browser.login_admin()
-    browser.follow('License Request')
+    browser.open(A_LICENSE_URL)
     browser.follow(license.title)
 
     profile = license.profile
@@ -605,14 +605,14 @@ def test__licenses__admin__LicenseAdmin__11(browser, license):
     profile.save()
 
     browser.login_admin()
-    browser.follow('License Request')
+    browser.open(A_LICENSE_URL)
 
     browser.getControl(name='_selected_action').controls[0].selected = True
     browser.getControl('Action').value = 'confirm'
     browser.getControl('Go').click()
 
     assert f'profile of {license} is not verified' in browser.contents
-    assert '0 License Requests were successfully confirmed' in browser.contents
+    assert '0 Licenses were successfully confirmed' in browser.contents
 
 
 def test__licenses__admin__DurationFilter__1():

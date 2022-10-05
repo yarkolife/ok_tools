@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 11:20+0200\n"
+"POT-Creation-Date: 2022-10-05 12:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -183,7 +183,8 @@ msgstr ""
 msgid "Successfully created %d contributions."
 msgstr "Erfolgreich %d Beiträge erstellt."
 
-#: contributions/models.py:19 licenses/templates/licenses/list.html:12
+#: contributions/models.py:19 licenses/models.py:207
+#: licenses/templates/licenses/list.html:12
 msgid "License"
 msgstr "Freistellung"
 
@@ -316,11 +317,11 @@ msgid "title, subtitle, number, description, further persons"
 msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
 
 #: licenses/admin.py:251
-msgid "Confirm selected License Requests"
+msgid "Confirm selected Licenses"
 msgstr "Ausgewählte Freistellungen genehmigen"
 
 #: licenses/admin.py:261
-msgid "Unconfirm selected License Requests"
+msgid "Unconfirm selected Licenses"
 msgstr "Ausgewählte Freistellungen zurückziehen"
 
 #: licenses/admin.py:286
@@ -332,7 +333,8 @@ msgstr ""
 "Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Lizenz kann nicht "
 "bestätigt werden, bis das Profil verifiziert ist."
 
-#: licenses/apps.py:10 registration/templates/navbar.html:56
+#: licenses/apps.py:10 licenses/models.py:208
+#: registration/templates/navbar.html:56
 msgid "Licenses"
 msgstr "Freistellungen"
 
@@ -379,14 +381,6 @@ msgstr "Genehmigt"
 #: licenses/models.py:171
 msgid "Duration must not be null."
 msgstr "Die Dauer darf nicht Null sein."
-
-#: licenses/models.py:207
-msgid "License Request"
-msgstr "Freistellungsantrag"
-
-#: licenses/models.py:208
-msgid "License Requests"
-msgstr "Freistellungsanträge"
 
 #: licenses/templates/admin/filter_numeric_range.html:39
 #, python-format
@@ -983,9 +977,13 @@ msgstr ""
 "Account ist jetzt vollständig aktiviert.\n"
 
 #: registration/templates/email/confirm_verification_body.html:11
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "You can now login and file a license request.\n"
 msgid ""
 "\n"
-"You can now login and file a license request.\n"
+"You can now login and file a license.\n"
 msgstr ""
 "\n"
 "Sie können sich jetzt einloggen und Freistellungsanträge erstellen.\n"

@@ -107,7 +107,7 @@ def license_dict() -> dict:
 
 @pytest.fixture(scope='function')
 def license(user, license_dict):
-    """Return a license request."""
+    """Return a license."""
     profile = user.profile
     profile.verified = True
     profile.save()

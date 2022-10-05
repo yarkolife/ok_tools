@@ -99,7 +99,7 @@ class UpdateLicensesView(generic.edit.UpdateView):
         return super().get_success_url()
 
     def post(self, request, *args, **kwargs) -> http.HttpResponse:
-        """Show error message for editing confirmed License Requests."""
+        """Show error message for editing confirmed Licenses."""
         license = self.get_object()
         if license.confirmed:
             message = _('The License %(license)s is already confirmed and'
@@ -136,7 +136,7 @@ class FilledLicenseFile(generic.View):
     """View to deliver a filled license document."""
 
     def get(self, request, pk):
-        """Print a license file of the current license request."""
+        """Print a license file of the current license."""
         try:
             license = License.objects.get(pk=pk)
         except License.DoesNotExist:
