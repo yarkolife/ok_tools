@@ -45,8 +45,8 @@ def default_category():
     return Category.objects.get_or_create(name=_('Not Selected'))[0]
 
 
-class LicenseTemplate(models.Model):
-    """Fields that are used vor a LicenseRequest and a finished License."""
+class License(models.Model):
+    """Model representing a (Beitragsfreistellung)."""
 
     title = models.CharField(
         _('Title'),
@@ -113,23 +113,6 @@ class LicenseTemplate(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:
-        """Licenses are represented by its titles."""
-        if self.subtitle:
-            return f'{self.title} - {self.subtitle}'
-        else:
-            return self.title or ""
-
-    class Meta:
-        """Defines the message IDs."""
-
-        verbose_name = _('License Template')
-        verbose_name_plural = _('License Templates')
-
-
-class LicenseRequest(LicenseTemplate, models.Model):
-    """Model representing a license request (Beitragsfreistellung)."""
-
     # a visible identification number (not djangos id)
     number = models.IntegerField(
         _('Number'),
@@ -168,6 +151,13 @@ class LicenseRequest(LicenseTemplate, models.Model):
         default=False,
     )
 
+    def __str__(self) -> str:
+        """Licenses are represented by its titles."""
+        if self.subtitle:
+            return f'{self.title} - {self.subtitle}'
+        else:
+            return self.title or ""
+
     def clean(self) -> None:
         """Either the LR is a screen_board or the duration isn't null."""
         if self.is_screen_board:
@@ -185,16 +175,16 @@ class LicenseRequest(LicenseTemplate, models.Model):
     @transaction.atomic
     def save(self, update_fields=None, *args, **kwargs) -> None:
         """
-        Make confirmed License Requests not editable.
+        Make confirmed Licenses not editable.
 
         Nevertheless the confirmed status itself should stay editable.
         """
         # Emulate an Autofield for number.
         if self.id is None:  # license is new created
 
-            if (LicenseRequest.objects.filter(number=self.number) and
+            if (License.objects.filter(number=self.number) and
                     # number already exists
-                    (last := LicenseRequest.objects.order_by('number')
+                    (last := License.objects.order_by('number')
                      .last())):
                 i = last.number
                 i += 1
@@ -202,7 +192,7 @@ class LicenseRequest(LicenseTemplate, models.Model):
 
             return super().save(*args, **kwargs)
 
-        old = LicenseRequest.objects.get(id=self.id)
+        old = License.objects.get(id=self.id)
 
         # editing is allowed if only action was to unconfirm license
         if old.confirmed and update_fields != ['confirmed']:
@@ -214,5 +204,5 @@ class LicenseRequest(LicenseTemplate, models.Model):
     class Meta:
         """Defines the message IDs."""
 
-        verbose_name = _('License Request')
-        verbose_name_plural = _('License Requests')
+        verbose_name = _('License')
+        verbose_name_plural = _('Licenses')

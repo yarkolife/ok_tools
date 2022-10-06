@@ -15,7 +15,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.urls import reverse_lazy
-from licenses.models import default_category
 from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
@@ -23,7 +22,7 @@ from ok_tools.testing import PWD
 from ok_tools.testing import _open
 from ok_tools.testing import create_contribution
 from ok_tools.testing import create_disaimport
-from ok_tools.testing import create_license_request
+from ok_tools.testing import create_license
 from ok_tools.testing import create_user
 from unittest.mock import patch
 import pytest
@@ -71,13 +70,13 @@ def test__contributions__admin__ContributionsAdmin__1(browser, contribution):
 
 
 def test__contributions__view__ListContributionsView__1(
-        browser, contribution_dict, license_request):
+        browser, contribution_dict, license):
     """A user can see his/her contributions."""
-    con1 = create_contribution(license_request, contribution_dict)
+    con1 = create_contribution(license, contribution_dict)
 
     contribution_dict['broadcast_date'] = datetime(
         year=2022, month=9, day=12, hour=12, tzinfo=TZ)
-    con2 = create_contribution(license_request, contribution_dict)
+    con2 = create_contribution(license, contribution_dict)
 
     browser.login()
     browser.open(CONTRIBUTION_URL)
@@ -109,7 +108,7 @@ def test__contributions__view__ListContributionsView__3(
 
 
 def test__contributions__admin__ContributionsAdmin__4(
-        db, license_request, contribution_dict, browser):
+        db, license, contribution_dict, browser):
     """Show primary contributions as those."""
     contribution_dict['broadcast_date'] = datetime(
         year=2022,
@@ -118,7 +117,7 @@ def test__contributions__admin__ContributionsAdmin__4(
         hour=8,
         tzinfo=TZ,
     )
-    early_contr = create_contribution(license_request, contribution_dict)
+    early_contr = create_contribution(license, contribution_dict)
 
     contribution_dict['broadcast_date'] = datetime(
         year=2022,
@@ -127,7 +126,7 @@ def test__contributions__admin__ContributionsAdmin__4(
         hour=18,
         tzinfo=TZ,
     )
-    late_contr = create_contribution(license_request, contribution_dict)
+    late_contr = create_contribution(license, contribution_dict)
 
     browser.login_admin()
 
@@ -138,7 +137,7 @@ def test__contributions__admin__ContributionsAdmin__4(
     assert 'alt="False"' in browser.contents
 
 
-def test__contributions__models__1(db, license_request, contribution_dict):
+def test__contributions__models__1(db, license, contribution_dict):
     """Mark the primary contribution."""
     contribution_dict['broadcast_date'] = datetime(
         year=2022,
@@ -147,7 +146,7 @@ def test__contributions__models__1(db, license_request, contribution_dict):
         hour=8,
         tzinfo=TZ,
     )
-    early_contr = create_contribution(license_request, contribution_dict)
+    early_contr = create_contribution(license, contribution_dict)
 
     contribution_dict['broadcast_date'] = datetime(
         year=2022,
@@ -156,7 +155,7 @@ def test__contributions__models__1(db, license_request, contribution_dict):
         hour=18,
         tzinfo=TZ,
     )
-    late_contr = create_contribution(license_request, contribution_dict)
+    late_contr = create_contribution(license, contribution_dict)
 
     assert early_contr.is_primary()
     assert not late_contr.is_primary()
@@ -198,7 +197,7 @@ def test__contributions__disa_import__validate__5():
             validate(f)
 
 
-def test__contributions__disa_import__1(db, mocked_request, license_request):
+def test__contributions__disa_import__1(db, mocked_request, license):
     """Import a contribution from DISA export."""
     with _open('valid.xlsx') as f:
         disa_import(mocked_request, f)
@@ -206,7 +205,7 @@ def test__contributions__disa_import__1(db, mocked_request, license_request):
     assert Contribution.objects.filter()
 
 
-def test__contributions__disa_import__2(db, mocked_request, license_request):
+def test__contributions__disa_import__2(db, mocked_request, license):
     """Do not create duplicated contributions."""
     with _open('double.xlsx') as f:
         disa_import(mocked_request, f)
@@ -214,7 +213,7 @@ def test__contributions__disa_import__2(db, mocked_request, license_request):
     assert len(Contribution.objects.filter()) == 1
 
 
-def test__contributions__disa_import__3(db, mocked_request, license_request):
+def test__contributions__disa_import__3(db, mocked_request, license):
     """Ignore everything after a blank line."""
     with _open('blank_line.xlsx') as f:
         disa_import(mocked_request, f)
@@ -232,10 +231,10 @@ def test__contributions__disa_import__4(browser, disaimport):
     assert 'No license with number 1 found.' in browser.contents
 
 
-def test__contributions__disa_import__5(browser, db, license_request):
+def test__contributions__disa_import__5(browser, db, license):
     """Don't import repetitions if no repetitions are allowed."""
-    license_request.repetitions_allowed = False
-    license_request.save()
+    license.repetitions_allowed = False
+    license.save()
 
     disaimport = DisaImport()
     with _open('repetitions.xlsx') as f:
@@ -246,11 +245,11 @@ def test__contributions__disa_import__5(browser, db, license_request):
     browser.open(disa_url_change(disaimport.id))
     browser.getControl(name='_import_disa').click()
 
-    assert len(Contribution.objects.filter(license=license_request)) == 1
+    assert len(Contribution.objects.filter(license=license)) == 1
     assert 'No repetitions for number 1 allowed' in browser.contents
 
 
-def test__contributions__disa_import__6(db, mocked_request, license_request):
+def test__contributions__disa_import__6(db, mocked_request, license):
     """Update contributions with another import."""
     with _open('valid.xlsx') as f:
         disa_import(mocked_request, f)
@@ -280,7 +279,7 @@ def test__contributions__disa_import___check_title():
     assert not _check_title('2022Trailer', '')
 
 
-def test__contributions__admin__1(browser, db, license_request):
+def test__contributions__admin__1(browser, db, license):
     """Import multiple DISA export files."""
     # create 3 DISA export files
     for _ in range(3):
@@ -312,19 +311,17 @@ def test__contributions__admin__2(browser, disaimport):
 
 
 def test__contributions__admin__YearFilter__1(
-        browser, user, license_template_dict, contribution_dict):
+        browser, user, license_dict, contribution_dict):
     """Filter contributions after year."""
-    license_template_dict['title'] = 'new_title'
-    lr1 = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    license_dict['title'] = 'new_title'
+    lr1 = create_license(user.profile, license_dict)
 
     contribution_dict['broadcast_date'] = datetime(
         day=8, month=9, year=datetime.now().year, tzinfo=TZ)
     contr1 = create_contribution(lr1, contribution_dict)
 
-    license_template_dict['title'] = 'old_title'
-    lr2 = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    license_dict['title'] = 'old_title'
+    lr2 = create_license(user.profile, license_dict)
 
     contribution_dict['broadcast_date'] = datetime(
         day=8, month=9, year=datetime.now().year-1, tzinfo=TZ)
@@ -352,7 +349,7 @@ def test__contributions__admin__YearFilter__2():
 
 
 def test__contributions__admin__ContributionResource__1(
-        browser, license_request, contribution_dict):
+        browser, license, contribution_dict):
     """Export primary contributions only."""
     contribution_dict['broadcast_date'] = datetime(
         year=2022,
@@ -361,7 +358,7 @@ def test__contributions__admin__ContributionResource__1(
         hour=9,
         tzinfo=TZ,
     )
-    contr1 = create_contribution(license_request, contribution_dict)
+    contr1 = create_contribution(license, contribution_dict)
 
     contribution_dict['broadcast_date'] = datetime(
         year=2022,
@@ -370,7 +367,7 @@ def test__contributions__admin__ContributionResource__1(
         hour=18,
         tzinfo=TZ,
     )
-    contr2 = create_contribution(license_request, contribution_dict)
+    contr2 = create_contribution(license, contribution_dict)
 
     assert contr1.is_primary()
     assert not contr2.is_primary()
@@ -394,7 +391,7 @@ def test__contributions__admin__ContributionResource__2(db):
 
 
 def test__contributions__admin__ContributionResource__3(
-        browser, license_request, contribution_dict):
+        browser, license, contribution_dict):
     """Export the broadcast date with the right timezone."""
     contribution_dict['broadcast_date'] = datetime(
         year=2022,
@@ -403,7 +400,7 @@ def test__contributions__admin__ContributionResource__3(
         hour=0,
         tzinfo=TZ,
     )
-    contr1 = create_contribution(license_request, contribution_dict)
+    contr1 = create_contribution(license, contribution_dict)
     browser.login_admin()
     browser.open(A_CON_URL)
 
@@ -418,19 +415,17 @@ def test__contributions__admin__ContributionResource__3(
 
 
 def test__contributions__admin__ProgramResource__1(
-        browser, license_template_dict, user, contribution_dict):
+        browser, license_dict, user, contribution_dict):
     """Export the programm."""
-    license_template_dict['title'] = 'first_title'
-    license_template_dict['duration'] = timedelta(hours=1, minutes=30)
-    license1 = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    license_dict['title'] = 'first_title'
+    license_dict['duration'] = timedelta(hours=1, minutes=30)
+    license1 = create_license(user.profile, license_dict)
 
     contribution_dict['broadcast_date'] = datetime(2022, 9, 28, 9, tzinfo=TZ)
     contr1 = create_contribution(license1, contribution_dict)
 
-    license_template_dict['title'] = 'second_title'
-    license2 = create_license_request(
-        user.profile, default_category(), license_template_dict)
+    license_dict['title'] = 'second_title'
+    license2 = create_license(user.profile, license_dict)
 
     contribution_dict['broadcast_date'] = datetime(
         2022, 9, 28, 10, 30, tzinfo=TZ)
@@ -466,39 +461,34 @@ def test__contributions__admin__ProgramResource__2(db):
 
 
 def test__contributions__admin__WeekFilter__1(
-        browser, user, license_template_dict, contribution_dict):
+        browser, user, license_dict, contribution_dict):
     """Filter contributions are filterable after their broadcast week."""
-    category = default_category()
     now = datetime.now()
     week = now.date().isocalendar().week
     year = now.year
 
-    license_template_dict['title'] = 'This week'
-    license1 = create_license_request(
-        user.profile, category, license_template_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week, 1)
+    license_dict['title'] = 'This week'
+    license1 = create_license(user.profile, license_dict)
+    bc_date = datetime.fromisocalendar(year, week, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr1 = create_contribution(license1, contribution_dict)
 
-    license_template_dict['title'] = 'Next week'
-    license2 = create_license_request(
-        user.profile, category, license_template_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week+1, 1)
+    license_dict['title'] = 'Next week'
+    license2 = create_license(user.profile, license_dict)
+    bc_date = datetime.fromisocalendar(year, week+1, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr2 = create_contribution(license2, contribution_dict)
 
-    license_template_dict['title'] = 'After next week'
-    license3 = create_license_request(
-        user.profile, category, license_template_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week+2, 1)
+    license_dict['title'] = 'After next week'
+    license3 = create_license(user.profile, license_dict)
+    bc_date = datetime.fromisocalendar(year, week+2, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr3 = create_contribution(license3, contribution_dict)
 
-    license_template_dict['title'] = 'Far away'
-    license4 = create_license_request(
-        user.profile, category, license_template_dict)
-    contribution_dict['broadcast_date'] = datetime.fromisocalendar(
-        year, week+3, 1)
+    license_dict['title'] = 'Far away'
+    license4 = create_license(user.profile, license_dict)
+    bc_date = datetime.fromisocalendar(year, week+3, 1)
+    contribution_dict['broadcast_date'] = bc_date.replace(tzinfo=TZ)
     contr4 = create_contribution(license4, contribution_dict)
 
     browser.login_admin()

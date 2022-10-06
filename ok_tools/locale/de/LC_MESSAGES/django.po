@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-04 16:30+0200\n"
+"POT-Creation-Date: 2022-10-05 14:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,7 +52,7 @@ msgstr "Beteiligt"
 
 #: contributions/admin.py:99 contributions/templates/contributions/list.html:15
 #: licenses/admin.py:37 licenses/models.py:25 licenses/models.py:39
-#: licenses/models.py:154 licenses/templates/licenses/details.html:16
+#: licenses/models.py:137 licenses/templates/licenses/details.html:16
 msgid "Category"
 msgstr "Kategorie"
 
@@ -69,7 +69,7 @@ msgid "Broadcast Time"
 msgstr "Sendezeit"
 
 #: contributions/admin.py:172 contributions/admin.py:294 licenses/admin.py:34
-#: licenses/admin.py:244 licenses/models.py:145 registration/models.py:182
+#: licenses/admin.py:244 licenses/models.py:128 registration/models.py:182
 #: registration/templates/navbar.html:30
 msgid "Profile"
 msgstr "Profil"
@@ -127,7 +127,7 @@ msgstr "Primärbeitrag"
 msgid "User"
 msgstr "Nutzer"
 
-#: contributions/admin.py:322 licenses/admin.py:30 licenses/models.py:135
+#: contributions/admin.py:322 licenses/admin.py:30 licenses/models.py:118
 msgid "Number"
 msgstr "Nummer"
 
@@ -183,7 +183,8 @@ msgstr ""
 msgid "Successfully created %d contributions."
 msgstr "Erfolgreich %d Beiträge erstellt."
 
-#: contributions/models.py:19 licenses/templates/licenses/list.html:12
+#: contributions/models.py:19 licenses/models.py:207
+#: licenses/templates/licenses/list.html:12
 msgid "License"
 msgstr "Freistellung"
 
@@ -275,7 +276,7 @@ msgstr "Jugendschutz notwendig"
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: licenses/admin.py:49 licenses/models.py:165
+#: licenses/admin.py:49 licenses/models.py:148
 msgid "Screen Board"
 msgstr "Bildschirmtafel"
 
@@ -316,11 +317,11 @@ msgid "title, subtitle, number, description, further persons"
 msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
 
 #: licenses/admin.py:251
-msgid "Confirm selected License Requests"
+msgid "Confirm selected Licenses"
 msgstr "Ausgewählte Freistellungen genehmigen"
 
 #: licenses/admin.py:261
-msgid "Unconfirm selected License Requests"
+msgid "Unconfirm selected Licenses"
 msgstr "Ausgewählte Freistellungen zurückziehen"
 
 #: licenses/admin.py:286
@@ -332,7 +333,8 @@ msgstr ""
 "Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Lizenz kann nicht "
 "bestätigt werden, bis das Profil verifiziert ist."
 
-#: licenses/apps.py:10 registration/templates/navbar.html:56
+#: licenses/apps.py:10 licenses/models.py:208
+#: registration/templates/navbar.html:56
 msgid "Licenses"
 msgstr "Freistellungen"
 
@@ -357,7 +359,7 @@ msgid "To"
 msgstr "Bis"
 
 #: licenses/generate_file.py:154
-msgid "license_request.pdf"
+msgid "license.pdf"
 msgstr "freistellung.pdf"
 
 #: licenses/models.py:40
@@ -372,29 +374,13 @@ msgstr "Nicht ausgewählt"
 msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
-#: licenses/models.py:126
-msgid "License Template"
-msgstr "Freistellungstemplate"
-
-#: licenses/models.py:127
-msgid "License Templates"
-msgstr "Freistellungstemplates"
-
-#: licenses/models.py:158 licenses/templates/licenses/list.html:13
+#: licenses/models.py:141 licenses/templates/licenses/list.html:13
 msgid "Confirmed"
 msgstr "Genehmigt"
 
-#: licenses/models.py:181
+#: licenses/models.py:171
 msgid "Duration must not be null."
 msgstr "Die Dauer darf nicht Null sein."
-
-#: licenses/models.py:217
-msgid "License Request"
-msgstr "Freistellungsantrag"
-
-#: licenses/models.py:218
-msgid "License Requests"
-msgstr "Freistellungsanträge"
 
 #: licenses/templates/admin/filter_numeric_range.html:39
 #, python-format
@@ -525,43 +511,6 @@ msgid ""
 msgstr ""
 "Die Freistellung %(license)s ist bereits genehmigt und somit nicht mehr "
 "veränderbar."
-
-#: ok_tools/templates/admin/base_site.html:6
-#: ok_tools/templates/admin/base_site.html:11
-msgid "Administrationinterface"
-msgstr "Verwaltungsoberfläche"
-
-#: ok_tools/templates/home.html:13
-msgid ""
-"\n"
-"    This account is not verified. Please print the application form, sign it "
-"and bring it with your personal ID back to us. The account will then be "
-"verified.\n"
-"    "
-msgstr ""
-"\n"
-"   Dieser Account ist nicht verifiziert. Bitte drucken Sie zuerst das "
-"Antragsformular (Nutzer*innenantrag) aus und bringen Sie es unterschrieben, "
-"zusammen mit Ihrem Personalausweis bei uns vorbei. Ihr Account wird dann von "
-"uns verifiziert."
-
-#: ok_tools/templates/home.html:18
-msgid "Application form"
-msgstr "Nutzer*innenantrag"
-
-#: ok_tools/templates/home.html:22
-msgid ""
-"\n"
-"    This account is verified.\n"
-"    "
-msgstr ""
-"\n"
-"    Ihr Account ist verifiziert.\n"
-"    "
-
-#: ok_tools/templates/home.html:27
-msgid "You are not logged in"
-msgstr "Sie sind nicht angemeldet."
 
 #: projects/admin.py:52 projects/models.py:136
 msgid "Topic"
@@ -993,10 +942,10 @@ msgstr ""
 #: registration/templates/email/confirm_verification_body.html:11
 msgid ""
 "\n"
-"You can now login and file a license request.\n"
+"You can now login and file a license.\n"
 msgstr ""
 "\n"
-"Sie können sich jetzt einloggen und Freistellungsanträge erstellen.\n"
+"Sie können sich jetzt einloggen und Freistellungeng erstellen.\n"
 
 #: registration/templates/email/confirm_verification_body.html:20
 #: registration/templates/registration/password_reset_email.html:19
@@ -1246,3 +1195,40 @@ msgstr "Es existiert kein Profil für %(user)s"
 #: registration/views.py:200
 msgid "Your profile was successfully updated."
 msgstr "Ihr Profil wurde erfolgreich aktualisiert."
+
+#: ok_tools/templates/admin/base_site.html:6
+#: ok_tools/templates/admin/base_site.html:11
+msgid "Administrationinterface"
+msgstr "Verwaltungsoberfläche"
+
+#: ok_tools/templates/home.html:13
+msgid ""
+"\n"
+"    This account is not verified. Please print the application form, sign it "
+"and bring it with your personal ID back to us. The account will then be "
+"verified.\n"
+"    "
+msgstr ""
+"\n"
+"   Dieser Account ist nicht verifiziert. Bitte drucken Sie zuerst das "
+"Antragsformular (Nutzer*innenantrag) aus und bringen Sie es unterschrieben, "
+"zusammen mit Ihrem Personalausweis bei uns vorbei. Ihr Account wird dann von "
+"uns verifiziert."
+
+#: ok_tools/templates/home.html:18
+msgid "Application form"
+msgstr "Nutzer*innenantrag"
+
+#: ok_tools/templates/home.html:22
+msgid ""
+"\n"
+"    This account is verified.\n"
+"    "
+msgstr ""
+"\n"
+"    Ihr Account ist verifiziert.\n"
+"    "
+
+#: ok_tools/templates/home.html:27
+msgid "You are not logged in"
+msgstr "Sie sind nicht angemeldet."

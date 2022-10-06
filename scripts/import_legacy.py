@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.utils import IntegrityError
 from licenses.models import Category
-from licenses.models import LicenseRequest
+from licenses.models import License
 from ok_tools.datetime import TZ
 from openpyxl import load_workbook
 from openpyxl.cell import cell as cell_meta
@@ -376,13 +376,13 @@ def import_primary_contributions(
             no_cat_cnt += 1
 
         try:
-            LicenseRequest.objects.get(number=row[NR].value)
+            License.objects.get(number=row[NR].value)
             logger.warning('Number already taken.')
             continue
-        except LicenseRequest.DoesNotExist:
+        except License.DoesNotExist:
             pass
 
-        lr, lr_created = LicenseRequest.objects.get_or_create(
+        lr, lr_created = License.objects.get_or_create(
             number=row[NR].value,
             profile=profile,
             title=row[TITLE].value,
@@ -621,7 +621,7 @@ def import_repetitions(
                 name=row[CATEGORY].value or EMPTY_VALUE
             )
 
-            license, lr_created = LicenseRequest.objects.get_or_create(
+            license, lr_created = License.objects.get_or_create(
                 number=row[NR].value,
                 profile=profile,
                 title=row[TITLE].value,

@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views import generic
-from licenses.models import LicenseRequest
+from licenses.models import License
 
 
 User = get_user_model()
@@ -23,7 +23,7 @@ class ListContributionsView(generic.list.ListView):
         except User.profile.RelatedObjectDoesNotExist:
             return
 
-        licenses = LicenseRequest.objects.filter(profile=profile)
+        licenses = License.objects.filter(profile=profile)
         contributions: list[Contribution] = []
 
         for license in licenses:

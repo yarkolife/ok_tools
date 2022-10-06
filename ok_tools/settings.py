@@ -167,7 +167,7 @@ USE_I18N = True
 USE_TZ = True
 
 LOCALE_PATHS = [
-    BASE_DIR / 'registration/locale'
+    BASE_DIR / 'ok_tools/locale'
 ]
 
 STATICFILES_FINDERS = [

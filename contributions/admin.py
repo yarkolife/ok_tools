@@ -321,7 +321,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
 
     @display(description=_('Number'))
     def get_number(self, obj):
-        """Return the number of the license request."""
+        """Return the number of the license."""
         return obj.license.number
 
 
