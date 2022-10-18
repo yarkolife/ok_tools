@@ -4,14 +4,10 @@
     .link-dark{
         text-decoration: underline;
     }
-    .w-100{
-      margin: 15px;
-    }
 </style>
 
-<div class="row">
-  <div class="col">
-    <div class="card h-100">
+<div class="card-deck">
+    <div class="card">
       <div class="card-body">
         <h5 class="card-title">{% translate 'Profile' %}</h5>
         <p class="card-text">{% translate 'Edit all inormations concerning your profile.' %}</p>
@@ -28,9 +24,7 @@
         </a>
       </div>
     </div>
-  </div>
-  <div class="col">
-    <div class="card h-100">
+    <div class="card">
       <div class="card-body">
         <h5 class="card-title">{% translate 'Licenses' %}</h5>
         <p class="card-text">{% translate 'Edit your Licenses.' %}</p>
@@ -42,11 +36,8 @@
             {%translate 'Create license'%}
           </a>
       </div>
-    </div>
   </div>
-  <div class="w-100" margin-botton="15px"></div>
-  <div class="col">
-    <div class="card h-100">
+    <div class="card">
       <div class="card-body">
         <h5 class="card-title">{% translate 'Contributions' %}</h5>
         <p class="card-text">{% translate 'Look at your Contributions.' %}</p>
@@ -55,9 +46,7 @@
         </a>
       </div>
     </div>
-  </div>
-  <div class="col">
-    <div class="card h-100">
+    <div class="card">
       <div class="card-body">
         <h5 class="card-title">{% translate 'Website' %}</h5>
         <p class="card-text">{% translate 'Visist the Website for more general informations.' %}</p>
@@ -66,5 +55,4 @@
         </a>
       </div>
     </div>
-  </div>
 </div>
