@@ -4,7 +4,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
-from licenses.models import LicenseRequest
+from licenses.models import License
 from projects.models import MediaEducationSupervisor
 from projects.models import Project
 from registration.models import Profile
@@ -41,8 +41,8 @@ def create_user(
         first_name=user_dict['first_name'],
         last_name=user_dict['last_name'],
         gender=user_dict['gender'],
-        phone_number=user_dict['mobile_number'],
-        mobile_number=user_dict['phone_number'],
+        phone_number=user_dict['phone_number'],
+        mobile_number=user_dict['mobile_number'],
         birthday=datetime.strptime(
             user_dict['birthday'], settings.DATE_INPUT_FORMATS).date(),
         street=user_dict['street'],
@@ -56,16 +56,16 @@ def create_user(
     return user
 
 
-def create_license_request(
-        profile, category, license_template_dict) -> LicenseRequest:
+def create_license(
+        profile, license_template_dict) -> License:
     """
-    Create a LicenseRequest.
+    Create a License.
 
     license_template_dict contains all data of an LicenseTemplate.
     """
-    return LicenseRequest.objects.create(
+    return License.objects.create(
         profile=profile,
-        category=category,
+        category=license_template_dict['category'],
         title=license_template_dict['title'],
         subtitle=license_template_dict['subtitle'],
         description=license_template_dict['description'],
@@ -82,10 +82,10 @@ def create_license_request(
     )
 
 
-def create_contribution(license_request, contribution_dict):
+def create_contribution(license, contribution_dict):
     """Create and store a contribution."""
     return Contribution.objects.create(
-        license=license_request,
+        license=license,
         broadcast_date=contribution_dict['broadcast_date'],
         live=contribution_dict['live'],
     )

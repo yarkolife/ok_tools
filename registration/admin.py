@@ -9,7 +9,12 @@ from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from django_admin_listfilter_dropdown.filters import DropdownFilter
+from import_export import resources
+from import_export.admin import ExportMixin
+from import_export.fields import Field
+from ok_tools.datetime import TZ
 from registration.signals import signal
+import datetime
 import logging
 
 
@@ -31,10 +36,12 @@ class UserAdmin(BaseUserAdmin):
         (_('Password'), {
             'fields': ('password',)
         }),
-        # https://github.com/gocept/ok_tools/issues/11
-        # (_('permissions'), {
-        #     'fields': ('user_permissions',)
-        # }),
+        (_('Admin'), {
+            'fields': ('is_superuser',)
+        }),
+        (_('permissions'), {
+            'fields': ('user_permissions',)
+        }),
         (_('Staff'), {
             'fields': ('is_staff',)
         }),
@@ -56,6 +63,40 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, UserAdmin)
+
+
+class ProfileResource(resources.ModelResource):
+    """Define the export for Profile."""
+
+    def _f(field=None, name=None):
+        """Shortcut for field creation."""
+        return Field(attribute=field, column_name=name)
+
+    first_name = _f('first_name', _('first name'))
+    last_name = _f('last_name', _('last name'))
+    gender = _f('gender', _('gender'))
+    email = _f('okuser__email', _('email address'))
+    phone_number = _f('phone_number', _('phone number'))
+    mobile_number = _f('mobile_number', _('mobile number'))
+    birthday = _f('birthday', _('birthday'))
+    street = _f('street', _('street'))
+    house_number = _f('house number', _('house number'))
+    zipcode = _f('zipcode', _('zipcode'))
+    city = _f('city', _('city'))
+    created_at = _f('created_at', _('created at'))
+    member = _f('member', _('member'))
+    media_authority = _f('media_authority__name', _('Media Authority'))
+
+    class Meta:
+        """Define meta properties for the Project export."""
+
+        model = Profile
+        fields = []
+
+    def dehydrate_created_at(self, profile: Profile):
+        """Export the created_at datetime object in the current time zone."""
+        created_at = profile.created_at.astimezone(TZ)
+        return f'{created_at.date()} {created_at.time()}'
 
 
 class BirthmonthFilter(admin.SimpleListFilter):
@@ -98,9 +139,42 @@ class BirthmonthFilter(admin.SimpleListFilter):
         return queryset.filter(birthday__month=int(value))
 
 
+class YearFilter(admin.SimpleListFilter):
+    """Filter after this or last year."""
+
+    title = _('created year')
+
+    parameter_name = 'created_year'
+
+    def lookups(self, request, model_admin):
+        """Define labels to filter after this or last year."""
+        return (
+            ('this', _('This year')),
+            ('last', _('Last year')),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter after creation date for this or last year."""
+        match self.value():
+            case None:
+                return
+            case 'this':
+                return queryset.filter(
+                    created_at__year=datetime.datetime.now().year)
+            case 'last':
+                return queryset.filter(
+                    created_at__year=datetime.datetime.now().year-1)
+            case _:
+                msg = f'Invalid value {self.value()}.'
+                logger.error(msg)
+                raise ValueError(msg)
+
+
 # register profile
-class ProfileAdmin(admin.ModelAdmin):
+class ProfileAdmin(ExportMixin, admin.ModelAdmin):
     """How should the profile be shown on the admin site."""
+
+    resource_classes = [ProfileResource]
 
     change_form_template = 'admin/registration_change_form_edit.html'
 
@@ -123,6 +197,7 @@ class ProfileAdmin(admin.ModelAdmin):
         BirthmonthFilter,
         ('media_authority__name', DropdownFilter),
         'member',
+        YearFilter,
     ]
     actions = ['verify', 'unverify']
 
@@ -138,7 +213,9 @@ class ProfileAdmin(admin.ModelAdmin):
         if form and form.changed_data:
             initial = form.initial.get('verified')
             new = form.cleaned_data.get('verified')
-            if not (initial is None or new is None) and initial != new:
+            if (not (initial is None or new is None)
+                    and initial != new
+                    and new is True):
                 signal.send(sender=self, obj=obj, request=request)
 
         return super().save_model(request, obj, form, change)

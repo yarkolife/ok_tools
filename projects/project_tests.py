@@ -49,6 +49,8 @@ def test__admin__2(db):
         project_category=pc,
         project_leader=pl,
         target_group=tg,
+        begin_date=datetime(year=2022, month=9, day=27, hour=9, tzinfo=TZ),
+        end_date=datetime(year=2022, month=9, day=27, hour=11, tzinfo=TZ),
         duration=timedelta(days=1),
         external_venue=False,
         jugendmedienschutz=False
@@ -116,8 +118,9 @@ def test__projects__admin__ProjectResource__1(browser, project_dict):
     assert str(s2) in str(browser.contents)
 
 
-def test__projects__admin__ProjectResource__2(browser, project):
-    """Export begin and end date in correct timezone."""
+def test__projects__admin__ProjectResource__2(browser, project_dict):
+    """Export all necessary data."""
+    project: Project = create_project(project_dict)
     browser.login_admin()
     browser.open(A_PROJ_URL)
 
@@ -125,8 +128,18 @@ def test__projects__admin__ProjectResource__2(browser, project):
     browser.getControl('csv').click()
     browser.getControl('Submit').click()
 
-    assert str(project.begin_date.time()) in str(browser.contents)
-    assert str(project.end_date.time()) in str(browser.contents)
+    assert browser.headers['Content-Type'] == 'text/csv'
+    export = str(browser.contents)
+    assert project.title in export
+    assert project.topic in export
+    assert str(project.duration) in export
+    assert str(project.begin_date.time()) in export
+    assert str(project.end_date.time()) in export
+    assert str(project.external_venue) in export
+    assert str(project.jugendmedienschutz) in export
+    assert str(project.target_group) in export
+    assert str(project.project_category) in export
+    assert str(project.project_leader) in export
 
 
 def test__projects__models__1(db, project):
@@ -143,7 +156,7 @@ def test__projects__admin__ProjectAdmin__1(browser, project):
     begin_date = project.begin_date
     assert browser.headers['Content-Type'] == 'text/calendar'
     assert project.title in str(browser.contents)
-    assert datetime.tzname(begin_date) in str(browser.contents)
+    assert str(begin_date.tzinfo) in str(browser.contents)
     assert _f_ics_date(begin_date) in str(browser.contents)
     assert project.topic in str(browser.contents)
 
@@ -193,20 +206,6 @@ def test__projects__admin__ProjectAdmin__4(browser, project):
     browser.open(f'{DOMAIN}{reverse_lazy("contributions:contributions")}')
 
     assert 'Export dates' not in browser.contents
-
-
-def test__projects__admin__ProjectAdmin__5(browser, project):
-    """Change the duration to an end date when exporting dates."""
-    project.end_date = None
-    project.save()
-
-    browser.login_admin()
-    browser.open(A_PROJ_URL)
-    browser.follow('Export dates')
-
-    assert browser.headers['Content-Type'] == 'text/calendar'
-    assert (_f_ics_date(project.begin_date + project.duration)
-            in str(browser.contents))
 
 
 def test__projects__admin__ProjectAdmin__6(browser, project_dict):

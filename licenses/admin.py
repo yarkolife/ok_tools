@@ -1,5 +1,6 @@
+from .forms import RangeNumericForm
 from .models import Category
-from .models import LicenseRequest
+from .models import License
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
@@ -19,8 +20,8 @@ import logging
 logger = logging.getLogger('django')
 
 
-class LicenseRequestResource(resources.ModelResource):
-    """Define the export for LicenseRequests."""
+class LicenseResource(resources.ModelResource):
+    """Define the export for License."""
 
     def _f(field, name=None):
         """Shortcut for field creation."""
@@ -48,29 +49,29 @@ class LicenseRequestResource(resources.ModelResource):
     screen_board = _f('is_screen_board', _('Screen Board'))
     created_at = _f('created_at', _('created at'))
 
-    def dehydrate_suggested_date(self, license: LicenseRequest):
+    def dehydrate_suggested_date(self, license: License):
         """Return the suggested date in the current time zone."""
-        return str(license
-                   .suggested_date
-                   .astimezone(TZ)
-                   .date())
+        if (date := license.suggested_date):
+            return date.astimezone(TZ).date()
+        else:
+            return None
 
-    def dehydrate_suggested_time(self, license: LicenseRequest):
+    def dehydrate_suggested_time(self, license: License):
         """Return the suggested time in the current time zone."""
-        return str(license
-                   .suggested_date
-                   .astimezone(TZ)
-                   .time())
+        if (date := license.suggested_date):
+            return date.astimezone(TZ).time()
+        else:
+            return None
 
-    def dehydrate_created_at(self, license: LicenseRequest):
+    def dehydrate_created_at(self, license: License):
         """Return the created_at datetime in the current time zone."""
         tz_datetime = license.created_at.astimezone(TZ)
         return f'{tz_datetime.date()} {tz_datetime.time()}'
 
     class Meta:
-        """Define meta properties for the LicenseRequest export."""
+        """Define meta properties for the License export."""
 
-        model = LicenseRequest
+        model = License
         fields = []
 
 
@@ -149,7 +150,7 @@ class DurationFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
-class LicenseRequestAdminForm(forms.ModelForm):
+class LicenseAdminForm(forms.ModelForm):
     """Override the clean method for the forms used on the admin site."""
 
     def clean(self):
@@ -165,11 +166,54 @@ class LicenseRequestAdminForm(forms.ModelForm):
         return super().clean()
 
 
-class LicenseRequestAdmin(ExportMixin, admin.ModelAdmin):
-    """How should the LicenseRequests be shown on the admin site."""
+class DurationRangeFilter(admin.FieldListFilter):
+    """Filter the duration using the given range of minutes."""
 
-    form = LicenseRequestAdminForm
-    resource_class = LicenseRequestResource
+    request = None
+    parameter_name = 'duration'
+    template = 'admin/filter_numeric_range.html'
+
+    def queryset(self, request, queryset):
+        """Filter the licenses after their duration."""
+        value_from = self.used_parameters.get(
+            self.parameter_name + '_from', None)
+        if value_from is not None and value_from != '':
+            time_from = datetime.timedelta(minutes=int(value_from))
+            queryset = queryset.filter(duration__gte=time_from)
+
+        value_to = self.used_parameters.get(self.parameter_name + '_to', None)
+        if value_to is not None and value_to != '':
+            time_to = datetime.timedelta(minutes=int(value_to))
+            queryset = queryset.filter(duration__lte=time_to)
+
+        return queryset
+
+    def expected_parameters(self):
+        """Define expected parameters."""
+        return [
+            '{}_from'.format(self.parameter_name),
+            '{}_to'.format(self.parameter_name),
+        ]
+
+    def choices(self, changelist):
+        """Set the form."""
+        return ({
+            'request': self.request,
+            'parameter_name': self.parameter_name,
+            'form': RangeNumericForm(name=self.parameter_name, data={
+                self.parameter_name + '_from': self.used_parameters.get(
+                    self.parameter_name + '_from', None),
+                self.parameter_name + '_to': self.used_parameters.get(
+                    self.parameter_name + '_to', None),
+            }),
+        }, )
+
+
+class LicenseAdmin(ExportMixin, admin.ModelAdmin):
+    """How should the Licenses be shown on the admin site."""
+
+    form = LicenseAdminForm
+    resource_classes = [LicenseResource]
 
     change_form_template = 'admin/licenses_change_form_edit.html'
     list_display = (
@@ -201,25 +245,26 @@ class LicenseRequestAdmin(ExportMixin, admin.ModelAdmin):
         ('created_at', DateTimeRangeFilter),
         DurationFilter,
         YearFilter,
+        ('duration', DurationRangeFilter),
     ]
 
-    @admin.action(description=_('Confirm selected License Requests'))
+    @admin.action(description=_('Confirm selected Licenses'))
     def confirm(self, request, queryset):
         """Confirm all selected profiles."""
         updated = self._set_confirmed(request, queryset, True)
         self.message_user(request, _p(
-            '%d License Request was successfully confirmed.',
-            '%d License Requests were successfully confirmed.',
+            '%d License was successfully confirmed.',
+            '%d Licenses were successfully confirmed.',
             updated
         ) % updated, messages.SUCCESS)
 
-    @admin.action(description=_('Unconfirm selected License Requests'))
+    @admin.action(description=_('Unconfirm selected Licenses'))
     def unconfirm(self, request, queryset):
         """Unconfirm all selected profiles."""
         updated = self._set_confirmed(request, queryset, False)
         self.message_user(request, _p(
-            '%d License Request was successfully unconfirmed.',
-            '%d License Requests were successfully unconfirmed.',
+            '%d License was successfully unconfirmed.',
+            '%d Licenses were successfully unconfirmed.',
             updated
         ) % updated, messages.SUCCESS)
 
@@ -256,7 +301,7 @@ class LicenseRequestAdmin(ExportMixin, admin.ModelAdmin):
     def change_view(
             self, request, object_id, form_url="", extra_context=None):
         """Don't show the save buttons if LR is confirmed."""
-        license = get_object_or_404(LicenseRequest, pk=object_id)
+        license = get_object_or_404(License, pk=object_id)
         extra_context = extra_context or {}
 
         extra_context['object'] = license
@@ -279,6 +324,6 @@ class LicenseRequestAdmin(ExportMixin, admin.ModelAdmin):
         return result
 
 
-admin.site.register(LicenseRequest, LicenseRequestAdmin)
+admin.site.register(License, LicenseAdmin)
 
 admin.site.register(Category)

@@ -12,7 +12,7 @@ from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
 from ok_tools.testing import create_contribution
 from ok_tools.testing import create_disaimport
-from ok_tools.testing import create_license_request
+from ok_tools.testing import create_license
 from ok_tools.testing import create_project
 from ok_tools.testing import create_user
 from projects.models import Project
@@ -88,7 +88,7 @@ def user(user_dict):
 
 
 @pytest.fixture(scope='function')
-def license_template_dict() -> dict:
+def license_dict() -> dict:
     """Return a dictionary containing all the data of an LicenseTemplate."""
     return {
         "title": "Test Title",
@@ -96,6 +96,7 @@ def license_template_dict() -> dict:
         "description": "This is a Test.",
         "duration": timedelta(hours=1, minutes=1, seconds=1),
         "further_persons": None,
+        "category": default_category(),
         "suggested_date": None,
         "repetitions_allowed": True,
         "media_authority_exchange_allowed": True,
@@ -105,16 +106,15 @@ def license_template_dict() -> dict:
 
 
 @pytest.fixture(scope='function')
-def license_request(user, license_template_dict):
-    """Return a license request."""
+def license(user, license_dict):
+    """Return a license."""
     profile = user.profile
     profile.verified = True
     profile.save()
 
-    return create_license_request(
+    return create_license(
         profile,
-        default_category(),
-        license_template_dict,
+        license_dict,
     )
 
 
@@ -133,10 +133,10 @@ def contribution_dict() -> dict:
 
 
 @pytest.fixture(scope='function')
-def contribution(license_request, contribution_dict):
+def contribution(license, contribution_dict):
     """Return a stored contribution."""
     return create_contribution(
-        license_request,
+        license,
         contribution_dict,
     )
 

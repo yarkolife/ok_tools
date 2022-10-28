@@ -4,7 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from licenses.models import LicenseRequest
+from licenses.models import License
 from ok_tools.datetime import TZ
 from registration.models import Profile
 
@@ -59,7 +59,7 @@ def run():
         verified=True,
     )
 
-    l1 = LicenseRequest.objects.create(
+    l1 = License.objects.create(
         profile=profile1,
         title='Title1',
         description='This is the description.',
@@ -71,7 +71,7 @@ def run():
         confirmed=True,
     )
 
-    LicenseRequest.objects.create(
+    License.objects.create(
         profile=profile2,
         title='Title2',
         description='This is the description.',
@@ -83,7 +83,7 @@ def run():
         confirmed=False,
     )
 
-    l2 = LicenseRequest.objects.create(
+    l2 = License.objects.create(
         profile=profile2,
         title='Title1',
         description='This is the description.',

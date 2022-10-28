@@ -38,11 +38,12 @@ setup(
         'django-bootstrap-datepicker-plus',
         'django-crispy-forms',
         'django-extensions',
-        'django-import-export',
+        'django-import-export>=3.0.0',
         'django-revproxy>=0.10.0',
-        'icalendar',
+        'icalendar>=5.0.0',
         'openpyxl',
         'reportlab',
+        'tablib',
     ],
     extras_require={
         'test': [

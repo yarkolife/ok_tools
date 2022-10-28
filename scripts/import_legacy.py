@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.utils import IntegrityError
 from licenses.models import Category
-from licenses.models import LicenseRequest
+from licenses.models import License
 from ok_tools.datetime import TZ
 from openpyxl import load_workbook
 from openpyxl.cell import cell as cell_meta
@@ -376,13 +376,13 @@ def import_primary_contributions(
             no_cat_cnt += 1
 
         try:
-            LicenseRequest.objects.get(number=row[NR].value)
+            License.objects.get(number=row[NR].value)
             logger.warning('Number already taken.')
             continue
-        except LicenseRequest.DoesNotExist:
+        except License.DoesNotExist:
             pass
 
-        lr, lr_created = LicenseRequest.objects.get_or_create(
+        lr, lr_created = License.objects.get_or_create(
             number=row[NR].value,
             profile=profile,
             title=row[TITLE].value,
@@ -513,12 +513,14 @@ def import_projects(ws: Worksheet):
         if not begin_date:
             logger.warning(f'No begin_date for project "{row[TITLE].value}')
 
+        end_date = begin_date + duration
+
         try:
             project, project_created = Project.objects.get_or_create(
                 title=row[TITLE].value,
                 topic=row[TOPIC].value,
-                duration=duration,
                 begin_date=begin_date,
+                end_date=end_date,
                 external_venue=_get_bool(row[EXTERNAL_V]),
                 jugendmedienschutz=_get_bool(row[YOUTH_PROTECTION]),
                 target_group=target_gr,
@@ -619,7 +621,7 @@ def import_repetitions(
                 name=row[CATEGORY].value or EMPTY_VALUE
             )
 
-            license, lr_created = LicenseRequest.objects.get_or_create(
+            license, lr_created = License.objects.get_or_create(
                 number=row[NR].value,
                 profile=profile,
                 title=row[TITLE].value,

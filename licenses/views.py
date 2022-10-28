@@ -1,6 +1,6 @@
 from . import forms
 from .generate_file import generate_license_file
-from .models import LicenseRequest
+from .models import License
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -35,7 +35,7 @@ class ListLicensesView(generic.list.ListView):
     """List all licenses of the user."""
 
     template_name = 'licenses/list.html'
-    model = LicenseRequest
+    model = License
 
     def get_queryset(self):
         """List only the licenses of the logged in user."""
@@ -51,8 +51,8 @@ class ListLicensesView(generic.list.ListView):
 class CreateLicenseView(generic.CreateView):
     """Show view to create licenses."""
 
-    model = LicenseRequest
-    form_class = form = forms.CreateLicenseRequestForm
+    model = License
+    form_class = form = forms.CreateLicenseForm
     # TODO better success page
     template_name = 'licenses/create.html'
 
@@ -67,7 +67,7 @@ class CreateLicenseView(generic.CreateView):
         return super().get_success_url()
 
     def get_form(self, form_class=None):
-        """User of created LicenseRequest is current user."""
+        """User of created License is current user."""
         form = super().get_form(form_class)
         form.instance.profile = self.request.user.profile
         return form
@@ -83,10 +83,10 @@ class CreateLicenseView(generic.CreateView):
 
 @method_decorator(login_required, name='dispatch')
 class UpdateLicensesView(generic.edit.UpdateView):
-    """Updates a LicenseRequest."""
+    """Updates a License."""
 
-    form = form_class = forms.CreateLicenseRequestForm
-    model = LicenseRequest
+    form = form_class = forms.CreateLicenseForm
+    model = License
     template_name = 'licenses/update.html'
     success_url = reverse_lazy('licenses:licenses')
 
@@ -99,7 +99,7 @@ class UpdateLicensesView(generic.edit.UpdateView):
         return super().get_success_url()
 
     def post(self, request, *args, **kwargs) -> http.HttpResponse:
-        """Show error message for editing confirmed License Requests."""
+        """Show error message for editing confirmed Licenses."""
         license = self.get_object()
         if license.confirmed:
             message = _('The License %(license)s is already confirmed and'
@@ -118,16 +118,16 @@ class UpdateLicensesView(generic.edit.UpdateView):
 
 @method_decorator(login_required, name='dispatch')
 class DetailsLicensesView(generic.detail.DetailView):
-    """Details of a LicenseRequest."""
+    """Details of a License."""
 
     template_name = 'licenses/details.html'
-    model = LicenseRequest
-    form = form_class = forms.CreateLicenseRequestForm
+    model = License
+    form = form_class = forms.CreateLicenseForm
 
     def get_context_data(self, **kwargs):
-        """Add the LicenseRequestForm to context."""
+        """Add the LicenseForm to context."""
         context = super().get_context_data(**kwargs)
-        context['form'] = forms.CreateLicenseRequestForm(instance=self.object)
+        context['form'] = forms.CreateLicenseForm(instance=self.object)
         return context
 
 
@@ -136,10 +136,10 @@ class FilledLicenseFile(generic.View):
     """View to deliver a filled license document."""
 
     def get(self, request, pk):
-        """Print a license file of the current license request."""
+        """Print a license file of the current license."""
         try:
-            license = LicenseRequest.objects.get(pk=pk)
-        except LicenseRequest.DoesNotExist:
+            license = License.objects.get(pk=pk)
+        except License.DoesNotExist:
             return _license_does_not_exist(request)
 
         if (not license.profile.okuser or

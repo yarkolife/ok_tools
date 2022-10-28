@@ -72,7 +72,7 @@ class ProjectCategory(models.Model):
 
     def __str__(self) -> str:
         """Represent category by its String."""
-        return self.name
+        return str(self.name)
 
     class Meta:
         """Defines the message IDs."""
@@ -100,7 +100,7 @@ class TargetGroup(models.Model):
 
     def __str__(self) -> str:
         """Represent target group by its String."""
-        return self.name
+        return str(self.name)
 
     class Meta:
         """Defines the message IDs."""
@@ -140,19 +140,20 @@ class Project(models.Model):
     )
     duration = models.DurationField(  # timedelta
         _('Duration'),
-        blank=False,
-        null=False,
+        help_text=_('Total amount of time spend.'),
+        blank=True,
+        null=True,
     )
 
     begin_date = models.DateTimeField(  # datetime
         _('Start date'),
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
     )
     end_date = models.DateTimeField(  # datetime
         _('End date'),
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
     )
 
     external_venue = models.BooleanField(

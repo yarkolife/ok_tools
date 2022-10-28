@@ -1,0 +1,51 @@
+{% load i18n %}
+
+<style>
+    .durationfilter .button, .durationfilter input[type=submit], .durationfilter input[type=button], .durationfilter .submit-row input, .durationfilter a.button,
+    .durationfilter .button, .durationfilter input[type=reset] {
+        background: var(--button-bg);
+        padding: 4px 5px;
+        border: none;
+        border-radius: 4px;
+        color: var(--button-fg);
+        cursor: pointer;
+    }
+    .durationfilter {
+        padding-left: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .durationfilter p {
+        padding-left: 0px;
+        display: inline;
+    }
+
+    .durationfilter input, #changelist-filter .durationfilter a {
+        margin-bottom: 10px;
+        width: auto;
+        display: inline-block;
+    }
+
+</style>
+{% with choices.0 as choice %}
+    <div class="durationfilter">
+    <form method="get">
+        {% for k, v in choice.request.GET.items %}
+            {% if not k == choice.parameter_name|add:'_from' and not k == choice.parameter_name|add:'_to' %}
+                <input type="hidden" name="{{ k }}" value="{{ v }}">
+            {% endif %}
+        {% endfor %}
+
+        <h3>{% blocktrans with filter_title=title %}By {{ filter_title }}{% endblocktrans %}</h3>
+
+        <div class="admin-numeric-filter-wrapper-group">
+            {{ choice.form.as_p }}
+        </div><!-- /.filter-numeric-filter-wrapper-group -->
+
+        <div class="controls">
+            <input type="submit" class="button" value="{% translate 'Search' %}">
+            <a title="{% translate 'Reset' %}" class="button" href="?">{% translate 'Reset' %}</a>
+        </div>
+</form>
+</div>
+{% endwith %}

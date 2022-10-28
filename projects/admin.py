@@ -131,7 +131,7 @@ class YearFilter(admin.SimpleListFilter):
 class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface definitions for Projects."""
 
-    resource_class = ProjectResource
+    resource_classes = [ProjectResource]
     change_list_template = 'admin/change_list_ics_export.html'
 
     list_display = (
@@ -140,6 +140,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         'begin_date',
         'project_leader',
         'jugendmedienschutz',
+        'democracy_project',
     )
 
     ordering = ('-begin_date',)
@@ -150,6 +151,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         AutocompleteFilterFactory(_('Target Group'), 'target_group'),
         AutocompleteFilterFactory(_('Project Category'), 'project_category'),
         'jugendmedienschutz',
+        'democracy_project',
         ('begin_date', DateTimeRangeFilter),
         YearFilter,
     )

@@ -3,7 +3,7 @@ from datetime import datetime
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from licenses.models import LicenseRequest
+from licenses.models import License
 
 
 class Contribution(models.Model):
@@ -14,7 +14,7 @@ class Contribution(models.Model):
     """
 
     license = models.ForeignKey(
-        LicenseRequest,
+        License,
         on_delete=models.CASCADE,
         verbose_name=_('License'),
         blank=False,

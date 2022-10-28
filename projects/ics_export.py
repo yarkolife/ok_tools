@@ -23,14 +23,6 @@ def ics_export(queryset) -> FileResponse:
         end_date: datetime = project.end_date.astimezone(
             tz=ZoneInfo(settings.TIME_ZONE)) if project.end_date else None
 
-        if end_date is None:
-            end_date = begin_date + project.duration
-        else:
-            if end_date != begin_date + project.duration:
-                msg = _('The duration does not match the end date.'
-                        ' Taking the end date instead.')
-                logger.warning(msg)
-
         e = Event()
         e.add('summary', project.title)
         e.add('description', project.topic)
