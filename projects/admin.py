@@ -19,8 +19,23 @@ import logging
 
 logger = logging.getLogger('django')
 
-admin.site.register(MediaEducationSupervisor)
-admin.site.register(ProjectLeader)
+
+class MediaEducationSupervisorAdmin(admin.ModelAdmin):
+    """Define search_fields for ProjectAdmin autocomplete_fields."""
+
+    search_fields = ['name']
+
+
+admin.site.register(MediaEducationSupervisor, MediaEducationSupervisorAdmin)
+
+
+class ProjectLeaderAdmin(admin.ModelAdmin):
+    """Define search fields for ProjectAdmin autocomplete_fields."""
+
+    search_fields = ['name']
+
+
+admin.site.register(ProjectLeader, ProjectLeaderAdmin)
 
 
 class ProjectCategoryAdmin(admin.ModelAdmin):
@@ -142,6 +157,13 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         'jugendmedienschutz',
         'democracy_project',
     )
+
+    autocomplete_fields = [
+        'project_category',
+        'target_group',
+        'project_leader',
+        'media_education_supervisors',
+    ]
 
     ordering = ('-begin_date',)
     search_fields = ('title', 'topic')

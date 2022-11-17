@@ -225,6 +225,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'created_at',
         'confirmed',
     )
+    autocomplete_fields = ['profile']
 
     ordering = ['-created_at']
 

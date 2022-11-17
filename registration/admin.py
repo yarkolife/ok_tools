@@ -187,7 +187,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
         'member',
         'created_at',
     ]
-    autocomplete_fields = ['okuser']
+    autocomplete_fields = ['okuser', 'media_authority']
     ordering = ['-created_at']
 
     search_fields = ['okuser__email', 'first_name', 'last_name']
@@ -265,4 +265,11 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
 
 admin.site.register(Profile, ProfileAdmin)
 
-admin.site.register(MediaAuthority)
+
+class MediaAuthorityAdmin(admin.ModelAdmin):
+    """Define search_fields for ProfileAdmin autocomplete_fields."""
+
+    search_fields = ['name']
+
+
+admin.site.register(MediaAuthority, MediaAuthorityAdmin)

@@ -355,7 +355,8 @@ def test__licenses__models__4(browser, license_dict, user):
     browser.getControl(
         'Description').value = license_dict['description']
     browser.getControl('Duration').value = '00:00'
-    browser.getControl(str(user.profile)).click()  # select user
+    # select profile
+    browser.getControl('Profile')._control.force_value(user.profile.id)
 
     browser.getControl(name='_save').click()
 
