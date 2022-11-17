@@ -178,13 +178,15 @@ class Project(models.Model):
     target_group = models.ForeignKey(
         TargetGroup,
         on_delete=models.CASCADE,
-        default=default_target_group
+        default=default_target_group,
+        verbose_name=_('Target group'),
     )
 
     project_category = models.ForeignKey(
         ProjectCategory,
         on_delete=models.CASCADE,
-        default=default_category
+        default=default_category,
+        verbose_name=_('Project category'),
     )
 
     project_leader = models.ForeignKey(
@@ -192,11 +194,13 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=False,
+        verbose_name=_('Project leader'),
     )
 
     media_education_supervisors = models.ManyToManyField(
         MediaEducationSupervisor,
         blank=False,
+        verbose_name=_('Media education supervisors'),
     )
 
     tn_0_bis_6 = models.IntegerField(
