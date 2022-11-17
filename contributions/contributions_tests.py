@@ -7,6 +7,7 @@ from .disa_import import _check_title
 from .disa_import import disa_import
 from .disa_import import validate
 from .models import Contribution
+from .models import ContributionManager
 from .models import DisaImport
 from datetime import datetime
 from datetime import time
@@ -159,6 +160,47 @@ def test__contributions__models__1(db, license, contribution_dict):
 
     assert early_contr.is_primary()
     assert not late_contr.is_primary()
+
+
+def test__contributions__models__ContributionManager__1(
+        db, license, contribution_dict):
+    """Get a list of all ids from primary contributions."""
+    primary = set()
+    repetitions = set()
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=8,
+        tzinfo=TZ,
+    )
+    primary.add(create_contribution(license, contribution_dict))
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=18,
+        tzinfo=TZ,
+    )
+    repetitions.add(create_contribution(license, contribution_dict))
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=18,
+        tzinfo=TZ,
+    )
+    repetitions.add(create_contribution(license, contribution_dict))
+
+    contributions = repetitions.union(primary)
+    primary_ids = ContributionManager().primary_contributions(contributions)
+    repetition_ids = ContributionManager().repetitions(contributions)
+    assert primary == {Contribution.objects.get(id=id) for id in primary_ids}
+    assert repetitions == {Contribution.objects.get(
+        id=id) for id in repetition_ids}
 
 
 def test__contributions__disa_import__validate__1(browser):

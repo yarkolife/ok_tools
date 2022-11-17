@@ -4,10 +4,16 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
+import bisect
 
 
 class ContributionManager(models.Manager):
-    """Provide methods to determine primary contributions."""
+    """
+    Provide methods to determine primary contributions.
+
+    CAUTION: The methods primary_contributions and repetitions are not
+    thread save!
+    """
 
     # Set of all licenses of the given contributions
     licenses = {}
@@ -19,11 +25,15 @@ class ContributionManager(models.Manager):
         """Initialize self.licensees and self.contr_by_license."""
         self.licenses = {c.license for c in contributions}
         self.contr_by_license = {}
-        # TODO only iterate through contributions once for better performence
-        for license in self.licenses:
-            self.contr_by_license[license.id] = sorted(
-                [c for c in contributions if c.license == license],
-                key=lambda c: c.broadcast_date)
+        for contribution in contributions:
+            lic_id = contribution.license.id
+            l_contributions = self.contr_by_license.get(lic_id, [])
+            bisect.insort(
+                l_contributions,
+                contribution,
+                key=lambda c: c.broadcast_date
+            )
+            self.contr_by_license[lic_id] = l_contributions
 
     def primary_contributions(self, contributions):
         """
