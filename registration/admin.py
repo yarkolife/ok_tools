@@ -98,6 +98,10 @@ class ProfileResource(resources.ModelResource):
         created_at = profile.created_at.astimezone(TZ)
         return f'{created_at.date()} {created_at.time()}'
 
+    def dehydrate_gender(self, profile: Profile):
+        """Export gender as verbose name."""
+        return Profile.Gender.verbose_name(profile.gender)
+
 
 class BirthmonthFilter(admin.SimpleListFilter):
     """Filter profiles using a given birth month."""
