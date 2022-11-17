@@ -1,3 +1,4 @@
+# from admin_auto_filters.filters import AutocompleteFilter
 from .forms import RangeNumericForm
 from .models import Category
 from .models import License
@@ -8,6 +9,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
+from django_admin_listfilter_dropdown.filters import DropdownFilter
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
@@ -74,6 +76,10 @@ class LicenseResource(resources.ModelResource):
         model = License
         fields = []
 
+
+# class MediaAuthorityFilter(AutocompleteFilter):
+#     title = _('Media Authority')
+#     field_name = 'profile_media_authority'
 
 class YearFilter(admin.SimpleListFilter):
     """Filter after this or last year."""
@@ -246,6 +252,10 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         DurationFilter,
         YearFilter,
         ('duration', DurationRangeFilter),
+        ('profile__media_authority__name', DropdownFilter),
+        # MediaAuthorityFilter,
+        # AutocompleteFilterFactory(
+        #     _('Media Authority'), 'profile__media_authority__name'),
     ]
 
     @admin.action(description=_('Confirm selected Licenses'))
