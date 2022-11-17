@@ -6,6 +6,46 @@ from django.utils.translation import gettext_lazy as _
 from licenses.models import License
 
 
+class ContributionManager(models.Manager):
+    """Provide methods to determine primary contributions."""
+
+    # Set of all licenses of the given contributions
+    licenses = {}
+    # Mapping each license id to a list of belonging contributions.
+    # The list of contributions is sorted by broadcast_date
+    contr_by_license = {}
+
+    def _set_up(self, contributions):
+        """Initialize self.licensees and self.contr_by_license."""
+        self.licenses = {c.license for c in contributions}
+        self.contr_by_license = {}
+        # TODO only iterate through contributions once for better performence
+        for license in self.licenses:
+            self.contr_by_license[license.id] = sorted(
+                [c for c in contributions if c.license == license],
+                key=lambda c: c.broadcast_date)
+
+    def primary_contributions(self, contributions):
+        """
+        Return a list of ids belonging to all primary contributions.
+
+        Base of the search are the given contributions.
+        """
+        self._set_up(contributions)
+        return [c.id for c in contributions
+                if c == self.contr_by_license[c.license.id][0]]
+
+    def repetitions(self, contributions):
+        """
+        Return a list of ids belonging to all repetitions.
+
+        Base of the search are the given contributions.
+        """
+        self._set_up(contributions)
+        return [c.id for c in contributions
+                if c != self.contr_by_license[c.license.id][0]]
+
+
 class Contribution(models.Model):
     """
     Model representing a contribution.
