@@ -199,6 +199,23 @@ class Project(models.Model):
         blank=False,
     )
 
+    def _participants_structure():
+        return {
+            "bis 6": {
+                'm': 0,
+                'w': 0,
+                'd': 0,
+                'k.A.': 0,
+            },
+        }
+
+    participants = models.JSONField(
+        _('participants'),
+        blank=False,
+        null=False,
+        # default=_participants_structure
+    )
+
     tn_0_bis_6 = models.IntegerField(
         _('bis 6 Jahre'),
         blank=False,
