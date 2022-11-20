@@ -8,7 +8,6 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
-from django_admin_listfilter_dropdown.filters import DropdownFilter
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
@@ -74,11 +73,6 @@ class LicenseResource(resources.ModelResource):
 
         model = License
         fields = []
-
-
-# class MediaAuthorityFilter(AutocompleteFilter):
-#     title = _('Media Authority')
-#     field_name = 'profile__media_authority'
 
 
 class YearFilter(admin.SimpleListFilter):
@@ -252,8 +246,6 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         DurationFilter,
         YearFilter,
         ('duration', DurationRangeFilter),
-        ('profile__media_authority__name', DropdownFilter),
-        # MediaAuthorityFilter,
         AutocompleteFilterFactory(
             _('Media Authority'), 'profile__media_authority'),
     ]
