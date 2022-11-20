@@ -33,7 +33,6 @@ setup(
         'Django>=4.0.5',
         'PyPDF2!=2.10.1',
         'django-admin-list-filter-dropdown',
-        # 'django-admin-autocomplete-filter',
         'django-admin-rangefilter',
         'django-admin-searchable-dropdown',
         'django-bootstrap-datepicker-plus',
