@@ -1,4 +1,3 @@
-from django import forms
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from registration.models import Gender
@@ -28,7 +27,7 @@ class ProjectParticipant(models.Model):
     )
 
     gender = models.CharField(
-        _('gender'),
+        _('Gender'),
         max_length=4,
         choices=Gender.choices,
         default=Gender.NOT_GIVEN,
@@ -246,86 +245,6 @@ class Project(models.Model):
         verbose_name=('Project Participants'),
     )
 
-    tn_0_bis_6 = models.IntegerField(
-        _('bis 6 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_7_bis_10 = models.IntegerField(
-        _('7-10 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_11_bis_14 = models.IntegerField(
-        _('11-14 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_15_bis_18 = models.IntegerField(
-        _('15-18 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_19_bis_34 = models.IntegerField(
-        _('19-34 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_35_bis_50 = models.IntegerField(
-        _('35-50 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_51_bis_65 = models.IntegerField(
-        _('51-65 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_ueber_65 = models.IntegerField(
-        _('über 65 Jahre'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_age_not_given = models.IntegerField(
-        _('ohne Angabe'),
-        blank=False,
-        null=False,
-        default=0
-    )
-
-    tn_female = models.IntegerField(
-        _('weiblich'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_male = models.IntegerField(
-        _('männlich'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_gender_not_given = models.IntegerField(
-        _('ohne Angabe'),
-        blank=False,
-        null=False,
-        default=0
-    )
-    tn_diverse = models.IntegerField(
-        _('diverse'),
-        blank=False,
-        null=False,
-        default=0,
-    )
-
     @classmethod
     def statistic_key_to_label(cls, key):
         """Map the keys of the statistic object to translatable labels."""
@@ -367,29 +286,11 @@ class Project(models.Model):
         }
 
     statistic = models.JSONField(
-        _('Statistic'),
+        _('Gender and Age'),
         null=False,
         blank=True,
         default=statistic_default,
     )
-
-    def clean(self):
-        """Validate participants by age agains participants by gender."""
-        tn_age_sum = sum([
-            self.tn_0_bis_6, self.tn_7_bis_10, self.tn_11_bis_14,
-            self.tn_15_bis_18, self.tn_19_bis_34, self.tn_35_bis_50,
-            self.tn_51_bis_65, self.tn_ueber_65])
-        tn_gender_sum = sum([
-            self.tn_female, self.tn_male, self.tn_gender_not_given])
-        if tn_age_sum != tn_gender_sum:
-            raise forms.ValidationError(
-                _('The sum of participants by age (%(age)s) does not '
-                  'match the sum of participants by gender (%(gender)s).'
-                  ' Please correct your data.') % {
-                      'age': tn_age_sum,
-                      'gender': tn_gender_sum,
-                }
-            )
 
     def __str__(self) -> str:
         """Represent a profile by its title."""

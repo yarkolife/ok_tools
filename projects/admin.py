@@ -243,45 +243,16 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'participants',
             )
         }),
-        (_('Participant numbers - by age'), {
+        (_('Participant Statistic'), {
             'fields': (
-                'tn_0_bis_6',
-                'tn_7_bis_10',
-                'tn_11_bis_14',
-                'tn_15_bis_18',
-                'tn_19_bis_34',
-                'tn_35_bis_50',
-                'tn_51_bis_65',
-                'tn_ueber_65',
-                'tn_age_not_given',
-                'statistic',)
-        }),
-        (_('Participant numbers - by gender'), {
-            'fields': (
-                'tn_female',
-                'tn_male',
-                'tn_gender_not_given',)
-        }),
+                'statistic',
+            )
+        })
     )
 
     formfield_overrides = {
         models.JSONField: {'widget': StatisticWidget}
     }
-
-    readonly_fields = [
-        'tn_0_bis_6',
-        'tn_7_bis_10',
-        'tn_11_bis_14',
-        'tn_15_bis_18',
-        'tn_19_bis_34',
-        'tn_35_bis_50',
-        'tn_51_bis_65',
-        'tn_ueber_65',
-        'tn_age_not_given',
-        'tn_female',
-        'tn_male',
-        'tn_gender_not_given',
-    ]
 
     def get_urls(self):
         """Add the ics_export_view to the admin urls."""
