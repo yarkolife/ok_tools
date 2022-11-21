@@ -203,9 +203,6 @@ class Project(models.Model):
         return {
             "bis 6": {
                 'm': 0,
-                'w': 0,
-                'd': 0,
-                'k.A.': 0,
             },
         }
 
@@ -213,7 +210,7 @@ class Project(models.Model):
         _('participants'),
         blank=False,
         null=False,
-        # default=_participants_structure
+        default=_participants_structure
     )
 
     tn_0_bis_6 = models.IntegerField(

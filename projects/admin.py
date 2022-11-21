@@ -175,7 +175,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'media_education_supervisors'
             )
         }),
-        (_('Participants'), {
+        ('', {
             'fields': (
                 'participants',
             )
@@ -200,15 +200,25 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         }),
     )
 
+    schema_mapping = {
+        "bis_6": {
+
+        }
+    }
+
     # Test schema from README
     schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-            "limbs": {
+            "m": {
                 "type": "integer",
-                "title": "Number of limbs",
-                "description": "How many limbs does the animal have?",
+            },
+            "w": {
+                "type": "integer",
+            },
+            "d": {
+                "type": "integer",
             },
             "color": {"type": "string", "title": "Color"},
             "herbivore": {
@@ -221,6 +231,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     }
 
     formfield_overrides = {
+        # models.JSONField: {'widget': PrettyJSONWidget},
         models.JSONField: {'widget': BetterJsonWidget(schema=schema)},
     }
 

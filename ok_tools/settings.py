@@ -247,6 +247,9 @@ MESSAGE_TAGS = {
 # path to legacy data
 LEGACY_DATA = '../legacy_data/data.xlsx'
 
+# better_json_widget
+BETTER_JSON_WIDGET_VUE_URL = "https://unpkg.com/vue@3"
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
