@@ -3,7 +3,7 @@ from .models import MediaEducationSupervisor
 from .models import Project
 from .models import ProjectCategory
 from .models import ProjectLeader
-from .models import ProjectParticipants
+from .models import ProjectParticipant
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django.contrib import admin
@@ -24,13 +24,13 @@ admin.site.register(MediaEducationSupervisor)
 admin.site.register(ProjectLeader)
 
 
-class ProjectParticipantsAdmin(admin.ModelAdmin):
+class ProjectParticipantAdmin(admin.ModelAdmin):
     """Define search fields for ProjectAdmin autocomplete_fields."""
 
     search_fields = ['name']
 
 
-admin.site.register(ProjectParticipants, ProjectParticipantsAdmin)
+admin.site.register(ProjectParticipant, ProjectParticipantAdmin)
 
 
 class ProjectCategoryAdmin(admin.ModelAdmin):
@@ -207,6 +207,21 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_gender_not_given',)
         }),
     )
+
+    readonly_fields = [
+        'tn_0_bis_6',
+        'tn_7_bis_10',
+        'tn_11_bis_14',
+        'tn_15_bis_18',
+        'tn_19_bis_34',
+        'tn_35_bis_50',
+        'tn_51_bis_65',
+        'tn_ueber_65',
+        'tn_age_not_given',
+        'tn_female',
+        'tn_male',
+        'tn_gender_not_given',
+    ]
 
     def get_urls(self):
         """Add the ics_export_view to the admin urls."""

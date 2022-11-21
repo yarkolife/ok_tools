@@ -7,7 +7,7 @@ from registration.models import Gender
 MAX_STRING_LENGTH = 255
 
 
-class ProjectParticipants(models.Model):
+class ProjectParticipant(models.Model):
     """
     Model representing participants of a project.
 
@@ -241,7 +241,7 @@ class Project(models.Model):
     )
 
     participants = models.ManyToManyField(
-        ProjectParticipants,
+        ProjectParticipant,
         blank=False,
         verbose_name=('Project Participants'),
     )

@@ -4,6 +4,7 @@ from .models import MediaEducationSupervisor
 from .models import Project
 from .models import ProjectCategory
 from .models import ProjectLeader
+from .models import ProjectParticipant
 from .models import TargetGroup
 from datetime import datetime
 from datetime import timedelta
@@ -145,6 +146,28 @@ def test__projects__admin__ProjectResource__2(browser, project_dict):
 def test__projects__models__1(db, project):
     """Project gets represented by its title."""
     assert str(project) == project.title
+
+
+def test__projects__signals__update_age_and_gender__1(db, project_dict):
+    """After adding a participant the age and gender fields get updated."""
+    participant1: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname",
+        age=24,
+        gender="f",
+    )
+    participant2: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname",
+        age=40,
+        gender="m"
+    )
+
+    project: Project = create_project(
+        project_dict, participants=[participant1, participant2])
+
+    assert project.tn_19_bis_34 == 1
+    assert project.tn_35_bis_50 == 1
+    assert project.tn_female == 1
+    assert project.tn_male == 1
 
 
 def test__projects__admin__ProjectAdmin__1(browser, project):

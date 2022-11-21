@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ProjectParticipants',
+            name='ProjectParticipant',
             fields=[
                 ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
@@ -30,6 +30,6 @@ class Migration(migrations.Migration):
             model_name='project',
             name='participants',
             field=models.ManyToManyField(
-                to='projects.projectparticipants', verbose_name='Project Participants'),
+                to='projects.ProjectParticipant', verbose_name='Project Participants'),
         ),
     ]

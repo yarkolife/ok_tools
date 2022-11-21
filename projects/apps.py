@@ -8,3 +8,7 @@ class ProjectsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'projects'
     verbose_name = _('Projects')
+
+    def ready(self):
+        """Import Signals to register change of participants."""
+        from . import signals  # noqa F401
