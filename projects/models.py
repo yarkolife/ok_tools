@@ -326,18 +326,50 @@ class Project(models.Model):
         default=0,
     )
 
+    @classmethod
+    def statistic_key_to_label(cls, key):
+        """Map the keys of the statistic object to translatable labels."""
+        match key:
+            case '0_bis_6':
+                return _('Bis 6 Jahre')
+            case '7_bis_10':
+                return _('7-10 Jahre')
+            case '11_bis_14':
+                return _('11-14 Jahre')
+            case '15_bis_18':
+                return _('15-18 Jahre')
+            case '19_bis_34':
+                return _('19-34 Jahre')
+            case '35_bis_50':
+                return _('35-50 Jahre')
+            case '51_bis_65':
+                return _('51-65 Jahre')
+            case 'ueber_65':
+                return _('Über 65 Jahre')
+            case 'not_given':
+                return _('Ohne Angabe')
+            case _:
+                raise ValueError(f'Unkown key {key}!')
+
     def statistic_default():
         """Provide default JSON-Structure."""
         return {
-            'tn_0_bis_6': {
-                'm': 0,
-                'f': 1,
-                'd': 0,
-            }
+            # age, male, female, diverse, no gender given
+            '0_bis_6': [0, 0, 0, 0],
+            '7_bis_10': [0, 0, 0, 0],
+            '11_bis_14': [0, 0, 0, 0],
+            '15_bis_18': [0, 0, 0, 0],
+            '19_bis_34': [0, 0, 0, 0],
+            '35_bis_50': [0, 0, 0, 0],
+            '51_bis_65': [0, 0, 0, 0],
+            'ueber_65': [0, 0, 0, 0],
+            'not_given': [0, 0, 0, 0],
         }
 
     statistic = models.JSONField(
+        _('Statistic'),
         null=False,
+        blank=True,
         default=statistic_default,
     )
 

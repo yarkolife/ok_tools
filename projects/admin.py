@@ -144,31 +144,53 @@ class YearFilter(admin.SimpleListFilter):
 class StatisticWidget(widgets.Widget):
     """Represent statistic json value as text table."""
 
-    WIDTH = 20
+    def _td(value) -> str:
+        return f'<td> {value} </td>'
 
     def format_value(self, value):
-        """Format json to text table."""
-        # TODO delete noqa after implementation
-        colums = []  # noqa F841
-        value = json.loads(value)
-        # join columns with \n
-        return 'This is a test'
+        """Format json to html-table."""
+        value: dict = json.loads(value)
+        result = self._create_header() + self._create_rows(value)
+        return '\n'.join(result)
 
     def render(self, name, value, attrs, renderer):
         """Render the result as read only paragraph."""
-        return "<p>"+str(self.format_value(value))+"</p>"
+        return "<table>\n"+str(self.format_value(value))+"\n</table>"
 
-    def _create_header() -> list[str]:
+    def _create_header(self) -> list[str]:
         """Create header row."""
-        pass
+        def _th(value) -> str:
+            return f'<th> {value} </th>'
 
-    def _create_row(json_obj) -> list[str]:
+        header = []
+        header.append('<tr>')
+        header.append(_th(''))
+        header.append(_th(_('Male')))
+        header.append(_th(_('Female')))
+        header.append(_th(_('Diverse')))
+        header.append(_th(_('Ohne Angabe')))
+        header.append('</tr>')
+
+        return ['\n'.join(header)]
+
+    def _create_rows(self, json_obj: dict) -> list[str]:
         """Create value row."""
-        pass
+        if not json_obj:
+            return []
+        item = json_obj.popitem()
+        row = []
 
-    def _format_label(str) -> str:
+        row.append('<tr>')
+        row.append(self._format_label(item[0]))
+        for elem in item[1]:
+            row.append(f'<td> {elem} </td>')
+        row.append('</tr>')
+
+        return self._create_rows(json_obj) + row
+
+    def _format_label(self, label) -> str:
         """Format label to translatable string."""
-        pass
+        return f'<td><b> {Project.statistic_key_to_label(label)} </b></td>'
 
 
 class ProjectAdmin(ExportMixin, admin.ModelAdmin):

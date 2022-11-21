@@ -13,36 +13,36 @@ def update_age_and_gender(sender, instance: Project, pk_set, action, **kwargs):
             gender = participant.gender
 
             if age is None:
-                instance.tn_age_not_given += 1
+                label = 'not_given'
             elif age < 7:
-                instance.tn_0_bis_6 += 1
+                label = '0_bis_6'
             elif age < 11:
-                instance.tn_7_bis_10 += 1
+                label = '7_bis_10'
             elif age < 15:
-                instance.tn_11_bis_14 += 1
+                label = '11_bis_14'
             elif age < 19:
-                instance.tn_15_bis_18 += 1
+                label = '15_bis_18'
             elif age < 35:
-                instance.tn_19_bis_34 += 1
+                label = '19_bis_34'
             elif age < 51:
-                instance.tn_35_bis_50 += 1
+                label = '35_bis_50'
             elif age < 66:
-                instance.tn_51_bis_65 += 1
+                label = '51_bis_65'
             else:
-                instance.tn_ueber_65 += 1
+                label = 'ueber_65'
 
             match gender:
                 case None:
-                    instance.tn_gender_not_given += 1
+                    index = 3
                 case 'm':
-                    instance.tn_male += 1
+                    index = 0
                 case 'f':
-                    instance.tn_female += 1
+                    index = 1
                 case 'd':
-                    instance.tn_diverse += 1
+                    index = 2
 
+            instance.statistic.get(label)[index] += 1
             instance.save()
-            pass
 
 
 m2m_changed.connect(update_age_and_gender, sender=Project.participants.through)
