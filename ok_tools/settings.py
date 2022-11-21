@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django_admin_listfilter_dropdown',
     'django_extensions',
-    'better_json_widget',
     'icalendar',
     'import_export',
     'rangefilter',
@@ -246,9 +245,6 @@ MESSAGE_TAGS = {
 
 # path to legacy data
 LEGACY_DATA = '../legacy_data/data.xlsx'
-
-# better_json_widget
-BETTER_JSON_WIDGET_VUE_URL = "https://unpkg.com/vue@3"
 
 LOGGING = {
     'version': 1,

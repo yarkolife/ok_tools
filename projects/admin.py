@@ -6,9 +6,7 @@ from .models import ProjectLeader
 from .models import ProjectParticipants
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
-from better_json_widget.widgets import BetterJsonWidget
 from django.contrib import admin
-from django.db import models
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
@@ -209,41 +207,6 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_gender_not_given',)
         }),
     )
-
-    schema_mapping = {
-        "bis_6": {
-
-        }
-    }
-
-    # Test schema from README
-    schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-            "m": {
-                "type": "integer",
-            },
-            "w": {
-                "type": "integer",
-            },
-            "d": {
-                "type": "integer",
-            },
-            "color": {"type": "string", "title": "Color"},
-            "herbivore": {
-                "type": "boolean",
-                "title": "Is it herbivore?",
-                "default": True,
-            },
-        },
-        "required": ["limbs", "herbivore"],
-    }
-
-    formfield_overrides = {
-        # models.JSONField: {'widget': PrettyJSONWidget},
-        models.JSONField: {'widget': BetterJsonWidget(schema=schema)},
-    }
 
     def get_urls(self):
         """Add the ics_export_view to the admin urls."""

@@ -35,7 +35,6 @@ setup(
         'django-admin-list-filter-dropdown',
         'django-admin-rangefilter',
         'django-admin-searchable-dropdown',
-        'django-better-json-widget',
         'django-bootstrap-datepicker-plus',
         'django-crispy-forms',
         'django-extensions',
