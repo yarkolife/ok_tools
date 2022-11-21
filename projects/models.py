@@ -1,9 +1,50 @@
 from django import forms
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from registration.models import Gender
 
 
-MAX_TITLE_LENGTH = 255
+MAX_STRING_LENGTH = 255
+
+
+class ProjectParticipants(models.Model):
+    """
+    Model representing participants of a project.
+
+    They are described by name, age and gender.
+    """
+
+    name = models.CharField(
+        _('Full name'),
+        blank=False,
+        null=False,
+        max_length=MAX_STRING_LENGTH,
+    )
+
+    age = models.IntegerField(
+        _('Age'),
+        blank=False,
+        null=False,
+    )
+
+    gender = models.CharField(
+        _('gender'),
+        max_length=4,
+        choices=Gender.choices,
+        default=Gender.NOT_GIVEN,
+    )
+
+    def __str__(self) -> str:
+        """Represent participant by name, age and gender."""
+        # TODO set verbose gender name as soon as
+        # https://github.com/gocept/ok_tools/pull/107 is merged
+        return f'{self.name} ({self.age}, {self.gender})'
+
+    class Meta:
+        """Defines the message IDs."""
+
+        verbose_name = _('Project Participant')
+        verbose_name_plural = _('Project Participants')
 
 
 class ProjectLeader(models.Model):
@@ -17,7 +58,7 @@ class ProjectLeader(models.Model):
         _('Full name'),
         blank=False,
         null=False,
-        max_length=255
+        max_length=MAX_STRING_LENGTH
     )
 
     def __str__(self) -> str:
@@ -42,7 +83,7 @@ class MediaEducationSupervisor(models.Model):
         _('Full name'),
         blank=False,
         null=False,
-        max_length=255
+        max_length=MAX_STRING_LENGTH
     )
 
     def __str__(self) -> str:
@@ -67,7 +108,7 @@ class ProjectCategory(models.Model):
         _('Project category'),
         blank=False,
         null=False,
-        max_length=255
+        max_length=MAX_STRING_LENGTH
     )
 
     def __str__(self) -> str:
@@ -95,7 +136,7 @@ class TargetGroup(models.Model):
         _('Target group'),
         blank=False,
         null=False,
-        max_length=255
+        max_length=MAX_STRING_LENGTH
     )
 
     def __str__(self) -> str:
@@ -129,14 +170,14 @@ class Project(models.Model):
         _('Project title'),
         blank=False,
         null=False,
-        max_length=MAX_TITLE_LENGTH,
+        max_length=MAX_STRING_LENGTH,
     )
 
     topic = models.CharField(
         _('Topic'),
         blank=True,
         null=True,
-        max_length=MAX_TITLE_LENGTH,
+        max_length=MAX_STRING_LENGTH,
     )
     duration = models.DurationField(  # timedelta
         _('Duration'),
@@ -199,18 +240,10 @@ class Project(models.Model):
         blank=False,
     )
 
-    def _participants_structure():
-        return {
-            "bis 6": {
-                'm': 0,
-            },
-        }
-
-    participants = models.JSONField(
-        _('participants'),
+    participants = models.ManyToManyField(
+        ProjectParticipants,
         blank=False,
-        null=False,
-        default=_participants_structure
+        verbose_name=('Project Participants'),
     )
 
     tn_0_bis_6 = models.IntegerField(

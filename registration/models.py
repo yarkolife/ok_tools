@@ -97,6 +97,15 @@ def default_media_authority():
         name=settings.OK_NAME_SHORT)[0]
 
 
+class Gender(models.TextChoices):
+    """The gender of the user."""
+
+    NOT_GIVEN = 'none', _('Not Given')
+    MALE = 'm', _('Male')
+    FEMALE = 'f', _('Female')
+    DIVERSE = 'd', _('Diverse')
+
+
 class Profile(models.Model):
     """
     Model for a profil.
@@ -112,14 +121,6 @@ class Profile(models.Model):
         _('first name'), blank=False, null=True, max_length=150)
     last_name = models.CharField(
         _('last name'), blank=False, null=True, max_length=150)
-
-    class Gender(models.TextChoices):
-        """The gender of the user."""
-
-        NOT_GIVEN = 'none', _('Not Given')
-        MALE = 'm', _('Male')
-        FEMALE = 'f', _('Female')
-        DIVERSE = 'd', _('Diverse')
 
     gender = models.CharField(
         _('gender'),

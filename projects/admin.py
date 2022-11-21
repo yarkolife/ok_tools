@@ -3,6 +3,7 @@ from .models import MediaEducationSupervisor
 from .models import Project
 from .models import ProjectCategory
 from .models import ProjectLeader
+from .models import ProjectParticipants
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from better_json_widget.widgets import BetterJsonWidget
@@ -23,6 +24,15 @@ logger = logging.getLogger('django')
 
 admin.site.register(MediaEducationSupervisor)
 admin.site.register(ProjectLeader)
+
+
+class ProjectParticipantsAdmin(admin.ModelAdmin):
+    """Define search fields for ProjectAdmin autocomplete_fields."""
+
+    search_fields = ['name']
+
+
+admin.site.register(ProjectParticipants, ProjectParticipantsAdmin)
 
 
 class ProjectCategoryAdmin(admin.ModelAdmin):
@@ -145,6 +155,10 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         'democracy_project',
     )
 
+    autocomplete_fields = [
+        'participants',
+    ]
+
     ordering = ('-begin_date',)
     search_fields = ('title', 'topic')
     search_help_text = _('title, topic')
@@ -172,11 +186,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'project_category',
                 'target_group',
                 'project_leader',
-                'media_education_supervisors'
-            )
-        }),
-        ('', {
-            'fields': (
+                'media_education_supervisors',
                 'participants',
             )
         }),
