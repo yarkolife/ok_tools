@@ -326,6 +326,21 @@ class Project(models.Model):
         default=0,
     )
 
+    def statistic_default():
+        """Provide default JSON-Structure."""
+        return {
+            'tn_0_bis_6': {
+                'm': 0,
+                'f': 1,
+                'd': 0,
+            }
+        }
+
+    statistic = models.JSONField(
+        null=False,
+        default=statistic_default,
+    )
+
     def clean(self):
         """Validate participants by age agains participants by gender."""
         tn_age_sum = sum([

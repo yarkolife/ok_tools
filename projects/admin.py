@@ -7,6 +7,8 @@ from .models import ProjectParticipant
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django.contrib import admin
+from django.db import models
+from django.forms import widgets
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
@@ -15,6 +17,7 @@ from import_export.fields import Field
 from ok_tools.datetime import TZ
 from rangefilter.filters import DateTimeRangeFilter
 import datetime
+import json
 import logging
 
 
@@ -138,6 +141,36 @@ class YearFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
+class StatisticWidget(widgets.Widget):
+    """Represent statistic json value as text table."""
+
+    WIDTH = 20
+
+    def format_value(self, value):
+        """Format json to text table."""
+        # TODO delete noqa after implementation
+        colums = []  # noqa F841
+        value = json.loads(value)
+        # join columns with \n
+        return 'This is a test'
+
+    def render(self, name, value, attrs, renderer):
+        """Render the result as read only paragraph."""
+        return "<p>"+str(self.format_value(value))+"</p>"
+
+    def _create_header() -> list[str]:
+        """Create header row."""
+        pass
+
+    def _create_row(json_obj) -> list[str]:
+        """Create value row."""
+        pass
+
+    def _format_label(str) -> str:
+        """Format label to translatable string."""
+        pass
+
+
 class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface definitions for Projects."""
 
@@ -198,7 +231,8 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_35_bis_50',
                 'tn_51_bis_65',
                 'tn_ueber_65',
-                'tn_age_not_given')
+                'tn_age_not_given',
+                'statistic',)
         }),
         (_('Participant numbers - by gender'), {
             'fields': (
@@ -207,6 +241,10 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_gender_not_given',)
         }),
     )
+
+    formfield_overrides = {
+        models.JSONField: {'widget': StatisticWidget}
+    }
 
     readonly_fields = [
         'tn_0_bis_6',
