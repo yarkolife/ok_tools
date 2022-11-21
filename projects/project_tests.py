@@ -2,13 +2,9 @@ from .admin import ProjectAdmin
 from .admin import YearFilter
 from .models import MediaEducationSupervisor
 from .models import Project
-from .models import ProjectCategory
-from .models import ProjectLeader
 from .models import ProjectParticipant
-from .models import TargetGroup
 from datetime import datetime
 from datetime import timedelta
-from django import forms
 from django.urls import reverse_lazy
 from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
@@ -38,32 +34,6 @@ def test__admin__1(browser):
     browser.getControl(name='_save').click()
     browser.open(f'{base_url}projects/project/add')
     browser.getControl(name='_save').click()
-
-
-def test__admin__2(db):
-    """Participant number fields are validated."""
-    pc = ProjectCategory.objects.create(name='Foo1')
-    pl = ProjectLeader.objects.create(name='blah')
-    tg = TargetGroup.objects.create(name='tg1')
-    mes = MediaEducationSupervisor.objects.create(name='fupp')
-    proj = Project.objects.create(
-        project_category=pc,
-        project_leader=pl,
-        target_group=tg,
-        begin_date=datetime(year=2022, month=9, day=27, hour=9, tzinfo=TZ),
-        end_date=datetime(year=2022, month=9, day=27, hour=11, tzinfo=TZ),
-        duration=timedelta(days=1),
-        external_venue=False,
-        jugendmedienschutz=False
-    )
-    proj.media_education_supervisors.add(mes.id)
-    proj.tn_0_bis_6 = 2
-    proj.tn_7_bis_10 = 2
-    proj.tn_female = 3
-    with pytest.raises(forms.ValidationError):
-        proj.clean()
-    proj.tn_male = 1
-    proj.clean()
 
 
 def test__projects__admin__YearFilter__1(browser, project_dict):
@@ -148,26 +118,41 @@ def test__projects__models__1(db, project):
     assert str(project) == project.title
 
 
-def test__projects__signals__update_age_and_gender__1(db, project_dict):
+@pytest.mark.parametrize("age,gender,expected_age,expected_gender",
+                         [
+                             (6, 'f', '0_bis_6', 1),
+                             (10, 'd', '7_bis_10', 2),
+                             (14, 'd', '11_bis_14', 2),
+                             (18, 'd', '15_bis_18', 2),
+                             (34, 'd', '19_bis_34', 2),
+                             (50, 'd', '35_bis_50', 2),
+                             (65, 'd', '51_bis_65', 2),
+                             (66, 'd', 'ueber_65', 2),
+                         ]
+                         )
+def test__projects__signals__update_age_and_gender__1(
+        db, project_dict, age, gender, expected_age, expected_gender):
     """After adding a participant the age and gender fields get updated."""
-    participant1: ProjectParticipant = ProjectParticipant.objects.create(
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
         name="Testname",
-        age=24,
-        gender="f",
+        age=age,
+        gender=gender,
     )
-    participant2: ProjectParticipant = ProjectParticipant.objects.create(
-        name="Testname",
-        age=40,
-        gender="m"
-    )
-
     project: Project = create_project(
-        project_dict, participants=[participant1, participant2])
+        project_dict, participants=[participant])
 
-    assert project.tn_19_bis_34 == 1
-    assert project.tn_35_bis_50 == 1
-    assert project.tn_female == 1
-    assert project.tn_male == 1
+    assert project.statistic.get(expected_age)[expected_gender] == 1
+
+
+def test__projects__signals__update_age_and_gender__2(
+        db, project_dict):
+    """After adding a participant the age and gender fields get updated."""
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname")
+    project: Project = create_project(
+        project_dict, participants=[participant])
+
+    assert project.statistic.get('not_given')[3] == 1
 
 
 def test__projects__admin__ProjectAdmin__1(browser, project):
@@ -257,6 +242,17 @@ def test__projects__admin__ProjectAdmin__6(browser, project_dict):
 
     assert browser.headers['Content-Type'] == 'text/calendar'
     assert _f_ics_date(project.end_date) in str(browser.contents)
+
+
+def test__projects__model__ProjectParticipant____str____1(db):
+    """A project participant get represented by name, age and gender."""
+    part = ProjectParticipant.objects.create(
+        name='test name',
+        age=27,
+        gender='d',
+    )
+
+    assert f'{part.name} ({part.age}, {part.gender})' == str(part)
 
 
 def _f_ics_date(dt: datetime):

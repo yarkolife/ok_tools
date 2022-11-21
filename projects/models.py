@@ -22,8 +22,8 @@ class ProjectParticipant(models.Model):
 
     age = models.IntegerField(
         _('Age'),
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
     )
 
     gender = models.CharField(

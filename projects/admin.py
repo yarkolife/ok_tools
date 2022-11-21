@@ -144,9 +144,6 @@ class YearFilter(admin.SimpleListFilter):
 class StatisticWidget(widgets.Widget):
     """Represent statistic json value as text table."""
 
-    def _td(value) -> str:
-        return f'<td> {value} </td>'
-
     def format_value(self, value):
         """Format json to html-table."""
         value: dict = json.loads(value)

@@ -32,7 +32,7 @@ def update_age_and_gender(sender, instance: Project, pk_set, action, **kwargs):
                 label = 'ueber_65'
 
             match gender:
-                case None:
+                case 'none':
                     index = 3
                 case 'm':
                     index = 0
