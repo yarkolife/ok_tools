@@ -248,6 +248,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         ('duration', DurationRangeFilter),
         AutocompleteFilterFactory(
             _('Media Authority'), 'profile__media_authority'),
+        AutocompleteFilterFactory(_('Category'), 'category')
     ]
 
     @admin.action(description=_('Confirm selected Licenses'))
@@ -328,4 +329,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
 admin.site.register(License, LicenseAdmin)
 
-admin.site.register(Category)
+
+class CategoryAdmin(admin.ModelAdmin):
+    """Define search_fields for AutocompleteFilterFactory."""
+
+    search_fields = ['name']
+
+
+admin.site.register(Category, CategoryAdmin)
