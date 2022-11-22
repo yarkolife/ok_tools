@@ -40,6 +40,8 @@ def update_age_and_gender(sender, instance: Project, pk_set, action, **kwargs):
                     index = 1
                 case 'd':
                     index = 2
+                case _:
+                    raise ValueError(f'Unknown gender {gender}')
 
             instance.statistic.get(label)[index] += 1
             instance.save()

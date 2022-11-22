@@ -268,7 +268,7 @@ class Project(models.Model):
             case 'not_given':
                 return _('Ohne Angabe')
             case _:
-                raise ValueError(f'Unkown key {key}!')
+                raise ValueError(f'Unknown key {key}!')
 
     def statistic_default():
         """Provide default JSON-Structure."""

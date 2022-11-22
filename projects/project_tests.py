@@ -120,8 +120,8 @@ def test__projects__models__1(db, project):
 
 @pytest.mark.parametrize("age,gender,expected_age,expected_gender",
                          [
-                             (6, 'f', '0_bis_6', 1),
-                             (10, 'd', '7_bis_10', 2),
+                             (6, 'm', '0_bis_6', 0),
+                             (10, 'f', '7_bis_10', 1),
                              (14, 'd', '11_bis_14', 2),
                              (18, 'd', '15_bis_18', 2),
                              (34, 'd', '19_bis_34', 2),
@@ -153,6 +153,16 @@ def test__projects__signals__update_age_and_gender__2(
         project_dict, participants=[participant])
 
     assert project.statistic.get('not_given')[3] == 1
+
+
+def test__projects__signals__update_age_and_gender__3(db, project_dict):
+    """Adding a participant with an unknown gender."""
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname",
+        gender="unknown",
+    )
+    with pytest.raises(ValueError, match=r'Unknown gender .*'):
+        create_project(project_dict, participants=[participant])
 
 
 def test__projects__admin__ProjectAdmin__1(browser, project):
@@ -244,7 +254,7 @@ def test__projects__admin__ProjectAdmin__6(browser, project_dict):
     assert _f_ics_date(project.end_date) in str(browser.contents)
 
 
-def test__projects__model__ProjectParticipant____str____1(db):
+def test__projects__models__ProjectParticipant____str____1(db):
     """A project participant get represented by name, age and gender."""
     part = ProjectParticipant.objects.create(
         name='test name',
@@ -253,6 +263,13 @@ def test__projects__model__ProjectParticipant____str____1(db):
     )
 
     assert f'{part.name} ({part.age}, {part.gender})' == str(part)
+
+
+def test__projects__models__Project__statistic_key_to_label__1():
+    """Trying to convert an invalid key value results in an ValueError."""
+    INVALID = 'invalid'
+    with pytest.raises(ValueError, match=f'Unknown key {INVALID}!'):
+        Project.statistic_key_to_label(INVALID)
 
 
 def _f_ics_date(dt: datetime):
