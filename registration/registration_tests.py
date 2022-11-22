@@ -203,6 +203,11 @@ def test__registration__models__1(db, user_dict):
     assert user_dict['last_name'] in testprofil.__str__()
 
 
+def test__registration__models__Profile__Gender__verbose_name__1(db):
+    """The verbose name of an invalid value is en empty string."""
+    assert Profile.Gender.verbose_name('invalid') == ''
+
+
 def test__registration__backends__EmailBackend__1(browser):
     """It is not possible to log in with an unknown email address."""
     browser.login()

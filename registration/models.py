@@ -121,6 +121,15 @@ class Profile(models.Model):
         FEMALE = 'f', _('Female')
         DIVERSE = 'd', _('Diverse')
 
+        @classmethod
+        def verbose_name(cls, value: str) -> str:
+            """Return the verbose name to the given value."""
+            for choice in cls.choices:
+                if value == choice[0]:
+                    return choice[1]  # verbose name
+
+            return ''
+
     gender = models.CharField(
         _('gender'),
         max_length=4,

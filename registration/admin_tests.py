@@ -303,7 +303,7 @@ def test__registration__admin__ProfileResource__1(browser, user_dict):
     export = str(browser.contents)
     assert str(profile.first_name) in export
     assert str(profile.last_name) in export
-    assert str(profile.gender) in export
+    assert str(Profile.Gender.verbose_name(profile.gender)) in export
     assert str(user.email) in export
     assert str(profile.phone_number) in export
     assert str(profile.mobile_number) in export
