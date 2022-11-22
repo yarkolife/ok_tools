@@ -4,6 +4,56 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
+import bisect
+
+
+class ContributionManager(models.Manager):
+    """
+    Provide methods to determine primary contributions.
+
+    CAUTION: The methods primary_contributions and repetitions are not
+    thread save!
+    """
+
+    # Set of all licenses of the given contributions
+    licenses = {}
+    # Mapping each license id to a list of belonging contributions.
+    # The list of contributions is sorted by broadcast_date
+    contr_by_license = {}
+
+    def _set_up(self, contributions):
+        """Initialize self.licensees and self.contr_by_license."""
+        self.licenses = {c.license for c in contributions}
+        self.contr_by_license = {}
+        for contribution in contributions:
+            lic_id = contribution.license.id
+            l_contributions = self.contr_by_license.get(lic_id, [])
+            bisect.insort(
+                l_contributions,
+                contribution,
+                key=lambda c: c.broadcast_date
+            )
+            self.contr_by_license[lic_id] = l_contributions
+
+    def primary_contributions(self, contributions):
+        """
+        Return a list of ids belonging to all primary contributions.
+
+        Base of the search are the given contributions.
+        """
+        self._set_up(contributions)
+        return [c.id for c in contributions
+                if c == self.contr_by_license[c.license.id][0]]
+
+    def repetitions(self, contributions):
+        """
+        Return a list of ids belonging to all repetitions.
+
+        Base of the search are the given contributions.
+        """
+        self._set_up(contributions)
+        return [c.id for c in contributions
+                if c != self.contr_by_license[c.license.id][0]]
 
 
 class Contribution(models.Model):
