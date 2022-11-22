@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import create_project
+from registration.models import Gender
 from unittest.mock import patch
 import pytest
 
@@ -142,7 +143,7 @@ def test__projects__admin__ProjectParticipantsResource__1(
     assert str(project.begin_date.date()) in export
     assert participant.name in export
     assert str(participant.age) in export
-    assert participant.gender in export
+    assert str(Gender.verbose_name(participant.gender)) in export
     assert without_participants.title not in export
 
     without_queryset = ProjectParticipantsResource().export().get_csv()
@@ -314,7 +315,8 @@ def test__projects__models__ProjectParticipant____str____1(db):
         gender='d',
     )
 
-    assert f'{part.name} ({part.age}, {part.gender})' == str(part)
+    assert (f'{part.name} ({part.age}, {Gender.verbose_name(part.gender)})'
+            == str(part))
 
 
 def test__projects__models__Project__statistic_key_to_label__1():

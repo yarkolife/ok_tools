@@ -35,9 +35,7 @@ class ProjectParticipant(models.Model):
 
     def __str__(self) -> str:
         """Represent participant by name, age and gender."""
-        # TODO set verbose gender name as soon as
-        # https://github.com/gocept/ok_tools/pull/107 is merged
-        return f'{self.name} ({self.age}, {self.gender})'
+        return f'{self.name} ({self.age}, {Gender.verbose_name(self.gender)})'
 
     class Meta:
         """Defines the message IDs."""

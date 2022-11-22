@@ -100,10 +100,10 @@ def default_media_authority():
 class Gender(models.TextChoices):
     """The gender of the user."""
 
-    NOT_GIVEN = 'none', _('Not Given')
-    MALE = 'm', _('Male')
-    FEMALE = 'f', _('Female')
-    DIVERSE = 'd', _('Diverse')
+    NOT_GIVEN = 'none', _('not given')
+    MALE = 'm', _('male')
+    FEMALE = 'f', _('female')
+    DIVERSE = 'd', _('diverse')
 
     @classmethod
     def verbose_name(cls, value: str) -> str:

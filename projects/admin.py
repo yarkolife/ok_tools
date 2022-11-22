@@ -16,6 +16,7 @@ from import_export.admin import ExportMixin
 from import_export.fields import Field
 from ok_tools.datetime import TZ
 from rangefilter.filters import DateTimeRangeFilter
+from registration.models import Gender
 import datetime
 import json
 import logging
@@ -57,9 +58,7 @@ class ProjectParticipantsResource(resources.ModelResource):
             str(project.begin_date.date()),
             participant.name,
             participant.age,
-            # TODO use verbose gender name as soon as
-            # https://github.com/gocept/ok_tools/pull/107 is merged
-            participant.gender,
+            Gender.verbose_name(participant.gender),
         ]
 
     def export(self, queryset=None, *args, **kwargs):
