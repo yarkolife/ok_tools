@@ -108,10 +108,8 @@ msgid "Until week after next"
 msgstr "Bis einschließlich übernächste Woche"
 
 #: contributions/admin.py:245
-#, fuzzy
-#| msgid "Contribution"
 msgid "Primary Contribution"
-msgstr "Beitrag"
+msgstr "Primärbeitrag"
 
 #: contributions/admin.py:251 licenses/templates/licenses/details.html:24
 #: licenses/templates/licenses/list.html:26
