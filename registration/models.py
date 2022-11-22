@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -97,6 +98,24 @@ def default_media_authority():
         name=settings.OK_NAME_SHORT)[0]
 
 
+class Gender(models.TextChoices):
+    """The gender of the user."""
+
+    NOT_GIVEN = 'none', _('not given')
+    MALE = 'm', _('male')
+    FEMALE = 'f', _('female')
+    DIVERSE = 'd', _('diverse')
+
+    @classmethod
+    def verbose_name(cls, value: str) -> str:
+        """Return the verbose name to the given value."""
+        for choice in cls.choices:
+            if value == choice[0]:
+                return choice[1]  # verbose name
+
+        return ''
+
+
 class Profile(models.Model):
     """
     Model for a profil.
@@ -112,14 +131,6 @@ class Profile(models.Model):
         _('first name'), blank=False, null=True, max_length=150)
     last_name = models.CharField(
         _('last name'), blank=False, null=True, max_length=150)
-
-    class Gender(models.TextChoices):
-        """The gender of the user."""
-
-        NOT_GIVEN = 'none', _('Not Given')
-        MALE = 'm', _('Male')
-        FEMALE = 'f', _('Female')
-        DIVERSE = 'd', _('Diverse')
 
     gender = models.CharField(
         _('gender'),
@@ -145,9 +156,9 @@ class Profile(models.Model):
     house_number = models.CharField(
         _('house number'), null=True, max_length=20)
     zipcode = models.CharField(
-        _('zipcode'), null=True, default=settings.ZIPCODE, max_length=5)
+        _('zipcode'), null=True, max_length=5)
     city = models.CharField(
-        _('city'), null=True, default=settings.CITY, max_length=35)
+        _('city'), null=True, max_length=35)
 
     # was the profile validated by an employee
     verified = models.BooleanField(
@@ -157,7 +168,7 @@ class Profile(models.Model):
                     ' employee.')
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     media_authority = models.ForeignKey(
         MediaAuthority,

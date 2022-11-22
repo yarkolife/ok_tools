@@ -62,8 +62,9 @@ INSTALLED_APPS = [
     'admin_searchable_dropdown',
     'bootstrap_datepicker_plus',
     'crispy_forms',
-    'django_extensions',
+    'admin_auto_filters',
     'django_admin_listfilter_dropdown',
+    'django_extensions',
     'icalendar',
     'import_export',
     'rangefilter',
@@ -204,10 +205,6 @@ PHONENUMBER_DEFAULT_REGION = 'DE'
 
 # Date format
 DATE_INPUT_FORMATS = '%d.%m.%Y'
-
-# Default city and zipcode for Address
-CITY = 'Merseburg'
-ZIPCODE = '06217'
 
 # email
 # send the mails to stdout
