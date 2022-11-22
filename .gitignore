@@ -4,6 +4,7 @@ include/
 lib/
 lib64
 pyvenv.cfg
+production.cfg
 
 __pycache__/
 db.sqlite3*
