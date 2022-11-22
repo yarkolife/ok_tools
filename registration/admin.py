@@ -1,3 +1,4 @@
+from .models import Gender
 from .models import MediaAuthority
 from .models import Profile
 from .print import generate_registration_form
@@ -100,7 +101,7 @@ class ProfileResource(resources.ModelResource):
 
     def dehydrate_gender(self, profile: Profile):
         """Export gender as verbose name."""
-        return Profile.Gender.verbose_name(profile.gender)
+        return Gender.verbose_name(profile.gender)
 
 
 class BirthmonthFilter(admin.SimpleListFilter):

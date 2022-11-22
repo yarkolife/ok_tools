@@ -1,17 +1,16 @@
 from .admin import ProjectAdmin
+from .admin import ProjectParticipantsResource
 from .admin import YearFilter
 from .models import MediaEducationSupervisor
 from .models import Project
-from .models import ProjectCategory
-from .models import ProjectLeader
-from .models import TargetGroup
+from .models import ProjectParticipant
 from datetime import datetime
 from datetime import timedelta
-from django import forms
 from django.urls import reverse_lazy
 from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import create_project
+from registration.models import Gender
 from unittest.mock import patch
 import pytest
 
@@ -37,32 +36,6 @@ def test__admin__1(browser):
     browser.getControl(name='_save').click()
     browser.open(f'{base_url}projects/project/add')
     browser.getControl(name='_save').click()
-
-
-def test__admin__2(db):
-    """Participant number fields are validated."""
-    pc = ProjectCategory.objects.create(name='Foo1')
-    pl = ProjectLeader.objects.create(name='blah')
-    tg = TargetGroup.objects.create(name='tg1')
-    mes = MediaEducationSupervisor.objects.create(name='fupp')
-    proj = Project.objects.create(
-        project_category=pc,
-        project_leader=pl,
-        target_group=tg,
-        begin_date=datetime(year=2022, month=9, day=27, hour=9, tzinfo=TZ),
-        end_date=datetime(year=2022, month=9, day=27, hour=11, tzinfo=TZ),
-        duration=timedelta(days=1),
-        external_venue=False,
-        jugendmedienschutz=False
-    )
-    proj.media_education_supervisors.add(mes.id)
-    proj.tn_0_bis_6 = 2
-    proj.tn_7_bis_10 = 2
-    proj.tn_female = 3
-    with pytest.raises(forms.ValidationError):
-        proj.clean()
-    proj.tn_male = 1
-    proj.clean()
 
 
 def test__projects__admin__YearFilter__1(browser, project_dict):
@@ -142,9 +115,107 @@ def test__projects__admin__ProjectResource__2(browser, project_dict):
     assert str(project.project_leader) in export
 
 
+def test__projects__admin__ProjectParticipantsResource__1(
+        browser, project_dict):
+    """Export all participants of a project."""
+    no_participant = ProjectParticipant.objects.create(name='no participant')
+    participant = ProjectParticipant.objects.create(
+        name='participant',
+        age=24,
+        gender='f',
+    )
+    project: Project = create_project(project_dict, participants=[participant])
+    project_dict['title'] = 'without participants'
+    without_participants: Project = create_project(project_dict)
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('Export')
+    # Select Project Participants
+    browser.getControl('Project Participants').click()
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert browser.headers['Content-Type'] == 'text/csv'
+    export = str(browser.contents)
+    assert no_participant.name not in export
+    assert project.title in export
+    assert str(project.begin_date.date()) in export
+    assert participant.name in export
+    assert str(participant.age) in export
+    assert str(Gender.verbose_name(participant.gender)) in export
+    assert without_participants.title not in export
+
+    without_queryset = ProjectParticipantsResource().export().get_csv()
+    assert bytes(without_queryset, 'utf-8') == browser.contents
+
+
 def test__projects__models__1(db, project):
     """Project gets represented by its title."""
     assert str(project) == project.title
+
+
+@pytest.mark.parametrize("age,gender,expected_age,expected_gender",
+                         [
+                             (6, 'm', '0_bis_6', 0),
+                             (10, 'f', '7_bis_10', 1),
+                             (14, 'd', '11_bis_14', 2),
+                             (18, 'd', '15_bis_18', 2),
+                             (34, 'd', '19_bis_34', 2),
+                             (50, 'd', '35_bis_50', 2),
+                             (65, 'd', '51_bis_65', 2),
+                             (66, 'd', 'ueber_65', 2),
+                         ]
+                         )
+def test__projects__signals__update_age_and_gender__1(
+        db, project_dict, age, gender, expected_age, expected_gender):
+    """After adding a participant the age and gender fields get updated."""
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname",
+        age=age,
+        gender=gender,
+    )
+    project: Project = create_project(
+        project_dict, participants=[participant])
+
+    assert project.statistic.get(expected_age)[expected_gender] == 1
+
+
+def test__projects__signals__update_age_and_gender__2(
+        db, project_dict):
+    """After adding a participant the age and gender fields get updated."""
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname")
+    project: Project = create_project(
+        project_dict, participants=[participant])
+
+    assert project.statistic.get('not_given')[3] == 1
+
+
+def test__projects__signals__update_age_and_gender__3(
+        db, project_dict):
+    """If a participant gets removed, the statistic gets updated."""
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname",
+        age=24,
+        gender='m',
+    )
+    project: Project = create_project(
+        project_dict, participants=[participant])
+
+    assert project.statistic.get('19_bis_34')[0] == 1
+    project.participants.remove(participant)
+    assert project.statistic.get('19_bis_34')[0] == 0
+
+
+def test__projects__signals__update_age_and_gender__4(db, project_dict):
+    """Adding a participant with an unknown gender."""
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname",
+        gender="unknown",
+    )
+    with pytest.raises(ValueError, match=r'Unknown gender .*'):
+        create_project(project_dict, participants=[participant])
 
 
 def test__projects__admin__ProjectAdmin__1(browser, project):
@@ -234,6 +305,25 @@ def test__projects__admin__ProjectAdmin__6(browser, project_dict):
 
     assert browser.headers['Content-Type'] == 'text/calendar'
     assert _f_ics_date(project.end_date) in str(browser.contents)
+
+
+def test__projects__models__ProjectParticipant____str____1(db):
+    """A project participant get represented by name, age and gender."""
+    part = ProjectParticipant.objects.create(
+        name='test name',
+        age=27,
+        gender='d',
+    )
+
+    assert (f'{part.name} ({part.age}, {Gender.verbose_name(part.gender)})'
+            == str(part))
+
+
+def test__projects__models__Project__statistic_key_to_label__1():
+    """Trying to convert an invalid key value results in an ValueError."""
+    INVALID = 'invalid'
+    with pytest.raises(ValueError, match=f'Unknown key {INVALID}!'):
+        Project.statistic_key_to_label(INVALID)
 
 
 def _f_ics_date(dt: datetime):

@@ -97,6 +97,24 @@ def default_media_authority():
         name=settings.OK_NAME_SHORT)[0]
 
 
+class Gender(models.TextChoices):
+    """The gender of the user."""
+
+    NOT_GIVEN = 'none', _('not given')
+    MALE = 'm', _('male')
+    FEMALE = 'f', _('female')
+    DIVERSE = 'd', _('diverse')
+
+    @classmethod
+    def verbose_name(cls, value: str) -> str:
+        """Return the verbose name to the given value."""
+        for choice in cls.choices:
+            if value == choice[0]:
+                return choice[1]  # verbose name
+
+        return ''
+
+
 class Profile(models.Model):
     """
     Model for a profil.
@@ -112,23 +130,6 @@ class Profile(models.Model):
         _('first name'), blank=False, null=True, max_length=150)
     last_name = models.CharField(
         _('last name'), blank=False, null=True, max_length=150)
-
-    class Gender(models.TextChoices):
-        """The gender of the user."""
-
-        NOT_GIVEN = 'none', _('Not Given')
-        MALE = 'm', _('Male')
-        FEMALE = 'f', _('Female')
-        DIVERSE = 'd', _('Diverse')
-
-        @classmethod
-        def verbose_name(cls, value: str) -> str:
-            """Return the verbose name to the given value."""
-            for choice in cls.choices:
-                if value == choice[0]:
-                    return choice[1]  # verbose name
-
-            return ''
 
     gender = models.CharField(
         _('gender'),
