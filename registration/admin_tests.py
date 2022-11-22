@@ -90,6 +90,8 @@ def test__registration__admin__ProfileAdmin__3(db, user_dict, browser):
         user_dict['birthday'], settings.DATE_INPUT_FORMATS).date(),
     browser.getControl('Street').value = user_dict['street']
     browser.getControl('House number').value = user_dict['house_number']
+    browser.getControl('Zipcode').value = user_dict['zipcode']
+    browser.getControl('City').value = user_dict['city']
     browser.getControl(name='_save').click()
 
     assert "was added successfully" in browser.contents

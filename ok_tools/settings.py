@@ -205,10 +205,6 @@ PHONENUMBER_DEFAULT_REGION = 'DE'
 # Date format
 DATE_INPUT_FORMATS = '%d.%m.%Y'
 
-# Default city and zipcode for Address
-CITY = 'Merseburg'
-ZIPCODE = '06217'
-
 # email
 # send the mails to stdout
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
