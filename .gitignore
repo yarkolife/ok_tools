@@ -34,3 +34,4 @@ response.html
 
 *.xlsx
 !ok_tools/test_data/*.xlsx
+notes

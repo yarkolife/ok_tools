@@ -2,6 +2,7 @@ from .admin import BirthmonthFilter
 from .admin import Profile
 from .admin import ProfileAdmin
 from .admin import YearFilter
+from .models import Gender
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
@@ -305,7 +306,7 @@ def test__registration__admin__ProfileResource__1(browser, user_dict):
     export = str(browser.contents)
     assert str(profile.first_name) in export
     assert str(profile.last_name) in export
-    assert str(profile.gender) in export
+    assert str(Gender.verbose_name(profile.gender)) in export
     assert str(user.email) in export
     assert str(profile.phone_number) in export
     assert str(profile.mobile_number) in export

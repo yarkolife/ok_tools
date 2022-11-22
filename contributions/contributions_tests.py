@@ -1,5 +1,6 @@
 from .admin import ContributionAdmin
 from .admin import ContributionResource
+from .admin import PrimaryFilter
 from .admin import ProgramResource
 from .admin import WeekFilter
 from .admin import YearFilter
@@ -7,6 +8,7 @@ from .disa_import import _check_title
 from .disa_import import disa_import
 from .disa_import import validate
 from .models import Contribution
+from .models import ContributionManager
 from .models import DisaImport
 from datetime import datetime
 from datetime import time
@@ -161,6 +163,47 @@ def test__contributions__models__1(db, license, contribution_dict):
     assert not late_contr.is_primary()
 
 
+def test__contributions__models__ContributionManager__1(
+        db, license, contribution_dict):
+    """Get a list of all ids from primary contributions."""
+    primary = set()
+    repetitions = set()
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=8,
+        tzinfo=TZ,
+    )
+    primary.add(create_contribution(license, contribution_dict))
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=18,
+        tzinfo=TZ,
+    )
+    repetitions.add(create_contribution(license, contribution_dict))
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=18,
+        tzinfo=TZ,
+    )
+    repetitions.add(create_contribution(license, contribution_dict))
+
+    contributions = repetitions.union(primary)
+    primary_ids = ContributionManager().primary_contributions(contributions)
+    repetition_ids = ContributionManager().repetitions(contributions)
+    assert primary == {Contribution.objects.get(id=id) for id in primary_ids}
+    assert repetitions == {Contribution.objects.get(
+        id=id) for id in repetition_ids}
+
+
 def test__contributions__disa_import__validate__1(browser):
     """It is possible to upload a valid DISA export file."""
     browser.login_admin()
@@ -308,6 +351,61 @@ def test__contributions__admin__2(browser, disaimport):
 
     assert DisaImport.objects.get(id=disaimport.id).imported
     assert not Contribution.objects.filter()
+
+
+def test__contributions__admin__PrimaryFilter__1(
+        db, browser, license, contribution_dict):
+    """Filter by primary contributions."""
+    contribution_dict['broadcast_date'] = datetime(
+        year=2020,
+        month=9,
+        day=12,
+        hour=8,
+        tzinfo=TZ,
+    )
+    primary = create_contribution(license, contribution_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2021,
+        month=9,
+        day=12,
+        hour=20,
+        tzinfo=TZ,
+    )
+    repetition1 = create_contribution(license, contribution_dict)
+
+    contribution_dict['broadcast_date'] = datetime(
+        year=2022,
+        month=9,
+        day=12,
+        hour=22,
+        tzinfo=TZ,
+    )
+    repetition2 = create_contribution(license, contribution_dict)
+
+    browser.login_admin()
+    browser.open(A_CON_URL)
+    browser.follow('Yes')
+    result = browser.contents
+
+    assert str(primary.broadcast_date.year) in result
+    assert str(repetition1.broadcast_date.year) not in result
+    assert str(repetition2.broadcast_date.year) not in result
+
+    browser.follow('No')
+    result = browser.contents
+    assert str(primary.broadcast_date.year) not in result
+    assert str(repetition1.broadcast_date.year) in result
+    assert str(repetition2.broadcast_date.year) in result
+
+
+def test__contributions__admin__PrimaryFileter__2():
+    """Handle invalid values."""
+    with patch.object(PrimaryFilter, 'value', return_value='invalid'):
+        with pytest.raises(ValueError, match=r'Invalid value .*'):
+            filter = PrimaryFilter(
+                {}, {}, Contribution, ContributionAdmin)
+            filter.queryset(None, None)
 
 
 def test__contributions__admin__YearFilter__1(

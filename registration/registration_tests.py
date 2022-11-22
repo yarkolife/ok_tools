@@ -1,4 +1,5 @@
 from .email import send_auth_mail
+from .models import Gender
 from .models import Profile
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -201,6 +202,11 @@ def test__registration__models__1(db, user_dict):
     )
     assert user_dict['first_name'] in testprofil.__str__()
     assert user_dict['last_name'] in testprofil.__str__()
+
+
+def test__registration__models__Profile__Gender__verbose_name__1(db):
+    """The verbose name of an invalid value is en empty string."""
+    assert Gender.verbose_name('invalid') == ''
 
 
 def test__registration__backends__EmailBackend__1(browser):
