@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'bootstrap_datepicker_plus',
     'crispy_forms',
     'admin_auto_filters',
-    'django_extensions',
     'django_admin_listfilter_dropdown',
     'django_extensions',
     'icalendar',
