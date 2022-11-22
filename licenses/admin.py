@@ -252,6 +252,10 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         AutocompleteFilterFactory(_('Category'), 'category')
     ]
 
+    def get_rangefilter_created_at_title(self, request, field_path):
+        """Set a custom filter name for created_at DateTimeRangeFilter."""
+        return _('Created at')
+
     @admin.action(description=_('Confirm selected Licenses'))
     def confirm(self, request, queryset):
         """Confirm all selected profiles."""

@@ -125,7 +125,12 @@ class Profile(models.Model):
     """
 
     okuser = models.OneToOneField(
-        OKUser, on_delete=models.CASCADE, null=True, blank=True)
+        OKUser,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_('User'),
+    )
 
     first_name = models.CharField(
         _('first name'), blank=False, null=True, max_length=150)
@@ -174,6 +179,7 @@ class Profile(models.Model):
         MediaAuthority,
         on_delete=models.CASCADE,
         default=default_media_authority,
+        verbose_name=_('Media Authority'),
     )
 
     member = models.BooleanField(
