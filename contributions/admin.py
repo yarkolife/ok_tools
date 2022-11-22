@@ -1,5 +1,6 @@
 from .disa_import import disa_import
 from .models import Contribution
+from .models import ContributionManager
 from .models import DisaImport
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django import http
@@ -238,6 +239,37 @@ class WeekFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
+class PrimaryFilter(admin.SimpleListFilter):
+    """Filter after primary contributions."""
+
+    title = _('Primary Contribution')
+    parameter_name = 'primary_contribution'
+
+    def lookups(self, request, model_admin):
+        """Define labels for filtering."""
+        return (
+            ('y', _('Yes')),
+            ('n', _('No')),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter after primary contributions."""
+        match self.value():
+            case None:
+                return
+            case 'y':
+                ids = ContributionManager().primary_contributions(queryset)
+                return queryset.filter(id__in=ids)
+            case 'n':
+                ids = ContributionManager().repetitions(queryset)
+                return queryset.filter(id__in=ids)
+
+            case _:
+                msg = f'Invalid value {self.value()}.'
+                logger.error(msg)
+                raise ValueError(msg)
+
+
 class YearFilter(admin.SimpleListFilter):
     """Filter after this or last years broadcast_date."""
 
@@ -294,6 +326,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'license__profile'),
         ('broadcast_date', DateTimeRangeFilter),
+        PrimaryFilter,
         YearFilter,
         WeekFilter,
     ]

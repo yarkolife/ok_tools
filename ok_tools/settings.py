@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'admin_auto_filters',
     'django_extensions',
     'django_admin_listfilter_dropdown',
+    'django_extensions',
     'icalendar',
     'import_export',
     'rangefilter',

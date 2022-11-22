@@ -5,6 +5,10 @@
 
 {% block title %} {{ OK_NAME_SHORT}} | {% translate 'Administrationinterface' %} {% endblock %}
 
+{% block extrahead %}
+    <link rel="shortcut icon" type="image/png" href={% static 'img/favicon.ico' %} />
+{% endblock %}
+
 {% block branding %}
 
 <h1 id="site-name">
