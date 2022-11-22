@@ -155,7 +155,23 @@ def test__projects__signals__update_age_and_gender__2(
     assert project.statistic.get('not_given')[3] == 1
 
 
-def test__projects__signals__update_age_and_gender__3(db, project_dict):
+def test__projects__signals__update_age_and_gender__3(
+        db, project_dict):
+    """If a participant gets removed, the statistic gets updated."""
+    participant: ProjectParticipant = ProjectParticipant.objects.create(
+        name="Testname",
+        age=24,
+        gender='m',
+    )
+    project: Project = create_project(
+        project_dict, participants=[participant])
+
+    assert project.statistic.get('19_bis_34')[0] == 1
+    project.participants.remove(participant)
+    assert project.statistic.get('19_bis_34')[0] == 0
+
+
+def test__projects__signals__update_age_and_gender__4(db, project_dict):
     """Adding a participant with an unknown gender."""
     participant: ProjectParticipant = ProjectParticipant.objects.create(
         name="Testname",
