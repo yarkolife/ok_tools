@@ -4,22 +4,25 @@ ok_tools
 
 A set of tools to support administrative task in the OKs of the Medienanstalt Sachsen-Anhalt.
 
-Dependencies
+Installation
 ============
 ::
 
-    pip install -r requirements.txt
+    git clone https://github.com/gocept/ok-tools.git
+    cd ok-tools
+    python3.10 -m venv .
+    bin/pip install -r requirements.txt
 
 Tests
 =====
 
 Install the dependencies using requirements-test.txt::
 
-   pip install -r requirements-test.txt
+   bin/pip install -r requirements-test.txt
 
 Run the Tests using pytest::
 
-    pytest
+    bin/pytest
 
 
 Configuration
@@ -37,14 +40,34 @@ configuration is ment for testing only and should not be used in any way for
 prouction due to security reasons.
 ::
 
-    OKTOOLS_CONFIG_FILE=test.cfg python manage.py runserver
+    OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py runserver
 
-Language
-========
 
-Before using the multi language functionality it is necessary to compile the :code:`.po` files::
+Maintenance/Initial Setup
+=========================
 
-    python manage.py compilemessages
+Run the typical django scripts after install/update::
+
+    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py migrate
+    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py collectstatic
+    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py compilemessages
+
+
+Run production server
+=====================
+
+We have provided example config for production usage. Copy production.cfg.example and
+gunicorn.conf.py.example and edit to your needs.
+
+First you have to install gunicorn::
+
+    bin/pip install gunicorn
+
+Use this command to run the server::
+
+    OKTOOLS_CONFIG_FILE=production.cfg  bin/gunicorn ok_tools.wsgi -c gunicorn.conf.py
+
+
 
 Import legacy data
 ==================
