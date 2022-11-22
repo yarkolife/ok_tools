@@ -270,4 +270,11 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
 
 admin.site.register(Profile, ProfileAdmin)
 
-admin.site.register(MediaAuthority)
+
+class MediaAuthorityAdmin(admin.ModelAdmin):
+    """Provide search_fields for AutocompleteFilterFactory."""
+
+    search_fields = ['name']
+
+
+admin.site.register(MediaAuthority, MediaAuthorityAdmin)

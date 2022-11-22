@@ -1,7 +1,7 @@
 from .forms import RangeNumericForm
 from .models import Category
 from .models import License
-from admin_searchable_dropdown.filters import AutocompleteFilterFactory
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
@@ -246,6 +246,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         DurationFilter,
         YearFilter,
         ('duration', DurationRangeFilter),
+        AutocompleteFilterFactory(
+            _('Media Authority'), 'profile__media_authority'),
         AutocompleteFilterFactory(_('Category'), 'category')
     ]
 

@@ -1,3 +1,4 @@
+# from registration.models import MediaAuthority
 from .admin import DurationFilter
 from .admin import LicenseAdmin
 from .admin import YearFilter
@@ -772,3 +773,22 @@ def test__licenses__admin__DurationRangeFilter__1(
     assert license1.title not in browser.contents
     assert license2.title in browser.contents
     assert license3.title not in browser.contents
+
+
+# def test__licenses__admin__LicenseAdmin__12(
+#         browser, license, license_dict, user_dict):
+#     """Filter licenses by media authority."""
+#     foreign_ma = MediaAuthority.objects.create(name='Foreign MA')
+#     user_dict['email'] = 'foreign@exampl.com'
+#     foreign_user = create_user(user_dict)
+#     foreign_profile: Profile = foreign_user.profile
+#     foreign_profile.media_authority = foreign_ma
+#     foreign_profile.save()
+
+#     foreign_license = create_license(foreign_profile, license_dict)
+
+#     browser.login_admin()
+#     browser.open(A_LICENSE_URL)
+
+#     open('response.html', 'w').write(browser.contents)
+#   breakpoint()
