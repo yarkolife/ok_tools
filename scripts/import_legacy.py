@@ -172,9 +172,9 @@ def import_users(ws: Worksheet) -> IdNumberMap:
                 f'Could not determine gender from user {row[NR].value}')
             return "none"
         if w:
-            return "w"
-        else:
             return "m"
+        else:
+            return "f"
 
     ids: IdNumberMap = IdNumberMap()
     rows = ws.rows
