@@ -21,6 +21,14 @@ Run the Tests using pytest::
 
     pytest
 
+
+Configuration
+=============
+
+We have provided a minimal config (test.cfg) and an example with
+suggested settings for production (production.cfg.example).
+
+
 Run Server Locally
 ==================
 

@@ -23,10 +23,6 @@ logger = logging.getLogger(__name__)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
 # parse configurations, set by component
 config = configparser.RawConfigParser()
 if 'OKTOOLS_CONFIG_FILE' in os.environ:
@@ -145,16 +141,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# CSRF settings
-# CSRF_TRUSTED_ORIGINS = ['https://okmq.gocept.fcio.net', 'https://localhost']
 
-# SESSION_COOKIE_SECURE = True
+use_secure_settings = config.getboolean('django', 'use_secure_settings', fallback=False)
 
-# CSRF_COOKIE_SECURE = True
-
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-# CORS_ORIGIN_WHITELIST = ['https://okmq.gocept.fcio.net/']
+if use_secure_settings:
+    CSRF_TRUSTED_ORIGINS = [f'https://{hosts}']
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    CORS_ORIGIN_WHITELIST = [f'https://{hosts}']
+    USE_X_FORWARDED_HOST = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -208,12 +203,22 @@ DATE_INPUT_FORMATS = '%d.%m.%Y'
 
 # email
 # send the mails to stdout
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = ''
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+
+
+mail_dev_settings = config.getboolean('django', 'mail_dev_settings', fallback=True)
+
+
+if mail_dev_settings:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = config.get('django', 'email_host', fallback='')
+EMAIL_PORT = config.getint('django', 'email_port', fallback=587)
+EMAIL_USE_TLS = config.getboolean('django', 'email_use_tls', fallback=True)
+EMAIL_HOST_USER = config.get('django', 'email_host_user', fallback='')
+EMAIL_HOST_PASSWORD = config.get('django', 'email_host_password', fallback='')
+DEFAULT_FROM_EMAIL = config.get('django', 'default_from_email', fallback='webmaster@localhost')
+
+
 
 # name of the OK
 OK_NAME = 'Offener Kanal Merseburg-Querfurt e.V.'
