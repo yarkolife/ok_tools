@@ -1,7 +1,7 @@
 from .forms import RangeNumericForm
 from .models import Category
 from .models import License
-from admin_searchable_dropdown.filters import AutocompleteFilterFactory
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
@@ -225,6 +225,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'created_at',
         'confirmed',
     )
+    autocomplete_fields = ['profile']
 
     ordering = ['-created_at']
 
@@ -246,6 +247,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         DurationFilter,
         YearFilter,
         ('duration', DurationRangeFilter),
+        AutocompleteFilterFactory(
+            _('Media Authority'), 'profile__media_authority'),
+        AutocompleteFilterFactory(_('Category'), 'category')
     ]
 
     def get_rangefilter_created_at_title(self, request, field_path):
@@ -330,4 +334,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
 admin.site.register(License, LicenseAdmin)
 
-admin.site.register(Category)
+
+class CategoryAdmin(admin.ModelAdmin):
+    """Define search_fields for AutocompleteFilterFactory."""
+
+    search_fields = ['name']
+
+
+admin.site.register(Category, CategoryAdmin)

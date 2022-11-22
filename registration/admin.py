@@ -1,3 +1,4 @@
+from .models import Gender
 from .models import MediaAuthority
 from .models import Profile
 from .print import generate_registration_form
@@ -98,6 +99,10 @@ class ProfileResource(resources.ModelResource):
         created_at = profile.created_at.astimezone(TZ)
         return f'{created_at.date()} {created_at.time()}'
 
+    def dehydrate_gender(self, profile: Profile):
+        """Export gender as verbose name."""
+        return Gender.verbose_name(profile.gender)
+
 
 class BirthmonthFilter(admin.SimpleListFilter):
     """Filter profiles using a given birth month."""
@@ -187,7 +192,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
         'member',
         'created_at',
     ]
-    autocomplete_fields = ['okuser']
+    autocomplete_fields = ['okuser', 'media_authority']
     ordering = ['-created_at']
 
     search_fields = ['okuser__email', 'first_name', 'last_name']
@@ -265,4 +270,11 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
 
 admin.site.register(Profile, ProfileAdmin)
 
-admin.site.register(MediaAuthority)
+
+class MediaAuthorityAdmin(admin.ModelAdmin):
+    """Define search_fields."""
+
+    search_fields = ['name']
+
+
+admin.site.register(MediaAuthority, MediaAuthorityAdmin)
