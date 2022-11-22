@@ -1,4 +1,5 @@
 from .admin import ProjectAdmin
+from .admin import ProjectParticipantsResource
 from .admin import YearFilter
 from .models import MediaEducationSupervisor
 from .models import Project
@@ -111,6 +112,41 @@ def test__projects__admin__ProjectResource__2(browser, project_dict):
     assert str(project.target_group) in export
     assert str(project.project_category) in export
     assert str(project.project_leader) in export
+
+
+def test__projects__admin__ProjectParticipantsResource__1(
+        browser, project_dict):
+    """Export all participants of a project."""
+    no_participant = ProjectParticipant.objects.create(name='no participant')
+    participant = ProjectParticipant.objects.create(
+        name='participant',
+        age=24,
+        gender='f',
+    )
+    project: Project = create_project(project_dict, participants=[participant])
+    project_dict['title'] = 'without participants'
+    without_participants: Project = create_project(project_dict)
+
+    browser.login_admin()
+    browser.open(A_PROJ_URL)
+    browser.follow('Export')
+    # Select Project Participants
+    browser.getControl('Project Participants').click()
+    browser.getControl('csv').click()
+    browser.getControl('Submit').click()
+
+    assert browser.headers['Content-Type'] == 'text/csv'
+    export = str(browser.contents)
+    assert no_participant.name not in export
+    assert project.title in export
+    assert str(project.begin_date.date()) in export
+    assert participant.name in export
+    assert str(participant.age) in export
+    assert participant.gender in export
+    assert without_participants.title not in export
+
+    without_queryset = ProjectParticipantsResource().export().get_csv()
+    assert bytes(without_queryset, 'utf-8') == browser.contents
 
 
 def test__projects__models__1(db, project):

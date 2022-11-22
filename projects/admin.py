@@ -19,21 +19,13 @@ from rangefilter.filters import DateTimeRangeFilter
 import datetime
 import json
 import logging
+import tablib
 
 
 logger = logging.getLogger('django')
 
 admin.site.register(MediaEducationSupervisor)
 admin.site.register(ProjectLeader)
-
-
-class ProjectParticipantAdmin(admin.ModelAdmin):
-    """Define search fields for ProjectAdmin autocomplete_fields."""
-
-    search_fields = ['name']
-
-
-admin.site.register(ProjectParticipant, ProjectParticipantAdmin)
 
 
 class ProjectCategoryAdmin(admin.ModelAdmin):
@@ -54,6 +46,70 @@ class TargetGroupAdmin(admin.ModelAdmin):
 admin.site.register(TargetGroup, TargetGroupAdmin)
 
 
+class ProjectParticipantsResource(resources.ModelResource):
+    """Define export for project participants of the selected projects."""
+
+    def _create_data_item(
+            self, project: Project, participant: ProjectParticipant):
+        """Create a data item that represents a row in the export."""
+        return [
+            project.title,
+            str(project.begin_date.date()),
+            participant.name,
+            participant.age,
+            # TODO use verbose gender name as soon as
+            # https://github.com/gocept/ok_tools/pull/107 is merged
+            participant.gender,
+        ]
+
+    def export(self, queryset=None, *args, **kwargs):
+        """
+        Collect all participants from the selected projects.
+
+        And create corresponding the actual export data.
+        """
+        self.before_export(queryset, *args, **kwargs)
+
+        if queryset is None:
+            queryset = super().get_queryset()
+
+        HEADER = [
+            str(_('Project title')),
+            str(_('Project date')),
+            str(_('Name')),
+            str(_('Age')),
+            str(_('Gender')),
+        ]
+        NEWLINE = [None, None, None, None, None]
+
+        data = tablib.Dataset(headers=HEADER)
+
+        for pr in queryset:
+            participants = pr.participants.all()
+            for part in participants:
+                data.append(self._create_data_item(pr, part))
+            if participants:
+                data.append(NEWLINE)
+
+        return data
+
+    class Meta:
+        """Define meta properties for the export."""
+
+        model = Project
+        fields = []
+        name = _('Project Participants')
+
+
+class ProjectParticipantAdmin(admin.ModelAdmin):
+    """Define search fields for ProjectAdmin autocomplete_fields."""
+
+    search_fields = ['name']
+
+
+admin.site.register(ProjectParticipant, ProjectParticipantAdmin)
+
+
 class ProjectResource(resources.ModelResource):
     """Define the export for Projects."""
 
@@ -71,19 +127,6 @@ class ProjectResource(resources.ModelResource):
     target_group = _f('target_group__name', _('Target group'))
     project_category = _f('project_category__name', _('Project category'))
     project_leader = _f('project_leader__name', _('Project leader'))
-    bis_6 = _f('tn_0_bis_6', _('bis 6 Jahre'))
-    bis_10 = _f('tn_7_bis_10', _('7-10 Jahre'))
-    bis_14 = _f('tn_11_bis_14', _('11-14 Jahre'))
-    bis_18 = _f('tn_15_bis_18', _('15-18 Jahre'))
-    bis_34 = _f('tn_19_bis_34', _('19-34 Jahre'))
-    bis_50 = _f('tn_35_bis_50', _('35-50 Jahre'))
-    bis_65 = _f('tn_51_bis_65', _('51-65 Jahre'))
-    ueber_65 = _f('tn_ueber_65', _('über 65 Jahre'))
-    no_age = _f('tni_age_not_given', _('ohne Angabe'))
-    female = _f('tn_female', _('weiblich'))
-    male = _f('tn_male', _('männlich'))
-    diverse = _f('tn_divers', _('diverse'))
-    no_gender = _f('tn_gender_not_given', _('ohne Angabe'))
     supervisors = Field()
 
     def dehydrate_begin_date(self, project: Project) -> str:
@@ -108,6 +151,7 @@ class ProjectResource(resources.ModelResource):
 
         model = Project
         fields = []
+        name = _('Projects')
 
 
 class YearFilter(admin.SimpleListFilter):
@@ -193,7 +237,7 @@ class StatisticWidget(widgets.Widget):
 class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface definitions for Projects."""
 
-    resource_classes = [ProjectResource]
+    resource_classes = [ProjectResource, ProjectParticipantsResource]
     change_list_template = 'admin/change_list_ics_export.html'
 
     list_display = (
