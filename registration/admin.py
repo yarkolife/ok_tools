@@ -73,6 +73,7 @@ class ProfileResource(resources.ModelResource):
         """Shortcut for field creation."""
         return Field(attribute=field, column_name=name)
 
+    id = _f('id', _('ID'))
     first_name = _f('first_name', _('first name'))
     last_name = _f('last_name', _('last name'))
     gender = _f('gender', _('gender'))
