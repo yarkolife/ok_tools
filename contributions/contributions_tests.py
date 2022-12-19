@@ -17,6 +17,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.urls import reverse_lazy
+from freezegun import freeze_time
 from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
@@ -585,6 +586,7 @@ def test__contributions__admin__ProgramResource__2(db):
     ProgramResource().export(None, None)
 
 
+@freeze_time("2022-06-15")
 def test__contributions__admin__WeekFilter__1(
         browser, user, license_dict, contribution_dict):
     """Filter contributions are filterable after their broadcast week."""
