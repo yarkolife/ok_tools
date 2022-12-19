@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 
 {% load i18n %}
+{% load include_file %}
 
 {% block content %}
 <h1> {% translate 'Privacy Policy' %} </h2>
     <p>
-        {% blocktranslate %}
-        This is the privacy policy.
-        {% endblocktranslate %}
+        {% include_file 'files/privacy_policy.txt'%}
     </p>
 
 {% endblock content %}
