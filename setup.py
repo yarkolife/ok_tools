@@ -51,6 +51,7 @@ setup(
             'pytest',
             'pytest-django',
             'zope.testbrowser',
+            'freezegun',
         ],
     },
 )
