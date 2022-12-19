@@ -3,12 +3,9 @@ from .models import MediaEducationSupervisor
 from .models import Project
 from .models import ProjectCategory
 from .models import ProjectLeader
-from .models import ProjectParticipant
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django.contrib import admin
-from django.db import models
-from django.forms import widgets
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
@@ -16,11 +13,8 @@ from import_export.admin import ExportMixin
 from import_export.fields import Field
 from ok_tools.datetime import TZ
 from rangefilter.filters import DateTimeRangeFilter
-from registration.models import Gender
 import datetime
-import json
 import logging
-import tablib
 
 
 logger = logging.getLogger('django')
@@ -62,68 +56,6 @@ class TargetGroupAdmin(admin.ModelAdmin):
 admin.site.register(TargetGroup, TargetGroupAdmin)
 
 
-class ProjectParticipantsResource(resources.ModelResource):
-    """Define export for project participants of the selected projects."""
-
-    def _create_data_item(
-            self, project: Project, participant: ProjectParticipant):
-        """Create a data item that represents a row in the export."""
-        return [
-            project.title,
-            str(project.begin_date.date()),
-            participant.name,
-            participant.age,
-            Gender.verbose_name(participant.gender),
-        ]
-
-    def export(self, queryset=None, *args, **kwargs):
-        """
-        Collect all participants from the selected projects.
-
-        And create corresponding the actual export data.
-        """
-        self.before_export(queryset, *args, **kwargs)
-
-        if queryset is None:
-            queryset = super().get_queryset()
-
-        HEADER = [
-            str(_('Project title')),
-            str(_('Project date')),
-            str(_('Name')),
-            str(_('Age')),
-            str(_('Gender')),
-        ]
-        NEWLINE = [None, None, None, None, None]
-
-        data = tablib.Dataset(headers=HEADER)
-
-        for pr in queryset:
-            participants = pr.participants.all()
-            for part in participants:
-                data.append(self._create_data_item(pr, part))
-            if participants:
-                data.append(NEWLINE)
-
-        return data
-
-    class Meta:
-        """Define meta properties for the export."""
-
-        model = Project
-        fields = []
-        name = _('Project Participants')
-
-
-class ProjectParticipantAdmin(admin.ModelAdmin):
-    """Define search fields for ProjectAdmin autocomplete_fields."""
-
-    search_fields = ['name']
-
-
-admin.site.register(ProjectParticipant, ProjectParticipantAdmin)
-
-
 class ProjectResource(resources.ModelResource):
     """Define the export for Projects."""
 
@@ -141,6 +73,19 @@ class ProjectResource(resources.ModelResource):
     target_group = _f('target_group__name', _('Target group'))
     project_category = _f('project_category__name', _('Project category'))
     project_leader = _f('project_leader__name', _('Project leader'))
+    bis_6 = _f('tn_0_bis_6', _('bis 6 Jahre'))
+    bis_10 = _f('tn_7_bis_10', _('7-10 Jahre'))
+    bis_14 = _f('tn_11_bis_14', _('11-14 Jahre'))
+    bis_18 = _f('tn_15_bis_18', _('15-18 Jahre'))
+    bis_34 = _f('tn_19_bis_34', _('19-34 Jahre'))
+    bis_50 = _f('tn_35_bis_50', _('35-50 Jahre'))
+    bis_65 = _f('tn_51_bis_65', _('51-65 Jahre'))
+    ueber_65 = _f('tn_ueber_65', _('über 65 Jahre'))
+    no_age = _f('tni_age_not_given', _('ohne Angabe'))
+    female = _f('tn_female', _('weiblich'))
+    male = _f('tn_male', _('männlich'))
+    diverse = _f('tn_divers', _('diverse'))
+    no_gender = _f('tn_gender_not_given', _('ohne Angabe'))
     supervisors = Field()
 
     def dehydrate_begin_date(self, project: Project) -> str:
@@ -199,59 +144,10 @@ class YearFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
-class StatisticWidget(widgets.Widget):
-    """Represent statistic json value as text table."""
-
-    def format_value(self, value):
-        """Format json to html-table."""
-        value: dict = json.loads(value)
-        result = self._create_header() + self._create_rows(value)
-        return '\n'.join(result)
-
-    def render(self, name, value, attrs, renderer):
-        """Render the result as read only paragraph."""
-        return "<table>\n"+str(self.format_value(value))+"\n</table>"
-
-    def _create_header(self) -> list[str]:
-        """Create header row."""
-        def _th(value) -> str:
-            return f'<th> {value} </th>'
-
-        header = []
-        header.append('<tr>')
-        header.append(_th(''))
-        header.append(_th(_('Male')))
-        header.append(_th(_('Female')))
-        header.append(_th(_('Diverse')))
-        header.append(_th(_('Ohne Angabe')))
-        header.append('</tr>')
-
-        return ['\n'.join(header)]
-
-    def _create_rows(self, json_obj: dict) -> list[str]:
-        """Create value row."""
-        if not json_obj:
-            return []
-        item = json_obj.popitem()
-        row = []
-
-        row.append('<tr>')
-        row.append(self._format_label(item[0]))
-        for elem in item[1]:
-            row.append(f'<td> {elem} </td>')
-        row.append('</tr>')
-
-        return self._create_rows(json_obj) + row
-
-    def _format_label(self, label) -> str:
-        """Format label to translatable string."""
-        return f'<td><b> {Project.statistic_key_to_label(label)} </b></td>'
-
-
 class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface definitions for Projects."""
 
-    resource_classes = [ProjectResource, ProjectParticipantsResource]
+    resource_classes = [ProjectResource]
     change_list_template = 'admin/change_list_ics_export.html'
 
     list_display = (
@@ -268,7 +164,6 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         'target_group',
         'project_leader',
         'media_education_supervisors',
-        'participants',
     ]
 
     ordering = ('-begin_date',)
@@ -299,19 +194,29 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'target_group',
                 'project_leader',
                 'media_education_supervisors',
-                'participants',
             )
         }),
-        (_('Participant Statistic'), {
+        (_('Participant numbers - by age'), {
             'fields': (
-                'statistic',
+                'tn_0_bis_6',
+                'tn_7_bis_10',
+                'tn_11_bis_14',
+                'tn_15_bis_18',
+                'tn_19_bis_34',
+                'tn_35_bis_50',
+                'tn_51_bis_65',
+                'tn_ueber_65',
+                'tn_age_not_given',
             )
-        })
+        }),
+        (_('Participant numbers - by gender'), {
+            'fields': (
+                'tn_female',
+                'tn_male',
+                'tn_gender_not_given',
+            )
+        }),
     )
-
-    formfield_overrides = {
-        models.JSONField: {'widget': StatisticWidget}
-    }
 
     def get_urls(self):
         """Add the ics_export_view to the admin urls."""
