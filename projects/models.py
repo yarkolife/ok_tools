@@ -199,7 +199,7 @@ class Project(models.Model):
 
     media_education_supervisors = models.ManyToManyField(
         MediaEducationSupervisor,
-        blank=False,
+        blank=True,
         verbose_name=_('Media education supervisors'),
     )
 
