@@ -509,18 +509,19 @@ def import_projects(ws: Worksheet):
         if not duration:
             logger.warning(f'Now duration for project "{row[TITLE].value}"')
 
-        begin_date = _get_datetime(row[DAY])
-        if not begin_date:
+        date = _get_datetime(row[DAY])
+        if not date:
             logger.warning(f'No begin_date for project "{row[TITLE].value}')
 
-        end_date = begin_date + duration
+        # we only need the date
+        date = date.date()
 
         try:
             project, project_created = Project.objects.get_or_create(
                 title=row[TITLE].value,
                 topic=row[TOPIC].value,
-                begin_date=begin_date,
-                end_date=end_date,
+                date=date,
+                duration=duration,
                 external_venue=_get_bool(row[EXTERNAL_V]),
                 jugendmedienschutz=_get_bool(row[YOUTH_PROTECTION]),
                 target_group=target_gr,

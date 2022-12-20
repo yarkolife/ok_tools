@@ -1,4 +1,5 @@
 from contributions.models import DisaImport
+from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -153,10 +154,8 @@ def project_dict() -> dict:
     return {
         'title': 'title',
         'topic': 'topic',
+        'date': date(year=2022, month=9, day=20),
         'duration': timedelta(hours=1, minutes=30),
-        'begin_date': datetime(year=2022, month=9, day=20, hour=9, tzinfo=TZ),
-        'end_date': datetime(
-            year=2022, month=9, day=20, hour=10, minute=30, tzinfo=TZ),
         'external_venue': False,
         'jugendmedienschutz': False,
         'target_group': default_target_group(),

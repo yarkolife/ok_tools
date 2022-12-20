@@ -6,13 +6,13 @@ from .models import ProjectLeader
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django.contrib import admin
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
-from ok_tools.datetime import TZ
-from rangefilter.filters import DateTimeRangeFilter
+from rangefilter.filters import DateRangeFilter
 import datetime
 import logging
 
@@ -65,9 +65,8 @@ class ProjectResource(resources.ModelResource):
 
     title = _f('title', _('Title'))
     topic = _f('topic', _('Topic'))
+    date = _f('date', _('Date'))
     duration = _f('duration', _('Duration'))
-    begin_date = _f('begin_date', _('Start date'))
-    end_date = _f('end_date', _('End date'))
     external_venue = _f('external_venue', _('External venue'))
     jugendmedienschutz = _f('jugendmedienschutz', _('Jugendmedienschutz'))
     target_group = _f('target_group__name', _('Target group'))
@@ -88,18 +87,6 @@ class ProjectResource(resources.ModelResource):
     no_gender = _f('tn_gender_not_given', _('ohne Angabe'))
     supervisors = Field()
 
-    def dehydrate_begin_date(self, project: Project) -> str:
-        """Return the begin datetime in the current time zone."""
-        tz_datetime = project.begin_date.astimezone(
-            tz=TZ)
-        return f'{tz_datetime.date()} {tz_datetime.time()}'
-
-    def dehydrate_end_date(self, project: Project) -> str:
-        """Return the end datetime in the current time zone."""
-        tz_datetime = project.end_date.astimezone(
-            tz=TZ)
-        return f'{tz_datetime.date()} {tz_datetime.time()}'
-
     def dehydrate_supervisors(self, project: Project) -> str:
         """Convert all supervisors to one string."""
         return ', '.join(
@@ -118,7 +105,7 @@ class YearFilter(admin.SimpleListFilter):
 
     title = _('start year')
 
-    parameter_name = 'begin_date'
+    parameter_name = 'date'
 
     def lookups(self, request, model_admin):
         """Define labels to filter after this or last year."""
@@ -134,10 +121,10 @@ class YearFilter(admin.SimpleListFilter):
                 return
             case 'this':
                 return queryset.filter(
-                    begin_date__year=datetime.datetime.now().year)
+                    date__year=datetime.datetime.now().year)
             case 'last':
                 return queryset.filter(
-                    begin_date__year=datetime.datetime.now().year-1)
+                    date__year=datetime.datetime.now().year-1)
             case _:
                 msg = f'Invalid value {self.value()}.'
                 logger.error(msg)
@@ -153,7 +140,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     list_display = (
         'title',
         'topic',
-        'begin_date',
+        'date',
         'project_leader',
         'jugendmedienschutz',
         'democracy_project',
@@ -166,7 +153,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         'media_education_supervisors',
     ]
 
-    ordering = ('-begin_date',)
+    ordering = ('-date',)
     search_fields = ('title', 'topic')
     search_help_text = _('title, topic')
 
@@ -175,7 +162,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         AutocompleteFilterFactory(_('Project Category'), 'project_category'),
         'jugendmedienschutz',
         'democracy_project',
-        ('begin_date', DateTimeRangeFilter),
+        ('date', DateRangeFilter),
         YearFilter,
     )
 
@@ -184,9 +171,8 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
             'fields': (
                 'title',
                 'topic',
+                'date',
                 'duration',
-                'begin_date',
-                'end_date',
                 'external_venue',
                 'jugendmedienschutz',
                 'democracy_project',
@@ -228,6 +214,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
             )
         ]
 
+    @staff_member_required
     def ics_export_view(self, request):
         """Export project dates as ics."""
         # This method belongs to the ExportMixin and creates a queryset from
