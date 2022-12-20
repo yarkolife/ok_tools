@@ -515,29 +515,6 @@ def import_projects(ws: Worksheet):
 
         end_date = begin_date + duration
 
-        statistic = Project.statistic_default()
-
-        def _set_age(key, value):
-            statistic.get(key)[3] = value  # without gender
-
-        _set_age('0_bis_6', _get_number(row[U6]))
-        _set_age('7_bis_10', _get_number(row[U11]))
-        _set_age('11_bis_14', _get_number(row[U15]))
-        _set_age('15_bis_18', _get_number(row[U19]))
-        _set_age('19_bis_34', _get_number(row[U35]))
-        _set_age('35_bis_50', _get_number(row[U51]))
-        _set_age('51_bis_65', _get_number(row[U66]))
-        _set_age('ueber_65', _get_number(row[O65]))
-        _set_age('not_given', _get_number(row[NO_AGE]))
-
-        def _set_gender(idx, value):
-            statistic.get('not_given')[idx] = value
-
-        _set_gender(0, _get_number(row[M]))
-        _set_gender(1, _get_number(row[W]))
-        # idx=2 (diverse) not given in legacy data
-        _set_gender(3, _get_number(row[WITHOUT_GENDER]))
-
         try:
             project, project_created = Project.objects.get_or_create(
                 title=row[TITLE].value,
@@ -549,7 +526,18 @@ def import_projects(ws: Worksheet):
                 target_group=target_gr,
                 project_category=category,
                 project_leader=leader,
-                statistic=statistic,
+                tn_0_bis_6=_get_number(row[U6]),
+                tn_7_bis_10=_get_number(row[U11]),
+                tn_11_bis_14=_get_number(row[U15]),
+                tn_15_bis_18=_get_number(row[U19]),
+                tn_19_bis_34=_get_number(row[U35]),
+                tn_35_bis_50=_get_number(row[U51]),
+                tn_51_bis_65=_get_number(row[U66]),
+                tn_ueber_65=_get_number(row[O65]),
+                tn_age_not_given=_get_number(row[NO_AGE]),
+                tn_female=_get_number(row[W]),
+                tn_male=_get_number(row[M]),
+                tn_gender_not_given=_get_number(row[WITHOUT_GENDER]),
             )
         except IntegrityError:
             raise
