@@ -4,7 +4,6 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
-import bisect
 
 
 class ContributionManager(models.Manager):
@@ -25,14 +24,11 @@ class ContributionManager(models.Manager):
         """Initialize self.licensees and self.contr_by_license."""
         self.licenses = {c.license for c in contributions}
         self.contr_by_license = {}
-        for contribution in contributions:
-            lic_id = contribution.license.id
-            l_contributions = self.contr_by_license.get(lic_id, [])
-            bisect.insort(
-                l_contributions,
-                contribution,
-                key=lambda c: c.broadcast_date
-            )
+        for license in self.licenses:
+            lic_id = license.id
+            l_contributions = list(
+                Contribution.objects.filter(license=license))
+            list.sort(l_contributions, key=lambda c: c.broadcast_date)
             self.contr_by_license[lic_id] = l_contributions
 
     def primary_contributions(self, contributions):
