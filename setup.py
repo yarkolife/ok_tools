@@ -36,7 +36,6 @@ setup(
         'django-admin-list-filter-dropdown',
         'django-admin-rangefilter',
         'django-admin-searchable-dropdown',
-        'django-bootstrap-datepicker-plus',
         'django-crispy-forms',
         'django-extensions',
         'django-import-export>=3.0.0',
