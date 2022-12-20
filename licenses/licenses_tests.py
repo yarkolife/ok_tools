@@ -1,5 +1,3 @@
-# from registration.models import MediaAuthority
-from .admin import DurationFilter
 from .admin import LicenseAdmin
 from .admin import YearFilter
 from .models import License
@@ -615,15 +613,6 @@ def test__licenses__admin__LicenseAdmin__11(browser, license):
 
     assert f'profile of {license} is not verified' in browser.contents
     assert '0 Licenses were successfully confirmed' in browser.contents
-
-
-def test__licenses__admin__DurationFilter__1():
-    """Handle invalid values."""
-    with patch.object(DurationFilter, 'value', return_value='invalid'):
-        with pytest.raises(ValueError, match=r'Invalid value .*'):
-            filter = DurationFilter(
-                {}, {}, License, LicenseAdmin)
-            filter.queryset(None, None)
 
 
 def test__licenses__admin__YearFilter__1(browser, user, license_dict):

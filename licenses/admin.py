@@ -140,50 +140,6 @@ class WithoutContributionFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
-class DurationFilter(admin.SimpleListFilter):
-    """Filter licenses using duration ranges."""
-
-    title = _('Duration')
-    parameter_name = 'duration'
-
-    def lookups(self, request, model_admin):
-        """Labels to specify the duration range."""
-        return (
-            ('10m', _('<= 10 minutes')),
-            ('30m', _('<= 30 minutes, > 10 minutes')),
-            ('1h', _('<= 1 hour, > 30 minutes')),
-            ('1h+', _('> 1 hour')),
-        )
-
-    def queryset(self, request, queryset):
-        """Filter profiles using the given duration range."""
-        if self.value() is None:
-            return
-        match self.value():
-            case '10m':
-                return queryset.filter(
-                    duration__lte=datetime.timedelta(minutes=10),
-                )
-            case '30m':
-                return queryset.filter(
-                    duration__lte=datetime.timedelta(minutes=30),
-                    duration__gt=datetime.timedelta(minutes=10),
-                )
-            case '1h':
-                return queryset.filter(
-                    duration__lte=datetime.timedelta(hours=1),
-                    duration__gt=datetime.timedelta(minutes=30),
-                )
-            case '1h+':
-                return queryset.filter(
-                    duration__gt=datetime.timedelta(hours=1),
-                )
-            case _:
-                msg = f'Invalid value {self.value()}.'
-                logger.error(msg)
-                raise ValueError(msg)
-
-
 class LicenseAdminForm(forms.ModelForm):
     """Override the clean method for the forms used on the admin site."""
 
@@ -278,7 +234,6 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
         ('created_at', DateTimeRangeFilter),
-        DurationFilter,
         YearFilter,
         ('duration', DurationRangeFilter),
         AutocompleteFilterFactory(
