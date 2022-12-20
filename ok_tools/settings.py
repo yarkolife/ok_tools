@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'contributions',
 
     'admin_searchable_dropdown',
-    'bootstrap_datepicker_plus',
     'crispy_forms',
     'admin_auto_filters',
     'django_admin_listfilter_dropdown',

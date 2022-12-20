@@ -35,7 +35,6 @@ def generate_license_file(user, lr: License) -> FileResponse:
 
     COL_1 = 180
     X_MOBILE = 370
-    X_SEND_DATE = 315
     Y_NAME = 636
     Y_STREET = 614
     Y_ZIP = 592
@@ -44,7 +43,6 @@ def generate_license_file(user, lr: License) -> FileResponse:
     Y_TITLE = 450
     Y_SUBTITLE = 424
     Y_DURATION = 399
-    Y_SEND_DATE = 370
 
     user = lr.profile.okuser
 
@@ -79,9 +77,6 @@ def generate_license_file(user, lr: License) -> FileResponse:
     # Länge
     pdf_edits.drawString(COL_1, Y_DURATION, f(lr.duration))
 
-    # Sendetermin
-    pdf_edits.drawString(X_SEND_DATE, Y_SEND_DATE, f(lr.suggested_date))
-
     pdf_edits.showPage()
     pdf_edits.save()
     pdf_buffer.seek(0)
@@ -105,7 +100,7 @@ def generate_license_file(user, lr: License) -> FileResponse:
     pdf_edits.drawString(
         X_SIGN,
         Y_SIGN,
-        f'{profile.city}, {date.today().strftime(settings.DATE_INPUT_FORMATS)}'
+        date.today().strftime(settings.DATE_INPUT_FORMATS),
     )
 
     # Yes/No-Fields
