@@ -32,6 +32,7 @@ class LicenseResource(resources.ModelResource):
     subtitle = _f('subtitle', _('Subtitle'))
     description = _f('description', _('Description'))
     profile = _f('profile', _('Profile'))
+    profile_id = _f('profile__id', _('Profile ID'))
     further_persons = _f('further_persons', _('Further involved persons'))
     duration = _f('duration', _('Duration'))
     category = _f('category__name', _('Category'))

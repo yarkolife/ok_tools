@@ -171,6 +171,7 @@ class ContributionResource(resources.ModelResource):
     broadcast_date = _f('broadcast_date__date', _('Broadcast Date'))
     broadcast_time = _f('broadcast_date__time', _('Broadcast Time'))
     profile = _f('license__profile', _('Profile'))
+    profile_id = _f('license__profile__id', _('Profile ID'))
     duration = _f('license__duration', _('Duration'))
     live = _f('live', _('Live'))
 
