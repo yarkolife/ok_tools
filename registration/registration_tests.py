@@ -295,7 +295,7 @@ def test__registration__templates__privacy_policy__1(browser):
     """The Privacy Policy is accessible."""
     browser.open(REGISTER_URL)
     browser.getLink('privacy policy').click()
-    assert 'Privacy Policy' in browser.contents
+    assert 'Datenschutzerklärung' in browser.contents
 
 
 def test__registration__templates__navbar__1(browser):
