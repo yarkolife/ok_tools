@@ -154,7 +154,6 @@ def disa_import(request, file):
             hour=b_lst[3],
             minute=b_lst[4],
             second=b_lst[5],
-            microsecond=b_lst[6]*10**4,
             tzinfo=ZoneInfo(settings.TIME_ZONE)
         )
 
