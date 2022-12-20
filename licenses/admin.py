@@ -5,6 +5,7 @@ from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
@@ -101,6 +102,38 @@ class YearFilter(admin.SimpleListFilter):
             case 'last':
                 return queryset.filter(
                     created_at__year=datetime.datetime.now().year-1)
+            case _:
+                msg = f'Invalid value {self.value()}.'
+                logger.error(msg)
+                raise ValueError(msg)
+
+
+class WithoutContributionFilter(admin.SimpleListFilter):
+    """All Licenses with or without any contributions."""
+
+    title = _('Without Contributions')
+    parameter_name = 'without_contribution'
+
+    def lookups(self, request, model_admin):
+        """Yes or no labels."""
+        return (
+            ('y', _('Yes')),
+            ('n', _('No')),
+        )
+
+    def queryset(self, request, queryset):
+        """All licenses with or without contributions."""
+        match self.value():
+            case None:
+                return
+            case 'y':
+                return (queryset
+                        .annotate(num_contr=Count('contribution'))
+                        .filter(num_contr=0))
+            case 'n':
+                return (queryset
+                        .annotate(num_contr=Count('contribution'))
+                        .filter(num_contr__gt=0))
             case _:
                 msg = f'Invalid value {self.value()}.'
                 logger.error(msg)
@@ -250,7 +283,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         ('duration', DurationRangeFilter),
         AutocompleteFilterFactory(
             _('Media Authority'), 'profile__media_authority'),
-        AutocompleteFilterFactory(_('Category'), 'category')
+        AutocompleteFilterFactory(_('Category'), 'category'),
+        WithoutContributionFilter,
     ]
 
     def get_rangefilter_created_at_title(self, request, field_path):
