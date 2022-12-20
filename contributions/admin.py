@@ -337,23 +337,23 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     def _is_primary(self, obj):
         return obj.is_primary()
 
-    @display(description=_('Title'))
+    @display(ordering='license__title', description=_('Title'))
     def get_title(self, obj):
         """Return the title of the corresponding license."""
         return obj.license.title
 
-    @display(description=_('Subtitle'))
+    @display(ordering='license__subtitle', description=_('Subtitle'))
     def get_subtitle(self, obj):
         """Return the subtitle of the corresponding license."""
         return obj.license.subtitle
 
-    @display(description=_('User'))
+    @display(ordering='license__profile__last_name', description=_('User'))
     def get_user(self, obj):
         """Return the first an last name of the contributions user."""
         return (f'{obj.license.profile.first_name}'
                 f' {obj.license.profile.last_name}')
 
-    @display(description=_('Number'))
+    @display(ordering='license__number', description=_('Number'))
     def get_number(self, obj):
         """Return the number of the license."""
         return obj.license.number
