@@ -213,6 +213,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
             'fields': (
                 'tn_female',
                 'tn_male',
+                'tn_diverse',
                 'tn_gender_not_given',
             )
         }),
