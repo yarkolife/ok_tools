@@ -873,7 +873,7 @@ msgstr "Änderungen bestätigen"
 
 #: registration/forms.py:88
 msgid "I accept"
-msgstr "I stimme zu"
+msgstr "Ich stimme zu"
 
 #: registration/forms.py:92
 msgid "Birthday"
