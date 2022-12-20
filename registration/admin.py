@@ -88,6 +88,7 @@ class ProfileResource(resources.ModelResource):
     created_at = _f('created_at', _('created at'))
     member = _f('member', _('member'))
     media_authority = _f('media_authority__name', _('Media Authority'))
+    comment = _f('comment', _('comment'))
 
     class Meta:
         """Define meta properties for the Project export."""
