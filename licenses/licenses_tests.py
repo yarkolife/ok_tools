@@ -1,4 +1,5 @@
 from .admin import LicenseAdmin
+from .admin import WithoutContributionFilter
 from .admin import YearFilter
 from .models import License
 from .models import default_category
@@ -9,6 +10,7 @@ from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
 from ok_tools.testing import PWD
+from ok_tools.testing import create_contribution
 from ok_tools.testing import create_license
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
@@ -521,66 +523,6 @@ def test__licenses__admin__LicenseAdmin__8(
     assert '-' in browser.contents
 
 
-def test__licenses__admin__LicenseAdmin__9(
-        browser, license_dict, user):
-    """Filter LR by duration."""
-    def _lr():
-        return create_license(user.profile, license_dict, )
-
-    def _a(str):
-        assert str in browser.contents
-
-    def _na(str):
-        assert str not in browser.contents
-
-    until_10 = _lr()
-    until_10.title = 'title1'
-    until_10.duration = datetime.timedelta(minutes=10)
-    until_10.save()
-
-    until_30 = _lr()
-    until_30.title = 'title2'
-    until_30.duration = datetime.timedelta(minutes=30)
-    until_30.save()
-
-    until_1h = _lr()
-    until_1h.title = 'title3'
-    until_1h.duration = datetime.timedelta(hours=1)
-    until_1h.save()
-
-    over_1h = _lr()
-    over_1h.title = 'title4'
-    over_1h.duration = datetime.timedelta(hours=1, minutes=1)
-    over_1h.save()
-
-    browser.login_admin()
-    browser.open(A_LICENSE_URL)
-
-    browser.follow('<= 10 minutes')
-    _a(until_10.title)
-    _na(until_30.title)
-    _na(until_1h.title)
-    _na(over_1h.title)
-
-    browser.follow('<= 30 minutes')
-    _na(until_10.title)
-    _a(until_30.title)
-    _na(until_1h.title)
-    _na(over_1h.title)
-
-    browser.follow('<= 1 hour')
-    _na(until_10.title)
-    _na(until_30.title)
-    _a(until_1h.title)
-    _na(over_1h.title)
-
-    browser.follow('> 1 hour')
-    _na(until_10.title)
-    _na(until_30.title)
-    _na(until_1h.title)
-    _a(over_1h.title)
-
-
 def test__licenses__admin__LicenseAdmin__10(browser, license):
     """Try to confirm a LR with unverified profile."""
     browser.login_admin()
@@ -648,6 +590,38 @@ def test__licenses__admin__YearFilter__2():
     with patch.object(YearFilter, 'value', return_value='invalid'):
         with pytest.raises(ValueError, match=r'Invalid value .*'):
             filter = YearFilter(
+                {}, {}, License, LicenseAdmin)
+            filter.queryset(None, None)
+
+
+def test__licenses__admin__WithoutContribution__1(
+        browser, user, license_dict, contribution_dict):
+    """Filter licenses by their contributions."""
+    license_dict['title'] = "License Without Contribution"
+    without_contr: License = create_license(user.profile, license_dict)
+
+    license_dict['title'] = "License With Contribution"
+    with_contr: License = create_license(user.profile, license_dict)
+    create_contribution(with_contr, contribution_dict)
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+
+    browser.follow('Yes')
+    assert without_contr.title in browser.contents
+    assert with_contr.title not in browser.contents
+
+    browser.follow('No')
+    assert without_contr.title not in browser.contents
+    assert with_contr.title in browser.contents
+
+
+def test__licenses__admin__WithoutContribution__2():
+    """Handle invalid values."""
+    with patch.object(
+            WithoutContributionFilter, 'value', return_value='invalid'):
+        with pytest.raises(ValueError, match=r'Invalid value .*'):
+            filter = WithoutContributionFilter(
                 {}, {}, License, LicenseAdmin)
             filter.queryset(None, None)
 
@@ -763,22 +737,3 @@ def test__licenses__admin__DurationRangeFilter__1(
     assert license1.title not in browser.contents
     assert license2.title in browser.contents
     assert license3.title not in browser.contents
-
-
-# def test__licenses__admin__LicenseAdmin__12(
-#         browser, license, license_dict, user_dict):
-#     """Filter licenses by media authority."""
-#     foreign_ma = MediaAuthority.objects.create(name='Foreign MA')
-#     user_dict['email'] = 'foreign@exampl.com'
-#     foreign_user = create_user(user_dict)
-#     foreign_profile: Profile = foreign_user.profile
-#     foreign_profile.media_authority = foreign_ma
-#     foreign_profile.save()
-
-#     foreign_license = create_license(foreign_profile, license_dict)
-
-#     browser.login_admin()
-#     browser.open(A_LICENSE_URL)
-
-#     open('response.html', 'w').write(browser.contents)
-#   breakpoint()
