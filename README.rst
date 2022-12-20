@@ -86,4 +86,4 @@ The path of the imported date can be changed by editing :code:`LEGACY_DATA` in t
 Privacy Policy
 ==============
 
-To include a privacy policy simply modify :code:`files/privacy_policy.txt`.
+To include a privacy policy simply modify :code:`files/privacy_policy.html`.

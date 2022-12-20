@@ -4,9 +4,6 @@
 {% load include_file %}
 
 {% block content %}
-<h1> {% translate 'Privacy Policy' %} </h2>
-    <p>
-        {% include_file 'files/privacy_policy.txt'%}
-    </p>
+        {% autoescape off %}{% include_file 'files/privacy_policy.html'%}{% endautoescape %}
 
 {% endblock content %}
