@@ -7,7 +7,6 @@ from django.core.files import File
 from licenses.models import License
 from projects.models import MediaEducationSupervisor
 from projects.models import Project
-from projects.models import ProjectParticipant
 from registration.models import Profile
 from zoneinfo import ZoneInfo
 import PyPDF2
@@ -109,8 +108,7 @@ def create_disaimport() -> DisaImport:
 
 
 def create_project(
-    project_dict, me_supervisors: list[MediaEducationSupervisor] = None,
-    participants: list[ProjectParticipant] = None
+    project_dict, me_supervisors: list[MediaEducationSupervisor] = None
 ) -> Project:
     """Create and return a project."""
     project = Project.objects.create(
@@ -129,10 +127,6 @@ def create_project(
     if me_supervisors is not None:
         for supervisor in me_supervisors:
             project.media_education_supervisors.add(supervisor.id)
-
-    if participants is not None:
-        for participant in participants:
-            project.participants.add(participant.id)
 
     project.save()
 
