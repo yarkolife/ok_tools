@@ -6,7 +6,6 @@ from .models import ProjectLeader
 from .models import TargetGroup
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django.contrib import admin
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
@@ -215,7 +214,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
             )
         ]
 
-    @staff_member_required
+    # CAUTION: This view is reachable without any authentication
     def ics_export_view(self, request):
         """Export project dates as ics."""
         # This method belongs to the ExportMixin and creates a queryset from
