@@ -5,6 +5,7 @@ from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
@@ -107,44 +108,32 @@ class YearFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
-class DurationFilter(admin.SimpleListFilter):
-    """Filter licenses using duration ranges."""
+class WithoutContributionFilter(admin.SimpleListFilter):
+    """All Licenses with or without any contributions."""
 
-    title = _('Duration')
-    parameter_name = 'duration'
+    title = _('Without Contributions')
+    parameter_name = 'without_contribution'
 
     def lookups(self, request, model_admin):
-        """Labels to specify the duration range."""
+        """Yes or no labels."""
         return (
-            ('10m', _('<= 10 minutes')),
-            ('30m', _('<= 30 minutes, > 10 minutes')),
-            ('1h', _('<= 1 hour, > 30 minutes')),
-            ('1h+', _('> 1 hour')),
+            ('y', _('Yes')),
+            ('n', _('No')),
         )
 
     def queryset(self, request, queryset):
-        """Filter profiles using the given duration range."""
-        if self.value() is None:
-            return
+        """All licenses with or without contributions."""
         match self.value():
-            case '10m':
-                return queryset.filter(
-                    duration__lte=datetime.timedelta(minutes=10),
-                )
-            case '30m':
-                return queryset.filter(
-                    duration__lte=datetime.timedelta(minutes=30),
-                    duration__gt=datetime.timedelta(minutes=10),
-                )
-            case '1h':
-                return queryset.filter(
-                    duration__lte=datetime.timedelta(hours=1),
-                    duration__gt=datetime.timedelta(minutes=30),
-                )
-            case '1h+':
-                return queryset.filter(
-                    duration__gt=datetime.timedelta(hours=1),
-                )
+            case None:
+                return
+            case 'y':
+                return (queryset
+                        .annotate(num_contr=Count('contribution'))
+                        .filter(num_contr=0))
+            case 'n':
+                return (queryset
+                        .annotate(num_contr=Count('contribution'))
+                        .filter(num_contr__gt=0))
             case _:
                 msg = f'Invalid value {self.value()}.'
                 logger.error(msg)
@@ -245,12 +234,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
         ('created_at', DateTimeRangeFilter),
-        DurationFilter,
         YearFilter,
         ('duration', DurationRangeFilter),
         AutocompleteFilterFactory(
             _('Media Authority'), 'profile__media_authority'),
-        AutocompleteFilterFactory(_('Category'), 'category')
+        AutocompleteFilterFactory(_('Category'), 'category'),
+        WithoutContributionFilter,
     ]
 
     def get_rangefilter_created_at_title(self, request, field_path):
