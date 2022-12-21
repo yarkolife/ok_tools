@@ -330,6 +330,8 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
         PrimaryFilter,
         YearFilter,
         WeekFilter,
+        AutocompleteFilterFactory(
+            _('Media Authority'), 'license__profile__media_authority'),
     ]
 
     readonly_fields = ('_is_primary',)
