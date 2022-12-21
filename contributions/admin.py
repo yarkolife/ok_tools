@@ -27,7 +27,7 @@ class ProgramResource(resources.ModelResource):
 
     def _create_screen_board(self, date, start_time, end_time):
         """Create a screen board for the given time slot."""
-        SCREEN_BOARD = 'Bildschirmzeitung'
+        SCREEN_BOARD = 'Infoblock'
         return [
             str(date),
             str(start_time),
@@ -135,7 +135,7 @@ class ProgramResource(resources.ModelResource):
 
     def dehydrate_credits(self, contribution: Contribution):
         """Show the author with introduction."""
-        INTRODUCTION = 'Ein Nutzerbeitrag von'
+        INTRODUCTION = 'Ein Beitrag von'
         return f'{INTRODUCTION} {contribution.license.profile}'
 
     def dehydrate_contribution(self, contribution: Contribution):
@@ -330,6 +330,8 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
         PrimaryFilter,
         YearFilter,
         WeekFilter,
+        AutocompleteFilterFactory(
+            _('Media Authority'), 'license__profile__media_authority'),
     ]
 
     readonly_fields = ('_is_primary',)

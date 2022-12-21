@@ -38,6 +38,7 @@ class UserDataForm(forms.ModelForm):
             'media_authority',
             'created_at',
             'member',
+            'comment',
         )
 
     def __init__(self, *args, **kwargs):
