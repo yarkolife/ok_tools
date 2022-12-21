@@ -295,7 +295,7 @@ def test__registration__templates__privacy_policy__1(browser):
     """The Privacy Policy is accessible."""
     browser.open(REGISTER_URL)
     browser.getLink('privacy policy').click()
-    assert 'Privacy Policy' in browser.contents
+    assert 'Datenschutzerklärung' in browser.contents
 
 
 def test__registration__templates__navbar__1(browser):
@@ -448,7 +448,9 @@ def _register_user(browser, user_dict: dict):
     browser.getControl('Gender').value = user_dict['gender']
     browser.getControl('Phone number').value = user_dict['phone_number']
     browser.getControl('Mobile number').value = user_dict['mobile_number']
-    browser.getControl('Birthday').value = user_dict['birthday']
+    # We need an american date format because the browser language is english.
+    # Changing the test browser language did not solve the problem.
+    browser.getControl('Birthday').value = "09/05/1989"
     browser.getControl('Street').value = user_dict['street']
     browser.getControl('House number').value = user_dict['house_number']
     browser.getControl('Zipcode').value = user_dict['zipcode']

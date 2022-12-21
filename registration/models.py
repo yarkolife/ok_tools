@@ -189,6 +189,12 @@ class Profile(models.Model):
         null=False,
     )
 
+    comment = models.TextField(
+        _('comment'),
+        null=True,
+        blank=True,
+    )
+
     def __str__(self):
         """Represent Profile by first and last name."""
         return f'{self.first_name} {self.last_name}'

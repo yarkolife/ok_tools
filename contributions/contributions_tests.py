@@ -578,7 +578,7 @@ def test__contributions__admin__ProgramResource__1(
     assert license2.title in str(browser.contents)
 
     assert str(time(hour=0, minute=0)) in str(browser.contents)
-    assert 'Bildschirmzeitung' in str(browser.contents)
+    assert 'Infoblock' in str(browser.contents)
 
 
 def test__contributions__admin__ProgramResource__2(db):

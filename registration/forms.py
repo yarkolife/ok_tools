@@ -1,5 +1,4 @@
 from .models import Profile
-from bootstrap_datepicker_plus.widgets import DatePickerInput
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML
@@ -7,7 +6,6 @@ from crispy_forms.layout import ButtonHolder
 from crispy_forms.layout import Layout
 from crispy_forms.layout import Submit
 from django import forms
-from django.conf import settings
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import _unicode_ci_compare
@@ -40,6 +38,7 @@ class UserDataForm(forms.ModelForm):
             'media_authority',
             'created_at',
             'member',
+            'comment',
         )
 
     def __init__(self, *args, **kwargs):
@@ -90,8 +89,7 @@ class ProfileForm(forms.ModelForm):
 
     birthday = forms.DateField(
         label=_('Birthday'),
-        input_formats=[settings.DATE_INPUT_FORMATS],
-        widget=DatePickerInput(format=settings.DATE_INPUT_FORMATS)
+        widget=forms.DateInput(attrs={"type": "date"})
     )
 
     class Meta:

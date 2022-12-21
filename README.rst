@@ -81,3 +81,9 @@ The script takes one workbook with multiple worksheets. The worksheets need to
 be named :code:`users`, :code:`contributions`, :code:`categories`, :code:`repetitions` and :code:`projects`.
 The path of the imported date can be changed by editing :code:`LEGACY_DATA` in the
 :code:`settings.py`. The default path is :code:`../legacy_data/data.xlsx`.
+
+
+Privacy Policy
+==============
+
+To include a privacy policy simply modify :code:`files/privacy_policy.html`.

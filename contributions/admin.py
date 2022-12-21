@@ -27,7 +27,7 @@ class ProgramResource(resources.ModelResource):
 
     def _create_screen_board(self, date, start_time, end_time):
         """Create a screen board for the given time slot."""
-        SCREEN_BOARD = 'Bildschirmzeitung'
+        SCREEN_BOARD = 'Infoblock'
         return [
             str(date),
             str(start_time),
@@ -135,7 +135,7 @@ class ProgramResource(resources.ModelResource):
 
     def dehydrate_credits(self, contribution: Contribution):
         """Show the author with introduction."""
-        INTRODUCTION = 'Ein Nutzerbeitrag von'
+        INTRODUCTION = 'Ein Beitrag von'
         return f'{INTRODUCTION} {contribution.license.profile}'
 
     def dehydrate_contribution(self, contribution: Contribution):
@@ -171,6 +171,7 @@ class ContributionResource(resources.ModelResource):
     broadcast_date = _f('broadcast_date__date', _('Broadcast Date'))
     broadcast_time = _f('broadcast_date__time', _('Broadcast Time'))
     profile = _f('license__profile', _('Profile'))
+    profile_id = _f('license__profile__id', _('Profile ID'))
     duration = _f('license__duration', _('Duration'))
     live = _f('live', _('Live'))
 
@@ -329,6 +330,8 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
         PrimaryFilter,
         YearFilter,
         WeekFilter,
+        AutocompleteFilterFactory(
+            _('Media Authority'), 'license__profile__media_authority'),
     ]
 
     readonly_fields = ('_is_primary',)
@@ -337,23 +340,23 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     def _is_primary(self, obj):
         return obj.is_primary()
 
-    @display(description=_('Title'))
+    @display(ordering='license__title', description=_('Title'))
     def get_title(self, obj):
         """Return the title of the corresponding license."""
         return obj.license.title
 
-    @display(description=_('Subtitle'))
+    @display(ordering='license__subtitle', description=_('Subtitle'))
     def get_subtitle(self, obj):
         """Return the subtitle of the corresponding license."""
         return obj.license.subtitle
 
-    @display(description=_('User'))
+    @display(ordering='license__profile__last_name', description=_('User'))
     def get_user(self, obj):
         """Return the first an last name of the contributions user."""
         return (f'{obj.license.profile.first_name}'
                 f' {obj.license.profile.last_name}')
 
-    @display(description=_('Number'))
+    @display(ordering='license__number', description=_('Number'))
     def get_number(self, obj):
         """Return the number of the license."""
         return obj.license.number

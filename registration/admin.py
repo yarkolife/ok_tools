@@ -73,6 +73,7 @@ class ProfileResource(resources.ModelResource):
         """Shortcut for field creation."""
         return Field(attribute=field, column_name=name)
 
+    id = _f('id', _('ID'))
     first_name = _f('first_name', _('first name'))
     last_name = _f('last_name', _('last name'))
     gender = _f('gender', _('gender'))
@@ -87,6 +88,7 @@ class ProfileResource(resources.ModelResource):
     created_at = _f('created_at', _('created at'))
     member = _f('member', _('member'))
     media_authority = _f('media_authority__name', _('Media Authority'))
+    comment = _f('comment', _('comment'))
 
     class Meta:
         """Define meta properties for the Project export."""
