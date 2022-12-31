@@ -395,12 +395,19 @@ def import_primary_contributions(
             is_screen_board=_is_screen_board(row),
         )
 
-        if not lr_created:
+        broadcast_date = _get_broadcast_date(row[DATE], row[TIME])
+
+        if lr_created:
+            # the created_at value is the broadcast date of the first
+            # contribution
+            lr.created_at = broadcast_date
+            lr.save()
+        else:
             logger.warning(f'License {lr} already exists.')
 
         contrib, contrib_created = Contribution.objects.get_or_create(
             license=lr,
-            broadcast_date=_get_broadcast_date(row[DATE], row[TIME]),
+            broadcast_date=broadcast_date,
             live=_get_bool(row[LIVE]),
         )
 
@@ -632,7 +639,12 @@ def import_repetitions(
                 confirmed=True,
             )
 
-            if not lr_created:
+            if lr_created:
+                # the created_at value is the broadcast date of the first
+                # contribution
+                license.created_at = broadcast_date
+                license.save()
+            else:
                 logger.warning(f'License {license} already exists.')
 
             no_prim_found += 1
