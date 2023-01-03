@@ -114,9 +114,8 @@ def create_project(
     project = Project.objects.create(
         title=project_dict['title'],
         topic=project_dict['topic'],
+        date=project_dict['date'],
         duration=project_dict['duration'],
-        begin_date=project_dict['begin_date'],
-        end_date=project_dict['end_date'],
         external_venue=project_dict['external_venue'],
         jugendmedienschutz=project_dict['jugendmedienschutz'],
         target_group=project_dict['target_group'],

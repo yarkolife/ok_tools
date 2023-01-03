@@ -5,11 +5,11 @@ from .models import Project
 from .models import ProjectCategory
 from .models import ProjectLeader
 from .models import TargetGroup
+from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from django import forms
 from django.urls import reverse_lazy
-from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import create_project
 from unittest.mock import patch
@@ -49,8 +49,7 @@ def test__admin__2(db):
         project_category=pc,
         project_leader=pl,
         target_group=tg,
-        begin_date=datetime(year=2022, month=9, day=27, hour=9, tzinfo=TZ),
-        end_date=datetime(year=2022, month=9, day=27, hour=11, tzinfo=TZ),
+        date=date(year=2022, month=9, day=27),
         duration=timedelta(days=1),
         external_venue=False,
         jugendmedienschutz=False
@@ -68,13 +67,11 @@ def test__admin__2(db):
 def test__projects__admin__YearFilter__1(browser, project_dict):
     """Projects can be filtered by the year of the start date."""
     project_dict['title'] = 'new_title'
-    project_dict['begin_date'] = datetime(
-        year=datetime.now().year, month=9, day=20, hour=9, tzinfo=TZ)
+    project_dict['date'] = date(year=datetime.now().year, month=9, day=20)
     proj1 = create_project(project_dict)
 
     project_dict['title'] = 'old_title'
-    project_dict['begin_date'] = datetime(
-        year=datetime.now().year-1, month=9, day=20, hour=9, tzinfo=TZ)
+    project_dict['date'] = date(year=datetime.now().year-1, month=9, day=20)
     proj2 = create_project(project_dict)
 
     browser.login_admin()
@@ -132,9 +129,8 @@ def test__projects__admin__ProjectResource__2(browser, project_dict):
     export = str(browser.contents)
     assert project.title in export
     assert project.topic in export
+    assert str(project.date) in export
     assert str(project.duration) in export
-    assert str(project.begin_date.time()) in export
-    assert str(project.end_date.time()) in export
     assert str(project.external_venue) in export
     assert str(project.jugendmedienschutz) in export
     assert str(project.target_group) in export
@@ -152,31 +148,26 @@ def test__projects__admin__ProjectAdmin__1(browser, project):
     browser.login_admin()
     browser.open(A_PROJ_URL)
     browser.follow('Export dates')
-
-    begin_date = project.begin_date
     assert browser.headers['Content-Type'] == 'text/calendar'
     assert project.title in str(browser.contents)
-    assert str(begin_date.tzinfo) in str(browser.contents)
-    assert _f_ics_date(begin_date) in str(browser.contents)
+    assert _f_ics_date(project.date) in str(browser.contents)
     assert project.topic in str(browser.contents)
 
 
 def test__projects__admin__ProjectAdmin__2(browser, project_dict):
     """Export the projects date of this year to ics."""
-    project_dict['begind_date'] = datetime(
+    project_dict['date'] = date(
         year=datetime.now().year,
         month=9,
-        day=26,
-        tzinfo=TZ,
+        day=26
     )
     project_dict['title'] = 'new_project'
     proj1 = create_project(project_dict)
 
-    project_dict['begin_date'] = datetime(
+    project_dict['date'] = date(
         year=datetime.now().year-1,
         month=9,
-        day=26,
-        tzinfo=TZ,
+        day=26
     )
     project_dict['title'] = 'old_project'
     proj2 = create_project(project_dict)
@@ -208,21 +199,19 @@ def test__projects__admin__ProjectAdmin__4(browser, project):
     assert 'Export dates' not in browser.contents
 
 
+def test__projects__admin__ProjectAdmin__5(browser, project, user):
+    """It is possible to download project dates without staff rights."""
+    browser.login()
+    browser.open(f'{DOMAIN}{reverse_lazy("admin:calender_export")}')
+    assert browser.headers['Content-Type'] == 'text/calendar'
+
+
 def test__projects__admin__ProjectAdmin__6(browser, project_dict):
     """The duration and end_date does not match."""
-    project_dict['begin_date'] = datetime(
+    project_dict['date'] = datetime(
         year=2022,
         month=9,
-        day=3,
-        hour=9,
-        tzinfo=TZ
-    )
-    project_dict['end_date'] = datetime(
-        year=2022,
-        month=9,
-        day=3,
-        hour=10,
-        tzinfo=TZ
+        day=3
     )
     project_dict['duration'] = timedelta(hours=1, minutes=30)
 
@@ -233,9 +222,9 @@ def test__projects__admin__ProjectAdmin__6(browser, project_dict):
     browser.follow('Export dates')
 
     assert browser.headers['Content-Type'] == 'text/calendar'
-    assert _f_ics_date(project.end_date) in str(browser.contents)
+    assert _f_ics_date(project.date) in str(browser.contents)
 
 
-def _f_ics_date(dt: datetime):
-    """Convert datetime objects to ics format."""
-    return dt.strftime('%Y%m%dT%H%M%S')
+def _f_ics_date(dt: date):
+    """Convert date objects to ics format."""
+    return dt.strftime('DATE:%Y%m%d')

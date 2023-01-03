@@ -138,22 +138,18 @@ class Project(models.Model):
         null=True,
         max_length=MAX_STRING_LENGTH,
     )
-    duration = models.DurationField(  # timedelta
-        _('Duration'),
-        help_text=_('Total amount of time spend.'),
-        blank=True,
-        null=True,
+
+    date = models.DateField(  # date
+        _('Date'),
+        blank=False,
+        null=False,
     )
 
-    begin_date = models.DateTimeField(  # datetime
-        _('Start date'),
-        blank=False,
-        null=False,
-    )
-    end_date = models.DateTimeField(  # datetime
-        _('End date'),
-        blank=False,
-        null=False,
+    duration = models.DurationField(  # timedelta
+        _('Duration'),
+        help_text=_('Format: hh:mm:ss or mm:ss'),
+        blank=True,
+        null=True,
     )
 
     external_venue = models.BooleanField(
