@@ -54,7 +54,7 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
     # dienstlich
     pdf_edits.drawString(COL_2, ROW_4, _f_number(profile.mobile_number))
     # e-mail
-    pdf_edits.drawString(COL_1, ROW_5, getattr(user, 'email', '')
+    pdf_edits.drawString(COL_1, ROW_5, getattr(user, 'email', ''))
 
     pdf_edits.showPage()
     pdf_edits.save()
