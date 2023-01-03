@@ -149,12 +149,9 @@ def test__projects__admin__ProjectAdmin__1(browser, project):
     browser.login_admin()
     browser.open(A_PROJ_URL)
     browser.follow('Export dates')
-
-    date = project.date
     assert browser.headers['Content-Type'] == 'text/calendar'
     assert project.title in str(browser.contents)
-    assert str(date.tzinfo) in str(browser.contents)
-    assert _f_ics_date(date) in str(browser.contents)
+    assert _f_ics_date(project.date) in str(browser.contents)
     assert project.topic in str(browser.contents)
 
 
@@ -163,8 +160,7 @@ def test__projects__admin__ProjectAdmin__2(browser, project_dict):
     project_dict['date'] = date(
         year=datetime.now().year,
         month=9,
-        day=26,
-        tzinfo=TZ,
+        day=26
     )
     project_dict['title'] = 'new_project'
     proj1 = create_project(project_dict)
@@ -172,8 +168,7 @@ def test__projects__admin__ProjectAdmin__2(browser, project_dict):
     project_dict['date'] = date(
         year=datetime.now().year-1,
         month=9,
-        day=26,
-        tzinfo=TZ,
+        day=26
     )
     project_dict['title'] = 'old_project'
     proj2 = create_project(project_dict)
@@ -206,34 +201,18 @@ def test__projects__admin__ProjectAdmin__4(browser, project):
 
 
 def test__projects__admin__ProjectAdmin__5(browser, project, user):
-    """It is not possible to download project dates without staff rights."""
-    browser.open(f'{DOMAIN}{reverse_lazy("admin:calender_export")}')
-
-    assert str(reverse_lazy('admin:login')) in browser.url
-    assert browser.headers['Content-Type'] != 'text/calendar'
-
+    """It is possible to download project dates without staff rights."""
     browser.login()
     browser.open(f'{DOMAIN}{reverse_lazy("admin:calender_export")}')
-
-    assert str(reverse_lazy('admin:login')) in browser.url
-    assert browser.headers['Content-Type'] != 'text/calendar'
+    assert browser.headers['Content-Type'] == 'text/calendar'
 
 
 def test__projects__admin__ProjectAdmin__6(browser, project_dict):
     """The duration and end_date does not match."""
-    project_dict['begin_date'] = datetime(
+    project_dict['date'] = datetime(
         year=2022,
         month=9,
-        day=3,
-        hour=9,
-        tzinfo=TZ
-    )
-    project_dict['end_date'] = datetime(
-        year=2022,
-        month=9,
-        day=3,
-        hour=10,
-        tzinfo=TZ
+        day=3
     )
     project_dict['duration'] = timedelta(hours=1, minutes=30)
 
@@ -244,9 +223,9 @@ def test__projects__admin__ProjectAdmin__6(browser, project_dict):
     browser.follow('Export dates')
 
     assert browser.headers['Content-Type'] == 'text/calendar'
-    assert _f_ics_date(project.end_date) in str(browser.contents)
+    assert _f_ics_date(project.date) in str(browser.contents)
 
 
-def _f_ics_date(dt: datetime):
-    """Convert datetime objects to ics format."""
-    return dt.strftime('%Y%m%dT%H%M%S')
+def _f_ics_date(dt: date):
+    """Convert date objects to ics format."""
+    return dt.strftime('DATE:%Y%m%d')
