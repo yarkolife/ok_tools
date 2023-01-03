@@ -87,3 +87,9 @@ Privacy Policy
 ==============
 
 To include a privacy policy simply modify :code:`files/privacy_policy.html`.
+
+Security
+========
+
+Without further actions the view to export the project dates
+(:conde:`admin/calendar_export`) is reachable without any authentication.
