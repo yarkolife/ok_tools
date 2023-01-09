@@ -111,7 +111,10 @@ class License(models.Model):
         null=True,
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        _('Created at'),
+        auto_now_add=True,
+    )
 
     # a visible identification number (not djangos id)
     number = models.IntegerField(
