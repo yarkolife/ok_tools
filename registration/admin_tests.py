@@ -45,7 +45,6 @@ def test__registration__admin__2(browser, user_dict):
     browser.login_admin()
     browser.follow('Users')
     browser.follow('Add User')
-
     browser.getControl('Email').value = user_dict['email']
     browser.getControl('Password:').value = password
     browser.getControl(name='password2').value = password
@@ -73,6 +72,19 @@ def test__registration__signals__send_verification_mail__1(
         ' account is now fully activated.' in mail_outbox[-1].body
     )
     assert user.profile.first_name in mail_outbox[-1].body
+
+
+def test__registration__signals__send_verification_mail__2(
+        db, user, mail_outbox):
+    """If the profile does not have a user no mail gets send."""
+    profile: Profile = user.profile
+    profile.verified = True
+    profile.okuser = None
+
+    from registration.signals import send_verification_mail
+    send_verification_mail(None, obj=profile)
+
+    assert len(mail_outbox) == 0
 
 
 def test__registration__admin__ProfileAdmin__3(db, user_dict, browser):
