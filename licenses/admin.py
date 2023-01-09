@@ -1,4 +1,5 @@
 from .forms import RangeNumericForm
+from .generate_file import generate_license_file
 from .models import Category
 from .models import License
 from admin_auto_filters.filters import AutocompleteFilterFactory
@@ -320,6 +321,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         self.exclude = None
 
         return result
+
+    def response_change(self, request, obj: License):
+        """Add Print license' button to change view."""
+        if '_print_license' in request.POST:
+            return generate_license_file(obj)
+        return super().response_change(request, obj)
 
 
 admin.site.register(License, LicenseAdmin)
