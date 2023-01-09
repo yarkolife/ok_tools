@@ -4,6 +4,12 @@
 
 {% block submit_buttons_bottom %}
     {{ block.super }}
+    <div class="submit-row">
+        <input
+            type="submit"
+            value="{% translate 'Print license' %}"
+            name='_print_license'>
+    </div>
     {% if object.confirmed %}
     <p>
         {% blocktranslate %}
