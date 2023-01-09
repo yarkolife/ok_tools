@@ -173,7 +173,10 @@ class Profile(models.Model):
                     ' employee.')
     )
 
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(
+        _('created at'),
+        default=timezone.now,
+    )
 
     media_authority = models.ForeignKey(
         MediaAuthority,

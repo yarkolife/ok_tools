@@ -112,7 +112,7 @@ class YearFilter(admin.SimpleListFilter):
 class WithoutContributionFilter(admin.SimpleListFilter):
     """All Licenses with or without any contributions."""
 
-    title = _('Without Contributions')
+    title = _('without contributions')
     parameter_name = 'without_contribution'
 
     def lookups(self, request, model_admin):
