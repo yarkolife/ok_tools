@@ -3,7 +3,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db import transaction
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from registration.models import Profile
 import datetime
