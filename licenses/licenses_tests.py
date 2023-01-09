@@ -557,6 +557,22 @@ def test__licenses__admin__LicenseAdmin__11(browser, license):
     assert '0 Licenses were successfully confirmed' in browser.contents
 
 
+def test__licenses__admin__LicenseAdmin__response_change__1(
+        db, user, license: License, browser):
+    """Print license form in admin change view."""
+    browser.login_admin()
+    browser.follow('Licenses', index=1)
+    open('response.html', 'w').write(browser.contents)
+    browser.follow(license.title)
+    browser.getControl('Print license').click()
+
+    assert browser.headers['Content-Type'] == 'application/pdf'
+    text_result = pdfToText(browser.contents)
+    assert user.profile.first_name in text_result
+    assert user.profile.last_name in text_result
+    assert license.title in text_result
+
+
 def test__licenses__admin__YearFilter__1(browser, user, license_dict):
     """Licenses can be filtered by the year of its creation date."""
     created_at = datetime.datetime(
