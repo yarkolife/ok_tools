@@ -146,4 +146,4 @@ class FilledLicenseFile(generic.View):
                 license.profile.okuser != request.user):
             return _license_does_not_exist(request)
 
-        return generate_license_file(request.user, license)
+        return generate_license_file(license)

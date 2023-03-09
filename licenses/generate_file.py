@@ -17,7 +17,7 @@ def f(p):
         return '  -------  '
 
 
-def generate_license_file(user, lr: License) -> FileResponse:
+def generate_license_file(lr: License) -> FileResponse:
     """
     Generate a License as pdf file.
 

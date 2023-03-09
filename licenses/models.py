@@ -3,7 +3,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db import transaction
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from registration.models import Profile
 import datetime
@@ -112,7 +111,10 @@ class License(models.Model):
         null=True,
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        _('Created at'),
+        auto_now_add=True,
+    )
 
     # a visible identification number (not djangos id)
     number = models.IntegerField(
