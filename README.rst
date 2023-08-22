@@ -110,3 +110,11 @@ Backup
 To create backups you can simply copy the .sqlite file::
 
     cp db.sqlite3 backup.sqlite3
+
+
+Working with translations
+=========================
+
+Find new messages like this::
+
+    OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py makemessages -l de --ignore lib
