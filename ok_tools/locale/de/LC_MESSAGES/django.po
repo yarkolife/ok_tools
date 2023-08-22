@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-09 14:49+0100\n"
+"POT-Creation-Date: 2023-08-22 12:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,157 +17,157 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: contributions/admin.py:92 contributions/admin.py:171
+#: contributions/admin.py:103 contributions/admin.py:182
 #: contributions/models.py:71
 msgid "Broadcast Date"
 msgstr "Sendedatum"
 
-#: contributions/admin.py:93
+#: contributions/admin.py:104
 msgid "Start Time"
 msgstr "Startzeit"
 
-#: contributions/admin.py:94
+#: contributions/admin.py:105
 msgid "End Time"
 msgstr "Endzeit"
 
-#: contributions/admin.py:95 contributions/admin.py:169
-#: contributions/admin.py:343
+#: contributions/admin.py:106 contributions/admin.py:180
+#: contributions/admin.py:354
 #: contributions/templates/contributions/list.html:12 licenses/admin.py:33
 #: licenses/models.py:52 projects/admin.py:65
 msgid "Title"
 msgstr "Titel"
 
-#: contributions/admin.py:96 contributions/admin.py:170
-#: contributions/admin.py:348 licenses/admin.py:34 licenses/models.py:59
+#: contributions/admin.py:107 contributions/admin.py:181
+#: contributions/admin.py:359 licenses/admin.py:34 licenses/models.py:59
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: contributions/admin.py:97 licenses/admin.py:35 licenses/models.py:66
+#: contributions/admin.py:108 licenses/admin.py:35 licenses/models.py:66
 msgid "Description"
 msgstr "Beschreibung"
 
-#: contributions/admin.py:98
+#: contributions/admin.py:109
 msgid "Credits"
 msgstr "Beteiligt"
 
-#: contributions/admin.py:100
+#: contributions/admin.py:111
 #: contributions/templates/contributions/list.html:15 licenses/admin.py:40
 #: licenses/admin.py:242 licenses/models.py:25 licenses/models.py:39
 #: licenses/models.py:140 licenses/templates/licenses/details.html:16
 msgid "Category"
 msgstr "Kategorie"
 
-#: contributions/admin.py:148
+#: contributions/admin.py:159
 msgid "Program"
 msgstr "Program"
 
-#: contributions/admin.py:168
+#: contributions/admin.py:179
 msgid "License number"
 msgstr "Freistellungsnummer"
 
-#: contributions/admin.py:172
+#: contributions/admin.py:183
 msgid "Broadcast Time"
 msgstr "Sendezeit"
 
-#: contributions/admin.py:173 contributions/admin.py:328 licenses/admin.py:36
+#: contributions/admin.py:184 contributions/admin.py:339 licenses/admin.py:36
 #: licenses/admin.py:236 licenses/models.py:131 registration/models.py:208
 #: registration/templates/navbar.html:37 ok_tools/templates/dashboard.html:12
 msgid "Profile"
 msgstr "Profil"
 
-#: contributions/admin.py:174 licenses/admin.py:37
+#: contributions/admin.py:185 licenses/admin.py:37
 msgid "Profile ID"
 msgstr "Profil-ID"
 
-#: contributions/admin.py:175
+#: contributions/admin.py:186
 #: contributions/templates/contributions/list.html:14 licenses/admin.py:39
 #: licenses/models.py:77 projects/admin.py:68 projects/models.py:149
 msgid "Duration"
 msgstr "Dauer"
 
-#: contributions/admin.py:176
+#: contributions/admin.py:187
 #: contributions/templates/contributions/list.html:34
 msgid "Live"
 msgstr "Live"
 
-#: contributions/admin.py:195
+#: contributions/admin.py:206
 msgid "Data export"
 msgstr "Datenexport"
 
-#: contributions/admin.py:203
+#: contributions/admin.py:214
 msgid "Broadcast week"
 msgstr "Sendewoche"
 
-#: contributions/admin.py:209
+#: contributions/admin.py:220
 msgid "In this week"
 msgstr "In diser Woche"
 
-#: contributions/admin.py:210
+#: contributions/admin.py:221
 msgid "Until next week"
 msgstr "Bis einschließlich nächste Woche"
 
-#: contributions/admin.py:211
+#: contributions/admin.py:222
 msgid "Until week after next"
 msgstr "Bis einschließlich übernächste Woche"
 
-#: contributions/admin.py:246
+#: contributions/admin.py:257
 msgid "Primary Contribution"
 msgstr "Primärbeitrag"
 
-#: contributions/admin.py:252 licenses/admin.py:121
+#: contributions/admin.py:263 licenses/admin.py:121
 #: licenses/templates/licenses/details.html:24
 #: licenses/templates/licenses/list.html:26
 msgid "Yes"
 msgstr "Ja"
 
-#: contributions/admin.py:253 licenses/admin.py:122
+#: contributions/admin.py:264 licenses/admin.py:122
 #: licenses/templates/licenses/details.html:27
 #: licenses/templates/licenses/list.html:29
 msgid "No"
 msgstr "Nein"
 
-#: contributions/admin.py:277
+#: contributions/admin.py:288
 msgid "Broadcast year"
 msgstr "Sendejahr"
 
-#: contributions/admin.py:283 licenses/admin.py:91 projects/admin.py:112
+#: contributions/admin.py:294 licenses/admin.py:91 projects/admin.py:112
 #: registration/admin.py:159
 msgid "This year"
 msgstr "Dieses Jahr"
 
-#: contributions/admin.py:284 licenses/admin.py:92 projects/admin.py:113
+#: contributions/admin.py:295 licenses/admin.py:92 projects/admin.py:113
 #: registration/admin.py:160
 msgid "Last year"
 msgstr "Letztes Jahr"
 
-#: contributions/admin.py:325
+#: contributions/admin.py:336
 msgid "Title, Subtitle, Number"
 msgstr "Titel, Untertitel, Nummer"
 
-#: contributions/admin.py:334 licenses/admin.py:241 registration/admin.py:90
+#: contributions/admin.py:345 licenses/admin.py:241 registration/admin.py:90
 #: registration/models.py:79 registration/models.py:91
 #: registration/models.py:185
 msgid "Media Authority"
 msgstr "Bürgermedium"
 
-#: contributions/admin.py:339
+#: contributions/admin.py:350
 msgid "Is primary"
 msgstr "Primärbeitrag"
 
-#: contributions/admin.py:353 registration/models.py:66
+#: contributions/admin.py:364 registration/models.py:66
 #: registration/models.py:132
 msgid "User"
 msgstr "Nutzer"
 
-#: contributions/admin.py:359 licenses/admin.py:32 licenses/models.py:121
+#: contributions/admin.py:370 licenses/admin.py:32 licenses/models.py:121
 msgid "Number"
 msgstr "Nummer"
 
-#: contributions/admin.py:381
+#: contributions/admin.py:392
 msgid "Import selected DISA exports."
 msgstr "Ausgewählten DISA-Export importieren."
 
-#: contributions/admin.py:403
+#: contributions/admin.py:414
 #, python-format
 msgid "\"%(obj)s\" successfully imported."
 msgstr "\"%(obj)s\" erfolgreich importiert."
@@ -216,7 +216,7 @@ msgstr ""
 msgid "Successfully created %d contributions."
 msgstr "Erfolgreich %d Beiträge erstellt."
 
-#: contributions/models.py:65 licenses/models.py:210
+#: contributions/models.py:65 licenses/models.py:211
 #: licenses/templates/licenses/list.html:12
 msgid "License"
 msgstr "Freistellung"
@@ -354,7 +354,7 @@ msgstr ""
 "Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Lizenz kann nicht "
 "bestätigt werden, bis das Profil verifiziert ist."
 
-#: licenses/apps.py:10 licenses/models.py:211
+#: licenses/apps.py:10 licenses/models.py:212
 #: registration/templates/navbar.html:68 ok_tools/templates/dashboard.html:33
 msgid "Licenses"
 msgstr "Freistellungen"
@@ -606,7 +606,7 @@ msgstr "männlich"
 msgid "diverse"
 msgstr "divers"
 
-#: projects/admin.py:99 projects/apps.py:10 projects/models.py:308
+#: projects/admin.py:99 projects/apps.py:10 projects/models.py:309
 msgid "Projects"
 msgstr "Projekte"
 
@@ -679,7 +679,7 @@ msgstr "Projekttitel"
 msgid "Democracy project"
 msgstr "Demokratieprojekt"
 
-#: projects/models.py:292
+#: projects/models.py:293
 #, python-format
 msgid ""
 "The sum of participants by age (%(age)s) does not match the sum of "
@@ -689,7 +689,7 @@ msgstr ""
 "der Teilnehmer nach Geschlecht (%(gender)s) überein. Bitte korrigieren Sie "
 "die Eingabe."
 
-#: projects/models.py:307
+#: projects/models.py:308
 msgid "Project"
 msgstr "Projekt"
 
@@ -862,25 +862,33 @@ msgid "Submit changes"
 msgstr "Änderungen bestätigen"
 
 #: registration/forms.py:87
-msgid "I accept"
-msgstr "Ich stimme zu"
+msgid "I have read the privacy agreement and accept it."
+msgstr "Ich habe die Datenschutzerklärung gelesen und akzeptiere sie."
 
-#: registration/forms.py:91
+#: registration/forms.py:90
+msgid "I have read the usage agreement and accept it."
+msgstr "Ich habe die Nutzungsordnung gelesen und akzeptiere sie."
+
+#: registration/forms.py:93
 msgid "Birthday"
 msgstr "Geburtstag"
 
-#: registration/forms.py:126 registration/templates/navbar.html:98
+#: registration/forms.py:131 registration/templates/navbar.html:98
 #: registration/templates/registration/register.html:7
 msgid "Register"
 msgstr "Registrieren"
 
-#: registration/forms.py:137
+#: registration/forms.py:142 registration/forms.py:154
 msgid "Please accept our "
 msgstr "Bitte akzeptieren sie unsere "
 
-#: registration/forms.py:139
+#: registration/forms.py:144
 msgid "privacy policy"
 msgstr "Datenschutzerklärung"
+
+#: registration/forms.py:156
+msgid "usage policy"
+msgstr "Nutzungsordnung"
 
 #: registration/models.py:17
 msgid "The given email must be set"
@@ -926,7 +934,7 @@ msgstr "Das Profil wurde unter Vorlage eines Personalausweises verifiziert."
 msgid "Profiles"
 msgstr "Profile"
 
-#: registration/print.py:81
+#: registration/print.py:79
 msgid "registration_form.pdf"
 msgstr "Nutzer_innenantrag.pdf"
 
@@ -1262,3 +1270,6 @@ msgstr ""
 #: ok_tools/templates/home.html:35
 msgid "You are not logged in"
 msgstr "Sie sind nicht angemeldet."
+
+#~ msgid "I accept"
+#~ msgstr "Ich stimme zu"

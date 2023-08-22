@@ -84,9 +84,11 @@ class ProfileForm(forms.ModelForm):
 
     email = forms.EmailField(label=_('Email address'))
     privacy_agreement = forms.BooleanField(
-        label=_('I accept')
+        label=_('I have read the privacy agreement and accept it.')
     )
-
+    usage_agreement = forms.BooleanField(
+        label=_('I have read the usage agreement and accept it.')
+    )
     birthday = forms.DateField(
         label=_('Birthday'),
         widget=forms.DateInput(attrs={"type": "date"})
@@ -122,6 +124,9 @@ class ProfileForm(forms.ModelForm):
             'city',
             HTML(_privacy_policy()),
             'privacy_agreement',
+            HTML(_usage_policy()),
+            'usage_agreement',
+
             ButtonHolder(
                 Submit('submit', _('Register')),
             )
@@ -137,6 +142,18 @@ def _privacy_policy() -> str:
         _('Please accept our '),
         reverse_lazy('privacy_policy'),
         _('privacy policy')
+    )
+
+
+def _usage_policy() -> str:
+    return '''
+    <p> {}
+        <a href="{}" target="_blank">{}</a>
+    </p>
+    '''.format(
+        _('Please accept our '),
+        'https://okmq.de/images/Formulare/Nutzungsordnung.pdf',
+        _('usage policy')
     )
 
 
