@@ -20,6 +20,10 @@ Install the dependencies using requirements-test.txt::
 
    bin/pip install -r requirements-test.txt
 
+Create static resources::
+
+    OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py collectstatic
+
 Run the Tests using pytest::
 
     bin/pytest
@@ -32,6 +36,21 @@ We have provided a minimal config (test.cfg) and an example with
 suggested settings for production (production.cfg.example).
 
 
+
+Maintenance/Initial Setup
+=========================
+
+Run the typical django scripts after install/update::
+
+    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py migrate
+    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py collectstatic
+    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py compilemessages
+
+You may want to create a superuser::
+
+    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py createsuperuser
+
+
 Run Server Locally
 ==================
 
@@ -42,15 +61,6 @@ prouction due to security reasons.
 
     OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py runserver
 
-
-Maintenance/Initial Setup
-=========================
-
-Run the typical django scripts after install/update::
-
-    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py migrate
-    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py collectstatic
-    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py compilemessages
 
 
 Run production server
@@ -93,3 +103,10 @@ Security
 
 Without further actions the view to export the project dates
 (:conde:`admin/calendar_export`) is reachable without any authentication.
+
+Backup
+======
+
+To create backups you can simply copy the .sqlite file::
+
+    cp db.sqlite3 backup.sqlite3
