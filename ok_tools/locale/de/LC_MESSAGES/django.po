@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-22 13:03+0200\n"
+"POT-Creation-Date: 2023-08-22 13:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -554,7 +554,8 @@ msgstr "Zielgruppe"
 msgid "Project category"
 msgstr "Projektkategorie"
 
-#: projects/admin.py:74 projects/models.py:30 projects/models.py:199
+#: projects/admin.py:74 projects/admin.py:163 projects/models.py:30
+#: projects/models.py:199
 msgid "Project leader"
 msgstr "Projektleiter*in"
 
@@ -627,15 +628,15 @@ msgstr "Zielgruppe"
 msgid "Project Category"
 msgstr "Projektkategorie"
 
-#: projects/admin.py:170
+#: projects/admin.py:171
 msgid "Project data"
 msgstr "Projektdaten"
 
-#: projects/admin.py:186
+#: projects/admin.py:187
 msgid "Participant numbers - by age"
 msgstr "Teilnehmerzahlen - nach Alter"
 
-#: projects/admin.py:199
+#: projects/admin.py:200
 msgid "Participant numbers - by gender"
 msgstr "Teilnehmerzahlen - nach Geschlecht"
 

@@ -160,6 +160,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     list_filter = (
         AutocompleteFilterFactory(_('Target Group'), 'target_group'),
         AutocompleteFilterFactory(_('Project Category'), 'project_category'),
+        AutocompleteFilterFactory(_('Project leader'), 'project_leader'),
         'jugendmedienschutz',
         'democracy_project',
         ('date', DateRangeFilter),
