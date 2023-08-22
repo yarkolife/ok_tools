@@ -139,6 +139,12 @@ class Project(models.Model):
         max_length=MAX_STRING_LENGTH,
     )
 
+    description = models.TextField(
+        _('Description'),
+        blank=False,
+        null=True,
+    )
+
     date = models.DateField(  # date
         _('Date'),
         blank=False,

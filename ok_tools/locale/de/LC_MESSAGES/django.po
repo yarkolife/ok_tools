@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-22 12:10+0200\n"
+"POT-Creation-Date: 2023-08-22 13:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,7 @@ msgid "Subtitle"
 msgstr "Untertitel"
 
 #: contributions/admin.py:108 licenses/admin.py:35 licenses/models.py:66
+#: projects/admin.py:67 projects/models.py:143
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -81,7 +82,7 @@ msgstr "Profil-ID"
 
 #: contributions/admin.py:186
 #: contributions/templates/contributions/list.html:14 licenses/admin.py:39
-#: licenses/models.py:77 projects/admin.py:68 projects/models.py:149
+#: licenses/models.py:77 projects/admin.py:69 projects/models.py:155
 msgid "Duration"
 msgstr "Dauer"
 
@@ -130,12 +131,12 @@ msgstr "Nein"
 msgid "Broadcast year"
 msgstr "Sendejahr"
 
-#: contributions/admin.py:294 licenses/admin.py:91 projects/admin.py:112
+#: contributions/admin.py:294 licenses/admin.py:91 projects/admin.py:113
 #: registration/admin.py:159
 msgid "This year"
 msgstr "Dieses Jahr"
 
-#: contributions/admin.py:295 licenses/admin.py:92 projects/admin.py:113
+#: contributions/admin.py:295 licenses/admin.py:92 projects/admin.py:114
 #: registration/admin.py:160
 msgid "Last year"
 msgstr "Letztes Jahr"
@@ -391,7 +392,7 @@ msgstr "Kategorien"
 msgid "Not Selected"
 msgstr "Nicht ausgewählt"
 
-#: licenses/models.py:78 projects/models.py:150
+#: licenses/models.py:78 projects/models.py:156
 msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
@@ -531,110 +532,110 @@ msgstr ""
 msgid "Topic"
 msgstr "Thema"
 
-#: projects/admin.py:67 projects/models.py:143
+#: projects/admin.py:68 projects/models.py:149
 msgid "Date"
 msgstr "Datum"
 
-#: projects/admin.py:69 projects/models.py:156
+#: projects/admin.py:70 projects/models.py:162
 msgid "External venue"
 msgstr "Externer Veranstaltungsort"
 
-#: projects/admin.py:70 projects/models.py:162
+#: projects/admin.py:71 projects/models.py:168
 msgid "Jugendmedienschutz"
 msgstr "Jugendmedienschutz"
 
-#: projects/admin.py:71 projects/models.py:95 projects/models.py:108
-#: projects/models.py:178
+#: projects/admin.py:72 projects/models.py:95 projects/models.py:108
+#: projects/models.py:184
 msgid "Target group"
 msgstr "Zielgruppe"
 
-#: projects/admin.py:72 projects/models.py:67 projects/models.py:80
-#: projects/models.py:185
+#: projects/admin.py:73 projects/models.py:67 projects/models.py:80
+#: projects/models.py:191
 msgid "Project category"
 msgstr "Projektkategorie"
 
-#: projects/admin.py:73 projects/models.py:30 projects/models.py:193
+#: projects/admin.py:74 projects/models.py:30 projects/models.py:199
 msgid "Project leader"
 msgstr "Projektleiter*in"
 
-#: projects/admin.py:74 projects/models.py:203
+#: projects/admin.py:75 projects/models.py:209
 msgid "bis 6 Jahre"
 msgstr "Bis 6 Jahre"
 
-#: projects/admin.py:75 projects/models.py:209
+#: projects/admin.py:76 projects/models.py:215
 msgid "7-10 Jahre"
 msgstr "7-10 Jahre"
 
-#: projects/admin.py:76 projects/models.py:215
+#: projects/admin.py:77 projects/models.py:221
 msgid "11-14 Jahre"
 msgstr "11-14 Jahre"
 
-#: projects/admin.py:77 projects/models.py:221
+#: projects/admin.py:78 projects/models.py:227
 msgid "15-18 Jahre"
 msgstr "15-18 Jahre"
 
-#: projects/admin.py:78 projects/models.py:227
+#: projects/admin.py:79 projects/models.py:233
 msgid "19-34 Jahre"
 msgstr "19-34 Jahre"
 
-#: projects/admin.py:79 projects/models.py:233
+#: projects/admin.py:80 projects/models.py:239
 msgid "35-50 Jahre"
 msgstr "35-50 Jahre"
 
-#: projects/admin.py:80 projects/models.py:239
+#: projects/admin.py:81 projects/models.py:245
 msgid "51-65 Jahre"
 msgstr "51-65 Jahre"
 
-#: projects/admin.py:81 projects/models.py:245
+#: projects/admin.py:82 projects/models.py:251
 msgid "über 65 Jahre"
 msgstr "Über 65 Jahre"
 
-#: projects/admin.py:82 projects/admin.py:86 projects/models.py:251
-#: projects/models.py:270
+#: projects/admin.py:83 projects/admin.py:87 projects/models.py:257
+#: projects/models.py:276
 msgid "ohne Angabe"
 msgstr "Ohne Angabe"
 
-#: projects/admin.py:83 projects/models.py:258
+#: projects/admin.py:84 projects/models.py:264
 msgid "weiblich"
 msgstr "weiblich"
 
-#: projects/admin.py:84 projects/models.py:264
+#: projects/admin.py:85 projects/models.py:270
 msgid "männlich"
 msgstr "männlich"
 
-#: projects/admin.py:85 projects/models.py:276 registration/models.py:107
+#: projects/admin.py:86 projects/models.py:282 registration/models.py:107
 msgid "diverse"
 msgstr "divers"
 
-#: projects/admin.py:99 projects/apps.py:10 projects/models.py:309
+#: projects/admin.py:100 projects/apps.py:10 projects/models.py:315
 msgid "Projects"
 msgstr "Projekte"
 
-#: projects/admin.py:105
+#: projects/admin.py:106
 msgid "start year"
 msgstr "Startjahr"
 
-#: projects/admin.py:157
-msgid "title, topic"
-msgstr "Titel, Thema"
+#: projects/admin.py:158
+msgid "title, topic, description"
+msgstr "Titel, Thema, Beschreibung"
 
-#: projects/admin.py:160
+#: projects/admin.py:161
 msgid "Target Group"
 msgstr "Zielgruppe"
 
-#: projects/admin.py:161
+#: projects/admin.py:162
 msgid "Project Category"
 msgstr "Projektkategorie"
 
-#: projects/admin.py:169
+#: projects/admin.py:170
 msgid "Project data"
 msgstr "Projektdaten"
 
-#: projects/admin.py:184
+#: projects/admin.py:186
 msgid "Participant numbers - by age"
 msgstr "Teilnehmerzahlen - nach Alter"
 
-#: projects/admin.py:197
+#: projects/admin.py:199
 msgid "Participant numbers - by gender"
 msgstr "Teilnehmerzahlen - nach Geschlecht"
 
@@ -659,7 +660,7 @@ msgstr "Projektleiter*innen"
 msgid "Media education supervisor"
 msgstr "Medienpädagogische*r Betreuer*in"
 
-#: projects/models.py:56 projects/models.py:199
+#: projects/models.py:56 projects/models.py:205
 msgid "Media education supervisors"
 msgstr "Medienpädagogische Betreuer"
 
@@ -675,11 +676,11 @@ msgstr "Zielgruppen"
 msgid "Project title"
 msgstr "Projekttitel"
 
-#: projects/models.py:168
+#: projects/models.py:174
 msgid "Democracy project"
 msgstr "Demokratieprojekt"
 
-#: projects/models.py:293
+#: projects/models.py:299
 #, python-format
 msgid ""
 "The sum of participants by age (%(age)s) does not match the sum of "
@@ -689,7 +690,7 @@ msgstr ""
 "der Teilnehmer nach Geschlecht (%(gender)s) überein. Bitte korrigieren Sie "
 "die Eingabe."
 
-#: projects/models.py:308
+#: projects/models.py:314
 msgid "Project"
 msgstr "Projekt"
 

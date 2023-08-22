@@ -64,6 +64,7 @@ class ProjectResource(resources.ModelResource):
 
     title = _f('title', _('Title'))
     topic = _f('topic', _('Topic'))
+    description = _f('description', _('Description'))
     date = _f('date', _('Date'))
     duration = _f('duration', _('Duration'))
     external_venue = _f('external_venue', _('External venue'))
@@ -153,8 +154,8 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     ]
 
     ordering = ('-date',)
-    search_fields = ('title', 'topic')
-    search_help_text = _('title, topic')
+    search_fields = ('title', 'topic', 'description')
+    search_help_text = _('title, topic, description')
 
     list_filter = (
         AutocompleteFilterFactory(_('Target Group'), 'target_group'),
@@ -170,6 +171,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
             'fields': (
                 'title',
                 'topic',
+                'description',
                 'date',
                 'duration',
                 'external_venue',
