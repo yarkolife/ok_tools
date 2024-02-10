@@ -117,10 +117,15 @@ WSGI_APPLICATION = 'ok_tools.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config.get('django', 'db_name', fallback=None),
+        'USER': config.get('django', 'db_user', fallback=None),
+        'PASSWORD': config.get('django', 'db_pw', fallback=None),
+        'HOST': config.get('django', 'db_host', fallback='localhost'),
+        'PORT': config.get('django', 'db_port', fallback='5432')
     }
 }
+
 
 
 # Password validation

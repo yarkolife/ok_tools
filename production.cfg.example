@@ -17,3 +17,9 @@ email_use_tls = True
 email_host_user = some_username
 email_host_password = password
 default_from_email = your@email.de
+
+db_name = yourdbname
+db_user = theuser
+db_pw = yourpass 
+db_host = dbhost
+db_port = 5432
