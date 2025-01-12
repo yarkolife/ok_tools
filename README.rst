@@ -8,7 +8,7 @@ Installation
 ============
 ::
 
-    git clone https://github.com/gocept/ok-tools.git
+    git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
     cd ok-tools
     python3.10 -m venv .
     bin/pip install -r requirements.txt
