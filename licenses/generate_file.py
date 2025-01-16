@@ -1,4 +1,5 @@
 from .models import License
+from .models import YouthProtectionCategory
 from PyPDF2 import PdfReader
 from PyPDF2 import PdfWriter
 from datetime import date
@@ -33,16 +34,16 @@ def generate_license_file(lr: License) -> FileResponse:
     pdf_edits = canvas.Canvas(pdf_buffer)
     pdf_edits.setFontSize(TEXTSIZE)
 
-    COL_1 = 180
-    X_MOBILE = 370
-    Y_NAME = 636
-    Y_STREET = 614
-    Y_ZIP = 592
-    Y_PHONE = 571
-    Y_MAIL = 548
-    Y_TITLE = 450
-    Y_SUBTITLE = 424
-    Y_DURATION = 399
+    COL_1 = 155
+    X_MOBILE = 370 - 24
+    Y_NAME = 636 - 24
+    Y_STREET = 614 - 24
+    Y_ZIP = 592 - 24
+    Y_PHONE = 571 - 24
+    Y_MAIL = 548 - 24
+    Y_TITLE = 450 - 24
+    Y_SUBTITLE = 424 - 24
+    Y_DURATION = 399 - 24
 
     user = lr.profile.okuser
 
@@ -88,19 +89,27 @@ def generate_license_file(lr: License) -> FileResponse:
     pdf_edits = canvas.Canvas(pdf_buffer)
     pdf_edits.setFontSize(TEXTSIZE)
 
-    X_YES = 458
-    X_NO = 492
-    X_SIGN = 120
+    X_YES = 458 + 8
+    X_NO = 492 + 8
+    X_SIGN = 220
 
-    Y_REPEAT = 472
-    Y_SHARE = 429
-    Y_YOUTH = 392
-    Y_SIGN = 233
+    Y_REPEAT = 646
+    Y_SHARE = 633
+    Y_SHARE_OTHERS = 620
+    Y_STORE = 596
+    Y_YOUTH = 559
+
+    Y_YOUTHCAT = 514
+
+
+
+    Y_SIGN = 232
+
 
     pdf_edits.drawString(
         X_SIGN,
         Y_SIGN,
-        date.today().strftime(settings.DATE_INPUT_FORMATS),
+        ', '+date.today().strftime(settings.DATE_INPUT_FORMATS),
     )
 
     # Yes/No-Fields
@@ -113,10 +122,26 @@ def generate_license_file(lr: License) -> FileResponse:
         else:
             return X_NO
 
+
+    X_YPC = {
+        YouthProtectionCategory.FROM_12: 76,
+        YouthProtectionCategory.FROM_16: 184,
+        YouthProtectionCategory.FROM_18: 292,
+    }
+
     pdf_edits.drawString(choose(lr.repetitions_allowed), Y_REPEAT, 'x')
     pdf_edits.drawString(
         choose(lr.media_authority_exchange_allowed), Y_SHARE, 'x')
+    pdf_edits.drawString(
+            choose(
+                lr.media_authority_exchange_allowed_other_states),
+                Y_SHARE_OTHERS, 'x')
+    pdf_edits.drawString(choose(lr.store_in_ok_media_library), Y_STORE, 'x')
     pdf_edits.drawString(choose(lr.youth_protection_necessary), Y_YOUTH, 'x')
+
+    if lr.youth_protection_category != YouthProtectionCategory.NONE:
+        pdf_edits.drawString(
+            X_YPC[lr.youth_protection_category], Y_YOUTHCAT, 'x')
 
     pdf_edits.showPage()
     pdf_edits.save()
@@ -138,9 +163,13 @@ def generate_license_file(lr: License) -> FileResponse:
         page2 = license_template.pages[1]
         page2.merge_page(edit_page2.pages[0])
 
+        page3 = license_template.pages[2]
+
+
         license_file = PdfWriter()
         license_file.add_page(page1)
         license_file.add_page(page2)
+        license_file.add_page(page3)
         apl_stream = io.BytesIO()
         license_file.write(apl_stream)
 

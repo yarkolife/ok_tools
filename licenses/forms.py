@@ -1,4 +1,5 @@
 from .models import License
+from .models import YouthProtectionCategory
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML
 from crispy_forms.layout import Field
@@ -32,6 +33,14 @@ class CreateLicenseForm(forms.ModelForm):
         if self.data.get('is_screen_board'):
             # it's a screen board, we are fine
             return super().is_valid()
+
+        youth_protection = self.data.get('youth_protection_necessary')
+        if youth_protection:
+            youth_category = self.data.get('youth_protection_category')
+            if youth_category == YouthProtectionCategory.NONE:
+                self.add_error('youth_protection_category',
+                    _('If youth protection is necessary, you have'
+                      ' to choose a youth protection category.'))
 
         duration = self.data.get('duration') or ""
         hh_mm_ss = r'\d{2}:\d{2}:\d{2}'
@@ -81,7 +90,9 @@ class CreateLicenseForm(forms.ModelForm):
             'suggested_date',
             'repetitions_allowed',
             'media_authority_exchange_allowed',
+            'media_authority_exchange_allowed_other_states',
             'youth_protection_necessary',
+            'youth_protection_category',
             'store_in_ok_media_library',
             Submit('save', _('Save'))
         )
@@ -101,6 +112,13 @@ def _screen_board_js() -> str:
         }
         window.onload = function(){ showDuration() }
         </script>
+        <style>
+
+            #div_id_youth_protection_category .asteriskField {
+        display: none;
+        }
+        </style>
+
    '''
 
 

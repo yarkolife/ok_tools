@@ -14,6 +14,27 @@ logger = logging.getLogger('django')
 MAX_TITLE_LENGTH = 255
 
 
+
+class YouthProtectionCategory(models.TextChoices):
+    """Youth protection categories."""
+
+    NONE = 'none', _('not necessary')
+    FROM_12 = 'from_12', _('from 12')
+    FROM_16 = 'from_16', _('from 16')
+    FROM_18 = 'from_18', _('from 18')
+
+    @classmethod
+    def verbose_name(cls, value: str) -> str:
+        """Return the verbose name to the given value."""
+        for choice in cls.choices:
+            if value == choice[0]:
+                return choice[1]  # verbose name
+
+        return ''
+
+
+
+
 class Category(models.Model):
     """
     Model representing a category.
@@ -94,7 +115,13 @@ class License(models.Model):
     )
 
     media_authority_exchange_allowed = models.BooleanField(
-        _('Media Authority exchange allowed'),
+        _('Media Authority exchange allowed in Saxony-Anhalt'),
+        blank=False,
+        null=True,
+    )
+
+    media_authority_exchange_allowed_other_states = models.BooleanField(
+        _('Media Authority exchange allowed in other states than Saxony-Anhalt.'),
         blank=False,
         null=True,
     )
@@ -103,6 +130,15 @@ class License(models.Model):
         _('Youth protection necessary'),
         blank=False,
         null=True,
+    )
+
+    youth_protection_category = models.CharField(
+        _('Youth protection category'),
+        max_length=255,
+        blank=False,
+        null=True,
+        choices=YouthProtectionCategory.choices,
+        default=YouthProtectionCategory.NONE,
     )
 
     store_in_ok_media_library = models.BooleanField(

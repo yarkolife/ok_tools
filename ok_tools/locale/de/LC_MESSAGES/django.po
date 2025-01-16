@@ -5,17 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-22 13:50+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2025-01-15 01:58+0100\n"
+"PO-Revision-Date: 2025-01-15 02:03+0100\n"
+"Last-Translator: Daniel Havlik <dh@gocept.com>\n"
+"Language-Team: \n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: contributions/admin.py:103 contributions/admin.py:182
 #: contributions/models.py:71
@@ -33,16 +34,16 @@ msgstr "Endzeit"
 #: contributions/admin.py:106 contributions/admin.py:180
 #: contributions/admin.py:354
 #: contributions/templates/contributions/list.html:12 licenses/admin.py:33
-#: licenses/models.py:52 projects/admin.py:65
+#: licenses/models.py:73 projects/admin.py:65
 msgid "Title"
 msgstr "Titel"
 
 #: contributions/admin.py:107 contributions/admin.py:181
-#: contributions/admin.py:359 licenses/admin.py:34 licenses/models.py:59
+#: contributions/admin.py:359 licenses/admin.py:34 licenses/models.py:80
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: contributions/admin.py:108 licenses/admin.py:35 licenses/models.py:66
+#: contributions/admin.py:108 licenses/admin.py:35 licenses/models.py:87
 #: projects/admin.py:67 projects/models.py:143
 msgid "Description"
 msgstr "Beschreibung"
@@ -53,8 +54,8 @@ msgstr "Beteiligt"
 
 #: contributions/admin.py:111
 #: contributions/templates/contributions/list.html:15 licenses/admin.py:40
-#: licenses/admin.py:242 licenses/models.py:25 licenses/models.py:39
-#: licenses/models.py:140 licenses/templates/licenses/details.html:16
+#: licenses/admin.py:242 licenses/models.py:46 licenses/models.py:60
+#: licenses/models.py:176 licenses/templates/licenses/details.html:16
 msgid "Category"
 msgstr "Kategorie"
 
@@ -71,7 +72,7 @@ msgid "Broadcast Time"
 msgstr "Sendezeit"
 
 #: contributions/admin.py:184 contributions/admin.py:339 licenses/admin.py:36
-#: licenses/admin.py:236 licenses/models.py:131 registration/models.py:208
+#: licenses/admin.py:236 licenses/models.py:167 registration/models.py:208
 #: registration/templates/navbar.html:37 ok_tools/templates/dashboard.html:12
 msgid "Profile"
 msgstr "Profil"
@@ -82,7 +83,7 @@ msgstr "Profil-ID"
 
 #: contributions/admin.py:186
 #: contributions/templates/contributions/list.html:14 licenses/admin.py:39
-#: licenses/models.py:77 projects/admin.py:69 projects/models.py:155
+#: licenses/models.py:98 projects/admin.py:69 projects/models.py:155
 msgid "Duration"
 msgstr "Dauer"
 
@@ -116,13 +117,13 @@ msgid "Primary Contribution"
 msgstr "Primärbeitrag"
 
 #: contributions/admin.py:263 licenses/admin.py:121
-#: licenses/templates/licenses/details.html:24
+#: licenses/templates/licenses/details.html:27
 #: licenses/templates/licenses/list.html:26
 msgid "Yes"
 msgstr "Ja"
 
 #: contributions/admin.py:264 licenses/admin.py:122
-#: licenses/templates/licenses/details.html:27
+#: licenses/templates/licenses/details.html:30
 #: licenses/templates/licenses/list.html:29
 msgid "No"
 msgstr "Nein"
@@ -160,7 +161,7 @@ msgstr "Primärbeitrag"
 msgid "User"
 msgstr "Nutzer"
 
-#: contributions/admin.py:370 licenses/admin.py:32 licenses/models.py:121
+#: contributions/admin.py:370 licenses/admin.py:32 licenses/models.py:157
 msgid "Number"
 msgstr "Nummer"
 
@@ -189,7 +190,7 @@ msgstr "Die Tabelle muss \"%(name)s\" heißen."
 #: contributions/disa_import.py:92
 #, python-format
 msgid "Column %(nr)s needs to be named %(name)s"
-msgstr "Spalte %(nr)s muss \"%(name)s\" heißen."
+msgstr "Spalte %(nr)s muss \"%(name)s\" heißen"
 
 #: contributions/disa_import.py:102
 #, python-format
@@ -217,7 +218,7 @@ msgstr ""
 msgid "Successfully created %d contributions."
 msgstr "Erfolgreich %d Beiträge erstellt."
 
-#: contributions/models.py:65 licenses/models.py:211
+#: contributions/models.py:65 licenses/models.py:247
 #: licenses/templates/licenses/list.html:12
 msgid "License"
 msgstr "Freistellung"
@@ -278,11 +279,11 @@ msgstr "Start"
 msgid "No contributions yet."
 msgstr "Es sind keine Beiträge vorhanden."
 
-#: licenses/admin.py:38 licenses/models.py:72
+#: licenses/admin.py:38 licenses/models.py:93
 msgid "Further involved persons"
 msgstr "Weitere Personen"
 
-#: licenses/admin.py:41 licenses/models.py:85
+#: licenses/admin.py:41 licenses/models.py:106
 msgid "Suggested broadcast date"
 msgstr "Gewünschtes Sendedatum"
 
@@ -290,23 +291,23 @@ msgstr "Gewünschtes Sendedatum"
 msgid "Suggested broadcast time"
 msgstr "Gewünschte Sendezeit"
 
-#: licenses/admin.py:43 licenses/models.py:91
+#: licenses/admin.py:43 licenses/models.py:112
 msgid "Repetitions allowed"
 msgstr "Wiederholungen erlauben"
 
-#: licenses/admin.py:46 licenses/models.py:97
+#: licenses/admin.py:46
 msgid "Media Authority exchange allowed"
 msgstr "Austausch zwischen Bürgermedien erlauben"
 
-#: licenses/admin.py:49 licenses/models.py:103
+#: licenses/admin.py:49 licenses/models.py:130
 msgid "Youth protection necessary"
 msgstr "Jugendschutz notwendig"
 
-#: licenses/admin.py:51 licenses/models.py:109
+#: licenses/admin.py:51 licenses/models.py:145
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: licenses/admin.py:52 licenses/models.py:151
+#: licenses/admin.py:52 licenses/models.py:187
 msgid "Screen Board"
 msgstr "Bildschirmtafel"
 
@@ -334,7 +335,7 @@ msgstr ""
 msgid "title, subtitle, number, description, further persons"
 msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
 
-#: licenses/admin.py:248 licenses/models.py:115
+#: licenses/admin.py:248 licenses/models.py:151
 msgid "Created at"
 msgstr "Erstellt am"
 
@@ -355,65 +356,102 @@ msgstr ""
 "Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Lizenz kann nicht "
 "bestätigt werden, bis das Profil verifiziert ist."
 
-#: licenses/apps.py:10 licenses/models.py:212
+#: licenses/apps.py:10 licenses/models.py:248
 #: registration/templates/navbar.html:68 ok_tools/templates/dashboard.html:33
 msgid "Licenses"
 msgstr "Freistellungen"
 
-#: licenses/forms.py:44
+#: licenses/forms.py:42
+msgid ""
+"If youth protection is necessary, you have to choose a youth protection "
+"category."
+msgstr ""
+"Wenn Jugendschutz erforderlich ist, müssen Sie eine Jugendschutz-Kategorie "
+"wählen."
+
+#: licenses/forms.py:53
 msgid "Invalid format. Please use the format hh:mm:ss or mm:ss."
 msgstr "Ungültiges Format. Bitte nutzen Sie das Format hh:mm:ss oder mm:ss."
 
-#: licenses/forms.py:64
+#: licenses/forms.py:73
 msgid "The duration field is required."
 msgstr "Es muss eine Dauer angegeben werden."
 
-#: licenses/forms.py:86
+#: licenses/forms.py:97
 msgid "Save"
 msgstr "Speichern"
 
-#: licenses/forms.py:119
+#: licenses/forms.py:137
 msgid "From"
 msgstr "Von"
 
-#: licenses/forms.py:123
+#: licenses/forms.py:141
 msgid "To"
 msgstr "Bis"
 
-#: licenses/generate_file.py:149
+#: licenses/generate_file.py:178
 msgid "license.pdf"
 msgstr "freistellung.pdf"
 
-#: licenses/models.py:40
+#: licenses/models.py:21
+msgid "not necessary"
+msgstr "kein Jugendschutz notwendig"
+
+#: licenses/models.py:22
+msgid "from 12"
+msgstr "20:00 Uhr (ab 12 J.)"
+
+#: licenses/models.py:23
+msgid "from 16"
+msgstr "22:00 Uhr (ab 16 J.)"
+
+#: licenses/models.py:24
+msgid "from 18"
+msgstr "23:00 Uhr (ab 18 J.)"
+
+#: licenses/models.py:61
 msgid "Categories"
 msgstr "Kategorien"
 
-#: licenses/models.py:45 projects/models.py:117 projects/models.py:122
+#: licenses/models.py:66 projects/models.py:117 projects/models.py:122
 msgid "Not Selected"
 msgstr "Nicht ausgewählt"
 
-#: licenses/models.py:78 projects/models.py:156
+#: licenses/models.py:99 projects/models.py:156
 msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
-#: licenses/models.py:144 licenses/templates/licenses/list.html:13
+#: licenses/models.py:118
+msgid "Media Authority exchange allowed in Saxony-Anhalt"
+msgstr "Austausch zwischen Bürgermedien erlauben"
+
+#: licenses/models.py:124
+#| msgid "Media Authority exchange allowed"
+msgid "Media Authority exchange allowed in other states than Saxony-Anhalt."
+msgstr "Austausch zwischen Bürgermedien in anderen Bundesländern erlauben."
+
+#: licenses/models.py:136 licenses/templates/licenses/details.html:17
+msgid "Youth protection category"
+msgstr "Jugendschutz-Kategorie"
+
+#: licenses/models.py:180 licenses/templates/licenses/list.html:13
 msgid "Confirmed"
 msgstr "Genehmigt"
 
-#: licenses/models.py:174
+#: licenses/models.py:210
 msgid "Duration must not be null."
 msgstr "Die Dauer darf nicht Null sein."
 
-#: licenses/templates/admin/filter_numeric_range.html:39
+#: licenses/templates/admin/filter_numeric_range.html:40
 #, python-format
 msgid "By %(filter_title)s"
 msgstr "Nach %(filter_title)s"
 
-#: licenses/templates/admin/filter_numeric_range.html:46
+#: licenses/templates/admin/filter_numeric_range.html:47
 msgid "Search"
 msgstr "Suchen"
 
-#: licenses/templates/admin/filter_numeric_range.html:47
+#: licenses/templates/admin/filter_numeric_range.html:48
 msgid "Reset"
 msgstr "Zurücksetzen"
 
@@ -439,11 +477,11 @@ msgstr "Freistellung erstellen"
 msgid "Details for "
 msgstr "Details zu "
 
-#: licenses/templates/licenses/details.html:39
+#: licenses/templates/licenses/details.html:42
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: licenses/templates/licenses/details.html:43
+#: licenses/templates/licenses/details.html:46
 msgid "Print"
 msgstr "Drucken"
 
@@ -969,7 +1007,7 @@ msgid ""
 "You can now login and file a license.\n"
 msgstr ""
 "\n"
-"Sie können sich jetzt einloggen und Freistellungeng erstellen.\n"
+"Sie können sich jetzt einloggen und Freistellungen erstellen.\n"
 
 #: registration/templates/email/confirm_verification_body.html:20
 #: registration/templates/registration/password_reset_email.html:19
@@ -1052,7 +1090,7 @@ msgstr "Passwort erfolgreich zurückgesetzt"
 
 #: registration/templates/registration/password_reset_complete.html:9
 msgid "Your new password has been set. You can log in now:"
-msgstr "Ihr neues Passwort wurde gesetzt. Sie könen sich jetzt anmelden:"
+msgstr "Ihr neues Passwort wurde gesetzt. Sie können sich jetzt anmelden:"
 
 #: registration/templates/registration/password_reset_complete.html:9
 msgid "log in page"
@@ -1076,7 +1114,7 @@ msgstr ""
 
 #: registration/templates/registration/password_reset_done.html:5
 msgid "Email Sent"
-msgstr "E-Mail gesendet "
+msgstr "E-Mail gesendet"
 
 #: registration/templates/registration/password_reset_done.html:8
 msgid "Check your inbox."
@@ -1113,7 +1151,7 @@ msgid ""
 "Please go to the following page and choose a new password:\n"
 msgstr ""
 "\n"
-"Sie erhatlen diese E-Mail, weil Sie Ihr Passowrt bei %(ok_name)s ändern "
+"Sie erhatlen diese E-Mail, weil Sie Ihr Passwort bei %(ok_name)s ändern "
 "wollen.\n"
 "Bitte nutzen Sie den folgenden Link um ein neues Passwort zu wählen:\n"
 
@@ -1253,7 +1291,7 @@ msgstr ""
 "   Dieser Account ist nicht verifiziert. Bitte drucken Sie zuerst das "
 "Antragsformular (Nutzer*innenantrag) aus und bringen Sie es unterschrieben, "
 "zusammen mit Ihrem Personalausweis bei uns vorbei. Ihr Account wird dann von "
-"uns verifiziert."
+"uns verifiziert. "
 
 #: ok_tools/templates/home.html:25
 msgid "Application form"

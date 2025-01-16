@@ -14,11 +14,14 @@
         {% for field in form %}
         <tr>
         {% translate 'Category' as category %}
+        {% translate 'Youth protection category' as youthprotection %}
         <td>{{ field.label }}:</td>
         <td>{% if field.value == None %}
                 ----
             {% elif field.label == category %}
                 {{ object.category }}
+            {% elif field.label == youthprotection %}
+                {{ ypc_title }}
             {% elif field.value == True %}
                 <img src="{% static 'admin/img/icon-yes.svg' %}"
                         alt="{% translate 'Yes'%}">
