@@ -83,7 +83,7 @@ class ProjectResource(resources.ModelResource):
     no_age = _f('tni_age_not_given', _('ohne Angabe'))
     female = _f('tn_female', _('weiblich'))
     male = _f('tn_male', _('männlich'))
-    diverse = _f('tn_divers', _('diverse'))
+    diverse = _f('tn_diverse', _('diverse'))
     no_gender = _f('tn_gender_not_given', _('ohne Angabe'))
     supervisors = Field()
 
