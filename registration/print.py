@@ -1,13 +1,15 @@
-import os
-import subprocess
-import tempfile
-import io
+from .models import OKUser as User
+from .models import Profile
 from datetime import date
 from django.conf import settings
 from django.http import FileResponse
 from django.utils.translation import gettext as _
 from fdfgen import forge_fdf
-from .models import OKUser as User, Profile
+import io
+import os
+import subprocess
+import tempfile
+
 
 # Search for the pdftk executable among possible candidates
 PDFTK_CANDIDATES = ['/opt/homebrew/bin/pdftk', '/usr/bin/pdftk', 'C:\\Program Files (x86)\\PDFtk Server\\bin\\pdftk.exe']
@@ -28,7 +30,7 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
     """
     Generates a registration form in PDF format using the template
     'files/Nutzerkartei_Anmeldung_2022.pdf' and user data.
-    
+
     It is assumed that the PDF template contains fields with the following names:
       - first_name
       - last_name
@@ -38,14 +40,14 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
       - phone
       - mobile
       - email
-    
+
     Returns a FileResponse with the filled PDF.
     """
     # Path to the PDF template
     template_pdf = os.path.join(settings.BASE_DIR, 'files', 'Nutzerkartei_Anmeldung_2022_n.pdf')
     if not os.path.isfile(template_pdf):
         raise FileNotFoundError(f'PDF template not found: {template_pdf}')
-    
+
     # Forming a list of "field name" — "value" pairs
     fields = [
         ('first_name', profile.first_name),
@@ -58,7 +60,7 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
         ('email', getattr(user, 'email', '')),
         ('city_date_member', f'{val(profile.city)} {date.today().strftime(settings.DATE_INPUT_FORMATS)}')
     ]
-    
+
     # Create a temporary directory for the FDF file and output PDF
     with tempfile.TemporaryDirectory() as tmpdirname:
         # Generate FDF data
@@ -66,10 +68,10 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
         fdf_path = os.path.join(tmpdirname, "data.fdf")
         with open(fdf_path, "wb") as fdf_file:
             fdf_file.write(fdf_data)
-        
+
         # Define the path for the output PDF
         output_pdf = os.path.join(tmpdirname, "output.pdf")
-        
+
         # Run pdftk to fill out the form
         try:
             subprocess.run(
@@ -78,11 +80,11 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
             )
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f'Error executing pdftk: {e}')
-        
+
         # Read the completed PDF file
         with open(output_pdf, "rb") as pdf_file:
             pdf_result = pdf_file.read()
-    
+
     # Return the PDF as a FileResponse
     pdf_stream = io.BytesIO(pdf_result)
     pdf_stream.seek(0)
