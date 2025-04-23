@@ -230,7 +230,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     search_help_text = _(
         'title, subtitle, number, description, further persons')
 
-    actions = ['confirm', 'unconfirm']
+    actions = ['confirm', 'unconfirm', 'duplicate_license']
 
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
@@ -240,6 +240,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         AutocompleteFilterFactory(
             _('Media Authority'), 'profile__media_authority'),
         AutocompleteFilterFactory(_('Category'), 'category'),
+        'store_in_ok_media_library',
         WithoutContributionFilter,
     ]
 
@@ -266,6 +267,18 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             '%d Licenses were successfully unconfirmed.',
             updated
         ) % updated, messages.SUCCESS)
+
+    @admin.action(description=_('Create a copy of selected licenses'))
+    def duplicate_license(self, request, queryset):
+        from .models import License
+        for obj in queryset:
+            obj.pk = None  # reset id
+            # Generate a new unique number
+            max_number = License.objects.order_by('-number').first()
+            obj.number = (max_number.number + 1) if max_number else 1
+            obj.confirmed = False  # the copy is not confirmed
+            obj.save()
+        self.message_user(request, _('License copies created successfully.'), messages.SUCCESS)
 
     def _set_confirmed(self, request, queryset, value: bool):
         """

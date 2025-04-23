@@ -190,6 +190,13 @@ class License(models.Model):
         default=False,
     )
 
+    infoblock = models.BooleanField(
+        _('Infoblock'),
+        blank=False,
+        null=False,
+        default=False,
+    )
+
     def __str__(self) -> str:
         """Licenses are represented by its titles."""
         if self.subtitle:

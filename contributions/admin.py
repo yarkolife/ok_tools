@@ -39,6 +39,7 @@ class ProgramResource(resources.ModelResource):
             '',  # credits
             False,
             '',  # category
+            '',  # store_in_ok_media_library
         ]
 
     # Override for the original method defined in
@@ -58,8 +59,7 @@ class ProgramResource(resources.ModelResource):
         data = tablib.Dataset()
 
         prev_contr = None
-        for obj in self.iter_queryset(queryset):
-
+        for obj in queryset.iterator(chunk_size=1000):
             # create a screen board if there is a gap in the program
             if ((end_time := self._get_end_time(prev_contr))
                     != (start_time := self._get_start_time(obj))):
@@ -84,9 +84,10 @@ class ProgramResource(resources.ModelResource):
         # create screen board if last contribution does not end at 0:00
         if ((end_date := self._get_end_time(prev_contr))
                 != datetime.time(hour=0, minute=0)):
+            screen_board_date = (prev_contr.broadcast_date + prev_contr.license.duration).date()
             data.append(
                 self._create_screen_board(
-                    prev_contr.broadcast_date.date(),
+                    screen_board_date,
                     end_date,
                     datetime.time(hour=0, minute=0)
                 )
@@ -109,6 +110,7 @@ class ProgramResource(resources.ModelResource):
     credits = _f(name=_('Credits'))
     contribution = _f()
     category = _f('license__category', name=_('Category'))
+    store_in_ok_media_library = _f('license__store_in_ok_media_library', _('Store in OK media library'))
 
     def _get_start_time(self, contribution: Contribution):
         """Return the start time of a contribution in the current time zone."""
@@ -150,7 +152,9 @@ class ProgramResource(resources.ModelResource):
         return f'{INTRODUCTION} {contribution.license.profile}'
 
     def dehydrate_contribution(self, contribution: Contribution):
-        """Show weather it is a contribution or a screen board."""
+        """Show whether it is a contribution or a screen board or infoblock."""
+        if getattr(contribution.license, 'infoblock', False):
+            return False
         return True
 
     class Meta:
@@ -168,9 +172,17 @@ class ContributionResource(resources.ModelResource):
         """Only export primary contributions."""
         if queryset is None:
             queryset = self.get_queryset()
-
-        queryset = [x for x in queryset if x.is_primary()]
-        return super().export(queryset, *args, **kwargs)
+        data = tablib.Dataset()
+        data.headers = [field.column_name for field in self.get_export_fields()]
+        if hasattr(queryset, 'iterator'):
+            iterator = queryset.iterator(chunk_size=1000)
+        else:
+            iterator = iter(queryset)
+        for obj in iterator:
+            if obj.is_primary():
+                data.append(self.export_resource(obj))
+        self.after_export(queryset, data, *args, **kwargs)
+        return data
 
     def _f(field, name=None):
         """Shortcut for field creation."""

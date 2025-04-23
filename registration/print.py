@@ -1,79 +1,91 @@
 from .models import OKUser as User
 from .models import Profile
-from PyPDF2 import PdfReader
-from PyPDF2 import PdfWriter
+from datetime import date
 from django.conf import settings
 from django.http import FileResponse
 from django.utils.translation import gettext as _
-from reportlab.pdfgen import canvas
+from fdfgen import forge_fdf
 import io
+import os
+import subprocess
+import tempfile
 
 
-def _f_number(p): return str(p) if p else '     -     '
+# Search for the pdftk executable among possible candidates
+PDFTK_CANDIDATES = ['/opt/homebrew/bin/pdftk', '/usr/bin/pdftk', 'C:\\Program Files (x86)\\PDFtk Server\\bin\\pdftk.exe']
+PDFTK = next((c for c in PDFTK_CANDIDATES if os.path.isfile(c)), None)
+if not PDFTK:
+    raise RuntimeError(f'pdftk not found in {PDFTK_CANDIDATES}')
 
+def val(value):
+    if value:
+        return value
+    return ''
+
+def _f_number(p):
+    """Returns a string representation of a number or a placeholder if the value is missing."""
+    return str(p) if p else '     -     '
 
 def generate_registration_form(user: User, profile: Profile) -> FileResponse:
     """
-    Generate an registration form as pdf using the given user data.
+    Generates a registration form in PDF format using the template
+    'files/Nutzerkartei_Anmeldung_2022.pdf' and user data.
 
-    As template the 'Nutzerkartei_Anmeldung_2022.pdf' is used.
+    It is assumed that the PDF template contains fields with the following names:
+      - first_name
+      - last_name
+      - zip_city
+      - street
+      - birthday
+      - phone
+      - mobile
+      - email
+
+    Returns a FileResponse with the filled PDF.
     """
-    pdf_buffer = io.BytesIO()
+    # Path to the PDF template
+    template_pdf = os.path.join(settings.BASE_DIR, 'files', 'Nutzerkartei_Anmeldung_2022_n.pdf')
+    if not os.path.isfile(template_pdf):
+        raise FileNotFoundError(f'PDF template not found: {template_pdf}')
 
-    pdf_edits = canvas.Canvas(pdf_buffer)
+    # Forming a list of "field name" — "value" pairs
+    fields = [
+        ('first_name', profile.first_name),
+        ('last_name', profile.last_name),
+        ('zip_city', f'{profile.zipcode} {profile.city}'),
+        ('street', f'{profile.street} {profile.house_number}'),
+        ('birthday', profile.birthday.strftime('%d.%m.%Y') if profile.birthday else ''),
+        ('phone', _f_number(profile.phone_number)),
+        ('mobile', _f_number(profile.mobile_number)),
+        ('email', getattr(user, 'email', '')),
+        ('city_date_member', f'{val(profile.city)} {date.today().strftime(settings.DATE_INPUT_FORMATS)}')
+    ]
 
-    pdf_edits.setFontSize(7.5)
-    COL_1 = 130
-    COL_2 = 370
+    # Create a temporary directory for the FDF file and output PDF
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        # Generate FDF data
+        fdf_data = forge_fdf("", fields, [], [], [])
+        fdf_path = os.path.join(tmpdirname, "data.fdf")
+        with open(fdf_path, "wb") as fdf_file:
+            fdf_file.write(fdf_data)
 
-    ROW_1 = 585
-    ROW_2 = 546
-    ROW_3 = 507
-    ROW_4 = 468
-    ROW_5 = 438
+        # Define the path for the output PDF
+        output_pdf = os.path.join(tmpdirname, "output.pdf")
 
-    # Vorname
-    pdf_edits.drawString(COL_1, ROW_1, profile.first_name)
-    # Name
-    pdf_edits.drawString(COL_2, ROW_1, profile.last_name)
-    # Ort
-    pdf_edits.drawString(COL_1, ROW_2, f'{profile.zipcode} {profile.city}')
-    # Straße
-    pdf_edits.drawString(COL_2, ROW_2,
-                         f' {profile.street} {profile.house_number}',
-                         )
-    # Geburtstag
-    pdf_edits.drawString(COL_1, ROW_3,
-                         profile.birthday.strftime(
-                             settings.DATE_INPUT_FORMATS),
-                         )
-    # Telefon privat
-    pdf_edits.drawString(COL_1, ROW_4, _f_number(profile.phone_number))
-    # dienstlich
-    pdf_edits.drawString(COL_2, ROW_4, _f_number(profile.mobile_number))
-    # e-mail
-    pdf_edits.drawString(COL_1, ROW_5, getattr(user, 'email', ''))
+        # Run pdftk to fill out the form
+        try:
+            subprocess.run(
+                [PDFTK, template_pdf, 'fill_form', fdf_path, 'output', output_pdf, 'flatten'],
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f'Error executing pdftk: {e}')
 
-    pdf_edits.showPage()
-    pdf_edits.save()
+        # Read the completed PDF file
+        with open(output_pdf, "rb") as pdf_file:
+            pdf_result = pdf_file.read()
 
-    pdf_buffer.seek(0)
-
-    edit_pdf = PdfReader(pdf_buffer)
-
-    # required until seek
-    with open('files/Nutzerkartei_Anmeldung_2022.pdf', 'rb') as fileobj:
-        registration_template = PdfReader(fileobj)
-
-        regstr_page = registration_template.pages[0]
-
-        regstr_page.merge_page(edit_pdf.pages[0])
-
-        registration = PdfWriter()
-        registration.add_page(regstr_page)
-        apl_stream = io.BytesIO()
-        registration.write(apl_stream)
-
-        apl_stream.seek(0)
-
-    return FileResponse(apl_stream, filename=_('registration_form.pdf'))
+    # Return the PDF as a FileResponse
+    pdf_stream = io.BytesIO(pdf_result)
+    pdf_stream.seek(0)
+    return FileResponse(pdf_stream, filename=_('registration_form.pdf'))
