@@ -146,8 +146,8 @@ class LicenseAdminForm(forms.ModelForm):
 
     def clean(self):
         """Raise an error if the LR of an unverified user gets confirmed."""
-        if (self.cleaned_data['confirmed'] and
-                not self.cleaned_data['profile'].verified):
+        profile = self.cleaned_data.get('profile')
+        if self.cleaned_data.get('confirmed') and (not profile or not getattr(profile, 'verified', False)):
             raise forms.ValidationError(
                 {'confirmed': _('The corresponding profile is not verified.'
                                 ' The License can not be confirmed until the'
@@ -270,6 +270,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     @admin.action(description=_('Create a copy of selected licenses'))
     def duplicate_license(self, request, queryset):
+        """Create a copy of selected licenses."""
         from .models import License
         for obj in queryset:
             obj.pk = None  # reset id

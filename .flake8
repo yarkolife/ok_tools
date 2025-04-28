@@ -1,5 +1,11 @@
 [flake8]
+max-line-length = 120
 per-file-ignores =
 # E501 line too long
     ./ok_tools/settings.py:E501
     **/migrations/*.py:E501
+    # Игнорировать длину строк в указанных файлах
+    ok_tools/urls.py:E501
+    planung/admin.py:E501
+    planung/urls.py:E501
+    planung/views.py:E501

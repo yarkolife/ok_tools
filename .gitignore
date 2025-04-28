@@ -38,3 +38,21 @@ response.html
 *.xlsx
 !ok_tools/test_data/*.xlsx
 notes
+
+# Игнорировать системные файлы macOS
+.DS_Store
+
+# Игнорировать виртуальное окружение
+.venv
+venv
+
+# Игнорировать pycache
+__pycache__/
+
+# Игнорировать файлы миграций (если надо)
+*.pyc
+*.pyo
+
+# Docker
+*.log
+*.pid

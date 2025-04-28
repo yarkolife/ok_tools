@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-21 20:09+0200\n"
+"POT-Creation-Date: 2025-04-29 00:19+0200\n"
 "PO-Revision-Date: 2025-01-15 02:03+0100\n"
 "Last-Translator: Daniel Havlik <dh@gocept.com>\n"
 "Language-Team: \n"
@@ -34,7 +34,8 @@ msgstr "Endzeit"
 #: contributions/admin.py:107 contributions/admin.py:192
 #: contributions/admin.py:366
 #: contributions/templates/contributions/list.html:12 licenses/admin.py:33
-#: licenses/models.py:73 projects/admin.py:65
+#: licenses/models.py:73
+#: planung/templates/admin/planung/calendar_weeks.html:104 projects/admin.py:65
 msgid "Title"
 msgstr "Titel"
 
@@ -166,6 +167,7 @@ msgid "User"
 msgstr "Nutzer"
 
 #: contributions/admin.py:382 licenses/admin.py:32 licenses/models.py:157
+#: planung/templates/admin/planung/calendar_weeks.html:103
 msgid "Number"
 msgstr "Nummer"
 
@@ -206,7 +208,7 @@ msgstr ""
 #: contributions/disa_import.py:142
 #, python-format
 msgid "No license with number %(n)s found."
-msgstr "Keine Lizenz mit der Nummer %(n)s gefunden."
+msgstr "Keine Freistellung mit der Nummer %(n)s gefunden."
 
 #: contributions/disa_import.py:167
 #, python-format
@@ -276,6 +278,7 @@ msgid "Your contributions"
 msgstr "Ihre Beiträge"
 
 #: contributions/templates/contributions/list.html:13
+#: planung/templates/admin/planung/calendar_weeks.html:102
 msgid "Start"
 msgstr "Start"
 
@@ -349,11 +352,11 @@ msgstr "Ausgewählte Freistellungen zurückziehen"
 
 #: licenses/admin.py:271
 msgid "Create a copy of selected licenses"
-msgstr "Kopie der ausgewählten Lizenzen erstellen"
+msgstr "Kopie der ausgewählten Freistellungen erstellen"
 
 #: licenses/admin.py:281
 msgid "License copies created successfully."
-msgstr "Lizenzen wurden erfolgreich kopiert."
+msgstr "Freistellungen wurden erfolgreich kopiert."
 
 #: licenses/admin.py:298
 #, python-format
@@ -361,8 +364,8 @@ msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
 "confirmed until the profile is verified."
 msgstr ""
-"Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Lizenz kann nicht "
-"bestätigt werden, bis das Profil verifiziert ist."
+"Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Freistellung kann "
+"nicht bestätigt werden, bis das Profil verifiziert ist."
 
 #: licenses/apps.py:10 licenses/models.py:255
 #: registration/templates/navbar.html:68 ok_tools/templates/dashboard.html:33
@@ -386,6 +389,7 @@ msgid "The duration field is required."
 msgstr "Es muss eine Dauer angegeben werden."
 
 #: licenses/forms.py:110
+#: planung/templates/admin/planung/calendar_weeks.html:123
 msgid "Save"
 msgstr "Speichern"
 
@@ -501,6 +505,7 @@ msgid "Your licenses"
 msgstr "Ihre Freistellungen"
 
 #: licenses/templates/licenses/list.html:14
+#: planung/templates/admin/planung/calendar_weeks.html:106
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -576,6 +581,181 @@ msgid ""
 msgstr ""
 "Die Freistellung %(license)s ist bereits genehmigt und somit nicht mehr "
 "veränderbar."
+
+#: planung/admin.py:116
+msgid "Mon"
+msgstr "MO"
+
+#: planung/admin.py:117
+msgid "Tue"
+msgstr "DI"
+
+#: planung/admin.py:118
+msgid "Wed"
+msgstr "MI"
+
+#: planung/admin.py:119
+msgid "Thu"
+msgstr "DO"
+
+#: planung/admin.py:120
+msgid "Fri"
+msgstr "FR"
+
+#: planung/admin.py:121
+msgid "Sat"
+msgstr "SA"
+
+#: planung/admin.py:122
+msgid "Sun"
+msgstr "SO"
+
+#: planung/admin.py:126
+msgid "Calendar Weeks – Broadcast Planning"
+msgstr "Kalenderwochen - Sendeplanung"
+
+#: planung/admin.py:141
+msgid "Draft?"
+msgstr "Entwurf?"
+
+#: planung/admin.py:150
+msgid "Planned items"
+msgstr "Geplante Beiträge"
+
+#: planung/admin.py:159
+#, fuzzy
+#| msgid "comment"
+msgid "Comment"
+msgstr "Kommentar"
+
+#: planung/admin.py:186
+#, fuzzy
+#| msgid "Min"
+msgid "min"
+msgstr "Min"
+
+#: planung/admin.py:200
+msgid "Planned items (preview)"
+msgstr "Geplante Beiträge (Vorschau)"
+
+#: planung/models.py:27 planung/models.py:28
+msgid "Calendar weeks"
+msgstr "Kalenderwochen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:61
+msgid "KW"
+msgstr "KW"
+
+#: planung/templates/admin/planung/calendar_weeks.html:84
+#: planung/templates/admin/planung/calendar_weeks.html:122
+msgid "Close"
+msgstr "Schließen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:91
+#, fuzzy
+#| msgid "Broadcast week"
+msgid "Broadcast block"
+msgstr "Sendewoche"
+
+#: planung/templates/admin/planung/calendar_weeks.html:91
+msgid "105 Min"
+msgstr "105 Min"
+
+#: planung/templates/admin/planung/calendar_weeks.html:92
+#: planung/templates/admin/planung/calendar_weeks.html:142
+#, fuzzy
+#| msgid "Full name"
+msgid "Full available"
+msgstr "Vollständiger Name"
+
+#: planung/templates/admin/planung/calendar_weeks.html:95
+#, fuzzy
+#| msgid "License number"
+msgid "Enter license number..."
+msgstr "Freistellungsnummer"
+
+#: planung/templates/admin/planung/calendar_weeks.html:96
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:105
+#, fuzzy
+#| msgid "Duration"
+msgid "Duration (Min)"
+msgstr "Dauer"
+
+#: planung/templates/admin/planung/calendar_weeks.html:115
+msgid "Comment or notes:"
+msgstr "Kommentar oder Notizen:"
+
+#: planung/templates/admin/planung/calendar_weeks.html:121
+msgid "Delete"
+msgstr "Löschen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:124
+msgid "Plan!"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:143
+#, python-format
+msgid "Still %%(minutes)s min free"
+msgstr "Noch %%(minutes)s Min frei"
+
+#: planung/templates/admin/planung/calendar_weeks.html:144
+#, python-format
+msgid "Overplanned by %%(minutes)s min!"
+msgstr "Überplanen um %%(minutes)s Min!"
+
+#: planung/templates/admin/planung/calendar_weeks.html:145
+#, fuzzy
+#| msgid "License not found."
+msgid "License not found or not confirmed"
+msgstr "Freistellung nicht gefunden."
+
+#: planung/templates/admin/planung/calendar_weeks.html:255
+#: planung/templates/admin/planung/calendar_weeks.html:338
+msgid "⚠️ Date is missing."
+msgstr "⚠️ Datum fehlt."
+
+#: planung/templates/admin/planung/calendar_weeks.html:288
+#, fuzzy
+#| msgid "License copies created successfully."
+msgid "Draft saved successfully."
+msgstr "Freistellung wurden erfolgreich kopiert."
+
+#: planung/templates/admin/planung/calendar_weeks.html:292
+msgid "Error saving the draft."
+msgstr "Fehler beim Speichern des Entwurfs."
+
+#: planung/templates/admin/planung/calendar_weeks.html:309
+#, fuzzy
+#| msgid "License copies created successfully."
+msgid "Plan saved successfully!"
+msgstr "Freistellung wurden erfolgreich kopiert."
+
+#: planung/templates/admin/planung/calendar_weeks.html:314
+msgid "Error saving the plan. Please try again."
+msgstr "Fehler beim Speichern des Plans. Bitte versuchen Sie es erneut."
+
+#: planung/templates/admin/planung/calendar_weeks.html:341
+msgid "Delete plan for this day?"
+msgstr "Plan für diesen Tag löschen?"
+
+#: planung/templates/admin/planung/calendar_weeks.html:350
+msgid "Plan deleted!"
+msgstr "Plan gelöscht!"
+
+#: planung/templates/admin/planung/calendar_weeks.html:355
+#, fuzzy
+#| msgid "Error executing pdftk:"
+msgid "Error deleting the plan."
+msgstr "Fehler beim Ausführen von pdftk:"
+
+#: planung/views.py:23
+#, fuzzy
+#| msgid "License not found."
+msgid "License not found or not confirmed."
+msgstr "Freistellung nicht gefunden."
 
 #: projects/admin.py:66 projects/models.py:136
 msgid "Topic"
@@ -985,7 +1165,7 @@ msgstr "Das Profil wurde unter Vorlage eines Personalausweises verifiziert."
 msgid "Profiles"
 msgstr "Profile"
 
-#: registration/print Kopie.py:79 registration/print.py:89
+#: registration/print.py:91
 msgid "registration_form.pdf"
 msgstr "Nutzer_innenantrag.pdf"
 
@@ -1275,7 +1455,7 @@ msgstr "Bearbeiten Sie Ihr Profile und zugehörige Daten."
 
 #: ok_tools/templates/dashboard.html:34
 msgid "Edit your Licenses."
-msgstr "Bearbeiten Sie ihre Lizenzen."
+msgstr "Bearbeiten Sie ihre Freistellungen."
 
 #: ok_tools/templates/dashboard.html:47
 msgid "Look at your Contributions."
@@ -1330,9 +1510,6 @@ msgstr "Sie sind nicht angemeldet."
 
 #~ msgid "PDF template not found:"
 #~ msgstr "PDF-Vorlage nicht gefunden:"
-
-#~ msgid "Error executing pdftk:"
-#~ msgstr "Fehler beim Ausführen von pdftk:"
 
 #~ msgid "I accept"
 #~ msgstr "Ich stimme zu"
