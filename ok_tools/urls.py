@@ -49,4 +49,5 @@ urlpatterns = [
         "api/",
         include("planung.urls"),
     ),
+    path('inventory/', include('inventory.urls', namespace='inventory')),
 ]
