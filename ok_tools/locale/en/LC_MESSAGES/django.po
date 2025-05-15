@@ -3,33 +3,33 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-07 00:16+0200\n"
-"PO-Revision-Date: 2025-01-15 02:03+0100\n"
-"Last-Translator: Daniel Havlik <dh@gocept.com>\n"
-"Language-Team: \n"
-"Language: de\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2.2\n"
 
 #: contributions/admin.py:104 contributions/admin.py:194
 #: contributions/models.py:71
 msgid "Broadcast Date"
-msgstr "Sendedatum"
+msgstr ""
 
 #: contributions/admin.py:105
 msgid "Start Time"
-msgstr "Startzeit"
+msgstr ""
 
 #: contributions/admin.py:106
 msgid "End Time"
-msgstr "Endzeit"
+msgstr ""
 
 #: contributions/admin.py:107 contributions/admin.py:192
 #: contributions/admin.py:366
@@ -37,180 +37,178 @@ msgstr "Endzeit"
 #: licenses/models.py:73
 #: planung/templates/admin/planung/calendar_weeks.html:104 projects/admin.py:65
 msgid "Title"
-msgstr "Titel"
+msgstr ""
 
 #: contributions/admin.py:108 contributions/admin.py:193
 #: contributions/admin.py:371 licenses/admin.py:34 licenses/models.py:80
 msgid "Subtitle"
-msgstr "Untertitel"
+msgstr ""
 
 #: contributions/admin.py:109 inventory/admin.py:17 inventory/models.py:19
 #: inventory/models.py:32 inventory/models.py:71 licenses/admin.py:35
 #: licenses/models.py:87 projects/admin.py:67 projects/models.py:143
 msgid "Description"
-msgstr "Beschreibung"
+msgstr ""
 
 #: contributions/admin.py:110
 msgid "Credits"
-msgstr "Beteiligt"
+msgstr ""
 
 #: contributions/admin.py:112
 #: contributions/templates/contributions/list.html:15 licenses/admin.py:40
 #: licenses/admin.py:242 licenses/models.py:46 licenses/models.py:60
 #: licenses/models.py:176 licenses/templates/licenses/details.html:16
 msgid "Category"
-msgstr "Kategorie"
+msgstr ""
 
 #: contributions/admin.py:113 licenses/admin.py:51 licenses/models.py:145
 msgid "Store in OK media library"
-msgstr "In OK-Mediathek speichern"
+msgstr ""
 
 #: contributions/admin.py:163
 msgid "Program"
-msgstr "Program"
+msgstr ""
 
 #: contributions/admin.py:191
 msgid "License number"
-msgstr "Freistellungsnummer"
+msgstr ""
 
 #: contributions/admin.py:195
 msgid "Broadcast Time"
-msgstr "Sendezeit"
+msgstr ""
 
 #: contributions/admin.py:196 contributions/admin.py:351 licenses/admin.py:36
 #: licenses/admin.py:236 licenses/models.py:167 registration/models.py:208
 #: registration/templates/navbar.html:37 ok_tools/templates/dashboard.html:12
 msgid "Profile"
-msgstr "Profil"
+msgstr ""
 
 #: contributions/admin.py:197 licenses/admin.py:37
 msgid "Profile ID"
-msgstr "Profil-ID"
+msgstr ""
 
 #: contributions/admin.py:198
 #: contributions/templates/contributions/list.html:14 licenses/admin.py:39
 #: licenses/models.py:98 planung/admin.py:194 projects/admin.py:69
 #: projects/models.py:155
 msgid "Duration"
-msgstr "Dauer"
+msgstr ""
 
 #: contributions/admin.py:199
 #: contributions/templates/contributions/list.html:34
 msgid "Live"
-msgstr "Live"
+msgstr ""
 
 #: contributions/admin.py:218
 msgid "Data export"
-msgstr "Datenexport"
+msgstr ""
 
 #: contributions/admin.py:226
 msgid "Broadcast week"
-msgstr "Sendewoche"
+msgstr ""
 
 #: contributions/admin.py:232
 msgid "In this week"
-msgstr "In diser Woche"
+msgstr ""
 
 #: contributions/admin.py:233
 msgid "Until next week"
-msgstr "Bis einschließlich nächste Woche"
+msgstr ""
 
 #: contributions/admin.py:234
 msgid "Until week after next"
-msgstr "Bis einschließlich übernächste Woche"
+msgstr ""
 
 #: contributions/admin.py:269
 msgid "Primary Contribution"
-msgstr "Primärbeitrag"
+msgstr ""
 
 #: contributions/admin.py:275 inventory/models.py:375 inventory/models.py:376
 #: licenses/admin.py:121 licenses/templates/licenses/details.html:27
 #: licenses/templates/licenses/list.html:26
 msgid "Yes"
-msgstr "Ja"
+msgstr ""
 
 #: contributions/admin.py:276 inventory/models.py:375 inventory/models.py:376
 #: licenses/admin.py:122 licenses/templates/licenses/details.html:30
 #: licenses/templates/licenses/list.html:29
 msgid "No"
-msgstr "Nein"
+msgstr ""
 
 #: contributions/admin.py:300
 msgid "Broadcast year"
-msgstr "Sendejahr"
+msgstr ""
 
 #: contributions/admin.py:306 licenses/admin.py:91 projects/admin.py:113
 #: registration/admin.py:159
 msgid "This year"
-msgstr "Dieses Jahr"
+msgstr ""
 
 #: contributions/admin.py:307 licenses/admin.py:92 projects/admin.py:114
 #: registration/admin.py:160
 msgid "Last year"
-msgstr "Letztes Jahr"
+msgstr ""
 
 #: contributions/admin.py:348
 msgid "Title, Subtitle, Number"
-msgstr "Titel, Untertitel, Nummer"
+msgstr ""
 
 #: contributions/admin.py:357 licenses/admin.py:241 registration/admin.py:90
 #: registration/models.py:79 registration/models.py:91
 #: registration/models.py:185
 msgid "Media Authority"
-msgstr "Bürgermedium"
+msgstr ""
 
 #: contributions/admin.py:362
 msgid "Is primary"
-msgstr "Primärbeitrag"
+msgstr ""
 
 #: contributions/admin.py:376 inventory/models.py:327 registration/models.py:66
 #: registration/models.py:132
 msgid "User"
-msgstr "Nutzer"
+msgstr ""
 
 #: contributions/admin.py:382 licenses/admin.py:32 licenses/models.py:157
 #: planung/templates/admin/planung/calendar_weeks.html:103
 msgid "Number"
-msgstr "Nummer"
+msgstr ""
 
 #: contributions/admin.py:404
 msgid "Import selected DISA exports."
-msgstr "Ausgewählten DISA-Export importieren."
+msgstr ""
 
 #: contributions/admin.py:426
 #, python-format
 msgid "\"%(obj)s\" successfully imported."
-msgstr "\"%(obj)s\" erfolgreich importiert."
+msgstr ""
 
 #: contributions/apps.py:10 contributions/models.py:98
 #: registration/templates/navbar.html:81 ok_tools/templates/dashboard.html:46
 #: ok_tools/templates/dashboard.html:49
 msgid "Contributions"
-msgstr "Beiträge"
+msgstr ""
 
 #: contributions/disa_import.py:56
 #, python-format
 msgid "The worksheet needs to be named \"%(name)s\"."
-msgstr "Die Tabelle muss \"%(name)s\" heißen."
+msgstr ""
 
 #: contributions/disa_import.py:64 contributions/disa_import.py:71
 #: contributions/disa_import.py:78 contributions/disa_import.py:85
 #: contributions/disa_import.py:92
 #, python-format
 msgid "Column %(nr)s needs to be named %(name)s"
-msgstr "Spalte %(nr)s muss \"%(name)s\" heißen"
+msgstr ""
 
 #: contributions/disa_import.py:102
 #, python-format
 msgid "Invalid title in cell %(c)s%(r)s. Title needs the format <nr>_<title>."
 msgstr ""
-"Ungültiger Titel in Zelle %(c)s%(r)s. Der Titel muss das Format <Nr>_<Titel> "
-"haben."
 
 #: contributions/disa_import.py:142
 #, python-format
 msgid "No license with number %(n)s found."
-msgstr "Keine Freistellung mit der Nummer %(n)s gefunden."
+msgstr ""
 
 #: contributions/disa_import.py:167
 #, python-format
@@ -218,537 +216,497 @@ msgid ""
 "No repetitions for number %(n)s allowed and already found a primary "
 "contribution."
 msgstr ""
-"Für die Freistellung mit Nummer %(n)s sind keine Wiederholungen erlaubt. Ein "
-"Primärbeitrag existiert bereits."
 
 #: contributions/disa_import.py:185
 #, python-format
 msgid "Successfully created %d contributions."
-msgstr "Erfolgreich %d Beiträge erstellt."
+msgstr ""
 
 #: contributions/models.py:65 licenses/models.py:254
 #: licenses/templates/licenses/list.html:12 planung/admin.py:193
 msgid "License"
-msgstr "Freistellung"
+msgstr ""
 
 #: contributions/models.py:77
 msgid "Is live"
-msgstr "Live"
+msgstr ""
 
 #: contributions/models.py:97
 msgid "Contribution"
-msgstr "Beitrag"
+msgstr ""
 
 #: contributions/models.py:115
 msgid "DISA export file"
-msgstr "DISA-Export-Datei"
+msgstr ""
 
 #: contributions/models.py:125 inventory/models.py:213
 msgid "Imported"
-msgstr "Importiert"
+msgstr ""
 
 #: contributions/models.py:129 inventory/models.py:215
 msgid "Just marking the file as imported does not import the file!"
-msgstr "Als importiert markierte dateien werden nicht automatisch importiert!"
+msgstr ""
 
 #: contributions/models.py:145
 msgid "DISA-Import"
-msgstr "DISA-Import"
+msgstr ""
 
 #: contributions/models.py:146
 msgid "DISA-Imports"
-msgstr "DISA-Importe"
+msgstr ""
 
 #: contributions/templates/admin/disa_import_change_form.html:8
 #: inventory/templates/admin/inventory_import_change_form.html:7
 msgid "Import"
-msgstr "Import"
+msgstr ""
 
 #: contributions/templates/admin/export.html:7
 #: inventory/templates/admin/export.html:7
 #: inventory/templates/admin/inventory_item_change_list.html:7
 msgid "Export"
-msgstr "Export"
+msgstr ""
 
 #: contributions/templates/admin/export.html:29
 msgid "The data export will only export primary contributions."
-msgstr "Beim Datenexport werden ausschließlich Primärbeiträge exportiert."
+msgstr ""
 
 #: contributions/templates/admin/export.html:32
 #: inventory/templates/admin/export.html:27
 msgid "Submit"
-msgstr "Bestätigen"
+msgstr ""
 
 #: contributions/templates/contributions/list.html:7
 msgid "Your contributions"
-msgstr "Ihre Beiträge"
+msgstr ""
 
 #: contributions/templates/contributions/list.html:13 planung/admin.py:192
 #: planung/templates/admin/planung/calendar_weeks.html:102
 msgid "Start"
-msgstr "Start"
+msgstr ""
 
 #: contributions/templates/contributions/list.html:39
 msgid "No contributions yet."
-msgstr "Es sind keine Beiträge vorhanden."
+msgstr ""
 
 #: inventory/admin.py:16 inventory/admin.py:142 inventory/models.py:59
 msgid "Inventory Number"
-msgstr "Inventarnummer"
+msgstr ""
 
 #: inventory/admin.py:18 inventory/models.py:77
-#, fuzzy
-#| msgid "Number"
 msgid "Serial Number"
-msgstr "Seriennummer"
+msgstr ""
 
 #: inventory/admin.py:19 inventory/admin.py:63 inventory/models.py:22
 #: inventory/models.py:83
 msgid "Manufacturer"
-msgstr "Hersteller"
+msgstr ""
 
 #: inventory/admin.py:20 inventory/models.py:87 inventory/models.py:368
-#, fuzzy
-#| msgid "Actions"
 msgid "Location"
-msgstr "Standort"
+msgstr ""
 
 #: inventory/admin.py:21 inventory/models.py:90 inventory/models.py:366
 msgid "Quantity"
-msgstr "Menge"
+msgstr ""
 
 #: inventory/admin.py:22 inventory/admin.py:177 inventory/models.py:96
 #: inventory/models.py:367
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #: inventory/admin.py:23 inventory/models.py:100 inventory/models.py:170
 #: inventory/models.py:369
 msgid "Object Type"
-msgstr "Objekttyp"
+msgstr ""
 
 #: inventory/admin.py:24 inventory/admin.py:64 inventory/models.py:106
 #: inventory/models.py:364
 msgid "Owner"
-msgstr "Eigentümer"
+msgstr ""
 
 #: inventory/admin.py:28 inventory/models.py:111
-#, fuzzy
-#| msgid "Broadcast Date"
 msgid "Purchase Date"
-msgstr "Kaufdatum"
+msgstr ""
 
 #: inventory/admin.py:33 inventory/models.py:124
 msgid "E-Inspection"
-msgstr "E-Prüfung"
+msgstr ""
 
 #: inventory/admin.py:107 inventory/models.py:306
 msgid "Model Name"
-msgstr "Modellbezeichnung"
+msgstr ""
 
 #: inventory/admin.py:108 inventory/models.py:310
 msgid "Object ID"
-msgstr "Objekt-ID"
+msgstr ""
 
 #: inventory/admin.py:109 inventory/models.py:315
-#, fuzzy
-#| msgid "Actions"
 msgid "Action"
-msgstr "Aktion"
+msgstr ""
 
 #: inventory/admin.py:110 inventory/admin.py:148 inventory/models.py:320
-#, fuzzy
-#| msgid "Change password"
 msgid "Changes"
-msgstr "Änderungen"
+msgstr ""
 
 #: inventory/admin.py:111 inventory/models.py:331
 msgid "Timestamp"
-msgstr "Zeitstempel"
+msgstr ""
 
 #: inventory/admin.py:182
 msgid "-"
-msgstr "-"
+msgstr ""
 
 #: inventory/admin.py:190
 msgid "Download Error Log File"
-msgstr "Fehlerprotokolldatei herunterladen"
+msgstr ""
 
 #: inventory/admin.py:198 inventory/models.py:231
 msgid "Error Log"
-msgstr "Fehlerprotokoll"
+msgstr ""
 
 #: inventory/admin.py:200
-#, fuzzy
-#| msgid "Import selected DISA exports."
 msgid "Import selected inventory files"
-msgstr "Ausgewählte Inventardateien importieren."
+msgstr ""
 
 #: inventory/apps.py:9 inventory/inventory_import.py:18
 msgid "Inventory"
-msgstr "Inventar"
+msgstr ""
 
 #: inventory/inventory_import.py:19
 msgid "Test"
-msgstr "Test"
+msgstr ""
 
 #: inventory/inventory_import.py:19
 msgid "Sample"
-msgstr "Test"
+msgstr ""
 
 #: inventory/inventory_import.py:32
 #, python-format
 msgid "%(model)s \"%(value)s\" created automatically."
-msgstr "%(model)s \"%(value)s\" automatisch erstellt."
+msgstr ""
 
 #: inventory/inventory_import.py:35 inventory/inventory_import.py:36
 #, python-format
 msgid "%(model)s name is missing in row %(row)s. Skipping..."
-msgstr "Name für %(model)s fehlt in Zeile %(row)s. Wird übersprungen..."
+msgstr ""
 
 #: inventory/inventory_import.py:68
 #, python-format
 msgid "Column %(col)s should be named \"%(expected)s\", but got \"%(actual)s\""
-msgstr "Spalte %(col)s sollte \"%(expected)s\" heißen, ist aber \"%(actual)s\""
+msgstr ""
 
 #: inventory/inventory_import.py:108
 msgid "Unknown Location"
-msgstr "Unbekannter Standort"
+msgstr ""
 
 #: inventory/inventory_import.py:112 inventory/inventory_import.py:113
 #, python-format
 msgid "Location is missing in row %(row)s. Skipping..."
-msgstr "Standort fehlt in Zeile %(row)s. Wird übersprungen..."
+msgstr ""
 
 #: inventory/inventory_import.py:125
 msgid "in Betrieb"
-msgstr "in Betrieb"
+msgstr ""
 
 #: inventory/inventory_import.py:126
 msgid "defekt"
-msgstr "defekt"
+msgstr ""
 
 #: inventory/inventory_import.py:127
 msgid "ausgemustert"
-msgstr "ausgemustert"
+msgstr ""
 
 #: inventory/inventory_import.py:128
 msgid "verliehen"
-msgstr "verliehen"
+msgstr ""
 
 #: inventory/inventory_import.py:129
 msgid "Ausleihe"
-msgstr "Ausleihe"
+msgstr ""
 
 #: inventory/inventory_import.py:182 inventory/inventory_import.py:183
 #, python-format
 msgid "Inventory item with number \"%(number)s\" already exists. Skipping..."
 msgstr ""
-"Inventargegenstand mit Nummer \"%(number)s\" existiert bereits. Wird "
-"übersprungen..."
 
 #: inventory/inventory_import.py:207 inventory/inventory_import.py:239
 #, python-format
 msgid "Row %(row)s: %(error)s"
-msgstr "Zeile %(row)s: %(error)s"
+msgstr ""
 
 #: inventory/inventory_import.py:218
-#, fuzzy
-#| msgid "Import"
 msgid "Import Errors"
-msgstr "Importfehler"
+msgstr ""
 
 #: inventory/inventory_import.py:221
 msgid "Row"
-msgstr "Zeile"
+msgstr ""
 
 #: inventory/inventory_import.py:221
 msgid "Error"
-msgstr "Fehler"
+msgstr ""
 
 #: inventory/inventory_import.py:232
 #, python-format
 msgid "import_errors_%(timestamp)s.xlsx"
-msgstr "import_fehler_%(timestamp)s.xlsx"
+msgstr ""
 
 #: inventory/inventory_import.py:247
 msgid "No errors"
-msgstr "Keine Fehler"
+msgstr ""
 
 #: inventory/models.py:18 inventory/models.py:31
 msgid "Name"
-msgstr "Name"
+msgstr ""
 
 #: inventory/models.py:23
 msgid "Manufacturers"
-msgstr "Hersteller"
+msgstr ""
 
 #: inventory/models.py:35
-#, fuzzy
-#| msgid "Duration"
 msgid "Organization"
-msgstr "Organisation"
+msgstr ""
 
 #: inventory/models.py:36
 msgid "Organizations"
-msgstr "Organisationen"
+msgstr ""
 
 #: inventory/models.py:50
 msgid "In stock"
-msgstr "Auf Lager"
+msgstr ""
 
 #: inventory/models.py:51
 msgid "Rented"
-msgstr "Verliehen"
+msgstr ""
 
 #: inventory/models.py:52
 msgid "Written off"
-msgstr "Ausgemustert"
+msgstr ""
 
 #: inventory/models.py:53
 msgid "Defect"
-msgstr "Defekt"
+msgstr ""
 
 #: inventory/models.py:65
 msgid "Inventory Number Owner"
-msgstr "Inventarnummer-Eigentümer"
+msgstr ""
 
 #: inventory/models.py:66
 msgid "Enter the inventory number of the owner of the item."
-msgstr "Geben Sie die Inventarnummer des Eigentümers des Artikels ein."
+msgstr ""
 
 #: inventory/models.py:118
 msgid "Purchase Cost"
-msgstr "Anschaffungskosten"
+msgstr ""
 
 #: inventory/models.py:125
 msgid "Enter the number in the format XXXXXX"
-msgstr "Geben Sie die Nummer im Format XXXXXX ein."
+msgstr ""
 
 #: inventory/models.py:129
 msgid "Date Added"
-msgstr "Hinzugefügt am"
+msgstr ""
 
 #: inventory/models.py:133 inventory/models.py:365
 msgid "Available for Rental"
-msgstr "Zur Ausleihe verfügbar"
+msgstr ""
 
 #: inventory/models.py:134
 msgid "Check if this item is available for rental."
-msgstr "Prüfen, ob dieser Artikel zur Vermietung verfügbar ist."
+msgstr ""
 
 #: inventory/models.py:138
 msgid "Reserved Quantity"
-msgstr "Reservierte Menge"
+msgstr ""
 
 #: inventory/models.py:142
 msgid "Rented Quantity"
-msgstr "Verliehene Menge"
+msgstr ""
 
 #: inventory/models.py:155
 msgid "Inventory Item"
-msgstr "Inventargegenstand"
+msgstr ""
 
 #: inventory/models.py:156
 msgid "Inventory Items"
-msgstr "Inventargegenstände"
+msgstr ""
 
 #: inventory/models.py:175
-#, fuzzy
-#| msgid "Not Selected"
 msgid "Not specified"
-msgstr "Nicht angegeben"
+msgstr ""
 
 #: inventory/models.py:181
 msgid "Pending"
-msgstr "Ausstehend"
+msgstr ""
 
 #: inventory/models.py:182
 msgid "In Progress"
-msgstr "In Bearbeitung"
+msgstr ""
 
 #: inventory/models.py:183
 msgid "Completed"
-msgstr "Abgeschlossen"
+msgstr ""
 
 #: inventory/models.py:184
 msgid "Completed with Errors"
-msgstr "Mit Fehlern abgeschlossen"
+msgstr ""
 
 #: inventory/models.py:185
 msgid "Failed"
-msgstr "Fehlgeschlagen"
+msgstr ""
 
 #: inventory/models.py:196
-#, fuzzy
-#| msgid "DISA export file"
 msgid "Inventory file"
-msgstr "Inventardatei"
+msgstr ""
 
 #: inventory/models.py:209
-#, fuzzy
-#| msgid "Export dates"
 msgid "Import Status"
-msgstr "Importstatus"
+msgstr ""
 
 #: inventory/models.py:220
-#, fuzzy
-#| msgid "Created at"
 msgid "Items Created"
-msgstr "Erstellte Artikel"
+msgstr ""
 
 #: inventory/models.py:225
 msgid "Items Skipped"
-msgstr "Übersprungene Artikel"
+msgstr ""
 
 #: inventory/models.py:236
-#, fuzzy
-#| msgid "Imported"
 msgid "Import Date"
-msgstr "Importdatum"
+msgstr ""
 
 #: inventory/models.py:242
-#, fuzzy
-#| msgid "Created at"
 msgid "Completed Date"
-msgstr "Abschlussdatum"
+msgstr ""
 
 #: inventory/models.py:249
 msgid "Error Log File"
-msgstr "Fehlerprotokolldatei"
+msgstr ""
 
 #: inventory/models.py:253
 msgid "Inventory Import"
-msgstr "Inventarimport"
+msgstr ""
 
 #: inventory/models.py:254
 msgid "Inventory Imports"
-msgstr "Inventarimporte"
+msgstr ""
 
 #: inventory/models.py:263
 msgid "No file provided."
-msgstr "Keine Datei bereitgestellt."
+msgstr ""
 
 #: inventory/models.py:299
-#, fuzzy
-#| msgid "Created at"
 msgid "Created"
-msgstr "Erstellt"
+msgstr ""
 
 #: inventory/models.py:300
 msgid "Updated"
-msgstr "Aktualisiert"
+msgstr ""
 
 #: inventory/models.py:301
-#, fuzzy
-#| msgid "Delete"
 msgid "Deleted"
-msgstr "Gelöscht"
+msgstr ""
 
 #: inventory/models.py:335
 msgid "Audit Log"
-msgstr "Prüfprotokoll"
+msgstr ""
 
 #: inventory/models.py:336
 msgid "Audit Logs"
-msgstr "Prüfprotokolle"
+msgstr ""
 
 #: inventory/models.py:341
 #, python-format
 msgid "%(number)s %(action)s by %(user)s at %(timestamp)s"
-msgstr "%(number)s %(action)s von %(user)s um %(timestamp)s"
+msgstr ""
 
 #: inventory/models.py:355
 #, python-format
 msgid "Deleted item (ID: %(id)s)"
-msgstr "Gelöschter Artikel (ID: %(id)s)"
+msgstr ""
 
 #: inventory/models.py:361
 msgid "No changes recorded."
-msgstr "Keine Änderungen erfasst."
+msgstr ""
 
 #: inventory/models.py:380
 #, python-format
 msgid "%(field)s: %(old)s → %(new)s"
-msgstr "%(field)s: %(old)s → %(new)s"
+msgstr ""
 
 #: inventory/templates/admin/export.html:25
-#, fuzzy
-#| msgid "The data export will only export primary contributions."
 msgid "The data export will include all inventory items."
-msgstr "Der Datenexport umfasst alle Inventargegenstände."
+msgstr ""
 
 #: licenses/admin.py:38 licenses/models.py:93
 msgid "Further involved persons"
-msgstr "Weitere Personen"
+msgstr ""
 
 #: licenses/admin.py:41 licenses/models.py:106
 msgid "Suggested broadcast date"
-msgstr "Gewünschtes Sendedatum"
+msgstr ""
 
 #: licenses/admin.py:42
 msgid "Suggested broadcast time"
-msgstr "Gewünschte Sendezeit"
+msgstr ""
 
 #: licenses/admin.py:43 licenses/models.py:112
 msgid "Repetitions allowed"
-msgstr "Wiederholungen erlauben"
+msgstr ""
 
 #: licenses/admin.py:46
 msgid "Media Authority exchange allowed"
-msgstr "Austausch zwischen Bürgermedien erlauben"
+msgstr ""
 
 #: licenses/admin.py:49 licenses/models.py:130
 msgid "Youth protection necessary"
-msgstr "Jugendschutz notwendig"
+msgstr ""
 
 #: licenses/admin.py:52 licenses/models.py:187
 msgid "Screen Board"
-msgstr "Bildschirmtafel"
+msgstr ""
 
 #: licenses/admin.py:53 registration/admin.py:88 registration/models.py:177
 msgid "created at"
-msgstr "erstellt am"
+msgstr ""
 
 #: licenses/admin.py:84
 msgid "Creation year"
-msgstr "Erstellungsjahr"
+msgstr ""
 
 #: licenses/admin.py:115
 msgid "without contributions"
-msgstr "ohne Beiträge"
+msgstr ""
 
 #: licenses/admin.py:152
 msgid ""
 "The corresponding profile is not verified. The License can not be confirmed "
 "until the profile is verified."
 msgstr ""
-"Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann nicht "
-"bestätigt werden, bis das Profil verifiziert ist."
 
 #: licenses/admin.py:231
 msgid "title, subtitle, number, description, further persons"
-msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
+msgstr ""
 
 #: licenses/admin.py:249 licenses/models.py:151
 msgid "Created at"
-msgstr "Erstellt am"
+msgstr ""
 
 #: licenses/admin.py:251
 msgid "Confirm selected Licenses"
-msgstr "Ausgewählte Freistellungen genehmigen"
+msgstr ""
 
 #: licenses/admin.py:261
 msgid "Unconfirm selected Licenses"
-msgstr "Ausgewählte Freistellungen zurückziehen"
+msgstr ""
 
 #: licenses/admin.py:271
 msgid "Create a copy of selected licenses"
-msgstr "Kopie der ausgewählten Freistellungen erstellen"
+msgstr ""
 
 #: licenses/admin.py:282
 msgid "License copies created successfully."
-msgstr "Freistellungen wurden erfolgreich kopiert."
+msgstr ""
 
 #: licenses/admin.py:299
 #, python-format
@@ -756,115 +714,111 @@ msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
 "confirmed until the profile is verified."
 msgstr ""
-"Das zugehörige Profil %(obj)s ist nicht verifiziert. Die Freistellung kann "
-"nicht bestätigt werden, bis das Profil verifiziert ist."
 
 #: licenses/apps.py:10 licenses/models.py:255
 #: registration/templates/navbar.html:68 ok_tools/templates/dashboard.html:33
 msgid "Licenses"
-msgstr "Freistellungen"
+msgstr ""
 
 #: licenses/forms.py:52
 msgid ""
 "If youth protection is necessary, you have to choose a youth protection "
 "category."
 msgstr ""
-"Wenn Jugendschutz erforderlich ist, müssen Sie eine Jugendschutz-Kategorie "
-"wählen."
 
 #: licenses/forms.py:64
 msgid "Invalid format. Please use the format hh:mm:ss or mm:ss."
-msgstr "Ungültiges Format. Bitte nutzen Sie das Format hh:mm:ss oder mm:ss."
+msgstr ""
 
 #: licenses/forms.py:84
 msgid "The duration field is required."
-msgstr "Es muss eine Dauer angegeben werden."
+msgstr ""
 
 #: licenses/forms.py:110
 #: planung/templates/admin/planung/calendar_weeks.html:123
 msgid "Save"
-msgstr "Speichern"
+msgstr ""
 
 #: licenses/forms.py:150
 msgid "From"
-msgstr "Von"
+msgstr ""
 
 #: licenses/forms.py:154
 msgid "To"
-msgstr "Bis"
+msgstr ""
 
 #: licenses/generate_file.py:89
 msgid "license.pdf"
-msgstr "freistellung.pdf"
+msgstr ""
 
 #: licenses/models.py:21
 msgid "not necessary"
-msgstr "kein Jugendschutz notwendig"
+msgstr ""
 
 #: licenses/models.py:22
 msgid "from 12"
-msgstr "20:00 Uhr (ab 12 J.)"
+msgstr ""
 
 #: licenses/models.py:23
 msgid "from 16"
-msgstr "22:00 Uhr (ab 16 J.)"
+msgstr ""
 
 #: licenses/models.py:24
 msgid "from 18"
-msgstr "23:00 Uhr (ab 18 J.)"
+msgstr ""
 
 #: licenses/models.py:61
 msgid "Categories"
-msgstr "Kategorien"
+msgstr ""
 
 #: licenses/models.py:66 projects/models.py:117 projects/models.py:122
 msgid "Not Selected"
-msgstr "Nicht ausgewählt"
+msgstr ""
 
 #: licenses/models.py:99 projects/models.py:156
 msgid "Format: hh:mm:ss or mm:ss"
-msgstr "Format: hh:mm:ss oder mm:ss"
+msgstr ""
 
 #: licenses/models.py:118
 msgid "Media Authority exchange allowed in Saxony-Anhalt"
-msgstr "Austausch zwischen Bürgermedien erlauben"
+msgstr ""
 
 #: licenses/models.py:124
 msgid "Media Authority exchange allowed in other states than Saxony-Anhalt."
-msgstr "Austausch zwischen Bürgermedien in anderen Bundesländern erlauben."
+msgstr ""
 
 #: licenses/models.py:136 licenses/templates/licenses/details.html:17
 msgid "Youth protection category"
-msgstr "Jugendschutz-Kategorie"
+msgstr ""
 
 #: licenses/models.py:180 licenses/templates/licenses/list.html:13
 msgid "Confirmed"
-msgstr "Genehmigt"
+msgstr ""
 
 #: licenses/models.py:194
 msgid "Infoblock"
-msgstr "Infoblock"
+msgstr ""
 
 #: licenses/models.py:217
 msgid "Duration must not be null."
-msgstr "Die Dauer darf nicht Null sein."
+msgstr ""
 
 #: licenses/templates/admin/filter_numeric_range.html:39
 #, python-format
 msgid "By %(filter_title)s"
-msgstr "Nach %(filter_title)s"
+msgstr ""
 
 #: licenses/templates/admin/filter_numeric_range.html:46
 msgid "Search"
-msgstr "Suchen"
+msgstr ""
 
 #: licenses/templates/admin/filter_numeric_range.html:47
 msgid "Reset"
-msgstr "Zurücksetzen"
+msgstr ""
 
 #: licenses/templates/admin/licenses_change_form_edit.html:10
 msgid "Print license"
-msgstr "Freistellung drucken"
+msgstr ""
 
 #: licenses/templates/admin/licenses_change_form_edit.html:15
 msgid ""
@@ -872,59 +826,56 @@ msgid ""
 "            Confirmed licenses are not editable!\n"
 "        "
 msgstr ""
-"\n"
-"            Bestätigte Freistellungen sind nicht änderbar.\n"
-"        "
 
 #: licenses/templates/licenses/create.html:7
 msgid "Create a license"
-msgstr "Freistellung erstellen"
+msgstr ""
 
 #: licenses/templates/licenses/details.html:8
 msgid "Details for "
-msgstr "Details zu "
+msgstr ""
 
 #: licenses/templates/licenses/details.html:42
 msgid "Edit"
-msgstr "Bearbeiten"
+msgstr ""
 
 #: licenses/templates/licenses/details.html:46
 msgid "Print"
-msgstr "Drucken"
+msgstr ""
 
 #: licenses/templates/licenses/list.html:7
 msgid "Your licenses"
-msgstr "Ihre Freistellungen"
+msgstr ""
 
 #: licenses/templates/licenses/list.html:14
 #: planung/templates/admin/planung/calendar_weeks.html:106
 msgid "Actions"
-msgstr "Aktionen"
+msgstr ""
 
 #: licenses/templates/licenses/list.html:38
 msgid "Edit license"
-msgstr "Freistellung bearbeiten"
+msgstr ""
 
 #: licenses/templates/licenses/list.html:39
 msgid "edit"
-msgstr "bearbeiten"
+msgstr ""
 
 #: licenses/templates/licenses/list.html:46
 msgid "Print official document"
-msgstr "Offiziellen Antrag drucken"
+msgstr ""
 
 #: licenses/templates/licenses/list.html:47
 msgid "print"
-msgstr "drucken"
+msgstr ""
 
 #: licenses/templates/licenses/list.html:53
 msgid "No licenses yet."
-msgstr "Bisher sind keine Freistellungen vorhanden."
+msgstr ""
 
 #: licenses/templates/licenses/list.html:59
 #: registration/templates/navbar.html:75 ok_tools/templates/dashboard.html:40
 msgid "Create license"
-msgstr "Freistellung erstellen"
+msgstr ""
 
 #: licenses/templates/licenses/update.html:9
 #, python-format
@@ -933,9 +884,6 @@ msgid ""
 "        Edit %(object)s:\n"
 "    "
 msgstr ""
-"\n"
-"        %(object)s bearbeiten:\n"
-"    "
 
 #: licenses/templates/licenses/update.html:16
 msgid ""
@@ -943,152 +891,132 @@ msgid ""
 "        Your License is already confirmed and no longer editable.\n"
 "    "
 msgstr ""
-"\n"
-"        Ihre Freistellung ist bereits genehmigt und somit nicht mehr "
-"veränderbar.\n"
-"    "
 
 #: licenses/templates/licenses/update.html:20
 msgid "Back to overview"
-msgstr "Zurück zur übersicht"
+msgstr ""
 
 #: licenses/views.py:24
 msgid "License not found."
-msgstr "Freistellung nicht gefunden."
+msgstr ""
 
 #: licenses/views.py:65
 #, python-format
 msgid "License %(license)s successfully created."
-msgstr "Freistellung %(license)s erfolgreich erstellt."
+msgstr ""
 
 #: licenses/views.py:97
 #, python-format
 msgid "License %(license)s successfully edited."
-msgstr "Freistellung %(license)s erfolgreich bearbeitet."
+msgstr ""
 
 #: licenses/views.py:106
 #, python-format
 msgid ""
 "The License %(license)s is already confirmed and therefor no longer editable."
 msgstr ""
-"Die Freistellung %(license)s ist bereits genehmigt und somit nicht mehr "
-"veränderbar."
 
 #: planung/admin.py:116
 msgid "Mon"
-msgstr "MO"
+msgstr ""
 
 #: planung/admin.py:117
 msgid "Tue"
-msgstr "DI"
+msgstr ""
 
 #: planung/admin.py:118
 msgid "Wed"
-msgstr "MI"
+msgstr ""
 
 #: planung/admin.py:119
 msgid "Thu"
-msgstr "DO"
+msgstr ""
 
 #: planung/admin.py:120
 msgid "Fri"
-msgstr "FR"
+msgstr ""
 
 #: planung/admin.py:121
 msgid "Sat"
-msgstr "SA"
+msgstr ""
 
 #: planung/admin.py:122
 msgid "Sun"
-msgstr "SO"
+msgstr ""
 
 #: planung/admin.py:126
 msgid "Calendar Weeks – Broadcast Planning"
-msgstr "Kalenderwochen - Sendeplanung"
+msgstr ""
 
 #: planung/admin.py:141
 msgid "Draft?"
-msgstr "Entwurf?"
+msgstr ""
 
 #: planung/admin.py:150
 msgid "Planned items"
-msgstr "Geplante Beiträge"
+msgstr ""
 
 #: planung/admin.py:159
-#, fuzzy
-#| msgid "comment"
 msgid "Comment"
-msgstr "Kommentar"
+msgstr ""
 
 #: planung/admin.py:179
-#, fuzzy
-#| msgid "License not found."
 msgid "not found"
-msgstr "Freistellung nicht gefunden."
+msgstr ""
 
 #: planung/admin.py:186
-#, fuzzy
-#| msgid "Min"
 msgid "min"
-msgstr "Min"
+msgstr ""
 
 #: planung/admin.py:200
 msgid "Planned items (preview)"
-msgstr "Geplante Beiträge (Vorschau)"
+msgstr ""
 
 #: planung/models.py:27 planung/models.py:28
 msgid "Calendar weeks"
-msgstr "Kalenderwochen"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:61
 msgid "KW"
-msgstr "KW"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:84
 #: planung/templates/admin/planung/calendar_weeks.html:122
 msgid "Close"
-msgstr "Schließen"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:91
-#, fuzzy
-#| msgid "Broadcast week"
 msgid "Broadcast block"
-msgstr "Sendewoche"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:91
 msgid "105 Min"
-msgstr "105 Min"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:92
 #: planung/templates/admin/planung/calendar_weeks.html:142
-#, fuzzy
-#| msgid "Full name"
 msgid "Full available"
-msgstr "Vollständiger Name"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:95
-#, fuzzy
-#| msgid "License number"
 msgid "Enter license number..."
-msgstr "Freistellungsnummer"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:96
 msgid "Add"
-msgstr "Hinzufügen"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:105
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration (Min)"
-msgstr "Dauer"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:115
 msgid "Comment or notes:"
-msgstr "Kommentar oder Notizen:"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:121
 msgid "Delete"
-msgstr "Löschen"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:124
 msgid "Plan!"
@@ -1097,216 +1025,206 @@ msgstr ""
 #: planung/templates/admin/planung/calendar_weeks.html:143
 #, python-format
 msgid "Still %%(minutes)s min free"
-msgstr "Noch %%(minutes)s Min frei"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:144
 #, python-format
 msgid "Overplanned by %%(minutes)s min!"
-msgstr "Überplanen um %%(minutes)s Min!"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:145
-#, fuzzy
-#| msgid "License not found."
 msgid "License not found or not confirmed"
-msgstr "Freistellung nicht gefunden."
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:255
 #: planung/templates/admin/planung/calendar_weeks.html:338
 msgid "⚠️ Date is missing."
-msgstr "⚠️ Datum fehlt."
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:288
-#, fuzzy
-#| msgid "License copies created successfully."
 msgid "Draft saved successfully."
-msgstr "Freistellung wurden erfolgreich kopiert."
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:292
 msgid "Error saving the draft."
-msgstr "Fehler beim Speichern des Entwurfs."
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:309
-#, fuzzy
-#| msgid "License copies created successfully."
 msgid "Plan saved successfully!"
-msgstr "Freistellung wurden erfolgreich kopiert."
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:314
 msgid "Error saving the plan. Please try again."
-msgstr "Fehler beim Speichern des Plans. Bitte versuchen Sie es erneut."
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:341
 msgid "Delete plan for this day?"
-msgstr "Plan für diesen Tag löschen?"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:350
 msgid "Plan deleted!"
-msgstr "Plan gelöscht!"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:355
-#, fuzzy
-#| msgid "Error executing pdftk:"
 msgid "Error deleting the plan."
-msgstr "Fehler beim Ausführen von pdftk:"
+msgstr ""
 
 #: planung/views.py:21
-#, fuzzy
-#| msgid "License not found."
 msgid "License not found or not confirmed."
-msgstr "Freistellung nicht gefunden."
+msgstr ""
 
 #: projects/admin.py:66 projects/models.py:136
 msgid "Topic"
-msgstr "Thema"
+msgstr ""
 
 #: projects/admin.py:68 projects/models.py:149
 msgid "Date"
-msgstr "Datum"
+msgstr ""
 
 #: projects/admin.py:70 projects/models.py:162
 msgid "External venue"
-msgstr "Externer Veranstaltungsort"
+msgstr ""
 
 #: projects/admin.py:71 projects/models.py:168
 msgid "Jugendmedienschutz"
-msgstr "Jugendmedienschutz"
+msgstr ""
 
 #: projects/admin.py:72 projects/models.py:95 projects/models.py:108
 #: projects/models.py:184
 msgid "Target group"
-msgstr "Zielgruppe"
+msgstr ""
 
 #: projects/admin.py:73 projects/models.py:67 projects/models.py:80
 #: projects/models.py:191
 msgid "Project category"
-msgstr "Projektkategorie"
+msgstr ""
 
 #: projects/admin.py:74 projects/admin.py:163 projects/models.py:30
 #: projects/models.py:199
 msgid "Project leader"
-msgstr "Projektleiter*in"
+msgstr ""
 
 #: projects/admin.py:75 projects/models.py:209
 msgid "bis 6 Jahre"
-msgstr "Bis 6 Jahre"
+msgstr ""
 
 #: projects/admin.py:76 projects/models.py:215
 msgid "7-10 Jahre"
-msgstr "7-10 Jahre"
+msgstr ""
 
 #: projects/admin.py:77 projects/models.py:221
 msgid "11-14 Jahre"
-msgstr "11-14 Jahre"
+msgstr ""
 
 #: projects/admin.py:78 projects/models.py:227
 msgid "15-18 Jahre"
-msgstr "15-18 Jahre"
+msgstr ""
 
 #: projects/admin.py:79 projects/models.py:233
 msgid "19-34 Jahre"
-msgstr "19-34 Jahre"
+msgstr ""
 
 #: projects/admin.py:80 projects/models.py:239
 msgid "35-50 Jahre"
-msgstr "35-50 Jahre"
+msgstr ""
 
 #: projects/admin.py:81 projects/models.py:245
 msgid "51-65 Jahre"
-msgstr "51-65 Jahre"
+msgstr ""
 
 #: projects/admin.py:82 projects/models.py:251
 msgid "über 65 Jahre"
-msgstr "Über 65 Jahre"
+msgstr ""
 
 #: projects/admin.py:83 projects/admin.py:87 projects/models.py:257
 #: projects/models.py:276
 msgid "ohne Angabe"
-msgstr "Ohne Angabe"
+msgstr ""
 
 #: projects/admin.py:84 projects/models.py:264
 msgid "weiblich"
-msgstr "weiblich"
+msgstr ""
 
 #: projects/admin.py:85 projects/models.py:270
 msgid "männlich"
-msgstr "männlich"
+msgstr ""
 
 #: projects/admin.py:86 projects/models.py:282 registration/models.py:107
 msgid "diverse"
-msgstr "divers"
+msgstr ""
 
 #: projects/admin.py:100 projects/apps.py:10 projects/models.py:315
 msgid "Projects"
-msgstr "Projekte"
+msgstr ""
 
 #: projects/admin.py:106
 msgid "start year"
-msgstr "Startjahr"
+msgstr ""
 
 #: projects/admin.py:158
 msgid "title, topic, description"
-msgstr "Titel, Thema, Beschreibung"
+msgstr ""
 
 #: projects/admin.py:161
 msgid "Target Group"
-msgstr "Zielgruppe"
+msgstr ""
 
 #: projects/admin.py:162
 msgid "Project Category"
-msgstr "Projektkategorie"
+msgstr ""
 
 #: projects/admin.py:171
 msgid "Project data"
-msgstr "Projektdaten"
+msgstr ""
 
 #: projects/admin.py:187
 msgid "Participant numbers - by age"
-msgstr "Teilnehmerzahlen - nach Alter"
+msgstr ""
 
 #: projects/admin.py:200
 msgid "Participant numbers - by gender"
-msgstr "Teilnehmerzahlen - nach Geschlecht"
+msgstr ""
 
 #: projects/ics_export.py:21
 #, python-format
 msgid "Dauer: %(duration)s"
-msgstr "Dauer: %(duration)s"
+msgstr ""
 
 #: projects/ics_export.py:34
 msgid "projects.ics"
-msgstr "projekte.ics"
+msgstr ""
 
 #: projects/models.py:17 projects/models.py:42
 msgid "Full name"
-msgstr "Vollständiger Name"
+msgstr ""
 
 #: projects/models.py:31
 msgid "Project leaders"
-msgstr "Projektleiter*innen"
+msgstr ""
 
 #: projects/models.py:55
 msgid "Media education supervisor"
-msgstr "Medienpädagogische*r Betreuer*in"
+msgstr ""
 
 #: projects/models.py:56 projects/models.py:205
 msgid "Media education supervisors"
-msgstr "Medienpädagogische Betreuer"
+msgstr ""
 
 #: projects/models.py:81
 msgid "Project categories"
-msgstr "Projekt Kategorien"
+msgstr ""
 
 #: projects/models.py:109
 msgid "Target groups"
-msgstr "Zielgruppen"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Project title"
-msgstr "Projekttitel"
+msgstr ""
 
 #: projects/models.py:174
 msgid "Democracy project"
-msgstr "Demokratieprojekt"
+msgstr ""
 
 #: projects/models.py:299
 #, python-format
@@ -1314,262 +1232,257 @@ msgid ""
 "The sum of participants by age (%(age)s) does not match the sum of "
 "participants by gender (%(gender)s). Please correct your data."
 msgstr ""
-"Die Summe der Teilnehmer nach Alter (%(age)s) stimmte nicht mit der Summe "
-"der Teilnehmer nach Geschlecht (%(gender)s) überein. Bitte korrigieren Sie "
-"die Eingabe."
 
 #: projects/models.py:314
 msgid "Project"
-msgstr "Projekt"
+msgstr ""
 
 #: projects/templates/admin/change_list_ics_export_item.html:3
 msgid "Export dates"
-msgstr "Zeiten exportieren"
+msgstr ""
 
 #: registration/admin.py:34 registration/admin.py:51
 msgid "E-Mail address"
-msgstr "E-Mail-Adresse"
+msgstr ""
 
 #: registration/admin.py:37 registration/admin.py:54
 msgid "Password"
-msgstr "Passwort"
+msgstr ""
 
 #: registration/admin.py:40
 msgid "Admin"
-msgstr "Admin"
+msgstr ""
 
 #: registration/admin.py:43
 msgid "permissions"
-msgstr "Berechtigungen"
+msgstr ""
 
 #: registration/admin.py:46 registration/admin.py:57
 msgid "Staff"
-msgstr "Mitarbeiter"
+msgstr ""
 
 #: registration/admin.py:76
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #: registration/admin.py:77 registration/models.py:136
 msgid "first name"
-msgstr "Vorname"
+msgstr ""
 
 #: registration/admin.py:78 registration/models.py:138
 msgid "last name"
-msgstr "Nachname"
+msgstr ""
 
 #: registration/admin.py:79 registration/models.py:141
 msgid "gender"
-msgstr "Geschlecht"
+msgstr ""
 
 #: registration/admin.py:80 registration/models.py:54
 msgid "email address"
-msgstr "E-Mail-Adresse"
+msgstr ""
 
 #: registration/admin.py:81 registration/models.py:150
 msgid "phone number"
-msgstr "Telefonnummer"
+msgstr ""
 
 #: registration/admin.py:82 registration/models.py:153
 msgid "mobile number"
-msgstr "Handynummer"
+msgstr ""
 
 #: registration/admin.py:83 registration/models.py:157
 msgid "birthday"
-msgstr "Geburtstag"
+msgstr ""
 
 #: registration/admin.py:84 registration/models.py:160
 msgid "street"
-msgstr "Straße"
+msgstr ""
 
 #: registration/admin.py:85 registration/models.py:162
 msgid "house number"
-msgstr "Hausnummer"
+msgstr ""
 
 #: registration/admin.py:86 registration/models.py:164
 msgid "zipcode"
-msgstr "Postleitzahl"
+msgstr ""
 
 #: registration/admin.py:87 registration/models.py:166
 msgid "city"
-msgstr "Stadt"
+msgstr ""
 
 #: registration/admin.py:89 registration/models.py:189
 msgid "member"
-msgstr "Mitglied"
+msgstr ""
 
 #: registration/admin.py:91 registration/models.py:196
 msgid "comment"
-msgstr "Kommentar"
+msgstr ""
 
 #: registration/admin.py:113
 msgid "birthmonth"
-msgstr "Geburtsmonat"
+msgstr ""
 
 #: registration/admin.py:119
 msgid "January"
-msgstr "Januar"
+msgstr ""
 
 #: registration/admin.py:120
 msgid "February"
-msgstr "Februar"
+msgstr ""
 
 #: registration/admin.py:121
 msgid "March"
-msgstr "März"
+msgstr ""
 
 #: registration/admin.py:122
 msgid "April"
-msgstr "April"
+msgstr ""
 
 #: registration/admin.py:123
 msgid "May"
-msgstr "Mai"
+msgstr ""
 
 #: registration/admin.py:124
 msgid "June"
-msgstr "Juni"
+msgstr ""
 
 #: registration/admin.py:125
 msgid "July"
-msgstr "Juli"
+msgstr ""
 
 #: registration/admin.py:126
 msgid "August"
-msgstr "August"
+msgstr ""
 
 #: registration/admin.py:127
 msgid "September"
-msgstr "September"
+msgstr ""
 
 #: registration/admin.py:128
 msgid "October"
-msgstr "Oktober"
+msgstr ""
 
 #: registration/admin.py:129
 msgid "November"
-msgstr "November"
+msgstr ""
 
 #: registration/admin.py:130
 msgid "December"
-msgstr "Dezember"
+msgstr ""
 
 #: registration/admin.py:152
 msgid "created year"
-msgstr "Erstellungsjahr"
+msgstr ""
 
 #: registration/admin.py:201
 msgid "e-mail, first name, last name"
-msgstr "E-Mail, Vorname, Nachname"
+msgstr ""
 
 #: registration/admin.py:230
 msgid "Verify selected profiles"
-msgstr "Ausgewählte Profile verifizieren"
+msgstr ""
 
 #: registration/admin.py:240
 msgid "Unverify selected profiles"
-msgstr "Ausgewählte Profile deverifizieren"
+msgstr ""
 
 #: registration/apps.py:9
 msgid "Registration"
-msgstr "Registrierung"
+msgstr ""
 
 #: registration/forms.py:24 registration/forms.py:85
 msgid "Email address"
-msgstr "E-Mail-Adresse"
+msgstr ""
 
 #: registration/forms.py:65
 msgid ""
 "Your profile is already verified. To change further data please contact an "
 "employee."
 msgstr ""
-"Ihr Profile ist bereits verifiziert. Wenden Sie sich bitte an einen "
-"Mitarbeiter um weitere Daten zu ändern."
 
 #: registration/forms.py:69
 msgid "Submit changes"
-msgstr "Änderungen bestätigen"
+msgstr ""
 
 #: registration/forms.py:87
 msgid "I have read the privacy agreement and accept it."
-msgstr "Ich habe die Datenschutzerklärung gelesen und akzeptiere sie."
+msgstr ""
 
 #: registration/forms.py:90
 msgid "I have read the usage agreement and accept it."
-msgstr "Ich habe die Nutzungsordnung gelesen und akzeptiere sie."
+msgstr ""
 
 #: registration/forms.py:93
 msgid "Birthday"
-msgstr "Geburtstag"
+msgstr ""
 
 #: registration/forms.py:131 registration/templates/navbar.html:98
 #: registration/templates/registration/register.html:7
 msgid "Register"
-msgstr "Registrieren"
+msgstr ""
 
 #: registration/forms.py:142 registration/forms.py:154
 msgid "Please accept our "
-msgstr "Bitte akzeptieren sie unsere "
+msgstr ""
 
 #: registration/forms.py:144
 msgid "privacy policy"
-msgstr "Datenschutzerklärung"
+msgstr ""
 
 #: registration/forms.py:156
 msgid "usage policy"
-msgstr "Nutzungsordnung"
+msgstr ""
 
 #: registration/models.py:17
 msgid "The given email must be set"
-msgstr "Die E-Mail-Adresse muss angegeben werden"
+msgstr ""
 
 #: registration/models.py:35
 msgid "Superuser must have is_staff=True."
-msgstr "Für den Superuser muss gelten is_staff=True."
+msgstr ""
 
 #: registration/models.py:37
 msgid "Superuser must have is_superuser=True."
-msgstr "Für den Superuser muss gelten is_superuser=True."
+msgstr ""
 
 #: registration/models.py:67
 msgid "Users"
-msgstr "Nutzer*innen"
+msgstr ""
 
 #: registration/models.py:92
 msgid "Media Authorities"
-msgstr "Bürgermedien"
+msgstr ""
 
 #: registration/models.py:104
 msgid "not given"
-msgstr "nicht angegeben"
+msgstr ""
 
 #: registration/models.py:105
 msgid "male"
-msgstr "männlich"
+msgstr ""
 
 #: registration/models.py:106
 msgid "female"
-msgstr "weiblich"
+msgstr ""
 
 #: registration/models.py:170
 msgid "verified"
-msgstr "verifiziert"
+msgstr ""
 
 #: registration/models.py:172
 msgid "The profile data was verified by showing the ID to an employee."
-msgstr "Das Profil wurde unter Vorlage eines Personalausweises verifiziert."
+msgstr ""
 
 #: registration/models.py:209
 msgid "Profiles"
-msgstr "Profile"
+msgstr ""
 
 #: registration/print.py:91
 msgid "registration_form.pdf"
-msgstr "Nutzer_innenantrag.pdf"
+msgstr ""
 
 #: registration/templates/admin/registration_change_form_edit.html:8
 msgid "Print application"
-msgstr "Nutzer*innenantrag drucken"
+msgstr ""
 
 #: registration/templates/email/confirm_verification_body.html:3
 #, python-format
@@ -1577,8 +1490,6 @@ msgid ""
 "\n"
 "Hello %(first_name)s,\n"
 msgstr ""
-"\n"
-"Hallo %(first_name)s,\n"
 
 #: registration/templates/email/confirm_verification_body.html:7
 msgid ""
@@ -1586,17 +1497,12 @@ msgid ""
 "We have received your application and verified your data. Your account is "
 "now fully activated.\n"
 msgstr ""
-"\n"
-"Wir haben Ihren Nutzer*innenantrag erhalten und Ihre Daten verifiziert. Ihr "
-"Account ist jetzt vollständig aktiviert.\n"
 
 #: registration/templates/email/confirm_verification_body.html:11
 msgid ""
 "\n"
 "You can now login and file a license.\n"
 msgstr ""
-"\n"
-"Sie können sich jetzt einloggen und Freistellungen erstellen.\n"
 
 #: registration/templates/email/confirm_verification_body.html:20
 #: registration/templates/registration/password_reset_email.html:19
@@ -1608,10 +1514,6 @@ msgid ""
 "\n"
 "The %(ok_name)s team\n"
 msgstr ""
-"\n"
-"Mit freundlichen Grüßen,\n"
-"\n"
-"Ihr %(ok_name)s-Team\n"
 
 #: registration/templates/email/confirm_verification_subject.txt:2
 #, python-format
@@ -1619,108 +1521,101 @@ msgid ""
 "\n"
 "Your Account for %(ok_name)s has been verified\n"
 msgstr ""
-"\n"
-"Ihr Account für %(ok_name)s wurde verifiziert\n"
 
 #: registration/templates/navbar.html:41
 #: registration/templates/registration/print_registration.html:32
 #: ok_tools/templates/dashboard.html:15
 msgid "Edit user data"
-msgstr "Profil bearbeiten"
+msgstr ""
 
 #: registration/templates/navbar.html:44
 #: registration/templates/registration/password_reset_confirm.html:16
 #: ok_tools/templates/dashboard.html:19
 msgid "Change password"
-msgstr "Passwort ändern"
+msgstr ""
 
 #: registration/templates/navbar.html:49 ok_tools/templates/dashboard.html:23
 msgid "Print Registration Form"
-msgstr "Nutzer*innenantrag drucken"
+msgstr ""
 
 #: registration/templates/navbar.html:54 ok_tools/templates/dashboard.html:27
 msgid "Privacy Policy"
-msgstr "Datenschutzerklärung"
+msgstr ""
 
 #: registration/templates/navbar.html:72 ok_tools/templates/dashboard.html:36
 msgid "Overview"
-msgstr "Übersicht"
+msgstr ""
 
 #: registration/templates/navbar.html:92
 msgid "Logout"
-msgstr "Abmelden"
+msgstr ""
 
 #: registration/templates/navbar.html:104
 msgid "Login"
-msgstr "Anmelden"
+msgstr ""
 
 #: registration/templates/registration/edit_profile.html:7
 #: registration/templates/registration/print_registration.html:7
 msgid "User data for "
-msgstr "Nutzerdaten für "
+msgstr ""
 
 #: registration/templates/registration/login.html:9
 #: registration/templates/registration/password_reset_done.html:12
 msgid "Log In"
-msgstr "Anmelden"
+msgstr ""
 
 #: registration/templates/registration/login.html:13
 msgid "Log in"
-msgstr "Anmelden"
+msgstr ""
 
 #: registration/templates/registration/login.html:14
 msgid "Forgot Password"
-msgstr "Passwort vergessen"
+msgstr ""
 
 #: registration/templates/registration/password_reset_complete.html:5
 #: registration/templates/registration/password_reset_complete.html:8
 msgid "Password reset complete"
-msgstr "Passwort erfolgreich zurückgesetzt"
+msgstr ""
 
 #: registration/templates/registration/password_reset_complete.html:9
 msgid "Your new password has been set. You can log in now:"
-msgstr "Ihr neues Passwort wurde gesetzt. Sie können sich jetzt anmelden:"
+msgstr ""
 
 #: registration/templates/registration/password_reset_complete.html:9
 msgid "log in page"
-msgstr "Anmeldeseite"
+msgstr ""
 
 #: registration/templates/registration/password_reset_confirm.html:6
 msgid "Enter new password"
-msgstr "Neues Passwort"
+msgstr ""
 
 #: registration/templates/registration/password_reset_confirm.html:12
 msgid "Set a new password!"
-msgstr "Wählen Sie ein neues Passwort!"
+msgstr ""
 
 #: registration/templates/registration/password_reset_confirm.html:21
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
 msgstr ""
-"Der Link zum zurücksetzen des Passwortes ist ungütlig. Dies könnte daran "
-"liegen, dass dieser bereits genutzt wurde. Bitte fordern Sie einen neuen an."
 
 #: registration/templates/registration/password_reset_done.html:5
 msgid "Email Sent"
-msgstr "E-Mail gesendet"
+msgstr ""
 
 #: registration/templates/registration/password_reset_done.html:8
 msgid "Check your inbox."
-msgstr "Überprüfen Sie ihr E-Mail-Postfach."
+msgstr ""
 
 #: registration/templates/registration/password_reset_done.html:9
 msgid ""
 "If your given email is registered, we've emailed you instructions for "
 "setting your password. You should receive the email shortly!"
 msgstr ""
-"Wenn sie eine registrierte E-Mail-Adresse angegeben haben, haben wir Ihnen "
-"eine E-Mail mit weiteren Anweisungen geschickt. Diese sollte in Kürze "
-"eintreffen."
 
 #: registration/templates/registration/password_reset_done.html:11
 msgid "Home"
-msgstr "Home"
+msgstr ""
 
 #: registration/templates/registration/password_reset_email.html:3
 #, python-format
@@ -1728,8 +1623,6 @@ msgid ""
 "\n"
 "Hallo%(first_name)s,\n"
 msgstr ""
-"\n"
-"Hallo%(first_name)s,\n"
 
 #: registration/templates/registration/password_reset_email.html:7
 #, python-format
@@ -1739,43 +1632,32 @@ msgid ""
 "user account at %(ok_name)s.\n"
 "Please go to the following page and choose a new password:\n"
 msgstr ""
-"\n"
-"Sie erhatlen diese E-Mail, weil Sie Ihr Passwort bei %(ok_name)s ändern "
-"wollen.\n"
-"Bitte nutzen Sie den folgenden Link um ein neues Passwort zu wählen:\n"
 
 #: registration/templates/registration/password_reset_email.html:15
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "Your username, in case you've forgotten: %(user.get_username)s\n"
+#, python-format
 msgid ""
 "\n"
 "Your username, in case you’ve forgotten: %(user.get_username)s\n"
 msgstr ""
-"\n"
-"Ihr Benutzername lautet: %(user.get_username)s\n"
 
 #: registration/templates/registration/password_reset_form.html:7
 msgid "Change Password"
-msgstr "Passwort ändern"
+msgstr ""
 
 #: registration/templates/registration/password_reset_form.html:8
 msgid ""
 "Enter your email address below, and we'll send you a link so you can set a "
 "new password."
 msgstr ""
-"Bitte geben Sie Ihre E-Mail-Adresse an. Wir werden Ihnen einen Link "
-"zusenden, mit dem Sie Ihr Passwort zurücksetzen können."
 
 #: registration/templates/registration/password_reset_form.html:13
 msgid "Send email"
-msgstr "Senden"
+msgstr ""
 
 #: registration/templates/registration/password_reset_subject.txt:2
 #, python-format
 msgid "Password reset for %(ok_name)s"
-msgstr "Ihr neues Passwort für %(ok_name)s"
+msgstr ""
 
 #: registration/templates/registration/password_set_email_customized.html:3
 #, python-format
@@ -1783,8 +1665,6 @@ msgid ""
 "\n"
 "Hallo %(first_name)s,\n"
 msgstr ""
-"\n"
-"Hallo %(first_name)s,\n"
 
 #: registration/templates/registration/password_set_email_customized.html:7
 #, python-format
@@ -1794,27 +1674,23 @@ msgid ""
 "%(ok_name)s.\n"
 "Please go to the following page and set your password:\n"
 msgstr ""
-"\n"
-"Sie erhalten diese E-Mail, weil Sie sich beim %(ok_name)s registriert "
-"haben.\n"
-"Bitte nutzen Sie den folgenden Link um ein Passwort zu wählen.\n"
 
 #: registration/templates/registration/password_set_subject_customized.txt:2
 #, python-format
 msgid "Welcome to the %(ok_name)s"
-msgstr "Wilkommen beim %(ok_name)s"
+msgstr ""
 
 #: registration/templates/registration/print_registration.html:29
 msgid "Print registration form"
-msgstr "Nutzer*innenantrag drucken"
+msgstr ""
 
 #: registration/templates/registration/print_registration.html:35
 msgid "Print template only"
-msgstr "Nur Vorlage drucken"
+msgstr ""
 
 #: registration/templates/registration/user_created.html:6
 msgid "Welcome!"
-msgstr "Herzlich Willkommen!"
+msgstr ""
 
 #: registration/templates/registration/user_created.html:9
 #, python-format
@@ -1824,52 +1700,48 @@ msgid ""
 "with a link. Use this link to set your password. After that you should be "
 "able to log in.\n"
 msgstr ""
-"\n"
-"Sie haben sich erfolgreich beim %(OK_NAME)s registriert. In Kürze erhalten "
-"Sie eine E-Mail mit einem Link über den Sie Ihr Passwort setzen können. Im "
-"Anschluss sollten Sie sich anmelden können.\n"
 
 #: registration/templates/registration/user_created.html:15
 msgid "Back to the start page"
-msgstr "Zurück zur Startseite"
+msgstr ""
 
 #: registration/views.py:47
 #, python-format
 msgid "There is no profile for %(user)s"
-msgstr "Es existiert kein Profil für %(user)s"
+msgstr ""
 
 #: registration/views.py:200
 msgid "Your profile was successfully updated."
-msgstr "Ihr Profil wurde erfolgreich aktualisiert."
+msgstr ""
 
 #: ok_tools/templates/admin/base_site.html:6
 #: ok_tools/templates/admin/base_site.html:15
 msgid "Administrationinterface"
-msgstr "Verwaltungsoberfläche"
+msgstr ""
 
 #: ok_tools/templates/dashboard.html:13
 msgid "Edit all inormations concerning your profile."
-msgstr "Bearbeiten Sie Ihr Profile und zugehörige Daten."
+msgstr ""
 
 #: ok_tools/templates/dashboard.html:34
 msgid "Edit your Licenses."
-msgstr "Bearbeiten Sie ihre Freistellungen."
+msgstr ""
 
 #: ok_tools/templates/dashboard.html:47
 msgid "Look at your Contributions."
-msgstr "Sehen Sie Ihre Beiträge ein."
+msgstr ""
 
 #: ok_tools/templates/dashboard.html:55
 msgid "Website"
-msgstr "Website"
+msgstr ""
 
 #: ok_tools/templates/dashboard.html:56
 msgid "Visist the Website for more general informations."
-msgstr "Besuchen Sie die Website für weitere Informationen."
+msgstr ""
 
 #: ok_tools/templates/dashboard.html:58
 msgid "OKMQ-Website"
-msgstr "OKMQ-Website"
+msgstr ""
 
 #: ok_tools/templates/home.html:20
 msgid ""
@@ -1879,15 +1751,10 @@ msgid ""
 "verified.\n"
 "    "
 msgstr ""
-"\n"
-"   Dieser Account ist nicht verifiziert. Bitte drucken Sie zuerst das "
-"Antragsformular (Nutzer*innenantrag) aus und bringen Sie es unterschrieben, "
-"zusammen mit Ihrem Personalausweis bei uns vorbei. Ihr Account wird dann von "
-"uns verifiziert. "
 
 #: ok_tools/templates/home.html:25
 msgid "Application form"
-msgstr "Nutzer*innenantrag"
+msgstr ""
 
 #: ok_tools/templates/home.html:29
 msgid ""
@@ -1895,19 +1762,7 @@ msgid ""
 "    This account is verified.\n"
 "    "
 msgstr ""
-"\n"
-"    Ihr Account ist verifiziert.\n"
-"    "
 
 #: ok_tools/templates/home.html:35
 msgid "You are not logged in"
-msgstr "Sie sind nicht angemeldet."
-
-#~ msgid "pdftk not found in"
-#~ msgstr "pdftk nicht gefunden in"
-
-#~ msgid "PDF template not found:"
-#~ msgstr "PDF-Vorlage nicht gefunden:"
-
-#~ msgid "I accept"
-#~ msgstr "Ich stimme zu"
+msgstr ""
