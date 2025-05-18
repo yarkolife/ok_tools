@@ -133,11 +133,12 @@ class TagesPlanAdmin(admin.ModelAdmin):
     def is_draft(self, obj):
         """Return whether the plan is marked as draft.
 
-        Used as a boolean column in the admin list view.
+        Used as a status column in the admin list view.
         """
-        return obj.json_plan.get("draft", False)
-
-    is_draft.boolean = True
+        if obj.json_plan.get("draft", False):
+            return format_html('<span style="color:#888;font-size:18px;">🕒</span>')
+        else:
+            return format_html('<span style="color:#0074D9;font-size:18px;">✅</span>')
     is_draft.short_description = _("Draft?")
 
     def show_items(self, obj):

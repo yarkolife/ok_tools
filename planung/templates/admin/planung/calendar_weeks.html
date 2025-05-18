@@ -118,6 +118,7 @@
       </div>
 
       <div class="modal-footer">
+        <button id="sortByTimeBtn" class="btn btn-default" style="margin-right: 8px;" type="button" title="{% trans 'Sort by time' %}">⏱️ {% trans 'Sort by time' %}</button>
         <button class="btn btn-danger">{% trans "Delete" %}</button>
         <button class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
         <button class="btn btn-primary">{% trans "Save" %}</button>
@@ -137,6 +138,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
 
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
   <script>
     const TEXTS = {
       fullAvailable: "{% trans 'Full available' %}",
@@ -152,7 +155,7 @@
       var $modal = $('#dayPlanModal');
       var plannedItems = [];
       const blockStart = 18 * 60;
-      const blockEnd = 20 * 60;
+      const blockEnd = 19 * 60 + 45;
       const maxBlockMinutes = blockEnd - blockStart;
 
       $('.date-cell').on('click', function () {
@@ -179,14 +182,20 @@
                   data.items.forEach(function (item) {
                       const row = `
                         <tr>
-                          <td><input type="time" class="form-control input-sm" value="${item.start}"></td>
+                          <td><input type="time" class="form-control input-sm start-time-input" value="${item.start}"></td>
                           <td>${item.number}</td>
-                          <td>${item.title || ''}</td>
+                          <td>${item.title || ''}${item.subtitle ? ' – ' + item.subtitle : ''}</td>
                           <td>${item.duration}</td>
-                          <td><button class="btn btn-xs btn-danger remove-row">&times;</button></td>
+                          <td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>
                         </tr>`;
                       $('#licenseTable tbody').append(row);
-                      plannedItems.push({ number: item.number, duration: item.duration });
+                      plannedItems.push({
+                        number: item.number,
+                        duration: item.duration,
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        start: item.start
+                      });
                   });
 
                   $('#noteText').val(data.comment || '');
@@ -200,8 +209,20 @@
         });
 
       function updateRemainingTime() {
-        const used = plannedItems.reduce((sum, item) => sum + item.duration, 0);
-        const remaining = maxBlockMinutes - used;
+        // Find the maximum end time
+        let maxEnd = blockStart;
+        $('#licenseTable tbody tr').each(function () {
+          const $row = $(this);
+          const startStr = $row.find('input[type="time"]').val();
+          const duration = parseInt($row.find('td').eq(3).text(), 10);
+          if (startStr && duration) {
+            const [h, m] = startStr.split(":").map(Number);
+            const startMin = h * 60 + m;
+            const endMin = startMin + duration;
+            if (endMin > maxEnd) maxEnd = endMin;
+          }
+        });
+        const remaining = blockEnd - maxEnd;
         const $remaining = $('#remainingTime');
 
         if (remaining < 0) {
@@ -218,27 +239,54 @@
         if (!number) return;
 
         $.get(`/api/license/${number}/`, function (data) {
-          const startMin = blockStart + plannedItems.reduce((sum, item) => sum + item.duration, 0);
-          const startTime = Math.floor(startMin / 60).toString().padStart(2, '0') + ':' +
-                            (startMin % 60).toString().padStart(2, '0');
+          // calculate start time as maximum end time
+          let lastEnd = blockStart;
+          plannedItems.forEach(function(item) {
+            // convert start to minutes
+            let startMin = 0;
+            if (item.start && /^\d{2}:\d{2}$/.test(item.start)) {
+              const [h, m] = item.start.split(":").map(Number);
+              startMin = h * 60 + m;
+            }
+            lastEnd = Math.max(lastEnd, startMin + (item.duration || 0));
+          });
+          const startTime = Math.floor(lastEnd / 60).toString().padStart(2, '0') + ':' +
+                            (lastEnd % 60).toString().padStart(2, '0');
 
           const row = `
             <tr>
-              <td><input type="time" class="form-control input-sm" value="${startTime}"></td>
+              <td><input type="time" class="form-control input-sm start-time-input" value="${startTime}"></td>
               <td>${data.number}</td>
               <td>${data.title}${data.subtitle ? ' – ' + data.subtitle : ''}</td>
               <td>${data.duration_min}</td>
-              <td><button class="btn btn-xs btn-danger remove-row">&times;</button></td>
+              <td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>
             </tr>
           `;
 
           $('#licenseTable tbody').append(row);
-          plannedItems.push({ number: data.number, duration: data.duration_min });
+          plannedItems.push({
+            number: data.number,
+            duration: data.duration_min,
+            title: data.title,
+            subtitle: data.subtitle,
+            start: startTime
+          });
           updateRemainingTime();
           $('#licenseNumberInput').val('');
         }).fail(function () {
           alert(TEXTS.licenseNotFound);
         });
+      });
+
+      // Synchronize start time when input changes
+      $('#licenseTable').on('change input', '.start-time-input', function () {
+        const $row = $(this).closest('tr');
+        const index = $row.index();
+        const newStart = $(this).val();
+        if (plannedItems[index]) {
+          plannedItems[index].start = newStart;
+        }
+        updateRemainingTime();
       });
 
       $('#licenseTable').on('click', '.remove-row', function () {
@@ -259,10 +307,18 @@
         const items = [];
         $('#licenseTable tbody tr').each(function () {
             const $row = $(this);
+            const titleCell = $row.find('td').eq(2).text();
+            let title = titleCell;
+            let subtitle = "";
+            if (titleCell.includes(' – ')) {
+              [title, subtitle] = titleCell.split(' – ', 2);
+            }
             items.push({
                 number:    parseInt($row.find('td').eq(1).text(), 10),
                 start:     $row.find('input[type="time"]').val(),
-                duration:  parseInt($row.find('td').eq(3).text(), 10)
+                duration:  parseInt($row.find('td').eq(3).text(), 10),
+                title:     title,
+                subtitle:  subtitle
             });
         });
 
@@ -356,6 +412,44 @@
           }
         });
       });
+
+      // Drag-and-drop rows
+      $('#licenseTable tbody').sortable({
+        handle: '.drag-handle',
+        update: function () {
+          syncPlannedItemsFromTable();
+          updateRemainingTime();
+        }
+      });
+
+      // Time sort button
+      $('#sortByTimeBtn').on('click', function () {
+        let rows = $('#licenseTable tbody tr').get();
+        rows.sort(function(a, b) {
+          let aTime = $(a).find('input[type="time"]').val();
+          let bTime = $(b).find('input[type="time"]').val();
+          return aTime.localeCompare(bTime);
+        });
+        $.each(rows, function(idx, row) {
+          $('#licenseTable tbody').append(row);
+        });
+        syncPlannedItemsFromTable();
+        updateRemainingTime();
+      });
+
+      // Synchronize plannedItems with the table
+      function syncPlannedItemsFromTable() {
+        plannedItems = [];
+        $('#licenseTable tbody tr').each(function () {
+          const $row = $(this);
+          const start = $row.find('input[type="time"]').val();
+          const number = $row.find('td').eq(1).text();
+          const titleCell = $row.find('td').eq(2).text();
+          let [title, subtitle] = titleCell.split(' – ', 2);
+          const duration = parseInt($row.find('td').eq(3).text(), 10);
+          plannedItems.push({ start, number, title, subtitle, duration });
+        });
+      }
 
     });
   })(jQuery);

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 00:16+0200\n"
+"POT-Creation-Date: 2025-05-18 03:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,8 +44,8 @@ msgstr ""
 msgid "Subtitle"
 msgstr ""
 
-#: contributions/admin.py:109 inventory/admin.py:17 inventory/models.py:19
-#: inventory/models.py:32 inventory/models.py:71 licenses/admin.py:35
+#: contributions/admin.py:109 inventory/admin.py:22 inventory/models.py:23
+#: inventory/models.py:40 inventory/models.py:76 licenses/admin.py:35
 #: licenses/models.py:87 projects/admin.py:67 projects/models.py:143
 msgid "Description"
 msgstr ""
@@ -89,7 +89,7 @@ msgstr ""
 
 #: contributions/admin.py:198
 #: contributions/templates/contributions/list.html:14 licenses/admin.py:39
-#: licenses/models.py:98 planung/admin.py:194 projects/admin.py:69
+#: licenses/models.py:98 planung/admin.py:195 projects/admin.py:69
 #: projects/models.py:155
 msgid "Duration"
 msgstr ""
@@ -123,13 +123,13 @@ msgstr ""
 msgid "Primary Contribution"
 msgstr ""
 
-#: contributions/admin.py:275 inventory/models.py:375 inventory/models.py:376
+#: contributions/admin.py:275 inventory/models.py:394 inventory/models.py:395
 #: licenses/admin.py:121 licenses/templates/licenses/details.html:27
 #: licenses/templates/licenses/list.html:26
 msgid "Yes"
 msgstr ""
 
-#: contributions/admin.py:276 inventory/models.py:375 inventory/models.py:376
+#: contributions/admin.py:276 inventory/models.py:394 inventory/models.py:395
 #: licenses/admin.py:122 licenses/templates/licenses/details.html:30
 #: licenses/templates/licenses/list.html:29
 msgid "No"
@@ -163,7 +163,7 @@ msgstr ""
 msgid "Is primary"
 msgstr ""
 
-#: contributions/admin.py:376 inventory/models.py:327 registration/models.py:66
+#: contributions/admin.py:376 inventory/models.py:344 registration/models.py:66
 #: registration/models.py:132
 msgid "User"
 msgstr ""
@@ -223,7 +223,7 @@ msgid "Successfully created %d contributions."
 msgstr ""
 
 #: contributions/models.py:65 licenses/models.py:254
-#: licenses/templates/licenses/list.html:12 planung/admin.py:193
+#: licenses/templates/licenses/list.html:12 planung/admin.py:194
 msgid "License"
 msgstr ""
 
@@ -239,11 +239,11 @@ msgstr ""
 msgid "DISA export file"
 msgstr ""
 
-#: contributions/models.py:125 inventory/models.py:213
+#: contributions/models.py:125 inventory/models.py:227
 msgid "Imported"
 msgstr ""
 
-#: contributions/models.py:129 inventory/models.py:215
+#: contributions/models.py:129 inventory/models.py:229
 msgid "Just marking the file as imported does not import the file!"
 msgstr ""
 
@@ -279,7 +279,7 @@ msgstr ""
 msgid "Your contributions"
 msgstr ""
 
-#: contributions/templates/contributions/list.html:13 planung/admin.py:192
+#: contributions/templates/contributions/list.html:13 planung/admin.py:193
 #: planung/templates/admin/planung/calendar_weeks.html:102
 msgid "Start"
 msgstr ""
@@ -288,348 +288,348 @@ msgstr ""
 msgid "No contributions yet."
 msgstr ""
 
-#: inventory/admin.py:16 inventory/admin.py:142 inventory/models.py:59
+#: inventory/admin.py:21 inventory/admin.py:163 inventory/models.py:71
 msgid "Inventory Number"
 msgstr ""
 
-#: inventory/admin.py:18 inventory/models.py:77
+#: inventory/admin.py:23 inventory/models.py:82
 msgid "Serial Number"
 msgstr ""
 
-#: inventory/admin.py:19 inventory/admin.py:63 inventory/models.py:22
-#: inventory/models.py:83
+#: inventory/admin.py:24 inventory/admin.py:75 inventory/models.py:28
+#: inventory/models.py:88
 msgid "Manufacturer"
 msgstr ""
 
-#: inventory/admin.py:20 inventory/models.py:87 inventory/models.py:368
+#: inventory/admin.py:25 inventory/models.py:92 inventory/models.py:387
 msgid "Location"
 msgstr ""
 
-#: inventory/admin.py:21 inventory/models.py:90 inventory/models.py:366
+#: inventory/admin.py:26 inventory/models.py:95 inventory/models.py:385
 msgid "Quantity"
 msgstr ""
 
-#: inventory/admin.py:22 inventory/admin.py:177 inventory/models.py:96
-#: inventory/models.py:367
+#: inventory/admin.py:27 inventory/admin.py:200 inventory/models.py:101
+#: inventory/models.py:386
 msgid "Status"
 msgstr ""
 
-#: inventory/admin.py:23 inventory/models.py:100 inventory/models.py:170
-#: inventory/models.py:369
+#: inventory/admin.py:28 inventory/models.py:105 inventory/models.py:183
+#: inventory/models.py:388
 msgid "Object Type"
 msgstr ""
 
-#: inventory/admin.py:24 inventory/admin.py:64 inventory/models.py:106
-#: inventory/models.py:364
+#: inventory/admin.py:29 inventory/admin.py:76 inventory/models.py:111
+#: inventory/models.py:383
 msgid "Owner"
 msgstr ""
 
-#: inventory/admin.py:28 inventory/models.py:111
+#: inventory/admin.py:30 inventory/models.py:117
+msgid "Inventory Number Owner"
+msgstr ""
+
+#: inventory/admin.py:34 inventory/models.py:123
 msgid "Purchase Date"
 msgstr ""
 
-#: inventory/admin.py:33 inventory/models.py:124
+#: inventory/admin.py:39 inventory/models.py:136
 msgid "E-Inspection"
 msgstr ""
 
-#: inventory/admin.py:107 inventory/models.py:306
+#: inventory/admin.py:125 inventory/models.py:323
 msgid "Model Name"
 msgstr ""
 
-#: inventory/admin.py:108 inventory/models.py:310
+#: inventory/admin.py:126 inventory/models.py:327
 msgid "Object ID"
 msgstr ""
 
-#: inventory/admin.py:109 inventory/models.py:315
+#: inventory/admin.py:127 inventory/models.py:332
 msgid "Action"
 msgstr ""
 
-#: inventory/admin.py:110 inventory/admin.py:148 inventory/models.py:320
+#: inventory/admin.py:128 inventory/admin.py:169 inventory/models.py:337
 msgid "Changes"
 msgstr ""
 
-#: inventory/admin.py:111 inventory/models.py:331
+#: inventory/admin.py:129 inventory/models.py:348
 msgid "Timestamp"
 msgstr ""
 
-#: inventory/admin.py:182
+#: inventory/admin.py:205
 msgid "-"
 msgstr ""
 
-#: inventory/admin.py:190
+#: inventory/admin.py:213
 msgid "Download Error Log File"
 msgstr ""
 
-#: inventory/admin.py:198 inventory/models.py:231
+#: inventory/admin.py:222 inventory/models.py:245
 msgid "Error Log"
 msgstr ""
 
-#: inventory/admin.py:200
+#: inventory/admin.py:224
 msgid "Import selected inventory files"
 msgstr ""
 
-#: inventory/apps.py:9 inventory/inventory_import.py:18
+#: inventory/apps.py:10 inventory/inventory_import.py:17
 msgid "Inventory"
 msgstr ""
 
-#: inventory/inventory_import.py:19
+#: inventory/inventory_import.py:18
 msgid "Test"
 msgstr ""
 
-#: inventory/inventory_import.py:19
+#: inventory/inventory_import.py:18
 msgid "Sample"
 msgstr ""
 
-#: inventory/inventory_import.py:32
+#: inventory/inventory_import.py:34
 #, python-format
 msgid "%(model)s \"%(value)s\" created automatically."
 msgstr ""
 
-#: inventory/inventory_import.py:35 inventory/inventory_import.py:36
+#: inventory/inventory_import.py:39
 #, python-format
 msgid "%(model)s name is missing in row %(row)s. Skipping..."
 msgstr ""
 
-#: inventory/inventory_import.py:68
+#: inventory/inventory_import.py:76
 #, python-format
 msgid "Column %(col)s should be named \"%(expected)s\", but got \"%(actual)s\""
 msgstr ""
 
-#: inventory/inventory_import.py:108
+#: inventory/inventory_import.py:116
 msgid "Unknown Location"
 msgstr ""
 
-#: inventory/inventory_import.py:112 inventory/inventory_import.py:113
+#: inventory/inventory_import.py:121 inventory/inventory_import.py:126
 #, python-format
 msgid "Location is missing in row %(row)s. Skipping..."
 msgstr ""
 
-#: inventory/inventory_import.py:125
+#: inventory/inventory_import.py:140
 msgid "in Betrieb"
 msgstr ""
 
-#: inventory/inventory_import.py:126
+#: inventory/inventory_import.py:141
 msgid "defekt"
 msgstr ""
 
-#: inventory/inventory_import.py:127
+#: inventory/inventory_import.py:142
 msgid "ausgemustert"
 msgstr ""
 
-#: inventory/inventory_import.py:128
+#: inventory/inventory_import.py:143
 msgid "verliehen"
 msgstr ""
 
-#: inventory/inventory_import.py:129
+#: inventory/inventory_import.py:144
 msgid "Ausleihe"
 msgstr ""
 
-#: inventory/inventory_import.py:182 inventory/inventory_import.py:183
+#: inventory/inventory_import.py:199 inventory/inventory_import.py:204
 #, python-format
 msgid "Inventory item with number \"%(number)s\" already exists. Skipping..."
 msgstr ""
 
-#: inventory/inventory_import.py:207 inventory/inventory_import.py:239
+#: inventory/inventory_import.py:230 inventory/inventory_import.py:262
 #, python-format
 msgid "Row %(row)s: %(error)s"
 msgstr ""
 
-#: inventory/inventory_import.py:218
+#: inventory/inventory_import.py:241
 msgid "Import Errors"
 msgstr ""
 
-#: inventory/inventory_import.py:221
+#: inventory/inventory_import.py:244
 msgid "Row"
 msgstr ""
 
-#: inventory/inventory_import.py:221
+#: inventory/inventory_import.py:244
 msgid "Error"
 msgstr ""
 
-#: inventory/inventory_import.py:232
+#: inventory/inventory_import.py:255
 #, python-format
 msgid "import_errors_%(timestamp)s.xlsx"
 msgstr ""
 
-#: inventory/inventory_import.py:247
+#: inventory/inventory_import.py:270
 msgid "No errors"
 msgstr ""
 
-#: inventory/models.py:18 inventory/models.py:31
+#: inventory/models.py:22 inventory/models.py:39
 msgid "Name"
 msgstr ""
 
-#: inventory/models.py:23
+#: inventory/models.py:29
 msgid "Manufacturers"
 msgstr ""
 
-#: inventory/models.py:35
+#: inventory/models.py:45
 msgid "Organization"
 msgstr ""
 
-#: inventory/models.py:36
+#: inventory/models.py:46
 msgid "Organizations"
 msgstr ""
 
-#: inventory/models.py:50
+#: inventory/models.py:62
 msgid "In stock"
 msgstr ""
 
-#: inventory/models.py:51
+#: inventory/models.py:63
 msgid "Rented"
 msgstr ""
 
-#: inventory/models.py:52
+#: inventory/models.py:64
 msgid "Written off"
 msgstr ""
 
-#: inventory/models.py:53
+#: inventory/models.py:65
 msgid "Defect"
 msgstr ""
 
-#: inventory/models.py:65
-msgid "Inventory Number Owner"
-msgstr ""
-
-#: inventory/models.py:66
+#: inventory/models.py:118
 msgid "Enter the inventory number of the owner of the item."
 msgstr ""
 
-#: inventory/models.py:118
+#: inventory/models.py:130
 msgid "Purchase Cost"
 msgstr ""
 
-#: inventory/models.py:125
+#: inventory/models.py:137
 msgid "Enter the number in the format XXXXXX"
 msgstr ""
 
-#: inventory/models.py:129
+#: inventory/models.py:141
 msgid "Date Added"
 msgstr ""
 
-#: inventory/models.py:133 inventory/models.py:365
+#: inventory/models.py:145 inventory/models.py:384
 msgid "Available for Rental"
 msgstr ""
 
-#: inventory/models.py:134
+#: inventory/models.py:146
 msgid "Check if this item is available for rental."
 msgstr ""
 
-#: inventory/models.py:138
+#: inventory/models.py:150
 msgid "Reserved Quantity"
 msgstr ""
 
-#: inventory/models.py:142
+#: inventory/models.py:154
 msgid "Rented Quantity"
 msgstr ""
 
-#: inventory/models.py:155
+#: inventory/models.py:168
 msgid "Inventory Item"
 msgstr ""
 
-#: inventory/models.py:156
+#: inventory/models.py:169
 msgid "Inventory Items"
 msgstr ""
 
-#: inventory/models.py:175
+#: inventory/models.py:188
 msgid "Not specified"
 msgstr ""
 
-#: inventory/models.py:181
+#: inventory/models.py:195
 msgid "Pending"
 msgstr ""
 
-#: inventory/models.py:182
+#: inventory/models.py:196
 msgid "In Progress"
 msgstr ""
 
-#: inventory/models.py:183
+#: inventory/models.py:197
 msgid "Completed"
 msgstr ""
 
-#: inventory/models.py:184
+#: inventory/models.py:198
 msgid "Completed with Errors"
 msgstr ""
 
-#: inventory/models.py:185
+#: inventory/models.py:199
 msgid "Failed"
 msgstr ""
 
-#: inventory/models.py:196
+#: inventory/models.py:210
 msgid "Inventory file"
 msgstr ""
 
-#: inventory/models.py:209
+#: inventory/models.py:223
 msgid "Import Status"
 msgstr ""
 
-#: inventory/models.py:220
+#: inventory/models.py:234
 msgid "Items Created"
 msgstr ""
 
-#: inventory/models.py:225
+#: inventory/models.py:239
 msgid "Items Skipped"
 msgstr ""
 
-#: inventory/models.py:236
+#: inventory/models.py:250
 msgid "Import Date"
 msgstr ""
 
-#: inventory/models.py:242
+#: inventory/models.py:256
 msgid "Completed Date"
 msgstr ""
 
-#: inventory/models.py:249
+#: inventory/models.py:263
 msgid "Error Log File"
 msgstr ""
 
-#: inventory/models.py:253
+#: inventory/models.py:269
 msgid "Inventory Import"
 msgstr ""
 
-#: inventory/models.py:254
+#: inventory/models.py:270
 msgid "Inventory Imports"
 msgstr ""
 
-#: inventory/models.py:263
+#: inventory/models.py:279
 msgid "No file provided."
 msgstr ""
 
-#: inventory/models.py:299
+#: inventory/models.py:316
 msgid "Created"
 msgstr ""
 
-#: inventory/models.py:300
+#: inventory/models.py:317
 msgid "Updated"
 msgstr ""
 
-#: inventory/models.py:301
+#: inventory/models.py:318
 msgid "Deleted"
 msgstr ""
 
-#: inventory/models.py:335
+#: inventory/models.py:354
 msgid "Audit Log"
 msgstr ""
 
-#: inventory/models.py:336
+#: inventory/models.py:355
 msgid "Audit Logs"
 msgstr ""
 
-#: inventory/models.py:341
+#: inventory/models.py:360
 #, python-format
 msgid "%(number)s %(action)s by %(user)s at %(timestamp)s"
 msgstr ""
 
-#: inventory/models.py:355
+#: inventory/models.py:374
 #, python-format
 msgid "Deleted item (ID: %(id)s)"
 msgstr ""
 
-#: inventory/models.py:361
+#: inventory/models.py:380
 msgid "No changes recorded."
 msgstr ""
 
-#: inventory/models.py:380
+#: inventory/models.py:399
 #, python-format
 msgid "%(field)s: %(old)s → %(new)s"
 msgstr ""
@@ -735,7 +735,7 @@ msgid "The duration field is required."
 msgstr ""
 
 #: licenses/forms.py:110
-#: planung/templates/admin/planung/calendar_weeks.html:123
+#: planung/templates/admin/planung/calendar_weeks.html:124
 msgid "Save"
 msgstr ""
 
@@ -948,27 +948,27 @@ msgstr ""
 msgid "Calendar Weeks – Broadcast Planning"
 msgstr ""
 
-#: planung/admin.py:141
+#: planung/admin.py:142
 msgid "Draft?"
 msgstr ""
 
-#: planung/admin.py:150
+#: planung/admin.py:151
 msgid "Planned items"
 msgstr ""
 
-#: planung/admin.py:159
+#: planung/admin.py:160
 msgid "Comment"
 msgstr ""
 
-#: planung/admin.py:179
+#: planung/admin.py:180
 msgid "not found"
 msgstr ""
 
-#: planung/admin.py:186
+#: planung/admin.py:187
 msgid "min"
 msgstr ""
 
-#: planung/admin.py:200
+#: planung/admin.py:201
 msgid "Planned items (preview)"
 msgstr ""
 
@@ -981,7 +981,7 @@ msgid "KW"
 msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:84
-#: planung/templates/admin/planung/calendar_weeks.html:122
+#: planung/templates/admin/planung/calendar_weeks.html:123
 msgid "Close"
 msgstr ""
 
@@ -994,7 +994,7 @@ msgid "105 Min"
 msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:92
-#: planung/templates/admin/planung/calendar_weeks.html:142
+#: planung/templates/admin/planung/calendar_weeks.html:145
 msgid "Full available"
 msgstr ""
 
@@ -1015,57 +1015,61 @@ msgid "Comment or notes:"
 msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:121
+msgid "Sort by time"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:122
 msgid "Delete"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:124
+#: planung/templates/admin/planung/calendar_weeks.html:125
 msgid "Plan!"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:143
+#: planung/templates/admin/planung/calendar_weeks.html:146
 #, python-format
 msgid "Still %%(minutes)s min free"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:144
+#: planung/templates/admin/planung/calendar_weeks.html:147
 #, python-format
 msgid "Overplanned by %%(minutes)s min!"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:145
+#: planung/templates/admin/planung/calendar_weeks.html:148
 msgid "License not found or not confirmed"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:255
-#: planung/templates/admin/planung/calendar_weeks.html:338
+#: planung/templates/admin/planung/calendar_weeks.html:303
+#: planung/templates/admin/planung/calendar_weeks.html:394
 msgid "⚠️ Date is missing."
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:288
+#: planung/templates/admin/planung/calendar_weeks.html:344
 msgid "Draft saved successfully."
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:292
+#: planung/templates/admin/planung/calendar_weeks.html:348
 msgid "Error saving the draft."
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:309
+#: planung/templates/admin/planung/calendar_weeks.html:365
 msgid "Plan saved successfully!"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:314
+#: planung/templates/admin/planung/calendar_weeks.html:370
 msgid "Error saving the plan. Please try again."
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:341
+#: planung/templates/admin/planung/calendar_weeks.html:397
 msgid "Delete plan for this day?"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:350
+#: planung/templates/admin/planung/calendar_weeks.html:406
 msgid "Plan deleted!"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:355
+#: planung/templates/admin/planung/calendar_weeks.html:411
 msgid "Error deleting the plan."
 msgstr ""
 
