@@ -6,6 +6,7 @@ from .models import Organization
 from admin_searchable_dropdown.filters import AutocompleteFilterFactory
 from django.contrib import admin
 from django.contrib import messages
+from django.contrib.admin import RelatedOnlyFieldListFilter
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from import_export.admin import ExportMixin
@@ -26,6 +27,7 @@ class InventoryResource(ModelResource):
     status = Field(attribute='status', column_name=_('Status'))
     object_type = Field(attribute='object_type', column_name=_('Object Type'))
     owner = Field(attribute='owner__name', column_name=_('Owner'))
+    inventory_number_owner = Field(attribute='inventory_number_owner', column_name=_('Inventory Number Owner'))
 
     purchase_date = Field(
         attribute='purchase_date',
@@ -45,10 +47,13 @@ class InventoryResource(ModelResource):
             'inventory_number',
             'description',
             'serial_number',
+            'manufacturer',
             'location',
             'quantity',
             'status',
             'object_type',
+            'owner',
+            'inventory_number_owner',
             'purchase_date',
             'purchase_cost',
             'last_inspection'
@@ -63,9 +68,9 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     readonly_fields = ('reserved_quantity', 'rented_quantity')
     list_display = (
         'inventory_number', 'description', 'serial_number', 'manufacturer', 'location', 'quantity',
-        'status', 'object_type', 'owner', 'available_for_rent'
+        'status', 'object_type', 'owner', 'inventory_number_owner', 'last_inspection', 'available_for_rent'
     )
-    search_fields = ['inventory_number', 'description', 'serial_number', 'manufacturer__name', 'owner__name']
+    search_fields = ['inventory_number', 'description', 'serial_number', 'manufacturer__name', 'owner__name', 'inventory_number_owner']
     list_filter = [
         AutocompleteFilterFactory(_('Manufacturer'), 'manufacturer'),
         AutocompleteFilterFactory(_('Owner'), 'owner'),
@@ -74,7 +79,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     ]
     fields = (
         'inventory_number', 'description', 'serial_number', 'manufacturer', 'location', 'quantity',
-        'status', 'object_type', 'owner', 'purchase_date', 'purchase_cost', 'last_inspection',
+        'status', 'object_type', 'owner', 'inventory_number_owner', 'purchase_date', 'purchase_cost', 'last_inspection',
         'available_for_rent', 'reserved_quantity', 'rented_quantity'
     )
 
@@ -144,7 +149,7 @@ class AuditLogAdmin(ExportMixin, admin.ModelAdmin):
     )
     list_filter = (
         'action',
-        'user',
+        ('user', RelatedOnlyFieldListFilter),
     )
     search_fields = ('object_id', 'changes')
     date_hierarchy = 'timestamp'

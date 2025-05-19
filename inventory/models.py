@@ -70,13 +70,6 @@ class InventoryItem(models.Model):
         unique=True,
         verbose_name=_("Inventory Number")
     )
-    inventory_number_owner = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        verbose_name=_("Inventory Number Owner"),
-        help_text=_("Enter the inventory number of the owner of the item.")
-    )
     description = models.TextField(
         blank=True,
         null=True,
@@ -116,6 +109,13 @@ class InventoryItem(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         verbose_name=_("Owner")
+    )
+    inventory_number_owner = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name=_("Inventory Number Owner"),
+        help_text=_("Enter the inventory number of the owner of the item.")
     )
     purchase_date = models.DateField(
         blank=True,

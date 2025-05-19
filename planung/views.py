@@ -16,7 +16,7 @@ import json
 def get_license_by_number(request, number):
     """Return license details by license number."""
     try:
-        license = License.objects.get(number=number, confirmed=True)
+        license = License.objects.get(number=number)
     except License.DoesNotExist:
         raise Http404(_("License not found or not confirmed."))
 

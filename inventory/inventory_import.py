@@ -54,15 +54,15 @@ def validate(file):
     header = next(rows)
     required_columns = {
         0: 'inventory_number',
-        1: 'inventory_number_owner',
-        2: 'description',
-        3: 'serial_number',
-        4: 'manufacturer',
-        5: 'location',
-        6: 'quantity',
-        7: 'status',
-        8: 'object_type',
-        9: 'owner',
+        1: 'description',
+        2: 'serial_number',
+        3: 'manufacturer',
+        4: 'location',
+        5: 'quantity',
+        6: 'status',
+        7: 'object_type',
+        8: 'owner',
+        9: 'inventory_number_owner',
         10: 'purchase_date',
         11: 'purchase_cost',
         12: 'last_inspection'
@@ -110,11 +110,10 @@ def inventory_import(request, file, import_obj):
                     continue
 
                 # Get values from row
-                inventory_number_owner = str(row[1].value or '').strip() or None
-                description = str(row[2].value or '').strip() or None
-                serial_number = str(row[3].value or '').strip() or None
-                manufacturer_name = str(row[4].value or '').strip() or None
-                location = str(row[5].value or '').strip() or _('Unknown Location')
+                description = str(row[1].value or '').strip() or None
+                serial_number = str(row[2].value or '').strip() or None
+                manufacturer_name = str(row[3].value or '').strip() or None
+                location = str(row[4].value or '').strip() or _('Unknown Location')
 
                 # Check required fields
                 if not location:
@@ -132,7 +131,7 @@ def inventory_import(request, file, import_obj):
 
                 # Handle quantity with default value 1
                 try:
-                    quantity = int(float(str(row[6].value or '1').strip()))
+                    quantity = int(float(str(row[5].value or '1').strip()))
                 except (ValueError, TypeError):
                     quantity = 1
 
@@ -144,16 +143,17 @@ def inventory_import(request, file, import_obj):
                     _('verliehen'): 'rented',
                     _('Ausleihe'): 'rented'
                 }
-                raw_status = str(row[7].value or '').strip()
+                raw_status = str(row[6].value or '').strip()
                 status = status_map.get(raw_status, 'in_stock')
 
                 # Determine object type
-                object_type = str(row[8].value or '').strip()
+                object_type = str(row[7].value or '').strip()
                 if not object_type:
                     # If object type is not specified, use location value
                     object_type = location
 
-                owner_name = str(row[9].value or '').strip() or None
+                owner_name = str(row[8].value or '').strip() or None
+                inventory_number_owner = str(row[9].value or '').strip() or None
 
                 # Handle purchase date
                 purchase_date = None
@@ -210,7 +210,6 @@ def inventory_import(request, file, import_obj):
                 # Create record
                 InventoryItem.objects.create(
                     inventory_number=inventory_number,
-                    inventory_number_owner=inventory_number_owner,
                     description=description,
                     serial_number=serial_number,
                     manufacturer=manufacturer,
@@ -219,6 +218,7 @@ def inventory_import(request, file, import_obj):
                     status=status,
                     object_type=object_type,
                     owner=owner,
+                    inventory_number_owner=inventory_number_owner,
                     purchase_date=purchase_date,
                     purchase_cost=purchase_cost,
                     last_inspection=last_inspection
