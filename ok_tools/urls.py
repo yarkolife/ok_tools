@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from . import accessibility_views
 from django.contrib import admin
 from django.urls import include
 from django.urls import path
@@ -21,6 +22,8 @@ from django.views.generic.base import TemplateView
 from registration.views import PasswordResetConfirmView
 from registration.views import PasswordResetView
 
+
+# Keep default admin site; ordering handled elsewhere
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
@@ -50,4 +53,7 @@ urlpatterns = [
         include("planung.urls"),
     ),
     path('inventory/', include('inventory.urls', namespace='inventory')),
+    # Accessibility URLs
+    path('accessibility-statement/', accessibility_views.accessibility_statement, name='accessibility_statement'),
+    path('accessibility-feedback/', accessibility_views.accessibility_feedback, name='accessibility_feedback'),
 ]
