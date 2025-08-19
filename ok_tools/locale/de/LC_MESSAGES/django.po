@@ -52,7 +52,6 @@ msgstr "Untertitel"
 #: rental/templates/rental/rental_stats.html:226
 #: rental/templates/rental/rental_stats.html:274
 #: rental/templates/rental/rental_stats.html:381
-
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -251,7 +250,6 @@ msgstr "Beitrag"
 #: contributions/models.py:115
 msgid "DISA export file"
 msgstr "DISA-Export-Datei"
-
 
 #: contributions/models.py:125 inventory/models.py:326 inventory/models.py:644
 msgid "Imported"
@@ -584,7 +582,6 @@ msgstr "Keine Fehler"
 #: inventory/models.py:120 rental/models.py:251
 #: rental/templates/rental/rental_stats.html:273
 #: rental/templates/rental/rental_stats.html:377
-
 msgid "Name"
 msgstr "Name"
 
@@ -2088,7 +2085,9 @@ msgstr "Es kann nicht mehr als reserviert ausgegeben werden."
 
 #: rental/forms.py:66
 msgid "Cannot return more than outstanding issued quantity."
-msgstr "Es kann nicht mehr als die ausstehende ausgegebene Menge zurückgegeben werden."
+msgstr ""
+"Es kann nicht mehr als die ausstehende ausgegebene Menge zurückgegeben "
+"werden."
 
 #: rental/forms.py:69 rental/serializers.py:103
 msgid "Cannot cancel more than reserved."
@@ -2111,8 +2110,8 @@ msgid ""
 "Automatic expiration of expired room rentals: processed {} rentals, "
 "reservations: {}, rentals: {}"
 msgstr ""
-"Automatisches Ablaufen von abgelaufenen Raumausleihen: {} Ausleihen bearbeitet, "
-"Reservierungen: {}, Ausleihen: {}"
+"Automatisches Ablaufen von abgelaufenen Raumausleihen: {} Ausleihen "
+"bearbeitet, Reservierungen: {}, Ausleihen: {}"
 
 #: rental/management/commands/expire_room_rentals.py:164
 msgid "Error during automatic expiration of expired room rentals: {}"
@@ -2212,7 +2211,9 @@ msgstr "Tatsächliches Rückgabedatum"
 
 #: rental/models.py:185
 msgid "Date when the item was actually returned (auto-filled on return)"
-msgstr "Datum, an dem der Artikel tatsächlich zurückgegeben wurde (wird bei Rückgabe automatisch ausgefüllt)"
+msgstr ""
+"Datum, an dem der Artikel tatsächlich zurückgegeben wurde (wird bei Rückgabe "
+"automatisch ausgefüllt)"
 
 #: rental/models.py:194 rental/models.py:347 rental/models.py:432
 msgid "Rental item"
@@ -2433,7 +2434,9 @@ msgstr "Es kann nicht mehr als angefordert reserviert werden."
 
 #: rental/serializers.py:100
 msgid "Cannot return more than outstanding issued."
-msgstr "Es kann nicht mehr als die ausstehende ausgegebene Menge zurückgegeben werden."
+msgstr ""
+"Es kann nicht mehr als die ausstehende ausgegebene Menge zurückgegeben "
+"werden."
 
 #: rental/templates/admin/rental/equipment_set_change_list.html:7
 msgid "Create rental from sets"
@@ -2879,8 +2882,8 @@ msgid ""
 "These administration functions allow you to reset or clean up the entire "
 "rental system."
 msgstr ""
-"Diese Verwaltungsfunktionen ermöglichen es Ihnen, das gesamte "
-"Ausleihsystem zurückzusetzen oder zu bereinigen."
+"Diese Verwaltungsfunktionen ermöglichen es Ihnen, das gesamte Ausleihsystem "
+"zurückzusetzen oder zu bereinigen."
 
 #: rental/templates/rental/rental_stats.html:322
 msgid "Warning"
@@ -2888,7 +2891,9 @@ msgstr "Warnung"
 
 #: rental/templates/rental/rental_stats.html:322
 msgid "These actions cannot be undone. Make sure you have a backup."
-msgstr "Diese Aktionen können nicht rückgängig gemacht werden. Stellen Sie sicher, dass Sie eine Sicherung haben."
+msgstr ""
+"Diese Aktionen können nicht rückgängig gemacht werden. Stellen Sie sicher, "
+"dass Sie eine Sicherung haben."
 
 #: rental/templates/rental/rental_stats.html:325
 msgid "Available Actions"
@@ -2979,7 +2984,9 @@ msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
 
 #: rental/views.py:212
 msgid "You do not have permission to access this page. Only staff have access."
-msgstr "Sie haben keine Berechtigung, auf diese Seite zuzugreifen. Nur Mitarbeiter haben Zugriff."
+msgstr ""
+"Sie haben keine Berechtigung, auf diese Seite zuzugreifen. Nur Mitarbeiter "
+"haben Zugriff."
 
 #: rental/views.py:278
 msgid "Member"
@@ -3013,8 +3020,8 @@ msgid ""
 "Start time cannot be in the past. Selected time: {start_time}, Current time: "
 "{current_time}"
 msgstr ""
-"Startzeit kann nicht in der Vergangenheit liegen. Gewählte Zeit: {start_time}, Aktuelle Zeit: "
-"{current_time}"
+"Startzeit kann nicht in der Vergangenheit liegen. Gewählte Zeit: "
+"{start_time}, Aktuelle Zeit: {current_time}"
 
 #: rental/views.py:452
 #, python-brace-format
@@ -3022,8 +3029,8 @@ msgid ""
 "End time cannot be in the past. Selected time: {end_time}, Current time: "
 "{current_time}"
 msgstr ""
-"Endzeit kann nicht in der Vergangenheit liegen. Gewählte Zeit: {end_time}, Aktuelle Zeit: "
-"{current_time}"
+"Endzeit kann nicht in der Vergangenheit liegen. Gewählte Zeit: {end_time}, "
+"Aktuelle Zeit: {current_time}"
 
 #: rental/views.py:463
 msgid "End time must be after start time"
@@ -3035,8 +3042,8 @@ msgid ""
 "Item \"{item_description}\" is not available for the selected period. "
 "Available: {available}, requested: {requested}"
 msgstr ""
-"Artikel \"{item_description}\" ist für den gewählten Zeitraum nicht verfügbar. "
-"Verfügbar: {available}, angefordert: {requested}"
+"Artikel \"{item_description}\" ist für den gewählten Zeitraum nicht "
+"verfügbar. Verfügbar: {available}, angefordert: {requested}"
 
 #: rental/views.py:536 rental/views.py:953 rental/views.py:2235
 msgid "Unknown user"
@@ -3054,8 +3061,8 @@ msgid ""
 "Room \"{room_name}\" is not available for the selected period. Conflicts: "
 "{conflicts}"
 msgstr ""
-"Raum \"{room_name}\" ist für den gewählten Zeitraum nicht verfügbar. Konflikte: "
-"{conflicts}"
+"Raum \"{room_name}\" ist für den gewählten Zeitraum nicht verfügbar. "
+"Konflikte: {conflicts}"
 
 #: rental/views.py:580
 msgid "Rental request created successfully"
@@ -3093,7 +3100,8 @@ msgstr "Reservierte Menge über Admin-Oberfläche storniert"
 
 #: rental/views.py:1173
 msgid "Returned issued quantity due to cancellation via admin interface"
-msgstr "Ausgegebene Menge aufgrund Stornierung über Admin-Oberfläche zurückgegeben"
+msgstr ""
+"Ausgegebene Menge aufgrund Stornierung über Admin-Oberfläche zurückgegeben"
 
 #: rental/views.py:1184
 #, python-brace-format
@@ -3122,7 +3130,8 @@ msgstr "Nur aktive Ausleihen können verlängert werden"
 
 #: rental/views.py:1399
 msgid "Invalid date format. Please use YYYY-MM-DDTHH:MM or ISO format"
-msgstr "Ungültiges Datumsformat. Bitte verwenden Sie YYYY-MM-DDTHH:MM oder ISO-Format"
+msgstr ""
+"Ungültiges Datumsformat. Bitte verwenden Sie YYYY-MM-DDTHH:MM oder ISO-Format"
 
 #: rental/views.py:1409
 msgid "New end date must be after current end date"
@@ -3251,26 +3260,3 @@ msgstr ""
 #: ok_tools/templates/home.html:35
 msgid "You are not logged in"
 msgstr "Sie sind nicht angemeldet."
-
-#, python-brace-format
-#~ msgid "Invalid inventory number \"{inventory_number}\""
-#~ msgstr "Ungültige Inventarnummer \"{inventory_number}\""
-
-#~ msgid "Unknown Location"
-#~ msgstr "Unbekannter Standort"
-
-#, python-format
-#~ msgid "Location is missing in row %(row)s. Skipping..."
-#~ msgstr "Standort fehlt in Zeile %(row)s. Wird übersprungen..."
-
-#~ msgid "Gerät"
-#~ msgstr "Gerät"
-
-#~ msgid "Hersteller"
-#~ msgstr "Hersteller"
-
-#~ msgid "Gerätetyp"
-#~ msgstr "Gerätetyp"
-
-#~ msgid "Raum"
-#~ msgstr "Raum"
