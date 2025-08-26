@@ -4,6 +4,7 @@ from .forms import ProfileForm
 from .forms import UserDataForm
 from .models import Profile
 from .print import generate_registration_form
+from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -145,6 +146,14 @@ class EditProfileView(generic.View):
 
         form = UserDataForm(initial_data)
 
+        # Add Bootstrap classes to form fields
+        for field_name, field in form.fields.items():
+            if hasattr(field.widget, 'attrs'):
+                if isinstance(field.widget, forms.Select):
+                    field.widget.attrs.update({'class': 'form-select'})
+                else:
+                    field.widget.attrs.update({'class': 'form-control'})
+
         ALWAYS_WRITABLE = ['phone_number', 'mobile_number']
         # if verified only ALWAY_WRITABLE fields are writeable
         if profile.verified:
@@ -169,6 +178,14 @@ class EditProfileView(generic.View):
         assert profile
 
         form = UserDataForm(request.POST, initial=initial_data)
+
+        # Add Bootstrap classes to form fields for error display
+        for field_name, field in form.fields.items():
+            if hasattr(field.widget, 'attrs'):
+                if isinstance(field.widget, forms.Select):
+                    field.widget.attrs.update({'class': 'form-select'})
+                else:
+                    field.widget.attrs.update({'class': 'form-control'})
 
         if not form.is_valid():
             return _validation_errors(request, self.template_name, form)
