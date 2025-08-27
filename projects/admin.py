@@ -108,7 +108,7 @@ class CustomDateRangeFilter(admin.FieldListFilter):
                     lte_datetime = datetime.datetime.combine(lte_datetime.date(), lte_time_obj)
                 else:
                     lte_datetime = datetime.datetime.combine(lte_datetime.date(), datetime.time.max)
-                queryset = queryset.filter(**{f'{self.field_path}__gte': lte_datetime})
+                queryset = queryset.filter(**{f'{self.field_path}__lte': lte_datetime})
             except ValueError:
                 pass
 
