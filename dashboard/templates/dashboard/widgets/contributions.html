@@ -1,0 +1,812 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Contributions Dashboard" %}{% endblock %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            
+            <!-- Filters Section -->
+            <div class="filter-section">
+                <form id="filtersForm" method="GET">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="dateRange" class="form-label">{% trans "Date Range" %}</label>
+                            <select class="form-select" id="dateRange" name="days">
+                                <option value="7">{% trans "Last 7 days" %}</option>
+                                <option value="30">{% trans "Last 30 days" %}</option>
+                                <option value="90">{% trans "Last 90 days" %}</option>
+                                <option value="365">{% trans "Last year" %}</option>
+                                <option value="all">{% trans "All Time" %}</option>
+                                <option value="custom">{% trans "Custom Period" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customStartDate" class="form-label">{% trans "Start Date" %}</label>
+                            <input type="date" class="form-control" id="customStartDate" name="start_date" style="display: none;">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customEndDate" class="form-label">{% trans "End Date" %}</label>
+                            <input type="date" class="form-control" id="customEndDate" name="end_date" style="display: none;">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="mediaAuthority" class="form-label">{% trans "Media Authority" %}</label>
+                            <select class="form-select" id="mediaAuthority" name="media_authority">
+                                <option value="">{% trans "All Authorities" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <label for="genderFilter" class="form-label">{% trans "Gender" %}</label>
+                            <select class="form-select" id="genderFilter" name="gender">
+                                <option value="">{% trans "All Genders" %}</option>
+                                <option value="m">{% trans "Male" %}</option>
+                                <option value="f">{% trans "Female" %}</option>
+                                <option value="d">{% trans "Diverse" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="ageGroupFilter" class="form-label">{% trans "Age Group" %}</label>
+                            <select class="form-select" id="ageGroupFilter" name="age_group">
+                                <option value="">{% trans "All Ages" %}</option>
+                                <option value="under_18">{% trans "Under 18" %}</option>
+                                <option value="18_25">{% trans "18-25" %}</option>
+                                <option value="26_35">{% trans "26-35" %}</option>
+                                <option value="36_50">{% trans "36-50" %}</option>
+                                <option value="over_50">{% trans "Over 50" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="liveFilter" class="form-label">{% trans "Live/Recorded" %}</label>
+                            <select class="form-select" id="liveFilter" name="live">
+                                <option value="">{% trans "All" %}</option>
+                                <option value="true">{% trans "Live Only" %}</option>
+                                <option value="false">{% trans "Recorded Only" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="primaryFilter" class="form-label">{% trans "Type" %}</label>
+                            <select class="form-select" id="primaryFilter" name="primary">
+                                <option value="">{% trans "All" %}</option>
+                                <option value="primary">{% trans "Primary Only" %}</option>
+                                <option value="repetition">{% trans "Repetitions Only" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">{% trans "Apply Filters" %}</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetFilters()">{% trans "Reset" %}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalContributions">0</div>
+                        <div class="stat-label">{% trans "TOTAL CONTRIBUTIONS" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="liveContributions">0</div>
+                        <div class="stat-label">{% trans "LIVE" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="recordedContributions">0</div>
+                        <div class="stat-label">{% trans "AUFGEZEICHNET" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="uniqueLicenses">0</div>
+                        <div class="stat-label">{% trans "UNIQUE LICENSES" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="primaryLicenses">0</div>
+                        <div class="stat-label">{% trans "PRIMARY" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="archiveLicenses">0</div>
+                        <div class="stat-label">{% trans "ARCHIVE" %}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Second row of statistics cards -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="repetitions">0</div>
+                        <div class="stat-label">{% trans "REPETITIONS" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="conversionRate">0%</div>
+                        <div class="stat-label">{% trans "CONVERSION RATE" %}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Metrics -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header">
+                            <h3 class="widget-title">{% trans "License to Contribution Conversion" %}</h3>
+                        </div>
+                        <div class="text-center">
+                            <div class="display-4 text-primary" id="conversionRateBig">0%</div>
+                            <p class="text-muted">{% trans "of licenses result in contributions" %}</p>
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <div class="h5" id="totalLicenses">0</div>
+                                    <small class="text-muted">{% trans "Total Licenses" %}</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h5" id="licensesWithContributions">0</div>
+                                    <small class="text-muted">{% trans "With Contributions" %}</small>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="h6" id="avgTimeToFirst">-</div>
+                                <small class="text-muted">{% trans "Avg. days from license to first contribution" %}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header">
+                            <h3 class="widget-title">{% trans "Live vs Recorded Distribution" %}</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="liveRecordedChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Contributions by Media Authority" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('authorityChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="authorityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Contributions by Gender" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('genderChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Contributions by Age Group" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('ageChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="ageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Primary vs Repetitions" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('primaryRepetitionChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="primaryRepetitionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Contributions Trend -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Contributions Trend" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('trendChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p class="loading-text">{% trans "Loading data..." %}</p>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+<script>
+// Chart instances
+window.authorityChart = null;
+window.genderChart = null;
+window.ageChart = null;
+window.trendChart = null;
+window.liveRecordedChart = null;
+window.primaryRepetitionChart = null;
+
+// Initialize chart data with empty values
+window.chartData = {
+    contributionsByAuthority: [],
+    contributionsByGender: [],
+    contributionsByAge: {},
+    contributionsTrend: [],
+    basicStats: {},
+    liveVsRecorded: {},
+    primaryVsRepetitions: {},
+    conversionMetrics: {}
+};
+
+// Load filter data via AJAX
+async function loadFilterData() {
+    try {
+        const response = await fetch('/admin-dashboard/api/filters-data/');
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.context) {
+            console.log('Filter data loaded:', data.data.context);
+            
+            // Populate Media Authority options
+            const mediaAuthoritySelect = document.getElementById('mediaAuthority');
+            if (mediaAuthoritySelect && data.data.context.media_authorities) {
+                while (mediaAuthoritySelect.children.length > 1) {
+                    mediaAuthoritySelect.removeChild(mediaAuthoritySelect.lastChild);
+                }
+                
+                data.data.context.media_authorities.forEach(authority => {
+                    const option = document.createElement('option');
+                    option.value = authority.name;
+                    option.textContent = authority.name;
+                    mediaAuthoritySelect.appendChild(option);
+                });
+            }
+        } else {
+            console.error('Failed to load filter data:', data);
+        }
+    } catch (error) {
+        console.error('Error loading filter data:', error);
+    }
+}
+
+// Load chart data via AJAX
+async function loadChartData() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const response = await fetch(`/admin-dashboard/api/contributions-statistics/?${urlParams.toString()}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            console.log('DEBUG: Received data:', data.data);
+            console.log('DEBUG: unified_metrics:', data.data.unified_metrics);
+            
+            window.chartData = {
+                contributionsByAuthority: data.data.contributions_by_authority || [],
+                contributionsByGender: data.data.contributions_by_gender || [],
+                contributionsByAge: data.data.contributions_by_age || {},
+                contributionsTrend: data.data.contributions_trend || [],
+                basicStats: data.data.basic_stats || {},
+                liveVsRecorded: data.data.live_vs_recorded || {},
+                primaryVsRepetitions: data.data.primary_vs_repetitions || {},
+                conversionMetrics: data.data.conversion_metrics || {},
+                archiveMetrics: data.data.archive_metrics || {}
+            };
+            
+            // Update statistics cards
+            updateStatisticsCards(data.data.unified_metrics);
+            updateConversionMetrics(data.data.conversion_metrics);
+            
+
+            
+            console.log('Chart data loaded successfully:', window.chartData);
+        } else {
+            console.error('API returned error or no data:', data);
+            window.chartData = {
+                contributionsByAuthority: [],
+                contributionsByGender: [],
+                contributionsByAge: {},
+                contributionsTrend: [],
+                basicStats: {},
+                liveVsRecorded: {},
+                primaryVsRepetitions: {},
+                conversionMetrics: {}
+            };
+        }
+    } catch (error) {
+        console.error('Error loading chart data:', error);
+        window.chartData = {
+            contributionsByAuthority: [],
+            contributionsByGender: [],
+            contributionsByAge: {},
+            contributionsTrend: [],
+            basicStats: {},
+            liveVsRecorded: {},
+            primaryVsRepetitions: {},
+            conversionMetrics: {}
+        };
+    }
+}
+
+// Update statistics cards
+window.updateStatisticsCards = function(unifiedMetrics) {
+    console.log('DEBUG: updateStatisticsCards called with:', unifiedMetrics);
+    
+    if (!unifiedMetrics || typeof unifiedMetrics !== 'object') {
+        console.warn('unifiedMetrics is undefined or not an object, skipping statistics update');
+        return;
+    }
+    
+    const elements = {
+        'totalContributions': unifiedMetrics.total_contributions || 0,
+        'liveContributions': unifiedMetrics.live_contributions || 0,
+        'recordedContributions': unifiedMetrics.recorded_contributions || 0,
+        'uniqueLicenses': unifiedMetrics.unique_licenses || 0,
+        'primaryLicenses': unifiedMetrics.primary_licenses || 0,
+        'archiveLicenses': unifiedMetrics.archive_licenses || 0,
+        'repetitions': unifiedMetrics.repetitions || 0,
+        'conversionRate': `${unifiedMetrics.conversion_rate || 0}%`
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    });
+}
+
+// Update conversion metrics
+function updateConversionMetrics(conversionMetrics) {
+    if (!conversionMetrics || typeof conversionMetrics !== 'object') {
+        return;
+    }
+    
+    const rateElement = document.getElementById('conversionRate');
+    const rateBigElement = document.getElementById('conversionRateBig');
+    const totalLicensesElement = document.getElementById('totalLicenses');
+    const licensesWithContributionsElement = document.getElementById('licensesWithContributions');
+    const avgTimeToFirstElement = document.getElementById('avgTimeToFirst');
+    
+    if (rateElement) rateElement.textContent = `${conversionMetrics.conversion_rate || 0}%`;
+    if (rateBigElement) rateBigElement.textContent = `${conversionMetrics.conversion_rate || 0}%`;
+    if (totalLicensesElement) totalLicensesElement.textContent = conversionMetrics.total_licenses || 0;
+    if (licensesWithContributionsElement) licensesWithContributionsElement.textContent = conversionMetrics.licenses_with_contributions || 0;
+    if (avgTimeToFirstElement) {
+        avgTimeToFirstElement.textContent = conversionMetrics.avg_time_to_first_contribution || '-';
+    }
+}
+
+
+
+// Initialize filters from URL
+function initializeFiltersFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const days = urlParams.get('days');
+    const startDate = urlParams.get('start_date');
+    const endDate = urlParams.get('end_date');
+    
+    if (days) {
+        const dateRangeSelect = document.getElementById('dateRange');
+        if (dateRangeSelect) {
+            dateRangeSelect.value = days;
+        }
+        
+        if (days === 'custom' && startDate && endDate) {
+            const startInput = document.getElementById('customStartDate');
+            const endInput = document.getElementById('customEndDate');
+            if (startInput) startInput.value = startDate;
+            if (endInput) endInput.value = endDate;
+        }
+    }
+    
+    // Set other filter values from URL
+    const filters = ['media_authority', 'gender', 'age_group', 'live', 'primary'];
+    filters.forEach(filter => {
+        const value = urlParams.get(filter);
+        if (value) {
+            const element = document.getElementById(filter === 'media_authority' ? 'mediaAuthority' : filter + 'Filter');
+            if (element) {
+                element.value = value;
+            }
+        }
+    });
+}
+
+function toggleCustomDateInputs() {
+    const dateRange = document.getElementById('dateRange').value;
+    const startDateInput = document.getElementById('customStartDate');
+    const endDateInput = document.getElementById('customEndDate');
+    
+    if (dateRange === 'custom') {
+        startDateInput.style.display = 'block';
+        endDateInput.style.display = 'block';
+    } else {
+        startDateInput.style.display = 'none';
+        endDateInput.style.display = 'none';
+    }
+}
+
+function applyFilters() {
+    const form = document.getElementById('filtersForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    for (let [key, value] of formData.entries()) {
+        if (value) {
+            params.append(key, value);
+        }
+    }
+    
+    window.history.pushState({}, '', window.location.pathname + '?' + params.toString());
+    
+    loadChartData().then(function() {
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    }).catch(function(error) {
+        console.error('Error updating charts:', error);
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    });
+}
+
+function resetFilters() {
+    const form = document.getElementById('filtersForm');
+    form.reset();
+    
+    window.history.pushState({}, '', window.location.pathname);
+    
+    loadChartData().then(function() {
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    }).catch(function(error) {
+        console.error('Error updating charts:', error);
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    });
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize filters from URL
+    initializeFiltersFromURL();
+    
+    // Load filter data
+    loadFilterData();
+    
+    // Add event listeners for form submission
+    const filtersForm = document.getElementById('filtersForm');
+    if (filtersForm) {
+        filtersForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            applyFilters();
+        });
+    }
+    
+    // Add event listener for date range change
+    const dateRangeSelect = document.getElementById('dateRange');
+    if (dateRangeSelect) {
+        dateRangeSelect.addEventListener('change', function() {
+            toggleCustomDateInputs();
+        });
+    }
+    
+    // Initialize custom date inputs visibility
+    toggleCustomDateInputs();
+    
+    // Load chart data and initialize charts
+    loadChartData().then(function() {
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    }).catch(function(error) {
+        console.error('Error during initialization:', error);
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    });
+});
+
+// Make initializeCharts globally available
+window.initializeCharts = function() {
+    // Check if chartData is available
+    if (!window.chartData) {
+        console.warn('Chart data not available, initializing with empty data');
+        window.chartData = {
+            contributionsByAuthority: [],
+            contributionsByGender: [],
+            contributionsByAge: {},
+            contributionsTrend: [],
+            basicStats: {},
+            liveVsRecorded: {},
+            primaryVsRepetitions: {},
+            conversionMetrics: {}
+        };
+    }
+    
+    // Destroy existing charts if they exist
+    if (window.authorityChart) window.authorityChart.destroy();
+    if (window.genderChart) window.genderChart.destroy();
+    if (window.ageChart) window.ageChart.destroy();
+    if (window.trendChart) window.trendChart.destroy();
+    if (window.liveRecordedChart) window.liveRecordedChart.destroy();
+    if (window.primaryRepetitionChart) window.primaryRepetitionChart.destroy();
+    
+    // Authority Chart
+    const authorityCtx = document.getElementById('authorityChart');
+    if (authorityCtx) {
+        window.authorityChart = new Chart(authorityCtx, {
+            type: 'bar',
+            data: {
+                labels: window.chartData.contributionsByAuthority.map(item => item.license__profile__media_authority__name || 'Unknown'),
+                datasets: [{
+                    label: 'Contributions',
+                    data: window.chartData.contributionsByAuthority.map(item => item.count),
+                    backgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Gender Chart
+    const genderCtx = document.getElementById('genderChart');
+    if (genderCtx) {
+        window.genderChart = new Chart(genderCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Male', 'Female', 'Diverse'],
+                datasets: [{
+                    data: [
+                        window.chartData.contributionsByGender.find(item => item.license__profile__gender === 'm')?.count || 0,
+                        window.chartData.contributionsByGender.find(item => item.license__profile__gender === 'f')?.count || 0,
+                        window.chartData.contributionsByGender.find(item => item.license__profile__gender === 'd')?.count || 0
+                    ],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+    
+    // Age Chart
+    const ageCtx = document.getElementById('ageChart');
+    if (ageCtx) {
+        window.ageChart = new Chart(ageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Under 18', '18-25', '26-35', '36-50', 'Over 50'],
+                datasets: [{
+                    label: 'Contributions',
+                    data: [
+                        window.chartData.contributionsByAge.under_18 || 0,
+                        window.chartData.contributionsByAge['18_25'] || 0,
+                        window.chartData.contributionsByAge['26_35'] || 0,
+                        window.chartData.contributionsByAge['36_50'] || 0,
+                        window.chartData.contributionsByAge.over_50 || 0
+                    ],
+                    backgroundColor: '#4BC0C0'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Trend Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        console.log('Creating trend chart with data:', window.chartData.contributionsTrend);
+        
+        const trendData = Array.isArray(window.chartData.contributionsTrend) ? window.chartData.contributionsTrend : [];
+        
+        window.trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendData.map(item => item.date || ''),
+                datasets: [{
+                    label: 'Contributions',
+                    data: trendData.map(item => item.count || 0),
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Live vs Recorded Chart
+    const liveRecordedCtx = document.getElementById('liveRecordedChart');
+    if (liveRecordedCtx) {
+        window.liveRecordedChart = new Chart(liveRecordedCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Live', 'Recorded'],
+                datasets: [{
+                    data: [
+                        window.chartData.liveVsRecorded.live || 0,
+                        window.chartData.liveVsRecorded.recorded || 0
+                    ],
+                    backgroundColor: ['#4BC0C0', '#FFCE56']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+    
+    // Primary vs Repetitions Chart
+    const primaryRepetitionCtx = document.getElementById('primaryRepetitionChart');
+    if (primaryRepetitionCtx) {
+        window.primaryRepetitionChart = new Chart(primaryRepetitionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Primary', 'Repetitions'],
+                datasets: [{
+                    data: [
+                        window.chartData.primaryVsRepetitions.primary || 0,
+                        window.chartData.primaryVsRepetitions.repetition || 0
+                    ],
+                    backgroundColor: ['#9966FF', '#FF9F40']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Export functions
+window.exportChartData = function(chartId) {
+    const chart = getChartInstance(chartId);
+    if (chart) {
+        const data = chart.data;
+        const csv = convertToCSV(data);
+        downloadCSV(csv, `${chartId}_data.csv`);
+    }
+}
+
+window.getChartInstance = function(chartId) {
+    switch(chartId) {
+        case 'authorityChart': return window.authorityChart;
+        case 'genderChart': return window.genderChart;
+        case 'ageChart': return window.ageChart;
+        case 'trendChart': return window.trendChart;
+        case 'liveRecordedChart': return window.liveRecordedChart;
+        case 'primaryRepetitionChart': return window.primaryRepetitionChart;
+        default: return null;
+    }
+}
+
+window.convertToCSV = function(data) {
+    const labels = data.labels;
+    const values = data.datasets[0].data;
+    
+    let csv = 'Label,Value\n';
+    for (let i = 0; i < labels.length; i++) {
+        csv += `"${labels[i]}",${values[i]}\n`;
+    }
+    
+    return csv;
+}
+
+window.downloadCSV = function(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

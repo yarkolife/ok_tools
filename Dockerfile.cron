@@ -1,0 +1,28 @@
+FROM python:3.9-slim
+
+# Установка cron
+RUN apt-get update && apt-get install -y cron
+
+# Создание рабочей директории
+WORKDIR /app
+
+# Копирование зависимостей
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Копирование кода приложения
+COPY . .
+
+# Создание лог файла
+RUN touch /var/log/expire_rentals.log
+
+# Копирование crontab
+COPY scripts/crontab.txt /etc/cron.d/expire_rentals
+RUN chmod 0644 /etc/cron.d/expire_rentals
+
+# Создание скрипта запуска
+RUN echo '#!/bin/bash\ncron && tail -f /var/log/expire_rentals.log' > /start.sh
+RUN chmod +x /start.sh
+
+# Запуск cron и логирования
+CMD ["/start.sh"]

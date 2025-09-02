@@ -1,0 +1,5 @@
+# Запуск команды истечения аренды каждые 30 минут
+*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /var/log/expire_rentals.log 2>&1
+
+# Альтернативный вариант через manage.py (если доступен)
+# */30 * * * * cd /app && python manage.py expire_room_rentals >> /var/log/expire_rentals.log 2>&1

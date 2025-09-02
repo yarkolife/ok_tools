@@ -1,0 +1,501 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "System Notifications" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Filters" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filtersForm">
+                        <!-- Compact Filters Row -->
+                        <div class="row g-3">
+                            <div class="col-lg-2 col-md-3 col-sm-6">
+                                <label for="dateRange" class="form-label small">{% trans "Time Period" %}</label>
+                                <select class="form-select form-select-sm" id="dateRange" name="days">
+                                    <option value="7">{% trans "Last 7 days" %}</option>
+                                    <option value="30" selected>{% trans "Last 30 days" %}</option>
+                                    <option value="90">{% trans "Last 90 days" %}</option>
+                                    <option value="365">{% trans "Last year" %}</option>
+                                    <option value="custom">{% trans "Custom Period" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-lg-2 col-md-3 col-sm-6" id="customDateInputs" style="display: none;">
+                                <label for="startDate" class="form-label small">{% trans "Start Date" %}</label>
+                                <input type="date" class="form-control form-control-sm" id="startDate" name="start_date">
+                            </div>
+                            
+                            <div class="col-lg-2 col-md-3 col-sm-6" id="customDateInputs2" style="display: none;">
+                                <label for="endDate" class="form-label small">{% trans "End Date" %}</label>
+                                <input type="date" class="form-control form-control-sm" id="endDate" name="end_date">
+                            </div>
+
+                            <div class="col-lg-2 col-md-3 col-sm-6">
+                                <label for="notificationType" class="form-label small">{% trans "Type" %}</label>
+                                <select class="form-select form-select-sm" id="notificationType" name="notification_type">
+                                    <option value="">{% trans "All" %}</option>
+                                    <option value="info">{% trans "Information" %}</option>
+                                    <option value="success">{% trans "Success" %}</option>
+                                    <option value="warning">{% trans "Warning" %}</option>
+                                    <option value="danger">{% trans "Danger" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-lg-2 col-md-3 col-sm-6">
+                                <label for="priority" class="form-label small">{% trans "Priority" %}</label>
+                                <select class="form-select form-select-sm" id="priority" name="priority">
+                                    <option value="">{% trans "All" %}</option>
+                                    <option value="1">1 - {% trans "Low" %}</option>
+                                    <option value="5">5 - {% trans "Medium" %}</option>
+                                    <option value="10">10 - {% trans "High" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-lg-2 col-md-3 col-sm-6">
+                                <label for="isActive" class="form-label small">{% trans "Status" %}</label>
+                                <select class="form-select form-select-sm" id="isActive" name="is_active">
+                                    <option value="">{% trans "All" %}</option>
+                                    <option value="true">{% trans "Active" %}</option>
+                                    <option value="false">{% trans "Inactive" %}</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-lg-2 col-md-3 col-sm-6 d-flex align-items-end">
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-primary btn-sm" id="applyFiltersBtn">{% trans "Apply" %}</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="resetFiltersBtn">{% trans "Reset" %}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h4 class="text-primary" id="totalNotifications">-</h4>
+                    <p class="text-muted">{% trans "Total Notifications" %}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h4 class="text-success" id="activeNotifications">-</h4>
+                    <p class="text-muted">{% trans "Active Notifications" %}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h4 class="text-warning" id="currentlyActive">-</h4>
+                    <p class="text-muted">{% trans "Currently Active" %}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h4 class="text-info" id="recentNotifications">-</h4>
+                    <p class="text-muted">{% trans "Recent (7 days)" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Notifications -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Currently Active Notifications" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div id="activeNotificationsList">
+                        <p class="text-muted">{% trans "Loading..." %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Notifications by Type" %}</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="notificationsByTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Notifications by Priority" %}</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="notificationsByPriorityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Notification Management" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Title" %}</th>
+                                    <th>{% trans "Type" %}</th>
+                                    <th>{% trans "Priority" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Start Date" %}</th>
+                                    <th>{% trans "End Date" %}</th>
+                                    <th>{% trans "Created By" %}</th>
+                                    <th>{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notificationsTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">{% trans "Loading..." %}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" style="background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">{% trans "Loading..." %}</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+window.chartData = {};
+window.notificationsByTypeChart = null;
+window.notificationsByPriorityChart = null;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadChartData();
+    setupEventListeners();
+    toggleCustomDateInputs();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+    document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+    document.getElementById('dateRange').addEventListener('change', toggleCustomDateInputs);
+}
+
+// Toggle custom date inputs
+function toggleCustomDateInputs() {
+    const dateRange = document.getElementById('dateRange').value;
+    const customInputs = document.getElementById('customDateInputs');
+    const customInputs2 = document.getElementById('customDateInputs2');
+    
+    if (dateRange === 'custom') {
+        customInputs.style.display = 'block';
+        customInputs2.style.display = 'block';
+    } else {
+        customInputs.style.display = 'none';
+        customInputs2.style.display = 'none';
+    }
+}
+
+// Apply filters
+function applyFilters() {
+    loadChartData();
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('filtersForm').reset();
+    document.getElementById('dateRange').value = '30';
+    toggleCustomDateInputs();
+    loadChartData();
+}
+
+// Load chart data
+async function loadChartData() {
+    setLoadingState(true);
+    
+    try {
+        const formData = new FormData(document.getElementById('filtersForm'));
+        const params = new URLSearchParams();
+        
+        for (let [key, value] of formData.entries()) {
+            if (value && value !== '') {
+                params.append(key, value);
+            }
+        }
+        
+        const response = await fetch(`/admin-dashboard/api/notifications-statistics/?${params.toString()}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            window.chartData = {
+                active_notifications: data.data.active_notifications || [],
+                statistics: data.data.statistics || {},
+                management_data: data.data.management_data || []
+            };
+            
+            // Update statistics cards
+            updateStatisticsCards(data.data.statistics);
+            
+            // Update active notifications
+            updateActiveNotifications(data.data.active_notifications);
+            
+            // Update management table
+            updateManagementTable(data.data.management_data);
+            
+            // Initialize charts
+            initializeCharts();
+            
+        } else {
+            console.error('Error loading data:', data.error);
+            window.chartData = {
+                active_notifications: [],
+                statistics: {},
+                management_data: []
+            };
+        }
+    } catch (error) {
+        console.error('Error loading chart data:', error);
+        window.chartData = {
+            active_notifications: [],
+            statistics: {},
+            management_data: []
+        };
+    } finally {
+        setLoadingState(false);
+    }
+}
+
+// Update statistics cards
+function updateStatisticsCards(stats) {
+    document.getElementById('totalNotifications').textContent = stats.total_notifications || 0;
+    document.getElementById('activeNotifications').textContent = stats.active_notifications || 0;
+    document.getElementById('currentlyActive').textContent = stats.currently_active || 0;
+    document.getElementById('recentNotifications').textContent = stats.recent_notifications || 0;
+}
+
+// Update active notifications
+function updateActiveNotifications(notifications) {
+    const container = document.getElementById('activeNotificationsList');
+    
+    if (notifications && notifications.length > 0) {
+        container.innerHTML = notifications.map(notification => `
+            <div class="alert alert-${getBootstrapAlertClass(notification.notification_type)} alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-${notification.icon} me-2"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${notification.title}</h6>
+                        <p class="mb-0">${notification.message}</p>
+                        <small class="text-muted">
+                            Priority: ${notification.priority} | 
+                            Created: ${new Date(notification.created_at).toLocaleDateString()}
+                            ${notification.end_date ? ` | Ends: ${new Date(notification.end_date).toLocaleDateString()}` : ''}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = '<p class="text-muted">{% trans "No active notifications" %}</p>';
+    }
+}
+
+// Update management table
+function updateManagementTable(notifications) {
+    const tbody = document.getElementById('notificationsTableBody');
+    
+    if (notifications && notifications.length > 0) {
+        tbody.innerHTML = notifications.map(notification => `
+            <tr>
+                <td>${notification.title}</td>
+                <td>
+                    <span class="badge bg-${getBootstrapBadgeClass(notification.notification_type)}">
+                        ${notification.notification_type}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge bg-${getPriorityBadgeClass(notification.priority)}">
+                        ${notification.priority}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge bg-${notification.is_active ? 'success' : 'secondary'}">
+                        ${notification.is_active ? '{% trans "Active" %}' : '{% trans "Inactive" %}'}
+                    </span>
+                </td>
+                <td>${new Date(notification.start_date).toLocaleDateString()}</td>
+                <td>${notification.end_date ? new Date(notification.end_date).toLocaleDateString() : '-'}</td>
+                <td>${notification.created_by || '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="editNotification(${notification.id})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-${notification.is_active ? 'warning' : 'success'}" 
+                            onclick="toggleNotification(${notification.id}, ${!notification.is_active})">
+                        <i class="bi bi-${notification.is_active ? 'pause' : 'play'}"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">{% trans "No notifications found" %}</td></tr>';
+    }
+}
+
+// Initialize charts
+function initializeCharts() {
+    // Destroy existing charts
+    if (window.notificationsByTypeChart) {
+        window.notificationsByTypeChart.destroy();
+    }
+    if (window.notificationsByPriorityChart) {
+        window.notificationsByPriorityChart.destroy();
+    }
+    
+    // Notifications by Type Chart
+    const typeCtx = document.getElementById('notificationsByTypeChart').getContext('2d');
+    const typeData = window.chartData.statistics.by_type || [];
+    
+    window.notificationsByTypeChart = new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: typeData.map(item => item.notification_type),
+            datasets: [{
+                data: typeData.map(item => item.count),
+                backgroundColor: [
+                    '#17a2b8', // info
+                    '#28a745', // success
+                    '#ffc107', // warning
+                    '#dc3545'  // danger
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Notifications by Priority Chart
+    const priorityCtx = document.getElementById('notificationsByPriorityChart').getContext('2d');
+    const priorityData = window.chartData.statistics.by_priority || [];
+    
+    window.notificationsByPriorityChart = new Chart(priorityCtx, {
+        type: 'bar',
+        data: {
+            labels: priorityData.map(item => `Priority ${item.priority}`),
+            datasets: [{
+                label: '{% trans "Count" %}',
+                data: priorityData.map(item => item.count),
+                backgroundColor: priorityData.map(item => getPriorityColor(item.priority))
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Helper functions
+function getBootstrapAlertClass(type) {
+    const classes = {
+        'info': 'info',
+        'success': 'success',
+        'warning': 'warning',
+        'danger': 'danger'
+    };
+    return classes[type] || 'info';
+}
+
+function getBootstrapBadgeClass(type) {
+    const classes = {
+        'info': 'info',
+        'success': 'success',
+        'warning': 'warning',
+        'danger': 'danger'
+    };
+    return classes[type] || 'secondary';
+}
+
+function getPriorityBadgeClass(priority) {
+    if (priority >= 8) return 'danger';
+    if (priority >= 5) return 'warning';
+    return 'info';
+}
+
+function getPriorityColor(priority) {
+    if (priority >= 8) return '#dc3545';
+    if (priority >= 5) return '#ffc107';
+    return '#17a2b8';
+}
+
+// Set loading state
+function setLoadingState(loading) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (loading) {
+        overlay.classList.remove('d-none');
+    } else {
+        overlay.classList.add('d-none');
+    }
+}
+
+// Action functions (placeholder)
+function editNotification(id) {
+    alert(`Edit notification ${id} - Not implemented yet`);
+}
+
+function toggleNotification(id, isActive) {
+    alert(`Toggle notification ${id} to ${isActive ? 'active' : 'inactive'} - Not implemented yet`);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{
+    "context": {
+      "repos": [
+        {
+          "url": "https://github.com/birobirobiro/awesome-shadcn-ui",
+          "branch": "main"
+        },
+        {
+          "url": "https://github.com/DavidHDev/react-bits",
+          "branch": "main"
+        },
+        {
+            "url": "https://github.com/satnaing/shadcn-admin",
+            "branch": "main"
+        }
+      ]
+    }
+  }
+  

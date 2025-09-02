@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "tablib",
     "inventory",
     "rental",
+    "dashboard",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

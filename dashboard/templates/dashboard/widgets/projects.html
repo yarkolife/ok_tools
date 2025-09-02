@@ -1,0 +1,929 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Projects Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            
+            <!-- Filters Section -->
+            <div class="filter-section">
+                <form id="filtersForm" method="GET">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="dateRange" class="form-label">{% trans "Date Range" %}</label>
+                            <select class="form-select" id="dateRange" name="days">
+                                <option value="7">{% trans "Last 7 days" %}</option>
+                                <option value="30">{% trans "Last 30 days" %}</option>
+                                <option value="90">{% trans "Last 90 days" %}</option>
+                                <option value="365">{% trans "Last year" %}</option>
+                                <option value="all">{% trans "All Time" %}</option>
+                                <option value="custom">{% trans "Custom Period" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customStartDate" class="form-label">{% trans "Start Date" %}</label>
+                            <input type="date" class="form-control" id="customStartDate" name="start_date" style="display: none;">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customEndDate" class="form-label">{% trans "End Date" %}</label>
+                            <input type="date" class="form-control" id="customEndDate" name="end_date" style="display: none;">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="categoryFilter" class="form-label">{% trans "Project Category" %}</label>
+                            <select class="form-select" id="categoryFilter" name="category">
+                                <option value="">{% trans "All Categories" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <label for="targetGroupFilter" class="form-label">{% trans "Target Group" %}</label>
+                            <select class="form-select" id="targetGroupFilter" name="target_group">
+                                <option value="">{% trans "All Target Groups" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="projectLeaderFilter" class="form-label">{% trans "Project Leader" %}</label>
+                            <select class="form-select" id="projectLeaderFilter" name="project_leader">
+                                <option value="">{% trans "All Leaders" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="externalVenueFilter" class="form-label">{% trans "External Venue" %}</label>
+                            <select class="form-select" id="externalVenueFilter" name="external_venue">
+                                <option value="">{% trans "All" %}</option>
+                                <option value="true">{% trans "External Only" %}</option>
+                                <option value="false">{% trans "Internal Only" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="jugendmedienschutzFilter" class="form-label">{% trans "Jugendmedienschutz" %}</label>
+                            <select class="form-select" id="jugendmedienschutzFilter" name="jugendmedienschutz">
+                                <option value="">{% trans "All" %}</option>
+                                <option value="true">{% trans "Yes" %}</option>
+                                <option value="false">{% trans "No" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <label for="democracyProjectFilter" class="form-label">{% trans "Democracy Project" %}</label>
+                            <select class="form-select" id="democracyProjectFilter" name="democracy_project">
+                                <option value="">{% trans "All" %}</option>
+                                <option value="true">{% trans "Yes" %}</option>
+                                <option value="false">{% trans "No" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary" id="applyFiltersBtn">{% trans "Apply Filters" %}</button>
+                                <button type="button" class="btn btn-secondary" onclick="window.resetProjectsFilters()">{% trans "Reset" %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProjects">0</div>
+                        <div class="stat-label">{% trans "TOTAL PROJECTS" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalParticipants">0</div>
+                        <div class="stat-label">{% trans "TOTAL PARTICIPANTS" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgParticipants">0</div>
+                        <div class="stat-label">{% trans "AVG PARTICIPANTS" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="externalVenueProjects">0</div>
+                        <div class="stat-label">{% trans "EXTERNAL VENUE" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="jugendmedienschutzProjects">0</div>
+                        <div class="stat-label">{% trans "JUGENDMEDIENSCHUTZ" %}</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-number" id="democracyProjects">0</div>
+                        <div class="stat-label">{% trans "DEMOCRACY PROJECTS" %}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Projects by Category" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('categoryChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Projects by Target Group" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('targetGroupChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="targetGroupChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Top Project Leaders" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('leadersChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="leadersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Participants by Age Groups" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('ageGroupsChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="ageGroupsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 3 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Participants by Gender" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('genderChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Project Characteristics" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('characteristicsChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="characteristicsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Trend -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-widget">
+                        <div class="widget-header d-flex justify-content-between align-items-center">
+                            <h3 class="widget-title">{% trans "Projects Trend" %}</h3>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('trendChart')">
+                                <i class="bi bi-download"></i> {% trans "Export" %}
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p class="loading-text">{% trans "Loading data..." %}</p>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+<script>
+// Chart instances
+window.categoryChart = null;
+window.targetGroupChart = null;
+window.leadersChart = null;
+window.ageGroupsChart = null;
+window.genderChart = null;
+window.characteristicsChart = null;
+window.trendChart = null;
+
+// Define applyFilters function early
+window.applyProjectsFilters = function() {
+
+    
+    const form = document.getElementById('filtersForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    for (let [key, value] of formData.entries()) {
+        if (value) {
+            params.append(key, value);
+        }
+    }
+    
+
+    
+    window.history.pushState({}, '', window.location.pathname + '?' + params.toString());
+    
+    loadChartData().then(function() {
+
+        
+        // Update statistics cards
+        if (window.chartData && window.chartData.basicStats) {
+
+            updateStatisticsCards(window.chartData.basicStats);
+        }
+        
+        // Update charts
+        if (window.initializeCharts) {
+
+            window.initializeCharts();
+        }
+    }).catch(function(error) {
+        console.error('Error updating charts:', error);
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    });
+    
+
+};
+
+// Define resetFilters function early
+window.resetProjectsFilters = function() {
+    const form = document.getElementById('filtersForm');
+    form.reset();
+    
+    window.history.pushState({}, '', window.location.pathname);
+    
+    loadChartData().then(function() {
+        // Update statistics cards
+        if (window.chartData && window.chartData.basicStats) {
+            updateStatisticsCards(window.chartData.basicStats);
+        }
+        
+        // Update charts
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    }).catch(function(error) {
+        console.error('Error updating charts:', error);
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    });
+};
+
+// Initialize chart data with empty values
+window.chartData = {
+    projectsByCategory: [],
+    projectsByTargetGroup: [],
+    projectsByLeader: [],
+    participantsStats: {},
+    demographicStats: {},
+    projectCharacteristics: {},
+    projectsTrend: [],
+    basicStats: {}
+};
+
+// Load filter data via AJAX
+async function loadFilterData() {
+    try {
+        const response = await fetch('/admin-dashboard/api/filters-data/').then(r => r.json()); 
+        const data = response;
+        
+        if (data.success && data.data && data.data.context) {
+            console.log('Filter data loaded:', data.data.context);
+            
+            // Populate Project Category options
+            const categorySelect = document.getElementById('categoryFilter');
+            if (categorySelect && data.data.context.project_categories) {
+                while (categorySelect.children.length > 1) {
+                    categorySelect.removeChild(categorySelect.lastChild);
+                }
+                
+                data.data.context.project_categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            }
+            
+            // Populate Target Group options
+            const targetGroupSelect = document.getElementById('targetGroupFilter');
+            if (targetGroupSelect && data.data.context.target_groups) {
+                while (targetGroupSelect.children.length > 1) {
+                    targetGroupSelect.removeChild(targetGroupSelect.lastChild);
+                }
+                
+                data.data.context.target_groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = group.name;
+                    targetGroupSelect.appendChild(option);
+                });
+            }
+            
+            // Populate Project Leader options
+            const projectLeaderSelect = document.getElementById('projectLeaderFilter');
+            if (projectLeaderSelect && data.data.context.project_leaders) {
+                while (projectLeaderSelect.children.length > 1) {
+                    projectLeaderSelect.removeChild(projectLeaderSelect.lastChild);
+                }
+                
+                data.data.context.project_leaders.forEach(leader => {
+                    const option = document.createElement('option');
+                    option.value = leader.id;
+                    option.textContent = leader.name;
+                    projectLeaderSelect.appendChild(option);
+                });
+            }
+        } else {
+            console.error('Failed to load filter data:', data);
+        }
+    } catch (error) {
+        console.error('Error loading filter data:', error);
+    }
+}
+
+// Show/hide loading overlay
+function setLoadingState(loading) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.style.display = loading ? 'flex' : 'none';
+    }
+}
+
+// Load chart data via AJAX
+async function loadChartData() {
+    
+    try {
+        setLoadingState(true);
+        const urlParams = new URLSearchParams(window.location.search);
+        const response = await fetch(`/admin-dashboard/api/projects-statistics/?${urlParams.toString()}`).then(r => r.json());
+        const data = response;
+        
+        if (data.success && data.data) {
+            
+            
+            window.chartData = {
+                projectsByCategory: data.data.projects_by_category || [],
+                projectsByTargetGroup: data.data.projects_by_target_group || [],
+                projectsByLeader: data.data.projects_by_leader || [],
+                participantsStats: data.data.participants_stats || {},
+                demographicStats: data.data.demographic_stats || {},
+                projectCharacteristics: data.data.project_characteristics || {},
+                projectsTrend: data.data.projects_trend || [],
+                basicStats: data.data.basic_stats || {}
+            };
+            
+            
+            
+            // Update statistics cards
+            updateStatisticsCards(data.data.basic_stats);
+            
+
+        } else {
+            console.error('API returned error or no data:', data);
+            window.chartData = {
+                projectsByCategory: [],
+                projectsByTargetGroup: [],
+                projectsByLeader: [],
+                participantsStats: {},
+                demographicStats: {},
+                projectCharacteristics: {},
+                projectsTrend: [],
+                basicStats: {}
+            };
+        }
+    } catch (error) {
+        console.error('Error loading chart data:', error);
+        window.chartData = {
+            projectsByCategory: [],
+            projectsByTargetGroup: [],
+            projectsByLeader: [],
+            participantsStats: {},
+            demographicStats: {},
+            projectCharacteristics: {},
+            projectsTrend: [],
+            basicStats: {}
+        };
+    } finally {
+        setLoadingState(false);
+    }
+}
+
+// Update statistics cards
+window.updateStatisticsCards = function(basicStats) {
+
+    
+    if (!basicStats || typeof basicStats !== 'object') {
+        console.warn('basicStats is undefined or not an object, skipping statistics update');
+        return;
+    }
+    
+    const elements = {
+        'totalProjects': basicStats.total_projects || 0,
+        'totalParticipants': basicStats.total_participants || 0,
+        'avgParticipants': basicStats.avg_participants_per_project || 0,
+        'externalVenueProjects': basicStats.external_venue_projects || 0,
+        'jugendmedienschutzProjects': basicStats.jugendmedienschutz_projects || 0,
+        'democracyProjects': basicStats.democracy_projects || 0,
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    });
+}
+
+// Initialize filters from URL
+function initializeFiltersFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const days = urlParams.get('days');
+    const startDate = urlParams.get('start_date');
+    const endDate = urlParams.get('end_date');
+    
+    if (days) {
+        const dateRangeSelect = document.getElementById('dateRange');
+        if (dateRangeSelect) {
+            dateRangeSelect.value = days;
+        }
+        
+        if (days === 'custom' && startDate && endDate) {
+            const startInput = document.getElementById('customStartDate');
+            const endInput = document.getElementById('customEndDate');
+            if (startInput) startInput.value = startDate;
+            if (endInput) endInput.value = endDate;
+        }
+    }
+    
+    // Set other filter values from URL
+    const filters = ['category', 'target_group', 'project_leader', 'external_venue', 'jugendmedienschutz', 'democracy_project'];
+    filters.forEach(filter => {
+        const value = urlParams.get(filter);
+        if (value) {
+            const element = document.getElementById(filter + 'Filter');
+            if (element) {
+                element.value = value;
+            }
+        }
+    });
+}
+
+function toggleCustomDateInputs() {
+    const dateRange = document.getElementById('dateRange').value;
+    const startDateInput = document.getElementById('customStartDate');
+    const endDateInput = document.getElementById('customEndDate');
+    
+    if (dateRange === 'custom') {
+        startDateInput.style.display = 'block';
+        endDateInput.style.display = 'block';
+    } else {
+        startDateInput.style.display = 'none';
+        endDateInput.style.display = 'none';
+    }
+}
+
+
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize filters from URL
+    initializeFiltersFromURL();
+    
+    // Load filter data
+    loadFilterData();
+    
+    // Add event listeners for form submission
+    const filtersForm = document.getElementById('filtersForm');
+    if (filtersForm) {
+
+        filtersForm.addEventListener('submit', function(e) {
+
+            e.preventDefault();
+            window.applyProjectsFilters();
+        });
+    } else {
+        console.error('filtersForm not found');
+    }
+    
+    // Add click event listener to Apply Filters button
+    const applyButton = document.getElementById('applyFiltersBtn');
+    if (applyButton) {
+
+        applyButton.addEventListener('click', function(e) {
+
+            e.preventDefault();
+
+            window.applyProjectsFilters();
+
+        });
+    } else {
+        console.error('Apply Filters button not found');
+    }
+    
+    // Add event listener for date range change
+    const dateRangeSelect = document.getElementById('dateRange');
+    if (dateRangeSelect) {
+        dateRangeSelect.addEventListener('change', function() {
+            toggleCustomDateInputs();
+        });
+    }
+    
+    // Initialize custom date inputs visibility
+    toggleCustomDateInputs();
+    
+    // Load chart data and initialize charts
+    loadChartData().then(function() {
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    }).catch(function(error) {
+        console.error('Error during initialization:', error);
+        if (window.initializeCharts) {
+            window.initializeCharts();
+        }
+    });
+});
+
+// Make initializeCharts globally available
+window.initializeCharts = function() {
+
+    
+    // Check if chartData is available
+    if (!window.chartData) {
+        console.warn('Chart data not available, initializing with empty data');
+        window.chartData = {
+            projectsByCategory: [],
+            projectsByTargetGroup: [],
+            projectsByLeader: [],
+            participantsStats: {},
+            demographicStats: {},
+            projectCharacteristics: {},
+            projectsTrend: [],
+            basicStats: {}
+        };
+    }
+    
+
+    
+    // Destroy and recreate all charts
+
+    
+    // Destroy existing charts
+    if (window.categoryChart) {
+
+        window.categoryChart.destroy();
+        window.categoryChart = null;
+    }
+    
+    if (window.targetGroupChart) {
+
+        window.targetGroupChart.destroy();
+        window.targetGroupChart = null;
+    }
+    
+    if (window.leadersChart) {
+
+        window.leadersChart.destroy();
+        window.leadersChart = null;
+    }
+    
+    if (window.ageGroupsChart) {
+
+        window.ageGroupsChart.destroy();
+        window.ageGroupsChart = null;
+    }
+    
+    if (window.genderChart) {
+
+        window.genderChart.destroy();
+        window.genderChart = null;
+    }
+    
+    if (window.characteristicsChart) {
+
+        window.characteristicsChart.destroy();
+        window.characteristicsChart = null;
+    }
+    
+    if (window.trendChart) {
+
+        window.trendChart.destroy();
+        window.trendChart = null;
+    }
+    
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded');
+        return;
+    }
+    
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+
+        window.categoryChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: window.chartData.projectsByCategory.map(item => item.project_category__name || 'Unknown'),
+                datasets: [{
+                    data: window.chartData.projectsByCategory.map(item => item.count),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+    }
+    
+    // Target Group Chart
+    const targetGroupCtx = document.getElementById('targetGroupChart');
+    if (targetGroupCtx) {
+
+        window.targetGroupChart = new Chart(targetGroupCtx, {
+            type: 'bar',
+            data: {
+                labels: window.chartData.projectsByTargetGroup.map(item => item.target_group__name || 'Unknown'),
+                datasets: [{
+                    label: 'Projects',
+                    data: window.chartData.projectsByTargetGroup.map(item => item.count),
+                    backgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+    }
+    
+    // Leaders Chart
+    const leadersCtx = document.getElementById('leadersChart');
+    if (leadersCtx) {
+        window.leadersChart = new Chart(leadersCtx, {
+            type: 'bar',
+            data: {
+                labels: window.chartData.projectsByLeader.map(item => item.project_leader__name || 'Unknown'),
+                datasets: [{
+                    label: 'Projects',
+                    data: window.chartData.projectsByLeader.map(item => item.count),
+                    backgroundColor: '#4BC0C0'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Age Groups Chart
+    const ageGroupsCtx = document.getElementById('ageGroupsChart');
+    if (ageGroupsCtx) {
+        const ageStats = window.chartData.participantsStats.age_groups || {};
+        window.ageGroupsChart = new Chart(ageGroupsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['0-6', '7-10', '11-14', '15-18', '19-34', '35-50', '51-65', '65+', 'Not Given'],
+                datasets: [{
+                    label: 'Participants',
+                    data: [
+                        ageStats.tn_0_bis_6 || 0,
+                        ageStats.tn_7_bis_10 || 0,
+                        ageStats.tn_11_bis_14 || 0,
+                        ageStats.tn_15_bis_18 || 0,
+                        ageStats.tn_19_bis_34 || 0,
+                        ageStats.tn_35_bis_50 || 0,
+                        ageStats.tn_51_bis_65 || 0,
+                        ageStats.tn_ueber_65 || 0,
+                        ageStats.tn_age_not_given || 0
+                    ],
+                    backgroundColor: '#9966FF'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Gender Chart
+    const genderCtx = document.getElementById('genderChart');
+    if (genderCtx) {
+        const genderStats = window.chartData.participantsStats.gender_groups || {};
+        window.genderChart = new Chart(genderCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Female', 'Male', 'Diverse', 'Not Given'],
+                datasets: [{
+                    data: [
+                        genderStats.tn_female || 0,
+                        genderStats.tn_male || 0,
+                        genderStats.tn_diverse || 0,
+                        genderStats.tn_gender_not_given || 0
+                    ],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+    
+    // Characteristics Chart
+    const characteristicsCtx = document.getElementById('characteristicsChart');
+    if (characteristicsCtx) {
+        const characteristics = window.chartData.projectCharacteristics || {};
+        window.characteristicsChart = new Chart(characteristicsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['External Venue', 'Jugendmedienschutz', 'Democracy Project'],
+                datasets: [{
+                    data: [
+                        characteristics.external_venue_rate || 0,
+                        characteristics.jugendmedienschutz_rate || 0,
+                        characteristics.democracy_rate || 0
+                    ],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+    
+    // Trend Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        console.log('Creating trend chart with data:', window.chartData.projectsTrend);
+        
+        const trendData = Array.isArray(window.chartData.projectsTrend) ? window.chartData.projectsTrend : [];
+        
+        window.trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendData.map(item => item.month || ''),
+                datasets: [{
+                    label: 'Projects',
+                    data: trendData.map(item => item.count || 0),
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Export functions
+window.exportChartData = function(chartId) {
+    const chart = getChartInstance(chartId);
+    if (chart) {
+        const data = chart.data;
+        const csv = convertToCSV(data);
+        downloadCSV(csv, `${chartId}_data.csv`);
+    }
+}
+
+window.getChartInstance = function(chartId) {
+    switch(chartId) {
+        case 'categoryChart': return window.categoryChart;
+        case 'targetGroupChart': return window.targetGroupChart;
+        case 'leadersChart': return window.leadersChart;
+        case 'ageGroupsChart': return window.ageGroupsChart;
+        case 'genderChart': return window.genderChart;
+        case 'characteristicsChart': return window.characteristicsChart;
+        case 'trendChart': return window.trendChart;
+        default: return null;
+    }
+}
+
+window.convertToCSV = function(data) {
+    const labels = data.labels;
+    const values = data.datasets[0].data;
+    
+    let csv = 'Label,Value\n';
+    for (let i = 0; i < labels.length; i++) {
+        csv += `"${labels[i]}",${values[i]}\n`;
+    }
+    
+    return csv;
+}
+
+window.downloadCSV = function(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}
