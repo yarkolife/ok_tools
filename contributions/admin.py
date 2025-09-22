@@ -28,13 +28,13 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
 
     template = 'admin/filter_datetime_range.html'
     title = 'Broadcast date'
-
+    
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.field_path = field_path
         self.parameter_name = field_path
         self.used_parameters = params
         super().__init__(field, request, params, model, model_admin, field_path)
-
+        
     def choices(self, changelist):
         return ({
             'request': self.request,
@@ -42,11 +42,11 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
             'form': self._get_form(),
             'title': self.title,
         }, )
-
+    
     def _get_form(self):
         """Create a form for the filter."""
         from django import forms
-
+        
         class DateTimeRangeForm(forms.Form):
             gte_0 = forms.CharField(
                 label=_('Date from'),
@@ -74,9 +74,9 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
         for param in self.expected_parameters():
             if param in self.used_parameters:
                 form_data[param.replace(f'{self.parameter_name}__', '')] = self.used_parameters[param]
-
+        
         return DateTimeRangeForm(data=form_data)
-
+    
     def queryset(self, request, queryset):
         """Apply the filter to the queryset."""
         gte_date = self.used_parameters.get(f'{self.parameter_name}__gte_0')
@@ -93,7 +93,7 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
             lte_date = lte_date[0] if lte_date else None
         if isinstance(lte_time, list):
             lte_time = lte_time[0] if lte_time else None
-
+        
         if gte_date:
             try:
                 gte_datetime = datetime.datetime.strptime(gte_date, '%Y-%m-%d')
@@ -103,7 +103,7 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
                 queryset = queryset.filter(**{f'{self.field_path}__gte': gte_datetime})
             except ValueError:
                 pass
-
+        
         if lte_date:
             try:
                 lte_datetime = datetime.datetime.strptime(lte_date, '%Y-%m-%d')
@@ -115,9 +115,9 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
                 queryset = queryset.filter(**{f'{self.field_path}__lte': lte_datetime})
             except ValueError:
                 pass
-
+        
         return queryset
-
+    
     def expected_parameters(self):
         """Return expected parameters."""
         return [
