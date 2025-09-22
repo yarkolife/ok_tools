@@ -1,6 +1,7 @@
-from django.urls import path
-from . import views
 from . import api
+from . import views
+from django.urls import path
+
 
 app_name = 'dashboard'
 
@@ -13,7 +14,7 @@ urlpatterns = [
     path('inventory/', views.dashboard_inventory, name='inventory'),
     path('notifications/', views.dashboard_notifications, name='notifications'),
     path('funnel/', views.dashboard_funnel, name='funnel'),
-    
+
     # API endpoints
     path('api/users-statistics/', api.api_users_statistics, name='api_users_statistics'),
     path('api/licenses-statistics/', api.api_licenses_statistics, name='api_licenses_statistics'),
@@ -26,7 +27,7 @@ urlpatterns = [
     path('api/recent-licenses/', api.api_recent_licenses, name='api_recent_licenses'),
     path('api/system-status/', api.api_system_status, name='api_system_status'),
     path('api/quick-stats/', api.api_quick_stats, name='api_quick_stats'),
-    
+
     # Detail view API endpoints
     path('api/users-detail/', api.api_users_detail, name='api_users_detail'),
     path('api/licenses-detail/', api.api_licenses_detail, name='api_licenses_detail'),
@@ -34,10 +35,10 @@ urlpatterns = [
     path('api/projects-detail/', api.api_projects_detail, name='api_projects_detail'),
     path('api/inventory-detail/', api.api_inventory_detail, name='api_inventory_detail'),
     path('api/notifications-detail/', api.api_notifications_detail, name='api_notifications_detail'),
-    
+
     # Action API endpoints
     path('api/notifications-toggle/<int:notification_id>/', api.api_notifications_toggle, name='api_notifications_toggle'),
-    
+
     # Funnel and alerts API endpoints
     path('api/funnel-metrics/', api.api_funnel_metrics, name='api_funnel_metrics'),
     path('api/funnel-breakdown/', api.api_funnel_breakdown, name='api_funnel_breakdown'),

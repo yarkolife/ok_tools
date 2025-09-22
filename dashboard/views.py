@@ -1,7 +1,8 @@
-from django.contrib.auth.decorators import login_required, user_passes_test
+from .widgets.users import UsersWidget
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
-from .widgets.users import UsersWidget
 
 
 def is_admin(user):
@@ -27,7 +28,7 @@ def dashboard_users(request):
     """Users widget view."""
     # Initialize users widget
     users_widget = UsersWidget(request)
-    
+
     context = {
         'page_title': _('Users Statistics'),
         'active_tab': 'users',

@@ -1,14 +1,19 @@
+from contributions.models import Contribution
+from dashboard.models import FunnelMetrics
+from dashboard.models import UserJourney
+from dashboard.models import UserJourneyStage
+from dashboard.utils import FunnelTracker
+from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from datetime import timedelta
+from licenses.models import Category
+from licenses.models import License
+from registration.models import MediaAuthority
+from registration.models import OKUser
+from registration.models import Profile
+from rental.models import RentalRequest
 import random
 
-from registration.models import OKUser, Profile, MediaAuthority
-from licenses.models import License, Category
-from contributions.models import Contribution
-from rental.models import RentalRequest
-from dashboard.models import UserJourney, UserJourneyStage, FunnelMetrics
-from dashboard.utils import FunnelTracker
 
 class Command(BaseCommand):
     help = 'Populate funnel data for testing'
@@ -30,21 +35,21 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         users_count = options['users']
         days = options['days']
-        
+
         self.stdout.write(f"Creating {users_count} test users over {days} days...")
-        
+
         try:
             # Get or create default media authority
             media_authority, _ = MediaAuthority.objects.get_or_create(
                 name='Test Authority'
             )
-            
+
             # Get or create default category
             category, _ = Category.objects.get_or_create(
                 name='Test Category',
                 defaults={'name': 'Test Category'}
             )
-            
+
             # Create test users
             users = []
             for i in range(users_count):
@@ -53,7 +58,7 @@ class Command(BaseCommand):
                     email=email,
                     defaults={'is_active': True}
                 )
-                
+
                 if created:
                     # Create profile
                     profile, _ = Profile.objects.get_or_create(
@@ -72,30 +77,30 @@ class Command(BaseCommand):
                             'member': random.choice([True, False])
                         }
                     )
-                    
+
                     # Randomly set verification date
                     if profile.verified:
                         profile.created_at = timezone.now() - timedelta(days=random.randint(1, days))
                         profile.save()
-                    
+
                     users.append(user)
-            
+
             self.stdout.write(f"Created {len(users)} users")
-            
+
             # Generate activities over time
             end_date = timezone.now().date()
             start_date = end_date - timedelta(days=days)
-            
+
             current_date = start_date
             while current_date <= end_date:
                 # Randomly select users for activities on this date
                 daily_users = random.sample(users, random.randint(1, min(10, len(users))))
-                
+
                 for user in daily_users:
                     # Random activities based on user's current stage
                     user_journey = UserJourney.objects.filter(user=user).order_by('achieved_at')
                     current_stages = [j.stage for j in user_journey]
-                    
+
                     # Registration (if not already registered)
                     if UserJourneyStage.REGISTERED not in current_stages:
                         if random.random() < 0.1:  # 10% chance per day
@@ -106,7 +111,7 @@ class Command(BaseCommand):
                                     timezone.datetime.combine(current_date, timezone.datetime.min.time())
                                 ) + timedelta(hours=random.randint(0, 23))
                             )
-                    
+
                     # Verification (if registered but not verified)
                     elif UserJourneyStage.VERIFIED not in current_stages:
                         if random.random() < 0.2:  # 20% chance per day
@@ -117,7 +122,7 @@ class Command(BaseCommand):
                                     timezone.datetime.combine(current_date, timezone.datetime.min.time())
                                 ) + timedelta(hours=random.randint(0, 23))
                             )
-                    
+
                     # Rental request (if verified but no rental)
                     elif UserJourneyStage.RENTAL_REQUESTED not in current_stages:
                         if random.random() < 0.05:  # 5% chance per day
@@ -138,7 +143,7 @@ class Command(BaseCommand):
                                     timezone.datetime.combine(current_date, timezone.datetime.min.time())
                                 ) + timedelta(hours=random.randint(0, 23))
                             )
-                    
+
                     # License creation (if verified but no license)
                     elif UserJourneyStage.LICENSE_CREATED not in current_stages:
                         if random.random() < 0.1:  # 10% chance per day
@@ -160,7 +165,7 @@ class Command(BaseCommand):
                                         timezone.datetime.combine(current_date, timezone.datetime.min.time())
                                     ) + timedelta(hours=random.randint(0, 23))
                                 )
-                    
+
                     # Contribution creation (if has license but no contribution)
                     elif UserJourneyStage.CONTRIBUTION_CREATED not in current_stages:
                         if random.random() < 0.15:  # 15% chance per day
@@ -182,22 +187,22 @@ class Command(BaseCommand):
                                         contribution=contribution,
                                         achieved_at=contribution.broadcast_date
                                     )
-                
+
                 current_date += timedelta(days=1)
-            
+
             # Generate funnel metrics for each day
             tracker = FunnelTracker()
             current_date = start_date
             while current_date <= end_date:
                 tracker.cache_funnel_metrics(current_date)
                 current_date += timedelta(days=1)
-            
+
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Successfully populated funnel data for {len(users)} users over {days} days"
                 )
             )
-            
+
         except Exception as e:
             self.stdout.write(
                 self.style.ERROR(f"Error populating funnel data: {e}")

@@ -312,12 +312,12 @@ document.addEventListener('DOMContentLoaded', function() {
     syncEndDateCalendar() {
       const startDateField = document.querySelector('input[name="start_date"]');
       const endDateField = document.querySelector('input[name="end_date"]');
-      
+
       if (!startDateField || !endDateField) return;
-      
+
       const startDateValue = startDateField.value;
       if (!startDateValue) return;
-      
+
       // Get current date and time
       const now = new Date();
       const year = now.getFullYear();
@@ -326,11 +326,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const currentDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-      
+
       // Set minimum date for end date to be the maximum of start date or current date
       const minDate = startDateValue > currentDateTime ? startDateValue : currentDateTime;
       endDateField.min = minDate;
-      
+
       // For datetime-local inputs, we need to trigger the calendar to show the same month
       // This is done by temporarily focusing and blurring the field
       if (endDateField.type === 'datetime-local') {
@@ -343,9 +343,9 @@ document.addEventListener('DOMContentLoaded', function() {
     setMinimumDates() {
       const startDateField = document.querySelector('input[name="start_date"]');
       const endDateField = document.querySelector('input[name="end_date"]');
-      
+
       if (!startDateField || !endDateField) return;
-      
+
       // Get current date and time in the format required by datetime-local input
       const now = new Date();
       const year = now.getFullYear();
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const currentDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-      
+
       // Set minimum date to current date/time for both fields
       startDateField.min = currentDateTime;
       endDateField.min = currentDateTime;
@@ -1168,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Fetch available templates
         const response = await fetch(URLS.getTemplates);
         const data = await response.json();
-        
+
         if (data.success) {
           this.renderTemplatesModal(data.templates);
         } else {
@@ -1201,7 +1201,7 @@ document.addEventListener('DOMContentLoaded', function() {
                           <h6 class="card-title">${template.name}</h6>
                           <p class="card-text text-muted">${template.description || ''}</p>
                           <small class="text-muted">
-                            ${template.items_count} ${gettext('items')} • 
+                            ${template.items_count} ${gettext('items')} •
                             ${gettext('Created by')}: ${template.created_by_name || gettext('Unknown')}
                           </small>
                         </div>
@@ -1225,20 +1225,20 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
       `;
-      
+
       // Remove existing modal if any
       const existingModal = document.getElementById('templatesModal');
       if (existingModal) {
         existingModal.remove();
       }
-      
+
       // Add modal to body
       document.body.insertAdjacentHTML('beforeend', modalHtml);
-      
+
       // Show modal
       const modal = new bootstrap.Modal(document.getElementById('templatesModal'));
       modal.show();
-      
+
       // Add event listeners for load buttons
       document.querySelectorAll('.load-template-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -1246,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', function() {
           this.loadTemplate(templateId);
         });
       });
-      
+
       // Add event listeners for delete buttons
       document.querySelectorAll('.delete-template-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -1260,12 +1260,12 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         const response = await fetch(`${URLS.loadTemplate}${templateId}`);
         const data = await response.json();
-        
+
         if (data.success) {
           // Check availability and add available items
           const availableItems = [];
           const unavailableItems = [];
-          
+
           for (const item of data.template.items) {
             // For now, assume all items are available
             // TODO: Check actual availability based on dates
@@ -1278,27 +1278,27 @@ document.addEventListener('DOMContentLoaded', function() {
               location: item.inventory_item.location?.name || ''
             });
           }
-          
+
           // Add available items to selection
           if (availableItems.length > 0) {
             // Clear current selection
             this.selectedItems = [];
-            
+
             // Add template items
             availableItems.forEach(item => {
               this.selectedItems.push(item);
             });
-            
+
             // Update UI
             this.updateSelectedItemsUI();
             this.updateActionButtons();
-            
+
             // Show success message
-            const message = unavailableItems.length > 0 
+            const message = unavailableItems.length > 0
               ? `${gettext('Template loaded')}. ${unavailableItems.length} ${gettext('items not available')}`
               : gettext('Template loaded successfully');
             alert(message);
-            
+
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('templatesModal'));
             modal.hide();
@@ -4113,7 +4113,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
 
         let html = '';
-        
+
         // Add button to add new items
         html += `
             <div class="mb-3">
@@ -4155,7 +4155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="badge ${quantityIssued > 0 ? 'bg-success' : 'bg-warning'}">${quantityIssued || 0}</span>
                             </div>
                             <div class="col-md-3 text-end">
-                                <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn" 
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn"
                                         data-item-id="${item.id}" title="${gettext('Remove item')}">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -4166,7 +4166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         container.innerHTML = html;
-        
+
         // Add event listeners
         this.attachIssueItemEventListeners();
     }
@@ -4178,7 +4178,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clone the button to remove all event listeners
             const newBtn = addItemBtn.cloneNode(true);
             addItemBtn.parentNode.replaceChild(newBtn, addItemBtn);
-            
+
             // Add fresh event listener
             newBtn.addEventListener('click', () => {
                 this.showAddItemModal();
@@ -4190,7 +4190,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clone the button to remove all event listeners
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
-            
+
             // Add fresh event listener
             newBtn.addEventListener('click', (e) => {
                 const itemId = e.currentTarget.dataset.itemId;
@@ -4203,14 +4203,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show the add item modal
         const modal = new bootstrap.Modal(document.getElementById('addItemModal'));
         modal.show();
-        
+
         // Load available items
         this.loadAvailableItems();
-        
+
         // Add event listeners for search
         const searchInput = document.getElementById('addItemSearch');
         const searchBtn = document.getElementById('searchItemsBtn');
-        
+
         if (searchInput) {
             let searchTimeout;
             searchInput.addEventListener('input', (e) => {
@@ -4220,7 +4220,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 300);
             });
         }
-        
+
         if (searchBtn) {
             searchBtn.addEventListener('click', () => {
                 this.loadAvailableItems();
@@ -4235,10 +4235,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!itemCard) {
                 itemCard = document.querySelector(`[data-inventory-item-id="${itemId}"]`);
             }
-            
+
             if (itemCard) {
                 itemCard.remove();
-                
+
                 // Update the currentIssueRental data only for existing rental items
                 if (this.currentIssueRental && this.currentIssueRental.items) {
                     this.currentIssueRental.items = this.currentIssueRental.items.filter(item => item.id != itemId);
@@ -4253,33 +4253,33 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const searchInput = document.getElementById('addItemSearch');
             const itemsContainer = document.getElementById('addItemItemsList');
-            
+
             if (!searchInput || !itemsContainer) return;
 
             const query = searchInput.value || '';
-            
+
             // Get dates from the issue modal
             const startDate = document.getElementById('issueStartDate').value;
             const endDate = document.getElementById('issueEndDate').value;
-            
+
             // Build URL with parameters
             let url = `${URLS.searchInventory}?q=${encodeURIComponent(query)}`;
             if (startDate && endDate) {
                 url += `&start_date=${startDate}&end_date=${endDate}`;
             }
-            
+
             // Use the existing search API
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const data = await response.json();
-            
+
             if (data.items) {
                 this.renderAvailableItems(data.items, itemsContainer);
             }
-            
+
         } catch (error) {
             console.error('Error loading available items:', error);
             alert(gettext('Error loading available items'));
@@ -4307,10 +4307,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const categoryId = `category-${index}`;
             html += `
                 <div class="mb-3">
-                    <h6 class="text-primary border-bottom pb-1 d-flex justify-content-between align-items-center" 
-                        style="cursor: pointer;" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#${categoryId}" 
+                    <h6 class="text-primary border-bottom pb-1 d-flex justify-content-between align-items-center"
+                        style="cursor: pointer;"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#${categoryId}"
                         aria-expanded="true">
                         <span>${category}</span>
                         <i class="fas fa-chevron-down collapse-icon"></i>
@@ -4318,7 +4318,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="collapse show" id="${categoryId}">
                         <div class="row">
             `;
-            
+
             groupedItems[category].forEach(item => {
                 const availableQty = item.available_quantity || 0;
                 html += `
@@ -4335,7 +4335,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             ${gettext('Available')}: ${availableQty}
                                         </small>
                                     </div>
-                                    <button type="button" class="btn btn-outline-success btn-sm add-item-btn" 
+                                    <button type="button" class="btn btn-outline-success btn-sm add-item-btn"
                                             data-item-id="${item.id}" data-item-name="${item.description}"
                                             ${availableQty <= 0 ? 'disabled' : ''}>
                                         <i class="fas fa-plus"></i>
@@ -4346,7 +4346,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             });
-            
+
             html += `
                         </div>
                     </div>
@@ -4355,7 +4355,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         container.innerHTML = html;
-        
+
         // Add event listeners for add buttons
         container.querySelectorAll('.add-item-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -4369,12 +4369,12 @@ document.addEventListener('DOMContentLoaded', function() {
         container.querySelectorAll('[data-bs-toggle="collapse"]').forEach(trigger => {
             const target = document.querySelector(trigger.getAttribute('data-bs-target'));
             const icon = trigger.querySelector('.collapse-icon');
-            
+
             if (target && icon) {
                 target.addEventListener('show.bs.collapse', () => {
                     icon.style.transform = 'rotate(180deg)';
                 });
-                
+
                 target.addEventListener('hide.bs.collapse', () => {
                     icon.style.transform = 'rotate(0deg)';
                 });
@@ -4417,7 +4417,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span class="badge bg-warning">0</span>
                         </div>
                         <div class="col-md-3 text-end">
-                            <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn" 
+                            <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn"
                                     data-item-id="${itemId}" title="${gettext('Remove item')}">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -4429,10 +4429,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Insert the new item before the add button
         addButton.insertAdjacentHTML('beforebegin', newItemHtml);
-        
+
         // Re-attach event listeners
         this.attachIssueItemEventListeners();
-        
+
         // Disable the add button for this item
         const itemAddButton = document.querySelector(`[data-item-id="${itemId}"].add-item-btn`);
         if (itemAddButton) {
@@ -4440,7 +4440,7 @@ document.addEventListener('DOMContentLoaded', function() {
             itemAddButton.innerHTML = '<i class="fas fa-check"></i>';
             itemAddButton.className = 'btn btn-success btn-sm';
         }
-        
+
         // Show success message using the parameter
         // Create temporary success notification
         const notification = document.createElement('div');
@@ -4451,9 +4451,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <strong>${gettext('Item added')}:</strong> ${itemName}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         // Auto-remove notification after 3 seconds
         setTimeout(() => {
             if (notification.parentNode) {
@@ -4521,15 +4521,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const itemQuantities = {};
             const newItems = [];
             const quantityInputs = document.querySelectorAll('.issue-quantity');
-            
+
             quantityInputs.forEach(input => {
                 const itemId = input.dataset.itemId;
                 const quantity = parseInt(input.value) || 0;
-                
+
                 // Check if this is a new item (not in original rental)
                 const itemCard = input.closest('.card');
                 const isNewItem = itemCard && itemCard.hasAttribute('data-inventory-item-id');
-                
+
                 if (isNewItem && quantity > 0) {
                     // This is a new item to be added
                     newItems.push({

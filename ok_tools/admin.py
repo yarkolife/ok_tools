@@ -56,7 +56,7 @@ _original_get_app_list = default_site.get_app_list
 
 def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # type: ignore[override]
     app_list = list(_original_get_app_list(app_label=app_label, request=request))
-    
+
     # Добавляем ссылку на дашборд в начало списка
     if app_label is None:  # Только на главной странице админки
         dashboard_app = {
@@ -75,7 +75,7 @@ def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # typ
             ]
         }
         app_list.insert(0, dashboard_app)
-    
+
     return _reorder_app_list(app_list)
 
 

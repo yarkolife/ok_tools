@@ -8,7 +8,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            
+
             <!-- Filters Section -->
             <div class="filter-section">
                 <form id="filtersForm" method="GET">
@@ -364,17 +364,17 @@ async function loadFilterData() {
     try {
         const response = await fetch('/admin-dashboard/api/filters-data/');
         const data = await response.json();
-        
+
         if (data.success && data.data && data.data.context) {
             console.log('Filter data loaded:', data.data.context);
-            
+
             // Populate Media Authority options
             const mediaAuthoritySelect = document.getElementById('mediaAuthority');
             if (mediaAuthoritySelect && data.data.context.media_authorities) {
                 while (mediaAuthoritySelect.children.length > 1) {
                     mediaAuthoritySelect.removeChild(mediaAuthoritySelect.lastChild);
                 }
-                
+
                 data.data.context.media_authorities.forEach(authority => {
                     const option = document.createElement('option');
                     option.value = authority.name;
@@ -382,14 +382,14 @@ async function loadFilterData() {
                     mediaAuthoritySelect.appendChild(option);
                 });
             }
-            
+
             // Populate Category options
             const categorySelect = document.getElementById('categoryFilter');
             if (categorySelect && data.data.context.category_choices) {
                 while (categorySelect.children.length > 1) {
                     categorySelect.removeChild(categorySelect.lastChild);
                 }
-                
+
                 data.data.context.category_choices.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category.id;
@@ -411,11 +411,11 @@ async function loadChartData() {
         const urlParams = new URLSearchParams(window.location.search);
         const response = await fetch(`/admin-dashboard/api/licenses-statistics/?${urlParams.toString()}`);
         const data = await response.json();
-        
+
         if (data.success && data.data) {
             console.log('API response data:', data.data);
             console.log('Licenses by category data:', data.data.licenses_by_category);
-            
+
                    window.chartData = {
            licensesByCategory: data.data.licenses_by_category || [],
            licensesByAuthority: data.data.licenses_by_authority || [],
@@ -430,14 +430,14 @@ async function loadChartData() {
            exchangeStats: data.data.exchange_stats || {},
            archiveStats: data.data.archive_stats || {}
        };
-            
+
             // Update statistics cards
             updateStatisticsCards(data.data.basic_stats);
             updateConfirmationRate(data.data.confirmation_rate);
             updateExtendedStatisticsCards();
-            
 
-            
+
+
             console.log('Chart data loaded successfully:', window.chartData);
         } else {
             console.error('API returned error or no data:', data);
@@ -471,14 +471,14 @@ window.updateStatisticsCards = function(basicStats) {
         console.warn('basicStats is undefined or not an object, skipping statistics update');
         return;
     }
-    
+
     const elements = {
         'totalLicenses': basicStats.total_licenses || 0,
         'confirmedLicenses': basicStats.confirmed_licenses || 0,
         'pendingLicenses': basicStats.pending_licenses || 0,
         'newLicenses': basicStats.new_licenses || 0
     };
-    
+
     Object.entries(elements).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
@@ -493,25 +493,25 @@ window.updateExtendedStatisticsCards = function() {
     const youthProtectionStats = window.chartData.youthProtectionStats || {};
     const mediaLibraryStats = window.chartData.mediaLibraryStats || {};
     const exchangeStats = window.chartData.exchangeStats || {};
-    
+
     // Duration stats
     const avgDurationElement = document.getElementById('avgDuration');
     if (avgDurationElement) {
         avgDurationElement.textContent = durationStats.average_duration_minutes || 0;
     }
-    
+
     // Youth protection stats
     const youthProtectionElement = document.getElementById('youthProtectionRate');
     if (youthProtectionElement) {
         youthProtectionElement.textContent = `${youthProtectionStats.youth_protection_rate || 0}%`;
     }
-    
+
     // Media library stats
     const libraryRateElement = document.getElementById('libraryRate');
     if (libraryRateElement) {
         libraryRateElement.textContent = `${mediaLibraryStats.library_rate || 0}%`;
     }
-    
+
     // Saxony exchange stats
     const saxonyExchangeElement = document.getElementById('saxonyExchangeRate');
     if (saxonyExchangeElement) {
@@ -524,7 +524,7 @@ function updateConfirmationRate(confirmationRate) {
     if (!confirmationRate || typeof confirmationRate !== 'object') {
         return;
     }
-    
+
     const rateElement = document.getElementById('confirmationRate');
     if (rateElement) {
         rateElement.textContent = `${confirmationRate.rate || 0}%`;
@@ -539,13 +539,13 @@ function initializeFiltersFromURL() {
     const days = urlParams.get('days');
     const startDate = urlParams.get('start_date');
     const endDate = urlParams.get('end_date');
-    
+
     if (days) {
         const dateRangeSelect = document.getElementById('dateRange');
         if (dateRangeSelect) {
             dateRangeSelect.value = days;
         }
-        
+
         if (days === 'custom' && startDate && endDate) {
             const startInput = document.getElementById('customStartDate');
             const endInput = document.getElementById('customEndDate');
@@ -553,7 +553,7 @@ function initializeFiltersFromURL() {
             if (endInput) endInput.value = endDate;
         }
     }
-    
+
     // Set other filter values from URL
     const filters = ['media_authority', 'gender', 'age_group', 'category', 'status'];
     filters.forEach(filter => {
@@ -571,7 +571,7 @@ function toggleCustomDateInputs() {
     const dateRange = document.getElementById('dateRange').value;
     const startDateInput = document.getElementById('customStartDate');
     const endDateInput = document.getElementById('customEndDate');
-    
+
     if (dateRange === 'custom') {
         startDateInput.style.display = 'block';
         endDateInput.style.display = 'block';
@@ -585,15 +585,15 @@ function applyFilters() {
     const form = document.getElementById('filtersForm');
     const formData = new FormData(form);
     const params = new URLSearchParams();
-    
+
     for (let [key, value] of formData.entries()) {
         if (value) {
             params.append(key, value);
         }
     }
-    
+
     window.history.pushState({}, '', window.location.pathname + '?' + params.toString());
-    
+
     loadChartData().then(function() {
         if (window.initializeCharts) {
             window.initializeCharts();
@@ -609,9 +609,9 @@ function applyFilters() {
 function resetFilters() {
     const form = document.getElementById('filtersForm');
     form.reset();
-    
+
     window.history.pushState({}, '', window.location.pathname);
-    
+
     loadChartData().then(function() {
         if (window.initializeCharts) {
             window.initializeCharts();
@@ -628,10 +628,10 @@ function resetFilters() {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize filters from URL
     initializeFiltersFromURL();
-    
+
     // Load filter data
     loadFilterData();
-    
+
     // Add click handlers for stat cards
     const statCards = document.querySelectorAll('.stat-card[data-type]');
     statCards.forEach(card => {
@@ -641,21 +641,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = this.getAttribute('data-title');
             showLicenseDetailModal(type, title);
         });
-        
+
         // Add hover effects
         card.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-3px)';
             this.style.boxShadow = '0 12px 20px rgba(0,0,0,0.15)';
             this.style.borderColor = '#667eea';
         });
-        
+
         card.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0)';
             this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
             this.style.borderColor = 'rgba(0,0,0,0.05)';
         });
     });
-    
+
     // Add event listeners for form submission
     const filtersForm = document.getElementById('filtersForm');
     if (filtersForm) {
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
             applyFilters();
         });
     }
-    
+
     // Add event listener for date range change
     const dateRangeSelect = document.getElementById('dateRange');
     if (dateRangeSelect) {
@@ -672,10 +672,10 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleCustomDateInputs();
         });
     }
-    
+
     // Initialize custom date inputs visibility
     toggleCustomDateInputs();
-    
+
     // Load chart data and initialize charts
     loadChartData().then(function() {
         if (window.initializeCharts) {
@@ -705,7 +705,7 @@ window.initializeCharts = function() {
             archiveStats: {}
         };
     }
-    
+
     // Initialize chart variables if they don't exist
     if (!window.categoryChart) window.categoryChart = null;
     if (!window.authorityChart) window.authorityChart = null;
@@ -717,7 +717,7 @@ window.initializeCharts = function() {
     if (!window.youthChart) window.youthChart = null;
     if (!window.saxonyChart) window.saxonyChart = null;
     if (!window.otherStatesChart) window.otherStatesChart = null;
-    
+
     // Destroy existing charts if they exist
     if (window.categoryChart && typeof window.categoryChart.destroy === 'function') {
         window.categoryChart.destroy();
@@ -749,7 +749,7 @@ window.initializeCharts = function() {
     if (window.otherStatesChart && typeof window.otherStatesChart.destroy === 'function') {
         window.otherStatesChart.destroy();
     }
-    
+
     // Destroy existing charts if they exist
     if (window.categoryChart) window.categoryChart.destroy();
     if (window.authorityChart) window.authorityChart.destroy();
@@ -761,14 +761,14 @@ window.initializeCharts = function() {
     if (window.youthChart) window.youthChart.destroy();
     if (window.saxonyChart) window.saxonyChart.destroy();
     if (window.otherStatesChart) window.otherStatesChart.destroy();
-    
+
     // Category Chart - Enhanced Doughnut Chart
     const categoryCtx = document.getElementById('categoryChart');
     if (categoryCtx) {
         console.log('Creating enhanced category chart with data:', window.chartData.licensesByCategory);
         console.log('Category labels:', window.chartData.licensesByCategory.map(item => item.category__name || 'Unknown'));
         console.log('Category data:', window.chartData.licensesByCategory.map(item => item.count));
-        
+
         const categoryData = window.chartData.licensesByCategory || [];
         const labels = categoryData.map(item => item.category__name || '{% trans "Unknown" %}');
         const data = categoryData.map(item => item.count);
@@ -792,7 +792,7 @@ window.initializeCharts = function() {
             'rgba(255, 255, 99, 0.8)',   // Light Yellow
             'rgba(99, 255, 255, 0.8)'    // Light Cyan
         ];
-        
+
         const extendedBorderColors = extendedColors.map(color => color.replace('0.8', '1'));
         const extendedHoverColors = extendedColors.map(color => color.replace('0.8', '0.9'));
 
@@ -808,7 +808,7 @@ window.initializeCharts = function() {
                 chartContainer.style.height = '400px';
             }
         }
-        
+
         window.categoryChart = new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
@@ -892,14 +892,14 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Authority Chart - Enhanced Bar Chart
     const authorityCtx = document.getElementById('authorityChart');
     if (authorityCtx) {
         const authorityData = window.chartData.licensesByAuthority || [];
         const labels = authorityData.map(item => item.profile__media_authority__name || '{% trans "Unknown" %}');
         const data = authorityData.map(item => item.count);
-        
+
         window.authorityChart = new Chart(authorityCtx, {
             type: 'bar',
             data: {
@@ -1013,7 +1013,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Gender Chart - Enhanced Pie Chart
     const genderCtx = document.getElementById('genderChart');
     if (genderCtx) {
@@ -1021,7 +1021,7 @@ window.initializeCharts = function() {
         const femaleData = window.chartData.licensesByGender.find(item => item.profile__gender === 'f')?.count || 0;
         const diverseData = window.chartData.licensesByGender.find(item => item.profile__gender === 'd')?.count || 0;
         const total = maleData + femaleData + diverseData;
-        
+
         window.genderChart = new Chart(genderCtx, {
             type: 'pie',
             data: {
@@ -1120,7 +1120,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Age Chart - Enhanced Bar Chart
     const ageCtx = document.getElementById('ageChart');
     if (ageCtx) {
@@ -1133,7 +1133,7 @@ window.initializeCharts = function() {
             ageData['36_50'] || 0,
             ageData.over_50 || 0
         ];
-        
+
         window.ageChart = new Chart(ageCtx, {
             type: 'bar',
             data: {
@@ -1245,14 +1245,14 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Trend Chart - Enhanced Linear Chart
     const trendCtx = document.getElementById('trendChart');
     if (trendCtx) {
         console.log('Creating enhanced trend chart with data:', window.chartData.licensesTrend);
-        
+
         const trendData = Array.isArray(window.chartData.licensesTrend) ? window.chartData.licensesTrend : [];
-        
+
         window.trendChart = new Chart(trendCtx, {
             type: 'line',
             data: {
@@ -1382,14 +1382,14 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Status Chart - Enhanced Doughnut Chart
     const statusCtx = document.getElementById('statusChart');
     if (statusCtx) {
         const confirmedData = window.chartData.basicStats.confirmed_licenses || 0;
         const pendingData = window.chartData.basicStats.pending_licenses || 0;
         const total = confirmedData + pendingData;
-        
+
         window.statusChart = new Chart(statusCtx, {
             type: 'doughnut',
             data: {
@@ -1485,7 +1485,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Duration Distribution Chart - Enhanced Bar Chart
     const durationCtx = document.getElementById('durationChart');
     if (durationCtx) {
@@ -1493,7 +1493,7 @@ window.initializeCharts = function() {
         const distribution = durationStats.duration_distribution || {};
         const labels = Object.keys(distribution);
         const data = Object.values(distribution);
-        
+
         window.durationChart = new Chart(durationCtx, {
             type: 'bar',
             data: {
@@ -1605,7 +1605,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Youth Protection Categories Chart - Enhanced Doughnut Chart
     const youthCtx = document.getElementById('youthChart');
     if (youthCtx) {
@@ -1614,7 +1614,7 @@ window.initializeCharts = function() {
         const labels = categories.map(item => item.youth_protection_category || '{% trans "Unknown" %}');
         const data = categories.map(item => item.count);
         const total = data.reduce((sum, value) => sum + value, 0);
-        
+
         window.youthChart = new Chart(youthCtx, {
             type: 'doughnut',
             data: {
@@ -1722,7 +1722,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Saxony-Anhalt Exchange Chart - Enhanced Doughnut Chart
     const saxonyCtx = document.getElementById('saxonyChart');
     if (saxonyCtx) {
@@ -1731,7 +1731,7 @@ window.initializeCharts = function() {
         const notAllowedData = exchangeStats.saxony_exchange_not_allowed || 0;
         const unknownData = exchangeStats.saxony_exchange_unknown || 0;
         const total = allowedData + notAllowedData + unknownData;
-        
+
         window.saxonyChart = new Chart(saxonyCtx, {
             type: 'doughnut',
             data: {
@@ -1831,7 +1831,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Other States Exchange Chart - Enhanced Doughnut Chart
     const otherStatesCtx = document.getElementById('otherStatesChart');
     if (otherStatesCtx) {
@@ -1840,7 +1840,7 @@ window.initializeCharts = function() {
         const notAllowedData = exchangeStats.other_states_exchange_not_allowed || 0;
         const unknownData = exchangeStats.other_states_exchange_unknown || 0;
         const total = allowedData + notAllowedData + unknownData;
-        
+
         window.otherStatesChart = new Chart(otherStatesCtx, {
             type: 'doughnut',
             data: {
@@ -1940,7 +1940,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
 
 }
 
@@ -1973,12 +1973,12 @@ window.getChartInstance = function(chartId) {
 window.convertToCSV = function(data) {
     const labels = data.labels;
     const values = data.datasets[0].data;
-    
+
     let csv = 'Label,Value\n';
     for (let i = 0; i < labels.length; i++) {
         csv += `"${labels[i]}",${values[i]}\n`;
     }
-    
+
     return csv;
 }
 
@@ -2003,19 +2003,19 @@ function showLicenseDetailModal(type, title) {
         modal = createLicenseDetailModal();
         document.body.appendChild(modal);
     }
-    
+
     // Update modal title
     const modalTitle = modal.querySelector('.modal-title');
     modalTitle.textContent = title;
-    
+
     // Show loading state
     const modalBody = modal.querySelector('.modal-body');
     modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">{% trans "Loading..." %}</span></div></div>';
-    
+
     // Show modal
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-    
+
     // Load data
     loadLicenseDetailData(type, modalBody);
 }
@@ -2053,13 +2053,13 @@ async function loadLicenseDetailData(type, modalBody, page = 1) {
         urlParams.set('type', type);
         urlParams.set('page', page);
         urlParams.set('per_page', 20);
-        
+
         // Store current type for pagination
         modalBody.dataset.currentType = type;
-        
+
         const response = await fetch(`/admin-dashboard/api/licenses-detail/?${urlParams.toString()}`);
         const data = await response.json();
-        
+
         if (data.success) {
             displayLicenseDetailData(data.data, modalBody);
         } else {
@@ -2073,7 +2073,7 @@ async function loadLicenseDetailData(type, modalBody, page = 1) {
 // Display license detail data
 function displayLicenseDetailData(data, modalBody) {
     const { licenses, total_count, displayed_count, pagination } = data;
-    
+
     let html = `
         <div class="mb-3">
             <div class="row">
@@ -2086,7 +2086,7 @@ function displayLicenseDetailData(data, modalBody) {
             </div>
         </div>
     `;
-    
+
     if (licenses.length > 0) {
         html += `
             <div class="table-responsive">
@@ -2107,7 +2107,7 @@ function displayLicenseDetailData(data, modalBody) {
                     </thead>
                     <tbody>
         `;
-        
+
         licenses.forEach(license => {
             const confirmedBadge = license.confirmed ? '<span class="badge bg-success">{% trans "Yes" %}</span>' : '<span class="badge bg-warning">{% trans "No" %}</span>';
             html += `
@@ -2125,13 +2125,13 @@ function displayLicenseDetailData(data, modalBody) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
             </div>
         `;
-        
+
         // Add pagination if available
         if (pagination && pagination.total_pages > 1) {
             html += generatePaginationHTML(pagination);
@@ -2139,30 +2139,30 @@ function displayLicenseDetailData(data, modalBody) {
     } else {
         html += '<div class="alert alert-info">{% trans "No data found for the selected criteria." %}</div>';
     }
-    
+
     modalBody.innerHTML = html;
 }
 
 // Generate pagination HTML
 function generatePaginationHTML(pagination) {
     const { current_page, total_pages, has_next, has_previous } = pagination;
-    
+
     let html = `
         <nav aria-label="{% trans "License pagination" %}" class="mt-3">
             <ul class="pagination justify-content-center">
     `;
-    
+
     // Previous button
     if (has_previous) {
         html += `<li class="page-item"><a class="page-link" href="#" onclick="loadPage(${current_page - 1})">{% trans "Previous" %}</a></li>`;
     } else {
         html += `<li class="page-item disabled"><span class="page-link">{% trans "Previous" %}</span></li>`;
     }
-    
+
     // Page numbers
     const startPage = Math.max(1, current_page - 2);
     const endPage = Math.min(total_pages, current_page + 2);
-    
+
     for (let i = startPage; i <= endPage; i++) {
         if (i === current_page) {
             html += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
@@ -2170,19 +2170,19 @@ function generatePaginationHTML(pagination) {
             html += `<li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i})">${i}</a></li>`;
         }
     }
-    
+
     // Next button
     if (has_next) {
         html += `<li class="page-item"><a class="page-link" href="#" onclick="loadPage(${current_page + 1})">{% trans "Next" %}</a></li>`;
     } else {
         html += `<li class="page-item disabled"><span class="page-link">{% trans "Next" %}</span></li>`;
     }
-    
+
     html += `
             </ul>
         </nav>
     `;
-    
+
     return html;
 }
 
@@ -2190,7 +2190,7 @@ function generatePaginationHTML(pagination) {
 function loadPage(page) {
     const modalBody = document.querySelector('#licenseDetailModal .modal-body');
     const currentType = modalBody.dataset.currentType || 'all';
-    
+
     loadLicenseDetailData(currentType, modalBody, page);
 }
 
@@ -2223,7 +2223,7 @@ function exportLicenseDetailData() {
 function changeChartType(chartId, newType) {
     const chart = window[chartId];
     if (!chart) return;
-    
+
     // Update button states
     const buttonGroup = document.querySelector(`[onclick*="${chartId}"]`)?.closest('.btn-group');
     if (buttonGroup) {
@@ -2235,7 +2235,7 @@ function changeChartType(chartId, newType) {
             }
         });
     }
-    
+
     // Generate extended color palette
     const extendedColors = [
         'rgba(255, 99, 132, 0.8)',   // Red
@@ -2254,26 +2254,26 @@ function changeChartType(chartId, newType) {
         'rgba(255, 255, 99, 0.8)',   // Light Yellow
         'rgba(99, 255, 255, 0.8)'    // Light Cyan
     ];
-    
+
     const extendedBorderColors = extendedColors.map(color => color.replace('0.8', '1'));
     const extendedHoverColors = extendedColors.map(color => color.replace('0.8', '0.9'));
-    
+
     // Get current data
     const currentData = chart.data;
     const labels = currentData.labels;
     const data = currentData.datasets[0].data;
     const total = data.reduce((sum, value) => sum + value, 0);
-    
+
     // Destroy current chart
     chart.destroy();
-    
+
     // Create new chart with different type
     const ctx = document.getElementById(chartId);
-    
+
     // Handle horizontal bar chart properly
     const chartType = newType === 'horizontalBar' ? 'bar' : newType;
     const isHorizontal = newType === 'horizontalBar';
-    
+
     // Adjust container height based on data amount
     const chartContainer = ctx.closest('.chart-container');
     if (chartContainer) {
@@ -2286,7 +2286,7 @@ function changeChartType(chartId, newType) {
             chartContainer.style.height = '400px';
         }
     }
-    
+
     const newChart = new Chart(ctx, {
         type: chartType,
         data: {
@@ -2396,7 +2396,7 @@ function changeChartType(chartId, newType) {
             radius: chartType === 'doughnut' ? '80%' : undefined
         }
     });
-    
+
     // Store reference
     window[chartId] = newChart;
 }

@@ -15,7 +15,7 @@
             </div>
             <div class="card-body">
             <form id="filtersForm">
-    
+
                 <!-- Row 1: Zeitraum + User -->
                 <div class="row mb-3">
                 <div class="col-md-2">
@@ -54,7 +54,7 @@
                     </select>
                 </div>
                 </div>
-    
+
                 <!-- Row 2: Inventory -->
                 <div class="row mb-3">
                 <div class="col-md-2">
@@ -89,13 +89,13 @@
                     <button type="button" class="btn btn-secondary" onclick="window.resetInventoryFilters()">{% trans "Reset" %}</button>
                 </div>
                 </div>
-    
+
             </form>
             </div>
         </div>
         </div>
-    </div>  
-  
+    </div>
+
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-md-2">
@@ -387,12 +387,12 @@ function toggleInventoryCustomDateInputs() {
     const dateRange = document.getElementById('dateRange');
     const customInputs = document.getElementById('customDateInputs');
     const customInputs2 = document.getElementById('customDateInputs2');
-    
+
     console.log('toggleInventoryCustomDateInputs called');
     console.log('dateRange value:', dateRange ? dateRange.value : 'dateRange not found');
     console.log('customInputs found:', !!customInputs);
     console.log('customInputs2 found:', !!customInputs2);
-    
+
     if (dateRange && customInputs && customInputs2) {
         if (dateRange.value === 'custom') {
             customInputs.style.display = 'block';
@@ -438,15 +438,15 @@ window.applyInventoryFilters = function() {
             params.append(key, value);
         }
     }
-    
+
     window.history.pushState({}, '', window.location.pathname + '?' + params.toString());
-    
+
     loadChartData().then(function() {
         // Update statistics cards
         if (window.chartData && window.chartData.basic_stats) {
             updateStatisticsCards(window.chartData.basic_stats);
         }
-        
+
         // Update charts
         if (window.initializeCharts) {
             window.initializeCharts();
@@ -468,7 +468,7 @@ async function loadChartData() {
         const urlParams = new URLSearchParams(window.location.search);
         const response = await fetch(`/admin-dashboard/api/inventory-statistics/?${urlParams.toString()}`).then(r => r.json());
         const data = response;
-        
+
         if (data.success && data.data) {
             window.chartData = {
                 basic_stats: data.data.basic_stats || {},
@@ -483,10 +483,10 @@ async function loadChartData() {
                 user_activity_analytics: data.data.user_activity_analytics || {},
                 room_rentals_stats: data.data.room_rentals_stats || {}
             };
-            
+
             // Update statistics cards
             updateStatisticsCards(data.data.basic_stats);
-            
+
         } else {
             console.error('API returned error or no data:', data);
             window.chartData = {
@@ -537,24 +537,24 @@ window.updateStatisticsCards = function(basicStats) {
     document.getElementById('totalRentals').textContent = basicStats.total_rentals || 0;
     document.getElementById('activeRentals').textContent = basicStats.active_rentals || 0;
     document.getElementById('utilizationRate').textContent = (basicStats.utilization_rate || 0) + '%';
-    
+
     // Update equipment sets stats
     const equipmentStats = window.chartData.equipment_sets_stats || {};
     document.getElementById('activeSets').textContent = equipmentStats.active_sets || 0;
     document.getElementById('availableSets').textContent = equipmentStats.available_sets || 0;
-    
+
     // Update popular inventory stats
     const popularInventoryStats = window.chartData.popular_inventory_stats || {};
     document.getElementById('availableItems').textContent = popularInventoryStats.total_available_items || 0;
-    
+
     // Calculate total rentals from popular items
     const totalRentals = (popularInventoryStats.popular_items || []).reduce((sum, item) => sum + (item.rental_count || 0), 0);
     document.getElementById('totalRentals').textContent = totalRentals;
-    
+
     // Update popular sets
     const popularSetsList = document.getElementById('popularSetsList');
     if (equipmentStats.popular_sets && equipmentStats.popular_sets.length > 0) {
-        popularSetsList.innerHTML = equipmentStats.popular_sets.map(set => 
+        popularSetsList.innerHTML = equipmentStats.popular_sets.map(set =>
             `<div class="d-flex justify-content-between align-items-center mb-2">
                 <span>${set.name}</span>
                 <span class="badge bg-primary">${set.usage_count}</span>
@@ -563,11 +563,11 @@ window.updateStatisticsCards = function(basicStats) {
     } else {
         popularSetsList.innerHTML = '<p class="text-muted">{% trans "No data available" %}</p>';
     }
-    
+
     // Update popular inventory items
     const popularInventoryList = document.getElementById('popularInventoryList');
     if (popularInventoryStats.popular_items && popularInventoryStats.popular_items.length > 0) {
-        popularInventoryList.innerHTML = popularInventoryStats.popular_items.map(item => 
+        popularInventoryList.innerHTML = popularInventoryStats.popular_items.map(item =>
             `<div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <div class="fw-bold">${item.name}</div>
@@ -581,14 +581,14 @@ window.updateStatisticsCards = function(basicStats) {
     } else {
         popularInventoryList.innerHTML = '<p class="text-muted">{% trans "No data available" %}</p>';
     }
-    
+
     // Update user activity analytics
     const userActivityAnalytics = window.chartData.user_activity_analytics || {};
-    
+
     // Update anti-rating list
     const antiRatingList = document.getElementById('antiRatingList');
     if (userActivityAnalytics.anti_rating && userActivityAnalytics.anti_rating.length > 0) {
-        antiRatingList.innerHTML = userActivityAnalytics.anti_rating.map(user => 
+        antiRatingList.innerHTML = userActivityAnalytics.anti_rating.map(user =>
             `<div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <div class="fw-bold">${user.username}</div>
@@ -603,11 +603,11 @@ window.updateStatisticsCards = function(basicStats) {
     } else {
         antiRatingList.innerHTML = '<p class="text-muted">{% trans "No data available" %}</p>';
     }
-    
+
     // Update rating list
     const ratingList = document.getElementById('ratingList');
     if (userActivityAnalytics.rating && userActivityAnalytics.rating.length > 0) {
-        ratingList.innerHTML = userActivityAnalytics.rating.map(user => 
+        ratingList.innerHTML = userActivityAnalytics.rating.map(user =>
             `<div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <div class="fw-bold">${user.username}</div>
@@ -637,7 +637,7 @@ function setLoadingState(loading) {
 // Make initializeCharts globally available
 window.initializeCharts = function() {
     console.log('initializeCharts called');
-    
+
     // Prevent multiple simultaneous calls
     if (window.initializingCharts) {
         console.log('initializeCharts already running, skipping');
@@ -659,7 +659,7 @@ window.initializeCharts = function() {
             room_rentals_stats: {}
         };
     }
-    
+
     // Ensure all data arrays exist
     if (!window.chartData.inventory_by_category) window.chartData.inventory_by_category = [];
     if (!window.chartData.inventory_by_owner) window.chartData.inventory_by_owner = [];
@@ -669,51 +669,51 @@ window.initializeCharts = function() {
     if (!window.chartData.rentals_trend) window.chartData.rentals_trend = [];
     if (!window.chartData.equipment_sets_stats) window.chartData.equipment_sets_stats = {};
     if (!window.chartData.room_rentals_stats) window.chartData.room_rentals_stats = {};
-    
+
     // Destroy and recreate all charts
     // Destroy existing charts
     if (window.inventoryByCategoryChart) {
         window.inventoryByCategoryChart.destroy();
         window.inventoryByCategoryChart = null;
     }
-    
+
     if (window.inventoryByOwnerChart) {
         window.inventoryByOwnerChart.destroy();
         window.inventoryByOwnerChart = null;
     }
-    
+
     if (window.rentalsByStatusChart) {
         window.rentalsByStatusChart.destroy();
         window.rentalsByStatusChart = null;
     }
-    
+
     if (window.rentalsByTypeChart) {
         window.rentalsByTypeChart.destroy();
         window.rentalsByTypeChart = null;
     }
-    
+
     if (window.rentalsByGenderChart) {
         window.rentalsByGenderChart.destroy();
         window.rentalsByGenderChart = null;
     }
-    
+
     if (window.rentalsTrendChart) {
         window.rentalsTrendChart.destroy();
         window.rentalsTrendChart = null;
     }
-    
+
     if (window.roomTrendChart) {
         console.log('Destroying roomTrendChart');
         window.roomTrendChart.destroy();
         window.roomTrendChart = null;
     }
-    
+
     // Check if Chart.js is available
     if (typeof Chart === 'undefined') {
         console.error('Chart.js is not loaded');
         return;
     }
-    
+
     // Inventory by Category Chart - Enhanced Bar Chart
     const categoryCtx = document.getElementById('inventoryByCategoryChart');
     if (categoryCtx) {
@@ -844,7 +844,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Inventory by Owner Chart - Enhanced Doughnut Chart
     const ownerCtx = document.getElementById('inventoryByOwnerChart');
     if (ownerCtx) {
@@ -972,7 +972,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Rentals by Status Chart - Enhanced Pie Chart
     const statusCtx = document.getElementById('rentalsByStatusChart');
     if (statusCtx) {
@@ -1099,7 +1099,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Rentals by Type Chart - Enhanced Bar Chart
     const typeCtx = document.getElementById('rentalsByTypeChart');
     if (typeCtx) {
@@ -1218,7 +1218,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Rentals by Gender Chart - Enhanced Doughnut Chart
     const genderCtx = document.getElementById('rentalsByGenderChart');
     if (genderCtx) {
@@ -1330,7 +1330,7 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Rentals Trend Chart - Enhanced Linear Chart
     const trendCtx = document.getElementById('rentalsTrendChart');
     if (trendCtx) {
@@ -1467,9 +1467,9 @@ window.initializeCharts = function() {
             }
         });
     }
-    
 
-    
+
+
     // Room Trend Chart - Enhanced Linear Chart
     const roomTrendCtx = document.getElementById('roomTrendChart');
     if (roomTrendCtx && window.chartData.room_rentals_stats && window.chartData.room_rentals_stats.time_periods && window.chartData.room_rentals_stats.time_periods.length > 0) {
@@ -1607,14 +1607,14 @@ window.initializeCharts = function() {
             }
         });
     }
-    
+
     // Update popular rooms list
     if (window.chartData.room_rentals_stats) {
         const popularRoomsDiv = document.getElementById('popularRoomsStats');
         if (popularRoomsDiv) {
             const rooms = window.chartData.room_rentals_stats.popular_rooms;
             if (rooms && rooms.length > 0) {
-                popularRoomsDiv.innerHTML = rooms.map(room => 
+                popularRoomsDiv.innerHTML = rooms.map(room =>
                     `<div class="d-flex justify-content-between align-items-center mb-2">
                         <span>${room.room}</span>
                         <span class="badge bg-primary">${room.count}</span>
@@ -1625,7 +1625,7 @@ window.initializeCharts = function() {
             }
         }
     }
-    
+
     // Reset the flag
     window.initializingCharts = false;
 };
@@ -1635,9 +1635,9 @@ async function loadFilterData() {
     try {
         const response = await fetch('/admin-dashboard/api/filters-data/');
         const data = await response.json();
-        
+
         console.log('Filter data loaded:', data);
-        
+
         if (data.success) {
             // Populate categories
             const categorySelect = document.getElementById('category');
@@ -1649,7 +1649,7 @@ async function loadFilterData() {
                     categorySelect.appendChild(option);
                 });
             }
-            
+
             // Populate owners (organizations)
             const ownerSelect = document.getElementById('owner');
             if (ownerSelect && data.organizations) {
@@ -1660,7 +1660,7 @@ async function loadFilterData() {
                     ownerSelect.appendChild(option);
                 });
             }
-            
+
             // Populate locations
             const locationSelect = document.getElementById('location');
             if (locationSelect && data.locations) {
@@ -1681,15 +1681,15 @@ async function loadFilterData() {
 document.addEventListener('DOMContentLoaded', function() {
     // Load filter data first
     loadFilterData();
-    
+
     // Initialize custom date inputs visibility with delay
     setTimeout(() => {
         toggleInventoryCustomDateInputs();
     }, 100);
-    
+
     // Load initial data
     loadChartData();
-    
+
     // Add event listeners for form submission
     const filtersForm = document.getElementById('filtersForm');
     if (filtersForm) {
@@ -1698,7 +1698,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.applyInventoryFilters();
         });
     }
-    
+
     // Add click event listener to Apply Filters button
     const applyButton = document.getElementById('applyFiltersBtn');
     if (applyButton) {
@@ -1707,7 +1707,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.applyInventoryFilters();
         });
     }
-    
+
     // Add event listeners for filter changes (only for date range to toggle custom inputs)
     const dateRangeSelect = document.getElementById('dateRange');
     if (dateRangeSelect) {
@@ -1715,7 +1715,7 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleInventoryCustomDateInputs();
         });
     }
-    
+
     // Add click handlers to stat cards
     const statCards = document.querySelectorAll('.stat-card[data-type]');
     statCards.forEach(card => {
@@ -1725,14 +1725,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = this.getAttribute('data-title');
             showInventoryDetailModal(type, title);
         });
-        
+
         // Add hover effects
         card.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-3px)';
             this.style.boxShadow = '0 12px 20px rgba(0,0,0,0.15)';
             this.style.borderColor = '#667eea';
         });
-        
+
         card.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0)';
             this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
@@ -1749,18 +1749,18 @@ function showInventoryDetailModal(type, title) {
         modal = createInventoryDetailModal();
         document.body.appendChild(modal);
     }
-    
+
     // Update modal title
     const modalTitle = modal.querySelector('.modal-title');
     modalTitle.textContent = title;
-    
+
     // Show loading state
     const modalBody = modal.querySelector('.modal-body');
     modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">{% trans "Loading..." %}</span></div></div>';
     // Show modal
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-    
+
     // Load data
     loadInventoryDetailData(type, modalBody);
 }
@@ -1798,10 +1798,10 @@ async function loadInventoryDetailData(type, modalBody, page = 1) {
         urlParams.set('type', type);
         urlParams.set('page', page);
         urlParams.set('per_page', 20);
-        
+
         const response = await fetch(`/admin-dashboard/api/inventory-detail/?${urlParams.toString()}`);
         const data = await response.json();
-        
+
         if (data.success) {
             displayInventoryDetailData(data.data, modalBody, type, page);
         } else {
@@ -1815,7 +1815,7 @@ async function loadInventoryDetailData(type, modalBody, page = 1) {
 // Display inventory detail data
 function displayInventoryDetailData(data, modalBody, type, currentPage = 1) {
     const { inventory, rentals, total_count, displayed_count, page, per_page, total_pages } = data;
-    
+
     let html = `
         <div class="mb-3">
             <div class="row">
@@ -1831,7 +1831,7 @@ function displayInventoryDetailData(data, modalBody, type, currentPage = 1) {
             </div>
         </div>
     `;
-    
+
     if (type.includes('rentals') && rentals && rentals.length > 0) {
         html += `
             <div class="table-responsive">
@@ -1853,7 +1853,7 @@ function displayInventoryDetailData(data, modalBody, type, currentPage = 1) {
                     </thead>
                     <tbody>
         `;
-        
+
         rentals.forEach(rental => {
             const statusBadge = getRentalStatusBadge(rental.status);
             html += `
@@ -1872,7 +1872,7 @@ function displayInventoryDetailData(data, modalBody, type, currentPage = 1) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
@@ -1897,7 +1897,7 @@ function displayInventoryDetailData(data, modalBody, type, currentPage = 1) {
                     </thead>
                     <tbody>
         `;
-        
+
         inventory.forEach(item => {
             const availableBadge = item.available_for_rent ? `<span class="badge bg-success">{% trans "Yes" %}</span>` : `<span class="badge bg-danger">{% trans "No" %}</span>`;
             html += `
@@ -1914,7 +1914,7 @@ function displayInventoryDetailData(data, modalBody, type, currentPage = 1) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
@@ -1923,12 +1923,12 @@ function displayInventoryDetailData(data, modalBody, type, currentPage = 1) {
     } else {
         html += `<div class="alert alert-info">{% trans "No data found for the selected criteria." %}</div>`;
     }
-    
+
     // Add pagination controls
     if (total_pages > 1) {
         html += createPaginationControls(currentPage, total_pages, type);
     }
-    
+
     modalBody.innerHTML = html;
 }
 
@@ -1938,7 +1938,7 @@ function createPaginationControls(currentPage, totalPages, type) {
         <nav aria-label="{% trans "Inventory pagination" %}" class="mt-3">
             <ul class="pagination justify-content-center">
     `;
-    
+
     // Previous button
     if (currentPage > 1) {
         html += `
@@ -1953,11 +1953,11 @@ function createPaginationControls(currentPage, totalPages, type) {
             </li>
         `;
     }
-    
+
     // Page numbers
     const startPage = Math.max(1, currentPage - 2);
     const endPage = Math.min(totalPages, currentPage + 2);
-    
+
     for (let i = startPage; i <= endPage; i++) {
         if (i === currentPage) {
             html += `
@@ -1973,7 +1973,7 @@ function createPaginationControls(currentPage, totalPages, type) {
             `;
         }
     }
-    
+
     // Next button
     if (currentPage < totalPages) {
         html += `
@@ -1988,12 +1988,12 @@ function createPaginationControls(currentPage, totalPages, type) {
             </li>
         `;
     }
-    
+
     html += `
             </ul>
         </nav>
     `;
-    
+
     return html;
 }
 
@@ -2001,10 +2001,10 @@ function createPaginationControls(currentPage, totalPages, type) {
 async function loadInventoryDetailPage(page, type) {
     const modal = document.getElementById('inventoryDetailModal');
     const modalBody = modal.querySelector('.modal-body');
-    
+
     // Show loading state
     modalBody.innerHTML = `<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">{% trans "Loading..." %}</span></div></div>`;
-    
+
     // Load data for the new page
     await loadInventoryDetailData(type, modalBody, page);
 }
@@ -2076,12 +2076,12 @@ window.exportChartData = function(chartId) {
     try {
         const data = chart.data;
         const chartTitle = getChartTitle(chartId);
-        
+
         exportChartToCSV(data, chartTitle, chartId);
-        
+
         // Show success message
         showExportSuccess('CSV');
-        
+
     } catch (error) {
         console.error('Export error:', error);
         showExportError('Export failed: ' + error.message);
@@ -2126,7 +2126,7 @@ function getChartTitle(chartId) {
 // Export chart data to CSV
 function exportChartToCSV(data, title, chartId) {
     let csv = `"${title}"\n\n`;
-    
+
     if (data.datasets.length === 1) {
         // Single dataset (pie, doughnut, single bar)
         csv += `"{% trans "Label" %}","{% trans "Value" %}"\n`;
@@ -2140,7 +2140,7 @@ function exportChartToCSV(data, title, chartId) {
             csv += `,"${dataset.label}"`;
         });
         csv += '\n';
-        
+
         data.labels.forEach((label, index) => {
             csv += `"${label}"`;
             data.datasets.forEach(dataset => {
@@ -2149,7 +2149,7 @@ function exportChartToCSV(data, title, chartId) {
             csv += '\n';
         });
     }
-    
+
     const filename = `${chartId}_${new Date().toISOString().split('T')[0]}.csv`;
     window.downloadCSV(csv, filename);
 }
@@ -2158,7 +2158,7 @@ function exportChartToCSV(data, title, chartId) {
 function showExportSuccess(format) {
     const notification = createNotification(`{% trans "Data exported successfully as" %} ${format}`, 'success');
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 3000);
@@ -2168,7 +2168,7 @@ function showExportSuccess(format) {
 function showExportError(message) {
     const notification = createNotification(message, 'error');
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 5000);
@@ -2186,13 +2186,13 @@ function createNotification(message, type) {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         animation: slideInRight 0.3s ease-out;
     `;
-    
+
     notification.innerHTML = `
         <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% trans "Close" %}"></button>
     `;
-    
+
     return notification;
 }
 </script>
@@ -2276,7 +2276,7 @@ function createNotification(message, type) {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .btn-group .btn {
         margin-bottom: 2px;
         font-size: 0.75rem;

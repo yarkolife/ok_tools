@@ -1,14 +1,18 @@
-from django.db.models.signals import post_save, post_delete
+from .models import UserJourney
+from .models import UserJourneyStage
+from .utils import AlertManager
+from .utils import FunnelTracker
+from contributions.models import Contribution
+from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from licenses.models import License
+from registration.models import OKUser
+from registration.models import Profile
+from rental.models import RentalRequest
 import logging
 
-from registration.models import OKUser, Profile
-from licenses.models import License
-from contributions.models import Contribution
-from rental.models import RentalRequest
-from .models import UserJourney, UserJourneyStage
-from .utils import FunnelTracker, AlertManager
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +24,7 @@ def track_user_registration(sender, instance, created, **kwargs):
         try:
             tracker = FunnelTracker()
             tracker.track_user_stage(
-                instance, 
+                instance,
                 UserJourneyStage.REGISTERED,
                 metadata={'source': 'user_registration'}
             )
@@ -108,12 +112,12 @@ def track_contribution_creation(sender, instance, created, **kwargs):
                 contribution=instance,
                 metadata={'source': 'contribution_creation'}
             )
-            
+
             # Check if this is the user's first broadcast
             user_contributions = Contribution.objects.filter(
                 license__profile__okuser=instance.license.profile.okuser
             ).order_by('broadcast_date')
-            
+
             if user_contributions.count() == 1:
                 # First broadcast
                 tracker.track_user_stage(
@@ -132,7 +136,7 @@ def track_contribution_creation(sender, instance, created, **kwargs):
                     metadata={'source': 'multiple_broadcasts'}
                 )
                 logger.info(f"Tracked multiple broadcasts: {instance.license.profile.okuser.email}")
-            
+
         except Exception as e:
             logger.error(f"Error tracking contribution creation: {e}")
 
@@ -144,23 +148,23 @@ def check_daily_alerts(sender, instance, **kwargs):
         # Only check once per day to avoid spam
         from django.core.cache import cache
         cache_key = f"daily_alert_check_{timezone.now().date()}"
-        
+
         if not cache.get(cache_key):
             # Run alert check
             tracker = FunnelTracker()
             end_date = timezone.now().date()
             start_date = end_date - timezone.timedelta(days=1)
-            
+
             metrics = tracker.get_funnel_metrics(start_date, end_date)
-            
+
             alert_manager = AlertManager()
             triggered_alerts = alert_manager.check_thresholds(metrics)
-            
+
             if triggered_alerts:
                 logger.warning(f"Triggered {len(triggered_alerts)} alerts")
-            
+
             # Cache for 24 hours
             cache.set(cache_key, True, 86400)
-            
+
     except Exception as e:
         logger.error(f"Error checking daily alerts: {e}")

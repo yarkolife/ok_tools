@@ -1,9 +1,11 @@
+from .models import AlertLog
+from .models import AlertThreshold
+from .models import FunnelMetrics
+from .models import UserJourney
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
-from .models import (
-    UserJourney, FunnelMetrics, AlertThreshold, AlertLog
-)
+
 
 # Hide models from admin interface but keep them accessible via API
 # @admin.register(UserJourney)
@@ -18,7 +20,7 @@ from .models import (
 # @admin.register(FunnelMetrics)
 # class FunnelMetricsAdmin(admin.ModelAdmin):
 #     list_display = [
-#         'date', 'total_registrations', 'verified_users', 'licenses_created', 
+#         'date', 'total_registrations', 'verified_users', 'licenses_created',
 #         'first_broadcasts', 'verification_rate', 'license_creation_rate'
 #     ]
 #     list_filter = ['date', 'created_at']

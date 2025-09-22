@@ -1239,7 +1239,7 @@ body {
         font-size: 1.3rem !important;
         margin-bottom: 1.5rem !important;
     }
-    
+
     .dashboard-card.call-to-action-card .card-body .call-to-action-text {
         font-size: 1.3rem !important;
     }
@@ -1273,7 +1273,7 @@ body {
         font-size: 1.2rem !important;
         margin-bottom: 1.25rem !important;
     }
-    
+
     .dashboard-card.call-to-action-card .card-body .call-to-action-text {
         font-size: 1.2rem !important;
     }
@@ -1819,7 +1819,7 @@ input:disabled {
         --small-font-size: 1.05rem;
         --large-font-size: 1.3rem;
     }
-    
+
     /* Dashboard stats cards */
     .stats-card {
         height: auto;
@@ -1900,7 +1900,7 @@ input:disabled {
         --small-font-size: 1.1rem;
         --large-font-size: 1.35rem;
     }
-    
+
     .dashboard-card {
         padding: 1rem;
         margin-bottom: 1rem;

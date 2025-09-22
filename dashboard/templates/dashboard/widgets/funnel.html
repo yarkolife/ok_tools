@@ -223,16 +223,16 @@ async function loadFilterData() {
     try {
         const response = await fetch('/admin-dashboard/api/filters-data/');
         const data = await response.json();
-        
+
         if (data.success && data.data && data.data.context) {
-            
+
             // Populate Media Authority options
             const mediaAuthoritySelect = document.getElementById('mediaAuthority');
             if (mediaAuthoritySelect && data.data.context.media_authorities) {
                 while (mediaAuthoritySelect.children.length > 1) {
                     mediaAuthoritySelect.removeChild(mediaAuthoritySelect.lastChild);
                 }
-                
+
                 data.data.context.media_authorities.forEach(authority => {
                     const option = document.createElement('option');
                     option.value = authority.name;
@@ -240,14 +240,14 @@ async function loadFilterData() {
                     mediaAuthoritySelect.appendChild(option);
                 });
             }
-            
+
             // Populate Category options
             const categorySelect = document.getElementById('categoryFilter');
             if (categorySelect && data.data.context.category_choices) {
                 while (categorySelect.children.length > 1) {
                     categorySelect.removeChild(categorySelect.lastChild);
                 }
-                
+
                 data.data.context.category_choices.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category.id;
@@ -272,7 +272,7 @@ function setupEventListeners() {
             applyFilters();
         });
     }
-    
+
     const dateRangeSelect = document.getElementById('dateRange');
     if (dateRangeSelect) {
         dateRangeSelect.addEventListener('change', function() {
@@ -286,7 +286,7 @@ function toggleCustomDateInputs() {
     const dateRange = document.getElementById('dateRange').value;
     const startDateInput = document.getElementById('customStartDate');
     const endDateInput = document.getElementById('customEndDate');
-    
+
     if (dateRange === 'custom') {
         startDateInput.style.display = 'block';
         endDateInput.style.display = 'block';
@@ -302,13 +302,13 @@ function initializeFiltersFromURL() {
     const days = urlParams.get('days');
     const startDate = urlParams.get('start_date');
     const endDate = urlParams.get('end_date');
-    
+
     if (days) {
         const dateRangeSelect = document.getElementById('dateRange');
         if (dateRangeSelect) {
             dateRangeSelect.value = days;
         }
-        
+
         if (days === 'custom' && startDate && endDate) {
             const startInput = document.getElementById('customStartDate');
             const endInput = document.getElementById('customEndDate');
@@ -316,7 +316,7 @@ function initializeFiltersFromURL() {
             if (endInput) endInput.value = endDate;
         }
     }
-    
+
     // Set other filter values from URL
     const filters = ['media_authority', 'gender', 'age_group', 'category', 'status'];
     filters.forEach(filter => {
@@ -335,15 +335,15 @@ function applyFilters() {
     const form = document.getElementById('filtersForm');
     const formData = new FormData(form);
     const params = new URLSearchParams();
-    
+
     for (let [key, value] of formData.entries()) {
         if (value) {
             params.append(key, value);
         }
     }
-    
+
     window.history.pushState({}, '', window.location.pathname + '?' + params.toString());
-    
+
     loadFunnelData().then(function() {
     }).catch(function(error) {
         console.error('Error updating charts:', error);
@@ -354,9 +354,9 @@ function applyFilters() {
 function resetFilters() {
     const form = document.getElementById('filtersForm');
     form.reset();
-    
+
     window.history.pushState({}, '', window.location.pathname);
-    
+
     loadFunnelData().then(function() {
     }).catch(function(error) {
         console.error('Error updating charts:', error);
@@ -366,44 +366,44 @@ function resetFilters() {
 // Load funnel data
 async function loadFunnelData() {
     setLoadingState(true);
-    
+
     try {
         const formData = new FormData(document.getElementById('filtersForm'));
         const params = new URLSearchParams();
-        
+
         for (let [key, value] of formData.entries()) {
             if (value && value !== '') {
                 params.append(key, value);
             }
         }
-        
+
         // Load overview data
         const overviewResponse = await fetch(`/admin-dashboard/api/funnel-metrics/?${params.toString()}`);
         const overviewData = await overviewResponse.json();
-        
-        
+
+
         // Load alerts data with same parameters as overview
         const alertsResponse = await fetch(`/admin-dashboard/api/alerts-list/?${params.toString()}`);
         const alertsData = await alertsResponse.json();
-        
+
         if (overviewData.success && alertsData.success) {
             window.chartData = {
                 overview: overviewData.data,
                 alerts: alertsData.data
             };
-            
+
             // Update statistics cards
             updateStatisticsCards(overviewData.data.metrics);
-            
+
             // Update alerts
             updateAlertsList(alertsData.data.alerts);
-            
+
             // Update thresholds table
             updateThresholdsTable(alertsData.data.thresholds);
-            
+
             // Initialize charts
             initializeCharts();
-            
+
         } else {
             console.error('Error loading data:', overviewData.error || alertsData.error);
         }
@@ -425,7 +425,7 @@ function updateStatisticsCards(metrics) {
 // Update alerts list
 function updateAlertsList(alerts) {
     const container = document.getElementById('alertsList');
-    
+
     if (alerts && alerts.length > 0) {
         container.innerHTML = alerts.map(alert => `
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -452,7 +452,7 @@ function updateAlertsList(alerts) {
 // Update thresholds table
 function updateThresholdsTable(thresholds) {
     const tbody = document.getElementById('thresholdsTableBody');
-    
+
     if (thresholds && thresholds.length > 0) {
         tbody.innerHTML = thresholds.map(threshold => `
             <tr>
@@ -469,7 +469,7 @@ function updateThresholdsTable(thresholds) {
                     <button class="btn btn-sm btn-outline-primary" onclick="editThreshold(${threshold.id})">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-${threshold.is_active ? 'warning' : 'success'}" 
+                    <button class="btn btn-sm btn-outline-${threshold.is_active ? 'warning' : 'success'}"
                             onclick="toggleThreshold(${threshold.id}, ${!threshold.is_active})">
                         <i class="bi bi-${threshold.is_active ? 'pause' : 'play'}"></i>
                     </button>
@@ -490,25 +490,25 @@ function initializeCharts() {
     if (window.conversionRatesChart) {
         window.conversionRatesChart.destroy();
     }
-    
+
     // Funnel Chart
     initializeFunnelChart();
-    
+
     // Conversion Rates Chart
     initializeConversionRatesChart();
-    
+
 }
 
 // Initialize funnel chart
 function initializeFunnelChart() {
     const ctx = document.getElementById('funnelChart').getContext('2d');
     const funnelData = window.chartData.overview.funnel_data || {};
-    
+
     // Convert object to array format
     const stages = Object.values(funnelData);
     const labels = stages.map(stage => stage.name);
     const data = stages.map(stage => stage.count);
-    
+
     window.funnelChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -617,9 +617,9 @@ function initializeFunnelChart() {
 // Initialize conversion rates chart
 function initializeConversionRatesChart() {
     const ctx = document.getElementById('conversionRatesChart').getContext('2d');
-    
+
     const conversionRates = window.chartData.overview?.conversion_rates || {};
-    
+
     const labels = Object.keys(conversionRates).map(key => {
         const labelMap = {
             'verification_rate': '{% trans "Verification Rate" %}',
@@ -632,12 +632,12 @@ function initializeConversionRatesChart() {
         };
         return labelMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     });
-    
+
     // Filter out zero values and create separate arrays for labels and data
     const filteredData = [];
     const filteredLabels = [];
     const filteredKeys = [];
-    
+
     Object.keys(conversionRates).forEach((key, index) => {
         const value = conversionRates[key];
         if (value > 0) { // Only show non-zero values
@@ -646,7 +646,7 @@ function initializeConversionRatesChart() {
             filteredKeys.push(key);
         }
     });
-    
+
     // If no data, show a message
     if (filteredData.length === 0) {
         ctx.fillStyle = '#666';
@@ -655,7 +655,7 @@ function initializeConversionRatesChart() {
         ctx.fillText('No conversion data available', ctx.canvas.width / 2, ctx.canvas.height / 2);
         return;
     }
-    
+
     // Extended color palette for more parameters
     const colors = [
         'rgba(23, 162, 184, 0.8)',   // Teal
@@ -669,7 +669,7 @@ function initializeConversionRatesChart() {
         'rgba(25, 135, 84, 0.8)',    // Dark Green
         'rgba(255, 99, 132, 0.8)'    // Pink
     ];
-    
+
     const borderColors = [
         'rgba(23, 162, 184, 1)',
         'rgba(40, 167, 69, 1)',
@@ -682,7 +682,7 @@ function initializeConversionRatesChart() {
         'rgba(25, 135, 84, 1)',
         'rgba(255, 99, 132, 1)'
     ];
-    
+
     window.conversionRatesChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -795,12 +795,12 @@ function editThreshold(thresholdId) {
     // Find the threshold data
     const thresholds = window.chartData.alerts.thresholds || [];
     const threshold = thresholds.find(t => t.id === thresholdId);
-    
+
     if (!threshold) {
         showNotification('{% trans "Threshold not found" %}', 'error');
         return;
     }
-    
+
     // Create modal for editing threshold
     const modalHtml = `
         <div class="modal fade" id="editThresholdModal" tabindex="-1">
@@ -813,12 +813,12 @@ function editThreshold(thresholdId) {
                     <div class="modal-body">
                         <form id="editThresholdForm">
                             <input type="hidden" id="thresholdId" value="${threshold.id}">
-                            
+
                             <div class="mb-3">
                                 <label for="thresholdName" class="form-label">{% trans "Name" %}</label>
                                 <input type="text" class="form-control" id="thresholdName" value="${threshold.name}" required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="thresholdStage" class="form-label">{% trans "Stage" %}</label>
                                 <select class="form-select" id="thresholdStage" required>
@@ -829,7 +829,7 @@ function editThreshold(thresholdId) {
                                     <option value="rental_completed" ${threshold.stage === 'Rental Completed' ? 'selected' : ''}>{% trans "Rental Completed" %}</option>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="thresholdMetricType" class="form-label">{% trans "Metric Type" %}</label>
                                 <select class="form-select" id="thresholdMetricType" required>
@@ -837,12 +837,12 @@ function editThreshold(thresholdId) {
                                     <option value="conversion_rate" ${threshold.metric_type === 'Conversion Rate' ? 'selected' : ''}>{% trans "Conversion Rate" %}</option>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="thresholdValue" class="form-label">{% trans "Threshold Value" %}</label>
                                 <input type="number" class="form-control" id="thresholdValue" value="${threshold.threshold_value}" step="0.1" required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="thresholdOperator" class="form-label">{% trans "Comparison Operator" %}</label>
                                 <select class="form-select" id="thresholdOperator" required>
@@ -851,7 +851,7 @@ function editThreshold(thresholdId) {
                                     <option value="eq" ${threshold.comparison_operator === 'Equals' ? 'selected' : ''}>{% trans "Equals" %}</option>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="thresholdActive" ${threshold.is_active ? 'checked' : ''}>
                                 <label class="form-check-label" for="thresholdActive">
@@ -868,16 +868,16 @@ function editThreshold(thresholdId) {
             </div>
         </div>
     `;
-    
+
     // Remove existing modal if any
     const existingModal = document.getElementById('editThresholdModal');
     if (existingModal) {
         existingModal.remove();
     }
-    
+
     // Add modal to body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('editThresholdModal'));
     modal.show();
@@ -891,13 +891,13 @@ function saveThreshold() {
     const thresholdValue = parseFloat(document.getElementById('thresholdValue').value);
     const comparisonOperator = document.getElementById('thresholdOperator').value;
     const isActive = document.getElementById('thresholdActive').checked;
-    
+
     // Validate form
     if (!name || !stage || !metricType || isNaN(thresholdValue) || !comparisonOperator) {
         showNotification('{% trans "Please fill in all required fields" %}', 'error');
         return;
     }
-    
+
         // Prepare data
         const data = {
             name: name,
@@ -907,8 +907,8 @@ function saveThreshold() {
             comparison_operator: comparisonOperator,
             is_active: isActive
         };
-        
-    
+
+
     // Send update request
     fetch(`/admin-dashboard/api/thresholds/${thresholdId}/`, {
         method: 'PUT',
@@ -939,10 +939,10 @@ function saveThreshold() {
 
 function toggleThreshold(thresholdId, isActive) {
     const action = isActive ? 'activate' : 'deactivate';
-    const message = isActive ? 
-        '{% trans "Are you sure you want to activate this threshold?" %}' : 
+    const message = isActive ?
+        '{% trans "Are you sure you want to activate this threshold?" %}' :
         '{% trans "Are you sure you want to deactivate this threshold?" %}';
-    
+
     if (confirm(message)) {
         fetch(`/admin-dashboard/api/thresholds/${thresholdId}/toggle/`, {
             method: 'POST',
@@ -954,7 +954,7 @@ function toggleThreshold(thresholdId, isActive) {
         .then(result => {
             if (result.success) {
                 showNotification(
-                    isActive ? '{% trans "Threshold activated successfully" %}' : '{% trans "Threshold deactivated successfully" %}', 
+                    isActive ? '{% trans "Threshold activated successfully" %}' : '{% trans "Threshold deactivated successfully" %}',
                     'success'
                 );
                 // Reload data
@@ -996,9 +996,9 @@ function showNotification(message, type) {
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentNode) {
@@ -1017,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = this.dataset.title;
             showFunnelDetailModal(type, title);
         });
-        
+
         // Add hover effect
         card.style.cursor = 'pointer';
     });
@@ -1031,18 +1031,18 @@ function showFunnelDetailModal(type, title) {
         modal = createFunnelDetailModal();
         document.body.appendChild(modal);
     }
-    
+
     // Update modal title
     const modalTitle = modal.querySelector('.modal-title');
     modalTitle.textContent = title;
-    
+
     // Show loading state
     const modalBody = modal.querySelector('.modal-body');
     modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">{% trans "Loading..." %}</span></div></div>';
     // Show modal
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-    
+
     // Load data
     loadFunnelDetailData(type, modalBody);
 }
@@ -1077,7 +1077,7 @@ async function loadFunnelDetailData(type, modalBody, page = 1) {
     try {
         const formData = new FormData(document.getElementById('filtersForm'));
         const params = new URLSearchParams();
-        
+
         for (let [key, value] of formData.entries()) {
             if (value && value !== '') {
                 params.append(key, value);
@@ -1086,10 +1086,10 @@ async function loadFunnelDetailData(type, modalBody, page = 1) {
         params.append('type', type);
         params.append('page', page);
         params.append('per_page', 20);
-        
+
         const response = await fetch(`/admin-dashboard/api/funnel-detail/?${params.toString()}`);
         const data = await response.json();
-        
+
         if (data.success) {
             displayFunnelDetailData(data.data, modalBody, type);
         } else {
@@ -1103,7 +1103,7 @@ async function loadFunnelDetailData(type, modalBody, page = 1) {
 // Display funnel detail data
 function displayFunnelDetailData(data, modalBody, type) {
     const { total_count, displayed_count, pagination } = data;
-    
+
     let html = `
         <div class="mb-3">
             <div class="row">
@@ -1116,7 +1116,7 @@ function displayFunnelDetailData(data, modalBody, type) {
             </div>
         </div>
     `;
-    
+
     if (type === 'registrations' && data.profiles && data.profiles.length > 0) {
         html += `
             <div class="table-responsive">
@@ -1137,7 +1137,7 @@ function displayFunnelDetailData(data, modalBody, type) {
                     </thead>
                     <tbody>
         `;
-        
+
         data.profiles.forEach(profile => {
             const verifiedBadge = profile.verified ? '<span class="badge bg-success">{% trans "Yes" %}</span>' : '<span class="badge bg-warning">{% trans "No" %}</span>';
             const memberBadge = profile.member ? '<span class="badge bg-primary">{% trans "Yes" %}</span>' : '<span class="badge bg-secondary">{% trans "No" %}</span>';
@@ -1161,7 +1161,7 @@ function displayFunnelDetailData(data, modalBody, type) {
                 </table>
             </div>
         `;
-        
+
         // Add pagination if available
         if (pagination && pagination.total_pages > 1) {
             html += createPaginationHTML(pagination, type);
@@ -1203,13 +1203,13 @@ function displayFunnelDetailData(data, modalBody, type) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
             </div>
         `;
-        
+
         // Add pagination if available
         if (pagination && pagination.total_pages > 1) {
             html += createPaginationHTML(pagination, type);
@@ -1234,10 +1234,10 @@ function displayFunnelDetailData(data, modalBody, type) {
                     </thead>
                     <tbody>
         `;
-        
+
         data.licenses.forEach(license => {
             const confirmedBadge = license.confirmed ? '<span class="badge bg-success">{% trans "Yes" %}</span>' : '<span class="badge bg-warning">{% trans "No" %}</span>';
-            
+
             // Convert duration from ISO format to HH:MM:SS
             let durationFormatted = '';
             if (license.duration) {
@@ -1248,7 +1248,7 @@ function displayFunnelDetailData(data, modalBody, type) {
                         // Try alternative format with days: P0DT00H05M15S
                         match = license.duration.match(/P(?:\d+D)?T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
                     }
-                    
+
                     if (match) {
                         const hours = parseInt(match[1] || '0');
                         const minutes = parseInt(match[2] || '0');
@@ -1266,7 +1266,7 @@ function displayFunnelDetailData(data, modalBody, type) {
                     durationFormatted = license.duration;
                 }
             }
-            
+
             html += `
                 <tr>
                     <td>${license.number}</td>
@@ -1282,13 +1282,13 @@ function displayFunnelDetailData(data, modalBody, type) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
             </div>
         `;
-        
+
         // Add pagination if available
         if (pagination && pagination.total_pages > 1) {
             html += createPaginationHTML(pagination, type);
@@ -1312,7 +1312,7 @@ function displayFunnelDetailData(data, modalBody, type) {
                     </thead>
                     <tbody>
         `;
-        
+
         data.contributions.forEach(contribution => {
             html += `
                 <tr>
@@ -1328,13 +1328,13 @@ function displayFunnelDetailData(data, modalBody, type) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
             </div>
         `;
-        
+
         // Add pagination if available
         if (pagination && pagination.total_pages > 1) {
             html += createPaginationHTML(pagination, type);
@@ -1342,19 +1342,19 @@ function displayFunnelDetailData(data, modalBody, type) {
     } else {
         html += '<div class="alert alert-info">{% trans "No data found for the selected criteria." %}</div>';
     }
-    
+
     modalBody.innerHTML = html;
 }
 
 // Create pagination HTML
 function createPaginationHTML(pagination, type) {
     const { current_page, total_pages, has_previous, has_next } = pagination;
-    
+
     let html = `
         <nav aria-label="{% trans "Funnel pagination" %}" class="mt-3">
             <ul class="pagination justify-content-center">
     `;
-    
+
     // Previous button
     if (has_previous) {
         html += `
@@ -1371,11 +1371,11 @@ function createPaginationHTML(pagination, type) {
             </li>
         `;
     }
-    
+
     // Page numbers
     const startPage = Math.max(1, current_page - 2);
     const endPage = Math.min(total_pages, current_page + 2);
-    
+
     for (let i = startPage; i <= endPage; i++) {
         if (i === current_page) {
             html += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
@@ -1387,7 +1387,7 @@ function createPaginationHTML(pagination, type) {
             `;
         }
     }
-    
+
     // Next button
     if (has_next) {
         html += `
@@ -1404,12 +1404,12 @@ function createPaginationHTML(pagination, type) {
             </li>
         `;
     }
-    
+
     html += `
             </ul>
         </nav>
     `;
-    
+
     return html;
 }
 

@@ -1,5 +1,6 @@
+from dashboard.models import AlertThreshold
+from dashboard.models import UserJourneyStage
 from django.core.management.base import BaseCommand
-from dashboard.models import AlertThreshold, UserJourneyStage
 
 
 class Command(BaseCommand):
@@ -7,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("Setting up default alert thresholds...")
-        
+
         # Default thresholds
         thresholds = [
             {
@@ -51,16 +52,16 @@ class Command(BaseCommand):
                 'notification_recipients': ['admin@ok-tools.de']
             }
         ]
-        
+
         created_count = 0
         updated_count = 0
-        
+
         for threshold_data in thresholds:
             threshold, created = AlertThreshold.objects.get_or_create(
                 name=threshold_data['name'],
                 defaults=threshold_data
             )
-            
+
             if created:
                 created_count += 1
                 self.stdout.write(f"Created threshold: {threshold.name}")
@@ -71,7 +72,7 @@ class Command(BaseCommand):
                 threshold.save()
                 updated_count += 1
                 self.stdout.write(f"Updated threshold: {threshold.name}")
-        
+
         self.stdout.write(
             self.style.SUCCESS(
                 f"Setup completed: {created_count} created, {updated_count} updated"

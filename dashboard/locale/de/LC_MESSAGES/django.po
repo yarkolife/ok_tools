@@ -2681,4 +2681,3 @@ msgstr "Balkendiagramm"
 #: dashboard/templates/dashboard/widgets/users.html:138
 msgid "Horizontal Bar Chart"
 msgstr "Horizontales Balkendiagramm"
-

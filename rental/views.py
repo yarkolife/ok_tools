@@ -2183,9 +2183,9 @@ def api_search_inventory_items(request):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
 
-        from inventory.models import InventoryItem
-        from django.utils.dateparse import parse_datetime
         from django.utils import timezone
+        from django.utils.dateparse import parse_datetime
+        from inventory.models import InventoryItem
 
         items = InventoryItem.objects.filter(
             available_for_rent=True,
@@ -2209,16 +2209,16 @@ def api_search_inventory_items(request):
                 try:
                     start_datetime = parse_datetime(start_date)
                     end_datetime = parse_datetime(end_date)
-                    
+
                     if timezone.is_naive(start_datetime):
                         start_datetime = timezone.make_aware(start_datetime)
                     if timezone.is_naive(end_datetime):
                         end_datetime = timezone.make_aware(end_datetime)
-                    
+
                     available_quantity = get_available_quantity_for_period(item, start_datetime, end_datetime)
                 except:
                     pass  # If date parsing fails, use original quantity
-            
+
             # Only include items that are available
             if available_quantity > 0:
                 result.append({
@@ -3467,41 +3467,41 @@ def api_check_room_availability(request):
 def api_save_template(request):
     """
     Save selected equipment items as a reusable template.
-    
+
     Args:
         request: HTTP request object with template data
-        
+
     Returns:
         JsonResponse: Success status and template ID or error message
     """
     if request.method != 'POST':
         return JsonResponse({'error': _('Method not allowed')}, status=405)
-    
+
     try:
         data = json.loads(request.body)
-        
+
         name = data.get('name', '').strip()
         description = data.get('description', '').strip()
         items = data.get('items', [])
-        
+
         if not name:
             return JsonResponse({'error': _('Template name is required')}, status=400)
-        
+
         if not items:
             return JsonResponse({'error': _('At least one item is required')}, status=400)
-        
+
         # Check if template with this name already exists
         from .models import EquipmentTemplate
         if EquipmentTemplate.objects.filter(name=name).exists():
             return JsonResponse({'error': _('Template with this name already exists')}, status=400)
-        
+
         # Create template
         template = EquipmentTemplate.objects.create(
             name=name,
             description=description,
             created_by=request.user
         )
-        
+
         # Create template items
         from .models import EquipmentTemplateItem
         for item_data in items:
@@ -3509,7 +3509,7 @@ def api_save_template(request):
                 from inventory.models import InventoryItem
                 inventory_item = InventoryItem.objects.get(id=item_data['inventory_item_id'])
                 quantity = item_data.get('quantity', 1)
-                
+
                 EquipmentTemplateItem.objects.create(
                     template=template,
                     inventory_item=inventory_item,
@@ -3519,13 +3519,13 @@ def api_save_template(request):
                 return JsonResponse({'error': _('Invalid inventory item ID')}, status=400)
             except Exception as e:
                 return JsonResponse({'error': str(e)}, status=400)
-        
+
         return JsonResponse({
             'success': True,
             'template_id': template.id,
             'message': _('Template saved successfully')
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({'error': _('Invalid JSON data')}, status=400)
     except Exception as e:
@@ -3537,15 +3537,15 @@ def api_save_template(request):
 def api_get_templates(request):
     """
     Get all available equipment templates.
-    
+
     Returns:
         JsonResponse: List of templates with basic info
     """
     try:
         from .models import EquipmentTemplate
-        
+
         templates = EquipmentTemplate.objects.select_related('created_by').prefetch_related('items').all()
-        
+
         template_data = []
         for template in templates:
             template_data.append({
@@ -3556,12 +3556,12 @@ def api_get_templates(request):
                 'created_at': template.created_at.isoformat(),
                 'items_count': template.items.count()
             })
-        
+
         return JsonResponse({
             'success': True,
             'templates': template_data
         })
-        
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -3571,19 +3571,19 @@ def api_get_templates(request):
 def api_load_template(request, template_id):
     """
     Load a specific template with its items.
-    
+
     Args:
         request: HTTP request object
         template_id: ID of the template to load
-        
+
     Returns:
         JsonResponse: Template data with items
     """
     try:
         from .models import EquipmentTemplate
-        
+
         template = get_object_or_404(EquipmentTemplate, id=template_id)
-        
+
         # Get template items with inventory details
         items_data = []
         for item in template.items.select_related('inventory_item__category', 'inventory_item__location').all():
@@ -3601,7 +3601,7 @@ def api_load_template(request, template_id):
                     } if item.inventory_item.location else None
                 }
             })
-        
+
         return JsonResponse({
             'success': True,
             'template': {
@@ -3611,7 +3611,7 @@ def api_load_template(request, template_id):
                 'items': items_data
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -3621,29 +3621,29 @@ def api_load_template(request, template_id):
 def api_delete_template(request, template_id):
     """
     Delete an equipment template.
-    
+
     Args:
         request: HTTP request object
         template_id: ID of the template to delete
-        
+
     Returns:
         JsonResponse: Success status or error message
     """
     if request.method != 'DELETE':
         return JsonResponse({'error': _('Method not allowed')}, status=405)
-    
+
     try:
         from .models import EquipmentTemplate
-        
+
         template = get_object_or_404(EquipmentTemplate, id=template_id)
         template_name = template.name
         template.delete()
-        
+
         return JsonResponse({
             'success': True,
             'message': _('Template deleted successfully')
         })
-        
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -3735,13 +3735,13 @@ def api_issue_from_reservation(request):
                 try:
                     inventory_id = new_item_data.get('inventory_id')
                     quantity = new_item_data.get('quantity', 1)
-                    
+
                     # Get the inventory item
                     inventory_item = InventoryItem.objects.get(id=inventory_id)
-                    
+
                     # Check availability
                     available_qty = get_available_quantity_for_period(inventory_item, start_datetime, end_datetime)
-                    
+
                     if available_qty < quantity:
                         return JsonResponse({
                             'error': _('Item "{item_description}" is not available for the selected period. Available: {available}, requested: {requested}').format(
@@ -3750,7 +3750,7 @@ def api_issue_from_reservation(request):
                                 requested=quantity
                             )
                         }, status=400)
-                    
+
                     # Create new rental item
                     RentalItem.objects.create(
                         rental_request=rental,
@@ -3758,7 +3758,7 @@ def api_issue_from_reservation(request):
                         quantity_requested=quantity,
                         quantity_issued=quantity
                     )
-                    
+
                 except InventoryItem.DoesNotExist:
                     return JsonResponse({'error': _('Invalid inventory item ID')}, status=400)
                 except Exception as e:

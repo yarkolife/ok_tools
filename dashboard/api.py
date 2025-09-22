@@ -1,17 +1,21 @@
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from django.db.models import Count, Q
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
-
-from registration.models import Profile, MediaAuthority
-from licenses.models import License, Category
-from contributions.models import Contribution
 from .widgets.filters import DashboardFilters
 from .widgets.inventory import InventoryWidget
 from .widgets.notifications import NotificationsWidget
+from contributions.models import Contribution
+from datetime import datetime
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Count
+from django.db.models import Q
+from django.http import JsonResponse
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from licenses.models import Category
+from licenses.models import License
+from registration.models import MediaAuthority
+from registration.models import Profile
 
 
 def is_admin(user):
@@ -26,26 +30,26 @@ def api_users_statistics(request):
     try:
         # Initialize filters
         filters = DashboardFilters(request)
-        
+
         # Get base queryset
         queryset = Profile.objects.all()
-        
+
         # Apply filters
         filtered_queryset = filters.apply_filters_to_queryset(queryset, 'profile')
-        
+
         # Calculate basic statistics
         total_users = filtered_queryset.count()
-        
+
         # Gender distribution
         male_users = filtered_queryset.filter(gender='m').count()
         female_users = filtered_queryset.filter(gender='f').count()
         diverse_users = filtered_queryset.filter(gender='d').count()
-        
+
         # Verification and membership
         verified_users = filtered_queryset.filter(verified=True).count()
         member_users = filtered_queryset.filter(member=True).count()
-        
-        
+
+
         # Users by media authority
         try:
             users_by_authority = list(filtered_queryset.values(
@@ -55,7 +59,7 @@ def api_users_statistics(request):
             ).order_by('-count'))
         except Exception:
             users_by_authority = []
-        
+
         # Age groups
         age_groups = {
             'under_18': 0,
@@ -64,7 +68,7 @@ def api_users_statistics(request):
             '36_50': 0,
             'over_50': 0
         }
-        
+
         try:
             for profile in filtered_queryset:
                 if profile.birthday:
@@ -82,16 +86,16 @@ def api_users_statistics(request):
         except Exception:
             # If there's an error calculating ages, keep default values
             pass
-        
+
         # Registration trend based on selected period
         try:
             start_date = filters.date_range['start_date']
             end_date = filters.date_range['end_date']
             registration_trend = []
-            
+
             # Calculate number of days in the period
             days_diff = (end_date - start_date).days
-            
+
             # For periods longer than 30 days, group by weeks
             if days_diff > 30:
                 # Group by weeks
@@ -108,12 +112,12 @@ def api_users_statistics(request):
                             count = 0
                     except Exception:
                         count = 0
-                    
+
                     registration_trend.append({
                         'date': f"{current_date.strftime('%Y-%m-%d')} - {week_end.strftime('%Y-%m-%d')}",
                         'count': count
                     })
-                    
+
                     current_date = week_end + timedelta(days=1)
             else:
                 # For shorter periods, show daily data
@@ -128,29 +132,29 @@ def api_users_statistics(request):
                             count = 0
                     except Exception:
                         count = 0
-                    
+
                     registration_trend.append({
                         'date': current_date.strftime('%Y-%m-%d'),
                         'count': count
                     })
-                    
+
                     current_date += timedelta(days=1)
-                    
+
         except Exception as e:
             registration_trend = []
-        
+
         # Member distribution
         member_distribution = {
             'members': member_users,
             'non_members': total_users - member_users
         }
-        
+
         # Get filters data with error handling
         try:
             filters_data = filters.get_all_data()
         except Exception as e:
             filters_data = {}
-        
+
         data = {
             'basic_stats': {
                 'total_users': total_users,
@@ -166,15 +170,15 @@ def api_users_statistics(request):
             'member_distribution': member_distribution,
             'filters': filters_data,
         }
-        
+
         return JsonResponse({'success': True, 'data': data})
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_users_statistics: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return JsonResponse({
-            'success': False, 
+            'success': False,
             'error': str(e)
         }, status=500)
 
@@ -185,21 +189,21 @@ def api_licenses_statistics(request):
     """API endpoint for licenses statistics."""
     try:
         from .widgets.licenses import LicensesWidget
-        
+
         # Initialize widget
         widget = LicensesWidget(request)
-        
+
         # Get all data
         data = widget.get_data()
-        
+
         return JsonResponse({'success': True, 'data': data})
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_licenses_statistics: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return JsonResponse({
-            'success': False, 
+            'success': False,
             'error': str(e)
         }, status=500)
 
@@ -210,21 +214,21 @@ def api_contributions_statistics(request):
     """API endpoint for contributions statistics."""
     try:
         from .widgets.contributions import ContributionsWidget
-        
+
         # Initialize widget
         widget = ContributionsWidget(request)
-        
+
         # Get all data
         data = widget.get_data()
-        
+
         return JsonResponse({'success': True, 'data': data})
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_contributions_statistics: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return JsonResponse({
-            'success': False, 
+            'success': False,
             'error': str(e)
         }, status=500)
 
@@ -235,21 +239,21 @@ def api_projects_statistics(request):
     """API endpoint for projects statistics."""
     try:
         from .widgets.projects import ProjectsWidget
-        
+
         # Initialize widget
         widget = ProjectsWidget(request)
-        
+
         # Get all data
         data = widget.get_data()
-        
+
         return JsonResponse({'success': True, 'data': data})
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_projects_statistics: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return JsonResponse({
-            'success': False, 
+            'success': False,
             'error': str(e)
         }, status=500)
 
@@ -262,14 +266,14 @@ def api_filters_data(request):
     try:
         # Initialize filters to get context
         filters = DashboardFilters(request)
-        
+
         # Get real media authorities from database
         try:
             media_authorities = MediaAuthority.objects.all().order_by('name')
             media_authorities_data = [{'name': authority.name} for authority in media_authorities]
         except Exception as e:
             media_authorities_data = []
-        
+
         # Get gender choices from Profile model
         try:
             gender_choices = list(Profile.Gender.choices)
@@ -279,7 +283,7 @@ def api_filters_data(request):
                 ('f', 'Female'),
                 ('d', 'Diverse')
             ]
-        
+
         # Get license categories from Category model
         try:
             from licenses.models import Category
@@ -287,7 +291,7 @@ def api_filters_data(request):
             category_choices = [{'id': cat.id, 'name': cat.name} for cat in categories]
         except Exception as e:
             category_choices = []
-        
+
         # Get project categories from ProjectCategory model
         try:
             from projects.models import ProjectCategory
@@ -295,7 +299,7 @@ def api_filters_data(request):
             project_category_choices = [{'id': cat.id, 'name': cat.name} for cat in project_categories]
         except Exception as e:
             project_category_choices = []
-        
+
         # Get target groups from TargetGroup model
         try:
             from projects.models import TargetGroup
@@ -303,7 +307,7 @@ def api_filters_data(request):
             target_group_choices = [{'id': group.id, 'name': group.name} for group in target_groups]
         except Exception as e:
             target_group_choices = []
-        
+
         # Get project leaders from ProjectLeader model
         try:
             from projects.models import ProjectLeader
@@ -311,7 +315,7 @@ def api_filters_data(request):
             project_leader_choices = [{'id': leader.id, 'name': leader.name} for leader in project_leaders]
         except Exception as e:
             project_leader_choices = []
-        
+
         # Age groups
         age_groups = [
             ('under_18', 'Under 18'),
@@ -320,20 +324,20 @@ def api_filters_data(request):
             ('36_50', '36-50'),
             ('over_50', 'Over 50')
         ]
-        
+
         # Member and verification choices
         member_choices = [
             ('', 'All Users'),
             ('true', 'Members Only'),
             ('false', 'Non-Members Only')
         ]
-        
+
         verified_choices = [
             ('', 'All Users'),
             ('true', 'Verified Only'),
             ('false', 'Not Verified')
         ]
-        
+
         # Date range options
         date_range_options = [
             (7, 'Last 7 days'),
@@ -343,19 +347,21 @@ def api_filters_data(request):
             ('all', 'All Time'),
             ('custom', 'Custom Period')
         ]
-        
+
         # Inventory-specific data
         try:
-            from inventory.models import Organization, Location, Category as InventoryCategory
-            
+            from inventory.models import Category as InventoryCategory
+            from inventory.models import Location
+            from inventory.models import Organization
+
             # Organizations (owners)
             organizations = Organization.objects.all().values('id', 'name').order_by('name')
             # Locations
             locations = Location.objects.all().values('id', 'name').order_by('name')
-            
+
             # Inventory categories (using inventory categories)
             inventory_categories = InventoryCategory.objects.all().values('id', 'name').order_by('name')
-            
+
         except Exception as e:
             print(f"Error loading inventory data: {e}")
             import traceback
@@ -363,9 +369,9 @@ def api_filters_data(request):
             organizations = []
             locations = []
             inventory_categories = []
-        
+
         response_data = {
-            'success': True, 
+            'success': True,
             'data': {
                 'context': {
                     'media_authorities': media_authorities_data,
@@ -387,15 +393,15 @@ def api_filters_data(request):
             'locations': list(locations),
             'inventory_categories': list(inventory_categories)
         }
-        
+
         return JsonResponse(response_data)
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_filters_data: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return JsonResponse({
-            'success': False, 
+            'success': False,
             'error': str(e)
         }, status=500)
 
@@ -407,7 +413,7 @@ def api_inventory_statistics(request):
     try:
         # Initialize filters
         filters = DashboardFilters(request)
-        
+
         # Get filter parameters
         filter_params = {}
         if 'days' in request.GET:
@@ -416,7 +422,7 @@ def api_inventory_statistics(request):
             filter_params['start_date'] = request.GET['start_date']
         if 'end_date' in request.GET:
             filter_params['end_date'] = request.GET['end_date']
-        
+
         # Extended filters
         if 'gender' in request.GET and request.GET['gender'] not in ['', 'undefined', 'null']:
             filter_params['gender'] = request.GET['gender']
@@ -430,26 +436,26 @@ def api_inventory_statistics(request):
             filter_params['location'] = request.GET['location']
         if 'status' in request.GET and request.GET['status'] not in ['', 'undefined', 'null']:
             filter_params['status'] = request.GET['status']
-        
+
         # Initialize inventory widget
         inventory_widget = InventoryWidget(filter_params)
-        
+
         # Get all data
         data = inventory_widget.get_all_data()
-        
+
         response_data = {
             'success': True,
             'data': data
         }
-        
+
         return JsonResponse(response_data)
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_inventory_statistics: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return JsonResponse({
-            'success': False, 
+            'success': False,
             'error': str(e)
         }, status=500)
 
@@ -461,7 +467,7 @@ def api_notifications_statistics(request):
     try:
         # Get filters from request
         filters = {}
-        
+
         # Date filters
         if 'days' in request.GET:
             filters['days'] = request.GET.get('days')
@@ -469,7 +475,7 @@ def api_notifications_statistics(request):
             filters['start_date'] = request.GET.get('start_date')
         if 'end_date' in request.GET:
             filters['end_date'] = request.GET.get('end_date')
-        
+
         # Notification filters
         if 'notification_type' in request.GET:
             filters['notification_type'] = request.GET.get('notification_type')
@@ -479,16 +485,16 @@ def api_notifications_statistics(request):
             filters['is_active'] = request.GET.get('is_active')
         if 'created_by' in request.GET:
             filters['created_by'] = request.GET.get('created_by')
-        
+
         # Create widget and get data
         widget = NotificationsWidget(filters)
         data = widget.get_all_data()
-        
+
         return JsonResponse({
             'success': True,
             'data': data
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -504,12 +510,12 @@ def api_funnel_metrics(request):
         from .utils import FunnelTracker
         from datetime import timedelta
         from django.utils import timezone
-        
+
         # Get date range from request
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
         days = request.GET.get('days')
-        
+
         if days and days != 'all' and days != 'custom':
             # Convert days to date range
             end_date = timezone.now().date()
@@ -528,7 +534,7 @@ def api_funnel_metrics(request):
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         if end_date and not days:
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        
+
         # Get additional filters
         filters = {
             'media_authority': request.GET.get('media_authority'),
@@ -537,12 +543,12 @@ def api_funnel_metrics(request):
             'category': request.GET.get('category'),
             'status': request.GET.get('status')
         }
-        
+
         # Get funnel metrics
         tracker = FunnelTracker()
         metrics = tracker.get_funnel_metrics(start_date, end_date, filters)
         breakdown = tracker.get_stage_breakdown(start_date, end_date, filters)
-        
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -551,7 +557,7 @@ def api_funnel_metrics(request):
                 'funnel_data': breakdown
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -565,25 +571,25 @@ def api_funnel_breakdown(request):
     """API endpoint for detailed funnel breakdown."""
     try:
         from .utils import FunnelTracker
-        
+
         # Get date range from request
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
-        
+
         if start_date:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         if end_date:
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        
+
         # Get stage breakdown
         tracker = FunnelTracker()
         breakdown = tracker.get_stage_breakdown(start_date, end_date)
-        
+
         return JsonResponse({
             'success': True,
             'data': breakdown
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -597,7 +603,7 @@ def api_funnel_trends(request):
     """API endpoint for funnel trends over time."""
     try:
         from .utils import FunnelTracker
-        
+
         # Get date range from request
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
@@ -615,7 +621,7 @@ def api_funnel_trends(request):
             days = int(days)
             end_date = timezone.now().date()
             start_date = end_date - timedelta(days=days)
-        
+
         # Get additional filters
         filters = {
             'media_authority': request.GET.get('media_authority'),
@@ -624,17 +630,17 @@ def api_funnel_trends(request):
             'category': request.GET.get('category'),
             'status': request.GET.get('status')
         }
-        
+
         # Get trends data
         tracker = FunnelTracker()
         trends = tracker.get_funnel_trends(start_date, end_date, filters)
-        
-        
+
+
         return JsonResponse({
             'success': True,
             'data': trends
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -650,7 +656,7 @@ def api_alerts_list(request):
         from .models import AlertThreshold
         from .utils import FunnelTracker
         from .widgets.filters import DashboardFilters
-        
+
         # Parse filter parameters
         try:
             filter_manager = DashboardFilters(request)
@@ -660,7 +666,7 @@ def api_alerts_list(request):
             # Fallback to default values
             start_date = None
             end_date = None
-        
+
         # Get current metrics for the selected period
         try:
             funnel_tracker = FunnelTracker()
@@ -678,18 +684,18 @@ def api_alerts_list(request):
                 'first_broadcast_rate': 0.0,
                 'rental_completion_rate': 0.0
             }
-        
+
         # Get all thresholds
         thresholds = AlertThreshold.objects.filter(
             is_active=True
         ).order_by('name')
-        
+
         # Calculate current alerts based on thresholds and current metrics
         alerts_data = []
         for threshold in thresholds:
             current_value = 0.0
             alert_triggered = False
-            
+
             # Get current value based on threshold stage and metric type
             if threshold.stage == 'registered':
                 if threshold.metric_type == 'absolute_count':
@@ -724,7 +730,7 @@ def api_alerts_list(request):
                     # Get rental completion rate from conversion_rates, not metrics
                     conversion_rates = current_metrics.get('conversion_rates', {})
                     current_value = conversion_rates.get('rental_completion_rate', 0.0)
-            
+
             # Check if alert should be triggered
             if threshold.comparison_operator == 'gt':
                 alert_triggered = current_value > threshold.threshold_value
@@ -732,8 +738,8 @@ def api_alerts_list(request):
                 alert_triggered = current_value < threshold.threshold_value
             elif threshold.comparison_operator == 'eq':
                 alert_triggered = current_value == threshold.threshold_value
-            
-            
+
+
             if alert_triggered:
                 alerts_data.append({
                     'id': f"dynamic_{threshold.id}",
@@ -746,7 +752,7 @@ def api_alerts_list(request):
                     'triggered_at': None,  # Dynamic alert
                     'is_resolved': False
                 })
-        
+
         thresholds_data = []
         for threshold in thresholds:
             thresholds_data.append({
@@ -758,7 +764,7 @@ def api_alerts_list(request):
                 'comparison_operator': threshold.get_comparison_operator_display(),
                 'is_active': threshold.is_active
             })
-        
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -766,7 +772,7 @@ def api_alerts_list(request):
                 'thresholds': thresholds_data
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -780,17 +786,17 @@ def api_alerts_resolve(request, alert_id):
     """API endpoint to resolve an alert."""
     try:
         from .models import AlertLog
-        
+
         alert = AlertLog.objects.get(id=alert_id)
         alert.is_resolved = True
         alert.resolved_at = timezone.now()
         alert.save()
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Alert resolved successfully'
         })
-        
+
     except AlertLog.DoesNotExist:
         return JsonResponse({
             'success': False,
@@ -808,21 +814,21 @@ def api_alerts_resolve(request, alert_id):
 def api_recent_users(request):
     """API endpoint for recent user activities."""
     try:
-        from django.utils import timezone
         from datetime import timedelta
-        
+        from django.utils import timezone
+
         # Get recent profiles (last 7 days by default)
         days = int(request.GET.get('days', 7))
         since_date = timezone.now() - timedelta(days=days)
-        
+
         # Get recent profiles
         recent_profiles = Profile.objects.filter(
             created_at__gte=since_date
         ).order_by('-created_at')[:10]
-        
+
         # Get recent user activities
         activities = []
-        
+
         # Add newly registered users
         for profile in recent_profiles:
             activities.append({
@@ -834,14 +840,14 @@ def api_recent_users(request):
                 'icon': 'bi-person-plus',
                 'color': 'success'
             })
-        
+
         # Get recent profile updates (if we had updated_at field)
         # For now, we'll use verified status changes as an example
         recently_verified = Profile.objects.filter(
             verified=True,
             created_at__gte=since_date
         ).order_by('-created_at')[:5]
-        
+
         for profile in recently_verified:
             activities.append({
                 'type': 'profile_verified',
@@ -852,14 +858,14 @@ def api_recent_users(request):
                 'icon': 'bi-check-circle',
                 'color': 'info'
             })
-        
+
         # Get recent license activities
         try:
             from licenses.models import License
             recent_licenses = License.objects.filter(
                 created_at__gte=since_date
             ).select_related('profile__okuser').order_by('-created_at')[:5]
-            
+
             for license in recent_licenses:
                 activities.append({
                     'type': 'license_created',
@@ -872,10 +878,10 @@ def api_recent_users(request):
                 })
         except ImportError:
             pass
-        
+
         # Sort all activities by timestamp
         activities.sort(key=lambda x: x['timestamp'], reverse=True)
-        
+
         # Format timestamps for display
         for activity in activities:
             time_diff = timezone.now() - activity['timestamp']
@@ -887,7 +893,7 @@ def api_recent_users(request):
             else:
                 minutes = time_diff.seconds // 60
                 activity['time_ago'] = f"{minutes} minute{'s' if minutes > 1 else ''} ago"
-        
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -896,7 +902,7 @@ def api_recent_users(request):
                 'period_days': days
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -909,28 +915,28 @@ def api_recent_users(request):
 def api_recent_licenses(request):
     """API endpoint for recent license activities."""
     try:
-        from django.utils import timezone
         from datetime import timedelta
-        
+        from django.utils import timezone
+
         # Get recent licenses (last 7 days by default)
         days = int(request.GET.get('days', 7))
         since_date = timezone.now() - timedelta(days=days)
-        
+
         # Get recent license activities
         activities = []
-        
+
         # Get recent licenses
         try:
             from licenses.models import License
             recent_licenses = License.objects.filter(
                 created_at__gte=since_date
             ).select_related('profile__okuser').order_by('-created_at')[:10]
-            
+
             for license in recent_licenses:
                 status_color = 'success' if license.confirmed else 'warning'
                 status_icon = 'bi-check-circle' if license.confirmed else 'bi-clock'
                 status_text = 'confirmed' if license.confirmed else 'pending'
-                
+
                 activities.append({
                     'type': 'license_created',
                     'title': f'License {status_text}: {license.title}',
@@ -941,14 +947,14 @@ def api_recent_licenses(request):
                     'color': status_color,
                     'license_id': license.id
                 })
-                
+
         except ImportError:
             # If licenses app is not available, return empty list
             pass
-        
+
         # Sort all activities by timestamp
         activities.sort(key=lambda x: x['timestamp'], reverse=True)
-        
+
         # Format timestamps for display
         for activity in activities:
             time_diff = timezone.now() - activity['timestamp']
@@ -960,7 +966,7 @@ def api_recent_licenses(request):
             else:
                 minutes = time_diff.seconds // 60
                 activity['time_ago'] = f"{minutes} minute{'s' if minutes > 1 else ''} ago"
-        
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -969,7 +975,7 @@ def api_recent_licenses(request):
                 'period_days': days
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -982,16 +988,16 @@ def api_recent_licenses(request):
 def api_system_status(request):
     """API endpoint for system status checks."""
     try:
-        from django.utils import timezone
         from django.core.cache import cache
-        from django.core.files.storage import default_storage
         from django.core.files.base import ContentFile
+        from django.core.files.storage import default_storage
         from django.core.mail import send_mail
         from django.db import connection
+        from django.utils import timezone
         import os
-        
+
         status_checks = {}
-        
+
         # Check Database Status
         try:
             with connection.cursor() as cursor:
@@ -1015,7 +1021,7 @@ def api_system_status(request):
                 'message': f'Database connection failed: {str(e)}',
                 'response_time': 'N/A'
             }
-        
+
         # Check API Services Status
         try:
             # Check if we can perform basic database operations
@@ -1031,16 +1037,16 @@ def api_system_status(request):
                 'message': f'API services error: {str(e)}',
                 'response_time': 'N/A'
             }
-        
+
         # Check File Storage Status
         try:
             # Test file storage by checking if we can access the storage
             test_file_path = 'system_status_test.txt'
             test_content = f'System status check at {timezone.now()}'
-            
+
             # Try to write a test file
             default_storage.save(test_file_path, ContentFile(test_content.encode()))
-            
+
             # Try to read it back
             if default_storage.exists(test_file_path):
                 # Clean up test file
@@ -1062,12 +1068,12 @@ def api_system_status(request):
                 'message': f'File storage error: {str(e)}',
                 'response_time': 'N/A'
             }
-        
+
         # Check Email Service Status
         try:
             # Check email configuration
             from django.conf import settings
-            
+
             if hasattr(settings, 'EMAIL_BACKEND'):
                 if settings.EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
                     status_checks['email_service'] = {
@@ -1077,8 +1083,8 @@ def api_system_status(request):
                     }
                 else:
                     # Test email configuration without actually sending
-                    if (settings.EMAIL_HOST and 
-                        settings.EMAIL_PORT and 
+                    if (settings.EMAIL_HOST and
+                        settings.EMAIL_PORT and
                         settings.EMAIL_HOST_USER):
                         status_checks['email_service'] = {
                             'status': 'healthy',
@@ -1103,12 +1109,12 @@ def api_system_status(request):
                 'message': f'Email service error: {str(e)}',
                 'response_time': 'N/A'
             }
-        
+
         # Calculate overall system health
         healthy_count = sum(1 for check in status_checks.values() if check['status'] == 'healthy')
         warning_count = sum(1 for check in status_checks.values() if check['status'] == 'warning')
         error_count = sum(1 for check in status_checks.values() if check['status'] == 'error')
-        
+
         if error_count > 0:
             overall_status = 'error'
             overall_message = f'{error_count} service(s) down'
@@ -1118,7 +1124,7 @@ def api_system_status(request):
         else:
             overall_status = 'healthy'
             overall_message = 'All systems operational'
-        
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -1134,7 +1140,7 @@ def api_system_status(request):
                 'timestamp': timezone.now().isoformat()
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1147,41 +1153,41 @@ def api_system_status(request):
 def api_quick_stats(request):
     """API endpoint for quick statistics overview."""
     try:
-        from django.utils import timezone
         from datetime import timedelta
-        
+        from django.utils import timezone
+
         # Initialize filters
         filters = DashboardFilters(request)
-        
+
         # Get base querysets
         profiles_queryset = Profile.objects.all()
         filtered_profiles = filters.apply_filters_to_queryset(profiles_queryset, 'profile')
-        
+
         # Active Users (verified users)
         active_users = filtered_profiles.filter(verified=True).count()
-        
+
         # Get license statistics
         try:
             from licenses.models import License
             licenses_queryset = License.objects.all()
             filtered_licenses = filters.apply_filters_to_queryset(licenses_queryset, 'license')
-            
+
             confirmed_licenses = filtered_licenses.filter(confirmed=True).count()
             pending_licenses = filtered_licenses.filter(confirmed=False).count()
         except ImportError:
             confirmed_licenses = 0
             pending_licenses = 0
-        
+
         # Get contribution statistics
         try:
             from contributions.models import Contribution
             contributions_queryset = Contribution.objects.all()
             filtered_contributions = filters.apply_filters_to_queryset(contributions_queryset, 'contribution')
-            
+
             live_contributions = filtered_contributions.filter(live=True).count()
         except ImportError:
             live_contributions = 0
-        
+
         # Calculate changes (placeholder - would need historical data)
         # For now, return 0 for all changes
         changes = {
@@ -1190,7 +1196,7 @@ def api_quick_stats(request):
             'live_contributions': 0,
             'pending_licenses': 0
         }
-        
+
         data = {
             'active_users': {
                 'value': active_users,
@@ -1213,13 +1219,13 @@ def api_quick_stats(request):
                 'change_type': 'positive' if changes['pending_licenses'] >= 0 else 'negative'
             }
         }
-        
+
         return JsonResponse({
             'success': True,
             'data': data,
             'timestamp': timezone.now().isoformat()
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1235,7 +1241,7 @@ def api_users_detail(request):
         filters = DashboardFilters(request)
         queryset = Profile.objects.all()
         filtered_queryset = filters.apply_filters_to_queryset(queryset, 'profile')
-        
+
         # Apply additional filtering based on type parameter
         type_filter = request.GET.get('type', 'total')
         if type_filter == 'male':
@@ -1247,16 +1253,16 @@ def api_users_detail(request):
         elif type_filter == 'member':
             filtered_queryset = filtered_queryset.filter(member=True)
         # For 'total' type, no additional filtering needed
-        
+
         # Pagination
         page = int(request.GET.get('page', 1))
         per_page = 20  # Users per page
         start = (page - 1) * per_page
         end = start + per_page
-        
+
         # Get total count for pagination
         total_count = filtered_queryset.count()
-        
+
         # Get detailed user data for current page
         users_data = []
         for profile in filtered_queryset[start:end]:
@@ -1266,7 +1272,7 @@ def api_users_detail(request):
                 from datetime import date
                 today = date.today()
                 age = today.year - profile.birthday.year - ((today.month, today.day) < (profile.birthday.month, profile.birthday.day))
-            
+
             users_data.append({
                 'id': profile.id,
                 'name': f"{profile.first_name} {profile.last_name}".strip(),
@@ -1279,12 +1285,12 @@ def api_users_detail(request):
                 'city': profile.city or '',
                 'created_at': profile.created_at.strftime('%Y-%m-%d %H:%M') if hasattr(profile, 'created_at') else None
             })
-        
+
         # Calculate pagination info
         total_pages = (total_count + per_page - 1) // per_page
         has_previous = page > 1
         has_next = page < total_pages
-        
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -1302,7 +1308,7 @@ def api_users_detail(request):
                 }
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1316,20 +1322,20 @@ def api_licenses_detail(request):
     """API endpoint for detailed licenses data."""
     try:
         from .widgets.licenses import LicensesWidget
-        
+
         # Get pagination parameters
         page = int(request.GET.get('page', 1))
         per_page = int(request.GET.get('per_page', 20))
         type_filter = request.GET.get('type', 'total')
-        
+
         widget = LicensesWidget(request)
         data = widget.get_detailed_data(page=page, per_page=per_page, type_filter=type_filter)
-        
+
         return JsonResponse({
             'success': True,
             'data': data
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1343,23 +1349,23 @@ def api_contributions_detail(request):
     """API endpoint for detailed contributions data."""
     try:
         from .widgets.contributions import ContributionsWidget
-        
+
         # Get parameters from request
         contribution_type = request.GET.get('type', 'total')
         page = int(request.GET.get('page', 1))
         per_page = int(request.GET.get('per_page', 20))
-        
+
         # Initialize widget
         widget = ContributionsWidget(request)
-        
+
         # Get detailed contributions based on type with pagination
         data = widget.get_detailed_contributions(contribution_type, page, per_page)
-        
+
         return JsonResponse({
             'success': True,
             'data': data
         })
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_contributions_detail: {str(e)}")
@@ -1377,14 +1383,14 @@ def api_projects_detail(request):
     try:
         from .widgets.projects import ProjectsWidget
         from django.core.paginator import Paginator
-        
+
         # Get parameters
         project_type = request.GET.get('type', 'total')  # total, participants, average, external, youth_protection, democracy
         page = int(request.GET.get('page', 1))
         per_page = int(request.GET.get('per_page', 20))
-        
+
         widget = ProjectsWidget(request)
-        
+
         # Get detailed projects based on type
         if project_type == 'total':
             # Show all projects
@@ -1407,11 +1413,11 @@ def api_projects_detail(request):
         else:
             # Default to all projects
             data = widget.get_detailed_projects()
-        
+
         # Apply pagination
         paginator = Paginator(data['projects'], per_page)
         page_obj = paginator.get_page(page)
-        
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -1426,7 +1432,7 @@ def api_projects_detail(request):
                 'previous_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
             }
         })
-        
+
     except Exception as e:
         import traceback
         print(f"Error in api_projects_detail: {str(e)}")
@@ -1444,28 +1450,28 @@ def api_inventory_detail(request):
     try:
         # Get the type parameter from request
         inventory_type = request.GET.get('type', 'total')
-        
+
         # Get pagination parameters
         page = int(request.GET.get('page', 1))
         per_page = int(request.GET.get('per_page', 20))
-        
+
         # Create filters dict from request parameters
         filters_dict = {}
         for key, value in request.GET.items():
             if key not in ['type', 'page', 'per_page'] and value:
                 filters_dict[key] = value
-        
+
         # Initialize widget with filters dict
         widget = InventoryWidget(filters_dict)
-        
+
         # Get detailed inventory data based on type with pagination
         data = widget.get_detailed_inventory(inventory_type, page, per_page)
-        
+
         return JsonResponse({
             'success': True,
             'data': data
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1480,7 +1486,7 @@ def api_notifications_detail(request):
     try:
         # Get filters from request
         filters = {}
-        
+
         # Date filters
         if 'days' in request.GET:
             filters['days'] = request.GET.get('days')
@@ -1488,7 +1494,7 @@ def api_notifications_detail(request):
             filters['start_date'] = request.GET.get('start_date')
         if 'end_date' in request.GET:
             filters['end_date'] = request.GET.get('end_date')
-        
+
         # Notification filters
         if 'notification_type' in request.GET:
             filters['notification_type'] = request.GET.get('notification_type')
@@ -1498,23 +1504,23 @@ def api_notifications_detail(request):
             filters['is_active'] = request.GET.get('is_active')
         if 'created_by' in request.GET:
             filters['created_by'] = request.GET.get('created_by')
-        
+
         # Get detail type from request
         detail_type = request.GET.get('type', 'total')
-        
+
         # Get pagination parameters
         page = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 20))
-        
+
         # Create widget and get data
         widget = NotificationsWidget(filters)
         data = widget.get_detailed_notifications(detail_type, page, page_size)
-        
+
         return JsonResponse({
             'success': True,
             'data': data
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1528,16 +1534,16 @@ def api_notifications_toggle(request, notification_id):
     """API endpoint to toggle notification status."""
     try:
         from .models import Notification
-        
+
         notification = Notification.objects.get(id=notification_id)
         notification.is_read = not notification.is_read
         notification.save()
-        
+
         return JsonResponse({
             'success': True,
             'is_read': notification.is_read
         })
-        
+
     except Notification.DoesNotExist:
         return JsonResponse({
             'success': False,
@@ -1558,17 +1564,17 @@ def api_funnel_detail(request):
         from .utils import FunnelTracker
         from datetime import timedelta
         from django.utils import timezone
-        
+
         # Get parameters
         type_filter = request.GET.get('type', 'registrations')
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
         days = request.GET.get('days')
-        
+
         # Get pagination parameters
         page = int(request.GET.get('page', 1))
         per_page = int(request.GET.get('per_page', 20))
-        
+
         # Calculate date range
         if days and days != 'all' and days != 'custom':
             end_date = timezone.now().date()
@@ -1586,7 +1592,7 @@ def api_funnel_detail(request):
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         if end_date and not days:
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        
+
         # Get additional filters
         filters = {
             'media_authority': request.GET.get('media_authority'),
@@ -1595,10 +1601,10 @@ def api_funnel_detail(request):
             'category': request.GET.get('category'),
             'status': request.GET.get('status')
         }
-        
+
         # Get data based on type
         tracker = FunnelTracker()
-        
+
         if type_filter == 'registrations':
             data = tracker.get_registrations_detail(start_date, end_date, filters, page, per_page)
         elif type_filter == 'verified':
@@ -1612,12 +1618,12 @@ def api_funnel_detail(request):
                 'success': False,
                 'error': 'Invalid type filter'
             }, status=400)
-        
+
         return JsonResponse({
             'success': True,
             'data': data
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1630,7 +1636,7 @@ def api_threshold_update(request, threshold_id):
     try:
         from .models import AlertThreshold
         import json
-        
+
         threshold = AlertThreshold.objects.get(id=threshold_id)
         data = json.loads(request.body)
 
@@ -1639,7 +1645,7 @@ def api_threshold_update(request, threshold_id):
         threshold.stage = data.get('stage', threshold.stage)
         threshold.metric_type = data.get('metric_type', threshold.metric_type)
         threshold.threshold_value = data.get('threshold_value', threshold.threshold_value)
-        
+
         # Convert comparison operator from frontend format to model format
         comparison_operator = data.get('comparison_operator', threshold.comparison_operator)
         if comparison_operator == 'greater_than':
@@ -1648,17 +1654,17 @@ def api_threshold_update(request, threshold_id):
             comparison_operator = 'lt'
         elif comparison_operator == 'equals':
             comparison_operator = 'eq'
-        
+
         threshold.comparison_operator = comparison_operator
         threshold.is_active = data.get('is_active', threshold.is_active)
-        
+
         threshold.save()
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Threshold updated successfully'
         })
-        
+
     except AlertThreshold.DoesNotExist:
         return JsonResponse({
             'success': False,
@@ -1677,17 +1683,17 @@ def api_threshold_toggle(request, threshold_id):
     """API endpoint for toggling a threshold active status."""
     try:
         from .models import AlertThreshold
-        
+
         threshold = AlertThreshold.objects.get(id=threshold_id)
         threshold.is_active = not threshold.is_active
         threshold.save()
-        
+
         return JsonResponse({
             'success': True,
             'message': f'Threshold {"activated" if threshold.is_active else "deactivated"} successfully',
             'is_active': threshold.is_active
         })
-        
+
     except AlertThreshold.DoesNotExist:
         return JsonResponse({
             'success': False,

@@ -3,27 +3,29 @@ Users widget for dashboard.
 Provides user statistics and analytics.
 """
 
-from django.utils.translation import gettext_lazy as _
-from django.db.models import Count, Q
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
-
-from registration.models import Profile, MediaAuthority
 from .filters import DashboardFilters
+from datetime import datetime
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
+from django.db.models import Count
+from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
+from registration.models import MediaAuthority
+from registration.models import Profile
 
 
 class UsersWidget:
     """Widget for displaying user statistics."""
-    
+
     def __init__(self, request):
         self.request = request
         self.filters = DashboardFilters(request)
-    
+
     def get_basic_stats(self):
         """Get basic user statistics."""
         queryset = Profile.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-        
+
         # Calculate statistics
         total_users = filtered_queryset.count()
         male_users = filtered_queryset.filter(gender='m').count()
@@ -31,8 +33,8 @@ class UsersWidget:
         diverse_users = filtered_queryset.filter(gender='d').count()
         verified_users = filtered_queryset.filter(verified=True).count()
         member_users = filtered_queryset.filter(member=True).count()
-        
-        
+
+
         return {
             'total_users': total_users,
             'male_users': male_users,
@@ -41,26 +43,26 @@ class UsersWidget:
             'verified_users': verified_users,
             'member_users': member_users,
         }
-    
+
     def get_users_by_authority(self):
         """Get user count by media authority."""
         try:
             queryset = Profile.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-            
+
             return list(filtered_queryset.values('media_authority__name').annotate(
                 count=Count('id')
             ).order_by('-count'))
         except Exception:
             # Return empty list if there's an error
             return []
-    
+
     def get_age_groups(self):
         """Get user count by age groups."""
         try:
             queryset = Profile.objects.exclude(birthday__isnull=True)
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-            
+
             # Calculate age groups
             age_groups = {
                 'under_18': 0,
@@ -69,7 +71,7 @@ class UsersWidget:
                 '36_50': 0,
                 'over_50': 0
             }
-            
+
             for profile in filtered_queryset:
                 if profile.birthday:
                     age = relativedelta(self.filters.date_range['end_date'], profile.birthday).years
@@ -83,7 +85,7 @@ class UsersWidget:
                         age_groups['36_50'] += 1
                     else:
                         age_groups['over_50'] += 1
-            
+
             return age_groups
         except Exception:
             # Return default values if there's an error
@@ -94,17 +96,17 @@ class UsersWidget:
                 '36_50': 0,
                 'over_50': 0
             }
-    
+
     def get_registration_trend(self):
         """Get user registration trend over time."""
         try:
             queryset = Profile.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-            
+
             # Get last 7 days trend
             end_date = self.filters.date_range['end_date']
             trend_data = []
-            
+
             for i in range(7):
                 date = end_date - timedelta(days=i)
                 try:
@@ -119,63 +121,63 @@ class UsersWidget:
                 except Exception:
                     # If there's an error, use 0
                     count = 0
-                
+
                 trend_data.insert(0, {
                     'date': date.strftime('%Y-%m-%d'),
                     'count': count
                 })
-            
+
             return trend_data
         except Exception:
             # Return empty trend if there's an error
             return []
-    
+
     def get_gender_distribution(self):
         """Get gender distribution."""
         try:
             queryset = Profile.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-            
+
             return list(filtered_queryset.values('gender').annotate(
                 count=Count('id')
             ).order_by('-count'))
         except Exception:
             # Return empty list if there's an error
             return []
-    
+
     def get_member_distribution(self):
         """Get member vs non-member distribution."""
         queryset = Profile.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-        
+
         member_count = filtered_queryset.filter(member=True).count()
         non_member_count = filtered_queryset.filter(member=False).count()
-        
+
         return {
             'members': member_count,
             'non_members': non_member_count
         }
-    
+
     def get_verification_distribution(self):
         """Get verified vs non-verified distribution."""
         queryset = Profile.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-        
+
         verified_count = filtered_queryset.filter(verified=True).count()
         non_verified_count = filtered_queryset.filter(verified=False).count()
-        
+
         return {
             'verified': verified_count,
             'not_verified': non_verified_count
         }
-    
+
     def get_detailed_users(self, gender=None, verified=None, member=None):
         """Get detailed list of users based on filters."""
         from registration.models import Profile
-        
+
         queryset = Profile.objects.select_related('okuser', 'media_authority').all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
-        
+
         # Apply additional filters
         if gender:
             filtered_queryset = filtered_queryset.filter(gender=gender)
@@ -183,7 +185,7 @@ class UsersWidget:
             filtered_queryset = filtered_queryset.filter(verified=verified)
         if member is not None:
             filtered_queryset = filtered_queryset.filter(member=member)
-        
+
         # Get detailed user data
         users_data = []
         for profile in filtered_queryset[:100]:  # Limit to 100 for performance
@@ -201,18 +203,18 @@ class UsersWidget:
                 'phone': profile.phone_number or "",
             }
             users_data.append(user_data)
-        
+
         return {
             'users': users_data,
             'total_count': filtered_queryset.count(),
             'displayed_count': len(users_data)
         }
-    
+
     def _calculate_age(self, birthday):
         """Calculate age from birthday."""
         if not birthday:
             return "N/A"
-        
+
         from datetime import date
         today = date.today()
         age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))

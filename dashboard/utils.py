@@ -1,25 +1,35 @@
-from django.db import models
-from django.utils import timezone
-from django.db.models import Count, Q, F
+from .models import AlertLog
+from .models import AlertThreshold
+from .models import FunnelMetrics
+from .models import UserJourney
+from .models import UserJourneyStage
+from contributions.models import Contribution
 from datetime import timedelta
-from typing import Dict, List, Optional, Tuple
+from django.db import models
+from django.db.models import Count
+from django.db.models import F
+from django.db.models import Q
+from django.utils import timezone
+from licenses.models import License
+from registration.models import OKUser
+from registration.models import Profile
+from rental.models import RentalRequest
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 import logging
 
-from registration.models import OKUser, Profile
-from licenses.models import License
-from contributions.models import Contribution
-from rental.models import RentalRequest
-from .models import UserJourney, UserJourneyStage, FunnelMetrics, AlertThreshold, AlertLog
 
 logger = logging.getLogger(__name__)
 
 
 class FunnelTracker:
     """Track and analyze user participation funnel."""
-    
+
     def __init__(self):
         self.stages = UserJourneyStage.choices
-    
+
     def track_user_stage(self, user: OKUser, stage: str, **kwargs) -> UserJourney:
         """Track a user reaching a specific stage."""
         try:
@@ -31,25 +41,25 @@ class FunnelTracker:
                     **kwargs
                 }
             )
-            
+
             if not created:
                 # Update existing record
                 journey.achieved_at = timezone.now()
                 for key, value in kwargs.items():
                     setattr(journey, key, value)
                 journey.save()
-            
+
             logger.info(f"User {user.email} reached stage {stage}")
             return journey
-            
+
         except Exception as e:
             logger.error(f"Error tracking user stage: {e}")
             raise
-    
+
     def get_user_journey(self, user: OKUser) -> List[UserJourney]:
         """Get complete journey for a user."""
         return UserJourney.objects.filter(user=user).order_by('achieved_at')
-    
+
     def get_funnel_metrics(self, start_date=None, end_date=None, filters=None) -> Dict:
         """Calculate funnel metrics for a date range."""
         # Get all profiles registered in the period (using Profile.created_at)
@@ -60,7 +70,7 @@ class FunnelTracker:
         else:
             # For 'all' time or when no dates specified, get all profiles
             registered_profiles = Profile.objects.all()
-        
+
         # Apply additional filters
         if filters:
             if filters.get('media_authority'):
@@ -111,24 +121,24 @@ class FunnelTracker:
                     registered_profiles = registered_profiles.filter(member=True)
                 elif filters['status'] == 'non_member':
                     registered_profiles = registered_profiles.filter(member=False)
-        
+
         total_registrations = registered_profiles.count()
-        
+
         # Calculate each stage based on real data
         verified_users = registered_profiles.filter(verified=True).count()
         member_users = registered_profiles.filter(member=True).count()
-        
+
         # Rental requests by users registered in the period (any time)
         rental_requests = RentalRequest.objects.filter(
             user__profile__in=registered_profiles
         ).count()
-        
+
         # Completed rentals by users registered in the period (any time)
         completed_rentals = RentalRequest.objects.filter(
             user__profile__in=registered_profiles,
             status__in=['returned', 'completed', 'finished']
         ).count()
-        
+
         # Licenses created by users registered in the period
         if start_date and end_date:
             licenses_query = License.objects.filter(
@@ -138,21 +148,21 @@ class FunnelTracker:
         else:
             # For 'all' time, get all licenses by these profiles
             licenses_query = License.objects.filter(profile__in=registered_profiles)
-        
+
         if filters and filters.get('category'):
             licenses_query = licenses_query.filter(category_id=filters['category'])
         licenses_created = licenses_query.count()
-        
+
         # Confirmed licenses by users registered in the period
         confirmed_licenses = licenses_query.filter(confirmed=True).count()
-        
+
         # Contributions created by users registered in the period
         if start_date and end_date:
             contributions_created = Contribution.objects.filter(
                 license__profile__in=registered_profiles,
                 broadcast_date__date__range=[start_date, end_date]
             ).count()
-            
+
             # Live contributions by users registered in the period
             live_contributions = Contribution.objects.filter(
                 license__profile__in=registered_profiles,
@@ -164,19 +174,19 @@ class FunnelTracker:
             contributions_created = Contribution.objects.filter(
                 license__profile__in=registered_profiles
             ).count()
-            
+
             # Live contributions by users registered in the period
             live_contributions = Contribution.objects.filter(
                 license__profile__in=registered_profiles,
                 live=True
             ).count()
-        
+
         # First broadcasts (users with their first contribution)
         first_broadcasts = self._get_first_broadcasts(registered_profiles, start_date, end_date)
-        
+
         # Multiple broadcasts (users with more than one contribution)
         multiple_broadcasts = self._get_multiple_broadcasts(registered_profiles, start_date, end_date)
-        
+
         # Calculate conversion rates
         verification_rate = (verified_users / total_registrations * 100) if total_registrations > 0 else 0
         membership_rate = (member_users / total_registrations * 100) if total_registrations > 0 else 0
@@ -188,7 +198,7 @@ class FunnelTracker:
         live_contribution_rate = (live_contributions / contributions_created * 100) if contributions_created > 0 else 0
         first_broadcast_rate = (first_broadcasts / total_registrations * 100) if total_registrations > 0 else 0
         multiple_broadcast_rate = (multiple_broadcasts / total_registrations * 100) if total_registrations > 0 else 0
-        
+
         return {
             'date_range': {
                 'start': start_date.isoformat() if start_date else None,
@@ -220,36 +230,36 @@ class FunnelTracker:
                 'multiple_broadcast_rate': round(multiple_broadcast_rate, 2),
             }
         }
-    
+
     def _get_first_broadcasts(self, profiles, start_date, end_date) -> int:
         """Get count of licenses with their first broadcast in the period."""
         # Get all contributions by these profiles
         all_contributions = Contribution.objects.filter(
             license__profile__in=profiles
         )
-        
+
         # Find first broadcast for each license
         first_broadcast_licenses = set()
         license_ids = all_contributions.values_list('license_id', flat=True).distinct()
-        
+
         for license_id in license_ids:
             first_contribution = all_contributions.filter(
                 license_id=license_id
             ).order_by('broadcast_date').first()
-            
+
             if first_contribution:
                 # If no date range specified (days=all), include all first broadcasts
                 if not start_date or not end_date:
                     first_broadcast_licenses.add(license_id)
                 elif start_date <= first_contribution.broadcast_date.date() <= end_date:
                     first_broadcast_licenses.add(license_id)
-        
+
         return len(first_broadcast_licenses)
-    
+
     def _get_multiple_broadcasts(self, profiles, start_date, end_date) -> int:
         """Get count of profiles with multiple broadcasts in the period."""
         multiple_broadcast_profiles = set()
-        
+
         for profile in profiles:
             # Count profile's contributions in the period
             if start_date and end_date:
@@ -262,12 +272,12 @@ class FunnelTracker:
                 contribution_count = Contribution.objects.filter(
                     license__profile=profile
                 ).count()
-            
+
             if contribution_count > 1:
                 multiple_broadcast_profiles.add(profile.id)
-        
+
         return len(multiple_broadcast_profiles)
-    
+
     def get_stage_breakdown(self, start_date=None, end_date=None, filters=None) -> Dict:
         """Get detailed breakdown of users at each stage."""
         # Get all profiles registered in the period (using Profile.created_at)
@@ -278,7 +288,7 @@ class FunnelTracker:
         else:
             # For 'all' time or when no dates specified, get all profiles
             registered_profiles = Profile.objects.all()
-        
+
         # Apply additional filters (same logic as in get_funnel_metrics)
         if filters:
             if filters.get('media_authority'):
@@ -328,9 +338,9 @@ class FunnelTracker:
                     registered_profiles = registered_profiles.filter(member=True)
                 elif filters['status'] == 'non_member':
                     registered_profiles = registered_profiles.filter(member=False)
-        
+
         stage_data = {}
-        
+
         for stage, stage_name in UserJourneyStage.choices:
             if stage == 'registered':
                 stage_data[stage] = {
@@ -400,45 +410,45 @@ class FunnelTracker:
                     'count': len(multiple_broadcast_profiles),
                     'users': multiple_broadcast_profiles
                 }
-        
+
         return stage_data
-    
+
     def _get_first_broadcast_profiles(self, profiles, start_date, end_date) -> List[int]:
         """Get list of profile IDs with their first broadcast in the period."""
         first_broadcast_profiles = []
-        
+
         for profile in profiles:
             first_contribution = Contribution.objects.filter(
                 license__profile=profile
             ).order_by('broadcast_date').first()
-            
+
             if first_contribution and start_date and end_date and start_date <= first_contribution.broadcast_date.date() <= end_date:
                 first_broadcast_profiles.append(profile.id)
-        
+
         return first_broadcast_profiles
-    
+
     def _get_multiple_broadcast_profiles(self, profiles, start_date, end_date) -> List[int]:
         """Get list of profile IDs with multiple broadcasts in the period."""
         multiple_broadcast_profiles = []
-        
+
         for profile in profiles:
             contribution_count = Contribution.objects.filter(
                 license__profile=profile,
                 broadcast_date__date__range=[start_date, end_date]
             ).count()
-            
+
             if contribution_count > 1:
                 multiple_broadcast_profiles.append(profile.id)
-        
+
         return multiple_broadcast_profiles
-    
+
     def cache_funnel_metrics(self, date=None) -> FunnelMetrics:
         """Cache funnel metrics for a specific date."""
         if not date:
             date = timezone.now().date()
-        
+
         metrics_data = self.get_funnel_metrics(date, date)
-        
+
         funnel_metrics, created = FunnelMetrics.objects.get_or_create(
             date=date,
             defaults={
@@ -459,7 +469,7 @@ class FunnelTracker:
                 'multiple_broadcast_rate': metrics_data['conversion_rates']['multiple_broadcast_rate'],
             }
         )
-        
+
         if not created:
             # Update existing metrics
             funnel_metrics.total_registrations = metrics_data['metrics']['total_registrations']
@@ -478,9 +488,9 @@ class FunnelTracker:
             funnel_metrics.first_broadcast_rate = metrics_data['conversion_rates']['first_broadcast_rate']
             funnel_metrics.multiple_broadcast_rate = metrics_data['conversion_rates']['multiple_broadcast_rate']
             funnel_metrics.save()
-        
+
         return funnel_metrics
-    
+
     def get_registrations_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
         """Get detailed registrations data."""
         # Get registered profiles
@@ -491,7 +501,7 @@ class FunnelTracker:
         else:
             # For 'all' time or when no dates specified, get all profiles
             registered_profiles = Profile.objects.all()
-        
+
         # Apply filters
         if filters:
             if filters.get('media_authority'):
@@ -541,15 +551,15 @@ class FunnelTracker:
                     registered_profiles = registered_profiles.filter(member=True)
                 elif filters['status'] == 'non_member':
                     registered_profiles = registered_profiles.filter(member=False)
-        
+
         # Calculate pagination
         total_count = registered_profiles.count()
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
-        
+
         # Get paginated data
         paginated_profiles = registered_profiles.select_related('okuser', 'media_authority')[start_index:end_index]
-        
+
         # Get detailed data
         profiles_data = []
         for profile in paginated_profiles:
@@ -566,12 +576,12 @@ class FunnelTracker:
                 'created_at': profile.created_at.strftime('%Y-%m-%d %H:%M'),
                 'city': profile.city or ''
             })
-        
+
         # Calculate pagination info
         total_pages = (total_count + per_page - 1) // per_page
         has_previous = page > 1
         has_next = page < total_pages
-        
+
         return {
             'total_count': total_count,
             'displayed_count': len(profiles_data),
@@ -585,7 +595,7 @@ class FunnelTracker:
                 'end_index': min(end_index, total_count)
             }
         }
-    
+
     def get_verified_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
         """Get detailed verified users data."""
         # Get verified profiles
@@ -597,7 +607,7 @@ class FunnelTracker:
         else:
             # For 'all' time or when no dates specified, get all verified profiles
             verified_profiles = Profile.objects.filter(verified=True)
-        
+
         # Apply filters (same logic as registrations)
         if filters:
             if filters.get('media_authority'):
@@ -643,15 +653,15 @@ class FunnelTracker:
                     verified_profiles = verified_profiles.filter(member=True)
                 elif filters['status'] == 'non_member':
                     verified_profiles = verified_profiles.filter(member=False)
-        
+
         # Calculate pagination
         total_count = verified_profiles.count()
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
-        
+
         # Get paginated data
         paginated_profiles = verified_profiles.select_related('okuser', 'media_authority')[start_index:end_index]
-        
+
         # Get detailed data
         profiles_data = []
         for profile in paginated_profiles:
@@ -668,12 +678,12 @@ class FunnelTracker:
                 'verified_at': profile.verified_at.strftime('%Y-%m-%d %H:%M') if hasattr(profile, 'verified_at') and profile.verified_at else '',
                 'city': profile.city or ''
             })
-        
+
         # Calculate pagination info
         total_pages = (total_count + per_page - 1) // per_page
         has_previous = page > 1
         has_next = page < total_pages
-        
+
         return {
             'total_count': total_count,
             'displayed_count': len(profiles_data),
@@ -687,7 +697,7 @@ class FunnelTracker:
                 'end_index': min(end_index, total_count)
             }
         }
-    
+
     def get_licenses_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
         """Get detailed licenses data."""
         # Get registered profiles first
@@ -698,7 +708,7 @@ class FunnelTracker:
         else:
             # For 'all' time or when no dates specified, get all profiles
             registered_profiles = Profile.objects.all()
-        
+
         # Apply filters to registered profiles
         if filters:
             if filters.get('media_authority'):
@@ -748,7 +758,7 @@ class FunnelTracker:
                     registered_profiles = registered_profiles.filter(member=True)
                 elif filters['status'] == 'non_member':
                     registered_profiles = registered_profiles.filter(member=False)
-        
+
         # Get licenses created by these profiles (only in the selected period)
         licenses_query = License.objects.filter(
             profile__in=registered_profiles,
@@ -756,15 +766,15 @@ class FunnelTracker:
         )
         if filters and filters.get('category'):
             licenses_query = licenses_query.filter(category_id=filters['category'])
-        
+
         # Calculate pagination
         total_count = licenses_query.count()
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
-        
+
         # Get paginated data
         paginated_licenses = licenses_query.select_related('profile', 'profile__okuser', 'category')[start_index:end_index]
-        
+
         # Get detailed data
         licenses_data = []
         for license in paginated_licenses:
@@ -782,12 +792,12 @@ class FunnelTracker:
                 'suggested_date': license.suggested_date.strftime('%Y-%m-%d') if license.suggested_date else '',
                 'media_authority': license.profile.media_authority.name if license.profile.media_authority else ''
             })
-        
+
         # Calculate pagination info
         total_pages = (total_count + per_page - 1) // per_page
         has_previous = page > 1
         has_next = page < total_pages
-        
+
         return {
             'total_count': total_count,
             'displayed_count': len(licenses_data),
@@ -801,7 +811,7 @@ class FunnelTracker:
                 'end_index': min(end_index, total_count)
             }
         }
-    
+
     def get_broadcasts_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
         """Get detailed broadcasts data."""
         # Get registered profiles first
@@ -812,7 +822,7 @@ class FunnelTracker:
         else:
             # For 'all' time or when no dates specified, get all profiles
             registered_profiles = Profile.objects.all()
-        
+
         # Apply filters to registered profiles
         if filters:
             if filters.get('media_authority'):
@@ -862,7 +872,7 @@ class FunnelTracker:
                     registered_profiles = registered_profiles.filter(member=True)
                 elif filters['status'] == 'non_member':
                     registered_profiles = registered_profiles.filter(member=False)
-        
+
         # Get only FIRST broadcasts (primary contributions) by these profiles
         # First, get all contributions by these profiles
         all_contributions = Contribution.objects.filter(
@@ -870,36 +880,36 @@ class FunnelTracker:
         )
         if filters and filters.get('category'):
             all_contributions = all_contributions.filter(license__category_id=filters['category'])
-        
+
         # Find first broadcast for each license
         first_broadcast_contributions = []
         license_ids = all_contributions.values_list('license_id', flat=True).distinct()
-        
+
         for license_id in license_ids:
             first_contribution = all_contributions.filter(
                 license_id=license_id
             ).order_by('broadcast_date').first()
-            
+
             if first_contribution:
                 # If no date range specified (days=all), include all first broadcasts
                 if not start_date or not end_date:
                     first_broadcast_contributions.append(first_contribution.id)
                 elif start_date <= first_contribution.broadcast_date.date() <= end_date:
                     first_broadcast_contributions.append(first_contribution.id)
-        
+
         # Filter to only first broadcasts in the period
         contributions_query = Contribution.objects.filter(
             id__in=first_broadcast_contributions
         )
-        
+
         # Calculate pagination
         total_count = contributions_query.count()
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
-        
+
         # Get paginated data
         paginated_contributions = contributions_query.select_related('license', 'license__profile', 'license__profile__okuser', 'license__category')[start_index:end_index]
-        
+
         # Get detailed data
         contributions_data = []
         for contribution in paginated_contributions:
@@ -917,12 +927,12 @@ class FunnelTracker:
                 'created_at': contribution.broadcast_date.strftime('%Y-%m-%d %H:%M') if contribution.broadcast_date else '',
                 'media_authority': contribution.license.profile.media_authority.name if contribution.license.profile.media_authority else ''
             })
-        
+
         # Calculate pagination info
         total_pages = (total_count + per_page - 1) // per_page
         has_previous = page > 1
         has_next = page < total_pages
-        
+
         return {
             'total_count': total_count,
             'displayed_count': len(contributions_data),
@@ -944,11 +954,11 @@ class FunnelTracker:
             total_profiles = Profile.objects.count()
             total_licenses = License.objects.count()
             total_contributions = Contribution.objects.count()
-            
+
             # Handle 'all' time case
             if not start_date or not end_date:
                 # For 'all' time, find the actual date range of data
-                
+
                 # Find earliest and latest dates from actual data
                 earliest_profile = Profile.objects.order_by('created_at').first()
                 latest_profile = Profile.objects.order_by('-created_at').first()
@@ -956,7 +966,7 @@ class FunnelTracker:
                 latest_license = License.objects.order_by('-created_at').first()
                 earliest_contribution = Contribution.objects.order_by('broadcast_date').first()
                 latest_contribution = Contribution.objects.order_by('-broadcast_date').first()
-                
+
                 # Determine the actual date range
                 dates = []
                 if earliest_profile:
@@ -971,7 +981,7 @@ class FunnelTracker:
                     dates.append(latest_license.created_at.date())
                 if latest_contribution:
                     dates.append(latest_contribution.broadcast_date.date())
-                
+
                 if dates:
                     start_date = min(dates)
                     end_date = max(dates)
@@ -979,28 +989,28 @@ class FunnelTracker:
                     # Fallback to last 2 years if no data
                     end_date = timezone.now().date()
                     start_date = end_date - timedelta(days=730)
-            
+
             # Calculate number of days
             days_diff = (end_date - start_date).days
-            
+
             # Debug logging
             logger.info(f"Funnel trends date range: {start_date} to {end_date} ({days_diff} days)")
-            
+
             # Check if there's any data in the database
             total_profiles = Profile.objects.count()
             total_licenses = License.objects.count()
             total_contributions = Contribution.objects.count()
-            
+
             # Check data in the date range
             profiles_in_range = Profile.objects.filter(created_at__date__gte=start_date, created_at__date__lte=end_date).count()
             licenses_in_range = License.objects.filter(created_at__date__gte=start_date, created_at__date__lte=end_date).count()
             contributions_in_range = Contribution.objects.filter(broadcast_date__date__gte=start_date, broadcast_date__date__lte=end_date).count()
-            
+
             # Check actual date ranges in the database
             if total_profiles > 0:
                 earliest_profile = Profile.objects.order_by('created_at').first()
                 latest_profile = Profile.objects.order_by('-created_at').first()
-            
+
             # For periods longer than 365 days, group by months
             if days_diff > 365:
                 # Group by months
@@ -1012,45 +1022,45 @@ class FunnelTracker:
                     'licenses': [],
                     'first_broadcasts': []
                 }
-                
+
                 while current_date <= end_date:
                     # Calculate month end
                     if current_date.month == 12:
                         month_end = current_date.replace(year=current_date.year + 1, month=1, day=1) - timedelta(days=1)
                     else:
                         month_end = current_date.replace(month=current_date.month + 1, day=1) - timedelta(days=1)
-                    
+
                     month_end = min(month_end, end_date)
-                    
+
                     # Get data for this month
                     month_registrations = Profile.objects.filter(
                         created_at__date__gte=current_date,
                         created_at__date__lte=month_end
                     ).count()
-                    
+
                     month_verified = Profile.objects.filter(
                         verified=True,
                         created_at__date__gte=current_date,
                         created_at__date__lte=month_end
                     ).count()
-                    
+
                     month_licenses = License.objects.filter(
                         created_at__date__gte=current_date,
                         created_at__date__lte=month_end
                     ).count()
-                    
+
                     month_broadcasts = Contribution.objects.filter(
                         broadcast_date__date__gte=current_date,
                         broadcast_date__date__lte=month_end
                     ).count()
-                    
+
                     # Add all periods, even with zero data
                     trends_data['dates'].append(f"{current_date.strftime('%Y-%m')}")
                     trends_data['registrations'].append(month_registrations)
                     trends_data['verified'].append(month_verified)
                     trends_data['licenses'].append(month_licenses)
                     trends_data['first_broadcasts'].append(month_broadcasts)
-                    
+
                     # Move to next month
                     if current_date.month == 12:
                         current_date = current_date.replace(year=current_date.year + 1, month=1, day=1)
@@ -1066,39 +1076,39 @@ class FunnelTracker:
                     'licenses': [],
                     'first_broadcasts': []
                 }
-                
+
                 while current_date <= end_date:
                     week_end = min(current_date + timedelta(days=6), end_date)
-                    
+
                     # Get data for this week
                     week_registrations = Profile.objects.filter(
                         created_at__date__gte=current_date,
                         created_at__date__lte=week_end
                     ).count()
-                    
+
                     week_verified = Profile.objects.filter(
                         verified=True,
                         created_at__date__gte=current_date,
                         created_at__date__lte=week_end
                     ).count()
-                    
+
                     week_licenses = License.objects.filter(
                         created_at__date__gte=current_date,
                         created_at__date__lte=week_end
                     ).count()
-                    
+
                     week_broadcasts = Contribution.objects.filter(
                         broadcast_date__date__gte=current_date,
                         broadcast_date__date__lte=week_end
                     ).count()
-                    
+
                     # Add all periods, even with zero data
                     trends_data['dates'].append(f"{current_date.strftime('%Y-%m-%d')} - {week_end.strftime('%Y-%m-%d')}")
                     trends_data['registrations'].append(week_registrations)
                     trends_data['verified'].append(week_verified)
                     trends_data['licenses'].append(week_licenses)
                     trends_data['first_broadcasts'].append(week_broadcasts)
-                    
+
                     current_date = week_end + timedelta(days=1)
             else:
                 # For shorter periods, show daily data
@@ -1110,46 +1120,46 @@ class FunnelTracker:
                     'licenses': [],
                     'first_broadcasts': []
                 }
-                
+
                 while current_date <= end_date:
                     # Get data for this day
                     day_registrations = Profile.objects.filter(
                         created_at__date__gte=current_date,
                         created_at__date__lt=current_date + timedelta(days=1)
                     ).count()
-                    
+
                     day_verified = Profile.objects.filter(
                         verified=True,
                         created_at__date__gte=current_date,
                         created_at__date__lt=current_date + timedelta(days=1)
                     ).count()
-                    
+
                     day_licenses = License.objects.filter(
                         created_at__date__gte=current_date,
                         created_at__date__lt=current_date + timedelta(days=1)
                     ).count()
-                    
+
                     day_broadcasts = Contribution.objects.filter(
                         broadcast_date__date__gte=current_date,
                         broadcast_date__date__lt=current_date + timedelta(days=1)
                     ).count()
-                    
+
                     # Debug first few days
-                    
+
                     # Add all days, even with zero data
                     trends_data['dates'].append(current_date.strftime('%Y-%m-%d'))
                     trends_data['registrations'].append(day_registrations)
                     trends_data['verified'].append(day_verified)
                     trends_data['licenses'].append(day_licenses)
                     trends_data['first_broadcasts'].append(day_broadcasts)
-                    
+
                     current_date += timedelta(days=1)
-            
+
             # Log the final data for debugging
             logger.info(f"Funnel trends data: {len(trends_data['dates'])} periods, registrations: {sum(trends_data['registrations'])}, verified: {sum(trends_data['verified'])}, licenses: {sum(trends_data['licenses'])}, broadcasts: {sum(trends_data['first_broadcasts'])}")
-            
+
             return trends_data
-            
+
         except Exception as e:
             logger.error(f"Error getting funnel trends: {e}")
             return {
@@ -1163,16 +1173,16 @@ class FunnelTracker:
 
 class AlertManager:
     """Manage alert thresholds and notifications."""
-    
+
     def check_thresholds(self, metrics: Dict) -> List[AlertLog]:
         """Check all active thresholds against current metrics."""
         triggered_alerts = []
         active_thresholds = AlertThreshold.objects.filter(is_active=True)
-        
+
         for threshold in active_thresholds:
             try:
                 current_value = self._get_metric_value(metrics, threshold.stage, threshold.metric_type)
-                
+
                 if self._should_trigger_alert(current_value, threshold.threshold_value, threshold.comparison_operator):
                     alert = AlertLog.objects.create(
                         threshold=threshold,
@@ -1181,15 +1191,15 @@ class AlertManager:
                         message=self._generate_alert_message(threshold, current_value)
                     )
                     triggered_alerts.append(alert)
-                    
+
                     # Send notification
                     self._send_notification(alert)
-                    
+
             except Exception as e:
                 logger.error(f"Error checking threshold {threshold.name}: {e}")
-        
+
         return triggered_alerts
-    
+
     def _get_metric_value(self, metrics: Dict, stage: str, metric_type: str) -> float:
         """Get the current value for a specific metric."""
         if metric_type == 'conversion_rate':
@@ -1202,9 +1212,9 @@ class AlertManager:
             # This would require historical data comparison
             # For now, return 0 as placeholder
             return 0.0
-        
+
         return 0.0
-    
+
     def _should_trigger_alert(self, current_value: float, threshold_value: float, operator: str) -> bool:
         """Check if alert should be triggered based on comparison."""
         if operator == 'lt':
@@ -1217,20 +1227,20 @@ class AlertManager:
             return current_value >= threshold_value
         elif operator == 'eq':
             return current_value == threshold_value
-        
+
         return False
-    
+
     def _generate_alert_message(self, threshold: AlertThreshold, current_value: float) -> str:
         """Generate alert message."""
         return f"Alert: {threshold.name} - {threshold.get_stage_display()} {threshold.get_metric_type_display()} is {current_value} (threshold: {threshold.threshold_value})"
-    
+
 
     def _send_notification(self, alert: AlertLog):
         """Send notification for triggered alert."""
         # Log the alert for now
         logger.warning(f"ALERT TRIGGERED: {alert.message}")
-        
+
         # Future enhancements could include:
         # - Email notifications
-        # - Dashboard notifications  
+        # - Dashboard notifications
         # - Slack/Teams integration
