@@ -1,0 +1,34 @@
+[Unit]
+Description=OK Tools Cron Job - Expire Rentals
+Documentation=https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools
+After=network.target postgresql.service ok-tools.service
+Wants=postgresql.service
+
+[Service]
+Type=oneshot
+User=oktools
+Group=oktools
+WorkingDirectory=/opt/ok-tools/app
+Environment=OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg
+Environment=DJANGO_SETTINGS_MODULE=ok_tools.settings
+ExecStart=/opt/ok-tools/venv/bin/python scripts/run_expire_rentals.py
+StandardOutput=append:/opt/ok-tools/logs/expire_rentals.log
+StandardError=append:/opt/ok-tools/logs/expire_rentals.log
+
+# Security settings
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/ok-tools/logs
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes

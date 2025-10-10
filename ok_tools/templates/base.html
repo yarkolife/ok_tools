@@ -71,7 +71,7 @@
             </li>
 
             <li class="sidebar-item">
-                <a href="https://okmq.de/" target="_blank" class="sidebar-link">
+                {% if OK_WEBSITE %}<a href="{{ OK_WEBSITE }}" target="_blank" class="sidebar-link">{% endif %}
                     <i class="bi bi-globe"></i>
                     <span>{% trans "Website" %}</span>
                 </a>

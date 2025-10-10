@@ -6,6 +6,7 @@ from crispy_forms.layout import ButtonHolder
 from crispy_forms.layout import Layout
 from crispy_forms.layout import Submit
 from django import forms
+from django.conf import settings
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import _unicode_ci_compare
@@ -152,7 +153,7 @@ def _usage_policy() -> str:
     </p>
     '''.format(
         _('Please accept our '),
-        'https://okmq.de/images/Formulare/Nutzungsordnung.pdf',
+        getattr(settings, 'OK_WEBSITE', 'https://okmq.de') + '/images/Formulare/Nutzungsordnung.pdf',
         _('usage policy')
     )
 

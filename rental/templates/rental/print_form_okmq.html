@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leihschein OKMQ</title>
+    <title>Leihschein {{ OK_NAME_SHORT }}</title>
     <style>
         @media print {
             body { margin: 0; }
@@ -262,13 +262,13 @@
             <img src="{% static 'img/logo.png' %}" alt="OK Logo">
         </div>
         <div class="organization-info">
-            <div class="organization-name">Offener Kanal Merseburg- Querfurt e.V.</div>
+            <div class="organization-name">{{ OK_NAME }}</div>
             <div class="contact-info">
-                Geusaerstr. 86 b<br>
-                Tel.: 03461/ 52 52 22<br>
-                Fax.: 03461/ 52 20 24<br>
-                www.ok.okmq.de<br>
-                info@okmq.de
+                {{ OK_ADDRESS|linebreaks }}<br>
+                {% if OK_PHONE %}Tel.: {{ OK_PHONE }}<br>{% endif %}
+                {% if OK_FAX %}Fax.: {{ OK_FAX }}<br>{% endif %}
+                {% if OK_WEBSITE %}{{ OK_WEBSITE }}<br>{% endif %}
+                {% if OK_EMAIL %}{{ OK_EMAIL }}{% endif %}
             </div>
         </div>
     </div>
@@ -325,7 +325,7 @@
 
         <!-- Equipment Section -->
         <div class="equipment-section">
-            <div class="equipment-title">Entliehene Geräte (OKMQ):</div>
+            <div class="equipment-title">Entliehene Geräte:</div>
             {% for item in okmq_items %}
             <div class="equipment-item">
                 <strong>{{ item.inventory_item.inventory_number }}</strong> - {{ item.inventory_item.description }}
@@ -338,7 +338,7 @@
                 {% endif %}
             </div>
             {% empty %}
-            <div class="equipment-item">Keine OKMQ-Geräte in dieser Ausleihe</div>
+            <div class="equipment-item">Keine Geräte in dieser Ausleihe</div>
             {% endfor %}
 
             {% if rental_request.project_name %}
@@ -356,7 +356,7 @@
     </div>
 
     <div class="terms-section">
-        <p>Diese/s Gerät/e sind nicht Eigentum der Medienanstalt Sachsen- Anhalt.</p>
+        <p>Diese/s Gerät/e sind nicht Eigentum der {{ STATE_MEDIA_INSTITUTION }}.</p>
         <p>Die Verantwortlichkeit für das/die o.g. ausgeliehenen Gerät/e geht bis zur Rückgabe auf mich über.</p>
         <p>Ich verpflichte mich, das/die Gerät/e zum o.g. Termin zurückzugeben.</p>
         <p>Mir ist bekannt, dass ich für Schäden an dem/den ausgeliehenen Gerät/en, Verlust des/der Gerät/e<br>
@@ -387,11 +387,11 @@
 
     <div class="confirmation-section">
         <p>Hiermit bestätige ich, daß ich die oben gekennzeichneten Ausrüstungsteile ausgehändigt bekommen habe.<br>
-        Ich erkläre hiermit mein Einverständnis mit der Nutzungsordnung der Offenen Kanals Merseburg- Querfurt e.V..</p>
+        Ich erkläre hiermit mein Einverständnis mit der Nutzungsordnung von {{ OK_NAME }}.</p>
     </div>
 
     <div class="signature-section">
-        <div class="date-field">Merseburg, {{ "now"|date:"d.m.Y" }}</div>
+        <div class="date-field">{{ "now"|date:"d.m.Y" }}</div>
         <div class="signature-field">Unterschrift Nutzer</div>
     </div>
 

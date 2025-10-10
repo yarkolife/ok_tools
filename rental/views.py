@@ -80,11 +80,17 @@ class InventoryItemViewSet(viewsets.ReadOnlyModelViewSet):
             Filtered queryset of available inventory items
         """
         qs = super().get_queryset().filter(available_for_rent=True, status='in_stock')
-        # Filter by permissions (member: MSA/OKMQ, non-member: MSA)
+        # Filter by permissions based on configured equipment owners
+        from django.conf import settings
+        state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+        organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+        
         profile = getattr(self.request.user, 'profile', None)
         if profile and getattr(profile, 'member', False):
-            return qs.filter(owner__name__in=['MSA', 'OKMQ'])
-        return qs.filter(owner__name='MSA')
+            # Member can access state institution + organization
+            return qs.filter(owner__name__in=[state_institution, organization_owner])
+        # Non-member can only access state media institution
+        return qs.filter(owner__name=state_institution)
 
 
 class RentalRequestViewSet(viewsets.ModelViewSet):
@@ -299,7 +305,14 @@ def api_search_users(request):
         profile = getattr(user, 'profile', None)
         if profile:
             member_status = _('Member') if profile.member else _('User')
-            permissions_text = _('MSA, OKMQ') if profile.member else _('MSA')
+            from django.conf import settings
+            state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+            organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+            
+            if profile.member:
+                permissions_text = f"{state_institution}, {organization_owner}"
+            else:
+                permissions_text = state_institution
             result.append({
                 'id': user.id,
                 'name': f"{profile.first_name} {profile.last_name}",
@@ -378,11 +391,17 @@ def api_get_user_inventory(request, user_id):
         status='in_stock'
     )
 
-    # User permission filtering
+    # User permission filtering based on configured equipment owners
+    from django.conf import settings
+    state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+    organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+    
     if profile.member:
-        inventory_query = inventory_query.filter(owner__name__in=['MSA', 'OKMQ'])
+        # Member can access state institution + organization
+        inventory_query = inventory_query.filter(owner__name__in=[state_institution, organization_owner])
     else:
-        inventory_query = inventory_query.filter(owner__name='MSA')
+        # Non-member can only access state media institution
+        inventory_query = inventory_query.filter(owner__name=state_institution)
 
     # Apply additional filters
     if owner_filter and owner_filter != 'all':
@@ -1750,6 +1769,47 @@ class RentalStatsView(StaffRequiredMixin, TemplateView):
         return context
 
 
+class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/inventory_calendar_day.html'
+
+    def get_context_data(self, **kwargs):
+        from django.utils import timezone
+        from datetime import timedelta
+        context = super().get_context_data(**kwargs)
+        date_str = self.request.GET.get('date')
+        try:
+            from django.utils.dateparse import parse_date
+            day = parse_date(date_str) if date_str else timezone.now().date()
+        except Exception:
+            day = timezone.now().date()
+        context['day'] = day
+        context['prev_day'] = day - timedelta(days=1)
+        context['next_day'] = day + timedelta(days=1)
+        context['hours'] = list(range(10, 19))
+        return context
+
+
+class InventoryCalendarWeekView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/inventory_calendar_week.html'
+
+    def get_context_data(self, **kwargs):
+        from django.utils import timezone
+        from datetime import timedelta
+        context = super().get_context_data(**kwargs)
+        date_str = self.request.GET.get('date')
+        try:
+            from django.utils.dateparse import parse_date
+            ref = parse_date(date_str) if date_str else timezone.now().date()
+        except Exception:
+            ref = timezone.now().date()
+        context['ref_day'] = ref
+        context['prev_week'] = ref - timedelta(days=7)
+        context['next_week'] = ref + timedelta(days=7)
+        # Also expose the actual week day labels (dates) for header rendering
+        context['week_days'] = [ref + timedelta(days=i) for i in range(7)]
+        return context
+
+
 @login_required
 @staff_member_required
 def api_reset_rental_system(request):
@@ -2025,6 +2085,158 @@ def api_get_all_inventory_status(request):
 
 @login_required
 @staff_member_required
+def api_inventory_calendar(request):
+    """
+    Aggregate availability for inventory over a period.
+
+    Query params:
+      - mode: 'day' | 'week' (default: day)
+      - date: ISO date (YYYY-MM-DD), default: today
+
+    For day mode: returns hours 10..18 per item with occupied/available.
+    For week mode: returns 7 days per item with occupied/available (any overlap in day).
+    """
+    try:
+        from datetime import datetime, timedelta
+        from django.utils import timezone
+        from django.utils.dateparse import parse_date
+        from inventory.models import InventoryItem
+        from .models import RentalItem
+
+        mode = request.GET.get('mode', 'day')
+        day = parse_date(request.GET.get('date') or '') or timezone.now().date()
+
+        # Use values() to avoid deferred fields triggering model __init__ side effects
+        # Показываем только доступные к аренде предметы
+        items_list = list(
+            InventoryItem.objects.filter(available_for_rent=True)
+            .values('id', 'inventory_number', 'description')
+            .order_by('inventory_number')
+        )
+        item_ids = [it['id'] for it in items_list]
+
+        if mode == 'week':
+            start_date = day
+            end_date = day + timedelta(days=6)
+        else:
+            start_date = day
+            end_date = day
+
+        start_dt = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+        end_dt = timezone.make_aware(datetime.combine(end_date, datetime.max.time()))
+
+        rentals = (
+            RentalItem.objects.select_related('rental_request')  # avoid selecting inventory_item to prevent model init side effects
+            .filter(
+                rental_request__status__in=['reserved', 'issued'],
+                rental_request__requested_start_date__lte=end_dt,
+                rental_request__requested_end_date__gte=start_dt,
+                inventory_item_id__in=item_ids
+            )
+        )
+
+        item_id_to_rentals = {}
+        for ri in rentals:
+            item_id_to_rentals.setdefault(ri.inventory_item_id, []).append(ri)
+
+        result = []
+
+        if mode == 'week':
+            days = [start_date + timedelta(days=i) for i in range(7)]
+            for it in items_list:
+                day_statuses = []
+                conflicts = item_id_to_rentals.get(it['id'], [])
+                for d in days:
+                    # Business day window 10:00..19:00
+                    d_start = timezone.make_aware(datetime.combine(d, datetime.min.time()).replace(hour=10, minute=0))
+                    d_end = timezone.make_aware(datetime.combine(d, datetime.min.time()).replace(hour=19, minute=0))
+                    status = 'available'
+                    has_reserved = False
+                    selected_user = None
+                    selected_req = None
+                    for ri in conflicts:
+                        rs = timezone.localtime(ri.rental_request.requested_start_date)
+                        re = timezone.localtime(ri.rental_request.requested_end_date)
+                        if rs <= d_end and re >= d_start:
+                            # Prefer issued
+                            if ri.rental_request.status == 'issued':
+                                status = 'issued'
+                                selected_req = ri
+                                break
+                            elif ri.rental_request.status == 'reserved':
+                                has_reserved = True
+                                if not selected_req:
+                                    selected_req = ri
+                    if status != 'issued' and has_reserved:
+                        status = 'reserved'
+                    if selected_req:
+                        user = selected_req.rental_request.user
+                        try:
+                            profile = user.profile
+                            full = f"{getattr(profile,'first_name','') or ''} {getattr(profile,'last_name','') or ''}".strip()
+                            selected_user = full or (user.email.split('@')[0] if getattr(user,'email','') else str(user.id))
+                        except Exception:
+                            selected_user = user.email.split('@')[0] if getattr(user,'email','') else str(user.id)
+                    day_statuses.append({'date': d.isoformat(), 'status': status, 'user_name': selected_user})
+
+                result.append({
+                    'id': it['id'],
+                    'inventory_number': it['inventory_number'],
+                    'description': it.get('description') or it['inventory_number'],
+                    'week': day_statuses,
+                })
+        else:
+            # Business hours view 10:00..18:00
+            hours = list(range(10, 20))  # 10..19 inclusive
+            for it in items_list:
+                hour_slots = []
+                conflicts = item_id_to_rentals.get(it['id'], [])
+                for h in hours:
+                    slot_start = timezone.make_aware(datetime.combine(day, datetime.min.time().replace(hour=h, minute=0)))
+                    slot_end = slot_start + timedelta(hours=1)
+                    status = 'available'
+                    info = None
+                    for ri in conflicts:
+                        rs = timezone.localtime(ri.rental_request.requested_start_date)
+                        re = timezone.localtime(ri.rental_request.requested_end_date)
+                        if slot_start < re and slot_end > rs:
+                            status = ri.rental_request.status  # reserved or issued
+                            user = ri.rental_request.user
+                            try:
+                                profile = user.profile
+                                full = f"{getattr(profile,'first_name','') or ''} {getattr(profile,'last_name','') or ''}".strip()
+                                user_name = full or (user.email.split('@')[0] if getattr(user,'email','') else str(user.id))
+                            except Exception:
+                                user_name = user.email.split('@')[0] if getattr(user,'email','') else str(user.id)
+                            info = {
+                                'user_name': user_name,
+                                'status': ri.rental_request.status,
+                                'start': rs.strftime('%d.%m.%Y %H:%M'),
+                                'end': re.strftime('%d.%m.%Y %H:%M'),
+                                'id': ri.rental_request_id,
+                            }
+                            break
+                    hour_slots.append({'time': f"{h:02d}:00", 'status': status, 'info': info})
+
+                result.append({
+                    'id': it['id'],
+                    'inventory_number': it['inventory_number'],
+                    'description': it.get('description') or it['inventory_number'],
+                    'day': day.isoformat(),
+                    'hours': hour_slots,
+                })
+
+        return JsonResponse({'success': True, 'mode': mode, 'date': day.isoformat(), 'items': result})
+    except Exception as e:
+        import traceback
+        trace = traceback.format_exc()
+        try:
+            # Best-effort logging to console
+            print('Error in api_inventory_calendar:', e)
+            print(trace)
+        except Exception:
+            pass
+        return JsonResponse({'success': False, 'error': str(e), 'trace': trace}, status=500)
 def api_get_all_equipment_sets(request):
     """
     Get all equipment sets for admin management.
@@ -2731,22 +2943,45 @@ def api_get_inventory_schedule(request):
                     current_end_of_day = timezone.make_aware(datetime.combine(current, datetime.min.time().replace(hour=23, minute=59)))
 
                     if rs <= current_end_of_day and re >= current_start_of_day:
-                        # For the current day, use actual rental times
+                        # Define working hours (10:00-19:00)
+                        working_start = timezone.make_aware(datetime.combine(current, datetime.min.time().replace(hour=10, minute=0)))
+                        working_end = timezone.make_aware(datetime.combine(current, datetime.min.time().replace(hour=19, minute=0)))
+
+                        # For the current day, adjust rental times to working hours
                         if current == rs.date():
-                            # First day of rental - use rental start time
-                            rental_start = rs
+                            # First day of rental
+                            if rs.hour >= 19:
+                                # If rental starts after 19:00, move to next day's 10:00
+                                continue
+                            elif rs.hour < 10:
+                                # If rental starts before 10:00, use 10:00
+                                rental_start = working_start
+                            else:
+                                # Use actual rental start time
+                                rental_start = rs
                         else:
-                            # Middle days - use start of day
-                            rental_start = current_start_of_day
+                            # Middle days - use working start
+                            rental_start = working_start
 
                         if current == re.date():
-                            # Last day of rental - use rental end time
-                            rental_end = re
+                            # Last day of rental
+                            if re.hour < 10:
+                                # If rental ends before 10:00, skip this day
+                                continue
+                            elif re.hour > 19:
+                                # If rental ends after 19:00, use 19:00
+                                rental_end = working_end
+                            else:
+                                # Use actual rental end time
+                                rental_end = re
                         else:
-                            # Middle days - use end of day
-                            rental_end = current_end_of_day
+                            # Middle days - use working end
+                            rental_end = working_end
 
-                        # Check overlap
+                        # Check overlap with current slot
+                        if hour >= 10 and hour < 20:
+                            print(f"🔍 Checking slot {hour}:00 ({slot_start.strftime('%H:%M')}-{slot_end.strftime('%H:%M')}) vs rental ({rental_start.strftime('%H:%M')}-{rental_end.strftime('%H:%M')})")
+                        
                         if slot_start < rental_end and slot_end > rental_start:
                             status = 'occupied'
                             user = ri.rental_request.user
@@ -2774,8 +3009,9 @@ def api_get_inventory_schedule(request):
                                 'end_time': re.strftime('%H:%M')
                             }
 
-                            if slot_count == 1:  # Only for first slot to avoid spam
-                                print(f"🔍 Slot occupied! Status: {status}, User: {user_name}, Time: {slot_start.strftime('%H:%M')}-{slot_end.strftime('%H:%M')}")
+                            # Log occupied slots for working hours (10-19)
+                            if hour >= 10 and hour < 20:
+                                print(f"🔍 Slot {hour}:00 occupied! Status: {status}, User: {user_name}")
 
                             break
                         else:
@@ -2926,11 +3162,17 @@ def api_get_user_inventory_simple(request, user_id):
         status='in_stock'
     )
 
-    # User permission filtering
+    # User permission filtering based on configured equipment owners
+    from django.conf import settings
+    state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+    organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+    
     if profile.member:
-        inventory_query = inventory_query.filter(owner__name__in=['MSA', 'OKMQ'])
+        # Member can access state institution + organization
+        inventory_query = inventory_query.filter(owner__name__in=[state_institution, organization_owner])
     else:
-        inventory_query = inventory_query.filter(owner__name='MSA')
+        # Non-member can only access state media institution
+        inventory_query = inventory_query.filter(owner__name=state_institution)
 
     # Apply additional filters
     if owner_filter and owner_filter != 'all':

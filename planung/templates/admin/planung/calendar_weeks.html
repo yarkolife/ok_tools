@@ -154,9 +154,9 @@
 
       <div class="modal-body">
         <div class="time-status text-success" id="timeStatus">
-          <strong>{% trans "Broadcast block" %}:</strong> 18:00 – 19:45 ({% trans "105 Min" %}) •
+          <strong>{% trans "Broadcast block" %}:</strong> {{ broadcast_start }} – {{ broadcast_end }} (<span id="blockDurationDisplay"></span>) •
           <span id="remainingTime">{% trans "Full available" %}</span>
-          <br><small>{% trans "Gaps >5 min count as used time" %}</small>
+          <br><small>{% trans "Large gaps (≥5 min) can be filled with videos" %}</small>
         </div>
 
         <div class="d-flex gap-2 mb-3">
@@ -168,9 +168,11 @@
           <thead>
             <tr>
               <th>{% trans "Start" %}</th>
+              <th>{% trans "End" %}</th>
               <th>{% trans "Number" %}</th>
               <th>{% trans "Title" %}</th>
-              <th>{% trans "Duration (Min)" %}</th>
+              <th>{% trans "Author" %}</th>
+              <th>{% trans "Duration" %}</th>
               <th>{% trans "Actions" %}</th>
             </tr>
           </thead>
@@ -208,14 +210,12 @@
 
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
+  <script src="{% url 'javascript-catalog' %}"></script>
+
   <script>
-    const TEXTS = {
-      fullAvailable: "{% trans 'Full available' %}",
-      stillFree: "{% trans 'Still %(minutes)s min free' %}",
-      overPlanned: "{% trans 'Overplanned by %(minutes)s min!' %}",
-      licenseNotFound: "{% trans 'License not found or not confirmed' %}",
-    };
     const CURRENT_WEEK = parseInt('{{ current_week }}', 10);
+    const BROADCAST_START = "{{ broadcast_start }}";
+    const BROADCAST_END = "{{ broadcast_end }}";
   </script>
   <script src="{% static 'planung/js/calendar_weeks.js' %}"></script>
 

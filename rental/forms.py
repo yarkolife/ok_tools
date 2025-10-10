@@ -138,8 +138,14 @@ class RentalItemForm(forms.ModelForm):
                 available_for_rent=True,
                 status='in_stock',
             )
+            from django.conf import settings
+            state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+            organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+            
             if hasattr(user, 'profile') and user.profile and user.profile.member:
-                inventory_query = inventory_query.filter(owner__name__in=['MSA', 'OKMQ'])
+                # Member can access state institution + organization
+                inventory_query = inventory_query.filter(owner__name__in=[state_institution, organization_owner])
             else:
-                inventory_query = inventory_query.filter(owner__name='MSA')
+                # Non-member can only access state media institution
+                inventory_query = inventory_query.filter(owner__name=state_institution)
             self.fields['inventory_item'].queryset = inventory_query

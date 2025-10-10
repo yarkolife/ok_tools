@@ -10,6 +10,9 @@ from .views import RentalItemViewSet
 from .views import RentalProcessView
 from .views import RentalRequestViewSet
 from .views import RentalStatsView
+from .views import InventoryCalendarDayView
+from .views import InventoryCalendarWeekView
+from .views import api_inventory_calendar
 from .views import RentalTransactionViewSet
 from .views import api_cancel_rental
 from .views import api_check_room_availability
@@ -71,6 +74,8 @@ urlpatterns = [
     # Custom admin-like pages and endpoints
     path('admin/rental-process/', RentalProcessView.as_view(), name='admin_rental_process'),
     path('admin/stats/', RentalStatsView.as_view(), name='rental_stats'),
+    path('admin/inventory-calendar/day/', InventoryCalendarDayView.as_view(), name='inventory_calendar_day'),
+    path('admin/inventory-calendar/week/', InventoryCalendarWeekView.as_view(), name='inventory_calendar_week'),
     path('access-denied/', AccessDeniedView.as_view(), name='access_denied'),
     path('api/search-users/', api_search_users, name='api_search_users'),
     path('api/user/<int:user_id>/inventory/', api_get_user_inventory, name='api_user_inventory'),
@@ -106,6 +111,7 @@ urlpatterns = [
     path('api/get-all-rentals/', api_get_all_rentals, name='api_get_all_rentals'),
     path('api/get-all-inventory-status/', api_get_all_inventory_status, name='api_get_all_inventory_status'),
     path('api/get-all-equipment-sets/', api_get_all_equipment_sets, name='api_get_all_equipment_sets'),
+    path('api/inventory-calendar/', api_inventory_calendar, name='api_inventory_calendar'),
     path('api/create-equipment-set/', api_create_equipment_set, name='api_create_equipment_set'),
     path('api/search-inventory/', api_search_inventory_items, name='api_search_inventory'),
 

@@ -105,11 +105,15 @@ class RentalRequest(models.Model):
         user_profile = getattr(self.user, 'profile', None)
         owner_name = inventory_item.owner.name if getattr(inventory_item, 'owner', None) else ""
 
+        from django.conf import settings
+        state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+        organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+        
         if user_profile and getattr(user_profile, 'member', False):
-            # Member can take MSA and OKMQ
-            return owner_name in ['MSA', 'OKMQ']
-        # User only MSA
-        return owner_name == 'MSA'
+            # Member can take equipment from state institution AND organization
+            return owner_name == state_institution or owner_name == organization_owner
+        # Non-member can only take from state media institution
+        return owner_name == state_institution
 
     def get_available_inventory(self):
         """Get available inventory for rental considering user rights."""
@@ -121,11 +125,17 @@ class RentalRequest(models.Model):
             status='in_stock',
         )
 
+        from django.conf import settings
+        state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+        organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+        
         user_profile = getattr(self.user, 'profile', None)
         if user_profile and getattr(user_profile, 'member', False):
-            available_items = available_items.filter(owner__name__in=['MSA', 'OKMQ'])
+            # Member can access state institution + organization
+            available_items = available_items.filter(owner__name__in=[state_institution, organization_owner])
         else:
-            available_items = available_items.filter(owner__name='MSA')
+            # Non-member can only access state media institution
+            available_items = available_items.filter(owner__name=state_institution)
 
         return available_items
 

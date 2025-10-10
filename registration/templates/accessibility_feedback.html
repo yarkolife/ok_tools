@@ -104,12 +104,10 @@
 
         <div class="contact-info">
             <address>
-                <strong>Offener Kanal Merseburg Querfurt e. V.</strong><br>
-                Diana Elsner<br>
-                Geusaer Straße 86 b<br>
-                06217 Merseburg<br><br>
-                Telefon: <a href="tel:+493461525222">+49 3461 525222</a><br>
-                E-Mail: <a href="mailto:info@okmq.de">info@okmq.de</a>
+                <strong>{{ OK_NAME }}</strong><br>
+                {{ OK_ADDRESS|linebreaks }}<br>
+                {% if OK_PHONE %}Telefon: <a href="tel:{{ OK_PHONE|cut:' '|cut:'/'|cut:'-' }}">{{ OK_PHONE }}</a><br>{% endif %}
+                {% if OK_EMAIL %}E-Mail: <a href="mailto:{{ OK_EMAIL }}">{{ OK_EMAIL }}</a>{% endif %}
             </address>
         </div>
 

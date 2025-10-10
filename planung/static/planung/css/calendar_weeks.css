@@ -295,6 +295,11 @@
     font-size: 14px;
     height: 32px;
   }
+  #licenseTable .end-time {
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+  }
 
   /* строка времени и статуса */
   #timeStatus { color: var(--adm-success); }
@@ -335,3 +340,30 @@
 
   /* компактная форма ввода номера лицензии */
   #licenseNumberInput { width: 270px !important; min-width: 270px; }
+
+  /* Gap rows styling */
+  #licenseTable tbody .gap-row-small,
+  #licenseTable .gap-row-small {
+    background-color: #d1ecf1 !important;
+    border-left: 5px solid #17a2b8 !important;
+  }
+  
+  #licenseTable tbody .gap-row-small td,
+  #licenseTable .gap-row-small td {
+    background-color: #d1ecf1 !important;
+    color: #212529 !important;
+    border: 1px solid #bee5eb !important;
+  }
+  
+  #licenseTable tbody .gap-row-large,
+  #licenseTable .gap-row-large {
+    background-color: #fff3cd !important;
+    border-left: 5px solid #ffc107 !important;
+  }
+  
+  #licenseTable tbody .gap-row-large td,
+  #licenseTable .gap-row-large td {
+    background-color: #fff3cd !important;
+    color: #212529 !important;
+    border: 1px solid #ffeaa7 !important;
+  }

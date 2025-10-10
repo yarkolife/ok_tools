@@ -209,8 +209,10 @@
                 <button type="button" class="btn btn-outline-primary coming-soon-btn" data-feature="rental">
                     <i class="bi bi-calendar-plus me-2"></i>{% trans "Rental Dashboard" %}
                 </button>
-                <a href="https://okmq.de/" target="_blank" class="btn btn-outline-danger">
-                    <i class="bi bi-box-arrow-up-right me-2"></i>{% trans "OKMQ Website" %}
+                {% if OK_WEBSITE %}
+                <a href="{{ OK_WEBSITE }}" target="_blank" class="btn btn-outline-danger">
+                    <i class="bi bi-box-arrow-up-right me-2"></i>{% trans "Organization Website" %}
+                {% endif %}
                 </a>
             </div>
         </div>

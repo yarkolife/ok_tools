@@ -1,0 +1,12 @@
+[Unit]
+Description=Run OK Tools expire rentals job every 30 minutes
+Documentation=https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools
+Requires=ok-tools-cron.service
+
+[Timer]
+OnCalendar=*:0/30
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

@@ -3,6 +3,7 @@ from .models import CalendarWeeksProxy
 from .models import TagesPlan
 from datetime import date
 from datetime import timedelta
+from django.conf import settings
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -43,6 +44,13 @@ class TagesPlanAdmin(admin.ModelAdmin):
         Shows the status of each day with color coding and icons based
         on planned content.
         """
+        # Parse broadcast block from settings
+        broadcast_start_parts = settings.BROADCAST_START.split(":")
+        broadcast_end_parts = settings.BROADCAST_END.split(":")
+        block_start_seconds = int(broadcast_start_parts[0]) * 3600 + int(broadcast_start_parts[1]) * 60
+        block_end_seconds = int(broadcast_end_parts[0]) * 3600 + int(broadcast_end_parts[1]) * 60
+        max_block_seconds = block_end_seconds - block_start_seconds
+        
         today = date.today()
         start = today - timedelta(weeks=3, days=today.weekday())
         days = [
@@ -61,7 +69,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                 item.get("duration", 0) for item in plan.json_plan.get("items", [])
             )
             plans[str(plan.datum)] = {
-                "minutes": total,
+                "seconds": total,
                 "draft": plan.json_plan.get("draft", False),
                 "planned": plan.json_plan.get("planned", False),
                 "comment": plan.kommentar or "",
@@ -76,7 +84,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                 info = plans.get(
                     iso,
                     {
-                        "minutes": 0,
+                        "seconds": 0,
                         "draft": False,
                         "planned": False,
                         "comment": "",
@@ -87,17 +95,17 @@ class TagesPlanAdmin(admin.ModelAdmin):
                     cell_cls, icon = "bg-success text-white", "✔🗨️"
                 elif info.get("planned"):
                     cell_cls, icon = "bg-success text-white", "✔"
-                elif info["minutes"] >= 105 and not info["draft"] and info.get("comment"):
+                elif info["seconds"] >= max_block_seconds and not info["draft"] and info.get("comment"):
                     cell_cls, icon = "bg-success text-white", "✔🗨️"
-                elif info["minutes"] >= 105 and not info["draft"]:
+                elif info["seconds"] >= max_block_seconds and not info["draft"]:
                     cell_cls, icon = "bg-success text-white", "✔"
-                elif info["minutes"] >= 105 and info.get("comment"):
+                elif info["seconds"] >= max_block_seconds and info.get("comment"):
                     cell_cls, icon = "bg-info text-white", "📝🗨️"
-                elif info["minutes"] >= 105:
+                elif info["seconds"] >= max_block_seconds:
                     cell_cls, icon = "bg-info text-white", "📝"
-                elif info["minutes"] > 0 and info.get("comment"):
+                elif info["seconds"] > 0 and info.get("comment"):
                     cell_cls, icon = "bg-warning", "🕒🗨️"
-                elif info["minutes"] > 0:
+                elif info["seconds"] > 0:
                     cell_cls, icon = "bg-warning", "🕒"
                 elif info.get("comment"):
                     cell_cls, icon = "bg-info", "🗨️"
@@ -135,6 +143,8 @@ class TagesPlanAdmin(admin.ModelAdmin):
             "weeks": weeks,
             "weekday_names": weekday_names,
             "current_week": today.isocalendar()[1],
+            "broadcast_start": settings.BROADCAST_START,
+            "broadcast_end": settings.BROADCAST_END,
         }
         return TemplateResponse(request, "admin/planung/calendar_weeks.html", context)
 
@@ -170,7 +180,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
     def preview_plan(self, obj):
         """Generate an HTML table preview of the planned items.
 
-        Shows start time, license title with link, and duration for each
+        Shows start time, license title with link, author, and duration for each
         item.
         """
         items = obj.json_plan.get("items", [])
@@ -180,19 +190,31 @@ class TagesPlanAdmin(admin.ModelAdmin):
         rows = []
         for item in items:
             number = item.get("number")
+            author_name = item.get("author", "")
+            
             try:
                 lic = License.objects.get(number=number)
                 url = f"/admin/licenses/license/{lic.id}/change/"
                 link = f'<a href="{url}">{number} – {lic.title}</a>'
+                
+                # Get author from license if not in item
+                if not author_name and lic.profile:
+                    author_name = f"{lic.profile.first_name or ''} {lic.profile.last_name or ''}".strip()
             except License.DoesNotExist:
                 link = f"{number} ({_('not found')})"
 
+            # Format duration as MM:SS
+            duration_seconds = item.get('duration', 0)
+            duration_mins = duration_seconds // 60
+            duration_secs = duration_seconds % 60
+            duration_formatted = f"{duration_mins}:{duration_secs:02d}"
+
             rows.append(
-                "<tr><td>{}</td><td>{}</td><td>{} {}</td></tr>".format(
+                "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
                     item.get('start'),
                     link,
-                    item.get('duration'),
-                    _('min'),
+                    author_name or "-",
+                    duration_formatted,
                 )
             )
 
@@ -200,6 +222,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
             "<table style='width:100%;border-collapse:collapse;'>"
             f"<tr><th style='border-bottom:1px solid #ccc;'>{_('Start')}</th>"
             f"<th style='border-bottom:1px solid #ccc;'>{_('License')}</th>"
+            f"<th style='border-bottom:1px solid #ccc;'>{_('Author')}</th>"
             f"<th style='border-bottom:1px solid #ccc;'>{_('Duration')}</th></tr>"
             + "".join(rows)
             + "</table>"

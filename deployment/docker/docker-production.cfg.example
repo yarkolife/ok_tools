@@ -1,0 +1,99 @@
+# Production Docker Configuration for OK Tools
+# Copy this to ../../docker-production.cfg and customize for your organization
+
+[organization]
+# Full organization name
+name = Your Community Media Organization e.V.
+
+# Short organization name (used in navigation and titles)
+short_name = Your CMO
+
+# Organization website URL
+website = https://your-domain.com
+
+# Contact email
+email = info@your-domain.com
+
+# Full address (can include line breaks with \n)
+address = Your Street 123\nYour City, Postal Code\nCountry
+
+# Phone number
+phone = +49 123 456789
+
+# Fax number (optional)
+fax = +49 123 456790
+
+# Organization description (shown on welcome page)
+description = Welcome to our Community Media Organization! We are a non-profit association
+    providing facilities and equipment for producing your own TV and radio shows.
+
+# Opening hours (use line breaks with indentation)
+opening_hours = Mon: 13:00 – 16:00
+    Tue – Thu: 10:00 – 18:00
+    Fri: 10:00 – 16:00
+    (or by arrangement)
+
+# State media institution (accessible to all users)
+# Examples for different German states:
+# - MSA (Medienanstalt Sachsen-Anhalt)
+# - LFK (Landesanstalt für Kommunikation Baden-Württemberg)
+# - BLM (Bayerische Landeszentrale für neue Medien)
+# - mabb (Medienanstalt Berlin-Brandenburg)
+# - brema (Bremische Landesmedienanstalt)
+# - MA HSH (Medienanstalt Hamburg / Schleswig-Holstein)
+# - MMV (Medienanstalt Mecklenburg-Vorpommern)
+# - NLM (Niedersächsische Landesmedienanstalt)
+# - LfM NRW (Landesanstalt für Medien NRW)
+# - LMS (Landesmedienanstalt Saarland)
+# - SLM (Sächsische Landesmedienanstalt)
+# - TLM (Thüringer Landesmedienanstalt)
+state_media_institution = MSA
+
+# Organization owner (accessible only to members)
+# This should match your organization's equipment identifier
+organization_owner = Your CMO
+
+# Broadcast block time settings (format HH:MM)
+# These define the daily broadcast slot for program planning
+broadcast_start = 18:00
+broadcast_end = 19:45
+
+[django]
+# CRITICAL: Generate a strong secret key for production
+# You can generate one with: python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+secret_key = CHANGE-THIS-TO-A-STRONG-SECRET-KEY-IN-PRODUCTION
+
+# SECURITY: Set to False in production
+debug = False
+
+# SECURITY: List your domain names (space-separated)
+allowed_hosts = your-domain.com www.your-domain.com
+
+# Database configuration (Docker containers)
+db_name = oktools
+db_user = oktools
+db_pw = oktools_production_password
+db_host = db
+db_port = 5432
+
+# Localization
+language = de-de
+timezone = Europe/Berlin
+
+# File paths (Docker volumes)
+static = static/
+media = media/
+
+# Email configuration (SMTP)
+email_host = smtp.your-provider.com
+email_port = 587
+email_use_tls = True
+email_host_user = noreply@your-domain.com
+email_host_password = YOUR-SMTP-PASSWORD
+default_from_email = noreply@your-domain.com
+
+# PRODUCTION: Disable development mail settings
+mail_dev_settings = False
+
+# SECURITY: Enable secure settings for HTTPS
+use_secure_settings = True

@@ -253,12 +253,33 @@ DEFAULT_FROM_EMAIL = config.get(
 )
 
 
-# name of the OK
-OK_NAME = "Offener Kanal Merseburg-Querfurt e.V."
-OK_NAME_SHORT = "OK Merseburg"
+# Organization settings - configurable via config file
+OK_NAME = config.get("organization", "name", fallback="Offener Kanal Merseburg-Querfurt e.V.")
+OK_NAME_SHORT = config.get("organization", "short_name", fallback="OK Merseburg")
+OK_WEBSITE = config.get("organization", "website", fallback="https://okmq.de")
+OK_EMAIL = config.get("organization", "email", fallback="info@okmq.de")
+OK_ADDRESS = config.get("organization", "address", fallback="Geusaer Straße 86 b, 06217 Merseburg")
+OK_PHONE = config.get("organization", "phone", fallback="03461/ 52 52 22")
+OK_FAX = config.get("organization", "fax", fallback="03461/ 52 20 24")
+OK_DESCRIPTION = config.get("organization", "description", fallback="Willkommen beim Offenen Kanal! Wir sind ein gemeinnütziger Bürgermedien-Verein, der Ihnen die Möglichkeit bietet, eigene TV- und Radiosendungen zu produzieren und zu veröffentlichen.")
+OK_OPENING_HOURS = config.get("organization", "opening_hours", fallback="Mo: 13:00 – 16:00\nDi – Do: 10:00 – 18:00\nFr: 10:00 – 16:00\n(oder nach Vereinbarung)")
+
+# Equipment owners configuration
+# State media institution (accessible to all users)
+STATE_MEDIA_INSTITUTION = config.get("organization", "state_media_institution", fallback="MSA")
+
+# Organization owner (the organization this site is configured for - accessible only to members)
+ORGANIZATION_OWNER = config.get("organization", "organization_owner", fallback="OKMQ")
+
+# All equipment owners combined (for backward compatibility)
+EQUIPMENT_OWNERS = [STATE_MEDIA_INSTITUTION, ORGANIZATION_OWNER]
 
 # the fixed duration of a screen board (Bildschirmtafel) in seconds
 SCREEN_BOARD_DURATION = 20
+
+# Broadcast block settings (in format HH:MM)
+BROADCAST_START = config.get("organization", "broadcast_start", fallback="18:00")
+BROADCAST_END = config.get("organization", "broadcast_end", fallback="19:45")
 
 # Which site should be seen after log in and log out
 LOGIN_URL = "login"  # This points to /profile/login/ via django.contrib.auth.urls

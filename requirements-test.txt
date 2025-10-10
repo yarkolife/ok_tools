@@ -1,5 +1,0 @@
--e .[test]
-
-pytest-xdist
-pytest-cov
-pytest-env

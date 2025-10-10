@@ -2,10 +2,10 @@
 ok_tools
 ========
 
-A set of tools to support administrative task in the OKs of the Medienanstalt Sachsen-Anhalt.
+A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 2.1
-**Last Updated**: September 2025
+**Current Version**: 2.2
+**Last Updated**: October 2025
 
 Features
 ========
@@ -31,29 +31,152 @@ Features
 - **Real-time Analytics** - User journey tracking and funnel metrics
 - **Alert System** - Automated monitoring and threshold-based notifications
 
-Installation
-============
+Installation & Deployment
+=========================
 
-**Traditional Installation:**
+OK Tools supports two main deployment methods:
+
+**Docker Deployment (Recommended for production):**
 ::
 
     git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
     cd ok-tools
-    python3.10 -m venv .
-    bin/pip install -r requirements.txt
+    cp deployment/docker/docker-production.cfg.example docker-production.cfg
+    # Edit docker-production.cfg for your organization
+    docker-compose -f deployment/docker/docker-compose.production.yml up -d
+
+See ``deployment/docker/README.md`` for detailed Docker setup instructions.
+
+**Gunicorn Deployment (Traditional server setup):**
+::
+
+    git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
+    cd ok-tools
+    python3.12 -m venv venv
+    venv/bin/pip install -r requirements.txt
+    venv/bin/pip install gunicorn
+
+See ``deployment/gunicorn/README.md`` for detailed Gunicorn setup instructions.
+
+**Development Setup:**
+::
+
+    git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
+    cd ok-tools
+    python3.12 -m venv venv
+    venv/bin/pip install -r requirements.txt
+
+**Organization Configuration:**
+
+1. Copy the example configuration file::
+
+    cp organization.cfg.example your-organization.cfg
+
+2. Edit the configuration file with your organization's details::
+
+    [organization]
+    name = Your Community Media Organization e.V.
+    short_name = Your CMO
+    website = https://your-organization.com
+    email = info@your-organization.com
+    address = Your Address Here
+    phone = +49 123 456789
+    fax = +49 123 456790
+    description = Welcome to our organization! We provide media services...
+    opening_hours = Mon: 09:00 - 17:00\n    Tue-Fri: 09:00 - 18:00
+    # State media institution (accessible to all users)
+    state_media_institution = MSA
+    # Organization owner (accessible only to members)
+    organization_owner = Your CMO
+
+3. Run the setup command to create organizations in the database::
+
+    python manage.py setup_organizations
+
+   **Note:** Organizations are also created automatically on application startup,
+   so this step is optional. Use it when you need to manually sync configuration changes.
+
+**What Gets Created Automatically:**
+
+When you configure ``state_media_institution`` and ``organization_owner``, the system automatically creates:
+
+- **MediaAuthority** object (in ``/admin/registration/mediaauthority/``)
+  - Your organization: "OK Bayern" (used for user profile association)
+  
+- **Organization** objects (in ``/admin/inventory/organization/``)
+  - State institution: "BLM" (equipment accessible to all users)
+  - Your organization: "OK Bayern" (equipment accessible only to members)
+
+These objects are used for user profiles and equipment ownership/access control throughout the system.
+
+**German State Media Institutions:**
+
+The system supports all German state media institutions:
+
+- **MSA** - Medienanstalt Sachsen-Anhalt
+- **LFK** - Landesanstalt für Kommunikation Baden-Württemberg
+- **BLM** - Bayerische Landeszentrale für neue Medien
+- **mabb** - Medienanstalt Berlin-Brandenburg
+- **brema** - Bremische Landesmedienanstalt
+- **MA HSH** - Medienanstalt Hamburg / Schleswig-Holstein
+- **MMV** - Medienanstalt Mecklenburg-Vorpommern
+- **NLM** - Niedersächsische Landesmedienanstalt
+- **LfM NRW** - Landesanstalt für Medien NRW
+- **LMS** - Landesmedienanstalt Saarland
+- **SLM** - Sächsische Landesmedienanstalt
+- **TLM** - Thüringer Landesmedienanstalt
+
+See the ``deployment/configs/`` directory for ready-to-use configurations for different German states.
+
+3. Set the environment variable to point to your config file::
+
+    # For development (local)
+    export OKTOOLS_CONFIG_FILE=/home/user/ok-tools/your-organization.cfg
+    
+    # For production server (typical paths)
+    export OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg
+    # or
+    export OKTOOLS_CONFIG_FILE=/etc/ok-tools/organization.cfg
+    # or
+    export OKTOOLS_CONFIG_FILE=/var/www/ok-tools/config/organization.cfg
+
+4. Make the environment variable persistent::
+
+    # Add to ~/.bashrc or ~/.profile for user-level
+    echo 'export OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg' >> ~/.bashrc
+    
+    # Or add to /etc/environment for system-wide
+    echo 'OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg' | sudo tee -a /etc/environment
+    
+    # For systemd services, add to service file:
+    # Environment=OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg
+
+5. The system will use your organization's branding throughout the interface, forms, and communications.
 
 **Dependencies:**
-- Python 3.10+
-- Django 4.2+
+- Python 3.12+
+- Django 5.2.5
 - PostgreSQL (production) / SQLite (development)
 - Redis (optional, for caching)
+
+**Installation:**
+
+All dependencies are managed in a single ``requirements.txt`` file::
+
+    pip install -r requirements.txt
+
+This file is used for:
+- Local development
+- Docker deployment
+- Gunicorn/production deployment
 
 Tests
 =====
 
-Install the dependencies using requirements-test.txt::
+Install the testing dependencies::
 
-   bin/pip install -r requirements-test.txt
+   bin/pip install -r requirements.txt
+   bin/pip install pytest pytest-cov pytest-django
 
 Create static resources::
 
@@ -71,13 +194,14 @@ Run the Tests using pytest::
 Configuration
 =============
 
-We have provided a minimal config (test.cfg) and an example with
-suggested settings for production (production.cfg.example).
+We have provided a minimal config (test.cfg) and comprehensive examples for production deployment.
 
 **Configuration Files:**
 - `test.cfg` - Development and testing configuration
-- `production.cfg.example` - Production configuration template
-- `gunicorn.conf.py.example` - Gunicorn server configuration
+- `organization.cfg.example` - General organization configuration template
+- `deployment/docker/docker-production.cfg.example` - Docker production configuration
+- `deployment/gunicorn/production.cfg.example` - Gunicorn production configuration
+- `deployment/configs/*.cfg` - Ready-to-use configurations for specific organizations
 
 **Environment Variables:**
 - `OKTOOLS_CONFIG_FILE` - Path to configuration file
@@ -107,36 +231,49 @@ prouction due to security reasons.
 
     OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py runserver
 
-Run production server
+Production Deployment
 =====================
 
-We have provided example config for production usage. Copy production.cfg.example and
-gunicorn.conf.py.example and edit to your needs.
+OK Tools supports two production deployment methods:
 
-First you have to install gunicorn::
+**Docker Deployment (Recommended):**
 
-    bin/pip install gunicorn
+See ``deployment/docker/README.md`` for comprehensive Docker setup instructions.
 
-Use this command to run the server::
+Quick start::
 
-    OKTOOLS_CONFIG_FILE=production.cfg  bin/gunicorn ok_tools.wsgi -c gunicorn.conf.py
+    cp deployment/docker/docker-production.cfg.example docker-production.cfg
+    # Edit docker-production.cfg for your organization
+    docker-compose -f deployment/docker/docker-compose.production.yml up -d
 
-**Systemd Services:**
-- `scripts/expire-rentals.service` - Rental expiration management
-- `scripts/expire-rentals.timer` - Automated rental cleanup
+**Gunicorn Deployment (Traditional):**
 
-Import legacy data
+See ``deployment/gunicorn/README.md`` for comprehensive Gunicorn setup instructions.
+
+Quick start::
+
+    sudo cp deployment/gunicorn/production.cfg.example /opt/ok-tools/config/production.cfg
+    # Edit configuration
+    sudo cp deployment/gunicorn/*.service /etc/systemd/system/
+    sudo cp deployment/gunicorn/*.timer /etc/systemd/system/
+    sudo systemctl enable ok-tools ok-tools-cron.timer
+    sudo systemctl start ok-tools
+
+**Systemd Services (Gunicorn deployment):**
+- `deployment/gunicorn/ok-tools.service` - Main application server
+- `deployment/gunicorn/ok-tools-cron.service` - Rental expiration management
+- `deployment/gunicorn/ok-tools-cron.timer` - Automated rental cleanup (every 30 min)
+
+Import Legacy Data
 ==================
 
-It is possible to import legacy data from :code:`.xlsx`. Therefore the script
-:code:`import_legacy.py` was implemented. To run the script run::
+It is possible to import legacy data from Excel files (:code:`.xlsx`).
 
-    python manage.py runscript import_legacy
+The import functionality requires:
+- A workbook with worksheets named: :code:`users`, :code:`contributions`, :code:`categories`, :code:`repetitions`, :code:`projects`
+- Configure the path in :code:`settings.py` via :code:`LEGACY_DATA` (default: :code:`../legacy_data/data.xlsx`)
 
-The script takes one workbook with multiple worksheets. The worksheets need to
-be named :code:`users`, :code:`contributions`, :code:`categories`, :code:`repetitions` and :code:`projects`.
-The path of the imported date can be changed by editing :code:`LEGACY_DATA` in the
-:code:`settings.py`. The default path is :code:`../legacy_data/data.xlsx`.
+**Note:** The legacy import script is a one-time migration tool. If you've already completed your data migration, this feature is not needed for daily operations.
 
 Privacy Policy
 ==============
@@ -220,20 +357,34 @@ Development
 - JSON response formats
 - Authentication requirements
 
-Deployment
-==========
+Deployment Architecture
+=======================
 
-**Environment Setup:**
-- Copy configuration examples
-- Set environment variables
-- Configure database connections
-- Set up static file serving
+**Infrastructure Options:**
+
+1. **Docker Deployment** - Containerized setup with Nginx, Gunicorn, PostgreSQL, Redis
+   - Automated SSL certificate management
+   - Isolated environment with security hardening
+   - One-command deployment and updates
+   - See ``deployment/docker/README.md``
+
+2. **Gunicorn Deployment** - Traditional server setup with systemd
+   - Full system control and optimization
+   - Integration with existing infrastructure
+   - Detailed security settings
+   - See ``deployment/gunicorn/README.md``
+
+**Deployment Resources:**
+- Ready-to-use configurations in ``deployment/configs/``
+- Comprehensive deployment guides in ``deployment/README.md``
+- Production-ready systemd service files
+- Nginx configuration with rate limiting and security headers
 
 **Monitoring:**
-- Application logs
-- Error tracking
+- Application logs via journalctl (systemd) or docker logs
+- Error tracking and debugging
 - Performance monitoring
-- Health checks
+- Health check endpoints
 
 Support
 ========

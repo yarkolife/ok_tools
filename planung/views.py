@@ -24,13 +24,19 @@ def get_license_by_number(request, number):
         license = License.objects.get(number=number)
     except License.DoesNotExist:
         raise Http404(_("License not found or not confirmed."))
+    
+    # Get author name from profile
+    author_name = ""
+    if license.profile:
+        author_name = f"{license.profile.first_name or ''} {license.profile.last_name or ''}".strip()
 
     return JsonResponse(
         {
             "number": license.number,
             "title": license.title or "",
             "subtitle": license.subtitle or "",
-            "duration_min": int(license.duration.total_seconds() // 60),
+            "duration_seconds": int(license.duration.total_seconds()),
+            "author": author_name,
         }
     )
 
@@ -102,7 +108,7 @@ def day_plan_detail(request, iso_date):
             raise Http404("No plan for this day")
         return JsonResponse(
             {
-                "date": str(plan.datum),  # ✅ Возвращаем реальную дату из БД
+                "date": str(plan.datum),  # ✅ Return the actual date from the database
                 "items": plan.json_plan.get("items", []),
                 "draft": plan.json_plan.get("draft", False),
                 "planned": plan.json_plan.get("planned", False),

@@ -48,16 +48,606 @@
             <a class="navbar-brand text-white" href="{% url 'rental:admin_rental_process' %}">
                 <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Rental Process" %}
             </a>
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav ms-auto align-items-center gap-2">
+                <span class="navbar-text text-white d-none d-md-inline">
+                    <i class="fas fa-chart-bar me-2"></i>{% trans "Rental Statistics & Administration" %}
+                </span>
+                <div class="btn-group" role="group" aria-label="calendars">
+                    <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#invDayModal" title="{% trans 'Inventory calendar (day)' %}"><i class="fas fa-calendar-day me-1"></i><span class="d-none d-md-inline">{% trans "Day" %}</span></button>
+                    <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#invWeekModal" title="{% trans 'Inventory calendar (week)' %}"><i class="fas fa-calendar-week me-1"></i><span class="d-none d-md-inline">{% trans "Week" %}</span></button>
+                </div>
                 <a class="nav-link text-white" href="{% url 'admin:index' %}">
                     <i class="fas fa-cog me-1"></i>{% trans "Administration" %}
                 </a>
-                <span class="navbar-text text-white">
-                    <i class="fas fa-chart-bar me-2"></i>{% trans "Rental Statistics & Administration" %}
-                </span>
             </div>
         </div>
     </nav>
+    <style>
+      .slot-free { background:#e8f5e9 !important; }
+      .slot-busy { background:#ffebee !important; }
+      #invDayTable td, #invWeekTable td { height: 28px; }
+      .cell-note { font-size: 11px; line-height: 1.1; display:flex; align-items:center; justify-content:center; font-weight:600; }
+      /* Single item modal */
+      #singleInvTable { width: 100%; border-collapse: collapse; }
+      #singleInvTable td, #singleInvTable th { 
+        height: 35px; 
+        border: 1px solid #dee2e6; 
+        padding: 4px; 
+        text-align: center; 
+        vertical-align: middle;
+      }
+      .calendar-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; }
+      .calendar-cell { min-height:60px; padding:6px; border:1px solid #dee2e6; border-radius:4px; font-size:12px; text-align:center; }
+      .calendar-cell .date { font-weight:600; display:block; margin-bottom:4px; }
+      .calendar-cell.weekend-day { background-color: #f8f9fa; }
+      .calendar-cell.today-day { border: 2px solid #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.3); }
+      .calendar-cell.table-warning { background-color: #fff3cd !important; border-color: #ffeaa7; }
+      .calendar-cell.slot-busy { background-color: #f8d7da !important; border-color: #f5c6cb; }
+      .calendar-cell.slot-free { background-color: #d4edda !important; border-color: #c3e6cb; }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function(){
+        function fmt(d){ 
+          // Use local date instead of UTC to avoid timezone issues
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        }
+        function today(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+
+        function getEl(id){ return document.getElementById(id); }
+
+        function ensureDefaults(){
+          const d = getEl('invDayDate');
+          const w = getEl('invWeekDate');
+          const t = fmt(today());
+          if(d && !d.value) d.value = t;
+          if(w && !w.value) w.value = t;
+        }
+
+        function shiftDate(input, deltaDays){
+          if(!input) return;
+          const d = new Date(input.value || fmt(today()));
+          d.setDate(d.getDate() + deltaDays);
+          input.value = fmt(d);
+        }
+
+        function initials(name){
+          if(!name) return '';
+          const parts = String(name).trim().split(/\s+/);
+          if(parts.length === 1) return parts[0].slice(0,12);
+          return (parts[0].slice(0,1) + parts[parts.length-1].slice(0,1)).toUpperCase();
+        }
+
+        async function loadDay(){
+          const d = getEl('invDayDate');
+          ensureDefaults();
+          const date = (d && d.value) || fmt(today());
+          const res = await fetch(`/rental/api/inventory-calendar/?mode=day&date=${date}`);
+          const data = await res.json();
+          const header = document.getElementById('invDayHeader');
+          const body = document.getElementById('invDayBody');
+          header.innerHTML = ''; body.innerHTML = '';
+          if(!data.success){ body.innerHTML = `<tr><td class='text-danger' colspan='10'>${data.error||'Error'}</td></tr>`; return; }
+          if(!data.items || data.items.length===0){ body.innerHTML = `<tr><td class='text-muted' colspan='10'>No rentable items found for selected filters</td></tr>`; return; }
+          
+          // Filter items by search
+          const searchTerm = getEl('invDaySearch')?.value?.toLowerCase() || '';
+          const filteredItems = data.items.filter(it => {
+            const number = (it.inventory_number || '').toLowerCase();
+            const description = (it.description || '').toLowerCase();
+            return number.includes(searchTerm) || description.includes(searchTerm);
+          });
+          
+          if(filteredItems.length === 0){ body.innerHTML = `<tr><td class='text-muted' colspan='10'>No items found matching search criteria</td></tr>`; return; }
+          
+          // Header
+          const thInv = document.createElement('th'); thInv.textContent = 'Inventory'; thInv.style.minWidth = '240px'; header.appendChild(thInv);
+          for(let h=10; h<=19; h++){ const th=document.createElement('th'); th.className='text-center'; th.textContent = `${h}:00`; header.appendChild(th); }
+          // Rows
+          filteredItems.forEach(it=>{
+            const tr = document.createElement('tr');
+            const td0 = document.createElement('td'); td0.textContent = `${it.inventory_number} — ${it.description||''}`; tr.appendChild(td0);
+            const slots = it.hours||[];
+            let idx = 0;
+            while(idx < slots.length){
+              const cur = slots[idx];
+              let len = 1;
+              while(idx + len < slots.length){
+                const nxt = slots[idx+len];
+                const sameUser = (cur.info && nxt.info) ? (cur.info.user_name === nxt.info.user_name) : (!cur.info && !nxt.info);
+                if(nxt.status === cur.status && sameUser){ len++; } else { break; }
+              }
+              const td = document.createElement('td');
+              if(len>1) td.colSpan = len;
+              td.className = cur.status==='issued'?'slot-busy':(cur.status==='reserved'?'table-warning':'slot-free');
+              if(cur.info){
+                td.title = `${cur.info.user_name} • ${cur.info.status} • ${cur.info.start}—${cur.info.end} (ID ${cur.info.id})`;
+                const span = document.createElement('span');
+                span.className = 'cell-note';
+                span.textContent = cur.info.user_name;
+                td.appendChild(span);
+              }
+              tr.appendChild(td);
+              idx += len;
+            }
+            body.appendChild(tr);
+          });
+        }
+        async function loadWeek(){
+          const w = getEl('invWeekDate');
+          ensureDefaults();
+          const date = (w && w.value) || fmt(today());
+          const res = await fetch(`/rental/api/inventory-calendar/?mode=week&date=${date}`);
+          const data = await res.json();
+          const header = document.getElementById('invWeekHeader');
+          const body = document.getElementById('invWeekBody');
+          header.innerHTML=''; body.innerHTML='';
+          if(!data.success){ body.innerHTML = `<tr><td class='text-danger' colspan='8'>${data.error||'Error'}</td></tr>`; return; }
+          if(!data.items || data.items.length===0){ body.innerHTML = `<tr><td class='text-muted' colspan='8'>No rentable items found for selected filters</td></tr>`; return; }
+          
+          // Filter items by search
+          const searchTerm = getEl('invWeekSearch')?.value?.toLowerCase() || '';
+          const filteredItems = data.items.filter(it => {
+            const number = (it.inventory_number || '').toLowerCase();
+            const description = (it.description || '').toLowerCase();
+            return number.includes(searchTerm) || description.includes(searchTerm);
+          });
+          
+          if(filteredItems.length === 0){ body.innerHTML = `<tr><td class='text-muted' colspan='8'>No items found matching search criteria</td></tr>`; return; }
+          
+          const thInv = document.createElement('th'); thInv.textContent='Inventory'; thInv.style.minWidth='240px'; header.appendChild(thInv);
+          if(data.items && data.items[0] && data.items[0].week){
+            // Show day name + date in header
+            data.items[0].week.forEach(d=>{
+              const th=document.createElement('th'); 
+              th.className='text-center'; 
+              const date = new Date(d.date);
+              const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
+              const dayNum = date.getDate();
+              const monthName = date.toLocaleDateString('de-DE', { month: 'short' });
+              th.innerHTML = `<div>${dayName}</div><div style="font-size: 12px;">${dayNum}. ${monthName}</div>`;
+              header.appendChild(th); 
+            });
+          }
+          filteredItems.forEach(it=>{
+            const tr=document.createElement('tr');
+            const td0=document.createElement('td'); td0.textContent = `${it.inventory_number} — ${it.description||''}`; tr.appendChild(td0);
+            const days = it.week||[];
+            let i=0;
+            while(i<days.length){
+              const cur = days[i];
+              let span=1;
+              while(i+span<days.length){
+                const nxt = days[i+span];
+                const sameUser = (cur.user_name||'') === (nxt.user_name||'');
+                if(nxt.status===cur.status && sameUser){ span++; } else { break; }
+              }
+              const td=document.createElement('td');
+              if(span>1) td.colSpan = span;
+              td.className = cur.status==='issued'?'slot-busy':(cur.status==='reserved'?'table-warning':'slot-free');
+              if(cur.user_name){ const spanEl=document.createElement('span'); spanEl.className='cell-note'; spanEl.textContent = cur.user_name; td.appendChild(spanEl); }
+              tr.appendChild(td);
+              i += span;
+            }
+            body.appendChild(tr);
+          });
+        }
+        document.addEventListener('shown.bs.modal', (e)=>{
+          if(e.target && e.target.id==='invDayModal') {
+            e.target.removeAttribute('aria-hidden'); // Fix accessibility warning
+            loadDay();
+          }
+          if(e.target && e.target.id==='invWeekModal') {
+            e.target.removeAttribute('aria-hidden'); // Fix accessibility warning
+            loadWeek();
+          }
+          if(e.target && e.target.id==='singleInvModal') {
+            e.target.removeAttribute('aria-hidden'); // Fix accessibility warning
+          }
+        });
+        ensureDefaults();
+        const btnDay = document.getElementById('invDayReload'); if(btnDay) btnDay.addEventListener('click', ()=>{ loadDay(); });
+        const btnWeek = document.getElementById('invWeekReload'); if(btnWeek) btnWeek.addEventListener('click', ()=>{ loadWeek(); });
+        const btnPrevDay = document.getElementById('invDayPrev'); if(btnPrevDay) btnPrevDay.addEventListener('click', ()=>{ shiftDate(getEl('invDayDate'), -1); loadDay(); });
+        const btnNextDay = document.getElementById('invDayNext'); if(btnNextDay) btnNextDay.addEventListener('click', ()=>{ shiftDate(getEl('invDayDate'), +1); loadDay(); });
+        const btnPrevWeek = document.getElementById('invWeekPrev'); if(btnPrevWeek) btnPrevWeek.addEventListener('click', ()=>{ shiftDate(getEl('invWeekDate'), -7); loadWeek(); });
+        const btnNextWeek = document.getElementById('invWeekNext'); if(btnNextWeek) btnNextWeek.addEventListener('click', ()=>{ shiftDate(getEl('invWeekDate'), +7); loadWeek(); });
+        const inputDay = document.getElementById('invDayDate'); if(inputDay) inputDay.addEventListener('change', loadDay);
+        const inputWeek = document.getElementById('invWeekDate'); if(inputWeek) inputWeek.addEventListener('change', loadWeek);
+        
+        // Search functionality
+        const searchDay = document.getElementById('invDaySearch'); 
+        if(searchDay) {
+          searchDay.addEventListener('input', () => {
+            clearTimeout(searchDay.searchTimeout);
+            searchDay.searchTimeout = setTimeout(loadDay, 300); // Debounce search
+          });
+        }
+        const searchWeek = document.getElementById('invWeekSearch'); 
+        if(searchWeek) {
+          searchWeek.addEventListener('input', () => {
+            clearTimeout(searchWeek.searchTimeout);
+            searchWeek.searchTimeout = setTimeout(loadWeek, 300); // Debounce search
+          });
+        }
+
+        // Inventory search filter (client-side on already loaded table rows)
+        const invSearch = document.getElementById('inventorySearch');
+        if(invSearch){
+          invSearch.addEventListener('input', function(){
+            const q = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#inventoryTableBody tr');
+            rows.forEach(row => {
+              const num = (row.children[0]?.innerText || '').toLowerCase();
+              const desc = (row.children[1]?.innerText || '').toLowerCase();
+              if(!q || num.includes(q) || desc.includes(q)){
+                row.style.display = '';
+              } else {
+                row.style.display = 'none';
+              }
+            });
+          });
+        }
+
+        // Force replace legacy per-item calendar to the new modal
+        const invTable = document.getElementById('inventoryTableBody');
+        if(invTable){
+          // Clean legacy inline onclick handlers on dynamically inserted calendar buttons
+          const scrub = (root)=>{
+            root.querySelectorAll('button').forEach(btn=>{
+              const hasCalIcon = !!btn.querySelector('.fa-calendar, .fa-calendar-day, .fa-calendar-week, .fa-regular.fa-calendar');
+              if(hasCalIcon && (btn.getAttribute('onclick') || btn.onclick)){
+                btn.removeAttribute('onclick');
+                btn.onclick = null;
+              }
+            });
+          };
+          const mo = new MutationObserver((mutations)=>{
+            mutations.forEach(m=>{ m.addedNodes.forEach(n=>{ if(n.nodeType===1){ scrub(n); } }); });
+          });
+          mo.observe(invTable, { childList: true, subtree: true });
+          // Initial scrub if rows already present
+          scrub(invTable);
+
+          const handleCalendarClick = function(e){
+            const btn = e.target.closest('button');
+            if(!btn) return;
+            // Heuristic: buttons in Calendar column (with calendar icon)
+            const hasCalIcon = !!btn.querySelector('.fa-calendar, .fa-calendar-day, .fa-calendar-week, .fa-regular.fa-calendar');
+            if(!hasCalIcon && !btn.dataset.invNumber) return;
+            const tr = btn.closest('tr');
+            if(!tr) return;
+            const inv = btn.dataset.invNumber || (tr.children[0]?.innerText || '').trim();
+            const desc = btn.dataset.invDesc || (tr.children[1]?.innerText || '').trim();
+            if(inv){
+              e.preventDefault();
+              if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+              e.stopPropagation();
+              openSingleInventorySchedule(inv, desc);
+            }
+          };
+          // Capture phase to preempt legacy listeners
+          invTable.addEventListener('click', handleCalendarClick, true);
+          invTable.addEventListener('click', handleCalendarClick, false);
+        }
+
+        // Single item schedule modal API
+        window.rentalStats = window.rentalStats || {};
+        const single = {
+          inv: null,
+          desc: null,
+          mode: 'week', // week|month
+          date: fmt(today()),
+        };
+
+        function setSingleHeader(){
+          const h = document.getElementById('singleInvHeader');
+          if(h) h.textContent = `${single.inv} — ${single.desc}`;
+        }
+
+        function range(start, days){
+          const d = new Date(start); d.setHours(0,0,0,0);
+          const end = new Date(d); end.setDate(end.getDate()+days-1);
+          return [d, end];
+        }
+
+        async function fetchSingle(startDate, endDate){
+          const qs = `inv=${encodeURIComponent(single.inv)}&start_date=${startDate}&end_date=${endDate}`;
+          const url = `/rental/api/inventory-schedule/?${qs}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          return data;
+        }
+
+        async function loadSingle(){
+          setSingleHeader();
+          const mode = single.mode;
+          const date = single.date;
+          
+          // Hide all views first
+          document.getElementById('singleInvWeek').style.display = 'none';
+          document.getElementById('singleInvMonth').style.display = 'none';
+          
+          try {
+            if(mode === 'week'){
+              // Calculate Monday-based week
+              const currentDate = new Date(date);
+              const monday = new Date(currentDate);
+              monday.setDate(currentDate.getDate() - (currentDate.getDay() + 6) % 7); // Get Monday
+              const sunday = new Date(monday);
+              sunday.setDate(monday.getDate() + 6); // Get Sunday
+              
+              const data = await fetchSingle(fmt(monday), fmt(sunday));
+              renderSingleWeek(data);
+              document.getElementById('singleInvWeek').style.display = 'block';
+            } else if(mode === 'month'){
+              const d = new Date(date);
+              d.setDate(1); // Start of month
+              const nextMonth = new Date(d);
+              nextMonth.setMonth(nextMonth.getMonth() + 1);
+              nextMonth.setDate(0); // Last day of current month
+              const data = await fetchSingle(fmt(d), fmt(nextMonth));
+              renderSingleMonth(data);
+              document.getElementById('singleInvMonth').style.display = 'block';
+            }
+          } catch(e) {
+            console.error('Failed to load single item schedule:', e);
+          }
+        }
+
+
+        function renderSingleWeek(data){
+          const grid = document.getElementById('singleInvWeekGrid');
+          
+          if(!data.success || !data.schedule || data.schedule.length === 0){
+            grid.innerHTML = '<div class="text-center text-muted p-3">Keine Daten verfügbar</div>';
+            return;
+          }
+          
+          
+          // Use data directly from API instead of generating our own
+          const weekDays = data.schedule;
+          
+          // Calculate week range from actual data
+          const firstDate = new Date(weekDays[0].date);
+          const lastDate = new Date(weekDays[weekDays.length - 1].date);
+          const weekStr = `${firstDate.toLocaleDateString('de-DE')} - ${lastDate.toLocaleDateString('de-DE')}`;
+          
+          let html = `<div style="grid-column: 1 / -1; text-align: center; font-weight: bold; margin-bottom: 10px;">${weekStr}</div>`;
+          
+          // Header row with day names and numbers
+          weekDays.forEach(dayData => {
+            const date = new Date(dayData.date);
+            const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
+            const dayNum = date.getDate();
+            const monthName = date.toLocaleDateString('de-DE', { month: 'short' });
+            html += `<div class="calendar-cell" style="background: #f8f9fa; font-weight: bold;">
+              <div class="date">${dayName}</div>
+              <div>${dayNum}. ${monthName}</div>
+            </div>`;
+          });
+          
+          // Data row
+          weekDays.forEach(dayData => {
+            let className = 'slot-free';
+            let content = '';
+            let title = `${dayData.day_name}, ${new Date(dayData.date).toLocaleDateString('de-DE')}\nVerfügbar`;
+            
+            // Check if any slot in the day (10-19h) is occupied
+            const workingHours = dayData.slots ? dayData.slots.filter(slot => {
+              const hour = parseInt(slot.time.split(':')[0]);
+              return hour >= 10 && hour < 20;
+            }) : [];
+            
+            const occupiedSlots = workingHours.filter(slot => slot.status === 'occupied' && slot.info);
+            const totalWorkingHours = workingHours.length || 10; // Default 10h working day
+            const occupiedHours = occupiedSlots.length;
+            
+            if(occupiedHours > 0){
+              const firstOccupied = occupiedSlots[0];
+              const userName = firstOccupied.info?.user_name || '';
+              const userStatus = firstOccupied.info?.status || '';
+              const initials = userName.trim().split(/\s+/).filter(n => n.length > 0).map(n => n[0].toUpperCase()).join('');
+              
+              if(userStatus === 'reserved'){
+                className = 'table-warning';
+                title = `${dayData.day_name}, ${new Date(dayData.date).toLocaleDateString('de-DE')}\nReserviert: ${userName}\n${occupiedHours}/${totalWorkingHours} Stunden`;
+                content = `<strong>R</strong><br><small>${initials || 'R'}</small><br><small>${occupiedHours}h</small>`;
+              } else if(userStatus === 'issued'){
+                className = 'slot-busy';
+                title = `${dayData.day_name}, ${new Date(dayData.date).toLocaleDateString('de-DE')}\nAusgegeben: ${userName}\n${occupiedHours}/${totalWorkingHours} Stunden`;
+                content = `<strong>A</strong><br><small>${initials || 'A'}</small><br><small>${occupiedHours}h</small>`;
+              } else {
+                // Fallback if status is unclear
+                className = 'slot-busy';
+                title = `${dayData.day_name}, ${new Date(dayData.date).toLocaleDateString('de-DE')}\nBelegt: ${userName}\n${occupiedHours}/${totalWorkingHours} Stunden`;
+                content = `<strong>B</strong><br><small>${initials || 'B'}</small><br><small>${occupiedHours}h</small>`;
+              }
+            } else {
+              content = `<small>Frei</small><br><small>${totalWorkingHours}h</small>`;
+            }
+            
+            html += `<div class="calendar-cell ${className}" title="${title}">${content}</div>`;
+          });
+          
+          grid.innerHTML = html;
+        }
+
+        function renderSingleMonth(data){
+          const grid = document.getElementById('singleInvMonthGrid');
+          
+          if(!data.success || !data.schedule || data.schedule.length === 0){
+            grid.innerHTML = '<div class="text-center text-muted p-3">Keine Daten verfügbar</div>';
+            return;
+          }
+          
+          // Get month from single.date
+          const currentDate = new Date(single.date);
+          const year = currentDate.getFullYear();
+          const month = currentDate.getMonth();
+          const monthName = currentDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+          
+          // Get first and last days of month
+          const firstDay = new Date(year, month, 1);
+          const lastDay = new Date(year, month + 1, 0);
+          
+          // Get Monday of the week containing the first day
+          const startCalendar = new Date(firstDay);
+          startCalendar.setDate(firstDay.getDate() - (firstDay.getDay() + 6) % 7);
+          
+          // Get Sunday of the week containing the last day
+          const endCalendar = new Date(lastDay);
+          endCalendar.setDate(lastDay.getDate() + (7 - lastDay.getDay()) % 7);
+          
+          let html = `<div style="grid-column: 1 / -1; text-align: center; font-weight: bold; margin-bottom: 10px;">${monthName}</div>`;
+          
+          // Add day headers (Mo, Di, Mi, ...)
+          const dayHeaders = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+          dayHeaders.forEach(dayName => {
+            html += `<div class="calendar-cell" style="background: #f8f9fa; font-weight: bold; font-size: 12px;">${dayName}</div>`;
+          });
+          
+          // Generate calendar days
+          const current = new Date(startCalendar);
+          while(current <= endCalendar) {
+            const dayKey = fmt(current);
+            const dayData = data.schedule.find(d => d.date === dayKey);
+            const dayNum = current.getDate();
+            const dayName = current.toLocaleDateString('de-DE', { weekday: 'short' });
+            const isCurrentMonth = current.getMonth() === month;
+            
+            let className = 'slot-free';
+            let content = `<div class="date">${dayNum}</div><div style="font-size: 10px;">${dayName}</div>`;
+            let title = `${current.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}\nVerfügbar`;
+            
+            if(!isCurrentMonth) {
+              className += ' text-muted';
+              content = `<div class="date text-muted">${dayNum}</div><div style="font-size: 10px;" class="text-muted">${dayName}</div>`;
+            } else if(dayData) {
+              // Check if any slot in the day (10-19h) is occupied
+              const workingHours = dayData.slots.filter(slot => {
+                const hour = parseInt(slot.time.split(':')[0]);
+                return hour >= 10 && hour < 20;
+              });
+              
+              const occupiedSlots = workingHours.filter(slot => slot.status === 'occupied');
+              const totalWorkingHours = workingHours.length;
+              const occupiedHours = occupiedSlots.length;
+              
+              if(occupiedHours > 0){
+                const firstOccupied = occupiedSlots[0];
+                const userName = firstOccupied.info.user_name || '';
+                const initials = userName.trim().split(/\s+/).filter(n => n.length > 0).map(n => n[0].toUpperCase()).join('');
+                
+                if(firstOccupied.info.status === 'reserved'){
+                  className = 'table-warning';
+                  title = `${current.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}\nReserviert: ${userName}\n${occupiedHours}/${totalWorkingHours} Stunden`;
+                  content = `<div class="date">${dayNum}</div><div style="font-size: 10px;">${dayName}</div><small><strong>R</strong><br>${initials || 'R'}</small>`;
+                } else if(firstOccupied.info.status === 'issued'){
+                  className = 'slot-busy';
+                  title = `${current.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}\nAusgegeben: ${userName}\n${occupiedHours}/${totalWorkingHours} Stunden`;
+                  content = `<div class="date">${dayNum}</div><div style="font-size: 10px;">${dayName}</div><small><strong>A</strong><br>${initials || 'A'}</small>`;
+                }
+                
+                if(occupiedHours < totalWorkingHours){
+                  content += `<br><small>${occupiedHours}/${totalWorkingHours}h</small>`;
+                }
+              }
+              
+              // Highlight weekends
+              if(dayData.is_weekend){
+                className += ' weekend-day';
+              }
+              
+              // Highlight today
+              if(dayData.is_today){
+                className += ' today-day';
+              }
+            }
+            
+            html += `<div class="calendar-cell ${className}" title="${title}">${content}</div>`;
+            current.setDate(current.getDate() + 1);
+          }
+          
+          grid.innerHTML = html;
+        }
+
+        function openSingleInventorySchedule(inv, desc){
+          single.inv = inv; single.desc = desc; single.mode='week'; 
+          
+          // Set date to Monday of current week
+          const currentDate = today();
+          const monday = new Date(currentDate);
+          monday.setDate(currentDate.getDate() - (currentDate.getDay() + 6) % 7); // Get Monday
+          
+          single.date = fmt(monday);
+          
+          const modal = new bootstrap.Modal(document.getElementById('singleInvModal'));
+          modal.show();
+          loadSingle();
+        }
+
+        // Override legacy class method if present (compatibility with rental_stats.js)
+        // RentalStats override removed - now using direct openSingleInventorySchedule calls
+
+        // Backward compatibility: delegate clicks from buttons having data-inv-number / data-inv-desc
+        document.addEventListener('click', (e)=>{
+          const btn = e.target.closest('[data-inv-number]');
+          if(btn){
+            const inv = btn.getAttribute('data-inv-number');
+            const desc = btn.getAttribute('data-inv-desc') || '';
+            openSingleInventorySchedule(inv, desc);
+          }
+        });
+
+        // Safety net: force override after all scripts
+        window.addEventListener('load', function(){
+          // Legacy override removed
+        });
+
+        // Controls inside modal
+        document.addEventListener('click', (e)=>{
+          if(e.target.matches('[data-single-mode]')){
+            single.mode = e.target.getAttribute('data-single-mode');
+            document.querySelectorAll('[data-single-mode]').forEach(b=>b.classList.remove('active'));
+            e.target.classList.add('active');
+            loadSingle();
+          }
+          if(e.target.id==='singlePrev'){
+            if(single.mode === 'week') {
+              // Go to previous Monday
+              const d = new Date(single.date);
+              const monday = new Date(d);
+              monday.setDate(d.getDate() - (d.getDay() + 6) % 7); // Get current Monday
+              monday.setDate(monday.getDate() - 7); // Previous Monday
+              single.date = fmt(monday);
+            } else if(single.mode === 'month') {
+              const d = new Date(single.date); 
+              d.setMonth(d.getMonth() - 1);
+              single.date = fmt(d);
+            }
+            loadSingle();
+          }
+          if(e.target.id==='singleNext'){
+            if(single.mode === 'week') {
+              // Go to next Monday
+              const d = new Date(single.date);
+              const monday = new Date(d);
+              monday.setDate(d.getDate() - (d.getDay() + 6) % 7); // Get current Monday
+              monday.setDate(monday.getDate() + 7); // Next Monday
+              single.date = fmt(monday);
+            } else if(single.mode === 'month') {
+              const d = new Date(single.date); 
+              d.setMonth(d.getMonth() + 1);
+              single.date = fmt(d);
+            }
+            loadSingle();
+          }
+        });
+      });
+    </script>
 
     <div class="container-fluid mt-3">
         {% if error %}
@@ -67,6 +657,119 @@
         {% else %}
             <!-- Overview Statistics -->
             <div class="row mb-4">
+
+                <!-- Day Modal -->
+                <div class="modal fade" id="invDayModal" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-calendar-day me-1"></i>{% trans "Inventory calendar (day)" %}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="d-flex align-items-center mb-2 gap-2">
+                          <input type="text" id="invDaySearch" class="form-control form-control-sm" placeholder="{% trans 'Search by number or name...' %}" style="max-width:200px;">
+                          <button class="btn btn-outline-secondary btn-sm" id="invDayPrev" title="-1"><i class="fas fa-chevron-left"></i></button>
+                          <input type="date" id="invDayDate" class="form-control form-control-sm" style="max-width:180px" />
+                          <button class="btn btn-outline-secondary btn-sm" id="invDayNext" title="+1"><i class="fas fa-chevron-right"></i></button>
+                          <div class="ms-auto small">
+                            <span class="badge bg-success-subtle text-success border">{% trans "Free" %}</span>
+                            <span class="badge bg-danger-subtle text-danger border">{% trans "Occupied" %}</span>
+                          </div>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table table-sm table-bordered align-middle" id="invDayTable">
+                            <thead class="table-light">
+                              <tr id="invDayHeader"></tr>
+                            </thead>
+                            <tbody id="invDayBody"></tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Week Modal -->
+                <div class="modal fade" id="invWeekModal" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-calendar-week me-1"></i>{% trans "Inventory calendar (week)" %}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="d-flex align-items-center mb-2 gap-2">
+                          <input type="text" id="invWeekSearch" class="form-control form-control-sm" placeholder="{% trans 'Search by number or name...' %}" style="max-width:200px;">
+                          <button class="btn btn-outline-secondary btn-sm" id="invWeekPrev" title="-7"><i class="fas fa-chevron-left"></i></button>
+                          <input type="date" id="invWeekDate" class="form-control form-control-sm" style="max-width:180px" />
+                          <button class="btn btn-outline-secondary btn-sm" id="invWeekNext" title="+7"><i class="fas fa-chevron-right"></i></button>
+                          <div class="ms-auto small">
+                            <span class="badge bg-success-subtle text-success border">{% trans "Free" %}</span>
+                            <span class="badge bg-danger-subtle text-danger border">{% trans "Occupied" %}</span>
+                          </div>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table table-sm table-bordered align-middle" id="invWeekTable">
+                            <thead class="table-light">
+                              <tr id="invWeekHeader"></tr>
+                            </thead>
+                            <tbody id="invWeekBody"></tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Single Inventory Modal -->
+                <div class="modal fade" id="singleInvModal" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-box me-2"></i><span id="singleInvHeader"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="d-flex align-items-center mb-2 gap-2">
+                          <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-secondary active" data-single-mode="week"><i class="fas fa-calendar-week me-1"></i>{% trans 'Week' %}</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-single-mode="month"><i class="fas fa-calendar-alt me-1"></i>{% trans 'Month' %}</button>
+                          </div>
+                          <button class="btn btn-outline-secondary btn-sm ms-auto" id="singlePrev"><i class="fas fa-chevron-left"></i></button>
+                          <button class="btn btn-outline-secondary btn-sm" id="singleNext"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        
+                        <!-- Legend -->
+                        <div class="d-flex align-items-center mb-3 gap-3 text-sm">
+                          <div class="d-flex align-items-center gap-1">
+                            <div style="width:16px; height:16px; background:#d4edda; border:1px solid #c3e6cb; border-radius:3px;"></div>
+                            <span>{% trans 'Available' %}</span>
+                          </div>
+                          <div class="d-flex align-items-center gap-1">
+                            <div style="width:16px; height:16px; background:#fff3cd; border:1px solid #ffeaa7; border-radius:3px;"></div>
+                            <span>{% trans 'Reserved' %} (R)</span>
+                          </div>
+                          <div class="d-flex align-items-center gap-1">
+                            <div style="width:16px; height:16px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:3px;"></div>
+                            <span>{% trans 'Issued' %} (A)</span>
+                          </div>
+                        </div>
+
+
+                        <!-- Week grid -->
+                        <div id="singleInvWeek" class="mb-3">
+                          <div class="calendar-grid" id="singleInvWeekGrid"></div>
+                        </div>
+
+                        <!-- Month grid -->
+                        <div id="singleInvMonth">
+                          <div class="calendar-grid" id="singleInvMonthGrid"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="col-md-3">
                     <div class="stats-card p-4 text-center">
                         <div class="stats-number">{{ total_rentals }}</div>
@@ -209,15 +912,21 @@
                                     <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>{% trans "Inventory Status" %}</h5>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="row">
-                                        <div class="col-md-6">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-5 col-md-5 order-1">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                <input type="text" class="form-control" id="inventorySearch" placeholder="{% trans 'Search by number or description' %}">
+                                            </div>
+                                        </div>
+                                        <div class="col-3 col-md-3 order-2">
                                             <select class="form-select form-select-sm" id="ownerFilter">
                                                 <option value="all">{% trans "All Owners" %}</option>
-                                                <option value="MSA">MSA</option>
-                                                <option value="OKMQ">OKMQ</option>
+                                                <option value="{{ STATE_MEDIA_INSTITUTION }}">{{ STATE_MEDIA_INSTITUTION }}</option>
+                                                <option value="{{ ORGANIZATION_OWNER }}">{{ ORGANIZATION_OWNER }}</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-4 col-md-4 order-3">
                                             <select class="form-select form-select-sm" id="inventoryStatusFilter">
                                                 <option value="all">{% trans "All Status" %}</option>
                                                 <option value="available">{% trans "Available" %}</option>
@@ -373,37 +1082,7 @@
     </div>
 
     <!-- Inventory Schedule Modal -->
-    <div class="modal fade" id="inventoryScheduleModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-calendar me-2"></i>{% trans "Inventory schedule" %}: <span id="invScheduleTitle"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">{% trans "From" %}</label>
-                            <input type="date" class="form-control" id="invCalStart">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">{% trans "To" %}</label>
-                            <input type="date" class="form-control" id="invCalEnd">
-                        </div>
-                    </div>
-                    <div id="invCalendarContainer" class="border rounded p-3" style="min-height: 500px;">
-                        <div class="text-center p-5">
-                            <div class="spinner-border" role="status"></div>
-                            <p class="mt-2">{% trans 'Loading calendar...' %}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- removed old modal; use singleInvModal instead -->
 
     <!-- Create/Edit Set Modal -->
     <div class="modal fade" id="setModal" tabindex="-1" aria-labelledby="setModalLabel" aria-hidden="true">
@@ -516,5 +1195,8 @@
         const CSRF_TOKEN = "{{ csrf_token }}";
     </script>
     <script src="{% static 'rental/js/rental_stats.js' %}"></script>
+    <script>
+      // Legacy overrides removed - now using direct calls
+    </script>
 </body>
 </html>
