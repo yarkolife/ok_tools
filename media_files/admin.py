@@ -421,7 +421,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     list_display = [
         'number', 'filename', 'storage_location', 'resolution_display',
         'duration', 'file_size_display', 'format', 'is_available',
-        'duplicates_indicator', 'view_video_link'
+        'duplicates_indicator', 'view_video_link', 'player_link'
     ]
     list_filter = [
         'storage_location', 'format', 'is_available',
@@ -641,10 +641,22 @@ class VideoFileAdmin(admin.ModelAdmin):
         return "-"
     view_video_link.short_description = _('View')
     
+    def player_link(self, obj):
+        """Link to dedicated video player page."""
+        if obj.is_available and obj.pk:
+            player_url = reverse('admin:media_files_videofile_player', args=[obj.id])
+            return format_html(
+                '<a href="{}" target="_blank" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
+                player_url
+            )
+        return "-"
+    player_link.short_description = _('Player')
+    
     def video_player(self, obj):
-        """Embed video player in admin."""
+        """Embed Video.js player in admin."""
         if obj.is_available and obj.pk:
             stream_url = reverse('admin:media_files_videofile_stream', args=[obj.id])
+            player_url = reverse('admin:media_files_videofile_player', args=[obj.id])
             
             # Get correct MIME type based on file extension
             import os
@@ -662,16 +674,67 @@ class VideoFileAdmin(admin.ModelAdmin):
             
             return format_html(
                 '''
-                <video width="100%" height="480" controls preload="metadata">
-                    <source src="{}" type="{}">
-                    Your browser does not support the video tag.
-                </video>
-                <p><a href="{}" target="_blank">{}</a></p>
+                <div style="max-width: 640px; margin: 10px 0;">
+                    <!-- Video.js CSS -->
+                    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet">
+                    
+                    <!-- Video.js Player -->
+                    <video
+                        id="video-player-{}"
+                        class="video-js vjs-default-skin"
+                        controls
+                        preload="auto"
+                        width="640"
+                        height="360"
+                        data-setup='{{"fluid": true, "responsive": true, "playbackRates": [0.5, 1, 1.25, 1.5, 2]}}'>
+                        <source src="{}" type="{}">
+                        <p class="vjs-no-js">
+                            Для просмотра видео включите JavaScript или используйте 
+                            <a href="{}" download>скачать видео</a>
+                        </p>
+                    </video>
+                    
+                    <!-- Video.js JavaScript -->
+                    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+                    
+                    <!-- Player Controls -->
+                    <div style="margin-top: 10px; text-align: center;">
+                        <a href="{}" target="_blank" style="background: #417690; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin: 5px; display: inline-block;">
+                            📺 Полноэкранный плеер
+                        </a>
+                        <a href="vlc://{}" style="background: #ff8800; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin: 5px; display: inline-block;">
+                            🎬 Открыть в VLC
+                        </a>
+                    </div>
+                    
+                    <!-- File Info -->
+                    <div style="font-size: 11px; color: #666; margin-top: 10px; background: #f8f8f8; padding: 8px; border-radius: 4px;">
+                        <strong>Путь к файлу:</strong><br>
+                        <code style="word-break: break-all;">{}</code><br>
+                        <em>Скопируйте путь для открытия в VLC</em>
+                    </div>
+                    
+                    <!-- Initialize Video.js -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {{
+                            if (typeof videojs !== 'undefined') {{
+                                var player = videojs('video-player-{}');
+                                player.ready(function() {{
+                                    console.log('Video.js player ready');
+                                }});
+                            }}
+                        }});
+                    </script>
+                </div>
                 ''',
+                obj.id,  # video player ID
                 stream_url,
                 mime_type,
                 stream_url,
-                _('Open in new window')
+                player_url,  # Full screen player URL
+                obj.file_path,
+                obj.file_path,
+                obj.id  # video player ID for script
             )
         return _('Video not available')
     video_player.short_description = _('Video Player')
