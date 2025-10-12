@@ -35,7 +35,7 @@
                 id="video-player"
                 class="video-js vjs-default-skin"
                 controls
-                preload="auto"
+                preload="metadata"
                 data-setup='{
                     "fluid": true,
                     "responsive": true,
@@ -72,7 +72,7 @@
             fluid: true,
             playbackRates: [0.5, 1, 1.25, 1.5, 2],
             controls: true,
-            preload: 'auto'
+            preload: 'metadata'
         });
 
         // Обработка ошибок
@@ -113,6 +113,15 @@
         player.on('canplay', function() {
             console.log('Видео готово к воспроизведению');
             progressDiv.style.display = 'none';
+            
+            // Автоматически начинаем воспроизведение если загружено достаточно
+            if (player.buffered().length > 0) {
+                var bufferedEnd = player.buffered().end(player.buffered().length - 1);
+                var duration = player.duration();
+                if (duration > 0 && (bufferedEnd / duration) > 0.1) { // 10% загружено
+                    player.play();
+                }
+            }
         });
 
         player.on('waiting', function() {
