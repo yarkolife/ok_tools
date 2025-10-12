@@ -156,7 +156,11 @@ class RentalRequest(models.Model):
         return self.room_rentals.count()
 
     def get_room_summary(self):
-        """Get brief information about rooms."""
+        """Get brief information about rooms.
+        
+        PERFORMANCE: Requires prefetch_related('room_rentals__room') for efficiency.
+        Without prefetch, this method will cause N+1 queries.
+        """
         rooms = []
         for room_rental in self.room_rentals.all():
             rooms.append(f"{room_rental.room.name} ({room_rental.people_count} people)")

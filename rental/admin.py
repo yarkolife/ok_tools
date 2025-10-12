@@ -113,6 +113,18 @@ class RentalRequestAdmin(admin.ModelAdmin):
         }),
     )
 
+    # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
+    def get_queryset(self, request):
+        """Optimize queryset with select_related and prefetch_related."""
+        return super().get_queryset(request).select_related(
+            'user', 
+            'created_by', 
+            'user__profile'
+        ).prefetch_related(
+            'items__inventory_item', 
+            'room_rentals__room'
+        )
+
     def changelist_view(self, request, extra_context=None):
         """Inject link to the rental process page into changelist context."""
         extra_context = extra_context or {}
@@ -160,6 +172,18 @@ class RentalItemAdmin(admin.ModelAdmin):
         }),
     )
     readonly_fields = ("actual_return_date",)
+
+    # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
+    def get_queryset(self, request):
+        """Optimize queryset with select_related for foreign keys."""
+        return super().get_queryset(request).select_related(
+            'rental_request',
+            'rental_request__user',
+            'inventory_item',
+            'inventory_item__manufacturer',
+            'inventory_item__category',
+            'inventory_item__location'
+        )
 
     def is_overdue_display(self, obj):
         """Display overdue status with a colored indicator."""

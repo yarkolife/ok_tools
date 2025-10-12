@@ -58,6 +58,12 @@ organization_owner = Your CMO
 broadcast_start = 18:00
 broadcast_end = 19:45
 
+# PeerTube channel (optional)
+# Format: @handle@domain.com (ActivityPub/Fediverse format)
+# Example: @mychannel@peertube.example.com
+# Leave empty if not using PeerTube
+peertube_channel = 
+
 [django]
 # CRITICAL: Generate a strong secret key for production
 # You can generate one with: python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"

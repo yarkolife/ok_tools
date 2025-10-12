@@ -60,6 +60,7 @@ urlpatterns = [
     path('inventory/', include('inventory.urls', namespace='inventory')),
 
     path('rental/', include('rental.urls', namespace='rental')),
+    path('media-files/', include('media_files.urls', namespace='media_files')),
     # JavaScript translations
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     # Accessibility URLs

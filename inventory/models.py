@@ -478,7 +478,11 @@ class AuditLog(models.Model):
         }
 
     def get_inventory_number(self):
-        """Get inventory_number of related object."""
+        """Get inventory_number of related object.
+        
+        PERFORMANCE ISSUE: This method causes N+1 queries when called in admin list_display.
+        Consider caching inventory items in admin's get_queryset or using annotate.
+        """
         if self.model_name == "InventoryItem":
             try:
                 item = InventoryItem.objects.get(id=self.object_id)

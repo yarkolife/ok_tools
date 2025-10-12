@@ -87,25 +87,27 @@ class ContributionsWidget:
 
             # Count primary contributions using SQL
             # A contribution is primary if it's the first broadcast for its license
-            primary_contributions = 0
             license_ids = filtered_contributions.values_list('license_id', flat=True).distinct()
-
-            for license_id in license_ids:
-                # Get the first broadcast date for this license (from ALL contributions, not just filtered)
-                first_broadcast = Contribution.objects.filter(
-                    license_id=license_id
-                ).aggregate(first_broadcast=Min('broadcast_date'))['first_broadcast']
-
-                if first_broadcast:
-                    # Count contributions in the filtered period that match the first broadcast date
-                    primary_count = filtered_contributions.filter(
-                        license_id=license_id,
-                        broadcast_date=first_broadcast
-                    ).count()
-                    primary_contributions += primary_count
+            
+            # Оптимизация: один запрос для всех primary dates
+            primary_dates = Contribution.objects.filter(
+                license_id__in=license_ids
+            ).values('license').annotate(
+                min_date=Min('broadcast_date')
+            )
+            license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
+            
+            # Подсчёт primary через итерацию по отфильтрованным contribution
+            primary_contributions = 0
+            for contribution in filtered_contributions.select_related('license'):
+                if (contribution.license_id in license_primary_dates and 
+                    contribution.broadcast_date == license_primary_dates[contribution.license_id]):
+                    primary_contributions += 1
 
             # Get archive statistics using SQL
             from django.utils import timezone
+            from licenses.models import License
+            
             archive_threshold = timezone.now() - timedelta(days=365)
 
             # Count archive contributions (contributions from licenses older than 365 days)
@@ -113,15 +115,22 @@ class ContributionsWidget:
             active_contributions = 0
             recent_contributions = 0
 
-            for license_id in license_ids:
-                # Get the first broadcast date for this license
-                first_broadcast = Contribution.objects.filter(
-                    license_id=license_id
-                ).aggregate(first_broadcast=Min('broadcast_date'))['first_broadcast']
+            # Оптимизация: получаем все лицензии одним запросом
+            licenses_dict = {
+                lic.id: lic for lic in License.objects.filter(
+                    id__in=license_ids
+                ).only('id', 'created_at')
+            }
 
+            for license_id in license_ids:
+                # Используем уже полученную дату из словаря
+                first_broadcast = license_primary_dates.get(license_id)
+                
                 # Use first broadcast date if available, otherwise use license creation date
-                from licenses.models import License
-                license_obj = License.objects.get(id=license_id)
+                license_obj = licenses_dict.get(license_id)
+                if not license_obj:
+                    continue
+                    
                 reference_date = first_broadcast or license_obj.created_at
 
                 if reference_date:
@@ -247,20 +256,20 @@ class ContributionsWidget:
             # Get unique license IDs in the filtered set
             license_ids = filtered_queryset.values_list('license_id', flat=True).distinct()
 
+            # Оптимизация: один запрос для всех primary dates
+            primary_dates = Contribution.objects.filter(
+                license_id__in=license_ids
+            ).values('license').annotate(
+                min_date=Min('broadcast_date')
+            )
+            license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
+            
+            # Подсчёт primary через итерацию
             primary_contributions = 0
-            for license_id in license_ids:
-                # Get the first broadcast date for this license
-                first_broadcast = Contribution.objects.filter(
-                    license_id=license_id
-                ).aggregate(first_broadcast=Min('broadcast_date'))['first_broadcast']
-
-                if first_broadcast:
-                    # Count contributions in the filtered set that match the first broadcast date
-                    primary_count = filtered_queryset.filter(
-                        license_id=license_id,
-                        broadcast_date=first_broadcast
-                    ).count()
-                    primary_contributions += primary_count
+            for contribution in filtered_queryset.select_related('license'):
+                if (contribution.license_id in license_primary_dates and 
+                    contribution.broadcast_date == license_primary_dates[contribution.license_id]):
+                    primary_contributions += 1
         except Exception:
             primary_contributions = 0
 
@@ -454,14 +463,29 @@ class ContributionsWidget:
     def get_primary_vs_repetitions(self):
         """Get primary vs repetition statistics."""
         try:
+            from django.db.models import Min
+            
             queryset = Contribution.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'contribution')
 
             total = filtered_queryset.count()
+            
+            # Оптимизация: один запрос вместо N
+            license_ids = filtered_queryset.values_list('license_id', flat=True).distinct()
+            
+            primary_dates = Contribution.objects.filter(
+                license_id__in=license_ids
+            ).values('license').annotate(
+                min_date=Min('broadcast_date')
+            )
+            
+            license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
+            
+            # Подсчёт primary через словарь (O(1) вместо SQL)
             primary = 0
-
-            for contribution in filtered_queryset:
-                if contribution.is_primary():
+            for contribution in filtered_queryset.select_related('license'):
+                if (contribution.license_id in license_primary_dates and 
+                    contribution.broadcast_date == license_primary_dates[contribution.license_id]):
                     primary += 1
 
             repetition = total - primary
@@ -521,6 +545,8 @@ class ContributionsWidget:
             # Calculate average time from license to first contribution
             avg_time_to_first = None
             try:
+                from django.db.models import Min
+                
                 total_days = 0
                 count = 0
 
@@ -529,8 +555,19 @@ class ContributionsWidget:
                     license__in=license_filtered
                 ).select_related('license')
 
+                # Оптимизация: предварительный расчёт primary dates
+                license_ids = relevant_contributions.values_list('license_id', flat=True).distinct()
+                primary_dates = Contribution.objects.filter(
+                    license_id__in=license_ids
+                ).values('license').annotate(
+                    min_date=Min('broadcast_date')
+                )
+                license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
+
                 for contribution in relevant_contributions:
-                    if hasattr(contribution, 'is_primary') and contribution.is_primary():
+                    # Проверка через словарь вместо is_primary()
+                    if (contribution.license_id in license_primary_dates and 
+                        contribution.broadcast_date == license_primary_dates[contribution.license_id]):
                         if (hasattr(contribution, 'broadcast_date') and contribution.broadcast_date and
                             hasattr(contribution.license, 'created_at') and contribution.license.created_at):
                             days_diff = (contribution.broadcast_date.date() - contribution.license.created_at.date()).days

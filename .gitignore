@@ -103,3 +103,5 @@ requirements-docker.txt
 setup.py
 test.cfg
 test.html
+.coverage
+playout/*.mp4

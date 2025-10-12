@@ -94,11 +94,11 @@ class DashboardFilters:
             'media_authorities': MediaAuthority.objects.all().order_by('name'),
             'gender_choices': Gender.choices,
             'age_groups': [
-                ('under_18', _('Under 18')),
-                ('18_25', _('18-25')),
-                ('26_35', _('26-35')),
-                ('36_50', _('36-50')),
-                ('over_50', _('Over 50')),
+                ('up_to_34', _('Up to 34')),
+                ('35_50', _('35-50')),
+                ('51_65', _('51-65')),
+                ('over_65', _('Over 65')),
+                ('unknown', _('Unknown')),
             ],
             'member_choices': [
                 ('', _('All Users')),
@@ -275,24 +275,26 @@ class DashboardFilters:
         """Filter profiles by age group."""
         end_date = self.date_range['end_date']
 
-        if self.filters['age_group'] == 'under_18':
-            cutoff_date = end_date - relativedelta(years=18)
-            return queryset.filter(birthday__gt=cutoff_date)
-        elif self.filters['age_group'] == '18_25':
-            start_cutoff = end_date - relativedelta(years=25)
-            end_cutoff = end_date - relativedelta(years=18)
-            return queryset.filter(birthday__range=[start_cutoff, end_cutoff])
-        elif self.filters['age_group'] == '26_35':
-            start_cutoff = end_date - relativedelta(years=35)
-            end_cutoff = end_date - relativedelta(years=26)
-            return queryset.filter(birthday__range=[start_cutoff, end_cutoff])
-        elif self.filters['age_group'] == '36_50':
+        if self.filters['age_group'] == 'up_to_34':
+            cutoff_date = end_date - relativedelta(years=34)
+            return queryset.filter(birthday__gte=cutoff_date)
+        elif self.filters['age_group'] == '35_50':
             start_cutoff = end_date - relativedelta(years=50)
-            end_cutoff = end_date - relativedelta(years=36)
+            end_cutoff = end_date - relativedelta(years=35)
             return queryset.filter(birthday__range=[start_cutoff, end_cutoff])
-        elif self.filters['age_group'] == 'over_50':
-            cutoff_date = end_date - relativedelta(years=50)
+        elif self.filters['age_group'] == '51_65':
+            start_cutoff = end_date - relativedelta(years=65)
+            end_cutoff = end_date - relativedelta(years=51)
+            return queryset.filter(birthday__range=[start_cutoff, end_cutoff])
+        elif self.filters['age_group'] == 'over_65':
+            cutoff_date = end_date - relativedelta(years=65)
             return queryset.filter(birthday__lt=cutoff_date)
+        elif self.filters['age_group'] == 'unknown':
+            # Filter for profiles with unknown birthday (01.01.1800) or null birthday
+            return queryset.filter(
+                Q(birthday__isnull=True) |
+                Q(birthday__year=1800, birthday__month=1, birthday__day=1)
+            )
 
         return queryset
 

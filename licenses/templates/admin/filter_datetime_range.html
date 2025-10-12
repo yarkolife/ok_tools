@@ -52,6 +52,7 @@
 
             <div>
                 <button type="submit"
+                        class="date-filter-btn date-filter-submit"
                         style="padding: 7px 14px;
                                background: var(--button-bg);
                                color: var(--button-fg);
@@ -65,12 +66,16 @@
 
             <div>
                 <a href="?{% for k, v in spec.form.data.items %}{% if k != spec.parameter_name|add:'__gte_0' and k != spec.parameter_name|add:'__gte_1' and k != spec.parameter_name|add:'__lte_0' and k != spec.parameter_name|add:'__lte_1' %}{{ k }}={{ v }}&{% endif %}{% endfor %}"
-                   style="padding: 7px 14px;
-                          background: var(--secondary);
-                          color: var(--secondary-fg);
-                          text-decoration: none;
+                   class="date-filter-btn date-filter-reset"
+                   style="display: inline-block;
+                          padding: 7px 14px;
+                          background: var(--button-bg);
+                          color: var(--button-fg);
+                          border: 1px solid var(--button-border);
                           border-radius: 3px;
-                          font-size: 12px;">
+                          text-decoration: none;
+                          font-size: 12px;
+                          cursor: pointer;">
                     {% trans "Reset" %}
                 </a>
             </div>
@@ -95,12 +100,12 @@
 </div>
 
 <style>
-#date-filter-form button:hover {
+.date-filter-btn:hover {
     background: var(--button-hover-bg) !important;
     border-color: var(--button-hover-border) !important;
 }
 
-#date-filter-form button:focus {
+.date-filter-btn:focus {
     outline: 2px solid var(--focus-color);
     outline-offset: 2px;
 }

@@ -1,0 +1,20 @@
+{% load i18n %}
+
+<div class="tags-input-container">
+    <input type="text" 
+           name="{{ widget.name }}" 
+           class="tags-input form-control"
+           value="{% if widget.value and widget.value != 'null' and widget.value != 'None' %}{{ widget.value }}{% endif %}"
+           {% for name, value in widget.attrs.items %}{{ name }}="{{ value }}"{% endfor %}
+           id="{{ widget.attrs.id }}" />
+    
+    <div class="tags-input-help">
+        <small class="text-muted">
+            {% trans "Enter tags separated by commas (e.g., tag1, tag2, tag3). Maximum 4 tags allowed." %}
+        </small>
+    </div>
+    
+    <div class="tags-preview" id="tags-preview-{{ widget.attrs.id }}">
+        <!-- Tags will be displayed here dynamically -->
+    </div>
+</div>

@@ -150,7 +150,7 @@ class ProgramResource(resources.ModelResource):
     # Override for the original method defined in
     # https://github.com/django-import-export/django-import-export/blob/32279cec9ea0383d2fba69954f8c556d3b332617/import_export/resources.py#L920
     def export(self, queryset=None, *args, **kwargs):
-        """Export a program resource and add screen boards if necessary."""
+        """Export a program resource and add screen boards if necessary - OPTIMIZED VERSION."""
         self.before_export(queryset, *args, **kwargs)
 
         # only fill gaps with more than one minute waiting time
@@ -159,7 +159,8 @@ class ProgramResource(resources.ModelResource):
         if queryset is None:
             queryset = self.get_queryset()
 
-        queryset = queryset.order_by('broadcast_date')
+        # ОПТИМИЗАЦИЯ: select_related для избежания N+1 запросов к license
+        queryset = queryset.select_related('license', 'license__profile').order_by('broadcast_date')
 
         data = tablib.Dataset()
 
@@ -271,21 +272,45 @@ class ProgramResource(resources.ModelResource):
 
 
 class ContributionResource(resources.ModelResource):
-    """Define the export for Contributions."""
+    """Define the export for Contributions - OPTIMIZED VERSION."""
 
     def export(self, queryset=None, *args, **kwargs):
         """Only export primary contributions."""
+        from django.db.models import Min
+        
         if queryset is None:
             queryset = self.get_queryset()
+        
+        # ОПТИМИЗАЦИЯ 1: select_related для избежания N+1 запросов к license и profile
+        queryset = queryset.select_related('license', 'license__profile')
+        
+        # ОПТИМИЗАЦИЯ 2: Предварительно вычисляем все primary dates одним запросом
+        license_ids = queryset.values_list('license_id', flat=True).distinct()
+        primary_dates = Contribution.objects.filter(
+            license_id__in=license_ids
+        ).values('license_id').annotate(
+            min_date=Min('broadcast_date')
+        )
+        
+        # Создаём словарь для O(1) поиска
+        license_primary_dates = {
+            item['license_id']: item['min_date'] 
+            for item in primary_dates
+        }
+        
         data = tablib.Dataset()
         data.headers = [field.column_name for field in self.get_export_fields()]
         if hasattr(queryset, 'iterator'):
             iterator = queryset.iterator(chunk_size=1000)
         else:
             iterator = iter(queryset)
+        
+        # ОПТИМИЗАЦИЯ 3: Вместо obj.is_primary() проверяем через словарь
         for obj in iterator:
-            if obj.is_primary():
+            # Проверяем, является ли contribution primary без SQL запроса
+            if license_primary_dates.get(obj.license_id) == obj.broadcast_date:
                 data.append(self.export_resource(obj))
+        
         self.after_export(queryset, data, *args, **kwargs)
         return data
 
@@ -462,11 +487,53 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
             _('Media Authority'), 'license__profile__media_authority'),
     ]
 
+    fieldsets = (
+        (_('Broadcast Information'), {
+            'fields': ('license', 'broadcast_date', 'live')
+        }),
+        (_('Contribution Status'), {
+            'fields': ('_is_primary',),
+            'classes': ('collapse',),
+            'description': _('Automatically determined based on broadcast date.')
+        }),
+    )
+    
     readonly_fields = ('_is_primary',)
+    
+    # ОПТИМИЗАЦИЯ: Кешируем primary dates для избежания N запросов
+    _primary_dates_cache = {}
+
+    def get_queryset(self, request):
+        """Override to add select_related and cache primary dates - OPTIMIZED."""
+        from django.db.models import Min
+        
+        qs = super().get_queryset(request).select_related(
+            'license', 
+            'license__profile',
+            'license__profile__media_authority'
+        )
+        
+        # Предварительно вычисляем все primary dates для текущей страницы
+        license_ids = qs.values_list('license_id', flat=True).distinct()
+        primary_dates = Contribution.objects.filter(
+            license_id__in=license_ids
+        ).values('license_id').annotate(
+            min_date=Min('broadcast_date')
+        )
+        
+        # Обновляем кеш
+        self._primary_dates_cache = {
+            item['license_id']: item['min_date'] 
+            for item in primary_dates
+        }
+        
+        return qs
 
     @display(boolean=True, description=(_('Is primary')))
     def _is_primary(self, obj):
-        return obj.is_primary()
+        """Check if contribution is primary using cache - OPTIMIZED."""
+        # Используем кеш вместо obj.is_primary() для избежания SQL запроса
+        return self._primary_dates_cache.get(obj.license_id) == obj.broadcast_date
 
     @display(ordering='license__title', description=_('Title'))
     def get_title(self, obj):

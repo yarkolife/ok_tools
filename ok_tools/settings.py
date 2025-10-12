@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "contributions",
     "planung",
     "dashboard",
+    "media_files",
     "admin_searchable_dropdown",
     "crispy_forms",
     "crispy_bootstrap4",
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     "import_export",
     "rangefilter",
     "rest_framework",
+    "rest_framework.authtoken",
     "django_filters",
     "tablib",
     "inventory",
@@ -73,6 +75,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
@@ -212,6 +215,7 @@ AUTHENTICATION_BACKENDS = ["registration.backends.EmailBackend"]
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
@@ -224,6 +228,14 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/hour",  # Anonymous users: 100 requests per hour
+        "user": "1000/hour",  # Authenticated users: 1000 requests per hour
+    },
 }
 
 # TODO config?
@@ -280,6 +292,10 @@ SCREEN_BOARD_DURATION = 20
 # Broadcast block settings (in format HH:MM)
 BROADCAST_START = config.get("organization", "broadcast_start", fallback="18:00")
 BROADCAST_END = config.get("organization", "broadcast_end", fallback="19:45")
+
+# PeerTube channel (optional, for video publishing integration)
+# Format: @handle@domain.com (ActivityPub/Fediverse format)
+PEERTUBE_CHANNEL = config.get("organization", "peertube_channel", fallback="")
 
 # Which site should be seen after log in and log out
 LOGIN_URL = "login"  # This points to /profile/login/ via django.contrib.auth.urls
@@ -341,3 +357,15 @@ LOGGING = {
         },
     },
 }
+
+# Video file management settings
+VIDEO_SUPPORTED_FORMATS = ['mp4', 'mov', 'mpeg', 'mpg']
+VIDEO_ARCHIVE_PATH = config.get("media", "archive_path", fallback="")
+VIDEO_PLAYOUT_PATH = config.get("media", "playout_path", fallback="")
+VIDEO_AUTO_SCAN_ENABLED = config.getboolean("media", "auto_scan", fallback=False)
+VIDEO_AUTO_COPY_ON_SCHEDULE = config.getboolean("media", "auto_copy_on_schedule", fallback=True)
+
+# Video duplicate management
+VIDEO_STORAGE_PRIORITY = config.get("media", "storage_priority", fallback="ARCHIVE,PLAYOUT,CUSTOM")
+VIDEO_PREVENT_ARCHIVE_DUPLICATES = config.getboolean("media", "prevent_archive_duplicates", fallback=True)
+VIDEO_AUTO_DETECT_DUPLICATES = config.getboolean("media", "auto_detect_duplicates", fallback=True)

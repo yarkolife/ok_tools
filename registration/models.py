@@ -151,6 +151,12 @@ class Profile(models.Model):
     # mobile (optional)
     mobile_number = models.CharField(
         _('mobile number'), blank=True, null=True, max_length=30)
+    
+    # ID document number
+    ausweisnummer = models.CharField(
+        _('ID document number'), blank=True, null=True, max_length=50,
+        help_text=_('ID document number (passport, ID card, etc.)')
+    )
 
     # birthday
     birthday = models.DateField(
@@ -197,6 +203,19 @@ class Profile(models.Model):
         null=True,
         blank=True,
     )
+    
+    # Data sharing permissions
+    phone_data_sharing_allowed = models.BooleanField(
+        _('Phone data sharing allowed'),
+        default=False,
+        help_text=_('Permission to share phone number with third parties')
+    )
+    
+    email_data_sharing_allowed = models.BooleanField(
+        _('Email data sharing allowed'),
+        default=False,
+        help_text=_('Permission to share email address with third parties')
+    )
 
     def __str__(self):
         """Represent Profile by first and last name."""
@@ -207,6 +226,10 @@ class Profile(models.Model):
 
         verbose_name = _('Profile')
         verbose_name_plural = _('Profiles')
+        indexes = [
+            models.Index(fields=['first_name', 'last_name'], name='profile_name_idx'),
+            models.Index(fields=['ausweisnummer'], name='profile_ausweis_idx'),
+        ]
 
 
 class Notification(models.Model):

@@ -100,6 +100,20 @@
                     <div class="form-text">{% trans 'Additional involved persons (optional)' %}</div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="{{ form.tags.id_for_label }}" class="form-label">
+                        <i class="bi bi-hash me-1"></i>{{ form.tags.label }}
+                    </label>
+                    {{ form.tags }}
+                    {% if form.tags.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.tags.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">{% trans 'Enter tags separated by commas (maximum 4 tags)' %}</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -288,6 +302,7 @@
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'licenses/css/tags_input.css' %}">
 <style>
 .form-label {
     font-weight: 600;
@@ -381,6 +396,7 @@ textarea.form-control {
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'licenses/js/tags_input.js' %}"></script>
 <script>
 function resetForm() {
     if (confirm('{% trans "Are you sure you want to reset all inputs?" %}')) {

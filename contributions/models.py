@@ -21,35 +21,54 @@ class ContributionManager(models.Manager):
     contr_by_license = {}
 
     def _set_up(self, contributions):
-        """Initialize self.licensees and self.contr_by_license."""
+        """Initialize self.licensees and self.contr_by_license - OPTIMIZED VERSION."""
+        from django.db.models import Min
+        
         self.licenses = {c.license for c in contributions}
-        self.contr_by_license = {}
-        for license in self.licenses:
-            lic_id = license.id
-            l_contributions = list(
-                Contribution.objects.filter(license=license))
-            list.sort(l_contributions, key=lambda c: c.broadcast_date)
-            self.contr_by_license[lic_id] = l_contributions
+        license_ids = [lic.id for lic in self.licenses]
+        
+        # Оптимизация: один запрос для всех primary dates
+        primary_dates = Contribution.objects.filter(
+            license_id__in=license_ids
+        ).values('license_id').annotate(
+            min_date=Min('broadcast_date')
+        )
+        
+        # Создаём словарь с первой датой для каждой лицензии
+        self.license_primary_dates = {
+            item['license_id']: item['min_date'] 
+            for item in primary_dates
+        }
 
     def primary_contributions(self, contributions):
         """
-        Return a list of ids belonging to all primary contributions.
+        Return a list of ids belonging to all primary contributions - OPTIMIZED VERSION.
 
         Base of the search are the given contributions.
         """
         self._set_up(contributions)
-        return [c.id for c in contributions
-                if c == self.contr_by_license[c.license.id][0]]
+        
+        # Используем словарь с primary dates для O(1) проверки
+        return [
+            c.id for c in contributions
+            if c.license_id in self.license_primary_dates and
+               c.broadcast_date == self.license_primary_dates[c.license_id]
+        ]
 
     def repetitions(self, contributions):
         """
-        Return a list of ids belonging to all repetitions.
+        Return a list of ids belonging to all repetitions - OPTIMIZED VERSION.
 
         Base of the search are the given contributions.
         """
         self._set_up(contributions)
-        return [c.id for c in contributions
-                if c != self.contr_by_license[c.license.id][0]]
+        
+        # Используем словарь с primary dates для O(1) проверки
+        return [
+            c.id for c in contributions
+            if c.license_id not in self.license_primary_dates or
+               c.broadcast_date != self.license_primary_dates[c.license_id]
+        ]
 
 
 class Contribution(models.Model):

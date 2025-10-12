@@ -1,4 +1,5 @@
 from .widgets.filters import DashboardFilters
+from .widgets.media_data import MediaDataWidget
 from .widgets.inventory import InventoryWidget
 from .widgets.notifications import NotificationsWidget
 from contributions.models import Contribution
@@ -62,27 +63,31 @@ def api_users_statistics(request):
 
         # Age groups
         age_groups = {
-            'under_18': 0,
-            '18_25': 0,
-            '26_35': 0,
-            '36_50': 0,
-            'over_50': 0
+            'up_to_34': 0,
+            '35_50': 0,
+            '51_65': 0,
+            'over_65': 0,
+            'unknown': 0
         }
 
         try:
             for profile in filtered_queryset:
                 if profile.birthday:
-                    age = relativedelta(filters.date_range['end_date'], profile.birthday).years
-                    if age < 18:
-                        age_groups['under_18'] += 1
-                    elif age < 26:
-                        age_groups['18_25'] += 1
-                    elif age < 36:
-                        age_groups['26_35'] += 1
-                    elif age < 51:
-                        age_groups['36_50'] += 1
+                    # Check if birthday is the default unknown date (01.01.1800)
+                    if profile.birthday.year == 1800 and profile.birthday.month == 1 and profile.birthday.day == 1:
+                        age_groups['unknown'] += 1
                     else:
-                        age_groups['over_50'] += 1
+                        age = relativedelta(filters.date_range['end_date'], profile.birthday).years
+                        if age <= 34:
+                            age_groups['up_to_34'] += 1
+                        elif age <= 50:
+                            age_groups['35_50'] += 1
+                        elif age <= 65:
+                            age_groups['51_65'] += 1
+                        else:
+                            age_groups['over_65'] += 1
+                else:
+                    age_groups['unknown'] += 1
         except Exception:
             # If there's an error calculating ages, keep default values
             pass
@@ -149,6 +154,74 @@ def api_users_statistics(request):
             'non_members': total_users - member_users
         }
 
+        # Age-Gender distribution
+        age_gender_distribution = {
+            'female': {
+                'up_to_34': 0,
+                '35_50': 0,
+                '51_65': 0,
+                'over_65': 0,
+                'unknown': 0
+            },
+            'male': {
+                'up_to_34': 0,
+                '35_50': 0,
+                '51_65': 0,
+                'over_65': 0,
+                'unknown': 0
+            },
+            'diverse': {
+                'up_to_34': 0,
+                '35_50': 0,
+                '51_65': 0,
+                'over_65': 0,
+                'unknown': 0
+            },
+            'unspecified': {
+                'up_to_34': 0,
+                '35_50': 0,
+                '51_65': 0,
+                'over_65': 0,
+                'unknown': 0
+            }
+        }
+
+        try:
+            for profile in filtered_queryset:
+                # Determine gender category
+                gender_key = 'unspecified'
+                if profile.gender == 'f':
+                    gender_key = 'female'
+                elif profile.gender == 'm':
+                    gender_key = 'male'
+                elif profile.gender == 'd':
+                    gender_key = 'diverse'
+
+                # Determine age group
+                age_group_key = 'unknown'
+                if profile.birthday:
+                    # Check if birthday is the default unknown date (01.01.1800)
+                    if profile.birthday.year == 1800 and profile.birthday.month == 1 and profile.birthday.day == 1:
+                        age_group_key = 'unknown'
+                    else:
+                        age = relativedelta(filters.date_range['end_date'], profile.birthday).years
+                        if age <= 34:
+                            age_group_key = 'up_to_34'
+                        elif age <= 50:
+                            age_group_key = '35_50'
+                        elif age <= 65:
+                            age_group_key = '51_65'
+                        else:
+                            age_group_key = 'over_65'
+                else:
+                    age_group_key = 'unknown'
+
+                # Increment the count
+                age_gender_distribution[gender_key][age_group_key] += 1
+        except Exception:
+            # If there's an error, keep default values
+            pass
+
         # Get filters data with error handling
         try:
             filters_data = filters.get_all_data()
@@ -166,6 +239,7 @@ def api_users_statistics(request):
             },
             'users_by_authority': users_by_authority,
             'age_groups': age_groups,
+            'age_gender_distribution': age_gender_distribution,
             'registration_trend': registration_trend,
             'member_distribution': member_distribution,
             'filters': filters_data,
@@ -1241,6 +1315,9 @@ def api_users_detail(request):
         filters = DashboardFilters(request)
         queryset = Profile.objects.all()
         filtered_queryset = filters.apply_filters_to_queryset(queryset, 'profile')
+        
+        # PERFORMANCE OPTIMIZATION: Add select_related for FK accessed in loop
+        filtered_queryset = filtered_queryset.select_related('okuser', 'media_authority')
 
         # Apply additional filtering based on type parameter
         type_filter = request.GET.get('type', 'total')
@@ -1699,6 +1776,35 @@ def api_threshold_toggle(request, threshold_id):
             'success': False,
             'error': 'Threshold not found'
         }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def api_media_data_statistics(request):
+    """API endpoint for media data statistics."""
+    try:
+        # Initialize media data widget
+        media_data_widget = MediaDataWidget(request)
+        
+        # Get all data
+        data = media_data_widget.get_all_data()
+        
+        # Add categories to context
+        data['filters']['context']['categories'] = [
+            {'id': cat.id, 'name': cat.name} 
+            for cat in Category.objects.all().order_by('name')
+        ]
+        
+        return JsonResponse({
+            'success': True,
+            'data': data
+        })
+        
     except Exception as e:
         return JsonResponse({
             'success': False,

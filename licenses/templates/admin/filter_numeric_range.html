@@ -1,29 +1,66 @@
 {% load i18n %}
 
 <style>
-    .durationfilter .button, .durationfilter input[type=submit], .durationfilter input[type=button], .durationfilter .submit-row input, .durationfilter a.button,
-    .durationfilter .button, .durationfilter input[type=reset] {
-        background: var(--button-bg);
-        padding: 4px 5px;
-        border: none;
-        border-radius: 4px;
-        color: var(--button-fg);
-        cursor: pointer;
-    }
     .durationfilter {
         padding-left: 15px;
         padding-bottom: 10px;
         border-bottom: 1px solid var(--border-color);
     }
+    
     .durationfilter p {
         padding-left: 0px;
         display: inline;
     }
 
-    .durationfilter input, #changelist-filter .durationfilter a {
+    .durationfilter input {
         margin-bottom: 10px;
         width: auto;
         display: inline-block;
+    }
+    
+    .durationfilter .controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .durationfilter .button, 
+    .durationfilter input[type=submit], 
+    .durationfilter input[type=button], 
+    .durationfilter .submit-row input, 
+    .durationfilter a.button,
+    .durationfilter input[type=reset] {
+        display: inline-block;
+        background: var(--button-bg) !important;
+        padding: 7px 14px;
+        border: 1px solid var(--button-border);
+        border-radius: 3px;
+        color: var(--button-fg) !important;
+        cursor: pointer;
+        font-size: 12px;
+        text-decoration: none;
+        margin-bottom: 0;
+        width: auto;
+    }
+    
+    .durationfilter .button:hover, 
+    .durationfilter input[type=submit]:hover, 
+    .durationfilter input[type=button]:hover, 
+    .durationfilter .submit-row input:hover, 
+    .durationfilter a.button:hover,
+    .durationfilter input[type=reset]:hover {
+        background: var(--button-hover-bg) !important;
+        border-color: var(--button-hover-border) !important;
+    }
+    
+    .durationfilter .button:focus, 
+    .durationfilter input[type=submit]:focus, 
+    .durationfilter input[type=button]:focus, 
+    .durationfilter .submit-row input:focus, 
+    .durationfilter a.button:focus,
+    .durationfilter input[type=reset]:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
     }
 
 </style>

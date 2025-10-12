@@ -1,5 +1,6 @@
 from .models import TagesPlan
 from datetime import timedelta
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -81,6 +82,19 @@ def save_day_plan(request):
         plan, created = TagesPlan.objects.update_or_create(
             datum=date, defaults={"json_plan": plan_data, "kommentar": kommentar}
         )
+
+        # Auto-copy videos to playout if plan is not draft and feature is enabled
+        if not plan_data.get('draft') and getattr(settings, 'VIDEO_AUTO_COPY_ON_SCHEDULE', False):
+            try:
+                from media_files.tasks import copy_videos_for_plan
+                numbers = [item.get('number') for item in plan_data.get('items', []) if item.get('number')]
+                if numbers:
+                    logger.info(f"Triggering auto-copy for {len(numbers)} videos for plan {date}")
+                    copy_videos_for_plan(numbers, date)
+            except ImportError:
+                logger.warning("media_files module not available, skipping auto-copy")
+            except Exception as e:
+                logger.error(f"Error in auto-copy videos: {str(e)}", exc_info=True)
 
         return JsonResponse({"status": "ok", "created": created})
     except Exception as e:

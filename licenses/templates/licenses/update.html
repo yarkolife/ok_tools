@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load i18n %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -22,12 +23,19 @@
     {% crispy form %}
 {% endif %}
 
+{% endblock content %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'licenses/css/tags_input.css' %}">
 <style>
     #div_id_youth_protection_category {
         display: none; /* Initially hide the row */
     }
 </style>
+{% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'licenses/js/tags_input.js' %}"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const youthProtectionField = document.getElementById("id_youth_protection_necessary");
@@ -48,5 +56,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
-
-{% endblock content %}
+{% endblock %}

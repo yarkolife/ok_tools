@@ -2,11 +2,13 @@ from .forms import RangeNumericForm
 from .generate_file import generate_license_file
 from .models import Category
 from .models import License
+from .widgets import TagsInputWidget
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.db.models import Count
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
@@ -249,6 +251,13 @@ class WithoutContributionFilter(admin.SimpleListFilter):
 class LicenseAdminForm(forms.ModelForm):
     """Override the clean method for the forms used on the admin site."""
 
+    class Meta:
+        model = License
+        fields = '__all__'
+        widgets = {
+            'tags': TagsInputWidget(),
+        }
+
     def clean(self):
         """Raise an error if the LR of an unverified user gets confirmed."""
         profile = self.cleaned_data.get('profile')
@@ -260,6 +269,61 @@ class LicenseAdminForm(forms.ModelForm):
             )
 
         return super().clean()
+    
+    def clean_tags(self):
+        """
+        Validate tags field.
+        
+        Ensures:
+        - Maximum 4 tags
+        - No empty tags
+        - Proper formatting
+        
+        Returns:
+            List of cleaned tags
+            
+        Raises:
+            ValidationError: If validation fails
+        """
+        tags = self.cleaned_data.get('tags', [])
+        
+        if not tags:
+            return []
+        
+        # Ensure tags is a list
+        if not isinstance(tags, list):
+            tags = [tags]
+        
+        # Clean and filter tags
+        cleaned_tags = []
+        for tag in tags:
+            tag = str(tag).strip()
+            if tag and tag not in cleaned_tags:  # Avoid duplicates
+                cleaned_tags.append(tag)
+        
+        # Check maximum limit
+        if len(cleaned_tags) > 4:
+            raise forms.ValidationError(
+                _('Maximum 4 tags allowed. You provided %(count)d tags.') % {
+                    'count': len(cleaned_tags)
+                }
+            )
+        
+        # Check for empty tags
+        if any(not tag for tag in cleaned_tags):
+            raise forms.ValidationError(_('Empty tags are not allowed.'))
+        
+        return cleaned_tags
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Add help text for tags field
+        if 'tags' in self.fields:
+            self.fields['tags'].help_text = _(
+                'Enter tags separated by commas. Maximum 4 tags allowed. '
+                'Example: documentary, local, culture, news'
+            )
 
 
 class DurationRangeFilter(admin.FieldListFilter):
@@ -342,10 +406,13 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'duration',
         'created_at',
         'confirmed',
+        'video_status',
     )
     autocomplete_fields = ['profile']
 
     ordering = ['-created_at']
+    
+    actions = ['search_videos_for_licenses']
 
     search_fields = [
         'title',
@@ -356,6 +423,200 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     ]
     search_help_text = _(
         'title, subtitle, number, description, further persons')
+    
+    fieldsets = (
+        (_('Basic Information'), {
+            'fields': ('title', 'subtitle', 'description', 'further_persons', 'tags')
+        }),
+        (_('Content Details'), {
+            'fields': ('category', 'profile', 'duration', 'suggested_date')
+        }),
+        (_('Broadcasting Permissions'), {
+            'fields': (
+                'repetitions_allowed',
+                'media_authority_exchange_allowed',
+                'media_authority_exchange_allowed_other_states',
+            ),
+            'classes': ('collapse',),
+        }),
+        (_('Youth Protection'), {
+            'fields': ('youth_protection_necessary', 'youth_protection_category'),
+            'classes': ('collapse',),
+        }),
+        (_('Media Library & Special Formats'), {
+            'fields': ('store_in_ok_media_library', 'is_screen_board', 'infoblock'),
+            'classes': ('collapse',),
+        }),
+        (_('Status & Metadata'), {
+            'fields': ('number', 'confirmed', 'created_at', 'video_file_info'),
+            'classes': ('collapse',),
+            'description': _('Number is auto-generated but can be manually changed if needed.')
+        }),
+    )
+    readonly_fields = ('created_at', 'video_file_info')
+    
+    def video_file_info(self, obj):
+        """Display video file information if exists."""
+        from django.urls import reverse
+        from django.utils.html import format_html
+        
+        if not obj.pk:
+            return '-'
+        
+        try:
+            video_file = obj.get_video_file()
+            if video_file:
+                
+                url = reverse('admin:media_files_videofile_change', args=[video_file.id])
+                
+                # Icon based on availability
+                icon = '🎬' if video_file.is_available else '⚠️'
+                
+                # Build info string
+                info_parts = []
+                if video_file.duration:
+                    info_parts.append(f'{video_file.duration}')
+                if video_file.resolution_display:
+                    info_parts.append(video_file.resolution_display)
+                if video_file.file_size_mb:
+                    info_parts.append(f'{video_file.file_size_mb} MB')
+                
+                info = ' • '.join(info_parts) if info_parts else ''
+                
+                # Status
+                status_text = _('Available') if video_file.is_available else _('Not available')
+                status_class = 'success' if video_file.is_available else 'warning'
+                
+                # Check if duration needs sync (only if difference >= 1 second)
+                duration_warning = ''
+                if video_file.duration and obj.duration:
+                    # Calculate difference in seconds
+                    video_seconds = int(video_file.duration.total_seconds())
+                    license_seconds = int(obj.duration.total_seconds())
+                    duration_diff = abs(video_seconds - license_seconds)
+                    
+                    # Only show warning if difference is 1 second or more
+                    if duration_diff >= 1:
+                        duration_warning = format_html(
+                            '<br><span style="color: #ff9800; font-weight: bold;">⚠️ {}: {} ({})</span>'
+                            '<br><button type="submit" name="_sync_duration_from_video" '
+                            'style="margin-top: 5px; padding: 5px 10px; background: #417690; color: white; '
+                            'border: none; border-radius: 4px; cursor: pointer;">'
+                            '🔄 {}</button>',
+                            _('Duration mismatch'),
+                            _('License'),
+                            obj.duration,
+                            _('Sync from Video')
+                        )
+                
+                return format_html(
+                    '{} <a href="{}">{}</a><br>'
+                    '<span style="color: #666;">{}</span><br>'
+                    '<span class="badge badge-{}">{}</span> • <span style="color: #666;">{}</span>'
+                    '{}',
+                    icon,
+                    url,
+                    video_file.filename,
+                    info,
+                    status_class,
+                    status_text,
+                    video_file.storage_location.name if video_file.storage_location else '-',
+                    duration_warning
+                )
+            else:
+                search_url = reverse('admin:licenses_license_search_video', args=[obj.id])
+                return format_html(
+                    '<span style="color: #999;">❌ {}</span><br>'
+                    '<a href="{}" class="button" style="padding: 5px 10px; background: #417690; color: white; '
+                    'text-decoration: none; border-radius: 4px; margin-top: 5px; display: inline-block;">'
+                    '🔍 {}</a>',
+                    _('No video file found'),
+                    search_url,
+                    _('Search for Video')
+                )
+        except Exception as e:
+            return format_html('<span style="color: #999;">-</span>')
+    
+    video_file_info.short_description = _('Video File')
+    
+    def video_status(self, obj):
+        """Display video status and play link in list view."""
+        from django.urls import reverse
+        from django.utils.html import format_html
+        
+        if not obj.pk:
+            return '-'
+        
+        try:
+            video_file = obj.get_video_file()
+            if video_file:
+                
+                # Check if video is available
+                if video_file.is_available:
+                    # Create play link to video player in popup window
+                    play_url = reverse('admin:media_files_videofile_stream', args=[video_file.id])
+                    
+                    return format_html(
+                        '<span style="color: #28a745;">🎬 {}</span><br>'
+                        '<a href="#" onclick="window.open(\'{}\', \'video\', \'width=800,height=600\'); return false;" style="color: #007bff; text-decoration: none;">'
+                        '▶️ {}</a>',
+                        _('Available'),
+                        play_url,
+                        _('Play')
+                    )
+                else:
+                    return format_html(
+                        '<span style="color: #ffc107;">⚠️ {}</span>',
+                        _('Not available')
+                    )
+            else:
+                return format_html(
+                    '<span style="color: #999;">❌ {}</span>',
+                    _('No video')
+                )
+        except Exception as e:
+            return format_html('<span style="color: #999;">-</span>')
+    
+    video_status.short_description = _('Video')
+    
+    
+    # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
+    def get_queryset(self, request):
+        """Optimize queryset with select_related and prefetch_related."""
+        return super().get_queryset(request).select_related(
+            'profile',
+            'profile__okuser', 
+            'profile__media_authority', 
+            'category',
+            'video_file',  # OneToOneField to VideoFile
+            'video_file__storage_location'
+        )  # tags is JSONField, not ManyToMany - no prefetch needed
+    
+    def get_fieldsets(self, request, obj=None):
+        """Remove 'number' field from fieldsets when adding new license."""
+        fieldsets = super().get_fieldsets(request, obj)
+        
+        # If creating new object, remove 'number' from Status & Metadata fieldset
+        if obj is None:
+            fieldsets = list(fieldsets)
+            status_metadata_idx = 5  # Index of 'Status & Metadata' fieldset
+            
+            # Make a mutable copy of the fieldset
+            status_metadata = list(fieldsets[status_metadata_idx])
+            status_metadata_fields = dict(status_metadata[1])
+            
+            # Remove 'number' from fields
+            status_metadata_fields['fields'] = tuple(
+                f for f in status_metadata_fields['fields'] if f != 'number'
+            )
+            
+            # Rebuild the fieldset
+            status_metadata[1] = status_metadata_fields
+            fieldsets[status_metadata_idx] = tuple(status_metadata)
+            
+            return tuple(fieldsets)
+        
+        return fieldsets
 
     actions = ['confirm', 'unconfirm', 'duplicate_license']
 
@@ -464,10 +725,144 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         return result
 
     def response_change(self, request, obj: License):
-        """Add Print license' button to change view."""
+        """Add Print license and Sync duration buttons to change view."""
         if '_print_license' in request.POST:
             return generate_license_file(obj)
+        
+        if '_sync_duration_from_video' in request.POST:
+            # Get associated video file
+            video_file = obj.get_video_file()
+            if video_file and video_file.duration:
+                from datetime import timedelta
+                old_duration = obj.duration
+                # Round to seconds (hh:mm:ss format)
+                rounded_duration = timedelta(seconds=int(video_file.duration.total_seconds()))
+                obj.duration = rounded_duration
+                obj.save(update_fields=['duration'])
+                self.message_user(
+                    request,
+                    _('Duration synced from video: {} → {}').format(old_duration, rounded_duration),
+                    messages.SUCCESS
+                )
+            elif not video_file:
+                self.message_user(
+                    request,
+                    _('No video file found for this license.'),
+                    messages.WARNING
+                )
+            else:
+                self.message_user(
+                    request,
+                    _('Video file has no duration information.'),
+                    messages.WARNING
+                )
+            return HttpResponseRedirect(request.path)
+        
         return super().response_change(request, obj)
+    
+    def get_urls(self):
+        """Add custom URLs for license management."""
+        urls = super().get_urls()
+        from django.urls import path
+        custom_urls = [
+            path(
+                '<int:license_id>/search-video/',
+                self.admin_site.admin_view(self.search_video_view),
+                name='licenses_license_search_video',
+            ),
+        ]
+        return custom_urls + urls
+    
+    def search_video_view(self, request, license_id):
+        """Search for video matching this license number."""
+        from django.shortcuts import redirect
+        from django.contrib import messages
+        from django.core.management import call_command
+        from io import StringIO
+        
+        try:
+            license_obj = License.objects.get(id=license_id)
+            
+            # First, scan all storages to find latest videos
+            self.message_user(
+                request,
+                f'Сканирование хранилищ для поиска видео #{license_obj.number}...',
+                messages.INFO
+            )
+            
+            # Capture command output
+            out = StringIO()
+            call_command('link_orphan_licenses', number=license_obj.number, stdout=out)
+            output = out.getvalue()
+            
+            # Check if video was found
+            if 'Found video' in output or 'Videos found:' in output:
+                messages.success(
+                    request,
+                    f'✓ Видео найдено и связано с лицензией #{license_obj.number}!'
+                )
+            elif 'No video found' in output:
+                messages.warning(
+                    request,
+                    f'⚠️ Видео с номером {license_obj.number} не найдено в хранилищах. '
+                    f'Убедитесь, что файл существует и начинается с номера.'
+                )
+            else:
+                messages.info(request, f'Поиск завершен. Проверьте результаты.')
+            
+        except License.DoesNotExist:
+            messages.error(request, f'License #{license_id} not found')
+        except Exception as e:
+            messages.error(request, f'Error searching for video: {str(e)}')
+            logger.error(f'Error in search_video_view for license {license_id}: {str(e)}', exc_info=True)
+        
+        return redirect('admin:licenses_license_change', license_id)
+    
+    @admin.action(description=_('Search for videos in storage'))
+    def search_videos_for_licenses(self, request, queryset):
+        """Search for videos matching selected licenses."""
+        from django.core.management import call_command
+        from io import StringIO
+        
+        found_count = 0
+        not_found_count = 0
+        error_count = 0
+        
+        for license_obj in queryset:
+            try:
+                # Search for video with this number
+                out = StringIO()
+                call_command('link_orphan_licenses', number=license_obj.number, stdout=out)
+                output = out.getvalue()
+                
+                if 'Found video' in output or 'Videos found:' in output:
+                    found_count += 1
+                elif 'No video found' in output:
+                    not_found_count += 1
+                    
+            except Exception as e:
+                error_count += 1
+                logger.error(f'Error searching for video for license {license_obj.number}: {str(e)}')
+        
+        # Summary messages
+        if found_count > 0:
+            self.message_user(
+                request,
+                f'✓ Найдено и связано видео для {found_count} лицензий',
+                messages.SUCCESS
+            )
+        if not_found_count > 0:
+            self.message_user(
+                request,
+                f'⚠️ Не найдено видео для {not_found_count} лицензий',
+                messages.WARNING
+            )
+        if error_count > 0:
+            self.message_user(
+                request,
+                f'❌ Ошибки при поиске: {error_count}',
+                messages.ERROR
+            )
 
 
 admin.site.register(License, LicenseAdmin)

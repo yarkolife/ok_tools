@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 2.2
+**Current Version**: 2.4
 **Last Updated**: October 2025
 
 Features
@@ -13,11 +13,11 @@ Features
 **Core Applications:**
 - **Contributions Management** - Handle user contributions and submissions
 - **Inventory Management** - Track equipment and resources with serial numbers
-- **License Management** - Manage broadcasting licenses and youth protection categories
+- **License Management** - Manage broadcasting licenses with tags and metadata export
 - **Rental System** - Equipment rental management with expiration tracking
-- **Planning Tools** - Calendar weeks and scheduling functionality
+- **Planning Tools** - Calendar weeks and scheduling functionality with time extraction
 - **Project Management** - Organize and track various projects
-- **User Registration** - User management with notification system
+- **User Registration** - User management with privacy controls and notification system
 - **Dashboard Analytics** - Comprehensive data visualization and monitoring
 
 **Additional Features:**
@@ -25,7 +25,11 @@ Features
 - **Multi-language Support** - German and English localization
 - **Dashboard System** - Comprehensive activity monitoring with interactive charts
 - **Admin Interface** - Django admin customization with direct dashboard access
-- **REST API** - JSON endpoints for data access
+- **REST API** - JSON endpoints for data access with token authentication
+- **Token Authentication** - Secure API access with customizable permissions
+- **PeerTube Integration** - ActivityPub/Fediverse format support for video publishing
+- **Custom Widgets** - Enhanced form widgets for improved user experience
+- **Data Privacy Controls** - GDPR-compliant data sharing permissions
 - **Cron Jobs** - Automated rental expiration management
 - **Interactive Charts** - Multiple chart types (doughnut, bar, horizontal bar) with data export
 - **Real-time Analytics** - User journey tracking and funnel metrics
@@ -88,6 +92,8 @@ See ``deployment/gunicorn/README.md`` for detailed Gunicorn setup instructions.
     state_media_institution = MSA
     # Organization owner (accessible only to members)
     organization_owner = Your CMO
+    # PeerTube integration (ActivityPub/Fediverse format)
+    peertube_channel = @your-channel@peertube.your-domain.com
 
 3. Run the setup command to create organizations in the database::
 
@@ -188,7 +194,9 @@ Run the Tests using pytest::
 
 **Test Coverage:**
 - Unit tests for all applications
-- Integration tests for API endpoints
+- Integration tests for API endpoints with token authentication
+- API endpoint tests for license metadata export
+- Admin interface tests for custom widgets and forms
 - Coverage reporting with pytest-cov
 
 Configuration
@@ -292,6 +300,12 @@ Without further actions the view to export the project dates
 - SQL injection prevention
 - User authentication and authorization
 - Role-based access control
+- Token-based API authentication with rate limiting
+- API throttling (100/hour anonymous, 1000/hour authenticated)
+- Comprehensive API access logging with audit trail
+- GDPR-compliant data sharing permissions
+- Admin-only access controls for sensitive fields
+- Enhanced privacy controls for user data
 
 Backup
 ======
@@ -347,15 +361,50 @@ Development
 - Coverage reporting
 - Test data fixtures
 
+**Performance:**
+- **Database Query Optimization:**
+  - Comprehensive N+1 query elimination across all admin panels
+  - Smart use of select_related() and prefetch_related() for FK and M2M relations
+  - Optimized API endpoints with 30-70% faster loading times
+  - Admin pages reduced queries by 50-90% (e.g., 301 queries → 3 queries)
+  - Dashboard widgets optimized with prefetch strategies
+- **Indexing Strategy:**
+  - Composite indexes on Profile (first_name, last_name)
+  - Strategic indexes for filtered fields (status, dates, flags)
+- **API Performance:**
+  - Rate limiting and throttling (100/hour anonymous, 1000/hour authenticated)
+  - Comprehensive logging and monitoring
+  - Query optimization reducing data transfer by ~70%
+- **Paginator Optimization:**
+  - Special handling to preserve prefetch_related() after pagination
+  - Prevents query multiplication on paginated endpoints
+
 **Static Files:**
 - CSS and JavaScript compilation
 - Asset optimization
 - Responsive design support
 
 **API Documentation:**
-- REST API endpoints
-- JSON response formats
-- Authentication requirements
+- REST API endpoints with token authentication
+- JSON response formats with comprehensive metadata
+- Authentication requirements and security
+- PeerTube integration with ActivityPub/Fediverse format
+- License metadata export with planning system integration
+- Custom widget development and integration
+- Admin interface enhancements and customization
+
+**Admin Interface Enhancements:**
+- Custom Token Admin with staff-only filtering
+- Enhanced user search with autocomplete functionality
+- API documentation modal with code examples
+- Copy-to-clipboard functionality for tokens
+- Improved form widgets for better user experience
+
+**Privacy and Security:**
+- GDPR-compliant data sharing permissions
+- Admin-only access controls for sensitive fields
+- Enhanced token authentication system
+- Selective field exposure in user forms
 
 Deployment Architecture
 =======================
@@ -393,6 +442,9 @@ For support and questions:
 - GitHub Issues: https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools/issues
 - Documentation: See inline code comments and docstrings
 - Testing: Run test suite for verification
+- API Documentation: See README_TOKEN_ADMIN.md for API usage examples
+- Admin Interface: See README_PROFILE_UPDATES.md for admin features
+- Custom Widgets: See README_TAGS_WIDGET.md for widget development
 
 **Contributing:**
 - Fork the repository

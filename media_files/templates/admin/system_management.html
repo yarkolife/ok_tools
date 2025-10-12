@@ -1,0 +1,335 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .command-section {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .command-section h2 {
+        margin-top: 0;
+        color: #417690;
+        border-bottom: 2px solid #417690;
+        padding-bottom: 10px;
+    }
+    .command-form {
+        margin-top: 15px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select {
+        width: 100%;
+        max-width: 300px;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .form-group input[type="checkbox"] {
+        margin-right: 5px;
+    }
+    .btn-primary {
+        background: #417690;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .btn-primary:hover {
+        background: #2e5566;
+    }
+    .help-text {
+        color: #666;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    .command-description {
+        color: #666;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans "System Management" %}</h1>
+
+<p>{% trans "Run management commands directly from the admin interface." %}</p>
+
+<!-- Scanning Commands -->
+<div class="command-section">
+    <h2>🔍 {% trans "Storage Scanning" %}</h2>
+    <p class="command-description">{% trans "Scan storage locations to find and index video files." %}</p>
+    
+    <!-- Auto Scan -->
+    <form method="post" class="command-form">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="auto_scan">
+        <h3>{% trans "Auto Scan All Storages" %}</h3>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="force">
+                {% trans "Force rescan" %}
+            </label>
+            <span class="help-text">{% trans "Rescan even if recently scanned" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="calculate_checksums">
+                {% trans "Calculate checksums" %}
+            </label>
+            <span class="help-text">{% trans "Slower but ensures file integrity verification" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label for="storage_type_auto">{% trans "Storage Type" %} ({% trans "optional" %})</label>
+            <select name="storage_type" id="storage_type_auto">
+                <option value="">{% trans "All types" %}</option>
+                <option value="ARCHIVE">ARCHIVE</option>
+                <option value="PLAYOUT">PLAYOUT</option>
+                <option value="CUSTOM">CUSTOM</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn-primary">▶️ {% trans "Run Auto Scan" %}</button>
+    </form>
+    
+    <hr style="margin: 30px 0;">
+    
+    <!-- Manual Scan -->
+    <form method="post" class="command-form">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="scan_storage">
+        <h3>{% trans "Scan Specific Storage" %}</h3>
+        
+        <div class="form-group">
+            <label for="storage_id_scan">{% trans "Storage Location" %}</label>
+            <select name="storage_id" id="storage_id_scan">
+                <option value="">{% trans "All storages" %}</option>
+                {% for storage in storages %}
+                <option value="{{ storage.id }}">{{ storage.name }} ({{ storage.storage_type }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="force">
+                {% trans "Force rescan" %}
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="calculate_checksum">
+                {% trans "Calculate checksums" %}
+            </label>
+        </div>
+        
+        <button type="submit" class="btn-primary">▶️ {% trans "Run Scan" %}</button>
+    </form>
+</div>
+
+<!-- Synchronization Commands -->
+<div class="command-section">
+    <h2>🔄 {% trans "Synchronization" %}</h2>
+    <p class="command-description">{% trans "Sync licenses with videos and link orphan files." %}</p>
+    
+    <!-- Sync Licenses Videos -->
+    <form method="post" class="command-form">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="sync_licenses_videos">
+        <h3>{% trans "Sync Licenses and Videos" %}</h3>
+        
+        <div class="form-group">
+            <label for="number_sync">{% trans "License Number" %} ({% trans "optional" %})</label>
+            <input type="number" name="number" id="number_sync" placeholder="{% trans 'Leave empty for all' %}">
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="dry_run">
+                {% trans "Dry run" %}
+            </label>
+            <span class="help-text">{% trans "Show what would be done without making changes" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="force_sync_duration">
+                {% trans "Force sync duration" %}
+            </label>
+        </div>
+        
+        <button type="submit" class="btn-primary">▶️ {% trans "Sync Licenses" %}</button>
+    </form>
+    
+    <hr style="margin: 30px 0;">
+    
+    <!-- Link Orphan Licenses -->
+    <form method="post" class="command-form">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="link_orphan_licenses">
+        <h3>{% trans "Link Orphan Licenses" %}</h3>
+        
+        <div class="form-group">
+            <label for="number_link">{% trans "License Number" %} ({% trans "optional" %})</label>
+            <input type="number" name="number" id="number_link" placeholder="{% trans 'Leave empty for all' %}">
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="scan_first">
+                {% trans "Scan storages first" %}
+            </label>
+            <span class="help-text">{% trans "Recommended for finding new videos" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="dry_run">
+                {% trans "Dry run" %}
+            </label>
+        </div>
+        
+        <button type="submit" class="btn-primary">▶️ {% trans "Link Orphans" %}</button>
+    </form>
+</div>
+
+<!-- Cleanup Commands -->
+<div class="command-section">
+    <h2>🧹 {% trans "Cleanup & Maintenance" %}</h2>
+    <p class="command-description">{% trans "Clean up playout storage and move videos to archive." %}</p>
+    
+    <form method="post" class="command-form">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="cleanup_playout">
+        <h3>{% trans "Cleanup Playout Storage" %}</h3>
+        
+        <div class="form-group">
+            <label for="storage_id_cleanup">{% trans "Playout Storage" %} ({% trans "optional" %})</label>
+            <select name="storage_id" id="storage_id_cleanup">
+                <option value="">{% trans "All playout storages" %}</option>
+                {% for storage in playout_storages %}
+                <option value="{{ storage.id }}">{{ storage.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="older_than">{% trans "Older than (days)" %}</label>
+            <input type="number" name="older_than" id="older_than" value="7" min="1">
+            <span class="help-text">{% trans "Move videos older than N days" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="check_attributes">
+                {% trans "Check file attributes" %}
+            </label>
+            <span class="help-text">{% trans "Check if files are in use (Windows hidden/system)" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="check_locks">
+                {% trans "Check file locks" %}
+            </label>
+            <span class="help-text">{% trans "Check if files are locked by other processes" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="dry_run">
+                {% trans "Dry run" %}
+            </label>
+        </div>
+        
+        <button type="submit" class="btn-primary">▶️ {% trans "Run Cleanup" %}</button>
+    </form>
+</div>
+
+<!-- Duplicate Management -->
+<div class="command-section">
+    <h2>📋 {% trans "Duplicate Management" %}</h2>
+    <p class="command-description">{% trans "Find and manage duplicate video files." %}</p>
+    
+    <!-- Find Duplicates -->
+    <form method="post" class="command-form">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="find_duplicates">
+        <h3>{% trans "Find Duplicates" %}</h3>
+        
+        <div class="form-group">
+            <label for="output_format">{% trans "Output Format" %}</label>
+            <select name="output_format" id="output_format">
+                <option value="console">{% trans "Console (readable)" %}</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="storage_type_dup">{% trans "Storage Type" %} ({% trans "optional" %})</label>
+            <select name="storage_type" id="storage_type_dup">
+                <option value="">{% trans "All types" %}</option>
+                <option value="ARCHIVE">ARCHIVE</option>
+                <option value="PLAYOUT">PLAYOUT</option>
+                <option value="CUSTOM">CUSTOM</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn-primary">▶️ {% trans "Find Duplicates" %}</button>
+    </form>
+    
+    <hr style="margin: 30px 0;">
+    
+    <!-- Cleanup Duplicates -->
+    <form method="post" class="command-form">
+        {% csrf_token %}
+        <input type="hidden" name="command" value="cleanup_duplicates">
+        <h3>{% trans "Cleanup Duplicates" %}</h3>
+        
+        <div class="form-group">
+            <label for="storage_type_cleanup_dup">{% trans "Storage Type" %} ({% trans "optional" %})</label>
+            <select name="storage_type" id="storage_type_cleanup_dup">
+                <option value="">{% trans "All types" %}</option>
+                <option value="ARCHIVE">ARCHIVE</option>
+                <option value="PLAYOUT">PLAYOUT</option>
+                <option value="CUSTOM">CUSTOM</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="number_cleanup_dup">{% trans "Video Number" %} ({% trans "optional" %})</label>
+            <input type="number" name="number" id="number_cleanup_dup" placeholder="{% trans 'Leave empty for all' %}">
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="dry_run" checked>
+                {% trans "Dry run" %}
+            </label>
+            <span class="help-text">⚠️ {% trans "Recommended! Uncheck only when you're sure." %}</span>
+        </div>
+        
+        <button type="submit" class="btn-primary">▶️ {% trans "Cleanup Duplicates" %}</button>
+    </form>
+</div>
+
+{% endblock %}
+

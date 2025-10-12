@@ -40,6 +40,9 @@ class UserDataForm(forms.ModelForm):
             'created_at',
             'member',
             'comment',
+            'ausweisnummer',  # Admin-only field
+            'phone_data_sharing_allowed',  # Admin-only field
+            'email_data_sharing_allowed',  # Admin-only field
         )
 
     def __init__(self, *args, **kwargs):

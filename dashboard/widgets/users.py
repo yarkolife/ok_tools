@@ -60,41 +60,46 @@ class UsersWidget:
     def get_age_groups(self):
         """Get user count by age groups."""
         try:
-            queryset = Profile.objects.exclude(birthday__isnull=True)
+            # Include all profiles, including those with unknown birthday (01.01.1800)
+            queryset = Profile.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
 
             # Calculate age groups
             age_groups = {
-                'under_18': 0,
-                '18_25': 0,
-                '26_35': 0,
-                '36_50': 0,
-                'over_50': 0
+                'up_to_34': 0,
+                '35_50': 0,
+                '51_65': 0,
+                'over_65': 0,
+                'unknown': 0
             }
 
             for profile in filtered_queryset:
                 if profile.birthday:
-                    age = relativedelta(self.filters.date_range['end_date'], profile.birthday).years
-                    if age < 18:
-                        age_groups['under_18'] += 1
-                    elif age < 26:
-                        age_groups['18_25'] += 1
-                    elif age < 36:
-                        age_groups['26_35'] += 1
-                    elif age < 51:
-                        age_groups['36_50'] += 1
+                    # Check if birthday is the default unknown date (01.01.1800)
+                    if profile.birthday.year == 1800 and profile.birthday.month == 1 and profile.birthday.day == 1:
+                        age_groups['unknown'] += 1
                     else:
-                        age_groups['over_50'] += 1
+                        age = relativedelta(self.filters.date_range['end_date'], profile.birthday).years
+                        if age <= 34:
+                            age_groups['up_to_34'] += 1
+                        elif age <= 50:
+                            age_groups['35_50'] += 1
+                        elif age <= 65:
+                            age_groups['51_65'] += 1
+                        else:
+                            age_groups['over_65'] += 1
+                else:
+                    age_groups['unknown'] += 1
 
             return age_groups
         except Exception:
             # Return default values if there's an error
             return {
-                'under_18': 0,
-                '18_25': 0,
-                '26_35': 0,
-                '36_50': 0,
-                'over_50': 0
+                'up_to_34': 0,
+                '35_50': 0,
+                '51_65': 0,
+                'over_65': 0,
+                'unknown': 0
             }
 
     def get_registration_trend(self):

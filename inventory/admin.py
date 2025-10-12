@@ -104,18 +104,39 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         ('purchase_date', admin.DateFieldListFilter),
         'status', 'available_for_rent',
     ]
-    fields = (
-        'inventory_number', 'description', 'serial_number', 'manufacturer', 'category', 'location', 'quantity',
-        'status', 'owner', 'inventory_number_owner', 'purchase_date', 'purchase_cost',
-        'available_for_rent', 'reserved_quantity', 'rented_quantity'
-    )
     autocomplete_fields = ('manufacturer', 'category', 'owner', 'location')
-    search_fields = [
-        'inventory_number', 'description', 'serial_number',
-        'manufacturer__name', 'owner__name', 'inventory_number_owner',
-        'location__name'
-    ]
+    
+    fieldsets = (
+        (_('Identification'), {
+            'fields': ('inventory_number', 'description', 'serial_number')
+        }),
+        (_('Classification'), {
+            'fields': ('manufacturer', 'category', 'location', 'status')
+        }),
+        (_('Ownership & Inventory'), {
+            'fields': ('owner', 'inventory_number_owner')
+        }),
+        (_('Quantity & Availability'), {
+            'fields': ('quantity', 'available_for_rent', 'reserved_quantity', 'rented_quantity'),
+            'description': _('Reserved and rented quantities are calculated automatically.')
+        }),
+        (_('Purchase Information'), {
+            'fields': ('purchase_date', 'purchase_cost'),
+            'classes': ('collapse',),
+        }),
+    )
+    
     inlines = [InspectionInline]
+
+    # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
+    def get_queryset(self, request):
+        """Optimize queryset with select_related for foreign keys."""
+        return super().get_queryset(request).select_related(
+            'manufacturer', 
+            'category', 
+            'location', 
+            'owner'
+        )
 
     def get_readonly_fields(self, request, obj=None):
         """Return readonly fields depending on item status."""
@@ -200,6 +221,9 @@ class AuditLogAdmin(ExportMixin, admin.ModelAdmin):
     list_per_page = 500
     show_full_result_count = False
 
+    # PERFORMANCE NOTE: get_inventory_number calls obj.get_inventory_number() 
+    # which does a SQL query per row. Consider implementing caching if this becomes slow.
+    
     def get_inventory_number(self, obj):
         """Return inventory number for AuditLog."""
         return obj.get_inventory_number()

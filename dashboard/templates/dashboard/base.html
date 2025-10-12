@@ -97,6 +97,14 @@
                 </a>
             </li>
 
+            <!-- Media Data Section -->
+            <li class="sidebar-item">
+                <a href="{% url 'dashboard:media_data' %}" class="sidebar-link {% if active_tab == 'media_data' %}active{% endif %}">
+                    <i class="bi bi-graph-up"></i>
+                    <span>{% trans "Media Data" %}</span>
+                </a>
+            </li>
+
             <!-- Separator -->
             <li class="sidebar-divider"></li>
 

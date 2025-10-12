@@ -272,24 +272,39 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
         YearFilter,
     )
 
+    # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
+    def get_queryset(self, request):
+        """Optimize queryset with select_related and prefetch_related."""
+        return super().get_queryset(request).select_related(
+            'project_leader', 
+            'project_category'
+        ).prefetch_related(
+            'target_group', 
+            'media_education_supervisors'
+        )
+
     fieldsets = (
-        (_('Project data'), {
+        (_('Basic Information'), {
+            'fields': ('title', 'topic', 'description')
+        }),
+        (_('Schedule & Details'), {
             'fields': (
-                'title',
-                'topic',
-                'description',
                 'date',
                 'duration',
                 'external_venue',
                 'jugendmedienschutz',
                 'democracy_project',
+            )
+        }),
+        (_('Organization'), {
+            'fields': (
                 'project_category',
                 'target_group',
                 'project_leader',
                 'media_education_supervisors',
             )
         }),
-        (_('Participant numbers - by age'), {
+        (_('Participants by Age'), {
             'fields': (
                 'tn_0_bis_6',
                 'tn_7_bis_10',
@@ -300,15 +315,19 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_51_bis_65',
                 'tn_ueber_65',
                 'tn_age_not_given',
-            )
+            ),
+            'classes': ('collapse',),
+            'description': _('Enter the number of participants in each age group. Total must match gender totals.')
         }),
-        (_('Participant numbers - by gender'), {
+        (_('Participants by Gender'), {
             'fields': (
                 'tn_female',
                 'tn_male',
                 'tn_diverse',
                 'tn_gender_not_given',
-            )
+            ),
+            'classes': ('collapse',),
+            'description': _('Enter the number of participants by gender. Total must match age group totals.')
         }),
     )
 

@@ -14,11 +14,13 @@ urlpatterns = [
     path('inventory/', views.dashboard_inventory, name='inventory'),
     path('notifications/', views.dashboard_notifications, name='notifications'),
     path('funnel/', views.dashboard_funnel, name='funnel'),
+    path('media-data/', views.dashboard_media_data, name='media_data'),
 
     # API endpoints
     path('api/users-statistics/', api.api_users_statistics, name='api_users_statistics'),
     path('api/licenses-statistics/', api.api_licenses_statistics, name='api_licenses_statistics'),
     path('api/contributions-statistics/', api.api_contributions_statistics, name='api_contributions_statistics'),
+    path('api/media-data-statistics/', api.api_media_data_statistics, name='api_media_data_statistics'),
     path('api/projects-statistics/', api.api_projects_statistics, name='api_projects_statistics'),
     path('api/inventory-statistics/', api.api_inventory_statistics, name='api_inventory_statistics'),
     path('api/notifications-statistics/', api.api_notifications_statistics, name='api_notifications_statistics'),

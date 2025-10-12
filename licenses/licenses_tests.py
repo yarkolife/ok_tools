@@ -3,6 +3,7 @@ from .admin import WithoutContributionFilter
 from .admin import YearFilter
 from .models import License
 from .models import default_category
+from contributions.models import Contribution
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
@@ -14,7 +15,10 @@ from ok_tools.testing import create_contribution
 from ok_tools.testing import create_license
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
+from planung.models import TagesPlan
 from registration.models import Profile
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
 from unittest.mock import patch
 from urllib.error import HTTPError
 import datetime
@@ -753,3 +757,352 @@ def test__licenses__admin__DurationRangeFilter__1(
     assert license1.title not in browser.contents
     assert license2.title in browser.contents
     assert license3.title not in browser.contents
+
+
+# API Tests
+
+
+@pytest.fixture
+def api_client():
+    """Create an API client for testing."""
+    return APIClient()
+
+
+@pytest.fixture
+def api_token(user):
+    """Create an authentication token for the user."""
+    token, created = Token.objects.get_or_create(user=user)
+    return token.key
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__unauthorized(api_client, license):
+    """API endpoint returns 401 when no token is provided."""
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    response = api_client.get(url)
+    
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__authorized(
+        api_client, api_token, license):
+    """API endpoint returns license metadata when valid token is provided."""
+    license.tags = ['tag1', 'tag2']
+    license.save()
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert data['name'] == license.title
+    assert data['description'] == license.description
+    assert data['category'] == license.category.name
+    assert data['tags'] == ['tag1', 'tag2']
+    assert data['senderResponsible'] == (
+        f"{license.profile.first_name} {license.profile.last_name}"
+    )
+    assert data['videoNumber'] == license.number
+    assert data['saveToMediathek'] == license.store_in_ok_media_library
+    assert data['allowExchange'] == license.media_authority_exchange_allowed
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__not_found(
+        api_client, api_token):
+    """API endpoint returns 404 when license number doesn't exist."""
+    url = reverse_lazy('licenses:api-metadata', args=[99999])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__tags_limit(
+        api_client, api_token, license):
+    """API endpoint limits tags to maximum 4."""
+    license.tags = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6']
+    license.save()
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert len(data['tags']) == 4
+    assert data['tags'] == ['tag1', 'tag2', 'tag3', 'tag4']
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__originallyPublishedAt_from_planung(
+        api_client, api_token, license):
+    """API endpoint gets originallyPublishedAt from planung when available."""
+    # Create a plan with this license
+    plan_date = datetime.date(2025, 1, 15)
+    plan = TagesPlan.objects.create(
+        datum=plan_date,
+        json_plan={
+            'items': [
+                {'number': license.number, 'title': license.title, 'duration': 300}
+            ],
+            'draft': False,
+            'planned': True
+        }
+    )
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert data['originallyPublishedAt'] is not None
+    # Check that it contains the date from planung
+    assert '2025-01-15' in data['originallyPublishedAt']
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__originallyPublishedAt_from_contribution(
+        api_client, api_token, license):
+    """API endpoint gets originallyPublishedAt from contribution when not in planung."""
+    # Create a contribution for this license
+    contribution_date = datetime.datetime(
+        2025, 2, 10, 18, 0, 0, tzinfo=TZ
+    )
+    contribution = Contribution.objects.create(
+        license=license,
+        broadcast_date=contribution_date,
+        live=False
+    )
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert data['originallyPublishedAt'] is not None
+    # Check that it contains the date from contribution
+    assert '2025-02-10' in data['originallyPublishedAt']
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__originallyPublishedAt_priority(
+        api_client, api_token, license):
+    """API endpoint prioritizes planung over contribution for originallyPublishedAt."""
+    # Create both a plan and a contribution
+    plan_date = datetime.date(2025, 1, 15)
+    plan = TagesPlan.objects.create(
+        datum=plan_date,
+        json_plan={
+            'items': [
+                {'number': license.number, 'title': license.title, 'duration': 300}
+            ],
+            'draft': False,
+            'planned': True
+        }
+    )
+    
+    contribution_date = datetime.datetime(
+        2025, 2, 10, 18, 0, 0, tzinfo=TZ
+    )
+    contribution = Contribution.objects.create(
+        license=license,
+        broadcast_date=contribution_date,
+        live=False
+    )
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert data['originallyPublishedAt'] is not None
+    # Should use date from planung (January), not contribution (February)
+    assert '2025-01-15' in data['originallyPublishedAt']
+    assert '2025-02-10' not in data['originallyPublishedAt']
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__no_tags(
+        api_client, api_token, license):
+    """API endpoint returns empty list when license has no tags."""
+    license.tags = None
+    license.save()
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert data['tags'] == []
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__empty_tags_list(
+        api_client, api_token, license):
+    """API endpoint returns empty list when license has empty tags list."""
+    license.tags = []
+    license.save()
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert data['tags'] == []
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__planung_time_extraction(
+        api_client, api_token, license):
+    """API endpoint extracts correct time from planung TagesPlan."""
+    from datetime import date
+    from planung.models import TagesPlan
+    
+    # Create a TagesPlan with specific time
+    plan_date = date(2025, 9, 27)
+    plan_data = {
+        'items': [
+            {
+                'number': license.number,
+                'start': '18:00',  # 6 PM
+                'duration': 3948,  # 65:48 in seconds
+                'title': license.title,
+                'author': 'Klaus Treuter'
+            }
+        ],
+        'draft': False,
+        'planned': True
+    }
+    
+    TagesPlan.objects.create(
+        datum=plan_date,
+        json_plan=plan_data
+    )
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Should extract time from planung, not use midnight
+    assert data['originallyPublishedAt'] == '2025-09-27T18:00:00+02:00'
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__target_channel(
+        api_client, api_token, license):
+    """API endpoint returns targetChannel from settings."""
+    from django.conf import settings
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Should return PeerTube channel from settings
+    expected_channel = getattr(settings, 'PEERTUBE_CHANNEL', '')
+    assert data['targetChannel'] == expected_channel
+
+
+@pytest.mark.django_db
+def test__licenses__admin__tags_validation__max_tags():
+    """Admin form validates maximum 4 tags."""
+    from .admin import LicenseAdminForm
+    from .models import License
+    from registration.models import Profile, OKUser
+    from django.core.exceptions import ValidationError
+    
+    # Create test data
+    user = OKUser.objects.create_user(email='test@example.com')
+    profile = Profile.objects.create(
+        okuser=user,
+        first_name='Test',
+        last_name='User'
+    )
+    
+    # Test with 5 tags (should fail)
+    form_data = {
+        'title': 'Test License',
+        'description': 'Test Description',
+        'profile': profile.id,
+        'tags': ['tag1', 'tag2', 'tag3', 'tag4', 'tag5']
+    }
+    
+    form = LicenseAdminForm(data=form_data)
+    assert not form.is_valid()
+    assert 'tags' in form.errors
+    assert 'Maximum 4 tags allowed' in str(form.errors['tags'])
+
+
+@pytest.mark.django_db
+def test__licenses__admin__tags_validation__valid_tags():
+    """Admin form accepts valid tags."""
+    from .admin import LicenseAdminForm
+    from .models import License
+    from registration.models import Profile, OKUser
+    
+    # Create test data
+    user = OKUser.objects.create_user(email='test@example.com')
+    profile = Profile.objects.create(
+        okuser=user,
+        first_name='Test',
+        last_name='User'
+    )
+    
+    # Test with 3 valid tags
+    form_data = {
+        'title': 'Test License',
+        'description': 'Test Description',
+        'profile': profile.id,
+        'tags': ['documentary', 'local', 'culture']
+    }
+    
+    form = LicenseAdminForm(data=form_data)
+    assert form.is_valid(), f"Form errors: {form.errors}"
+    assert form.cleaned_data['tags'] == ['documentary', 'local', 'culture']
+
+
+@pytest.mark.django_db
+def test__licenses__widget__tags_input__null_handling():
+    """Tags input widget properly handles null values."""
+    from .widgets import TagsInputWidget
+    
+    widget = TagsInputWidget()
+    
+    # Test None value
+    assert widget.format_value(None) == ''
+    
+    # Test empty list
+    assert widget.format_value([]) == ''
+    
+    # Test string "null"
+    assert widget.format_value('null') == ''
+    
+    # Test string "None"
+    assert widget.format_value('None') == ''
+    
+    # Test valid list
+    assert widget.format_value(['tag1', 'tag2']) == 'tag1, tag2'
+    
+    # Test valid string
+    assert widget.format_value('tag1, tag2') == 'tag1, tag2'

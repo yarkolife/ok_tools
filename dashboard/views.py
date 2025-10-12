@@ -1,4 +1,5 @@
 from .widgets.users import UsersWidget
+from .widgets.media_data import MediaDataWidget
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render
@@ -101,3 +102,18 @@ def dashboard_funnel(request):
         'active_tab': 'funnel',
     }
     return render(request, 'dashboard/widgets/funnel.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def dashboard_media_data(request):
+    """Media data statistics widget view."""
+    # Initialize media data widget
+    media_data_widget = MediaDataWidget(request)
+
+    context = {
+        'page_title': _('Media Data Statistics'),
+        'active_tab': 'media_data',
+        'widget_data': media_data_widget.get_all_data(),
+    }
+    return render(request, 'dashboard/widgets/media_data.html', context)

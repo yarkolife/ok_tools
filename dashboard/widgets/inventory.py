@@ -353,10 +353,15 @@ class InventoryWidget:
         active_sets = EquipmentSet.objects.filter(is_active=True).count()
 
         # Equipment sets with all items available
+        # PERFORMANCE OPTIMIZATION: Prefetch items to avoid N+1 queries
         available_sets = 0
-        for equipment_set in EquipmentSet.objects.filter(is_active=True):
+        equipment_sets = EquipmentSet.objects.filter(
+            is_active=True
+        ).prefetch_related('items__inventory_item')
+        
+        for equipment_set in equipment_sets:
             all_available = True
-            for set_item in equipment_set.items.all():
+            for set_item in equipment_set.items.all():  # Already in memory via prefetch
                 if not set_item.inventory_item.available_for_rent or set_item.inventory_item.status != 'in_stock':
                     all_available = False
                     break
@@ -737,6 +742,7 @@ class InventoryWidget:
             all_rentals_data = []
             for rental in filtered_queryset:
                 # Get all rental items for this request
+                # NOTE: items.all() is optimized via prefetch_related on line 723
                 for rental_item in rental.items.all():
                     rental_data = {
                         'id': f"{rental.id}-{rental_item.id}",

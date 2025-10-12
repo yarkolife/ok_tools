@@ -120,7 +120,9 @@ def dashboard(request):
     # Add profile data for the profile card
     try:
         from registration.models import Profile
-        profile = Profile.objects.get(okuser=request.user)
+        # PERFORMANCE NOTE: This query is executed on every dashboard load.
+        # Consider using select_related('media_authority') or caching in middleware
+        profile = Profile.objects.select_related('media_authority').get(okuser=request.user)
         context['profile'] = profile
     except Profile.DoesNotExist:
         context['profile'] = None

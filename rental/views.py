@@ -1957,12 +1957,28 @@ def api_get_all_rentals(request):
             rentals = rentals.filter(q_filters)
 
         # Paginate
-        paginator = Paginator(rentals, 20)
+        paginator = Paginator(rentals.distinct(), 20)
         page_obj = paginator.get_page(page)
+
+        # PERFORMANCE OPTIMIZATION: Re-fetch with prefetch after pagination
+        # Paginator breaks prefetch_related, so we need to re-apply it
+        rental_ids = [r.id for r in page_obj]
+        optimized_rentals = RentalRequest.objects.filter(
+            id__in=rental_ids
+        ).select_related(
+            'user', 'created_by', 'user__profile', 'created_by__profile'
+        ).prefetch_related(
+            'items__inventory_item', 
+            'room_rentals__room'
+        )
+        
+        # Create dict for quick lookup maintaining page order
+        rentals_dict = {r.id: r for r in optimized_rentals}
+        ordered_rentals = [rentals_dict[rid] for rid in rental_ids if rid in rentals_dict]
 
         # Serialize data
         result = []
-        for rental in page_obj:
+        for rental in ordered_rentals:
             # Safely get user name
             try:
                 user_name = f"{rental.user.profile.first_name} {rental.user.profile.last_name}" if hasattr(rental.user, 'profile') and rental.user.profile else rental.user.email
@@ -2885,12 +2901,17 @@ def api_get_inventory_schedule(request):
             end_date = start_date + timedelta(days=6)
 
         print(f"🔍 Querying rental items for date range: {start_date} to {end_date}")
+        # PERFORMANCE OPTIMIZATION: Add select_related for all FK accessed in loop
         rental_items = RentalItem.objects.filter(
             inventory_item=item,
             rental_request__status__in=['reserved', 'issued'],
             rental_request__requested_start_date__date__lte=end_date,
             rental_request__requested_end_date__date__gte=start_date,
-        ).select_related('rental_request__user')
+        ).select_related(
+            'rental_request', 
+            'rental_request__user', 
+            'inventory_item'
+        )
 
         print(f"🔍 Found {rental_items.count()} rental items")
         if rental_items.count() > 0:

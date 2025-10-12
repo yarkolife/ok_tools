@@ -147,6 +147,14 @@ class License(models.Model):
         null=True,
     )
 
+    tags = models.JSONField(
+        _('Tags'),
+        blank=True,
+        null=True,
+        default=None,
+        help_text=_('Maximum 4 tags'),
+    )
+
     created_at = models.DateTimeField(
         _('Created at'),
         auto_now_add=True,
@@ -247,6 +255,22 @@ class License(models.Model):
             return
 
         return super().save(*args, **kwargs)
+
+    def get_video_file(self):
+        """Get associated video file if exists."""
+        try:
+            from media_files.models import VideoFile
+            return VideoFile.objects.filter(number=self.number).first()
+        except Exception:
+            return None
+    
+    def get_tags_display(self):
+        """Get formatted tags for display."""
+        if not self.tags or self.tags is None:
+            return ''
+        if isinstance(self.tags, list) and len(self.tags) > 0:
+            return ', '.join(str(tag).strip() for tag in self.tags if tag)
+        return ''
 
     class Meta:
         """Defines the message IDs."""

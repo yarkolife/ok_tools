@@ -1,5 +1,6 @@
 from .models import License
 from .models import YouthProtectionCategory
+from .widgets import TagsInputWidget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML
 from crispy_forms.layout import Field
@@ -24,16 +25,12 @@ class CreateLicenseForm(forms.ModelForm):
         model = License
         exclude = ('profile', 'confirmed', 'number')
         widgets = {
-            'youth_protection_necessary': forms.Select(attrs={'id': 'id_youth_protection'}),
+            'youth_protection_necessary': forms.NullBooleanSelect(attrs={'id': 'id_youth_protection_necessary'}),
             'youth_protection_category': forms.Select(attrs={'id': 'id_youth_protection_category'}),
-        }
-
-        # TODO better widgets
-        widgets = {
             'duration': forms.widgets.TimeInput,
             'suggested_date': forms.DateInput(attrs={"type": "date"}),
-            'further_persons': forms.Textarea(
-                attrs={'style': 'max-height: 4em'})
+            'further_persons': forms.Textarea(attrs={'style': 'max-height: 4em'}),
+            'tags': TagsInputWidget(),
         }
 
     def is_valid(self) -> bool:
@@ -97,6 +94,7 @@ class CreateLicenseForm(forms.ModelForm):
             'description',
             'further_persons',
             'category',
+            'tags',
             HTML(_screen_board_js()),
             Field('is_screen_board', onclick="showDuration()"),
             'duration',

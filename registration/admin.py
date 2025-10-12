@@ -81,6 +81,7 @@ class ProfileResource(resources.ModelResource):
     email = _f('okuser__email', _('email address'))
     phone_number = _f('phone_number', _('phone number'))
     mobile_number = _f('mobile_number', _('mobile number'))
+    ausweisnummer = _f('ausweisnummer', _('ID document number'))
     birthday = _f('birthday', _('birthday'))
     street = _f('street', _('street'))
     house_number = _f('house number', _('house number'))
@@ -208,6 +209,41 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
         YearFilter,
     ]
     actions = ['verify', 'unverify']
+    
+    fieldsets = (
+        (_('Basic Information'), {
+            'fields': ('okuser', 'first_name', 'last_name', 'gender', 'birthday')
+        }),
+        (_('Contact Information'), {
+            'fields': ('phone_number', 'mobile_number', 'street', 'house_number', 'zipcode', 'city')
+        }),
+        (_('ID Document'), {
+            'fields': ('ausweisnummer',),
+            'classes': ('collapse',)
+        }),
+        (_('Organization'), {
+            'fields': ('media_authority', 'member', 'verified')
+        }),
+        (_('Data Sharing Permissions'), {
+            'fields': ('phone_data_sharing_allowed', 'email_data_sharing_allowed'),
+            'classes': ('collapse',),
+            'description': _('Admin-only: Permissions for sharing data with third parties')
+        }),
+        (_('Additional Information'), {
+            'fields': ('comment', 'created_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    readonly_fields = ['created_at']
+
+    # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
+    def get_queryset(self, request):
+        """Optimize queryset with select_related for foreign keys."""
+        return super().get_queryset(request).select_related(
+            'okuser', 
+            'media_authority'
+        )
 
     # inspired from https://stackoverflow.com/a/54579134
     def save_model(self, request, obj, form, change):

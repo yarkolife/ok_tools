@@ -112,9 +112,9 @@ def validate(file):
 
 def disa_import(request, file):
     """
-    Import contributions from DISA export.
+    Import contributions from DISA export - OPTIMIZED VERSION.
 
-    All valid data gets imported even if an error ocures.
+    All valid data gets imported even if an error occurs.
     """
     wb = load_workbook(file)
     ws = wb[WS_NAME]
@@ -122,8 +122,10 @@ def disa_import(request, file):
     next(rows)  # ignore headers
     next(rows)  # ignore empty row
 
-    dates = {}
-    created_counter = 0
+    # ОПТИМИЗАЦИЯ 1: Предзагрузка всех лицензий одним запросом
+    all_license_numbers = set()
+    rows_data = []
+    
     for row in rows:
         if not any([row[i].value for i in range(TYPE)]):
             break
@@ -135,10 +137,38 @@ def disa_import(request, file):
             continue
 
         nr = re.match(r'^\d+', row[TITLE].value)[0]
+        all_license_numbers.add(nr)
+        rows_data.append(row)
+    
+    # Один SQL запрос для всех лицензий вместо N запросов
+    licenses_dict = {
+        lic.number: lic 
+        for lic in License.objects.filter(number__in=all_license_numbers).select_related()
+    }
+    
+    # ОПТИМИЗАЦИЯ 2: Предзагрузка лицензий с запретом на повторы
+    no_repetition_license_ids = set(
+        License.objects.filter(
+            number__in=all_license_numbers,
+            repetitions_allowed=False
+        ).values_list('id', flat=True)
+    )
+    
+    # ОПТИМИЗАЦИЯ 3: Предзагрузка существующих contributions для лицензий с запретом
+    existing_contributions = set(
+        models.Contribution.objects.filter(
+            license_id__in=no_repetition_license_ids
+        ).values_list('license_id', flat=True).distinct()
+    )
 
-        try:
-            license: License = License.objects.get(number=nr)
-        except License.DoesNotExist:
+    dates = {}
+    created_counter = 0
+    
+    for row in rows_data:
+        nr = re.match(r'^\d+', row[TITLE].value)[0]
+
+        license = licenses_dict.get(nr)
+        if not license:
             msg = _('No license with number %(n)s found.') % {'n': nr}
             logger.error(msg)
             messages.error(request, msg)
@@ -157,13 +187,14 @@ def disa_import(request, file):
             tzinfo=ZoneInfo(settings.TIME_ZONE)
         )
 
+        # ОПТИМИЗАЦИЯ 4: Batch delete contributions по датам
         if not dates.get(hash(broadcast_date.date())):
             models.Contribution.objects.filter(
                 broadcast_date__date=broadcast_date.date()).delete()
             dates[hash(broadcast_date.date())] = True
 
-        if (license.repetitions_allowed is False and
-                models.Contribution.objects.filter(license=license)):
+        # ОПТИМИЗАЦИЯ 5: Проверка без дополнительного SQL запроса
+        if license.id in no_repetition_license_ids and license.id in existing_contributions:
             msg = _('No repetitions for number %(n)s allowed and already'
                     ' found a primary contribution.' % {'n': nr})
             logger.error(msg)
@@ -181,6 +212,9 @@ def disa_import(request, file):
         else:
             created_counter += 1
             logger.info(f'Contribution {contr} created.')
+            # Добавляем в кеш, чтобы следующая проверка работала
+            if license.id in no_repetition_license_ids:
+                existing_contributions.add(license.id)
 
     msg = _('Successfully created %d contributions.') % created_counter
     logger.info(msg)

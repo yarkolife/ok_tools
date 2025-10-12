@@ -62,6 +62,39 @@ sudo cp deployment/gunicorn/*.timer /etc/systemd/system/
 sudo systemctl enable ok-tools ok-tools-cron.timer
 ```
 
+## 💾 NAS/Network Storage Setup
+
+OK Tools supports mounting network storage (SMB/CIFS shares) for video file management:
+
+### For Docker (macOS/Development)
+📖 **[Docker NAS Setup Guide](../media_files/NAS_SETUP.md)**
+
+Quick start:
+```bash
+# Mount on host
+./scripts/mount_nas.sh
+
+# Test access
+./scripts/test_nas_access.sh
+```
+
+### For Debian 11 Production (Gunicorn)
+📖 **[Debian NAS Setup Guide](NAS_DEBIAN_SETUP.md)**
+
+Quick start:
+```bash
+# Automated setup
+sudo deployment/scripts/setup-nas-debian.sh
+
+# Manual setup - see PRODUCTION_NAS_QUICKSTART.txt
+```
+
+**Features:**
+- Support for multiple NAS shares (archive + playout on different IPs)
+- Automatic mounting via systemd/fstab
+- Credential management
+- Health checks and monitoring
+
 ## 📁 Ready-made Configurations
 
 The `deployment/configs/` folder contains ready-made configurations for various organizations:
@@ -69,6 +102,8 @@ The `deployment/configs/` folder contains ready-made configurations for various 
 - `okmq-production.cfg` - Original OKMQ (Sachsen-Anhalt, MSA)
 - `ok-bayern-production.cfg` - For Bayern (BLM)
 - `ok-nrw-production.cfg` - For NRW (LfM NRW)
+
+All configs now include `[media]` section for video file management with NAS paths.
 
 ## 🔐 Security
 

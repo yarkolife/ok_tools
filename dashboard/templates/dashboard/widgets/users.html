@@ -53,11 +53,11 @@
                             <label for="ageGroupFilter" class="form-label">{% trans "Age Group" %}</label>
                                 <select class="form-select" id="ageGroupFilter" name="age_group">
                                 <option value="">{% trans "All Ages" %}</option>
-                                <option value="under_18">{% trans "Under 18" %}</option>
-                                <option value="18_25">{% trans "18-25" %}</option>
-                                <option value="26_35">{% trans "26-35" %}</option>
-                                <option value="36_50">{% trans "36-50" %}</option>
-                                <option value="over_50">{% trans "Over 50" %}</option>
+                                <option value="up_to_34">{% trans "Up to 34" %}</option>
+                                <option value="35_50">{% trans "35-50" %}</option>
+                                <option value="51_65">{% trans "51-65" %}</option>
+                                <option value="over_65">{% trans "Over 65" %}</option>
+                                <option value="unknown">{% trans "Unknown" %}</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -107,6 +107,12 @@
                         </div>
                     </div>
                     <div class="col-lg col-md-4 col-sm-6 mb-3">
+                        <div class="stat-card" data-type="diverse" data-title="{% trans 'Diverse Users' %}">
+                            <div class="stat-number" id="diverseUsers">{{ widget_data.basic_stats.diverse_users|default:"0" }}</div>
+                            <div class="stat-label">{% trans "Diverse" %}</div>
+                        </div>
+                    </div>
+                    <div class="col-lg col-md-4 col-sm-6 mb-3">
                         <div class="stat-card" data-type="verified" data-title="{% trans 'Verified Users' %}">
                             <div class="stat-number" id="verifiedUsers">{{ widget_data.basic_stats.verified_users|default:"0" }}</div>
                             <div class="stat-label">{% trans "Verified" %}</div>
@@ -139,7 +145,7 @@
                                             <i class="bi bi-bar-chart-steps"></i>
                                         </button>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-primary" @click="exportChartData('authorityChart')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('authorityChart')">
                                         <i class="bi bi-download"></i> {% trans "Export" %}
                                     </button>
                                 </div>
@@ -153,7 +159,7 @@
                         <div class="dashboard-widget">
                             <div class="widget-header d-flex justify-content-between align-items-center">
                                 <h3 class="widget-title">{% trans "Age Distribution" %}</h3>
-                                <button class="btn btn-sm btn-outline-primary" @click="exportChartData('ageChart')">
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('ageChart')">
                                     <i class="bi bi-download"></i> {% trans "Export" %}
                                 </button>
                             </div>
@@ -170,7 +176,7 @@
                         <div class="dashboard-widget">
                             <div class="widget-header d-flex justify-content-between align-items-center">
                                 <h3 class="widget-title">{% trans "Gender Distribution" %}</h3>
-                                <button class="btn btn-sm btn-outline-primary" @click="exportChartData('genderChart')">
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('genderChart')">
                                     <i class="bi bi-download"></i> {% trans "Export" %}
                                 </button>
                             </div>
@@ -183,7 +189,7 @@
                         <div class="dashboard-widget">
                             <div class="widget-header d-flex justify-content-between align-items-center">
                                 <h3 class="widget-title">{% trans "Member vs Non-Member" %}</h3>
-                                <button class="btn btn-sm btn-outline-primary" @click="exportChartData('memberChart')">
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('memberChart')">
                                     <i class="bi bi-download"></i> {% trans "Export" %}
                                 </button>
                             </div>
@@ -200,7 +206,7 @@
                         <div class="dashboard-widget">
                             <div class="widget-header d-flex justify-content-between align-items-center">
                                 <h3 class="widget-title">{% trans "Registration Trend" %}</h3>
-                                <button class="btn btn-sm btn-outline-primary" @click="exportChartData('trendChart')">
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('trendChart')">
                                     <i class="bi bi-download"></i> {% trans "Export" %}
                                 </button>
                             </div>
@@ -217,7 +223,7 @@
                         <div class="dashboard-widget">
                             <div class="widget-header d-flex justify-content-between align-items-center">
                                 <h3 class="widget-title">{% trans "Users by Media Authority" %}</h3>
-                                <button class="btn btn-sm btn-outline-primary" @click="exportTableData('authorityTable')">
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportTableData('authorityTable')">
                                     <i class="bi bi-download"></i> {% trans "Export" %}
                                 </button>
                             </div>
@@ -253,7 +259,7 @@
                         <div class="dashboard-widget">
                             <div class="widget-header d-flex justify-content-between align-items-center">
                                 <h3 class="widget-title">{% trans "Age Group Breakdown" %}</h3>
-                                <button class="btn btn-sm btn-outline-primary" @click="exportTableData('ageTable')">
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportTableData('ageTable')">
                                     <i class="bi bi-download"></i> {% trans "Export" %}
                                 </button>
                             </div>
@@ -268,35 +274,52 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{% trans "Under 18" %}</td>
-                                            <td>{{ widget_data.age_groups.under_18|default:"0" }}</td>
-                                            <td>{% if widget_data.age_groups.under_18 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.under_18 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
+                                            <td>{% trans "Up to 34" %}</td>
+                                            <td>{{ widget_data.age_groups.up_to_34|default:"0" }}</td>
+                                            <td>{% if widget_data.age_groups.up_to_34 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.up_to_34 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
                                         </tr>
                                         <tr>
-                                            <td>{% trans "18-25" %}</td>
-                                            <td>{{ widget_data.age_groups.18_25|default:"0" }}</td>
-                                            <td>{% if widget_data.age_groups.18_25 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.18_25 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
+                                            <td>{% trans "35-50" %}</td>
+                                            <td>{{ widget_data.age_groups.35_50|default:"0" }}</td>
+                                            <td>{% if widget_data.age_groups.35_50 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.35_50 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
                                         </tr>
                                         <tr>
-                                            <td>{% trans "26-35" %}</td>
-                                            <td>{{ widget_data.age_groups.26_35|default:"0" }}</td>
-                                            <td>{% if widget_data.age_groups.26_35 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.26_35 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
+                                            <td>{% trans "51-65" %}</td>
+                                            <td>{{ widget_data.age_groups.51_65|default:"0" }}</td>
+                                            <td>{% if widget_data.age_groups.51_65 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.51_65 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
                                         </tr>
                                         <tr>
-                                            <td>{% trans "36-50" %}</td>
-                                            <td>{{ widget_data.age_groups.36_50|default:"0" }}</td>
-                                            <td>{% if widget_data.age_groups.36_50 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.36_50 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
+                                            <td>{% trans "Over 65" %}</td>
+                                            <td>{{ widget_data.age_groups.over_65|default:"0" }}</td>
+                                            <td>{% if widget_data.age_groups.over_65 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.over_65 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
                                         </tr>
                                         <tr>
-                                            <td>{% trans "Over 50" %}</td>
-                                            <td>{{ widget_data.age_groups.over_50|default:"0" }}</td>
-                                            <td>{% if widget_data.age_groups.over_50 and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.over_50 widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
+                                            <td>{% trans "Unknown" %}</td>
+                                            <td>{{ widget_data.age_groups.unknown|default:"0" }}</td>
+                                            <td>{% if widget_data.age_groups.unknown and widget_data.basic_stats.total_users %}{% widthratio widget_data.age_groups.unknown widget_data.basic_stats.total_users 100 %}%{% else %}0%{% endif %}</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Age Distribution by Gender Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-widget">
+                <div class="widget-header d-flex justify-content-between align-items-center">
+                    <h3 class="widget-title">{% trans "Age Distribution by Gender" %}</h3>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportChartData('ageGenderChart')">
+                        <i class="bi bi-download"></i> {% trans "Export" %}
+                    </button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ageGenderChart"></canvas>
                 </div>
             </div>
         </div>
@@ -377,6 +400,7 @@ async function loadChartData() {
             window.chartData = {
                 usersByAuthority: data.data.users_by_authority || [],
                 ageGroups: data.data.age_groups || {},
+                ageGenderDistribution: data.data.age_gender_distribution || {},
                 basicStats: data.data.basic_stats || {},
                 memberDistribution: data.data.member_distribution || {},
                 registrationTrend: data.data.registration_trend || []
@@ -412,6 +436,7 @@ async function loadChartData() {
         window.chartData = {
             usersByAuthority: [],
             ageGroups: {},
+            ageGenderDistribution: {},
             basicStats: {},
             memberDistribution: {},
             registrationTrend: []
@@ -591,6 +616,7 @@ window.initializeCharts = function() {
         window.chartData = {
             usersByAuthority: [],
             ageGroups: {},
+            ageGenderDistribution: {},
             basicStats: {},
             memberDistribution: {},
             registrationTrend: []
@@ -603,6 +629,7 @@ window.initializeCharts = function() {
     if (window.genderChart) window.genderChart.destroy();
     if (window.memberChart) window.memberChart.destroy();
     if (window.trendChart) window.trendChart.destroy();
+    if (window.ageGenderChart && typeof window.ageGenderChart.destroy === 'function') window.ageGenderChart.destroy();
 
     // Authority Chart - Enhanced Doughnut Chart
     const authorityCtx = document.getElementById('authorityChart');
@@ -735,13 +762,13 @@ window.initializeCharts = function() {
     const ageCtx = document.getElementById('ageChart');
     if (ageCtx) {
         const ageGroups = window.chartData.ageGroups || {};
-        const labels = ['{% trans "Under 18" %}', '{% trans "18-25" %}', '{% trans "26-35" %}', '{% trans "36-50" %}', '{% trans "Over 50" %}'];
+        const labels = ['{% trans "Up to 34" %}', '{% trans "35-50" %}', '{% trans "51-65" %}', '{% trans "Over 65" %}', '{% trans "Unknown" %}'];
         const data = [
-            ageGroups.under_18 || 0,
-            ageGroups['18_25'] || 0,
-            ageGroups['26_35'] || 0,
-            ageGroups['36_50'] || 0,
-            ageGroups.over_50 || 0
+            ageGroups.up_to_34 || 0,
+            ageGroups['35_50'] || 0,
+            ageGroups['51_65'] || 0,
+            ageGroups.over_65 || 0,
+            ageGroups.unknown || 0
         ];
 
         window.ageChart = new Chart(ageCtx, {
@@ -1205,6 +1232,148 @@ window.initializeCharts = function() {
             }
         });
     }
+
+    // Age Distribution by Gender Chart - Horizontal Bar Chart
+    const ageGenderCtx = document.getElementById('ageGenderChart');
+    if (ageGenderCtx) {
+        // Get real data from API
+        const ageGenderDistribution = window.chartData.ageGenderDistribution || {};
+        
+        const genderLabels = ['weiblich', 'männlich', 'divers', 'ohne Angabe'];
+        const ageGroupLabels = ['Unter 34', '35 bis 50', '51 bis 65', 'Über 65', 'ohne Angabe'];
+        
+        // Use real data from API
+        const genderAgeData = {
+            female: [
+                ageGenderDistribution.female?.up_to_34 || 0,
+                ageGenderDistribution.female?.['35_50'] || 0,
+                ageGenderDistribution.female?.['51_65'] || 0,
+                ageGenderDistribution.female?.over_65 || 0,
+                ageGenderDistribution.female?.unknown || 0
+            ],
+            male: [
+                ageGenderDistribution.male?.up_to_34 || 0,
+                ageGenderDistribution.male?.['35_50'] || 0,
+                ageGenderDistribution.male?.['51_65'] || 0,
+                ageGenderDistribution.male?.over_65 || 0,
+                ageGenderDistribution.male?.unknown || 0
+            ],
+            diverse: [
+                ageGenderDistribution.diverse?.up_to_34 || 0,
+                ageGenderDistribution.diverse?.['35_50'] || 0,
+                ageGenderDistribution.diverse?.['51_65'] || 0,
+                ageGenderDistribution.diverse?.over_65 || 0,
+                ageGenderDistribution.diverse?.unknown || 0
+            ],
+            unspecified: [
+                ageGenderDistribution.unspecified?.up_to_34 || 0,
+                ageGenderDistribution.unspecified?.['35_50'] || 0,
+                ageGenderDistribution.unspecified?.['51_65'] || 0,
+                ageGenderDistribution.unspecified?.over_65 || 0,
+                ageGenderDistribution.unspecified?.unknown || 0
+            ]
+        };
+
+        window.ageGenderChart = new Chart(ageGenderCtx, {
+            type: 'bar',
+            data: {
+                labels: genderLabels, // Y-axis: genders
+                datasets: [
+                    {
+                        label: ageGroupLabels[0], // Unter 34
+                        data: [genderAgeData.female[0], genderAgeData.male[0], genderAgeData.diverse[0], genderAgeData.unspecified[0]],
+                        backgroundColor: '#1e40af', // Dark blue
+                        borderColor: '#1e40af',
+                        borderWidth: 1
+                    },
+                    {
+                        label: ageGroupLabels[1], // 35 bis 50
+                        data: [genderAgeData.female[1], genderAgeData.male[1], genderAgeData.diverse[1], genderAgeData.unspecified[1]],
+                        backgroundColor: '#ea580c', // Orange
+                        borderColor: '#ea580c',
+                        borderWidth: 1
+                    },
+                    {
+                        label: ageGroupLabels[2], // 51 bis 65
+                        data: [genderAgeData.female[2], genderAgeData.male[2], genderAgeData.diverse[2], genderAgeData.unspecified[2]],
+                        backgroundColor: '#ca8a04', // Yellow
+                        borderColor: '#ca8a04',
+                        borderWidth: 1
+                    },
+                    {
+                        label: ageGroupLabels[3], // Über 65
+                        data: [genderAgeData.female[3], genderAgeData.male[3], genderAgeData.diverse[3], genderAgeData.unspecified[3]],
+                        backgroundColor: '#16a34a', // Green
+                        borderColor: '#16a34a',
+                        borderWidth: 1
+                    },
+                    {
+                        label: ageGroupLabels[4], // ohne Angabe
+                        data: [genderAgeData.female[4], genderAgeData.male[4], genderAgeData.diverse[4], genderAgeData.unspecified[4]],
+                        backgroundColor: '#dc2626', // Dark red
+                        borderColor: '#dc2626',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '{% trans "Age Distribution by Gender" %}',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.x + ' {% trans "users" %}';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Anzahl der Benutzer'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Geschlecht'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+    }
 }
 
 // Make updateCharts globally available
@@ -1237,11 +1406,11 @@ window.updateChartData = function(data) {
     // Update Age Chart
     if (window.ageChart && data.age_groups) {
         window.ageChart.data.datasets[0].data = [
-            data.age_groups.under_18 || 0,
-            data.age_groups['18_25'] || 0,
-            data.age_groups['26_35'] || 0,
-            data.age_groups['36_50'] || 0,
-            data.age_groups.over_50 || 0
+            data.age_groups.up_to_34 || 0,
+            data.age_groups['35_50'] || 0,
+            data.age_groups['51_65'] || 0,
+            data.age_groups.over_65 || 0,
+            data.age_groups.unknown || 0
         ];
         window.ageChart.update();
     }
@@ -1271,6 +1440,49 @@ window.updateChartData = function(data) {
         window.trendChart.data.datasets[0].data = data.registration_trend.map(item => item.count);
         window.trendChart.update();
     }
+
+    // Update Age-Gender Chart
+    if (window.ageGenderChart && data.age_gender_distribution) {
+        const ageGenderDist = data.age_gender_distribution;
+        
+        // Update each dataset with new data
+        window.ageGenderChart.data.datasets[0].data = [
+            ageGenderDist.female?.up_to_34 || 0,
+            ageGenderDist.male?.up_to_34 || 0,
+            ageGenderDist.diverse?.up_to_34 || 0,
+            ageGenderDist.unspecified?.up_to_34 || 0
+        ];
+        
+        window.ageGenderChart.data.datasets[1].data = [
+            ageGenderDist.female?.['35_50'] || 0,
+            ageGenderDist.male?.['35_50'] || 0,
+            ageGenderDist.diverse?.['35_50'] || 0,
+            ageGenderDist.unspecified?.['35_50'] || 0
+        ];
+        
+        window.ageGenderChart.data.datasets[2].data = [
+            ageGenderDist.female?.['51_65'] || 0,
+            ageGenderDist.male?.['51_65'] || 0,
+            ageGenderDist.diverse?.['51_65'] || 0,
+            ageGenderDist.unspecified?.['51_65'] || 0
+        ];
+        
+        window.ageGenderChart.data.datasets[3].data = [
+            ageGenderDist.female?.over_65 || 0,
+            ageGenderDist.male?.over_65 || 0,
+            ageGenderDist.diverse?.over_65 || 0,
+            ageGenderDist.unspecified?.over_65 || 0
+        ];
+        
+        window.ageGenderChart.data.datasets[4].data = [
+            ageGenderDist.female?.unknown || 0,
+            ageGenderDist.male?.unknown || 0,
+            ageGenderDist.diverse?.unknown || 0,
+            ageGenderDist.unspecified?.unknown || 0
+        ];
+        
+        window.ageGenderChart.update();
+    }
 }
 
 // Make updateStatistics globally available
@@ -1295,6 +1507,7 @@ window.updateStatisticsCards = function(data) {
         'totalUsers': data.basic_stats.total_users || 0,
         'maleUsers': data.basic_stats.male_users || 0,
         'femaleUsers': data.basic_stats.female_users || 0,
+        'diverseUsers': data.basic_stats.diverse_users || 0,
         'verifiedUsers': data.basic_stats.verified_users || 0,
         'memberUsers': data.basic_stats.member_users || 0
     };
@@ -1316,11 +1529,11 @@ window.updateStatisticsCards = function(data) {
 
 // Make exportChartData globally available
 window.exportChartData = function(chartId) {
-    const chart = getChartInstance(chartId);
+    const chart = window.getChartInstance(chartId);
     if (chart) {
         const data = chart.data;
-        const csv = convertToCSV(data);
-        downloadCSV(csv, `${chartId}_data.csv`);
+        const csv = window.convertToCSV(data);
+        window.downloadCSV(csv, `${chartId}_data.csv`);
     }
 }
 
@@ -1328,8 +1541,8 @@ window.exportChartData = function(chartId) {
 window.exportTableData = function(tableId) {
     const table = document.getElementById(tableId);
     const rows = Array.from(table.querySelectorAll('tr'));
-    const csv = convertTableToCSV(rows);
-    downloadCSV(csv, `${tableId}_data.csv`);
+    const csv = window.convertTableToCSV(rows);
+    window.downloadCSV(csv, `${tableId}_data.csv`);
 }
 
 // Make getChartInstance globally available
@@ -1340,6 +1553,7 @@ window.getChartInstance = function(chartId) {
         case 'genderChart': return window.genderChart;
         case 'memberChart': return window.memberChart;
         case 'trendChart': return window.trendChart;
+        case 'ageGenderChart': return window.ageGenderChart;
         default: return null;
     }
 }
