@@ -727,7 +727,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 stream_url,
                 mime_type,
                 stream_url,
-                obj.file_path,
+                obj.full_path,
                 obj.id  # video player ID for script
             )
         return _('Video not available')
