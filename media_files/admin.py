@@ -523,7 +523,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             ),
             path(
                 '<int:video_id>/player/',
-                self.admin_site.admin_view(self.video_player),
+                self.admin_site.admin_view(self.video_player_page),
                 name='media_files_videofile_player',
             ),
             path(
@@ -676,7 +676,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         return _('Video not available')
     video_player.short_description = _('Video Player')
     
-    def video_player(self, request, video_id):
+    def video_player_page(self, request, video_id):
         """Display video player page."""
         try:
             video = VideoFile.objects.get(id=video_id)
