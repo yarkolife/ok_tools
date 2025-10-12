@@ -159,8 +159,8 @@ if ! grep -q "/mnt/nas/playout" /etc/fstab; then
     cat >> /etc/fstab <<EOF
 
 # OK Merseburg NAS
-//$NAS_PLAYOUT_IP/$NAS_PLAYOUT_SHARE  /mnt/nas/playout  cifs  credentials=/root/.smbcredentials_playout,uid=0,gid=0,file_mode=0755,dir_mode=0755,vers=3.0,_netdev,nofail  0  0
-//$NAS_ARCHIVE_IP/$NAS_ARCHIVE_SHARE  /mnt/nas/archive  cifs  credentials=/root/.smbcredentials_archive,uid=0,gid=0,file_mode=0755,dir_mode=0755,vers=3.0,_netdev,nofail  0  0
+//$NAS_PLAYOUT_IP/$NAS_PLAYOUT_SHARE  /mnt/nas/playout  cifs  credentials=/root/.smbcredentials_playout,uid=0,gid=0,file_mode=0755,dir_mode=0755,vers=2.0,_netdev,nofail  0  0
+//$NAS_ARCHIVE_IP/$NAS_ARCHIVE_SHARE  /mnt/nas/archive  cifs  credentials=/root/.smbcredentials_archive,uid=0,gid=0,file_mode=0755,dir_mode=0755,vers=2.0,_netdev,nofail  0  0
 EOF
 fi
 
@@ -186,7 +186,7 @@ fi
 
 print_header "Шаг 5: Получение кода приложения"
 
-INSTALL_DIR="/opt/ok-tools"
+INSTALL_DIR="/opt/ok_tools"
 
 if [ -d "$INSTALL_DIR/.git" ]; then
     print_warning "Директория $INSTALL_DIR уже существует"
@@ -207,6 +207,12 @@ else
 fi
 
 cd $INSTALL_DIR
+
+# Создай symlink для удобства
+if [ ! -f "docker-compose.yml" ]; then
+    ln -s deployment/docker/docker-compose.local.yml docker-compose.yml
+    print_success "docker-compose.yml создан в корне для упрощения команд"
+fi
 
 # ================================
 # ШАГ 6: Создание конфигурации
@@ -289,19 +295,19 @@ print_header "Шаг 7: Запуск Docker контейнеров"
 cd $INSTALL_DIR
 
 # Останови старые контейнеры если есть
-docker compose -f deployment/docker/docker-compose.local.yml down 2>/dev/null || true
+docker compose down 2>/dev/null || true
 
 # Собери и запусти
 print_warning "Сборка Docker образа (может занять несколько минут)..."
-docker compose -f deployment/docker/docker-compose.local.yml build
+docker compose build
 
 print_warning "Запуск контейнеров..."
-docker compose -f deployment/docker/docker-compose.local.yml up -d
+docker compose up -d
 
 sleep 5
 
 # Проверь статус
-docker compose -f deployment/docker/docker-compose.local.yml ps
+docker compose ps
 
 print_success "Docker контейнеры запущены"
 
@@ -315,7 +321,7 @@ print_warning "Подожди 10 секунд пока применятся ми
 sleep 10
 
 print_warning "Сейчас создадим суперпользователя для админки"
-docker compose -f deployment/docker/docker-compose.local.yml exec web python manage.py createsuperuser
+docker compose exec web python manage.py createsuperuser
 
 # ================================
 # ФИНАЛ
@@ -336,17 +342,17 @@ echo -e "  2. Создай Storage Locations (Media Files → Storage locations)
 echo -e "     - Name: OK Merseburg Playout, Type: PLAYOUT, Path: /mnt/nas/playout/"
 echo -e "     - Name: OK Merseburg Archive, Type: ARCHIVE, Path: /mnt/nas/archive/"
 echo -e "  3. Импортируй дамп базы данных (если нужно):"
-echo -e "     docker compose -f deployment/docker/docker-compose.local.yml exec -T db psql -U oktools oktools < dump.sql"
+echo -e "     cd $INSTALL_DIR && docker compose exec -T db psql -U oktools oktools < dump.sql"
 echo -e "  4. Запусти первое сканирование видео:"
-echo -e "     docker compose -f deployment/docker/docker-compose.local.yml exec web python manage.py scan_video_storage"
+echo -e "     cd $INSTALL_DIR && docker compose exec web python manage.py scan_video_storage"
 echo ""
 echo -e "${BLUE}Полезные команды:${NC}"
 echo -e "  cd $INSTALL_DIR"
-echo -e "  docker compose -f deployment/docker/docker-compose.local.yml ps      # статус"
-echo -e "  docker compose -f deployment/docker/docker-compose.local.yml logs -f # логи"
-echo -e "  docker compose -f deployment/docker/docker-compose.local.yml restart # перезапуск"
-echo -e "  docker compose -f deployment/docker/docker-compose.local.yml down    # остановка"
-echo -e "  docker compose -f deployment/docker/docker-compose.local.yml up -d   # запуск"
+echo -e "  docker compose ps      # статус"
+echo -e "  docker compose logs -f # логи"
+echo -e "  docker compose restart # перезапуск"
+echo -e "  docker compose down    # остановка"
+echo -e "  docker compose up -d   # запуск"
 echo ""
 print_success "Готово!"
 
