@@ -677,27 +677,24 @@ class VideoFileAdmin(admin.ModelAdmin):
             return format_html(
                 '''
                 <div style="max-width: 640px; margin: 10px 0;">
-                    <!-- Video.js CSS -->
-                    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet">
+                    <!-- Plyr CSS -->
+                    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
                     
-                    <!-- Video.js Player -->
+                    <!-- Plyr Player -->
                     <video
-                        id="video-player-{}"
-                        class="video-js vjs-default-skin"
+                        id="plyr-player-{}"
                         controls
                         preload="auto"
                         width="640"
-                        height="360"
-                        data-setup='{{"fluid": true, "responsive": true, "playbackRates": [0.5, 1, 1.25, 1.5, 2]}}'>
+                        height="360">
                         <source src="{}" type="{}">
-                        <p class="vjs-no-js">
-                            Для просмотра видео включите JavaScript или используйте 
+                        <p>Для просмотра видео включите JavaScript или используйте 
                             <a href="{}" download>скачать видео</a>
                         </p>
                     </video>
                     
-                    <!-- Video.js JavaScript -->
-                    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+                    <!-- Plyr JavaScript -->
+                    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
                     
                     <!-- Video Info -->
                     <div style="font-size: 11px; color: #666; margin-top: 10px; background: #f8f8f8; padding: 8px; border-radius: 4px;">
@@ -705,14 +702,20 @@ class VideoFileAdmin(admin.ModelAdmin):
                         <code style="word-break: break-all;">{}</code>
                     </div>
                     
-                    <!-- Initialize Video.js -->
+                    <!-- Initialize Plyr -->
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {{
-                            if (typeof videojs !== 'undefined') {{
-                                var player = videojs('video-player-{}');
-                                player.ready(function() {{
-                                    console.log('Video.js player ready');
+                            if (typeof Plyr !== 'undefined') {{
+                                const player = new Plyr('#plyr-player-{}', {{
+                                    controls: [
+                                        'play-large', 'restart', 'rewind', 'play', 'fast-forward', 'progress',
+                                        'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'
+                                    ],
+                                    settings: ['quality', 'speed'],
+                                    speed: {{ selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }},
+                                    quality: {{ default: 720, options: [1080, 720, 480, 360] }}
                                 }});
+                                console.log('Plyr player ready');
                             }}
                         }});
                     </script>

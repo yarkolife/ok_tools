@@ -3,15 +3,15 @@
 <html>
 <head>
     <title>Video Player - {{ video.filename }}</title>
-    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet">
-    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
     <style>
         body { margin: 0; padding: 20px; background: #f5f5f5; font-family: Arial, sans-serif; }
         .video-container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .video-info { margin-bottom: 20px; }
         .video-info h1 { color: #333; margin: 0 0 10px 0; }
         .video-info p { color: #666; margin: 5px 0; }
-        .video-js { width: 100%; height: auto; max-height: 600px; }
+        .plyr { width: 100%; height: auto; max-height: 600px; }
         .loading { text-align: center; padding: 50px; color: #666; }
         .error { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 4px; margin: 20px 0; }
         .loading-progress { background: #f0f0f0; border-radius: 4px; padding: 10px; margin: 10px 0; }
@@ -32,24 +32,11 @@
 
         {% if video.is_available %}
             <video
-                id="video-player"
-                class="video-js vjs-default-skin"
+                id="plyr-player"
                 controls
-                preload="auto"
-                data-setup='{
-                    "fluid": true,
-                    "responsive": true,
-                    "playbackRates": [0.5, 1, 1.25, 1.5, 2],
-                    "techOrder": ["html5"],
-                    "html5": {
-                        "nativeVideoTracks": false,
-                        "nativeAudioTracks": false,
-                        "nativeTextTracks": false
-                    }
-                }'>
+                preload="auto">
                 <source src="{% url 'admin:media_files_videofile_stream' video.id %}" type="video/{{ video.format|default:'mp4' }}">
-                <p class="vjs-no-js">
-                    Для просмотра видео включите JavaScript или используйте 
+                <p>Для просмотра видео включите JavaScript или используйте 
                     <a href="{% url 'admin:media_files_videofile_stream' video.id %}" download>скачать видео</a>
                 </p>
             </video>
@@ -73,26 +60,24 @@
     </div>
 
     <script>
-        // Инициализация плеера
-        var player = videojs('video-player', {
-            responsive: true,
-            fluid: true,
-            playbackRates: [0.5, 1, 1.25, 1.5, 2],
-            controls: true,
-            preload: 'auto'
+        // Инициализация Plyr плеера
+        const player = new Plyr('#plyr-player', {
+            controls: [
+                'play-large', 'restart', 'rewind', 'play', 'fast-forward', 'progress',
+                'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'
+            ],
+            settings: ['quality', 'speed'],
+            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+            quality: { default: 720, options: [1080, 720, 480, 360] }
         });
 
         // Обработка ошибок
-        player.on('error', function() {
-            var error = player.error();
-            console.error('Video error:', error);
+        player.on('error', function(event) {
+            console.error('Video error:', event.detail);
             
-            if (error.code === 4) {
-                // MEDIA_ERR_SRC_NOT_SUPPORTED
-                document.querySelector('.video-container').innerHTML = 
-                    '<div class="error">❌ Формат видео не поддерживается браузером. ' +
-                    '<a href="{% url "admin:media_files_videofile_stream" video.id %}" download>Скачать файл</a></div>';
-            }
+            document.querySelector('.video-container').innerHTML = 
+                '<div class="error">❌ Ошибка загрузки видео. ' +
+                '<a href="{% url "admin:media_files_videofile_stream" video.id %}" download>Скачать файл</a></div>';
         });
 
         // Показывать прогресс загрузки
@@ -107,8 +92,8 @@
         });
 
         player.on('progress', function() {
-            var buffered = player.buffered();
-            var duration = player.duration();
+            var buffered = player.buffered;
+            var duration = player.duration;
             if (duration > 0) {
                 var bufferedEnd = buffered.length > 0 ? buffered.end(buffered.length - 1) : 0;
                 var percent = Math.round((bufferedEnd / duration) * 100);
@@ -120,17 +105,10 @@
         player.on('canplay', function() {
             console.log('Видео готово к воспроизведению');
             progressDiv.style.display = 'none';
-            
-            // Автоматически начинаем воспроизведение
-            player.play();
         });
-        
-        player.on('loadeddata', function() {
-            console.log('Данные загружены, начинаем воспроизведение');
-            // Принудительно начинаем воспроизведение как только данные загружены
-            if (player.paused()) {
-                player.play();
-            }
+
+        player.on('ready', function() {
+            console.log('Plyr player ready');
         });
 
         player.on('waiting', function() {
