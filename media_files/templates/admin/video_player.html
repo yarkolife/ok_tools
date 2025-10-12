@@ -62,11 +62,11 @@
             <div style="margin-top: 15px; text-align: center;">
                 <p><strong>Для быстрого воспроизведения:</strong></p>
                 <p>
-                    <a href="vlc://{{ video.file_path }}" class="btn" style="background: #ff8800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">🎬 Открыть в VLC</a>
+                    <a href="vlc://{{ video.vlc_path }}" class="btn" style="background: #ff8800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">🎬 Открыть в VLC</a>
                 </p>
                 <p style="font-size: 12px; color: #666; margin-top: 10px;">
                     VLC воспроизводит видео мгновенно!<br>
-                    Путь к файлу: <code>{{ video.file_path }}</code><br>
+                    Путь к файлу: <code>{{ video.vlc_path }}</code><br>
                     <em>Скопируйте путь и откройте в VLC → Медиа → Открыть файл</em>
                 </p>
             </div>

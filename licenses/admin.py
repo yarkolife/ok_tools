@@ -553,19 +553,14 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 
                 # Check if video is available
                 if video_file.is_available:
-                    # Create play link to video player in popup window
-                    play_url = reverse('admin:media_files_videofile_stream', args=[video_file.id])
+                    # Create link to Video.js player page
                     player_url = reverse('admin:media_files_videofile_player', args=[video_file.id])
                     
                     return format_html(
                         '<span style="color: #28a745;">🎬 {}</span><br>'
-                        '<a href="#" onclick="window.open(\'{}\', \'video\', \'width=800,height=600\'); return false;" style="color: #007bff; text-decoration: none; margin-right: 10px;">'
-                        '▶️ {}</a>'
                         '<a href="{}" target="_blank" style="color: #ff8800; text-decoration: none;">'
                         '🎬 Плеер</a>',
                         _('Available'),
-                        play_url,
-                        _('Play'),
                         player_url
                     )
                 else:

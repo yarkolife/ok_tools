@@ -656,7 +656,6 @@ class VideoFileAdmin(admin.ModelAdmin):
         """Embed Video.js player in admin."""
         if obj.is_available and obj.pk:
             stream_url = reverse('admin:media_files_videofile_stream', args=[obj.id])
-            player_url = reverse('admin:media_files_videofile_player', args=[obj.id])
             
             # Get correct MIME type based on file extension
             import os
@@ -671,6 +670,9 @@ class VideoFileAdmin(admin.ModelAdmin):
                 '.webm': 'video/webm',
             }
             mime_type = content_types.get(file_extension, 'video/mp4')
+            
+            # Generate UNC path for VLC
+            vlc_path = self._get_vlc_path(obj)
             
             return format_html(
                 '''
@@ -697,21 +699,18 @@ class VideoFileAdmin(admin.ModelAdmin):
                     <!-- Video.js JavaScript -->
                     <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
                     
-                    <!-- Player Controls -->
+                    <!-- VLC Integration -->
                     <div style="margin-top: 10px; text-align: center;">
-                        <a href="{}" target="_blank" style="background: #417690; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin: 5px; display: inline-block;">
-                            📺 Полноэкранный плеер
-                        </a>
-                        <a href="vlc://{}" style="background: #ff8800; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin: 5px; display: inline-block;">
+                        <a href="vlc://{}" style="background: #ff8800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
                             🎬 Открыть в VLC
                         </a>
                     </div>
                     
                     <!-- File Info -->
                     <div style="font-size: 11px; color: #666; margin-top: 10px; background: #f8f8f8; padding: 8px; border-radius: 4px;">
-                        <strong>Путь к файлу:</strong><br>
+                        <strong>Путь к файлу для VLC:</strong><br>
                         <code style="word-break: break-all;">{}</code><br>
-                        <em>Скопируйте путь для открытия в VLC</em>
+                        <em>Скопируйте путь для открытия в VLC → Медиа → Открыть файл</em>
                     </div>
                     
                     <!-- Initialize Video.js -->
@@ -731,18 +730,37 @@ class VideoFileAdmin(admin.ModelAdmin):
                 stream_url,
                 mime_type,
                 stream_url,
-                player_url,  # Full screen player URL
-                obj.file_path,
-                obj.file_path,
+                vlc_path,
+                vlc_path,
                 obj.id  # video player ID for script
             )
         return _('Video not available')
+    
+    def _get_vlc_path(self, obj):
+        """Generate UNC path for VLC based on storage location."""
+        # Map storage locations to NAS UNC paths
+        nas_mapping = {
+            'ARCHIVE': '\\\\192.168.88.101\\FilmArchiv',
+            'PLAYOUT': '\\\\192.168.88.2\\Playout',
+        }
+        
+        if obj.storage_location and obj.storage_location.storage_type in nas_mapping:
+            nas_base = nas_mapping[obj.storage_location.storage_type]
+            # Convert Unix path to Windows UNC path
+            vlc_path = f"{nas_base}\\{obj.file_path.replace('/', '\\')}"
+        else:
+            # Fallback to original path
+            vlc_path = obj.file_path
+            
+        return vlc_path
     video_player.short_description = _('Video Player')
     
     def video_player_page(self, request, video_id):
         """Display video player page."""
         try:
             video = VideoFile.objects.get(id=video_id)
+            # Add VLC path to video object
+            video.vlc_path = self._get_vlc_path(video)
             return render(request, 'admin/video_player.html', {'video': video})
         except VideoFile.DoesNotExist:
             return HttpResponse('Video not found', status=404)
