@@ -45,10 +45,11 @@ pyvenv.cfg
 bin/
 lib/
 
-# Docker
-docker*.yml
-docker*.cfg
-Dockerfile
+# Docker (only in root, not in deployment/docker/)
+/docker*.yml
+/docker*.cfg
+/Dockerfile
+/docker-compose.yml
 
 # i18n builds
 **/locale/**/LC_MESSAGES/*.mo
@@ -87,21 +88,5 @@ share/
 static/
 venv/
 .cursor/
-.coveragerc
-.isort.cfg
-CHANGES.md
-conftest.py
-docker-compose.yml
-docker.cfg
-Dockerfile
-gunicorn.conf.py.example
-manage.py
-memory.json
-production.cfg.example
-pytest.ini
-requirements-docker.txt
-setup.py
-test.cfg
-test.html
 .coverage
 playout/*.mp4
