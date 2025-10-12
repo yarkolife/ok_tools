@@ -35,7 +35,7 @@
                 id="video-player"
                 class="video-js vjs-default-skin"
                 controls
-                preload="metadata"
+                preload="auto"
                 data-setup='{
                     "fluid": true,
                     "responsive": true,
@@ -58,6 +58,18 @@
                 <div class="progress-bar" style="width: 0%"></div>
                 <div class="progress-text">Загрузка видео...</div>
             </div>
+            
+            <div style="margin-top: 15px; text-align: center;">
+                <p><strong>Альтернативные способы просмотра:</strong></p>
+                <p>
+                    <a href="{% url 'admin:media_files_videofile_stream' video.id %}" download class="btn" style="background: #28a745; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin: 5px;">📥 Скачать файл</a>
+                    <a href="vlc://{{ video.file_path }}" class="btn" style="background: #ff8800; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin: 5px;">🎬 Открыть в VLC</a>
+                </p>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                    Для VLC: скопируйте путь к файлу и откройте в VLC → Медиа → Открыть файл<br>
+                    Путь: <code>{{ video.file_path }}</code>
+                </p>
+            </div>
         {% else %}
             <div class="error">
                 ❌ Видеофайл недоступен. Проверьте путь: {{ video.file_path }}
@@ -72,7 +84,7 @@
             fluid: true,
             playbackRates: [0.5, 1, 1.25, 1.5, 2],
             controls: true,
-            preload: 'metadata'
+            preload: 'auto'
         });
 
         // Обработка ошибок
@@ -114,13 +126,15 @@
             console.log('Видео готово к воспроизведению');
             progressDiv.style.display = 'none';
             
-            // Автоматически начинаем воспроизведение если загружено достаточно
-            if (player.buffered().length > 0) {
-                var bufferedEnd = player.buffered().end(player.buffered().length - 1);
-                var duration = player.duration();
-                if (duration > 0 && (bufferedEnd / duration) > 0.1) { // 10% загружено
-                    player.play();
-                }
+            // Автоматически начинаем воспроизведение
+            player.play();
+        });
+        
+        player.on('loadeddata', function() {
+            console.log('Данные загружены, начинаем воспроизведение');
+            // Принудительно начинаем воспроизведение как только данные загружены
+            if (player.paused()) {
+                player.play();
             }
         });
 
