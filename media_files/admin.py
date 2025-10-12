@@ -697,9 +697,11 @@ class VideoFileAdmin(admin.ModelAdmin):
                     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
                     
                     <!-- Video Info -->
-                    <div style="font-size: 11px; color: #666; margin-top: 10px; background: #f8f8f8; padding: 8px; border-radius: 4px;">
-                        <strong>Информация о файле:</strong><br>
-                        <code style="word-break: break-all;">{}</code>
+                    <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
+                        <div style="font-size: 12px; color: #333; margin-bottom: 5px;">
+                            <strong>📁 Путь к файлу:</strong>
+                        </div>
+                        <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{}</code>
                     </div>
                     
                     <!-- Initialize Plyr -->
