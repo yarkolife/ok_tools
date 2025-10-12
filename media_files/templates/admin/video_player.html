@@ -62,13 +62,26 @@
             <div style="margin-top: 15px; text-align: center;">
                 <p><strong>Для быстрого воспроизведения:</strong></p>
                 <p>
-                    <a href="vlc://{{ video.vlc_path }}" class="btn" style="background: #ff8800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">🎬 Открыть в VLC</a>
+                    <button onclick="openInVLC('{{ video.vlc_path }}')" style="background: #ff8800; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 5px;">
+                        🎬 Открыть в VLC
+                    </button>
+                    <button onclick="copyToClipboard('{{ video.vlc_path }}')" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 5px;">
+                        📋 Скопировать путь
+                    </button>
                 </p>
                 <p style="font-size: 12px; color: #666; margin-top: 10px;">
                     VLC воспроизводит видео мгновенно!<br>
                     Путь к файлу: <code>{{ video.vlc_path }}</code><br>
                     <em>Скопируйте путь и откройте в VLC → Медиа → Открыть файл</em>
                 </p>
+                
+                <!-- Instructions for enabling VLC protocol -->
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin-top: 10px; font-size: 11px;">
+                    <strong>💡 Если VLC не открывается автоматически:</strong><br>
+                    <strong>Chrome/Edge:</strong> chrome://settings/content/protocolHandlers → разреши vlc://<br>
+                    <strong>Firefox:</strong> about:config → network.protocol-handler.external.vlc = true<br>
+                    <strong>Или:</strong> используйте кнопку "Скопировать путь" и откройте в VLC вручную
+                </div>
             </div>
         {% else %}
             <div class="error">

@@ -701,9 +701,12 @@ class VideoFileAdmin(admin.ModelAdmin):
                     
                     <!-- VLC Integration -->
                     <div style="margin-top: 10px; text-align: center;">
-                        <a href="vlc://{}" style="background: #ff8800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+                        <button onclick="openInVLC('{}')" style="background: #ff8800; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 5px;">
                             🎬 Открыть в VLC
-                        </a>
+                        </button>
+                        <button onclick="copyToClipboard('{}')" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 5px;">
+                            📋 Скопировать путь
+                        </button>
                     </div>
                     
                     <!-- File Info -->
@@ -713,7 +716,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                         <em>Скопируйте путь для открытия в VLC → Медиа → Открыть файл</em>
                     </div>
                     
-                    <!-- Initialize Video.js -->
+                    <!-- Initialize Video.js and VLC functions -->
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {{
                             if (typeof videojs !== 'undefined') {{
@@ -723,6 +726,63 @@ class VideoFileAdmin(admin.ModelAdmin):
                                 }});
                             }}
                         }});
+                        
+                        function openInVLC(path) {{
+                            try {{
+                                // Try to open with vlc:// protocol
+                                window.location.href = 'vlc://' + path;
+                                
+                                // If that fails, show instructions
+                                setTimeout(function() {{
+                                    if (confirm('VLC не открылся автоматически.\\n\\n' +
+                                               'Скопируйте путь и откройте в VLC вручную:\\n' +
+                                               '1. Откройте VLC Media Player\\n' +
+                                               '2. Медиа → Открыть файл\\n' +
+                                               '3. Вставьте скопированный путь\\n\\n' +
+                                               'Скопировать путь в буфер обмена?')) {{
+                                        copyToClipboard(path);
+                                    }}
+                                }}, 1000);
+                            }} catch(e) {{
+                                alert('Ошибка открытия VLC: ' + e.message + '\\n\\nСкопируйте путь вручную.');
+                            }}
+                        }}
+                        
+                        function copyToClipboard(text) {{
+                            if (navigator.clipboard) {{
+                                navigator.clipboard.writeText(text).then(function() {{
+                                    alert('Путь скопирован в буфер обмена!\\n\\n' + text);
+                                }}).catch(function(err) {{
+                                    fallbackCopyTextToClipboard(text);
+                                }});
+                            }} else {{
+                                fallbackCopyTextToClipboard(text);
+                            }}
+                        }}
+                        
+                        function fallbackCopyTextToClipboard(text) {{
+                            var textArea = document.createElement("textarea");
+                            textArea.value = text;
+                            textArea.style.position = "fixed";
+                            textArea.style.left = "-999999px";
+                            textArea.style.top = "-999999px";
+                            document.body.appendChild(textArea);
+                            textArea.focus();
+                            textArea.select();
+                            
+                            try {{
+                                var successful = document.execCommand('copy');
+                                if (successful) {{
+                                    alert('Путь скопирован в буфер обмена!\\n\\n' + text);
+                                }} else {{
+                                    alert('Не удалось скопировать. Скопируйте вручную:\\n\\n' + text);
+                                }}
+                            }} catch (err) {{
+                                alert('Не удалось скопировать. Скопируйте вручную:\\n\\n' + text);
+                            }}
+                            
+                            document.body.removeChild(textArea);
+                        }}
                     </script>
                 </div>
                 ''',
