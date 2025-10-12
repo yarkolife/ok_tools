@@ -208,11 +208,9 @@ fi
 
 cd $INSTALL_DIR
 
-# Создай symlink для удобства
-if [ ! -f "docker-compose.yml" ]; then
-    ln -s deployment/docker/docker-compose.local.yml docker-compose.yml
-    print_success "docker-compose.yml создан в корне для упрощения команд"
-fi
+# Скопируй docker-compose для запуска из корня
+cp docker-compose.local.yml docker-compose.yml
+print_success "docker-compose.yml скопирован в корень для упрощения команд"
 
 # ================================
 # ШАГ 6: Создание конфигурации
