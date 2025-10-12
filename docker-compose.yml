@@ -1,0 +1,55 @@
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: oktools
+      POSTGRES_USER: oktools
+      POSTGRES_PASSWORD: oktools123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OKTOOLS_CONFIG_FILE=docker.cfg
+      - DATABASE_URL=postgresql://oktools:oktools123@db:5432/oktools
+      - DJANGO_SETTINGS_MODULE=ok_tools.settings
+      - PYTHONPATH=/app
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      # NAS storage - замени путь на реальный после монтирования
+      - /mnt/nas:/mnt/nas
+    command: python manage.py runserver 0.0.0.0:8000
+
+  cron:
+    build: .
+    environment:
+      - OKTOOLS_CONFIG_FILE=docker.cfg
+      - DATABASE_URL=postgresql://oktools:oktools123@db:5432/oktools
+      - DJANGO_SETTINGS_MODULE=ok_tools.settings
+      - PYTHONPATH=/app
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - ./logs:/var/log
+      # NAS storage - замени путь на реальный после монтирования
+      - /mnt/nas:/mnt/nas
+    command: |
+      sh -c "
+        echo '*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /var/log/expire_rentals.log 2>&1' > /etc/cron.d/expire_rentals &&
+        chmod 0644 /etc/cron.d/expire_rentals &&
+        touch /var/log/expire_rentals.log &&
+        service cron start &&
+        tail -f /var/log/expire_rentals.log
+      "
+
+volumes:
+  postgres_data:
