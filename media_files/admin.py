@@ -249,7 +249,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (None, {
-            'fields': ('name', 'storage_type', 'path', 'is_active')
+            'fields': ('name', 'storage_type', 'path', 'unc_path', 'is_active')
         }),
         (_('Scanning'), {
             'fields': ('scan_enabled', 'scan_schedule')
