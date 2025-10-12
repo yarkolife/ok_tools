@@ -370,3 +370,7 @@ VIDEO_AUTO_COPY_ON_SCHEDULE = config.getboolean("media", "auto_copy_on_schedule"
 VIDEO_STORAGE_PRIORITY = config.get("media", "storage_priority", fallback="ARCHIVE,PLAYOUT,CUSTOM")
 VIDEO_PREVENT_ARCHIVE_DUPLICATES = config.getboolean("media", "prevent_archive_duplicates", fallback=True)
 VIDEO_AUTO_DETECT_DUPLICATES = config.getboolean("media", "auto_detect_duplicates", fallback=True)
+
+# NAS UNC paths for VLC integration
+NAS_ARCHIVE_UNC_PATH = config.get("nas_storage", "archive_unc_path", fallback="\\\\192.168.88.101\\FilmArchiv")
+NAS_PLAYOUT_UNC_PATH = config.get("nas_storage", "playout_unc_path", fallback="\\\\192.168.88.2\\Sendedaten")
