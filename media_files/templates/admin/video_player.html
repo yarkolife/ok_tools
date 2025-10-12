@@ -48,9 +48,16 @@
             
             <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                 <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
-                    <strong>📁 Путь к файлу:</strong>
+                    <strong>📁 Путь к файлу (Linux):</strong>
                 </div>
                 <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.full_path }}</code>
+                
+                {% if video.unc_path %}
+                <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
+                    <strong>💾 Путь к файлу (Windows UNC):</strong>
+                </div>
+                <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.unc_path }}</code>
+                {% endif %}
             </div>
         {% else %}
             <div class="error">

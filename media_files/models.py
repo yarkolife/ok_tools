@@ -35,6 +35,12 @@ class StorageLocation(models.Model):
         verbose_name=_('Path'),
         help_text=_('Absolute path to the storage directory (e.g., /mnt/archive/)'),
     )
+    unc_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('UNC Path'),
+        help_text=_('Windows UNC path (e.g., \\\\192.168.88.2\\Share) - optional'),
+    )
     is_active = models.BooleanField(
         default=True,
         verbose_name=_('Active'),
@@ -298,6 +304,16 @@ class VideoFile(models.Model):
         """Return absolute file path."""
         from pathlib import Path
         return str(Path(self.storage_location.path) / self.file_path)
+
+    @property
+    def unc_path(self):
+        """Return Windows UNC path if configured."""
+        if self.storage_location.unc_path:
+            # Replace forward slashes with backslashes for Windows
+            relative_path = self.file_path.replace('/', '\\')
+            # Combine UNC base with relative path
+            return f"{self.storage_location.unc_path}\\{relative_path}"
+        return None
 
     @property
     def resolution_display(self):

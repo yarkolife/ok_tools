@@ -699,9 +699,10 @@ class VideoFileAdmin(admin.ModelAdmin):
                     <!-- Video Info -->
                     <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                         <div style="font-size: 12px; color: #333; margin-bottom: 5px;">
-                            <strong>📁 Путь к файлу:</strong>
+                            <strong>📁 Путь к файлу (Linux):</strong>
                         </div>
                         <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{}</code>
+                        {}
                     </div>
                     
                     <!-- Initialize Plyr -->
@@ -728,6 +729,12 @@ class VideoFileAdmin(admin.ModelAdmin):
                 mime_type,
                 stream_url,
                 obj.full_path,
+                f'''
+                    <div style="font-size: 12px; color: #333; margin-top: 10px; margin-bottom: 5px;">
+                        <strong>💾 Путь к файлу (Windows UNC):</strong>
+                    </div>
+                    <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{obj.unc_path}</code>
+                ''' if obj.unc_path else '',
                 obj.id  # video player ID for script
             )
         return _('Video not available')
