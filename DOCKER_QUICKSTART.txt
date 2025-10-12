@@ -1,0 +1,243 @@
+═══════════════════════════════════════════════════════════════════════════
+  УСТАНОВКА OK TOOLS ЧЕРЕЗ DOCKER (ЛОКАЛЬНАЯ СЕТЬ)
+  Организация: OK Merseburg - Тестовый сервер
+═══════════════════════════════════════════════════════════════════════════
+
+🐳 ТИП УСТАНОВКИ: Docker (без nginx, без домена, доступ по IP)
+
+📦 ЧТО УСТАНОВИТСЯ:
+   ✓ PostgreSQL 15 (в контейнере)
+   ✓ Django + Gunicorn (в контейнере, порт 8000)
+   ✓ Cron задачи (в контейнере)
+   ✗ НЕ нужен Python на сервере
+   ✗ НЕ нужен PostgreSQL на сервере
+   ✗ НЕ нужен Gunicorn на сервере
+
+✅ ПРЕИМУЩЕСТВА:
+   - Установка за 5-10 минут (один скрипт)
+   - Всё изолировано в контейнерах
+   - Легко обновлять (git pull + rebuild)
+   - Легко откатывать (если что-то пошло не так)
+
+───────────────────────────────────────────────────────────────────────────
+🚀 УСТАНОВКА В 3 ШАГА
+───────────────────────────────────────────────────────────────────────────
+
+1️⃣  Подключись к серверу:
+    
+    ssh user@YOUR_SERVER_IP
+
+
+2️⃣  Клонируй репозиторий:
+    
+    sudo apt update && sudo apt install -y git
+    cd /opt
+    sudo git clone https://github.com/yarkolife/ok_tools.git
+    cd ok_tools
+
+
+3️⃣  Запусти установку:
+    
+    sudo bash deployment/docker/setup-docker-local.sh
+
+    
+    Скрипт спросит:
+    • IP адрес сервера (автоопределится)
+    • IP и credentials для NAS Playout
+    • IP и credentials для NAS Archive (или тот же)
+    • Username/email/password для суперпользователя Django
+
+
+✅ ГОТОВО! Установка завершена за ~5-10 минут
+
+───────────────────────────────────────────────────────────────────────────
+🎯 ДОСТУП К ПРИЛОЖЕНИЮ
+───────────────────────────────────────────────────────────────────────────
+
+Админка:     http://192.168.1.100:8000/admin/
+Главная:     http://192.168.1.100:8000/
+API:         http://192.168.1.100:8000/api/
+
+(замени 192.168.1.100 на свой IP)
+
+───────────────────────────────────────────────────────────────────────────
+📋 ПОСЛЕ УСТАНОВКИ
+───────────────────────────────────────────────────────────────────────────
+
+A) СОЗДАЙ STORAGE LOCATIONS
+
+   Открой: http://YOUR_IP:8000/admin/
+   Media Files → Storage locations → Add:
+   
+   Playout:
+     Name: OK Merseburg Playout
+     Type: PLAYOUT
+     Path: /mnt/nas/playout/
+   
+   Archive:
+     Name: OK Merseburg Archive
+     Type: ARCHIVE
+     Path: /mnt/nas/archive/
+
+
+B) ИМПОРТ ДАМПА (если нужно)
+
+   # Скопируй дамп на сервер
+   scp /path/to/dump.sql user@SERVER_IP:/tmp/
+   
+   # На сервере импортируй
+   cd /opt/ok_tools
+   docker compose -f deployment/docker/docker-compose.local.yml exec -T db \
+     psql -U oktools oktools < /tmp/dump.sql
+
+
+C) ПЕРВОЕ СКАНИРОВАНИЕ ВИДЕО
+
+   cd /opt/ok_tools
+   docker compose -f deployment/docker/docker-compose.local.yml exec web \
+     python manage.py scan_video_storage
+
+───────────────────────────────────────────────────────────────────────────
+🔧 ОСНОВНЫЕ КОМАНДЫ
+───────────────────────────────────────────────────────────────────────────
+
+Все команды выполняются из: cd /opt/ok_tools
+
+СТАТУС КОНТЕЙНЕРОВ:
+  docker compose -f deployment/docker/docker-compose.local.yml ps
+
+ЛОГИ (real-time):
+  docker compose -f deployment/docker/docker-compose.local.yml logs -f
+
+ПЕРЕЗАПУСК:
+  docker compose -f deployment/docker/docker-compose.local.yml restart
+
+ОСТАНОВКА:
+  docker compose -f deployment/docker/docker-compose.local.yml down
+
+ЗАПУСК:
+  docker compose -f deployment/docker/docker-compose.local.yml up -d
+
+DJANGO КОМАНДЫ:
+  docker compose -f deployment/docker/docker-compose.local.yml exec web \
+    python manage.py [команда]
+
+ПРИМЕРЫ:
+  # Создать суперпользователя
+  docker compose -f deployment/docker/docker-compose.local.yml exec web \
+    python manage.py createsuperuser
+  
+  # Сканирование видео
+  docker compose -f deployment/docker/docker-compose.local.yml exec web \
+    python manage.py scan_video_storage
+  
+  # Django shell
+  docker compose -f deployment/docker/docker-compose.local.yml exec web \
+    python manage.py shell
+
+───────────────────────────────────────────────────────────────────────────
+🔄 ОБНОВЛЕНИЕ ПРИЛОЖЕНИЯ
+───────────────────────────────────────────────────────────────────────────
+
+cd /opt/ok_tools
+
+# 1. Получи обновления
+git pull origin main
+
+# 2. Пересобери образ
+docker compose -f deployment/docker/docker-compose.local.yml build
+
+# 3. Перезапусти
+docker compose -f deployment/docker/docker-compose.local.yml down
+docker compose -f deployment/docker/docker-compose.local.yml up -d
+
+# 4. Миграции (если есть)
+docker compose -f deployment/docker/docker-compose.local.yml exec web \
+  python manage.py migrate
+
+───────────────────────────────────────────────────────────────────────────
+💾 БЭКАП БАЗЫ ДАННЫХ
+───────────────────────────────────────────────────────────────────────────
+
+cd /opt/ok_tools
+
+# Создать бэкап
+docker compose -f deployment/docker/docker-compose.local.yml exec -T db \
+  pg_dump -U oktools oktools > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# Восстановить
+docker compose -f deployment/docker/docker-compose.local.yml exec -T db \
+  psql -U oktools oktools < backup_20241012.sql
+
+───────────────────────────────────────────────────────────────────────────
+🐛 TROUBLESHOOTING
+───────────────────────────────────────────────────────────────────────────
+
+Приложение не открывается:
+  → docker compose -f deployment/docker/docker-compose.local.yml ps
+  → docker compose -f deployment/docker/docker-compose.local.yml logs web
+  → curl http://localhost:8000
+
+NAS не виден:
+  → mount | grep cifs  (на хосте, НЕ в контейнере)
+  → ls -la /mnt/nas/playout
+  → sudo mount -a
+
+Контейнеры не запускаются:
+  → docker compose -f deployment/docker/docker-compose.local.yml logs
+  → sudo systemctl restart docker
+  → docker compose -f deployment/docker/docker-compose.local.yml down -v
+  → docker compose -f deployment/docker/docker-compose.local.yml up -d
+
+───────────────────────────────────────────────────────────────────────────
+💡 СОВЕТ: Создай алиас для упрощения
+───────────────────────────────────────────────────────────────────────────
+
+Добавь в ~/.bashrc:
+
+alias oktools='cd /opt/ok_tools && docker compose -f deployment/docker/docker-compose.local.yml'
+
+Теперь можешь:
+  oktools ps
+  oktools logs -f
+  oktools restart
+  oktools exec web python manage.py scan_video_storage
+
+───────────────────────────────────────────────────────────────────────────
+📚 ПОЛНАЯ ДОКУМЕНТАЦИЯ
+───────────────────────────────────────────────────────────────────────────
+
+INSTALL_DOCKER_LOCAL.md
+  → Полная документация по Docker установке
+
+deployment/docker/docker-compose.local.yml
+  → Docker Compose конфигурация
+
+deployment/docker/config-local.example.cfg
+  → Пример конфигурации
+
+media_files/ADMIN_GUIDE.md
+  → Руководство по работе с видеофайлами
+
+───────────────────────────────────────────────────────────────────────────
+✅ CHECKLIST
+───────────────────────────────────────────────────────────────────────────
+
+После установки проверь:
+
+□ Контейнеры запущены (docker compose ps)
+□ Приложение доступно (http://IP:8000)
+□ Вход в админку работает
+□ NAS смонтированы (mount | grep cifs)
+□ Storage Locations созданы
+□ Дамп импортирован (если нужно)
+□ Первое сканирование выполнено
+
+───────────────────────────────────────────────────────────────────────────
+
+🎉 ГОТОВО! Тестовый сервер OK Merseburg работает в Docker.
+
+Репозиторий: https://github.com/yarkolife/ok_tools.git
+
+═══════════════════════════════════════════════════════════════════════════
+
