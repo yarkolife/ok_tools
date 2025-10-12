@@ -558,8 +558,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     
                     return format_html(
                         '<span style="color: #28a745;">🎬 {}</span><br>'
-                        '<a href="{}" target="_blank" style="color: #ff8800; text-decoration: none;">'
-                        '🎬 Плеер</a>',
+                        '<a href="{}" target="_blank" style="color: #007bff; text-decoration: none;">'
+                        '▶️ Плеер</a>',
                         _('Available'),
                         player_url
                     )

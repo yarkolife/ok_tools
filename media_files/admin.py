@@ -699,24 +699,13 @@ class VideoFileAdmin(admin.ModelAdmin):
                     <!-- Video.js JavaScript -->
                     <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
                     
-                    <!-- VLC Integration -->
-                    <div style="margin-top: 10px; text-align: center;">
-                        <button onclick="openInVLC('{}')" style="background: #ff8800; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 5px;">
-                            🎬 Открыть в VLC
-                        </button>
-                        <button onclick="copyToClipboard('{}')" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin: 5px;">
-                            📋 Скопировать путь
-                        </button>
-                    </div>
-                    
-                    <!-- File Info -->
+                    <!-- Video Info -->
                     <div style="font-size: 11px; color: #666; margin-top: 10px; background: #f8f8f8; padding: 8px; border-radius: 4px;">
-                        <strong>Путь к файлу для VLC:</strong><br>
-                        <code style="word-break: break-all;">{}</code><br>
-                        <em>Скопируйте путь для открытия в VLC → Медиа → Открыть файл</em>
+                        <strong>Информация о файле:</strong><br>
+                        <code style="word-break: break-all;">{}</code>
                     </div>
                     
-                    <!-- Initialize Video.js and VLC functions -->
+                    <!-- Initialize Video.js -->
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {{
                             if (typeof videojs !== 'undefined') {{
@@ -726,63 +715,6 @@ class VideoFileAdmin(admin.ModelAdmin):
                                 }});
                             }}
                         }});
-                        
-                        function openInVLC(path) {{
-                            try {{
-                                // Try to open with vlc:// protocol
-                                window.location.href = 'vlc://' + path;
-                                
-                                // If that fails, show instructions
-                                setTimeout(function() {{
-                                    if (confirm('VLC не открылся автоматически.\\n\\n' +
-                                               'Скопируйте путь и откройте в VLC вручную:\\n' +
-                                               '1. Откройте VLC Media Player\\n' +
-                                               '2. Медиа → Открыть файл\\n' +
-                                               '3. Вставьте скопированный путь\\n\\n' +
-                                               'Скопировать путь в буфер обмена?')) {{
-                                        copyToClipboard(path);
-                                    }}
-                                }}, 1000);
-                            }} catch(e) {{
-                                alert('Ошибка открытия VLC: ' + e.message + '\\n\\nСкопируйте путь вручную.');
-                            }}
-                        }}
-                        
-                        function copyToClipboard(text) {{
-                            if (navigator.clipboard) {{
-                                navigator.clipboard.writeText(text).then(function() {{
-                                    alert('Путь скопирован в буфер обмена!\\n\\n' + text);
-                                }}).catch(function(err) {{
-                                    fallbackCopyTextToClipboard(text);
-                                }});
-                            }} else {{
-                                fallbackCopyTextToClipboard(text);
-                            }}
-                        }}
-                        
-                        function fallbackCopyTextToClipboard(text) {{
-                            var textArea = document.createElement("textarea");
-                            textArea.value = text;
-                            textArea.style.position = "fixed";
-                            textArea.style.left = "-999999px";
-                            textArea.style.top = "-999999px";
-                            document.body.appendChild(textArea);
-                            textArea.focus();
-                            textArea.select();
-                            
-                            try {{
-                                var successful = document.execCommand('copy');
-                                if (successful) {{
-                                    alert('Путь скопирован в буфер обмена!\\n\\n' + text);
-                                }} else {{
-                                    alert('Не удалось скопировать. Скопируйте вручную:\\n\\n' + text);
-                                }}
-                            }} catch (err) {{
-                                alert('Не удалось скопировать. Скопируйте вручную:\\n\\n' + text);
-                            }}
-                            
-                            document.body.removeChild(textArea);
-                        }}
                     </script>
                 </div>
                 ''',
@@ -790,43 +722,17 @@ class VideoFileAdmin(admin.ModelAdmin):
                 stream_url,
                 mime_type,
                 stream_url,
-                vlc_path,
-                vlc_path,
+                obj.file_path,
                 obj.id  # video player ID for script
             )
         return _('Video not available')
     
-    def _get_vlc_path(self, obj):
-        """Generate UNC path for VLC based on storage location."""
-        from django.conf import settings
-        
-        # Get UNC paths from configuration
-        archive_unc = getattr(settings, 'NAS_ARCHIVE_UNC_PATH', '\\\\192.168.88.101\\FilmArchiv')
-        playout_unc = getattr(settings, 'NAS_PLAYOUT_UNC_PATH', '\\\\192.168.88.2\\Sendedaten')
-        
-        # Map storage locations to NAS UNC paths
-        nas_mapping = {
-            'ARCHIVE': archive_unc,
-            'PLAYOUT': playout_unc,
-        }
-        
-        if obj.storage_location and obj.storage_location.storage_type in nas_mapping:
-            nas_base = nas_mapping[obj.storage_location.storage_type]
-            # Convert Unix path to Windows UNC path
-            vlc_path = f"{nas_base}\\{obj.file_path.replace('/', '\\')}"
-        else:
-            # Fallback to original path
-            vlc_path = obj.file_path
-            
-        return vlc_path
     video_player.short_description = _('Video Player')
     
     def video_player_page(self, request, video_id):
         """Display video player page."""
         try:
             video = VideoFile.objects.get(id=video_id)
-            # Add VLC path to video object
-            video.vlc_path = self._get_vlc_path(video)
             return render(request, 'admin/video_player.html', {'video': video})
         except VideoFile.DoesNotExist:
             return HttpResponse('Video not found', status=404)
