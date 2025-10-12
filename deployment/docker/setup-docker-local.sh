@@ -225,18 +225,18 @@ mkdir -p deployment/docker/config
 SECRET_KEY=$(python3 -c "from secrets import token_urlsafe; print(token_urlsafe(50))" 2>/dev/null || openssl rand -base64 50)
 
 cat > deployment/docker/config/production.cfg <<EOF
-[database]
-name = oktools
-user = oktools
-password = oktools123
-host = db
-port = 5432
+[django]
+db_name = $DB_NAME
+db_user = $DB_USER
+db_pw = $DB_PASSWORD
+db_host = db
+db_port = 5432
+allowed_hosts = $SERVER_IP localhost 127.0.0.1 *
+secret_key = $SECRET_KEY
+debug = False
 
 [site]
 domain = $SERVER_IP
-debug = False
-allowed_hosts = $SERVER_IP localhost 127.0.0.1 *
-secret_key = $SECRET_KEY
 language = de
 time_zone = Europe/Berlin
 
