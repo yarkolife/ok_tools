@@ -756,7 +756,8 @@ class VideoFileAdmin(admin.ModelAdmin):
             response['Content-Length'] = str(file_size)
             response['Accept-Ranges'] = 'bytes'
             response['Content-Disposition'] = 'inline'
-            response['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
+                    response['Cache-Control'] = 'public, max-age=86400'  # Cache for 24 hours
+                    response['X-Accel-Buffering'] = 'no'  # Disable nginx buffering
             
             return response
             

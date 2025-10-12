@@ -14,6 +14,9 @@
         .video-js { width: 100%; height: auto; max-height: 600px; }
         .loading { text-align: center; padding: 50px; color: #666; }
         .error { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 4px; margin: 20px 0; }
+        .loading-progress { background: #f0f0f0; border-radius: 4px; padding: 10px; margin: 10px 0; }
+        .progress-bar { background: #2196F3; height: 20px; border-radius: 4px; transition: width 0.3s; }
+        .progress-text { text-align: center; margin-top: 5px; color: #666; }
     </style>
 </head>
 <body>
@@ -32,7 +35,7 @@
                 id="video-player"
                 class="video-js vjs-default-skin"
                 controls
-                preload="metadata"
+                preload="auto"
                 data-setup='{
                     "fluid": true,
                     "responsive": true,
@@ -50,6 +53,11 @@
                     <a href="{% url 'admin:media_files_videofile_stream' video.id %}" download>скачать видео</a>
                 </p>
             </video>
+            
+            <div id="loading-progress" class="loading-progress" style="display: none;">
+                <div class="progress-bar" style="width: 0%"></div>
+                <div class="progress-text">Загрузка видео...</div>
+            </div>
         {% else %}
             <div class="error">
                 ❌ Видеофайл недоступен. Проверьте путь: {{ video.file_path }}
@@ -64,7 +72,7 @@
             fluid: true,
             playbackRates: [0.5, 1, 1.25, 1.5, 2],
             controls: true,
-            preload: 'metadata'
+            preload: 'auto'
         });
 
         // Обработка ошибок
@@ -81,16 +89,41 @@
         });
 
         // Показывать прогресс загрузки
+        var progressDiv = document.getElementById('loading-progress');
+        var progressBar = progressDiv.querySelector('.progress-bar');
+        var progressText = progressDiv.querySelector('.progress-text');
+        
         player.on('loadstart', function() {
             console.log('Начинается загрузка видео...');
+            progressDiv.style.display = 'block';
+            progressText.textContent = 'Загрузка видео...';
+        });
+
+        player.on('progress', function() {
+            var buffered = player.buffered();
+            var duration = player.duration();
+            if (duration > 0) {
+                var bufferedEnd = buffered.length > 0 ? buffered.end(buffered.length - 1) : 0;
+                var percent = Math.round((bufferedEnd / duration) * 100);
+                progressBar.style.width = percent + '%';
+                progressText.textContent = 'Загрузка видео... ' + percent + '%';
+            }
         });
 
         player.on('canplay', function() {
             console.log('Видео готово к воспроизведению');
+            progressDiv.style.display = 'none';
         });
 
         player.on('waiting', function() {
             console.log('Буферизация...');
+            progressDiv.style.display = 'block';
+            progressText.textContent = 'Буферизация...';
+        });
+
+        player.on('canplaythrough', function() {
+            console.log('Видео полностью загружено');
+            progressDiv.style.display = 'none';
         });
     </script>
 </body>
