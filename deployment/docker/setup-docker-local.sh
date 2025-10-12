@@ -208,9 +208,10 @@ fi
 
 cd $INSTALL_DIR
 
-# Скопируй docker-compose для запуска из корня
-cp docker-compose.local.yml docker-compose.yml
-print_success "docker-compose.yml скопирован в корень для упрощения команд"
+# Скопируй Docker файлы из deployment/docker/ в корень для установки
+cp deployment/docker/Dockerfile ./
+cp deployment/docker/docker-compose.yml ./
+print_success "Docker файлы скопированы в корень для установки"
 
 # ================================
 # ШАГ 6: Создание конфигурации
@@ -346,11 +347,14 @@ echo -e "     cd $INSTALL_DIR && docker compose exec web python manage.py scan_v
 echo ""
 echo -e "${BLUE}Полезные команды:${NC}"
 echo -e "  cd $INSTALL_DIR"
-echo -e "  docker compose ps      # статус"
-echo -e "  docker compose logs -f # логи"
-echo -e "  docker compose restart # перезапуск"
-echo -e "  docker compose down    # остановка"
-echo -e "  docker compose up -d   # запуск"
+echo -e "  docker compose ps          # статус"
+echo -e "  docker compose logs -f     # логи"
+echo -e "  docker compose restart     # перезапуск"
+echo -e "  docker compose down        # остановка"
+echo -e "  docker compose up -d       # запуск"
+echo ""
+echo -e "${YELLOW}Примечание:${NC} Docker файлы скопированы из deployment/docker/ в корень"
+echo -e "  Для обновления перезапусти скрипт установки"
 echo ""
 print_success "Готово!"
 
