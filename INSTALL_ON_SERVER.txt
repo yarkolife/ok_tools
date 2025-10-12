@@ -1,0 +1,195 @@
+═══════════════════════════════════════════════════════════════════════════
+  УСТАНОВКА OK TOOLS НА ТЕСТОВЫЙ DEBIAN СЕРВЕР
+  Организация: OK Merseburg
+═══════════════════════════════════════════════════════════════════════════
+
+📦 ВСЁ УЖЕ ЗАКОММИЧЕНО И ОТПРАВЛЕНО В GITHUB!
+   Repository: https://github.com/yarkolife/ok_tools.git
+   Branch: main
+
+───────────────────────────────────────────────────────────────────────────
+🚀 СПОСОБ 1: АВТОМАТИЧЕСКАЯ УСТАНОВКА (РЕКОМЕНДУЕТСЯ)
+───────────────────────────────────────────────────────────────────────────
+
+1️⃣  Подключись к серверу:
+    
+    ssh user@YOUR_SERVER_IP
+    # Введи пароль
+
+
+2️⃣  Установи git и клонируй репозиторий:
+    
+    sudo apt update
+    sudo apt install -y git
+    cd /opt
+    sudo git clone https://github.com/yarkolife/ok_tools.git ok-tools
+    cd ok-tools
+
+
+3️⃣  Запусти автоматический установочный скрипт:
+    
+    sudo bash deployment/scripts/setup-ok-merseburg-test.sh
+
+
+4️⃣  Скрипт спросит у тебя:
+    
+    ✓ Пароль для PostgreSQL базы данных
+    ✓ Домен (например: test.ok-merseburg.de)
+    ✓ IP адрес NAS для playout (192.168.188.1)
+    ✓ Имя share для playout (sendedaten)
+    ✓ Логин/пароль для NAS playout
+    ✓ Отдельный NAS для archive? (y/n)
+    ✓ Email настройки (SMTP host, port, login, password)
+    ✓ Credentials суперпользователя Django
+
+
+5️⃣  Установка займет ~10-15 минут
+    
+    Скрипт автоматически:
+    • Установит все необходимые пакеты
+    • Создаст пользователя и директории
+    • Настроит PostgreSQL
+    • Смонтирует NAS хранилища
+    • Создаст виртуальное окружение Python
+    • Установит зависимости
+    • Настроит gunicorn и nginx
+    • Применит миграции Django
+    • Создаст суперпользователя
+
+───────────────────────────────────────────────────────────────────────────
+📋 ПОСЛЕ УСТАНОВКИ
+───────────────────────────────────────────────────────────────────────────
+
+A) ИМПОРТ ДАМПА БАЗЫ ДАННЫХ
+
+   Скопируй дамп на сервер с локальной машины:
+   
+   scp /path/to/dump.sql user@SERVER_IP:/tmp/
+   
+   На сервере импортируй:
+   
+   sudo -u postgres psql oktools_test < /tmp/dump.sql
+
+
+B) СОЗДАЙ STORAGE LOCATIONS
+   
+   Открой: http://test.ok-merseburg.de/admin/
+   
+   Media Files → Storage locations → Add:
+   
+   Playout:
+     Name: OK Merseburg Playout
+     Type: PLAYOUT
+     Path: /mnt/nas/playout/
+   
+   Archive:
+     Name: OK Merseburg Archive
+     Type: ARCHIVE
+     Path: /mnt/nas/archive/
+
+
+C) ПЕРВОЕ СКАНИРОВАНИЕ ВИДЕО
+   
+   sudo su - oktools
+   cd /opt/ok-tools/app
+   source /opt/ok-tools/venv/bin/activate
+   export OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg
+   python manage.py scan_video_storage
+
+
+D) НАСТРОЙ SSL (ОПЦИОНАЛЬНО)
+   
+   sudo certbot --nginx -d test.ok-merseburg.de
+
+───────────────────────────────────────────────────────────────────────────
+🔧 ПОЛЕЗНЫЕ КОМАНДЫ
+───────────────────────────────────────────────────────────────────────────
+
+Статус:
+  sudo systemctl status oktools
+  sudo systemctl status nginx
+  mount | grep cifs
+
+Логи:
+  sudo journalctl -u oktools -f
+  sudo tail -f /var/log/nginx/oktools-error.log
+
+Перезапуск:
+  sudo systemctl restart oktools
+  sudo systemctl restart nginx
+
+Обновление с GitHub:
+  sudo su - oktools
+  cd /opt/ok-tools/app
+  git pull origin main
+  source /opt/ok-tools/venv/bin/activate
+  pip install -r requirements.txt
+  python manage.py migrate
+  python manage.py collectstatic --noinput
+  exit
+  sudo systemctl restart oktools
+
+───────────────────────────────────────────────────────────────────────────
+📚 ДОКУМЕНТАЦИЯ
+───────────────────────────────────────────────────────────────────────────
+
+deployment/SSH_INSTALL_QUICKSTART.md
+  → Краткое руководство по SSH установке
+
+deployment/OK_MERSEBURG_TEST_SETUP.md
+  → Полная пошаговая инструкция установки
+
+deployment/NAS_DEBIAN_SETUP.md
+  → Подробная настройка NAS на Debian
+
+deployment/scripts/setup-ok-merseburg-test.sh
+  → Автоматический установочный скрипт
+
+media_files/ADMIN_QUICKSTART.txt
+  → Быстрый старт работы с видеофайлами
+
+media_files/ADMIN_GUIDE.md
+  → Полное руководство по media_files модулю
+
+───────────────────────────────────────────────────────────────────────────
+✅ CHECKLIST
+───────────────────────────────────────────────────────────────────────────
+
+После установки проверь:
+
+□ Приложение доступно через браузер
+□ Вход в админку работает (http://DOMAIN/admin/)
+□ NAS хранилища смонтированы (mount | grep cifs)
+□ Storage Locations созданы в админке
+□ Дамп базы импортирован
+□ Первое сканирование видео выполнено
+□ SSL сертификат установлен (если нужен HTTPS)
+□ Gunicorn работает (sudo systemctl status oktools)
+□ Nginx работает (sudo systemctl status nginx)
+□ Логи без критичных ошибок
+
+───────────────────────────────────────────────────────────────────────────
+🆘 TROUBLESHOOTING
+───────────────────────────────────────────────────────────────────────────
+
+502 Bad Gateway:
+  → sudo systemctl status oktools
+  → sudo journalctl -u oktools -n 50
+
+NAS не монтируется:
+  → ping 192.168.188.1
+  → sudo mount -a
+  → mount | grep cifs
+
+База не подключается:
+  → sudo systemctl status postgresql
+  → sudo -u postgres psql oktools_test
+
+───────────────────────────────────────────────────────────────────────────
+
+🎉 ГОТОВО! Установка готова к запуску на Debian сервере.
+
+Все файлы в репозитории: https://github.com/yarkolife/ok_tools.git
+
+═══════════════════════════════════════════════════════════════════════════
+
