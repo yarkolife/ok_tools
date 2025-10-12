@@ -235,7 +235,7 @@ port = 5432
 [site]
 domain = $SERVER_IP
 debug = False
-allowed_hosts = $SERVER_IP,localhost,127.0.0.1
+allowed_hosts = $SERVER_IP localhost 127.0.0.1 *
 secret_key = $SECRET_KEY
 language = de
 time_zone = Europe/Berlin
