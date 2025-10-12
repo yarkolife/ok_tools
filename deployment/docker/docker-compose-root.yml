@@ -33,18 +33,7 @@ services:
       - media_data:/app/media
       - /mnt/nas/playout:/mnt/nas/playout:ro
       - /mnt/nas/archive:/mnt/nas/archive:ro
-    command: >
-      sh -c "
-        python manage.py migrate &&
-        python manage.py collectstatic --noinput &&
-        gunicorn ok_tools.wsgi:application 
-          --bind 0.0.0.0:8000 
-          --workers 4 
-          --timeout 120 
-          --access-logfile - 
-          --error-logfile - 
-          --log-level info
-      "
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn ok_tools.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120 --access-logfile - --error-logfile - --log-level info"
     restart: unless-stopped
     networks:
       - oktools
@@ -66,15 +55,7 @@ services:
       - ./deployment/docker/config:/config
       - /mnt/nas/playout:/mnt/nas/playout:ro
       - /mnt/nas/archive:/mnt/nas/archive:ro
-    command: >
-      sh -c "
-        apt-get update && apt-get install -y cron &&
-        echo '*/30 * * * * cd /app && python manage.py expire_rentals >> /var/log/cron.log 2>&1' > /etc/cron.d/oktools &&
-        chmod 0644 /etc/cron.d/oktools &&
-        touch /var/log/cron.log &&
-        cron &&
-        tail -f /var/log/cron.log
-      "
+    command: sh -c "apt-get update && apt-get install -y cron && echo '*/30 * * * * cd /app && python manage.py expire_rentals >> /var/log/cron.log 2>&1' > /etc/cron.d/oktools && chmod 0644 /etc/cron.d/oktools && touch /var/log/cron.log && cron && tail -f /var/log/cron.log"
     restart: unless-stopped
     networks:
       - oktools
