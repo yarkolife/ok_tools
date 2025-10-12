@@ -738,10 +738,16 @@ class VideoFileAdmin(admin.ModelAdmin):
     
     def _get_vlc_path(self, obj):
         """Generate UNC path for VLC based on storage location."""
+        from django.conf import settings
+        
+        # Get UNC paths from configuration
+        archive_unc = getattr(settings, 'NAS_ARCHIVE_UNC_PATH', '\\\\192.168.88.101\\FilmArchiv')
+        playout_unc = getattr(settings, 'NAS_PLAYOUT_UNC_PATH', '\\\\192.168.88.2\\Sendedaten')
+        
         # Map storage locations to NAS UNC paths
         nas_mapping = {
-            'ARCHIVE': '\\\\192.168.88.101\\FilmArchiv',
-            'PLAYOUT': '\\\\192.168.88.2\\Playout',
+            'ARCHIVE': archive_unc,
+            'PLAYOUT': playout_unc,
         }
         
         if obj.storage_location and obj.storage_location.storage_type in nas_mapping:
