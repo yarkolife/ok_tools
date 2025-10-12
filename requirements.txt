@@ -63,3 +63,4 @@ psycopg2-binary==2.9.9
 djangorestframework==3.14.0
 django-filter==23.5
 pymediainfo==6.1.0
+whitenoise==6.6.0
