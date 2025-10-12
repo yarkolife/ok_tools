@@ -210,7 +210,7 @@ cd $INSTALL_DIR
 
 # Скопируй Docker файлы из deployment/docker/ в корень для установки
 cp deployment/docker/Dockerfile ./
-cp deployment/docker/docker-compose.yml ./
+cp deployment/docker/docker-compose-root.yml ./docker-compose.yml
 print_success "Docker файлы скопированы в корень для установки"
 
 # ================================
