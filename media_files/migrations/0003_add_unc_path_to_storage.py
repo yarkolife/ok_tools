@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('media_files', '0002_alter_videofile_storage_location'),
+        ('media_files', '0002_remove_number_unique_constraint'),
     ]
 
     operations = [
