@@ -522,6 +522,11 @@ class VideoFileAdmin(admin.ModelAdmin):
                 name='media_files_videofile_stream',
             ),
             path(
+                '<int:video_id>/player/',
+                self.admin_site.admin_view(self.video_player),
+                name='media_files_videofile_player',
+            ),
+            path(
                 'system-management/',
                 self.admin_site.admin_view(system_management_view),
                 name='media_files_system_management',
@@ -671,6 +676,17 @@ class VideoFileAdmin(admin.ModelAdmin):
         return _('Video not available')
     video_player.short_description = _('Video Player')
     
+    def video_player(self, request, video_id):
+        """Display video player page."""
+        try:
+            video = VideoFile.objects.get(id=video_id)
+            return render(request, 'admin/video_player.html', {'video': video})
+        except VideoFile.DoesNotExist:
+            return HttpResponse('Video not found', status=404)
+        except Exception as e:
+            logger.error(f'Error loading video player: {str(e)}', exc_info=True)
+            return HttpResponse(f'Error: {str(e)}', status=500)
+
     def stream_video(self, request, video_id):
         """Stream video file with range support."""
         import os
@@ -740,7 +756,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             response['Content-Length'] = str(file_size)
             response['Accept-Ranges'] = 'bytes'
             response['Content-Disposition'] = 'inline'
-            response['Cache-Control'] = 'no-cache'
+            response['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
             
             return response
             
