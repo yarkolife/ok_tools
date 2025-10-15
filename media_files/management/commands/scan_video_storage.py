@@ -49,6 +49,16 @@ class Command(BaseCommand):
             action='store_true',
             help='Calculate checksums (slow for large files)',
         )
+        parser.add_argument(
+            '--skip-metadata',
+            action='store_true',
+            help='Skip metadata extraction (faster for large files)',
+        )
+        parser.add_argument(
+            '--fast-metadata',
+            action='store_true',
+            help='Use fast metadata extraction (basic info only)',
+        )
 
     def handle(self, *args, **options):
         """Execute the command."""
@@ -57,6 +67,8 @@ class Command(BaseCommand):
         force = options.get('force')
         update_metadata = options.get('update_metadata')
         calculate_checksums = options.get('calculate_checksum')
+        skip_metadata = options.get('skip_metadata')
+        fast_metadata = options.get('fast_metadata')
 
         # Determine which storages to scan
         if storage_id:
@@ -140,9 +152,15 @@ class Command(BaseCommand):
                                 self.style.SUCCESS(f'Updated: {number} - {filename}')
                             )
                         
-                        # Extract and update metadata
-                        self.stdout.write(f'Extracting metadata for: {filename}')
-                        metadata = extract_video_metadata(abs_path)
+                        # Extract and update metadata (skip if requested)
+                        if not skip_metadata:
+                            self.stdout.write(f'Extracting metadata for: {filename}')
+                            # Use fast mode for large files or if requested
+                            file_size = os.path.getsize(abs_path)
+                            fast_mode = fast_metadata or file_size > 1024 * 1024 * 1024  # 1GB threshold
+                            metadata = extract_video_metadata(abs_path, fast_mode=fast_mode)
+                        else:
+                            metadata = {}
                         
                         # Update VideoFile with metadata
                         if 'format' in metadata:

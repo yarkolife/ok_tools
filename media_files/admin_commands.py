@@ -45,7 +45,7 @@ def system_management_view(request):
         options = {}
         
         # Parse command-specific options
-        if command == 'scan_storage':
+        if command == 'scan_video_storage':
             storage_id = request.POST.get('storage_id')
             if storage_id:
                 options['storage_id'] = int(storage_id)
@@ -55,6 +55,8 @@ def system_management_view(request):
                 options['force'] = True
             if request.POST.get('calculate_checksum'):
                 options['calculate_checksum'] = True
+            if request.POST.get('skip_metadata'):
+                options['skip_metadata'] = True
         
         elif command == 'auto_scan':
             if request.POST.get('force'):

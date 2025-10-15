@@ -47,4 +47,4 @@ RUN python manage.py collectstatic --noinput --settings=ok_tools.settings || tru
 EXPOSE 8000
 
 # Command to run with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "--max-requests", "1000", "--max-requests-jitter", "100", "ok_tools.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "8", "--worker-class", "gthread", "--timeout", "120", "--keep-alive", "75", "--max-requests", "1000", "--max-requests-jitter", "100", "ok_tools.wsgi:application"]

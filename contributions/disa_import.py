@@ -137,7 +137,7 @@ def disa_import(request, file):
             continue
 
         nr = re.match(r'^\d+', row[TITLE].value)[0]
-        all_license_numbers.add(nr)
+        all_license_numbers.add(int(nr))
         rows_data.append(row)
     
     # Один SQL запрос для всех лицензий вместо N запросов
@@ -166,8 +166,9 @@ def disa_import(request, file):
     
     for row in rows_data:
         nr = re.match(r'^\d+', row[TITLE].value)[0]
+        nr_int = int(nr)
 
-        license = licenses_dict.get(nr)
+        license = licenses_dict.get(nr_int)
         if not license:
             msg = _('No license with number %(n)s found.') % {'n': nr}
             logger.error(msg)

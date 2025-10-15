@@ -11,6 +11,7 @@ from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
+from django_downloadview import ObjectDownloadView
 
 from .models import StorageLocation, VideoFile, FileOperation
 from .tasks import copy_video_to_playout
@@ -753,10 +754,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             return HttpResponse(f'Error: {str(e)}', status=500)
 
     def stream_video(self, request, video_id):
-        """Stream video file with range support."""
-        import os
-        from django.http import FileResponse
-        
+        """Stream video file with range support using django-downloadview."""
         try:
             video = VideoFile.objects.get(id=video_id)
             
@@ -771,7 +769,6 @@ class VideoFileAdmin(admin.ModelAdmin):
                 return HttpResponse('Video file not found', status=404)
             
             # Determine content type based on file extension, not database format
-            import os
             file_extension = os.path.splitext(video.filename)[1].lower()
             content_types = {
                 '.mp4': 'video/mp4',
@@ -784,43 +781,18 @@ class VideoFileAdmin(admin.ModelAdmin):
             }
             content_type = content_types.get(file_extension, 'video/mp4')
             
-            # Get file size
-            file_size = os.path.getsize(file_path)
+            # Use django-downloadview for efficient streaming with range support
+            from django_downloadview import PathDownloadView
+            from django.http import HttpResponse
             
-            # Handle range requests for video seeking
-            range_header = request.META.get('HTTP_RANGE', '').strip()
+            download_view = PathDownloadView()
+            download_view.path = file_path
+            download_view.attachment = False  # Content-Disposition: inline
+            download_view.basename = video.filename
             
-            if range_header:
-                import re
-                range_match = re.match(r'bytes=(\d+)-(\d*)', range_header)
-                
-                if range_match:
-                    first_byte = int(range_match.group(1))
-                    last_byte = int(range_match.group(2)) if range_match.group(2) else file_size - 1
-                    length = last_byte - first_byte + 1
-                    
-                    file_handle = open(file_path, 'rb')
-                    file_handle.seek(first_byte)
-                    
-                    response = HttpResponse(
-                        file_handle.read(length),
-                        status=206,
-                        content_type=content_type
-                    )
-                    response['Content-Length'] = str(length)
-                    response['Content-Range'] = f'bytes {first_byte}-{last_byte}/{file_size}'
-                    response['Accept-Ranges'] = 'bytes'
-                    response['Content-Disposition'] = 'inline'
-                    
-                    file_handle.close()
-                    return response
-            
-            # Full file response
-            file_handle = open(file_path, 'rb')
-            response = FileResponse(file_handle, content_type=content_type)
-            response['Content-Length'] = str(file_size)
-            response['Accept-Ranges'] = 'bytes'
-            response['Content-Disposition'] = 'inline'
+            # Set content type
+            response = download_view.get(request)
+            response['Content-Type'] = content_type
             response['Cache-Control'] = 'public, max-age=86400'  # Cache for 24 hours
             response['X-Accel-Buffering'] = 'no'  # Disable nginx buffering
             

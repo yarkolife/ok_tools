@@ -73,7 +73,7 @@ def scan_directory(storage_location, supported_formats=None) -> list:
     return found_files
 
 
-def extract_video_metadata(file_path: str) -> Dict:
+def extract_video_metadata(file_path: str, fast_mode: bool = False) -> Dict:
     """
     Extract comprehensive video metadata using ffprobe.
     
@@ -98,11 +98,17 @@ def extract_video_metadata(file_path: str) -> Dict:
             '-v', 'quiet',
             '-print_format', 'json',
             '-show_format',
-            '-show_streams',
-            file_path
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        # In fast mode, only get basic format info, skip streams
+        if not fast_mode:
+            cmd.append('-show_streams')
+        
+        cmd.append(file_path)
+        
+        # Increase timeout for large files (up to 5 minutes)
+        timeout = 300 if os.path.getsize(file_path) > 500 * 1024 * 1024 else 30  # 500MB threshold
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         
         if result.returncode != 0:
             logger.error(f"ffprobe failed for {file_path}: {result.stderr}")
