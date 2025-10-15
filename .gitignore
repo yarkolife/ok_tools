@@ -83,7 +83,7 @@ backup_translations/
 docs/
 logs/
 media/
-scripts/
+/scripts/
 share/
 static/
 venv/
