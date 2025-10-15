@@ -374,7 +374,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - OKTOOLS_CONFIG_FILE=/app/docker-production.cfg
       - DJANGO_SETTINGS_MODULE=ok_tools.settings
@@ -509,12 +509,12 @@ echo ""
 print_success "OK Tools Production успешно установлен на тестовый сервер!"
 echo ""
 echo -e "${GREEN}Доступ к приложению:${NC}"
-echo -e "  URL: http://$SERVER_IP:8000"
-echo -e "  Админка: http://$SERVER_IP:8000/admin/"
-echo -e "  Health check: http://$SERVER_IP:8000/health"
+echo -e "  URL: http://$SERVER_IP:8001"
+echo -e "  Админка: http://$SERVER_IP:8001/admin/"
+echo -e "  Health check: http://$SERVER_IP:8001/health"
 echo ""
 echo -e "${YELLOW}Следующие шаги:${NC}"
-echo -e "  1. Открой http://$SERVER_IP:8000/admin/ в браузере"
+echo -e "  1. Открой http://$SERVER_IP:8001/admin/ в браузере"
 echo -e "  2. Создай Storage Locations (Media Files → Storage locations):"
 echo -e "     - Name: $ORG_NAME Playout, Type: PLAYOUT, Path: /mnt/nas/playout/"
 echo -e "     - Name: $ORG_NAME Archive, Type: ARCHIVE, Path: /mnt/nas/archive/"
