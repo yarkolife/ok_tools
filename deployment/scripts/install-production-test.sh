@@ -272,7 +272,7 @@ if [ -n "$NAS_PLAYOUT_IP" ] && [ -n "$NAS_PLAYOUT_SHARE" ]; then
     sed -i "s|playout_unc_path = .*|playout_unc_path = \\\\\\\\$NAS_PLAYOUT_IP\\\\\\\\$NAS_PLAYOUT_SHARE|g" "$INSTALL_DIR/docker-production.cfg"
 fi
 
-chmod 600 "$INSTALL_DIR/docker-production.cfg"
+chmod 644 "$INSTALL_DIR/docker-production.cfg"
 print_success "Конфигурация создана: $INSTALL_DIR/docker-production.cfg"
 
 # ================================
@@ -413,9 +413,8 @@ services:
       - /mnt/nas/archive:/mnt/nas/archive:ro
     command: |
       sh -c "
-        echo '*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /app/logs/expire_rentals.log 2>&1' > /etc/cron.d/expire_rentals &&
-        chmod 0644 /etc/cron.d/expire_rentals &&
         touch /app/logs/expire_rentals.log &&
+        echo '*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /app/logs/expire_rentals.log 2>&1' | crontab - &&
         service cron start &&
         tail -f /app/logs/expire_rentals.log
       "
