@@ -98,8 +98,7 @@ print_header "Шаг 2: Выбор конфигурации организаци
 
 # Получаем текущую директорию скрипта
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-CONFIGS_DIR="$PROJECT_ROOT/deployment/configs"
+CONFIGS_DIR="$SCRIPT_DIR/../configs"
 
 print_info "Доступные конфигурации:"
 echo ""
@@ -212,34 +211,37 @@ print_success "Данные введены"
 
 print_header "Шаг 4: Подготовка окружения"
 
-INSTALL_DIR="/opt/ok-tools-test"
+INSTALL_DIR="/opt/ok_tools_test"
 
-# Создание рабочей директории
-if [ -d "$INSTALL_DIR" ]; then
-    print_warning "Директория $INSTALL_DIR уже существует"
-    read -p "Перезаписать? (y/n): " OVERWRITE
-    if [ "$OVERWRITE" = "y" ]; then
-        rm -rf "$INSTALL_DIR"
-    else
-        print_error "Установка отменена"
-        exit 1
-    fi
+# Проверка рабочей директории
+if [ ! -d "$INSTALL_DIR" ]; then
+    print_error "Директория $INSTALL_DIR не существует"
+    print_info "Сначала клонируй репозиторий:"
+    print_info "  sudo mkdir -p $INSTALL_DIR"
+    print_info "  cd $INSTALL_DIR"
+    print_info "  sudo git clone https://github.com/yarkolife/ok_tools_dev.git ."
+    print_info "  sudo chown -R pavlo:pavlo $INSTALL_DIR"
+    exit 1
 fi
 
-mkdir -p "$INSTALL_DIR"
-print_success "Создана рабочая директория: $INSTALL_DIR"
+# Проверка git репозитория
+if [ ! -d "$INSTALL_DIR/.git" ]; then
+    print_error "Git репозиторий не найден в $INSTALL_DIR"
+    print_info "Убедись, что клонировал репозиторий правильно"
+    exit 1
+fi
+
+print_success "Найдена рабочая директория с git репозиторием: $INSTALL_DIR"
 
 # Копирование файлов из deployment/docker/
 print_info "Копирование Docker файлов..."
-cp "$PROJECT_ROOT/deployment/docker/Dockerfile.production" "$INSTALL_DIR/Dockerfile"
-cp "$PROJECT_ROOT/deployment/docker/docker-compose.production.yml" "$INSTALL_DIR/docker-compose.yml"
-cp "$PROJECT_ROOT/deployment/docker/nginx.conf" "$INSTALL_DIR/nginx.conf"
+cp "$INSTALL_DIR/deployment/docker/Dockerfile.production" "$INSTALL_DIR/Dockerfile"
+cp "$INSTALL_DIR/deployment/docker/docker-compose.production.yml" "$INSTALL_DIR/docker-compose.yml"
+cp "$INSTALL_DIR/deployment/docker/nginx.conf" "$INSTALL_DIR/nginx.conf"
 print_success "Docker файлы скопированы"
 
-# Копирование всего кода приложения
-print_info "Копирование кода приложения..."
-cp -r "$PROJECT_ROOT"/* "$INSTALL_DIR/"
-print_success "Код приложения скопирован"
+# Код приложения уже есть в директории
+print_success "Код приложения уже присутствует в директории"
 
 cd "$INSTALL_DIR"
 
