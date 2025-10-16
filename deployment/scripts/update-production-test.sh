@@ -43,7 +43,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Определение директории установки
-INSTALL_DIR="/opt/ok-tools-test"
+INSTALL_DIR="/opt/ok_tools_test"
 
 if [ ! -d "$INSTALL_DIR" ]; then
     print_error "OK Tools не установлен в $INSTALL_DIR"
@@ -96,7 +96,7 @@ print_info "Создание бэкапа в $BACKUP_DIR"
 
 # Остановка контейнеров для бэкапа БД
 print_info "Остановка контейнеров для бэкапа..."
-docker compose stop web cron
+docker compose stop web
 
 # Бэкап базы данных
 print_info "Создание бэкапа базы данных..."
@@ -110,7 +110,7 @@ cp docker-compose.yml "$BACKUP_DIR/"
 
 # Запуск контейнеров обратно
 print_info "Запуск контейнеров..."
-docker compose start web cron
+docker compose start web
 
 print_success "Бэкап создан в $BACKUP_DIR"
 
@@ -176,10 +176,63 @@ docker compose ps
 print_success "Контейнеры пересобраны и запущены"
 
 # ================================
-# ШАГ 5: Применение миграций
+# ШАГ 5: Исправление конфигурации
 # ================================
 
-print_header "Шаг 5: Применение миграций базы данных"
+print_header "Шаг 5: Исправление конфигурации"
+
+print_info "Проверка и исправление конфигурации..."
+
+# Проверка и исправление STATIC_ROOT
+if grep -q "static = /opt/ok-tools/static/" docker-production.cfg 2>/dev/null; then
+    print_warning "Исправляю STATIC_ROOT..."
+    sed -i 's|static = /opt/ok-tools/static/|static = /app/static/|g' docker-production.cfg
+    print_success "STATIC_ROOT исправлен"
+fi
+
+# Проверка и исправление MEDIA_ROOT
+if grep -q "media = /opt/ok-tools/media/" docker-production.cfg 2>/dev/null; then
+    print_warning "Исправляю MEDIA_ROOT..."
+    sed -i 's|media = /opt/ok-tools/media/|media = /app/media/|g' docker-production.cfg
+    print_success "MEDIA_ROOT исправлен"
+fi
+
+# Проверка и исправление db_host
+if grep -q "db_host = localhost" docker-production.cfg 2>/dev/null; then
+    print_warning "Исправляю db_host..."
+    sed -i 's/db_host = localhost/db_host = db/g' docker-production.cfg
+    print_success "db_host исправлен"
+fi
+
+# Проверка и исправление db_name
+if grep -q "db_name = oktools_okmq" docker-production.cfg 2>/dev/null; then
+    print_warning "Исправляю db_name..."
+    sed -i 's/db_name = oktools_okmq/db_name = oktools/g' docker-production.cfg
+    print_success "db_name исправлен"
+fi
+
+# Перезапуск web контейнера если были изменения
+if [ -f docker-production.cfg.orig ] || [ -f docker-production.cfg.bak ]; then
+    print_info "Перезапуск web контейнера для применения изменений..."
+    docker compose restart web
+    sleep 10
+fi
+
+print_success "Конфигурация проверена и исправлена"
+
+# ================================
+# ШАГ 6: Применение миграций
+# ================================
+
+print_header "Шаг 6: Применение миграций базы данных"
+
+# Проверка и удаление проблемных миграций
+if [ -f "media_files/migrations/0004_add_unc_path_to_storage.py" ]; then
+    print_warning "Обнаружена проблемная миграция 0004_add_unc_path_to_storage.py"
+    print_info "Удаляю проблемную миграцию..."
+    rm -f media_files/migrations/0004_add_unc_path_to_storage.py
+    print_success "Проблемная миграция удалена"
+fi
 
 print_info "Проверка новых миграций..."
 docker compose exec web python manage.py showmigrations --plan
@@ -190,10 +243,18 @@ docker compose exec web python manage.py migrate
 print_success "Миграции применены"
 
 # ================================
-# ШАГ 6: Обновление статики
+# ШАГ 7: Обновление статики
 # ================================
 
-print_header "Шаг 6: Обновление статических файлов"
+print_header "Шаг 7: Обновление статических файлов"
+
+# Создание директории static если не существует
+if [ ! -d "static" ]; then
+    print_info "Создаю директорию static..."
+    mkdir -p static
+    chmod 755 static
+    chown pavlo:pavlo static 2>/dev/null || true
+fi
 
 print_info "Сбор статических файлов..."
 docker compose exec web python manage.py collectstatic --noinput
@@ -201,15 +262,15 @@ docker compose exec web python manage.py collectstatic --noinput
 print_success "Статические файлы обновлены"
 
 # ================================
-# ШАГ 7: Проверка работоспособности
+# ШАГ 8: Проверка работоспособности
 # ================================
 
-print_header "Шаг 7: Проверка работоспособности"
+print_header "Шаг 8: Проверка работоспособности"
 
 # Проверка health endpoint
 print_info "Проверка доступности сервисов..."
 for i in {1..30}; do
-    if curl -s http://localhost:8000/health > /dev/null 2>&1; then
+    if curl -s http://localhost:8001/health > /dev/null 2>&1; then
         print_success "Веб-сервис доступен"
         break
     elif [ $i -eq 30 ]; then
@@ -230,10 +291,10 @@ else
 fi
 
 # ================================
-# ШАГ 8: Очистка
+# ШАГ 9: Очистка
 # ================================
 
-print_header "Шаг 8: Очистка"
+print_header "Шаг 9: Очистка"
 
 print_info "Удаление неиспользуемых Docker образов..."
 docker image prune -f
