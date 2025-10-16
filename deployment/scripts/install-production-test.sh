@@ -236,6 +236,7 @@ print_success "Найдена рабочая директория с git реп�
 # Копирование файлов из deployment/docker/
 print_info "Копирование Docker файлов..."
 cp "$INSTALL_DIR/deployment/docker/Dockerfile.production" "$INSTALL_DIR/Dockerfile"
+cp "$INSTALL_DIR/deployment/docker/Dockerfile.cron" "$INSTALL_DIR/Dockerfile.cron"
 cp "$INSTALL_DIR/deployment/docker/docker-compose.production.yml" "$INSTALL_DIR/docker-compose.yml"
 cp "$INSTALL_DIR/deployment/docker/nginx.conf" "$INSTALL_DIR/nginx.conf"
 print_success "Docker файлы скопированы"
@@ -398,7 +399,7 @@ services:
   cron:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.cron
     environment:
       - OKTOOLS_CONFIG_FILE=/app/docker-production.cfg
       - DJANGO_SETTINGS_MODULE=ok_tools.settings
@@ -411,13 +412,6 @@ services:
       - logs:/app/logs
       - /mnt/nas/playout:/mnt/nas/playout:ro
       - /mnt/nas/archive:/mnt/nas/archive:ro
-    command: |
-      sh -c "
-        touch /app/logs/expire_rentals.log &&
-        echo '*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /app/logs/expire_rentals.log 2>&1' | crontab - &&
-        service cron start &&
-        tail -f /app/logs/expire_rentals.log
-      "
     restart: unless-stopped
     networks:
       - oktools-network

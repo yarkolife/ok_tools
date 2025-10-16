@@ -1,0 +1,31 @@
+FROM python:3.12-slim
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
+# Установка рабочей директории
+WORKDIR /app
+
+# Копирование requirements.txt
+COPY requirements.txt .
+
+# Установка Python зависимостей
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копирование всего кода приложения
+COPY . .
+
+# Создание директории для логов
+RUN mkdir -p /app/logs
+
+# Создание cron задачи
+RUN echo '*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /app/logs/expire_rentals.log 2>&1' | crontab -
+
+# Создание скрипта запуска
+RUN echo '#!/bin/bash\nservice cron start\ntail -f /app/logs/expire_rentals.log' > /app/start-cron.sh
+RUN chmod +x /app/start-cron.sh
+
+# Команда по умолчанию
+CMD ["/app/start-cron.sh"]
