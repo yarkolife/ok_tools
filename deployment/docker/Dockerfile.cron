@@ -3,6 +3,13 @@ FROM python:3.12-slim
 # Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
     cron \
+    zlib1g-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libopenjp2-7-dev \
+    libtiff5-dev \
+    libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Установка рабочей директории
