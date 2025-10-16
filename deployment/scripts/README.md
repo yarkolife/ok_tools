@@ -17,6 +17,11 @@
 sudo bash deployment/scripts/install-production-test.sh
 ```
 
+### Пост-установочная настройка
+```bash
+sudo bash deployment/scripts/configure-production-test.sh
+```
+
 ### Обновление
 ```bash
 sudo bash deployment/scripts/update-production-test.sh
@@ -32,6 +37,7 @@ sudo bash deployment/scripts/stop-production-test.sh
 ```
 deployment/scripts/
 ├── install-production-test.sh    # Основной скрипт установки
+├── configure-production-test.sh  # Скрипт пост-установочной настройки
 ├── update-production-test.sh     # Скрипт обновления
 ├── stop-production-test.sh       # Скрипт остановки и удаления
 └── README.md                     # Данная документация
@@ -42,6 +48,14 @@ deployment/scripts/
 ### install-production-test.sh
 
 **Назначение**: Полная установка OK Tools Production на тестовый сервер
+
+**Исправления в версии 2.0:**
+- Автоматическое исправление путей в конфигурации (`STATIC_ROOT`, `MEDIA_ROOT`)
+- Исправление `db_host` с `localhost` на `db` для Docker
+- Исправление `db_name` с `oktools_okmq` на `oktools`
+- Автоматическое создание директории `static/`
+- Исправление прав доступа на файлы
+- Удаление проблемной миграции `0004_add_unc_path_to_storage.py`
 
 **Функции**:
 1. **Проверка Docker** - установка Docker и Docker Compose если отсутствуют
@@ -62,7 +76,28 @@ deployment/scripts/
 9. **Инициализация Django** - миграции, статика, создание суперпользователя
 10. **Итоговая информация** - URL доступа и следующие шаги
 
-**Результат**: Полностью работающий OK Tools на `http://IP:8000`
+**Результат**: Полностью работающий OK Tools на `http://IP:8001`
+
+### configure-production-test.sh
+
+**Назначение**: Пост-установочная настройка и диагностика OK Tools
+
+**Функции**:
+1. **Проверка статуса контейнеров** - диагностика состояния Docker сервисов
+2. **Проверка конфигурации** - валидация настроек Django
+3. **Исправление проблем** - автоматическое исправление найденных ошибок
+4. **Проверка миграций** - диагностика и исправление проблем с БД
+5. **Проверка статических файлов** - сбор и валидация статики
+6. **Проверка суперпользователя** - проверка наличия админов
+7. **Проверка NAS** - диагностика подключения к хранилищу
+8. **Финальная проверка** - health check и доступность приложения
+
+**Использование**:
+```bash
+sudo bash deployment/scripts/configure-production-test.sh
+```
+
+**Результат**: Диагностированный и исправленный OK Tools
 
 ### update-production-test.sh
 

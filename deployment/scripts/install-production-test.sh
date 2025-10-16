@@ -266,6 +266,12 @@ sed -i "s/YOUR-DATABASE-PASSWORD/$DB_PASSWORD/g" "$INSTALL_DIR/docker-production
 # Allowed hosts - добавляем IP сервера
 sed -i "s/allowed_hosts = .*/allowed_hosts = $SERVER_IP localhost 127.0.0.1 */g" "$INSTALL_DIR/docker-production.cfg"
 
+# Исправление путей для Docker окружения
+sed -i "s|static = /opt/ok-tools/static/|static = /app/static/|g" "$INSTALL_DIR/docker-production.cfg"
+sed -i "s|media = /opt/ok-tools/media/|media = /app/media/|g" "$INSTALL_DIR/docker-production.cfg"
+sed -i "s/db_host = localhost/db_host = db/g" "$INSTALL_DIR/docker-production.cfg"
+sed -i "s/db_name = oktools_okmq/db_name = oktools/g" "$INSTALL_DIR/docker-production.cfg"
+
 # NAS пути (если они изменились)
 if [ -n "$NAS_PLAYOUT_IP" ] && [ -n "$NAS_PLAYOUT_SHARE" ]; then
     sed -i "s|archive_unc_path = .*|archive_unc_path = \\\\\\\\$NAS_ARCHIVE_IP\\\\\\\\$NAS_ARCHIVE_SHARE|g" "$INSTALL_DIR/docker-production.cfg"
@@ -273,6 +279,16 @@ if [ -n "$NAS_PLAYOUT_IP" ] && [ -n "$NAS_PLAYOUT_SHARE" ]; then
 fi
 
 chmod 644 "$INSTALL_DIR/docker-production.cfg"
+chown pavlo:pavlo "$INSTALL_DIR/docker-production.cfg"
+
+# Создание необходимых директорий
+mkdir -p "$INSTALL_DIR/static"
+chmod 755 "$INSTALL_DIR/static"
+chown pavlo:pavlo "$INSTALL_DIR/static"
+
+# Исправление прав на Docker файлы
+chown pavlo:pavlo "$INSTALL_DIR/Dockerfile" "$INSTALL_DIR/docker-compose.yml" "$INSTALL_DIR/nginx.conf" 2>/dev/null || true
+
 print_success "Конфигурация создана: $INSTALL_DIR/docker-production.cfg"
 
 # ================================
@@ -463,6 +479,15 @@ print_success "Docker контейнеры запущены"
 # ================================
 
 print_header "Шаг 9: Инициализация Django"
+
+# Проверка и исправление проблемных миграций
+print_info "Проверка миграций..."
+if [ -f "$INSTALL_DIR/media_files/migrations/0004_add_unc_path_to_storage.py" ]; then
+    print_warning "Обнаружена проблемная миграция 0004_add_unc_path_to_storage.py"
+    print_info "Удаляю проблемную миграцию..."
+    rm -f "$INSTALL_DIR/media_files/migrations/0004_add_unc_path_to_storage.py"
+    print_success "Проблемная миграция удалена"
+fi
 
 # Применение миграций
 print_info "Применение миграций базы данных..."
