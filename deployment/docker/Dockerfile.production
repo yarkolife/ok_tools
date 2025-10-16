@@ -17,6 +17,10 @@ RUN apt-get update && apt-get install -y \
     pdftk \
     gettext \
     cron \
+    liblcms2-dev \
+    libopenjp2-7-dev \
+    libtiff5-dev \
+    libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Setting up the working directory
@@ -35,6 +39,13 @@ COPY . .
 
 # Creating directories for static files and logs
 RUN mkdir -p /app/static /app/media /app/logs
+
+# Setting up cron for production
+RUN echo '*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /app/logs/expire_rentals.log 2>&1' | crontab -
+
+# Creating startup script for cron
+RUN echo '#!/bin/bash\nservice cron start\ntail -f /app/logs/expire_rentals.log' > /app/start-cron.sh
+RUN chmod +x /app/start-cron.sh
 
 # Creating a user for security
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app

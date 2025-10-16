@@ -236,7 +236,6 @@ print_success "Найдена рабочая директория с git реп�
 # Копирование файлов из deployment/docker/
 print_info "Копирование Docker файлов..."
 cp "$INSTALL_DIR/deployment/docker/Dockerfile.production" "$INSTALL_DIR/Dockerfile"
-cp "$INSTALL_DIR/deployment/docker/Dockerfile.cron" "$INSTALL_DIR/Dockerfile.cron"
 cp "$INSTALL_DIR/deployment/docker/docker-compose.production.yml" "$INSTALL_DIR/docker-compose.yml"
 cp "$INSTALL_DIR/deployment/docker/nginx.conf" "$INSTALL_DIR/nginx.conf"
 print_success "Docker файлы скопированы"
@@ -392,29 +391,15 @@ services:
       - logs:/app/logs
       - /mnt/nas/playout:/mnt/nas/playout:ro
       - /mnt/nas/archive:/mnt/nas/archive:ro
+    command: |
+      sh -c "
+        service cron start &&
+        gunicorn --bind 0.0.0.0:8000 --workers 2 --threads 8 --worker-class gthread --timeout 120 --keep-alive 75 --max-requests 1000 --max-requests-jitter 100 ok_tools.wsgi:application
+      "
     restart: unless-stopped
     networks:
       - oktools-network
 
-  cron:
-    build:
-      context: .
-      dockerfile: Dockerfile.cron
-    environment:
-      - OKTOOLS_CONFIG_FILE=/app/docker-production.cfg
-      - DJANGO_SETTINGS_MODULE=ok_tools.settings
-      - POSTGRES_PASSWORD=$DB_PASSWORD
-    depends_on:
-      - db
-      - web
-    volumes:
-      - ./docker-production.cfg:/app/docker-production.cfg:ro
-      - logs:/app/logs
-      - /mnt/nas/playout:/mnt/nas/playout:ro
-      - /mnt/nas/archive:/mnt/nas/archive:ro
-    restart: unless-stopped
-    networks:
-      - oktools-network
 
 volumes:
   postgres_data:
