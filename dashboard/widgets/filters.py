@@ -65,8 +65,8 @@ class DashboardFilters:
             'start_date': start_date,
             'end_date': end_date,
             'days': days,
-            'weeks': days // 7,
-            'months': days // 30
+            'weeks': days // 7 if days is not None else None,
+            'months': days // 30 if days is not None else None
         }
 
     def _get_filters(self):
