@@ -45,11 +45,18 @@ fi
 # Определение директории установки
 INSTALL_DIR="/opt/ok_tools_test"
 
+# Проверка существования директории
 if [ ! -d "$INSTALL_DIR" ]; then
     print_error "OK Tools не установлен в $INSTALL_DIR"
     print_info "Сначала запусти install-production-test.sh"
     exit 1
 fi
+
+# Переход в директорию установки
+cd "$INSTALL_DIR" || {
+    print_error "Не удается перейти в $INSTALL_DIR"
+    exit 1
+}
 
 # Логирование
 LOG_FILE="/var/log/ok-tools-update.log"
@@ -91,7 +98,7 @@ print_success "Статус проверен"
 
 print_header "Шаг 2: Создание бэкапа"
 
-BACKUP_DIR="/opt/ok-tools-backup-$(date +%Y%m%d-%H%M%S)"
+BACKUP_DIR="/opt/ok_tools_backup-$(date +%Y%m%d-%H%M%S)"
 print_info "Создание бэкапа в $BACKUP_DIR"
 
 # Остановка контейнеров для бэкапа БД
