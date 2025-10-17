@@ -182,52 +182,17 @@ docker compose start web
 print_success "Бэкап создан в $BACKUP_DIR"
 
 # ================================
-# ШАГ 3: Обновление кода (условное)
+# ШАГ 3: Пропущен - код уже обновлен в начале скрипта
 # ================================
 
-if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-    print_header "Шаг 3: Обновление кода из Git"
-    
-    print_info "Получение обновлений из репозитория..."
-    git fetch origin
-    
-    # Проверка изменений
-    LOCAL_COMMIT=$(git rev-parse HEAD)
-    REMOTE_COMMIT=$(git rev-parse origin/main)
-    
-    if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
-        print_warning "Нет новых обновлений"
-        read -p "Продолжить обновление? (y/n): " CONTINUE_UPDATE
-        if [ "$CONTINUE_UPDATE" != "y" ]; then
-            print_info "Обновление отменено"
-            exit 0
-        fi
-    else
-        print_info "Найдены новые изменения:"
-        git log --oneline "$LOCAL_COMMIT..$REMOTE_COMMIT"
-        
-        read -p "Применить обновления? (y/n): " APPLY_UPDATE
-        if [ "$APPLY_UPDATE" != "y" ]; then
-            print_error "Обновление отменено"
-            exit 1
-        fi
-        
-        # Сброс локальных изменений и применение обновлений
-        git reset --hard HEAD
-        git pull origin main
-        print_success "Код обновлен"
-    fi
-else
-    print_header "Шаг 3: Пропуск обновления кода (только перезапуск)"
-    print_info "Стратегия RESTART_ONLY - обновление кода не требуется"
-fi
+print_info "Код уже обновлен в начале скрипта, пропускаем дублирование"
 
 # ================================
-# ШАГ 4: Пересборка контейнеров (условная)
+# ШАГ 3: Пересборка контейнеров (условная)
 # ================================
 
 if [ "$UPDATE_STRATEGY" = "FULL_REBUILD" ]; then
-    print_header "Шаг 4: Полная пересборка Docker контейнеров"
+    print_header "Шаг 3: Полная пересборка Docker контейнеров"
     
     print_info "Остановка контейнеров..."
     docker compose down
@@ -239,7 +204,7 @@ if [ "$UPDATE_STRATEGY" = "FULL_REBUILD" ]; then
     docker compose up -d
     
 elif [ "$UPDATE_STRATEGY" = "CODE_UPDATE" ]; then
-    print_header "Шаг 4: Инкрементальная пересборка Docker контейнеров"
+    print_header "Шаг 3: Инкрементальная пересборка Docker контейнеров"
     
     print_info "Остановка web контейнера..."
     docker compose stop web
@@ -251,7 +216,7 @@ elif [ "$UPDATE_STRATEGY" = "CODE_UPDATE" ]; then
     docker compose start web
     
 else
-    print_header "Шаг 4: Только перезапуск контейнеров"
+    print_header "Шаг 3: Только перезапуск контейнеров"
     
     print_info "Перезапуск контейнеров..."
     docker compose restart
@@ -268,48 +233,48 @@ docker compose ps
 print_success "Контейнеры пересобраны и запущены"
 
 # ================================
-# ШАГ 5: Исправление конфигурации (условное)
+# ШАГ 4: Исправление конфигурации (условное)
 # ================================
 
 if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-    print_header "Шаг 5: Исправление конфигурации"
+    print_header "Шаг 4: Исправление конфигурации"
 
-print_info "Проверка и исправление конфигурации..."
+    print_info "Проверка и исправление конфигурации..."
 
-# Проверка и исправление STATIC_ROOT
-if grep -q "static = /opt/ok-tools/static/" docker-production.cfg 2>/dev/null; then
-    print_warning "Исправляю STATIC_ROOT..."
-    sed -i 's|static = /opt/ok-tools/static/|static = /app/static/|g' docker-production.cfg
-    print_success "STATIC_ROOT исправлен"
-fi
+    # Проверка и исправление STATIC_ROOT
+    if grep -q "static = /opt/ok-tools/static/" docker-production.cfg 2>/dev/null; then
+        print_warning "Исправляю STATIC_ROOT..."
+        sed -i 's|static = /opt/ok-tools/static/|static = /app/static/|g' docker-production.cfg
+        print_success "STATIC_ROOT исправлен"
+    fi
 
-# Проверка и исправление MEDIA_ROOT
-if grep -q "media = /opt/ok-tools/media/" docker-production.cfg 2>/dev/null; then
-    print_warning "Исправляю MEDIA_ROOT..."
-    sed -i 's|media = /opt/ok-tools/media/|media = /app/media/|g' docker-production.cfg
-    print_success "MEDIA_ROOT исправлен"
-fi
+    # Проверка и исправление MEDIA_ROOT
+    if grep -q "media = /opt/ok-tools/media/" docker-production.cfg 2>/dev/null; then
+        print_warning "Исправляю MEDIA_ROOT..."
+        sed -i 's|media = /opt/ok-tools/media/|media = /app/media/|g' docker-production.cfg
+        print_success "MEDIA_ROOT исправлен"
+    fi
 
-# Проверка и исправление db_host
-if grep -q "db_host = localhost" docker-production.cfg 2>/dev/null; then
-    print_warning "Исправляю db_host..."
-    sed -i 's/db_host = localhost/db_host = db/g' docker-production.cfg
-    print_success "db_host исправлен"
-fi
+    # Проверка и исправление db_host
+    if grep -q "db_host = localhost" docker-production.cfg 2>/dev/null; then
+        print_warning "Исправляю db_host..."
+        sed -i 's/db_host = localhost/db_host = db/g' docker-production.cfg
+        print_success "db_host исправлен"
+    fi
 
-# Проверка и исправление db_name
-if grep -q "db_name = oktools_okmq" docker-production.cfg 2>/dev/null; then
-    print_warning "Исправляю db_name..."
-    sed -i 's/db_name = oktools_okmq/db_name = oktools/g' docker-production.cfg
-    print_success "db_name исправлен"
-fi
+    # Проверка и исправление db_name
+    if grep -q "db_name = oktools_okmq" docker-production.cfg 2>/dev/null; then
+        print_warning "Исправляю db_name..."
+        sed -i 's/db_name = oktools_okmq/db_name = oktools/g' docker-production.cfg
+        print_success "db_name исправлен"
+    fi
 
-# Перезапуск web контейнера если были изменения
-if [ -f docker-production.cfg.orig ] || [ -f docker-production.cfg.bak ]; then
-    print_info "Перезапуск web контейнера для применения изменений..."
-    docker compose restart web
-    sleep 10
-fi
+    # Перезапуск web контейнера если были изменения
+    if [ -f docker-production.cfg.orig ] || [ -f docker-production.cfg.bak ]; then
+        print_info "Перезапуск web контейнера для применения изменений..."
+        docker compose restart web
+        sleep 10
+    fi
 
     print_success "Конфигурация проверена и исправлена"
 else
@@ -318,72 +283,72 @@ else
 fi
 
 # ================================
-# ШАГ 6: Применение миграций (условное)
+# ШАГ 5: Применение миграций (условное)
 # ================================
 
 if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-    print_header "Шаг 6: Применение миграций базы данных"
+    print_header "Шаг 5: Применение миграций базы данных"
 
-# Проверка миграций (проблемная миграция 0004 уже исправлена)
-print_info "Проверка миграций..."
+    # Проверка миграций (проблемная миграция 0004 уже исправлена)
+    print_info "Проверка миграций..."
 
-print_info "Проверка новых миграций..."
-if ! docker compose exec web python manage.py showmigrations --plan; then
-    print_error "Ошибка при проверке миграций"
-    exit 1
-fi
-
-print_info "Применение миграций..."
-if ! docker compose exec web python manage.py migrate; then
-    print_error "Ошибка при применении миграций"
-    print_info "Попытка исправления проблемных миграций..."
-    
-    # Попытка исправить проблемную миграцию 0005
-    if docker compose exec web python manage.py migrate media_files 0005 --fake 2>/dev/null; then
-        print_success "Миграция 0005 успешно помечена как примененная"
-        print_info "Повторное применение миграций..."
-        docker compose exec web python manage.py migrate
-    else
-        print_error "Не удалось исправить миграции автоматически"
+    print_info "Проверка новых миграций..."
+    if ! docker compose exec web python manage.py showmigrations --plan; then
+        print_error "Ошибка при проверке миграций"
         exit 1
     fi
-fi
 
-print_success "Миграции применены"
+    print_info "Применение миграций..."
+    if ! docker compose exec web python manage.py migrate; then
+        print_error "Ошибка при применении миграций"
+        print_info "Попытка исправления проблемных миграций..."
+        
+        # Попытка исправить проблемную миграцию 0005
+        if docker compose exec web python manage.py migrate media_files 0005 --fake 2>/dev/null; then
+            print_success "Миграция 0005 успешно помечена как примененная"
+            print_info "Повторное применение миграций..."
+            docker compose exec web python manage.py migrate
+        else
+            print_error "Не удалось исправить миграции автоматически"
+            exit 1
+        fi
+    fi
+
+    print_success "Миграции применены"
 else
-    print_header "Шаг 6: Пропуск применения миграций (только перезапуск)"
+    print_header "Шаг 5: Пропуск применения миграций (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - применение миграций не требуется"
 fi
 
 # ================================
-# ШАГ 7: Обновление статики (условное)
+# ШАГ 6: Обновление статики (условное)
 # ================================
 
 if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-    print_header "Шаг 7: Обновление статических файлов"
+    print_header "Шаг 6: Обновление статических файлов"
 
-# Создание директории static если не существует
-if [ ! -d "static" ]; then
-    print_info "Создаю директорию static..."
-    mkdir -p static
-    chmod 755 static
-    chown pavlo:pavlo static 2>/dev/null || true
-fi
+    # Создание директории static если не существует
+    if [ ! -d "static" ]; then
+        print_info "Создаю директорию static..."
+        mkdir -p static
+        chmod 755 static
+        chown pavlo:pavlo static 2>/dev/null || true
+    fi
 
-print_info "Сбор статических файлов..."
-docker compose exec web python manage.py collectstatic --noinput
+    print_info "Сбор статических файлов..."
+    docker compose exec web python manage.py collectstatic --noinput
 
     print_success "Статические файлы обновлены"
 else
-    print_header "Шаг 7: Пропуск обновления статических файлов (только перезапуск)"
+    print_header "Шаг 6: Пропуск обновления статических файлов (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - обновление статических файлов не требуется"
 fi
 
 # ================================
-# ШАГ 8: Проверка работоспособности
+# ШАГ 7: Проверка работоспособности
 # ================================
 
-print_header "Шаг 8: Проверка работоспособности"
+print_header "Шаг 7: Проверка работоспособности"
 
 # Проверка health endpoint
 print_info "Проверка доступности сервисов..."
@@ -409,10 +374,10 @@ else
 fi
 
 # ================================
-# ШАГ 9: Очистка
+# ШАГ 8: Очистка
 # ================================
 
-print_header "Шаг 9: Очистка"
+print_header "Шаг 8: Очистка"
 
 print_info "Удаление неиспользуемых Docker образов..."
 docker image prune -f
