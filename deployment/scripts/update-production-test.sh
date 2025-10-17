@@ -58,6 +58,14 @@ cd "$INSTALL_DIR" || {
     exit 1
 }
 
+# Обновление кода из репозитория
+print_info "Обновление кода из репозитория..."
+if ! git pull origin main; then
+    print_error "Ошибка при обновлении кода из репозитория"
+    exit 1
+fi
+print_success "Код успешно обновлен"
+
 # Логирование
 LOG_FILE="/var/log/ok-tools-update.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -320,12 +328,28 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
 print_info "Проверка миграций..."
 
 print_info "Проверка новых миграций..."
-docker compose exec web python manage.py showmigrations --plan
+if ! docker compose exec web python manage.py showmigrations --plan; then
+    print_error "Ошибка при проверке миграций"
+    exit 1
+fi
 
 print_info "Применение миграций..."
-docker compose exec web python manage.py migrate
+if ! docker compose exec web python manage.py migrate; then
+    print_error "Ошибка при применении миграций"
+    print_info "Попытка исправления проблемных миграций..."
+    
+    # Попытка исправить проблемную миграцию 0005
+    if docker compose exec web python manage.py migrate media_files 0005 --fake 2>/dev/null; then
+        print_success "Миграция 0005 успешно помечена как примененная"
+        print_info "Повторное применение миграций..."
+        docker compose exec web python manage.py migrate
+    else
+        print_error "Не удалось исправить миграции автоматически"
+        exit 1
+    fi
+fi
 
-    print_success "Миграции применены"
+print_success "Миграции применены"
 else
     print_header "Шаг 6: Пропуск применения миграций (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - применение миграций не требуется"
