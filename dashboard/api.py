@@ -98,52 +98,56 @@ def api_users_statistics(request):
             end_date = filters.date_range['end_date']
             registration_trend = []
 
-            # Calculate number of days in the period
-            days_diff = (end_date - start_date).days
-
-            # For periods longer than 30 days, group by weeks
-            if days_diff > 30:
-                # Group by weeks
-                current_date = start_date
-                while current_date <= end_date:
-                    week_end = min(current_date + timedelta(days=6), end_date)
-                    try:
-                        if hasattr(filtered_queryset.model, 'created_at'):
-                            count = filtered_queryset.filter(
-                                created_at__date__gte=current_date,
-                                created_at__date__lte=week_end
-                            ).count()
-                        else:
-                            count = 0
-                    except Exception:
-                        count = 0
-
-                    registration_trend.append({
-                        'date': f"{current_date.strftime('%Y-%m-%d')} - {week_end.strftime('%Y-%m-%d')}",
-                        'count': count
-                    })
-
-                    current_date = week_end + timedelta(days=1)
+            # If no date range (days=all), skip trend generation
+            if start_date is None or end_date is None:
+                registration_trend = []
             else:
-                # For shorter periods, show daily data
-                current_date = start_date
-                while current_date <= end_date:
-                    try:
-                        if hasattr(filtered_queryset.model, 'created_at'):
-                            count = filtered_queryset.filter(
-                                created_at__date=current_date
-                            ).count()
-                        else:
+                # Calculate number of days in the period
+                days_diff = (end_date - start_date).days
+
+                # For periods longer than 30 days, group by weeks
+                if days_diff > 30:
+                    # Group by weeks
+                    current_date = start_date
+                    while current_date <= end_date:
+                        week_end = min(current_date + timedelta(days=6), end_date)
+                        try:
+                            if hasattr(filtered_queryset.model, 'created_at'):
+                                count = filtered_queryset.filter(
+                                    created_at__date__gte=current_date,
+                                    created_at__date__lte=week_end
+                                ).count()
+                            else:
+                                count = 0
+                        except Exception:
                             count = 0
-                    except Exception:
-                        count = 0
 
-                    registration_trend.append({
-                        'date': current_date.strftime('%Y-%m-%d'),
-                        'count': count
-                    })
+                        registration_trend.append({
+                            'date': f"{current_date.strftime('%Y-%m-%d')} - {week_end.strftime('%Y-%m-%d')}",
+                            'count': count
+                        })
 
-                    current_date += timedelta(days=1)
+                        current_date = week_end + timedelta(days=1)
+                else:
+                    # For shorter periods, show daily data
+                    current_date = start_date
+                    while current_date <= end_date:
+                        try:
+                            if hasattr(filtered_queryset.model, 'created_at'):
+                                count = filtered_queryset.filter(
+                                    created_at__date=current_date
+                                ).count()
+                            else:
+                                count = 0
+                        except Exception:
+                            count = 0
+
+                        registration_trend.append({
+                            'date': current_date.strftime('%Y-%m-%d'),
+                            'count': count
+                        })
+
+                        current_date += timedelta(days=1)
 
         except Exception as e:
             registration_trend = []

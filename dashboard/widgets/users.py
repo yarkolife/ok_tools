@@ -110,6 +110,11 @@ class UsersWidget:
 
             # Get last 7 days trend
             end_date = self.filters.date_range['end_date']
+            
+            # If no end_date (days=all), use current date
+            if end_date is None:
+                end_date = datetime.now().date()
+                
             trend_data = []
 
             for i in range(7):
