@@ -69,10 +69,10 @@ print_info "Директория установки: $INSTALL_DIR"
 cd "$INSTALL_DIR"
 
 # ================================
-# ШАГ 1: Проверка статуса
+# ШАГ 1: Проверка статуса и определение типа изменений
 # ================================
 
-print_header "Шаг 1: Проверка текущего статуса"
+print_header "Шаг 1: Проверка текущего статуса и анализ изменений"
 
 print_info "Статус контейнеров:"
 docker compose ps
@@ -90,7 +90,59 @@ if [ -n "$(git status --porcelain)" ]; then
     fi
 fi
 
-print_success "Статус проверен"
+# Анализ изменений для определения стратегии обновления
+print_info "Анализ изменений..."
+
+# Получаем список измененных файлов
+CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+
+# Инициализация флагов
+NEED_FULL_REBUILD=false
+NEED_CODE_UPDATE=false
+NEED_CONFIG_UPDATE=false
+NEED_RESTART_ONLY=false
+
+# Проверка критических изменений
+if echo "$CHANGED_FILES" | grep -E "(requirements\.txt|Dockerfile|docker-compose\.yml)" >/dev/null; then
+    NEED_FULL_REBUILD=true
+    print_info "🔧 Обнаружены изменения в зависимостях или Docker конфигурации - требуется полная пересборка"
+fi
+
+if echo "$CHANGED_FILES" | grep -E "\.(py|html|css|js)$" >/dev/null; then
+    NEED_CODE_UPDATE=true
+    print_info "📝 Обнаружены изменения в коде - требуется обновление кода"
+fi
+
+if echo "$CHANGED_FILES" | grep -E "(nginx\.conf|\.cfg|\.conf)$" >/dev/null; then
+    NEED_CONFIG_UPDATE=true
+    print_info "⚙️ Обнаружены изменения в конфигурации - требуется обновление настроек"
+fi
+
+# Проверка миграций
+if echo "$CHANGED_FILES" | grep -E "migrations/.*\.py$" >/dev/null; then
+    NEED_CODE_UPDATE=true
+    print_info "🗄️ Обнаружены изменения в миграциях - требуется применение миграций"
+fi
+
+# Если нет критических изменений, проверяем только git pull
+if [ -z "$CHANGED_FILES" ] && ! $NEED_FULL_REBUILD && ! $NEED_CODE_UPDATE && ! $NEED_CONFIG_UPDATE; then
+    print_info "📋 Нет критических изменений - проверяем обновления из репозитория"
+    NEED_RESTART_ONLY=true
+fi
+
+# Определение стратегии обновления
+if $NEED_FULL_REBUILD; then
+    UPDATE_STRATEGY="FULL_REBUILD"
+    print_info "🎯 Стратегия: ПОЛНАЯ ПЕРЕСБОРКА"
+elif $NEED_CODE_UPDATE || $NEED_CONFIG_UPDATE; then
+    UPDATE_STRATEGY="CODE_UPDATE"
+    print_info "🎯 Стратегия: ОБНОВЛЕНИЕ КОДА И НАСТРОЕК"
+else
+    UPDATE_STRATEGY="RESTART_ONLY"
+    print_info "🎯 Стратегия: ТОЛЬКО ПЕРЕЗАПУСК"
+fi
+
+print_success "Анализ завершен"
 
 # ================================
 # ШАГ 2: Создание бэкапа
@@ -122,55 +174,80 @@ docker compose start web
 print_success "Бэкап создан в $BACKUP_DIR"
 
 # ================================
-# ШАГ 3: Обновление кода
+# ШАГ 3: Обновление кода (условное)
 # ================================
 
-print_header "Шаг 3: Обновление кода из Git"
-
-print_info "Получение обновлений из репозитория..."
-git fetch origin
-
-# Проверка изменений
-LOCAL_COMMIT=$(git rev-parse HEAD)
-REMOTE_COMMIT=$(git rev-parse origin/main)
-
-if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
-    print_warning "Нет новых обновлений"
-    read -p "Продолжить пересборку контейнеров? (y/n): " REBUILD
-    if [ "$REBUILD" != "y" ]; then
-        print_info "Обновление отменено"
-        exit 0
+if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
+    print_header "Шаг 3: Обновление кода из Git"
+    
+    print_info "Получение обновлений из репозитория..."
+    git fetch origin
+    
+    # Проверка изменений
+    LOCAL_COMMIT=$(git rev-parse HEAD)
+    REMOTE_COMMIT=$(git rev-parse origin/main)
+    
+    if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
+        print_warning "Нет новых обновлений"
+        read -p "Продолжить обновление? (y/n): " CONTINUE_UPDATE
+        if [ "$CONTINUE_UPDATE" != "y" ]; then
+            print_info "Обновление отменено"
+            exit 0
+        fi
+    else
+        print_info "Найдены новые изменения:"
+        git log --oneline "$LOCAL_COMMIT..$REMOTE_COMMIT"
+        
+        read -p "Применить обновления? (y/n): " APPLY_UPDATE
+        if [ "$APPLY_UPDATE" != "y" ]; then
+            print_error "Обновление отменено"
+            exit 1
+        fi
+        
+        # Сброс локальных изменений и применение обновлений
+        git reset --hard HEAD
+        git pull origin main
+        print_success "Код обновлен"
     fi
 else
-    print_info "Найдены новые изменения:"
-    git log --oneline "$LOCAL_COMMIT..$REMOTE_COMMIT"
-    
-    read -p "Применить обновления? (y/n): " APPLY_UPDATE
-    if [ "$APPLY_UPDATE" != "y" ]; then
-        print_error "Обновление отменено"
-        exit 1
-    fi
-    
-    # Сброс локальных изменений и применение обновлений
-    git reset --hard HEAD
-    git pull origin main
-    print_success "Код обновлен"
+    print_header "Шаг 3: Пропуск обновления кода (только перезапуск)"
+    print_info "Стратегия RESTART_ONLY - обновление кода не требуется"
 fi
 
 # ================================
-# ШАГ 4: Пересборка контейнеров
+# ШАГ 4: Пересборка контейнеров (условная)
 # ================================
 
-print_header "Шаг 4: Пересборка Docker контейнеров"
-
-print_info "Остановка контейнеров..."
-docker compose down
-
-print_warning "Пересборка образов (может занять несколько минут)..."
-docker compose build --no-cache
-
-print_info "Запуск обновленных контейнеров..."
-docker compose up -d
+if [ "$UPDATE_STRATEGY" = "FULL_REBUILD" ]; then
+    print_header "Шаг 4: Полная пересборка Docker контейнеров"
+    
+    print_info "Остановка контейнеров..."
+    docker compose down
+    
+    print_warning "Полная пересборка образов (может занять несколько минут)..."
+    docker compose build --no-cache
+    
+    print_info "Запуск обновленных контейнеров..."
+    docker compose up -d
+    
+elif [ "$UPDATE_STRATEGY" = "CODE_UPDATE" ]; then
+    print_header "Шаг 4: Инкрементальная пересборка Docker контейнеров"
+    
+    print_info "Остановка web контейнера..."
+    docker compose stop web
+    
+    print_info "Инкрементальная пересборка web образа..."
+    docker compose build web
+    
+    print_info "Запуск обновленного web контейнера..."
+    docker compose start web
+    
+else
+    print_header "Шаг 4: Только перезапуск контейнеров"
+    
+    print_info "Перезапуск контейнеров..."
+    docker compose restart
+fi
 
 # Ожидание запуска
 print_info "Ожидание запуска контейнеров..."
@@ -183,10 +260,11 @@ docker compose ps
 print_success "Контейнеры пересобраны и запущены"
 
 # ================================
-# ШАГ 5: Исправление конфигурации
+# ШАГ 5: Исправление конфигурации (условное)
 # ================================
 
-print_header "Шаг 5: Исправление конфигурации"
+if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
+    print_header "Шаг 5: Исправление конфигурации"
 
 print_info "Проверка и исправление конфигурации..."
 
@@ -225,13 +303,18 @@ if [ -f docker-production.cfg.orig ] || [ -f docker-production.cfg.bak ]; then
     sleep 10
 fi
 
-print_success "Конфигурация проверена и исправлена"
+    print_success "Конфигурация проверена и исправлена"
+else
+    print_header "Шаг 5: Пропуск исправления конфигурации (только перезапуск)"
+    print_info "Стратегия RESTART_ONLY - исправление конфигурации не требуется"
+fi
 
 # ================================
-# ШАГ 6: Применение миграций
+# ШАГ 6: Применение миграций (условное)
 # ================================
 
-print_header "Шаг 6: Применение миграций базы данных"
+if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
+    print_header "Шаг 6: Применение миграций базы данных"
 
 # Проверка и удаление проблемных миграций
 if [ -f "media_files/migrations/0004_add_unc_path_to_storage.py" ]; then
@@ -247,13 +330,18 @@ docker compose exec web python manage.py showmigrations --plan
 print_info "Применение миграций..."
 docker compose exec web python manage.py migrate
 
-print_success "Миграции применены"
+    print_success "Миграции применены"
+else
+    print_header "Шаг 6: Пропуск применения миграций (только перезапуск)"
+    print_info "Стратегия RESTART_ONLY - применение миграций не требуется"
+fi
 
 # ================================
-# ШАГ 7: Обновление статики
+# ШАГ 7: Обновление статики (условное)
 # ================================
 
-print_header "Шаг 7: Обновление статических файлов"
+if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
+    print_header "Шаг 7: Обновление статических файлов"
 
 # Создание директории static если не существует
 if [ ! -d "static" ]; then
@@ -266,7 +354,11 @@ fi
 print_info "Сбор статических файлов..."
 docker compose exec web python manage.py collectstatic --noinput
 
-print_success "Статические файлы обновлены"
+    print_success "Статические файлы обновлены"
+else
+    print_header "Шаг 7: Пропуск обновления статических файлов (только перезапуск)"
+    print_info "Стратегия RESTART_ONLY - обновление статических файлов не требуется"
+fi
 
 # ================================
 # ШАГ 8: Проверка работоспособности
