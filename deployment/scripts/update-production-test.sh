@@ -316,13 +316,8 @@ fi
 if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
     print_header "Шаг 6: Применение миграций базы данных"
 
-# Проверка и удаление проблемных миграций
-if [ -f "media_files/migrations/0004_add_unc_path_to_storage.py" ]; then
-    print_warning "Обнаружена проблемная миграция 0004_add_unc_path_to_storage.py"
-    print_info "Удаляю проблемную миграцию..."
-    rm -f media_files/migrations/0004_add_unc_path_to_storage.py
-    print_success "Проблемная миграция удалена"
-fi
+# Проверка миграций (проблемная миграция 0004 уже исправлена)
+print_info "Проверка миграций..."
 
 print_info "Проверка новых миграций..."
 docker compose exec web python manage.py showmigrations --plan
