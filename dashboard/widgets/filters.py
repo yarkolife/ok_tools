@@ -6,7 +6,7 @@ Provides unified filtering system for all dashboard widgets.
 from datetime import datetime
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
-from django.db.models import Q
+from django.db.models import Q, Min, Max
 from django.utils.translation import gettext_lazy as _
 from registration.models import Gender
 from registration.models import MediaAuthority
@@ -27,10 +27,30 @@ class DashboardFilters:
         days_param = self.request.GET.get('days', '30')
 
         if days_param == 'all':
-            # All time - no date filtering
-            start_date = None
-            end_date = None
-            days = None
+            # All time - determine dates dynamically from database
+            try:
+                # Get the earliest and latest registration dates from database
+                earliest = Profile.objects.filter(created_at__isnull=False).aggregate(
+                    earliest=Min('created_at')
+                )['earliest']
+                latest = Profile.objects.filter(created_at__isnull=False).aggregate(
+                    latest=Max('created_at')
+                )['latest']
+                
+                if earliest and latest:
+                    start_date = earliest.date()
+                    end_date = latest.date()
+                    days = (end_date - start_date).days
+                else:
+                    # Fallback if no data exists
+                    end_date = datetime.now().date()
+                    start_date = end_date - timedelta(days=365)  # Last year as fallback
+                    days = 365
+            except Exception:
+                # Fallback if database query fails
+                end_date = datetime.now().date()
+                start_date = end_date - timedelta(days=365)  # Last year as fallback
+                days = 365
         elif days_param == 'custom':
             # Custom date range
             start_date_str = self.request.GET.get('start_date')
