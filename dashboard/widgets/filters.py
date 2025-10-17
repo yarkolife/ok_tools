@@ -27,16 +27,10 @@ class DashboardFilters:
         days_param = self.request.GET.get('days', '30')
 
         if days_param == 'all':
-            # All time - use a very old date
-            try:
-                start_date = datetime(2000, 1, 1).date()
-                end_date = datetime.now().date()
-                days = (end_date - start_date).days
-            except Exception:
-                # If there's an error, fallback to 365 days
-                end_date = datetime.now().date()
-                start_date = end_date - timedelta(days=365)
-                days = 365
+            # All time - no date filtering
+            start_date = None
+            end_date = None
+            days = None
         elif days_param == 'custom':
             # Custom date range
             start_date_str = self.request.GET.get('start_date')
@@ -184,8 +178,8 @@ class DashboardFilters:
 
         # Date range filter for created_at - handle case when field doesn't exist
         try:
-            # Check if created_at field exists in the model
-            if hasattr(queryset.model, 'created_at'):
+            # Check if created_at field exists in the model and dates are set
+            if hasattr(queryset.model, 'created_at') and self.date_range['start_date'] and self.date_range['end_date']:
                 queryset = queryset.filter(
                     created_at__date__gte=self.date_range['start_date'],
                     created_at__date__lte=self.date_range['end_date']
