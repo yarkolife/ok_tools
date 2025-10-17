@@ -37,25 +37,29 @@ class DashboardFilters:
                     latest=Max('created_at')
                 )['latest']
                 
-                print(f"DEBUG: earliest={earliest}, latest={latest}")
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"DEBUG: earliest={earliest}, latest={latest}")
                 
                 if earliest and latest:
                     start_date = earliest.date()
                     end_date = latest.date()
                     days = (end_date - start_date).days
-                    print(f"DEBUG: Using DB dates: {start_date} to {end_date} ({days} days)")
+                    logger.info(f"DEBUG: Using DB dates: {start_date} to {end_date} ({days} days)")
                 else:
                     # Fallback if no data exists
                     end_date = datetime.now().date()
                     start_date = end_date - timedelta(days=365)  # Last year as fallback
                     days = 365
-                    print(f"DEBUG: No DB data, using fallback: {start_date} to {end_date} ({days} days)")
+                    logger.info(f"DEBUG: No DB data, using fallback: {start_date} to {end_date} ({days} days)")
             except Exception as e:
                 # Fallback if database query fails
                 end_date = datetime.now().date()
                 start_date = end_date - timedelta(days=365)  # Last year as fallback
                 days = 365
-                print(f"DEBUG: DB query failed: {e}, using fallback: {start_date} to {end_date} ({days} days)")
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"DEBUG: DB query failed: {e}, using fallback: {start_date} to {end_date} ({days} days)")
         elif days_param == 'custom':
             # Custom date range
             start_date_str = self.request.GET.get('start_date')
