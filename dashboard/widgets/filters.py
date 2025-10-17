@@ -150,8 +150,8 @@ class DashboardFilters:
 
         # Date range filter for created_at - handle case when field doesn't exist
         try:
-            # Check if created_at field exists in the model
-            if hasattr(queryset.model, 'created_at'):
+            # Check if created_at field exists in the model and dates are set
+            if hasattr(queryset.model, 'created_at') and self.date_range['start_date'] and self.date_range['end_date']:
                 queryset = queryset.filter(
                     created_at__date__gte=self.date_range['start_date'],
                     created_at__date__lte=self.date_range['end_date']
@@ -220,12 +220,14 @@ class DashboardFilters:
 
         # Date range filter for broadcast_date - handle case when field doesn't exist
         try:
-            queryset = queryset.filter(
-                broadcast_date__date__gte=self.date_range['start_date'],
-                broadcast_date__date__lte=self.date_range['end_date']
-            )
+            # Check if broadcast_date field exists in the model and dates are set
+            if hasattr(queryset.model, 'broadcast_date') and self.date_range['start_date'] and self.date_range['end_date']:
+                queryset = queryset.filter(
+                    broadcast_date__date__gte=self.date_range['start_date'],
+                    broadcast_date__date__lte=self.date_range['end_date']
+                )
         except Exception:
-            # If broadcast_date field doesn't exist, skip date filtering
+            # If broadcast_date field doesn't exist or filtering fails, skip date filtering
             pass
 
         return queryset
