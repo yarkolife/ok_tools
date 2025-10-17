@@ -77,7 +77,9 @@ def api_users_statistics(request):
                     if profile.birthday.year == 1800 and profile.birthday.month == 1 and profile.birthday.day == 1:
                         age_groups['unknown'] += 1
                     else:
-                        age = relativedelta(filters.date_range['end_date'], profile.birthday).years
+                        # Use current date if end_date is None (fallback for old code)
+                        end_date = filters.date_range['end_date'] or datetime.now().date()
+                        age = relativedelta(end_date, profile.birthday).years
                         if age <= 34:
                             age_groups['up_to_34'] += 1
                         elif age <= 50:
@@ -208,7 +210,9 @@ def api_users_statistics(request):
                     if profile.birthday.year == 1800 and profile.birthday.month == 1 and profile.birthday.day == 1:
                         age_group_key = 'unknown'
                     else:
-                        age = relativedelta(filters.date_range['end_date'], profile.birthday).years
+                        # Use current date if end_date is None (fallback for old code)
+                        end_date = filters.date_range['end_date'] or datetime.now().date()
+                        age = relativedelta(end_date, profile.birthday).years
                         if age <= 34:
                             age_group_key = 'up_to_34'
                         elif age <= 50:
