@@ -237,46 +237,92 @@ print_success "Контейнеры пересобраны и запущены"
 # ================================
 
 if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-    print_header "Шаг 4: Исправление конфигурации"
+    print_header "Шаг 4: Обновление конфигурации"
 
-    print_info "Проверка и исправление конфигурации..."
+    print_info "Проверка изменений в конфигурационных файлах..."
+    
+    # Определяем, какая конфигурация используется
+    CONFIG_SOURCE=""
+    if grep -q "organization_owner = OKMQ" docker-production.cfg 2>/dev/null; then
+        CONFIG_SOURCE="deployment/configs/okmq-production.cfg"
+    elif grep -q "organization_owner = OK Bayern" docker-production.cfg 2>/dev/null; then
+        CONFIG_SOURCE="deployment/configs/ok-bayern-production.cfg"
+    elif grep -q "organization_owner = OK NRW" docker-production.cfg 2>/dev/null; then
+        CONFIG_SOURCE="deployment/configs/ok-nrw-production.cfg"
+    fi
 
-    # Проверка и исправление STATIC_ROOT
-    if grep -q "static = /opt/ok-tools/static/" docker-production.cfg 2>/dev/null; then
-        print_warning "Исправляю STATIC_ROOT..."
+    if [ -n "$CONFIG_SOURCE" ] && [ -f "$CONFIG_SOURCE" ]; then
+        print_info "Найдена исходная конфигурация: $CONFIG_SOURCE"
+        
+        # Создаем бэкап текущей конфигурации
+        cp docker-production.cfg docker-production.cfg.backup
+        
+        # Копируем обновленную конфигурацию
+        print_info "Копирование обновленной конфигурации..."
+        cp "$CONFIG_SOURCE" docker-production.cfg
+        
+        # Восстанавливаем пользовательские настройки из бэкапа
+        print_info "Восстановление пользовательских настроек..."
+        
+        # Извлекаем пользовательские значения из бэкапа
+        SECRET_KEY=$(grep "secret_key = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
+        DB_PASSWORD=$(grep "db_pw = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
+        ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
+        
+        # Применяем пользовательские настройки
+        if [ -n "$SECRET_KEY" ]; then
+            sed -i "s/secret_key = .*/secret_key = $SECRET_KEY/g" docker-production.cfg
+        fi
+        
+        if [ -n "$DB_PASSWORD" ]; then
+            sed -i "s/db_pw = .*/db_pw = $DB_PASSWORD/g" docker-production.cfg
+        fi
+        
+        if [ -n "$ALLOWED_HOSTS" ]; then
+            sed -i "s/allowed_hosts = .*/allowed_hosts = $ALLOWED_HOSTS/g" docker-production.cfg
+        fi
+        
+        # Применяем Docker-специфичные исправления
+        print_info "Применение Docker-специфичных исправлений..."
         sed -i 's|static = /opt/ok-tools/static/|static = /app/static/|g' docker-production.cfg
-        print_success "STATIC_ROOT исправлен"
-    fi
-
-    # Проверка и исправление MEDIA_ROOT
-    if grep -q "media = /opt/ok-tools/media/" docker-production.cfg 2>/dev/null; then
-        print_warning "Исправляю MEDIA_ROOT..."
         sed -i 's|media = /opt/ok-tools/media/|media = /app/media/|g' docker-production.cfg
-        print_success "MEDIA_ROOT исправлен"
-    fi
-
-    # Проверка и исправление db_host
-    if grep -q "db_host = localhost" docker-production.cfg 2>/dev/null; then
-        print_warning "Исправляю db_host..."
         sed -i 's/db_host = localhost/db_host = db/g' docker-production.cfg
-        print_success "db_host исправлен"
-    fi
-
-    # Проверка и исправление db_name
-    if grep -q "db_name = oktools_okmq" docker-production.cfg 2>/dev/null; then
-        print_warning "Исправляю db_name..."
         sed -i 's/db_name = oktools_okmq/db_name = oktools/g' docker-production.cfg
-        print_success "db_name исправлен"
+        
+        # Удаляем временный бэкап
+        rm docker-production.cfg.backup
+        
+        print_success "Конфигурация обновлена из $CONFIG_SOURCE"
+    else
+        print_warning "Исходная конфигурация не найдена, применяю только исправления..."
+        
+        # Применяем только исправления для существующей конфигурации
+        if grep -q "static = /opt/ok-tools/static/" docker-production.cfg 2>/dev/null; then
+            print_warning "Исправляю STATIC_ROOT..."
+            sed -i 's|static = /opt/ok-tools/static/|static = /app/static/|g' docker-production.cfg
+            print_success "STATIC_ROOT исправлен"
+        fi
+
+        if grep -q "media = /opt/ok-tools/media/" docker-production.cfg 2>/dev/null; then
+            print_warning "Исправляю MEDIA_ROOT..."
+            sed -i 's|media = /opt/ok-tools/media/|media = /app/media/|g' docker-production.cfg
+            print_success "MEDIA_ROOT исправлен"
+        fi
+
+        if grep -q "db_host = localhost" docker-production.cfg 2>/dev/null; then
+            print_warning "Исправляю db_host..."
+            sed -i 's/db_host = localhost/db_host = db/g' docker-production.cfg
+            print_success "db_host исправлен"
+        fi
+
+        if grep -q "db_name = oktools_okmq" docker-production.cfg 2>/dev/null; then
+            print_warning "Исправляю db_name..."
+            sed -i 's/db_name = oktools_okmq/db_name = oktools/g' docker-production.cfg
+            print_success "db_name исправлен"
+        fi
     fi
 
-    # Перезапуск web контейнера если были изменения
-    if [ -f docker-production.cfg.orig ] || [ -f docker-production.cfg.bak ]; then
-        print_info "Перезапуск web контейнера для применения изменений..."
-        docker compose restart web
-        sleep 10
-    fi
-
-    print_success "Конфигурация проверена и исправлена"
+    print_success "Конфигурация обновлена и исправлена"
 else
     print_header "Шаг 5: Пропуск исправления конфигурации (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - исправление конфигурации не требуется"
