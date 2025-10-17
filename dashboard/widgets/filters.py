@@ -324,7 +324,10 @@ class DashboardFilters:
             summary.append(f"Status: {self.filters['status']}")
 
         # Date range
-        summary.append(f"Period: {self.date_range['days']} days")
+        if self.date_range['days'] is None:
+            summary.append("Period: All Time")
+        else:
+            summary.append(f"Period: {self.date_range['days']} days")
 
         return summary
 
