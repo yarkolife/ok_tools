@@ -21,6 +21,9 @@ RUN apt-get update && apt-get install -y \
     libopenjp2-7-dev \
     libtiff5-dev \
     libwebp-dev \
+    ffmpeg \
+    libmediainfo0v5 \
+    libmediainfo-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Setting up the working directory

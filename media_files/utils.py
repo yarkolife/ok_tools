@@ -627,6 +627,12 @@ def extract_video_metadata_fast(file_path: str) -> Dict:
     except ImportError:
         logger.warning("pymediainfo not available, falling back to ffprobe")
         return extract_video_metadata(file_path, fast_mode=True)
+    except OSError as e:
+        if "libmediainfo.so.0" in str(e):
+            logger.warning(f"libmediainfo library not available: {e}, falling back to ffprobe")
+        else:
+            logger.error(f"OS error with pymediainfo for {file_path}: {str(e)}")
+        return extract_video_metadata(file_path, fast_mode=True)
     except Exception as e:
         logger.error(f"Error extracting metadata with pymediainfo for {file_path}: {str(e)}")
         return extract_video_metadata(file_path, fast_mode=True)
