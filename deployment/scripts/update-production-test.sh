@@ -267,7 +267,6 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         # Извлекаем пользовательские значения из бэкапа
         SECRET_KEY=$(grep "secret_key = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
         DB_PASSWORD=$(grep "db_pw = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
-        ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
         
         # Применяем пользовательские настройки
         if [ -n "$SECRET_KEY" ]; then
@@ -278,9 +277,8 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
             sed -i "s/db_pw = .*/db_pw = $DB_PASSWORD/g" docker-production.cfg
         fi
         
-        if [ -n "$ALLOWED_HOSTS" ]; then
-            sed -i "s/allowed_hosts = .*/allowed_hosts = $ALLOWED_HOSTS/g" docker-production.cfg
-        fi
+        # НЕ восстанавливаем ALLOWED_HOSTS из бэкапа, чтобы не портить формат
+        # ALLOWED_HOSTS должен остаться в правильном формате из новой конфигурации
         
         # Применяем Docker-специфичные исправления
         print_info "Применение Docker-специфичных исправлений..."
@@ -319,6 +317,13 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
             print_warning "Исправляю db_name..."
             sed -i 's/db_name = oktools_okmq/db_name = oktools/g' docker-production.cfg
             print_success "db_name исправлен"
+        fi
+
+        # Исправляем ALLOWED_HOSTS если он в неправильном формате
+        if grep -q "allowed_hosts = 192.168.88.213localhost127.0.0.1\*" docker-production.cfg 2>/dev/null; then
+            print_warning "Исправляю ALLOWED_HOSTS..."
+            sed -i 's/allowed_hosts = 192.168.88.213localhost127.0.0.1\*/allowed_hosts = 192.168.88.213 localhost 127.0.0.1 */g' docker-production.cfg
+            print_success "ALLOWED_HOSTS исправлен"
         fi
     fi
 
