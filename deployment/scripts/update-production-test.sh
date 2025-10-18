@@ -267,6 +267,7 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         # Извлекаем пользовательские значения из бэкапа
         SECRET_KEY=$(grep "secret_key = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
         DB_PASSWORD=$(grep "db_pw = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
+        ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
         
         # Применяем пользовательские настройки
         if [ -n "$SECRET_KEY" ]; then
@@ -277,8 +278,11 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
             sed -i "s/db_pw = .*/db_pw = $DB_PASSWORD/g" docker-production.cfg
         fi
         
-        # НЕ восстанавливаем ALLOWED_HOSTS из бэкапа, чтобы не портить формат
-        # ALLOWED_HOSTS должен остаться в правильном формате из новой конфигурации
+        # Восстанавливаем ALLOWED_HOSTS из бэкапа для сохранения IP адреса сервера
+        if [ -n "$ALLOWED_HOSTS" ]; then
+            sed -i "s/allowed_hosts = .*/allowed_hosts = $ALLOWED_HOSTS/g" docker-production.cfg
+            print_info "ALLOWED_HOSTS восстановлен из бэкапа: $ALLOWED_HOSTS"
+        fi
         
         # Применяем Docker-специфичные исправления
         print_info "Применение Docker-специфичных исправлений..."
@@ -319,9 +323,27 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
             print_success "db_name исправлен"
         fi
 
-        # Исправляем ALLOWED_HOSTS если он в неправильном формате
+        # Проверяем и сохраняем IP адрес сервера в ALLOWED_HOSTS
+        CURRENT_ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg | cut -d'=' -f2 | tr -d ' ')
+        
+        # Если в текущей конфигурации нет IP адреса сервера, добавляем его
+        if [[ "$CURRENT_ALLOWED_HOSTS" != *"192.168.88.213"* ]]; then
+            print_info "Добавляю IP адрес сервера в ALLOWED_HOSTS..."
+            if [[ "$CURRENT_ALLOWED_HOSTS" == *"localhost"* ]]; then
+                # Заменяем localhost на IP адрес + localhost
+                sed -i 's/allowed_hosts = .*/allowed_hosts = 192.168.88.213 localhost 127.0.0.1 */g' docker-production.cfg
+            else
+                # Добавляем IP адрес к существующим хостам
+                sed -i 's/allowed_hosts = .*/allowed_hosts = 192.168.88.213 */g' docker-production.cfg
+            fi
+            print_success "IP адрес сервера добавлен в ALLOWED_HOSTS"
+        else
+            print_info "IP адрес сервера уже присутствует в ALLOWED_HOSTS"
+        fi
+        
+        # Исправляем ALLOWED_HOSTS если он в неправильном формате (без пробелов)
         if grep -q "allowed_hosts = 192.168.88.213localhost127.0.0.1\*" docker-production.cfg 2>/dev/null; then
-            print_warning "Исправляю ALLOWED_HOSTS..."
+            print_warning "Исправляю формат ALLOWED_HOSTS (добавляю пробелы)..."
             sed -i 's/allowed_hosts = 192.168.88.213localhost127.0.0.1\*/allowed_hosts = 192.168.88.213 localhost 127.0.0.1 */g' docker-production.cfg
             print_success "ALLOWED_HOSTS исправлен"
         fi
