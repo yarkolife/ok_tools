@@ -328,6 +328,21 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
     fi
 
     print_success "Конфигурация обновлена и исправлена"
+    
+    # Принудительно перезапускаем web контейнер для перечитывания конфигурации
+    print_info "Перезапуск web контейнера для применения новой конфигурации..."
+    docker compose stop web
+    docker compose start web
+    
+    # Проверяем, что конфигурация применилась в контейнере
+    print_info "Проверка применения конфигурации в контейнере..."
+    if docker compose exec web cat /app/docker-production.cfg | grep -q "db_host = db"; then
+        print_success "Конфигурация успешно применена в контейнере"
+    else
+        print_warning "Конфигурация не применилась автоматически, исправляю в контейнере..."
+        docker compose exec web sed -i 's/db_host = localhost/db_host = db/g' /app/docker-production.cfg
+        print_success "Конфигурация исправлена в контейнере"
+    fi
 else
     print_header "Шаг 5: Пропуск исправления конфигурации (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - исправление конфигурации не требуется"
