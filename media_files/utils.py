@@ -588,8 +588,8 @@ def extract_video_metadata_fast(file_path: str) -> Dict:
         # Process video tracks
         for track in media_info.video_tracks:
             metadata['has_video'] = True
-            metadata['video_codec'] = track.format or track.commercial_name or track.codec_id
-            metadata['video_codec_long'] = track.format_info or track.format
+            metadata['video_codec'] = track.format if track.format else (track.commercial_name if track.commercial_name else track.codec_id)
+            metadata['video_codec_long'] = track.format_info if track.format_info else track.format
             metadata['video_profile'] = track.format_profile
             metadata['video_bitrate'] = track.bit_rate
             metadata['width'] = track.width
@@ -615,8 +615,8 @@ def extract_video_metadata_fast(file_path: str) -> Dict:
         # Process audio tracks
         for track in media_info.audio_tracks:
             metadata['has_audio'] = True
-            metadata['audio_codec'] = track.format or track.commercial_name or track.codec_id
-            metadata['audio_codec_long'] = track.format_info or track.format
+            metadata['audio_codec'] = track.format if track.format else (track.commercial_name if track.commercial_name else track.codec_id)
+            metadata['audio_codec_long'] = track.format_info if track.format_info else track.format
             metadata['audio_bitrate'] = track.bit_rate
             metadata['audio_sample_rate'] = track.sampling_rate
             metadata['audio_channels'] = track.channel_s
