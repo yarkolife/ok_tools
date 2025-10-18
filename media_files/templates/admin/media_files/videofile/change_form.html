@@ -1,0 +1,144 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<style>
+    .video-player-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+    .video-player-section h2 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+    }
+    .video-info {
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+    .video-info p {
+        margin: 5px 0;
+        color: #666;
+    }
+    .plyr {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+    }
+    .video-unavailable {
+        color: #d32f2f;
+        background: #ffebee;
+        padding: 15px;
+        border-radius: 4px;
+        text-align: center;
+    }
+    .video-loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block field_sets %}
+{{ block.super }}
+
+{% if original and original.id %}
+<div class="video-player-section">
+    <h2>🎬 Video Player</h2>
+    
+    {% if original.is_available %}
+        <div class="video-info">
+            <p><strong>Number:</strong> {{ original.number }}</p>
+            <p><strong>Storage:</strong> {{ original.storage_location.name }}</p>
+            {% if original.duration %}<p><strong>Duration:</strong> {{ original.duration }}</p>{% endif %}
+            {% if original.file_size %}<p><strong>Size:</strong> {{ original.file_size|filesizeformat }}</p>{% endif %}
+            {% if original.total_bitrate %}<p><strong>Bitrate:</strong> {{ original.total_bitrate }} bps</p>{% endif %}
+        </div>
+
+        <video id="inline-player" controls preload="auto">
+            <source src="{% url 'admin:media_files_videofile_stream' original.id %}" type="video/{{ original.format|default:'mp4' }}">
+            <p>To view video, enable JavaScript or 
+                <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download>download video</a>
+            </p>
+        </video>
+        
+        <div id="loading-progress" class="video-loading" style="display: none;">
+            <div>Loading video...</div>
+        </div>
+        
+        <div style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 4px; border-left: 4px solid #2196F3;">
+            <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
+                <strong>📁 File Path (Linux):</strong>
+            </div>
+            <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.full_path }}</code>
+            
+            {% if original.unc_path %}
+            <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
+                <strong>💾 File Path (Windows UNC):</strong>
+            </div>
+            <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.unc_path }}</code>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="video-unavailable">
+            ❌ Video file unavailable. Check path: {{ original.file_path }}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if original.is_available %}
+    // Initialize Plyr player for inline video
+    const player = new Plyr('#inline-player', {
+        controls: [
+            'play-large', 'restart', 'rewind', 'play', 'fast-forward', 'progress',
+            'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'
+        ],
+        settings: ['quality', 'speed'],
+        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
+    });
+
+    // Error handling
+    player.on('error', function(event) {
+        console.error('Video error:', event.detail);
+        document.querySelector('.video-player-section').innerHTML = 
+            '<div class="video-unavailable">❌ Video loading error. ' +
+            '<a href="{% url "admin:media_files_videofile_stream" original.id %}" download>Download file</a></div>';
+    });
+
+    // Show loading progress
+    var loadingDiv = document.getElementById('loading-progress');
+    
+    player.on('loadstart', function() {
+        console.log('Starting video loading...');
+        loadingDiv.style.display = 'block';
+    });
+
+    player.on('canplay', function() {
+        console.log('Video ready to play');
+        loadingDiv.style.display = 'none';
+    });
+
+    player.on('waiting', function() {
+        console.log('Buffering...');
+        loadingDiv.style.display = 'block';
+    });
+
+    player.on('canplaythrough', function() {
+        console.log('Video fully loaded');
+        loadingDiv.style.display = 'none';
+    });
+    {% endif %}
+});
+</script>
+{% endif %}
+{% endblock %}

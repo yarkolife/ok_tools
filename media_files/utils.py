@@ -547,3 +547,88 @@ def move_video_to_archive(video_file, archive_storage=None, user=None):
         
         return False, error_msg
 
+
+def extract_video_metadata_fast(file_path: str) -> Dict:
+    """
+    Extract video metadata using pymediainfo for faster processing.
+    
+    Args:
+        file_path: Absolute path to the video file
+        
+    Returns:
+        Dictionary with extracted metadata (same format as extract_video_metadata)
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    metadata = {
+        'has_video': False,
+        'has_audio': False,
+    }
+    
+    try:
+        from pymediainfo import MediaInfo
+        
+        media_info = MediaInfo.parse(file_path)
+        
+        if not media_info:
+            logger.error(f"pymediainfo failed to parse {file_path}")
+            return metadata
+        
+        # Get general information
+        general = media_info.general_tracks[0] if media_info.general_tracks else None
+        if general:
+            metadata['format'] = general.format
+            metadata['file_size'] = general.file_size
+            metadata['total_bitrate'] = general.overall_bit_rate
+            if general.duration:
+                metadata['duration'] = timedelta(milliseconds=float(general.duration))
+        
+        # Process video tracks
+        for track in media_info.video_tracks:
+            metadata['has_video'] = True
+            metadata['video_codec'] = track.codec
+            metadata['video_codec_long'] = track.codec_string
+            metadata['video_profile'] = track.format_profile
+            metadata['video_bitrate'] = track.bit_rate
+            metadata['width'] = track.width
+            metadata['height'] = track.height
+            metadata['pixel_format'] = track.color_space
+            metadata['color_space'] = track.color_space
+            metadata['color_range'] = track.color_range
+            
+            # FPS
+            if track.frame_rate:
+                metadata['fps'] = float(track.frame_rate)
+            
+            # Aspect ratio
+            if track.display_aspect_ratio:
+                metadata['aspect_ratio'] = track.display_aspect_ratio
+            
+            # Chroma subsampling
+            if track.chroma_subsampling:
+                metadata['chroma_subsampling'] = track.chroma_subsampling
+                
+            break  # Only process first video track
+        
+        # Process audio tracks
+        for track in media_info.audio_tracks:
+            metadata['has_audio'] = True
+            metadata['audio_codec'] = track.codec
+            metadata['audio_codec_long'] = track.codec_string
+            metadata['audio_bitrate'] = track.bit_rate
+            metadata['audio_sample_rate'] = track.sampling_rate
+            metadata['audio_channels'] = track.channel_s
+            if track.channel_layout:
+                metadata['audio_channel_layout'] = track.channel_layout
+            break  # Only process first audio track
+            
+    except ImportError:
+        logger.warning("pymediainfo not available, falling back to ffprobe")
+        return extract_video_metadata(file_path, fast_mode=True)
+    except Exception as e:
+        logger.error(f"Error extracting metadata with pymediainfo for {file_path}: {str(e)}")
+        return extract_video_metadata(file_path, fast_mode=True)
+    
+    return metadata
+

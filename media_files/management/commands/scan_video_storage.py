@@ -9,6 +9,7 @@ from media_files.utils import (
     scan_directory,
     extract_number_from_filename,
     extract_video_metadata,
+    extract_video_metadata_fast,
     calculate_checksum,
     get_file_modified_time,
 )
@@ -155,10 +156,8 @@ class Command(BaseCommand):
                         # Extract and update metadata (skip if requested)
                         if not skip_metadata:
                             self.stdout.write(f'Extracting metadata for: {filename}')
-                            # Use fast mode for large files or if requested
-                            file_size = os.path.getsize(abs_path)
-                            fast_mode = fast_metadata or file_size > 1024 * 1024 * 1024  # 1GB threshold
-                            metadata = extract_video_metadata(abs_path, fast_mode=fast_mode)
+                            # Use pymediainfo for faster metadata extraction
+                            metadata = extract_video_metadata_fast(abs_path)
                         else:
                             metadata = {}
                         

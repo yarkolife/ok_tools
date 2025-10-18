@@ -23,11 +23,11 @@
     <div class="video-container">
         <div class="video-info">
             <h1>{{ video.filename }}</h1>
-            <p><strong>Номер:</strong> {{ video.number }}</p>
-            <p><strong>Хранилище:</strong> {{ video.storage_location.name }}</p>
-            {% if video.duration %}<p><strong>Длительность:</strong> {{ video.duration }}</p>{% endif %}
-            {% if video.file_size %}<p><strong>Размер:</strong> {{ video.file_size|filesizeformat }}</p>{% endif %}
-            {% if video.total_bitrate %}<p><strong>Битрейт:</strong> {{ video.total_bitrate }} bps</p>{% endif %}
+            <p><strong>Number:</strong> {{ video.number }}</p>
+            <p><strong>Storage:</strong> {{ video.storage_location.name }}</p>
+            {% if video.duration %}<p><strong>Duration:</strong> {{ video.duration }}</p>{% endif %}
+            {% if video.file_size %}<p><strong>Size:</strong> {{ video.file_size|filesizeformat }}</p>{% endif %}
+            {% if video.total_bitrate %}<p><strong>Bitrate:</strong> {{ video.total_bitrate }} bps</p>{% endif %}
         </div>
 
         {% if video.is_available %}
@@ -36,38 +36,38 @@
                 controls
                 preload="auto">
                 <source src="{% url 'admin:media_files_videofile_stream' video.id %}" type="video/{{ video.format|default:'mp4' }}">
-                <p>Для просмотра видео включите JavaScript или используйте 
-                    <a href="{% url 'admin:media_files_videofile_stream' video.id %}" download>скачать видео</a>
+                <p>To view video, enable JavaScript or 
+                    <a href="{% url 'admin:media_files_videofile_stream' video.id %}" download>download video</a>
                 </p>
             </video>
             
             <div id="loading-progress" class="loading-progress" style="display: none;">
                 <div class="progress-bar" style="width: 0%"></div>
-                <div class="progress-text">Загрузка видео...</div>
+                <div class="progress-text">Loading video...</div>
             </div>
             
             <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                 <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
-                    <strong>📁 Путь к файлу (Linux):</strong>
+                    <strong>📁 File Path (Linux):</strong>
                 </div>
                 <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.full_path }}</code>
                 
                 {% if video.unc_path %}
                 <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
-                    <strong>💾 Путь к файлу (Windows UNC):</strong>
+                    <strong>💾 File Path (Windows UNC):</strong>
                 </div>
                 <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.unc_path }}</code>
                 {% endif %}
             </div>
         {% else %}
             <div class="error">
-                ❌ Видеофайл недоступен. Проверьте путь: {{ video.file_path }}
+                ❌ Video file unavailable. Check path: {{ video.file_path }}
             </div>
         {% endif %}
     </div>
 
     <script>
-        // Инициализация Plyr плеера
+        // Initialize Plyr player
         const player = new Plyr('#plyr-player', {
             controls: [
                 'play-large', 'restart', 'rewind', 'play', 'fast-forward', 'progress',
@@ -78,24 +78,24 @@
             quality: { default: 720, options: [1080, 720, 480, 360] }
         });
 
-        // Обработка ошибок
+        // Error handling
         player.on('error', function(event) {
             console.error('Video error:', event.detail);
             
             document.querySelector('.video-container').innerHTML = 
-                '<div class="error">❌ Ошибка загрузки видео. ' +
-                '<a href="{% url "admin:media_files_videofile_stream" video.id %}" download>Скачать файл</a></div>';
+                '<div class="error">❌ Video loading error. ' +
+                '<a href="{% url "admin:media_files_videofile_stream" video.id %}" download>Download file</a></div>';
         });
 
-        // Показывать прогресс загрузки
+        // Show loading progress
         var progressDiv = document.getElementById('loading-progress');
         var progressBar = progressDiv.querySelector('.progress-bar');
         var progressText = progressDiv.querySelector('.progress-text');
         
         player.on('loadstart', function() {
-            console.log('Начинается загрузка видео...');
+            console.log('Starting video loading...');
             progressDiv.style.display = 'block';
-            progressText.textContent = 'Загрузка видео...';
+            progressText.textContent = 'Loading video...';
         });
 
         player.on('progress', function() {
@@ -105,12 +105,12 @@
                 var bufferedEnd = buffered.length > 0 ? buffered.end(buffered.length - 1) : 0;
                 var percent = Math.round((bufferedEnd / duration) * 100);
                 progressBar.style.width = percent + '%';
-                progressText.textContent = 'Загрузка видео... ' + percent + '%';
+                progressText.textContent = 'Loading video... ' + percent + '%';
             }
         });
 
         player.on('canplay', function() {
-            console.log('Видео готово к воспроизведению');
+            console.log('Video ready to play');
             progressDiv.style.display = 'none';
         });
 
@@ -119,13 +119,13 @@
         });
 
         player.on('waiting', function() {
-            console.log('Буферизация...');
+            console.log('Buffering...');
             progressDiv.style.display = 'block';
-            progressText.textContent = 'Буферизация...';
+            progressText.textContent = 'Buffering...';
         });
 
         player.on('canplaythrough', function() {
-            console.log('Видео полностью загружено');
+            console.log('Video fully loaded');
             progressDiv.style.display = 'none';
         });
     </script>

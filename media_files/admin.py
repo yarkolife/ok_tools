@@ -14,7 +14,7 @@ from rangefilter.filters import DateRangeFilter
 
 from .models import StorageLocation, VideoFile, FileOperation
 from .tasks import copy_video_to_playout
-from .utils import verify_file_integrity, extract_video_metadata, extract_number_from_filename, calculate_checksum
+from .utils import verify_file_integrity, extract_video_metadata, extract_video_metadata_fast, extract_number_from_filename, calculate_checksum
 
 
 logger = logging.getLogger('django')
@@ -118,7 +118,7 @@ class VideoFileAdminForm(forms.ModelForm):
                 
                 # Extract metadata
                 try:
-                    metadata = extract_video_metadata(file_path)
+                    metadata = extract_video_metadata_fast(file_path)
                     instance.format = metadata.get('format', '')
                     instance.duration = metadata.get('duration')
                     instance.file_size = os.path.getsize(file_path)
@@ -185,7 +185,7 @@ class VideoFileAdminForm(forms.ModelForm):
                 
                 # Extract metadata
                 try:
-                    metadata = extract_video_metadata(file_path_manual)
+                    metadata = extract_video_metadata_fast(file_path_manual)
                     instance.format = metadata.get('format', '')
                     instance.duration = metadata.get('duration')
                     instance.file_size = os.path.getsize(file_path_manual)
@@ -417,6 +417,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     """Admin interface for video files."""
 
     form = VideoFileAdminForm
+    change_form_template = 'admin/media_files/videofile/change_form.html'
     
     list_display = [
         'number', 'filename', 'storage_location', 'resolution_display',
@@ -882,7 +883,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 if not video.is_available:
                     continue
                 
-                metadata = extract_video_metadata(video.full_path)
+                metadata = extract_video_metadata_fast(video.full_path)
                 
                 # Update fields
                 if 'format' in metadata:
