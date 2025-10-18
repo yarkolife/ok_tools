@@ -594,9 +594,9 @@ def extract_video_metadata_fast(file_path: str) -> Dict:
             metadata['video_bitrate'] = track.bit_rate
             metadata['width'] = track.width
             metadata['height'] = track.height
-            metadata['pixel_format'] = track.color_space
-            metadata['color_space'] = track.color_space
-            metadata['color_range'] = track.color_range
+            metadata['pixel_format'] = track.color_space or ''
+            metadata['color_space'] = track.color_space or ''
+            metadata['color_range'] = track.color_range or ''
             
             # FPS
             if track.frame_rate:
