@@ -781,26 +781,39 @@ class VideoFileAdmin(admin.ModelAdmin):
             }
             content_type = content_types.get(file_extension, 'video/mp4')
             
-            # Use django-downloadview for efficient streaming with range support
-            from django_downloadview import PathDownloadView
-            from django.http import HttpResponse
+            # Use FileResponse with range support for efficient streaming
+            from django.http import FileResponse, HttpResponse
+            import mimetypes
             
-            # Create a custom view class that inherits from PathDownloadView
-            class CustomVideoDownloadView(PathDownloadView):
-                def get_path(self):
-                    return file_path
-                
-                def get_basename(self):
-                    return video.filename
+            # Get file size for range requests
+            file_size = os.path.getsize(file_path)
             
-            download_view = CustomVideoDownloadView()
-            download_view.attachment = False  # Content-Disposition: inline
+            # Open file in binary mode
+            video_file = open(file_path, 'rb')
             
-            # Call the view with proper request handling
-            response = download_view.get(request)
-            response['Content-Type'] = content_type
+            # Create FileResponse with range support
+            response = FileResponse(video_file, content_type=content_type)
+            response['Content-Disposition'] = f'inline; filename="{video.filename}"'
+            response['Accept-Ranges'] = 'bytes'
             response['Cache-Control'] = 'public, max-age=86400'  # Cache for 24 hours
             response['X-Accel-Buffering'] = 'no'  # Disable nginx buffering
+            
+            # Handle Range requests for video streaming
+            range_header = request.META.get('HTTP_RANGE')
+            if range_header:
+                import re
+                range_match = re.match(r'bytes=(\d+)-(\d*)', range_header)
+                if range_match:
+                    start = int(range_match.group(1))
+                    end = int(range_match.group(2)) if range_match.group(2) else file_size - 1
+                    
+                    # Set partial content response
+                    response.status_code = 206
+                    response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
+                    response['Content-Length'] = str(end - start + 1)
+                    
+                    # Seek to start position
+                    video_file.seek(start)
             
             return response
             
