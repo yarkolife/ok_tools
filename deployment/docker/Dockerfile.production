@@ -24,7 +24,15 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     libmediainfo0v5 \
     libmediainfo-dev \
+    libzen0v5 \
     && rm -rf /var/lib/apt/lists/*
+
+# Create symlinks for ffprobe and ffmpeg tools
+RUN ln -sf /usr/bin/ffprobe /usr/local/bin/ffprobe
+RUN ln -sf /usr/bin/ffmpeg /usr/local/bin/ffmpeg
+
+# Fix libmediainfo library path
+RUN ldconfig
 
 # Setting up the working directory
 WORKDIR /app
@@ -52,7 +60,10 @@ RUN chmod +x /app/start-cron.sh
 
 # Creating a user for security
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
-USER app
+
+# Create startup script that starts cron as root then switches to app user
+RUN echo '#!/bin/bash\nservice cron start\nsu - app -c "cd /app && gunicorn --bind 0.0.0.0:8000 --workers 2 --threads 8 --worker-class gthread --timeout 120 --keep-alive 75 --max-requests 1000 --max-requests-jitter 100 ok_tools.wsgi:application"' > /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Collecting static files
 RUN python manage.py collectstatic --noinput --settings=ok_tools.settings || true
@@ -60,5 +71,5 @@ RUN python manage.py collectstatic --noinput --settings=ok_tools.settings || tru
 # Opening the port
 EXPOSE 8000
 
-# Command to run with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "8", "--worker-class", "gthread", "--timeout", "120", "--keep-alive", "75", "--max-requests", "1000", "--max-requests-jitter", "100", "ok_tools.wsgi:application"]
+# Command to run with cron and gunicorn
+CMD ["/app/start.sh"]
