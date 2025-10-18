@@ -558,6 +558,7 @@ def extract_video_metadata_fast(file_path: str) -> Dict:
     Returns:
         Dictionary with extracted metadata (same format as extract_video_metadata)
     """
+    import os
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
     
