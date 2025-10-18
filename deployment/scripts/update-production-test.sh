@@ -116,6 +116,12 @@ if echo "$CHANGED_FILES" | grep -E "(requirements\.txt|Dockerfile|docker-compose
     print_info "🔧 Обнаружены изменения в зависимостях или Docker конфигурации - требуется полная пересборка"
 fi
 
+# Проверка изменений в Dockerfile.production
+if echo "$CHANGED_FILES" | grep -E "deployment/docker/Dockerfile\.production" >/dev/null; then
+    NEED_FULL_REBUILD=true
+    print_info "🐳 Обнаружены изменения в Dockerfile.production - требуется полная пересборка"
+fi
+
 if echo "$CHANGED_FILES" | grep -E "\.(py|html|css|js)$" >/dev/null; then
     NEED_CODE_UPDATE=true
     print_info "📝 Обнаружены изменения в коде - требуется обновление кода"
@@ -194,6 +200,15 @@ print_info "Код уже обновлен в начале скрипта, пр�
 if [ "$UPDATE_STRATEGY" = "FULL_REBUILD" ]; then
     print_header "Шаг 3: Полная пересборка Docker контейнеров"
     
+    # Копируем обновленный Dockerfile
+    print_info "Копирование обновленного Dockerfile..."
+    if [ -f "deployment/docker/Dockerfile.production" ]; then
+        cp deployment/docker/Dockerfile.production Dockerfile
+        print_success "Dockerfile обновлен"
+    else
+        print_warning "Dockerfile.production не найден, использую существующий"
+    fi
+    
     print_info "Остановка контейнеров..."
     docker compose down
     
@@ -205,6 +220,18 @@ if [ "$UPDATE_STRATEGY" = "FULL_REBUILD" ]; then
     
 elif [ "$UPDATE_STRATEGY" = "CODE_UPDATE" ]; then
     print_header "Шаг 3: Инкрементальная пересборка Docker контейнеров"
+    
+    # Копируем обновленный Dockerfile если он изменился
+    print_info "Проверка изменений в Dockerfile..."
+    if [ -f "deployment/docker/Dockerfile.production" ]; then
+        if ! cmp -s "deployment/docker/Dockerfile.production" "Dockerfile"; then
+            print_info "Dockerfile изменился, копирую обновленную версию..."
+            cp deployment/docker/Dockerfile.production Dockerfile
+            print_success "Dockerfile обновлен"
+        else
+            print_info "Dockerfile не изменился"
+        fi
+    fi
     
     print_info "Остановка web контейнера..."
     docker compose stop web
