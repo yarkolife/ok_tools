@@ -785,12 +785,18 @@ class VideoFileAdmin(admin.ModelAdmin):
             from django_downloadview import PathDownloadView
             from django.http import HttpResponse
             
-            download_view = PathDownloadView()
-            download_view.path = file_path
-            download_view.attachment = False  # Content-Disposition: inline
-            download_view.basename = video.filename
+            # Create a custom view class that inherits from PathDownloadView
+            class CustomVideoDownloadView(PathDownloadView):
+                def get_path(self):
+                    return file_path
+                
+                def get_basename(self):
+                    return video.filename
             
-            # Set content type
+            download_view = CustomVideoDownloadView()
+            download_view.attachment = False  # Content-Disposition: inline
+            
+            # Call the view with proper request handling
             response = download_view.get(request)
             response['Content-Type'] = content_type
             response['Cache-Control'] = 'public, max-age=86400'  # Cache for 24 hours
