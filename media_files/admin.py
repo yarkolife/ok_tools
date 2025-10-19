@@ -493,8 +493,8 @@ class VideoFileAdmin(admin.ModelAdmin):
     """Admin interface for video files."""
 
     form = VideoFileAdminForm
-    # change_form_template = 'admin/media_files/videofile/change_form.html'  # Temporarily disabled
-    # change_list_template = 'admin/media_files/videofile/change_list.html'  # Temporarily disabled
+    change_form_template = 'admin/media_files/videofile/change_form.html'
+    change_list_template = 'admin/media_files/videofile/change_list.html'
     
     list_display = [
         'number', 'filename', 'storage_location', 'resolution_display',
