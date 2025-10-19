@@ -50,7 +50,7 @@
     .video-modal-body {
         padding: 20px;
     }
-    .video-modal iframe {
+    .video-modal video {
         width: 100%;
         height: 600px;
         border: none;
@@ -71,11 +71,13 @@
             <span class="video-modal-close" onclick="closeVideoModal()">&times;</span>
         </div>
         <div class="video-modal-body">
-            <iframe 
+            <video 
                 id="modalVideoFrame"
-                src="" 
-                allowfullscreen>
-            </iframe>
+                controls 
+                preload="metadata"
+                style="border-radius: 8px; background: #000;">
+                Your browser does not support the video tag.
+            </video>
         </div>
     </div>
 </div>
@@ -84,19 +86,20 @@
 function openVideoModal(streamUrl, filename) {
     const modal = document.getElementById('videoModal');
     const title = document.getElementById('modalTitle');
-    const iframe = document.getElementById('modalVideoFrame');
+    const video = document.getElementById('modalVideoFrame');
     
     title.textContent = filename;
-    iframe.src = streamUrl;
+    video.src = streamUrl;
     modal.style.display = 'block';
 }
 
 function closeVideoModal() {
     const modal = document.getElementById('videoModal');
-    const iframe = document.getElementById('modalVideoFrame');
+    const video = document.getElementById('modalVideoFrame');
     
     modal.style.display = 'none';
-    iframe.src = ''; // Stop video
+    video.pause(); // Stop video
+    video.src = ''; // Clear source
 }
 
 // Close modal when clicking outside

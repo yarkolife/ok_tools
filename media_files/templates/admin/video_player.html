@@ -29,15 +29,16 @@
         </div>
 
         {% if video.is_available %}
-            <!-- Direct Stream iframe -->
-            <iframe 
-                src="{% url 'admin:media_files_videofile_stream' video.id %}" 
+            <!-- Direct Stream video -->
+            <video 
+                controls 
                 width="100%" 
-                height="600" 
-                frameborder="0"
-                allowfullscreen
+                height="600"
+                preload="metadata"
                 style="border-radius: 8px; background: #000;">
-            </iframe>
+                <source src="{% url 'admin:media_files_videofile_stream' video.id %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
             
             <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                 <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
@@ -104,15 +105,13 @@
                             <span style="color: white; font-size: 28px; font-weight: bold; cursor: pointer;" onclick="closeVideoModal()">&times;</span>
                         </div>
                         <div style="padding: 20px;">
-                            <iframe 
+                            <video 
                                 id="modalVideoFrame"
-                                src="" 
-                                width="100%" 
-                                height="600" 
-                                frameborder="0"
-                                allowfullscreen
+                                controls 
+                                preload="metadata"
                                 style="border-radius: 8px; background: #000;">
-                            </iframe>
+                                Your browser does not support the video tag.
+                            </video>
                         </div>
                     </div>
                 `;
@@ -121,7 +120,8 @@
             
             // Update modal content
             document.getElementById('modalTitle').textContent = filename;
-            document.getElementById('modalVideoFrame').src = streamUrl;
+            const video = document.getElementById('modalVideoFrame');
+            video.src = streamUrl;
             
             // Show modal
             modal.style.display = 'block';
@@ -131,10 +131,11 @@
             const modal = document.getElementById('videoModal');
             if (modal) {
                 modal.style.display = 'none';
-                // Stop video by clearing src
-                const iframe = document.getElementById('modalVideoFrame');
-                if (iframe) {
-                    iframe.src = '';
+                // Stop video by pausing and clearing src
+                const video = document.getElementById('modalVideoFrame');
+                if (video) {
+                    video.pause();
+                    video.src = '';
                 }
             }
         }
