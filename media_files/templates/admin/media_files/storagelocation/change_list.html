@@ -244,6 +244,28 @@ document.addEventListener('keydown', function(event) {
         closeModal();
     }
 });
+
+// Prevent form auto-submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('scan-form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        });
+        
+        // Prevent any button clicks from submitting the form automatically
+        const buttons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            });
+        });
+    }
+});
 </script>
 {% endblock %}
 
@@ -267,7 +289,7 @@ document.addEventListener('keydown', function(event) {
                 <p><strong>{% trans "Current Videos" %}:</strong> <span id="storage-videos"></span></p>
             </div>
             
-            <form id="scan-form" method="post" action="{% url 'admin:media_files_storagelocation_scan' 0 %}">
+            <form id="scan-form" method="post" action="{% url 'admin:media_files_storagelocation_scan' 0 %}" onsubmit="return false;">
                 {% csrf_token %}
                 <input type="hidden" id="storage-id" name="storage_id" value="">
                 
