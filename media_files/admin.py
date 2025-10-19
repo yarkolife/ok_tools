@@ -271,13 +271,18 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.scan_storage_view),
                 name='media_files_storagelocation_scan',
             ),
+            path(
+                '<int:storage_id>/scan-options/',
+                self.admin_site.admin_view(self.scan_storage_options_view),
+                name='media_files_storagelocation_scan_options',
+            ),
         ]
         return custom_urls + urls
     
     def video_count_display(self, obj):
         """Display video count with link and scan button."""
         count = obj.video_count
-        scan_url = reverse('admin:media_files_storagelocation_scan', args=[obj.id])
+        scan_url = reverse('admin:media_files_storagelocation_scan_options', args=[obj.id])
         
         if count > 0:
             list_url = reverse('admin:media_files_videofile_changelist') + f'?storage_location__id__exact={obj.id}'
@@ -301,19 +306,32 @@ class StorageLocationAdmin(admin.ModelAdmin):
         try:
             storage = StorageLocation.objects.get(id=storage_id)
             
+            # Get scan options from request parameters
+            scan_options = {}
+            if request.GET.get('force'):
+                scan_options['force'] = True
+            if request.GET.get('strict_check'):
+                scan_options['strict_check'] = True
+            if request.GET.get('skip_metadata'):
+                scan_options['skip_metadata'] = True
+            if request.GET.get('calculate_checksum'):
+                scan_options['calculate_checksum'] = True
+            
             # Capture command output
             out = StringIO()
-            call_command('scan_video_storage', storage_id=storage_id, stdout=out)
+            call_command('scan_video_storage', storage_id=storage_id, stdout=out, **scan_options)
             output = out.getvalue()
             
             # Parse output for statistics
             lines = output.split('\n')
-            stats = {'created': 0, 'updated': 0, 'found': 0}
+            stats = {'created': 0, 'updated': 0, 'found': 0, 'skipped': 0}
             for line in lines:
                 if 'Created:' in line:
                     stats['created'] += 1
                 elif 'Updated:' in line or 'updated' in line.lower():
                     stats['updated'] += 1
+                elif 'Skipped:' in line or 'skipped' in line.lower():
+                    stats['skipped'] += 1
                 elif 'Total files found:' in line:
                     try:
                         stats['found'] = int(line.split(':')[1].strip())
@@ -325,7 +343,8 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 f'✓ Сканирование завершено: {storage.name}\n'
                 f'Найдено: {stats["found"]} файлов | '
                 f'Создано: {stats["created"]} записей | '
-                f'Обновлено: {stats["updated"]} записей'
+                f'Обновлено: {stats["updated"]} записей | '
+                f'Пропущено: {stats["skipped"]} файлов (без изменений)'
             )
             
         except StorageLocation.DoesNotExist:
@@ -334,6 +353,45 @@ class StorageLocationAdmin(admin.ModelAdmin):
             messages.error(request, f'Error scanning storage: {str(e)}')
         
         return redirect('admin:media_files_storagelocation_changelist')
+    
+    def scan_storage_options_view(self, request, storage_id):
+        """View to show scan options for a storage location."""
+        from django.shortcuts import render
+        from django.contrib import messages
+        
+        try:
+            storage = StorageLocation.objects.get(id=storage_id)
+        except StorageLocation.DoesNotExist:
+            messages.error(request, f'Storage location #{storage_id} not found')
+            return redirect('admin:media_files_storagelocation_changelist')
+        
+        if request.method == 'POST':
+            # Process scan with options
+            scan_options = {}
+            if request.POST.get('force'):
+                scan_options['force'] = True
+            if request.POST.get('strict_check'):
+                scan_options['strict_check'] = True
+            if request.POST.get('skip_metadata'):
+                scan_options['skip_metadata'] = True
+            if request.POST.get('calculate_checksum'):
+                scan_options['calculate_checksum'] = True
+            
+            # Redirect to scan with options as GET parameters
+            from django.urls import reverse
+            from urllib.parse import urlencode
+            scan_url = reverse('admin:media_files_storagelocation_scan', args=[storage_id])
+            if scan_options:
+                scan_url += '?' + urlencode(scan_options)
+            return redirect(scan_url)
+        
+        context = {
+            'storage': storage,
+            'title': f'Scan Options - {storage.name}',
+            'site_header': self.admin_site.site_header,
+            'site_title': self.admin_site.site_title,
+        }
+        return render(request, 'admin/media_files/storagelocation/scan_options.html', context)
     
     def scan_storage(self, request, queryset):
         """Action to scan selected storage locations."""

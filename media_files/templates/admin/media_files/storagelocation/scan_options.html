@@ -1,0 +1,143 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .scan-options {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    .scan-options h2 {
+        margin-top: 0;
+        color: #417690;
+        border-bottom: 2px solid #417690;
+        padding-bottom: 10px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-group input[type="checkbox"] {
+        margin-right: 5px;
+    }
+    .btn-primary {
+        background: #417690;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+    }
+    .btn-primary:hover {
+        background: #2e5566;
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-secondary:hover {
+        background: #545b62;
+        color: white;
+        text-decoration: none;
+    }
+    .help-text {
+        color: #666;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    .storage-info {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .storage-info h3 {
+        margin-top: 0;
+        color: #495057;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scan-options">
+    <h2>🔍 {% trans "Storage Scan Options" %}</h2>
+    
+    <div class="storage-info">
+        <h3>{% trans "Storage Information" %}</h3>
+        <p><strong>{% trans "Name" %}:</strong> {{ storage.name }}</p>
+        <p><strong>{% trans "Path" %}:</strong> {{ storage.path }}</p>
+        <p><strong>{% trans "Type" %}:</strong> {{ storage.storage_type }}</p>
+        <p><strong>{% trans "Current Videos" %}:</strong> {{ storage.video_count }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="force">
+                {% trans "Force rescan" %}
+            </label>
+            <span class="help-text">{% trans "Rescan all files even if recently scanned" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="strict_check">
+                {% trans "Strict checksum check" %}
+            </label>
+            <span class="help-text">{% trans "Use checksum comparison for reliable change detection (slower)" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="calculate_checksum">
+                {% trans "Calculate checksums" %}
+            </label>
+            <span class="help-text">{% trans "Calculate and store file checksums for integrity verification" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="skip_metadata">
+                {% trans "Skip metadata extraction" %}
+            </label>
+            <span class="help-text">{% trans "Faster scan, skip metadata extraction for video files" %}</span>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn-primary">▶️ {% trans "Start Scan" %}</button>
+            <a href="{% url 'admin:media_files_storagelocation_changelist' %}" class="btn-secondary">{% trans "Cancel" %}</a>
+        </div>
+    </form>
+    
+    <div style="margin-top: 30px; padding: 15px; background: #e9ecef; border-radius: 4px;">
+        <h4>{% trans "Scan Options Explained" %}</h4>
+        <ul>
+            <li><strong>{% trans "Normal scan" %}:</strong> {% trans "Fast scan using file modification time and size to detect changes" %}</li>
+            <li><strong>{% trans "Force rescan" %}:</strong> {% trans "Ignores change detection and rescans all files" %}</li>
+            <li><strong>{% trans "Strict checksum check" %}:</strong> {% trans "Uses file checksums for 100% reliable change detection (slower)" %}</li>
+            <li><strong>{% trans "Calculate checksums" %}:</strong> {% trans "Stores file checksums for future integrity verification" %}</li>
+            <li><strong>{% trans "Skip metadata extraction" %}:</strong> {% trans "Fastest option, only updates file paths and availability" %}</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

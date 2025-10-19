@@ -53,6 +53,8 @@ def system_management_view(request):
                 options['all'] = True
             if request.POST.get('force'):
                 options['force'] = True
+            if request.POST.get('strict_check'):
+                options['strict_check'] = True
             if request.POST.get('calculate_checksum'):
                 options['calculate_checksum'] = True
             if request.POST.get('skip_metadata'):

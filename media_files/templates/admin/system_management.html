@@ -136,9 +136,25 @@
         
         <div class="form-group">
             <label>
+                <input type="checkbox" name="strict_check">
+                {% trans "Strict checksum check" %}
+            </label>
+            <span class="help-text">{% trans "Use checksum comparison for reliable change detection (slower)" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
                 <input type="checkbox" name="calculate_checksum">
                 {% trans "Calculate checksums" %}
             </label>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="skip_metadata">
+                {% trans "Skip metadata extraction" %}
+            </label>
+            <span class="help-text">{% trans "Faster scan, no metadata extraction" %}</span>
         </div>
         
         <button type="submit" class="btn-primary">▶️ {% trans "Run Scan" %}</button>
