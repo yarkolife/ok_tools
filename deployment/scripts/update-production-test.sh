@@ -339,6 +339,12 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         sed -i 's/db_host = localhost/db_host = db/g' docker-production.cfg
         sed -i 's/db_name = oktools_okmq/db_name = oktools/g' docker-production.cfg
         
+        # Дополнительно исправляем db_host если он все еще localhost после восстановления из бэкапа
+        if grep -q "db_host = localhost" docker-production.cfg; then
+            print_warning "Исправляю db_host после восстановления из бэкапа..."
+            sed -i 's/db_host = localhost/db_host = db/g' docker-production.cfg
+        fi
+        
         # Удаляем временный бэкап
         rm docker-production.cfg.backup
         
