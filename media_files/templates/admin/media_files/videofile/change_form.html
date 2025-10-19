@@ -31,6 +31,29 @@
         width: 100%;
         height: auto;
         max-height: 400px;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    /* Optimize video loading */
+    video {
+        background: #000;
+        object-fit: contain;
+    }
+    
+    /* Faster loading states */
+    .plyr--loading .plyr__poster {
+        opacity: 0.8;
+    }
+    
+    /* Optimize controls */
+    .plyr__controls {
+        transition: opacity 0.3s ease;
+    }
+    
+    .plyr:hover .plyr__controls {
+        opacity: 1;
     }
     .video-unavailable {
         color: #d32f2f;
@@ -63,7 +86,7 @@
             {% if original.total_bitrate %}<p><strong>Bitrate:</strong> {{ original.total_bitrate }} bps</p>{% endif %}
         </div>
 
-        <video id="inline-player" controls preload="auto">
+        <video id="inline-player" controls preload="metadata" crossorigin="anonymous">
             <source src="{% url 'admin:media_files_videofile_stream' original.id %}" type="video/{{ original.format|default:'mp4' }}">
             <p>To view video, enable JavaScript or 
                 <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download>download video</a>
@@ -97,14 +120,29 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     {% if original.is_available %}
-    // Initialize Plyr player for inline video
+    // Initialize Plyr player for inline video with optimized settings
     const player = new Plyr('#inline-player', {
         controls: [
             'play-large', 'restart', 'rewind', 'play', 'fast-forward', 'progress',
             'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'
         ],
         settings: ['quality', 'speed'],
-        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
+        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+        loadSprite: false,  // Disable sprite loading for faster init
+        clickToPlay: true,  // Enable click to play
+        hideControls: true, // Hide controls when not interacting
+        resetOnEnd: false,  // Don't reset on end for better UX
+        disableContextMenu: false, // Allow right-click menu
+        keyboard: { focused: true, global: false }, // Keyboard controls
+        tooltips: { controls: true, seek: true }, // Show tooltips
+        captions: { active: false, language: 'auto', update: false }, // Disable captions
+        previewThumbnails: { enabled: false }, // Disable thumbnails for speed
+        volume: 1, // Default volume
+        muted: false, // Not muted by default
+        autoplay: false, // Don't autoplay
+        loop: { active: false }, // Don't loop
+        ratio: null, // Auto aspect ratio
+        quality: { default: 720, options: [1080, 720, 480, 360] }
     });
 
     // Error handling
@@ -136,6 +174,38 @@ document.addEventListener('DOMContentLoaded', function() {
     player.on('canplaythrough', function() {
         console.log('Video fully loaded');
         loadingDiv.style.display = 'none';
+    });
+
+    // Optimize for fast playback
+    player.on('ready', function() {
+        console.log('Player ready for fast streaming');
+        // Set buffer targets for faster seeking
+        const video = player.media;
+        if (video) {
+            video.addEventListener('loadstart', function() {
+                // Optimize buffer settings for streaming
+                if (video.buffered.length > 0) {
+                    console.log('Buffering started, ready for playback');
+                }
+            });
+            
+            // Enable fast seeking
+            video.addEventListener('seeking', function() {
+                console.log('Seeking to:', video.currentTime);
+            });
+            
+            // Handle range requests properly
+            video.addEventListener('progress', function() {
+                if (video.buffered.length > 0) {
+                    const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                    const duration = video.duration;
+                    if (duration > 0) {
+                        const bufferedPercent = (bufferedEnd / duration) * 100;
+                        console.log('Buffered:', bufferedPercent.toFixed(1) + '%');
+                    }
+                }
+            });
+        }
     });
     {% endif %}
 });

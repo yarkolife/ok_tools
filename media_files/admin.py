@@ -761,7 +761,8 @@ class VideoFileAdmin(admin.ModelAdmin):
                     <video
                         id="plyr-player-{}"
                         controls
-                        preload="auto"
+                        preload="metadata"
+                        crossorigin="anonymous"
                         width="640"
                         height="360">
                         <source src="{}" type="{}">
@@ -793,9 +794,49 @@ class VideoFileAdmin(admin.ModelAdmin):
                                     ],
                                     settings: ['quality', 'speed'],
                                     speed: {{ selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }},
-                                    quality: {{ default: 720, options: [1080, 720, 480, 360] }}
+                                    quality: {{ default: 720, options: [1080, 720, 480, 360] }},
+                                    loadSprite: false,  // Disable sprite loading for faster init
+                                    clickToPlay: true,  // Enable click to play
+                                    hideControls: true, // Hide controls when not interacting
+                                    resetOnEnd: false,  // Don't reset on end for better UX
+                                    disableContextMenu: false, // Allow right-click menu
+                                    keyboard: {{ focused: true, global: false }}, // Keyboard controls
+                                    tooltips: {{ controls: true, seek: true }}, // Show tooltips
+                                    captions: {{ active: false, language: 'auto', update: false }}, // Disable captions
+                                    previewThumbnails: {{ enabled: false }}, // Disable thumbnails for speed
+                                    volume: 1, // Default volume
+                                    muted: false, // Not muted by default
+                                    autoplay: false, // Don't autoplay
+                                    loop: {{ active: false }}, // Don't loop
+                                    ratio: null // Auto aspect ratio
                                 }});
                                 console.log('Plyr player ready');
+                                
+                                // Optimize for fast playback
+                                player.on('ready', function() {{
+                                    console.log('Modal player ready for fast streaming');
+                                    const video = player.media;
+                                    if (video) {{
+                                        video.addEventListener('loadstart', function() {{
+                                            console.log('Modal video buffering started');
+                                        }});
+                                        
+                                        video.addEventListener('seeking', function() {{
+                                            console.log('Modal video seeking to:', video.currentTime);
+                                        }});
+                                        
+                                        video.addEventListener('progress', function() {{
+                                            if (video.buffered.length > 0) {{
+                                                const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                                                const duration = video.duration;
+                                                if (duration > 0) {{
+                                                    const bufferedPercent = (bufferedEnd / duration) * 100;
+                                                    console.log('Modal video buffered:', bufferedPercent.toFixed(1) + '%');
+                                                }}
+                                            }}
+                                        }});
+                                    }}
+                                }});
                             }}
                         }});
                     </script>
