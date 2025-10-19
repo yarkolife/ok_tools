@@ -160,6 +160,15 @@ if use_secure_settings:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     CORS_ORIGIN_WHITELIST = [f"https://{hosts}"]
     USE_X_FORWARDED_HOST = True
+else:
+    # HTTP settings for development/test environment
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
