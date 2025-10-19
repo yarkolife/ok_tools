@@ -499,7 +499,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     list_display = [
         'number', 'filename', 'storage_location', 'resolution_display',
         'duration', 'file_size_display', 'format', 'is_available',
-        'duplicates_indicator', 'view_video_link', 'player_link'
+        'duplicates_indicator', 'player_link'
     ]
     list_filter = [
         'storage_location', 'format', 'is_available',
@@ -703,18 +703,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         return format_html('<br>'.join(html_parts))
 
     all_versions_display.short_description = _('All Versions')
-    
-    def view_video_link(self, obj):
-        """Display link to view video."""
-        if obj.is_available:
-            return format_html(
-                '<a href="#" onclick="window.open(\'{}\', \'video\', \'width=800,height=600\'); return false;">▶️ {}</a>',
-                reverse('admin:media_files_videofile_stream', args=[obj.id]),
-                _('Play')
-            )
-        return "-"
-    view_video_link.short_description = _('View')
-    
+
     def player_link(self, obj):
         """Link to open video stream in modal."""
         if obj.is_available and obj.pk:
