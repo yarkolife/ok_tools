@@ -187,6 +187,30 @@ docker compose start web
 
 print_success "Бэкап создан в $BACKUP_DIR"
 
+# Ротация бэкапов - оставляем только последние 5
+print_info "Ротация бэкапов..."
+BACKUP_PATTERN="/opt/ok_tools_backup-*"
+BACKUP_COUNT=$(ls -1d $BACKUP_PATTERN 2>/dev/null | wc -l)
+KEEP_BACKUPS=5
+
+if [ "$BACKUP_COUNT" -gt "$KEEP_BACKUPS" ]; then
+    print_info "Найдено $BACKUP_COUNT бэкапов, оставляем только последние $KEEP_BACKUPS"
+    
+    # Получаем список бэкапов, отсортированных по дате создания (старые первыми)
+    OLD_BACKUPS=$(ls -1td $BACKUP_PATTERN | tail -n +$((KEEP_BACKUPS + 1)))
+    
+    for old_backup in $OLD_BACKUPS; do
+        if [ -d "$old_backup" ]; then
+            print_info "Удаляем старый бэкап: $(basename "$old_backup")"
+            rm -rf "$old_backup"
+        fi
+    done
+    
+    print_success "Ротация бэкапов завершена. Оставлено $KEEP_BACKUPS последних бэкапов"
+else
+    print_info "Количество бэкапов ($BACKUP_COUNT) не превышает лимит ($KEEP_BACKUPS), ротация не требуется"
+fi
+
 # ================================
 # ШАГ 3: Пропущен - код уже обновлен в начале скрипта
 # ================================
@@ -521,6 +545,25 @@ docker image prune -f
 print_info "Удаление неиспользуемых Docker volumes..."
 docker volume prune -f
 
+# Дополнительная ротация бэкапов (на случай, если основная не сработала)
+print_info "Проверка ротации бэкапов..."
+BACKUP_PATTERN="/opt/ok_tools_backup-*"
+BACKUP_COUNT=$(ls -1d $BACKUP_PATTERN 2>/dev/null | wc -l)
+KEEP_BACKUPS=5
+
+if [ "$BACKUP_COUNT" -gt "$KEEP_BACKUPS" ]; then
+    print_info "Дополнительная ротация: найдено $BACKUP_COUNT бэкапов, оставляем $KEEP_BACKUPS"
+    OLD_BACKUPS=$(ls -1td $BACKUP_PATTERN | tail -n +$((KEEP_BACKUPS + 1)))
+    
+    for old_backup in $OLD_BACKUPS; do
+        if [ -d "$old_backup" ]; then
+            print_info "Удаляем старый бэкап: $(basename "$old_backup")"
+            rm -rf "$old_backup"
+        fi
+    done
+    print_success "Дополнительная ротация бэкапов завершена"
+fi
+
 print_success "Очистка завершена"
 
 # ================================
@@ -542,6 +585,7 @@ echo -e "  docker compose restart     # перезапуск"
 echo ""
 echo -e "${YELLOW}Бэкап сохранен в:${NC} $BACKUP_DIR"
 echo -e "${YELLOW}Лог обновления:${NC} $LOG_FILE"
+echo -e "${YELLOW}Ротация бэкапов:${NC} Оставляем последние 5 бэкапов"
 echo ""
 print_success "Готово!"
 
