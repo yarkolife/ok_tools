@@ -178,6 +178,17 @@ function openScanModal(storageId, storageName, storagePath, storageType, videoCo
     
     // Show modal
     modal.style.display = 'block';
+    
+    // Prevent any automatic form submission
+    const form = document.getElementById('scan-form');
+    if (form) {
+        form.onsubmit = function(event) {
+            event.preventDefault();
+            return false;
+        };
+    }
+    
+    console.log('Modal opened for storage:', storageName);
 }
 
 function closeModal() {
@@ -249,6 +260,7 @@ document.addEventListener('keydown', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('scan-form');
     if (form) {
+        // Prevent form submission completely
         form.addEventListener('submit', function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -264,6 +276,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             });
         });
+        
+        // Prevent any input changes from submitting the form
+        const inputs = form.querySelectorAll('input');
+        inputs.forEach(function(input) {
+            input.addEventListener('change', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            });
+        });
+    }
+    
+    // Debug: log when modal opens/closes
+    const modal = document.getElementById('scanModal');
+    if (modal) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    console.log('Modal style changed:', modal.style.display);
+                }
+            });
+        });
+        observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
     }
 });
 </script>
