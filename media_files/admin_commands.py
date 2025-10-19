@@ -63,8 +63,12 @@ def system_management_view(request):
         elif command == 'auto_scan':
             if request.POST.get('force'):
                 options['force'] = True
+            if request.POST.get('strict_check'):
+                options['strict_check'] = True
             if request.POST.get('calculate_checksums'):
                 options['calculate_checksums'] = True
+            if request.POST.get('skip_metadata'):
+                options['skip_metadata'] = True
             storage_type = request.POST.get('storage_type')
             if storage_type:
                 options['storage_type'] = storage_type
@@ -83,6 +87,13 @@ def system_management_view(request):
                 options['dry_run'] = True
             if request.POST.get('scan_first'):
                 options['scan_first'] = True
+                # Add scan options if scan_first is enabled
+                if request.POST.get('force_scan'):
+                    options['force_scan'] = True
+                if request.POST.get('strict_check_scan'):
+                    options['strict_check_scan'] = True
+                if request.POST.get('skip_metadata_scan'):
+                    options['skip_metadata_scan'] = True
             number = request.POST.get('number')
             if number:
                 options['number'] = int(number)

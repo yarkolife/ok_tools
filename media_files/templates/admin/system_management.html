@@ -62,6 +62,23 @@
         margin-bottom: 15px;
     }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide scan options when "Scan storages first" is checked
+    const scanFirstCheckbox = document.querySelector('input[name="scan_first"]');
+    const scanOptions = document.getElementById('scan-options');
+    
+    if (scanFirstCheckbox && scanOptions) {
+        scanFirstCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                scanOptions.style.display = 'block';
+            } else {
+                scanOptions.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -90,10 +107,26 @@
         
         <div class="form-group">
             <label>
+                <input type="checkbox" name="strict_check">
+                {% trans "Strict checksum check" %}
+            </label>
+            <span class="help-text">{% trans "Use checksum comparison for reliable change detection (slower)" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
                 <input type="checkbox" name="calculate_checksums">
                 {% trans "Calculate checksums" %}
             </label>
             <span class="help-text">{% trans "Slower but ensures file integrity verification" %}</span>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="skip_metadata">
+                {% trans "Skip metadata extraction" %}
+            </label>
+            <span class="help-text">{% trans "Faster scan, no metadata extraction" %}</span>
         </div>
         
         <div class="form-group">
@@ -214,6 +247,34 @@
                 {% trans "Scan storages first" %}
             </label>
             <span class="help-text">{% trans "Recommended for finding new videos" %}</span>
+        </div>
+        
+        <div class="form-group" id="scan-options" style="display: none; margin-left: 20px; border-left: 2px solid #ddd; padding-left: 15px;">
+            <h4>{% trans "Scan Options" %}</h4>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="force_scan">
+                    {% trans "Force rescan" %}
+                </label>
+                <span class="help-text">{% trans "Rescan even if recently scanned" %}</span>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="strict_check_scan">
+                    {% trans "Strict checksum check" %}
+                </label>
+                <span class="help-text">{% trans "Use checksum comparison for reliable change detection" %}</span>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="skip_metadata_scan">
+                    {% trans "Skip metadata extraction" %}
+                </label>
+                <span class="help-text">{% trans "Faster scan, no metadata extraction" %}</span>
+            </div>
         </div>
         
         <div class="form-group">
