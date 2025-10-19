@@ -257,31 +257,18 @@ elif [ "$UPDATE_STRATEGY" = "CODE_UPDATE" ]; then
         fi
     fi
     
-    print_info "Остановка web контейнера..."
-    docker compose stop web
-    
     print_info "Инкрементальная пересборка web образа..."
     docker compose build web
-    
-    print_info "Запуск обновленного web контейнера..."
-    docker compose start web
     
 else
     print_header "Шаг 3: Только перезапуск контейнеров"
     
-    print_info "Перезапуск контейнеров..."
-    docker compose restart
+    print_info "Подготовка к перезапуску контейнеров..."
 fi
 
-# Ожидание запуска
-print_info "Ожидание запуска контейнеров..."
-sleep 10
-
-# Проверка статуса
-print_info "Проверка статуса контейнеров:"
-docker compose ps
-
-print_success "Контейнеры пересобраны и запущены"
+# Ожидание завершения сборки
+print_info "Ожидание завершения сборки..."
+sleep 5
 
 # ================================
 # ШАГ 4: Исправление конфигурации (условное)
@@ -423,20 +410,7 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
 
     print_success "Конфигурация обновлена и исправлена"
     
-    # Принудительно перезапускаем web контейнер для перечитывания конфигурации
-    print_info "Перезапуск web контейнера для применения новой конфигурации..."
-    docker compose stop web
-    docker compose start web
-    
-    # Проверяем, что конфигурация применилась в контейнере
-    print_info "Проверка применения конфигурации в контейнере..."
-    if docker compose exec web cat /app/docker-production.cfg | grep -q "db_host = db"; then
-        print_success "Конфигурация успешно применена в контейнере"
-    else
-        print_warning "Конфигурация не применилась автоматически, исправляю в контейнере..."
-        docker compose exec web sed -i 's/db_host = localhost/db_host = db/g' /app/docker-production.cfg
-        print_success "Конфигурация исправлена в контейнере"
-    fi
+    print_info "Конфигурация подготовлена для применения при перезапуске контейнеров"
 else
     print_header "Шаг 5: Пропуск исправления конфигурации (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - исправление конфигурации не требуется"
@@ -505,10 +479,44 @@ else
 fi
 
 # ================================
-# ШАГ 7: Проверка работоспособности
+# ШАГ 7: Полный перезапуск всех контейнеров
 # ================================
 
-print_header "Шаг 7: Проверка работоспособности"
+print_header "Шаг 7: Полный перезапуск всех контейнеров"
+
+print_info "Остановка всех контейнеров..."
+docker compose down
+
+print_info "Запуск всех контейнеров..."
+docker compose up -d
+
+# Ожидание запуска
+print_info "Ожидание запуска контейнеров..."
+sleep 15
+
+# Проверка статуса
+print_info "Проверка статуса контейнеров:"
+docker compose ps
+
+print_success "Все контейнеры успешно перезапущены"
+
+# Проверяем, что конфигурация применилась в контейнере
+if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
+    print_info "Проверка применения конфигурации в контейнере..."
+    if docker compose exec web cat /app/docker-production.cfg | grep -q "db_host = db"; then
+        print_success "Конфигурация успешно применена в контейнере"
+    else
+        print_warning "Конфигурация не применилась автоматически, исправляю в контейнере..."
+        docker compose exec web sed -i 's/db_host = localhost/db_host = db/g' /app/docker-production.cfg
+        print_success "Конфигурация исправлена в контейнере"
+    fi
+fi
+
+# ================================
+# ШАГ 8: Проверка работоспособности
+# ================================
+
+print_header "Шаг 8: Проверка работоспособности"
 
 # Проверка health endpoint
 print_info "Проверка доступности сервисов..."
@@ -534,10 +542,10 @@ else
 fi
 
 # ================================
-# ШАГ 8: Очистка
+# ШАГ 9: Очистка
 # ================================
 
-print_header "Шаг 8: Очистка"
+print_header "Шаг 9: Очистка"
 
 print_info "Удаление неиспользуемых Docker образов..."
 docker image prune -f
