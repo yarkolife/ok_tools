@@ -423,66 +423,18 @@ else
 fi
 
 # ================================
-# ШАГ 5: Применение миграций (условное)
+# ШАГ 5: Пропуск применения миграций до перезапуска контейнеров
 # ================================
 
-if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-print_header "Шаг 5: Применение миграций базы данных"
-
-    # Проверка миграций (проблемная миграция 0004 уже исправлена)
-    print_info "Проверка миграций..."
-
-print_info "Проверка новых миграций..."
-    if ! docker compose exec web python manage.py showmigrations --plan; then
-        print_error "Ошибка при проверке миграций"
-        exit 1
-    fi
-
-print_info "Применение миграций..."
-    if ! docker compose exec web python manage.py migrate; then
-        print_error "Ошибка при применении миграций"
-        print_info "Попытка исправления проблемных миграций..."
-        
-        # Попытка исправить проблемную миграцию 0005
-        if docker compose exec web python manage.py migrate media_files 0005 --fake 2>/dev/null; then
-            print_success "Миграция 0005 успешно помечена как примененная"
-            print_info "Повторное применение миграций..."
-docker compose exec web python manage.py migrate
-        else
-            print_error "Не удалось исправить миграции автоматически"
-            exit 1
-        fi
-    fi
-
-print_success "Миграции применены"
-else
-    print_header "Шаг 5: Пропуск применения миграций (только перезапуск)"
-    print_info "Стратегия RESTART_ONLY - применение миграций не требуется"
-fi
+print_header "Шаг 5: Подготовка к применению миграций"
+print_info "Миграции будут применены после перезапуска контейнеров с новой конфигурацией"
 
 # ================================
-# ШАГ 6: Обновление статики (условное)
+# ШАГ 6: Пропуск обновления статики до перезапуска контейнеров
 # ================================
 
-if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-print_header "Шаг 6: Обновление статических файлов"
-
-    # Создание директории static если не существует
-    if [ ! -d "static" ]; then
-        print_info "Создаю директорию static..."
-        mkdir -p static
-        chmod 755 static
-        chown pavlo:pavlo static 2>/dev/null || true
-    fi
-
-print_info "Сбор статических файлов..."
-docker compose exec web python manage.py collectstatic --noinput
-
-print_success "Статические файлы обновлены"
-else
-    print_header "Шаг 6: Пропуск обновления статических файлов (только перезапуск)"
-    print_info "Стратегия RESTART_ONLY - обновление статических файлов не требуется"
-fi
+print_header "Шаг 6: Подготовка к обновлению статики"
+print_info "Статические файлы будут обновлены после перезапуска контейнеров с новой конфигурацией"
 
 # ================================
 # ШАГ 7: Полный перезапуск всех контейнеров
@@ -519,10 +471,70 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
 fi
 
 # ================================
-# ШАГ 8: Проверка работоспособности
+# ШАГ 8: Применение миграций ПОСЛЕ перезапуска
 # ================================
 
-print_header "Шаг 8: Проверка работоспособности"
+if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
+    print_header "Шаг 8: Применение миграций базы данных"
+
+    # Проверка миграций
+    print_info "Проверка миграций..."
+    if ! docker compose exec web python manage.py showmigrations --plan; then
+        print_error "Ошибка при проверке миграций"
+        exit 1
+    fi
+
+    print_info "Применение миграций..."
+    if ! docker compose exec web python manage.py migrate; then
+        print_error "Ошибка при применении миграций"
+        print_info "Попытка исправления проблемных миграций..."
+        
+        # Попытка исправить проблемную миграцию 0005
+        if docker compose exec web python manage.py migrate media_files 0005 --fake 2>/dev/null; then
+            print_success "Миграция 0005 успешно помечена как примененная"
+            print_info "Повторное применение миграций..."
+            docker compose exec web python manage.py migrate
+        else
+            print_error "Не удалось исправить миграции автоматически"
+            exit 1
+        fi
+    fi
+
+    print_success "Миграции применены"
+else
+    print_header "Шаг 8: Пропуск применения миграций (только перезапуск)"
+    print_info "Стратегия RESTART_ONLY - применение миграций не требуется"
+fi
+
+# ================================
+# ШАГ 9: Обновление статических файлов ПОСЛЕ перезапуска
+# ================================
+
+if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
+    print_header "Шаг 9: Обновление статических файлов"
+
+    # Создание директории static если не существует
+    if [ ! -d "static" ]; then
+        print_info "Создаю директорию static..."
+        mkdir -p static
+        chmod 755 static
+        chown pavlo:pavlo static 2>/dev/null || true
+    fi
+
+    print_info "Сбор статических файлов..."
+    docker compose exec web python manage.py collectstatic --noinput
+
+    print_success "Статические файлы обновлены"
+else
+    print_header "Шаг 9: Пропуск обновления статических файлов (только перезапуск)"
+    print_info "Стратегия RESTART_ONLY - обновление статических файлов не требуется"
+fi
+
+# ================================
+# ШАГ 10: Проверка работоспособности
+# ================================
+
+print_header "Шаг 10: Проверка работоспособности"
 
 # Проверка health endpoint
 print_info "Проверка доступности сервисов..."
@@ -548,10 +560,10 @@ else
 fi
 
 # ================================
-# ШАГ 9: Очистка
+# ШАГ 11: Очистка
 # ================================
 
-print_header "Шаг 9: Очистка"
+print_header "Шаг 11: Очистка"
 
 print_info "Удаление неиспользуемых Docker образов..."
 docker image prune -f
