@@ -246,6 +246,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
     list_filter = ['storage_type', 'is_active', 'scan_enabled']
     search_fields = ['name', 'path']
     readonly_fields = ['created_at', 'updated_at', 'video_count']
+    change_list_template = 'admin/media_files/storagelocation/change_list.html'
     
     fieldsets = (
         (None, {
@@ -287,12 +288,12 @@ class StorageLocationAdmin(admin.ModelAdmin):
         if count > 0:
             list_url = reverse('admin:media_files_videofile_changelist') + f'?storage_location__id__exact={obj.id}'
             return format_html(
-                '<a href="{}">{}</a> | <a href="{}" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</a>',
-                list_url, count, scan_url
+                '<a href="{}">{}</a> | <button onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
+                list_url, count, obj.id, obj.name, obj.path, obj.storage_type, obj.video_count
             )
         return format_html(
-            '{} | <a href="{}" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</a>',
-            count, scan_url
+            '{} | <button onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
+            count, obj.id, obj.name, obj.path, obj.storage_type, obj.video_count
         )
     video_count_display.short_description = _('Videos')
     
@@ -301,20 +302,21 @@ class StorageLocationAdmin(admin.ModelAdmin):
         from django.shortcuts import redirect
         from django.contrib import messages
         from django.core.management import call_command
+        from django.http import JsonResponse
         from io import StringIO
         
         try:
             storage = StorageLocation.objects.get(id=storage_id)
             
-            # Get scan options from request parameters
+            # Get scan options from request parameters (both GET and POST)
             scan_options = {}
-            if request.GET.get('force'):
+            if request.GET.get('force') or request.POST.get('force'):
                 scan_options['force'] = True
-            if request.GET.get('strict_check'):
+            if request.GET.get('strict_check') or request.POST.get('strict_check'):
                 scan_options['strict_check'] = True
-            if request.GET.get('skip_metadata'):
+            if request.GET.get('skip_metadata') or request.POST.get('skip_metadata'):
                 scan_options['skip_metadata'] = True
-            if request.GET.get('calculate_checksum'):
+            if request.GET.get('calculate_checksum') or request.POST.get('calculate_checksum'):
                 scan_options['calculate_checksum'] = True
             
             # Capture command output
@@ -338,8 +340,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
                     except:
                         pass
             
-            messages.success(
-                request,
+            success_message = (
                 f'✓ Сканирование завершено: {storage.name}\n'
                 f'Найдено: {stats["found"]} файлов | '
                 f'Создано: {stats["created"]} записей | '
@@ -347,10 +348,27 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 f'Пропущено: {stats["skipped"]} файлов (без изменений)'
             )
             
+            # If it's an AJAX request, return JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
+                return JsonResponse({
+                    'success': True,
+                    'message': success_message,
+                    'stats': stats
+                })
+            
+            # Otherwise, redirect with message
+            messages.success(request, success_message)
+            
         except StorageLocation.DoesNotExist:
-            messages.error(request, f'Storage location #{storage_id} not found')
+            error_message = f'Storage location #{storage_id} not found'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
+                return JsonResponse({'success': False, 'message': error_message})
+            messages.error(request, error_message)
         except Exception as e:
-            messages.error(request, f'Error scanning storage: {str(e)}')
+            error_message = f'Error scanning storage: {str(e)}'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
+                return JsonResponse({'success': False, 'message': error_message})
+            messages.error(request, error_message)
         
         return redirect('admin:media_files_storagelocation_changelist')
     
