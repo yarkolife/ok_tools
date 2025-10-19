@@ -208,15 +208,15 @@ if [ "$UPDATE_STRATEGY" = "FULL_REBUILD" ]; then
     else
         print_warning "Dockerfile.production не найден, использую существующий"
     fi
-    
-    print_info "Остановка контейнеров..."
-    docker compose down
-    
+
+print_info "Остановка контейнеров..."
+docker compose down
+
     print_warning "Полная пересборка образов (может занять несколько минут)..."
-    docker compose build --no-cache
-    
-    print_info "Запуск обновленных контейнеров..."
-    docker compose up -d
+docker compose build --no-cache
+
+print_info "Запуск обновленных контейнеров..."
+docker compose up -d
     
 elif [ "$UPDATE_STRATEGY" = "CODE_UPDATE" ]; then
     print_header "Шаг 3: Инкрементальная пересборка Docker контейнеров"
@@ -294,7 +294,7 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         # Извлекаем пользовательские значения из бэкапа
         SECRET_KEY=$(grep "secret_key = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
         DB_PASSWORD=$(grep "db_pw = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
-        ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
+        ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg.backup | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//')
         
         # Применяем пользовательские настройки
         if [ -n "$SECRET_KEY" ]; then
@@ -307,6 +307,13 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         
         # Восстанавливаем ALLOWED_HOSTS из бэкапа для сохранения IP адреса сервера
         if [ -n "$ALLOWED_HOSTS" ]; then
+            # Проверяем и исправляем формат ALLOWED_HOSTS перед восстановлением
+            if [[ "$ALLOWED_HOSTS" =~ [a-zA-Z0-9.-][a-zA-Z0-9.-] ]]; then
+                print_warning "Исправляю формат ALLOWED_HOSTS из бэкапа (добавляю пробелы между хостами)..."
+                ALLOWED_HOSTS=$(echo "$ALLOWED_HOSTS" | sed 's/\([a-zA-Z0-9.-]\)\([a-zA-Z0-9.-]\)/\1 \2/g' | sed 's/  */ /g')
+                print_info "ALLOWED_HOSTS исправлен: $ALLOWED_HOSTS"
+            fi
+            
             sed -i "s/allowed_hosts = .*/allowed_hosts = $ALLOWED_HOSTS/g" docker-production.cfg
             print_info "ALLOWED_HOSTS восстановлен из бэкапа: $ALLOWED_HOSTS"
         fi
@@ -350,13 +357,30 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
             print_success "db_name исправлен"
         fi
 
-        # Проверяем и сохраняем IP адрес сервера в ALLOWED_HOSTS
-        CURRENT_ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg | cut -d'=' -f2 | tr -d ' ')
+        # Проверяем и исправляем формат ALLOWED_HOSTS
+        CURRENT_ALLOWED_HOSTS_LINE=$(grep "allowed_hosts = " docker-production.cfg)
+        CURRENT_ALLOWED_HOSTS_VALUE=$(echo "$CURRENT_ALLOWED_HOSTS_LINE" | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//')
         
-        # Если в текущей конфигурации нет IP адреса сервера, добавляем его
-        if [[ "$CURRENT_ALLOWED_HOSTS" != *"192.168.88.213"* ]]; then
+        # Проверяем, есть ли пробелы между хостами
+        if [[ "$CURRENT_ALLOWED_HOSTS_VALUE" =~ [a-zA-Z0-9.-][a-zA-Z0-9.-] ]]; then
+            print_warning "Обнаружен неправильный формат ALLOWED_HOSTS (отсутствуют пробелы между хостами)..."
+            
+            # Исправляем формат ALLOWED_HOSTS - добавляем пробелы между хостами
+            FIXED_ALLOWED_HOSTS=$(echo "$CURRENT_ALLOWED_HOSTS_VALUE" | sed 's/\([a-zA-Z0-9.-]\)\([a-zA-Z0-9.-]\)/\1 \2/g' | sed 's/  */ /g')
+            
+            # Заменяем в файле
+            sed -i "s|allowed_hosts = .*|allowed_hosts = $FIXED_ALLOWED_HOSTS|g" docker-production.cfg
+            print_success "ALLOWED_HOSTS исправлен: $FIXED_ALLOWED_HOSTS"
+        else
+            print_info "Формат ALLOWED_HOSTS корректный: $CURRENT_ALLOWED_HOSTS_VALUE"
+        fi
+        
+        # Проверяем, есть ли IP адрес сервера в ALLOWED_HOSTS
+        CURRENT_ALLOWED_HOSTS_VALUE=$(grep "allowed_hosts = " docker-production.cfg | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//')
+        
+        if [[ "$CURRENT_ALLOWED_HOSTS_VALUE" != *"192.168.88.213"* ]]; then
             print_info "Добавляю IP адрес сервера в ALLOWED_HOSTS..."
-            if [[ "$CURRENT_ALLOWED_HOSTS" == *"localhost"* ]]; then
+            if [[ "$CURRENT_ALLOWED_HOSTS_VALUE" == *"localhost"* ]]; then
                 # Заменяем localhost на IP адрес + localhost
                 sed -i 's/allowed_hosts = .*/allowed_hosts = 192.168.88.213 localhost 127.0.0.1 */g' docker-production.cfg
             else
@@ -366,13 +390,6 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
             print_success "IP адрес сервера добавлен в ALLOWED_HOSTS"
         else
             print_info "IP адрес сервера уже присутствует в ALLOWED_HOSTS"
-        fi
-        
-        # Исправляем ALLOWED_HOSTS если он в неправильном формате (без пробелов)
-        if grep -q "allowed_hosts = 192.168.88.213localhost127.0.0.1\*" docker-production.cfg 2>/dev/null; then
-            print_warning "Исправляю формат ALLOWED_HOSTS (добавляю пробелы)..."
-            sed -i 's/allowed_hosts = 192.168.88.213localhost127.0.0.1\*/allowed_hosts = 192.168.88.213 localhost 127.0.0.1 */g' docker-production.cfg
-            print_success "ALLOWED_HOSTS исправлен"
         fi
     fi
 
@@ -402,18 +419,18 @@ fi
 # ================================
 
 if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-    print_header "Шаг 5: Применение миграций базы данных"
+print_header "Шаг 5: Применение миграций базы данных"
 
     # Проверка миграций (проблемная миграция 0004 уже исправлена)
     print_info "Проверка миграций..."
 
-    print_info "Проверка новых миграций..."
+print_info "Проверка новых миграций..."
     if ! docker compose exec web python manage.py showmigrations --plan; then
         print_error "Ошибка при проверке миграций"
         exit 1
     fi
 
-    print_info "Применение миграций..."
+print_info "Применение миграций..."
     if ! docker compose exec web python manage.py migrate; then
         print_error "Ошибка при применении миграций"
         print_info "Попытка исправления проблемных миграций..."
@@ -422,14 +439,14 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         if docker compose exec web python manage.py migrate media_files 0005 --fake 2>/dev/null; then
             print_success "Миграция 0005 успешно помечена как примененная"
             print_info "Повторное применение миграций..."
-            docker compose exec web python manage.py migrate
+docker compose exec web python manage.py migrate
         else
             print_error "Не удалось исправить миграции автоматически"
             exit 1
         fi
     fi
 
-    print_success "Миграции применены"
+print_success "Миграции применены"
 else
     print_header "Шаг 5: Пропуск применения миграций (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - применение миграций не требуется"
@@ -440,7 +457,7 @@ fi
 # ================================
 
 if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
-    print_header "Шаг 6: Обновление статических файлов"
+print_header "Шаг 6: Обновление статических файлов"
 
     # Создание директории static если не существует
     if [ ! -d "static" ]; then
@@ -450,10 +467,10 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         chown pavlo:pavlo static 2>/dev/null || true
     fi
 
-    print_info "Сбор статических файлов..."
-    docker compose exec web python manage.py collectstatic --noinput
+print_info "Сбор статических файлов..."
+docker compose exec web python manage.py collectstatic --noinput
 
-    print_success "Статические файлы обновлены"
+print_success "Статические файлы обновлены"
 else
     print_header "Шаг 6: Пропуск обновления статических файлов (только перезапуск)"
     print_info "Стратегия RESTART_ONLY - обновление статических файлов не требуется"
