@@ -494,7 +494,7 @@ class VideoFileAdmin(admin.ModelAdmin):
 
     form = VideoFileAdminForm
     change_form_template = 'admin/media_files/videofile/change_form.html'
-    change_list_template = 'admin/media_files/videofile/change_list.html'
+    # change_list_template = 'admin/media_files/videofile/change_list.html'  # Temporarily disabled
     
     list_display = [
         'number', 'filename', 'storage_location', 'resolution_display',

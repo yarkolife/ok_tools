@@ -488,7 +488,7 @@ print_info "Остановка всех контейнеров..."
 docker compose down
 
 print_info "Запуск всех контейнеров..."
-docker compose up -d
+docker compose up -d --remove-orphans
 
 # Ожидание запуска
 print_info "Ожидание запуска контейнеров..."
