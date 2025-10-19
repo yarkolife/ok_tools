@@ -61,6 +61,98 @@
 
     <script>
         console.log('Video player ready - using direct stream iframe');
+        
+        // Function to open video in modal (called from admin list)
+        function openVideoModal(streamUrl, filename) {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('videoModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'videoModal';
+                modal.style.cssText = `
+                    display: none;
+                    position: fixed;
+                    z-index: 1000;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    overflow: auto;
+                    background-color: rgba(0,0,0,0.8);
+                `;
+                
+                modal.innerHTML = `
+                    <div style="
+                        background-color: #fefefe;
+                        margin: 2% auto;
+                        padding: 0;
+                        border-radius: 8px;
+                        width: 90%;
+                        max-width: 1200px;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    ">
+                        <div style="
+                            background: #417690;
+                            color: white;
+                            padding: 15px 20px;
+                            border-radius: 8px 8px 0 0;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        ">
+                            <h2 style="margin: 0; font-size: 18px;" id="modalTitle">Video Player</h2>
+                            <span style="color: white; font-size: 28px; font-weight: bold; cursor: pointer;" onclick="closeVideoModal()">&times;</span>
+                        </div>
+                        <div style="padding: 20px;">
+                            <iframe 
+                                id="modalVideoFrame"
+                                src="" 
+                                width="100%" 
+                                height="600" 
+                                frameborder="0"
+                                allowfullscreen
+                                style="border-radius: 8px; background: #000;">
+                            </iframe>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            
+            // Update modal content
+            document.getElementById('modalTitle').textContent = filename;
+            document.getElementById('modalVideoFrame').src = streamUrl;
+            
+            // Show modal
+            modal.style.display = 'block';
+        }
+        
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            if (modal) {
+                modal.style.display = 'none';
+                // Stop video by clearing src
+                const iframe = document.getElementById('modalVideoFrame');
+                if (iframe) {
+                    iframe.src = '';
+                }
+            }
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('videoModal');
+            if (event.target == modal) {
+                closeVideoModal();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeVideoModal();
+            }
+        });
     </script>
 </body>
 </html>

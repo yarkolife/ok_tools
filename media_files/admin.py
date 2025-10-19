@@ -6,7 +6,7 @@ from django import forms
 from django.contrib import admin
 from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -494,6 +494,7 @@ class VideoFileAdmin(admin.ModelAdmin):
 
     form = VideoFileAdminForm
     change_form_template = 'admin/media_files/videofile/change_form.html'
+    change_list_template = 'admin/media_files/videofile/change_list.html'
     
     list_display = [
         'number', 'filename', 'storage_location', 'resolution_display',
@@ -719,12 +720,12 @@ class VideoFileAdmin(admin.ModelAdmin):
     view_video_link.short_description = _('View')
     
     def player_link(self, obj):
-        """Link to dedicated video player page."""
+        """Link to open video stream in modal."""
         if obj.is_available and obj.pk:
-            player_url = reverse('admin:media_files_videofile_player', args=[obj.id])
+            stream_url = reverse('admin:media_files_videofile_stream', args=[obj.id])
             return format_html(
-                '<a href="{}" target="_blank" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
-                player_url
+                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
+                stream_url, obj.filename
             )
         return "-"
     player_link.short_description = _('Player')
