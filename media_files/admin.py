@@ -560,10 +560,6 @@ class VideoFileAdmin(admin.ModelAdmin):
                 (_('Overall'), {
                     'fields': ('total_bitrate', 'bitrate_mbps')
                 }),
-                (_('Video Player'), {
-                    'fields': ('video_player',),
-                    'classes': ('wide',)
-                }),
                 (_('Duplicate Management'), {
                     'fields': ('duplicate_status_display', 'all_versions_display'),
                     'classes': ('collapse',),
