@@ -71,6 +71,17 @@
             <span class="video-modal-close" onclick="closeVideoModal()">&times;</span>
         </div>
         <div class="video-modal-body">
+            <div class="video-modal-info" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
+                <div style="font-size: 13px; color: #333;">
+                    <p style="margin: 5px 0;"><strong>📁 File:</strong> <span id="modalFileName"></span></p>
+                    <p style="margin: 5px 0;"><strong>🔢 Number:</strong> <span id="modalNumber"></span></p>
+                    <p style="margin: 5px 0;"><strong>💾 Storage:</strong> <span id="modalStorage"></span></p>
+                    <p style="margin: 5px 0;"><strong>⏱️ Duration:</strong> <span id="modalDuration"></span></p>
+                    <p style="margin: 5px 0;"><strong>📊 Size:</strong> <span id="modalSize"></span></p>
+                    <p style="margin: 5px 0;"><strong>📡 Bitrate:</strong> <span id="modalBitrate"></span></p>
+                </div>
+            </div>
+            
             <video 
                 id="modalVideoFrame"
                 controls 
@@ -83,12 +94,23 @@
 </div>
 
 <script>
-function openVideoModal(streamUrl, filename) {
+function openVideoModal(streamUrl, filename, number, storage, duration, size, bitrate) {
     const modal = document.getElementById('videoModal');
     const title = document.getElementById('modalTitle');
     const video = document.getElementById('modalVideoFrame');
     
+    // Set title
     title.textContent = filename;
+    
+    // Fill video information
+    document.getElementById('modalFileName').textContent = filename;
+    document.getElementById('modalNumber').textContent = number;
+    document.getElementById('modalStorage').textContent = storage;
+    document.getElementById('modalDuration').textContent = duration;
+    document.getElementById('modalSize').textContent = size;
+    document.getElementById('modalBitrate').textContent = bitrate;
+    
+    // Set video source
     video.src = streamUrl;
     modal.style.display = 'block';
 }

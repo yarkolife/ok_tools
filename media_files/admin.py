@@ -724,8 +724,11 @@ class VideoFileAdmin(admin.ModelAdmin):
         if obj.is_available and obj.pk:
             stream_url = reverse('admin:media_files_videofile_stream', args=[obj.id])
             return format_html(
-                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
-                stream_url, obj.filename
+                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
+                stream_url, obj.filename, obj.number, obj.storage_location.name,
+                obj.duration if obj.duration else 'N/A',
+                obj.file_size|filesizeformat if obj.file_size else 'N/A',
+                f"{obj.total_bitrate} bps" if obj.total_bitrate else 'N/A'
             )
         return "-"
     player_link.short_description = _('Player')
