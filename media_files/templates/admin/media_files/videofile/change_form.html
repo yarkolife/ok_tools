@@ -1,5 +1,6 @@
 {% extends "admin/change_form.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block extrahead %}
 {{ block.super }}
@@ -128,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('original.unc_path:', '{{ original.unc_path|default:"null" }}');
     console.log('original.is_available:', {{ original.is_available|yesno:"true,false" }});
     console.log('original.pk:', {{ original.pk|default:"null" }});
+    console.log('CSRF Token:', '{{ csrf_token }}');
     console.log('========================');
     {% endif %}
 });

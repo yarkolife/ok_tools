@@ -7,6 +7,7 @@ from django.contrib import admin
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -856,6 +857,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             logger.error(f'Error loading video player: {str(e)}', exc_info=True)
             return HttpResponse(f'Error: {str(e)}', status=500)
 
+    @csrf_exempt
     def stream_video(self, request, video_id):
         """Stream video file with range support using django-downloadview."""
         try:
