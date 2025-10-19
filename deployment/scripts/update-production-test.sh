@@ -308,9 +308,12 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         # Восстанавливаем ALLOWED_HOSTS из бэкапа для сохранения IP адреса сервера
         if [ -n "$ALLOWED_HOSTS" ]; then
             # Проверяем и исправляем формат ALLOWED_HOSTS перед восстановлением
-            if [[ "$ALLOWED_HOSTS" =~ [a-zA-Z0-9.-][a-zA-Z0-9.-] ]]; then
+            # Проверяем, есть ли пробелы между хостами (правильный формат)
+            if [[ "$ALLOWED_HOSTS" != *" "* ]]; then
                 print_warning "Исправляю формат ALLOWED_HOSTS из бэкапа (добавляю пробелы между хостами)..."
-                ALLOWED_HOSTS=$(echo "$ALLOWED_HOSTS" | sed 's/\([a-zA-Z0-9.-]\)\([a-zA-Z0-9.-]\)/\1 \2/g' | sed 's/  */ /g')
+                # Исправляем формат: добавляем пробелы между доменами/IP адресами
+                # Ищем паттерны доменов и IP адресов и добавляем пробелы между ними
+                ALLOWED_HOSTS=$(echo "$ALLOWED_HOSTS" | sed 's/\([a-zA-Z0-9.-]\+\.[a-zA-Z0-9.-]\+\)\([a-zA-Z0-9.-]\+\.[a-zA-Z0-9.-]\+\)/\1 \2/g' | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)\([a-zA-Z0-9.-]\+\.[a-zA-Z0-9.-]\+\)/\1 \2/g' | sed 's/  */ /g')
                 print_info "ALLOWED_HOSTS исправлен: $ALLOWED_HOSTS"
             fi
             
@@ -361,12 +364,13 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         CURRENT_ALLOWED_HOSTS_LINE=$(grep "allowed_hosts = " docker-production.cfg)
         CURRENT_ALLOWED_HOSTS_VALUE=$(echo "$CURRENT_ALLOWED_HOSTS_LINE" | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//')
         
-        # Проверяем, есть ли пробелы между хостами
-        if [[ "$CURRENT_ALLOWED_HOSTS_VALUE" =~ [a-zA-Z0-9.-][a-zA-Z0-9.-] ]]; then
+        # Проверяем, есть ли пробелы между хостами (правильный формат)
+        if [[ "$CURRENT_ALLOWED_HOSTS_VALUE" != *" "* ]]; then
             print_warning "Обнаружен неправильный формат ALLOWED_HOSTS (отсутствуют пробелы между хостами)..."
             
             # Исправляем формат ALLOWED_HOSTS - добавляем пробелы между хостами
-            FIXED_ALLOWED_HOSTS=$(echo "$CURRENT_ALLOWED_HOSTS_VALUE" | sed 's/\([a-zA-Z0-9.-]\)\([a-zA-Z0-9.-]\)/\1 \2/g' | sed 's/  */ /g')
+            # Ищем паттерны доменов и IP адресов и добавляем пробелы между ними
+            FIXED_ALLOWED_HOSTS=$(echo "$CURRENT_ALLOWED_HOSTS_VALUE" | sed 's/\([a-zA-Z0-9.-]\+\.[a-zA-Z0-9.-]\+\)\([a-zA-Z0-9.-]\+\.[a-zA-Z0-9.-]\+\)/\1 \2/g' | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)\([a-zA-Z0-9.-]\+\.[a-zA-Z0-9.-]\+\)/\1 \2/g' | sed 's/  */ /g')
             
             # Заменяем в файле
             sed -i "s|allowed_hosts = .*|allowed_hosts = $FIXED_ALLOWED_HOSTS|g" docker-production.cfg
