@@ -116,6 +116,19 @@
 document.addEventListener('DOMContentLoaded', function() {
     {% if original.is_available %}
     console.log('Video player ready - using direct stream iframe');
+    
+    // Debug video object data
+    console.log('=== VIDEO DEBUG INFO ===');
+    console.log('original.number:', {{ original.number|default:"null" }});
+    console.log('original.storage_location:', {{ original.storage_location.name|default:"null" }});
+    console.log('original.duration:', {{ original.duration|default:"null" }});
+    console.log('original.file_size:', {{ original.file_size|default:"null" }});
+    console.log('original.total_bitrate:', {{ original.total_bitrate|default:"null" }});
+    console.log('original.full_path:', '{{ original.full_path|default:"null" }}');
+    console.log('original.unc_path:', '{{ original.unc_path|default:"null" }}');
+    console.log('original.is_available:', {{ original.is_available|yesno:"true,false" }});
+    console.log('original.pk:', {{ original.pk|default:"null" }});
+    console.log('========================');
     {% endif %}
 });
 </script>
