@@ -13,6 +13,9 @@
     .scan-explanation h4 { margin-top: 0; margin-bottom: 10px; color: #495057; }
     .scan-explanation ul { margin: 0; padding-left: 20px; }
     .scan-explanation li { margin-bottom: 5px; }
+    /* Ensure modal overlays above Django admin */
+    .modal-backdrop { z-index: 2000 !important; }
+    .modal { z-index: 2001 !important; }
 </style>
 
 <script>
@@ -29,9 +32,32 @@ function openScanModal(storageId, storageName, storagePath, storageType, videoCo
     // Bootstrap modal show
     const el = document.getElementById('scanModal');
     if (!scanModalInstance) {
+        console.log('[modal] creating bootstrap.Modal instance');
         scanModalInstance = new bootstrap.Modal(el, { backdrop: 'static', keyboard: true });
     }
+    console.log('[modal] before show, classes:', el.className);
     scanModalInstance.show();
+    // Diagnostics and fallback render
+    setTimeout(() => {
+        const dialog = el.querySelector('.modal-dialog');
+        const rect = dialog ? dialog.getBoundingClientRect() : null;
+        console.log('[modal] after show, classes:', el.className, 'rect:', rect);
+        if (!dialog || !rect || rect.width === 0 || rect.height === 0) {
+            console.warn('[modal] fallback activate: forcing visible');
+            el.classList.add('show');
+            el.style.display = 'block';
+            document.body.classList.add('modal-open');
+            // add backdrop if missing
+            if (!document.querySelector('.modal-backdrop')) {
+                const bd = document.createElement('div');
+                bd.className = 'modal-backdrop fade show';
+                document.body.appendChild(bd);
+            }
+        }
+        // Focus for accessibility
+        el.setAttribute('tabindex', '-1');
+        el.focus({ preventScroll: true });
+    }, 50);
     console.log('Modal opened for storage:', storageName);
 }
 
