@@ -709,9 +709,26 @@ class VideoFileAdmin(admin.ModelAdmin):
         """Link to open video stream in modal."""
         if obj.is_available and obj.pk:
             stream_url = reverse('admin:media_files_videofile_stream', args=[obj.id])
+            # Prepare additional fields for modal
+            number = obj.number or ''
+            storage_name = obj.storage_location.name if obj.storage_location else ''
+            duration = str(obj.duration) if obj.duration else 'N/A'
+            size_display = ''
+            try:
+                size_display = self.file_size_display(obj) or ''
+            except Exception:
+                size_display = 'N/A'
+            bitrate_display = f"{obj.total_bitrate} bps" if obj.total_bitrate else 'N/A'
+
             return format_html(
-                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
-                stream_url, obj.filename
+                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
+                stream_url,
+                obj.filename or '',
+                number,
+                storage_name,
+                duration,
+                size_display,
+                bitrate_display,
             )
         return "-"
     player_link.short_description = _('Player')
