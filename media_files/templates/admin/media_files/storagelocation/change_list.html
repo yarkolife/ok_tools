@@ -20,6 +20,7 @@
 
 <script>
 let scanModalInstance = null;
+let allowModalClose = false;
 
 function openScanModal(storageId, storageName, storagePath, storageType, videoCount) {
     // Fill in content
@@ -62,9 +63,10 @@ function openScanModal(storageId, storageName, storagePath, storageType, videoCo
 }
 
 function closeModal() {
-    if (scanModalInstance) {
-        scanModalInstance.hide();
-    }
+    allowModalClose = true;
+    if (scanModalInstance) scanModalInstance.hide();
+    // reset flag shortly after to avoid blocking future closes
+    setTimeout(() => { allowModalClose = false; }, 0);
 }
 
 function submitScan() {
@@ -73,7 +75,7 @@ function submitScan() {
     const formData = new FormData(form);
 
     // Prevent accidental native submit
-    form.addEventListener('submit', (e) => e.preventDefault(), { once: true });
+    form.addEventListener('submit', (e) => { e.preventDefault(); e.stopPropagation(); return false; }, { once: true });
 
     const submitBtn = document.querySelector('#scanModal .btn-primary');
     const originalText = submitBtn.textContent;
@@ -114,9 +116,25 @@ function submitScan() {
 window.addEventListener('DOMContentLoaded', function() {
     const modalEl = document.getElementById('scanModal');
     if (modalEl) {
+        // Block auto-hide unless explicitly allowed
+        modalEl.addEventListener('hide.bs.modal', function(e) {
+            if (!allowModalClose) {
+                console.warn('[modal] hide prevented');
+                e.preventDefault();
+            }
+        });
+
         modalEl.addEventListener('click', function(e) {
             const dialog = modalEl.querySelector('.modal-dialog');
             if (dialog && dialog.contains(e.target)) {
+                e.stopPropagation();
+            }
+        });
+        // Prevent Esc from closing while debugging
+        modalEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !allowModalClose) {
+                console.warn('[modal] escape prevented');
+                e.preventDefault();
                 e.stopPropagation();
             }
         });
