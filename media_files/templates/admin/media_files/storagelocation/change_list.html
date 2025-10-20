@@ -66,7 +66,7 @@ function closeModal() {
     allowModalClose = true;
     if (scanModalInstance) scanModalInstance.hide();
     // reset flag shortly after to avoid blocking future closes
-    setTimeout(() => { allowModalClose = false; }, 0);
+    setTimeout(() => { allowModalClose = false; }, 50);
 }
 
 function submitScan() {
@@ -82,7 +82,9 @@ function submitScan() {
     submitBtn.textContent = '⏳ Scanning...';
     submitBtn.disabled = true;
 
-    const url = form.action.replace('0', storageId);
+    // Build URL robustly (replace storagelocation/<id>/)
+    const url = form.action.replace(/storagelocation\/[0-9]+\//, `storagelocation/${storageId}/`);
+    console.log('[modal] submit url:', url, 'storageId:', storageId);
 
     fetch(url, {
         method: 'POST',
@@ -130,7 +132,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
             }
         });
-        // Prevent Esc from closing while debugging
+        // Prevent Esc from closing unless allowed
         modalEl.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && !allowModalClose) {
                 console.warn('[modal] escape prevented');
