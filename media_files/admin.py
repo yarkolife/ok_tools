@@ -289,11 +289,11 @@ class StorageLocationAdmin(admin.ModelAdmin):
         if count > 0:
             list_url = reverse('admin:media_files_videofile_changelist') + f'?storage_location__id__exact={obj.id}'
             return format_html(
-                '<a href="{}">{}</a> | <button onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
+                '<a href="{}">{}</a> | <button type="button" onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
                 list_url, count, obj.id, obj.name, obj.path, obj.storage_type, obj.video_count
             )
         return format_html(
-            '{} | <button onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
+            '{} | <button type="button" onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
             count, obj.id, obj.name, obj.path, obj.storage_type, obj.video_count
         )
     video_count_display.short_description = _('Videos')
