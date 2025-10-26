@@ -151,7 +151,7 @@ if [ "$INSTALL_MODE" = "1" ]; then
             # Local Network or Localhost: use compose file without nginx
             cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
         fi
-        cp "$PROJECT_DIR/deployment/Dockerfile" "$PRODUCTION_DIR/Dockerfile"
+        cp "$PROJECT_DIR/deployment/production.Dockerfile" "$PRODUCTION_DIR/Dockerfile"
         cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
         chmod +x "$PRODUCTION_DIR/entrypoint.sh"
         
@@ -479,7 +479,7 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         # Local Network or Localhost: use compose file without nginx
         cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
     fi
-    cp "$PROJECT_DIR/deployment/Dockerfile" "$PRODUCTION_DIR/Dockerfile"
+    cp "$PROJECT_DIR/deployment/production.Dockerfile" "$PRODUCTION_DIR/Dockerfile"
     cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
     chmod +x "$PRODUCTION_DIR/entrypoint.sh"
     

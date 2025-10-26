@@ -38,7 +38,7 @@ RUN ldconfig
 WORKDIR /app
 
 # Copying the requirements file
-COPY requirements.txt .
+COPY ../requirements.txt .
 
 # Installing Python dependencies
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
@@ -46,7 +46,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir gunicorn
 
 # Copying the application code
-COPY . .
+COPY ../ok_tools/ .
 
 # Creating directories for static files and logs
 RUN mkdir -p /app/static /app/media /app/logs
@@ -61,11 +61,11 @@ RUN chmod +x /app/deployment/entrypoint.production.sh
 RUN python manage.py collectstatic --noinput --settings=ok_tools.settings || true
 
 # Opening the port
-EXPOSE 8000
+EXPOSE 800
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=5)"
 
 # Command to run with production entrypoint
-CMD ["/app/deployment/entrypoint.production.sh"]
+CMD ["/app/entrypoint.sh"]
