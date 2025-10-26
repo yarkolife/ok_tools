@@ -177,21 +177,25 @@ prompt_secrets() {
         echo "Generated POSTGRES_PASSWORD: $postgres_pass" >&2
         echo "POSTGRES_PASSWORD=$postgres_pass" >> "$secrets_file"
     fi
+    # POSTGRES_PASSWORD
     escaped_postgres_pass=$(escape_for_sed "$postgres_pass")
-    sed -i.bak "s|POSTGRES_PASSWORD=__REPLACE_ME__|POSTGRES_PASSWORD=$escaped_postgres_pass|" "$output_file"
-    sed -i.bak "s|postgresql://oktools:__REPLACE_ME__@db:5432/oktools|postgresql://oktools:$escaped_postgres_pass@db:5432/oktools|g" "$output_file"
+    sed -i.bak -E "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$escaped_postgres_pass|" "$output_file"
+
+    # DATABASE_URL (единый формат)
+    sed -i.bak -E "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://oktools:$escaped_postgres_pass@db:5432/oktools|" "$output_file"
     
     # DJANGO_SECRET_KEY
     echo -n "DJANGO_SECRET_KEY (or press Enter to generate): " >&2
     read -s django_key
     echo "" >&2
     if [ -z "$django_key" ]; then
-        django_key=$(openssl rand -base64 50 | tr -d "=+/" | cut -c1-50)
+        django_key=$(openssl rand -base64 50 | tr -d '=+/\n' | cut -c1-50)
         echo "Generated DJANGO_SECRET_KEY: $django_key" >&2
         echo "DJANGO_SECRET_KEY=$django_key" >> "$secrets_file"
     fi
+    # DJANGO_SECRET_KEY
     escaped_django_key=$(escape_for_sed "$django_key")
-    sed -i.bak "s|DJANGO_SECRET_KEY=__REPLACE_ME__|DJANGO_SECRET_KEY=$escaped_django_key|" "$output_file"
+    sed -i.bak -E "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$escaped_django_key|" "$output_file"
     
     # ALLOWED_HOSTS
     echo -n "ALLOWED_HOSTS (comma-separated, or press Enter for localhost): " >&2
@@ -200,8 +204,8 @@ prompt_secrets() {
         allowed_hosts="localhost,127.0.0.1"
         echo "Using default: $allowed_hosts" >&2
     fi
-    sed -i.bak "s|ALLOWED_HOSTS=localhost,127.0.1,__REPLACE_ME__|ALLOWED_HOSTS=$allowed_hosts|" "$output_file"
-    sed -i.bak "s|ALLOWED_HOSTS=__REPLACE_ME__|ALLOWED_HOSTS=$allowed_hosts|" "$output_file"
+    # ALLOWED_HOSTS
+    sed -i.bak -E "s|^ALLOWED_HOSTS=.*|ALLOWED_HOSTS=$allowed_hosts|" "$output_file"
     
     # SUPERUSER_PASSWORD
     echo -n "SUPERUSER_PASSWORD (or press Enter to generate): " >&2
@@ -212,8 +216,9 @@ prompt_secrets() {
         echo "Generated SUPERUSER_PASSWORD: $superuser_pass" >&2
         echo "SUPERUSER_PASSWORD=$superuser_pass" >> "$secrets_file"
     fi
+    # SUPERUSER_PASSWORD
     escaped_superuser_pass=$(escape_for_sed "$superuser_pass")
-    sed -i.bak "s|SUPERUSER_PASSWORD=__REPLACE_ME__|SUPERUSER_PASSWORD=$escaped_superuser_pass|" "$output_file"
+    sed -i.bak -E "s|^SUPERUSER_PASSWORD=.*|SUPERUSER_PASSWORD=$escaped_superuser_pass|" "$output_file"
     
     # EMAIL_HOST_PASSWORD
     echo -n "EMAIL_HOST_PASSWORD (or press Enter to generate): " >&2
@@ -224,8 +229,9 @@ prompt_secrets() {
         echo "Generated EMAIL_HOST_PASSWORD: $email_pass" >&2
         echo "EMAIL_HOST_PASSWORD=$email_pass" >> "$secrets_file"
     fi
+    # EMAIL_HOST_PASSWORD
     escaped_email_pass=$(escape_for_sed "$email_pass")
-    sed -i.bak "s|EMAIL_HOST_PASSWORD=__REPLACE_ME__|EMAIL_HOST_PASSWORD=$escaped_email_pass|" "$output_file"
+    sed -i.bak -E "s|^EMAIL_HOST_PASSWORD=.*|EMAIL_HOST_PASSWORD=$escaped_email_pass|" "$output_file"
     
     # Remove backup files
     rm -f "$output_file.bak"
