@@ -39,27 +39,6 @@ show_templates() {
     return 0
 }
 
-# Function to prompt for secrets based on template
-prompt_secrets() {
-    local template="$1"
-    local temp_config="/tmp/oktools_config.tmp"
-    
-    # Copy template to temporary file preserving line endings
-    cp "$template" "$temp_config"
-    
-    # Extract all __REPLACE_ME__ values and prompt for them
-    # Read template line by line and process replacements
-    while IFS= read -r line; do
-        # Skip comments and empty lines
-        if [[ $line =~ ^[[:space:]]*# ]] || [[ -z "$line" ]]; then
-            continue
-        fi
-        
-        # Check if line contains __REPLACE_ME__
-        if [[ $line =~ ^[^#]*=.*__REPLACE_ME__ ]]; then
-            # Extract the variable name (everything before =)
-            key=$(echo "$line" | sed 's/=.*//')
-            echo -n "Enter value for $key: " >&2
 # Function to validate .env file
 validate_env_file() {
     local env_file="$1"
@@ -164,20 +143,41 @@ validate_env_file() {
     fi
 }
 
+# Function to prompt for secrets based on template
+prompt_secrets() {
+    local template="$1"
+    local output_file="/tmp/oktools_config_$(date +%s).tmp"
+    
+    echo ""
+    echo "Processing template: $(basename "$template")"
+    echo "Please enter values for the following secrets:"
+    echo "=============================================="
+    
+    # Process template line by line, preserving structure
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Check if line contains __REPLACE_ME__
+        if [[ $line =~ ^[^#]*=.*__REPLACE_ME__ ]]; then
+            # Extract the variable name (everything before =)
+            local key=$(echo "$line" | cut -d'=' -f1)
+            
+            # Prompt for value
+            echo ""
+            echo -n "Enter value for $key: "
             read -r value
             
-            # Escape special characters in value for sed
-            value_escaped=$(echo "$value" | sed 's/[&/\]/\\&/g')
-            
-            # Replace only the first occurrence on lines with this key
-            sed -i.bak "s|^\(${key}=\)__REPLACE_ME__|\1${value_escaped}|" "$temp_config"
+            # Replace __REPLACE_ME__ with the entered value in this line
+            # Using bash parameter substitution to avoid sed issues
+            local new_line="${line/__REPLACE_ME__/$value}"
+            echo "$new_line" >> "$output_file"
+        else
+            # Copy line as-is (preserving comments, empty lines, etc.)
+            echo "$line" >> "$output_file"
         fi
     done < "$template"
     
-    # Remove backup file
-    rm -f "${temp_config}.bak"
-    
-    echo "$temp_config"
+    echo ""
+    echo "✓ Configuration completed"
+    echo "$output_file"
 }
 
 # Check if production directory already exists
@@ -253,20 +253,23 @@ if [ "$INSTALL_MODE" = "1" ]; then
         # Copy completed config to production directory
         cp "$CONFIG_FILE" "$PRODUCTION_DIR/.env"
         chmod 600 "$PRODUCTION_DIR/.env"
+        
+        # Clean up temporary file
+        rm -f "$CONFIG_FILE"
+        
         echo "✓ Created .env file at: $PRODUCTION_DIR/.env"
         
-        # TODO: Implement validate_env_file function
         # Validate the generated .env file
-        # if ! validate_env_file "$PRODUCTION_DIR/.env"; then
-        #     echo ""
-        #     echo "⚠️  .env file validation failed. Please review and fix errors."
-        #     read -p "Do you want to continue anyway? (y/n) " -n 1 -r
-        #     echo
-        #     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        #         echo "Installation cancelled."
-        #         exit 1
-        #     fi
-        # fi
+        if ! validate_env_file "$PRODUCTION_DIR/.env"; then
+            echo ""
+            echo "⚠️  .env file validation failed. Please review and fix errors."
+            read -p "Do you want to continue anyway? (y/n) " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo "Installation cancelled."
+                exit 1
+            fi
+        fi
         
         # Copy necessary files based on installation type
         echo ""
@@ -612,18 +615,17 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     chmod 600 "$ENV_FILE"
     echo "✓ Created .env file at: $ENV_FILE"
 
-    # TODO: Implement validate_env_file function
     # Validate the generated .env file
-    # if ! validate_env_file "$ENV_FILE"; then
-    #     echo ""
-    #     echo "⚠️  .env file validation failed. Please review and fix errors."
-    #     read -p "Do you want to continue anyway? (y/n) " -n 1 -r
-    #     echo
-    #     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    #         echo "Installation cancelled."
-    #         exit 1
-    #     fi
-    # fi
+    if ! validate_env_file "$ENV_FILE"; then
+        echo ""
+        echo "⚠️  .env file validation failed. Please review and fix errors."
+        read -p "Do you want to continue anyway? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Installation cancelled."
+            exit 1
+        fi
+    fi
 
     # Copy necessary files based on installation type
     echo ""
@@ -660,6 +662,7 @@ else
     echo "Invalid choice. Exiting."
     exit 1
 fi
+
 # Request SSL certificate if enabled (only for Production)
 if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
     echo ""
@@ -671,6 +674,23 @@ if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
     echo "✓ SSL certificate obtained successfully."
 fi
 
+# Copy source files to destination directory (outside conditional blocks)
+echo ""
+echo "Copying source files..."
+cp "$PROJECT_DIR/requirements.txt" "$PRODUCTION_DIR/requirements.txt"
+cp -r "$PROJECT_DIR/ok_tools" "$PRODUCTION_DIR/ok_tools"
+# Add other necessary directories for the application
+cp -r "$PROJECT_DIR/contributions" "$PRODUCTION_DIR/contributions"
+cp -r "$PROJECT_DIR/dashboard" "$PRODUCTION_DIR/dashboard"
+cp -r "$PROJECT_DIR/inventory" "$PRODUCTION_DIR/inventory"
+cp -r "$PROJECT_DIR/licenses" "$PRODUCTION_DIR/licenses"
+cp -r "$PROJECT_DIR/media_files" "$PRODUCTION_DIR/media_files"
+cp -r "$PROJECT_DIR/planung" "$PRODUCTION_DIR/planung"
+cp -r "$PROJECT_DIR/projects" "$PRODUCTION_DIR/projects"
+cp -r "$PROJECT_DIR/registration" "$PRODUCTION_DIR/registration"
+cp -r "$PROJECT_DIR/rental" "$PRODUCTION_DIR/rental"
+cp "$PROJECT_DIR/manage.py" "$PRODUCTION_DIR/manage.py"
+
 # Start containers
 echo ""
 echo "Starting Docker containers..."
@@ -681,42 +701,25 @@ ls -la docker-compose.yml Dockerfile entrypoint.sh
 echo ""
 docker compose --project-directory . up -d --build
 
-
-# Copy source files to destination directory
-        echo "Copying source files..."
-        cp "$PROJECT_DIR/requirements.txt" "$PRODUCTION_DIR/requirements.txt"
-        cp -r "$PROJECT_DIR/ok_tools" "$PRODUCTION_DIR/ok_tools"
-        # Add other necessary directories for the application
-        cp -r "$PROJECT_DIR/contributions" "$PRODUCTION_DIR/contributions"
-        cp -r "$PROJECT_DIR/dashboard" "$PRODUCTION_DIR/dashboard"
-        cp -r "$PROJECT_DIR/inventory" "$PRODUCTION_DIR/inventory"
-        cp -r "$PROJECT_DIR/licenses" "$PRODUCTION_DIR/licenses"
-        cp -r "$PROJECT_DIR/media_files" "$PRODUCTION_DIR/media_files"
-        cp -r "$PROJECT_DIR/planung" "$PRODUCTION_DIR/planung"
-        cp -r "$PROJECT_DIR/projects" "$PRODUCTION_DIR/projects"
-        cp -r "$PROJECT_DIR/registration" "$PRODUCTION_DIR/registration"
-        cp -r "$PROJECT_DIR/rental" "$PRODUCTION_DIR/rental"
-        cp "$PROJECT_DIR/manage.py" "$PRODUCTION_DIR/manage.py"
-        
-        echo ""
-        echo "=========================================="
-        echo "Installation Complete!"
-        echo "=========================================="
-        echo "Production directory: $PRODUCTION_DIR"
-        echo "Configuration file: $PRODUCTION_DIR/.env"
-        echo ""
-        echo "Next steps:"
-        echo "1. Check container status: docker compose ps"
-        echo "2. View logs: docker compose logs -f web"
-        if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
-            echo "3. Access admin panel: https://$DOMAIN_NAME/admin"
-        elif [ "$INSTALL_TYPE" = "2" ]; then
-            echo "3. Access admin panel: http://$SERVER_IP:8000/admin"
-        else
-            echo "3. Access admin panel: http://localhost:8000/admin"
-        fi
-        echo "   Username: $SUPERUSER_USERNAME (or as configured)"
-        echo "   Password: As configured during setup"
-        echo ""
-        echo "To update application, run: $SCRIPT_DIR/update.sh"
-        echo "To configure post-deployment settings, run: $SCRIPT_DIR/configure.sh"
+echo ""
+echo "=========================================="
+echo "Installation Complete!"
+echo "=========================================="
+echo "Production directory: $PRODUCTION_DIR"
+echo "Configuration file: $PRODUCTION_DIR/.env"
+echo ""
+echo "Next steps:"
+echo "1. Check container status: docker compose ps"
+echo "2. View logs: docker compose logs -f web"
+if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
+    echo "3. Access admin panel: https://$DOMAIN_NAME/admin"
+elif [ "$INSTALL_TYPE" = "2" ]; then
+    echo "3. Access admin panel: http://$SERVER_IP:8000/admin"
+else
+    echo "3. Access admin panel: http://localhost:8000/admin"
+fi
+echo "   Username: $SUPERUSER_USERNAME (or as configured)"
+echo "   Password: As configured during setup"
+echo ""
+echo "To update application, run: $SCRIPT_DIR/update.sh"
+echo "To configure post-deployment settings, run: $SCRIPT_DIR/configure.sh"
