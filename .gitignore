@@ -139,3 +139,4 @@ entrypoint.sh
 deployment/docker/
 deployment/gunicorn/
 !deployment/docs/
+deployment/reports/
