@@ -21,7 +21,7 @@ echo ""
 # Pull latest code
 echo "Pulling latest code from repository..."
 cd "$PROJECT_DIR"
-git pull origin main
+git pull
 
 # Update docker-compose files and configs in production directory
 echo "Updating docker-compose files and configs..."
