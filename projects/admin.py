@@ -4,7 +4,7 @@ from .models import Project
 from .models import ProjectCategory
 from .models import ProjectLeader
 from .models import TargetGroup
-from admin_searchable_dropdown.filters import AutocompleteFilterFactory
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib import admin
 from django.urls import path
 from django.utils.translation import gettext_lazy as _

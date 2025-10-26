@@ -1,0 +1,267 @@
+═══════════════════════════════════════════════════════════════════
+  БЫСТРАЯ ИНСТРУКЦИЯ: Добавление хранилищ в Django Admin
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 1: Открой админ-панель
+
+  http://localhost:8000/admin/          (Development)
+  https://your-domain.de/admin/         (Production)
+
+  Логин: admin@example.com / admin123   (если не изменил)
+
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 2: Перейди в Media Files
+
+  Главная → Media Files → Storage locations
+  
+  Или напрямую:
+  http://localhost:8000/admin/media_files/storagelocation/
+
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 3: Нажми "Add Storage Location"
+
+  Кнопка в правом верхнем углу: [+ Add storage location]
+
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 4: Заполни форму для ARCHIVE
+
+  Name: *                 NAS Archive
+  Type: *                 ARCHIVE ▼
+  Path: *                 /mnt/nas/archive/
+  Description:            Архив на NAS 192.168.XXX.XXX
+  ☑ Is active
+  Max size (GB):          5000
+  
+                    [Save and add another]  [Save]
+
+  ⚠️  Path ДОЛЖЕН заканчиваться на /
+  ⚠️  Path должен быть доступен Django процессу
+
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 5: Добавь PLAYOUT хранилище
+
+  Name: *                 NAS Playout
+  Type: *                 PLAYOUT ▼
+  Path: *                 /mnt/nas/playout/
+  Description:            Playout на 192.168.188.1
+  ☑ Is active
+  Max size (GB):          1000
+  
+                              [Save]
+
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 6: Проверь что пути доступны
+
+  # Development (Docker)
+  docker-compose exec web ls -la /mnt/nas/archive
+  docker-compose exec web ls -la /mnt/nas/playout
+
+  # Production (Debian)
+  sudo -u www-data ls -la /mnt/nas/archive
+  sudo -u www-data ls -la /mnt/nas/playout
+
+  Должны увидеть содержимое папок!
+
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 7: Запусти сканирование
+
+  # Development (Docker)
+  docker-compose exec web python manage.py scan_video_storage
+
+  # Production (Debian)
+  cd /opt/ok-tools
+  source venv/bin/activate
+  python manage.py scan_video_storage
+
+  Процесс:
+    ✓ Сканирование /mnt/nas/archive/
+    ✓ Найдено 145 видеофайлов
+    ✓ Извлечение метаданных...
+    ✓ 12345_title.mp4 → создан VideoFile
+    ✓ Готово за 3m 24s
+
+═══════════════════════════════════════════════════════════════════
+
+█ ШАГ 8: Просмотр видеофайлов
+
+  Главная → Media Files → Video files
+
+  Или:
+  http://localhost:8000/admin/media_files/videofile/
+
+  Список с фильтрами:
+    - По хранилищу
+    - По кодеку
+    - По разрешению
+    - С ошибками / без
+
+═══════════════════════════════════════════════════════════════════
+
+🎬 ТИПЫ ХРАНИЛИЩ:
+
+  ARCHIVE  - долговременное хранение всех видеофайлов
+  PLAYOUT  - файлы готовые к трансляции
+  CUSTOM   - для любых других целей (трейлеры, preview, etc.)
+
+═══════════════════════════════════════════════════════════════════
+
+📁 ПРИМЕРЫ СТРУКТУР:
+
+  Простая:
+  ────────
+  /mnt/nas/
+  ├── archive/           ← ARCHIVE
+  │   ├── 12345_title.mp4
+  │   └── 67890_show.mov
+  └── playout/           ← PLAYOUT
+      ├── 12345_title.mp4
+      └── 99999_news.mp4
+
+  Сложная:
+  ────────
+  /mnt/nas/
+  ├── archive/           ← ARCHIVE
+  └── playout/
+      ├── week01/        ← CUSTOM "Playout Week 01"
+      ├── week02/        ← CUSTOM "Playout Week 02"
+      └── trailers/      ← CUSTOM "Playout Trailers"
+
+  Создай отдельное Storage Location для каждой папки!
+
+═══════════════════════════════════════════════════════════════════
+
+⚡ МАССОВЫЕ ОПЕРАЦИИ (Bulk Actions):
+
+  1. Выбери файлы (☑ чекбоксы)
+  2. Action: [Copy to playout ▼]  [Go]
+
+  Доступно:
+    - Copy selected video files to playout
+    - Update metadata for selected video files
+    - Verify integrity of selected video files
+    - Mark selected video files as archived
+
+═══════════════════════════════════════════════════════════════════
+
+🔍 ПОИСК ВИДЕО:
+
+  По номеру:         12345
+  По имени файла:    title.mp4
+  По пути:           /mnt/nas/archive/
+
+  Фильтры:
+    Storage location: [NAS Archive ▼]
+    Video codec:      [h264 ▼]
+    Resolution:       [1920x1080 ▼]
+    Has errors:       [No ▼]
+
+═══════════════════════════════════════════════════════════════════
+
+🎥 ПРОСМОТР ВИДЕО:
+
+  Открой любой VideoFile:
+    Media Files → Video files → [номер]
+
+  В верхней части страницы:
+    ┌─────────────────────────────────────────────┐
+    │         [▶ HTML5 Video Player]              │
+    │                                             │
+    │     [===========|=======] 00:10:25/00:25:30│
+    │        🔊 Volume: ▮▮▮▮▮▮▮▯▯▯               │
+    └─────────────────────────────────────────────┘
+
+  Поддержка:
+    ✓ Play/Pause
+    ✓ Seeking (перемотка)
+    ✓ Регулировка громкости
+    ✓ Fullscreen
+
+═══════════════════════════════════════════════════════════════════
+
+🔗 СВЯЗЬ С LICENSES:
+
+  Каждый VideoFile автоматически связывается с License по номеру.
+
+  В интерфейсе License:
+    License #12345 → показывает связанный VideoFile
+    
+  В интерфейсе VideoFile:
+    VideoFile #12345 → показывает связанную License
+
+═══════════════════════════════════════════════════════════════════
+
+🔄 АВТОКОПИРОВАНИЕ:
+
+  При создании плана трансляции в Planung:
+    1. Выбираешь License #12345
+    2. Сохраняешь план (не draft)
+    3. Автоматически:
+       - Находится VideoFile #12345
+       - Копируется Archive → Playout
+       - Создается FileOperation запись
+
+  Настройка в config:
+    [media]
+    auto_copy_on_schedule = True
+
+═══════════════════════════════════════════════════════════════════
+
+📊 ИСТОРИЯ ОПЕРАЦИЙ:
+
+  Главная → Media Files → File operations
+
+  Показывает:
+    - COPY    - копирование файлов
+    - MOVE    - перемещение
+    - DELETE  - удаление
+    - SCAN    - обнаружение при сканировании
+    - VERIFY  - проверка целостности
+
+  Фильтры:
+    - По типу операции
+    - По статусу (SUCCESS / FAILED)
+    - По дате
+
+═══════════════════════════════════════════════════════════════════
+
+🆘 TROUBLESHOOTING:
+
+  ❌ Path does not exist
+     → Проверь монтирование: mount | grep /mnt/nas
+     → Проверь права: sudo -u www-data ls -la /mnt/nas
+
+  ❌ No video files found
+     → Проверь формат: *.mp4, *.mov, *.mpeg, *.mpg
+     → Проверь имя файла: 12345_title.mp4 (номер в начале!)
+
+  ❌ ffprobe not found
+     → Установи ffmpeg
+     → Docker: уже установлен в образе
+     → Debian: sudo apt install ffmpeg
+
+  ❌ Permission denied при копировании
+     → Проверь права на запись в playout
+     → Docker: измени :ro на :rw в docker-compose.yml
+     → Debian: проверь uid/gid в /etc/fstab
+
+═══════════════════════════════════════════════════════════════════
+
+📚 ПОЛНАЯ ДОКУМЕНТАЦИЯ:
+
+  media_files/ADMIN_GUIDE.md        - Подробный гайд с примерами
+  media_files/README.md             - Техническая документация
+  media_files/NAS_SETUP.md          - Настройка NAS (Docker)
+  deployment/NAS_DEBIAN_SETUP.md    - Настройка NAS (Debian)
+
+═══════════════════════════════════════════════════════════════════
+
+✅ ГОТОВО! Теперь можешь управлять видеофайлами через админку.
+
+═══════════════════════════════════════════════════════════════════
+

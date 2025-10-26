@@ -4,20 +4,15 @@ from .models import FunnelMetrics
 from .models import UserJourney
 from .models import UserJourneyStage
 from contributions.models import Contribution
-from datetime import timedelta
+from datetime import timedelta, date
 from django.db import models
-from django.db.models import Count
-from django.db.models import F
-from django.db.models import Q
+from django.db.models import Count, F, Q, QuerySet, Sum
 from django.utils import timezone
 from licenses.models import License
 from registration.models import OKUser
 from registration.models import Profile
 from rental.models import RentalRequest
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
+from typing import Dict, List, Optional, Tuple, Any, Union
 import logging
 
 
@@ -27,7 +22,7 @@ logger = logging.getLogger(__name__)
 class FunnelTracker:
     """Track and analyze user participation funnel."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.stages = UserJourneyStage.choices
 
     def track_user_stage(self, user: OKUser, stage: str, **kwargs) -> UserJourney:
@@ -60,7 +55,7 @@ class FunnelTracker:
         """Get complete journey for a user."""
         return UserJourney.objects.filter(user=user).order_by('achieved_at')
 
-    def get_funnel_metrics(self, start_date=None, end_date=None, filters=None) -> Dict:
+    def get_funnel_metrics(self, start_date: Optional[date] = None, end_date: Optional[date] = None, filters: Optional[Dict] = None) -> Dict:
         """Calculate funnel metrics for a date range."""
         # Get all profiles registered in the period (using Profile.created_at)
         if start_date and end_date:
@@ -231,7 +226,7 @@ class FunnelTracker:
             }
         }
 
-    def _get_first_broadcasts(self, profiles, start_date, end_date) -> int:
+    def _get_first_broadcasts(self, profiles: QuerySet, start_date: Optional[date], end_date: Optional[date]) -> int:
         """Get count of licenses with their first broadcast in the period."""
         # Get all contributions by these profiles
         all_contributions = Contribution.objects.filter(
@@ -256,7 +251,7 @@ class FunnelTracker:
 
         return len(first_broadcast_licenses)
 
-    def _get_multiple_broadcasts(self, profiles, start_date, end_date) -> int:
+    def _get_multiple_broadcasts(self, profiles: QuerySet, start_date: Optional[date], end_date: Optional[date]) -> int:
         """Get count of profiles with multiple broadcasts in the period."""
         multiple_broadcast_profiles = set()
 
@@ -278,7 +273,7 @@ class FunnelTracker:
 
         return len(multiple_broadcast_profiles)
 
-    def get_stage_breakdown(self, start_date=None, end_date=None, filters=None) -> Dict:
+    def get_stage_breakdown(self, start_date: Optional[date] = None, end_date: Optional[date] = None, filters: Optional[Dict] = None) -> Dict:
         """Get detailed breakdown of users at each stage."""
         # Get all profiles registered in the period (using Profile.created_at)
         if start_date and end_date:
@@ -413,7 +408,7 @@ class FunnelTracker:
 
         return stage_data
 
-    def _get_first_broadcast_profiles(self, profiles, start_date, end_date) -> List[int]:
+    def _get_first_broadcast_profiles(self, profiles: QuerySet, start_date: Optional[date], end_date: Optional[date]) -> List[int]:
         """Get list of profile IDs with their first broadcast in the period."""
         first_broadcast_profiles = []
 
@@ -427,7 +422,7 @@ class FunnelTracker:
 
         return first_broadcast_profiles
 
-    def _get_multiple_broadcast_profiles(self, profiles, start_date, end_date) -> List[int]:
+    def _get_multiple_broadcast_profiles(self, profiles: QuerySet, start_date: Optional[date], end_date: Optional[date]) -> List[int]:
         """Get list of profile IDs with multiple broadcasts in the period."""
         multiple_broadcast_profiles = []
 
@@ -442,7 +437,7 @@ class FunnelTracker:
 
         return multiple_broadcast_profiles
 
-    def cache_funnel_metrics(self, date=None) -> FunnelMetrics:
+    def cache_funnel_metrics(self, date: Optional[date] = None) -> FunnelMetrics:
         """Cache funnel metrics for a specific date."""
         if not date:
             date = timezone.now().date()
@@ -491,7 +486,7 @@ class FunnelTracker:
 
         return funnel_metrics
 
-    def get_registrations_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
+    def get_registrations_detail(self, start_date: Optional[date] = None, end_date: Optional[date] = None, filters: Optional[Dict] = None, page: int = 1, per_page: int = 20) -> Dict:
         """Get detailed registrations data."""
         # Get registered profiles
         if start_date and end_date:
@@ -596,7 +591,7 @@ class FunnelTracker:
             }
         }
 
-    def get_verified_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
+    def get_verified_detail(self, start_date: Optional[date] = None, end_date: Optional[date] = None, filters: Optional[Dict] = None, page: int = 1, per_page: int = 20) -> Dict:
         """Get detailed verified users data."""
         # Get verified profiles
         if start_date and end_date:
@@ -698,7 +693,7 @@ class FunnelTracker:
             }
         }
 
-    def get_licenses_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
+    def get_licenses_detail(self, start_date: Optional[date] = None, end_date: Optional[date] = None, filters: Optional[Dict] = None, page: int = 1, per_page: int = 20) -> Dict:
         """Get detailed licenses data."""
         # Get registered profiles first
         if start_date and end_date:
@@ -812,7 +807,7 @@ class FunnelTracker:
             }
         }
 
-    def get_broadcasts_detail(self, start_date=None, end_date=None, filters=None, page=1, per_page=20):
+    def get_broadcasts_detail(self, start_date: Optional[date] = None, end_date: Optional[date] = None, filters: Optional[Dict] = None, page: int = 1, per_page: int = 20) -> Dict:
         """Get detailed broadcasts data."""
         # Get registered profiles first
         if start_date and end_date:
@@ -947,7 +942,7 @@ class FunnelTracker:
             }
         }
 
-    def get_funnel_trends(self, start_date, end_date, filters=None):
+    def get_funnel_trends(self, start_date: Optional[date], end_date: Optional[date], filters: Optional[Dict] = None) -> Dict:
         """Get funnel trends over time."""
         try:
             # Quick check: are there any data in the database at all?
@@ -1235,7 +1230,7 @@ class AlertManager:
         return f"Alert: {threshold.name} - {threshold.get_stage_display()} {threshold.get_metric_type_display()} is {current_value} (threshold: {threshold.threshold_value})"
 
 
-    def _send_notification(self, alert: AlertLog):
+    def _send_notification(self, alert: AlertLog) -> None:
         """Send notification for triggered alert."""
         # Log the alert for now
         logger.warning(f"ALERT TRIGGERED: {alert.message}")

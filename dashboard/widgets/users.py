@@ -7,6 +7,7 @@ from .filters import DashboardFilters
 from datetime import datetime
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from django.core.cache import cache
 from django.db.models import Count
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -23,6 +24,13 @@ class UsersWidget:
 
     def get_basic_stats(self):
         """Get basic user statistics."""
+        # Create cache key based on filters
+        cache_key = f"users_basic_stats_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         queryset = Profile.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
 
@@ -34,8 +42,7 @@ class UsersWidget:
         verified_users = filtered_queryset.filter(verified=True).count()
         member_users = filtered_queryset.filter(member=True).count()
 
-
-        return {
+        result = {
             'total_users': total_users,
             'male_users': male_users,
             'female_users': female_users,
@@ -43,22 +50,46 @@ class UsersWidget:
             'verified_users': verified_users,
             'member_users': member_users,
         }
+        
+        # Cache for 20 minutes
+        cache.set(cache_key, result, 1200)
+        
+        return result
 
     def get_users_by_authority(self):
         """Get user count by media authority."""
+        # Create cache key based on filters
+        cache_key = f"users_by_authority_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = Profile.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
 
-            return list(filtered_queryset.values('media_authority__name').annotate(
+            result = list(filtered_queryset.values('media_authority__name').annotate(
                 count=Count('id')
             ).order_by('-count'))
+            
+            # Cache for 25 minutes
+            cache.set(cache_key, result, 1500)
+            
+            return result
         except Exception:
             # Return empty list if there's an error
             return []
 
     def get_age_groups(self):
         """Get user count by age groups."""
+        # Create cache key based on filters
+        cache_key = f"users_age_groups_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             # Include all profiles, including those with unknown birthday (01.01.1800)
             queryset = Profile.objects.all()
@@ -91,6 +122,9 @@ class UsersWidget:
                 else:
                     age_groups['unknown'] += 1
 
+            # Cache for 25 minutes
+            cache.set(cache_key, age_groups, 1500)
+            
             return age_groups
         except Exception:
             # Return default values if there's an error
@@ -104,6 +138,13 @@ class UsersWidget:
 
     def get_registration_trend(self):
         """Get user registration trend over time."""
+        # Create cache key based on filters
+        cache_key = f"users_registration_trend_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = Profile.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
@@ -137,6 +178,9 @@ class UsersWidget:
                     'count': count
                 })
 
+            # Cache for 15 minutes (trend data should be relatively fresh)
+            cache.set(cache_key, trend_data, 900)
+            
             return trend_data
         except Exception:
             # Return empty trend if there's an error
@@ -144,42 +188,78 @@ class UsersWidget:
 
     def get_gender_distribution(self):
         """Get gender distribution."""
+        # Create cache key based on filters
+        cache_key = f"users_gender_distribution_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = Profile.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
 
-            return list(filtered_queryset.values('gender').annotate(
+            result = list(filtered_queryset.values('gender').annotate(
                 count=Count('id')
             ).order_by('-count'))
+            
+            # Cache for 25 minutes
+            cache.set(cache_key, result, 1500)
+            
+            return result
         except Exception:
             # Return empty list if there's an error
             return []
 
     def get_member_distribution(self):
         """Get member vs non-member distribution."""
+        # Create cache key based on filters
+        cache_key = f"users_member_distribution_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         queryset = Profile.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
 
         member_count = filtered_queryset.filter(member=True).count()
         non_member_count = filtered_queryset.filter(member=False).count()
 
-        return {
+        result = {
             'members': member_count,
             'non_members': non_member_count
         }
+        
+        # Cache for 20 minutes
+        cache.set(cache_key, result, 1200)
+        
+        return result
 
     def get_verification_distribution(self):
         """Get verified vs non-verified distribution."""
+        # Create cache key based on filters
+        cache_key = f"users_verification_distribution_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         queryset = Profile.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'profile')
 
         verified_count = filtered_queryset.filter(verified=True).count()
         non_verified_count = filtered_queryset.filter(verified=False).count()
 
-        return {
+        result = {
             'verified': verified_count,
             'not_verified': non_verified_count
         }
+        
+        # Cache for 20 minutes
+        cache.set(cache_key, result, 1200)
+        
+        return result
 
     def get_detailed_users(self, gender=None, verified=None, member=None):
         """Get detailed list of users based on filters."""

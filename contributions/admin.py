@@ -2,7 +2,7 @@ from .disa_import import disa_import
 from .models import Contribution
 from .models import ContributionManager
 from .models import DisaImport
-from admin_searchable_dropdown.filters import AutocompleteFilterFactory
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from datetime import datetime as dt
 from django import http
 from django.contrib import admin
@@ -27,7 +27,7 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
     """Custom filter for date and time range, compatible with Django 5+."""
 
     template = 'admin/filter_datetime_range.html'
-    title = 'Broadcast date'
+    title = _('Broadcast date')
 
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.field_path = field_path
@@ -133,7 +133,7 @@ class ProgramResource(resources.ModelResource):
 
     def _create_screen_board(self, date, start_time, end_time):
         """Create a screen board for the given time slot."""
-        SCREEN_BOARD = 'Infoblock'
+        SCREEN_BOARD = _('Info block')
         return [
             str(date),
             str(start_time),
@@ -159,7 +159,7 @@ class ProgramResource(resources.ModelResource):
         if queryset is None:
             queryset = self.get_queryset()
 
-        # ОПТИМИЗАЦИЯ: select_related для избежания N+1 запросов к license
+        # OPTIMIZATION: select_related to avoid N+1 queries to license
         queryset = queryset.select_related('license', 'license__profile').order_by('broadcast_date')
 
         data = tablib.Dataset()
@@ -254,8 +254,9 @@ class ProgramResource(resources.ModelResource):
 
     def dehydrate_credits(self, contribution: Contribution):
         """Show the author with introduction."""
-        INTRODUCTION = 'Ein Beitrag von'
-        return f'{INTRODUCTION} {contribution.license.profile}'
+        contributor_name = str(contribution.license.profile)
+        text = _('A contribution by {}').format(contributor_name)
+        return text
 
     def dehydrate_contribution(self, contribution: Contribution):
         """Show whether it is a contribution or a screen board or infoblock."""
@@ -281,10 +282,10 @@ class ContributionResource(resources.ModelResource):
         if queryset is None:
             queryset = self.get_queryset()
         
-        # ОПТИМИЗАЦИЯ 1: select_related для избежания N+1 запросов к license и profile
+        # OPTIMIZATION 1: select_related to avoid N+1 queries to license and profile
         queryset = queryset.select_related('license', 'license__profile')
         
-        # ОПТИМИЗАЦИЯ 2: Предварительно вычисляем все primary dates одним запросом
+        # OPTIMIZATION 2: Pre-calculate all primary dates with one query
         license_ids = queryset.values_list('license_id', flat=True).distinct()
         primary_dates = Contribution.objects.filter(
             license_id__in=license_ids
@@ -292,7 +293,7 @@ class ContributionResource(resources.ModelResource):
             min_date=Min('broadcast_date')
         )
         
-        # Создаём словарь для O(1) поиска
+        # Create dictionary for O(1) lookup
         license_primary_dates = {
             item['license_id']: item['min_date'] 
             for item in primary_dates
@@ -305,9 +306,9 @@ class ContributionResource(resources.ModelResource):
         else:
             iterator = iter(queryset)
         
-        # ОПТИМИЗАЦИЯ 3: Вместо obj.is_primary() проверяем через словарь
+        # OPTIMIZATION 3: Instead of obj.is_primary() check via dictionary
         for obj in iterator:
-            # Проверяем, является ли contribution primary без SQL запроса
+            # Check if contribution is primary without SQL query
             if license_primary_dates.get(obj.license_id) == obj.broadcast_date:
                 data.append(self.export_resource(obj))
         
@@ -500,7 +501,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     
     readonly_fields = ('_is_primary',)
     
-    # ОПТИМИЗАЦИЯ: Кешируем primary dates для избежания N запросов
+    # OPTIMIZATION: Cache primary dates to avoid N queries
     _primary_dates_cache = {}
 
     def get_queryset(self, request):
@@ -513,7 +514,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
             'license__profile__media_authority'
         )
         
-        # Предварительно вычисляем все primary dates для текущей страницы
+        # Pre-calculate all primary dates for current page
         license_ids = qs.values_list('license_id', flat=True).distinct()
         primary_dates = Contribution.objects.filter(
             license_id__in=license_ids
@@ -521,7 +522,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
             min_date=Min('broadcast_date')
         )
         
-        # Обновляем кеш
+        # Update cache
         self._primary_dates_cache = {
             item['license_id']: item['min_date'] 
             for item in primary_dates
@@ -532,7 +533,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     @display(boolean=True, description=(_('Is primary')))
     def _is_primary(self, obj):
         """Check if contribution is primary using cache - OPTIMIZED."""
-        # Используем кеш вместо obj.is_primary() для избежания SQL запроса
+        # Use cache instead of obj.is_primary() to avoid SQL query
         return self._primary_dates_cache.get(obj.license_id) == obj.broadcast_date
 
     @display(ordering='license__title', description=_('Title'))

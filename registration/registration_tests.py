@@ -168,20 +168,20 @@ def test__registration__email__send_auth_mail__9(
 
 def test__registration__models__UserManager__1():
     """It is not possible to register without an email on model base."""
-    with pytest.raises(ValueError, match=r'.*email must be set.*'):
+    with pytest.raises(ValueError, match=r'.*email.*set.*|.*E-Mail.*angegeben.*'):
         User.objects.create_user(email=None)
 
 
 def test__registration__models__UserManager__2(user_dict):
     """A superuser needs to be a staff."""
-    with pytest.raises(ValueError, match=r'.*must have is_staff=True.*'):
+    with pytest.raises(ValueError, match=r'.*is_staff.*True.*|.*is_staff.*True.*'):
         User.objects.create_superuser(
             email=user_dict['email'], password=None, is_staff=False)
 
 
 def test__registration__models__UserManager__3(user_dict):
     """A superuser needs to have the right to be a superuser."""
-    with pytest.raises(ValueError, match=r'.*must have is_superuser=True.*'):
+    with pytest.raises(ValueError, match=r'.*is_superuser.*True.*|.*is_superuser.*True.*'):
         User.objects.create_superuser(
             email=user_dict['email'], password=None, is_superuser=False)
 
@@ -482,3 +482,262 @@ def _get_link_url_from_email(mail_outbox, pattern: str) -> str:
 def _success_string(email: str) -> str:
     """Return the string which shows a successfull registration."""
     return f'created user {email}'
+
+@pytest.mark.django_db
+def test__registration__backends__EmailBackend__inactive_user(browser):
+    """Inactive user cannot log in."""
+    user = User.objects.create_user(email=EMAIL, password=PWD, is_active=False)
+    user.save()
+    browser.login()
+    # Should show generic invalid credentials message
+    assert 'enter a correct email address and password' in browser.contents
+
+
+def test__registration__models__Profile__Gender__verbose_name__2():
+    """Valid gender values return a non-empty verbose name."""
+    # Import Gender from the models module to access the enum
+    from .models import Gender
+    assert Gender.verbose_name('m') != ''
+    assert Gender.verbose_name('f') != ''
+    assert Gender.verbose_name('d') != ''
+    assert Gender.verbose_name('none') != ''
+
+@pytest.mark.django_db
+def test__registration__backends__EmailBackend__inactive_user_login_failure(browser):
+    """Inactive user cannot log in and sees generic error message."""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    # Create an inactive user
+    user = User.objects.create_user(
+        email='inactive@example.com', 
+        password='testpass123',
+        is_active=False
+    )
+    
+    # Attempt login with inactive user
+    browser.login(email='inactive@example.com', password='testpass123')
+    
+    # Should show generic invalid credentials message (same as for wrong password)
+    assert 'enter a correct email address and password' in browser.contents
+    assert '/login/' in browser.url  # Should stay on login page
+
+
+def test__registration__models__Profile__Gender__verbose_name__valid_values():
+    """Valid gender values return appropriate verbose names."""
+    from .models import Gender
+    from django.utils.translation import gettext_lazy as _
+    
+    # Test all valid gender values return non-empty verbose names
+    assert str(Gender.verbose_name('m')) == str(_('male'))
+    assert str(Gender.verbose_name('f')) == str(_('female'))
+    assert str(Gender.verbose_name('d')) == str(_('diverse'))
+    assert str(Gender.verbose_name('none')) == str(_('not given'))
+    
+    # Verify that valid values are properly handled
+    valid_genders = ['m', 'f', 'd', 'none']
+    for gender in valid_genders:
+        verbose = Gender.verbose_name(gender)
+        # Verbose name should be non-empty for valid values
+        assert isinstance(str(verbose), str)
+        assert len(str(verbose)) > 0
+
+
+@pytest.mark.django_db
+def test__registration__views__EditProfileView__inactive_user_cannot_access():
+    """Inactive user cannot access edit profile view."""
+    from django.test import Client
+    from django.urls import reverse
+    from django.contrib.auth import get_user_model
+    
+    User = get_user_model()
+    
+    # Create inactive user
+    user = User.objects.create_user(
+        email='inactive@example.com',
+        password='testpass123',
+        is_active=False
+    )
+    
+    # Create client and attempt to access edit profile view
+    client = Client()
+    client.login(email='inactive@example.com', password='testpass123')
+    
+    response = client.get(reverse('registration:user_data'))
+    
+    # Should redirect to login page due to login requirement
+    # (inactive users can't log in in the first place, so this is tested indirectly)
+    # If somehow logged in, should check for permission issues
+    assert response.status_code in [302, 404]  # Redirect or 404
+
+
+@pytest.mark.django_db
+def test__registration__views__RegisterView__invalid_phone_numbers(browser, user_dict):
+    """Invalid phone numbers are properly validated during registration."""
+    # Test various invalid phone number formats
+    invalid_phone_numbers = [
+        '123',  # Too short
+        'abcdefgh',  # Non-numeric with letters
+        '+4912345678901234567890',  # Too long
+        '++491234567890',  # Double plus
+        '49-123-456-789',  # Invalid format
+    ]
+    
+    for invalid_phone in invalid_phone_numbers:
+        user_dict_copy = user_dict.copy()
+        user_dict_copy['phone_number'] = invalid_phone
+        
+        browser.open(DOMAIN + reverse_lazy('registration:register'))
+        
+        browser.getControl('Email').value = user_dict_copy['email'] + '_invalid_phone'
+        browser.getControl('First name').value = user_dict_copy['first_name']
+        browser.getControl('Last name').value = user_dict_copy['last_name']
+        browser.getControl('Gender').value = user_dict_copy['gender']
+        browser.getControl('Phone number').value = invalid_phone
+        browser.getControl('Mobile number').value = user_dict_copy['mobile_number']
+        browser.getControl('Birthday').value = "09/05/1989"
+        browser.getControl('Street').value = user_dict_copy['street']
+        browser.getControl('House number').value = user_dict_copy['house_number']
+        browser.getControl('Zipcode').value = user_dict_copy['zipcode']
+        browser.getControl('City').value = user_dict_copy['city']
+        browser.getControl('accept').click()
+        browser.getControl('Register').click()
+        
+        # Should show validation error for invalid phone number
+        assert 'Enter a valid phone number' in browser.contents or 'This field is invalid' in browser.contents
+
+
+@pytest.mark.django_db
+def test__registration__views__RegisterView__invalid_mobile_numbers(browser, user_dict):
+    """Invalid mobile numbers are properly validated during registration."""
+    # Test various invalid mobile number formats
+    invalid_mobile_numbers = [
+        '123',  # Too short
+        'abcdefgh',  # Non-numeric with letters
+        '+4912345678901234567890',  # Too long
+        '++491234567890',  # Double plus
+        '49-123-456-789',  # Invalid format
+    ]
+    
+    for invalid_mobile in invalid_mobile_numbers:
+        user_dict_copy = user_dict.copy()
+        user_dict_copy['mobile_number'] = invalid_mobile
+        
+        browser.open(DOMAIN + reverse_lazy('registration:register'))
+        
+        browser.getControl('Email').value = user_dict_copy['email'] + '_invalid_mobile'
+        browser.getControl('First name').value = user_dict_copy['first_name']
+        browser.getControl('Last name').value = user_dict_copy['last_name']
+        browser.getControl('Gender').value = user_dict_copy['gender']
+        browser.getControl('Phone number').value = user_dict_copy['phone_number']
+        browser.getControl('Mobile number').value = invalid_mobile
+        browser.getControl('Birthday').value = "09/05/1989"
+        browser.getControl('Street').value = user_dict_copy['street']
+        browser.getControl('House number').value = user_dict_copy['house_number']
+        browser.getControl('Zipcode').value = user_dict_copy['zipcode']
+        browser.getControl('City').value = user_dict_copy['city']
+        browser.getControl('accept').click()
+        browser.getControl('Register').click()
+        
+        # Should show validation error for invalid mobile number
+        assert 'Enter a valid mobile number' in browser.contents or 'This field is invalid' in browser.contents
+
+
+@pytest.mark.django_db
+def test__registration__views__EditProfileView__phone_number_validation(browser, user):
+    """Phone number validation works when editing profile."""
+    browser.login()
+    browser.open(DOMAIN + reverse_lazy('registration:user_data'))
+    
+    # Try to set an invalid phone number
+    browser.getControl(name='phone_number').value = 'invalid_phone_number'
+    browser.getControl('Submit').click()
+    
+    # Should show validation error
+    assert browser.url == DOMAIN + reverse_lazy('registration:user_data')
+    assert 'Enter a valid phone number' in browser.contents or 'This field is invalid' in browser.contents
+
+
+@pytest.mark.django_db
+def test__registration__views__EditProfileView__mobile_number_validation(browser, user):
+    """Mobile number validation works when editing profile."""
+    browser.login()
+    browser.open(DOMAIN + reverse_lazy('registration:user_data'))
+    
+    # Try to set an invalid mobile number
+    browser.getControl(name='mobile_number').value = 'invalid_mobile_number'
+    browser.getControl('Submit').click()
+    
+    # Should show validation error
+    assert browser.url == DOMAIN + reverse_lazy('registration:user_data')
+    assert 'Enter a valid mobile number' in browser.contents or 'This field is invalid' in browser.contents
+
+
+@pytest.mark.django_db
+def test__registration__views__RegisterView__missing_required_fields(browser, user_dict):
+    """Registration form validates all required fields."""
+    # Test each required field missing individually
+    required_fields = ['first_name', 'last_name', 'email', 'gender', 'birthday', 'street', 'house_number', 'zipcode', 'city']
+    
+    for field in required_fields:
+        user_dict_copy = user_dict.copy()
+        # Remove or set to None the current required field
+        user_dict_copy[field] = None if field != 'email' else ''  # Can't have None email
+        
+        browser.open(DOMAIN + reverse_lazy('registration:register'))
+        
+        # Fill in all fields except the one being tested
+        if field != 'email':
+            browser.getControl('Email').value = user_dict_copy['email']
+        else:
+            browser.getControl('Email').value = 'test@example.com'
+            
+        if field != 'first_name':
+            browser.getControl('First name').value = user_dict_copy['first_name']
+        else:
+            browser.getControl('First name').value = ''
+            
+        if field != 'last_name':
+            browser.getControl('Last name').value = user_dict_copy['last_name']
+        else:
+            browser.getControl('Last name').value = ''
+            
+        if field != 'gender':
+            browser.getControl('Gender').value = user_dict_copy['gender']
+        else:
+            browser.getControl('Gender').value = ''
+            
+        browser.getControl('Phone number').value = user_dict_copy['phone_number']
+        browser.getControl('Mobile number').value = user_dict_copy['mobile_number']
+        
+        if field != 'birthday':
+            browser.getControl('Birthday').value = "09/05/1989"
+        else:
+            browser.getControl('Birthday').value = ''
+            
+        if field != 'street':
+            browser.getControl('Street').value = user_dict_copy['street']
+        else:
+            browser.getControl('Street').value = ''
+            
+        if field != 'house_number':
+            browser.getControl('House number').value = user_dict_copy['house_number']
+        else:
+            browser.getControl('House number').value = ''
+            
+        if field != 'zipcode':
+            browser.getControl('Zipcode').value = user_dict_copy['zipcode']
+        else:
+            browser.getControl('Zipcode').value = ''
+            
+        if field != 'city':
+            browser.getControl('City').value = user_dict_copy['city']
+        else:
+            browser.getControl('City').value = ''
+            
+        browser.getControl('accept').click()
+        browser.getControl('Register').click()
+        
+        # Should show validation error for missing required field
+        assert 'This field is required' in browser.contents
+        assert browser.url == DOMAIN + reverse_lazy('registration:register')

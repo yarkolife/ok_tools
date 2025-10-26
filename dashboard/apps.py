@@ -9,3 +9,5 @@ class DashboardConfig(AppConfig):
 
     def ready(self):
         import dashboard.signals
+        # Import cache invalidation signals to register them
+        import dashboard.cache_invalidation

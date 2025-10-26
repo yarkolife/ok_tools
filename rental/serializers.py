@@ -5,8 +5,28 @@ from .models import RentalItem
 from .models import RentalRequest
 from .models import RentalTransaction
 from django.utils.translation import gettext_lazy as _
-from inventory.models import InventoryItem
 from rest_framework import serializers
+from .services.inventory_service_interface import inventory_service
+
+
+class InventoryItemDataSerializer(serializers.Serializer):
+    """
+    Serializer for inventory item data from the inventory service interface.
+
+    Provides serialization of inventory items for API operations
+    using data from the inventory service interface.
+    """
+    id = serializers.IntegerField()
+    inventory_number = serializers.CharField()
+    description = serializers.CharField()
+    manufacturer = serializers.CharField(allow_null=True)
+    location = serializers.IntegerField(allow_null=True)
+    quantity = serializers.IntegerField(allow_null=True)
+    status = serializers.CharField()
+    owner = serializers.IntegerField(allow_null=True)
+    available_for_rent = serializers.BooleanField()
+    reserved_quantity = serializers.IntegerField(allow_null=True)
+    rented_quantity = serializers.IntegerField(allow_null=True)
 
 
 class InventoryItemSerializer(serializers.ModelSerializer):
@@ -20,7 +40,7 @@ class InventoryItemSerializer(serializers.ModelSerializer):
     class Meta:
         """Metadata options for InventoryItemSerializer."""
 
-        model = InventoryItem
+        model = None  # This serializer doesn't directly map to a model anymore
         fields = (
             'id', 'inventory_number', 'description', 'manufacturer', 'location', 'quantity',
             'status', 'owner', 'available_for_rent', 'reserved_quantity', 'rented_quantity'
@@ -36,10 +56,8 @@ class RentalItemSerializer(serializers.ModelSerializer):
     Uses separate fields for read/write operations on inventory_item.
     """
 
-    inventory_item = InventoryItemSerializer(read_only=True)
-    inventory_item_id = serializers.PrimaryKeyRelatedField(
-        queryset=InventoryItem.objects.all(), source='inventory_item', write_only=True
-    )
+    inventory_item = InventoryItemDataSerializer(read_only=True)
+    inventory_item_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         """Metadata options for RentalItemSerializer."""
@@ -89,8 +107,13 @@ class RentalTransactionSerializer(serializers.ModelSerializer):
             return attrs
         if qty <= 0:
             raise serializers.ValidationError(_('Quantity must be positive.'))
-        item = rental_item.inventory_item
-        remaining_global = (item.quantity or 0) - (item.reserved_quantity or 0) - (item.rented_quantity or 0)
+        
+        # Get item data from inventory service
+        item_data = inventory_service.get_item_by_id(rental_item.inventory_item_id)
+        if not item_data:
+            raise serializers.ValidationError(_('Inventory item not found.'))
+        
+        remaining_global = (item_data['quantity'] or 0) - (item_data['reserved_quantity'] or 0) - (item_data['rented_quantity'] or 0)
         if tx_type == 'reserve':
             if qty > rental_item.outstanding_to_issue:
                 raise serializers.ValidationError(_('Cannot reserve more than requested.'))
@@ -136,10 +159,8 @@ class EquipmentSetItemSerializer(serializers.ModelSerializer):
     Uses separate fields for read/write operations on inventory_item.
     """
 
-    inventory_item = InventoryItemSerializer(read_only=True)
-    inventory_item_id = serializers.PrimaryKeyRelatedField(
-        queryset=InventoryItem.objects.all(), source='inventory_item', write_only=True
-    )
+    inventory_item = InventoryItemDataSerializer(read_only=True)
+    inventory_item_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         """Metadata options for EquipmentSetItemSerializer."""

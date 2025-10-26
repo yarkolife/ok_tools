@@ -6,6 +6,7 @@ from licenses.models import License
 from registration.models import OKUser
 from registration.models import Profile
 from rental.models import RentalRequest
+from typing import Dict, Any, Optional
 
 
 class UserJourneyStage(models.TextChoices):
@@ -80,7 +81,7 @@ class UserJourney(models.Model):
         ordering = ['user', 'achieved_at']
         unique_together = ['user', 'stage']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.user.email} - {self.get_stage_display()}"
 
 
@@ -187,7 +188,7 @@ class FunnelMetrics(models.Model):
         verbose_name_plural = _('Funnel Metrics')
         ordering = ['-date']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Funnel Metrics - {self.date}"
 
 
@@ -251,7 +252,7 @@ class AlertThreshold(models.Model):
         verbose_name_plural = _('Alert Thresholds')
         ordering = ['name']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} - {self.get_stage_display()}"
 
 
@@ -297,5 +298,5 @@ class AlertLog(models.Model):
         verbose_name_plural = _('Alert Logs')
         ordering = ['-triggered_at']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Alert: {self.threshold.name} - {self.triggered_at}"

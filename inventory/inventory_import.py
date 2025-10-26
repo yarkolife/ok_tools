@@ -85,18 +85,32 @@ def validate(file):
 
 
 def inventory_import(request, file, import_obj):
-    """Import inventory items from an Excel file."""
+    """Import inventory items from an Excel file using batch processing."""
     created_counter = 0
+    updated_counter = 0
     skipped_counter = 0
     error_logs = []
     error_details = []
-
+    
+    # Batch processing settings
+    BATCH_SIZE = 500  # Reasonable batch size for memory efficiency
+    
+    # Lists to accumulate items for batch operations
+    items_to_create = []
+    items_to_update = []
+    
     try:
         wb = load_workbook(file)
         ws = wb.worksheets[0]
         rows = ws.rows
         headers = next(rows)
-
+        
+        # Preload all existing inventory items to avoid repeated queries
+        existing_items = {
+            item.inventory_number: item
+            for item in InventoryItem.objects.all()
+        }
+        
         for row in rows:
             try:
                 inventory_number = str(row[0].value or '').strip()
@@ -200,36 +214,54 @@ def inventory_import(request, file, import_obj):
                         skipped_counter += 1
                         continue
 
-                # Check for duplicates
-                if InventoryItem.objects.filter(inventory_number=inventory_number).exists():
-                    logger.info(
-                        _('Inventory item with number "%(number)s" already exists. Skipping...') %
-                        {'number': inventory_number}
+                # Check if item already exists
+                if inventory_number in existing_items:
+                    # Update existing item
+                    existing_item = existing_items[inventory_number]
+                    
+                    # Update fields that might have changed
+                    existing_item.description = description
+                    existing_item.serial_number = serial_number
+                    existing_item.manufacturer = manufacturer
+                    existing_item.location = loc_obj
+                    existing_item.quantity = quantity
+                    existing_item.status = status
+                    existing_item.owner = owner
+                    existing_item.inventory_number_owner = inventory_number_owner
+                    existing_item.purchase_date = purchase_date
+                    existing_item.purchase_cost = purchase_cost
+                    
+                    items_to_update.append(existing_item)
+                    updated_counter += 1
+                    
+                    # Process batch if it reaches the batch size
+                    if len(items_to_update) >= BATCH_SIZE:
+                        _process_update_batch(items_to_update)
+                        items_to_update = []  # Clear the list for next batch
+                else:
+                    # Create new item
+                    item = InventoryItem(
+                        inventory_number=inventory_number,
+                        description=description,
+                        serial_number=serial_number,
+                        manufacturer=manufacturer,
+                        location=loc_obj,
+                        quantity=quantity,
+                        status=status,
+                        # object_type removed
+                        owner=owner,
+                        inventory_number_owner=inventory_number_owner,
+                        purchase_date=purchase_date,
+                        purchase_cost=purchase_cost
                     )
-                    messages.warning(
-                        request,
-                        _('Inventory item with number "%(number)s" already exists. Skipping...') %
-                        {'number': inventory_number}
-                    )
-                    skipped_counter += 1
-                    continue
-
-                # Create record
-                InventoryItem.objects.create(
-                    inventory_number=inventory_number,
-                    description=description,
-                    serial_number=serial_number,
-                    manufacturer=manufacturer,
-                    location=loc_obj,
-                    quantity=quantity,
-                    status=status,
-                    # object_type removed
-                    owner=owner,
-                    inventory_number_owner=inventory_number_owner,
-                    purchase_date=purchase_date,
-                    purchase_cost=purchase_cost
-                )
-                created_counter += 1
+                    
+                    items_to_create.append(item)
+                    created_counter += 1
+                    
+                    # Process batch if it reaches the batch size
+                    if len(items_to_create) >= BATCH_SIZE:
+                        _process_create_batch(items_to_create)
+                        items_to_create = []  # Clear the list for next batch
 
             except Exception as e:
                 error_msg = str(e)
@@ -239,6 +271,13 @@ def inventory_import(request, file, import_obj):
                 })
                 error_details.append([row[0].row, error_msg] + row_data)
                 skipped_counter += 1
+        
+        # Process any remaining items in the batches
+        if items_to_create:
+            _process_create_batch(items_to_create)
+        
+        if items_to_update:
+            _process_update_batch(items_to_update)
 
         # If there are errors, create Excel file
         if error_details:
@@ -266,12 +305,74 @@ def inventory_import(request, file, import_obj):
     except Exception as e:
         error_msg = str(e)
         error_logs.append(_('Row %(row)s: %(error)s') % {
-            'row': row[0].row,
+            'row': row[0].row if 'row' in locals() else 'unknown',
             'error': error_msg
         })
 
     return {
         'created': created_counter,
+        'updated': updated_counter,
         'skipped': skipped_counter,
         'error_log': '\n'.join(error_logs) if error_logs else _('No errors')
     }
+
+
+def _process_create_batch(items_to_create):
+    """Process a batch of items for creation using bulk_create."""
+    if not items_to_create:
+        return
+    
+    try:
+        # Use bulk_create for efficient batch creation
+        InventoryItem.objects.bulk_create(items_to_create, batch_size=500)
+        logger.info(_('Successfully created %(count)d inventory items in batch') % {
+            'count': len(items_to_create)
+        })
+    except Exception as e:
+        # If bulk_create fails, fall back to individual creation with error logging
+        logger.error(_('Bulk create failed: %(error)s. Falling back to individual creation.') % {
+            'error': str(e)
+        })
+        
+        for item in items_to_create:
+            try:
+                item.save()
+            except Exception as individual_error:
+                logger.error(_('Failed to create item %(inventory_number)s: %(error)s') % {
+                    'inventory_number': item.inventory_number,
+                    'error': str(individual_error)
+                })
+
+
+def _process_update_batch(items_to_update):
+    """Process a batch of items for update using bulk_update."""
+    if not items_to_update:
+        return
+    
+    try:
+        # Define the fields to update - only include fields that might change
+        update_fields = [
+            'description', 'serial_number', 'manufacturer', 'location',
+            'quantity', 'status', 'owner', 'inventory_number_owner',
+            'purchase_date', 'purchase_cost'
+        ]
+        
+        # Use bulk_update for efficient batch updates
+        InventoryItem.objects.bulk_update(items_to_update, update_fields, batch_size=500)
+        logger.info(_('Successfully updated %(count)d inventory items in batch') % {
+            'count': len(items_to_update)
+        })
+    except Exception as e:
+        # If bulk_update fails, fall back to individual updates with error logging
+        logger.error(_('Bulk update failed: %(error)s. Falling back to individual updates.') % {
+            'error': str(e)
+        })
+        
+        for item in items_to_update:
+            try:
+                item.save()
+            except Exception as individual_error:
+                logger.error(_('Failed to update item %(inventory_number)s: %(error)s') % {
+                    'inventory_number': item.inventory_number,
+                    'error': str(individual_error)
+                })

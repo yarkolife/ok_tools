@@ -4,7 +4,7 @@
 {% block extrahead %}
   {{ block.super }}
   <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+        href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'planung/css/calendar_weeks.css' %}">
 {% endblock %}
 
@@ -14,7 +14,7 @@
 <div class="stats-container">
   <div class="card border-primary">
     <div class="card-header bg-primary text-white">
-      <h6 class="mb-0">{% trans "Current Week" %} (KW {{ current_week }})</h6>
+      <h6 class="mb-0">{% trans "Current Week" %} ({% trans "CW" %} {{ current_week }})</h6>
     </div>
     <div class="card-body">
       <div class="d-flex justify-content-between mb-2">
@@ -31,14 +31,14 @@
       </div>
       <div class="d-flex justify-content-between">
         <span>{% trans "Licenses" %}:</span>
-        <strong id="currentWeekFreistellungen">0</strong>
+        <strong id="currentWeekTimeOff">0</strong>
       </div>
     </div>
   </div>
 
   <div class="card border-info">
     <div class="card-header bg-info text-white">
-      <h6 class="mb-0">{% trans "Next Week" %} (KW {{ current_week|add:1 }})</h6>
+      <h6 class="mb-0">{% trans "Next Week" %} ({% trans "CW" %} {{ current_week|add:1 }})</h6>
     </div>
     <div class="card-body">
       <div class="d-flex justify-content-between mb-2">
@@ -54,15 +54,15 @@
         <strong id="nextWeekFill">0%</strong>
       </div>
       <div class="d-flex justify-content-between">
-        <span>{% trans "Freistellungen" %}:</span>
-        <strong id="nextWeekFreistellungen">0</strong>
+        <span>{% trans "Time Off" %}:</span>
+        <strong id="nextWeekTimeOff">0</strong>
       </div>
     </div>
   </div>
 
   <div class="card border-warning">
     <div class="card-header bg-warning text-white">
-      <h6 class="mb-0">{% trans "Week After Next" %} (KW {{ current_week|add:2 }})</h6>
+      <h6 class="mb-0">{% trans "Week After Next" %} ({% trans "CW" %} {{ current_week|add:2 }})</h6>
     </div>
     <div class="card-body">
       <div class="d-flex justify-content-between mb-2">
@@ -78,15 +78,15 @@
         <strong id="afterNextWeekFill">0%</strong>
       </div>
       <div class="d-flex justify-content-between">
-        <span>{% trans "Freistellungen" %}:</span>
-        <strong id="afterNextWeekFreistellungen">0</strong>
+        <span>{% trans "Time Off" %}:</span>
+        <strong id="afterNextWeekTimeOff">0</strong>
       </div>
     </div>
   </div>
 
   <div class="card border-secondary">
     <div class="card-header bg-secondary text-white">
-      <h6 class="mb-0">{% trans "3 Weeks Ahead" %} (KW {{ current_week|add:3 }})</h6>
+      <h6 class="mb-0">{% trans "3 Weeks Ahead" %} ({% trans "CW" %} {{ current_week|add:3 }})</h6>
     </div>
     <div class="card-body">
       <div class="d-flex justify-content-between mb-2">
@@ -102,8 +102,8 @@
         <strong id="threeWeeksAheadFill">0%</strong>
       </div>
       <div class="d-flex justify-content-between">
-        <span>{% trans "Freistellungen" %}:</span>
-        <strong id="threeWeeksAheadFreistellungen">0</strong>
+        <span>{% trans "Time Off" %}:</span>
+        <strong id="threeWeeksAheadTimeOff">0</strong>
       </div>
     </div>
   </div>
@@ -123,7 +123,7 @@
     <tbody>
       {% for week in weeks %}
       <tr class="{% if week.num == current_week %}current-week{% endif %}">
-          <td class="kw-cell">{% trans "KW" %} {{ week.num }}</td>
+          <td class="kw-cell">{% trans "CW" %} {{ week.num }}</td>
 
           {% for cell in week.days %}
             <td class="{{ cell.cls }}">
@@ -206,7 +206,7 @@
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ BOOTSTRAP_CDN_URL }}/dist/js/bootstrap.bundle.min.js"></script>
 
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 

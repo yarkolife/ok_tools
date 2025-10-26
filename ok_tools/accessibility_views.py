@@ -4,17 +4,18 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 
 
 def accessibility_statement(request):
-    """Seite für die Barrierefreiheitserklärung."""
+    """Page for the accessibility statement."""
     return render(request, 'accessibility_statement.html')
 
 
 def accessibility_feedback(request):
-    """Seite für Barrierefreiheits-Feedback."""
+    """Page for accessibility feedback."""
     if request.method == 'POST':
-        # Verarbeitung des Feedback-Formulars
+        # Processing the feedback form
         name = request.POST.get('name', '')
         email = request.POST.get('email', '')
         url = request.POST.get('url', '')
@@ -22,21 +23,21 @@ def accessibility_feedback(request):
         description = request.POST.get('description', '')
         assistive_tech = request.POST.get('assistive_tech', '')
 
-        # Validierung
+        # Validation
         if not url or not barrier_type or not description:
-            messages.error(request, 'Bitte füllen Sie alle Pflichtfelder aus.')
+            messages.error(request, _('Please fill in all required fields.'))
             return render(request, 'accessibility_feedback.html')
 
-        # E-Mail senden
-        subject = f'Barriere gemeldet: {barrier_type}'
+        # Send email
+        subject = _('Accessibility barrier reported: {barrier_type}').format(barrier_type=barrier_type)
         message = f"""
         Name: {name}
-        E-Mail: {email}
-        Betroffene Seite: {url}
-        Art der Barriere: {barrier_type}
-        Hilfstechnologie: {assistive_tech}
+        Email: {email}
+        Affected page: {url}
+        Type of barrier: {barrier_type}
+        Assistive technology: {assistive_tech}
 
-        Beschreibung:
+        Description:
         {description}
         """
 
@@ -48,9 +49,9 @@ def accessibility_feedback(request):
                 ['accessibility@example.com'],
                 fail_silently=False,
             )
-            messages.success(request, 'Vielen Dank für Ihre Nachricht. Wir werden uns innerhalb von 2 Wochen bei Ihnen melden.')
+            messages.success(request, _('Thank you for your message. We will contact you within 2 weeks.'))
             return redirect('accessibility_feedback')
         except Exception as e:
-            messages.error(request, 'Es gab einen Fehler beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.')
+            messages.error(request, _('There was an error sending your message. Please try again later.'))
 
     return render(request, 'accessibility_feedback.html')

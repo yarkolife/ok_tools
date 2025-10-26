@@ -1,0 +1,235 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<!-- Bootstrap 5 JS only (no CSS to avoid conflicts with Django admin) -->
+<script src="{{ BOOTSTRAP_CDN_URL }}/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Minimal modal styles to make it work properly -->
+<style>
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1055;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+    display: none;
+}
+
+.modal.show {
+    display: block !important;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    opacity: 0.5;
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 0.5rem;
+    pointer-events: none;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    border-top-left-radius: calc(0.3rem - 1px);
+    border-top-right-radius: calc(0.3rem - 1px);
+}
+
+.modal-title {
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.btn-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: 0.25em 0.25em;
+    color: #000;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='m.5 1.5 1.5 1.5L8 8l6-5 1.5 1.5L9.5 9.5l6 6-1.5 1.5L8 10l-6 5-1.5-1.5L6.5 9.5l-6-6z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+    border: 0;
+    border-radius: 0.25rem;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.btn-close:hover {
+    color: #000;
+    text-decoration: none;
+    opacity: 0.75;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.75rem;
+    border-top: 1px solid #dee2e6;
+    border-bottom-right-radius: calc(0.3rem - 1px);
+    border-bottom-left-radius: calc(0.3rem - 1px);
+}
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    color: #fff;
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 500px;
+        margin: 1.75rem auto;
+    }
+    .modal-dialog-centered {
+        min-height: calc(100% - 3.5rem);
+    }
+}
+
+@media (min-width: 992px) {
+    .modal-lg {
+        max-width: 800px;
+    }
+}
+</style>
+
+<!-- Video Player Modal with scoped styles -->
+<div class="modal fade" id="videoPlayerModal" tabindex="-1" aria-labelledby="videoPlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoPlayerModalLabel">Video Player</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="videoPlayerContainer">
+                    <video id="videoPlayer" controls style="width: 100%; height: auto;">
+                        <source id="videoSource" src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div id="videoInfo" style="margin-top: 15px;">
+                    <p><strong>Filename:</strong> <span id="videoFilename"></span></p>
+                    <p><strong>Number:</strong> <span id="videoNumber"></span></p>
+                    <p><strong>Storage:</strong> <span id="videoStorage"></span></p>
+                    <p><strong>Duration:</strong> <span id="videoDuration"></span></p>
+                    <p><strong>Size:</strong> <span id="videoSize"></span></p>
+                    <p><strong>Bitrate:</strong> <span id="videoBitrate"></span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle video player modal
+    const videoPlayerModal = document.getElementById('videoPlayerModal');
+    
+    videoPlayerModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const videoUrl = button.getAttribute('data-url');
+        const filename = button.getAttribute('data-filename');
+        const number = button.getAttribute('data-number');
+        const storage = button.getAttribute('data-storage');
+        const duration = button.getAttribute('data-duration');
+        const size = button.getAttribute('data-size');
+        const bitrate = button.getAttribute('data-bitrate');
+        
+        // Update modal content
+        document.getElementById('videoSource').setAttribute('src', videoUrl);
+        document.getElementById('videoPlayer').load();
+        document.getElementById('videoFilename').textContent = filename;
+        document.getElementById('videoNumber').textContent = number;
+        document.getElementById('videoStorage').textContent = storage;
+        document.getElementById('videoDuration').textContent = duration;
+        document.getElementById('videoSize').textContent = size;
+        document.getElementById('videoBitrate').textContent = bitrate;
+    });
+    
+    // Clear video when modal is hidden
+    videoPlayerModal.addEventListener('hidden.bs.modal', function () {
+        document.getElementById('videoSource').setAttribute('src', '');
+        document.getElementById('videoPlayer').load();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+services:
+  db:
+    image: postgres:15
+    container_name: oktools_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - oktools-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: oktools_redis
+    restart: unless-stopped
+    networks:
+      - oktools-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ..
+      dockerfile: deployment/production.Dockerfile
+    container_name: oktools_web
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - ORG_NAME=${ORG_NAME}
+      - ORG_SHORT_NAME=${ORG_SHORT_NAME}
+      - ORG_WEBSITE=${ORG_WEBSITE}
+      - ORG_EMAIL=${ORG_EMAIL}
+      - ORG_PHONE=${ORG_PHONE}
+      - ORG_ADDRESS=${ORG_ADDRESS}
+      - STATE_MEDIA_INSTITUTION=${STATE_MEDIA_INSTITUTION}
+      - SUPERUSER_USERNAME=${SUPERUSER_USERNAME}
+      - SUPERUSER_EMAIL=${SUPERUSER_EMAIL}
+      - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS}
+      - GUNICORN_THREADS=${GUNICORN_THREADS}
+      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - PYTHONUNBUFFERED=${PYTHONUNBUFFERED}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./data/static:/app/static
+      - ./data/media:/app/media
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+    entrypoint: /app/deployment/entrypoint.production.sh
+    restart: unless-stopped
+    networks:
+      - oktools-network
+
+volumes:
+  postgres_data:
+  static_files:
+  media_files:
+  logs:
+  backups:
+
+networks:
+  oktools-network:
+    driver: bridge

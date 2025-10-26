@@ -4,12 +4,25 @@ __pycache__/
 *$py.class
 *.so
 *.pyc
+*.pyo
 
 # Django
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+*.pot
+*.mo
+
+# Coverage
+.coverage
+.coveragerc
+htmlcov/
+.pytest_cache/
+
+# Celery
+celerybeat-schedule
+celerybeat-schedule.*
 
 # Static files
 collected_static/
@@ -18,13 +31,18 @@ collected_static/
 
 # Environment
 .env
-.venv
-env/
+.env.local
+.venv/
 venv/
+env/
+ENV/
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
@@ -34,16 +52,19 @@ Thumbs.db
 2025/
 error_logs/
 ok_tools.egg-info/
-*.mo
+backup_translations/
+docs/
+logs/
+media/
+share/
+scripts/
 
-# Local-only automation/scripts and environment (do not commit)
-scripts/expire_rooms_docker.sh
-scripts/expire_rooms_simple.py
-docker-expire-rooms.service
-docker-expire-rooms.timer
+# Virtual environment (additional patterns)
 pyvenv.cfg
 bin/
 lib/
+include/
+pyvenv.cfg
 
 # Docker (only in root, not in deployment/docker/)
 /docker*.yml
@@ -54,39 +75,55 @@ lib/
 # i18n builds
 **/locale/**/LC_MESSAGES/*.mo
 
-# envs / caches
-.venv/
-venv/
-__pycache__/
-*.pyc
+# Local-only automation/scripts and environment
+scripts/expire_rooms_docker.sh
+scripts/expire_rooms_simple.py
+docker-expire-rooms.service
+docker-expire-rooms.timer
 
-# i18n builds
-**/locale/**/LC_MESSAGES/*.mo
-
-# Python trash
-**/__pycache__/
-*.pyc
-
-# venv
-.venv/
-venv/
-
-# local backups
-*.po.bak
-
-# local runtime config
+# Project specific files that should not be committed
+cookies.txt
+cookies2.txt
+ok_tools-debug.log
 gunicorn.conf.py
 **/gunicorn.conf.py
 
-# Project specific folders and files
-backup_translations/
-docs/
-logs/
-media/
-/scripts/
-share/
-static/
-venv/
-.cursor/
-.coverage
-playout/*.mp4
+# Project specific folders that should not be committed
+architecture/
+backups/
+
+# Configuration files that might contain sensitive data
+*.cfg
+*.conf
+*.ini
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.DS_Store
+*.bak
+
+# Media and user-uploaded files
+files/
+
+# Database files
+*.db
+*.sqlite
+
+# Cache directories
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.so
+*.egg-info/
+build/
+dist/
+*.egg
+
+# Development/testing artifacts
+*.coverage
+.coverage.*
+coverage.xml
+nosetests.xml

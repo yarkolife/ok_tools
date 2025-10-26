@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Video Player - {{ video.filename }}</title>
+    <title>{% trans "Video Player" %} - {{ video.filename }}</title>
     <style>
         body { margin: 0; padding: 20px; background: #f5f5f5; font-family: Arial, sans-serif; }
         .video-container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -21,11 +21,11 @@
     <div class="video-container">
         <div class="video-info">
             <h1>{{ video.filename }}</h1>
-            <p><strong>Number:</strong> {{ video.number }}</p>
-            <p><strong>Storage:</strong> {{ video.storage_location.name }}</p>
-            {% if video.duration %}<p><strong>Duration:</strong> {{ video.duration }}</p>{% endif %}
-            {% if video.file_size %}<p><strong>Size:</strong> {{ video.file_size|filesizeformat }}</p>{% endif %}
-            {% if video.total_bitrate %}<p><strong>Bitrate:</strong> {{ video.total_bitrate }} bps</p>{% endif %}
+            <p><strong>{% trans "Number" %}:</strong> {{ video.number }}</p>
+            <p><strong>{% trans "Storage" %}:</strong> {{ video.storage_location.name }}</p>
+            {% if video.duration %}<p><strong>{% trans "Duration" %}:</strong> {{ video.duration }}</p>{% endif %}
+            {% if video.file_size %}<p><strong>{% trans "Size" %}:</strong> {{ video.file_size|filesizeformat }}</p>{% endif %}
+            {% if video.total_bitrate %}<p><strong>{% trans "Bitrate" %}:</strong> {{ video.total_bitrate }} bps</p>{% endif %}
         </div>
 
         {% if video.is_available %}
@@ -37,25 +37,25 @@
                 preload="metadata"
                 style="border-radius: 8px; background: #000;">
                 <source src="{% url 'admin:media_files_videofile_stream' video.id %}" type="video/mp4">
-                Your browser does not support the video tag.
+                {% trans "Your browser does not support the video tag." %}
             </video>
             
             <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                 <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
-                    <strong>📁 File Path (Linux):</strong>
+                    <strong>📁 {% trans "File Path (Linux)" %}:</strong>
                 </div>
                 <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.full_path }}</code>
                 
                 {% if video.unc_path %}
                 <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
-                    <strong>💾 File Path (Windows UNC):</strong>
+                    <strong>💾 {% trans "File Path (Windows UNC)" %}:</strong>
                 </div>
                 <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.unc_path }}</code>
                 {% endif %}
             </div>
         {% else %}
             <div class="error">
-                ❌ Video file unavailable. Check path: {{ video.file_path }}
+                ❌ {% trans "Video file unavailable. Check path:" %} {{ video.file_path }}
             </div>
         {% endif %}
     </div>
@@ -101,7 +101,7 @@
                             justify-content: space-between;
                             align-items: center;
                         ">
-                            <h2 style="margin: 0; font-size: 18px;" id="modalTitle">Video Player</h2>
+                            <h2 style="margin: 0; font-size: 18px;" id="modalTitle">{% trans "Video Player" %}</h2>
                             <span style="color: white; font-size: 28px; font-weight: bold; cursor: pointer;" onclick="closeVideoModal()">&times;</span>
                         </div>
                         <div style="padding: 20px;">
@@ -110,7 +110,7 @@
                                 controls 
                                 preload="metadata"
                                 style="border-radius: 8px; background: #000;">
-                                Your browser does not support the video tag.
+                                {% trans "Your browser does not support the video tag." %}
                             </video>
                         </div>
                     </div>

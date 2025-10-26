@@ -6,7 +6,7 @@ from inventory.models import Location
 class Command(BaseCommand):
     """Import locations from a file, one hierarchical path per line."""
 
-    help = "Import locations from a text/CSV file, one path per line (e.g. 'Комната 1 -> Шкаф 2')."
+    help = "Import locations from a text/CSV file, one path per line (e.g. 'Room 1 -> Cabinet 2')."
 
     def add_arguments(self, parser):
         """Register CLI arguments for the command."""

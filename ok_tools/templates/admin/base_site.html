@@ -3,16 +3,119 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %} {{ OK_NAME_SHORT}} | {% translate 'Administrationinterface' %} {% endblock %}
+{% block title %} {{ OK_NAME_SHORT}} | {% translate 'Administration interface' %} {% endblock %}
 
 {% block extrahead %}
 <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}" />
 {% endblock %}
 
+<!-- Video Player Modal (Bootstrap 3) -->
+<div class="modal fade" id="videoPlayerModal" tabindex="-1" role="dialog" aria-labelledby="videoPlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="videoPlayerModalLabel">
+                    <span id="videoPlayerFilename"></span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <video id="videoPlayer" controls preload="metadata" crossorigin="anonymous" style="width: 100%; max-height: 500px;">
+                    <p>Your browser does not support HTML5 video.</p>
+                </video>
+                
+                <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                        <div><strong>Number:</strong> <span id="videoPlayerNumber"></span></div>
+                        <div><strong>Duration:</strong> <span id="videoPlayerDuration"></span></div>
+                        <div><strong>Storage:</strong> <span id="videoPlayerStorage"></span></div>
+                        <div><strong>Size:</strong> <span id="videoPlayerSize"></span></div>
+                        <div><strong>Bitrate:</strong> <span id="videoPlayerBitrate"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle video player modal for Bootstrap 3
+document.addEventListener('DOMContentLoaded', function() {
+    // Use jQuery for Bootstrap 3 modal events
+    if (typeof $ !== 'undefined') {
+        // Add click handler to player links to ensure modal opens
+        $(document).on('click', 'a[data-toggle="modal"][data-target="#videoPlayerModal"]', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get the link element
+            var link = $(this);
+            
+            // Extract data from button attributes
+            var url = link.data('url');
+            var filename = link.data('filename');
+            var number = link.data('number');
+            var storage = link.data('storage');
+            var duration = link.data('duration');
+            var size = link.data('size');
+            var bitrate = link.data('bitrate');
+            
+            // Update modal content
+            $('#videoPlayerFilename').text(filename);
+            $('#videoPlayerNumber').text(number);
+            $('#videoPlayerDuration').text(duration);
+            $('#videoPlayerStorage').text(storage);
+            $('#videoPlayerSize').text(size);
+            $('#videoPlayerBitrate').text(bitrate);
+            
+            // Set video source
+            var videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.src = url;
+            
+            // Initialize Plyr if available
+            if (typeof Plyr !== 'undefined') {
+                new Plyr('#videoPlayer');
+            }
+            
+            // Show modal
+            $('#videoPlayerModal').modal('show');
+        });
+        
+        // Also keep the event handler for Bootstrap 3 compatibility
+        $('#videoPlayerModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            if (button && button.length) {
+                var url = button.data('url');
+                var filename = button.data('filename');
+                var number = button.data('number');
+                var storage = button.data('storage');
+                var duration = button.data('duration');
+                var size = button.data('size');
+                var bitrate = button.data('bitrate');
+                
+                $('#videoPlayerFilename').text(filename);
+                $('#videoPlayerNumber').text(number);
+                $('#videoPlayerDuration').text(duration);
+                $('#videoPlayerStorage').text(storage);
+                $('#videoPlayerSize').text(size);
+                $('#videoPlayerBitrate').text(bitrate);
+                
+                var videoPlayer = document.getElementById('videoPlayer');
+                videoPlayer.src = url;
+                
+                if (typeof Plyr !== 'undefined') {
+                    new Plyr('#videoPlayer');
+                }
+            }
+        });
+    }
+});
+</script>
+
 {% block branding %}
 
 <h1 id="site-name">
-    <a href="{% url 'admin:index' %}"><img width=75% height=75% src="{% static 'img/logo.png'%}" alt="{% translate 'Administrationinterface' %}" /></a>
+    <a href="{% url 'admin:index' %}"><img width=75% height=75% src="{% static 'img/logo.png'%}" alt="{% translate 'Administration interface' %}" /></a>
 </h1>
 
 {% endblock %}

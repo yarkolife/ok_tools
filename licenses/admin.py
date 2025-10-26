@@ -10,6 +10,8 @@ from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from import_export import resources
@@ -28,7 +30,7 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
     """Custom filter for date and time range, compatible with Django 5+."""
 
     template = 'admin/filter_datetime_range.html'
-    title = 'Created at'
+    title = _('Created at')
 
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.field_path = field_path
@@ -398,6 +400,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     resource_classes = [LicenseResource]
 
     change_form_template = 'admin/licenses_change_form_edit.html'
+    change_list_template = 'admin/licenses/license/change_list.html'
     list_display = (
         'title',
         'subtitle',
@@ -540,7 +543,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     video_file_info.short_description = _('Video File')
     
     def video_status(self, obj):
-        """Display video status and play link in list view."""
+        """Display video status with modal player link in list view."""
         from django.urls import reverse
         from django.utils.html import format_html
         
@@ -550,18 +553,41 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         try:
             video_file = obj.get_video_file()
             if video_file:
-                
                 # Check if video is available
                 if video_file.is_available:
-                    # Create link to Video.js player page
-                    player_url = reverse('admin:media_files_videofile_player', args=[video_file.id])
+                    stream_url = reverse('admin:media_files_videofile_stream', args=[video_file.id])
                     
+                    # Prepare additional fields for modal
+                    number = video_file.number or ''
+                    storage_name = video_file.storage_location.name if video_file.storage_location else ''
+                    duration = str(video_file.duration) if video_file.duration else 'N/A'
+                    size_display = f"{video_file.file_size_mb} MB" if video_file.file_size_mb else 'N/A'
+                    bitrate_display = f"{video_file.total_bitrate} bps" if video_file.total_bitrate else 'N/A'
+                    
+                    # Return clickable link with modal attributes (Bootstrap 5)
                     return format_html(
                         '<span style="color: #28a745;">🎬 {}</span><br>'
-                        '<a href="{}" target="_blank" style="color: #007bff; text-decoration: none;">'
-                        '▶️ Плеер</a>',
+                        '<a href="javascript:void(0);" '
+                        'data-bs-toggle="modal" '
+                        'data-bs-target="#videoPlayerModal" '
+                        'data-url="{}" '
+                        'data-filename="{}" '
+                        'data-number="{}" '
+                        'data-storage="{}" '
+                        'data-duration="{}" '
+                        'data-size="{}" '
+                        'data-bitrate="{}" '
+                        'style="color: #007bff; text-decoration: none; cursor: pointer;">'
+                        '▶️ {}</a>',
                         _('Available'),
-                        player_url
+                        stream_url,
+                        video_file.filename or '',
+                        number,
+                        storage_name,
+                        duration,
+                        size_display,
+                        bitrate_display,
+                        _('Player')
                     )
                 else:
                     return format_html(
@@ -579,15 +605,17 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     video_status.short_description = _('Video')
     
     
+    
     # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
     def get_queryset(self, request):
         """Optimize queryset with select_related and prefetch_related."""
         return super().get_queryset(request).select_related(
             'profile',
-            'profile__okuser', 
-            'profile__media_authority', 
-            'category',
-            'video_file',  # OneToOneField to VideoFile
+            'profile__okuser',
+            'profile__media_authority',
+            'category'
+        ).prefetch_related(
+            'video_file',  # OneToOneField from VideoFile to License
             'video_file__storage_location'
         )  # tags is JSONField, not ManyToMany - no prefetch needed
     
@@ -785,7 +813,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             # First, scan all storages to find latest videos
             self.message_user(
                 request,
-                f'Сканирование хранилищ для поиска видео #{license_obj.number}...',
+                f'{_("Scanning storages for video")} #{license_obj.number}...',
                 messages.INFO
             )
             
@@ -798,16 +826,16 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             if 'Found video' in output or 'Videos found:' in output:
                 messages.success(
                     request,
-                    f'✓ Видео найдено и связано с лицензией #{license_obj.number}!'
+                    f'✓ {_("Video found and linked to license")} #{license_obj.number}!'
                 )
             elif 'No video found' in output:
                 messages.warning(
                     request,
-                    f'⚠️ Видео с номером {license_obj.number} не найдено в хранилищах. '
-                    f'Убедитесь, что файл существует и начинается с номера.'
+                    f'⚠️ {_("Video with number")} {license_obj.number} {_("not found in storages")}. '
+                    f'{_("Make sure the file exists and starts with the number")}.'
                 )
             else:
-                messages.info(request, f'Поиск завершен. Проверьте результаты.')
+                messages.info(request, f'{_("Search completed. Check the results")}.')
             
         except License.DoesNotExist:
             messages.error(request, f'License #{license_id} not found')
@@ -847,19 +875,19 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if found_count > 0:
             self.message_user(
                 request,
-                f'✓ Найдено и связано видео для {found_count} лицензий',
+                f'✓ {_("Videos found and linked for")} {found_count} {_("licenses") if found_count != 1 else _("license")}',
                 messages.SUCCESS
             )
         if not_found_count > 0:
             self.message_user(
                 request,
-                f'⚠️ Не найдено видео для {not_found_count} лицензий',
+                f'⚠️ {_("No videos found for")} {not_found_count} {_("licenses") if not_found_count != 1 else _("license")}',
                 messages.WARNING
             )
         if error_count > 0:
             self.message_user(
                 request,
-                f'❌ Ошибки при поиске: {error_count}',
+                f'❌ {_("Search errors")}: {error_count}',
                 messages.ERROR
             )
 

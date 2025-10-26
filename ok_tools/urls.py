@@ -23,6 +23,15 @@ from django.views.generic.base import TemplateView
 from django.views.i18n import JavaScriptCatalog
 from registration.views import PasswordResetConfirmView
 from registration.views import PasswordResetView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
+# Import custom admin configurations to ensure they are loaded
+from .admin_imports import register_custom_admin
+register_custom_admin()
+
+# Serve static files in debug mode
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 # Keep default admin site; ordering handled elsewhere
@@ -66,4 +75,15 @@ urlpatterns = [
     # Accessibility URLs
     path('accessibility-statement/', accessibility_views.accessibility_statement, name='accessibility_statement'),
     path('accessibility-feedback/', accessibility_views.accessibility_feedback, name='accessibility_feedback'),
-]
+    path('prometheus/', include('django_prometheus.urls')),
+        # API Schema and Documentation
+        path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+        # Optional UI:
+        path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+        path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    ]
+
+# Serve static files in debug mode
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

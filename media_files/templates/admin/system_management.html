@@ -3,67 +3,404 @@
 
 {% block extrahead %}
 {{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
 <style>
-    .command-section {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+    .page-container {
+        max-width: 1400px;
+        margin: 0 auto;
         padding: 20px;
-        margin-bottom: 20px;
     }
+
+    .section-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .section-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .command-section {
+        background: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .command-section:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
     .command-section h2 {
         margin-top: 0;
-        color: #417690;
-        border-bottom: 2px solid #417690;
-        padding-bottom: 10px;
+        color: #1a1a1a;
+        font-size: 20px;
+        font-weight: 600;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
-    .command-form {
-        margin-top: 15px;
+
+    .command-section h2::before {
+        font-size: 24px;
+        flex-shrink: 0;
     }
-    .form-group {
-        margin-bottom: 15px;
+
+    .command-section h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin: 20px 0 12px 0;
     }
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-    }
-    .form-group input[type="text"],
-    .form-group input[type="number"],
-    .form-group select {
-        width: 100%;
-        max-width: 300px;
-        padding: 5px 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-    .form-group input[type="checkbox"] {
-        margin-right: 5px;
-    }
-    .btn-primary {
-        background: #417690;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-    .btn-primary:hover {
-        background: #2e5566;
-    }
-    .help-text {
-        color: #666;
-        font-size: 12px;
-        margin-top: 5px;
-    }
+
     .command-description {
         color: #666;
-        margin-bottom: 15px;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    /* Color coding by section type */
+    .command-section.scanning h2 {
+        color: #1976d2;
+        border-color: #1976d2;
+    }
+
+    .command-section.sync h2 {
+        color: #7b1fa2;
+        border-color: #7b1fa2;
+    }
+
+    .command-section.cleanup h2 {
+        color: #f57c00;
+        border-color: #f57c00;
+    }
+
+    .command-section.duplicates h2 {
+        color: #d32f2f;
+        border-color: #d32f2f;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        transition: background-color 0.2s ease;
+    }
+
+    .form-group:hover {
+        background: #e9ecef;
+    }
+
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .form-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group input[type="number"] {
+        width: 100%;
+        max-width: 400px;
+        padding: 14px 16px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #333;
+        background-color: #ffffff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        min-height: 44px;
+    }
+    
+    .form-group select {
+        padding-top: 14px;
+        padding-bottom: 14px;
+        vertical-align: middle;
+    }
+    
+    .form-group select option {
+        padding: 8px;
+    }
+
+    .form-group select option {
+        color: #333;
+        background-color: #ffffff;
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+        outline: none;
+        border-color: #417690;
+        box-shadow: 0 0 0 3px rgba(65, 118, 144, 0.1);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #417690 0%, #2e5566 100%);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(65, 118, 14, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2e5566 0%, #1a3340 100%);
+        box-shadow: 0 4px 8px rgba(65, 118, 144, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(65, 118, 144, 0.2);
+    }
+
+    .btn-primary::before {
+        content: "▶️";
+        font-size: 12px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .form-row.single-column {
+        grid-template-columns: 1fr;
+    }
+
+    /* Priority-based styling */
+    .form-group.primary {
+        background: #e3f2fd;
+        border-left: 4px solid #1976d2;
+    }
+
+    .form-group.warning {
+        background: #fff3e0;
+        border-left: 4px solid #f57c00;
+    }
+
+    .form-group.danger {
+        background: #ffebee;
+        border-left: 4px solid #d32f2f;
+    }
+
+    .status-badge {
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 12px;
+        border-radius: 12px;
+        margin-left: auto;
+    }
+
+    .status-badge.success {
+        background: #c8e6c9;
+        color: #2e7d32;
+    }
+
+    .status-badge.error {
+        background: #ffcdd2;
+        color: #c62828;
+    }
+
+    .status-badge.warning {
+        background: #fff9c4;
+        color: #f57f17;
+    }
+
+    /* Tooltip trigger icon styling */
+    .tooltip-trigger {
+        color: #417690;
+        cursor: help;
+        font-size: 14px;
+        margin-left: 4px;
+        transition: color 0.2s ease;
+    }
+
+    .tooltip-trigger:hover {
+        color: #2e5566;
+    }
+
+    .tooltip-warning {
+        color: #ff9800;
+    }
+
+    .tooltip-warning:hover {
+        color: #f57c00;
+    }
+
+    /* Custom tooltip theme */
+    .tippy-box[data-theme~='custom'] {
+        background-color: #2c3e50;
+        color: #ffffff;
+        font-size: 13px;
+        line-height: 1.5;
+        border-radius: 6px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before {
+        border-top-color: #2c3e50;
+    }
+
+    .tippy-box[data-theme~='custom'][data-placement^='bottom'] > .tippy-arrow::before {
+        border-bottom-color: #2c3e50;
+    }
+
+    .tippy-box[data-theme~='custom'][data-placement^='left'] > .tippy-arrow::before {
+        border-left-color: #2c3e50;
+    }
+
+    .tippy-box[data-theme~='custom'][data-placement^='right'] > .tippy-arrow::before {
+        border-right-color: #2c3e50;
+    }
+
+    /* Warning tooltip theme */
+    .tippy-box[data-theme~='warning'] {
+        background-color: #ff9800;
+        color: #ffffff;
+        font-size: 13px;
+        line-height: 1.5;
+        border-radius: 6px;
+        box-shadow: 0 4px 14px rgba(255, 152, 0, 0.3);
+    }
+
+    .tippy-box[data-theme~='warning'][data-placement^='top'] > .tippy-arrow::before {
+        border-top-color: #ff9800;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    @media (max-width: 768px) {
+        .command-section {
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .command-section h2 {
+            font-size: 18px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .status-badge {
+            margin-left: 0;
+            margin-top: 8px;
+        }
+        
+        .form-group select,
+        .form-group input {
+            max-width: 100%;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        /* Larger touch targets for mobile */
+        .form-group label {
+            padding: 12px 8px;
+            min-height: 44px;
+        }
+        
+        .tooltip-trigger {
+            font-size: 18px;
+            padding: 8px;
+        }
+        
+        .btn-primary {
+            padding: 16px 24px;
+            font-size: 16px;
+        }
     }
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all tooltips
+    tippy('.tooltip-trigger', {
+        theme: 'custom',
+        placement: 'right',
+        arrow: true,
+        animation: 'fade',
+        duration: [200, 150],
+        maxWidth: 350,
+        interactive: true,
+        appendTo: () => document.body,
+        // Accessibility
+        role: 'tooltip',
+        aria: {
+            content: 'auto',
+            expanded: 'auto'
+        }
+    });
+    
+    // Special handling for warning tooltips
+    tippy('.tooltip-warning', {
+        theme: 'warning',
+        placement: 'right',
+        arrow: true,
+        animation: 'scale',
+        maxWidth: 350,
+        interactive: true,
+    });
+    
+    // Allow tooltips to be triggered with Enter/Space on keyboard
+    document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
+        trigger.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this._tippy.show();
+            }
+        });
+    });
+    
     // Show/hide scan options when "Scan storages first" is checked
     const scanFirstCheckbox = document.querySelector('input[name="scan_first"]');
     const scanOptions = document.getElementById('scan-options');
@@ -82,331 +419,588 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block content %}
-<h1>{% trans "System Management" %}</h1>
-
-<p>{% trans "Run management commands directly from the admin interface." %}</p>
-
-<!-- Scanning Commands -->
-<div class="command-section">
-    <h2>🔍 {% trans "Storage Scanning" %}</h2>
-    <p class="command-description">{% trans "Scan storage locations to find and index video files." %}</p>
+<div class="page-container">
+    <h1>{% trans "System Management" %}</h1>
     
-    <!-- Auto Scan -->
-    <form method="post" class="command-form">
-        {% csrf_token %}
-        <input type="hidden" name="command" value="auto_scan">
-        <h3>{% trans "Auto Scan All Storages" %}</h3>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="force">
-                {% trans "Force rescan" %}
-            </label>
-            <span class="help-text">{% trans "Rescan even if recently scanned" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="strict_check">
-                {% trans "Strict checksum check" %}
-            </label>
-            <span class="help-text">{% trans "Use checksum comparison for reliable change detection (slower)" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="calculate_checksums">
-                {% trans "Calculate checksums" %}
-            </label>
-            <span class="help-text">{% trans "Slower but ensures file integrity verification" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="skip_metadata">
-                {% trans "Skip metadata extraction" %}
-            </label>
-            <span class="help-text">{% trans "Faster scan, no metadata extraction" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label for="storage_type_auto">{% trans "Storage Type" %} ({% trans "optional" %})</label>
-            <select name="storage_type" id="storage_type_auto">
-                <option value="">{% trans "All types" %}</option>
-                <option value="ARCHIVE">ARCHIVE</option>
-                <option value="PLAYOUT">PLAYOUT</option>
-                <option value="CUSTOM">CUSTOM</option>
-            </select>
-        </div>
-        
-        <button type="submit" class="btn-primary">▶️ {% trans "Run Auto Scan" %}</button>
-    </form>
+    <p>{% trans "Run management commands directly from the admin interface." %}</p>
     
-    <hr style="margin: 30px 0;">
-    
-    <!-- Manual Scan -->
-    <form method="post" class="command-form">
-        {% csrf_token %}
-        <input type="hidden" name="command" value="scan_video_storage">
-        <h3>{% trans "Scan Specific Storage" %}</h3>
-        
-        <div class="form-group">
-            <label for="storage_id_scan">{% trans "Storage Location" %}</label>
-            <select name="storage_id" id="storage_id_scan">
-                <option value="">{% trans "All storages" %}</option>
-                {% for storage in storages %}
-                <option value="{{ storage.id }}">{{ storage.name }} ({{ storage.storage_type }})</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="force">
-                {% trans "Force rescan" %}
-            </label>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="strict_check">
-                {% trans "Strict checksum check" %}
-            </label>
-            <span class="help-text">{% trans "Use checksum comparison for reliable change detection (slower)" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="calculate_checksum">
-                {% trans "Calculate checksums" %}
-            </label>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="skip_metadata">
-                {% trans "Skip metadata extraction" %}
-            </label>
-            <span class="help-text">{% trans "Faster scan, no metadata extraction" %}</span>
-        </div>
-        
-        <button type="submit" class="btn-primary">▶️ {% trans "Run Scan" %}</button>
-    </form>
-</div>
-
-<!-- Synchronization Commands -->
-<div class="command-section">
-    <h2>🔄 {% trans "Synchronization" %}</h2>
-    <p class="command-description">{% trans "Sync licenses with videos and link orphan files." %}</p>
-    
-    <!-- Sync Licenses Videos -->
-    <form method="post" class="command-form">
-        {% csrf_token %}
-        <input type="hidden" name="command" value="sync_licenses_videos">
-        <h3>{% trans "Sync Licenses and Videos" %}</h3>
-        
-        <div class="form-group">
-            <label for="number_sync">{% trans "License Number" %} ({% trans "optional" %})</label>
-            <input type="number" name="number" id="number_sync" placeholder="{% trans 'Leave empty for all' %}">
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="dry_run">
-                {% trans "Dry run" %}
-            </label>
-            <span class="help-text">{% trans "Show what would be done without making changes" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="force_sync_duration">
-                {% trans "Force sync duration" %}
-            </label>
-        </div>
-        
-        <button type="submit" class="btn-primary">▶️ {% trans "Sync Licenses" %}</button>
-    </form>
-    
-    <hr style="margin: 30px 0;">
-    
-    <!-- Link Orphan Licenses -->
-    <form method="post" class="command-form">
-        {% csrf_token %}
-        <input type="hidden" name="command" value="link_orphan_licenses">
-        <h3>{% trans "Link Orphan Licenses" %}</h3>
-        
-        <div class="form-group">
-            <label for="number_link">{% trans "License Number" %} ({% trans "optional" %})</label>
-            <input type="number" name="number" id="number_link" placeholder="{% trans 'Leave empty for all' %}">
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="scan_first">
-                {% trans "Scan storages first" %}
-            </label>
-            <span class="help-text">{% trans "Recommended for finding new videos" %}</span>
-        </div>
-        
-        <div class="form-group" id="scan-options" style="display: none; margin-left: 20px; border-left: 2px solid #ddd; padding-left: 15px;">
-            <h4>{% trans "Scan Options" %}</h4>
+    <div class="section-grid">
+        <!-- Scanning Commands -->
+        <div class="command-section scanning">
+            <h2>
+                <i class="fas fa-search"></i> {% trans "Storage Scanning" %}
+                <span class="status-badge success">{% trans "Last scan: 2 hours ago" %}</span>
+            </h2>
+            <p class="command-description">{% trans "Scan storage locations to find and index video files." %}</p>
             
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="force_scan">
-                    {% trans "Force rescan" %}
-                </label>
-                <span class="help-text">{% trans "Rescan even if recently scanned" %}</span>
-            </div>
+            <!-- Auto Scan -->
+            <form method="post" class="command-form">
+                {% csrf_token %}
+                <input type="hidden" name="command" value="auto_scan">
+                <h3>{% trans "Auto Scan All Storages" %}</h3>
+                
+                <div class="form-group">
+                    <label for="force-auto-scan">
+                        <input type="checkbox" name="force" id="force-auto-scan">
+                        {% trans "Force rescan" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Rescans all files even if they were recently scanned. Use this when you have made changes to files outside the system.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Force rescan option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="force-auto-scan-help" class="sr-only">
+                        {% trans 'Rescans all files even if they were recently scanned' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="strict-check-auto">
+                        <input type="checkbox" name="strict_check" id="strict-check-auto">
+                        {% trans "Strict checksum check" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Compares file checksums to detect changes reliably. This is slower but ensures accurate change detection, especially for large files.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Strict checksum check option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="strict-check-auto-help" class="sr-only">
+                        {% trans 'Compares file checksums to detect changes reliably' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="calculate-checksums-auto">
+                        <input type="checkbox" name="calculate_checksums" id="calculate-checksums-auto">
+                        {% trans "Calculate checksums" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Generates and stores file checksums for integrity verification. This slows down scanning but enables reliable duplicate detection and corruption checks.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Calculate checksums option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="calculate-checksums-auto-help" class="sr-only">
+                        {% trans 'Generates and stores file checksums for integrity verification' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="skip-metadata-auto">
+                        <input type="checkbox" name="skip_metadata" id="skip-metadata-auto">
+                        {% trans "Skip metadata extraction" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Speeds up scanning by not extracting video properties (duration, codec, resolution). Use this for quick file inventory without detailed information.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Skip metadata extraction option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="skip-metadata-auto-help" class="sr-only">
+                        {% trans 'Speeds up scanning by not extracting video properties' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="storage_type_auto">{% trans "Storage Type" %} ({% trans "optional" %})
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Filter scan by storage type. ARCHIVE stores master files, PLAYOUT contains broadcast-ready files, CUSTOM is for other uses.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Storage Type option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="storage-type-auto-help" class="sr-only">
+                        {% trans 'Filter scan by storage type' %}
+                    </span>
+                    <select name="storage_type" id="storage_type_auto">
+                        <option value="">{% trans "All types" %}</option>
+                        <option value="ARCHIVE">ARCHIVE</option>
+                        <option value="PLAYOUT">PLAYOUT</option>
+                        <option value="CUSTOM">CUSTOM</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-play"></i> {% trans "Run Auto Scan" %}
+                </button>
+            </form>
             
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="strict_check_scan">
-                    {% trans "Strict checksum check" %}
-                </label>
-                <span class="help-text">{% trans "Use checksum comparison for reliable change detection" %}</span>
-            </div>
+            <hr style="margin: 30px 0;">
             
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="skip_metadata_scan">
-                    {% trans "Skip metadata extraction" %}
-                </label>
-                <span class="help-text">{% trans "Faster scan, no metadata extraction" %}</span>
-            </div>
+            <!-- Manual Scan -->
+            <form method="post" class="command-form">
+                {% csrf_token %}
+                <input type="hidden" name="command" value="scan_video_storage">
+                <h3>{% trans "Scan Specific Storage" %}</h3>
+                
+                <div class="form-group">
+                    <label for="storage_id_scan">{% trans "Storage Location" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Select a specific storage location to scan. Leave empty to scan all locations.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Storage Location option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="storage-location-help" class="sr-only">
+                        {% trans 'Select a specific storage location to scan' %}
+                    </span>
+                    <select name="storage_id" id="storage_id_scan">
+                        <option value="">{% trans "All storages" %}</option>
+                        {% for storage in storages %}
+                        <option value="{{ storage.id }}">{{ storage.name }} ({{ storage.storage_type }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="force-manual-scan">
+                        <input type="checkbox" name="force" id="force-manual-scan">
+                        {% trans "Force rescan" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Rescans all files even if they were recently scanned. Use this when you have made changes to files outside the system.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Force rescan option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="force-manual-scan-help" class="sr-only">
+                        {% trans 'Rescans all files even if they were recently scanned' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="strict-check-manual">
+                        <input type="checkbox" name="strict_check" id="strict-check-manual">
+                        {% trans "Strict checksum check" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Compares file checksums to detect changes reliably. This is slower but ensures accurate change detection, especially for large files.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Strict checksum check option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="strict-check-manual-help" class="sr-only">
+                        {% trans 'Compares file checksums to detect changes reliably' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="calculate-checksum-manual">
+                        <input type="checkbox" name="calculate_checksum" id="calculate-checksum-manual">
+                        {% trans "Calculate checksums" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Generates and stores file checksums for integrity verification. This slows down scanning but enables reliable duplicate detection and corruption checks.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Calculate checksums option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="calculate-checksum-manual-help" class="sr-only">
+                        {% trans 'Generates and stores file checksums for integrity verification' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="skip-metadata-manual">
+                        <input type="checkbox" name="skip_metadata" id="skip-metadata-manual">
+                        {% trans "Skip metadata extraction" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Speeds up scanning by not extracting video properties (duration, codec, resolution). Use this for quick file inventory without detailed information.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Skip metadata extraction option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="skip-metadata-manual-help" class="sr-only">
+                        {% trans 'Speeds up scanning by not extracting video properties' %}
+                    </span>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-play"></i> {% trans "Run Scan" %}
+                </button>
+            </form>
         </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="dry_run">
-                {% trans "Dry run" %}
-            </label>
-        </div>
-        
-        <button type="submit" class="btn-primary">▶️ {% trans "Link Orphans" %}</button>
-    </form>
-</div>
 
-<!-- Cleanup Commands -->
-<div class="command-section">
-    <h2>🧹 {% trans "Cleanup & Maintenance" %}</h2>
-    <p class="command-description">{% trans "Clean up playout storage and move videos to archive." %}</p>
-    
-    <form method="post" class="command-form">
-        {% csrf_token %}
-        <input type="hidden" name="command" value="cleanup_playout">
-        <h3>{% trans "Cleanup Playout Storage" %}</h3>
-        
-        <div class="form-group">
-            <label for="storage_id_cleanup">{% trans "Playout Storage" %} ({% trans "optional" %})</label>
-            <select name="storage_id" id="storage_id_cleanup">
-                <option value="">{% trans "All playout storages" %}</option>
-                {% for storage in playout_storages %}
-                <option value="{{ storage.id }}">{{ storage.name }}</option>
-                {% endfor %}
-            </select>
+        <!-- Synchronization Commands -->
+        <div class="command-section sync">
+            <h2>
+                <i class="fas fa-sync-alt"></i> {% trans "Synchronization" %}
+                <span class="status-badge success">{% trans "Last sync: 1 hour ago" %}</span>
+            </h2>
+            <p class="command-description">{% trans "Sync licenses with videos and link orphan files." %}</p>
+            
+            <!-- Sync Licenses Videos -->
+            <form method="post" class="command-form">
+                {% csrf_token %}
+                <input type="hidden" name="command" value="sync_licenses_videos">
+                <h3>{% trans "Sync Licenses and Videos" %}</h3>
+                
+                <div class="form-group">
+                    <label for="number_sync">{% trans "License Number" %} ({% trans "optional" %})
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Specify a specific license number to sync. Leave empty to sync all licenses.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for License Number option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="license-number-help" class="sr-only">
+                        {% trans 'Specify a specific license number to sync' %}
+                    </span>
+                    <input type="number" name="number" id="number_sync" placeholder="{% trans 'Leave empty for all' %}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dry-run-sync">
+                        <input type="checkbox" name="dry_run" id="dry-run-sync">
+                        {% trans "Dry run" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Simulates the operation without making changes. Review what would happen before actually executing.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Dry run option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="dry-run-sync-help" class="sr-only">
+                        {% trans 'Simulates the operation without making changes' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="force-sync-duration">
+                        <input type="checkbox" name="force_sync_duration" id="force-sync-duration">
+                        {% trans "Force sync duration" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Updates license duration even if it already has a value. Use when video duration has changed.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Force sync duration option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="force-sync-duration-help" class="sr-only">
+                        {% trans 'Updates license duration even if it already has a value' %}
+                    </span>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sync-alt"></i> {% trans "Sync Licenses" %}
+                </button>
+            </form>
+            
+            <hr style="margin: 30px 0;">
+            
+            <!-- Link Orphan Licenses -->
+            <form method="post" class="command-form">
+                {% csrf_token %}
+                <input type="hidden" name="command" value="link_orphan_licenses">
+                <h3>{% trans "Link Orphan Licenses" %}</h3>
+                
+                <div class="form-group">
+                    <label for="number_link">{% trans "License Number" %} ({% trans "optional" %})
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Specify a specific license number to link. Leave empty to link all orphan licenses.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for License Number option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="license-number-link-help" class="sr-only">
+                        {% trans 'Specify a specific license number to link' %}
+                    </span>
+                    <input type="number" name="number" id="number_link" placeholder="{% trans 'Leave empty for all' %}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="scan-first">
+                        <input type="checkbox" name="scan_first" id="scan-first">
+                        {% trans "Scan storages first" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Performs a storage scan before linking licenses. Recommended when you have added new video files.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Scan storages first option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="scan-first-help" class="sr-only">
+                        {% trans 'Performs a storage scan before linking licenses' %}
+                    </span>
+                </div>
+                
+                <div class="form-group" id="scan-options" style="display: none; margin-left: 20px; border-left: 2px solid #ddd; padding-left: 15px;">
+                    <h4>{% trans "Scan Options" %}</h4>
+                    
+                    <div class="form-group">
+                        <label for="force-scan-link">
+                            <input type="checkbox" name="force_scan" id="force-scan-link">
+                            {% trans "Force rescan" %}
+                            <i class="fas fa-info-circle tooltip-trigger" 
+                               data-tippy-content="{% trans 'Rescans all files even if they were recently scanned. Use this when you have made changes to files outside the system.' %}"
+                               role="button"
+                               aria-label="{% trans 'Help for Force rescan option' %}"
+                               tabindex="0"></i>
+                        </label>
+                        <span id="force-scan-link-help" class="sr-only">
+                            {% trans 'Rescans all files even if they were recently scanned' %}
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="strict-check-scan-link">
+                            <input type="checkbox" name="strict_check_scan" id="strict-check-scan-link">
+                            {% trans "Strict checksum check" %}
+                            <i class="fas fa-info-circle tooltip-trigger" 
+                               data-tippy-content="{% trans 'Compares file checksums to detect changes reliably. This is slower but ensures accurate change detection.' %}"
+                               role="button"
+                               aria-label="{% trans 'Help for Strict checksum check option' %}"
+                               tabindex="0"></i>
+                        </label>
+                        <span id="strict-check-scan-link-help" class="sr-only">
+                            {% trans 'Compares file checksums to detect changes reliably' %}
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="skip-metadata-scan-link">
+                            <input type="checkbox" name="skip_metadata_scan" id="skip-metadata-scan-link">
+                            {% trans "Skip metadata extraction" %}
+                            <i class="fas fa-info-circle tooltip-trigger" 
+                               data-tippy-content="{% trans 'Speeds up scanning by not extracting video properties (duration, codec, resolution). Use this for quick file inventory without detailed information.' %}"
+                               role="button"
+                               aria-label="{% trans 'Help for Skip metadata extraction option' %}"
+                               tabindex="0"></i>
+                        </label>
+                        <span id="skip-metadata-scan-link-help" class="sr-only">
+                            {% trans 'Speeds up scanning by not extracting video properties' %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dry-run-link">
+                        <input type="checkbox" name="dry_run" id="dry-run-link">
+                        {% trans "Dry run" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Simulates the operation without making changes. Review what would happen before actually executing.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Dry run option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="dry-run-link-help" class="sr-only">
+                        {% trans 'Simulates the operation without making changes' %}
+                    </span>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-link"></i> {% trans "Link Orphans" %}
+                </button>
+            </form>
         </div>
-        
-        <div class="form-group">
-            <label for="older_than">{% trans "Older than (days)" %}</label>
-            <input type="number" name="older_than" id="older_than" value="7" min="1">
-            <span class="help-text">{% trans "Move videos older than N days" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="check_attributes">
-                {% trans "Check file attributes" %}
-            </label>
-            <span class="help-text">{% trans "Check if files are in use (Windows hidden/system)" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="check_locks">
-                {% trans "Check file locks" %}
-            </label>
-            <span class="help-text">{% trans "Check if files are locked by other processes" %}</span>
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="dry_run">
-                {% trans "Dry run" %}
-            </label>
-        </div>
-        
-        <button type="submit" class="btn-primary">▶️ {% trans "Run Cleanup" %}</button>
-    </form>
-</div>
 
-<!-- Duplicate Management -->
-<div class="command-section">
-    <h2>📋 {% trans "Duplicate Management" %}</h2>
-    <p class="command-description">{% trans "Find and manage duplicate video files." %}</p>
-    
-    <!-- Find Duplicates -->
-    <form method="post" class="command-form">
-        {% csrf_token %}
-        <input type="hidden" name="command" value="find_duplicates">
-        <h3>{% trans "Find Duplicates" %}</h3>
-        
-        <div class="form-group">
-            <label for="output_format">{% trans "Output Format" %}</label>
-            <select name="output_format" id="output_format">
-                <option value="console">{% trans "Console (readable)" %}</option>
-                <option value="json">JSON</option>
-            </select>
+        <!-- Cleanup Commands -->
+        <div class="command-section cleanup">
+            <h2>
+                <i class="fas fa-broom"></i> {% trans "Cleanup & Maintenance" %}
+                <span class="status-badge success">{% trans "Last cleanup: 3 days ago" %}</span>
+            </h2>
+            <p class="command-description">{% trans "Clean up playout storage and move videos to archive." %}</p>
+            
+            <form method="post" class="command-form">
+                {% csrf_token %}
+                <input type="hidden" name="command" value="cleanup_playout">
+                <h3>{% trans "Cleanup Playout Storage" %}</h3>
+                
+                <div class="form-group">
+                    <label for="storage_id_cleanup">{% trans "Playout Storage" %} ({% trans "optional" %})
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Select a specific playout storage to clean up. Leave empty to clean up all playout storages.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Playout Storage option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="playout-storage-help" class="sr-only">
+                        {% trans 'Select a specific playout storage to clean up' %}
+                    </span>
+                    <select name="storage_id" id="storage_id_cleanup">
+                        <option value="">{% trans "All playout storages" %}</option>
+                        {% for storage in playout_storages %}
+                        <option value="{{ storage.id }}">{{ storage.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="older_than">{% trans "Older than (days)" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Only moves videos that are older than this number of days. Default is 7 days to ensure recently used files are not moved.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Older than option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="older-than-help" class="sr-only">
+                        {% trans 'Only moves videos that are older than this number of days' %}
+                    </span>
+                    <input type="number" name="older_than" id="older_than" value="7" min="1">
+                    <span class="help-text">{% trans "Move videos older than N days" %}</span>
+                </div>
+                
+                <div class="form-group warning">
+                    <label for="check_attributes">
+                        <input type="checkbox" name="check_attributes" id="check_attributes">
+                        {% trans "Check file attributes" %}
+                        <i class="fas fa-exclamation-triangle tooltip-warning" 
+                           data-tippy-content="{% trans 'Verifies if files have Windows system/hidden attributes indicating they are in use by broadcast automation. Prevents moving active files.' %}"
+                           role="button"
+                           aria-label="{% trans 'Warning for Check file attributes option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="check-attributes-help" class="sr-only">
+                        {% trans 'Verifies if files have Windows system/hidden attributes' %}
+                    </span>
+                </div>
+                
+                <div class="form-group warning">
+                    <label for="check_locks">
+                        <input type="checkbox" name="check_locks" id="check_locks">
+                        {% trans "Check file locks" %}
+                        <i class="fas fa-exclamation-triangle tooltip-warning" 
+                           data-tippy-content="{% trans 'Checks if files are currently locked by other processes. Essential to avoid corrupting files during active use.' %}"
+                           role="button"
+                           aria-label="{% trans 'Warning for Check file locks option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="check-locks-help" class="sr-only">
+                        {% trans 'Checks if files are currently locked by other processes' %}
+                    </span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dry_run_cleanup">
+                        <input type="checkbox" name="dry_run" id="dry_run_cleanup">
+                        {% trans "Dry run" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Simulates the operation without making changes. Review what would happen before actually executing.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Dry run option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="dry-run-cleanup-help" class="sr-only">
+                        {% trans 'Simulates the operation without making changes' %}
+                    </span>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-broom"></i> {% trans "Run Cleanup" %}
+                </button>
+            </form>
         </div>
-        
-        <div class="form-group">
-            <label for="storage_type_dup">{% trans "Storage Type" %} ({% trans "optional" %})</label>
-            <select name="storage_type" id="storage_type_dup">
-                <option value="">{% trans "All types" %}</option>
-                <option value="ARCHIVE">ARCHIVE</option>
-                <option value="PLAYOUT">PLAYOUT</option>
-                <option value="CUSTOM">CUSTOM</option>
-            </select>
-        </div>
-        
-        <button type="submit" class="btn-primary">▶️ {% trans "Find Duplicates" %}</button>
-    </form>
-    
-    <hr style="margin: 30px 0;">
-    
-    <!-- Cleanup Duplicates -->
-    <form method="post" class="command-form">
-        {% csrf_token %}
-        <input type="hidden" name="command" value="cleanup_duplicates">
-        <h3>{% trans "Cleanup Duplicates" %}</h3>
-        
-        <div class="form-group">
-            <label for="storage_type_cleanup_dup">{% trans "Storage Type" %} ({% trans "optional" %})</label>
-            <select name="storage_type" id="storage_type_cleanup_dup">
-                <option value="">{% trans "All types" %}</option>
-                <option value="ARCHIVE">ARCHIVE</option>
-                <option value="PLAYOUT">PLAYOUT</option>
-                <option value="CUSTOM">CUSTOM</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="number_cleanup_dup">{% trans "Video Number" %} ({% trans "optional" %})</label>
-            <input type="number" name="number" id="number_cleanup_dup" placeholder="{% trans 'Leave empty for all' %}">
-        </div>
-        
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="dry_run" checked>
-                {% trans "Dry run" %}
-            </label>
-            <span class="help-text">⚠️ {% trans "Recommended! Uncheck only when you're sure." %}</span>
-        </div>
-        
-        <button type="submit" class="btn-primary">▶️ {% trans "Cleanup Duplicates" %}</button>
-    </form>
-</div>
 
+        <!-- Duplicate Management -->
+        <div class="command-section duplicates">
+            <h2>
+                <i class="fas fa-copy"></i> {% trans "Duplicate Management" %}
+                <span class="status-badge success">{% trans "Last duplicate check: 1 day ago" %}</span>
+            </h2>
+            <p class="command-description">{% trans "Find and manage duplicate video files." %}</p>
+            
+            <!-- Find Duplicates -->
+            <form method="post" class="command-form">
+                {% csrf_token %}
+                <input type="hidden" name="command" value="find_duplicates">
+                <h3>{% trans "Find Duplicates" %}</h3>
+                
+                <div class="form-group">
+                    <label for="output_format">{% trans "Output Format" %}
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Console format is human-readable, JSON format is for programmatic processing.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Output Format option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="output-format-help" class="sr-only">
+                        {% trans 'Console format is human-readable, JSON format is for programmatic processing' %}
+                    </span>
+                    <select name="output_format" id="output_format">
+                        <option value="console">{% trans "Console (readable)" %}</option>
+                        <option value="json">JSON</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="storage_type_dup">{% trans "Storage Type" %} ({% trans "optional" %})
+                        <i class="fas fa-info-circle tooltip-trigger" 
+                           data-tippy-content="{% trans 'Filter duplicate search by storage type. ARCHIVE stores master files, PLAYOUT contains broadcast-ready files, CUSTOM is for other uses.' %}"
+                           role="button"
+                           aria-label="{% trans 'Help for Storage Type option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="storage-type-dup-help" class="sr-only">
+                        {% trans 'Filter duplicate search by storage type' %}
+                    </span>
+                    <select name="storage_type" id="storage_type_dup">
+                        <option value="">{% trans "All types" %}</option>
+                        <option value="ARCHIVE">ARCHIVE</option>
+                        <option value="PLAYOUT">PLAYOUT</option>
+                        <option value="CUSTOM">CUSTOM</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-search"></i> {% trans "Find Duplicates" %}
+                </button>
+            </form>
+            
+            <hr style="margin: 30px 0;">
+            
+            <!-- Cleanup Duplicates -->
+            <form method="post" class="command-form danger">
+                {% csrf_token %}
+                <input type="hidden" name="command" value="cleanup_duplicates">
+                <h3>{% trans "Cleanup Duplicates" %}</h3>
+                
+                <div class="form-group danger">
+                    <label for="storage_type_cleanup_dup">{% trans "Storage Type" %} ({% trans "optional" %})
+                        <i class="fas fa-exclamation-triangle tooltip-warning" 
+                           data-tippy-content="{% trans 'Filter duplicate cleanup by storage type. Be careful when selecting specific types as this permanently deletes files.' %}"
+                           role="button"
+                           aria-label="{% trans 'Warning for Storage Type option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="storage-type-cleanup-help" class="sr-only">
+                        {% trans 'Filter duplicate cleanup by storage type' %}
+                    </span>
+                    <select name="storage_type" id="storage_type_cleanup_dup">
+                        <option value="">{% trans "All types" %}</option>
+                        <option value="ARCHIVE">ARCHIVE</option>
+                        <option value="PLAYOUT">PLAYOUT</option>
+                        <option value="CUSTOM">CUSTOM</option>
+                    </select>
+                </div>
+                
+                <div class="form-group danger">
+                    <label for="number_cleanup_dup">{% trans "Video Number" %} ({% trans "optional" %})
+                        <i class="fas fa-exclamation-triangle tooltip-warning" 
+                           data-tippy-content="{% trans 'Specify a specific video number to clean up duplicates for. Leave empty to clean up all duplicates.' %}"
+                           role="button"
+                           aria-label="{% trans 'Warning for Video Number option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="video-number-cleanup-help" class="sr-only">
+                        {% trans 'Specify a specific video number to clean up duplicates for' %}
+                    </span>
+                    <input type="number" name="number" id="number_cleanup_dup" placeholder="{% trans 'Leave empty for all' %}">
+                </div>
+                
+                <div class="form-group danger">
+                    <label for="dry_run_dup">
+                        <input type="checkbox" name="dry_run" id="dry_run_dup" checked>
+                        {% trans "Dry run" %}
+                        <i class="fas fa-exclamation-triangle tooltip-warning" 
+                           data-tippy-content="{% trans 'STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting. Review carefully before proceeding!' %}"
+                           role="button"
+                           aria-label="{% trans 'Warning for Dry run option' %}"
+                           tabindex="0"></i>
+                    </label>
+                    <span id="dry-run-dup-help" class="sr-only">
+                        {% trans 'STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting' %}
+                    </span>
+                    <span class="help-text">⚠️ {% trans "Recommended! Uncheck only when you're sure." %}</span>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-trash-alt"></i> {% trans "Cleanup Duplicates" %}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
-

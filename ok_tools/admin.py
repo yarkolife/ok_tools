@@ -57,8 +57,8 @@ _original_get_app_list = default_site.get_app_list
 def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # type: ignore[override]
     app_list = list(_original_get_app_list(app_label=app_label, request=request))
 
-    # Добавляем ссылку на дашборд в начало списка
-    if app_label is None:  # Только на главной странице админки
+    # Add dashboard link to the beginning of the list
+    if app_label is None:  # Only on the main admin page
         dashboard_app = {
             'name': 'Dashboard',
             'app_label': 'dashboard',

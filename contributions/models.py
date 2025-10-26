@@ -27,14 +27,14 @@ class ContributionManager(models.Manager):
         self.licenses = {c.license for c in contributions}
         license_ids = [lic.id for lic in self.licenses]
         
-        # Оптимизация: один запрос для всех primary dates
+        # Optimization: one query for all primary dates
         primary_dates = Contribution.objects.filter(
             license_id__in=license_ids
         ).values('license_id').annotate(
             min_date=Min('broadcast_date')
         )
         
-        # Создаём словарь с первой датой для каждой лицензии
+        # Create dictionary with first date for each license
         self.license_primary_dates = {
             item['license_id']: item['min_date'] 
             for item in primary_dates
@@ -48,7 +48,7 @@ class ContributionManager(models.Manager):
         """
         self._set_up(contributions)
         
-        # Используем словарь с primary dates для O(1) проверки
+        # Use dictionary with primary dates for O(1) check
         return [
             c.id for c in contributions
             if c.license_id in self.license_primary_dates and
@@ -63,7 +63,7 @@ class ContributionManager(models.Manager):
         """
         self._set_up(contributions)
         
-        # Используем словарь с primary dates для O(1) проверки
+        # Use dictionary with primary dates for O(1) check
         return [
             c.id for c in contributions
             if c.license_id not in self.license_primary_dates or
@@ -90,6 +90,7 @@ class Contribution(models.Model):
         _('Broadcast Date'),
         blank=False,
         null=False,
+        db_index=True,
     )
 
     live = models.BooleanField(

@@ -262,7 +262,7 @@ function initializeCharts() {
         ];
         const totalUsers = dataValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок с общим количеством
+        // Update title with total count
         document.getElementById('usersChartTitle').textContent = 
             '{% trans "Age Structure of Users with Licenses and Broadcasts" %} (' + totalUsers + ')';
         
@@ -328,7 +328,7 @@ function initializeCharts() {
         ];
         const totalBroadcasts = dataValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок с общим количеством
+        // Update title with total count
         document.getElementById('broadcastsChartTitle').textContent = 
             '{% trans "Number of New Broadcasts by Age" %} (' + totalBroadcasts + ')';
         
@@ -396,7 +396,7 @@ function initializeCharts() {
         ];
         const totalDuration = dataValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок с общим количеством
+        // Update title with total count
         document.getElementById('durationByAgeChartTitle').textContent = 
             '{% trans "Broadcast Time by Age (in Minutes)" %} (' + totalDuration + ')';
         
@@ -459,21 +459,21 @@ function initializeCharts() {
         const categoryValues = Object.values(categoryData).map(val => Math.round(val));
         const totalCategoryDuration = categoryValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок с общим количеством
+        // Update title with total count
         document.getElementById('durationByCategoryChartTitle').textContent = 
             '{% trans "Broadcast Time by Categories (in Minutes)" %} (' + totalCategoryDuration + ')';
         
-        // Добавление значений к меткам категорий
+        // Adding values to category labels
         const categoryLabels = categoryKeys.map((key, index) => {
             return key + ' (' + categoryValues[index] + ')';
         });
         
-        // Динамическая высота: минимум 300px, 40px на категорию
+        // Dynamic height: minimum 300px, 40px per category
         const minHeight = 300;
         const heightPerCategory = 40;
         const calculatedHeight = Math.max(minHeight, categoryKeys.length * heightPerCategory);
         
-        // Установка высоты контейнера
+        // Setting container height
         const container = categoryCtx.parentElement;
         container.style.height = `${calculatedHeight}px`;
         
@@ -529,7 +529,7 @@ function updateCharts() {
         ];
         const totalUsers = dataValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок
+        // Update title
         document.getElementById('usersChartTitle').textContent = 
             '{% trans "Age Structure of Users with Licenses and Broadcasts" %} (' + totalUsers + ')';
         
@@ -555,7 +555,7 @@ function updateCharts() {
         ];
         const totalBroadcasts = dataValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок
+        // Update title
         document.getElementById('broadcastsChartTitle').textContent = 
             '{% trans "Number of New Broadcasts by Age" %} (' + totalBroadcasts + ')';
         
@@ -581,7 +581,7 @@ function updateCharts() {
         ];
         const totalDuration = dataValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок
+        // Update title
         document.getElementById('durationByAgeChartTitle').textContent = 
             '{% trans "Broadcast Time by Age (in Minutes)" %} (' + totalDuration + ')';
         
@@ -602,16 +602,16 @@ function updateCharts() {
         const categoryValues = Object.values(categoryData).map(val => Math.round(val));
         const totalCategoryDuration = categoryValues.reduce((sum, val) => sum + val, 0);
         
-        // Обновляем заголовок
+        // Update title
         document.getElementById('durationByCategoryChartTitle').textContent = 
             '{% trans "Broadcast Time by Categories (in Minutes)" %} (' + totalCategoryDuration + ')';
         
-        // Добавление значений к меткам категорий
+        // Adding values to category labels
         const categoryLabels = categoryKeys.map((key, index) => {
             return key + ' (' + categoryValues[index] + ')';
         });
         
-        // Обновляем высоту контейнера при изменении количества категорий
+        // Update container height when category count changes
         const minHeight = 300;
         const heightPerCategory = 40;
         const calculatedHeight = Math.max(minHeight, categoryKeys.length * heightPerCategory);

@@ -10,11 +10,11 @@ def forwards_func(apps, schema_editor):
         inspection.save(update_fields=['target_part'])
 
 def backwards_func(apps, schema_editor):
-    # При откате можно либо очистить target_part, либо ничего не делать.
-    # Оставим target_part как есть, чтобы не потерять данные, если они важны.
+    # On rollback, you can either clear target_part or do nothing.
+    # Leave target_part as is to avoid losing data if it's important.
     # Inspection = apps.get_model('inventory', 'Inspection')
     # for inspection in Inspection.objects.all():
-    #     inspection.target_part = None # или значение по умолчанию, если бы оно было
+    #     inspection.target_part = None # or default value if there was one
     #     inspection.save(update_fields=['target_part'])
     pass
 

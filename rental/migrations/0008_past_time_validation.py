@@ -10,6 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Это миграция для методов Python, которые не требуют изменений в БД
-        # Добавлена валидация времени в прошлом в API и модели
+        # This is a migration for Python methods that don't require DB changes
+        # Added past time validation in API and model
     ]

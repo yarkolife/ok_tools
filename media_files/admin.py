@@ -14,8 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
 
 from .models import StorageLocation, VideoFile, FileOperation
-from .tasks import copy_video_to_playout
-from .utils import verify_file_integrity, extract_video_metadata, extract_video_metadata_fast, extract_number_from_filename, calculate_checksum
+from .utils import verify_file_integrity, extract_video_metadata, extract_video_metadata_fast, extract_number_from_filename, calculate_checksum, copy_file_with_progress, copy_video_to_playout
 
 
 logger = logging.getLogger('django')
@@ -342,11 +341,11 @@ class StorageLocationAdmin(admin.ModelAdmin):
                         pass
             
             success_message = (
-                f'✓ Сканирование завершено: {storage.name}\n'
-                f'Найдено: {stats["found"]} файлов | '
-                f'Создано: {stats["created"]} записей | '
-                f'Обновлено: {stats["updated"]} записей | '
-                f'Пропущено: {stats["skipped"]} файлов (без изменений)'
+                f'✓ {_("Scanning completed")}: {storage.name}\n'
+                f'{_("Found")}: {stats["found"]} {_("files")} | '
+                f'{_("Created")}: {stats["created"]} {_("records")} | '
+                f'{_("Updated")}: {stats["updated"]} {_("records")} | '
+                f'{_("Skipped")}: {stats["skipped"]} {_("files")} ({_("no changes")})'
             )
             
             # If it's an AJAX request, return JSON
@@ -361,12 +360,12 @@ class StorageLocationAdmin(admin.ModelAdmin):
             messages.success(request, success_message)
             
         except StorageLocation.DoesNotExist:
-            error_message = f'Storage location #{storage_id} not found'
+            error_message = _('Storage location #{} not found').format(storage_id)
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
                 return JsonResponse({'success': False, 'message': error_message})
             messages.error(request, error_message)
         except Exception as e:
-            error_message = f'Error scanning storage: {str(e)}'
+            error_message = _('Error scanning storage: {}').format(str(e))
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
                 return JsonResponse({'success': False, 'message': error_message})
             messages.error(request, error_message)
@@ -381,7 +380,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
         try:
             storage = StorageLocation.objects.get(id=storage_id)
         except StorageLocation.DoesNotExist:
-            messages.error(request, f'Storage location #{storage_id} not found')
+            messages.error(request, _('Storage location #{} not found').format(storage_id))
             return redirect('admin:media_files_storagelocation_changelist')
         
         if request.method == 'POST':
@@ -406,7 +405,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
         
         context = {
             'storage': storage,
-            'title': f'Scan Options - {storage.name}',
+            'title': _('Scan Options - {}').format(storage.name),
             'site_header': self.admin_site.site_header,
             'site_title': self.admin_site.site_title,
         }
@@ -419,9 +418,9 @@ class StorageLocationAdmin(admin.ModelAdmin):
         for storage in queryset:
             try:
                 call_command('scan_video_storage', storage_id=storage.id)
-                self.message_user(request, f'Successfully scanned: {storage.name}')
+                self.message_user(request, _('Successfully scanned: {}').format(storage.name))
             except Exception as e:
-                self.message_user(request, f'Error scanning {storage.name}: {str(e)}', level='error')
+                self.message_user(request, _('Error scanning {}: {}').format(storage.name, str(e)), level='error')
     scan_storage.short_description = _('Scan selected storage locations')
     
     def test_connection(self, request, queryset):
@@ -498,9 +497,9 @@ class VideoFileAdmin(admin.ModelAdmin):
     change_list_template = 'admin/media_files/videofile/change_list.html'
     
     list_display = [
-        'number', 'filename', 'storage_location', 'resolution_display',
-        'duration', 'file_size_display', 'format', 'is_available',
-        'duplicates_indicator', 'player_link'
+        'filename', 'storage_location', 'number', 'resolution_display',
+        'duration', 'file_size_display', 'format', 'duplicates_indicator',
+        'is_available', 'player_link'
     ]
     list_filter = [
         'storage_location', 'format', 'is_available',
@@ -719,9 +718,10 @@ class VideoFileAdmin(admin.ModelAdmin):
             except Exception:
                 size_display = 'N/A'
             bitrate_display = f"{obj.total_bitrate} bps" if obj.total_bitrate else 'N/A'
+            player_text = _("Player")  # Get translated text beforehand
 
             return format_html(
-                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 Плеер</a>',
+                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 {}</a>',
                 stream_url,
                 obj.filename or '',
                 number,
@@ -729,6 +729,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 duration,
                 size_display,
                 bitrate_display,
+                player_text,
             )
         return "-"
     player_link.short_description = _('Player')
@@ -755,6 +756,10 @@ class VideoFileAdmin(admin.ModelAdmin):
             # Generate UNC path for VLC
             vlc_path = self._get_vlc_path(obj)
             
+            # Get translated strings beforehand
+            file_path_linux = _("File path (Linux)")
+            file_path_windows = _("File path (Windows UNC)")
+            
             return format_html(
                 '''
                 <div style="max-width: 640px; margin: 10px 0;">
@@ -770,8 +775,8 @@ class VideoFileAdmin(admin.ModelAdmin):
                         width="640"
                         height="360">
                         <source src="{}" type="{}">
-                        <p>Для просмотра видео включите JavaScript или используйте 
-                            <a href="{}" download>скачать видео</a>
+                        <p>{% trans "To view the video, enable JavaScript or use" %}
+                            <a href="{}" download>{% trans "download video" %}</a>
                         </p>
                     </video>
                     
@@ -781,7 +786,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                     <!-- Video Info -->
                     <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                         <div style="font-size: 12px; color: #333; margin-bottom: 5px;">
-                            <strong>📁 Путь к файлу (Linux):</strong>
+                            <strong>📁 {}:</strong>
                         </div>
                         <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{}</code>
                         {}
@@ -850,10 +855,11 @@ class VideoFileAdmin(admin.ModelAdmin):
                 stream_url,
                 mime_type,
                 stream_url,
+                file_path_linux,  # Use pre-translated string
                 obj.full_path,
                 f'''
                     <div style="font-size: 12px; color: #333; margin-top: 10px; margin-bottom: 5px;">
-                        <strong>💾 Путь к файлу (Windows UNC):</strong>
+                        <strong>💾 {file_path_windows}:</strong>
                     </div>
                     <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{obj.unc_path}</code>
                 ''' if obj.unc_path else '',
@@ -869,10 +875,10 @@ class VideoFileAdmin(admin.ModelAdmin):
             video = VideoFile.objects.get(id=video_id)
             return render(request, 'admin/video_player.html', {'video': video})
         except VideoFile.DoesNotExist:
-            return HttpResponse('Video not found', status=404)
+            return HttpResponse(_('Video not found'), status=404)
         except Exception as e:
             logger.error(f'Error loading video player: {str(e)}', exc_info=True)
-            return HttpResponse(f'Error: {str(e)}', status=500)
+            return HttpResponse(_('Error: {}').format(str(e)), status=500)
 
     @csrf_exempt
     def stream_video(self, request, video_id):
@@ -881,14 +887,14 @@ class VideoFileAdmin(admin.ModelAdmin):
             video = VideoFile.objects.get(id=video_id)
             
             if not video.is_available:
-                return HttpResponse('Video not available', status=404)
-            
+                return HttpResponse(_('Video not available'), status=404)
+
             file_path = video.full_path
-            
+
             if not os.path.exists(file_path):
                 video.is_available = False
                 video.save()
-                return HttpResponse('Video file not found', status=404)
+                return HttpResponse(_('Video file not found'), status=404)
             
             # Determine content type based on file extension, not database format
             file_extension = os.path.splitext(video.filename)[1].lower()
@@ -904,7 +910,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             content_type = content_types.get(file_extension, 'video/mp4')
             
             # Use FileResponse with range support for efficient streaming
-            from django.http import FileResponse, HttpResponse
+            from django.http import FileResponse
             import mimetypes
             
             # Get file size for range requests
@@ -940,10 +946,10 @@ class VideoFileAdmin(admin.ModelAdmin):
             return response
             
         except VideoFile.DoesNotExist:
-            return HttpResponse('Video not found', status=404)
+            return HttpResponse(_('Video not found'), status=404)
         except Exception as e:
             logger.error(f'Error streaming video: {str(e)}', exc_info=True)
-            return HttpResponse(f'Error: {str(e)}', status=500)
+            return HttpResponse(_('Error: {}').format(str(e)), status=500)
     
     def copy_to_playout_action(self, request, queryset):
         """Action to copy selected videos to playout."""
@@ -959,7 +965,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         ).first()
         
         if not destination:
-            self.message_user(request, 'No PLAYOUT storage configured', level='error')
+            self.message_user(request, _('No PLAYOUT storage configured'), level='error')
             return
         
         for video in queryset:
@@ -1192,6 +1198,11 @@ class VideoFileAdmin(admin.ModelAdmin):
             self.message_user(request, f'{skipped_count} video(s) skipped (still in use)', level='warning')
         if error_count > 0:
             self.message_user(request, f'{error_count} video(s) failed to move', level='error')
+
+    class Media:
+        css = {
+            'all': ('css/admin/custom_admin.css',)
+        }
 
 
 @admin.register(FileOperation)

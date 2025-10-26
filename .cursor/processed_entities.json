@@ -1,0 +1,42 @@
+[
+  {
+    "entity": "dashboard/signals.py",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  },
+  {
+    "entity": "dashboard/widgets/funnel.py",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  },
+  {
+    "entity": "dashboard/templates/dashboard/widgets/funnel.html",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  },
+  {
+    "entity": "dashboard/management/commands/setup_default_thresholds.py",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  },
+  {
+    "entity": "dashboard/management/commands/check_alerts.py",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  },
+  {
+    "entity": "dashboard/management/commands/populate_funnel_data.py",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  },
+  {
+    "entity": "dashboard/migrations/0002_alertlog_alertthreshold_funnelmetrics_userjourney_and_more.py",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  },
+  {
+    "entity": "dashboard/api.py.backup",
+    "processed_at": "2025-01-19T12:00:00Z",
+    "status": "added_to_memory"
+  }
+]

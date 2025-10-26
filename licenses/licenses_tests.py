@@ -1106,3 +1106,217 @@ def test__licenses__widget__tags_input__null_handling():
     
     # Test valid string
     assert widget.format_value('tag1, tag2') == 'tag1, tag2'
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__invalid_token(license):
+    """API endpoint returns 401 when invalid token is provided."""
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION='Token invalidtokenvalue')
+    response = client.get(url)
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test__licenses__admin__DurationRangeFilter__no_results(browser, license_dict, user):
+    """DurationRangeFilter returns no results when range excludes all durations."""
+    # Create licenses outside filter range
+    license_dict['duration'] = datetime.timedelta(minutes=5)
+    license_dict['title'] = 'short_license'
+    create_license(user.profile, license_dict)
+
+    license_dict['duration'] = datetime.timedelta(minutes=10)
+    license_dict['title'] = 'medium_license'
+    create_license(user.profile, license_dict)
+
+    license_dict['duration'] = datetime.timedelta(minutes=15)
+    license_dict['title'] = 'long_license'
+    create_license(user.profile, license_dict)
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+
+    # Filter with range that excludes all (e.g., 60..120 minutes)
+    browser.getControl(name='duration_from').value = 60
+    browser.getControl(name='duration_to').value = 120
+    browser.getControl('Search', index=2).click()
+
+    # None of the created licenses should be visible
+    assert 'short_license' not in browser.contents
+    assert 'medium_license' not in browser.contents
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__no_planung_no_contribution_date(
+        api_client, api_token, license):
+    """API endpoint returns None for originallyPublishedAt when no planung or contribution exists."""
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Should return None when no planung or contribution dates are available
+    assert data['originallyPublishedAt'] is None
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__planung_not_planned(
+        api_client, api_token, license):
+    """API endpoint ignores planung entries that are not planned (draft=True)."""
+    # Create a draft plan (not planned) with this license
+    plan_date = datetime.date(2025, 1, 15)
+    TagesPlan.objects.create(
+        datum=plan_date,
+        json_plan={
+            'items': [
+                {'number': license.number, 'title': license.title, 'duration': 300}
+            ],
+            'draft': True,  # This is a draft, not planned
+            'planned': False
+        }
+    )
+    
+    # Also create a contribution for this license
+    contribution_date = datetime.datetime(
+        2025, 2, 10, 18, 0, 0, tzinfo=TZ
+    )
+    contribution = Contribution.objects.create(
+        license=license,
+        broadcast_date=contribution_date,
+        live=False
+    )
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Should use contribution date since planung is not planned
+    assert data['originallyPublishedAt'] is not None
+    assert '2025-02-10' in data['originallyPublishedAt']  # From contribution, not planung
+    assert '2025-01-15' not in data['originallyPublishedAt']  # Planung draft should be ignored
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__planung_multiple_matches(
+        api_client, api_token, license):
+    """API endpoint uses earliest planung date when multiple matches exist."""
+    # Create multiple plans for this license
+    plan_date1 = datetime.date(2025, 3, 15)  # Later date
+    TagesPlan.objects.create(
+        datum=plan_date1,
+        json_plan={
+            'items': [
+                {'number': license.number, 'title': license.title, 'duration': 300}
+            ],
+            'draft': False,
+            'planned': True
+        }
+    )
+    
+    plan_date2 = datetime.date(2025, 1, 15)  # Earlier date, should be selected
+    TagesPlan.objects.create(
+        datum=plan_date2,
+        json_plan={
+            'items': [
+                {'number': license.number, 'title': license.title, 'duration': 300}
+            ],
+            'draft': False,
+            'planned': True
+        }
+    )
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Should use the earlier date (January), not the later one (March)
+    assert data['originallyPublishedAt'] is not None
+    assert '2025-01-15' in data['originallyPublishedAt']
+    assert '2025-03-15' not in data['originallyPublishedAt']
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__empty_category_name(
+        api_client, api_token, license):
+    """API endpoint handles license with empty category name."""
+    license.category.name = ""
+    license.save()
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Category should be an empty string when name is empty
+    assert data['category'] == ""
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__null_category(
+        api_client, api_token, license):
+    """API endpoint handles license with null category."""
+    license.category = None
+    license.save()
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Should handle null category gracefully, probably defaulting to a string representation
+    assert data['category'] is not None  # Should not crash
+
+
+@pytest.mark.django_db
+def test__licenses__api__LicenseMetadataView__null_profile(
+        api_client, api_token, license):
+    """API endpoint handles license with null profile."""
+    license.profile = None
+    license.save()
+    
+    url = reverse_lazy('licenses:api-metadata', args=[license.number])
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
+    response = api_client.get(url)
+    
+    assert response.status_code == 404  # Should return 404 since license can't exist without profile in this context
+
+
+@pytest.mark.django_db
+def test__licenses__admin__tags_validation__invalid_json():
+    """Admin form handles invalid JSON in tags field."""
+    from .admin import LicenseAdminForm
+    from registration.models import Profile, OKUser
+    
+    # Create test data
+    user = OKUser.objects.create_user(email='test@example.com')
+    profile = Profile.objects.create(
+        okuser=user,
+        first_name='Test',
+        last_name='User'
+    )
+    
+    # Test with invalid JSON in tags field
+    form_data = {
+        'title': 'Test License',
+        'description': 'Test Description',
+        'profile': profile.id,
+        'tags': 'invalid json string'
+    }
+    
+    form = LicenseAdminForm(data=form_data)
+    # Form should be invalid due to invalid JSON
+    assert not form.is_valid()
+    # Should have error in tags field
+    assert 'tags' in form.errors
+    assert 'long_license' not in browser.contents

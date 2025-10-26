@@ -1,0 +1,211 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-25 01:13+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: planung/admin.py:132
+msgid "Mon"
+msgstr ""
+
+#: planung/admin.py:133
+msgid "Tue"
+msgstr ""
+
+#: planung/admin.py:134
+msgid "Wed"
+msgstr ""
+
+#: planung/admin.py:135
+msgid "Thu"
+msgstr ""
+
+#: planung/admin.py:136
+msgid "Fri"
+msgstr ""
+
+#: planung/admin.py:137
+msgid "Sat"
+msgstr ""
+
+#: planung/admin.py:138
+msgid "Sun"
+msgstr ""
+
+#: planung/admin.py:142
+msgid "Calendar Weeks – Broadcast Planning"
+msgstr ""
+
+#: planung/admin.py:160
+msgid "Draft?"
+msgstr ""
+
+#: planung/admin.py:169
+msgid "Planned items"
+msgstr ""
+
+#: planung/admin.py:178
+msgid "Comment"
+msgstr ""
+
+#: planung/admin.py:204
+msgid "not found"
+msgstr ""
+
+#: planung/admin.py:223 planung/templates/admin/planung/calendar_weeks.html:170
+msgid "Start"
+msgstr ""
+
+#: planung/admin.py:224
+msgid "License"
+msgstr ""
+
+#: planung/admin.py:225 planung/templates/admin/planung/calendar_weeks.html:174
+msgid "Author"
+msgstr ""
+
+#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:175
+msgid "Duration"
+msgstr ""
+
+#: planung/admin.py:232
+msgid "Planned items (preview)"
+msgstr ""
+
+#: planung/models.py:27 planung/models.py:28
+msgid "Calendar weeks"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:17
+msgid "Current Week"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:17
+#: planung/templates/admin/planung/calendar_weeks.html:41
+#: planung/templates/admin/planung/calendar_weeks.html:65
+#: planung/templates/admin/planung/calendar_weeks.html:89
+#: planung/templates/admin/planung/calendar_weeks.html:126
+msgid "CW"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:21
+#: planung/templates/admin/planung/calendar_weeks.html:45
+#: planung/templates/admin/planung/calendar_weeks.html:69
+#: planung/templates/admin/planung/calendar_weeks.html:93
+msgid "Planned days"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:25
+#: planung/templates/admin/planung/calendar_weeks.html:49
+#: planung/templates/admin/planung/calendar_weeks.html:73
+#: planung/templates/admin/planung/calendar_weeks.html:97
+msgid "Total time"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:29
+#: planung/templates/admin/planung/calendar_weeks.html:53
+#: planung/templates/admin/planung/calendar_weeks.html:77
+#: planung/templates/admin/planung/calendar_weeks.html:101
+msgid "Fill rate"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:33
+msgid "Licenses"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:41
+msgid "Next Week"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:57
+#: planung/templates/admin/planung/calendar_weeks.html:81
+#: planung/templates/admin/planung/calendar_weeks.html:105
+msgid "Time Off"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:65
+msgid "Week After Next"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:89
+msgid "3 Weeks Ahead"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:152
+#: planung/templates/admin/planung/calendar_weeks.html:193
+msgid "Close"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:157
+msgid "Broadcast block"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:158
+msgid "Full available"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:159
+msgid "Large gaps (≥5 min) can be filled with videos"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:163
+msgid "Enter license number..."
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:164
+msgid "Add"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:171
+msgid "End"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:172
+msgid "Number"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:173
+msgid "Title"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:176
+msgid "Actions"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:185
+msgid "Comment or notes:"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:191
+msgid "Sort by time"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:192
+msgid "Delete"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:194
+msgid "Save"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:195
+msgid "Plan!"
+msgstr ""
+
+#: planung/views.py:27
+msgid "License not found or not confirmed."
+msgstr ""

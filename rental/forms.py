@@ -4,8 +4,8 @@ from .models import RentalRequest
 from .models import RentalTransaction
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from inventory.models import InventoryItem
 from registration.models import OKUser
+from .services.inventory_service_interface import inventory_service
 
 
 class RentalRequestAdminForm(forms.ModelForm):
@@ -47,9 +47,13 @@ class RentalTransactionForm(forms.ModelForm):
         if qty <= 0:
             raise forms.ValidationError(_('Quantity must be positive.'))
 
-        inventory_item = rental_item.inventory_item
+        # Get item data from inventory service
+        item_data = inventory_service.get_item_by_id(rental_item.inventory_item_id)
+        if not item_data:
+            raise forms.ValidationError(_('Inventory item not found.'))
+        
         # Remaining global availability on the inventory item
-        remaining_global = (inventory_item.quantity or 0) - (inventory_item.reserved_quantity or 0) - (inventory_item.rented_quantity or 0)
+        remaining_global = (item_data['quantity'] or 0) - (item_data['reserved_quantity'] or 0) - (item_data['rented_quantity'] or 0)
 
         # Compute reserved balance for this rental item
         reserve_sum = rental_item.transactions.filter(transaction_type='reserve').aggregate(total=forms.models.Sum('quantity'))['total'] or 0
@@ -134,18 +138,10 @@ class RentalItemForm(forms.ModelForm):
     def __init__(self, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if user and hasattr(user, 'profile'):
-            inventory_query = InventoryItem.objects.filter(
-                available_for_rent=True,
-                status='in_stock',
-            )
-            from django.conf import settings
-            state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-            organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
-            
-            if hasattr(user, 'profile') and user.profile and user.profile.member:
-                # Member can access state institution + organization
-                inventory_query = inventory_query.filter(owner__name__in=[state_institution, organization_owner])
-            else:
-                # Non-member can only access state media institution
-                inventory_query = inventory_query.filter(owner__name=state_institution)
-            self.fields['inventory_item'].queryset = inventory_query
+            # Get available items from inventory service
+            available_items = inventory_service.get_available_items(user.id)
+            # Extract item IDs from available items
+            item_ids = [item['id'] for item in available_items]
+            # Create a mock queryset with available item IDs
+            from django.db.models import Q
+            self.fields['inventory_item'].queryset = InventoryItem.objects.filter(id__in=item_ids)

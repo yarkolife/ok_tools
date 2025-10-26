@@ -64,15 +64,15 @@
 
 {% if original and original.id %}
 <div class="video-player-section">
-    <h2>🎬 Video Player</h2>
+    <h2>🎬 {% trans "Video Player" %}</h2>
     
     {% if original.is_available %}
         <div class="video-info">
-            <p><strong>🔢 Number:</strong> {{ original.number }}</p>
-            <p><strong>💾 Storage:</strong> {{ original.storage_location.name }}</p>
-            {% if original.duration %}<p><strong>⏱️ Duration:</strong> {{ original.duration }}</p>{% endif %}
-            {% if original.file_size %}<p><strong>📊 Size:</strong> {{ original.file_size|filesizeformat }}</p>{% endif %}
-            {% if original.total_bitrate %}<p><strong>📡 Bitrate:</strong> {{ original.total_bitrate }} bps</p>{% endif %}
+            <p><strong>🔢 {% trans "Number" %}:</strong> {{ original.number }}</p>
+            <p><strong>💾 {% trans "Storage" %}:</strong> {{ original.storage_location.name }}</p>
+            {% if original.duration %}<p><strong>⏱️ {% trans "Duration" %}:</strong> {{ original.duration }}</p>{% endif %}
+            {% if original.file_size %}<p><strong>📊 {% trans "Size" %}:</strong> {{ original.file_size|filesizeformat }}</p>{% endif %}
+            {% if original.total_bitrate %}<p><strong>📡 {% trans "Bitrate" %}:</strong> {{ original.total_bitrate }} bps</p>{% endif %}
         </div>
 
         <div class="video-player-container">
@@ -80,58 +80,42 @@
                 controls 
                 preload="metadata">
                 <source src="{% url 'admin:media_files_videofile_stream' original.id %}" type="video/mp4">
-                Your browser does not support the video tag.
+                {% trans "Your browser does not support the video tag." %}
             </video>
         </div>
         
         <div style="margin-top: 10px; text-align: center;">
             <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download class="button" style="padding: 8px 16px; background: #417690; color: white; text-decoration: none; border-radius: 4px;">
-                📥 Download Video
+                📥 {% trans "Download Video" %}
             </a>
         </div>
         
         <div id="loading-progress" class="video-loading" style="display: none;">
-            <div>Loading video...</div>
+            <div>{% trans "Loading video..." %}</div>
         </div>
         
         <div style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 4px; border-left: 4px solid #2196F3;">
             <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
-                <strong>📁 File Path:</strong>
+                <strong>📁 {% trans "File Path" %}:</strong>
             </div>
             <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.full_path }}</code>
             {% if original.unc_path %}
             <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
-                <strong>💾 UNC Path:</strong>
+                <strong>💾 {% trans "UNC Path" %}:</strong>
             </div>
             <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.unc_path }}</code>
             {% endif %}
         </div>
     {% else %}
         <div class="video-unavailable">
-            ❌ Video file unavailable. Check path: {{ original.file_path }}
+            ❌ {% trans "Video file unavailable. Check path:" %} {{ original.file_path }}
         </div>
     {% endif %}
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    {% if original.is_available %}
-    console.log('Video player ready - using direct stream iframe');
-    
-    // Debug video object data
-    console.log('=== VIDEO DEBUG INFO ===');
-    console.log('original.number:', {{ original.number|default:"null" }});
-    console.log('original.storage_location:', {{ original.storage_location.name|default:"null" }});
-    console.log('original.duration:', {{ original.duration|default:"null" }});
-    console.log('original.file_size:', {{ original.file_size|default:"null" }});
-    console.log('original.total_bitrate:', {{ original.total_bitrate|default:"null" }});
-    console.log('original.full_path:', '{{ original.full_path|default:"null" }}');
-    console.log('original.unc_path:', '{{ original.unc_path|default:"null" }}');
-    console.log('original.is_available:', {{ original.is_available|yesno:"true,false" }});
-    console.log('original.pk:', {{ original.pk|default:"null" }});
-    console.log('CSRF Token:', '{{ csrf_token }}');
-    console.log('========================');
-    {% endif %}
+    console.log('Video player loaded successfully');
 });
 </script>
 {% endif %}

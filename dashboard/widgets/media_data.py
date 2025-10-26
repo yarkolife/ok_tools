@@ -160,7 +160,7 @@ class MediaDataWidget:
         """Get age distribution of users who created licenses and have primary contributions."""
         from django.db.models import Min
         
-        # Получаем primary contributions в заданном периоде
+        # Get primary contributions in the specified period
         primary_dates = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date']
@@ -168,16 +168,16 @@ class MediaDataWidget:
             min_date=Min('broadcast_date')
         )
         
-        # Словарь license_id -> min_date
+        # Dictionary license_id -> min_date
         license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
         
-        # Получаем contributions которые являются primary (первые по дате)
+        # Get contributions that are primary (first by date)
         contributions = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date']
         ).select_related('license__profile', 'license__profile__media_authority', 'license__category')
         
-        # Применяем фильтры через license
+        # Apply filters through license
         filters = self.filters.filters
         if filters['media_authority']:
             contributions = contributions.filter(license__profile__media_authority__name=filters['media_authority'])
@@ -190,7 +190,7 @@ class MediaDataWidget:
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
-        # Подсчитываем уникальных пользователей с primary contributions
+        # Count unique users with primary contributions
         age_groups = {
             'up_to_34': 0,
             '35_50': 0,
@@ -201,7 +201,7 @@ class MediaDataWidget:
         
         seen_profiles = set()
         for contribution in contributions:
-            # Проверяем что это primary contribution
+            # Check that this is primary contribution
             if contribution.license_id in license_primary_dates and contribution.broadcast_date == license_primary_dates[contribution.license_id]:
                 profile_id = contribution.license.profile.id
                 if profile_id not in seen_profiles:
@@ -215,7 +215,7 @@ class MediaDataWidget:
         """Get number of primary broadcasts by age group."""
         from django.db.models import Min
         
-        # Получаем минимальную дату для каждой лицензии (это будут primary contributions)
+        # Get minimum date for each license (these will be primary contributions)
         primary_dates = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date']
@@ -223,16 +223,16 @@ class MediaDataWidget:
             min_date=Min('broadcast_date')
         )
         
-        # Создаём словарь license_id -> min_date для быстрого поиска
+        # Create dictionary license_id -> min_date for quick lookup
         license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
         
-        # Базовый queryset с фильтрами
+        # Basic queryset with filters
         contributions = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date']
         ).select_related('license__profile', 'license__profile__media_authority', 'license__category')
         
-        # Применяем фильтры через license
+        # Apply filters through license
         filters = self.filters.filters
         if filters['media_authority']:
             contributions = contributions.filter(license__profile__media_authority__name=filters['media_authority'])
@@ -245,7 +245,7 @@ class MediaDataWidget:
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
-        # Фильтруем только primary contributions и группируем
+        # Filter only primary contributions and group
         age_groups = {
             'up_to_34': 0,
             '35_50': 0,
@@ -255,7 +255,7 @@ class MediaDataWidget:
         }
         
         for contribution in contributions:
-            # Проверяем что это primary contribution (первая по дате для лицензии)
+            # Check that this is primary contribution (first by date for license)
             if contribution.license_id in license_primary_dates and contribution.broadcast_date == license_primary_dates[contribution.license_id]:
                 age_group = self.get_age_group(contribution.license.profile.birthday)
                 age_groups[age_group] += 1
@@ -266,7 +266,7 @@ class MediaDataWidget:
         """Get total duration by age group in minutes."""
         from django.db.models import Min
         
-        # Получаем минимальную дату для каждой лицензии (это будут primary contributions)
+        # Get minimum date for each license (these will be primary contributions)
         primary_dates = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date']
@@ -274,17 +274,17 @@ class MediaDataWidget:
             min_date=Min('broadcast_date')
         )
         
-        # Создаём словарь license_id -> min_date для быстрого поиска
+        # Create dictionary license_id -> min_date for quick lookup
         license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
         
-        # Базовый queryset с фильтрами
+        # Basic queryset with filters
         contributions = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date'],
             license__duration__isnull=False
         ).select_related('license__profile', 'license__profile__media_authority', 'license__category')
         
-        # Применяем фильтры через license
+        # Apply filters through license
         filters = self.filters.filters
         if filters['media_authority']:
             contributions = contributions.filter(license__profile__media_authority__name=filters['media_authority'])
@@ -297,7 +297,7 @@ class MediaDataWidget:
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
-        # Группируем по возрасту и суммируем длительность
+        # Group by age and sum duration
         age_groups = {
             'up_to_34': 0,
             '35_50': 0,
@@ -307,7 +307,7 @@ class MediaDataWidget:
         }
         
         for contribution in contributions:
-            # Проверяем что это primary contribution (первая по дате для лицензии)
+            # Check that this is primary contribution (first by date for license)
             if contribution.license_id in license_primary_dates and contribution.broadcast_date == license_primary_dates[contribution.license_id]:
                 age_group = self.get_age_group(contribution.license.profile.birthday)
                 duration_minutes = contribution.license.duration.total_seconds() / 60
@@ -319,7 +319,7 @@ class MediaDataWidget:
         """Get total duration by category in minutes."""
         from django.db.models import Min
         
-        # Получаем минимальную дату для каждой лицензии (это будут primary contributions)
+        # Get minimum date for each license (these will be primary contributions)
         primary_dates = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date']
@@ -327,10 +327,10 @@ class MediaDataWidget:
             min_date=Min('broadcast_date')
         )
         
-        # Создаём словарь license_id -> min_date для быстрого поиска
+        # Create dictionary license_id -> min_date for quick lookup
         license_primary_dates = {item['license']: item['min_date'] for item in primary_dates}
         
-        # Базовый queryset с фильтрами
+        # Basic queryset with filters
         contributions = Contribution.objects.filter(
             broadcast_date__date__gte=self.filters.date_range['start_date'],
             broadcast_date__date__lte=self.filters.date_range['end_date'],
@@ -338,7 +338,7 @@ class MediaDataWidget:
             license__category__isnull=False
         ).select_related('license__profile', 'license__profile__media_authority', 'license__category')
         
-        # Применяем фильтры через license
+        # Apply filters through license
         filters = self.filters.filters
         if filters['media_authority']:
             contributions = contributions.filter(license__profile__media_authority__name=filters['media_authority'])
@@ -351,10 +351,10 @@ class MediaDataWidget:
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
-        # Группируем по категориям и суммируем длительность
+        # Group by categories and sum duration
         category_durations = {}
         for contribution in contributions:
-            # Проверяем что это primary contribution (первая по дате для лицензии)
+            # Check that this is primary contribution (first by date for license)
             if contribution.license_id in license_primary_dates and contribution.broadcast_date == license_primary_dates[contribution.license_id]:
                 category_name = contribution.license.category.name
                 duration_minutes = contribution.license.duration.total_seconds() / 60

@@ -3,6 +3,7 @@ from .models import MediaAuthority
 from .models import Notification
 from .models import Profile
 from .print import generate_registration_form
+from dashboard.cache_invalidation import invalidate_user_related_cache
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -295,6 +296,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
                 continue
             obj.verified = value
             obj.save()
+            invalidate_user_related_cache()
             if obj.verified:
                 signal.send(sender=self, obj=obj, request=request)
             updated += 1

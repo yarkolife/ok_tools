@@ -141,9 +141,9 @@ def system_management_view(request):
             errors = err.getvalue()
             
             if errors:
-                messages.error(request, f'❌ Ошибки при выполнении:\n{errors}')
+                messages.error(request, f'❌ {_("Errors during execution")}:\n{errors}')
             else:
-                messages.success(request, f'✓ Команда выполнена успешно!')
+                messages.success(request, f'✓ {_("Command executed successfully")}!')
                 
                 # Show output in a more readable format
                 if output:
@@ -156,7 +156,7 @@ def system_management_view(request):
             logger.info(f'User {request.user.username} executed command: {command} with options: {options}')
             
         except Exception as e:
-            messages.error(request, f'❌ Ошибка выполнения команды: {str(e)}')
+            messages.error(request, f'❌ {_("Command execution error")}: {str(e)}')
             logger.error(f'Error executing command {command}: {str(e)}', exc_info=True)
     
     # Get list of available storage locations for dropdowns

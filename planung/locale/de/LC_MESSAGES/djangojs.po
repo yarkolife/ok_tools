@@ -1,0 +1,38 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-25 02:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: planung/static/planung/js/calendar_weeks.js:165
+msgid "Full available"
+msgstr "Voll verfügbar"
+
+#: planung/static/planung/js/calendar_weeks.js:269
+msgid "Block filled (video extends beyond)"
+msgstr "Block gefüllt (Video überschreitet die Dauer)"
+
+#: planung/static/planung/js/calendar_weeks.js:272
+msgid "Overplanned by %(time)s!"
+msgstr "Überplant um %(time)s!"
+
+#: planung/static/planung/js/calendar_weeks.js:275
+msgid "Still %(time)s free"
+msgstr "Noch %(time)s frei"
+
+#: planung/static/planung/js/calendar_weeks.js:430
+msgid "License not found or not confirmed"
+msgstr "Lizenz nicht gefunden oder nicht bestätigt"

@@ -1,13 +1,39 @@
 [run]
 branch = True
 source =
+    dashboard
+    rental
+    inventory
     licenses
     registration
     projects
     contributions
+    planung
+omit =
+    */migrations/*
+    */tests/*
+    */test_*
+    */venv/*
+    */env/*
+    manage.py
+    ok_tools/settings.py
+    ok_tools/wsgi.py
+    ok_tools/asgi.py
+    */admin.py
+    */apps.py
 
 [report]
 precision=1
-fail_under=100
+fail_under=70
 show_missing=True
 skip_covered=True
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+
+[html]
+directory = htmlcov

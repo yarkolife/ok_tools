@@ -52,31 +52,6 @@ services:
     networks:
       - oktools-network
 
-  cron:
-    build:
-      context: ../../
-      dockerfile: deployment/docker/Dockerfile.production
-    environment:
-      - OKTOOLS_CONFIG_FILE=/app/docker-production.cfg
-      - DJANGO_SETTINGS_MODULE=ok_tools.settings
-    depends_on:
-      - db
-      - web
-    volumes:
-      - ../../docker-production.cfg:/app/docker-production.cfg:ro
-      - logs:/app/logs
-    command: |
-      sh -c "
-        echo '*/30 * * * * cd /app && python scripts/run_expire_rentals.py >> /app/logs/expire_rentals.log 2>&1' > /etc/cron.d/expire_rentals &&
-        chmod 0644 /etc/cron.d/expire_rentals &&
-        touch /app/logs/expire_rentals.log &&
-        service cron start &&
-        tail -f /app/logs/expire_rentals.log
-      "
-    restart: unless-stopped
-    networks:
-      - oktools-network
-
 volumes:
   postgres_data:
   static_files:

@@ -307,6 +307,19 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         DB_PASSWORD=$(grep "db_pw = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ')
         ALLOWED_HOSTS=$(grep "allowed_hosts = " docker-production.cfg.backup | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//')
         
+        # Извлекаем настройки Bootstrap из бэкапа (если есть)
+        BOOTSTRAP_VERSION=$(grep "version = " docker-production.cfg.backup | grep -A1 "\[bootstrap\]" | tail -1 | cut -d'=' -f2 | tr -d ' ' 2>/dev/null || echo "")
+        BOOTSTRAP_ICONS_VERSION=$(grep "icons_version = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ' 2>/dev/null || echo "")
+        
+        # Извлекаем настройки API из бэкапа (если есть)
+        API_PAGE_SIZE=$(grep "page_size = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ' 2>/dev/null || echo "")
+        API_ANON_LIMIT=$(grep "anon_rate_limit = " docker-production.cfg.backup | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//' 2>/dev/null || echo "")
+        API_USER_LIMIT=$(grep "user_rate_limit = " docker-production.cfg.backup | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//' 2>/dev/null || echo "")
+        
+        # Извлекаем настройки видео из бэкапа (если есть)
+        VIDEO_FORMATS=$(grep "supported_formats = " docker-production.cfg.backup | cut -d'=' -f2 | sed 's/^ *//' | sed 's/ *$//' 2>/dev/null || echo "")
+        VIDEO_DURATION=$(grep "screen_board_duration = " docker-production.cfg.backup | cut -d'=' -f2 | tr -d ' ' 2>/dev/null || echo "")
+        
         # Применяем пользовательские настройки
         if [ -n "$SECRET_KEY" ]; then
             sed -i "s/secret_key = .*/secret_key = $SECRET_KEY/g" docker-production.cfg
@@ -314,6 +327,44 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
         
         if [ -n "$DB_PASSWORD" ]; then
             sed -i "s/db_pw = .*/db_pw = $DB_PASSWORD/g" docker-production.cfg
+        fi
+        
+        # Применяем настройки Bootstrap (если были настроены)
+        if [ -n "$BOOTSTRAP_VERSION" ]; then
+            sed -i "s/version = .*/version = $BOOTSTRAP_VERSION/g" docker-production.cfg
+            print_info "Bootstrap версия восстановлена: $BOOTSTRAP_VERSION"
+        fi
+        
+        if [ -n "$BOOTSTRAP_ICONS_VERSION" ]; then
+            sed -i "s/icons_version = .*/icons_version = $BOOTSTRAP_ICONS_VERSION/g" docker-production.cfg
+            print_info "Bootstrap Icons версия восстановлена: $BOOTSTRAP_ICONS_VERSION"
+        fi
+        
+        # Применяем настройки API (если были настроены)
+        if [ -n "$API_PAGE_SIZE" ]; then
+            sed -i "s/page_size = .*/page_size = $API_PAGE_SIZE/g" docker-production.cfg
+            print_info "API размер страницы восстановлен: $API_PAGE_SIZE"
+        fi
+        
+        if [ -n "$API_ANON_LIMIT" ]; then
+            sed -i "s/anon_rate_limit = .*/anon_rate_limit = $API_ANON_LIMIT/g" docker-production.cfg
+            print_info "API лимит для анонимных восстановлен: $API_ANON_LIMIT"
+        fi
+        
+        if [ -n "$API_USER_LIMIT" ]; then
+            sed -i "s/user_rate_limit = .*/user_rate_limit = $API_USER_LIMIT/g" docker-production.cfg
+            print_info "API лимит для пользователей восстановлен: $API_USER_LIMIT"
+        fi
+        
+        # Применяем настройки видео (если были настроены)
+        if [ -n "$VIDEO_FORMATS" ]; then
+            sed -i "s/supported_formats = .*/supported_formats = $VIDEO_FORMATS/g" docker-production.cfg
+            print_info "Поддерживаемые форматы видео восстановлены: $VIDEO_FORMATS"
+        fi
+        
+        if [ -n "$VIDEO_DURATION" ]; then
+            sed -i "s/screen_board_duration = .*/screen_board_duration = $VIDEO_DURATION/g" docker-production.cfg
+            print_info "Длительность экранной доски восстановлена: $VIDEO_DURATION"
         fi
         
         # Восстанавливаем ALLOWED_HOSTS из бэкапа для сохранения IP адреса сервера
@@ -411,6 +462,46 @@ if [ "$UPDATE_STRATEGY" != "RESTART_ONLY" ]; then
             print_success "IP адрес сервера добавлен в ALLOWED_HOSTS"
         else
             print_info "IP адрес сервера уже присутствует в ALLOWED_HOSTS"
+        fi
+        
+        # Проверяем наличие новых секций и добавляем их если отсутствуют
+        print_info "Проверка наличия новых секций конфигурации..."
+        
+        # Добавляем секцию [bootstrap] если отсутствует
+        if ! grep -q "^\[bootstrap\]" docker-production.cfg; then
+            print_info "Добавляю секцию [bootstrap]..."
+            cat >> docker-production.cfg <<EOF
+
+[bootstrap]
+version = 5.3.3
+icons_version = 1.11.0
+EOF
+            print_success "Секция [bootstrap] добавлена"
+        fi
+        
+        # Добавляем секцию [api] если отсутствует
+        if ! grep -q "^\[api\]" docker-production.cfg; then
+            print_info "Добавляю секцию [api]..."
+            cat >> docker-production.cfg <<EOF
+
+[api]
+page_size = 20
+anon_rate_limit = 100/hour
+user_rate_limit = 1000/hour
+EOF
+            print_success "Секция [api] добавлена"
+        fi
+        
+        # Добавляем секцию [video] если отсутствует
+        if ! grep -q "^\[video\]" docker-production.cfg; then
+            print_info "Добавляю секцию [video]..."
+            cat >> docker-production.cfg <<EOF
+
+[video]
+supported_formats = mp4,mov,mpeg,mpg
+screen_board_duration = 20
+EOF
+            print_success "Секция [video] добавлена"
         fi
     fi
 

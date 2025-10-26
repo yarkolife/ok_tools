@@ -4,21 +4,24 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 2.4
+**Current Version**: 3
 **Last Updated**: October 2025
 
 Features
 ========
 
 **Core Applications:**
-- **Contributions Management** - Handle user contributions and submissions
-- **Inventory Management** - Track equipment and resources with serial numbers
-- **License Management** - Manage broadcasting licenses with tags and metadata export
-- **Rental System** - Equipment rental management with expiration tracking
-- **Planning Tools** - Calendar weeks and scheduling functionality with time extraction
-- **Project Management** - Organize and track various projects
 - **User Registration** - User management with privacy controls and notification system
+- **License Management** - Manage broadcasting licenses with tags and metadata export
+- **Media Files Management** - Advanced video file management with metadata extraction, storage location tracking, and license synchronization
+- **Planning Tools** - Calendar weeks and scheduling functionality with time extraction
+- **Contributions Management** - Handle user contributions and submissions
+- **Project Management** - Organize and track various projects
+- **Inventory Management** - Track equipment and resources with serial numbers
+- **Rental System** - Equipment rental management with expiration tracking
 - **Dashboard Analytics** - Comprehensive data visualization and monitoring
+- **Background Task Processing** - Asynchronous task execution with Celery for handling time-intensive operations
+- **Monitoring & Metrics** - Prometheus integration for application performance monitoring and metrics collection
 
 **Additional Features:**
 - **Accessibility Compliance** - WCAG compliant interface
@@ -34,6 +37,7 @@ Features
 - **Interactive Charts** - Multiple chart types (doughnut, bar, horizontal bar) with data export
 - **Real-time Analytics** - User journey tracking and funnel metrics
 - **Alert System** - Automated monitoring and threshold-based notifications
+
 
 Installation & Deployment
 =========================

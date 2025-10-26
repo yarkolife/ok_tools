@@ -8,10 +8,12 @@ from .models import InventoryItem
 from .models import Location
 from .models import Manufacturer
 from .models import Organization
-from admin_searchable_dropdown.filters import AutocompleteFilterFactory
+from .services import InventoryService
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import RelatedOnlyFieldListFilter
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from import_export.admin import ExportMixin
@@ -241,9 +243,11 @@ class InventoryImportAdmin(admin.ModelAdmin):
     """Admin interface for InventoryImport."""
 
     change_form_template = 'admin/inventory_import_change_form.html'
-    list_display = ('__str__', 'import_status', 'items_created', 'items_skipped', 'import_date', 'completed_date')
+    list_display = ('__str__', 'import_status', 'celery_status', 'task_id', 'items_created', 'items_skipped', 'import_date', 'completed_date')
     readonly_fields = (
         'import_status',
+        'celery_status',
+        'task_id',
         'items_created',
         'items_skipped',
         'get_error_log_display',
@@ -293,7 +297,43 @@ class InventoryImportAdmin(admin.ModelAdmin):
         """Import selected inventory files."""
         for import_obj in queryset:
             try:
-                import_obj.import_data(request)
+                # Start asynchronous import using Celery
+                task_id = import_obj.import_data_async()
+                
+                # Show message that task has been started
+                self.message_user(
+                    request,
+                    _('Import task for %(file)s has been started. Task ID: %(task_id)s') % {
+                        'file': import_obj.file.name,
+                        'task_id': task_id
+                    }
+                )
+            except Exception as e:
+                self.message_user(request, f'Error starting import for {import_obj.file.name}: {str(e)}', level=messages.ERROR)
+    
+    @admin.action(description=_('Import selected inventory files synchronously'))
+    def import_files_sync(self, request, queryset):
+        """Import selected inventory files synchronously (for backwards compatibility)."""
+        inventory_service = InventoryService()
+        for import_obj in queryset:
+            try:
+                result = inventory_service.import_inventory_data(request, import_obj.file, import_obj)
+                # Update import object with results
+                import_obj.items_created = result.get('created', 0)
+                import_obj.items_skipped = result.get('skipped', 0)
+                import_obj.error_log = result.get('error_log', '')
+                import_obj.import_status = 'completed' if result.get('created', 0) > 0 else 'completed_with_errors'
+                import_obj.completed_date = timezone.now()
+                import_obj.save()
+                
+                # Show success message
+                self.message_user(
+                    request,
+                    _('Successfully imported %(created)s items. %(skipped)s items skipped.') % {
+                        'created': result.get('created', 0),
+                        'skipped': result.get('skipped', 0)
+                    }
+                )
             except Exception as e:
                 self.message_user(request, f'Error importing {import_obj.file.name}: {str(e)}', level=messages.ERROR)
 
@@ -362,8 +402,25 @@ class InspectionImportAdmin(admin.ModelAdmin):
     @admin.action(description=_('Import selected inspection files'))
     def import_files(self, request, queryset):
         """Import selected inspection files."""
+        inventory_service = InventoryService()
         for import_obj in queryset:
             try:
-                import_obj.import_data(request)
+                result = inventory_service.import_inspection_data(request, import_obj.file, import_obj)
+                # Update import object with results
+                import_obj.items_created = result.get('created', 0)
+                import_obj.items_skipped = result.get('skipped', 0)
+                import_obj.error_log = result.get('error_log', '')
+                import_obj.import_status = 'completed' if result.get('created', 0) > 0 else 'completed_with_errors'
+                import_obj.completed_date = timezone.now()
+                import_obj.save()
+                
+                # Show success message
+                self.message_user(
+                    request,
+                    _('Successfully imported %(created)s inspections. %(skipped)s items skipped.') % {
+                        'created': result.get('created', 0),
+                        'skipped': result.get('skipped', 0)
+                    }
+                )
             except Exception as e:
                 self.message_user(request, f'Error importing {import_obj.file.name}: {str(e)}', level=messages.ERROR)

@@ -10,10 +10,13 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from django.contrib.messages import constants as messages
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 import configparser
 import logging
 import os
+from datetime import timedelta
+from celery.schedules import crontab
 
 
 # Logger for settings.py
@@ -45,15 +48,19 @@ DJANGO_LOG_LEVEL = os.getenv("DJANGO_LOG_LEVEL", "INFO")
 # Application definition
 
 INSTALLED_APPS = [
+    "django_prometheus",
     "ok_tools",
     "registration",
     "licenses",
     "projects",
     "contributions",
     "planung",
+    "inventory",
     "dashboard",
+    "rental",
     "media_files",
-    "admin_searchable_dropdown",
+    "rest_framework",
+    "rest_framework.authtoken",
     "crispy_forms",
     "crispy_bootstrap4",
     "admin_auto_filters",
@@ -62,12 +69,7 @@ INSTALLED_APPS = [
     "icalendar",
     "import_export",
     "rangefilter",
-    "rest_framework",
-    "rest_framework.authtoken",
-    "django_filters",
     "tablib",
-    "inventory",
-    "rental",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -76,18 +78,17 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
-
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "inventory.middleware.CurrentUserMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "ok_tools.urls"
@@ -108,7 +109,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "registration.context_processors.context",
-                "ok_tools.context_processors.user_display_name",
+                "ok_tools.context_processors.bootstrap_context",
             ],
         },
     },
@@ -160,25 +161,11 @@ if use_secure_settings:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     CORS_ORIGIN_WHITELIST = [f"https://{hosts}"]
     USE_X_FORWARDED_HOST = True
-else:
-    # HTTP settings for development/test environment
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
-    SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-    SECURE_SSL_REDIRECT = False
-    SECURE_HSTS_SECONDS = 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-    SECURE_HSTS_PRELOAD = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
 LANGUAGE_CODE = config.get("django", "language", fallback="de-de")
-
-LANGUAGES = [
-    ('de', 'Deutsch'),
-    ('en', 'English'),
-]
 
 TIME_ZONE = config.get("django", "timezone", fallback="Europe/Berlin")
 
@@ -194,66 +181,51 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "ok_tools", "static"),
-    os.path.join(BASE_DIR, "planung", "static"),
-    os.path.join(BASE_DIR, "licenses", "static"),
-    os.path.join(BASE_DIR, "rental", "static"),
+    os.path.join(BASE_DIR, "static"),
 ]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_ROOT = config.get("django", "static", fallback="static/")
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+MEDIA_ROOT = config.get("django", "media", fallback="media/")
+MEDIA_URL = "/media/"
 
 # ManifestStaticFilesStorage is recommended in production, to prevent outdatedhttp://localhost:8000/
 # JavaScript / CSS assets being served from cache (e.g. after a Wagtail upgrade).
 # See
 # https://docs.djangoproject.com/en/3.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
 # authenticatable users
 AUTH_USER_MODEL = "registration.OKUser"
 AUTHENTICATION_BACKENDS = ["registration.backends.EmailBackend"]
 
-
-
-# Django REST Framework
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.TokenAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-    ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
-    "DEFAULT_FILTER_BACKENDS": (
-        "django_filters.rest_framework.DjangoFilterBackend",
-        "rest_framework.filters.SearchFilter",
-        "rest_framework.filters.OrderingFilter",
-    ),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 20,
-    "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
-    ],
-    "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/hour",  # Anonymous users: 100 requests per hour
-        "user": "1000/hour",  # Authenticated users: 1000 requests per hour
-    },
-}
-
-# TODO config?
 # Phone Number Validation
-PHONENUMBER_DEFAULT_REGION = "DE"
+PHONENUMBER_DEFAULT_REGION = config.get("i18n", "phone_region", fallback="DE")
 
 # Date format
-DATE_INPUT_FORMATS = "%d.%m.%Y"
+DATE_INPUT_FORMATS = config.get("i18n", "date_format", fallback="%d.%m.%Y")
 
 # email
 # send the mails to stdout
@@ -275,40 +247,18 @@ DEFAULT_FROM_EMAIL = config.get(
 )
 
 
-# Organization settings - configurable via config file
-OK_NAME = config.get("organization", "name", fallback="Offener Kanal Merseburg-Querfurt e.V.")
-OK_NAME_SHORT = config.get("organization", "short_name", fallback="OK Merseburg")
-OK_WEBSITE = config.get("organization", "website", fallback="https://okmq.de")
-OK_EMAIL = config.get("organization", "email", fallback="info@okmq.de")
-OK_ADDRESS = config.get("organization", "address", fallback="Geusaer Straße 86 b, 06217 Merseburg")
-OK_PHONE = config.get("organization", "phone", fallback="03461/ 52 52 22")
-OK_FAX = config.get("organization", "fax", fallback="03461/ 52 20 24")
-OK_DESCRIPTION = config.get("organization", "description", fallback="Willkommen beim Offenen Kanal! Wir sind ein gemeinnütziger Bürgermedien-Verein, der Ihnen die Möglichkeit bietet, eigene TV- und Radiosendungen zu produzieren und zu veröffentlichen.")
-OK_OPENING_HOURS = config.get("organization", "opening_hours", fallback="Mo: 13:00 – 16:00\nDi – Do: 10:00 – 18:00\nFr: 10:00 – 16:00\n(oder nach Vereinbarung)")
+# name of the OK
+OK_NAME = config.get("organization", "name", fallback=_("Open Channel Merseburg-Querfurt e.V."))
+OK_NAME_SHORT = config.get("organization", "short_name", fallback=_("OK Merseburg"))
 
-# Equipment owners configuration
-# State media institution (accessible to all users)
+# Organization settings
 STATE_MEDIA_INSTITUTION = config.get("organization", "state_media_institution", fallback="MSA")
-
-# Organization owner (the organization this site is configured for - accessible only to members)
 ORGANIZATION_OWNER = config.get("organization", "organization_owner", fallback="OKMQ")
 
-# All equipment owners combined (for backward compatibility)
-EQUIPMENT_OWNERS = [STATE_MEDIA_INSTITUTION, ORGANIZATION_OWNER]
-
 # the fixed duration of a screen board (Bildschirmtafel) in seconds
-SCREEN_BOARD_DURATION = 20
-
-# Broadcast block settings (in format HH:MM)
-BROADCAST_START = config.get("organization", "broadcast_start", fallback="18:00")
-BROADCAST_END = config.get("organization", "broadcast_end", fallback="19:45")
-
-# PeerTube channel (optional, for video publishing integration)
-# Format: @handle@domain.com (ActivityPub/Fediverse format)
-PEERTUBE_CHANNEL = config.get("organization", "peertube_channel", fallback="")
+SCREEN_BOARD_DURATION = config.getint("video", "screen_board_duration", fallback=20)
 
 # Which site should be seen after log in and log out
-LOGIN_URL = "login"  # This points to /profile/login/ via django.contrib.auth.urls
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
@@ -329,6 +279,13 @@ MESSAGE_TAGS = {
 # path to legacy data
 LEGACY_DATA = "../legacy_data/data.xlsx"
 
+# Backup directory - read from config or environment
+BACKUP_DIR = os.environ.get("BACKUP_DIR", config.get("django", "backup_dir", fallback="backups/"))
+
+# Broadcast time settings for planning - read from config
+BROADCAST_START = config.get("organization", "broadcast_start", fallback="06:00")
+BROADCAST_END = config.get("organization", "broadcast_end", fallback="23:00")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -341,24 +298,32 @@ LOGGING = {
             "format": "{levelname} {message}",
             "style": "{",
         },
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": "%(asctime)s %(name)s %(levelname)s %(pathname)s %(lineno)d %(message)s",
+        },
     },
     "handlers": {
         "file": {
             "level": DJANGO_LOG_LEVEL,
             "class": "logging.FileHandler",
-            "filename": config.get("logging", "file", fallback=os.path.join(BASE_DIR, "ok_tools-debug.log")),
+            "filename": os.path.join(BASE_DIR, "ok_tools-debug.log"),
             "formatter": "timestamp",
         },
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "levelname",
+            "formatter": "json",
         },
     },
     "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
         "django": {
-            "handlers": ["file"],
-            "level": DJANGO_LOG_LEVEL,
-            "propagate": True,
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
         "dashboard": {
             "handlers": ["file"],
@@ -380,21 +345,87 @@ LOGGING = {
             "level": "CRITICAL",
             "propagate": True,
         },
+        "celery": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "celery.task": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "celery.worker": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
 
-# Video file management settings
-VIDEO_SUPPORTED_FORMATS = ['mp4', 'mov', 'mpeg', 'mpg']
-VIDEO_ARCHIVE_PATH = config.get("media", "archive_path", fallback="")
-VIDEO_PLAYOUT_PATH = config.get("media", "playout_path", fallback="")
-VIDEO_AUTO_SCAN_ENABLED = config.getboolean("media", "auto_scan", fallback=False)
-VIDEO_AUTO_COPY_ON_SCHEDULE = config.getboolean("media", "auto_copy_on_schedule", fallback=True)
+# Bootstrap settings
+BOOTSTRAP_VERSION = config.get("bootstrap", "version", fallback="5.3.2")
+BOOTSTRAP_CDN_URL = f"https://cdn.jsdelivr.net/npm/bootstrap@{BOOTSTRAP_VERSION}"
+BOOTSTRAP_ICONS_VERSION = config.get("bootstrap", "icons_version", fallback="1.1.1")
+BOOTSTRAP_ICONS_URL = f"https://cdn.jsdelivr.net/npm/bootstrap-icons@{BOOTSTRAP_ICONS_VERSION}"
 
-# Video duplicate management
-VIDEO_STORAGE_PRIORITY = config.get("media", "storage_priority", fallback="ARCHIVE,PLAYOUT,CUSTOM")
-VIDEO_PREVENT_ARCHIVE_DUPLICATES = config.getboolean("media", "prevent_archive_duplicates", fallback=True)
-VIDEO_AUTO_DETECT_DUPLICATES = config.getboolean("media", "auto_detect_duplicates", fallback=True)
+# Celery Configuration
+CELERY_BROKER_URL = config.get("celery", "broker_url", fallback='redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = config.get("celery", "result_backend", fallback='redis://127.0.0.1:6379/0')
 
-# NAS UNC paths for VLC integration
-NAS_ARCHIVE_UNC_PATH = config.get("nas_storage", "archive_unc_path", fallback="\\\\192.168.88.101\\FilmArchiv")
-NAS_PLAYOUT_UNC_PATH = config.get("nas_storage", "playout_unc_path", fallback="\\\\192.168.88.2\\Sendedaten")
+# Celery Configuration Options
+CELERY_TIMEZONE = config.get("django", "timezone", fallback="Europe/Berlin")
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
+
+# Celery Beat Schedule from config file
+def parse_crontab(crontab_string):
+    """
+    Helper function to parse a crontab string into a crontab object.
+    Handles different numbers of arguments in the crontab string.
+    Standard crontab format: minute hour day_of_month month_of_year day_of_week
+    """
+    parts = crontab_string.split()
+    crontab_kwargs = {
+        'minute': parts[0] if len(parts) > 0 else '*',
+        'hour': parts[1] if len(parts) > 1 else '*',
+        'day_of_month': parts[2] if len(parts) > 2 else '*',
+        'month_of_year': parts[3] if len(parts) > 3 else '*',
+        'day_of_week': parts[4] if len(parts) > 4 else '*',
+    }
+    return crontab(**crontab_kwargs)
+
+CELERY_BEAT_SCHEDULE = {
+    'expire_rentals': {
+        'task': 'ok_tools.tasks.run_expire_room_rentals_task',
+        'schedule': parse_crontab(config.get('celery_beat', 'expire_rentals_schedule', fallback='*/30 * * *')),
+    },
+    'cleanup_old_backups': {
+        'task': 'ok_tools.tasks.cleanup_old_backups_task',
+        'schedule': parse_crontab(config.get('celery_beat', 'cleanup_old_backups_schedule', fallback='0 2 * *')),
+    },
+    'run_backup_db': {
+        'task': 'ok_tools.tasks.run_backup_db_task',
+        'schedule': parse_crontab(config.get('celery_beat', 'run_backup_db_schedule', fallback='0 3 * * *')),
+    },
+    'auto_scan': {
+        'task': 'media_files.tasks.run_auto_scan',
+        'schedule': parse_crontab(config.get('celery_beat', 'auto_scan_schedule', fallback='0 */2 * *')),
+    },
+    'link_orphan_licenses': {
+        'task': 'media_files.tasks.run_link_orphan_licenses',
+        'schedule': parse_crontab(config.get('celery_beat', 'link_orphan_licenses_schedule', fallback='0 3 * * *')),
+    },
+    'sync_licenses_videos': {
+        'task': 'media_files.tasks.run_sync_licenses_videos',
+        'schedule': parse_crontab(config.get('celery_beat', 'sync_licenses_videos_schedule', fallback='0 4 * * *')),
+    },
+    'update_video_metadata': {
+        'task': 'media_files.tasks.run_update_video_metadata',
+        'schedule': parse_crontab(config.get('celery_beat', 'update_video_metadata_schedule', fallback='0 1 1 * *')),
+        'kwargs': {'missing_only': True},
+    },
+}

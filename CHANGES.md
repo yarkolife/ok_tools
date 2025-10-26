@@ -1,8 +1,64 @@
 CHANGELOG
 =========
 
+2025-10-25 (Version 3)
+========================
+
+* **Major Architecture Improvements**
+  * **Event-Driven Architecture**: Implemented asynchronous communication between rental and inventory modules using Celery events
+  * **Service Layer Pattern**: Introduced service layers for inventory and rental operations with abstract interfaces for better decoupling
+  * **Microservices Preparation**: Created abstract inventory service interface to prepare for future microservices transition
+  **Comprehensive Architecture Documentation**: Added complete C4 model diagrams and architectural overview in `overview.md`
+
+* **Asynchronous Task Processing**
+  * **Celery Integration**: Integrated Celery with Redis for background task processing
+  * **Async Inventory Import**: Implemented asynchronous inventory import with progress tracking and error handling
+  * **Background Processing**: Added Celery workers for long-running operations like imports and exports
+
+* **API Enhancements**
+  * **OpenAPI/Swagger Documentation**: Added automatic API documentation with drf-spectacular
+  * **REST API for Inventory**: Implemented comprehensive REST API endpoints for inventory management
+  * **Token Authentication**: Enhanced API security with token-based authentication and management interface
+  * **API Rate Limiting**: Added throttling protection with 100/hour for anonymous and 1000/hour for authenticated users
+
+* **Monitoring and Observability**
+  * **Prometheus Integration**: Added comprehensive metrics collection with django-prometheus
+  * **JSON Logging**: Implemented structured JSON logging for improved debugging and monitoring
+  * **System Metrics**: Added metrics for HTTP requests, database operations, and model operations
+  * **Performance Monitoring**: Enhanced dashboard with real-time system statistics
+
+* **Security Enhancements**
+  * **Security Headers**: Implemented comprehensive security headers (HSTS, XSS protection, etc.)
+  * **CSRF Protection**: Enhanced CSRF protection with secure cookie settings
+  * **Clickjacking Protection**: Added X-Frame-Options headers to prevent clickjacking attacks
+ * **Vulnerability Scanning**: Integrated pip-audit for automatic dependency vulnerability scanning
+
+* **Code Quality and Type Safety**
+  * **Static Type Checking**: Added comprehensive type hints with mypy integration
+  * **Code Documentation**: Added Google-style docstrings for all public APIs
+  * **Unit Test Coverage**: Added 100+ unit tests for service layers with 70%+ coverage
+  * **Code Quality Tools**: Integrated pre-commit hooks and automated code quality checks
+
+* **Performance Optimizations**
+  * **Bulk Import Optimization**: Optimized inventory import with bulk_create/bulk_update operations (80% faster)
+  * **DISA Import Efficiency**: Improved DISA import performance with reduced database queries (~95% faster)
+  * **Database Query Optimization**: Continued optimization of N+1 queries across the application
+  * **Cache Improvements**: Enhanced caching strategies for better performance
+
+* **Infrastructure Improvements**
+  * **Backup Management**: Added custom management command for PostgreSQL database backups
+ * **Configuration Management**: Enhanced .cfg file support for comprehensive Django configuration
+  * **Deployment Scripts**: Fixed and improved deployment scripts for production environments
+  * **CI/CD Integration**: Enhanced CI pipeline with code coverage and vulnerability scanning
+
+* **Bug Fixes and Stability**
+  * **Admin Interface Fixes**: Resolved CSS and display issues in Django admin interface
+  * **Error Handling**: Fixed KeyError and AttributeError issues in various components
+  * **Import Error Resolution**: Fixed inventory and contribution import error handling
+ * **Video Player Fix**: Resolved translation-related errors in video file player
+
 2025-10-11 (Version 2.5)
-=========================
+========================
 
 * **Media Files Management Module**
   * New comprehensive module for video file management
@@ -17,7 +73,7 @@ CHANGELOG
     * Proper range request support for seeking
     * FileResponse for efficient streaming
     * Inline content disposition (no download prompts)
-  * **Duration and Tags formatting**: Improved display in admin interface
+ * **Duration and Tags formatting**: Improved display in admin interface
     * License duration rounded to seconds (hh:mm:ss format)
     * Tags displayed without JSON brackets and quotes
     * Empty tags show as dash (-) instead of [] or null
@@ -25,7 +81,7 @@ CHANGELOG
     * Warning only shown if difference >= 1 second
     * Prevents false alerts for sub-second differences (e.g., 0.568s)
     * Auto-sync respects same tolerance threshold
-  * **Duplicate Video Management**: Comprehensive duplicate detection and management
+ * **Duplicate Video Management**: Comprehensive duplicate detection and management
     * **Automatic detection**: Finds videos with same number in different storage locations
     * **Quality-based prioritization**: ARCHIVE > PLAYOUT > CUSTOM, then by bitrate/resolution
     * **Checksum verification**: Identifies identical vs different files with same number
@@ -36,99 +92,99 @@ CHANGELOG
       * Bulk actions: mark as primary, delete duplicates
       * Detailed duplicate information in change forms
       * Links between all versions of same video
-    * **Management command**: `find_duplicates` with JSON output and filtering options
-    * **Auto-copy improvements**: Automatically selects best quality version when copying
-    * **Configuration**: New settings for storage priority and duplicate prevention
-    * **Documentation**: Complete guides (DUPLICATE_MANAGEMENT.md, DUPLICATE_QUICKSTART.md)
-  * **Weekly Folder Organization**: Automatic weekly folder structure for playout storage
-    * **Auto-detection**: Automatically determines week from planning date (ISO 8601)
-    * **Folder format**: Creates folders like `2025_KW_41` for week 41 of 2025
-    * **Auto-copy integration**: Videos copied to correct weekly folder when planning saved
-    * **Manual copy support**: Admin copy actions also use weekly folders
-    * **Automatic creation**: Creates weekly folders if they don't exist
-    * **Database integration**: VideoFile.file_path includes weekly folder path
-    * **Backward compatibility**: Existing videos without weekly folders still work
-    * **Documentation**: Complete guide (WEEKLY_FOLDERS.md)
-  * **Advanced Automation Features**: Comprehensive automation for video file management
-    * **Bidirectional sync**: Automatic linking between VideoFile and License (both directions)
-    * **Mass synchronization**: `sync_licenses_videos` command for bulk linking and duration sync
-    * **Automatic playout cleanup**: Move videos from playout to archive when no longer in use
-    * **File attribute monitoring**: Detect when files are in use via system attributes (Windows/Linux)
-    * **File lock detection**: Check if files are locked by other processes using `lsof`
-    * **Auto-scan integration**: `auto_scan` command for automated storage scanning
-    * **Admin actions**: "Move to archive storage" bulk action with safety checks
-    * **Cron integration**: Ready for automated daily/weekly maintenance tasks
-    * **Comprehensive logging**: All operations tracked in FileOperation model
-    * **Admin UI improvements**:
-      * **Scan button**: One-click storage scanning from admin interface
-      * **Search for videos**: Button to find videos for licenses without files
-      * **Bulk search**: Admin action to search videos for multiple licenses
-      * **Orphan license finder**: `link_orphan_licenses` command to auto-link videos
-      * **System Management**: Centralized page to run all commands from admin UI
-        * Auto scan, manual scan, sync licenses, link orphans, cleanup playout, find/cleanup duplicates
-        * All commands with configurable options and dry-run support
-        * No terminal access required
-        * Accessible via MEDIA FILES → 🎛️ System Management in admin sidebar (like planung calendar)
-      * **License list enhancements**: Video status column in license admin list
-        * Shows video availability status (🎬 Available, ⚠️ Not available, ❌ No video)
-        * Play link (▶️ Play) for available videos that opens in popup window (800x600px)
-        * Optimized queries with select_related to avoid N+1 problems
-      * **Video format detection fix**: Improved MIME-type detection for video playback
-        * MIME-type now determined by file extension, not ffprobe format
-        * Fixes issue where renamed files (e.g., .mov → .mp4) wouldn't play
-        * Videos now stream correctly instead of downloading
-        * Updated metadata extraction to prioritize file extension over container format
-      * **Video availability fix**: Fixed scan command to properly update video availability
-        * Existing videos are now always marked as available when found during scan
-        * No longer requires --force or --update-metadata flags for availability updates
-        * Missing files are automatically marked as unavailable
-        * Scan button in admin now works correctly for updating video status
-      * **System Management fixes**: Fixed command parameter mismatches and missing functionality
-        * Created missing `cleanup_duplicates` command with proper quality-based duplicate removal
-        * Fixed parameter mapping for `find_duplicates` command (removed non-existent options)
-        * All management commands now work correctly from System Management page
-        * Added dry-run protection for destructive operations
-    * **Documentation**: Complete automation guide (ADVANCED_FEATURES.md)
-  * **NAS/Network Storage Support**: SMB/CIFS mounting for network shares
-    * **Development (Docker/macOS)**:
-      * Automatic mount scripts (mount_nas.sh, umount_nas.sh)
-      * Docker volume configuration for NAS access
-      * Test script for verifying access (test_nas_access.sh)
-      * Full documentation: media_files/NAS_SETUP.md
-    * **Production (Debian 11/gunicorn)**:
-      * Automated setup script (deployment/scripts/setup-nas-debian.sh)
-      * Support for multiple NAS with different IP addresses
-      * fstab and systemd mount unit configurations
-      * Health check and remount scripts
-      * Full documentation: deployment/NAS_DEBIAN_SETUP.md
-      * Quick start: deployment/PRODUCTION_NAS_QUICKSTART.txt
-    * Production configs updated with [media] section (ok-bayern, ok-nrw, okmq)
-  * Comprehensive video metadata: codec, bitrate, FPS, resolution, color space, chroma subsampling
-  * Audio metadata: codec, bitrate, sample rate, channels, channel layout
-  * Built-in video player in Django Admin with HTML5 support and seeking
-  * Automatic copy from archive to playout when broadcast plans are saved
-  * File integrity verification with SHA256 checksums
-  * Complete operation history logging
-  * Management commands: scan_video_storage, update_video_metadata, copy_to_playout, cleanup_playout
-  * Admin actions: copy to playout, update metadata, verify integrity
-  * Integration with License model (one-to-one relationship by number)
-  * Integration with Planung module for auto-copying videos
-  * Configurable via config file (docker.cfg)
-  * Supported formats: mp4, mov, mpeg, mpg (configurable)
-  * Full documentation:
-    * media_files/README.md - Technical documentation
-    * media_files/ADMIN_GUIDE.md - Django Admin user guide with examples
-    * media_files/QUICKSTART.md - Quick start guide
+      * **Management command**: `find_duplicates` with JSON output and filtering options
+      * **Auto-copy improvements**: Automatically selects best quality version when copying
+      * **Configuration**: New settings for storage priority and duplicate prevention
+      * **Documentation**: Complete guides (DUPLICATE_MANAGEMENT.md, DUPLICATE_QUICKSTART.md)
+    * **Weekly Folder Organization**: Automatic weekly folder structure for playout storage
+      * **Auto-detection**: Automatically determines week from planning date (ISO 8601)
+      * **Folder format**: Creates folders like `2025_KW_41` for week 41 of 2025
+      * **Auto-copy integration**: Videos copied to correct weekly folder when planning saved
+      * **Manual copy support**: Admin copy actions also use weekly folders
+      * **Automatic creation**: Creates weekly folders if they don't exist
+      * **Database integration**: VideoFile.file_path includes weekly folder path
+      * **Backward compatibility**: Existing videos without weekly folders still work
+      * **Documentation**: Complete guide (WEEKLY_FOLDERS.md)
+    * **Advanced Automation Features**: Comprehensive automation for video file management
+      * **Bidirectional sync**: Automatic linking between VideoFile and License (both directions)
+      * **Mass synchronization**: `sync_licenses_videos` command for bulk linking and duration sync
+      * **Automatic playout cleanup**: Move videos from playout to archive when no longer in use
+      * **File attribute monitoring**: Detect when files are in use via system attributes (Windows/Linux)
+      * **File lock detection**: Check if files are locked by other processes using `lsof`
+      * **Auto-scan integration**: `auto_scan` command for automated storage scanning
+      * **Admin actions**: "Move to archive storage" bulk action with safety checks
+      * **Cron integration**: Ready for automated daily/weekly maintenance tasks
+      * **Comprehensive logging**: All operations tracked in FileOperation model
+      * **Admin UI improvements**:
+        * **Scan button**: One-click storage scanning from admin interface
+        * **Search for videos**: Button to find videos for licenses without files
+        * **Bulk search**: Admin action to search videos for multiple licenses
+        * **Orphan license finder**: `link_orphan_licenses` command to auto-link videos
+        * **System Management**: Centralized page to run all commands from admin UI
+          * Auto scan, manual scan, sync licenses, link orphans, cleanup playout, find/cleanup duplicates
+          * All commands with configurable options and dry-run support
+          * No terminal access required
+          * Accessible via MEDIA FILES → 🎛️ System Management in admin sidebar (like planung calendar)
+        * **License list enhancements**: Video status column in license admin list
+          * Shows video availability status (🎬 Available, ⚠️ Not available, ❌ No video)
+          * Play link (▶️ Play) for available videos that opens in popup window (800x600px)
+          * Optimized queries with select_related to avoid N+1 problems
+        * **Video format detection fix**: Improved MIME-type detection for video playback
+          * MIME-type now determined by file extension, not ffprobe format
+          * Fixes issue where renamed files (e.g., .mov → .mp4) wouldn't play
+          * Videos now stream correctly instead of downloading
+          * Updated metadata extraction to prioritize file extension over container format
+        * **Video availability fix**: Fixed scan command to properly update video availability
+          * Existing videos are now always marked as available when found during scan
+          * No longer requires --force or --update-metadata flags for availability updates
+          * Missing files are automatically marked as unavailable
+          * Scan button in admin now works correctly for updating video status
+        * **System Management fixes**: Fixed command parameter mismatches and missing functionality
+          * Created missing `cleanup_duplicates` command with proper quality-based duplicate removal
+          * Fixed parameter mapping for `find_duplicates` command (removed non-existent options)
+          * All management commands now work correctly from System Management page
+          * Added dry-run protection for destructive operations
+      * **Documentation**: Complete automation guide (ADVANCED_FEATURES.md)
+    * **NAS/Network Storage Support**: SMB/CIFS mounting for network shares
+      * **Development (Docker/macOS)**:
+        * Automatic mount scripts (mount_nas.sh, umount_nas.sh)
+        * Docker volume configuration for NAS access
+        * Test script for verifying access (test_nas_access.sh)
+        * Full documentation: media_files/NAS_SETUP.md
+      * **Production (Debian 11/gunicorn)**:
+        * Automated setup script (deployment/scripts/setup-nas-debian.sh)
+        * Support for multiple NAS with different IP addresses
+        * fstab and systemd mount unit configurations
+        * Health check and remount scripts
+        * Full documentation: deployment/NAS_DEBIAN_SETUP.md
+        * Quick start: deployment/PRODUCTION_NAS_QUICKSTART.txt
+      * Production configs updated with [media] section (ok-bayern, ok-nrw, okmq)
+    * Comprehensive video metadata: codec, bitrate, FPS, resolution, color space, chroma subsampling
+    * Audio metadata: codec, bitrate, sample rate, channels, channel layout
+    * Built-in video player in Django Admin with HTML5 support and seeking
+    * Automatic copy from archive to playout when broadcast plans are saved
+    * File integrity verification with SHA256 checksums
+    * Complete operation history logging
+    * Management commands: scan_video_storage, update_video_metadata, copy_to_playout, cleanup_playout
+    * Admin actions: copy to playout, update metadata, verify integrity
+    * Integration with License model (one-to-one relationship by number)
+    * Integration with Planung module for auto-copying videos
+    * Configurable via config file (docker.cfg)
+    * Supported formats: mp4, mov, mpeg, mpg (configurable)
+    * Full documentation:
+      * media_files/README.md - Technical documentation
+      * media_files/ADMIN_GUIDE.md - Django Admin user guide with examples
+      * media_files/QUICKSTART.md - Quick start guide
 
 2025-10-11 (Version 2.4)
-=========================
+========================
 
 * **Performance Audit and Database Optimization**
   * Comprehensive N+1 query elimination across 13+ files
   * Admin pages optimized: 50-90% reduction in query count
   * Example: RentalRequestAdmin reduced from 301 queries to 3 queries (99% improvement)
   * API endpoints optimized: 30-70% faster loading times
-  * Dashboard widgets optimized: 20-50% performance improvement
+ * Dashboard widgets optimized: 20-50% performance improvement
   
 * **Admin Panel Query Optimization**
   * RentalRequestAdmin: Added select_related() for user, created_by, user__profile
@@ -169,7 +225,7 @@ CHANGELOG
   * Enhanced UX with proper CSS variable usage for theme compatibility
 
 2025-10-10 (Version 2.3)
-=========================
+========================
 
 * **API Enhancements**
   * Added token-based authentication API endpoint for license metadata
@@ -181,7 +237,7 @@ CHANGELOG
 * **Admin Interface Improvements**
   * Enhanced Token Admin with staff-only user filtering and search functionality
   * Added Django AutocompleteSelect for improved user selection experience
-  * Implemented API documentation modal with cURL, JavaScript, and Python examples
+ * Implemented API documentation modal with cURL, JavaScript, and Python examples
   * Added copy-to-clipboard functionality for API tokens and examples
   * Fixed Token registration conflicts and improved error handling
   * Enhanced UserAdmin with extended search fields (email, first_name, last_name)
@@ -192,7 +248,7 @@ CHANGELOG
     * `phone_data_sharing_allowed` - permission to share phone number with third parties
     * `email_data_sharing_allowed` - permission to share email address with third parties
   * Organized admin fieldsets with collapsible sections for better UX
-  * Excluded admin-only fields from user registration and profile edit forms
+ * Excluded admin-only fields from user registration and profile edit forms
   * Enhanced ProfileResource for data export with new fields
 
 * **Custom Widget Development**
@@ -200,8 +256,8 @@ CHANGELOG
   * Replaced default JSONField with user-friendly interface
   * Added real-time tag preview and validation (maximum 4 tags)
   * Implemented interactive tag removal and automatic comma separation
-  * Enhanced form validation with empty tag prevention and duplicate removal
-  * Added support for null value handling and clean default display
+ * Enhanced form validation with empty tag prevention and duplicate removal
+ * Added support for null value handling and clean default display
 
 * **Security and Privacy Enhancements**
   * Implemented GDPR-compliant data sharing permissions
@@ -214,12 +270,12 @@ CHANGELOG
   * Created detailed admin interface documentation
   * Implemented extensive test coverage for new features
   * Added migration scripts for database schema updates
-  * Enhanced inline code documentation and help texts
+ * Enhanced inline code documentation and help texts
 
 * **Database Migrations**
   * Added migration for new Profile model fields
   * Updated License model with tags field and default value changes
-  * Implemented data migration for existing records
+ * Implemented data migration for existing records
   * Added database indexes for improved search performance
 
 * **Performance Optimizations**
@@ -229,7 +285,7 @@ CHANGELOG
   * Implemented query optimization reducing data transfer by ~70%
 
 * **Security Enhancements**
-  * Added API rate limiting (100/hour for anonymous, 1000/hour for authenticated users)
+  * Added API rate limiting (10/hour for anonymous, 1000/hour for authenticated users)
   * Implemented comprehensive API access logging with user and IP tracking
   * Enhanced error handling with detailed logging for debugging
   * Added throttling protection against API abuse and DDoS attacks
@@ -237,23 +293,20 @@ CHANGELOG
 * **Admin Interface Improvements**
   * Added fieldsets organization to LicenseAdmin (6 sections with collapsible panels)
   * Improved ProjectAdmin fieldsets with collapsible participant sections and descriptions
-  * Added fieldsets to InventoryItemAdmin (5 sections grouped by functionality)
+ * Added fieldsets to InventoryItemAdmin (5 sections grouped by functionality)
   * Enhanced ContributionAdmin with basic fieldsets for consistency
-  * Improved UX with logical grouping: Basic Info → Details → Advanced (collapsed)
+ * Improved UX with logical grouping: Basic Info → Details → Advanced (collapsed)
   * Reduced admin form scrolling by ~50-70% with smart field organization
   * Added helpful descriptions to complex sections (participant validation, auto-calculated fields)
   * Standardized readonly_fields across all admins for better data integrity
 
 * **User Interface Enhancements**
   * Added Tags (Hashtags) field to user-facing License creation form
-  * Integrated TagsInputWidget in License edit form for visual tag management
+ * Integrated TagsInputWidget in License edit form for visual tag management
   * Added tag input with comma-separated values and visual badges
   * Implemented tag validation (max 4 tags) in user interface
-  * User-friendly tag management with click-to-remove badges
+ * User-friendly tag management with click-to-remove badges
   * Consistent tag experience between admin and user interfaces
-
-2025-10-10
-==========
 
 * **Deployment Infrastructure Improvements**
   * Restructured deployment configuration with dedicated `deployment/` directory
@@ -289,8 +342,8 @@ CHANGELOG
 * **Security and Production Readiness**
   * Enhanced systemd service files with comprehensive security settings
   * Added production-specific environment variable handling
-  * Improved SSL/HTTPS configuration examples
-  * Added rate limiting and health check configurations for Nginx
+ * Improved SSL/HTTPS configuration examples
+ * Added rate limiting and health check configurations for Nginx
   * Enhanced Docker security with user isolation and minimal privileges
 
 2025-09-21
@@ -299,12 +352,12 @@ CHANGELOG
 * **Dashboard Analytics System** - Added comprehensive dashboard with interactive charts
   * Multiple chart types: doughnut, bar, horizontal bar with dynamic switching
   * Real-time data visualization for users, projects, licenses, and inventory
-  * Export functionality for all chart data
+ * Export functionality for all chart data
   * Responsive design with adaptive height for large datasets
 
 * **Admin Interface Enhancements**
   * Added direct dashboard link in Django admin menu
-  * Hidden specific admin models (Alert Logs, Alert Thresholds, Funnel Metrics, User Journey Stages)
+ * Hidden specific admin models (Alert Logs, Alert Thresholds, Funnel Metrics, User Journey Stages)
   * Improved admin navigation and user experience
 
 * **Translation System Improvements**

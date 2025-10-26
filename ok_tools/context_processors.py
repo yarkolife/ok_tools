@@ -1,4 +1,5 @@
 from registration.models import Profile
+from django.conf import settings
 
 
 def user_display_name(request):
@@ -17,3 +18,13 @@ def user_display_name(request):
         except Profile.DoesNotExist:
             return {'user_display_name': request.user.email or request.user.username}
     return {'user_display_name': None}
+
+
+def bootstrap_context(request):
+    """Add Bootstrap configuration to global context."""
+    return {
+        'BOOTSTRAP_VERSION': settings.BOOTSTRAP_VERSION,
+        'BOOTSTRAP_CDN_URL': settings.BOOTSTRAP_CDN_URL,
+        'BOOTSTRAP_ICONS_VERSION': settings.BOOTSTRAP_ICONS_VERSION,
+        'BOOTSTRAP_ICONS_URL': settings.BOOTSTRAP_ICONS_URL,
+    }

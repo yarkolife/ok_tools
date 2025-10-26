@@ -10,6 +10,7 @@ from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from django_prometheus.models import ExportModelOperationsMixin
 from pathlib import Path
 from tempfile import gettempdir
 import logging
@@ -97,6 +98,20 @@ class LocationManager(models.Manager):
             parent = node
         return parent
 
+    def get_or_create_by_path(self, path_str: str):
+        """Get or create Location chain for the given hierarchical path.
+
+        Ensures every segment exists and returns the deepest Location node.
+        """
+        parts = self._split_parts(path_str)
+        if not parts:
+            raise ValueError("Empty location path")
+        parent = None
+        for name in parts:
+            node, _ = self.get_or_create(parent=parent, name=name)
+            parent = node
+        return parent
+
     def create_by_path(self, path_str: str):
         """Create (or fetch) Location chain for the given hierarchical path.
 
@@ -150,7 +165,7 @@ class Location(models.Model):
         return " -> ".join(reversed(parts))
 
 
-class InventoryItem(models.Model):
+class InventoryItem(ExportModelOperationsMixin('inventory_item'), models.Model):
     """Model representing an inventory item."""
 
     STATUS_IN_STOCK = "in_stock"
@@ -352,6 +367,11 @@ class InventoryImport(models.Model):
         verbose_name=_('Items Skipped')
     )
 
+    items_updated = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_('Items Updated')
+    )
+
     error_log = models.TextField(
         blank=True,
         null=True,
@@ -376,6 +396,30 @@ class InventoryImport(models.Model):
         verbose_name=_('Error Log File')
     )
 
+    task_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name=_('Task ID'),
+        help_text=_('Celery task ID for asynchronous processing')
+    )
+
+    celery_status = models.CharField(
+        max_length=50,
+        choices=[
+            ('not_started', _('Not Started')),
+            ('pending', _('Pending')),
+            ('in_progress', _('In Progress')),
+            ('completed', _('Completed')),
+            ('completed_with_errors', _('Completed with Errors')),
+            ('failed', _('Failed')),
+            ('retry', _('Retry')),
+            ('revoked', _('Revoked')),
+        ],
+        default='not_started',
+        verbose_name=_('Celery Status')
+    )
+
     class Meta:
         """Meta options for InventoryImport."""
 
@@ -395,21 +439,28 @@ class InventoryImport(models.Model):
 
     def import_data(self, request=None):
         """Import data from the uploaded file."""
-        from .inventory_import import inventory_import
+        from .tasks import process_inventory_import_task
+        
+        # Import and process synchronously for backwards compatibility
         try:
             self.import_status = 'in_progress'
+            self.celery_status = 'in_progress'
             self.save()
 
+            from .inventory_import import inventory_import
             result = inventory_import(request, self.file, self)
 
             self.items_created = result.get('created', 0)
+            self.items_updated = result.get('updated', 0)
             self.items_skipped = result.get('skipped', 0)
             self.error_log = result.get('error_log', '')
 
             if self.items_skipped > 0:
                 self.import_status = 'completed_with_errors'
+                self.celery_status = 'completed_with_errors'
             else:
                 self.import_status = 'completed'
+                self.celery_status = 'completed'
 
             self.imported = True
             self.completed_date = datetime.now()
@@ -417,9 +468,28 @@ class InventoryImport(models.Model):
 
         except Exception as e:
             self.import_status = 'failed'
+            self.celery_status = 'failed'
             self.error_log = str(e)
             self.save()
             raise
+    
+    def import_data_async(self):
+        """Start asynchronous import using Celery."""
+        from .tasks import process_inventory_import_task
+        
+        # Update status to indicate processing is starting
+        self.import_status = 'pending'
+        self.celery_status = 'pending'
+        self.save()
+        
+        # Start the asynchronous task
+        task = process_inventory_import_task.delay(self.id)
+        
+        # Save the task ID
+        self.task_id = task.id
+        self.save()
+        
+        return task.id
 
 
 class AuditLog(models.Model):

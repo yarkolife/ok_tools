@@ -39,12 +39,17 @@ http {
     # HTTP server (redirects to HTTPS)
     server {
         listen 80;
-        server_name _;
+        server_name ${DOMAIN_NAME};
         
         # Health check endpoint
         location /health {
             return 200 "OK";
             add_header Content-Type text/plain;
+        }
+        
+        # Certbot verification
+        location /.well-known/acme-challenge/ {
+            root /var/www/certbot;
         }
         
         # Redirect all HTTP traffic to HTTPS
@@ -56,11 +61,11 @@ http {
     # HTTPS server
     server {
         listen 443 ssl http2;
-        server_name _;
+        server_name ${DOMAIN_NAME};
 
-        # SSL configuration (place your certificates in ./ssl/ directory)
-        ssl_certificate /etc/nginx/ssl/cert.pem;
-        ssl_certificate_key /etc/nginx/ssl/key.pem;
+        # SSL configuration (Certbot certificates)
+        ssl_certificate /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem;
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
         ssl_prefer_server_ciphers off;

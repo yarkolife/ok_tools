@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
+from django_prometheus.models import ExportModelOperationsMixin
 from registration.models import Profile
 import datetime
 import logging
@@ -66,7 +67,7 @@ def default_category():
     return Category.objects.get_or_create(name=_('Not Selected'))[0]
 
 
-class License(models.Model):
+class License(ExportModelOperationsMixin('license'), models.Model):
     """Model representing a (Beitragsfreistellung)."""
 
     title = models.CharField(
@@ -158,6 +159,7 @@ class License(models.Model):
     created_at = models.DateTimeField(
         _('Created at'),
         auto_now_add=True,
+        db_index=True,
     )
 
     # a visible identification number (not djangos id)

@@ -1,0 +1,80 @@
+/* Tags Input Widget Styles */
+
+.tags-input-container {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.tags-input-container input.tags-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.tags-input-container input.tags-input:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.tags-input-help {
+    margin-top: 5px;
+    color: #666;
+    font-size: 12px;
+}
+
+.tags-preview {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    min-height: 20px;
+}
+
+.tag-item {
+    display: inline-block;
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    border: 1px solid #bbdefb;
+    position: relative;
+}
+
+.tag-item.over-limit {
+    background-color: #ffebee;
+    color: #c62828;
+    border-color: #ffcdd2;
+}
+
+.tag-remove {
+    margin-left: 4px;
+    cursor: pointer;
+    color: #666;
+    font-weight: bold;
+}
+
+.tag-remove:hover {
+    color: #c62828;
+}
+
+/* Admin-specific styles */
+.admin-interface .tags-input-container input.tags-input {
+    border-color: #ddd;
+}
+
+.admin-interface .tags-input-container input.tags-input:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .tags-input-container input.tags-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}

@@ -50,6 +50,10 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 print_header "Установка OK Tools Production на тестовый сервер"
 print_info "Лог установки: $LOG_FILE"
 
+# Значения по умолчанию
+BOOTSTRAP_VERSION="5.3.3"
+BOOTSTRAP_ICONS_VERSION="1.11.0"
+
 # ================================
 # ШАГ 1: Проверка Docker
 # ================================
@@ -203,6 +207,27 @@ else
     NAS_ARCHIVE_PASS=$NAS_PLAYOUT_PASS
 fi
 
+# Bootstrap настройки
+echo ""
+print_info "Настройка Bootstrap версий"
+read -p "Версия Bootstrap [$BOOTSTRAP_VERSION]: " BOOTSTRAP_VERSION_INPUT
+BOOTSTRAP_VERSION=${BOOTSTRAP_VERSION_INPUT:-$BOOTSTRAP_VERSION}
+
+read -p "Версия Bootstrap Icons [$BOOTSTRAP_ICONS_VERSION]: " BOOTSTRAP_ICONS_VERSION_INPUT
+BOOTSTRAP_ICONS_VERSION=${BOOTSTRAP_ICONS_VERSION_INPUT:-$BOOTSTRAP_ICONS_VERSION}
+
+# API настройки
+echo ""
+print_info "Настройка API параметров"
+read -p "Размер страницы API [20]: " API_PAGE_SIZE
+API_PAGE_SIZE=${API_PAGE_SIZE:-20}
+
+read -p "Лимит для анонимных пользователей [100/hour]: " API_ANON_LIMIT
+API_ANON_LIMIT=${API_ANON_LIMIT:-100/hour}
+
+read -p "Лимит для авторизованных пользователей [1000/hour]: " API_USER_LIMIT
+API_USER_LIMIT=${API_USER_LIMIT:-1000/hour}
+
 print_success "Данные введены"
 
 # ================================
@@ -277,6 +302,15 @@ if [ -n "$NAS_PLAYOUT_IP" ] && [ -n "$NAS_PLAYOUT_SHARE" ]; then
     sed -i "s|archive_unc_path = .*|archive_unc_path = \\\\\\\\$NAS_ARCHIVE_IP\\\\\\\\$NAS_ARCHIVE_SHARE|g" "$INSTALL_DIR/docker-production.cfg"
     sed -i "s|playout_unc_path = .*|playout_unc_path = \\\\\\\\$NAS_PLAYOUT_IP\\\\\\\\$NAS_PLAYOUT_SHARE|g" "$INSTALL_DIR/docker-production.cfg"
 fi
+
+# Bootstrap настройки
+sed -i "s/version = .*/version = $BOOTSTRAP_VERSION/g" "$INSTALL_DIR/docker-production.cfg"
+sed -i "s/icons_version = .*/icons_version = $BOOTSTRAP_ICONS_VERSION/g" "$INSTALL_DIR/docker-production.cfg"
+
+# API настройки
+sed -i "s/page_size = .*/page_size = $API_PAGE_SIZE/g" "$INSTALL_DIR/docker-production.cfg"
+sed -i "s/anon_rate_limit = .*/anon_rate_limit = $API_ANON_LIMIT/g" "$INSTALL_DIR/docker-production.cfg"
+sed -i "s/user_rate_limit = .*/user_rate_limit = $API_USER_LIMIT/g" "$INSTALL_DIR/docker-production.cfg"
 
 chmod 644 "$INSTALL_DIR/docker-production.cfg"
 chown pavlo:pavlo "$INSTALL_DIR/docker-production.cfg"

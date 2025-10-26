@@ -149,8 +149,8 @@ function showChartPlaceholder() {
         chartContainer.innerHTML = `
             <div class="text-center py-5">
                 <i class="bi bi-bar-chart text-muted" style="font-size: 3rem;"></i>
-                <p class="mt-3 text-muted">No chart data available</p>
-                <small class="text-muted">Monthly statistics will appear here when data is available</small>
+                <p class="mt-3 text-muted">' + gettext('No chart data available') + '</p>
+                <small class="text-muted">' + gettext('Monthly statistics will appear here when data is available') + '</small>
             </div>
         `;
     }

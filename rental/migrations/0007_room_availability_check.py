@@ -10,6 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Это миграция для методов Python, которые не требуют изменений в БД
-        # Методы is_available_for_time и get_conflicting_rentals добавлены в модель Room
+        # This is a migration for Python methods that don't require DB changes
+        # Methods is_available_for_time and get_conflicting_rentals added to Room model
     ]

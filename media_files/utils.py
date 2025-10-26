@@ -473,6 +473,93 @@ def is_file_in_use(file_path):
         return False
 
 
+def copy_video_to_playout(video_file, destination_storage, user=None):
+    """
+    Copy video to playout storage.
+    
+    Args:
+        video_file: VideoFile instance to copy
+        destination_storage: Destination StorageLocation
+        user: User performing the operation (optional)
+        
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    from .models import VideoFile, FileOperation
+    
+    try:
+        # Check if file already exists at destination
+        existing = VideoFile.objects.filter(
+            number=video_file.number,
+            storage_location=destination_storage,
+            is_available=True
+        ).first()
+        
+        if existing:
+            return False, f'Video {video_file.number} already exists in {destination_storage.name}'
+        
+        source_path = video_file.full_path
+        dest_path = f"{destination_storage.path.rstrip('/')}/{video_file.filename}"
+        
+        # Create operation record
+        operation = FileOperation.objects.create(
+            video_file=video_file,
+            operation_type='COPY',
+            source_location=video_file.storage_location,
+            destination_location=destination_storage,
+            performed_by=user,
+            status='IN_PROGRESS',
+        )
+        
+        # Copy the file
+        success, message = copy_file_with_progress(source_path, dest_path, verify_checksum=True)
+        
+        if not success:
+            operation.status = 'FAILED'
+            operation.error_message = message
+            operation.save()
+            return False, message
+        
+        # Create new VideoFile record for destination
+        new_video = VideoFile.objects.create(
+            number=video_file.number,
+            filename=video_file.filename,
+            file_path=video_file.filename,
+            storage_location=destination_storage,
+            is_available=True,
+            format=video_file.format,
+            file_size=video_file.file_size,
+            duration=video_file.duration,
+            checksum=video_file.checksum,
+            has_video=video_file.has_video,
+            has_audio=video_file.has_audio,
+            video_codec=video_file.video_codec,
+            audio_codec=video_file.audio_codec,
+            width=video_file.width,
+            height=video_file.height,
+            fps=video_file.fps,
+            total_bitrate=video_file.total_bitrate,
+            last_scanned=timezone.now(),
+        )
+        
+        operation.status = 'SUCCESS'
+        operation.save()
+        
+        logger.info(f'Copied video {video_file.number} to {destination_storage.name}')
+        return True, f'Video copied to {destination_storage.name} successfully'
+        
+    except Exception as e:
+        error_msg = f'Error copying video: {str(e)}'
+        logger.error(error_msg, exc_info=True)
+        
+        if 'operation' in locals():
+            operation.status = 'FAILED'
+            operation.error_message = error_msg
+            operation.save()
+        
+        return False, error_msg
+
+
 def move_video_to_archive(video_file, archive_storage=None, user=None):
     """
     Move video from playout to archive storage.

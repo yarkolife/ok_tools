@@ -16,19 +16,19 @@ OKUser = get_user_model()
 class Command(BaseCommand):
     """Management command to expire room rentals and generate transactions."""
 
-    help = 'Automatically expire room rentals and create corresponding transactions.'
+    help = _('Automatically expire room rentals and create corresponding transactions.')
 
     def add_arguments(self, parser):
         """Register command-line arguments."""
         parser.add_argument(
             '--dry-run',
             action='store_true',
-            help='Show what would be done without applying changes',
+            help=_('Show what would be done without applying changes'),
         )
         parser.add_argument(
             '--verbose',
             action='store_true',
-            help='Verbose output',
+            help=_('Verbose output'),
         )
 
     def handle(self, *args, **options):
@@ -65,7 +65,7 @@ class Command(BaseCommand):
             return
 
         self.stdout.write(
-            f'📊 Found {len(expired_rentals)} expired room rentals'
+            _('📊 Found {} expired room rentals').format(len(expired_rentals))
         )
 
         # Group by status for better display
@@ -74,31 +74,36 @@ class Command(BaseCommand):
 
         if reserved_expired:
             self.stdout.write(
-                f'🔴 {len(reserved_expired)} expired room reservations (will be auto-returned)'
+                _('🔴 {} expired room reservations (will be auto-returned)').format(len(reserved_expired))
             )
 
         if issued_expired:
             self.stdout.write(
-                f'🟡 {len(issued_expired)} expired room rentals (will be returned)'
+                _('🟡 {} expired room rentals (will be returned)').format(len(issued_expired))
             )
 
         if verbose:
-            self.stdout.write('\n📋 Details of expired rentals:')
+            self.stdout.write(_('📋 Details of expired rentals:'))
             for rental in expired_rentals:
                 status = 'RESERVED' if rental.rental_request.status == 'reserved' else 'ISSUED'
                 self.stdout.write(
-                    f'  • {rental.room.name} - {rental.rental_request.project_name} '
-                    f'({status}) - Expired: {rental.rental_request.requested_end_date.strftime("%d.%m.%Y %H:%M")}'
+                    _('  • {} - {} '
+                      '({}) - Expired: {}').format(
+                        rental.room.name,
+                        rental.rental_request.project_name,
+                        status,
+                        rental.rental_request.requested_end_date.strftime("%d.%m.%Y %H:%M")
+                    )
                 )
 
         if dry_run:
             self.stdout.write(
-                self.style.WARNING('\n⚠️  In test mode, changes are not applied')
+                self.style.WARNING(_('\n⚠️  In test mode, changes are not applied'))
             )
             return
 
         # Apply changes
-        self.stdout.write('\n🔄 Applying changes...')
+        self.stdout.write(_('\n🔄 Applying changes...'))
 
         try:
             with transaction.atomic():
@@ -150,7 +155,7 @@ class Command(BaseCommand):
                     processed_count += 1
 
                 self.stdout.write(
-                    self.style.SUCCESS(f'\n✅ Successfully processed {processed_count} expired room rentals')
+                    self.style.SUCCESS(_('\n✅ Successfully processed {} expired room rentals').format(processed_count))
                 )
 
                 # Log result
@@ -173,5 +178,5 @@ class Command(BaseCommand):
             raise
 
         self.stdout.write(
-            self.style.SUCCESS('\n🎉 Automatic expiration of expired room rentals completed!')
+            self.style.SUCCESS(_('\n🎉 Automatic expiration of expired room rentals completed!'))
         )

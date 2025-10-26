@@ -1,5 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
+from django.core.cache import cache
 from django.db.models import Avg
 from django.db.models import Count
 from django.db.models import Q
@@ -36,6 +37,13 @@ class ProjectsWidget:
 
     def get_basic_stats(self):
         """Get basic project statistics."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_basic_stats_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
         total_projects = filtered_projects.count()
@@ -53,7 +61,7 @@ class ProjectsWidget:
             avg=Avg('tn_female') + Avg('tn_male') + Avg('tn_gender_not_given') + Avg('tn_diverse')
         )['avg'] or 0
 
-        return {
+        result = {
             'total_projects': total_projects,
             'external_venue_projects': external_venue_projects,
             'jugendmedienschutz_projects': jugendmedienschutz_projects,
@@ -61,50 +69,110 @@ class ProjectsWidget:
             'total_participants': total_participants,
             'avg_participants_per_project': round(avg_participants, 1),
         }
+        
+        # Cache for 25 minutes
+        cache.set(cache_key, result, 1500)
+        
+        return result
 
     def get_projects_by_category(self):
         """Get projects grouped by category."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_by_category_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
-        return list(filtered_projects.values(
+        result = list(filtered_projects.values(
             'project_category__name'
         ).annotate(
             count=Count('id')
         ).order_by('-count'))
+        
+        # Cache for 25 minutes
+        cache.set(cache_key, result, 1500)
+        
+        return result
 
     def get_projects_by_target_group(self):
         """Get projects grouped by target group."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_by_target_group_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
-        return list(filtered_projects.values(
+        result = list(filtered_projects.values(
             'target_group__name'
         ).annotate(
             count=Count('id')
         ).order_by('-count'))
+        
+        # Cache for 25 minutes
+        cache.set(cache_key, result, 1500)
+        
+        return result
 
     def get_projects_by_leader(self):
         """Get projects grouped by project leader."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_by_leader_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
-        return list(filtered_projects.values(
+        result = list(filtered_projects.values(
             'project_leader__name'
         ).annotate(
             count=Count('id')
         ).order_by('-count')[:10])  # Top 10 leaders
+        
+        # Cache for 25 minutes
+        cache.set(cache_key, result, 1500)
+        
+        return result
 
     def get_projects_trend(self):
         """Get projects trend over time."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_trend_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
         # Group by month
-        return list(filtered_projects.extra(
+        result = list(filtered_projects.extra(
             select={'month': "DATE_TRUNC('month', date)"}
         ).values('month').annotate(
             count=Count('id')
         ).order_by('month'))
+        
+        # Cache for 20 minutes
+        cache.set(cache_key, result, 1200)
+        
+        return result
 
     def get_participants_stats(self):
         """Get participants statistics by age groups."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_participants_stats_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
         age_stats = filtered_projects.aggregate(
@@ -126,13 +194,25 @@ class ProjectsWidget:
             tn_gender_not_given=Sum('tn_gender_not_given'),
         )
 
-        return {
+        result = {
             'age_groups': age_stats,
             'gender_groups': gender_stats,
         }
+        
+        # Cache for 25 minutes
+        cache.set(cache_key, result, 1500)
+        
+        return result
 
     def get_demographic_stats(self):
         """Get demographic statistics."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_demographic_stats_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
         # Age group distribution
@@ -159,33 +239,52 @@ class ProjectsWidget:
             'not_given': filtered_projects.aggregate(total=Sum('tn_gender_not_given'))['total'] or 0,
         }
 
-        return {
+        result = {
             'age_distribution': age_distribution,
             'gender_distribution': gender_distribution,
         }
+        
+        # Cache for 25 minutes
+        cache.set(cache_key, result, 1500)
+        
+        return result
 
     def get_project_characteristics(self):
         """Get project characteristics statistics."""
+        # Create cache key based on request parameters
+        cache_key = f"projects_characteristics_{hash(str(self.request.GET))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         filtered_projects = self._get_filtered_projects()
 
         total_projects = filtered_projects.count()
 
         if total_projects == 0:
-            return {
+            result = {
                 'external_venue_rate': 0,
                 'jugendmedienschutz_rate': 0,
                 'democracy_rate': 0,
             }
+            cache.set(cache_key, result, 1500)
+            return result
 
         external_venue_rate = (filtered_projects.filter(external_venue=True).count() / total_projects) * 100
         jugendmedienschutz_rate = (filtered_projects.filter(jugendmedienschutz=True).count() / total_projects) * 100
         democracy_rate = (filtered_projects.filter(democracy_project=True).count() / total_projects) * 100
 
-        return {
+        result = {
             'external_venue_rate': round(external_venue_rate, 1),
             'jugendmedienschutz_rate': round(jugendmedienschutz_rate, 1),
             'democracy_rate': round(democracy_rate, 1),
         }
+        
+        # Cache for 25 minutes
+        cache.set(cache_key, result, 1500)
+        
+        return result
 
     def _get_filtered_projects(self):
         """Get projects filtered by request parameters."""

@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from typing import List, Dict, Any, Optional, Union
+from django.db.models.query import QuerySet
+from datetime import datetime, date
 
 
 class RentalRequest(models.Model):
@@ -96,7 +99,7 @@ class RentalRequest(models.Model):
             original[field.name] = getattr(self, attr_name, None)
         self._original_state = type('OriginalState', (), original)
 
-    def can_user_access_item(self, inventory_item):
+    def can_user_access_item(self, inventory_item) -> bool:
         """Check user access rights to inventory based on user status."""
         if not getattr(inventory_item, 'available_for_rent', False):
             return False
@@ -115,47 +118,37 @@ class RentalRequest(models.Model):
         # Non-member can only take from state media institution
         return owner_name == state_institution
 
-    def get_available_inventory(self):
+    def get_available_inventory(self) -> QuerySet:
         """Get available inventory for rental considering user rights."""
         from django.db.models import Q
-        from inventory.models import InventoryItem
+        from rental.services.inventory_service_interface import inventory_service
 
-        available_items = InventoryItem.objects.filter(
-            available_for_rent=True,
-            status='in_stock',
-        )
+        # Get available items through the service interface
+        available_items_data = inventory_service.get_available_items(user_id=self.user.id)
 
-        from django.conf import settings
-        state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-        organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
-        
-        user_profile = getattr(self.user, 'profile', None)
-        if user_profile and getattr(user_profile, 'member', False):
-            # Member can access state institution + organization
-            available_items = available_items.filter(owner__name__in=[state_institution, organization_owner])
-        else:
-            # Non-member can only access state media institution
-            available_items = available_items.filter(owner__name=state_institution)
+        # Extract IDs from the data
+        available_item_ids = [item['id'] for item in available_items_data]
 
-        return available_items
+        # Get the actual InventoryItem objects
+        return available_items_data
 
     @property
-    def total_items_count(self):
+    def total_items_count(self) -> int:
         """Total number of items in the request (by quantity_requested)."""
         from django.db.models import Sum
         return self.items.aggregate(total=Sum('quantity_requested'))['total'] or 0
 
     @property
-    def has_rooms(self):
+    def has_rooms(self) -> bool:
         """Check if there are rented rooms."""
         return self.room_rentals.exists()
 
     @property
-    def total_rooms_count(self):
+    def total_rooms_count(self) -> int:
         """Total number of rented rooms."""
         return self.room_rentals.count()
 
-    def get_room_summary(self):
+    def get_room_summary(self) -> str:
         """Get brief information about rooms.
         
         PERFORMANCE: Requires prefetch_related('room_rentals__room') for efficiency.
@@ -445,7 +438,7 @@ class RentalTransaction(models.Model):
         else:
             return f"{self.get_transaction_type_display()} {self.quantity}"
 
-    def clean(self):
+    def clean(self) -> None:
         """Check that either ``rental_item`` or ``room`` is specified."""
         from django.core.exceptions import ValidationError
         if not self.rental_item and not self.room:
@@ -540,7 +533,7 @@ class Room(models.Model):
         """Return human-readable representation."""
         return self.name
 
-    def is_available_for_time(self, start_date, end_date, exclude_rental_request=None):
+    def is_available_for_time(self, start_date: datetime, end_date: datetime, exclude_rental_request: Optional[int] = None) -> bool:
         """Check if the room is available for the specified time.
 
         Args:
@@ -594,7 +587,7 @@ class Room(models.Model):
 
         return True
 
-    def get_conflicting_rentals(self, start_date, end_date, exclude_rental_request=None):
+    def get_conflicting_rentals(self, start_date: datetime, end_date: datetime, exclude_rental_request: Optional[int] = None) -> List:
         """Return list of conflicting rentals for specified time.
 
         Args:
@@ -661,7 +654,7 @@ class RoomRental(models.Model):
         verbose_name_plural = _('Room rentals')
         unique_together = ['rental_request', 'room']
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable representation."""
         return f"{self.room.name} - {self.rental_request.project_name}"
 
@@ -753,7 +746,7 @@ class EquipmentTemplate(models.Model):
         verbose_name_plural = _('Equipment Templates')
         ordering = ['name']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -784,5 +777,5 @@ class EquipmentTemplateItem(models.Model):
         verbose_name_plural = _('Template Items')
         unique_together = ['template', 'inventory_item']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.template.name} - {self.inventory_item.description} ({self.quantity})"

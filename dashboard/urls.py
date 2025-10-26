@@ -1,5 +1,7 @@
-from . import api
 from . import views
+from . import users
+from . import statistics
+from . import notifications
 from django.urls import path
 
 
@@ -16,38 +18,42 @@ urlpatterns = [
     path('funnel/', views.dashboard_funnel, name='funnel'),
     path('media-data/', views.dashboard_media_data, name='media_data'),
 
-    # API endpoints
-    path('api/users-statistics/', api.api_users_statistics, name='api_users_statistics'),
-    path('api/licenses-statistics/', api.api_licenses_statistics, name='api_licenses_statistics'),
-    path('api/contributions-statistics/', api.api_contributions_statistics, name='api_contributions_statistics'),
-    path('api/media-data-statistics/', api.api_media_data_statistics, name='api_media_data_statistics'),
-    path('api/projects-statistics/', api.api_projects_statistics, name='api_projects_statistics'),
-    path('api/inventory-statistics/', api.api_inventory_statistics, name='api_inventory_statistics'),
-    path('api/notifications-statistics/', api.api_notifications_statistics, name='api_notifications_statistics'),
-    path('api/filters-data/', api.api_filters_data, name='api_filters_data'),
-    path('api/recent-users/', api.api_recent_users, name='api_recent_users'),
-    path('api/recent-licenses/', api.api_recent_licenses, name='api_recent_licenses'),
-    path('api/system-status/', api.api_system_status, name='api_system_status'),
-    path('api/quick-stats/', api.api_quick_stats, name='api_quick_stats'),
+    # API endpoints - Users
+    path('api/users-statistics/', users.api_users_statistics, name='api_users_statistics'),
+    path('api/recent-users/', users.api_recent_users, name='api_recent_users'),
+    path('api/users-detail/', users.api_users_detail, name='api_users_detail'),
 
-    # Detail view API endpoints
-    path('api/users-detail/', api.api_users_detail, name='api_users_detail'),
-    path('api/licenses-detail/', api.api_licenses_detail, name='api_licenses_detail'),
-    path('api/contributions-detail/', api.api_contributions_detail, name='api_contributions_detail'),
-    path('api/projects-detail/', api.api_projects_detail, name='api_projects_detail'),
-    path('api/inventory-detail/', api.api_inventory_detail, name='api_inventory_detail'),
-    path('api/notifications-detail/', api.api_notifications_detail, name='api_notifications_detail'),
+    # API endpoints - Statistics
+    path('api/licenses-statistics/', statistics.api_licenses_statistics, name='api_licenses_statistics'),
+    path('api/contributions-statistics/', statistics.api_contributions_statistics, name='api_contributions_statistics'),
+    path('api/media-data-statistics/', statistics.api_media_data_statistics, name='api_media_data_statistics'),
+    path('api/projects-statistics/', statistics.api_projects_statistics, name='api_projects_statistics'),
+    path('api/inventory-statistics/', statistics.api_inventory_statistics, name='api_inventory_statistics'),
+    path('api/filters-data/', statistics.api_filters_data, name='api_filters_data'),
+    path('api/recent-licenses/', statistics.api_recent_licenses, name='api_recent_licenses'),
+    path('api/system-status/', statistics.api_system_status, name='api_system_status'),
+    path('api/quick-stats/', statistics.api_quick_stats, name='api_quick_stats'),
+    
+    # Detail view API endpoints - Statistics
+    path('api/licenses-detail/', statistics.api_licenses_detail, name='api_licenses_detail'),
+    path('api/contributions-detail/', statistics.api_contributions_detail, name='api_contributions_detail'),
+    path('api/projects-detail/', statistics.api_projects_detail, name='api_projects_detail'),
+    path('api/inventory-detail/', statistics.api_inventory_detail, name='api_inventory_detail'),
+    
+    # API endpoints - Funnel
+    path('api/funnel-metrics/', statistics.api_funnel_metrics, name='api_funnel_metrics'),
+    path('api/funnel-breakdown/', statistics.api_funnel_breakdown, name='api_funnel_breakdown'),
+    path('api/funnel-trends/', statistics.api_funnel_trends, name='api_funnel_trends'),
+    path('api/funnel-detail/', statistics.api_funnel_detail, name='api_funnel_detail'),
 
-    # Action API endpoints
-    path('api/notifications-toggle/<int:notification_id>/', api.api_notifications_toggle, name='api_notifications_toggle'),
-
-    # Funnel and alerts API endpoints
-    path('api/funnel-metrics/', api.api_funnel_metrics, name='api_funnel_metrics'),
-    path('api/funnel-breakdown/', api.api_funnel_breakdown, name='api_funnel_breakdown'),
-    path('api/funnel-trends/', api.api_funnel_trends, name='api_funnel_trends'),
-    path('api/funnel-detail/', api.api_funnel_detail, name='api_funnel_detail'),
-    path('api/alerts-list/', api.api_alerts_list, name='api_alerts_list'),
-    path('api/alerts-resolve/<int:alert_id>/', api.api_alerts_resolve, name='api_alerts_resolve'),
-    path('api/thresholds/<int:threshold_id>/', api.api_threshold_update, name='api_threshold_update'),
-    path('api/thresholds/<int:threshold_id>/toggle/', api.api_threshold_toggle, name='api_threshold_toggle'),
+    # API endpoints - Notifications
+    path('api/notifications-statistics/', notifications.api_notifications_statistics, name='api_notifications_statistics'),
+    path('api/notifications-detail/', notifications.api_notifications_detail, name='api_notifications_detail'),
+    path('api/notifications-toggle/<int:notification_id>/', notifications.api_notifications_toggle, name='api_notifications_toggle'),
+    
+    # API endpoints - Alerts and Thresholds
+    path('api/alerts-list/', notifications.api_alerts_list, name='api_alerts_list'),
+    path('api/alerts-resolve/<int:alert_id>/', notifications.api_alerts_resolve, name='api_alerts_resolve'),
+    path('api/thresholds/<int:threshold_id>/', notifications.api_threshold_update, name='api_threshold_update'),
+    path('api/thresholds/<int:threshold_id>/toggle/', notifications.api_threshold_toggle, name='api_threshold_toggle'),
 ]

@@ -5,13 +5,13 @@ from django.db import migrations
 
 def forwards_func(apps, schema_editor):
     Inspection = apps.get_model('inventory', 'Inspection')
-    # Определения TargetPart (копируем из модели, чтобы миграция была самодостаточной)
+    # TargetPart definitions (copied from model to make migration self-contained)
     TARGET_PART_DEVICE = "device"
     TARGET_PART_CABLE = "cable"
     TARGET_PART_PSU = "psu"
 
     for inspection in Inspection.objects.all():
-        # Проверяем, есть ли device_name и не пустое ли оно
+        # Check if device_name exists and is not empty
         if inspection.device_name and inspection.device_name.strip():
             device_name_lower = inspection.device_name.lower()
 
@@ -20,25 +20,25 @@ def forwards_func(apps, schema_editor):
             elif "kaltgeräteleitung" in device_name_lower or \
                  "anschlussleitung" in device_name_lower or \
                  "verlängerungsleitung" in device_name_lower or \
-                 "kabel" in device_name_lower: # Общее слово "кабель"
+                 "kabel" in device_name_lower: # Common word "cable"
                 inspection.target_part = TARGET_PART_CABLE
             else:
                 inspection.target_part = TARGET_PART_DEVICE
         else:
-            if not inspection.target_part: # Только если оно совсем пустое
+            if not inspection.target_part: # Only if it's completely empty
                  inspection.target_part = TARGET_PART_DEVICE
 
         inspection.save(update_fields=['target_part'])
 
 def backwards_func(apps, schema_editor):
-    # В этой миграции откат не предусмотрен, чтобы не усложнять
-    # и не рисковать потерей данных, если они были изменены вручную после.
+    # This migration doesn't provide rollback to avoid complexity
+    # and risk of data loss if it was manually changed after.
     pass
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0023_alter_inspection_device_name_and_more'), # Убедитесь, что это имя вашей ПРЕДЫДУЩЕЙ миграции
+        ('inventory', '0023_alter_inspection_device_name_and_more'), # Make sure this is your PREVIOUS migration name
     ]
 
     operations = [

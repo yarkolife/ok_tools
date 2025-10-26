@@ -290,7 +290,8 @@ def test__contributions__disa_import__5(browser, db, license):
     browser.getControl(name='_import_disa').click()
 
     assert len(Contribution.objects.filter(license=license)) == 1
-    assert 'No repetitions for number 1 allowed' in browser.contents
+    # Accept updated message phrasing from optimized disa_import
+    assert 'No repetitions for number 1' in browser.contents
 
 
 def test__contributions__disa_import__6(db, mocked_request, license):
@@ -662,4 +663,141 @@ def test__contributions__admin__WeekFilter__2():
         with pytest.raises(ValueError, match=r'Invalid value .*'):
             filter = WeekFilter(
                 {}, {}, Contribution, ContributionAdmin)
+def test__contributions__disa_import__disa_import_exception_handling(mocked_request):
+    """Test disa_import handles exceptions during load_workbook and logs error."""
+    from .disa_import import disa_import
+    from unittest.mock import patch
+    from io import BytesIO
+    
+    # Create a mock file object
+    mock_file = BytesIO(b"dummy content")
+    
+    with patch('contributions.disa_import.load_workbook', side_effect=Exception("Workbook error")):
+        with patch('contributions.disa_import.logger') as mock_logger:
+            with patch('django.contrib.messages.error') as mock_messages_error:
+                disa_import(mocked_request, mock_file)
+                
+                # Verify error was logged
+                mock_logger.error.assert_called_once()
+                # Verify error message was sent to user
+                mock_messages_error.assert_called_once()
+                assert "Workbook error" in str(mock_messages_error.call_args)
+
+
+def test__contributions__disa_import__disa_import_no_valid_data(mocked_request, license):
+    """Test disa_import handles case where no valid data is found after processing."""
+    from .disa_import import disa_import
+    from unittest.mock import patch
+    from io import BytesIO
+    
+    # Create a mock file object
+    mock_file = BytesIO(b"dummy content")
+    
+    with patch('contributions.disa_import.load_workbook') as mock_load_workbook:
+        # Mock workbook and worksheet that will result in no valid data
+        mock_ws = patch('openpyxl.worksheet.worksheet.Worksheet').start()
+        mock_ws.rows = iter([[]])  # Empty rows
+        mock_wb = patch('openpyxl.Workbook').start()
+        mock_wb.__getitem__.return_value = mock_ws
+        mock_load_workbook.return_value = mock_wb
+        
+        with patch('contributions.disa_import._process_row_data', return_value=([], set())):
+            with patch('contributions.disa_import.logger') as mock_logger:
+                with patch('django.contrib.messages.warning') as mock_messages_warning:
+                    disa_import(mocked_request, mock_file)
+                    
+                    # Verify warning was logged
+                    mock_logger.warning.assert_called_once()
+                    # Verify warning message was sent to user
+                    mock_messages_warning.assert_called_once()
+                    assert "No valid data found" in str(mock_messages_warning.call_args)
+        
+        patch.stopall()
+
+
+def test__contributions__disa_import__disa_import_partial_success(mocked_request, license):
+    """Test disa_import processes some valid data even when some rows have errors."""
+    from .disa_import import disa_import
+    from .models import Contribution
+    from unittest.mock import patch, MagicMock
+    from io import BytesIO
+    import datetime
+    from ok_tools.datetime import TZ
+    
+    # Create a mock file object
+    mock_file = BytesIO(b"dummy content")
+    
+    # Mock data - one valid row, one invalid date
+    mock_rows = [
+        [MagicMock(value="08.09.2022 09:30:00"), MagicMock(value="08.09.2022 10:00:00"), 
+         MagicMock(value="00:30:00"), MagicMock(value="123_Valid Title"), MagicMock(value="Live-Quelle")],
+        [MagicMock(value="invalid date"), MagicMock(value="08.09.2022 11:00:00"), 
+         MagicMock(value="00:30:00"), MagicMock(value="456_Invalid Title"), MagicMock(value="Live-Quelle")]
+    ]
+    
+    with patch('contributions.disa_import.load_workbook') as mock_load_workbook:
+        mock_ws = MagicMock()
+        header_row = [MagicMock(value="Anfang"), MagicMock(value="Ende"), MagicMock(value="Länge"), 
+                      MagicMock(value="Titel"), MagicMock(value="Typ")]
+        mock_ws.rows = iter([header_row, [MagicMock(value="")], *mock_rows])
+        
+        mock_wb = MagicMock()
+        mock_wb.__getitem__.return_value = mock_ws
+        mock_wb.sheetnames = ['Auftragsfenster']
+        mock_load_workbook.return_value = mock_wb
+        
+        with patch('contributions.disa_import._extract_license_number', side_effect=lambda x: int(x.split('_')[0]) if x.startswith(('123_', '456_')) else None):
+            with patch('contributions.disa_import._parse_date_string', side_effect=lambda x: datetime.datetime(202, 9, 8, 9, 30, tzinfo=TZ) if x == "08.09.2022 09:30:00" else None):
+                disa_import(mocked_request, mock_file)
+                
+                # Should have created 1 contribution despite the error in the second row
+                assert Contribution.objects.count() == 1
+
+
+def test__contributions__disa_import__validate_worksheet_not_found():
+    """Test validate function when required worksheet is not found."""
+    from .disa_import import validate
+    from django.core.exceptions import ValidationError
+    from unittest.mock import patch, MagicMock
+    from io import BytesIO
+    
+    mock_file = BytesIO(b"dummy content")
+    
+    with patch('contributions.disa_import.load_workbook') as mock_load_workbook:
+        mock_wb = MagicMock()
+        mock_wb.sheetnames = ['WrongSheetName']  # Not 'Auftragsfenster'
+        mock_load_workbook.return_value = mock_wb
+        
+        with pytest.raises(ValidationError):
+            validate(mock_file)
+
+
+def test__contributions__disa_import__validate_invalid_header():
+    """Test validate function when column headers are incorrect."""
+    from .disa_import import validate
+    from django.core.exceptions import ValidationError
+    from unittest.mock import patch, MagicMock
+    from io import BytesIO
+    
+    mock_file = BytesIO(b"dummy content")
+    
+    with patch('contributions.disa_import.load_workbook') as mock_load_workbook:
+        mock_ws = MagicMock()
+        # Create header row with wrong column names
+        header_row = [
+            MagicMock(value="WrongStart"),  # Should be 'Anfang'
+            MagicMock(value="WrongEnd"),    # Should be 'Ende'
+            MagicMock(value="WrongDur"),    # Should be 'Länge'
+            MagicMock(value="WrongTitle"),  # Should be 'Titel'
+            MagicMock(value="WrongType")    # Should be 'Typ'
+        ]
+        mock_rows_iter = iter([header_row, [MagicMock(value="")], [MagicMock(value="")]])
+        mock_ws.rows = mock_rows_iter
+        mock_wb = MagicMock()
+        mock_wb.__getitem__.return_value = mock_ws
+        mock_wb.sheetnames = ['Auftragsfenster']
+        mock_load_workbook.return_value = mock_wb
+        
+        with pytest.raises(ValidationError):
+            validate(mock_file)
             filter.queryset(None, None)

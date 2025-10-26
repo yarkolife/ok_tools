@@ -67,18 +67,18 @@
 <div id="videoModal" class="video-modal">
     <div class="video-modal-content">
         <div class="video-modal-header">
-            <h2 id="modalTitle">Video Player</h2>
+            <h2 id="modalTitle">{% trans "Video Player" %}</h2>
             <span class="video-modal-close" onclick="closeVideoModal()">&times;</span>
         </div>
         <div class="video-modal-body">
             <div class="video-modal-info" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                 <div style="font-size: 13px; color: #333;">
-                    <p style="margin: 5px 0;"><strong>📁 File:</strong> <span id="modalFileName"></span></p>
-                    <p style="margin: 5px 0;"><strong>🔢 Number:</strong> <span id="modalNumber"></span></p>
-                    <p style="margin: 5px 0;"><strong>💾 Storage:</strong> <span id="modalStorage"></span></p>
-                    <p style="margin: 5px 0;"><strong>⏱️ Duration:</strong> <span id="modalDuration"></span></p>
-                    <p style="margin: 5px 0;"><strong>📊 Size:</strong> <span id="modalSize"></span></p>
-                    <p style="margin: 5px 0;"><strong>📡 Bitrate:</strong> <span id="modalBitrate"></span></p>
+                    <p style="margin: 5px 0;"><strong>📁 {% trans "File" %}:</strong> <span id="modalFileName"></span></p>
+                    <p style="margin: 5px 0;"><strong>🔢 {% trans "Number" %}:</strong> <span id="modalNumber"></span></p>
+                    <p style="margin: 5px 0;"><strong>💾 {% trans "Storage" %}:</strong> <span id="modalStorage"></span></p>
+                    <p style="margin: 5px 0;"><strong>⏱️ {% trans "Duration" %}:</strong> <span id="modalDuration"></span></p>
+                    <p style="margin: 5px 0;"><strong>📊 {% trans "Size" %}:</strong> <span id="modalSize"></span></p>
+                    <p style="margin: 5px 0;"><strong>📡 {% trans "Bitrate" %}:</strong> <span id="modalBitrate"></span></p>
                 </div>
             </div>
             
@@ -87,7 +87,7 @@
                 controls 
                 preload="metadata"
                 style="border-radius: 8px; background: #000;">
-                Your browser does not support the video tag.
+                {% trans "Your browser does not support the video tag." %}
             </video>
         </div>
     </div>

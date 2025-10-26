@@ -1,6 +1,7 @@
 from .filters import DashboardFilters
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from django.core.cache import cache
 from django.db.models import Count
 from django.db.models import Q
 from django.utils import timezone
@@ -35,6 +36,13 @@ class LicensesWidget:
 
     def get_basic_stats(self):
         """Get basic license statistics."""
+        # Create cache key based on filters
+        cache_key = f"licenses_basic_stats_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         queryset = License.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'license')
 
@@ -51,15 +59,27 @@ class LicensesWidget:
         except Exception:
             new_licenses = total_licenses
 
-        return {
+        result = {
             'total_licenses': total_licenses,
             'confirmed_licenses': confirmed_licenses,
             'pending_licenses': pending_licenses,
             'new_licenses': new_licenses,
         }
+        
+        # Cache for 20 minutes
+        cache.set(cache_key, result, 1200)
+        
+        return result
 
     def get_duration_stats(self):
         """Get duration-related statistics."""
+        # Create cache key based on filters
+        cache_key = f"licenses_duration_stats_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = License.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'license')
@@ -73,7 +93,7 @@ class LicensesWidget:
             total_with_duration = duration_queryset.count()
 
             if total_with_duration == 0:
-                return {
+                result = {
                     'total_with_duration': 0,
                     'average_duration_minutes': 0,
                     'total_duration_hours': 0,
@@ -81,6 +101,8 @@ class LicensesWidget:
                     'longest_duration': 0,
                     'shortest_duration': 0
                 }
+                cache.set(cache_key, result, 1200)
+                return result
 
             # Calculate average duration
             total_seconds = sum(license_obj.duration.total_seconds() for license_obj in duration_queryset)
@@ -115,7 +137,7 @@ class LicensesWidget:
                 else:
                     duration_distribution['60+ min'] += 1
 
-            return {
+            result = {
                 'total_with_duration': total_with_duration,
                 'average_duration_minutes': average_minutes,
                 'total_duration_hours': total_hours,
@@ -123,6 +145,11 @@ class LicensesWidget:
                 'longest_duration': round(longest_seconds / 60, 1),
                 'shortest_duration': round(shortest_seconds / 60, 1)
             }
+            
+            # Cache for 25 minutes
+            cache.set(cache_key, result, 1500)
+            
+            return result
 
         except Exception as e:
             print(f"Error in get_duration_stats: {e}")
@@ -137,6 +164,13 @@ class LicensesWidget:
 
     def get_licenses_by_category(self):
         """Get license count by category."""
+        # Create cache key based on filters
+        cache_key = f"licenses_by_category_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = License.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'license')
@@ -155,6 +189,9 @@ class LicensesWidget:
                         'count': item['count']
                     })
 
+            # Cache for 25 minutes
+            cache.set(cache_key, result, 1500)
+            
             return result
         except Exception as e:
             print(f"Error in get_licenses_by_category: {e}")
@@ -162,6 +199,13 @@ class LicensesWidget:
 
     def get_licenses_by_authority(self):
         """Get license count by media authority."""
+        # Create cache key based on filters
+        cache_key = f"licenses_by_authority_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = License.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'license')
@@ -171,26 +215,50 @@ class LicensesWidget:
                 'profile__media_authority'
             )
 
-            return list(filtered_queryset.values('profile__media_authority__name').annotate(
+            result = list(filtered_queryset.values('profile__media_authority__name').annotate(
                 count=Count('id')
             ).order_by('-count'))
+            
+            # Cache for 25 minutes
+            cache.set(cache_key, result, 1500)
+            
+            return result
         except Exception:
             return []
 
     def get_licenses_by_gender(self):
         """Get license count by gender."""
+        # Create cache key based on filters
+        cache_key = f"licenses_by_gender_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = License.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'license')
 
-            return list(filtered_queryset.values('profile__gender').annotate(
+            result = list(filtered_queryset.values('profile__gender').annotate(
                 count=Count('id')
             ).order_by('-count'))
+            
+            # Cache for 25 minutes
+            cache.set(cache_key, result, 1500)
+            
+            return result
         except Exception:
             return []
 
     def get_licenses_by_age(self):
         """Get license count by age group."""
+        # Create cache key based on filters
+        cache_key = f"licenses_by_age_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         queryset = License.objects.all()
         filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'license')
 
@@ -224,10 +292,20 @@ class LicensesWidget:
         except Exception:
             pass
 
+        # Cache for 25 minutes
+        cache.set(cache_key, age_groups, 1500)
+        
         return age_groups
 
     def get_licenses_trend(self):
         """Get licenses trend over time."""
+        # Create cache key based on filters
+        cache_key = f"licenses_trend_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             start_date = self.filters.date_range['start_date']
             end_date = self.filters.date_range['end_date']
@@ -276,10 +354,20 @@ class LicensesWidget:
         except Exception:
             licenses_trend = []
 
+        # Cache for 20 minutes
+        cache.set(cache_key, licenses_trend, 1200)
+        
         return licenses_trend
 
     def get_confirmation_rate(self):
         """Get license confirmation rate."""
+        # Create cache key based on filters
+        cache_key = f"licenses_confirmation_rate_{hash(str(self.filters._get_filters()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result:
+            return cached_result
+            
         try:
             queryset = License.objects.all()
             filtered_queryset = self.filters.apply_filters_to_queryset(queryset, 'license')
@@ -292,11 +380,16 @@ class LicensesWidget:
             else:
                 rate = 0
 
-            return {
+            result = {
                 'total': total,
                 'confirmed': confirmed,
                 'rate': round(rate, 2)
             }
+            
+            # Cache for 20 minutes
+            cache.set(cache_key, result, 1200)
+            
+            return result
         except Exception:
             return {
                 'total': 0,
