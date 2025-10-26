@@ -46,17 +46,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir gunicorn
 
 # Copy the application code
-COPY manage.py .
-COPY ok_tools/ ./ok_tools
-COPY contributions/ ./contributions
-COPY dashboard/ ./dashboard
-COPY inventory/ ./inventory
-COPY licenses/ ./licenses
-COPY media_files/ ./media_files
-COPY planung/ ./planung
-COPY projects/ ./projects
-COPY registration/ ./registration
-COPY rental/ ./rental
+COPY . .
 
 # Create directories for static files and media
 RUN mkdir -p /app/static /app/media
