@@ -31,8 +31,8 @@ services:
 
   web:
     build:
-      context: ..
-      dockerfile: deployment/production.Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: oktools_web
     ports:
       - "8000:8000"
