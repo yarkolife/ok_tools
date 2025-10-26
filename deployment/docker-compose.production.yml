@@ -157,13 +157,13 @@ services:
     restart: unless-stopped
     networks:
       - oktools-network
-
 volumes:
- postgres_data:
+  postgres_data:
   static_files:
   media_files:
   logs:
   backups:
+
 
 networks:
   oktools-network:
