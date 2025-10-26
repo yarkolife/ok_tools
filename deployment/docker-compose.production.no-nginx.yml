@@ -56,6 +56,7 @@ services:
       # Database Extended
       - DB_HOST=${DB_HOST:-db}
       - DB_PORT=${DB_PORT:-5432}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       
       # Email Configuration
       - EMAIL_HOST=${EMAIL_HOST:-}
@@ -183,6 +184,7 @@ services:
       
       # Database Extended
       - DB_HOST=${DB_HOST:-db}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DB_PORT=${DB_PORT:-5432}
       
       # Email Configuration
@@ -304,6 +306,7 @@ services:
       - DJANGO_USE_SECURE_SETTINGS=${DJANGO_USE_SECURE_SETTINGS:-True}
       
       # Database Extended
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DB_HOST=${DB_HOST:-db}
       - DB_PORT=${DB_PORT:-5432}
       
