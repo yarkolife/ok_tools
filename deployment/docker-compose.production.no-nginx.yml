@@ -68,7 +68,7 @@ services:
       - ./data/media:/app/media
       - ./logs:/app/logs
       - ./backups:/app/backups
-      - ${DEPLOYMENT_DIR_PATH}:/app/deployment:ro
+      - ./deployment:/app/deployment:ro
     entrypoint: /app/deployment/entrypoint.production.sh
     restart: unless-stopped
     networks:

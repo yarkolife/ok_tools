@@ -6,7 +6,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
-PRODUCTION_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")/../ok_tools_production"
+PRODUCTION_DIR="$(dirname "$PROJECT_DIR")/ok_tools_production"
 CONFIGS_DIR="$PROJECT_DIR/deployment/configs"
 
 echo "=========================================="
@@ -375,7 +375,6 @@ fi
 # Start containers
 echo ""
 echo "Starting Docker containers..."
-export DEPLOYMENT_DIR_PATH="$PROJECT_DIR/deployment"
 cd "$PRODUCTION_DIR"
 docker compose up -d
 
