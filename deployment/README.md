@@ -1,156 +1,121 @@
-# OK Tools Deployment Guide
+# OK Tools Installation Guide
 
-OK Tools supports two main production deployment methods:
+This guide describes the interactive installation process for OK Tools using the new installation script. This method provides a guided setup for deploying OK Tools in production environments using Docker containers.
 
-## 🐳 Docker Deployment (Recommended)
+## Getting Started
 
-**Advantages:**
-- Easy installation and updates
-- Isolated environment
-- Includes PostgreSQL, Redis, Nginx
-- Automatic SSL certificates
-- Pre-configured security settings
+The installation script automates the setup process and guides you through configuration choices. To start the installation:
 
-**Best for:**
-- Quick deployment
-- Teams without deep system administration knowledge
-- Modern cloud platforms
-
-📖 **[Detailed guide: deployment/docker/README.md](docker/README.md)**
-
-### Quick start:
 ```bash
-cp deployment/docker/docker-production.cfg.example docker-production.cfg
-# Edit docker-production.cfg for your organization
-docker-compose -f deployment/docker/docker-compose.production.yml up -d
+./deployment/scripts/install.sh
 ```
 
-## 🚀 Gunicorn Deployment (Traditional)
+The script will guide you through the installation process with interactive prompts.
 
-**Advantages:**
-- Full system control
-- Performance optimization
-- Integration with existing infrastructure
-- Configuration flexibility
+## Installation Process
 
-**Best for:**
-- Experienced system administrators
-- Integration with existing servers
-- Specific security requirements
+### 1. Choose Installation Type
 
-📖 **[Detailed guide: deployment/gunicorn/README.md](gunicorn/README.md)**
+The script offers three installation types:
 
-### Quick start:
+- **Production**: Public server with domain name, Nginx web server, and SSL certificates
+- **Local Network**: LAN access without domain or SSL (for internal networks)
+- **Localhost**: Development on a single machine
+
+### 2. Choose Configuration Mode
+
+After selecting the installation type, you can choose between:
+
+- **Use existing template**: Select from available configuration templates in `deployment/configs/`
+- **Manual configuration**: Answer prompts to configure the application step-by-step
+
+#### Using Templates
+
+If you choose template-based installation, the script will:
+
+- Display available templates from `deployment/configs/`
+- Prompt you to select a template
+- Ask for required values to replace `__REPLACE_ME__` placeholders in the template
+- Create the `.env` file with your configured values
+
+#### Manual Configuration
+
+If you choose manual configuration, you'll be prompted for:
+
+- Organization details (name, website, contact information)
+- Database password (auto-generated if left empty)
+- Superuser credentials (username, email, password)
+- Django settings including allowed hosts based on installation type
+- SSL configuration (for Production mode only)
+
+### 3. File Creation and Configuration
+
+The installation script performs the following actions:
+
+- Creates the production directory at `../ok_tools_production`
+- Creates necessary subdirectories: `data/postgres`, `data/static`, `data/media`, `logs`, `backups`
+- Generates the `.env` configuration file with your settings
+- Copies the appropriate Docker Compose file based on installation type:
+ - Production: Uses `docker-compose.production.yml` with Nginx
+  - Local Network/Localhost: Uses `docker-compose.production.no-nginx.yml`
+- Copies necessary files: `Dockerfile`, `entrypoint.sh`, and Nginx configuration files (for Production)
+
+## Starting the Application
+
+After configuration is complete, the script automatically starts the Docker containers using:
+
 ```bash
-# Create user and directories
-sudo useradd -m oktools
-sudo mkdir -p /opt/ok-tools/{config,logs,static,media}
-
-# Install application
-git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git /opt/ok-tools/app
-cd /opt/ok-tools/app
-python3.12 -m venv /opt/ok-tools/venv
-/opt/ok-tools/venv/bin/pip install -r requirements.txt gunicorn
-
-# Configuration
-cp deployment/gunicorn/production.cfg.example /opt/ok-tools/config/production.cfg
-# Edit configuration
-
-# Install systemd services
-sudo cp deployment/gunicorn/*.service /etc/systemd/system/
-sudo cp deployment/gunicorn/*.timer /etc/systemd/system/
-sudo systemctl enable ok-tools ok-tools-cron.timer
+docker compose up -d
 ```
 
-## 💾 NAS/Network Storage Setup
+This command runs all required services in the background.
 
-OK Tools supports mounting network storage (SMB/CIFS shares) for video file management:
+## Next Steps
 
-### For Docker (macOS/Development)
-📖 **[Docker NAS Setup Guide](../media_files/NAS_SETUP.md)**
+After installation, you should:
 
-Quick start:
-```bash
-# Mount on host
-./scripts/mount_nas.sh
+1. **Check container status:**
+   ```bash
+   docker compose ps
+   ```
 
-# Test access
-./scripts/test_nas_access.sh
-```
+2. **View application logs:**
+   ```bash
+   docker compose logs -f web
+   ```
 
-### For Debian 11 Production (Gunicorn)
-📖 **[Debian NAS Setup Guide](NAS_DEBIAN_SETUP.md)**
+3. **Access the admin panel:**
+   - Production with SSL: `https://your-domain.com/admin`
+   - Production without SSL: `http://your-domain.com/admin`
+   - Local Network: `http://server-ip:8000/admin`
+   - Localhost: `http://localhost:8000/admin`
+   
+   Use the superuser credentials you configured during installation.
 
-Quick start:
-```bash
-# Automated setup
-sudo deployment/scripts/setup-nas-debian.sh
+4. **Update the application:**
+   ```bash
+   ./deployment/scripts/update.sh
+   ```
 
-# Manual setup - see PRODUCTION_NAS_QUICKSTART.txt
-```
+5. **Configure post-deployment settings:**
+   ```bash
+   ./deployment/scripts/configure.sh
+   ```
 
-**Features:**
-- Support for multiple NAS shares (archive + playout on different IPs)
-- Automatic mounting via systemd/fstab
-- Credential management
-- Health checks and monitoring
+## Post-Installation
 
-## 📁 Ready-made Configurations
+- Check that all containers are running properly
+- Verify you can access the application through your chosen URL
+- Log into the admin panel to configure additional settings
+- Set up any required integrations or additional configuration
+- Review and customize the application settings as needed
 
-The `deployment/configs/` folder contains ready-made configurations for various organizations:
+## Support
 
-- `okmq-production.cfg` - Original OKMQ (Sachsen-Anhalt, MSA)
-- `ok-bayern-production.cfg` - For Bayern (BLM)
-- `ok-nrw-production.cfg` - For NRW (LfM NRW)
+If you encounter problems during installation:
 
-All configs now include `[media]` section for video file management with NAS paths.
-
-## 🔐 Security
-
-Both deployment methods include:
-
-- **HTTPS/SSL** - Required for production
-- **Rate limiting** - Attack protection
-- **Security headers** - XSS, CSRF protection
-- **Process isolation** - Minimal privileges
-- **Logging** - Security monitoring
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│     Nginx       │    │   OK Tools      │    │  PostgreSQL     │
-│  (Load Balancer │───▶│   (Django +     │───▶│   (Database)    │
-│   + SSL Term.)  │    │    Gunicorn)    │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │              ┌─────────────────┐              │
-         └──────────────▶│     Redis       │              │
-                        │    (Cache)      │              │
-                        └─────────────────┘              │
-                                 │                       │
-                        ┌─────────────────┐              │
-                        │   Cron Jobs     │              │
-                        │ (Expire Rentals)│──────────────┘
-                        └─────────────────┘
-```
-
-## 📊 Comparison
-
-| Criteria | Docker | Gunicorn |
-|----------|---------|----------|
-| Installation ease | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Performance | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Configuration flexibility | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Isolation | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Updates | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Monitoring | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-
-## 🆘 Support
-
-If you encounter problems:
-
-1. Check logs: `docker logs` or `journalctl -u ok-tools`
-2. Verify configuration correctness
-3. Check database connection
-4. Create an issue in the repository with a detailed description
+1. Check container status: `docker compose ps`
+2. Review logs: `docker compose logs -f web`
+3. Verify configuration in the generated `.env` file
+4. Ensure all required ports are available
+5. Create an issue in the repository with a detailed description

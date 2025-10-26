@@ -5,7 +5,7 @@ set -e
 # Supports both template-based installation and manual configuration
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")"
+PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 PRODUCTION_DIR="$(dirname "$PROJECT_DIR")/ok_tools_production"
 CONFIGS_DIR="$PROJECT_DIR/deployment/configs"
 
@@ -313,6 +313,8 @@ EOF
     # Backup Configuration
     BACKUP_DIR=$BACKUP_DIR
     EOF
+
+EOF
 
     chmod 600 "$ENV_FILE"
     echo "✓ Created .env file at: $ENV_FILE"
