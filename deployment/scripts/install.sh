@@ -151,12 +151,13 @@ if [ "$INSTALL_MODE" = "1" ]; then
             # Local Network or Localhost: use compose file without nginx
             cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
         fi
-        cp "$PROJECT_DIR/deployment/production.Dockerfile" "$PRODUCTION_DIR/Dockerfile"
+        cp "$PROJECT_DIR/deployment/Dockerfile" "$PRODUCTION_DIR/Dockerfile"
         cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
         chmod +x "$PRODUCTION_DIR/entrypoint.sh"
         
-        # Copy entire deployment directory to ensure docker compose can access all necessary files
-        cp -r "$PROJECT_DIR/deployment" "$PRODUCTION_DIR/deployment"
+        # NOTE: The deployment directory is no longer copied to ensure Dockerfile is in root
+        # This ensures docker-compose.yml can find the Dockerfile in the root directory
+        # and that entrypoint.sh is properly included in the build context
         
         if [ "$INSTALL_TYPE" = "1" ]; then
             echo "✓ Copied docker-compose.yml (with nginx)"
@@ -478,12 +479,13 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         # Local Network or Localhost: use compose file without nginx
         cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
     fi
-    cp "$PROJECT_DIR/deployment/production.Dockerfile" "$PRODUCTION_DIR/Dockerfile"
+    cp "$PROJECT_DIR/deployment/Dockerfile" "$PRODUCTION_DIR/Dockerfile"
     cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
     chmod +x "$PRODUCTION_DIR/entrypoint.sh"
     
-    # Copy entire deployment directory to ensure docker compose can access all necessary files
-    cp -r "$PROJECT_DIR/deployment" "$PRODUCTION_DIR/deployment"
+    # NOTE: The deployment directory is no longer copied to ensure Dockerfile is in root
+    # This ensures docker-compose.yml can find the Dockerfile in the root directory
+    # and that entrypoint.sh is properly included in the build context
 
     if [ "$INSTALL_TYPE" = "1" ]; then
         echo "✓ Copied docker-compose.yml (with nginx)"
