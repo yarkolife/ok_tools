@@ -26,7 +26,6 @@ git pull
 # Update docker-compose files and configs in production directory
 echo "Updating docker-compose files and configs..."
 cd "$PROJECT_DIR"
-cp -f docker-compose.yml "$PRODUCTION_DIR/"
 cp -f deployment/docker-compose.production.yml "$PRODUCTION_DIR/"
 cp -f deployment/docker-compose.production.no-nginx.yml "$PRODUCTION_DIR/"
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
