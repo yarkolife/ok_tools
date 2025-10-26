@@ -34,6 +34,13 @@ RUN ln -sf /usr/bin/ffmpeg /usr/local/bin/ffmpeg
 # Fix libmediainfo library path
 RUN ldconfig
 
+# Create symlinks for ffprobe and ffmpeg tools
+RUN ln -sf /usr/bin/ffprobe /usr/local/bin/ffprobe
+RUN ln -sf /usr/bin/ffmpeg /usr/local/bin/ffmpeg
+
+# Fix libmediainfo library path
+RUN ldconfig
+
 # Setting up the working directory
 WORKDIR /app
 
@@ -47,6 +54,21 @@ RUN pip install --no-cache-dir gunicorn
 
 # Copying the application code
 COPY ../ok_tools/ .
+
+# Creating directories for static files and logs
+RUN mkdir -p /app/static /app/media /app/logs
+
+# Creating a user for security
+RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
+
+# Make entrypoint executable
+RUN chmod +x /app/deployment/entrypoint.production.sh
+
+# Collecting static files (optional, will be done at runtime)
+RUN python manage.py collectstatic --noinput --settings=ok_tools.settings || true
+
+# Opening the port
+EXPOSE 800
 
 # Creating directories for static files and logs
 RUN mkdir -p /app/static /app/media /app/logs

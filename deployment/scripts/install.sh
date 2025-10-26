@@ -170,6 +170,22 @@ if [ "$INSTALL_MODE" = "1" ]; then
         echo "✓ Copied entrypoint.sh"
         echo "✓ Copied deployment directory"
         
+        # Copy source files to destination directory
+        echo "Copying source files..."
+        cp "$PROJECT_DIR/requirements.txt" "$PRODUCTION_DIR/requirements.txt"
+        cp -r "$PROJECT_DIR/ok_tools" "$PRODUCTION_DIR/ok_tools"
+        # Add other necessary directories for the application
+        cp -r "$PROJECT_DIR/contributions" "$PRODUCTION_DIR/contributions"
+        cp -r "$PROJECT_DIR/dashboard" "$PRODUCTION_DIR/dashboard"
+        cp -r "$PROJECT_DIR/inventory" "$PRODUCTION_DIR/inventory"
+        cp -r "$PROJECT_DIR/licenses" "$PRODUCTION_DIR/licenses"
+        cp -r "$PROJECT_DIR/media_files" "$PRODUCTION_DIR/media_files"
+        cp -r "$PROJECT_DIR/planung" "$PRODUCTION_DIR/planung"
+        cp -r "$PROJECT_DIR/projects" "$PRODUCTION_DIR/projects"
+        cp -r "$PROJECT_DIR/registration" "$PRODUCTION_DIR/registration"
+        cp -r "$PROJECT_DIR/rental" "$PRODUCTION_DIR/rental"
+        cp "$PROJECT_DIR/manage.py" "$PRODUCTION_DIR/manage.py"
+        
     fi
 elif [ "$INSTALL_MODE" = "2" ]; then
     # Manual configuration
@@ -523,25 +539,41 @@ echo ""
 docker compose --project-directory . up -d --build
 
 
-echo ""
-echo "=========================================="
-echo "Installation Complete!"
-echo "=========================================="
-echo "Production directory: $PRODUCTION_DIR"
-echo "Configuration file: $PRODUCTION_DIR/.env"
-echo ""
-echo "Next steps:"
-echo "1. Check container status: docker compose ps"
-echo "2. View logs: docker compose logs -f web"
-if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
-    echo "3. Access admin panel: https://$DOMAIN_NAME/admin"
-elif [ "$INSTALL_TYPE" = "2" ]; then
-    echo "3. Access admin panel: http://$SERVER_IP:8000/admin"
-else
-    echo "3. Access admin panel: http://localhost:8000/admin"
-fi
-echo "   Username: $SUPERUSER_USERNAME (or as configured)"
-echo "   Password: As configured during setup"
-echo ""
-echo "To update application, run: $SCRIPT_DIR/update.sh"
-echo "To configure post-deployment settings, run: $SCRIPT_DIR/configure.sh"
+# Copy source files to destination directory
+        echo "Copying source files..."
+        cp "$PROJECT_DIR/requirements.txt" "$PRODUCTION_DIR/requirements.txt"
+        cp -r "$PROJECT_DIR/ok_tools" "$PRODUCTION_DIR/ok_tools"
+        # Add other necessary directories for the application
+        cp -r "$PROJECT_DIR/contributions" "$PRODUCTION_DIR/contributions"
+        cp -r "$PROJECT_DIR/dashboard" "$PRODUCTION_DIR/dashboard"
+        cp -r "$PROJECT_DIR/inventory" "$PRODUCTION_DIR/inventory"
+        cp -r "$PROJECT_DIR/licenses" "$PRODUCTION_DIR/licenses"
+        cp -r "$PROJECT_DIR/media_files" "$PRODUCTION_DIR/media_files"
+        cp -r "$PROJECT_DIR/planung" "$PRODUCTION_DIR/planung"
+        cp -r "$PROJECT_DIR/projects" "$PRODUCTION_DIR/projects"
+        cp -r "$PROJECT_DIR/registration" "$PRODUCTION_DIR/registration"
+        cp -r "$PROJECT_DIR/rental" "$PRODUCTION_DIR/rental"
+        cp "$PROJECT_DIR/manage.py" "$PRODUCTION_DIR/manage.py"
+        
+        echo ""
+        echo "=========================================="
+        echo "Installation Complete!"
+        echo "=========================================="
+        echo "Production directory: $PRODUCTION_DIR"
+        echo "Configuration file: $PRODUCTION_DIR/.env"
+        echo ""
+        echo "Next steps:"
+        echo "1. Check container status: docker compose ps"
+        echo "2. View logs: docker compose logs -f web"
+        if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
+            echo "3. Access admin panel: https://$DOMAIN_NAME/admin"
+        elif [ "$INSTALL_TYPE" = "2" ]; then
+            echo "3. Access admin panel: http://$SERVER_IP:8000/admin"
+        else
+            echo "3. Access admin panel: http://localhost:8000/admin"
+        fi
+        echo "   Username: $SUPERUSER_USERNAME (or as configured)"
+        echo "   Password: As configured during setup"
+        echo ""
+        echo "To update application, run: $SCRIPT_DIR/update.sh"
+        echo "To configure post-deployment settings, run: $SCRIPT_DIR/configure.sh"
