@@ -51,7 +51,7 @@ prompt_secrets() {
     while IFS= read -r line; do
         if [[ $line =~ ^[^#].*=.*__REPLACE_ME__.*$ ]]; then
             key=$(echo "$line" | cut -d'=' -f1)
-            echo -n "Enter value for $key: "
+            echo -n "Enter value for $key: " >&2
             read -r value
             sed -i.bak "s|$key=__REPLACE_ME__|$key=$value|g" "$temp_config"
             sed -i.bak "s|$key:__REPLACE_ME__|$key:$value|g" "$temp_config"  # For colon-separated values
