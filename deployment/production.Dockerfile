@@ -57,14 +57,7 @@ RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
 # Make entrypoint executable
 RUN chmod +x /app/entrypoint.sh
 
-# Switch to the non-root user
-USER app
 
-# Set WORKDIR again for the new user
-WORKDIR /app
-
-# Collect static files
-RUN python manage.py collectstatic --noinput --settings=ok_tools.settings
 
 # Expose the correct port
 EXPOSE 8000
