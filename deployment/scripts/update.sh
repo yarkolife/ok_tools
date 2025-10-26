@@ -28,7 +28,7 @@ echo "Updating docker-compose files and configs..."
 cd "$PROJECT_DIR"
 
 # Determine which docker-compose file to use based on existing installation
-if [ -f "$PRODUCTION_DIR/nginx.conf.template" ]; then
+if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAME=' "$PRODUCTION_DIR/.env" | cut -d'=' -f2)" ]; then
     echo "Detected: Production with Nginx and SSL"
     cp -f deployment/docker-compose.production.yml "$PRODUCTION_DIR/docker-compose.yml"
 else
