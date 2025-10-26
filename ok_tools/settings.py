@@ -186,7 +186,7 @@ STATICFILES_DIRS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_ROOT = config.get("django", "static", fallback="static/")
+STATIC_ROOT = config.get("django", "static", fallback="staticfiles/")
 STATIC_URL = "/static/"
 
 MEDIA_ROOT = config.get("django", "media", fallback="media/")

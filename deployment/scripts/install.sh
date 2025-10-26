@@ -128,12 +128,12 @@ if [ "$INSTALL_MODE" = "1" ]; then
         
         echo "Using template: $TEMPLATE_FILE"
         
-        # Prompt for secrets based on the selected template
+        # Prompt for secrets based on selected template
         CONFIG_FILE=$(prompt_secrets "$TEMPLATE_FILE")
         
-        # Add Docker Compose project name to the config
+        # Add Docker Compose project name to config
         echo "COMPOSE_PROJECT_NAME=oktools" >> "$CONFIG_FILE"
-        # Copy the completed config to production directory
+        # Copy completed config to production directory
         cp "$CONFIG_FILE" "$PRODUCTION_DIR/.env"
         chmod 600 "$PRODUCTION_DIR/.env"
         echo "✓ Created .env file at: $PRODUCTION_DIR/.env"
@@ -155,7 +155,7 @@ if [ "$INSTALL_MODE" = "1" ]; then
         cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
         chmod +x "$PRODUCTION_DIR/entrypoint.sh"
         
-        # Copy the entire deployment directory to ensure docker compose can access all necessary files
+        # Copy entire deployment directory to ensure docker compose can access all necessary files
         cp -r "$PROJECT_DIR/deployment" "$PRODUCTION_DIR/deployment"
         
         if [ "$INSTALL_TYPE" = "1" ]; then
@@ -250,78 +250,76 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     # Generate .env file
     ENV_FILE="$PRODUCTION_DIR/.env"
     cat > "$ENV_FILE" << EOF
-    # OK Tools Environment Configuration
-    # Generated: $(date)
+# OK Tools Environment Configuration
+# Generated: $(date)
 
-    # Database Configuration
-    POSTGRES_DB=oktools
-    POSTGRES_USER=oktools
-    POSTGRES_PASSWORD=$DB_PASSWORD
-    DATABASE_URL=postgresql://oktools:$DB_PASSWORD@db:5432/oktools
+# Database Configuration
+POSTGRES_DB=oktools
+POSTGRES_USER=oktools
+POSTGRES_PASSWORD=$DB_PASSWORD
+DATABASE_URL=postgresql://oktools:$DB_PASSWORD@db:5432/oktools
 
-    # Django Configuration
-    DJANGO_SETTINGS_MODULE=ok_tools.settings
-    DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
-    DEBUG=False
-    ALLOWED_HOSTS=$ALLOWED_HOSTS
+# Django Configuration
+DJANGO_SETTINGS_MODULE=ok_tools.settings
+DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
+DEBUG=False
+ALLOWED_HOSTS=$ALLOWED_HOSTS
 
-    # Organization Configuration
-    ORG_NAME=$ORG_NAME
-    ORG_SHORT_NAME=$ORG_SHORT_NAME
-    ORG_WEBSITE=$ORG_WEBSITE
-    ORG_EMAIL=$ORG_EMAIL
-    ORG_PHONE=$ORG_PHONE
-    ORG_ADDRESS=$ORG_ADDRESS
-    STATE_MEDIA_INSTITUTION=$STATE_MEDIA_INSTITUTION
+# Organization Configuration
+ORG_NAME=$ORG_NAME
+ORG_SHORT_NAME=$ORG_SHORT_NAME
+ORG_WEBSITE=$ORG_WEBSITE
+ORG_EMAIL=$ORG_EMAIL
+ORG_PHONE=$ORG_PHONE
+ORG_ADDRESS=$ORG_ADDRESS
+STATE_MEDIA_INSTITUTION=$STATE_MEDIA_INSTITUTION
 
-    # Superuser Configuration
-    SUPERUSER_USERNAME=$SUPERUSER_USERNAME
-    SUPERUSER_EMAIL=$SUPERUSER_EMAIL
-    SUPERUSER_PASSWORD=$SUPERUSER_PASSWORD
+# Superuser Configuration
+SUPERUSER_USERNAME=$SUPERUSER_USERNAME
+SUPERUSER_EMAIL=$SUPERUSER_EMAIL
+SUPERUSER_PASSWORD=$SUPERUSER_PASSWORD
 
-    # Application Configuration
-    PYTHONPATH=/app
-    PYTHONUNBUFFERED=1
+# Application Configuration
+PYTHONPATH=/app
+PYTHONUNBUFFERED=1
 
-    # Gunicorn Configuration
-    GUNICORN_WORKERS=4
-    GUNICORN_THREADS=2
-    GUNICORN_TIMEOUT=120
-    GUNICORN_MAX_REQUESTS=1000
-    GUNICORN_MAX_REQUESTS_JITTER=100
+# Gunicorn Configuration
+GUNICORN_WORKERS=4
+GUNICORN_THREADS=2
+GUNICORN_TIMEOUT=120
+GUNICORN_MAX_REQUESTS=1000
+GUNICORN_MAX_REQUESTS_JITTER=100
 
-    # Redis Configuration
-    REDIS_URL=redis://redis:6379/0
+# Redis Configuration
+REDIS_URL=redis://redis:6379/0
 
-    # NAS/Network Storage Configuration (optional)
-    NAS_PLAYOUT_PATH=/mnt/nas/playout
-    NAS_ARCHIVE_PATH=/mnt/nas/archive
-    NAS_MOUNT_ENABLED=false
+# NAS/Network Storage Configuration (optional)
+NAS_PLAYOUT_PATH=/mnt/nas/playout
+NAS_ARCHIVE_PATH=/mnt/nas/archive
+NAS_MOUNT_ENABLED=false
 
 EOF
 
     # Add SSL configuration only for Production mode
     if [ "$INSTALL_TYPE" = "1" ]; then
         cat >> "$ENV_FILE" << EOF
-    # SSL/HTTPS Configuration
-    SSL_ENABLED=$SSL_ENABLED
-    SSL_CERT_PATH=/etc/nginx/ssl/cert.pem
-    SSL_KEY_PATH=/etc/nginx/ssl/key.pem
-    DOMAIN_NAME=$DOMAIN_NAME
+# SSL/HTTPS Configuration
+SSL_ENABLED=$SSL_ENABLED
+SSL_CERT_PATH=/etc/nginx/ssl/cert.pem
+SSL_KEY_PATH=/etc/nginx/ssl/key.pem
+DOMAIN_NAME=$DOMAIN_NAME
 
 EOF
     fi
 
     cat >> "$ENV_FILE" << EOF
-    # Logging Configuration
-    LOG_LEVEL=info
+# Logging Configuration
+LOG_LEVEL=info
 
-    # Backup Configuration
-    BACKUP_DIR=$BACKUP_DIR
-    # Set Docker Compose project name
-    COMPOSE_PROJECT_NAME=oktools
-    EOF
-
+# Backup Configuration
+BACKUP_DIR=$BACKUP_DIR
+# Set Docker Compose project name
+COMPOSE_PROJECT_NAME=oktools
 EOF
 
     chmod 600 "$ENV_FILE"
@@ -344,7 +342,7 @@ EOF
     cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
     chmod +x "$PRODUCTION_DIR/entrypoint.sh"
     
-    # Copy the entire deployment directory to ensure docker compose can access all necessary files
+    # Copy entire deployment directory to ensure docker compose can access all necessary files
     cp -r "$PROJECT_DIR/deployment" "$PRODUCTION_DIR/deployment"
 
     if [ "$INSTALL_TYPE" = "1" ]; then
@@ -403,5 +401,5 @@ fi
 echo "   Username: $SUPERUSER_USERNAME (or as configured)"
 echo "   Password: As configured during setup"
 echo ""
-echo "To update the application, run: $SCRIPT_DIR/update.sh"
+echo "To update application, run: $SCRIPT_DIR/update.sh"
 echo "To configure post-deployment settings, run: $SCRIPT_DIR/configure.sh"
