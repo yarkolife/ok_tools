@@ -518,7 +518,7 @@ echo "Starting Docker containers..."
 cd "$PRODUCTION_DIR" || { echo "Failed to change directory to $PRODUCTION_DIR"; exit 1; }
 echo "Current directory: $(pwd)"
 echo "Checking files..."
-ls -la docker-compose.yml Dockerfile entrypoint.sh deployment
+ls -la docker-compose.yml Dockerfile entrypoint.sh
 echo ""
 docker compose --project-directory . up -d --build
 
