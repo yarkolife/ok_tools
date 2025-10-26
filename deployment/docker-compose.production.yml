@@ -157,7 +157,6 @@ services:
       - ./logs:/app/logs
       - ./backups:/app/backups
       - ./deployment:/app/deployment:ro
-    entrypoint: /app/deployment/entrypoint.production.sh
     restart: unless-stopped
     networks:
       - oktools-network
@@ -174,7 +173,7 @@ services:
       - ./data/media:/var/www/media:ro
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    entrypoint: /app/deployment/nginx-entrypoint.sh
+      - ./deployment/nginx-entrypoint.sh:/docker-entrypoint.d/nginx-entrypoint.sh:ro
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     depends_on:

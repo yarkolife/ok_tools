@@ -157,7 +157,6 @@ services:
       - ./logs:/app/logs
       - ./backups:/app/backups
       - ./deployment:/app/deployment:ro
-    entrypoint: /app/deployment/entrypoint.production.sh
     restart: unless-stopped
     networks:
       - oktools-network
