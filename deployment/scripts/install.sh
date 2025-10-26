@@ -44,19 +44,138 @@ prompt_secrets() {
     local template="$1"
     local temp_config="/tmp/oktools_config.tmp"
     
-    # Copy template to temporary file
+    # Copy template to temporary file preserving line endings
     cp "$template" "$temp_config"
     
     # Extract all __REPLACE_ME__ values and prompt for them
+    # Read template line by line and process replacements
     while IFS= read -r line; do
-        if [[ $line =~ ^[^#].*=.*__REPLACE_ME__.*$ ]]; then
-            key=$(echo "$line" | cut -d'=' -f1)
+        # Skip comments and empty lines
+        if [[ $line =~ ^[[:space:]]*# ]] || [[ -z "$line" ]]; then
+            continue
+        fi
+        
+        # Check if line contains __REPLACE_ME__
+        if [[ $line =~ ^[^#]*=.*__REPLACE_ME__ ]]; then
+            # Extract the variable name (everything before =)
+            key=$(echo "$line" | sed 's/=.*//')
             echo -n "Enter value for $key: " >&2
+# Function to validate .env file
+validate_env_file() {
+    local env_file="$1"
+    local errors=0
+    local warnings=0
+    
+    echo ""
+    echo "Validating .env file..."
+    echo "======================"
+    
+    # Critical variables that must exist and have values
+    local critical_vars=(
+        "POSTGRES_PASSWORD"
+        "POSTGRES_DB"
+        "POSTGRES_USER"
+        "DATABASE_URL"
+        "DJANGO_SECRET_KEY"
+        "ALLOWED_HOSTS"
+    )
+    
+    # Check if file exists
+    if [ ! -f "$env_file" ]; then
+        echo "❌ ERROR: .env file not found at $env_file"
+        return 1
+    fi
+    
+    # Check each critical variable
+    for var in "${critical_vars[@]}"; do
+        # Extract the value for this variable
+        local value=$(grep "^${var}=" "$env_file" | head -1 | cut -d'=' -f2-)
+        
+        # Check if variable exists
+        if [ -z "$value" ]; then
+            echo "❌ ERROR: $var is missing or empty"
+            errors=$((errors+1))
+            continue
+        fi
+        
+        # Check if value is a placeholder
+        if [[ "$value" == *"__REPLACE_ME__"* ]]; then
+            echo "❌ ERROR: $var still contains __REPLACE_ME__ placeholder"
+            errors=$((errors+1))
+            continue
+        fi
+        
+        # Check if value contains inline comments
+        if [[ "$value" =~ [[:space:]]+# ]]; then
+            echo "⚠️  WARNING: $var contains inline comment - value may be malformed"
+            warnings=$((warnings+1))
+        fi
+        
+        # Special validation for specific variables
+        case "$var" in
+            "DATABASE_URL")
+                if [[ ! "$value" =~ ^postgresql:// ]]; then
+                    echo "❌ ERROR: DATABASE_URL must start with postgresql://"
+                    errors=$((errors+1))
+                fi
+                ;;
+            "ALLOWED_HOSTS")
+                if [[ -z "$value" ]] || [[ "$value" == "localhost" ]]; then
+                    echo "⚠️  WARNING: ALLOWED_HOSTS should include your domain/IP"
+                    warnings=$((warnings+1))
+                fi
+                ;;
+        esac
+        
+        echo "✓ $var: OK"
+    done
+    
+    # Check for concatenated lines (common issue)
+    local concatenated=$(grep -E '^[A-Z_]+=.*[A-Z_]+=' "$env_file" | wc -l | tr -d ' ')
+    if [ "$concatenated" -gt 0 ]; then
+        echo "❌ ERROR: Found $concatenated line(s) with concatenated variables"
+        echo "   This usually means line breaks are missing in the .env file"
+        errors=$((errors+1))
+        
+        # Show problematic lines
+        echo "   Problematic lines:"
+        grep -E '^[A-Z_]+=.*[A-Z_]+=' "$env_file" | head -5 | sed 's/^/   /'
+    fi
+    
+    # Summary
+    echo ""
+    echo "Validation Summary:"
+    echo "==================="
+    echo "Errors: $errors"
+    echo "Warnings: $warnings"
+    
+    if [ $errors -gt 0 ]; then
+        echo ""
+        echo "❌ Validation FAILED - please fix errors before proceeding"
+        return 1
+    elif [ $warnings -gt 0 ]; then
+        echo ""
+        echo "⚠️  Validation passed with warnings - review before production use"
+        return 0
+    else
+        echo ""
+        echo "✅ Validation PASSED - .env file is properly configured"
+        return 0
+    fi
+}
+
             read -r value
-            sed -i.bak "s|$key=__REPLACE_ME__|$key=$value|g" "$temp_config"
-            sed -i.bak "s|$key:__REPLACE_ME__|$key:$value|g" "$temp_config"  # For colon-separated values
+            
+            # Escape special characters in value for sed
+            value_escaped=$(echo "$value" | sed 's/[&/\]/\\&/g')
+            
+            # Replace only the first occurrence on lines with this key
+            sed -i.bak "s|^\(${key}=\)__REPLACE_ME__|\1${value_escaped}|" "$temp_config"
         fi
     done < "$template"
+    
+    # Remove backup file
+    rm -f "${temp_config}.bak"
     
     echo "$temp_config"
 }
@@ -131,12 +250,22 @@ if [ "$INSTALL_MODE" = "1" ]; then
         # Prompt for secrets based on selected template
         CONFIG_FILE=$(prompt_secrets "$TEMPLATE_FILE")
         
-        # Add Docker Compose project name to config
-        echo "COMPOSE_PROJECT_NAME=oktools" >> "$CONFIG_FILE"
         # Copy completed config to production directory
         cp "$CONFIG_FILE" "$PRODUCTION_DIR/.env"
         chmod 600 "$PRODUCTION_DIR/.env"
         echo "✓ Created .env file at: $PRODUCTION_DIR/.env"
+        
+        # Validate the generated .env file
+        if ! validate_env_file "$PRODUCTION_DIR/.env"; then
+            echo ""
+            echo "⚠️  .env file validation failed. Please review and fix errors."
+            read -p "Do you want to continue anyway? (y/n) " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo "Installation cancelled."
+                exit 1
+            fi
+        fi
         
         # Copy necessary files based on installation type
         echo ""
@@ -481,6 +610,18 @@ elif [ "$INSTALL_MODE" = "2" ]; then
 
     chmod 600 "$ENV_FILE"
     echo "✓ Created .env file at: $ENV_FILE"
+
+    # Validate the generated .env file
+    if ! validate_env_file "$ENV_FILE"; then
+        echo ""
+        echo "⚠️  .env file validation failed. Please review and fix errors."
+        read -p "Do you want to continue anyway? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Installation cancelled."
+            exit 1
+        fi
+    fi
 
     # Copy necessary files based on installation type
     echo ""
