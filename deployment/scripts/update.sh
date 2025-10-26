@@ -26,7 +26,16 @@ git pull
 # Update docker-compose files and configs in production directory
 echo "Updating docker-compose files and configs..."
 cd "$PROJECT_DIR"
-cp -f deployment/docker-compose.production.no-nginx.yml "$PRODUCTION_DIR/docker-compose.yml"
+
+# Determine which docker-compose file to use based on existing installation
+if [ -f "$PRODUCTION_DIR/nginx.conf.template" ]; then
+    echo "Detected: Production with Nginx and SSL"
+    cp -f deployment/docker-compose.production.yml "$PRODUCTION_DIR/docker-compose.yml"
+else
+    echo "Detected: Local Network or Localhost (without Nginx)"
+    cp -f deployment/docker-compose.production.no-nginx.yml "$PRODUCTION_DIR/docker-compose.yml"
+fi
+
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
 cp -f deployment/nginx.conf.template "$PRODUCTION_DIR/"
 cp -f deployment/nginx-entrypoint.sh "$PRODUCTION_DIR/"
