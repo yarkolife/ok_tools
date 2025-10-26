@@ -148,35 +148,56 @@ prompt_secrets() {
     local template="$1"
     local output_file="/tmp/oktools_config_$(date +%s).tmp"
     
-    echo ""
-    echo "Processing template: $(basename "$template")"
-    echo "Please enter values for the following secrets:"
-    echo "=============================================="
+    # Выводим информацию в stderr, чтобы не попадало в возвращаемое значение
+    echo "" >&2
+    echo "Processing template: $(basename "$template")" >&2
+    echo "Please enter values for the following secrets:" >&2
+    echo "==============================================" >&2
     
-    # Process template line by line, preserving structure
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Check if line contains __REPLACE_ME__
-        if [[ $line =~ ^[^#]*=.*__REPLACE_ME__ ]]; then
-            # Extract the variable name (everything before =)
-            local key=$(echo "$line" | cut -d'=' -f1)
-            
-            # Prompt for value
-            echo ""
-            echo -n "Enter value for $key: "
-            read -r value
-            
-            # Replace __REPLACE_ME__ with the entered value in this line
-            # Using bash parameter substitution to avoid sed issues
-            local new_line="${line/__REPLACE_ME__/$value}"
-            echo "$new_line" >> "$output_file"
-        else
-            # Copy line as-is (preserving comments, empty lines, etc.)
-            echo "$line" >> "$output_file"
-        fi
-    done < "$template"
+    # Просто копируем шаблон в выходной файл
+    cp "$template" "$output_file"
     
-    echo ""
-    echo "✓ Configuration completed"
+    # Запрашиваем каждый секрет и заменяем через sed
+    # POSTGRES_PASSWORD
+    echo "" >&2
+    echo -n "Enter value for POSTGRES_PASSWORD: " >&2
+    read -s postgres_pass
+    echo "" >&2
+    sed -i.bak "s/__REPLACE_ME__.*POSTGRES_PASSWORD.*/$postgres_pass/" "$output_file"
+    
+    # DATABASE_URL (содержит тот же пароль)
+    sed -i.bak "s|postgresql://oktools:__REPLACE_ME__@db:5432/oktools|postgresql://oktools:$postgres_pass@db:5432/oktools|g" "$output_file"
+    
+    # DJANGO_SECRET_KEY
+    echo -n "Enter value for DJANGO_SECRET_KEY: " >&2
+    read -s django_key
+    echo "" >&2
+    sed -i.bak "s/__REPLACE_ME__.*DJANGO_SECRET_KEY.*/$django_key/" "$output_file"
+    
+    # ALLOWED_HOSTS
+    echo -n "Enter value for ALLOWED_HOSTS: " >&2
+    read allowed_hosts
+    sed -i.bak "s/__REPLACE_ME__.*ALLOWED_HOSTS.*/$allowed_hosts/" "$output_file"
+    
+    # SUPERUSER_PASSWORD
+    echo -n "Enter value for SUPERUSER_PASSWORD: " >&2
+    read -s superuser_pass
+    echo "" >&2
+    sed -i.bak "s/__REPLACE_ME__.*SUPERUSER_PASSWORD.*/$superuser_pass/" "$output_file"
+    
+    # EMAIL_HOST_PASSWORD
+    echo -n "Enter value for EMAIL_HOST_PASSWORD: " >&2
+    read -s email_pass
+    echo "" >&2
+    sed -i.bak "s/__REPLACE_ME__.*EMAIL_HOST_PASSWORD.*/$email_pass/" "$output_file"
+    
+    # Удаляем временные файлы .bak
+    rm -f "$output_file.bak"
+    
+    echo "" >&2
+    echo "✓ Configuration completed" >&2
+    
+    # Возвращаем только путь к файлу (в stdout)
     echo "$output_file"
 }
 
