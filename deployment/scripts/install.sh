@@ -146,59 +146,86 @@ validate_env_file() {
 # Function to prompt for secrets based on template
 prompt_secrets() {
     local template="$1"
-    local output_file="/tmp/oktools_config_$(date +%s).tmp"
+    local output_file="$2"
+    local secrets_file="${output_file%.env}_secrets.txt"
     
-    # Выводим информацию в stderr, чтобы не попадало в возвращаемое значение
     echo "" >&2
     echo "Processing template: $(basename "$template")" >&2
-    echo "Please enter values for the following secrets:" >&2
-    echo "==============================================" >&2
+    echo "Please enter values (press Enter to auto-generate):" >&2
+    echo "====================================================" >&2
     
-    # Просто копируем шаблон в выходной файл
+    # Copy template to output file
     cp "$template" "$output_file"
     
-    # Запрашиваем каждый секрет и заменяем через sed
+    # Create secrets file
+    echo "# Generated Secrets - $(date)" > "$secrets_file"
+    echo "# KEEP THIS FILE SECURE!" >> "$secrets_file"
+    echo "" >> "$secrets_file"
+    
     # POSTGRES_PASSWORD
     echo "" >&2
-    echo -n "Enter value for POSTGRES_PASSWORD: " >&2
+    echo -n "POSTGRES_PASSWORD (or press Enter to generate): " >&2
     read -s postgres_pass
     echo "" >&2
-    sed -i.bak "s/__REPLACE_ME__.*POSTGRES_PASSWORD.*/$postgres_pass/" "$output_file"
-    
-    # DATABASE_URL (содержит тот же пароль)
+    if [ -z "$postgres_pass" ]; then
+        postgres_pass=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
+        echo "Generated POSTGRES_PASSWORD: $postgres_pass" >&2
+        echo "POSTGRES_PASSWORD=$postgres_pass" >> "$secrets_file"
+    fi
+    sed -i.bak "s/POSTGRES_PASSWORD=__REPLACE_ME__/POSTGRES_PASSWORD=$postgres_pass/" "$output_file"
     sed -i.bak "s|postgresql://oktools:__REPLACE_ME__@db:5432/oktools|postgresql://oktools:$postgres_pass@db:5432/oktools|g" "$output_file"
     
     # DJANGO_SECRET_KEY
-    echo -n "Enter value for DJANGO_SECRET_KEY: " >&2
+    echo -n "DJANGO_SECRET_KEY (or press Enter to generate): " >&2
     read -s django_key
     echo "" >&2
-    sed -i.bak "s/__REPLACE_ME__.*DJANGO_SECRET_KEY.*/$django_key/" "$output_file"
+    if [ -z "$django_key" ]; then
+        django_key=$(openssl rand -base64 50 | tr -d "=+/" | cut -c1-50)
+        echo "Generated DJANGO_SECRET_KEY: $django_key" >&2
+        echo "DJANGO_SECRET_KEY=$django_key" >> "$secrets_file"
+    fi
+    sed -i.bak "s/DJANGO_SECRET_KEY=__REPLACE_ME__/DJANGO_SECRET_KEY=$django_key/" "$output_file"
     
     # ALLOWED_HOSTS
-    echo -n "Enter value for ALLOWED_HOSTS: " >&2
+    echo -n "ALLOWED_HOSTS (comma-separated, or press Enter for localhost): " >&2
     read allowed_hosts
-    sed -i.bak "s/__REPLACE_ME__.*ALLOWED_HOSTS.*/$allowed_hosts/" "$output_file"
+    if [ -z "$allowed_hosts" ]; then
+        allowed_hosts="localhost,127.0.0.1"
+        echo "Using default: $allowed_hosts" >&2
+    fi
+    sed -i.bak "s/ALLOWED_HOSTS=localhost,127.0.1,__REPLACE_ME__/ALLOWED_HOSTS=$allowed_hosts/" "$output_file"
+    sed -i.bak "s/ALLOWED_HOSTS=__REPLACE_ME__/ALLOWED_HOSTS=$allowed_hosts/" "$output_file"
     
     # SUPERUSER_PASSWORD
-    echo -n "Enter value for SUPERUSER_PASSWORD: " >&2
+    echo -n "SUPERUSER_PASSWORD (or press Enter to generate): " >&2
     read -s superuser_pass
     echo "" >&2
-    sed -i.bak "s/__REPLACE_ME__.*SUPERUSER_PASSWORD.*/$superuser_pass/" "$output_file"
+    if [ -z "$superuser_pass" ]; then
+        superuser_pass=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-24)
+        echo "Generated SUPERUSER_PASSWORD: $superuser_pass" >&2
+        echo "SUPERUSER_PASSWORD=$superuser_pass" >> "$secrets_file"
+    fi
+    sed -i.bak "s/SUPERUSER_PASSWORD=__REPLACE_ME__/SUPERUSER_PASSWORD=$superuser_pass/" "$output_file"
     
     # EMAIL_HOST_PASSWORD
-    echo -n "Enter value for EMAIL_HOST_PASSWORD: " >&2
+    echo -n "EMAIL_HOST_PASSWORD (or press Enter to generate): " >&2
     read -s email_pass
     echo "" >&2
-    sed -i.bak "s/__REPLACE_ME__.*EMAIL_HOST_PASSWORD.*/$email_pass/" "$output_file"
+    if [ -z "$email_pass" ]; then
+        email_pass=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-24)
+        echo "Generated EMAIL_HOST_PASSWORD: $email_pass" >&2
+        echo "EMAIL_HOST_PASSWORD=$email_pass" >> "$secrets_file"
+    fi
+    sed -i.bak "s/EMAIL_HOST_PASSWORD=__REPLACE_ME__/EMAIL_HOST_PASSWORD=$email_pass/" "$output_file"
     
-    # Удаляем временные файлы .bak
+    # Remove backup files
     rm -f "$output_file.bak"
     
+    chmod 600 "$secrets_file"
     echo "" >&2
     echo "✓ Configuration completed" >&2
-    
-    # Возвращаем только путь к файлу (в stdout)
-    echo "$output_file"
+    echo "✓ Secrets saved to: $secrets_file" >&2
+    echo "" >&2
 }
 
 # Check if production directory already exists
@@ -268,17 +295,12 @@ if [ "$INSTALL_MODE" = "1" ]; then
         
         echo "Using template: $TEMPLATE_FILE"
         
-        # Prompt for secrets based on selected template
-        CONFIG_FILE=$(prompt_secrets "$TEMPLATE_FILE")
+        # Prompt for secrets and create .env file directly
+        ENV_FILE="$PRODUCTION_DIR/.env"
+        prompt_secrets "$TEMPLATE_FILE" "$ENV_FILE"
+        chmod 600 "$ENV_FILE"
         
-        # Copy completed config to production directory
-        cp "$CONFIG_FILE" "$PRODUCTION_DIR/.env"
-        chmod 600 "$PRODUCTION_DIR/.env"
-        
-        # Clean up temporary file
-        rm -f "$CONFIG_FILE"
-        
-        echo "✓ Created .env file at: $PRODUCTION_DIR/.env"
+        echo "✓ Created .env file at: $ENV_FILE"
         
         # Validate the generated .env file
         if ! validate_env_file "$PRODUCTION_DIR/.env"; then
