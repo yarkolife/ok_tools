@@ -153,6 +153,9 @@ if [ "$INSTALL_MODE" = "1" ]; then
         cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
         chmod +x "$PRODUCTION_DIR/entrypoint.sh"
         
+        # Copy the entire deployment directory to ensure docker compose can access all necessary files
+        cp -r "$PROJECT_DIR/deployment" "$PRODUCTION_DIR/deployment"
+        
         if [ "$INSTALL_TYPE" = "1" ]; then
             echo "✓ Copied docker-compose.yml (with nginx)"
             echo "✓ Copied nginx.conf.template"
@@ -162,6 +165,7 @@ if [ "$INSTALL_MODE" = "1" ]; then
         fi
         echo "✓ Copied Dockerfile"
         echo "✓ Copied entrypoint.sh"
+        echo "✓ Copied deployment directory"
         
     fi
 elif [ "$INSTALL_MODE" = "2" ]; then
@@ -335,6 +339,9 @@ EOF
     cp "$PROJECT_DIR/deployment/production.Dockerfile" "$PRODUCTION_DIR/Dockerfile"
     cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
     chmod +x "$PRODUCTION_DIR/entrypoint.sh"
+    
+    # Copy the entire deployment directory to ensure docker compose can access all necessary files
+    cp -r "$PROJECT_DIR/deployment" "$PRODUCTION_DIR/deployment"
 
     if [ "$INSTALL_TYPE" = "1" ]; then
         echo "✓ Copied docker-compose.yml (with nginx)"
@@ -345,11 +352,11 @@ EOF
     fi
     echo "✓ Copied Dockerfile"
     echo "✓ Copied entrypoint.sh"
+    echo "✓ Copied deployment directory"
 else
     echo "Invalid choice. Exiting."
     exit 1
 fi
-
 # Request SSL certificate if enabled (only for Production)
 if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
     echo ""
@@ -364,8 +371,10 @@ fi
 # Start containers
 echo ""
 echo "Starting Docker containers..."
+export DEPLOYMENT_DIR_PATH="$PROJECT_DIR/deployment"
 cd "$PRODUCTION_DIR"
 docker compose up -d
+
 
 echo ""
 echo "=========================================="
