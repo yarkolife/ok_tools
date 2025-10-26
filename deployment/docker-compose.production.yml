@@ -31,8 +31,8 @@ services:
 
   web:
     build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: oktools_web
     ports:
       - "8000:8000"
@@ -196,8 +196,8 @@ services:
 
   celery_worker:
     build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: oktools_celery_worker
     environment:
       # Core Django
@@ -318,8 +318,8 @@ services:
 
   celery_beat:
     build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: oktools_celery_beat
     environment:
       # Core Django
