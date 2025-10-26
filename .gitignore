@@ -127,3 +127,13 @@ dist/
 .coverage.*
 coverage.xml
 nosetests.xml
+.cursor/
+.kilocode/
+.github/
+playout/
+
+.kilocodemodes
+entrypoint.sh
+
+deployment/docker/
+deployment/gunicorn/
