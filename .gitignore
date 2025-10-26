@@ -58,6 +58,7 @@ logs/
 media/
 share/
 scripts/
+!deployment/scripts/
 
 # Virtual environment (additional patterns)
 pyvenv.cfg
@@ -137,3 +138,4 @@ entrypoint.sh
 
 deployment/docker/
 deployment/gunicorn/
+!deployment/docs/

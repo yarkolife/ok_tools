@@ -17,6 +17,7 @@ import logging
 import os
 from datetime import timedelta
 from celery.schedules import crontab
+from django.core.exceptions import ImproperlyConfigured
 
 
 # Logger for settings.py
@@ -25,25 +26,148 @@ logger = logging.getLogger(__name__)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# parse configurations, set by component
+# =============================================================================
+# ENV Helper Functions
+# =============================================================================
+
+def get_env(key: str, default=None, required: bool = False, cast: type = str):
+    """
+    Get environment variable with type casting and validation.
+    
+    Args:
+        key: Environment variable name
+        default: Default value if not found
+        required: Raise exception if not found and no default
+        cast: Type to cast the value to (str, int, bool, list)
+    
+    Returns:
+        Casted value or default
+        
+    Raises:
+        ImproperlyConfigured: If required variable is missing
+    """
+    value = os.getenv(key, default)
+    
+    if required and value is None:
+        raise ImproperlyConfigured(f"Required environment variable '{key}' is not set")
+    
+    if value is None:
+        return None
+    
+    # Type casting
+    if cast == bool:
+        return str(value).lower() in ('true', '1', 'yes', 'on')
+    elif cast == int:
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            logger.warning(f"Cannot cast '{key}={value}' to int, using default: {default}")
+            return default if default is not None else 0
+    elif cast == list:
+        # Comma-separated list
+        return [item.strip() for item in str(value).split(',') if item.strip()]
+    else:
+        return str(value)
+
+def get_env_list(key: str, default: list = None, separator: str = ','):
+    """Get environment variable as list."""
+    value = os.getenv(key)
+    if not value:
+        return default or []
+    return [item.strip() for item in value.split(separator) if item.strip()]
+
+# =============================================================================
+# Backward Compatibility Layer (Deprecation Period)
+# =============================================================================
+
 config = configparser.RawConfigParser()
+CONFIG_FILE_USED = False
+
 if "OKTOOLS_CONFIG_FILE" in os.environ:
-    config.read_file(open(os.environ.get("OKTOOLS_CONFIG_FILE"), encoding="utf-8"))
+    import warnings
+    warnings.warn(
+        "OKTOOLS_CONFIG_FILE is deprecated and will be removed in version 2.0. "
+        "Please migrate to environment variables.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    try:
+        config.read_file(open(os.environ.get("OKTOOLS_CONFIG_FILE"), encoding="utf-8"))
+        CONFIG_FILE_USED = True
+        logger.warning("Using deprecated .cfg file. Please migrate to .env")
+    except Exception as e:
+        logger.error(f"Failed to load config file: {e}")
 else:
     logger.warning("No config file found for ok-tools." " Switching to fallbacks.")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config.get("django", "secret_key", fallback=None)
+def get_config(section: str, key: str, fallback=None, cast: type = str, env_key: str = None):
+    """
+    Get configuration with ENV priority over .cfg (deprecated).
+    
+    Priority:
+    1. Environment variable (env_key or SECTION_KEY)
+    2. .cfg file (deprecated)
+    3. fallback value
+    """
+    # Generate ENV key if not provided
+    if env_key is None:
+        env_key = f"{section.upper()}_{key.upper()}"
+    
+    # Try environment variable first
+    env_value = os.getenv(env_key)
+    if env_value is not None:
+        return get_env(env_key, cast=cast, default=fallback)
+    
+    # Fall back to .cfg (deprecated)
+    if CONFIG_FILE_USED:
+        try:
+            if cast == bool:
+                return config.getboolean(section, key, fallback=fallback)
+            elif cast == int:
+                return config.getint(section, key, fallback=fallback)
+            else:
+                return config.get(section, key, fallback=fallback)
+        except:
+            pass
+    
+    return fallback
 
+# =============================================================================
+# Helper for Celery Beat Schedules
+# =============================================================================
+
+def parse_crontab_env(env_key: str, default: str = '0 0 * * *'):
+    """Parse crontab string from environment variable."""
+    crontab_string = get_env(env_key, default=default)
+    parts = crontab_string.split()
+    
+    # Ensure we have exactly 5 parts
+    while len(parts) < 5:
+        parts.append('*')
+    
+    return crontab(
+        minute=parts[0],
+        hour=parts[1],
+        day_of_month=parts[2],
+        month_of_year=parts[3],
+        day_of_week=parts[4],
+    )
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = get_env('DJANGO_SECRET_KEY', required=True)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.getboolean("django", "debug", fallback=False)
+DEBUG = get_env('DEBUG', default=False, cast=bool)
 
-hosts = config.get("django", "allowed_hosts", fallback=None)
-ALLOWED_HOSTS = hosts.split() if hosts else ["localhost"]
+# Allowed hosts configuration
+allowed_hosts_str = get_env('ALLOWED_HOSTS', default='localhost')
+if ',' in allowed_hosts_str:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_str.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = allowed_hosts_str.split()
 
 # Loglevel
-DJANGO_LOG_LEVEL = os.getenv("DJANGO_LOG_LEVEL", "INFO")
+DJANGO_LOG_LEVEL = get_env('DJANGO_LOG_LEVEL', default='INFO')
 
 # Application definition
 
@@ -125,11 +249,11 @@ WSGI_APPLICATION = "ok_tools.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": config.get("django", "db_name", fallback=None),
-        "USER": config.get("django", "db_user", fallback=None),
-        "PASSWORD": config.get("django", "db_pw", fallback=None),
-        "HOST": config.get("django", "db_host", fallback="localhost"),
-        "PORT": config.get("django", "db_port", fallback="5432"),
+        "NAME": get_env('POSTGRES_DB', default='oktools', required=True),
+        "USER": get_env('POSTGRES_USER', default='oktools', required=True),
+        "PASSWORD": get_env('POSTGRES_PASSWORD', required=True),
+        "HOST": get_env('DB_HOST', default='localhost'),
+        "PORT": get_env('DB_PORT', default='5432'),
     }
 }
 
@@ -153,21 +277,21 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-use_secure_settings = config.getboolean("django", "use_secure_settings", fallback=False)
+use_secure_settings = get_env('USE_SECURE_SETTINGS', default=False, cast=bool)
 
 if use_secure_settings:
-    CSRF_TRUSTED_ORIGINS = [f"https://{hosts}"]
+    CSRF_TRUSTED_ORIGINS = [f"https://{hosts}" for hosts in ALLOWED_HOSTS]
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    CORS_ORIGIN_WHITELIST = [f"https://{hosts}"]
+    CORS_ORIGIN_WHITELIST = [f"https://{hosts}" for hosts in ALLOWED_HOSTS]
     USE_X_FORWARDED_HOST = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = config.get("django", "language", fallback="de-de")
+LANGUAGE_CODE = get_env('LANGUAGE_CODE', default='de-de')
 
-TIME_ZONE = config.get("django", "timezone", fallback="Europe/Berlin")
+TIME_ZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 
 USE_I18N = True
 
@@ -186,10 +310,10 @@ STATICFILES_DIRS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_ROOT = config.get("django", "static", fallback="staticfiles/")
+STATIC_ROOT = get_env('STATIC_ROOT', default='staticfiles/')
 STATIC_URL = "/static/"
 
-MEDIA_ROOT = config.get("django", "media", fallback="media/")
+MEDIA_ROOT = get_env('MEDIA_ROOT', default='media/')
 MEDIA_URL = "/media/"
 
 # ManifestStaticFilesStorage is recommended in production, to prevent outdatedhttp://localhost:8000/
@@ -222,41 +346,37 @@ AUTH_USER_MODEL = "registration.OKUser"
 AUTHENTICATION_BACKENDS = ["registration.backends.EmailBackend"]
 
 # Phone Number Validation
-PHONENUMBER_DEFAULT_REGION = config.get("i18n", "phone_region", fallback="DE")
+PHONENUMBER_DEFAULT_REGION = get_env('PHONENUMBER_DEFAULT_REGION', default='DE')
 
 # Date format
-DATE_INPUT_FORMATS = config.get("i18n", "date_format", fallback="%d.%m.%Y")
+DATE_INPUT_FORMATS = get_env('DATE_INPUT_FORMATS', default='%d.%m.%Y')
 
 # email
-# send the mails to stdout
+# send mails to stdout
 
-
-mail_dev_settings = config.getboolean("django", "mail_dev_settings", fallback=True)
-
+mail_dev_settings = get_env('MAIL_DEV_SETTINGS', default=True, cast=bool)
 
 if mail_dev_settings:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-EMAIL_HOST = config.get("django", "email_host", fallback="")
-EMAIL_PORT = config.getint("django", "email_port", fallback=587)
-EMAIL_USE_TLS = config.getboolean("django", "email_use_tls", fallback=True)
-EMAIL_HOST_USER = config.get("django", "email_host_user", fallback="")
-EMAIL_HOST_PASSWORD = config.get("django", "email_host_password", fallback="")
-DEFAULT_FROM_EMAIL = config.get(
-    "django", "default_from_email", fallback="webmaster@localhost"
-)
+EMAIL_HOST = get_env('EMAIL_HOST', default='')
+EMAIL_PORT = get_env('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = get_env('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = get_env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = get_env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = get_env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 
 
-# name of the OK
-OK_NAME = config.get("organization", "name", fallback=_("Open Channel Merseburg-Querfurt e.V."))
-OK_NAME_SHORT = config.get("organization", "short_name", fallback=_("OK Merseburg"))
+# name of OK
+OK_NAME = get_env('OK_NAME', default=_("Open Channel Merseburg-Querfurt e.V."))
+OK_NAME_SHORT = get_env('OK_NAME_SHORT', default=_("OK Merseburg"))
 
 # Organization settings
-STATE_MEDIA_INSTITUTION = config.get("organization", "state_media_institution", fallback="MSA")
-ORGANIZATION_OWNER = config.get("organization", "organization_owner", fallback="OKMQ")
+STATE_MEDIA_INSTITUTION = get_env('STATE_MEDIA_INSTITUTION', default='MSA')
+ORGANIZATION_OWNER = get_env('ORGANIZATION_OWNER', default='OKMQ')
 
-# the fixed duration of a screen board (Bildschirmtafel) in seconds
-SCREEN_BOARD_DURATION = config.getint("video", "screen_board_duration", fallback=20)
+# fixed duration of a screen board (Bildschirmtafel) in seconds
+SCREEN_BOARD_DURATION = get_env('SCREEN_BOARD_DURATION', default=20, cast=int)
 
 # Which site should be seen after log in and log out
 LOGIN_REDIRECT_URL = "home"
@@ -266,8 +386,8 @@ LOGOUT_REDIRECT_URL = "home"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # bootstrap message tags
-# For warnings and errors both, the bootstrap tag (alert-*) and the django tag,
-# is set to support the user side and the admin side with colorfully messages.
+# For warnings and errors both, bootstrap tag (alert-*) and django tag,
+# is set to support user side and admin side with colorfully messages.
 MESSAGE_TAGS = {
     messages.DEBUG: "alert-secondary",
     messages.INFO: "alert-info",
@@ -280,11 +400,11 @@ MESSAGE_TAGS = {
 LEGACY_DATA = "../legacy_data/data.xlsx"
 
 # Backup directory - read from config or environment
-BACKUP_DIR = os.environ.get("BACKUP_DIR", config.get("django", "backup_dir", fallback="backups/"))
+BACKUP_DIR = get_env('BACKUP_DIR', default='backups/')
 
 # Broadcast time settings for planning - read from config
-BROADCAST_START = config.get("organization", "broadcast_start", fallback="06:00")
-BROADCAST_END = config.get("organization", "broadcast_end", fallback="23:00")
+BROADCAST_START = get_env('BROADCAST_START', default='06:00')
+BROADCAST_END = get_env('BROADCAST_END', default='23:00')
 
 LOGGING = {
     "version": 1,
@@ -364,68 +484,63 @@ LOGGING = {
 }
 
 # Bootstrap settings
-BOOTSTRAP_VERSION = config.get("bootstrap", "version", fallback="5.3.2")
+BOOTSTRAP_VERSION = get_env('BOOTSTRAP_VERSION', default='5.3.2')
 BOOTSTRAP_CDN_URL = f"https://cdn.jsdelivr.net/npm/bootstrap@{BOOTSTRAP_VERSION}"
-BOOTSTRAP_ICONS_VERSION = config.get("bootstrap", "icons_version", fallback="1.1.1")
+BOOTSTRAP_ICONS_VERSION = get_env('BOOTSTRAP_ICONS_VERSION', default='1.1.1')
 BOOTSTRAP_ICONS_URL = f"https://cdn.jsdelivr.net/npm/bootstrap-icons@{BOOTSTRAP_ICONS_VERSION}"
 
 # Celery Configuration
-CELERY_BROKER_URL = config.get("celery", "broker_url", fallback='redis://127.0.0.1:6379/0')
-CELERY_RESULT_BACKEND = config.get("celery", "result_backend", fallback='redis://127.0.0.1:6379/0')
+CELERY_BROKER_URL = get_env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = get_env('CELERY_RESULT_BACKEND', default='redis://127.0.0.1:6379/0')
 
 # Celery Configuration Options
-CELERY_TIMEZONE = config.get("django", "timezone", fallback="Europe/Berlin")
+CELERY_TIMEZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
 CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
 
-# Celery Beat Schedule from config file
-def parse_crontab(crontab_string):
-    """
-    Helper function to parse a crontab string into a crontab object.
-    Handles different numbers of arguments in the crontab string.
-    Standard crontab format: minute hour day_of_month month_of_year day_of_week
-    """
-    parts = crontab_string.split()
-    crontab_kwargs = {
-        'minute': parts[0] if len(parts) > 0 else '*',
-        'hour': parts[1] if len(parts) > 1 else '*',
-        'day_of_month': parts[2] if len(parts) > 2 else '*',
-        'month_of_year': parts[3] if len(parts) > 3 else '*',
-        'day_of_week': parts[4] if len(parts) > 4 else '*',
-    }
-    return crontab(**crontab_kwargs)
-
+# Celery Beat Schedule from environment variables
 CELERY_BEAT_SCHEDULE = {
     'expire_rentals': {
         'task': 'ok_tools.tasks.run_expire_room_rentals_task',
-        'schedule': parse_crontab(config.get('celery_beat', 'expire_rentals_schedule', fallback='*/30 * * *')),
+        'schedule': parse_crontab_env('CELERY_BEAT_EXPIRE_RENTALS', '*/30 * * * *'),
     },
     'cleanup_old_backups': {
         'task': 'ok_tools.tasks.cleanup_old_backups_task',
-        'schedule': parse_crontab(config.get('celery_beat', 'cleanup_old_backups_schedule', fallback='0 2 * *')),
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_OLD_BACKUPS', '0 2 * * *'),
     },
     'run_backup_db': {
         'task': 'ok_tools.tasks.run_backup_db_task',
-        'schedule': parse_crontab(config.get('celery_beat', 'run_backup_db_schedule', fallback='0 3 * * *')),
+        'schedule': parse_crontab_env('CELERY_BEAT_RUN_BACKUP_DB', '0 3 * * *'),
     },
     'auto_scan': {
         'task': 'media_files.tasks.run_auto_scan',
-        'schedule': parse_crontab(config.get('celery_beat', 'auto_scan_schedule', fallback='0 */2 * *')),
+        'schedule': parse_crontab_env('CELERY_BEAT_AUTO_SCAN', '0 */2 * * *'),
     },
     'link_orphan_licenses': {
         'task': 'media_files.tasks.run_link_orphan_licenses',
-        'schedule': parse_crontab(config.get('celery_beat', 'link_orphan_licenses_schedule', fallback='0 3 * * *')),
+        'schedule': parse_crontab_env('CELERY_BEAT_LINK_ORPHAN_LICENSES', '0 3 * * *'),
     },
     'sync_licenses_videos': {
         'task': 'media_files.tasks.run_sync_licenses_videos',
-        'schedule': parse_crontab(config.get('celery_beat', 'sync_licenses_videos_schedule', fallback='0 4 * * *')),
+        'schedule': parse_crontab_env('CELERY_BEAT_SYNC_LICENSES_VIDEOS', '0 4 * * *'),
     },
     'update_video_metadata': {
         'task': 'media_files.tasks.run_update_video_metadata',
-        'schedule': parse_crontab(config.get('celery_beat', 'update_video_metadata_schedule', fallback='0 1 1 * *')),
+        'schedule': parse_crontab_env('CELERY_BEAT_UPDATE_VIDEO_METADATA', '0 1 1 * *'),
         'kwargs': {'missing_only': True},
     },
 }
+
+# Show deprecation warning if .cfg file was used
+if CONFIG_FILE_USED:
+    logger.warning(
+        "=" * 80 + "\n"
+        "DEPRECATION WARNING: .cfg file configuration is deprecated!\n"
+        "Please migrate to environment variables (.env file).\n"
+        "Support for .cfg files will be removed in version 2.0.\n"
+        "See: deployment/reports/config-architecture-decision.md\n"
+        "=" * 80
+    )

@@ -112,6 +112,58 @@ cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
 mkdir -p "$PRODUCTION_DIR/configs"
 cp -f deployment/configs/* "$PRODUCTION_DIR/configs/"
 
+# Update .env file with new variables if they don't exist
+echo "Checking for missing environment variables..."
+ENV_FILE="$PRODUCTION_DIR/.env"
+
+if [ -f "$ENV_FILE" ]; then
+    # Backup current .env
+    cp "$ENV_FILE" "$ENV_FILE.backup.$(date +%Y%m%d_%H%M%S)"
+    echo "✓ Backed up .env file"
+    
+    # Function to add variable if not exists
+    add_env_var_if_missing() {
+        local key="$1"
+        local value="$2"
+        
+        if ! grep -q "^${key}=" "$ENV_FILE"; then
+            echo "$key=$value" >> "$ENV_FILE"
+            echo "  + Added $key"
+        fi
+    }
+    
+    # Add new ENV variables with defaults
+    add_env_var_if_missing "DJANGO_LOG_LEVEL" "INFO"
+    add_env_var_if_missing "DJANGO_LANGUAGE" "de-de"
+    add_env_var_if_missing "DJANGO_TIMEZONE" "Europe/Berlin"
+    add_env_var_if_missing "DJANGO_STATIC_ROOT" "/app/staticfiles/"
+    add_env_var_if_missing "DJANGO_MEDIA_ROOT" "/app/media/"
+    add_env_var_if_missing "DJANGO_USE_SECURE_SETTINGS" "True"
+    add_env_var_if_missing "MAIL_DEV_SETTINGS" "False"
+    add_env_var_if_missing "MEDIA_AUTO_SCAN" "False"
+    add_env_var_if_missing "MEDIA_AUTO_COPY_ON_SCHEDULE" "True"
+    add_env_var_if_missing "BOOTSTRAP_VERSION" "5.3.3"
+    add_env_var_if_missing "BOOTSTRAP_ICONS_VERSION" "1.11.0"
+    add_env_var_if_missing "API_PAGE_SIZE" "20"
+    add_env_var_if_missing "VIDEO_SCREEN_BOARD_DURATION" "20"
+    add_env_var_if_missing "I18N_PHONE_REGION" "DE"
+    add_env_var_if_missing "I18N_DATE_FORMAT" "%d.%m.%Y"
+    add_env_var_if_missing "CELERY_BROKER_URL" "redis://redis:6379/0"
+    add_env_var_if_missing "CELERY_RESULT_BACKEND" "redis://redis:6379/0"
+    add_env_var_if_missing "CELERY_BEAT_EXPIRE_RENTALS" "*/30 * * * *"
+    add_env_var_if_missing "CELERY_BEAT_CLEANUP_BACKUPS" "0 2 * * *"
+    add_env_var_if_missing "CELERY_BEAT_BACKUP_DB" "0 3 * * *"
+    add_env_var_if_missing "CELERY_BEAT_AUTO_SCAN" "0 */2 * * *"
+    add_env_var_if_missing "CELERY_BEAT_LINK_LICENSES" "0 4 * * *"
+    add_env_var_if_missing "CELERY_BEAT_SYNC_VIDEOS" "0 5 * * *"
+    add_env_var_if_missing "CELERY_BEAT_UPDATE_METADATA" "0 1 1 * *"
+    add_env_var_if_missing "LOGGING_FILE" "/app/logs/oktools.log"
+    
+    echo "✓ Environment variables updated"
+else
+    echo "Warning: .env file not found at $ENV_FILE"
+fi
+
 # Rebuild Docker images
 echo "Rebuilding Docker images..."
 cd "$PRODUCTION_DIR"

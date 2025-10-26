@@ -247,6 +247,26 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         SSL_EMAIL=""
     fi
 
+    echo ""
+    echo "Step 5: Extended Configuration"
+    echo "==============================="
+    read -p "Django log level (INFO/DEBUG/WARNING/ERROR) [INFO]: " DJANGO_LOG_LEVEL
+    DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL:-INFO}
+
+    read -p "Email host (SMTP server) [smtp.your-provider.de]: " EMAIL_HOST
+    EMAIL_HOST=${EMAIL_HOST:-smtp.your-provider.de}
+
+    read -p "Email port [587]: " EMAIL_PORT
+    EMAIL_PORT=${EMAIL_PORT:-587}
+
+    read -p "Organization owner name: " ORG_ORGANIZATION_OWNER
+
+    read -p "Broadcast start time (HH:MM) [18:00]: " ORG_BROADCAST_START
+    ORG_BROADCAST_START=${ORG_BROADCAST_START:-18:00}
+
+    read -p "Broadcast end time (HH:MM) [19:45]: " ORG_BROADCAST_END
+    ORG_BROADCAST_END=${ORG_BROADCAST_END:-19:45}
+
     # Generate .env file using echo commands to avoid heredoc issues
     ENV_FILE="$PRODUCTION_DIR/.env"
     
@@ -336,6 +356,111 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "BACKUP_DIR=$BACKUP_DIR" >> "$ENV_FILE"
     echo "# Set Docker Compose project name" >> "$ENV_FILE"
     echo "COMPOSE_PROJECT_NAME=oktools" >> "$ENV_FILE"
+    
+    # Django Extended Configuration
+    echo "# Django Extended Configuration" >> "$ENV_FILE"
+    echo "DJANGO_LOG_LEVEL=$DJANGO_LOG_LEVEL" >> "$ENV_FILE"
+    echo "DJANGO_LANGUAGE=de-de" >> "$ENV_FILE"
+    echo "DJANGO_TIMEZONE=Europe/Berlin" >> "$ENV_FILE"
+    echo "DJANGO_STATIC_ROOT=/app/staticfiles/" >> "$ENV_FILE"
+    echo "DJANGO_MEDIA_ROOT=/app/media/" >> "$ENV_FILE"
+    echo "DJANGO_USE_SECURE_SETTINGS=True" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Email Configuration
+    echo "# Email Configuration" >> "$ENV_FILE"
+    echo "EMAIL_HOST=$EMAIL_HOST" >> "$ENV_FILE"
+    echo "EMAIL_PORT=$EMAIL_PORT" >> "$ENV_FILE"
+    echo "EMAIL_USE_TLS=True" >> "$ENV_FILE"
+    echo "EMAIL_HOST_USER=noreply@your-domain.com" >> "$ENV_FILE"
+    echo "EMAIL_HOST_PASSWORD=__REPLACE_ME__" >> "$ENV_FILE"
+    echo "DEFAULT_FROM_EMAIL=noreply@your-domain.com" >> "$ENV_FILE"
+    echo "MAIL_DEV_SETTINGS=False" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Organization Extended
+    echo "# Organization Extended" >> "$ENV_FILE"
+    echo "ORG_ORGANIZATION_OWNER=$ORG_ORGANIZATION_OWNER" >> "$ENV_FILE"
+    echo "ORG_BROADCAST_START=$ORG_BROADCAST_START" >> "$ENV_FILE"
+    echo "ORG_BROADCAST_END=$ORG_BROADCAST_END" >> "$ENV_FILE"
+    echo "ORG_PEERTUBE_CHANNEL=" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # NAS Storage Extended
+    echo "# NAS Storage Extended" >> "$ENV_FILE"
+    echo "NAS_ARCHIVE_UNC_PATH=" >> "$ENV_FILE"
+    echo "NAS_PLAYOUT_UNC_PATH=" >> "$ENV_FILE"
+    echo "MEDIA_AUTO_SCAN=False" >> "$ENV_FILE"
+    echo "MEDIA_AUTO_COPY_ON_SCHEDULE=True" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Logging
+    echo "# Logging" >> "$ENV_FILE"
+    echo "LOGGING_FILE=/app/logs/oktools.log" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Bootstrap
+    echo "# Bootstrap" >> "$ENV_FILE"
+    echo "BOOTSTRAP_VERSION=5.3.3" >> "$ENV_FILE"
+    echo "BOOTSTRAP_ICONS_VERSION=1.11.0" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # API Configuration
+    echo "# API Configuration" >> "$ENV_FILE"
+    echo "API_PAGE_SIZE=20" >> "$ENV_FILE"
+    echo "API_ANON_RATE_LIMIT=100/hour" >> "$ENV_FILE"
+    echo "API_USER_RATE_LIMIT=1000/hour" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Security
+    echo "# Security" >> "$ENV_FILE"
+    echo "SECURITY_SESSION_TIMEOUT=1200" >> "$ENV_FILE"
+    echo "SECURITY_PASSWORD_MIN_LENGTH=8" >> "$ENV_FILE"
+    echo "SECURITY_CSRF_COOKIE_AGE=31449600" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Video
+    echo "# Video" >> "$ENV_FILE"
+    echo "VIDEO_SUPPORTED_FORMATS=mp4,mov,mpeg,mpg" >> "$ENV_FILE"
+    echo "VIDEO_SCREEN_BOARD_DURATION=20" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # I18n
+    echo "# I18n" >> "$ENV_FILE"
+    echo "I18N_DEFAULT_LANGUAGE=de" >> "$ENV_FILE"
+    echo "I18N_SUPPORTED_LANGUAGES=de,en" >> "$ENV_FILE"
+    echo "I18N_LOCALE_PATHS=ok_tools/locale" >> "$ENV_FILE"
+    echo "I18N_PHONE_REGION=DE" >> "$ENV_FILE"
+    echo "I18N_DATE_FORMAT=%d.%m.%Y" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Static Files
+    echo "# Static Files" >> "$ENV_FILE"
+    echo "STATIC_STORAGE_BACKEND=whitenoise.storage.CompressedManifestStaticFilesStorage" >> "$ENV_FILE"
+    echo "STATIC_URL_PREFIX=static/" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Cache
+    echo "# Cache" >> "$ENV_FILE"
+    echo "CACHE_BACKEND=django.core.cache.backends.locmem.LocMemCache" >> "$ENV_FILE"
+    echo "CACHE_TIMEOUT=300" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Celery Extended
+    echo "# Celery Extended" >> "$ENV_FILE"
+    echo "CELERY_BROKER_URL=redis://redis:6379/0" >> "$ENV_FILE"
+    echo "CELERY_RESULT_BACKEND=redis://redis:6379/0" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+
+    # Celery Beat Schedules
+    echo "# Celery Beat Schedules" >> "$ENV_FILE"
+    echo "CELERY_BEAT_EXPIRE_RENTALS=*/30 * * * *" >> "$ENV_FILE"
+    echo "CELERY_BEAT_CLEANUP_BACKUPS=0 2 * * *" >> "$ENV_FILE"
+    echo "CELERY_BEAT_BACKUP_DB=0 3 * * *" >> "$ENV_FILE"
+    echo "CELERY_BEAT_AUTO_SCAN=0 */2 * * *" >> "$ENV_FILE"
+    echo "CELERY_BEAT_LINK_LICENSES=0 4 * * *" >> "$ENV_FILE"
+    echo "CELERY_BEAT_SYNC_VIDEOS=0 5 * * *" >> "$ENV_FILE"
+    echo "CELERY_BEAT_UPDATE_METADATA=0 1 1 * *" >> "$ENV_FILE"
 
     chmod 600 "$ENV_FILE"
     echo "✓ Created .env file at: $ENV_FILE"
