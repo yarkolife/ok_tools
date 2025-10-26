@@ -74,8 +74,60 @@ services:
     networks:
       - oktools-network
 
+  celery_worker:
+    build:
+      context: ../ok_tools
+      dockerfile: deployment/production.Dockerfile
+    container_name: oktools_celery_worker
+    environment:
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=${PYTHONUNBUFFERED}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../ok_tools:/app
+      - ./data/static:/app/static
+      - ./data/media:/app/media
+      - ./logs:/app/logs
+    command: celery -A ok_tools worker --loglevel=info
+    restart: unless-stopped
+    networks:
+      - oktools-network
+
+  celery_beat:
+    build:
+      context: ../ok_tools
+      dockerfile: deployment/production.Dockerfile
+    container_name: oktools_celery_beat
+    environment:
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=${PYTHONUNBUFFERED}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../ok_tools:/app
+      - ./logs:/app/logs
+    command: celery -A ok_tools beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    restart: unless-stopped
+    networks:
+      - oktools-network
+
 volumes:
-  postgres_data:
+ postgres_data:
   static_files:
   media_files:
   logs:
