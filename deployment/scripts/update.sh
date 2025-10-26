@@ -18,6 +18,73 @@ echo "OK Tools Production Update"
 echo "=========================================="
 echo ""
 
+# Function to detect and repair corrupted .env files
+repair_env_file() {
+    local env_file="$PRODUCTION_DIR/.env"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "Warning: .env file not found at $env_file"
+        return 1
+    fi
+    
+    # Check for corruption pattern: concatenated variables (pattern: KEY=VALUE=VALUE)
+    local corrupted_lines=$(grep -E '^[^#].*=.*=.*' "$env_file" | wc -l)
+    
+    if [ "$corrupted_lines" -gt 0 ]; then
+        echo "Detected corruption in .env file ($corrupted_lines corrupted lines)"
+        echo "Creating backup..."
+        cp "$env_file" "$env_file.backup.$(date +%Y%m%d_%H%M%S)"
+        
+        echo "Repairing .env file..."
+        
+        # Create temporary file for repaired content
+        local temp_file="/tmp/repaired_env.tmp"
+        
+        # Process each line to fix concatenated variables
+        while IFS= read -r line; do
+            # Skip comments and empty lines
+            if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then
+                echo "$line" >> "$temp_file"
+                continue
+            fi
+            
+            # Check if line contains concatenated variables
+            if [[ $line =~ ^([^=]+)=(.*)=(.*)$ ]]; then
+                # Extract the first key-value pair
+                local key="${BASH_REMATCH[1]}"
+                local value="${BASH_REMATCH[2]}"
+                
+                # Write the first key-value pair
+                echo "$key=$value" >> "$temp_file"
+                
+                # Try to extract the second key-value pair
+                local remaining="${BASH_REMATCH[3]}"
+                if [[ $remaining =~ ^([^=]+)=(.*)$ ]]; then
+                    local second_key="${BASH_REMATCH[1]}"
+                    local second_value="${BASH_REMATCH[2]}"
+                    echo "$second_key=$second_value" >> "$temp_file"
+                fi
+            else
+                # Line is not corrupted, write as-is
+                echo "$line" >> "$temp_file"
+            fi
+        done < "$env_file"
+        
+        # Replace original file with repaired version
+        mv "$temp_file" "$env_file"
+        chmod 600 "$env_file"
+        
+        echo "✓ .env file repaired successfully"
+        return 0
+    else
+        echo "✓ .env file appears to be valid"
+        return 1
+    fi
+}
+
+# Check and repair .env file if needed
+repair_env_file
+
 # Pull latest code
 echo "Pulling latest code from repository..."
 cd "$PROJECT_DIR"

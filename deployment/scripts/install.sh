@@ -247,80 +247,95 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         SSL_EMAIL=""
     fi
 
-    # Generate .env file
+    # Generate .env file using echo commands to avoid heredoc issues
     ENV_FILE="$PRODUCTION_DIR/.env"
-    cat > "$ENV_FILE" << EOF
-# OK Tools Environment Configuration
-# Generated: $(date)
-
-# Database Configuration
-POSTGRES_DB=oktools
-POSTGRES_USER=oktools
-POSTGRES_PASSWORD=$DB_PASSWORD
-DATABASE_URL=postgresql://oktools:$DB_PASSWORD@db:5432/oktools
-
-# Django Configuration
-DJANGO_SETTINGS_MODULE=ok_tools.settings
-DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
-DEBUG=False
-ALLOWED_HOSTS=$ALLOWED_HOSTS
-
-# Organization Configuration
-ORG_NAME=$ORG_NAME
-ORG_SHORT_NAME=$ORG_SHORT_NAME
-ORG_WEBSITE=$ORG_WEBSITE
-ORG_EMAIL=$ORG_EMAIL
-ORG_PHONE=$ORG_PHONE
-ORG_ADDRESS=$ORG_ADDRESS
-STATE_MEDIA_INSTITUTION=$STATE_MEDIA_INSTITUTION
-
-# Superuser Configuration
-SUPERUSER_USERNAME=$SUPERUSER_USERNAME
-SUPERUSER_EMAIL=$SUPERUSER_EMAIL
-SUPERUSER_PASSWORD=$SUPERUSER_PASSWORD
-
-# Application Configuration
-PYTHONPATH=/app
-PYTHONUNBUFFERED=1
-
-# Gunicorn Configuration
-GUNICORN_WORKERS=4
-GUNICORN_THREADS=2
-GUNICORN_TIMEOUT=120
-GUNICORN_MAX_REQUESTS=1000
-GUNICORN_MAX_REQUESTS_JITTER=100
-
-# Redis Configuration
-REDIS_URL=redis://redis:6379/0
-
-# NAS/Network Storage Configuration (optional)
-NAS_PLAYOUT_PATH=/mnt/nas/playout
-NAS_ARCHIVE_PATH=/mnt/nas/archive
-NAS_MOUNT_ENABLED=false
-
-EOF
+    
+    # Create header
+    echo "# OK Tools Environment Configuration" > "$ENV_FILE"
+    echo "# Generated: $(date)" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Database Configuration
+    echo "# Database Configuration" >> "$ENV_FILE"
+    echo "POSTGRES_DB=oktools" >> "$ENV_FILE"
+    echo "POSTGRES_USER=oktools" >> "$ENV_FILE"
+    echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> "$ENV_FILE"
+    echo "DATABASE_URL=postgresql://oktools:$DB_PASSWORD@db:5432/oktools" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Django Configuration
+    echo "# Django Configuration" >> "$ENV_FILE"
+    echo "DJANGO_SETTINGS_MODULE=ok_tools.settings" >> "$ENV_FILE"
+    echo "DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY" >> "$ENV_FILE"
+    echo "DEBUG=False" >> "$ENV_FILE"
+    echo "ALLOWED_HOSTS=$ALLOWED_HOSTS" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Organization Configuration
+    echo "# Organization Configuration" >> "$ENV_FILE"
+    echo "ORG_NAME=$ORG_NAME" >> "$ENV_FILE"
+    echo "ORG_SHORT_NAME=$ORG_SHORT_NAME" >> "$ENV_FILE"
+    echo "ORG_WEBSITE=$ORG_WEBSITE" >> "$ENV_FILE"
+    echo "ORG_EMAIL=$ORG_EMAIL" >> "$ENV_FILE"
+    echo "ORG_PHONE=$ORG_PHONE" >> "$ENV_FILE"
+    # Handle ORG_ADDRESS with proper escaping
+    echo "ORG_ADDRESS=$ORG_ADDRESS" | sed 's/\\n/\n/g' >> "$ENV_FILE"
+    echo "STATE_MEDIA_INSTITUTION=$STATE_MEDIA_INSTITUTION" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Superuser Configuration
+    echo "# Superuser Configuration" >> "$ENV_FILE"
+    echo "SUPERUSER_USERNAME=$SUPERUSER_USERNAME" >> "$ENV_FILE"
+    echo "SUPERUSER_EMAIL=$SUPERUSER_EMAIL" >> "$ENV_FILE"
+    echo "SUPERUSER_PASSWORD=$SUPERUSER_PASSWORD" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Application Configuration
+    echo "# Application Configuration" >> "$ENV_FILE"
+    echo "PYTHONPATH=/app" >> "$ENV_FILE"
+    echo "PYTHONUNBUFFERED=1" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Gunicorn Configuration
+    echo "# Gunicorn Configuration" >> "$ENV_FILE"
+    echo "GUNICORN_WORKERS=4" >> "$ENV_FILE"
+    echo "GUNICORN_THREADS=2" >> "$ENV_FILE"
+    echo "GUNICORN_TIMEOUT=120" >> "$ENV_FILE"
+    echo "GUNICORN_MAX_REQUESTS=1000" >> "$ENV_FILE"
+    echo "GUNICORN_MAX_REQUESTS_JITTER=100" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Redis Configuration
+    echo "# Redis Configuration" >> "$ENV_FILE"
+    echo "REDIS_URL=redis://redis:6379/0" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # NAS/Network Storage Configuration
+    echo "# NAS/Network Storage Configuration (optional)" >> "$ENV_FILE"
+    echo "NAS_PLAYOUT_PATH=/mnt/nas/playout" >> "$ENV_FILE"
+    echo "NAS_ARCHIVE_PATH=/mnt/nas/archive" >> "$ENV_FILE"
+    echo "NAS_MOUNT_ENABLED=false" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
 
     # Add SSL configuration only for Production mode
     if [ "$INSTALL_TYPE" = "1" ]; then
-        cat >> "$ENV_FILE" << EOF
-# SSL/HTTPS Configuration
-SSL_ENABLED=$SSL_ENABLED
-SSL_CERT_PATH=/etc/nginx/ssl/cert.pem
-SSL_KEY_PATH=/etc/nginx/ssl/key.pem
-DOMAIN_NAME=$DOMAIN_NAME
-
-EOF
+        echo "# SSL/HTTPS Configuration" >> "$ENV_FILE"
+        echo "SSL_ENABLED=$SSL_ENABLED" >> "$ENV_FILE"
+        echo "SSL_CERT_PATH=/etc/nginx/ssl/cert.pem" >> "$ENV_FILE"
+        echo "SSL_KEY_PATH=/etc/nginx/ssl/key.pem" >> "$ENV_FILE"
+        echo "DOMAIN_NAME=$DOMAIN_NAME" >> "$ENV_FILE"
+        echo "" >> "$ENV_FILE"
     fi
 
-    cat >> "$ENV_FILE" << EOF
-# Logging Configuration
-LOG_LEVEL=info
-
-# Backup Configuration
-BACKUP_DIR=$BACKUP_DIR
-# Set Docker Compose project name
-COMPOSE_PROJECT_NAME=oktools
-EOF
+    # Logging and Backup Configuration
+    echo "# Logging Configuration" >> "$ENV_FILE"
+    echo "LOG_LEVEL=info" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    echo "# Backup Configuration" >> "$ENV_FILE"
+    echo "BACKUP_DIR=$BACKUP_DIR" >> "$ENV_FILE"
+    echo "# Set Docker Compose project name" >> "$ENV_FILE"
+    echo "COMPOSE_PROJECT_NAME=oktools" >> "$ENV_FILE"
 
     chmod 600 "$ENV_FILE"
     echo "✓ Created .env file at: $ENV_FILE"
