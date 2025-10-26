@@ -4,7 +4,7 @@ set -e
 # Update script for OK Tools production environment
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")"
+PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 PRODUCTION_DIR="$(dirname "$PROJECT_DIR")/ok_tools_production"
 
 if [ ! -d "$PRODUCTION_DIR" ]; then
@@ -23,10 +23,25 @@ echo "Pulling latest code from repository..."
 cd "$PROJECT_DIR"
 git pull origin main
 
+# Update docker-compose files and configs in production directory
+echo "Updating docker-compose files and configs..."
+cd "$PROJECT_DIR"
+cp -f docker-compose.yml "$PRODUCTION_DIR/"
+cp -f deployment/docker-compose.production.yml "$PRODUCTION_DIR/"
+cp -f deployment/docker-compose.production.no-nginx.yml "$PRODUCTION_DIR/"
+cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
+cp -f deployment/nginx.conf.template "$PRODUCTION_DIR/"
+cp -f deployment/nginx-entrypoint.sh "$PRODUCTION_DIR/"
+cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
+
+# Create configs directory if it doesn't exist and copy config files
+mkdir -p "$PRODUCTION_DIR/configs"
+cp -f deployment/configs/* "$PRODUCTION_DIR/configs/"
+
 # Rebuild Docker images
 echo "Rebuilding Docker images..."
 cd "$PRODUCTION_DIR"
-docker compose build --no-cache web
+docker compose build --no-cache
 
 # Restart containers
 echo "Restarting containers..."
