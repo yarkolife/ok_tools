@@ -45,7 +45,7 @@ RUN ldconfig
 WORKDIR /app
 
 # Copying the requirements file
-COPY ../requirements.txt .
+COPY requirements.txt .
 
 # Installing Python dependencies
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
@@ -53,7 +53,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir gunicorn
 
 # Copying the application code
-COPY ../ok_tools/ .
+COPY ok_tools/ ./ok_tools
 
 # Creating directories for static files and logs
 RUN mkdir -p /app/static /app/media /app/logs
