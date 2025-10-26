@@ -4,9 +4,9 @@ set -e
 # Interactive installation script for OK Tools production environment with hybrid logic
 # Supports both template-based installation and manual configuration
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
-PRODUCTION_DIR="$(dirname "$PROJECT_DIR")/ok_tools_production"
+PRODUCTION_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")/../ok_tools_production"
 CONFIGS_DIR="$PROJECT_DIR/deployment/configs"
 
 echo "=========================================="
@@ -131,6 +131,8 @@ if [ "$INSTALL_MODE" = "1" ]; then
         # Prompt for secrets based on the selected template
         CONFIG_FILE=$(prompt_secrets "$TEMPLATE_FILE")
         
+        # Add Docker Compose project name to the config
+        echo "COMPOSE_PROJECT_NAME=oktools" >> "$CONFIG_FILE"
         # Copy the completed config to production directory
         cp "$CONFIG_FILE" "$PRODUCTION_DIR/.env"
         chmod 600 "$PRODUCTION_DIR/.env"
@@ -316,6 +318,8 @@ EOF
 
     # Backup Configuration
     BACKUP_DIR=$BACKUP_DIR
+    # Set Docker Compose project name
+    COMPOSE_PROJECT_NAME=oktools
     EOF
 
 EOF
