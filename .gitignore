@@ -140,3 +140,7 @@ deployment/docker/
 deployment/gunicorn/
 !deployment/docs/
 deployment/reports/
+
+# SSH keys
+y
+y.pub
