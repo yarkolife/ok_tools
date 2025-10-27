@@ -46,11 +46,10 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./data/static:/app/static
-      - ./data/media:/app/media
-      - ./logs:/app/logs
-      - ./backups:/app/backups
-      - ./deployment:/app/deployment:ro
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - logs_volume:/app/logs
+      - backups_volume:/app/backups
     restart: unless-stopped
     networks:
       - oktools-network
@@ -103,9 +102,9 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./data/static:/app/static
-      - ./data/media:/app/media
-      - ./logs:/app/logs
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - logs_volume:/app/logs
     command: celery -A ok_tools worker --loglevel=info
     restart: unless-stopped
     networks:
@@ -127,17 +126,17 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./logs:/app/logs
+      - logs_volume:/app/logs
     command: celery -A ok_tools beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     restart: unless-stopped
     networks:
       - oktools-network
 volumes:
   postgres_data:
-  static_files:
-  media_files:
-  logs:
-  backups:
+  static_volume:
+  media_volume:
+  logs_volume:
+  backups_volume:
 
 
 networks:
