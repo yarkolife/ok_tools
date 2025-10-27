@@ -14,6 +14,23 @@ escape_for_sed() {
     echo "$1" | sed -e 's/[]\/$*.^[]/\\&/g'
 }
 
+# Function to automatically detect local IP address
+detect_local_ip() {
+    # Try to get the primary IP address using multiple methods
+    LOCAL_IP=$(hostname -I | awk '{print $1}' 2>/dev/null || \
+              ip route get 1.1.1.1 | awk '{print $7}' 2>/dev/null || \
+              ipconfig getifaddr en0 2>/dev/null || \
+              echo "127.0.0.1")
+    
+    # Validate that we got a reasonable IP address (not localhost)
+    if [[ "$LOCAL_IP" == "127.0.0.1" ]] || [[ -z "$LOCAL_IP" ]]; then
+        echo "Warning: Could not detect local IP address. Using 127.0.0.1 as fallback." >&2
+        LOCAL_IP="127.0.0.1"
+    fi
+    
+    echo "$LOCAL_IP"
+}
+
 echo "=========================================="
 echo "OK Tools Installation (Hybrid)"
 echo "=========================================="
@@ -197,12 +214,21 @@ prompt_secrets() {
     escaped_django_key=$(escape_for_sed "$django_key")
     sed -i.bak -E "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$escaped_django_key|" "$output_file"
     
-    # ALLOWED_HOSTS
-    echo -n "ALLOWED_HOSTS (comma-separated, or press Enter for localhost): " >&2
-    read allowed_hosts
-    if [ -z "$allowed_hosts" ]; then
-        allowed_hosts="localhost,127.0.0.1"
-        echo "Using default: $allowed_hosts" >&2
+    # ALLOWED_HOSTS - Enhanced for Local Network setup
+    if [ "$INSTALL_TYPE" = "2" ]; then
+        # Local Network: Auto-detect IP and create comprehensive ALLOWED_HOSTS
+        LOCAL_IP=$(detect_local_ip)
+        echo "Detected local IP: $LOCAL_IP" >&2
+        allowed_hosts="localhost,127.0.0.1,$LOCAL_IP"
+        echo "Using ALLOWED_HOSTS: $allowed_hosts" >&2
+    else
+        # For other installation types, prompt as before
+        echo -n "ALLOWED_HOSTS (comma-separated, or press Enter for localhost): " >&2
+        read allowed_hosts
+        if [ -z "$allowed_hosts" ]; then
+            allowed_hosts="localhost,127.0.0.1"
+            echo "Using default: $allowed_hosts" >&2
+        fi
     fi
     # ALLOWED_HOSTS
     sed -i.bak -E "s|^ALLOWED_HOSTS=.*|ALLOWED_HOSTS=$allowed_hosts|" "$output_file"
@@ -270,6 +296,9 @@ case $INSTALL_TYPE in
         ;;
     2)
         echo "Selected: Local Network (LAN access, no domain or SSL)"
+        # Auto-detect IP for Local Network setup
+        LOCAL_IP=$(detect_local_ip)
+        echo "Detected local IP: $LOCAL_IP"
         ;;
     3)
         echo "Selected: Localhost (Development on a single machine)"
@@ -395,9 +424,11 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         # Production: use domain name
         read -p "Allowed hosts (comma-separated, e.g., 'localhost,your-domain.com'): " ALLOWED_HOSTS
     elif [ "$INSTALL_TYPE" = "2" ]; then
-        # Local Network: ask for IP address
-        read -p "Server IP address in local network (e.g., 192.168.1.100): " SERVER_IP
-        ALLOWED_HOSTS="$SERVER_IP"
+        # Local Network: auto-detect IP and create comprehensive ALLOWED_HOSTS
+        LOCAL_IP=$(detect_local_ip)
+        echo "Detected local IP: $LOCAL_IP"
+        ALLOWED_HOSTS="localhost,127.0.0.1,$LOCAL_IP"
+        echo "Using ALLOWED_HOSTS: $ALLOWED_HOSTS"
     else
         # Localhost: automatically set
         ALLOWED_HOSTS="localhost,127.0.1"
@@ -715,9 +746,13 @@ echo "2. View logs: docker compose logs -f web"
 if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
     echo "3. Access admin panel: https://$DOMAIN_NAME/admin"
 elif [ "$INSTALL_TYPE" = "2" ]; then
-    echo "3. Access admin panel: http://$SERVER_IP:8000/admin"
+    # For Local Network, use the detected IP and external port 8010
+    if [ -z "$LOCAL_IP" ]; then
+        LOCAL_IP=$(detect_local_ip)
+    fi
+    echo "3. Access admin panel: http://$LOCAL_IP:8010/admin"
 else
-    echo "3. Access admin panel: http://localhost:8000/admin"
+    echo "3. Access admin panel: http://localhost:8010/admin"
 fi
 echo "   Username: $SUPERUSER_USERNAME (or as configured)"
 echo "   Password: As configured during setup"
