@@ -31,7 +31,7 @@ services:
 
   web:
     build:
-      context: ../
+      context: ../ok_tools
       dockerfile: deployment/production.Dockerfile
     container_name: oktools_web
     ports:
@@ -89,7 +89,7 @@ services:
 
   celery_worker:
     build:
-      context: ../
+      context: ../ok_tools
       dockerfile: deployment/production.Dockerfile
     container_name: oktools_celery_worker
     env_file:
@@ -113,7 +113,7 @@ services:
 
   celery_beat:
     build:
-      context: ../
+      context: ../ok_tools
       dockerfile: deployment/production.Dockerfile
     container_name: oktools_celery_beat
     env_file:
