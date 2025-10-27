@@ -49,9 +49,9 @@ OK Tools supports two main deployment methods:
 
     git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
     cd ok-tools
-    cp deployment/docker/docker-production.cfg.example docker-production.cfg
-    # Edit docker-production.cfg for your organization
-    docker-compose -f deployment/docker/docker-compose.production.yml up -d
+    chmod +x deployment/scripts/install.sh
+    ./deployment/scripts/install.sh
+**Note:** .cfg files are no longer used and have been replaced by .env files. Examples are located in the `deployment/configs` directory. The installation script will prompt for the necessary values.
 
 See ``deployment/docker/README.md`` for detailed Docker setup instructions.
 
@@ -76,28 +76,30 @@ See ``deployment/gunicorn/README.md`` for detailed Gunicorn setup instructions.
 
 **Organization Configuration:**
 
-1. Copy the example configuration file::
+The installation script will guide you through the configuration process. For manual configuration:
 
-    cp organization.cfg.example your-organization.cfg
+1. Copy the example environment file::
 
-2. Edit the configuration file with your organization's details::
+    cp deployment/configs/ok-bayern.env.template .env
 
-    [organization]
-    name = Your Community Media Organization e.V.
-    short_name = Your CMO
-    website = https://your-organization.com
-    email = info@your-organization.com
-    address = Your Address Here
-    phone = +49 123 456789
-    fax = +49 123 456790
-    description = Welcome to our organization! We provide media services...
-    opening_hours = Mon: 09:00 - 17:00\n    Tue-Fri: 09:00 - 18:00
+2. Edit the environment file with your organization's details::
+
+    # Organization Configuration
+    ORG_NAME=Your Community Media Organization e.V.
+    ORG_SHORT_NAME=Your CMO
+    ORG_WEBSITE=https://your-organization.com
+    ORG_EMAIL=info@your-organization.com
+    ORG_ADDRESS=Your Address Here
+    ORG_PHONE=+49 123 456789
+    ORG_FAX=+49 123 456790
+    ORG_DESCRIPTION=Welcome to our organization! We provide media services...
+    ORG_OPENING_HOURS=Mon: 09:00 - 17:00\nTue-Fri: 09:00 - 18:00
     # State media institution (accessible to all users)
-    state_media_institution = MSA
+    STATE_MEDIA_INSTITUTION=MSA
     # Organization owner (accessible only to members)
-    organization_owner = Your CMO
+    ORGANIZATION_OWNER=Your CMO
     # PeerTube integration (ActivityPub/Fediverse format)
-    peertube_channel = @your-channel@peertube.your-domain.com
+    PEERTUBE_CHANNEL=@your-channel@peertube.your-domain.com
 
 3. Run the setup command to create organizations in the database::
 
@@ -136,30 +138,30 @@ The system supports all German state media institutions:
 - **SLM** - Sächsische Landesmedienanstalt
 - **TLM** - Thüringer Landesmedienanstalt
 
-See the ``deployment/configs/`` directory for ready-to-use configurations for different German states.
+See the ``deployment/configs/`` directory for ready-to-use environment file templates for different German states.
 
-3. Set the environment variable to point to your config file::
+3. Set the environment variable to point to your environment file::
 
     # For development (local)
-    export OKTOOLS_CONFIG_FILE=/home/user/ok-tools/your-organization.cfg
+    export OKTOOLS_ENV_FILE=/home/user/ok-tools/.env
     
     # For production server (typical paths)
-    export OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg
+    export OKTOOLS_ENV_FILE=/opt/ok-tools/.env
     # or
-    export OKTOOLS_CONFIG_FILE=/etc/ok-tools/organization.cfg
+    export OKTOOLS_ENV_FILE=/etc/ok-tools/.env
     # or
-    export OKTOOLS_CONFIG_FILE=/var/www/ok-tools/config/organization.cfg
+    export OKTOOLS_ENV_FILE=/var/www/ok-tools/.env
 
 4. Make the environment variable persistent::
 
     # Add to ~/.bashrc or ~/.profile for user-level
-    echo 'export OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg' >> ~/.bashrc
+    echo 'export OKTOOLS_ENV_FILE=/opt/ok-tools/.env' >> ~/.bashrc
     
     # Or add to /etc/environment for system-wide
-    echo 'OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg' | sudo tee -a /etc/environment
+    echo 'OKTOOLS_ENV_FILE=/opt/ok-tools/.env' | sudo tee -a /etc/environment
     
     # For systemd services, add to service file:
-    # Environment=OKTOOLS_CONFIG_FILE=/opt/ok-tools/config/production.cfg
+    # Environment=OKTOOLS_ENV_FILE=/opt/ok-tools/.env
 
 5. The system will use your organization's branding throughout the interface, forms, and communications.
 
@@ -190,7 +192,7 @@ Install the testing dependencies::
 
 Create static resources::
 
-    OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py collectstatic
+    OKTOOLS_ENV_FILE=.env bin/python manage.py collectstatic
 
 Run the Tests using pytest::
 
@@ -206,17 +208,15 @@ Run the Tests using pytest::
 Configuration
 =============
 
-We have provided a minimal config (test.cfg) and comprehensive examples for production deployment.
+We have provided environment file templates and comprehensive examples for production deployment.
 
 **Configuration Files:**
-- `test.cfg` - Development and testing configuration
-- `organization.cfg.example` - General organization configuration template
-- `deployment/docker/docker-production.cfg.example` - Docker production configuration
-- `deployment/gunicorn/production.cfg.example` - Gunicorn production configuration
-- `deployment/configs/*.cfg` - Ready-to-use configurations for specific organizations
+- `.env` files - Environment configuration files (replacing .cfg files)
+- `deployment/configs/*.env.template` - Environment file templates for different organizations
+- `deployment/configs/*.cfg` - Legacy configuration files (no longer used)
 
 **Environment Variables:**
-- `OKTOOLS_CONFIG_FILE` - Path to configuration file
+- `OKTOOLS_ENV_FILE` - Path to environment file
 - `DJANGO_SETTINGS_MODULE` - Django settings module
 - `DATABASE_URL` - Database connection string
 
@@ -225,23 +225,23 @@ Maintenance/Initial Setup
 
 Run the typical django scripts after install/update::
 
-    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py migrate
-    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py collectstatic
-    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py compilemessages
+    OKTOOLS_ENV_FILE=.env bin/python manage.py migrate
+    OKTOOLS_ENV_FILE=.env bin/python manage.py collectstatic
+    OKTOOLS_ENV_FILE=.env bin/python manage.py compilemessages
 
 You may want to create a superuser::
 
-    OKTOOLS_CONFIG_FILE=yourconfig.cfg bin/python manage.py createsuperuser
+    OKTOOLS_ENV_FILE=.env bin/python manage.py createsuperuser
 
 Run Server Locally
 ==================
 
-To run the server locally you first need to specify a config file. This
+To run the server locally you first need to specify an environment file. This
 configuration is ment for testing only and should not be used in any way for
 prouction due to security reasons.
 ::
 
-    OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py runserver
+    OKTOOLS_ENV_FILE=.env bin/python manage.py runserver
 
 Production Deployment
 =====================
@@ -254,9 +254,10 @@ See ``deployment/docker/README.md`` for comprehensive Docker setup instructions.
 
 Quick start::
 
-    cp deployment/docker/docker-production.cfg.example docker-production.cfg
-    # Edit docker-production.cfg for your organization
-    docker-compose -f deployment/docker/docker-compose.production.yml up -d
+    pavlo@debian:~/docker$ cd ok_tools
+    pavlo@debian:~/docker/ok_tools$ chmod +x deployment/scripts/install.sh
+    pavlo@debian:~/docker/ok_tools$ ./deployment/scripts/install.sh
+**Note:** .cfg files are no longer used and have been replaced by .env files. Examples are located in the `deployment/configs` directory. The installation script will prompt for the necessary values.
 
 **Gunicorn Deployment (Traditional):**
 
@@ -264,8 +265,8 @@ See ``deployment/gunicorn/README.md`` for comprehensive Gunicorn setup instructi
 
 Quick start::
 
-    sudo cp deployment/gunicorn/production.cfg.example /opt/ok-tools/config/production.cfg
-    # Edit configuration
+    sudo cp deployment/configs/ok-bayern.env.template /opt/ok-tools/.env
+    # Edit environment file
     sudo cp deployment/gunicorn/*.service /etc/systemd/system/
     sudo cp deployment/gunicorn/*.timer /etc/systemd/system/
     sudo systemctl enable ok-tools ok-tools-cron.timer
@@ -328,7 +329,7 @@ Working with translations
 
 Find new messages like this::
 
-    OKTOOLS_CONFIG_FILE=test.cfg bin/python manage.py makemessages -l de --ignore lib
+    OKTOOLS_ENV_FILE=.env bin/python manage.py makemessages -l de --ignore lib
 
 **Translation Management:**
 ::
@@ -428,7 +429,7 @@ Deployment Architecture
    - See ``deployment/gunicorn/README.md``
 
 **Deployment Resources:**
-- Ready-to-use configurations in ``deployment/configs/``
+- Ready-to-use environment file templates in ``deployment/configs/``
 - Comprehensive deployment guides in ``deployment/README.md``
 - Production-ready systemd service files
 - Nginx configuration with rate limiting and security headers
