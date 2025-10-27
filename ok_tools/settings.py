@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from django.contrib.messages import constants as messages
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
-import configparser
 import dj_database_url
 import logging
 import os
@@ -76,62 +75,6 @@ def get_env_list(key: str, default: list = None, separator: str = ','):
     if not value:
         return default or []
     return [item.strip() for item in value.split(separator) if item.strip()]
-
-# =============================================================================
-# Backward Compatibility Layer (Deprecation Period)
-# =============================================================================
-
-config = configparser.RawConfigParser()
-CONFIG_FILE_USED = False
-
-if "OKTOOLS_CONFIG_FILE" in os.environ:
-    import warnings
-    warnings.warn(
-        "OKTOOLS_CONFIG_FILE is deprecated and will be removed in version 2.0. "
-        "Please migrate to environment variables.",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    try:
-        config.read_file(open(os.environ.get("OKTOOLS_CONFIG_FILE"), encoding="utf-8"))
-        CONFIG_FILE_USED = True
-        logger.warning("Using deprecated .cfg file. Please migrate to .env")
-    except Exception as e:
-        logger.error(f"Failed to load config file: {e}")
-else:
-    logger.warning("No config file found for ok-tools." " Switching to fallbacks.")
-
-def get_config(section: str, key: str, fallback=None, cast: type = str, env_key: str = None):
-    """
-    Get configuration with ENV priority over .cfg (deprecated).
-    
-    Priority:
-    1. Environment variable (env_key or SECTION_KEY)
-    2. .cfg file (deprecated)
-    3. fallback value
-    """
-    # Generate ENV key if not provided
-    if env_key is None:
-        env_key = f"{section.upper()}_{key.upper()}"
-    
-    # Try environment variable first
-    env_value = os.getenv(env_key)
-    if env_value is not None:
-        return get_env(env_key, cast=cast, default=fallback)
-    
-    # Fall back to .cfg (deprecated)
-    if CONFIG_FILE_USED:
-        try:
-            if cast == bool:
-                return config.getboolean(section, key, fallback=fallback)
-            elif cast == int:
-                return config.getint(section, key, fallback=fallback)
-            else:
-                return config.get(section, key, fallback=fallback)
-        except:
-            pass
-    
-    return fallback
 
 # =============================================================================
 # Helper for Celery Beat Schedules
@@ -396,10 +339,10 @@ MESSAGE_TAGS = {
 # path to legacy data
 LEGACY_DATA = "../legacy_data/data.xlsx"
 
-# Backup directory - read from config or environment
+# Backup directory - read from environment
 BACKUP_DIR = get_env('BACKUP_DIR', default='backups/')
 
-# Broadcast time settings for planning - read from config
+# Broadcast time settings for planning - read from environment
 BROADCAST_START = get_env('BROADCAST_START', default='06:00')
 BROADCAST_END = get_env('BROADCAST_END', default='23:00')
 
@@ -530,14 +473,3 @@ CELERY_BEAT_SCHEDULE = {
         'kwargs': {'missing_only': True},
     },
 }
-
-# Show deprecation warning if .cfg file was used
-if CONFIG_FILE_USED:
-    logger.warning(
-        "=" * 80 + "\n"
-        "DEPRECATION WARNING: .cfg file configuration is deprecated!\n"
-        "Please migrate to environment variables (.env file).\n"
-        "Support for .cfg files will be removed in version 2.0.\n"
-        "See: deployment/reports/config-architecture-decision.md\n"
-        "=" * 80
-    )
