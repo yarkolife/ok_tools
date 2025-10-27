@@ -62,9 +62,7 @@ RUN chmod +x /app/deployment/entrypoint.production.sh
 # Expose the correct port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=5)" || exit 1
+
 
 # Command to run with production entrypoint
 CMD ["/app/deployment/entrypoint.production.sh"]

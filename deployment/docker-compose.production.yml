@@ -53,6 +53,12 @@ services:
     restart: unless-stopped
     networks:
       - oktools-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
 
   nginx:
     image: nginx:alpine
@@ -109,6 +115,11 @@ services:
     restart: unless-stopped
     networks:
       - oktools-network
+    healthcheck:
+      test: ["CMD", "celery", "-A", "ok_tools", "inspect", "ping", "-d", "celery@$${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   celery_beat:
     build:
@@ -131,6 +142,12 @@ services:
     restart: unless-stopped
     networks:
       - oktools-network
+    healthcheck:
+      test: ["CMD", "celery", "-A", "ok_tools", "inspect", "ping", "-d", "celery@$${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 volumes:
   postgres_data:
   static_volume:
