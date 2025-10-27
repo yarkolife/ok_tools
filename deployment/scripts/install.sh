@@ -342,13 +342,6 @@ if [ "$INSTALL_MODE" = "1" ]; then
             # Local Network or Localhost: use compose file without nginx
             cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
         fi
-        cp "$PROJECT_DIR/deployment/production.Dockerfile" "$PRODUCTION_DIR/Dockerfile"
-        cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
-        chmod +x "$PRODUCTION_DIR/entrypoint.sh"
-        
-        # NOTE: The deployment directory is no longer copied to ensure Dockerfile is in root
-        # This ensures docker-compose.yml can find the Dockerfile in the root directory
-        # and that entrypoint.sh is properly included in the build context
         
         if [ "$INSTALL_TYPE" = "1" ]; then
             echo "✓ Copied docker-compose.yml (with nginx)"
@@ -357,25 +350,6 @@ if [ "$INSTALL_MODE" = "1" ]; then
         else
             echo "✓ Copied docker-compose.yml (without nginx)"
         fi
-        echo "✓ Copied Dockerfile"
-        echo "✓ Copied entrypoint.sh"
-        echo "✓ Copied deployment directory"
-        
-        # Copy source files to destination directory
-        echo "Copying source files..."
-        cp "$PROJECT_DIR/requirements.txt" "$PRODUCTION_DIR/requirements.txt"
-        cp -r "$PROJECT_DIR/ok_tools" "$PRODUCTION_DIR/ok_tools"
-        # Add other necessary directories for the application
-        cp -r "$PROJECT_DIR/contributions" "$PRODUCTION_DIR/contributions"
-        cp -r "$PROJECT_DIR/dashboard" "$PRODUCTION_DIR/dashboard"
-        cp -r "$PROJECT_DIR/inventory" "$PRODUCTION_DIR/inventory"
-        cp -r "$PROJECT_DIR/licenses" "$PRODUCTION_DIR/licenses"
-        cp -r "$PROJECT_DIR/media_files" "$PRODUCTION_DIR/media_files"
-        cp -r "$PROJECT_DIR/planung" "$PRODUCTION_DIR/planung"
-        cp -r "$PROJECT_DIR/projects" "$PRODUCTION_DIR/projects"
-        cp -r "$PROJECT_DIR/registration" "$PRODUCTION_DIR/registration"
-        cp -r "$PROJECT_DIR/rental" "$PRODUCTION_DIR/rental"
-        cp "$PROJECT_DIR/manage.py" "$PRODUCTION_DIR/manage.py"
         
     fi
 elif [ "$INSTALL_MODE" = "2" ]; then
@@ -694,28 +668,14 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template"
         cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/nginx-entrypoint.sh"
         chmod +x "$PRODUCTION_DIR/nginx-entrypoint.sh"
-    else
-        # Local Network or Localhost: use compose file without nginx
-        cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
-    fi
-    cp "$PROJECT_DIR/deployment/production.Dockerfile" "$PRODUCTION_DIR/Dockerfile"
-    cp "$PROJECT_DIR/deployment/entrypoint.production.sh" "$PRODUCTION_DIR/entrypoint.sh"
-    chmod +x "$PRODUCTION_DIR/entrypoint.sh"
-    
-    # NOTE: The deployment directory is no longer copied to ensure Dockerfile is in root
-    # This ensures docker-compose.yml can find the Dockerfile in the root directory
-    # and that entrypoint.sh is properly included in the build context
-
-    if [ "$INSTALL_TYPE" = "1" ]; then
         echo "✓ Copied docker-compose.yml (with nginx)"
         echo "✓ Copied nginx.conf.template"
         echo "✓ Copied nginx-entrypoint.sh"
     else
+        # Local Network or Localhost: use compose file without nginx
+        cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
         echo "✓ Copied docker-compose.yml (without nginx)"
     fi
-    echo "✓ Copied Dockerfile"
-    echo "✓ Copied entrypoint.sh"
-    echo "✓ Copied deployment directory"
 else
     echo "Invalid choice. Exiting."
     exit 1
@@ -731,23 +691,6 @@ if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
         -d $DOMAIN_NAME" certbot
     echo "✓ SSL certificate obtained successfully."
 fi
-
-# Copy source files to destination directory (outside conditional blocks)
-echo ""
-echo "Copying source files..."
-cp "$PROJECT_DIR/requirements.txt" "$PRODUCTION_DIR/requirements.txt"
-cp -r "$PROJECT_DIR/ok_tools" "$PRODUCTION_DIR/ok_tools"
-# Add other necessary directories for the application
-cp -r "$PROJECT_DIR/contributions" "$PRODUCTION_DIR/contributions"
-cp -r "$PROJECT_DIR/dashboard" "$PRODUCTION_DIR/dashboard"
-cp -r "$PROJECT_DIR/inventory" "$PRODUCTION_DIR/inventory"
-cp -r "$PROJECT_DIR/licenses" "$PRODUCTION_DIR/licenses"
-cp -r "$PROJECT_DIR/media_files" "$PRODUCTION_DIR/media_files"
-cp -r "$PROJECT_DIR/planung" "$PRODUCTION_DIR/planung"
-cp -r "$PROJECT_DIR/projects" "$PRODUCTION_DIR/projects"
-cp -r "$PROJECT_DIR/registration" "$PRODUCTION_DIR/registration"
-cp -r "$PROJECT_DIR/rental" "$PRODUCTION_DIR/rental"
-cp "$PROJECT_DIR/manage.py" "$PRODUCTION_DIR/manage.py"
 
 # Start containers
 echo ""

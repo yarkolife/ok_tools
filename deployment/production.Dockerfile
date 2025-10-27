@@ -55,7 +55,7 @@ RUN mkdir -p /app/static /app/media
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
 
 # Make entrypoint executable
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/deployment/entrypoint.production.sh
 
 
 
@@ -67,4 +67,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=5)" || exit 1
 
 # Command to run with production entrypoint
-CMD ["/app/entrypoint.sh"]
+CMD ["/app/deployment/entrypoint.production.sh"]

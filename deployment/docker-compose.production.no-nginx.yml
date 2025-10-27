@@ -31,8 +31,8 @@ services:
 
   web:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: deployment/production.Dockerfile
     container_name: oktools_web
     ports:
       - "8010:8000"
@@ -57,8 +57,8 @@ services:
 
   celery_worker:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: deployment/production.Dockerfile
     container_name: oktools_celery_worker
     env_file:
       - .env
@@ -71,7 +71,6 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ../ok_tools:/app
       - ./data/static:/app/static
       - ./data/media:/app/media
       - ./logs:/app/logs
@@ -82,8 +81,8 @@ services:
 
   celery_beat:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: deployment/production.Dockerfile
     container_name: oktools_celery_beat
     env_file:
       - .env
@@ -96,7 +95,6 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ../ok_tools:/app
       - ./logs:/app/logs
     command: celery -A ok_tools beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     restart: unless-stopped
