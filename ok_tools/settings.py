@@ -127,6 +127,8 @@ INSTALLED_APPS = [
     "dashboard",
     "rental",
     "media_files",
+    "django_celery_results",
+    "django_celery_beat",
     "rest_framework",
     "rest_framework.authtoken",
     "crispy_forms",
