@@ -15,7 +15,7 @@ django-admin-searchable-dropdown==1.2
 django-bootstrap-datepicker-plus==5.0.5
 django-crispy-forms==2.0
 django-durationwidget2==1.0.6
-django-extensions==3.2.1
+django-extensions==3.2.3
 django-import-export==3.0.2
 django-revproxy==0.10.0
 et-xmlfile==1.1.0

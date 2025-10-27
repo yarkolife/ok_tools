@@ -268,6 +268,16 @@ docker compose exec web python manage.py check --deploy
 ```bash
 ./deployment/tests/test_env_config.sh
 ```
+## Проверка конфигурации
+
+Чтобы убедиться, что Django правильно читает переменные из `.env` файла, выполните скрипт:
+
+```bash
+./deployment/scripts/check_env.sh
+```
+
+Этот скрипт выведет значения `DATABASE_URL`, `DEBUG` и `ALLOWED_HOSTS` так, как их видит Django.
+
 
 ## Troubleshooting
 
