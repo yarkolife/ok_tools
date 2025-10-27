@@ -5,6 +5,16 @@ set -e
 
 echo "Starting OK Tools production entrypoint..."
 
+# Load legacy config file if it exists and is not a comment
+if [ -n "$OKTOOLS_CONFIG_FILE" ] && [[ "$OKTOOLS_CONFIG_FILE" != \#* ]] && [ -f "$OKTOOLS_CONFIG_FILE" ]; then
+    echo "Loading legacy config file: $OKTOOLS_CONFIG_FILE"
+    set -o allexport
+    source "$OKTOOLS_CONFIG_FILE"
+    set +o allexport
+else
+    echo "No valid legacy config file found, continuing with environment variables."
+fi
+
 # Run database migrations
 echo "Running database migrations..."
 python manage.py migrate --noinput
