@@ -13,6 +13,7 @@ from django.contrib.messages import constants as messages
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 import configparser
+import dj_database_url
 import logging
 import os
 from datetime import timedelta
@@ -247,14 +248,10 @@ WSGI_APPLICATION = "ok_tools.wsgi.application"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": get_env('POSTGRES_DB', default='oktools', required=True),
-        "USER": get_env('POSTGRES_USER', default='oktools', required=True),
-        "PASSWORD": get_env('POSTGRES_PASSWORD', required=True),
-        "HOST": get_env('DB_HOST', default='localhost'),
-        "PORT": get_env('DB_PORT', default='5432'),
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 
