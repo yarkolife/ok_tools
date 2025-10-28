@@ -172,7 +172,7 @@ docker compose build --no-cache
 # Restart containers
 echo "Restarting containers..."
 docker compose down
-docker compose up -d
+docker compose up -d --build
 
 # Run migrations
 echo "Running database migrations..."

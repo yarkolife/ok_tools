@@ -116,7 +116,7 @@ echo "✓ Containers rebuilt"
 echo ""
 echo "Step 5: Starting services"
 echo "=========================="
-docker compose up -d
+docker compose up -d --build
 echo "✓ Services started"
 
 echo ""

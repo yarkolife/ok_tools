@@ -46,7 +46,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - static_volume:/app/static
+      - static_volume:/app/staticfiles
       - media_volume:/app/media
       - logs_volume:/app/logs
       - backups_volume:/app/backups
