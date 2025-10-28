@@ -49,7 +49,7 @@ RUN pip install --no-cache-dir gunicorn
 COPY . .
 
 # Create directories for static files and media
-RUN mkdir -p /app/static /app/media
+RUN mkdir -p /app/staticfiles /app/media
 
 # Create a non-root user for security
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app

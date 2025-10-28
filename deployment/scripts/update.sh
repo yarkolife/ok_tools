@@ -93,8 +93,9 @@ validate_env_file() {
         echo "✓ $var: OK"
     done
     
-    # Check for concatenated lines (common issue)
-    local concatenated=$(grep -E '^[A-Z_]+=.*[A-Z_]+=' "$env_file" | wc -l | tr -d ' ')
+    # Check for concatenated lines (common issue) - IMPROVED DETECTION
+    # Only flag as error if it's clearly a concatenation of separate variables
+    local concatenated=$(grep -E '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" | wc -l | tr -d ' ')
     if [ "$concatenated" -gt 0 ]; then
         echo "❌ ERROR: Found $concatenated line(s) with concatenated variables"
         echo "   This usually means line breaks are missing in .env file"
@@ -102,7 +103,7 @@ validate_env_file() {
         
         # Show problematic lines
         echo "   Problematic lines:"
-        grep -E '^[A-Z_]+=.*[A-Z_]+=' "$env_file" | head -5 | sed 's/^/   /'
+        grep -E '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" | head -5 | sed 's/^/   /'
     fi
     
     # Summary
@@ -127,7 +128,8 @@ validate_env_file() {
     fi
 }
 
-# Function to detect and repair corrupted .env files
+# IMPROVED Function to detect and repair corrupted .env files
+# Only repairs actual corruption, not legitimate values with '='
 repair_env_file() {
     local env_file="$PRODUCTION_DIR/.env"
     
@@ -136,8 +138,9 @@ repair_env_file() {
         return 1
     fi
     
-    # Check for corruption pattern: concatenated variables (pattern: KEY=VALUE=VALUE)
-    local corrupted_lines=$(grep -E '^[^#].*=.*=.*' "$env_file" | wc -l)
+    # Check for corruption pattern: ONLY flag clear concatenations of separate variables
+    # Pattern: KEY1=VALUE1KEY2=VALUE2 (no space between VALUE1 and KEY2)
+    local corrupted_lines=$(grep -E '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" | wc -l)
     
     if [ "$corrupted_lines" -gt 0 ]; then
         echo "Detected corruption in .env file ($corrupted_lines corrupted lines)"
@@ -157,21 +160,30 @@ repair_env_file() {
                 continue
             fi
             
-            # Check if line contains concatenated variables
-            if [[ $line =~ ^([^=]+)=(.*)=(.*)$ ]]; then
-                # Extract the first key-value pair
+            # Check if line contains ACTUAL concatenated variables (not just = in values)
+            if [[ $line =~ ^([^=]+)=(.*) ]]; then
                 local key="${BASH_REMATCH[1]}"
                 local value="${BASH_REMATCH[2]}"
                 
-                # Write the first key-value pair
-                echo "$key=$value" >> "$temp_file"
-                
-                # Try to extract the second key-value pair
-                local remaining="${BASH_REMATCH[3]}"
-                if [[ $remaining =~ ^([^=]+)=(.*)$ ]]; then
-                    local second_key="${BASH_REMATCH[1]}"
-                    local second_value="${BASH_REMATCH[2]}"
-                    echo "$second_key=$second_value" >> "$temp_file"
+                # Check if this is actually a concatenation by looking for pattern: VALUEKEY2=
+                # where KEY2 starts with uppercase letter and is followed by =
+                if [[ $value =~ ([^=]*[A-Z_][A-Z0-9_]*)=(.*)$ ]]; then
+                    # This is a concatenation, split it
+                    local first_value="${BASH_REMATCH[1]}"
+                    local remaining="${BASH_REMATCH[2]}"
+                    
+                    # Write the first key-value pair
+                    echo "$key=$first_value" >> "$temp_file"
+                    
+                    # Try to extract the second key-value pair
+                    if [[ $remaining =~ ^([^=]+)=(.*)$ ]]; then
+                        local second_key="${BASH_REMATCH[1]}"
+                        local second_value="${BASH_REMATCH[2]}"
+                        echo "$second_key=$second_value" >> "$temp_file"
+                    fi
+                else
+                    # Line is not corrupted, write as-is
+                    echo "$line" >> "$temp_file"
                 fi
             else
                 # Line is not corrupted, write as-is
@@ -243,8 +255,10 @@ cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
 cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
 
 # Create configs directory if it doesn't exist and copy config files
+# BUT DON'T COPY .env TEMPLATES to avoid overwriting existing .env
 mkdir -p "$PRODUCTION_DIR/configs"
-cp -f deployment/configs/* "$PRODUCTION_DIR/configs/"
+# Copy only non-.env template files to avoid overwriting existing .env
+find deployment/configs -type f ! -name "*.env.template" -exec cp -f {} "$PRODUCTION_DIR/configs/" \;
 
 # Update .env file with new variables if they don't exist
 echo "Checking for missing environment variables..."
@@ -263,6 +277,8 @@ if [ -f "$ENV_FILE" ]; then
         if ! grep -q "^${key}=" "$ENV_FILE"; then
             echo "$key=$value" >> "$ENV_FILE"
             echo "  + Added $key"
+        else
+            echo "  ✓ $key already exists, keeping current value"
         fi
     }
     
