@@ -187,12 +187,14 @@ repair_env_file() {
         return 0
     else
         echo "✓ .env file appears to be valid"
-        return 1
+        return 0
     fi
 }
 
 # Check and repair .env file if needed
-repair_env_file
+if ! repair_env_file; then
+    echo "Note: .env file check completed"
+fi
 
 # Validate .env file before proceeding
 if ! validate_env_file "$PRODUCTION_DIR/.env"; then
