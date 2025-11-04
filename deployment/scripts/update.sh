@@ -403,6 +403,13 @@ echo "Ensuring required directories exist..."
 mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
 chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
 chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+
+# Check if static directory is empty (bind mount will hide container files if host dir is empty)
+if [ -z "$(ls -A "$PRODUCTION_DIR/data/static" 2>/dev/null)" ]; then
+    echo "⚠️  Warning: Static directory is empty on host"
+    echo "   Files will be created after container starts and collectstatic runs"
+fi
+
 echo "✓ Directories checked and permissions set"
 
 # Stop containers before rebuilding (if not already stopped)
@@ -440,27 +447,42 @@ fi
 echo "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
 
-# Fix permissions on static files to ensure they're accessible from host
-echo "Fixing permissions on static files..."
-docker compose exec -T web sh -c "chown -R app:app /app/staticfiles && chmod -R 755 /app/staticfiles" || true
-
-# Verify static files are present
+# Verify static files are present and accessible
 echo "Verifying static files..."
 STATIC_COUNT=$(docker compose exec -T web sh -c "find /app/staticfiles -type f 2>/dev/null | wc -l" | tr -d ' ' || echo "0")
 if [ "$STATIC_COUNT" -gt 0 ]; then
     echo "✓ Found $STATIC_COUNT static files in container"
     
+    # Wait a moment for filesystem sync
+    sleep 2
+    
     # Check if files are visible on host
     HOST_STATIC_COUNT=$(find "$PRODUCTION_DIR/data/static" -type f 2>/dev/null | wc -l || echo "0")
-    if [ "$HOST_STATIC_COUNT" -eq 0 ]; then
-        echo "⚠️  Warning: Static files not visible on host (permissions issue)"
-        echo "   Checking directory permissions..."
-        ls -la "$PRODUCTION_DIR/data/static" || echo "   Directory may not exist"
-    else
+    if [ "$HOST_STATIC_COUNT" -gt 0 ]; then
         echo "✓ Static files are accessible on host: $HOST_STATIC_COUNT files found"
+    else
+        echo "⚠️  Warning: Static files not visible on host"
+        echo "   This may be a permissions issue. Checking..."
+        echo "   Container files: $STATIC_COUNT"
+        echo "   Host files: $HOST_STATIC_COUNT"
+        echo "   Trying to fix permissions..."
+        
+        # Try to fix permissions - run as root in container to ensure access
+        docker compose exec -T --user root web sh -c "chown -R app:app /app/staticfiles && chmod -R 755 /app/staticfiles" || true
+        
+        # Check again after permission fix
+        sleep 1
+        HOST_STATIC_COUNT_AFTER=$(find "$PRODUCTION_DIR/data/static" -type f 2>/dev/null | wc -l || echo "0")
+        if [ "$HOST_STATIC_COUNT_AFTER" -gt 0 ]; then
+            echo "✓ Permission fix successful: $HOST_STATIC_COUNT_AFTER files now visible"
+        else
+            echo "⚠️  Files still not visible. This may be normal if running in a restricted environment."
+            echo "   Static files are available inside the container and will be served by Django/WhiteNoise"
+        fi
     fi
 else
-    echo "⚠️  Warning: No static files found in container"
+    echo "⚠️  Warning: No static files found in container after collectstatic"
+    echo "   This may indicate a problem with static files configuration"
 fi
 
 # Clean up old volumes after successful update (if migration was performed)
