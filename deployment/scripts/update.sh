@@ -440,6 +440,29 @@ fi
 echo "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
 
+# Fix permissions on static files to ensure they're accessible from host
+echo "Fixing permissions on static files..."
+docker compose exec -T web sh -c "chown -R app:app /app/staticfiles && chmod -R 755 /app/staticfiles" || true
+
+# Verify static files are present
+echo "Verifying static files..."
+STATIC_COUNT=$(docker compose exec -T web sh -c "find /app/staticfiles -type f 2>/dev/null | wc -l" | tr -d ' ' || echo "0")
+if [ "$STATIC_COUNT" -gt 0 ]; then
+    echo "✓ Found $STATIC_COUNT static files in container"
+    
+    # Check if files are visible on host
+    HOST_STATIC_COUNT=$(find "$PRODUCTION_DIR/data/static" -type f 2>/dev/null | wc -l || echo "0")
+    if [ "$HOST_STATIC_COUNT" -eq 0 ]; then
+        echo "⚠️  Warning: Static files not visible on host (permissions issue)"
+        echo "   Checking directory permissions..."
+        ls -la "$PRODUCTION_DIR/data/static" || echo "   Directory may not exist"
+    else
+        echo "✓ Static files are accessible on host: $HOST_STATIC_COUNT files found"
+    fi
+else
+    echo "⚠️  Warning: No static files found in container"
+fi
+
 # Clean up old volumes after successful update (if migration was performed)
 if [ "$MIGRATION_NEEDED" = true ]; then
     echo ""
