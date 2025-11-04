@@ -88,9 +88,8 @@ class VideoFile(models.Model):
     # Basic information
     number = models.IntegerField(
         verbose_name=_('Number'),
-        unique=True,
         db_index=True,
-        help_text=_('Unique identification number matching License number'),
+        help_text=_('Identification number matching License number (unique per storage location)'),
     )
     filename = models.CharField(
         max_length=500,
@@ -290,6 +289,7 @@ class VideoFile(models.Model):
         verbose_name = _('Video File')
         verbose_name_plural = _('Video Files')
         ordering = ['-created_at']
+        unique_together = [('number', 'storage_location')]
         indexes = [
             models.Index(fields=['number']),
             models.Index(fields=['storage_location', 'is_available']),
