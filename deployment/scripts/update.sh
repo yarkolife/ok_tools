@@ -314,17 +314,103 @@ else
     echo "Warning: .env file not found at $ENV_FILE"
 fi
 
+# Check if migration from volumes to bind mounts is needed
+echo "Checking for volume migration..."
+MIGRATION_NEEDED=false
+cd "$PRODUCTION_DIR"
+
+# Check if old docker-compose.yml uses named volumes
+if [ -f "docker-compose.yml" ]; then
+    if grep -q "static_volume:\|media_volume:" "docker-compose.yml"; then
+        MIGRATION_NEEDED=true
+        echo "⚠️  Detected old volume-based configuration - migration required"
+    fi
+fi
+
+# Migrate from volumes to bind mounts if needed
+if [ "$MIGRATION_NEEDED" = true ]; then
+    echo ""
+    echo "=========================================="
+    echo "Migrating from volumes to bind mounts"
+    echo "=========================================="
+    
+    # Stop containers first
+    echo "Stopping containers..."
+    docker compose down || true
+    
+    # Create directories
+    echo "Creating bind mount directories..."
+    mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+    chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
+    chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+    
+    # Create temporary container to copy data from volumes
+    echo "Copying data from volumes to bind mounts..."
+    
+    # Get project name
+    PROJECT_NAME=$(grep -m1 "^COMPOSE_PROJECT_NAME=" "$PRODUCTION_DIR/.env" 2>/dev/null | cut -d'=' -f2 || echo "oktools")
+    PROJECT_NAME=${PROJECT_NAME:-oktools}
+    
+    # Copy static files if volume exists
+    if docker volume ls | grep -q "${PROJECT_NAME}_static_volume\|static_volume"; then
+        VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_static_volume|static_volume" | awk '{print $2}' | head -1)
+        if [ -n "$VOLUME_NAME" ]; then
+            echo "  Copying static files from volume: $VOLUME_NAME"
+            docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/data/static:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
+            echo "  ✓ Static files migrated"
+        fi
+    fi
+    
+    # Copy media files if volume exists
+    if docker volume ls | grep -q "${PROJECT_NAME}_media_volume\|media_volume"; then
+        VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_media_volume|media_volume" | awk '{print $2}' | head -1)
+        if [ -n "$VOLUME_NAME" ]; then
+            echo "  Copying media files from volume: $VOLUME_NAME"
+            docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/data/media:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
+            echo "  ✓ Media files migrated"
+        fi
+    fi
+    
+    # Copy logs if volume exists
+    if docker volume ls | grep -q "${PROJECT_NAME}_logs_volume\|logs_volume"; then
+        VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_logs_volume|logs_volume" | awk '{print $2}' | head -1)
+        if [ -n "$VOLUME_NAME" ]; then
+            echo "  Copying logs from volume: $VOLUME_NAME"
+            docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/logs:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
+            echo "  ✓ Logs migrated"
+        fi
+    fi
+    
+    # Copy backups if volume exists
+    if docker volume ls | grep -q "${PROJECT_NAME}_backups_volume\|backups_volume"; then
+        VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_backups_volume|backups_volume" | awk '{print $2}' | head -1)
+        if [ -n "$VOLUME_NAME" ]; then
+            echo "  Copying backups from volume: $VOLUME_NAME"
+            docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/backups:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
+            echo "  ✓ Backups migrated"
+        fi
+    fi
+    
+    echo "✓ Migration completed"
+    echo ""
+    echo "⚠️  Old volumes will be removed after successful startup."
+    echo "   You can manually remove them later with: docker volume prune"
+    echo ""
+fi
+
 # Ensure all required directories exist with proper permissions
-echo "Creating required directories if they don't exist..."
+echo "Ensuring required directories exist..."
 mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
 chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
 chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
 echo "✓ Directories checked and permissions set"
 
-# Stop containers before rebuilding
-echo "Stopping containers..."
-cd "$PRODUCTION_DIR"
-docker compose down
+# Stop containers before rebuilding (if not already stopped)
+if [ "$MIGRATION_NEEDED" != true ]; then
+    echo "Stopping containers..."
+    cd "$PRODUCTION_DIR"
+    docker compose down
+fi
 
 # Rebuild Docker images
 echo "Rebuilding Docker images..."
@@ -353,6 +439,20 @@ fi
 # Collect static files
 echo "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
+
+# Clean up old volumes after successful update (if migration was performed)
+if [ "$MIGRATION_NEEDED" = true ]; then
+    echo ""
+    echo "Cleaning up old volumes..."
+    # Remove old named volumes (non-destructive - only removes if not in use)
+    docker volume ls | grep -E "${PROJECT_NAME}_static_volume|static_volume|${PROJECT_NAME}_media_volume|media_volume|${PROJECT_NAME}_logs_volume|logs_volume|${PROJECT_NAME}_backups_volume|backups_volume" | awk '{print $2}' | while read vol; do
+        if docker volume inspect "$vol" >/dev/null 2>&1; then
+            echo "  Removing old volume: $vol"
+            docker volume rm "$vol" 2>/dev/null || echo "    (Volume may still be in use, will be cleaned up later)"
+        fi
+    done
+    echo "✓ Volume cleanup completed"
+fi
 
 # Run post-update diagnostics (from install.sh)
 echo -e "\nRunning post-update diagnostics..."
