@@ -7,15 +7,42 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 PRODUCTION_DIR="$(dirname "$PROJECT_DIR")/ok_tools_production"
 
+# Color functions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+print_header() {
+    echo -e "\n${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  $1${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}\n"
+}
+
+print_success() { echo -e "${GREEN}✓ $1${NC}"; }
+print_error() { echo -e "${RED}✗ $1${NC}"; }
+print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
+print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
+
+# Logging setup
+LOG_FILE="/var/log/ok-tools-update.log"
+# Create log file if it doesn't exist and set permissions
+sudo touch "$LOG_FILE" 2>/dev/null || touch "$LOG_FILE" 2>/dev/null || true
+sudo chmod 644 "$LOG_FILE" 2>/dev/null || chmod 644 "$LOG_FILE" 2>/dev/null || true
+
+# Redirect output to both terminal and log file
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+print_header "OK Tools Production Update"
+print_info "Log file: $LOG_FILE"
+
 if [ ! -d "$PRODUCTION_DIR" ]; then
-    echo "Error: Production directory not found at $PRODUCTION_DIR"
-    echo "Please run install.sh first"
+    print_error "Production directory not found at $PRODUCTION_DIR"
+    print_info "Please run install.sh first"
     exit 1
 fi
 
-echo "=========================================="
-echo "OK Tools Production Update"
-echo "=========================================="
 echo ""
 
 # Helper function to escape special characters for sed
@@ -205,35 +232,69 @@ repair_env_file() {
 
 # Check and repair .env file if needed
 if ! repair_env_file; then
-    echo "Note: .env file check completed"
+    print_info "Note: .env file check completed"
 fi
 
 # Validate .env file before proceeding
 if ! validate_env_file "$PRODUCTION_DIR/.env"; then
     echo ""
-    echo "⚠️  .env file validation failed. Please review and fix errors."
+    print_warning ".env file validation failed. Please review and fix errors"
     read -p "Do you want to continue anyway? (y/n) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Update cancelled."
+        print_info "Update cancelled"
         exit 1
     fi
 fi
 
+# Create backup before update
+print_header "Creating Backup Before Update"
+BACKUP_DIR="$PRODUCTION_DIR/backups/backup-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$BACKUP_DIR"
+
+print_info "Backing up database..."
+cd "$PRODUCTION_DIR"
+if docker compose ps db | grep -q "Up"; then
+    if docker compose exec -T db pg_dump -U oktools oktools > "$BACKUP_DIR/database.sql" 2>/dev/null; then
+        print_success "Database backup created"
+    else
+        print_warning "Database backup failed (container may not be running)"
+    fi
+else
+    print_warning "Database container is not running, skipping database backup"
+fi
+
+print_info "Backing up configuration..."
+cp "$PRODUCTION_DIR/.env" "$BACKUP_DIR/.env.backup" 2>/dev/null || true
+cp "$PRODUCTION_DIR/docker-compose.yml" "$BACKUP_DIR/docker-compose.yml.backup" 2>/dev/null || true
+print_success "Configuration backup created"
+
+# Backup rotation - keep only last 5
+print_info "Rotating backups (keeping last 5)..."
+BACKUP_COUNT=$(ls -1d "$PRODUCTION_DIR/backups/backup-"* 2>/dev/null | wc -l | tr -d ' ')
+if [ "$BACKUP_COUNT" -gt 5 ]; then
+    OLD_BACKUPS=$(ls -1td "$PRODUCTION_DIR/backups/backup-"* | tail -n +6)
+    for old_backup in $OLD_BACKUPS; do
+        rm -rf "$old_backup"
+        print_info "Removed old backup: $(basename "$old_backup")"
+    done
+fi
+print_success "Backup rotation completed (kept 5 most recent)"
+
 # Pull latest code
-echo "Pulling latest code from repository..."
+print_info "Pulling latest code from repository..."
 cd "$PROJECT_DIR"
 git pull
 
 # Update docker-compose files and configs in production directory
-echo "Updating docker-compose files and configs..."
+print_info "Updating docker-compose files and configs..."
 cd "$PROJECT_DIR"
 
 # Determine which docker-compose file to use based on existing installation
 # Enhanced detection logic from install.sh
 INSTALL_TYPE=""
 if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAME=' "$PRODUCTION_DIR/.env" | cut -d'=' -f2)" ]; then
-    echo "Detected: Production with Nginx and SSL"
+    print_info "Detected: Production with Nginx and SSL"
     INSTALL_TYPE="1"
     cp -f deployment/docker-compose.production.yml "$PRODUCTION_DIR/docker-compose.yml"
     cp -f deployment/nginx.conf.template "$PRODUCTION_DIR/"
@@ -242,10 +303,10 @@ if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAM
 else
     # Check if it's Local Network or Localhost
     if grep -q "127.0.0.1" "$PRODUCTION_DIR/.env" && grep -q "localhost" "$PRODUCTION_DIR/.env"; then
-        echo "Detected: Localhost (Development on a single machine)"
+        print_info "Detected: Localhost (Development on a single machine)"
         INSTALL_TYPE="3"
     else
-        echo "Detected: Local Network (LAN access, no domain or SSL)"
+        print_info "Detected: Local Network (LAN access, no domain or SSL)"
         INSTALL_TYPE="2"
     fi
     cp -f deployment/docker-compose.production.no-nginx.yml "$PRODUCTION_DIR/docker-compose.yml"
@@ -315,7 +376,7 @@ else
 fi
 
 # Check if migration from volumes to bind mounts is needed
-echo "Checking for volume migration..."
+print_info "Checking for volume migration..."
 MIGRATION_NEEDED=false
 cd "$PRODUCTION_DIR"
 
@@ -323,29 +384,26 @@ cd "$PRODUCTION_DIR"
 if [ -f "docker-compose.yml" ]; then
     if grep -q "static_volume:\|media_volume:" "docker-compose.yml"; then
         MIGRATION_NEEDED=true
-        echo "⚠️  Detected old volume-based configuration - migration required"
+        print_warning "Detected old volume-based configuration - migration required"
     fi
 fi
 
 # Migrate from volumes to bind mounts if needed
 if [ "$MIGRATION_NEEDED" = true ]; then
-    echo ""
-    echo "=========================================="
-    echo "Migrating from volumes to bind mounts"
-    echo "=========================================="
+    print_header "Migrating from Volumes to Bind Mounts"
     
     # Stop containers first
-    echo "Stopping containers..."
+    print_info "Stopping containers..."
     docker compose down || true
     
     # Create directories
-    echo "Creating bind mount directories..."
+    print_info "Creating bind mount directories..."
     mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
     chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
     chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
     
     # Create temporary container to copy data from volumes
-    echo "Copying data from volumes to bind mounts..."
+    print_info "Copying data from volumes to bind mounts..."
     
     # Get project name
     PROJECT_NAME=$(grep -m1 "^COMPOSE_PROJECT_NAME=" "$PRODUCTION_DIR/.env" 2>/dev/null | cut -d'=' -f2 || echo "oktools")
@@ -355,9 +413,9 @@ if [ "$MIGRATION_NEEDED" = true ]; then
     if docker volume ls | grep -q "${PROJECT_NAME}_static_volume\|static_volume"; then
         VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_static_volume|static_volume" | awk '{print $2}' | head -1)
         if [ -n "$VOLUME_NAME" ]; then
-            echo "  Copying static files from volume: $VOLUME_NAME"
+            print_info "  Copying static files from volume: $VOLUME_NAME"
             docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/data/static:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
-            echo "  ✓ Static files migrated"
+            print_success "  Static files migrated"
         fi
     fi
     
@@ -365,9 +423,9 @@ if [ "$MIGRATION_NEEDED" = true ]; then
     if docker volume ls | grep -q "${PROJECT_NAME}_media_volume\|media_volume"; then
         VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_media_volume|media_volume" | awk '{print $2}' | head -1)
         if [ -n "$VOLUME_NAME" ]; then
-            echo "  Copying media files from volume: $VOLUME_NAME"
+            print_info "  Copying media files from volume: $VOLUME_NAME"
             docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/data/media:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
-            echo "  ✓ Media files migrated"
+            print_success "  Media files migrated"
         fi
     fi
     
@@ -375,9 +433,9 @@ if [ "$MIGRATION_NEEDED" = true ]; then
     if docker volume ls | grep -q "${PROJECT_NAME}_logs_volume\|logs_volume"; then
         VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_logs_volume|logs_volume" | awk '{print $2}' | head -1)
         if [ -n "$VOLUME_NAME" ]; then
-            echo "  Copying logs from volume: $VOLUME_NAME"
+            print_info "  Copying logs from volume: $VOLUME_NAME"
             docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/logs:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
-            echo "  ✓ Logs migrated"
+            print_success "  Logs migrated"
         fi
     fi
     
@@ -385,73 +443,72 @@ if [ "$MIGRATION_NEEDED" = true ]; then
     if docker volume ls | grep -q "${PROJECT_NAME}_backups_volume\|backups_volume"; then
         VOLUME_NAME=$(docker volume ls | grep -E "${PROJECT_NAME}_backups_volume|backups_volume" | awk '{print $2}' | head -1)
         if [ -n "$VOLUME_NAME" ]; then
-            echo "  Copying backups from volume: $VOLUME_NAME"
+            print_info "  Copying backups from volume: $VOLUME_NAME"
             docker run --rm -v "$VOLUME_NAME:/source:ro" -v "$PRODUCTION_DIR/backups:/dest" alpine sh -c "cp -a /source/. /dest/ 2>/dev/null || true"
-            echo "  ✓ Backups migrated"
+            print_success "  Backups migrated"
         fi
     fi
     
-    echo "✓ Migration completed"
-    echo ""
-    echo "⚠️  Old volumes will be removed after successful startup."
-    echo "   You can manually remove them later with: docker volume prune"
+    print_success "Migration completed"
+    print_warning "Old volumes will be removed after successful startup"
+    print_info "You can manually remove them later with: docker volume prune"
     echo ""
 fi
 
 # Ensure all required directories exist with proper permissions
-echo "Ensuring required directories exist..."
+print_info "Ensuring required directories exist..."
 mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
 chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
 chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
 
 # Check if static directory is empty (bind mount will hide container files if host dir is empty)
 if [ -z "$(ls -A "$PRODUCTION_DIR/data/static" 2>/dev/null)" ]; then
-    echo "⚠️  Warning: Static directory is empty on host"
-    echo "   Files will be created after container starts and collectstatic runs"
+    print_warning "Static directory is empty on host"
+    print_info "Files will be created after container starts and collectstatic runs"
 fi
 
-echo "✓ Directories checked and permissions set"
+print_success "Directories checked and permissions set"
 
 # Stop containers before rebuilding (if not already stopped)
 if [ "$MIGRATION_NEEDED" != true ]; then
-    echo "Stopping containers..."
+    print_info "Stopping containers..."
     cd "$PRODUCTION_DIR"
     docker compose down
 fi
 
 # Rebuild Docker images
-echo "Rebuilding Docker images..."
+print_info "Rebuilding Docker images..."
 docker compose build --no-cache
 
 # Start containers
-echo "Starting containers..."
+print_info "Starting containers..."
 docker compose up -d --build
 
 # Wait for containers to be ready
-echo "Waiting for containers to be ready..."
+print_info "Waiting for containers to be ready..."
 sleep 10
 
 # Run migrations
-echo "Running database migrations..."
+print_info "Running database migrations..."
 docker compose exec -T web python manage.py migrate --noinput
 
 # Compile translation messages
-echo "Compiling translation messages..."
+print_info "Compiling translation messages..."
 if ! docker compose exec -T web python manage.py compilemessages; then
-    echo "Warning: Failed to compile translation messages, continuing..."
+    print_warning "Failed to compile translation messages, continuing..."
 else
-    echo "Translation messages compiled successfully"
+    print_success "Translation messages compiled successfully"
 fi
 
 # Collect static files
-echo "Collecting static files..."
+print_info "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
 
 # Verify static files are present and accessible
-echo "Verifying static files..."
+print_info "Verifying static files..."
 STATIC_COUNT=$(docker compose exec -T web sh -c "find /app/staticfiles -type f 2>/dev/null | wc -l" | tr -d ' ' || echo "0")
 if [ "$STATIC_COUNT" -gt 0 ]; then
-    echo "✓ Found $STATIC_COUNT static files in container"
+    print_success "Found $STATIC_COUNT static files in container"
     
     # Wait a moment for filesystem sync
     sleep 2
@@ -459,13 +516,13 @@ if [ "$STATIC_COUNT" -gt 0 ]; then
     # Check if files are visible on host
     HOST_STATIC_COUNT=$(find "$PRODUCTION_DIR/data/static" -type f 2>/dev/null | wc -l || echo "0")
     if [ "$HOST_STATIC_COUNT" -gt 0 ]; then
-        echo "✓ Static files are accessible on host: $HOST_STATIC_COUNT files found"
+        print_success "Static files are accessible on host: $HOST_STATIC_COUNT files found"
     else
-        echo "⚠️  Warning: Static files not visible on host"
-        echo "   This may be a permissions issue. Checking..."
+        print_warning "Static files not visible on host"
+        print_info "This may be a permissions issue. Checking..."
         echo "   Container files: $STATIC_COUNT"
         echo "   Host files: $HOST_STATIC_COUNT"
-        echo "   Trying to fix permissions..."
+        print_info "Trying to fix permissions..."
         
         # Try to fix permissions - run as root in container to ensure access
         docker compose exec -T --user root web sh -c "chown -R app:app /app/staticfiles && chmod -R 755 /app/staticfiles" || true
@@ -474,73 +531,87 @@ if [ "$STATIC_COUNT" -gt 0 ]; then
         sleep 1
         HOST_STATIC_COUNT_AFTER=$(find "$PRODUCTION_DIR/data/static" -type f 2>/dev/null | wc -l || echo "0")
         if [ "$HOST_STATIC_COUNT_AFTER" -gt 0 ]; then
-            echo "✓ Permission fix successful: $HOST_STATIC_COUNT_AFTER files now visible"
+            print_success "Permission fix successful: $HOST_STATIC_COUNT_AFTER files now visible"
         else
-            echo "⚠️  Files still not visible. This may be normal if running in a restricted environment."
-            echo "   Static files are available inside the container and will be served by Django/WhiteNoise"
+            print_warning "Files still not visible. This may be normal if running in a restricted environment"
+            print_info "Static files are available inside the container and will be served by Django/WhiteNoise"
         fi
     fi
 else
-    echo "⚠️  Warning: No static files found in container after collectstatic"
-    echo "   This may indicate a problem with static files configuration"
+    print_warning "No static files found in container after collectstatic"
+    print_info "This may indicate a problem with static files configuration"
+fi
+
+# Cleanup Docker resources
+print_info "Cleaning up unused Docker resources..."
+docker image prune -f > /dev/null 2>&1
+docker volume prune -f > /dev/null 2>&1
+print_success "Docker cleanup completed"
+
+# Health check
+print_info "Checking web service availability on port 8010..."
+for i in {1..30}; do
+    if curl -s http://localhost:8010/health > /dev/null 2>&1; then
+        print_success "Web service is available"
+        break
+    elif [ $i -eq 30 ]; then
+        print_warning "Web service health check timeout"
+    else
+        sleep 2
+    fi
+done
+
+# Check logs for errors
+print_info "Checking logs for errors..."
+if docker compose logs web 2>&1 | grep -i "error\|exception\|traceback" | tail -5 > /dev/null 2>&1; then
+    print_warning "Errors found in logs, check: docker compose logs web"
+else
+    print_success "No critical errors in logs"
 fi
 
 # Clean up old volumes after successful update (if migration was performed)
 if [ "$MIGRATION_NEEDED" = true ]; then
     echo ""
-    echo "Cleaning up old volumes..."
+    print_info "Cleaning up old volumes..."
     # Remove old named volumes (non-destructive - only removes if not in use)
     docker volume ls | grep -E "${PROJECT_NAME}_static_volume|static_volume|${PROJECT_NAME}_media_volume|media_volume|${PROJECT_NAME}_logs_volume|logs_volume|${PROJECT_NAME}_backups_volume|backups_volume" | awk '{print $2}' | while read vol; do
         if docker volume inspect "$vol" >/dev/null 2>&1; then
-            echo "  Removing old volume: $vol"
-            docker volume rm "$vol" 2>/dev/null || echo "    (Volume may still be in use, will be cleaned up later)"
+            print_info "  Removing old volume: $vol"
+            docker volume rm "$vol" 2>/dev/null || print_info "    (Volume may still be in use, will be cleaned up later)"
         fi
     done
-    echo "✓ Volume cleanup completed"
+    print_success "Volume cleanup completed"
 fi
 
-# Run post-update diagnostics (from install.sh)
-echo -e "\nRunning post-update diagnostics..."
-
-# Color variables for diagnostics
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-echo -e "${YELLOW}==========================================${NC}"
-echo -e "${YELLOW} OK Tools System Diagnostics${NC}"
-echo -e "${YELLOW}==========================================${NC}"
+# Run post-update diagnostics
+print_header "Running Post-Update Diagnostics"
 
 # 1. Check container status
-echo -e "\n${YELLOW}1. Checking container status...${NC}"
+print_info "1. Checking container status..."
 if ! docker compose ps --format "table {{.Service}}\t{{.Status}}"; then
-    echo -e "${RED}Error: Failed to get container status. Is Docker running?${NC}"
+    print_error "Failed to get container status. Is Docker running?"
     exit 1
 fi
 
 UNHEALTHY_CONTAINERS=$(docker compose ps --format "{{.Service}}" --filter "health=unhealthy")
 if [ -n "$UNHEALTHY_CONTAINERS" ]; then
-    echo -e "\n${RED}Warning: The following containers are unhealthy:${NC}"
+    print_warning "The following containers are unhealthy:"
     echo "$UNHEALTHY_CONTAINERS"
-    echo -e "${YELLOW}This might indicate a problem. Check logs with: docker compose logs -f <service_name>${NC}"
+    print_info "Check logs with: docker compose logs -f <service_name>"
 else
-    echo -e "\n${GREEN}✓ All containers are running and healthy.${NC}"
+    print_success "All containers are running and healthy"
 fi
 
 # 2. Check web service logs for errors
-echo -e "\n${YELLOW}2. Checking web service logs for recent errors...${NC}"
+print_info "2. Checking web service logs for recent errors..."
 if docker compose logs --tail=50 web | grep -i -E "error|traceback"; then
-    echo -e "\n${RED}Warning: Potential errors found in web service logs.${NC}"
-    echo -e "${YELLOW}Please review logs above carefully.${NC}"
+    print_warning "Potential errors found in web service logs"
+    print_info "Please review logs above carefully"
 else
-    echo -e "\n${GREEN}✓ No critical errors found in recent web service logs.${NC}"
+    print_success "No critical errors found in recent web service logs"
 fi
 
-echo ""
-echo "=========================================="
-echo "Update Complete!"
-echo "=========================================="
+print_header "Update Complete!"
 echo "Production directory: $PRODUCTION_DIR"
 echo ""
 
@@ -549,7 +620,7 @@ case $INSTALL_TYPE in
     1)
         # Production with SSL
         DOMAIN_NAME=$(grep "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" | cut -d'=' -f2)
-        echo "Access admin panel: https://$DOMAIN_NAME/admin"
+        print_info "Access admin panel: https://$DOMAIN_NAME/admin"
         ;;
     2)
         # Local Network - detect IP
@@ -557,23 +628,21 @@ case $INSTALL_TYPE in
                   ip route get 1.1.1.1 | awk '{print $7}' 2>/dev/null || \
                   ipconfig getifaddr en0 2>/dev/null || \
                   echo "127.0.0.1")
-        echo "Access admin panel: http://$LOCAL_IP:8010/admin"
+        print_info "Access admin panel: http://$LOCAL_IP:8010/admin"
         ;;
     3)
         # Localhost
-        echo "Access admin panel: http://localhost:8010/admin"
+        print_info "Access admin panel: http://localhost:8010/admin"
         ;;
     *)
-        echo "Access admin panel: http://localhost:8010/admin"
+        print_info "Access admin panel: http://localhost:8010/admin"
         ;;
 esac
 
 echo ""
-echo "Next steps:"
+print_info "Next steps:"
 echo "1. Check container status: docker compose ps"
 echo "2. View logs: docker compose logs -f web"
 echo "3. If issues occur, run rollback script: $SCRIPT_DIR/rollback.sh"
 
-echo -e "\n${YELLOW}==========================================${NC}"
-echo -e "${GREEN}Diagnostics complete.${NC}"
-echo -e "${YELLOW}==========================================${NC}"
+print_header "Diagnostics Complete"

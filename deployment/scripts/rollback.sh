@@ -8,29 +8,39 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 PRODUCTION_DIR="$(dirname "$PROJECT_DIR")/ok_tools_production"
 
-echo "=========================================="
-echo "OK-Tools EMERGENCY ROLLBACK"
-echo "=========================================="
-echo ""
+# Color functions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+print_header() {
+    echo -e "\n${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  $1${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}\n"
+}
+
+print_success() { echo -e "${GREEN}✓ $1${NC}"; }
+print_error() { echo -e "${RED}✗ $1${NC}"; }
+print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
+print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
+
+print_header "OK-Tools EMERGENCY ROLLBACK"
 
 # Safety check
 if [ ! -d "$PRODUCTION_DIR" ]; then
-    echo "Error: Production directory not found at $PRODUCTION_DIR"
+    print_error "Production directory not found at $PRODUCTION_DIR"
     exit 1
 fi
 
-# Function to find most recent backup
-find_latest_backup() {
-    local backup_type="$1"
-    local pattern="$2"
-    
-    local latest=$(find "$PRODUCTION_DIR" -maxdepth 1 -name "$pattern" -type f 2>/dev/null | sort -r | head -n 1)
-    
+# Function to find most recent backup directory
+find_latest_backup_dir() {
+    local latest=$(ls -1td "$PRODUCTION_DIR/backups/backup-"* 2>/dev/null | head -n 1)
     if [ -z "$latest" ]; then
-        echo "Warning: No $backup_type backup found"
+        print_error "No backup found in $PRODUCTION_DIR/backups/"
         return 1
     fi
-    
     echo "$latest"
     return 0
 }
@@ -40,11 +50,11 @@ confirm_action() {
     local message="$1"
     
     echo ""
-    echo "⚠️  WARNING: $message"
+    print_warning "WARNING: $message"
     read -p "Are you absolutely sure? (type 'yes' to confirm): " confirmation
     
     if [ "$confirmation" != "yes" ]; then
-        echo "Rollback cancelled"
+        print_info "Rollback cancelled"
         exit 0
     fi
 }
@@ -54,121 +64,131 @@ confirm_action "This will revert to previous configuration and restart services"
 
 cd "$PRODUCTION_DIR"
 
-echo ""
-echo "Step 1: Stopping services"
-echo "=========================="
-docker compose down
-echo "✓ Services stopped"
+# Find backup directory
+BACKUP_DIR=$(find_latest_backup_dir)
+if [ $? -ne 0 ]; then
+    print_error "Cannot proceed without backup directory"
+    exit 1
+fi
 
-echo ""
-echo "Step 2: Creating emergency backup of current state"
-echo "==================================================="
-EMERGENCY_BACKUP_DIR="emergency_backup_$(date +%Y%m%d_%H%M%S)"
+print_success "Found backup: $(basename "$BACKUP_DIR")"
+
+print_header "Step 1: Stopping Services"
+docker compose down
+print_success "Services stopped"
+
+print_header "Step 2: Creating Emergency Backup of Current State"
+EMERGENCY_BACKUP_DIR="$PRODUCTION_DIR/backups/emergency_backup_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$EMERGENCY_BACKUP_DIR"
 
 # Backup current files
 if [ -f ".env" ]; then
     cp ".env" "$EMERGENCY_BACKUP_DIR/.env"
-    echo "✓ Backed up current .env"
+    print_success "Backed up current .env"
 fi
 
 if [ -f "docker-compose.yml" ]; then
     cp "docker-compose.yml" "$EMERGENCY_BACKUP_DIR/docker-compose.yml"
-    echo "✓ Backed up current docker-compose.yml"
+    print_success "Backed up current docker-compose.yml"
 fi
 
-echo ""
-echo "Step 3: Restoring from backups"
-echo "================================"
+print_header "Step 3: Restoring from Backup"
 
 # Restore .env
-ENV_BACKUP=$(find_latest_backup ".env" ".env.backup.*")
-if [ $? -eq 0 ]; then
-    cp "$ENV_BACKUP" ".env"
+if [ -f "$BACKUP_DIR/.env.backup" ]; then
+    cp "$BACKUP_DIR/.env.backup" ".env"
     chmod 600 ".env"
-    echo "✓ Restored .env from: $(basename "$ENV_BACKUP")"
+    print_success "Restored .env from backup"
 else
-    echo "✗ No .env backup found - using current"
+    print_warning "No .env backup found - using current"
 fi
 
 # Restore docker-compose.yml
-COMPOSE_BACKUP=$(find_latest_backup "docker-compose.yml" "docker-compose.yml.backup.*")
-if [ $? -eq 0 ]; then
-    cp "$COMPOSE_BACKUP" "docker-compose.yml"
-    echo "✓ Restored docker-compose.yml from: $(basename "$COMPOSE_BACKUP")"
+if [ -f "$BACKUP_DIR/docker-compose.yml.backup" ]; then
+    cp "$BACKUP_DIR/docker-compose.yml.backup" "docker-compose.yml"
+    print_success "Restored docker-compose.yml from backup"
 else
-    echo "✗ No docker-compose.yml backup found - using current"
+    print_warning "No docker-compose.yml backup found - using current"
 fi
 
-# Restore Dockerfile if backup exists
-DOCKERFILE_BACKUP=$(find_latest_backup "Dockerfile" "Dockerfile.backup.*")
-if [ $? -eq 0 ]; then
-    cp "$DOCKERFILE_BACKUP" "Dockerfile"
-    echo "✓ Restored Dockerfile from: $(basename "$DOCKERFILE_BACKUP")"
+# Restore database
+if [ -f "$BACKUP_DIR/database.sql" ]; then
+    print_info "Restoring database..."
+    docker compose up -d db
+    sleep 5
+    
+    # Wait for database to be ready
+    for i in {1..30}; do
+        if docker compose exec -T db pg_isready -U oktools > /dev/null 2>&1; then
+            break
+        fi
+        sleep 1
+    done
+    
+    # Drop and recreate database
+    docker compose exec -T db psql -U oktools -c "DROP DATABASE IF EXISTS oktools;" postgres 2>/dev/null || true
+    docker compose exec -T db psql -U oktools -c "CREATE DATABASE oktools;" postgres 2>/dev/null || true
+    
+    # Restore database from backup
+    docker compose exec -T db psql -U oktools oktools < "$BACKUP_DIR/database.sql" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        print_success "Database restored"
+    else
+        print_warning "Database restoration may have failed - check logs"
+    fi
+else
+    print_warning "No database backup found - skipping database restoration"
 fi
 
-echo ""
-echo "Step 4: Rebuilding containers with old configuration"
-echo "====================================================="
+print_header "Step 4: Rebuilding Containers with Old Configuration"
 docker compose build --no-cache
-echo "✓ Containers rebuilt"
+print_success "Containers rebuilt"
 
-echo ""
-echo "Step 5: Starting services"
-echo "=========================="
+print_header "Step 5: Starting Services"
 docker compose up -d --build
-echo "✓ Services started"
+print_success "Services started"
 
-echo ""
-echo "Step 6: Waiting for services to be ready"
-echo "=========================================="
+print_info "Waiting for services to be ready..."
 sleep 10
 
-echo ""
-echo "Step 7: Verifying services"
-echo "==========================="
+print_header "Step 6: Verifying Services"
 
 # Check service status
-echo "Checking service status..."
+print_info "Checking service status..."
 docker compose ps
 
 # Check web service
-echo ""
-echo "Checking web service..."
+print_info "Checking web service..."
 if docker compose exec -T web python manage.py check > /dev/null 2>&1; then
-    echo "✓ Web service is healthy"
+    print_success "Web service is healthy"
 else
-    echo "⚠️  Web service check failed - review logs"
+    print_warning "Web service check failed - review logs"
 fi
 
 # Check database
-echo ""
-echo "Checking database connection..."
+print_info "Checking database connection..."
 if docker compose exec -T web python manage.py migrate --plan > /dev/null 2>&1; then
-    echo "✓ Database is accessible"
+    print_success "Database is accessible"
 else
-    echo "⚠️  Database check failed - review logs"
+    print_warning "Database check failed - review logs"
 fi
 
+print_header "Rollback Complete!"
+
+print_info "Emergency backup of previous state saved to:"
+echo "  $EMERGENCY_BACKUP_DIR"
 echo ""
-echo "=========================================="
-echo "Rollback Complete!"
-echo "=========================================="
-echo ""
-echo "Emergency backup of previous state saved to:"
-echo "  $PRODUCTION_DIR/$EMERGENCY_BACKUP_DIR"
-echo ""
-echo "Next steps:"
+print_info "Next steps:"
 echo "1. Check service logs: docker compose logs -f web"
 echo "2. Verify application is accessible"
 echo "3. Monitor for errors"
 echo "4. Review what caused the need for rollback"
 echo ""
-echo "Recent logs (last 50 lines):"
+print_info "Recent logs (last 50 lines):"
 echo "----------------------------"
 docker compose logs --tail=50 web
 echo ""
-echo "If issues persist, check:"
+print_info "If issues persist, check:"
 echo "  - docker compose ps"
 echo "  - docker compose logs web"
 echo "  - docker compose logs celery_worker"

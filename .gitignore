@@ -59,6 +59,7 @@ media/
 share/
 scripts/
 !deployment/scripts/
+deployment/scripts/archive/
 
 # Virtual environment (additional patterns)
 pyvenv.cfg

@@ -9,6 +9,36 @@ PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 PRODUCTION_DIR="$(dirname "$PROJECT_DIR")/ok_tools_production"
 CONFIGS_DIR="$PROJECT_DIR/deployment/configs"
 
+# Color functions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+print_header() {
+    echo -e "\n${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  $1${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}\n"
+}
+
+print_success() { echo -e "${GREEN}✓ $1${NC}"; }
+print_error() { echo -e "${RED}✗ $1${NC}"; }
+print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
+print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
+
+# Logging setup
+LOG_FILE="/var/log/ok-tools-install.log"
+# Create log file if it doesn't exist and set permissions
+sudo touch "$LOG_FILE" 2>/dev/null || touch "$LOG_FILE" 2>/dev/null || true
+sudo chmod 644 "$LOG_FILE" 2>/dev/null || chmod 644 "$LOG_FILE" 2>/dev/null || true
+
+# Redirect output to both terminal and log file
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+print_header "OK Tools Installation"
+print_info "Log file: $LOG_FILE"
+
 # Helper function to escape special characters for sed
 escape_for_sed() {
     echo "$1" | sed -e 's/[]\/$*.^[]/\\&/g'
@@ -758,13 +788,61 @@ else
 fi
 
 # Collect static files
-echo "Collecting static files..."
+print_info "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
+print_success "Static files collected"
+
+# Health check
+print_info "Checking web service availability on port 8010..."
+for i in {1..30}; do
+    if curl -s http://localhost:8010/health > /dev/null 2>&1; then
+        print_success "Web service is available"
+        break
+    elif [ $i -eq 30 ]; then
+        print_warning "Web service health check timeout (may still be starting)"
+    else
+        sleep 2
+    fi
+done
+
+# Cleanup unused Docker images
+print_info "Cleaning up unused Docker images..."
+docker image prune -f > /dev/null 2>&1
+print_success "Cleanup completed"
+
+# Create helper scripts
+print_info "Creating management scripts..."
+cat > "$PRODUCTION_DIR/stop.sh" <<'EOF'
+#!/bin/bash
+cd "$(dirname "$0")"
+docker compose down
+echo "✓ Services stopped"
+EOF
+
+cat > "$PRODUCTION_DIR/restart.sh" <<'EOF'
+#!/bin/bash
+cd "$(dirname "$0")"
+docker compose restart
+echo "✓ Services restarted"
+EOF
+
+cat > "$PRODUCTION_DIR/logs.sh" <<'EOF'
+#!/bin/bash
+cd "$(dirname "$0")"
+docker compose logs -f "${1:-web}"
+EOF
+
+cat > "$PRODUCTION_DIR/status.sh" <<'EOF'
+#!/bin/bash
+cd "$(dirname "$0")"
+docker compose ps
+EOF
+
+chmod +x "$PRODUCTION_DIR"/*.sh 2>/dev/null
+print_success "Management scripts created"
 
 echo ""
-echo "=========================================="
-echo "Installation Complete!"
-echo "=========================================="
+print_header "Installation Complete!"
 echo "Production directory: $PRODUCTION_DIR"
 echo "Configuration file: $PRODUCTION_DIR/.env"
 echo ""
@@ -788,43 +866,31 @@ echo ""
 echo "To update application, run: $SCRIPT_DIR/update.sh"
 echo "To configure post-deployment settings, run: $SCRIPT_DIR/configure.sh"
 # Run post-installation diagnostics
-echo -e "\nRunning post-installation diagnostics..."
-
-# Color variables for diagnostics
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-echo -e "${YELLOW}==========================================${NC}"
-echo -e "${YELLOW} OK Tools System Diagnostics${NC}"
-echo -e "${YELLOW}==========================================${NC}"
+print_header "Running Post-Installation Diagnostics"
 
 # 1. Check container status
-echo -e "\n${YELLOW}1. Checking container status...${NC}"
+print_info "1. Checking container status..."
 if ! docker compose ps --format "table {{.Service}}\t{{.Status}}"; then
-    echo -e "${RED}Error: Failed to get container status. Is Docker running?${NC}"
+    print_error "Failed to get container status. Is Docker running?"
     exit 1
 fi
 
 UNHEALTHY_CONTAINERS=$(docker compose ps --format "{{.Service}}" --filter "health=unhealthy")
 if [ -n "$UNHEALTHY_CONTAINERS" ]; then
-    echo -e "\n${RED}Warning: The following containers are unhealthy:${NC}"
+    print_warning "The following containers are unhealthy:"
     echo "$UNHEALTHY_CONTAINERS"
-    echo -e "${YELLOW}This might indicate a problem. Check logs with: docker compose logs -f <service_name>${NC}"
+    print_info "Check logs with: docker compose logs -f <service_name>"
 else
-    echo -e "\n${GREEN}✓ All containers are running and healthy.${NC}"
+    print_success "All containers are running and healthy"
 fi
 
 # 2. Check web service logs for errors
-echo -e "\n${YELLOW}2. Checking web service logs for recent errors...${NC}"
+print_info "2. Checking web service logs for recent errors..."
 if docker compose logs --tail=50 web | grep -i -E "error|traceback"; then
-    echo -e "\n${RED}Warning: Potential errors found in web service logs.${NC}"
-    echo -e "${YELLOW}Please review the logs above carefully.${NC}"
+    print_warning "Potential errors found in web service logs"
+    print_info "Please review the logs above carefully"
 else
-    echo -e "${GREEN}✓ No critical errors found in recent web service logs.${NC}"
+    print_success "No critical errors found in recent web service logs"
 fi
 
-echo -e "\n${YELLOW}==========================================${NC}"
-echo -e "${GREEN}Diagnostics complete.${NC}"
-echo -e "${YELLOW}==========================================${NC}"
+print_header "Diagnostics Complete"
