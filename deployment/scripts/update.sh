@@ -335,6 +335,14 @@ sleep 10
 echo "Running database migrations..."
 docker compose exec -T web python manage.py migrate --noinput
 
+# Compile translation messages
+echo "Compiling translation messages..."
+if ! docker compose exec -T web python manage.py compilemessages; then
+    echo "Warning: Failed to compile translation messages, continuing..."
+else
+    echo "Translation messages compiled successfully"
+fi
+
 # Collect static files
 echo "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
