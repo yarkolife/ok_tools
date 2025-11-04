@@ -314,6 +314,13 @@ else
     echo "Warning: .env file not found at $ENV_FILE"
 fi
 
+# Ensure all required directories exist with proper permissions
+echo "Creating required directories if they don't exist..."
+mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
+chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+echo "✓ Directories checked and permissions set"
+
 # Stop containers before rebuilding
 echo "Stopping containers..."
 cd "$PRODUCTION_DIR"
