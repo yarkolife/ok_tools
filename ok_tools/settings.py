@@ -152,6 +152,7 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # WhiteNoise must be after SecurityMiddleware
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -260,7 +261,18 @@ MEDIA_URL = "/media/"
 # JavaScript / CSS assets being served from cache (e.g. after a Wagtail upgrade).
 # See
 # https://docs.djangoproject.com/en/3.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+# Allow overriding storage backend from environment variable
+_static_storage_backend = get_env('STATIC_STORAGE_BACKEND', default=None)
+if _static_storage_backend:
+    STATICFILES_STORAGE = _static_storage_backend
+else:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+
+# WhiteNoise configuration for serving static files
+# Only apply WhiteNoise settings when using WhiteNoise storage
+if 'whitenoise' in STATICFILES_STORAGE.lower():
+    WHITENOISE_USE_FINDERS = True  # Allow WhiteNoise to find files during development
+    WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in debug mode
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
