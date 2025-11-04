@@ -875,7 +875,7 @@ if ! docker compose ps --format "table {{.Service}}\t{{.Status}}"; then
     exit 1
 fi
 
-UNHEALTHY_CONTAINERS=$(docker compose ps --format "{{.Service}}" --filter "health=unhealthy")
+UNHEALTHY_CONTAINERS=$(docker compose ps --format "table {{.Service}}\t{{.Status}}" | grep -i "unhealthy" | awk '{print $1}' | grep -v "SERVICE")
 if [ -n "$UNHEALTHY_CONTAINERS" ]; then
     print_warning "The following containers are unhealthy:"
     echo "$UNHEALTHY_CONTAINERS"
