@@ -886,8 +886,10 @@ fi
 
 # 2. Check web service logs for errors
 print_info "2. Checking web service logs for recent errors..."
-if docker compose logs --tail=50 web | grep -i -E "error|traceback"; then
-    print_warning "Potential errors found in web service logs"
+ERROR_LINES=$(docker compose logs --tail=50 web 2>&1 | grep -iE "(error|exception|traceback)" | grep -vE "(ERROR|WARNING|INFO|DEBUG)\s*\:" | grep -vE "No valid legacy config|Validation|migration|Your models.*have changes")
+if [ -n "$ERROR_LINES" ]; then
+    print_warning "Potential errors found in web service logs:"
+    echo "$ERROR_LINES" | head -5 | sed 's/^/  /'
     print_info "Please review the logs above carefully"
 else
     print_success "No critical errors found in recent web service logs"
