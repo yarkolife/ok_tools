@@ -723,6 +723,14 @@ if [ "$INSTALL_TYPE" = "1" ] && [ "$SSL_ENABLED" = true ]; then
     echo "✓ SSL certificate obtained successfully."
 fi
 
+# Ensure all required directories exist with proper permissions
+echo ""
+echo "Creating required directories..."
+mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
+chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+echo "✓ Directories created and permissions set"
+
 # Start containers
 echo ""
 echo "Starting Docker containers..."

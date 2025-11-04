@@ -46,10 +46,10 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-      - logs_volume:/app/logs
-      - backups_volume:/app/backups
+      - ./data/static:/app/staticfiles
+      - ./data/media:/app/media
+      - ./logs:/app/logs
+      - ./backups:/app/backups
     restart: unless-stopped
     networks:
       - oktools-network
@@ -68,8 +68,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
-      - static_volume:/var/www/static:ro
-      - media_volume:/var/www/media:ro
+      - ./data/static:/var/www/static:ro
+      - ./data/media:/var/www/media:ro
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
       - ./deployment/nginx-entrypoint.sh:/docker-entrypoint.d/nginx-entrypoint.sh:ro
@@ -108,9 +108,9 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-      - logs_volume:/app/logs
+      - ./data/static:/app/staticfiles
+      - ./data/media:/app/media
+      - ./logs:/app/logs
     command: celery -A ok_tools worker --loglevel=info
     restart: unless-stopped
     networks:
@@ -137,7 +137,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - logs_volume:/app/logs
+      - ./logs:/app/logs
     command: celery -A ok_tools beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     restart: unless-stopped
     networks:
@@ -150,10 +150,6 @@ services:
 
 volumes:
   postgres_data:
-  static_volume:
-  media_volume:
-  logs_volume:
-  backups_volume:
 
 
 networks:
