@@ -419,3 +419,9 @@ class RentalDashboardView(LoginRequiredMixin, TemplateView):
 
 
         return context
+
+
+def health(request):
+    """Simple health check endpoint for Docker health checks."""
+    from django.http import JsonResponse
+    return JsonResponse({'status': 'ok'}, status=200)

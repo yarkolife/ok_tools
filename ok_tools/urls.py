@@ -75,6 +75,7 @@ urlpatterns = [
     # Accessibility URLs
     path('accessibility-statement/', accessibility_views.accessibility_statement, name='accessibility_statement'),
     path('accessibility-feedback/', accessibility_views.accessibility_feedback, name='accessibility_feedback'),
+    path('health/', views.health, name='health'),
     path('prometheus/', include('django_prometheus.urls')),
         # API Schema and Documentation
         path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
