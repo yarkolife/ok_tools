@@ -32,7 +32,12 @@ class InventoryItemViewSet(viewsets.ReadOnlyModelViewSet):
             try:
                 from registration.models import OKUser
                 user = OKUser.objects.get(id=user_id)
-                if hasattr(user, 'profile') and user.profile and user.profile.member:
+                
+                # Staff users (Mitarbeiter) have access to all items
+                if user.is_staff:
+                    # No filtering needed - staff can access all items
+                    pass
+                elif hasattr(user, 'profile') and user.profile and user.profile.member:
                     # Member can access state institution + organization
                     state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
                     organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')

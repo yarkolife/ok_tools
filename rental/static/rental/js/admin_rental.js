@@ -156,15 +156,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const a = document.createElement('a');
         a.href = '#';
         a.className = 'list-group-item list-group-item-action user-result-card';
+        
+        // Determine badge color based on user status
+        let badgeClass = 'bg-secondary';
+        if (u.is_staff) {
+          badgeClass = 'bg-primary';
+        } else if (u.is_member) {
+          badgeClass = 'bg-success';
+        }
+        
         a.innerHTML = `
           <div class="d-flex w-100 justify-content-between">
             <div>
-              <h6 class="mb-1">${u.name || gettext('Unknown')}</h6>
+              <h6 class="mb-1">${u.name || u.email || gettext('Unknown')}</h6>
               <p class="mb-1">${u.email || ''}</p>
               <small class="text-muted">${u.permissions || ''} ${gettext('authorized')}</small>
             </div>
             <div class="text-end">
-              <span class="badge ${u.is_member ? 'bg-success':'bg-secondary'}">${u.member_status || gettext('User')}</span>
+              <span class="badge ${badgeClass}">${u.member_status || gettext('User')}</span>
             </div>
           </div>`;
         a.addEventListener('click', ev => {
@@ -1017,65 +1026,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     renderReturnSection() {
-      let returnSection = document.getElementById('returnSection');
-      if (!returnSection) {
-        const userStats = document.getElementById('userStats').parentElement;
-        returnSection = document.createElement('div');
-        returnSection.id = 'returnSection';
-        returnSection.className = 'return-section';
-        userStats.appendChild(returnSection);
+      // Return section removed - not convenient when there are many items
+      // Remove existing return section if it exists
+      const returnSection = document.getElementById('returnSection');
+      if (returnSection) {
+        returnSection.remove();
       }
-
-      if (this.activeItems.length === 0) {
-        returnSection.innerHTML = '<h6>' + gettext('Return') + '</h6><p class="text-muted">' + gettext('No active rentals') + '</p>';
-        return;
-      }
-
-      let html = '<h6>' + gettext('Return') + '</h6><div class="list-group">';
-      this.activeItems.forEach(item => {
-        html += `
-          <div class="list-group-item">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <strong>${item.description || item.inventory_number}</strong><br>
-                <small class="text-muted">${gettext('Outstanding:')} ${item.outstanding}</small>
-              </div>
-              <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-outline-success return-btn" data-item-id="${item.rental_item_id}" data-max="${item.outstanding}">
-                  <i class="fas fa-undo me-1"></i>${gettext('Quick')}
-                </button>
-                <button class="btn btn-sm btn-outline-warning detailed-return-btn"
-                        data-rental-id="${item.rental_request_id}"
-                        data-item-id="${item.rental_item_id}"
-                        title="${gettext('Detailed return with condition assessment')}">
-                  <i class="fas fa-clipboard-check me-1"></i>${gettext('Detailed')}
-                </button>
-              </div>
-            </div>
-          </div>`;
-      });
-      html += '</div>';
-      returnSection.innerHTML = html;
-
-      // Bind return buttons
-      returnSection.querySelectorAll('.return-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const el = e.currentTarget;
-          const itemId = el.dataset.itemId;
-          const max = parseInt(el.dataset.max, 10);
-          this.returnItem(itemId, max);
-        });
-      });
-
-      // Bind detailed return buttons
-      returnSection.querySelectorAll('.detailed-return-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const el = e.currentTarget;
-          const rentalId = el.dataset.rentalId;
-          const itemId = el.dataset.itemId;
-          this.showDetailedReturnModal(rentalId, itemId);
-        });
-      });
     }
 
     async returnItem(rentalItemId, maxQty) {
@@ -1395,13 +1351,26 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
 
-        // For rooms, always use 'reserved' status since they auto-return
-        // Exception: drafts remain as drafts even with rooms
+        // For mixed rentals (rooms + equipment): if issued, create as reserved first
+        // Equipment can be issued later via "Issue from Reservation"
+        // Rooms always remain reserved and auto-return
         let finalAction = action;
-        if (this.selectedRooms && this.selectedRooms.length > 0 && action !== 'draft') {
-          finalAction = 'reserved';
+        if (this.selectedRooms && this.selectedRooms.length > 0 && this.selectedItems && this.selectedItems.length > 0) {
+          // Mixed rental: rooms + equipment
           if (action === 'issued') {
-            alert(gettext('Rooms can only be reserved, not issued. They will automatically return after the scheduled time.'));
+            // For mixed rentals, create as 'reserved' first
+            // Equipment can be issued separately via "Issue from Reservation"
+            finalAction = 'reserved';
+            // Don't show alert - user can issue equipment later
+          }
+          // If action is 'draft' or 'reserved', keep it as is
+        } else if (this.selectedRooms && this.selectedRooms.length > 0 && !this.selectedItems) {
+          // Only rooms (no equipment)
+          if (action !== 'draft') {
+            finalAction = 'reserved';
+            if (action === 'issued') {
+              alert(gettext('Rooms can only be reserved, not issued. They will automatically return after the scheduled time.'));
+            }
           }
         }
 
@@ -2103,14 +2072,19 @@ document.addEventListener('DOMContentLoaded', function() {
         ? firstRoom.schedule.map((day, dayIdx) => {
             const aggregatedSlots = day.slots.map((_, slotIdx) => {
               const occupiedRooms = [];
+              let firstOccupiedInfo = null;
               for (const r of rooms) {
                 const rd = r.schedule && r.schedule[dayIdx];
                 if (rd && rd.slots && rd.slots[slotIdx] && rd.slots[slotIdx].status === 'occupied') {
                   occupiedRooms.push(r.name);
+                  // Save first occupied slot info for click handling
+                  if (!firstOccupiedInfo && rd.slots[slotIdx].info) {
+                    firstOccupiedInfo = rd.slots[slotIdx].info;
+                  }
                 }
               }
               return occupiedRooms.length
-                ? { status: 'occupied', rooms: occupiedRooms }
+                ? { status: 'occupied', rooms: occupiedRooms, info: firstOccupiedInfo }
                 : { status: 'available', rooms: [] };
             });
             return { ...day, slots: aggregatedSlots };
@@ -2152,7 +2126,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = isAllRooms
               ? (slot.status === 'occupied' && slot.rooms ? slot.rooms.join(', ') : '')
               : this.getSlotTooltip(slot);
-            html += `<div class="calendar-cell ${slotClass}" title="${title}">`;
+            
+            // Make occupied slots clickable (both single room and all rooms mode)
+            const clickableClass = slot.status === 'occupied' && slot.info ? 'clickable-slot' : '';
+            const dataAttrs = slot.status === 'occupied' && slot.info
+              ? `data-rental-id="${slot.info.rental_request_id || ''}" 
+                 data-user-name="${(slot.info.user_name || '').replace(/"/g, '&quot;')}" 
+                 data-project="${(slot.info.project || '').replace(/"/g, '&quot;')}" 
+                 data-status="${slot.info.status || ''}" 
+                 data-people-count="${slot.info.people_count || 1}" 
+                 data-start-time="${slot.info.start_time || ''}" 
+                 data-end-time="${slot.info.end_time || ''}" 
+                 data-user-email="${(slot.info.user_email || '').replace(/"/g, '&quot;')}" 
+                 data-date="${day.date}" 
+                 data-time="${time}"`
+              : '';
+            
+            html += `<div class="calendar-cell ${slotClass} ${clickableClass}" title="${title}" ${dataAttrs}>`;
             if (slot.status === 'occupied') {
               if (!isAllRooms && slot.info) {
                 html += `<div class="slot-info">`;
@@ -2162,9 +2152,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (slot.info.people_count > 1) {
                   html += `<small class="d-block text-muted"><i class="fas fa-users me-1"></i>${slot.info.people_count} ${gettext('people')}</small>`;
                 }
+                html += `<small class="d-block text-muted mt-1"><i class="fas fa-info-circle"></i> ${gettext('Click for details')}</small>`;
                 html += `</div>`;
               } else if (isAllRooms && slot.rooms && slot.rooms.length) {
-                html += `<div class="slot-info"><small>${slot.rooms.join(', ')}</small></div>`;
+                html += `<div class="slot-info">`;
+                html += `<small>${slot.rooms.join(', ')}</small>`;
+                if (slot.info) {
+                  html += `<small class="d-block text-muted mt-1"><i class="fas fa-info-circle"></i> ${gettext('Click for details')}</small>`;
+                }
+                html += `</div>`;
               }
             }
             html += '</div>';
@@ -2186,6 +2182,139 @@ document.addEventListener('DOMContentLoaded', function() {
 
       html += '</div>';
       container.innerHTML = html;
+      
+      // Bind click handlers for occupied slots
+      container.querySelectorAll('.clickable-slot').forEach(slot => {
+        slot.style.cursor = 'pointer';
+        slot.addEventListener('click', (e) => {
+          const rentalId = slot.dataset.rentalId;
+          const userName = slot.dataset.userName || gettext('Unknown user');
+          const project = slot.dataset.project || gettext('No project');
+          const status = slot.dataset.status || 'unknown';
+          const peopleCount = slot.dataset.peopleCount || 1;
+          const startTime = slot.dataset.startTime || '';
+          const endTime = slot.dataset.endTime || '';
+          const userEmail = slot.dataset.userEmail || '';
+          const date = slot.dataset.date || '';
+          const time = slot.dataset.time || '';
+          
+          this.showCalendarSlotDetails({
+            rentalId,
+            userName,
+            userEmail,
+            project,
+            status,
+            peopleCount,
+            startTime,
+            endTime,
+            date,
+            time
+          });
+        });
+      });
+    }
+    
+    showCalendarSlotDetails(slotInfo) {
+      // Format date
+      let dateStr = '';
+      if (slotInfo.date) {
+        try {
+          const date = new Date(slotInfo.date);
+          dateStr = date.toLocaleDateString('de-DE', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            weekday: 'short'
+          });
+        } catch (e) {
+          dateStr = slotInfo.date;
+        }
+      }
+      
+      // Create or get modal
+      let modal = document.getElementById('calendarSlotDetailsModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'calendarSlotDetailsModal';
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  <i class="fas fa-calendar-check me-2"></i>${gettext('Booking Details')}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body" id="calendarSlotDetailsContent">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${gettext('Close')}</button>
+                <a href="#" id="calendarSlotGoToRental" class="btn btn-primary" target="_blank" style="color: white !important; text-decoration: none;">
+                  <i class="fas fa-external-link-alt me-1"></i>${gettext('Go to Rental Process')}
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+      
+      // Fill content
+      const content = document.getElementById('calendarSlotDetailsContent');
+      const statusColor = this.getStatusColor(slotInfo.status);
+      const statusText = this.getStatusText(slotInfo.status);
+      
+      content.innerHTML = `
+        <div class="mb-3">
+          <h6>${gettext('User')}</h6>
+          <p class="mb-1"><strong>${slotInfo.userName}</strong></p>
+          ${slotInfo.userEmail ? `<p class="text-muted mb-0"><small>${slotInfo.userEmail}</small></p>` : ''}
+        </div>
+        
+        <div class="mb-3">
+          <h6>${gettext('Project')}</h6>
+          <p class="mb-0">${slotInfo.project}</p>
+        </div>
+        
+        <div class="mb-3">
+          <h6>${gettext('Status')}</h6>
+          <span class="badge bg-${statusColor} text-white">${statusText}</span>
+        </div>
+        
+        <div class="mb-3">
+          <h6>${gettext('Time Period')}</h6>
+          <p class="mb-1">
+            <i class="fas fa-calendar me-1"></i>${dateStr}
+          </p>
+          <p class="mb-0">
+            <i class="fas fa-clock me-1"></i>${slotInfo.startTime} - ${slotInfo.endTime}
+            ${slotInfo.time ? `(${gettext('Slot')}: ${slotInfo.time})` : ''}
+          </p>
+        </div>
+        
+        ${slotInfo.peopleCount > 1 ? `
+        <div class="mb-3">
+          <h6>${gettext('People')}</h6>
+          <p class="mb-0">
+            <i class="fas fa-users me-1"></i>${slotInfo.peopleCount} ${gettext('people')}
+          </p>
+        </div>
+        ` : ''}
+      `;
+      
+      // Set link to rental detail page
+      const goToRentalLink = document.getElementById('calendarSlotGoToRental');
+      if (slotInfo.rentalId) {
+        goToRentalLink.href = `/rental/rental/${slotInfo.rentalId}/`;
+        goToRentalLink.style.display = 'inline-block';
+      } else {
+        goToRentalLink.style.display = 'none';
+      }
+      
+      // Show modal
+      const bsModal = new bootstrap.Modal(modal);
+      bsModal.show();
     }
 
     renderTimeline(rooms, date) {
@@ -2227,14 +2356,26 @@ document.addEventListener('DOMContentLoaded', function() {
             const gridColumn = group.startIndex + 1; // +1 because grid starts from 1
             const gridSpan = group.slots.length;
 
-            html += `<div class="timeline-slot occupied grouped" style="grid-column: ${gridColumn} / span ${gridSpan};" title="${this.getGroupedSlotTooltip(group)}">`;
-            html += `<div class="slot-details">`;
+            // Get rental_request_id from first slot in group
+            const rentalId = group.slots && group.slots[0] && group.slots[0].info ? (group.slots[0].info.rental_request_id || '') : '';
             const userName = group.userName || gettext('Unknown user');
             const project = group.project || gettext('No project');
             const status = group.status || 'unknown';
             const peopleCount = group.peopleCount || 1;
             const startTime = group.startTime || '';
             const endTime = group.endTime || '';
+            
+            html += `<div class="timeline-slot occupied grouped clickable-slot" 
+                     style="grid-column: ${gridColumn} / span ${gridSpan}; cursor: pointer;" 
+                     title="${this.getGroupedSlotTooltip(group)}"
+                     data-rental-id="${rentalId}"
+                     data-user-name="${userName.replace(/"/g, '&quot;')}"
+                     data-project="${project.replace(/"/g, '&quot;')}"
+                     data-status="${status}"
+                     data-people-count="${peopleCount}"
+                     data-start-time="${startTime}"
+                     data-end-time="${endTime}">`;
+            html += `<div class="slot-details">`;
 
             html += `<div class="user-name">${userName}</div>`;
             html += `<div class="project-name">${project}</div>`;
@@ -2245,6 +2386,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (startTime && endTime) {
               html += `<div class="time-range"><i class="fas fa-clock me-1"></i>${startTime}-${endTime}</div>`;
             }
+            html += `<div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fas fa-info-circle"></i> ${gettext('Click for details')}</div>`;
             html += `</div>`;
             html += '</div>';
           } else {
@@ -2265,6 +2407,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
       html += '</div>';
       container.innerHTML = html;
+      
+      // Bind click handlers for timeline occupied slots
+      container.querySelectorAll('.timeline-slot.clickable-slot').forEach(slot => {
+        slot.addEventListener('click', (e) => {
+          const rentalId = slot.dataset.rentalId;
+          const userName = slot.dataset.userName || gettext('Unknown user');
+          const project = slot.dataset.project || gettext('No project');
+          const status = slot.dataset.status || 'unknown';
+          const peopleCount = slot.dataset.peopleCount || 1;
+          const startTime = slot.dataset.startTime || '';
+          const endTime = slot.dataset.endTime || '';
+          
+          this.showCalendarSlotDetails({
+            rentalId: rentalId,
+            userName: userName,
+            project: project,
+            status: status,
+            peopleCount: parseInt(peopleCount) || 1,
+            startTime: startTime,
+            endTime: endTime
+          });
+        });
+      });
     }
 
     groupConsecutiveSlots(slots) {
@@ -3227,12 +3392,22 @@ document.addEventListener('DOMContentLoaded', function() {
               const roomCapacity = roomRental.room && roomRental.room.capacity ? roomRental.room.capacity : gettext('Unknown');
               const peopleCount = roomRental.people_count || 0;
               const notes = roomRental.notes || '-';
+              
+              // Format room-specific dates if available
+              let roomDates = '';
+              if (roomRental.requested_start_date && roomRental.requested_end_date) {
+                const startDate = new Date(roomRental.requested_start_date);
+                const endDate = new Date(roomRental.requested_end_date);
+                const startStr = startDate.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const endStr = endDate.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                roomDates = `<br><small class="text-info"><i class="fas fa-calendar me-1"></i>${startStr} - ${endStr}</small>`;
+              }
 
               html += `
                 <tr>
                   <td>
                     <strong>${roomName}</strong><br>
-                    <small class="text-muted">[${roomLocation}]</small>
+                    <small class="text-muted">[${roomLocation}]</small>${roomDates}
                   </td>
                   <td>${roomCapacity} ${gettext('people')}</td>
                   <td>${peopleCount} ${gettext('people')}</td>
@@ -3292,6 +3467,13 @@ document.addEventListener('DOMContentLoaded', function() {
           this.showIssueFromReservationModal(rentalId);
         });
       });
+
+      container.querySelectorAll('.return-rental-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const rentalId = e.currentTarget.dataset.rentalId;
+          this.showDetailedReturnModal(rentalId);
+        });
+      });
     }
 
     getRentalActionButtons(rental, type) {
@@ -3317,6 +3499,19 @@ document.addEventListener('DOMContentLoaded', function() {
                   title="${gettext('Print rental')}">
               <i class="fas fa-print"></i>
           </button>`;
+      }
+
+      // Return button for issued rentals with items
+      if (rental.status === 'issued' && rental.items && rental.items.length > 0) {
+        const hasOutstandingItems = rental.items.some(item => (item.outstanding || 0) > 0);
+        if (hasOutstandingItems) {
+          buttons += `
+            <button class="btn btn-sm btn-outline-primary return-rental-btn me-1"
+                    data-rental-id="${rental.id}"
+                    title="${gettext('Return items')}">
+                <i class="fas fa-undo"></i>
+            </button>`;
+        }
       }
 
       // Extend button for reserved or issued rentals
@@ -4047,16 +4242,24 @@ document.addEventListener('DOMContentLoaded', function() {
             this.currentIssueRental = rental;
 
             // Check if rental has equipment items
+            // For mixed rentals, we can issue equipment even if rooms are present
+            // Rooms will remain reserved and auto-return
             if (!rental.items || rental.items.length === 0) {
                 alert(gettext('This rental has no equipment items. Only equipment can be issued from reservation.'));
                 return;
+            }
+            
+            // Show info for mixed rentals
+            if (rental.rental_type === 'mixed' && rental.rooms && rental.rooms.length > 0) {
+                // Info will be shown in modal about rooms remaining reserved
             }
 
             // Load staff users for dropdown
             await this.loadStaffUsers();
 
-            // Render items in the modal
+            // Render items and rooms in the modal
             this.renderIssueItems(rental);
+            this.renderIssueRooms(rental);
 
             // Set default dates and times
             const startDate = new Date(rental.requested_start_date);
@@ -4466,16 +4669,31 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('issueRoomsList');
         if (!container) return;
 
-        if (!rental.room_rentals || rental.room_rentals.length === 0) {
+        // Handle both room_rentals and rooms formats
+        const rooms = rental.room_rentals || rental.rooms || [];
+        
+        if (!rooms || rooms.length === 0) {
             container.innerHTML = `<p class="text-muted">${gettext('No rooms in this rental.')}</p>`;
             return;
         }
 
         let html = '';
-        rental.room_rentals.forEach(roomRental => {
+        rooms.forEach(roomRental => {
             const room = roomRental.room || roomRental;
             const roomName = room.name || room.description || gettext('Unknown room');
-            const roomNumber = room.room_number || gettext('N/A');
+            const roomNumber = room.room_number || room.number || gettext('N/A');
+            const peopleCount = roomRental.people_count || room.people_count || 1;
+            const capacity = room.capacity || gettext('N/A');
+            
+            // Format room-specific dates if available
+            let roomDates = '';
+            if (roomRental.requested_start_date && roomRental.requested_end_date) {
+                const startDate = new Date(roomRental.requested_start_date);
+                const endDate = new Date(roomRental.requested_end_date);
+                const startStr = startDate.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const endStr = endDate.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                roomDates = `<br><small class="text-info"><i class="fas fa-calendar me-1"></i>${startStr} - ${endStr}</small>`;
+            }
 
             html += `
                 <div class="card mb-2">
@@ -4483,11 +4701,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="row align-items-center">
                             <div class="col-md-8">
                                 <strong>${roomName}</strong><br>
-                                <small class="text-muted">[${roomNumber}]</small>
+                                <small class="text-muted">${gettext('Capacity')}: ${capacity} ${gettext('people')}</small><br>
+                                <small class="text-muted">${gettext('Booked')}: ${peopleCount} ${gettext('people')}</small>${roomDates}
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label form-label-sm">${gettext('Status')}:</label>
-                                <span class="badge bg-info">${gettext('Reserved')}</span>
+                                <span class="badge bg-info">${gettext('Reserved')}</span><br>
+                                <small class="text-muted">${gettext('Auto-return')}</small>
                             </div>
                         </div>
                     </div>

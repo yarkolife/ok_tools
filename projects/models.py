@@ -290,7 +290,7 @@ class Project(models.Model):
         tn_age_sum = sum([
             self.tn_0_bis_6, self.tn_7_bis_10, self.tn_11_bis_14,
             self.tn_15_bis_18, self.tn_19_bis_34, self.tn_35_bis_50,
-            self.tn_51_bis_65, self.tn_ueber_65])
+            self.tn_51_bis_65, self.tn_ueber_65, self.tn_age_not_given])
         tn_gender_sum = sum([
             self.tn_female, self.tn_male,
             self.tn_gender_not_given, self.tn_diverse])

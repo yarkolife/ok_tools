@@ -149,45 +149,321 @@ class RentalService:
         return available_rooms
     
     @staticmethod
+    @transaction.atomic
     def create_rental_request(
-        user,
-        created_by,
-        project_name: str,
-        purpose: str,
-        start_date: datetime,
-        end_date: datetime,
+        data_or_user,
+        created_by_or_user=None,
+        project_name_or_created_by=None,
+        purpose: Optional[str] = None,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
         rental_type: str = 'equipment',
-        notes: str = ''
-    ) -> RentalRequest:
+        notes: str = '',
+        **kwargs
+    ):
         """
         Create a new rental request.
         
-        Args:
-            user: The user requesting the rental
-            created_by: The user creating the rental request
-            project_name: Name of the project
-            purpose: Purpose of the rental
-            start_date: Start date of the rental
-            end_date: End date of the rental
-            rental_type: Type of rental (equipment, room, mixed)
-            notes: Additional notes
+        Can be called in two ways:
+        1. With data dictionary (new API):
+           create_rental_request(data, user, created_by, is_user_request=False)
+        2. With individual parameters (old API):
+           create_rental_request(user, created_by, project_name, purpose, start_date, end_date, rental_type, notes)
+        
+        Args (new API):
+            data_or_user: Dictionary containing rental data (new API) or user object (old API)
+            created_by_or_user: User creating the rental (new API) or created_by (old API)
+            project_name_or_created_by: Not used (new API) or project_name (old API)
+            purpose: Not used (new API) or purpose (old API)
+            start_date: Not used (new API) or start_date (old API)
+            end_date: Not used (new API) or end_date (old API)
+            rental_type: Not used (new API) or rental_type (old API)
+            notes: Not used (new API) or notes (old API)
+            **kwargs: Additional keyword arguments including is_user_request (new API only)
             
         Returns:
-            RentalRequest: The created rental request
+            RentalRequest: The created rental request (old API)
+            dict: Result with success status, rental_id or error message (new API)
         """
-        rental_request = RentalRequest.objects.create(
-            user=user,
-            created_by=created_by,
-            project_name=project_name,
-            purpose=purpose,
-            requested_start_date=start_date,
-            requested_end_date=end_date,
-            rental_type=rental_type,
-            notes=notes,
-            status='draft'
-        )
+        # Extract is_user_request from kwargs if present
+        is_user_request = kwargs.get('is_user_request', False)
         
-        return rental_request
+        # Detect which API is being used by checking if first parameter is a dict
+        if isinstance(data_or_user, dict):
+            # New API: create_rental_request(data, user, created_by, is_user_request)
+            data = data_or_user
+            user = created_by_or_user
+            created_by = project_name_or_created_by
+            
+            return RentalService._create_rental_request_from_data(data, user, created_by, is_user_request)
+        else:
+            # Old API: create_rental_request(user, created_by, project_name, purpose, start_date, end_date, rental_type, notes)
+            user = data_or_user
+            created_by = created_by_or_user
+            project_name = project_name_or_created_by
+            
+            rental_request = RentalRequest.objects.create(
+                user=user,
+                created_by=created_by,
+                project_name=project_name,
+                purpose=purpose,
+                requested_start_date=start_date,
+                requested_end_date=end_date,
+                rental_type=rental_type,
+                notes=notes,
+                status='draft'
+            )
+            
+            return rental_request
+    
+    @staticmethod
+    @transaction.atomic
+    def _create_rental_request_from_data(
+        data: Dict[str, Any],
+        user,
+        created_by,
+        is_user_request: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Create a new rental request from data dictionary.
+        
+        Args:
+            data: Dictionary containing rental data:
+                - project_name: str
+                - purpose: str
+                - start_date: str (ISO format)
+                - end_date: str (ISO format)
+                - action: str ('draft', 'reserved', 'issued')
+                - items: List[Dict] with inventory_item_id, quantity_requested, notes
+                - rooms: List[Dict] with room_id, people_count, notes
+                - rental_type: str (optional, auto-detected if not provided)
+                - notes: str (optional)
+            user: The user requesting the rental
+            created_by: The user creating the rental request
+            is_user_request: Whether this is a user-initiated request
+            
+        Returns:
+            dict: Result with success status, rental_id or error message
+        """
+        from django.utils.dateparse import parse_datetime
+        from django.utils.translation import gettext_lazy as _
+        
+        try:
+            # Extract and validate required fields
+            project_name = data.get('project_name', '').strip()
+            purpose = data.get('purpose', '').strip()
+            start_date_str = data.get('start_date')
+            end_date_str = data.get('end_date')
+            action = data.get('action', 'draft')  # draft, reserved, issued
+            items = data.get('items', [])
+            rooms = data.get('rooms', [])
+            notes = data.get('notes', '').strip()
+            
+            if not project_name:
+                return {'success': False, 'error': _('Project name is required')}
+            if not purpose:
+                return {'success': False, 'error': _('Purpose is required')}
+            if not start_date_str or not end_date_str:
+                return {'success': False, 'error': _('Start date and end date are required')}
+            
+            # Parse dates
+            start_date = parse_datetime(start_date_str)
+            end_date = parse_datetime(end_date_str)
+            
+            if not start_date:
+                # Try parsing as date only and add default time
+                from django.utils.dateparse import parse_date
+                date_only = parse_date(start_date_str.split('T')[0] if 'T' in start_date_str else start_date_str)
+                if date_only:
+                    start_date = timezone.make_aware(datetime.combine(date_only, datetime.min.time()))
+            
+            if not end_date:
+                from django.utils.dateparse import parse_date
+                date_only = parse_date(end_date_str.split('T')[0] if 'T' in end_date_str else end_date_str)
+                if date_only:
+                    end_date = timezone.make_aware(datetime.combine(date_only, datetime.max.time()))
+            
+            if not start_date or not end_date:
+                return {'success': False, 'error': _('Invalid date format')}
+            
+            # Ensure timezone-aware
+            if timezone.is_naive(start_date):
+                start_date = timezone.make_aware(start_date)
+            if timezone.is_naive(end_date):
+                end_date = timezone.make_aware(end_date)
+            
+            if end_date <= start_date:
+                return {'success': False, 'error': _('End date must be after start date')}
+            
+            # Validate that at least items or rooms are provided
+            if not items and not rooms:
+                return {'success': False, 'error': _('Please select at least one item or room')}
+            
+            # Determine rental type
+            rental_type = data.get('rental_type')
+            if not rental_type:
+                if items and rooms:
+                    rental_type = 'mixed'
+                elif rooms:
+                    rental_type = 'room'
+                else:
+                    rental_type = 'equipment'
+            
+            # Validate action
+            if action not in ['draft', 'reserved', 'issued']:
+                action = 'draft'
+            
+            # For mixed rentals (rooms + equipment), if action is 'issued', 
+            # create as 'reserved' first - equipment can be issued separately
+            # Rooms always remain reserved and auto-return
+            if rooms and action == 'issued':
+                # Only change to reserved if there are no items (only rooms)
+                # If there are items, keep 'issued' - items will be issued, rooms remain reserved
+                if not items:
+                    action = 'reserved'
+                else:
+                    # Mixed rental: create as reserved, equipment can be issued later
+                    action = 'reserved'
+            
+            # Create rental request
+            rental_request = RentalRequest.objects.create(
+                user=user,
+                created_by=created_by,
+                project_name=project_name,
+                purpose=purpose,
+                requested_start_date=start_date,
+                requested_end_date=end_date,
+                rental_type=rental_type,
+                notes=notes,
+                status=action
+            )
+            
+            # Add items
+            if items:
+                for item_data in items:
+                    inventory_item_id = item_data.get('inventory_item_id') or item_data.get('inventory_id') or item_data.get('id')
+                    quantity_requested = item_data.get('quantity_requested') or item_data.get('quantity', 1)
+                    
+                    if not inventory_item_id:
+                        continue
+                    
+                    # Check user access
+                    if not RentalService.check_user_inventory_access(user, inventory_item_id):
+                        rental_request.delete()
+                        return {'success': False, 'error': _('User does not have access to one or more selected items')}
+                    
+                    # Check availability
+                    available_quantity = RentalService.get_available_quantity_for_period(
+                        inventory_item_id,
+                        start_date,
+                        end_date,
+                        rental_request.id
+                    )
+                    
+                    if available_quantity < quantity_requested:
+                        rental_request.delete()
+                        return {
+                            'success': False,
+                            'error': _('Item is not available for the selected period. Available: {available}, requested: {requested}').format(
+                                available=available_quantity,
+                                requested=quantity_requested
+                            )
+                        }
+                    
+                    # Create rental item
+                    rental_item = RentalItem.objects.create(
+                        rental_request=rental_request,
+                        inventory_item_id=inventory_item_id,
+                        quantity_requested=quantity_requested,
+                        quantity_issued=quantity_requested if action == 'issued' else 0,
+                        notes=item_data.get('notes', '')
+                    )
+                    
+                    # Create transaction for issued items
+                    if action == 'issued':
+                        RentalService.create_transaction(
+                            rental_item=rental_item,
+                            transaction_type='issue',
+                            quantity=quantity_requested,
+                            performed_by=created_by
+                        )
+            
+            # Add rooms
+            if rooms:
+                for room_data in rooms:
+                    room_id = room_data.get('room_id') or room_data.get('id')
+                    if not room_id:
+                        continue
+                    
+                    try:
+                        room = Room.objects.get(id=room_id)
+                    except Room.DoesNotExist:
+                        rental_request.delete()
+                        return {'success': False, 'error': _('Room not found')}
+                    
+                    # Get room-specific dates if provided, otherwise use general dates
+                    from django.utils.dateparse import parse_datetime
+                    from django.utils import timezone as tz
+                    
+                    room_start_date = start_date
+                    room_end_date = end_date
+                    
+                    # Check if room has specific dates
+                    if room_data.get('start_date') or room_data.get('start_time'):
+                        room_start_str = room_data.get('start_date', '')
+                        room_start_time = room_data.get('start_time', '00:00')
+                        if room_start_str:
+                            room_start_datetime_str = f"{room_start_str}T{room_start_time}"
+                            room_start_date_parsed = parse_datetime(room_start_datetime_str)
+                            if room_start_date_parsed:
+                                room_start_date = tz.make_aware(room_start_date_parsed) if tz.is_naive(room_start_date_parsed) else room_start_date_parsed
+                    
+                    if room_data.get('end_date') or room_data.get('end_time'):
+                        room_end_str = room_data.get('end_date', '')
+                        room_end_time = room_data.get('end_time', '23:59')
+                        if room_end_str:
+                            room_end_datetime_str = f"{room_end_str}T{room_end_time}"
+                            room_end_date_parsed = parse_datetime(room_end_datetime_str)
+                            if room_end_date_parsed:
+                                room_end_date = tz.make_aware(room_end_date_parsed) if tz.is_naive(room_end_date_parsed) else room_end_date_parsed
+                    
+                    # Check availability with room-specific dates
+                    if not RentalService.check_room_availability(
+                        room,
+                        room_start_date,
+                        room_end_date,
+                        rental_request.id
+                    ):
+                        rental_request.delete()
+                        return {'success': False, 'error': _('Room "{room_name}" is not available for the selected period').format(room_name=room.name)}
+                    
+                    # Create room rental with room-specific dates if different from general dates
+                    room_rental_data = {
+                        'rental_request': rental_request,
+                        'room': room,
+                        'people_count': room_data.get('people_count', 1),
+                        'notes': room_data.get('notes', '')
+                    }
+                    
+                    # Only set room-specific dates if they differ from general dates
+                    if room_start_date != start_date or room_end_date != end_date:
+                        room_rental_data['requested_start_date'] = room_start_date
+                        room_rental_data['requested_end_date'] = room_end_date
+                    
+                    RoomRental.objects.create(**room_rental_data)
+            
+            return {
+                'success': True,
+                'rental_id': rental_request.id,
+                'status': rental_request.status
+            }
+            
+        except Exception as e:
+            import traceback
+            return {
+                'success': False,
+                'error': str(e)
+            }
     
     @staticmethod
     def add_items_to_rental_request(
@@ -242,29 +518,62 @@ class RentalService:
         Args:
             rental_request: The rental request to add rooms to
             rooms_data: List of dictionaries containing room data
-                        (room_id, people_count, notes)
+                        (room_id, people_count, notes, start_date, end_date - optional)
                         
         Returns:
             List[RoomRental]: List of created room rentals
         """
+        from django.utils.dateparse import parse_datetime
+        from django.utils import timezone as tz
+        
         room_rentals = []
         
         for room_data in rooms_data:
             room = Room.objects.get(id=room_data['room_id'])
             
-            # Check availability
+            # Get room-specific dates if provided, otherwise use rental request dates
+            room_start_date = rental_request.requested_start_date
+            room_end_date = rental_request.requested_end_date
+            
+            # Check if room has specific dates
+            if room_data.get('start_date') or room_data.get('start_time'):
+                room_start_str = room_data.get('start_date', '')
+                room_start_time = room_data.get('start_time', '00:00')
+                if room_start_str:
+                    room_start_datetime_str = f"{room_start_str}T{room_start_time}"
+                    room_start_date_parsed = parse_datetime(room_start_datetime_str)
+                    if room_start_date_parsed:
+                        room_start_date = tz.make_aware(room_start_date_parsed) if tz.is_naive(room_start_date_parsed) else room_start_date_parsed
+            
+            if room_data.get('end_date') or room_data.get('end_time'):
+                room_end_str = room_data.get('end_date', '')
+                room_end_time = room_data.get('end_time', '23:59')
+                if room_end_str:
+                    room_end_datetime_str = f"{room_end_str}T{room_end_time}"
+                    room_end_date_parsed = parse_datetime(room_end_datetime_str)
+                    if room_end_date_parsed:
+                        room_end_date = tz.make_aware(room_end_date_parsed) if tz.is_naive(room_end_date_parsed) else room_end_date_parsed
+            
+            # Check availability with room-specific dates
             if RentalService.check_room_availability(
                 room,
-                rental_request.requested_start_date,
-                rental_request.requested_end_date,
+                room_start_date,
+                room_end_date,
                 rental_request.id if rental_request.id else None
             ):
-                room_rental = RoomRental.objects.create(
-                    rental_request=rental_request,
-                    room=room,
-                    people_count=room_data['people_count'],
-                    notes=room_data.get('notes', '')
-                )
+                room_rental_data = {
+                    'rental_request': rental_request,
+                    'room': room,
+                    'people_count': room_data.get('people_count', 1),
+                    'notes': room_data.get('notes', '')
+                }
+                
+                # Only set room-specific dates if they differ from rental request dates
+                if room_start_date != rental_request.requested_start_date or room_end_date != rental_request.requested_end_date:
+                    room_rental_data['requested_start_date'] = room_start_date
+                    room_rental_data['requested_end_date'] = room_end_date
+                
+                room_rental = RoomRental.objects.create(**room_rental_data)
                 room_rentals.append(room_rental)
         
         return room_rentals
@@ -671,12 +980,16 @@ class RentalService:
                     ri.save(update_fields=['actual_return_date'])
                     
                     req = ri.rental_request
-                    # Check if all items in the rental request are returned
-                    open_left = any((x.quantity_issued or 0) > (x.quantity_returned or 0) for x in req.items.all())
-                    if not open_left:
-                        req.status = 'returned'
-                        req.actual_end_date = timezone.now()
-                        req.save(update_fields=['status', 'actual_end_date'])
+                    # Check if all equipment items in the rental request are returned
+                    # Note: Rooms are handled separately via automatic expiration
+                    # For mixed rentals, we only check equipment items for 'returned' status
+                    has_equipment = req.items.exists()
+                    if has_equipment:
+                        open_left = any((x.quantity_issued or 0) > (x.quantity_returned or 0) for x in req.items.all())
+                        if not open_left:
+                            req.status = 'returned'
+                            req.actual_end_date = timezone.now()
+                            req.save(update_fields=['status', 'actual_end_date'])
             
             return {'success': True}
         except Exception as e:

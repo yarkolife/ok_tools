@@ -145,3 +145,6 @@ deployment/reports/
 # SSH keys
 y
 y.pub
+
+# Local Docker setup
+docker-local/

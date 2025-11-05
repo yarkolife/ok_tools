@@ -6,6 +6,7 @@ from .models import ProjectLeader
 from .models import TargetGroup
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib import admin
+from django.contrib import messages
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
@@ -330,6 +331,34 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
             'description': _('Enter the number of participants by gender. Total must match age group totals.')
         }),
     )
+
+    actions = ['duplicate_project']
+
+    @admin.action(description=_('Create a copy of selected projects'))
+    def duplicate_project(self, request, queryset):
+        """Create a copy of selected projects."""
+        count = queryset.count()
+        
+        for obj in queryset:
+            # Save ManyToManyField data before copying
+            media_education_supervisors = list(obj.media_education_supervisors.all())
+            
+            # Reset id to create a new instance
+            obj.pk = None
+            obj._state.adding = True
+            
+            # Save the new project
+            obj.save()
+            
+            # Restore ManyToManyField relationships
+            obj.media_education_supervisors.set(media_education_supervisors)
+        
+        self.message_user(
+            request,
+            _('%(count)d project copy was successfully created.') % {'count': count} if count == 1
+            else _('%(count)d project copies were successfully created.') % {'count': count},
+            messages.SUCCESS
+        )
 
     def get_urls(self):
         """Add the ics_export_view to the admin urls."""

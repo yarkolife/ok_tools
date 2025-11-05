@@ -301,7 +301,12 @@ class DirectInventoryService(InventoryServiceInterface):
             try:
                 from registration.models import OKUser
                 user = OKUser.objects.get(id=user_id)
-                if hasattr(user, 'profile') and user.profile and user.profile.member:
+                
+                # Staff users (Mitarbeiter) have access to all items
+                if user.is_staff:
+                    # No filtering needed - staff can access all items
+                    pass
+                elif hasattr(user, 'profile') and user.profile and user.profile.member:
                     # Member can access state institution + organization
                     state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
                     organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
@@ -324,19 +329,30 @@ class DirectInventoryService(InventoryServiceInterface):
         
         # Convert to list of dictionaries
         items = []
-        for item in query:
+        for item in query.select_related('manufacturer', 'category', 'location', 'owner'):
             items.append({
                 'id': item.id,
                 'inventory_number': item.inventory_number,
                 'description': item.description,
-                'manufacturer': item.manufacturer,
-                'location': item.location.id if item.location else None,
+                'manufacturer': item.manufacturer.name if item.manufacturer else None,
+                'location': {
+                    'id': item.location.id,
+                    'name': item.location.name,
+                    'full_path': item.location.full_path
+                } if item.location else None,
                 'quantity': item.quantity,
                 'status': item.status,
-                'owner': item.owner.id if item.owner else None,
+                'owner': {
+                    'id': item.owner.id,
+                    'name': item.owner.name
+                } if item.owner else None,
                 'available_for_rent': item.available_for_rent,
                 'reserved_quantity': item.reserved_quantity,
-                'rented_quantity': item.rented_quantity
+                'rented_quantity': item.rented_quantity,
+                'category': {
+                    'id': item.category.id,
+                    'name': item.category.name
+                } if item.category else None
             })
         
         return items
@@ -377,6 +393,10 @@ class DirectInventoryService(InventoryServiceInterface):
             # If item is not available for rent, no one can access it
             if not item.available_for_rent or item.status != 'in_stock':
                 return False
+            
+            # Staff users (Mitarbeiter) have access to all items
+            if user.is_staff:
+                return True
             
             # Check ownership-based access
             if hasattr(user, 'profile') and user.profile and user.profile.member:

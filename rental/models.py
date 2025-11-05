@@ -104,6 +104,10 @@ class RentalRequest(models.Model):
         if not getattr(inventory_item, 'available_for_rent', False):
             return False
 
+        # Staff users (Mitarbeiter) have access to all items
+        if getattr(self.user, 'is_staff', False):
+            return True
+
         # Profile can be null in rare cases — protect against it
         user_profile = getattr(self.user, 'profile', None)
         owner_name = inventory_item.owner.name if getattr(inventory_item, 'owner', None) else ""
@@ -574,8 +578,9 @@ class Room(models.Model):
 
         # Check time conflicts
         for rental in conflicting_rentals:
-            rental_start = rental.rental_request.requested_start_date
-            rental_end = rental.rental_request.requested_end_date
+            # Use room-specific dates if available, otherwise use rental request dates
+            rental_start = rental.get_start_date()
+            rental_end = rental.get_end_date()
 
             # Check time interval overlap
             if rental_start and rental_end:
@@ -613,8 +618,9 @@ class Room(models.Model):
         # Filter by time overlap
         conflicts = []
         for rental in conflicting_rentals:
-            rental_start = rental.rental_request.requested_start_date
-            rental_end = rental.rental_request.requested_end_date
+            # Use room-specific dates if available, otherwise use rental request dates
+            rental_start = rental.get_start_date()
+            rental_end = rental.get_end_date()
 
             if rental_start and rental_end:
                 if (start_date < rental_end and end_date > rental_start):
@@ -641,6 +647,18 @@ class RoomRental(models.Model):
         verbose_name=_('Number of people'),
         help_text=_('Number of people using the room'),
     )
+    requested_start_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Requested start date'),
+        help_text=_('Room rental start date. If not specified, uses rental request start date.'),
+    )
+    requested_end_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Requested end date'),
+        help_text=_('Room rental end date. If not specified, uses rental request end date.'),
+    )
     notes = models.TextField(
         blank=True,
         verbose_name=_('Notes'),
@@ -658,15 +676,25 @@ class RoomRental(models.Model):
         """Return human-readable representation."""
         return f"{self.room.name} - {self.rental_request.project_name}"
 
+    def get_start_date(self):
+        """Get start date for this room rental.
+        
+        Returns room-specific date if set, otherwise falls back to rental request date.
+        """
+        return self.requested_start_date or (self.rental_request.requested_start_date if self.rental_request else None)
+    
+    def get_end_date(self):
+        """Get end date for this room rental.
+        
+        Returns room-specific date if set, otherwise falls back to rental request date.
+        """
+        return self.requested_end_date or (self.rental_request.requested_end_date if self.rental_request else None)
+
     @property
     def is_expired(self) -> bool:
         """Check if room rental time has expired."""
         from django.utils import timezone
-        if not self.rental_request:
-            return False
-
-        # Get end time from rental_request
-        end_datetime = self.rental_request.requested_end_date
+        end_datetime = self.get_end_date()
         if not end_datetime:
             return False
 
@@ -676,12 +704,11 @@ class RoomRental(models.Model):
     def time_until_expiry(self) -> int:
         """Return number of minutes until rental expires."""
         from django.utils import timezone
-        if not self.rental_request or not self.rental_request.requested_end_date:
+        end_time = self.get_end_date()
+        if not end_time:
             return 0
 
         now = timezone.now()
-        end_time = self.rental_request.requested_end_date
-
         if now >= end_time:
             return 0
 

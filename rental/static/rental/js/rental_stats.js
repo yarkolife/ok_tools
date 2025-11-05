@@ -468,14 +468,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (day.slots && day.slots[i]) {
                         const slot = day.slots[i];
                         const slotClass = slot.status === 'occupied' ? 'occupied' : 'available';
-                        const title = slot.info ? `${slot.info.user_name} (${slot.info.start_time}-${slot.info.end_time})` : '';
+                        const title = slot.info ? `${slot.info.user_name} (${slot.info.start_time || ''}-${slot.info.end_time || ''})` : '';
+                        
+                        // Make occupied slots clickable
+                        const clickableClass = slot.status === 'occupied' && slot.info ? 'clickable-slot' : '';
+                        const dataAttrs = slot.status === 'occupied' && slot.info
+                          ? `data-rental-id="${slot.info.rental_request_id || slot.info.id || ''}" 
+                             data-user-name="${(slot.info.user_name || '').replace(/"/g, '&quot;')}" 
+                             data-project="${(slot.info.project || '').replace(/"/g, '&quot;')}" 
+                             data-status="${slot.info.status || ''}" 
+                             data-start="${slot.info.start || ''}" 
+                             data-end="${slot.info.end || ''}" 
+                             data-start-time="${slot.info.start_time || ''}" 
+                             data-end-time="${slot.info.end_time || ''}" 
+                             data-user-email="${(slot.info.user_email || '').replace(/"/g, '&quot;')}" 
+                             data-date="${day.date || ''}" 
+                             data-time="${time}"`
+                          : '';
 
-                        html += `<div class="calendar-cell ${slotClass}" title="${title}">`;
+                        html += `<div class="calendar-cell ${slotClass} ${clickableClass}" title="${title}" ${dataAttrs}>`;
                         if (slot.status === 'occupied' && slot.info) {
                             html += `<div class="slot-info">`;
                             html += `<small class="d-block">${slot.info.user_name}</small>`;
                             html += `<small class="d-block text-muted">${slot.info.project || ''}</small>`;
                             html += `<small class="badge bg-${this.getStatusColor(slot.info.status)} text-white">${this.getStatusText(slot.info.status)}</small>`;
+                            html += `<small class="d-block text-muted mt-1"><i class="fas fa-info-circle"></i> ${gettext('Click for details')}</small>`;
                             html += `</div>`;
                         }
                         html += '</div>';
@@ -488,6 +505,136 @@ document.addEventListener('DOMContentLoaded', function() {
 
             html += '</div>';
             container.innerHTML = html;
+            
+            // Bind click handlers for occupied slots
+            container.querySelectorAll('.clickable-slot').forEach(slot => {
+                slot.style.cursor = 'pointer';
+                slot.addEventListener('click', (e) => {
+                    const rentalId = slot.dataset.rentalId;
+                    const userName = slot.dataset.userName || gettext('Unknown user');
+                    const project = slot.dataset.project || gettext('No project');
+                    const status = slot.dataset.status || 'unknown';
+                    const start = slot.dataset.start || '';
+                    const end = slot.dataset.end || '';
+                    const startTime = slot.dataset.startTime || '';
+                    const endTime = slot.dataset.endTime || '';
+                    const userEmail = slot.dataset.userEmail || '';
+                    const date = slot.dataset.date || '';
+                    const time = slot.dataset.time || '';
+                    
+                    this.showCalendarSlotDetails({
+                        rentalId,
+                        userName,
+                        userEmail,
+                        project,
+                        status,
+                        start,
+                        end,
+                        startTime,
+                        endTime,
+                        date,
+                        time
+                    });
+                });
+            });
+        }
+        
+        showCalendarSlotDetails(slotInfo) {
+            // Format date
+            let dateStr = '';
+            if (slotInfo.date) {
+                try {
+                    const date = new Date(slotInfo.date);
+                    dateStr = date.toLocaleDateString('de-DE', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric',
+                        weekday: 'short'
+                    });
+                } catch (e) {
+                    dateStr = slotInfo.date;
+                }
+            }
+            
+            // Create or get modal
+            let modal = document.getElementById('calendarSlotDetailsModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'calendarSlotDetailsModal';
+                modal.className = 'modal fade';
+                modal.innerHTML = `
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-calendar-check me-2"></i>${gettext('Booking Details')}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" id="calendarSlotDetailsContent">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${gettext('Close')}</button>
+                                <a href="#" id="calendarSlotGoToRental" class="btn btn-primary" target="_blank" style="color: white !important; text-decoration: none;">
+                                    <i class="fas fa-external-link-alt me-1"></i>${gettext('Go to Rental Process')}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            
+            // Fill content
+            const content = document.getElementById('calendarSlotDetailsContent');
+            const statusColor = this.getStatusColor(slotInfo.status);
+            const statusText = this.getStatusText(slotInfo.status);
+            
+            content.innerHTML = `
+                <div class="mb-3">
+                    <h6>${gettext('User')}</h6>
+                    <p class="mb-1"><strong>${slotInfo.userName}</strong></p>
+                    ${slotInfo.userEmail ? `<p class="text-muted mb-0"><small>${slotInfo.userEmail}</small></p>` : ''}
+                </div>
+                
+                <div class="mb-3">
+                    <h6>${gettext('Project')}</h6>
+                    <p class="mb-0">${slotInfo.project}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>${gettext('Status')}</h6>
+                    <span class="badge bg-${statusColor} text-white">${statusText}</span>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>${gettext('Time Period')}</h6>
+                    ${slotInfo.start && slotInfo.end ? `
+                        <p class="mb-1">
+                            <i class="fas fa-calendar me-1"></i>${slotInfo.start} - ${slotInfo.end}
+                        </p>
+                    ` : ''}
+                    ${slotInfo.startTime && slotInfo.endTime ? `
+                        <p class="mb-0">
+                            <i class="fas fa-clock me-1"></i>${slotInfo.startTime} - ${slotInfo.endTime}
+                            ${slotInfo.time ? `(${gettext('Slot')}: ${slotInfo.time})` : ''}
+                        </p>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Set link to rental detail page
+            const goToRentalLink = document.getElementById('calendarSlotGoToRental');
+            if (slotInfo.rentalId) {
+                goToRentalLink.href = `/rental/rental/${slotInfo.rentalId}/`;
+                goToRentalLink.style.display = 'inline-block';
+            } else {
+                goToRentalLink.style.display = 'none';
+            }
+            
+            // Show modal
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
         }
 
         renderItemsSummary(rental) {

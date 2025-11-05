@@ -69,10 +69,17 @@ def invalidate_dashboard_cache():
             keys = redis_conn.keys(f"*{pattern}*")
             if keys:
                 redis_conn.delete(*keys)
-    except ImportError:
+    except (ImportError, NotImplementedError, AttributeError, Exception) as e:
         # Fallback to simple cache clearing if redis-redis is not available
+        # or if backend doesn't support this feature
         # This is less efficient but will work
-        cache.clear()
+        try:
+            cache.clear()
+        except Exception:
+            # If even cache.clear() fails, just log and continue
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Cache invalidation failed: {e}")
 
 
 @receiver(post_save, sender=License)
@@ -150,9 +157,12 @@ def invalidate_license_related_cache():
             keys = redis_conn.keys(f"*{pattern}*")
             if keys:
                 redis_conn.delete(*keys)
-    except ImportError:
+    except (ImportError, NotImplementedError, AttributeError, Exception):
         # Fallback - clear all cache
-        cache.clear()
+        try:
+            cache.clear()
+        except Exception:
+            pass
 
 
 def invalidate_contribution_related_cache():
@@ -173,9 +183,12 @@ def invalidate_contribution_related_cache():
             keys = redis_conn.keys(f"*{pattern}*")
             if keys:
                 redis_conn.delete(*keys)
-    except ImportError:
+    except (ImportError, NotImplementedError, AttributeError, Exception):
         # Fallback - clear all cache
-        cache.clear()
+        try:
+            cache.clear()
+        except Exception:
+            pass
 
 
 def invalidate_project_related_cache():
@@ -200,9 +213,12 @@ def invalidate_project_related_cache():
             keys = redis_conn.keys(f"*{pattern}*")
             if keys:
                 redis_conn.delete(*keys)
-    except ImportError:
+    except (ImportError, NotImplementedError, AttributeError, Exception):
         # Fallback - clear all cache
-        cache.clear()
+        try:
+            cache.clear()
+        except Exception:
+            pass
 
 
 def invalidate_user_related_cache():
@@ -226,9 +242,12 @@ def invalidate_user_related_cache():
             keys = redis_conn.keys(f"*{pattern}*")
             if keys:
                 redis_conn.delete(*keys)
-    except ImportError:
+    except (ImportError, NotImplementedError, AttributeError, Exception):
         # Fallback - clear all cache
-        cache.clear()
+        try:
+            cache.clear()
+        except Exception:
+            pass
 
 
 def invalidate_quick_stats_cache():
@@ -245,6 +264,9 @@ def invalidate_quick_stats_cache():
             keys = redis_conn.keys(f"*{pattern}*")
             if keys:
                 redis_conn.delete(*keys)
-    except ImportError:
+    except (ImportError, NotImplementedError, AttributeError, Exception):
         # Fallback - clear all cache
-        cache.clear()
+        try:
+            cache.clear()
+        except Exception:
+            pass

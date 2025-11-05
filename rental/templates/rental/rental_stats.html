@@ -66,6 +66,8 @@
       .slot-free { background:#e8f5e9 !important; }
       .slot-busy { background:#ffebee !important; }
       #invDayTable td, #invWeekTable td { height: 28px; }
+      .clickable-slot { transition: all 0.2s ease; }
+      .clickable-slot:hover { background-color: #f1aeb5 !important; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transform: translateY(-1px); }
       .cell-note { font-size: 11px; line-height: 1.1; display:flex; align-items:center; justify-content:center; font-weight:600; }
       /* Single item modal */
       #singleInvTable { width: 100%; border-collapse: collapse; }
@@ -163,7 +165,15 @@
               if(len>1) td.colSpan = len;
               td.className = cur.status==='issued'?'slot-busy':(cur.status==='reserved'?'table-warning':'slot-free');
               if(cur.info){
-                td.title = `${cur.info.user_name} • ${cur.info.status} • ${cur.info.start}—${cur.info.end} (ID ${cur.info.id})`;
+                td.className += ' clickable-slot';
+                td.style.cursor = 'pointer';
+                td.title = `${cur.info.user_name} • ${cur.info.status} • ${cur.info.start}—${cur.info.end} (ID ${cur.info.id}) - Click for details`;
+                td.setAttribute('data-rental-id', cur.info.rental_request_id || cur.info.id || '');
+                td.setAttribute('data-user-name', cur.info.user_name || '');
+                td.setAttribute('data-project', cur.info.project || '');
+                td.setAttribute('data-status', cur.info.status || '');
+                td.setAttribute('data-start', cur.info.start || '');
+                td.setAttribute('data-end', cur.info.end || '');
                 const span = document.createElement('span');
                 span.className = 'cell-note';
                 span.textContent = cur.info.user_name;
@@ -173,6 +183,108 @@
               idx += len;
             }
             body.appendChild(tr);
+          });
+          
+          // Bind click handlers for clickable slots
+          body.querySelectorAll('.clickable-slot').forEach(td => {
+            // Remove existing listeners to avoid duplicates
+            const newTd = td.cloneNode(true);
+            td.parentNode.replaceChild(newTd, td);
+            
+            newTd.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const rentalId = this.getAttribute('data-rental-id');
+              const userName = this.getAttribute('data-user-name') || 'Unknown user';
+              const project = this.getAttribute('data-project') || 'No project';
+              const status = this.getAttribute('data-status') || 'unknown';
+              const periodStart = this.getAttribute('data-start') || '';
+              const periodEnd = this.getAttribute('data-end') || '';
+
+              if(!rentalId) {
+                console.warn('No rental ID found for slot');
+                return;
+              }
+              
+              // Helper function for translations
+              const t = (key) => {
+                const translations = {
+                  'Rental Details': 'Buchungsdetails',
+                  'User': 'Benutzer',
+                  'Project': 'Projekt',
+                  'Status': 'Status',
+                  'Period': 'Zeitraum',
+                  'Start': 'Start',
+                  'End': 'Ende',
+                  'Close': 'Schließen',
+                  'Go to Rental Process': 'Zum Buchungsprozess'
+                };
+                return translations[key] || key;
+              };
+
+              const periodHtml = (periodStart && periodEnd)
+                ? `<p><strong>${t('Period')}:</strong> ${periodStart} - ${periodEnd}</p>`
+                : '';
+              
+              // Show modal with details and link to rental process
+              // Remove any existing modal with the same ID first
+              const existingModal = document.getElementById('rentalSlotModal');
+              if (existingModal) {
+                const existingModalInstance = bootstrap.Modal.getInstance(existingModal);
+                if (existingModalInstance) {
+                  existingModalInstance.dispose();
+                }
+                existingModal.remove();
+              }
+              
+              const modalHtml = `
+                <div class="modal fade" id="rentalSlotModal" tabindex="-1" aria-labelledby="rentalSlotModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="rentalSlotModalLabel">${t('Rental Details')}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p><strong>${t('User')}:</strong> ${userName}</p>
+                        <p><strong>${t('Project')}:</strong> ${project}</p>
+                        <p><strong>${t('Status')}:</strong> ${status}</p>
+                        ${periodHtml || (periodStart ? `<p><strong>${t('Start')}:</strong> ${periodStart}</p>` : '')}
+                        ${(!periodHtml && periodEnd) ? `<p><strong>${t('End')}:</strong> ${periodEnd}</p>` : ''}
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${t('Close')}</button>
+                        <a href="/rental/rental/${rentalId}/" class="btn btn-primary" style="color: white; text-decoration: none;">${t('Go to Rental Process')}</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+              
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = modalHtml;
+              const modalElement = tempDiv.firstElementChild;
+              document.body.appendChild(modalElement);
+              
+              // Wait for DOM to be ready
+              setTimeout(() => {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                  const modal = new bootstrap.Modal(modalElement, {
+                    backdrop: true,
+                    keyboard: true
+                  });
+                  modal.show();
+                  
+                  modalElement.addEventListener('hidden.bs.modal', function() {
+                    const instance = bootstrap.Modal.getInstance(this);
+                    if (instance) {
+                      instance.dispose();
+                    }
+                    this.remove();
+                  });
+                } else {
+                  console.error('Bootstrap Modal is not available');
+                }
+              }, 10);
+            });
           });
         }
         async function loadWeek(){
@@ -227,11 +339,124 @@
               const td=document.createElement('td');
               if(span>1) td.colSpan = span;
               td.className = cur.status==='issued'?'slot-busy':(cur.status==='reserved'?'table-warning':'slot-free');
-              if(cur.user_name){ const spanEl=document.createElement('span'); spanEl.className='cell-note'; spanEl.textContent = cur.user_name; td.appendChild(spanEl); }
+              if(cur.info || cur.user_name){ 
+                const info = cur.info || cur;
+                td.className += ' clickable-slot';
+                td.style.cursor = 'pointer';
+                td.setAttribute('data-rental-id', info.rental_request_id || info.id || '');
+                td.setAttribute('data-user-name', info.user_name || cur.user_name || '');
+                td.setAttribute('data-project', info.project || '');
+                td.setAttribute('data-status', info.status || cur.status || '');
+                if (info.start) td.setAttribute('data-start', info.start);
+                if (info.end) td.setAttribute('data-end', info.end);
+                td.title = `${info.user_name || cur.user_name} • ${info.status || cur.status || ''} - Click for details`;
+                const spanEl=document.createElement('span'); spanEl.className='cell-note'; spanEl.textContent = info.user_name || cur.user_name; td.appendChild(spanEl); 
+              }
               tr.appendChild(td);
               i += span;
             }
             body.appendChild(tr);
+          });
+          
+          // Bind click handlers for clickable slots
+          body.querySelectorAll('.clickable-slot').forEach(td => {
+            // Remove existing listeners to avoid duplicates
+            const newTd = td.cloneNode(true);
+            td.parentNode.replaceChild(newTd, td);
+            
+            newTd.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const rentalId = this.getAttribute('data-rental-id');
+              const userName = this.getAttribute('data-user-name') || 'Unknown user';
+              const project = this.getAttribute('data-project') || 'No project';
+              const status = this.getAttribute('data-status') || 'unknown';
+              const periodStart = this.getAttribute('data-start') || '';
+              const periodEnd = this.getAttribute('data-end') || '';
+              
+              if(!rentalId) {
+                console.warn('No rental ID found for slot');
+                return;
+              }
+              
+              // Helper function for translations
+              const t = (key) => {
+                const translations = {
+                  'Rental Details': 'Buchungsdetails',
+                  'User': 'Benutzer',
+                  'Project': 'Projekt',
+                  'Status': 'Status',
+                  'Period': 'Zeitraum',
+                  'Start': 'Start',
+                  'End': 'Ende',
+                  'Close': 'Schließen',
+                  'Go to Rental Process': 'Zum Buchungsprozess'
+                };
+                return translations[key] || key;
+              };
+              
+              const periodHtml = (periodStart && periodEnd)
+                ? `<p><strong>${t('Period')}:</strong> ${periodStart} - ${periodEnd}</p>`
+                : '';
+
+              // Show modal with details and link to rental process
+              // Remove any existing modal with the same ID first
+              const existingModal = document.getElementById('rentalSlotModal');
+              if (existingModal) {
+                const existingModalInstance = bootstrap.Modal.getInstance(existingModal);
+                if (existingModalInstance) {
+                  existingModalInstance.dispose();
+                }
+                existingModal.remove();
+              }
+              
+              const modalHtml = `
+                <div class="modal fade" id="rentalSlotModal" tabindex="-1" aria-labelledby="rentalSlotModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="rentalSlotModalLabel">${t('Rental Details')}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p><strong>${t('User')}:</strong> ${userName}</p>
+                        <p><strong>${t('Project')}:</strong> ${project}</p>
+                        <p><strong>${t('Status')}:</strong> ${status}</p>
+                        ${periodHtml}
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${t('Close')}</button>
+                        <a href="/rental/rental/${rentalId}/" class="btn btn-primary" style="color: white; text-decoration: none;">${t('Go to Rental Process')}</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+              
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = modalHtml;
+              const modalElement = tempDiv.firstElementChild;
+              document.body.appendChild(modalElement);
+              
+              // Wait for DOM to be ready
+              setTimeout(() => {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                  const modal = new bootstrap.Modal(modalElement, {
+                    backdrop: true,
+                    keyboard: true
+                  });
+                  modal.show();
+                  
+                  modalElement.addEventListener('hidden.bs.modal', function() {
+                    const instance = bootstrap.Modal.getInstance(this);
+                    if (instance) {
+                      instance.dispose();
+                    }
+                    this.remove();
+                  });
+                } else {
+                  console.error('Bootstrap Modal is not available');
+                }
+              }, 10);
+            });
           });
         }
         document.addEventListener('shown.bs.modal', (e)=>{

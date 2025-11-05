@@ -291,6 +291,18 @@
     position: relative;
 }
 
+.calendar-cell.clickable-slot {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calendar-cell.clickable-slot:hover {
+    background-color: #f1aeb5;
+    border-color: #ee8894;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
 .calendar-cell.today {
     background-color: #fff3cd;
     border: 2px solid #ffc107;

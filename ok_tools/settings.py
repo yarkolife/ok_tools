@@ -441,6 +441,58 @@ BOOTSTRAP_CDN_URL = f"https://cdn.jsdelivr.net/npm/bootstrap@{BOOTSTRAP_VERSION}
 BOOTSTRAP_ICONS_VERSION = get_env('BOOTSTRAP_ICONS_VERSION', default='1.1.1')
 BOOTSTRAP_ICONS_URL = f"https://cdn.jsdelivr.net/npm/bootstrap-icons@{BOOTSTRAP_ICONS_VERSION}"
 
+# Cache Configuration
+# Get cache backend from environment or use Redis if available
+cache_backend = get_env('CACHE_BACKEND', default=None)
+cache_timeout = get_env('CACHE_TIMEOUT', default=300, cast=int)
+cache_location = get_env('CACHE_LOCATION', default=None)
+
+if cache_backend:
+    # Use configured backend from environment
+    CACHES = {
+        'default': {
+            'BACKEND': cache_backend,
+            'LOCATION': cache_location or 'cache',
+            'TIMEOUT': cache_timeout,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
+elif cache_location:
+    # Use Redis if location is specified
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': cache_location,
+            'TIMEOUT': cache_timeout,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
+else:
+    # Default: Use Redis from Celery broker URL (same Redis instance)
+    # Extract Redis URL from Celery broker
+    celery_broker = get_env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
+    # Use database 1 for cache (Celery uses database 0)
+    if 'redis://' in celery_broker:
+        # Replace database number with 1 for cache
+        cache_redis_url = celery_broker.rsplit('/', 1)[0] + '/1'
+    else:
+        cache_redis_url = 'redis://127.0.0.1:6379/1'
+    
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': cache_redis_url,
+            'TIMEOUT': cache_timeout,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
+
 # Celery Configuration
 CELERY_BROKER_URL = get_env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
 CELERY_RESULT_BACKEND = get_env('CELERY_RESULT_BACKEND', default='redis://127.0.0.1:6379/0')

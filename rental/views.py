@@ -289,6 +289,7 @@ def api_search_users(request):
 
     Searches for users based on profile information and returns
     user details including member status and permissions.
+    Also handles users without profiles (staff members).
 
     Args:
         request: HTTP request object with query parameter 'q'
@@ -297,32 +298,68 @@ def api_search_users(request):
         JsonResponse: List of matching users with their details
     """
     query = request.GET.get('q', '')
+    if not query:
+        return JsonResponse({'users': []})
+    
+    # Search by email first (works for all users, including those without profile)
+    # Then search by profile fields using LEFT JOIN to include users without profile
     users = OKUser.objects.select_related('profile').filter(
+        Q(email__icontains=query) |
         Q(profile__first_name__icontains=query) |
-        Q(profile__last_name__icontains=query) |
-        Q(email__icontains=query)
-    )[:10]
+        Q(profile__last_name__icontains=query)
+    ).distinct()[:10]
+    
     result = []
+    from django.conf import settings
+    state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+    organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+    
     for user in users:
         profile = getattr(user, 'profile', None)
+        
         if profile:
+            # User with profile
             member_status = _('Member') if profile.member else _('User')
-            from django.conf import settings
-            state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-            organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
-            
             if profile.member:
                 permissions_text = f"{state_institution}, {organization_owner}"
             else:
                 permissions_text = state_institution
+            
+            name = f"{profile.first_name} {profile.last_name}".strip()
+            if not name:
+                name = user.email  # Fallback to email if name is empty
+                
             result.append({
                 'id': user.id,
-                'name': f"{profile.first_name} {profile.last_name}",
+                'name': name,
                 'email': user.email,
                 'member_status': member_status,
                 'permissions': permissions_text,
                 'is_member': profile.member,
+                'is_staff': user.is_staff,
             })
+        else:
+            # User without profile (e.g., staff members with only email/password)
+            # Use email as name if no profile exists
+            name = user.email
+            if user.is_staff:
+                member_status = _('Staff')
+                # Staff have access to all items
+                permissions_text = _('All items')
+            else:
+                member_status = _('User')
+                permissions_text = state_institution
+            
+            result.append({
+                'id': user.id,
+                'name': name,
+                'email': user.email,
+                'member_status': member_status,
+                'permissions': permissions_text,
+                'is_member': False,
+                'is_staff': user.is_staff,
+            })
+    
     return JsonResponse({'users': result})
 
 
@@ -343,8 +380,9 @@ def api_get_user_inventory(request, user_id):
         JsonResponse: List of available inventory items
     """
     user = get_object_or_404(OKUser, id=user_id)
+    # For staff users, don't require profile
     profile = getattr(user, 'profile', None)
-    if not profile:
+    if not profile and not getattr(user, 'is_staff', False):
         return JsonResponse({'error': _('User profile not found')}, status=400)
 
     # Get filter parameters
@@ -391,42 +429,65 @@ def api_get_user_inventory(request, user_id):
     # Get available inventory through the service interface
     inventory_data = inventory_service.get_available_items(user_id=user.id)
     
+    # Check if user is staff (Mitarbeiter) - staff can see all items even if quantity is 0
+    is_staff = getattr(user, 'is_staff', False)
+    
     # Apply additional filters
     filtered_inventory = []
     for item in inventory_data:
+        if not item:
+            continue
+            
         # Apply owner filter
+        owner_data = item.get('owner') or {}
+        owner_name = owner_data.get('name') if isinstance(owner_data, dict) else (owner_data or '')
         if owner_filter and owner_filter != 'all':
-            if item.get('owner', {}).get('name') != owner_filter:
+            if owner_name != owner_filter:
                 continue
         
         # Apply category filter
+        category_data = item.get('category') or {}
+        category_name = category_data.get('name') if isinstance(category_data, dict) else (category_data or '')
         if category_filter and category_filter != 'all':
-            if item.get('category', {}).get('name', '').lower() != category_filter.lower():
+            if category_name.lower() != category_filter.lower():
                 continue
         
         # Apply search query
+        manufacturer = item.get('manufacturer', '') or ''
+        if isinstance(manufacturer, dict):
+            manufacturer = manufacturer.get('name', '')
         if search_query:
-            search_text = f"{item.get('description', '')} {item.get('inventory_number', '')} {item.get('manufacturer', '')} {item.get('category', {}).get('name', '')}"
+            search_text = f"{item.get('description', '')} {item.get('inventory_number', '')} {manufacturer} {category_name}"
             if search_query.lower() not in search_text.lower():
                 continue
         
         # Check availability for the period
-        available_qty = inventory_service.get_available_quantity(item['id'])
+        available_qty = inventory_service.get_available_quantity(item.get('id'))
         if start_date and end_date:
             # For now, just use the available quantity without considering reservations
             # In a more complex implementation, we would check reservations for the period
             pass
         
-        if available_qty > 0:
+        # For staff users, show all items even if available_qty is 0
+        # For regular users, only show items with available_qty > 0
+        if available_qty > 0 or is_staff:
+            location_data = item.get('location') or {}
+            if isinstance(location_data, dict):
+                location_path = location_data.get('full_path', '')
+                location_name = location_data.get('name', '')
+            else:
+                location_path = ''
+                location_name = ''
+            
             filtered_inventory.append({
-                'id': item['id'],
-                'inventory_number': item['inventory_number'],
-                'description': item['description'],
-                'location_path': item.get('location', {}).get('full_path', ''),
-                'location_name': item.get('location', {}).get('name', ''),
-                'owner': item.get('owner', {}).get('name', ''),
-                'manufacturer': item.get('manufacturer', ''),
-                'category': item.get('category', {}).get('name', ''),
+                'id': item.get('id'),
+                'inventory_number': item.get('inventory_number', ''),
+                'description': item.get('description', ''),
+                'location_path': location_path,
+                'location_name': location_name,
+                'owner': owner_name,
+                'manufacturer': manufacturer,
+                'category': category_name,
                 'available_quantity': available_qty,
                 'total_quantity': item.get('quantity', 0),
             })
@@ -952,6 +1013,8 @@ def api_get_user_rental_details_by_id(request, user_id=None):
                 },
                 'people_count': room_rental.people_count,
                 'notes': room_rental.notes,
+                'requested_start_date': room_rental.requested_start_date.isoformat() if room_rental.requested_start_date else None,
+                'requested_end_date': room_rental.requested_end_date.isoformat() if room_rental.requested_end_date else None,
             })
 
         result.append({
@@ -1100,16 +1163,25 @@ def api_return_rental_items(request):
                         reported_by=request.user
                     )
 
-        # Check if all items are returned
+        # Check if all equipment items are returned
+        # Note: Rooms are handled separately via automatic expiration
+        # For mixed rentals, we only check equipment items for 'returned' status
         rental_request.refresh_from_db()
-        all_returned = True
-        for item in rental_request.items.all():
-            if (item.quantity_issued or 0) > (item.quantity_returned or 0):
-                all_returned = False
-                break
+        all_equipment_returned = True
+        has_equipment = rental_request.items.exists()
+        
+        if has_equipment:
+            for item in rental_request.items.all():
+                if (item.quantity_issued or 0) > (item.quantity_returned or 0):
+                    all_equipment_returned = False
+                    break
+        else:
+            # No equipment items, so technically "returned" (rooms handled separately)
+            all_equipment_returned = True
 
-        # Update rental status if all items returned
-        if all_returned:
+        # Update rental status if all equipment items returned
+        # Rooms will be automatically returned by the expiration task
+        if all_equipment_returned and has_equipment:
             from django.utils import timezone
             rental_request.status = 'returned'
             rental_request.actual_end_date = timezone.now()
@@ -1118,7 +1190,7 @@ def api_return_rental_items(request):
         return JsonResponse({
             'success': True,
             'message': _('Items returned successfully'),
-            'rental_completed': all_returned
+            'rental_completed': all_equipment_returned
         })
 
     except Exception as e:
@@ -1596,9 +1668,21 @@ def api_get_all_inventory_status(request):
         # Apply filters
         filtered_items = []
         for item in items:
+            if not item:
+                continue
+                
+            # Safely get owner data
+            owner_data = item.get('owner')
+            if owner_data is None:
+                owner_name = 'N/A'
+            elif isinstance(owner_data, dict):
+                owner_name = owner_data.get('name', 'N/A')
+            else:
+                owner_name = str(owner_data) if owner_data else 'N/A'
+            
             # Apply owner filter
             if owner_filter != 'all':
-                if item.get('owner', {}).get('name') != owner_filter:
+                if owner_name != owner_filter:
                     continue
 
             # Apply status filter
@@ -1612,13 +1696,31 @@ def api_get_all_inventory_status(request):
                 if (item.get('reserved_quantity') or 0) > 0 or (item.get('rented_quantity') or 0) > 0:
                     continue
 
+            # Safely get location data
+            location_data = item.get('location')
+            if location_data is None:
+                location_path = 'N/A'
+            elif isinstance(location_data, dict):
+                location_path = location_data.get('full_path') or location_data.get('name', 'N/A')
+            else:
+                location_path = str(location_data) if location_data else 'N/A'
+            
+            # Safely get category data
+            category_data = item.get('category')
+            if category_data is None:
+                category_name = 'N/A'
+            elif isinstance(category_data, dict):
+                category_name = category_data.get('name', 'N/A')
+            else:
+                category_name = str(category_data) if category_data else 'N/A'
+
             filtered_items.append({
-                'id': item['id'],
-                'inventory_number': item['inventory_number'],
-                'description': item.get('description') or item.get('inventory_number'),
-                'owner': item.get('owner', {}).get('name') or 'N/A',
-                'location': item.get('location', {}).get('full_path') or 'N/A',
-                'category': item.get('category', {}).get('name') or 'N/A',
+                'id': item.get('id'),
+                'inventory_number': item.get('inventory_number', ''),
+                'description': item.get('description') or item.get('inventory_number', ''),
+                'owner': owner_name,
+                'location': location_path,
+                'category': category_name,
                 'reserved_quantity': item.get('reserved_quantity') or 0,
                 'rented_quantity': item.get('rented_quantity') or 0,
                 'status': item.get('status') or ''
@@ -1713,6 +1815,7 @@ def api_inventory_calendar(request):
                                     selected_req = ri
                     if status != 'issued' and has_reserved:
                         status = 'reserved'
+                    info = None
                     if selected_req:
                         user = selected_req.rental_request.user
                         try:
@@ -1721,7 +1824,28 @@ def api_inventory_calendar(request):
                             selected_user = full or (user.email.split('@')[0] if getattr(user,'email','') else str(user.id))
                         except Exception:
                             selected_user = user.email.split('@')[0] if getattr(user,'email','') else str(user.id)
-                    day_statuses.append({'date': d.isoformat(), 'status': status, 'user_name': selected_user})
+                        
+                        # Add info object for clickable slots
+                        # Include start/end datetimes for display in modals
+                        from django.utils import timezone as _tz
+                        _rs = _tz.localtime(selected_req.rental_request.requested_start_date)
+                        _re = _tz.localtime(selected_req.rental_request.requested_end_date)
+
+                        info = {
+                            'user_name': selected_user,
+                            'status': selected_req.rental_request.status,
+                            'rental_request_id': selected_req.rental_request_id,
+                            'project': selected_req.rental_request.project_name or '',
+                            'user_email': user.email if hasattr(user, 'email') and user.email else '',
+                            'start': _rs.strftime('%d.%m.%Y %H:%M'),
+                            'end': _re.strftime('%d.%m.%Y %H:%M'),
+                        }
+                    day_statuses.append({
+                        'date': d.isoformat(),
+                        'status': status,
+                        'user_name': selected_user if selected_req else None,
+                        'info': info
+                    })
 
                 result.append({
                     'id': it['id'],
@@ -1758,6 +1882,11 @@ def api_inventory_calendar(request):
                                 'start': rs.strftime('%d.%m.%Y %H:%M'),
                                 'end': re.strftime('%d.%m.%Y %H:%M'),
                                 'id': ri.rental_request_id,
+                                'rental_request_id': ri.rental_request_id,
+                                'project': ri.rental_request.project_name or '',
+                                'user_email': user.email if hasattr(user, 'email') and user.email else '',
+                                'start_time': rs.strftime('%H:%M'),
+                                'end_time': re.strftime('%H:%M'),
                             }
                             break
                     hour_slots.append({'time': f"{h:02d}:00", 'status': status, 'info': info})
@@ -1934,56 +2063,101 @@ def api_search_inventory_items(request):
         JsonResponse: List of matching inventory items
     """
     try:
-        query = request.GET.get('q', '')
+        query = request.GET.get('q', '').strip()
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
 
         from django.utils import timezone
         from django.utils.dateparse import parse_datetime
+        from .services import RentalService
+        from inventory.models import InventoryItem
 
+        # Start with all items available for rent (don't filter by status for search)
+        # This allows searching for all items, even if currently unavailable
         items = InventoryItem.objects.filter(
-            available_for_rent=True,
-            status='in_stock'
-        ).select_related('category', 'location', 'owner')
+            available_for_rent=True
+        ).select_related('category', 'location', 'owner', 'manufacturer')
 
         if query:
+            # First, filter by database fields
             items = items.filter(
                 Q(inventory_number__icontains=query) |
                 Q(description__icontains=query) |
-                Q(category__name__icontains=query)
+                Q(category__name__icontains=query) |
+                Q(manufacturer__name__icontains=query) |
+                Q(location__name__icontains=query) |
+                Q(owner__name__icontains=query)
             )
 
-        items = items[:50]  # Increased limit for better search results
+        items = list(items[:150])  # Get more items to filter by full_path in Python
+        
+        # Additional filtering by full_path (computed property) in Python
+        if query:
+            query_lower = query.lower()
+            filtered_items = []
+            for item in items:
+                # Check if already matched by database query
+                matched = (
+                    query_lower in (item.inventory_number or '').lower() or
+                    query_lower in (item.description or '').lower() or
+                    (item.category and query_lower in item.category.name.lower()) or
+                    (item.manufacturer and query_lower in item.manufacturer.name.lower()) or
+                    (item.location and query_lower in item.location.name.lower()) or
+                    (item.owner and query_lower in item.owner.name.lower())
+                )
+                
+                # Also check full_path (computed property)
+                if not matched and item.location:
+                    full_path_lower = item.location.full_path.lower()
+                    if query_lower in full_path_lower:
+                        matched = True
+                
+                if matched:
+                    filtered_items.append(item)
+            
+            items = filtered_items[:100]  # Limit final results
+        else:
+            items = items[:100]
 
         result = []
         for item in items:
             # Check availability if dates are provided
-            available_quantity = item.quantity
+            available_quantity = item.quantity or 0
             if start_date and end_date:
                 try:
                     start_datetime = parse_datetime(start_date)
                     end_datetime = parse_datetime(end_date)
 
-                    if timezone.is_naive(start_datetime):
-                        start_datetime = timezone.make_aware(start_datetime)
-                    if timezone.is_naive(end_datetime):
-                        end_datetime = timezone.make_aware(end_datetime)
+                    if start_datetime and end_datetime:
+                        if timezone.is_naive(start_datetime):
+                            start_datetime = timezone.make_aware(start_datetime)
+                        if timezone.is_naive(end_datetime):
+                            end_datetime = timezone.make_aware(end_datetime)
 
-                    available_quantity = get_available_quantity_for_period(item, start_datetime, end_datetime)
-                except:
-                    pass  # If date parsing fails, use original quantity
+                        # Use RentalService method which takes item_id
+                        available_quantity = RentalService.get_available_quantity_for_period(
+                            item.id, start_datetime, end_datetime
+                        )
+                except Exception as e:
+                    # If date parsing fails, use original quantity
+                    pass
 
-            # Only include items that are available
-            if available_quantity > 0:
-                result.append({
-                    'id': item.id,
-                    'inventory_number': item.inventory_number,
-                    'description': item.description or item.inventory_number,
-                    'category': item.category.name if item.category else 'Other',
-                    'location': item.location.full_path if item.location else 'N/A',
-                    'owner': item.owner.name if item.owner else 'N/A',
-                    'available_quantity': available_quantity
-                })
+            # Include all items in search results (not just available ones)
+            # This allows staff to see all items and their availability status
+            manufacturer_name = item.manufacturer.name if item.manufacturer else ''
+            
+            result.append({
+                'id': item.id,
+                'inventory_number': item.inventory_number or '',
+                'description': item.description or item.inventory_number or '',
+                'category': item.category.name if item.category else 'Other',
+                'location': item.location.full_path if item.location else 'N/A',
+                'owner': item.owner.name if item.owner else 'N/A',
+                'manufacturer': manufacturer_name,
+                'available_quantity': available_quantity,
+                'total_quantity': item.quantity or 0,
+                'status': item.status or 'unknown'
+            })
 
         return JsonResponse({
             'items': result or [],
@@ -1991,6 +2165,8 @@ def api_search_inventory_items(request):
         })
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -2291,9 +2467,9 @@ def api_get_room_schedule(request):
                         slot_info = None
 
                         for rental in room_rentals:
-                            # Get rental dates
-                            rental_start = rental.rental_request.requested_start_date
-                            rental_end = rental.rental_request.requested_end_date
+                            # Get rental dates - use room-specific dates if available, otherwise use rental request dates
+                            rental_start = rental.get_start_date()
+                            rental_end = rental.get_end_date()
 
                             # Check overlap using only time (without timezones)
                             if rental_start and rental_end:
@@ -2358,7 +2534,9 @@ def api_get_room_schedule(request):
                                         'status': rental.rental_request.status,
                                         'people_count': rental.people_count or 1,
                                         'start_time': rental_start_local.strftime('%H:%M'),
-                                        'end_time': rental_end_local.strftime('%H:%M')
+                                        'end_time': rental_end_local.strftime('%H:%M'),
+                                        'rental_request_id': rental.rental_request.id,
+                                        'user_email': user.email if hasattr(user, 'email') and user.email else ''
                                     }
                                     break
 
@@ -2674,18 +2852,25 @@ def api_get_user_inventory_simple(request, user_id):
     filtered_inventory = []
     for item in inventory_data:
         # Apply owner filter
+        owner_data = item.get('owner') or {}
+        owner_name = owner_data.get('name') if isinstance(owner_data, dict) else (owner_data or '')
         if owner_filter and owner_filter != 'all':
-            if item.get('owner', {}).get('name') != owner_filter:
+            if owner_name != owner_filter:
                 continue
         
         # Apply category filter
+        category_data = item.get('category') or {}
+        category_name = category_data.get('name') if isinstance(category_data, dict) else (category_data or '')
         if category_filter and category_filter != 'all':
-            if item.get('category', {}).get('name', '').lower() != category_filter.lower():
+            if category_name.lower() != category_filter.lower():
                 continue
         
         # Apply search query
+        manufacturer = item.get('manufacturer', '') or ''
+        if isinstance(manufacturer, dict):
+            manufacturer = manufacturer.get('name', '')
         if search_query:
-            search_text = f"{item.get('description', '')} {item.get('inventory_number', '')} {item.get('manufacturer', '')} {item.get('category', {}).get('name', '')}"
+            search_text = f"{item.get('description', '')} {item.get('inventory_number', '')} {manufacturer} {category_name}"
             if search_query.lower() not in search_text.lower():
                 continue
         
@@ -2697,15 +2882,44 @@ def api_get_user_inventory_simple(request, user_id):
             pass
         
         if available_qty > 0:
+            location_data = item.get('location') or {}
+            owner_data = item.get('owner') or {}
+            category_data = item.get('category') or {}
+            
+            # Handle location - can be dict or None
+            if isinstance(location_data, dict):
+                location_path = location_data.get('full_path', '')
+                location_name = location_data.get('name', '')
+            else:
+                location_path = ''
+                location_name = ''
+            
+            # Handle owner - can be dict or None
+            if isinstance(owner_data, dict):
+                owner_name = owner_data.get('name', '')
+            else:
+                owner_name = owner_data if owner_data else ''
+            
+            # Handle category - can be dict or None
+            if isinstance(category_data, dict):
+                category_name = category_data.get('name', '')
+            else:
+                category_name = category_data if category_data else ''
+            
+            # Handle manufacturer - can be string or None
+            manufacturer = item.get('manufacturer', '') or ''
+            if isinstance(manufacturer, dict):
+                manufacturer = manufacturer.get('name', '')
+            
             filtered_inventory.append({
                 'id': item['id'],
                 'inventory_number': item['inventory_number'],
                 'description': item['description'],
-                'location_path': item.get('location', {}).get('full_path', ''),
-                'location_name': item.get('location', {}).get('name', ''),
-                'owner': item.get('owner', {}).get('name', ''),
-                'manufacturer': item.get('manufacturer', ''),
-                'category': item.get('category', {}).get('name', ''),
+                'location_path': location_path,
+                'location_name': location_name,
+                'owner': owner_name,
+                'manufacturer': manufacturer,
+                'category': category_name,
                 'available_quantity': available_qty,
                 'total_quantity': item.get('quantity', 0),
             })
@@ -3050,7 +3264,9 @@ def api_get_user_rental_details(request):
                         'location': room_location
                     },
                     'people_count': room_rental.people_count or 0,
-                    'notes': room_rental.notes or ''
+                    'notes': room_rental.notes or '',
+                    'requested_start_date': room_rental.requested_start_date.isoformat() if room_rental.requested_start_date else None,
+                    'requested_end_date': room_rental.requested_end_date.isoformat() if room_rental.requested_end_date else None,
                 })
 
             # Calculate days overdue if applicable
@@ -3427,9 +3643,13 @@ def api_issue_from_reservation(request):
             return JsonResponse({'error': _('Rental must be in draft or reserved status to issue')}, status=400)
 
         # Check if rental has any equipment items (rooms alone cannot be issued)
+        # For mixed rentals, we issue only equipment, rooms remain reserved
         has_equipment = rental.items.exists()
         if not has_equipment:
             return JsonResponse({'error': _('Cannot issue rental with only rooms. Equipment is required to change status from reserved to issued.')}, status=400)
+        
+        # Note: For mixed rentals (rooms + equipment), we can issue equipment
+        # Rooms will remain in reserved status and auto-return after scheduled time
 
         # Get the user by ID
         try:
