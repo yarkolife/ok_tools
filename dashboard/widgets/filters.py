@@ -106,6 +106,7 @@ class DashboardFilters:
             'age_group': self.request.GET.get('age_group', ''),
             'member': self.request.GET.get('member', ''),
             'verified': self.request.GET.get('verified', ''),
+            'global_producer': self.request.GET.get('global_producer', ''),
             'category': self.request.GET.get('category', ''),
             'status': self.request.GET.get('status', ''),
             'primary': self.request.GET.get('primary', ''),
@@ -173,6 +174,10 @@ class DashboardFilters:
         if self.filters['verified']:
             verified_value = self.filters['verified'].lower() == 'true'
             queryset = queryset.filter(verified=verified_value)
+
+        if self.filters['global_producer']:
+            global_producer_value = self.filters['global_producer'].lower() == 'true'
+            queryset = queryset.filter(global_producer=global_producer_value)
 
         if self.filters['age_group']:
             queryset = self._filter_by_age_group(queryset)

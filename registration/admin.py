@@ -223,7 +223,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         (_('Organization'), {
-            'fields': ('media_authority', 'member', 'verified')
+            'fields': ('media_authority', 'member', 'global_producer', 'verified')
         }),
         (_('Data Sharing Permissions'), {
             'fields': ('phone_data_sharing_allowed', 'email_data_sharing_allowed'),

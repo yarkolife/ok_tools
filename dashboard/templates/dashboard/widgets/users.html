@@ -13,7 +13,7 @@
                 <div class="filter-section">
                     <form id="filtersForm" method="GET">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="dateRange" class="form-label">{% trans "Date Range" %}</label>
                                 <select class="form-select" id="dateRange" name="days">
                                 <option value="7">{% trans "Last 7 days" %}</option>
@@ -24,11 +24,11 @@
                                 <option value="custom">{% trans "Custom Period" %}</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="customStartDate" class="form-label">{% trans "Start Date" %}</label>
                                 <input type="date" class="form-control" id="customStartDate" name="start_date" style="display: none;">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="customEndDate" class="form-label">{% trans "End Date" %}</label>
                                 <input type="date" class="form-control" id="customEndDate" name="end_date" style="display: none;">
                         </div>
@@ -38,8 +38,6 @@
                                 <option value="">{% trans "All Authorities" %}</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="row mt-3">
                         <div class="col-md-3">
                             <label for="genderFilter" class="form-label">{% trans "Gender" %}</label>
                                 <select class="form-select" id="genderFilter" name="gender">
@@ -49,6 +47,8 @@
                                 <option value="d">{% trans "Diverse" %}</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="row mt-3">
                         <div class="col-md-3">
                             <label for="ageGroupFilter" class="form-label">{% trans "Age Group" %}</label>
                                 <select class="form-select" id="ageGroupFilter" name="age_group">
@@ -74,6 +74,14 @@
                                 <option value="">{% trans "All Users" %}</option>
                                 <option value="true">{% trans "Verified Only" %}</option>
                                 <option value="false">{% trans "Not Verified" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="globalProducerFilter" class="form-label">{% trans "Global Producer" %}</label>
+                                <select class="form-select" id="globalProducerFilter" name="global_producer">
+                                <option value="">{% trans "All Users" %}</option>
+                                <option value="true">{% trans "Yes" %}</option>
+                                <option value="false">{% trans "No" %}</option>
                             </select>
                         </div>
                     </div>
@@ -122,6 +130,12 @@
                         <div class="stat-card" data-type="member" data-title="{% trans 'Member Users' %}">
                             <div class="stat-number" id="memberUsers">{{ widget_data.basic_stats.member_users|default:"0" }}</div>
                             <div class="stat-label">{% trans "Members" %}</div>
+                        </div>
+                    </div>
+                    <div class="col-lg col-md-4 col-sm-6 mb-3">
+                        <div class="stat-card" data-type="global_producer" data-title="{% trans 'Global Producer Users' %}">
+                            <div class="stat-number" id="globalProducerUsers">{{ widget_data.basic_stats.global_producer_users|default:"0" }}</div>
+                            <div class="stat-label">{% trans "Global Producer" %}</div>
                         </div>
                     </div>
                 </div>
@@ -533,7 +547,7 @@ function initializeFiltersFromURL() {
     }
 
     // Set other filter values from URL
-    const filters = ['media_authority', 'gender', 'age_group', 'member', 'verified'];
+    const filters = ['media_authority', 'gender', 'age_group', 'member', 'verified', 'global_producer'];
     filters.forEach(filter => {
         const value = urlParams.get(filter);
         if (value) {
@@ -1509,7 +1523,8 @@ window.updateStatisticsCards = function(data) {
         'femaleUsers': data.basic_stats.female_users || 0,
         'diverseUsers': data.basic_stats.diverse_users || 0,
         'verifiedUsers': data.basic_stats.verified_users || 0,
-        'memberUsers': data.basic_stats.member_users || 0
+        'memberUsers': data.basic_stats.member_users || 0,
+        'globalProducerUsers': data.basic_stats.global_producer_users || 0
     };
 
     console.log('{% trans "Elements to update:" %}', elements);

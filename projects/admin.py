@@ -317,7 +317,6 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_ueber_65',
                 'tn_age_not_given',
             ),
-            'classes': ('collapse',),
             'description': _('Enter the number of participants in each age group. Total must match gender totals.')
         }),
         (_('Participants by Gender'), {
@@ -327,7 +326,6 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
                 'tn_diverse',
                 'tn_gender_not_given',
             ),
-            'classes': ('collapse',),
             'description': _('Enter the number of participants by gender. Total must match age group totals.')
         }),
     )

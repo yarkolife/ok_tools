@@ -250,6 +250,28 @@ class WithoutContributionFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
+class GlobalProducerFilter(admin.SimpleListFilter):
+    """Filter licenses by global_producer status from Profile."""
+
+    title = _('Global Producer')
+    parameter_name = 'profile__global_producer'
+
+    def lookups(self, request, model_admin):
+        """Define filter options."""
+        return (
+            ('1', _('Yes')),
+            ('0', _('No')),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter licenses by global_producer status."""
+        if self.value() == '1':
+            return queryset.filter(profile__global_producer=True)
+        elif self.value() == '0':
+            return queryset.filter(profile__global_producer=False)
+        return queryset
+
+
 class LicenseAdminForm(forms.ModelForm):
     """Override the clean method for the forms used on the admin site."""
 
@@ -258,6 +280,7 @@ class LicenseAdminForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'tags': TagsInputWidget(),
+            'youth_protection_necessary': forms.NullBooleanSelect(),
         }
 
     def clean(self):
@@ -440,19 +463,15 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 'media_authority_exchange_allowed',
                 'media_authority_exchange_allowed_other_states',
             ),
-            'classes': ('collapse',),
         }),
         (_('Youth Protection'), {
             'fields': ('youth_protection_necessary', 'youth_protection_category'),
-            'classes': ('collapse',),
         }),
         (_('Media Library & Special Formats'), {
             'fields': ('store_in_ok_media_library', 'is_screen_board', 'infoblock'),
-            'classes': ('collapse',),
         }),
         (_('Status & Metadata'), {
             'fields': ('number', 'confirmed', 'created_at', 'video_file_info'),
-            'classes': ('collapse',),
             'description': _('Number is auto-generated but can be manually changed if needed.')
         }),
     )
@@ -656,6 +675,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             _('Media Authority'), 'profile__media_authority'),
         AutocompleteFilterFactory(_('Category'), 'category'),
         'store_in_ok_media_library',
+        GlobalProducerFilter,
         WithoutContributionFilter,
     ]
 

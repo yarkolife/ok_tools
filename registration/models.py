@@ -200,6 +200,14 @@ class Profile(ExportModelOperationsMixin('profile'), models.Model):
         null=False,
     )
 
+    global_producer = models.BooleanField(
+        _('Global Producer'),
+        default=False,
+        blank=False,
+        null=False,
+        help_text=_('Global producer status for the profile.')
+    )
+
     comment = models.TextField(
         _('comment'),
         null=True,

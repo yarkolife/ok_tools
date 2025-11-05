@@ -1,6 +1,156 @@
 {% extends 'admin/change_form.html' %}
 
 {% load i18n %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Hide youth_protection_category field row initially - JavaScript will control visibility */
+    .field-youth_protection_category {
+        display: none !important;
+    }
+</style>
+<script>
+(function() {
+    'use strict';
+    
+    function toggleYouthProtectionCategory() {
+        const youthProtectionField = document.getElementById('id_youth_protection_necessary');
+        const youthCategorySelect = document.getElementById('id_youth_protection_category');
+        
+        if (!youthProtectionField) {
+            console.warn('Youth protection field not found');
+            return;
+        }
+        
+        if (!youthCategorySelect) {
+            console.warn('Youth protection category select not found');
+            return;
+        }
+        
+        // Find the parent container - try multiple strategies
+        let youthCategoryRow = null;
+        
+        // Strategy 1: Find by Django admin field class
+        youthCategoryRow = document.querySelector('.field-youth_protection_category');
+        
+        // Strategy 2: Find parent tr (table layout)
+        if (!youthCategoryRow) {
+            youthCategoryRow = youthCategorySelect.closest('tr');
+        }
+        
+        // Strategy 3: Find parent that contains the label
+        if (!youthCategoryRow) {
+            let parent = youthCategorySelect.parentElement;
+            while (parent && parent !== document.body) {
+                const label = parent.querySelector('label[for="id_youth_protection_category"]');
+                if (label) {
+                    youthCategoryRow = parent;
+                    break;
+                }
+                parent = parent.parentElement;
+            }
+        }
+        
+        // Strategy 4: Find by form-row class
+        if (!youthCategoryRow) {
+            youthCategoryRow = youthCategorySelect.closest('.form-row');
+        }
+        
+        // Strategy 5: Find div with field-youth_protection_category class by traversing up
+        if (!youthCategoryRow) {
+            let parent = youthCategorySelect.parentElement;
+            while (parent && parent !== document.body) {
+                if (parent.classList && parent.classList.contains('field-youth_protection_category')) {
+                    youthCategoryRow = parent;
+                    break;
+                }
+                parent = parent.parentElement;
+            }
+        }
+        
+        // Strategy 6: Find by fieldset and then the row
+        if (!youthCategoryRow) {
+            const youthProtectionRow = youthProtectionField.closest('tr') || youthProtectionField.closest('.form-row');
+            if (youthProtectionRow) {
+                const fieldset = youthProtectionRow.closest('fieldset');
+                if (fieldset) {
+                    // Find the next row after youth_protection_necessary
+                    const allRows = fieldset.querySelectorAll('tr, .form-row');
+                    for (let i = 0; i < allRows.length; i++) {
+                        if (allRows[i].contains(youthProtectionField)) {
+                            if (i + 1 < allRows.length) {
+                                const nextRow = allRows[i + 1];
+                                if (nextRow.contains(youthCategorySelect)) {
+                                    youthCategoryRow = nextRow;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!youthCategoryRow) {
+            console.warn('Youth protection category row not found');
+            return;
+        }
+        
+        // NullBooleanSelect returns: '' (unknown), '1' (true/Yes), '2' (false/No)
+        const fieldValue = youthProtectionField.value;
+        const isYes = fieldValue === '1' || 
+                     fieldValue === 'true' || 
+                     fieldValue === 'True' ||
+                     (youthProtectionField.type === 'checkbox' && youthProtectionField.checked);
+        
+        console.log('Youth protection value:', fieldValue, 'isYes:', isYes);
+        
+        if (isYes) {
+            // Show the row - use appropriate display value with !important to override CSS
+            if (youthCategoryRow.tagName === 'TR') {
+                youthCategoryRow.style.setProperty('display', 'table-row', 'important');
+            } else if (youthCategoryRow.tagName === 'DIV') {
+                youthCategoryRow.style.setProperty('display', 'block', 'important');
+            } else {
+                youthCategoryRow.style.setProperty('display', '', 'important');
+            }
+            console.log('Showing youth protection category row');
+        } else {
+            youthCategoryRow.style.setProperty('display', 'none', 'important');
+            console.log('Hiding youth protection category row');
+        }
+    }
+    
+    // Initialize on page load - wait for Django admin to fully load
+    function initYouthProtectionToggle() {
+        console.log('Initializing youth protection toggle');
+        toggleYouthProtectionCategory();
+        
+        // Add event listener for changes
+        const youthProtectionField = document.getElementById('id_youth_protection_necessary');
+        if (youthProtectionField) {
+            youthProtectionField.addEventListener('change', toggleYouthProtectionCategory);
+            console.log('Event listener added to youth protection field');
+        } else {
+            console.warn('Youth protection field not found during initialization');
+        }
+    }
+    
+    // Wait for page to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit for Django admin to fully render
+            setTimeout(initYouthProtectionToggle, 300);
+        });
+    } else {
+        // DOM already loaded
+        setTimeout(initYouthProtectionToggle, 300);
+    }
+})();
+</script>
+{% endblock %}
 
 {% block submit_buttons_bottom %}
     {{ block.super }}

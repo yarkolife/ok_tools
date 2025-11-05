@@ -150,6 +150,13 @@ class MediaDataWidget:
             elif filters['verified'] == 'false':
                 queryset = queryset.filter(profile__verified=False)
 
+        # Global Producer filter
+        if filters['global_producer']:
+            if filters['global_producer'] == 'true':
+                queryset = queryset.filter(profile__global_producer=True)
+            elif filters['global_producer'] == 'false':
+                queryset = queryset.filter(profile__global_producer=False)
+
         # Category filter
         if filters['category']:
             queryset = queryset.filter(category__id=filters['category'])
@@ -187,6 +194,8 @@ class MediaDataWidget:
             contributions = contributions.filter(license__profile__member=(filters['member'] == 'true'))
         if filters['verified']:
             contributions = contributions.filter(license__profile__verified=(filters['verified'] == 'true'))
+        if filters['global_producer']:
+            contributions = contributions.filter(license__profile__global_producer=(filters['global_producer'] == 'true'))
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
@@ -242,6 +251,8 @@ class MediaDataWidget:
             contributions = contributions.filter(license__profile__member=(filters['member'] == 'true'))
         if filters['verified']:
             contributions = contributions.filter(license__profile__verified=(filters['verified'] == 'true'))
+        if filters['global_producer']:
+            contributions = contributions.filter(license__profile__global_producer=(filters['global_producer'] == 'true'))
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
@@ -294,6 +305,8 @@ class MediaDataWidget:
             contributions = contributions.filter(license__profile__member=(filters['member'] == 'true'))
         if filters['verified']:
             contributions = contributions.filter(license__profile__verified=(filters['verified'] == 'true'))
+        if filters['global_producer']:
+            contributions = contributions.filter(license__profile__global_producer=(filters['global_producer'] == 'true'))
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
@@ -348,6 +361,8 @@ class MediaDataWidget:
             contributions = contributions.filter(license__profile__member=(filters['member'] == 'true'))
         if filters['verified']:
             contributions = contributions.filter(license__profile__verified=(filters['verified'] == 'true'))
+        if filters['global_producer']:
+            contributions = contributions.filter(license__profile__global_producer=(filters['global_producer'] == 'true'))
         if filters['category']:
             contributions = contributions.filter(license__category__id=filters['category'])
         
@@ -396,6 +411,13 @@ class MediaDataWidget:
             if filters['verified'] == 'true' and not license.profile.verified:
                 return False
             elif filters['verified'] == 'false' and license.profile.verified:
+                return False
+
+        # Global Producer filter
+        if filters['global_producer']:
+            if filters['global_producer'] == 'true' and not license.profile.global_producer:
+                return False
+            elif filters['global_producer'] == 'false' and license.profile.global_producer:
                 return False
 
         # Category filter

@@ -44,6 +44,7 @@ class UserService:
             # Verification and membership
             verified_users = filtered_queryset.filter(verified=True).count()
             member_users = filtered_queryset.filter(member=True).count()
+            global_producer_users = filtered_queryset.filter(global_producer=True).count()
 
             # Users by media authority
             try:
@@ -238,6 +239,7 @@ class UserService:
                     'diverse_users': diverse_users,
                     'verified_users': verified_users,
                     'member_users': member_users,
+                    'global_producer_users': global_producer_users,
                 },
                 'users_by_authority': users_by_authority,
                 'age_groups': age_groups,
