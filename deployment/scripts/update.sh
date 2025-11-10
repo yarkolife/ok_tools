@@ -584,18 +584,52 @@ SCRIPT_EOF
     fi
 }
 
-# Check and create local update script if it doesn't exist
-if ! create_local_update_script; then
-    print_warning "Failed to create local update script, but continuing with update..."
-    print_info "You can create it manually later or run update script directly from project directory"
-fi
-
-# Pull latest code (only if called directly, not from local script)
+# Pull latest code FIRST (only if called directly, not from local script)
 # Check if we're being called from local script by checking caller
 if [ -z "${LOCAL_UPDATE_CALLED:-}" ]; then
     print_info "Pulling latest code from repository..."
     cd "$PROJECT_DIR"
     git pull
+    print_success "Code updated from repository"
+fi
+
+# Check and create local update script AFTER git pull (so we have latest version)
+if ! create_local_update_script; then
+    print_warning "Failed to create local update script, but continuing with update..."
+    print_info "You can create it manually later or run update script directly from project directory"
+fi
+
+# Verify that template files exist after git pull
+print_info "Verifying template files..."
+TEMPLATE_INDEX="$PROJECT_DIR/ok_tools/templates/admin/index.html"
+TEMPLATE_NAV="$PROJECT_DIR/ok_tools/templates/admin/nav_sidebar.html"
+TEMPLATE_BASE="$PROJECT_DIR/ok_tools/templates/admin/base_site.html"
+
+if [ ! -f "$TEMPLATE_INDEX" ]; then
+    print_warning "Template file not found: $TEMPLATE_INDEX"
+    print_info "Checking git status..."
+    cd "$PROJECT_DIR"
+    git status ok_tools/templates/admin/ || true
+    print_info "Attempting to restore from git..."
+    git checkout HEAD -- ok_tools/templates/admin/index.html 2>/dev/null || print_warning "Could not restore index.html from git"
+fi
+
+if [ ! -f "$TEMPLATE_NAV" ]; then
+    print_warning "Template file not found: $TEMPLATE_NAV"
+    print_info "Attempting to restore from git..."
+    cd "$PROJECT_DIR"
+    git checkout HEAD -- ok_tools/templates/admin/nav_sidebar.html 2>/dev/null || print_warning "Could not restore nav_sidebar.html from git"
+fi
+
+# Verify files exist now
+if [ -f "$TEMPLATE_INDEX" ] && [ -f "$TEMPLATE_NAV" ]; then
+    print_success "Template files verified: index.html and nav_sidebar.html exist"
+else
+    print_error "Template files are missing - Docker build may fail or use old templates"
+    print_info "Files should be at:"
+    print_info "  - $TEMPLATE_INDEX"
+    print_info "  - $TEMPLATE_NAV"
+    ls -la "$PROJECT_DIR/ok_tools/templates/admin/" 2>/dev/null || print_warning "Template directory not found"
 fi
 
 # Update docker-compose files and configs in production directory
