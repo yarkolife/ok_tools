@@ -706,6 +706,20 @@ fi
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
 cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
 
+# Generate docker-compose.override.yml from .env variables
+print_info "Generating docker-compose.override.yml from .env..."
+if [ -f "$PROJECT_DIR/deployment/scripts/generate-override.sh" ]; then
+    cd "$PRODUCTION_DIR"
+    if bash "$PROJECT_DIR/deployment/scripts/generate-override.sh"; then
+        print_success "docker-compose.override.yml generated successfully"
+    else
+        print_warning "Failed to generate docker-compose.override.yml (this is optional)"
+    fi
+    cd "$PROJECT_DIR"
+else
+    print_warning "generate-override.sh not found - skipping override generation"
+fi
+
 # Set ownership of copied files if not root
 if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
     chown "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR/docker-compose.yml" \

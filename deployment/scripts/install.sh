@@ -832,6 +832,20 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
         echo "✓ Copied docker-compose.yml (without nginx)"
     fi
+    
+    # Generate docker-compose.override.yml from .env variables
+    print_info "Generating docker-compose.override.yml from .env..."
+    if [ -f "$PROJECT_DIR/deployment/scripts/generate-override.sh" ]; then
+        cd "$PRODUCTION_DIR"
+        if bash "$PROJECT_DIR/deployment/scripts/generate-override.sh"; then
+            print_success "docker-compose.override.yml generated successfully"
+        else
+            print_warning "Failed to generate docker-compose.override.yml (this is optional)"
+        fi
+        cd "$PROJECT_DIR"
+    else
+        print_warning "generate-override.sh not found - skipping override generation"
+    fi
 else
     echo "Invalid choice. Exiting."
     exit 1

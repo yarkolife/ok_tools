@@ -73,6 +73,7 @@ pyvenv.cfg
 /docker*.cfg
 /Dockerfile
 /docker-compose.yml
+docker-compose.override.yml
 
 # i18n builds
 **/locale/**/LC_MESSAGES/*.mo

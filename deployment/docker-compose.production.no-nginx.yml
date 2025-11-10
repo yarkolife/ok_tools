@@ -50,7 +50,8 @@ services:
       - ./data/media:/app/media
       - ./logs:/app/logs
       - ./backups:/app/backups
-      - /mnt/nas:/mnt/nas:ro
+      # Additional mounts (NAS, custom volumes) can be added via docker-compose.override.yml
+      # Run: ./deployment/scripts/generate-override.sh to generate override file from .env
     restart: unless-stopped
     networks:
       - oktools-network
@@ -81,7 +82,8 @@ services:
       - ./data/media:/app/media
       - ./logs:/app/logs
       - ./backups:/app/backups
-      - /mnt/nas:/mnt/nas:ro
+      # Additional mounts (NAS, custom volumes) can be added via docker-compose.override.yml
+      # Run: ./deployment/scripts/generate-override.sh to generate override file from .env
     command: celery -A ok_tools worker --loglevel=info
     restart: unless-stopped
     networks:
