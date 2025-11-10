@@ -320,19 +320,34 @@ DEFAULT_FROM_EMAIL = get_env('DEFAULT_FROM_EMAIL', default='webmaster@localhost'
 
 
 # name of OK
-OK_NAME = get_env('OK_NAME', default=_("Open Channel Merseburg-Querfurt e.V."))
-OK_NAME_SHORT = get_env('OK_NAME_SHORT', default=_("OK Merseburg"))
+# Support both ORG_* and OK_* prefixes for backward compatibility
+# ORG_* takes precedence over OK_*
+# Use os.getenv directly to check if variable exists (returns None if not set)
+_org_name = os.getenv('ORG_NAME')
+OK_NAME = _org_name if _org_name is not None else get_env('OK_NAME', default=_("Open Channel Merseburg-Querfurt e.V."))
+_org_short_name = os.getenv('ORG_SHORT_NAME')
+OK_NAME_SHORT = _org_short_name if _org_short_name is not None else get_env('OK_NAME_SHORT', default=_("OK Merseburg"))
 
 # Organization settings
-OK_WEBSITE = get_env('OK_WEBSITE', default='')
-OK_EMAIL = get_env('OK_EMAIL', default='')
-OK_ADDRESS = get_env('OK_ADDRESS', default='')
-OK_PHONE = get_env('OK_PHONE', default='')
-OK_FAX = get_env('OK_FAX', default='')
-OK_DESCRIPTION = get_env('OK_DESCRIPTION', default='')
-OK_OPENING_HOURS = get_env('OK_OPENING_HOURS', default='')
+# Support both ORG_* and OK_* prefixes for backward compatibility
+# ORG_* takes precedence over OK_*
+_org_website = os.getenv('ORG_WEBSITE')
+OK_WEBSITE = _org_website if _org_website is not None else get_env('OK_WEBSITE', default='')
+_org_email = os.getenv('ORG_EMAIL')
+OK_EMAIL = _org_email if _org_email is not None else get_env('OK_EMAIL', default='')
+_org_address = os.getenv('ORG_ADDRESS')
+OK_ADDRESS = _org_address if _org_address is not None else get_env('OK_ADDRESS', default='')
+_org_phone = os.getenv('ORG_PHONE')
+OK_PHONE = _org_phone if _org_phone is not None else get_env('OK_PHONE', default='')
+_org_fax = os.getenv('ORG_FAX')
+OK_FAX = _org_fax if _org_fax is not None else get_env('OK_FAX', default='')
+_org_description = os.getenv('ORG_DESCRIPTION')
+OK_DESCRIPTION = _org_description if _org_description is not None else get_env('OK_DESCRIPTION', default='')
+_org_opening_hours = os.getenv('ORG_OPENING_HOURS')
+OK_OPENING_HOURS = _org_opening_hours if _org_opening_hours is not None else get_env('OK_OPENING_HOURS', default='')
 STATE_MEDIA_INSTITUTION = get_env('STATE_MEDIA_INSTITUTION', default='MSA')
-ORGANIZATION_OWNER = get_env('ORGANIZATION_OWNER', default='OKMQ')
+_org_owner = os.getenv('ORG_ORGANIZATION_OWNER')
+ORGANIZATION_OWNER = _org_owner if _org_owner is not None else get_env('ORGANIZATION_OWNER', default='OKMQ')
 
 # fixed duration of a screen board (Bildschirmtafel) in seconds
 SCREEN_BOARD_DURATION = get_env('SCREEN_BOARD_DURATION', default=20, cast=int)
