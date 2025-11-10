@@ -37,7 +37,7 @@ class TagsInputWidget(forms.TextInput):
         if value is None or value == [] or value == '' or value is False:
             return ''
         
-        # Handle list of tags
+        # Handle list of tags (JSONField returns list directly)
         if isinstance(value, list):
             return ', '.join(str(tag).strip() for tag in value if tag)
         
@@ -48,17 +48,22 @@ class TagsInputWidget(forms.TextInput):
                 return ''
             
             # If it looks like JSON array, parse it
+            # Only parse if value is definitely a string (not a list)
             import json
             try:
-                if value.startswith('[') and value.endswith(']'):
+                # Ensure value is a string before attempting JSON parsing
+                if (value.startswith('[') and value.endswith(']')):
+                    # Only parse if we're sure it's a string representation
                     parsed = json.loads(value)
                     if isinstance(parsed, list):
                         return ', '.join(str(tag).strip() for tag in parsed if tag)
-            except (json.JSONDecodeError, ValueError):
+            except (json.JSONDecodeError, ValueError, TypeError):
+                # If parsing fails, just return the string as-is
                 pass
             
             return value
-            
+        
+        # For any other type, convert to string
         return str(value)
     
     def value_from_datadict(self, data, files, name):

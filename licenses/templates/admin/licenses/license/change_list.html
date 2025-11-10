@@ -1,5 +1,13 @@
 {% extends "admin/change_list.html" %}
 {% load static %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  <li>
+    <a href="{% url 'admin:licenses_license_import_json' %}" class="addlink">{% trans "Import from JSON" %}</a>
+  </li>
+{% endblock %}
 
 {% block extrahead %}
 {{ block.super }}

@@ -81,6 +81,13 @@ class MediaAuthority(models.Model):
         default=settings.OK_NAME_SHORT,
         max_length=150,
         unique=True)
+    
+    full_name = models.CharField(
+        _('Full Name'),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_('Full name of the media authority (e.g., "Offener Kanal Dessau")'))
 
     def __str__(self) -> str:
         """Represent a MediaAuthority by its name."""

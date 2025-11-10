@@ -151,3 +151,13 @@ class RangeNumericForm(forms.Form):
             label='', required=False,
             widget=forms.NumberInput(attrs={'placeholder': _('To')})
         )
+
+
+class ImportJSONForm(forms.Form):
+    """Form for importing License from JSON file."""
+
+    json_file = forms.FileField(
+        label=_('JSON File'),
+        help_text=_('Upload a JSON file with license data'),
+        required=True,
+    )

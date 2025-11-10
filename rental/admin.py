@@ -388,7 +388,7 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         """Redirect to rental process page instead of showing add form."""
-        return HttpResponseRedirect(reverse('rental:rental:admin_rental_process'))
+        return HttpResponseRedirect(reverse('rental:admin_rental_process'))
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """Redirect to rental process page instead of showing change form."""

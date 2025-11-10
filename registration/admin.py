@@ -315,7 +315,9 @@ admin.site.register(Profile, ProfileAdmin)
 class MediaAuthorityAdmin(admin.ModelAdmin):
     """Define search_fields."""
 
-    search_fields = ['name']
+    search_fields = ['name', 'full_name']
+    list_display = ['name', 'full_name']
+    fields = ['name', 'full_name']
 
 
 admin.site.register(MediaAuthority, MediaAuthorityAdmin)

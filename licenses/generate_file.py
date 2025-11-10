@@ -66,12 +66,29 @@ def generate_license_file(lr: License) -> FileResponse:
     user = lr.profile.okuser
     profile = lr.profile
 
+    # Get email safely - user or user.email can be None
+    email = ''
+    if user and user.email:
+        email = user.email
+
+    # Get media authority full name safely (fallback to name if full_name is not set)
+    media_authority_name = ''
+    if profile.media_authority:
+        if profile.media_authority.full_name:
+            media_authority_name = profile.media_authority.full_name
+        elif profile.media_authority.name:
+            media_authority_name = profile.media_authority.name
+
+    # Get license creation date (fallback to today if not set)
+    license_date = lr.created_at.date() if lr.created_at else date.today()
+
     fields = [
         ('name', f'{val(profile.first_name)} {val(profile.last_name)}'),
         ('street', f'{val(profile.street)} {val(profile.house_number)}'),
         ('zip_city', f'{val(profile.zipcode)} {val(profile.city)}'),
         ('phone', f'{val(profile.phone_number)} {val(profile.mobile_number)}'),
-        ('email', val(user.email)),
+        ('email', val(email)),
+        ('ok_name', val(media_authority_name)),
         ('title', val(lr.title)),
         ('subtitle', val(lr.subtitle)),
         ('length', val(lr.duration)),
@@ -81,7 +98,7 @@ def generate_license_file(lr: License) -> FileResponse:
         ('store_in_ok_media_library', choose(lr.store_in_ok_media_library)),
         ('youth_protection_necessary', choose(lr.youth_protection_necessary)),
         ('youth_protection_category', str(lr.youth_protection_category)),
-        ('city_date_member', f'{val(profile.city)} {date.today().strftime(settings.DATE_INPUT_FORMATS)}')
+        ('city_date_member', f'{val(profile.city)} {license_date.strftime(settings.DATE_INPUT_FORMATS)}')
     ]
 
     with tempfile.TemporaryDirectory() as tmpdirname:

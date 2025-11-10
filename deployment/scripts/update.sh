@@ -281,10 +281,84 @@ if [ "$BACKUP_COUNT" -gt 5 ]; then
 fi
 print_success "Backup rotation completed (kept 5 most recent)"
 
-# Pull latest code
-print_info "Pulling latest code from repository..."
-cd "$PROJECT_DIR"
+# Function to create local update.sh script in production directory
+create_local_update_script() {
+    local local_update_script="$PRODUCTION_DIR/update.sh"
+    
+    if [ -f "$local_update_script" ]; then
+        print_info "Local update script already exists at $local_update_script"
+        return 0
+    fi
+    
+    print_info "Creating local update.sh script in production directory..."
+    
+    # Determine project directory for the script
+    local project_dir_for_script="$PROJECT_DIR"
+    
+    cat > "$local_update_script" <<EOF
+#!/bin/bash
+# Local update wrapper script for OK Tools production environment
+# This script updates the code from git and then calls the main update script
+
+set -e
+
+# Get script directory and project directory
+PRODUCTION_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+PROJECT_DIR="$project_dir_for_script"
+
+# Try to find project directory if default path doesn't exist
+if [ ! -d "\$PROJECT_DIR" ] || [ ! -f "\$PROJECT_DIR/deployment/scripts/update.sh" ]; then
+    # Try to find project directory by looking for deployment/scripts/update.sh
+    # Search in parent directory and common locations
+    PARENT_DIR="\$(dirname "\$PRODUCTION_DIR")"
+    for possible_dir in "\$PARENT_DIR"/*; do
+        if [ -d "\$possible_dir" ] && [ -f "\$possible_dir/deployment/scripts/update.sh" ]; then
+            PROJECT_DIR="\$possible_dir"
+            break
+        fi
+    done
+fi
+
+# Check if project directory exists
+if [ ! -d "\$PROJECT_DIR" ]; then
+    echo "Error: Project directory not found. Expected at: $project_dir_for_script"
+    echo "Please check your installation or set PROJECT_DIR environment variable."
+    exit 1
+fi
+
+# Check if main update script exists
+MAIN_UPDATE_SCRIPT="\$PROJECT_DIR/deployment/scripts/update.sh"
+if [ ! -f "\$MAIN_UPDATE_SCRIPT" ]; then
+    echo "Error: Main update script not found at \$MAIN_UPDATE_SCRIPT"
+    exit 1
+fi
+
+# Change to project directory and pull latest code
+echo "Updating code from git repository..."
+cd "\$PROJECT_DIR"
 git pull
+
+# Call the main update script with flag indicating it was called from local script
+echo "Running update script..."
+export LOCAL_UPDATE_CALLED=1
+exec "\$MAIN_UPDATE_SCRIPT"
+EOF
+    
+    chmod +x "$local_update_script"
+    print_success "Local update script created at $local_update_script"
+    print_info "You can now use: $local_update_script"
+}
+
+# Check and create local update script if it doesn't exist
+create_local_update_script
+
+# Pull latest code (only if called directly, not from local script)
+# Check if we're being called from local script by checking caller
+if [ -z "${LOCAL_UPDATE_CALLED:-}" ]; then
+    print_info "Pulling latest code from repository..."
+    cd "$PROJECT_DIR"
+    git pull
+fi
 
 # Update docker-compose files and configs in production directory
 print_info "Updating docker-compose files and configs..."
@@ -314,6 +388,26 @@ fi
 
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
 cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
+
+# Copy logo and favicon to project static directory
+print_info "Copying logo and favicon files..."
+if [ -d "$PROJECT_DIR/deployment/img" ]; then
+    mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+    if [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+        cp -f "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+        print_success "Copied logo.png"
+    else
+        print_warning "logo.png not found in deployment/img/ - keeping existing file if present"
+    fi
+    if [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+        cp -f "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+        print_success "Copied favicon.ico"
+    else
+        print_warning "favicon.ico not found in deployment/img/ - keeping existing file if present"
+    fi
+else
+    print_warning "deployment/img/ directory not found - keeping existing logo and favicon files"
+fi
 
 # Create configs directory if it doesn't exist and copy config files
 # BUT DON'T COPY .env TEMPLATES to avoid overwriting existing .env
@@ -646,8 +740,14 @@ esac
 
 echo ""
 print_info "Next steps:"
-echo "1. Check container status: docker compose ps"
-echo "2. View logs: docker compose logs -f web"
-echo "3. If issues occur, run rollback script: $SCRIPT_DIR/rollback.sh"
+echo "1. Check container status: cd $PRODUCTION_DIR && docker compose ps"
+echo "2. View logs: cd $PRODUCTION_DIR && docker compose logs -f web"
+if [ -f "$PRODUCTION_DIR/update.sh" ]; then
+    echo "3. For future updates, use: $PRODUCTION_DIR/update.sh"
+    echo "   (This script automatically updates from git and uses the latest version)"
+else
+    echo "3. For future updates, use: $SCRIPT_DIR/update.sh"
+fi
+echo "4. If issues occur, check logs or contact support"
 
 print_header "Diagnostics Complete"

@@ -1,3 +1,4 @@
+from .forms import ImportJSONForm
 from .forms import RangeNumericForm
 from .generate_file import generate_license_file
 from .models import Category
@@ -18,12 +19,200 @@ from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
 from ok_tools.datetime import TZ
+from registration.models import MediaAuthority
+from registration.models import Profile
 # from rangefilter.filters import DateTimeRangeFilter
 import datetime
+import json
 import logging
+from difflib import SequenceMatcher
 
 
 logger = logging.getLogger('django')
+
+
+# Category mapping from numeric ID to category name
+CATEGORY_MAPPING = {
+    101: "Kurzfilm",
+    102: "Trailer",
+    103: "Medienpädagogische Produktionen",
+    104: "Experimentierfeld \"Video\"",
+    105: "Orientierungshilfen",
+    106: "Heimatdoku",
+    107: "Kulturelles und soziales Engagement",
+    108: "Politisch orientiertes Bürgerfernsehen",
+    109: "Familie und Freizeit",
+    110: "Sonstiges",
+}
+
+# Media authority mapping from targetChannel to MediaAuthority name
+MEDIA_AUTHORITY_MAPPING = {
+    "@ok_dessau@lokalmedial.de": "OK Dessau",
+    "@ok_magdeburg@lokalmedial.de": "OK Magdeburg",
+    "@ok_salzwedel@lokalmedial.de": "OK Salzwedel",
+    "@ok_wettin@lokalmedial.de": "OK Wettin",
+    "@ok_wernigerode@lokalmedial.de": "OK Wernigerode",
+    "@ok_stendal@lokalmedial.de": "OK Stendal",
+}
+
+
+def get_category_by_id(category_id):
+    """Get or create Category by numeric ID."""
+    category_name = CATEGORY_MAPPING.get(category_id)
+    if not category_name:
+        logger.warning(f'Unknown category ID: {category_id}')
+        return Category.objects.get_or_create(name=_('Not Selected'))[0]
+    return Category.objects.get_or_create(name=category_name)[0]
+
+
+def get_profile_by_name(name):
+    """Get Profile by full name (e.g., 'Bernd Krüger')."""
+    if not name:
+        return None
+    
+    # Split name into first and last name
+    name_parts = name.strip().split(maxsplit=1)
+    if len(name_parts) == 1:
+        # Only one name part - try as first_name or last_name
+        first_name = name_parts[0]
+        last_name = None
+    else:
+        first_name = name_parts[0]
+        last_name = name_parts[1]
+    
+    # Try exact match first
+    if last_name:
+        profile = Profile.objects.filter(
+            first_name=first_name,
+            last_name=last_name
+        ).first()
+    else:
+        # Try as first_name only
+        profile = Profile.objects.filter(
+            first_name=first_name
+        ).first()
+        if not profile:
+            # Try as last_name only
+            profile = Profile.objects.filter(
+                last_name=first_name
+            ).first()
+    
+    if not profile and last_name:
+        # Try case-insensitive match
+        profile = Profile.objects.filter(
+            first_name__iexact=first_name,
+            last_name__iexact=last_name
+        ).first()
+    
+    return profile
+
+
+def create_profile_by_name(name, media_authority=None):
+    """Create a new Profile by name with optional media_authority."""
+    if not name:
+        return None
+    
+    # Split name into first and last name
+    name_parts = name.strip().split(maxsplit=1)
+    if len(name_parts) == 1:
+        first_name = name_parts[0]
+        last_name = None
+    else:
+        first_name = name_parts[0]
+        last_name = name_parts[1]
+    
+    # Get or use default media_authority
+    if not media_authority:
+        from django.conf import settings
+        media_authority, _created = MediaAuthority.objects.get_or_create(
+            name=settings.OK_NAME_SHORT
+        )
+    
+    # Create profile
+    profile = Profile.objects.create(
+        first_name=first_name,
+        last_name=last_name,
+        media_authority=media_authority,
+        verified=False,
+        member=False,
+    )
+    
+    logger.info(f'Created new profile: {first_name} {last_name or ""} (ID: {profile.id})')
+    return profile
+
+
+def get_profile_by_target_channel(target_channel):
+    """Get Profile by targetChannel (MediaAuthority mapping)."""
+    media_authority_name = MEDIA_AUTHORITY_MAPPING.get(target_channel)
+    if not media_authority_name:
+        logger.warning(f'Unknown targetChannel: {target_channel}')
+        return None
+    
+    # Get or create MediaAuthority
+    media_authority, _created = MediaAuthority.objects.get_or_create(
+        name=media_authority_name
+    )
+    
+    # Try to find a profile with this media_authority
+    # Prefer verified profiles, then members, then any profile
+    profile = Profile.objects.filter(
+        media_authority=media_authority,
+        verified=True
+    ).first()
+    
+    if not profile:
+        profile = Profile.objects.filter(
+            media_authority=media_authority,
+            member=True
+        ).first()
+    
+    if not profile:
+        profile = Profile.objects.filter(
+            media_authority=media_authority
+        ).first()
+    
+    return profile
+
+
+def similarity_ratio(str1, str2):
+    """Calculate similarity ratio between two strings (0.0 to 1.0)."""
+    if not str1 or not str2:
+        return 0.0
+    return SequenceMatcher(None, str1.lower().strip(), str2.lower().strip()).ratio()
+
+
+def find_potential_duplicates(title, profile, threshold=0.8):
+    """
+    Find potential duplicate licenses by title and profile.
+    
+    Args:
+        title: License title to check
+        profile: Profile object to check
+        threshold: Similarity threshold (default 0.8 = 80%)
+    
+    Returns:
+        QuerySet of potential duplicate licenses
+    """
+    if not title or not profile:
+        return License.objects.none()
+    
+    # Get all licenses for this profile
+    profile_licenses = License.objects.filter(profile=profile)
+    
+    # Find licenses with similar titles
+    potential_duplicates = []
+    for license_obj in profile_licenses:
+        similarity = similarity_ratio(title, license_obj.title)
+        if similarity >= threshold:
+            potential_duplicates.append(license_obj)
+    
+    # Return as QuerySet
+    if potential_duplicates:
+        return License.objects.filter(
+            id__in=[dup.id for dup in potential_duplicates]
+        ).order_by('-created_at')
+    
+    return License.objects.none()
 
 
 class CustomDateTimeRangeFilter(admin.FieldListFilter):
@@ -439,6 +628,13 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     ordering = ['-created_at']
     
     actions = ['search_videos_for_licenses']
+    
+    def changelist_view(self, request, extra_context=None):
+        """Add import JSON URL to changelist context."""
+        extra_context = extra_context or {}
+        from django.urls import reverse
+        extra_context['import_json_url'] = reverse('admin:licenses_license_import_json')
+        return super().changelist_view(request, extra_context=extra_context)
 
     search_fields = [
         'title',
@@ -809,9 +1005,14 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     
     def get_urls(self):
         """Add custom URLs for license management."""
-        urls = super().get_urls()
         from django.urls import path
+        urls = super().get_urls()
         custom_urls = [
+            path(
+                'import-json/',
+                self.admin_site.admin_view(self.import_json_view),
+                name='licenses_license_import_json',
+            ),
             path(
                 '<int:license_id>/search-video/',
                 self.admin_site.admin_view(self.search_video_view),
@@ -910,6 +1111,297 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 f'❌ {_("Search errors")}: {error_count}',
                 messages.ERROR
             )
+    
+    def import_json_view(self, request):
+        """Import License from JSON file."""
+        from django.template.response import TemplateResponse
+        from django.shortcuts import redirect
+        
+        # Handle duplicate confirmation
+        if request.method == 'POST' and '_confirm_import' in request.POST:
+            # Get license data from session
+            license_data_json = request.session.get('pending_license_data')
+            if not license_data_json:
+                self.message_user(
+                    request,
+                    _('Session expired. Please try importing again.'),
+                    messages.ERROR
+                )
+                return redirect('admin:licenses_license_import_json')
+            
+            try:
+                license_data_dict = json.loads(license_data_json)
+                
+                # Restore model instances from IDs
+                license_data = {}
+                license_data['title'] = license_data_dict.get('title', '')
+                license_data['description'] = license_data_dict.get('description', '')
+                license_data['profile'] = Profile.objects.get(id=license_data_dict['profile'])
+                license_data['category'] = Category.objects.get(id=license_data_dict['category'])
+                license_data['media_authority_exchange_allowed'] = license_data_dict.get('media_authority_exchange_allowed', False)
+                license_data['store_in_ok_media_library'] = license_data_dict.get('store_in_ok_media_library', False)
+                license_data['repetitions_allowed'] = license_data_dict.get('repetitions_allowed', False)
+                license_data['media_authority_exchange_allowed_other_states'] = license_data_dict.get('media_authority_exchange_allowed_other_states', False)
+                license_data['youth_protection_necessary'] = license_data_dict.get('youth_protection_necessary', False)
+                license_data['youth_protection_category'] = license_data_dict.get('youth_protection_category', 'none')
+                license_data['is_screen_board'] = license_data_dict.get('is_screen_board', False)
+                license_data['infoblock'] = license_data_dict.get('infoblock', False)
+                license_data['confirmed'] = license_data_dict.get('confirmed', False)
+                # Parse duration string back to timedelta
+                duration_str = license_data_dict.get('duration', '0:00:00')
+                parts = duration_str.split(':')
+                if len(parts) == 3:
+                    license_data['duration'] = datetime.timedelta(
+                        hours=int(parts[0]),
+                        minutes=int(parts[1]),
+                        seconds=int(parts[2])
+                    )
+                else:
+                    license_data['duration'] = datetime.timedelta(seconds=0)
+                
+                # Create License
+                license_obj = License.objects.create(**license_data)
+                
+                # Clear session
+                del request.session['pending_license_data']
+                del request.session['pending_duplicates']
+                
+                self.message_user(
+                    request,
+                    _('License "%(title)s" successfully imported.') % {
+                        'title': license_obj.title
+                    },
+                    messages.SUCCESS
+                )
+                
+                # Redirect to the created license
+                from django.urls import reverse
+                return redirect(
+                    reverse('admin:licenses_license_change', args=[license_obj.id])
+                )
+            except Exception as e:
+                logger.error(f'Error creating license after confirmation: {str(e)}', exc_info=True)
+                self.message_user(
+                    request,
+                    _('Error creating license: {}').format(str(e)),
+                    messages.ERROR
+                )
+                return redirect('admin:licenses_license_import_json')
+        
+        # Handle cancel duplicate confirmation
+        if request.method == 'POST' and '_cancel_import' in request.POST:
+            # Clear session
+            del request.session['pending_license_data']
+            del request.session['pending_duplicates']
+            
+            self.message_user(
+                request,
+                _('Import cancelled.'),
+                messages.INFO
+            )
+            return redirect('admin:licenses_license_import_json')
+        
+        # Handle initial JSON import
+        if request.method == 'POST':
+            form = ImportJSONForm(request.POST, request.FILES)
+            if form.is_valid():
+                json_file = request.FILES['json_file']
+                try:
+                    # Read and parse JSON
+                    json_data = json.loads(json_file.read().decode('utf-8'))
+                    
+                    # Map JSON fields to License model
+                    license_data = {}
+                    
+                    # Title from name
+                    license_data['title'] = json_data.get('name', '')
+                    
+                    # Description
+                    license_data['description'] = json_data.get('description', '')
+                    
+                    # Profile from senderResponsible (primary) or targetChannel (fallback)
+                    profile = None
+                    sender_responsible = json_data.get('senderResponsible')
+                    target_channel = json_data.get('targetChannel')
+                    
+                    # Get media_authority from targetChannel if available
+                    media_authority = None
+                    if target_channel:
+                        media_authority_name = MEDIA_AUTHORITY_MAPPING.get(target_channel)
+                        if media_authority_name:
+                            media_authority, _created = MediaAuthority.objects.get_or_create(
+                                name=media_authority_name
+                            )
+                    
+                    # Try to find profile by senderResponsible
+                    if sender_responsible:
+                        profile = get_profile_by_name(sender_responsible)
+                        if not profile:
+                            # Profile not found - create it if we have media_authority
+                            if media_authority:
+                                profile = create_profile_by_name(sender_responsible, media_authority)
+                                self.message_user(
+                                    request,
+                                    _('Profile not found for senderResponsible: %(name)s. '
+                                      'Created new profile automatically.') % {
+                                        'name': sender_responsible
+                                    },
+                                    messages.SUCCESS
+                                )
+                            else:
+                                self.message_user(
+                                    request,
+                                    _('No profile found for senderResponsible: %(name)s. '
+                                      'targetChannel is required to create a new profile.') % {
+                                        'name': sender_responsible
+                                    },
+                                    messages.WARNING
+                                )
+                    
+                    # Fallback to targetChannel if senderResponsible didn't work
+                    if not profile:
+                        if target_channel:
+                            profile = get_profile_by_target_channel(target_channel)
+                            if not profile:
+                                self.message_user(
+                                    request,
+                                    _('No profile found for targetChannel: %(channel)s. '
+                                      'Please create a profile manually in the admin.') % {
+                                        'channel': target_channel
+                                    },
+                                    messages.ERROR
+                                )
+                                return TemplateResponse(
+                                    request,
+                                    'admin/licenses/import_json.html',
+                                    {'form': form, 'opts': self.model._meta}
+                                )
+                        else:
+                            self.message_user(
+                                request,
+                                _('Either senderResponsible or targetChannel is required in JSON file.'),
+                                messages.ERROR
+                            )
+                            return TemplateResponse(
+                                request,
+                                'admin/licenses/import_json.html',
+                                {'form': form, 'opts': self.model._meta}
+                            )
+                    
+                    license_data['profile'] = profile
+                    
+                    # Category mapping
+                    category_id = json_data.get('category')
+                    if category_id:
+                        license_data['category'] = get_category_by_id(category_id)
+                    else:
+                        license_data['category'] = Category.objects.get_or_create(
+                            name=_('Not Selected')
+                        )[0]
+                    
+                    # Exchange permissions
+                    license_data['media_authority_exchange_allowed'] = json_data.get(
+                        'allowExchange', False
+                    )
+                    
+                    # Media library
+                    license_data['store_in_ok_media_library'] = json_data.get(
+                        'saveToMediathek', False
+                    )
+                    
+                    # Default values
+                    license_data['repetitions_allowed'] = False
+                    license_data['media_authority_exchange_allowed_other_states'] = False
+                    license_data['youth_protection_necessary'] = False
+                    license_data['youth_protection_category'] = 'none'
+                    license_data['is_screen_board'] = False
+                    license_data['infoblock'] = False
+                    license_data['confirmed'] = False
+                    license_data['duration'] = datetime.timedelta(seconds=0)
+                    
+                    # Check for potential duplicates
+                    potential_duplicates = find_potential_duplicates(
+                        license_data['title'],
+                        license_data['profile'],
+                        threshold=0.8
+                    )
+                    
+                    if potential_duplicates.exists():
+                        # Store license data in session for confirmation
+                        # Convert model instances to IDs for JSON serialization
+                        license_data_serializable = license_data.copy()
+                        license_data_serializable['profile'] = profile.id
+                        license_data_serializable['category'] = license_data['category'].id
+                        # Convert timedelta to string format HH:MM:SS
+                        duration_td = license_data['duration']
+                        total_seconds = int(duration_td.total_seconds())
+                        hours = total_seconds // 3600
+                        minutes = (total_seconds % 3600) // 60
+                        seconds = total_seconds % 60
+                        license_data_serializable['duration'] = f"{hours}:{minutes:02d}:{seconds:02d}"
+                        
+                        request.session['pending_license_data'] = json.dumps(license_data_serializable)
+                        request.session['pending_duplicates'] = list(potential_duplicates.values_list('id', flat=True))
+                        
+                        # Calculate similarity scores for each duplicate (as percentages)
+                        similarity_scores = {}
+                        for dup in potential_duplicates:
+                            similarity_scores[dup.id] = similarity_ratio(license_data['title'], dup.title) * 100
+                        
+                        # Show confirmation page with duplicates
+                        return TemplateResponse(
+                            request,
+                            'admin/licenses/import_duplicate_confirmation.html',
+                            {
+                                'form': form,
+                                'opts': self.model._meta,
+                                'new_title': license_data['title'],
+                                'new_profile': profile,
+                                'duplicates': potential_duplicates,
+                                'similarity_scores': similarity_scores
+                            }
+                        )
+                    
+                    # No duplicates found - create immediately
+                    license_obj = License.objects.create(**license_data)
+                    
+                    self.message_user(
+                        request,
+                        _('License "%(title)s" successfully imported.') % {
+                            'title': license_obj.title
+                        },
+                        messages.SUCCESS
+                    )
+                    
+                    # Redirect to the created license
+                    from django.urls import reverse
+                    return redirect(
+                        reverse('admin:licenses_license_change', args=[license_obj.id])
+                    )
+                    
+                except json.JSONDecodeError as e:
+                    error_msg = str(e)
+                    self.message_user(
+                        request,
+                        _('Invalid JSON file: {}').format(error_msg),
+                        messages.ERROR
+                    )
+                except Exception as e:
+                    logger.error(f'Error importing JSON: {str(e)}', exc_info=True)
+                    error_msg = str(e)
+                    self.message_user(
+                        request,
+                        _('Error importing license: {}').format(error_msg),
+                        messages.ERROR
+                    )
+        else:
+            form = ImportJSONForm()
+        
+        return TemplateResponse(
+            request,
+            'admin/licenses/import_json.html',
+            {'form': form, 'opts': self.model._meta}
+        )
 
 
 admin.site.register(License, LicenseAdmin)

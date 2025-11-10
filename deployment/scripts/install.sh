@@ -388,6 +388,27 @@ if [ "$INSTALL_MODE" = "1" ]; then
             fi
         fi
         
+        # Copy logo and favicon to project static directory
+        echo ""
+        echo "Copying logo and favicon files..."
+        if [ -d "$PROJECT_DIR/deployment/img" ]; then
+            mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+            if [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+                cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+                echo "✓ Copied logo.png"
+            else
+                echo "⚠️  Warning: logo.png not found in deployment/img/"
+            fi
+            if [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+                cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+                echo "✓ Copied favicon.ico"
+            else
+                echo "⚠️  Warning: favicon.ico not found in deployment/img/"
+            fi
+        else
+            echo "⚠️  Warning: deployment/img/ directory not found. Please copy logo.png and favicon.ico to ok_tools/static/img/ manually."
+        fi
+        
         # Copy necessary files based on installation type
         echo ""
         echo "Copying deployment files..."
@@ -720,6 +741,27 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         fi
     fi
 
+    # Copy logo and favicon to project static directory
+    echo ""
+    echo "Copying logo and favicon files..."
+    if [ -d "$PROJECT_DIR/deployment/img" ]; then
+        mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+        if [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+            cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+            echo "✓ Copied logo.png"
+        else
+            echo "⚠️  Warning: logo.png not found in deployment/img/"
+        fi
+        if [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+            cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+            echo "✓ Copied favicon.ico"
+        else
+            echo "⚠️  Warning: favicon.ico not found in deployment/img/"
+        fi
+    else
+        echo "⚠️  Warning: deployment/img/ directory not found. Please copy logo.png and favicon.ico to ok_tools/static/img/ manually."
+    fi
+    
     # Copy necessary files based on installation type
     echo ""
     echo "Copying deployment files..."
@@ -838,6 +880,57 @@ cd "$(dirname "$0")"
 docker compose ps
 EOF
 
+# Create local update.sh script that pulls from git and calls main update script
+# Use the actual PROJECT_DIR path that was computed during installation
+cat > "$PRODUCTION_DIR/update.sh" <<EOF
+#!/bin/bash
+# Local update wrapper script for OK Tools production environment
+# This script updates the code from git and then calls the main update script
+
+set -e
+
+# Get script directory and project directory
+PRODUCTION_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+PROJECT_DIR="$PROJECT_DIR"
+
+# Try to find project directory if default path doesn't exist
+if [ ! -d "\$PROJECT_DIR" ] || [ ! -f "\$PROJECT_DIR/deployment/scripts/update.sh" ]; then
+    # Try to find project directory by looking for deployment/scripts/update.sh
+    # Search in parent directory and common locations
+    PARENT_DIR="\$(dirname "\$PRODUCTION_DIR")"
+    for possible_dir in "\$PARENT_DIR"/*; do
+        if [ -d "\$possible_dir" ] && [ -f "\$possible_dir/deployment/scripts/update.sh" ]; then
+            PROJECT_DIR="\$possible_dir"
+            break
+        fi
+    done
+fi
+
+# Check if project directory exists
+if [ ! -d "\$PROJECT_DIR" ]; then
+    echo "Error: Project directory not found. Expected at: $PROJECT_DIR"
+    echo "Please check your installation or set PROJECT_DIR environment variable."
+    exit 1
+fi
+
+# Check if main update script exists
+MAIN_UPDATE_SCRIPT="\$PROJECT_DIR/deployment/scripts/update.sh"
+if [ ! -f "\$MAIN_UPDATE_SCRIPT" ]; then
+    echo "Error: Main update script not found at \$MAIN_UPDATE_SCRIPT"
+    exit 1
+fi
+
+# Change to project directory and pull latest code
+echo "Updating code from git repository..."
+cd "\$PROJECT_DIR"
+git pull
+
+# Call the main update script with flag indicating it was called from local script
+echo "Running update script..."
+export LOCAL_UPDATE_CALLED=1
+exec "\$MAIN_UPDATE_SCRIPT"
+EOF
+
 chmod +x "$PRODUCTION_DIR"/*.sh 2>/dev/null
 print_success "Management scripts created"
 
@@ -863,7 +956,7 @@ fi
 echo "   Username: $SUPERUSER_USERNAME (or as configured)"
 echo "   Password: As configured during setup"
 echo ""
-echo "To update application, run: $SCRIPT_DIR/update.sh"
+echo "To update application, run: $PRODUCTION_DIR/update.sh"
 echo "To configure post-deployment settings, run: $SCRIPT_DIR/configure.sh"
 # Run post-installation diagnostics
 print_header "Running Post-Installation Diagnostics"

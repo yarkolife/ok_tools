@@ -1,0 +1,267 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
+<style>
+    /* Collapsible menu styles using Django admin standard classes */
+    .module {
+        margin: 0 !important;
+        border: none !important;
+        border-bottom: none !important;
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .module table {
+        margin: 0 !important;
+        border: none !important;
+        border-collapse: collapse !important;
+        width: 100% !important;
+        table-layout: auto !important;
+    }
+
+    .collapsible-app-header {
+        margin: 0 !important;
+        padding: 8px 16px !important;
+        border: none !important;
+        font-weight: 400 !important;
+        font-size: 0.75rem !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        background: var(--secondary) !important;
+        color: var(--header-color) !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        text-align: left !important;
+        cursor: pointer !important;
+        user-select: none !important;
+    }
+
+    .collapsible-app-header .section,
+    .collapsible-app-header .section:link,
+    .collapsible-app-header .section:visited {
+        color: var(--header-link-color) !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    .collapsible-app-header .section:hover,
+    .collapsible-app-header .section:focus {
+        color: var(--header-color) !important;
+    }
+
+    .collapsible-app-toggle {
+        margin-right: 8px;
+        font-size: 10px;
+        transition: transform 0.3s;
+        color: var(--header-link-color, #fff);
+        width: 14px;
+        display: inline-block;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .collapsible-app-toggle.expanded {
+        transform: rotate(90deg);
+    }
+
+    .collapsible-app-models {
+        display: none;
+    }
+
+    .collapsible-app-models.expanded {
+        display: table-row-group;
+    }
+
+    .module.collapsed .collapsible-app-models {
+        display: none !important;
+    }
+
+    .module tbody,
+    .module tr {
+        width: 100%;
+    }
+
+    .module th,
+    .module td {
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% if app_list %}
+    {% for app in app_list %}
+      <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}" data-app-label="{{ app.app_label }}">
+        <div class="collapsible-app-header" data-app-toggle="{{ app.app_label }}">
+          <span class="collapsible-app-toggle">▶</span>
+          <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+        </div>
+        <table>
+          <thead class="visually-hidden">
+            <tr>
+              <th scope="col">{% translate 'Model name' %}</th>
+              <th scope="col">{% translate 'Add link' %}</th>
+              <th scope="col">{% translate 'Change or view list link' %}</th>
+            </tr>
+          </thead>
+          <tbody class="collapsible-app-models" id="models-{{ app.app_label }}">
+            {% for model in app.models %}
+              {% with model_name=model.object_name|lower %}
+                <tr class="model-{{ model_name }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                  <th scope="row" id="{{ app.app_label }}-{{ model_name }}">
+                    {% if model.admin_url %}
+                      <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a>
+                    {% else %}
+                      {{ model.name }}
+                    {% endif %}
+                  </th>
+
+                  {% if model.add_url %}
+                    <td><a href="{{ model.add_url }}" class="addlink" aria-describedby="{{ app.app_label }}-{{ model_name }}">{% translate 'Add' %}</a></td>
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+
+                  {% if model.admin_url and show_changelinks %}
+                    {% if model.view_only %}
+                      <td><a href="{{ model.admin_url }}" class="viewlink" aria-describedby="{{ app.app_label }}-{{ model_name }}">{% translate 'View' %}</a></td>
+                    {% else %}
+                      <td><a href="{{ model.admin_url }}" class="changelink" aria-describedby="{{ app.app_label }}-{{ model_name }}">{% translate 'Change' %}</a></td>
+                    {% endif %}
+                  {% elif show_changelinks %}
+                    <td></td>
+                  {% endif %}
+                </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>{% translate "You don't have permission to view or edit anything." %}</p>
+  {% endif %}
+</div>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Initialize collapsible menus
+    document.addEventListener('DOMContentLoaded', function() {
+        const appHeaders = document.querySelectorAll('.collapsible-app-header');
+        
+        appHeaders.forEach(function(header) {
+            // Prevent toggle when clicking on the app name link
+            const appNameLink = header.querySelector('.section');
+            if (appNameLink) {
+                appNameLink.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            header.addEventListener('click', function(e) {
+                // Don't toggle if clicking on a link
+                if (e.target.tagName === 'A') {
+                    return;
+                }
+                
+                const appLabel = this.getAttribute('data-app-toggle');
+                const modelsList = document.getElementById('models-' + appLabel);
+                const toggle = this.querySelector('.collapsible-app-toggle');
+                const module = this.closest('.module');
+                
+                if (modelsList) {
+                    // Toggle expanded state
+                    const isExpanded = modelsList.classList.contains('expanded');
+                    
+                    if (isExpanded) {
+                        modelsList.classList.remove('expanded');
+                        toggle.classList.remove('expanded');
+                        if (module) module.classList.add('collapsed');
+                    } else {
+                        modelsList.classList.add('expanded');
+                        toggle.classList.add('expanded');
+                        if (module) module.classList.remove('collapsed');
+                    }
+                    
+                    // Save state to localStorage
+                    localStorage.setItem('admin_menu_' + appLabel, !isExpanded);
+                }
+            });
+            
+            // Restore saved state
+            const appLabel = header.getAttribute('data-app-toggle');
+            const savedState = localStorage.getItem('admin_menu_' + appLabel);
+            if (savedState === 'true') {
+                const modelsList = document.getElementById('models-' + appLabel);
+                const toggle = header.querySelector('.collapsible-app-toggle');
+                const module = header.closest('.module');
+                if (modelsList) {
+                    modelsList.classList.add('expanded');
+                    toggle.classList.add('expanded');
+                    if (module) module.classList.remove('collapsed');
+                }
+            } else {
+                // Default: collapsed
+                const modelsList = document.getElementById('models-' + appLabel);
+                const module = header.closest('.module');
+                if (modelsList && module) {
+                    module.classList.add('collapsed');
+                }
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% translate 'Recent actions' %}</h2>
+        <h3>{% translate 'My actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% translate 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                <span class="visually-hidden">{% if entry.is_addition %}{% translate 'Added:' %}{% elif entry.is_change %}{% translate 'Changed:' %}{% elif entry.is_deletion %}{% translate 'Deleted:' %}{% endif %}</span>
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% translate 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}
+

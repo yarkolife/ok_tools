@@ -7,6 +7,14 @@
 
 {% block extrahead %}
 <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}" />
+<style>
+    #site-name img {
+        height: 60px;
+        width: auto;
+        max-width: 300px;
+        object-fit: contain;
+    }
+</style>
 {% endblock %}
 
 <!-- Video Player Modal (Bootstrap 3) -->
@@ -115,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% block branding %}
 
 <h1 id="site-name">
-    <a href="{% url 'admin:index' %}"><img width=75% height=75% src="{% static 'img/logo.png'%}" alt="{% translate 'Administration interface' %}" /></a>
+    <a href="{% url 'admin:index' %}"><img src="{% static 'img/logo.png'%}" alt="{% translate 'Administration interface' %}" /></a>
 </h1>
 
 {% endblock %}

@@ -7,10 +7,14 @@
   }
 
   .navbar-brand img {
+    height: 60px;
+    width: auto;
+    max-width: 200px;
     margin-right: 0.75rem;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
+    object-fit: contain;
   }
 
   .navbar-brand:hover img {
@@ -39,7 +43,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light" id="navigation" role="navigation" aria-label="Hauptnavigation">
   <a class="navbar-brand" id="home-link-id" href="{% url 'home'%}">
-    <img width="100%" height="80" src="{% static 'img/logo.png'%}" alt="{{OK_NAME_SHORT}} Logo" />
+    <img src="{% static 'img/logo.png'%}" alt="{{OK_NAME_SHORT}} Logo" />
     <span class="site-title">{{ OK_NAME_SHORT }}</span>
   </a>
   <button

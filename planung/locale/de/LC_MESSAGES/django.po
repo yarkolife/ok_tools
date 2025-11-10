@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-25 01:13+0200\n"
+"POT-Creation-Date: 2025-11-10 12:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: planung/admin.py:132
 msgid "Mon"
 msgstr "Mo"
@@ -207,4 +208,4 @@ msgstr "Planen!"
 
 #: planung/views.py:27
 msgid "License not found or not confirmed."
-msgstr "Freistellung nicht gefunden oder nicht bestätigt."
+msgstr "Freistellung nicht gefunden oder nicht genehmigt."

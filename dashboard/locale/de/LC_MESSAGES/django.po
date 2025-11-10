@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-25 01:13+0200\n"
+"POT-Creation-Date: 2025-11-10 12:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,8 +30,8 @@ msgstr "Registriert"
 #: dashboard/templates/dashboard/widgets/funnel.html:70
 #: dashboard/templates/dashboard/widgets/funnel.html:826
 #: dashboard/templates/dashboard/widgets/funnel.html:1131
-#: dashboard/templates/dashboard/widgets/users.html:118
-#: dashboard/templates/dashboard/widgets/users.html:1726
+#: dashboard/templates/dashboard/widgets/users.html:126
+#: dashboard/templates/dashboard/widgets/users.html:1741
 msgid "Verified"
 msgstr "Verifiziert"
 
@@ -105,8 +105,8 @@ msgstr "Benutzer-Journey-Stufen"
 #: dashboard/templates/dashboard/widgets/licenses.html:1312
 #: dashboard/templates/dashboard/widgets/licenses.html:1325
 #: dashboard/templates/dashboard/widgets/projects.html:1772
-#: dashboard/templates/dashboard/widgets/users.html:1162
-#: dashboard/templates/dashboard/widgets/users.html:1175
+#: dashboard/templates/dashboard/widgets/users.html:1176
+#: dashboard/templates/dashboard/widgets/users.html:1189
 msgid "Date"
 msgstr "Datum"
 
@@ -117,7 +117,7 @@ msgstr "Gesamtregistrierungen"
 
 #: dashboard/models.py:104 dashboard/templates/dashboard/widgets/funnel.html:96
 #: dashboard/templates/dashboard/widgets/funnel.html:98
-#: dashboard/templates/dashboard/widgets/users.html:116
+#: dashboard/templates/dashboard/widgets/users.html:124
 msgid "Verified Users"
 msgstr "Verifizierte Benutzer"
 
@@ -308,6 +308,7 @@ msgid "Data retrieval failed"
 msgstr "Datenabruf fehlgeschlagen"
 
 #: dashboard/services/statistics_service.py:922
+#, python-format
 msgid "Error calculating statistics: %s"
 msgstr "Fehler beim Berechnen der Statistik: %s"
 
@@ -320,10 +321,10 @@ msgstr "Haupt-Dashboard"
 #: dashboard/templates/dashboard/base.html:48
 #: dashboard/templates/dashboard/widgets/funnel.html:517
 #: dashboard/templates/dashboard/widgets/funnel.html:563
-#: dashboard/templates/dashboard/widgets/media_data.html:280
-#: dashboard/templates/dashboard/widgets/users.html:779
-#: dashboard/templates/dashboard/widgets/users.html:824
-#: dashboard/templates/dashboard/widgets/users.html:1879
+#: dashboard/templates/dashboard/widgets/media_data.html:328
+#: dashboard/templates/dashboard/widgets/users.html:793
+#: dashboard/templates/dashboard/widgets/users.html:838
+#: dashboard/templates/dashboard/widgets/users.html:1894
 msgid "Users"
 msgstr "Benutzer"
 
@@ -409,7 +410,7 @@ msgstr "Mitarbeiter"
 #: dashboard/templates/dashboard/widgets/funnel.html:72
 #: dashboard/templates/dashboard/widgets/funnel.html:1132
 #: dashboard/templates/dashboard/widgets/funnel.html:1180
-#: dashboard/templates/dashboard/widgets/users.html:1727
+#: dashboard/templates/dashboard/widgets/users.html:1742
 msgid "Member"
 msgstr "Mitglied"
 
@@ -452,7 +453,7 @@ msgstr "Datumsbereich"
 #: dashboard/templates/dashboard/widgets/notifications.html:23
 #: dashboard/templates/dashboard/widgets/projects.html:19
 #: dashboard/templates/dashboard/widgets/users.html:19
-#: dashboard/widgets/filters.py:137
+#: dashboard/widgets/filters.py:138
 msgid "Last 7 days"
 msgstr "Letzte 7 Tage"
 
@@ -465,7 +466,7 @@ msgstr "Letzte 7 Tage"
 #: dashboard/templates/dashboard/widgets/notifications.html:24
 #: dashboard/templates/dashboard/widgets/projects.html:20
 #: dashboard/templates/dashboard/widgets/users.html:20
-#: dashboard/widgets/filters.py:138
+#: dashboard/widgets/filters.py:139
 msgid "Last 30 days"
 msgstr "Letzte 30 Tage"
 
@@ -478,7 +479,7 @@ msgstr "Letzte 30 Tage"
 #: dashboard/templates/dashboard/widgets/notifications.html:25
 #: dashboard/templates/dashboard/widgets/projects.html:21
 #: dashboard/templates/dashboard/widgets/users.html:21
-#: dashboard/widgets/filters.py:139
+#: dashboard/widgets/filters.py:140
 msgid "Last 90 days"
 msgstr "Letzte 90 Tage"
 
@@ -491,7 +492,7 @@ msgstr "Letzte 90 Tage"
 #: dashboard/templates/dashboard/widgets/notifications.html:26
 #: dashboard/templates/dashboard/widgets/projects.html:22
 #: dashboard/templates/dashboard/widgets/users.html:22
-#: dashboard/widgets/filters.py:140
+#: dashboard/widgets/filters.py:141
 msgid "Last year"
 msgstr "Letztes Jahr"
 
@@ -543,8 +544,8 @@ msgstr "Enddatum"
 #: dashboard/templates/dashboard/widgets/licenses.html:2104
 #: dashboard/templates/dashboard/widgets/media_data.html:36
 #: dashboard/templates/dashboard/widgets/users.html:36
-#: dashboard/templates/dashboard/widgets/users.html:234
-#: dashboard/templates/dashboard/widgets/users.html:1728
+#: dashboard/templates/dashboard/widgets/users.html:248
+#: dashboard/templates/dashboard/widgets/users.html:1743
 msgid "Media Authority"
 msgstr "Medienanstalt"
 
@@ -566,8 +567,8 @@ msgstr "Alle Bürgermedien"
 #: dashboard/templates/dashboard/widgets/inventory.html:40
 #: dashboard/templates/dashboard/widgets/licenses.html:44
 #: dashboard/templates/dashboard/widgets/media_data.html:44
-#: dashboard/templates/dashboard/widgets/users.html:44
-#: dashboard/templates/dashboard/widgets/users.html:1724
+#: dashboard/templates/dashboard/widgets/users.html:42
+#: dashboard/templates/dashboard/widgets/users.html:1739
 msgid "Gender"
 msgstr "Geschlecht"
 
@@ -576,7 +577,7 @@ msgstr "Geschlecht"
 #: dashboard/templates/dashboard/widgets/funnel.html:43
 #: dashboard/templates/dashboard/widgets/licenses.html:46
 #: dashboard/templates/dashboard/widgets/media_data.html:46
-#: dashboard/templates/dashboard/widgets/users.html:46
+#: dashboard/templates/dashboard/widgets/users.html:44
 msgid "All Genders"
 msgstr "Alle Geschlechter"
 
@@ -589,9 +590,9 @@ msgstr "Alle Geschlechter"
 #: dashboard/templates/dashboard/widgets/licenses.html:1028
 #: dashboard/templates/dashboard/widgets/media_data.html:47
 #: dashboard/templates/dashboard/widgets/projects.html:1202
-#: dashboard/templates/dashboard/widgets/users.html:47
-#: dashboard/templates/dashboard/widgets/users.html:100
-#: dashboard/templates/dashboard/widgets/users.html:898
+#: dashboard/templates/dashboard/widgets/users.html:45
+#: dashboard/templates/dashboard/widgets/users.html:108
+#: dashboard/templates/dashboard/widgets/users.html:912
 msgid "Male"
 msgstr "Männlich"
 
@@ -604,9 +605,9 @@ msgstr "Männlich"
 #: dashboard/templates/dashboard/widgets/licenses.html:1028
 #: dashboard/templates/dashboard/widgets/media_data.html:48
 #: dashboard/templates/dashboard/widgets/projects.html:1202
-#: dashboard/templates/dashboard/widgets/users.html:48
-#: dashboard/templates/dashboard/widgets/users.html:106
-#: dashboard/templates/dashboard/widgets/users.html:898
+#: dashboard/templates/dashboard/widgets/users.html:46
+#: dashboard/templates/dashboard/widgets/users.html:114
+#: dashboard/templates/dashboard/widgets/users.html:912
 msgid "Female"
 msgstr "Weiblich"
 
@@ -619,9 +620,9 @@ msgstr "Weiblich"
 #: dashboard/templates/dashboard/widgets/licenses.html:1028
 #: dashboard/templates/dashboard/widgets/media_data.html:49
 #: dashboard/templates/dashboard/widgets/projects.html:1202
-#: dashboard/templates/dashboard/widgets/users.html:49
-#: dashboard/templates/dashboard/widgets/users.html:112
-#: dashboard/templates/dashboard/widgets/users.html:898
+#: dashboard/templates/dashboard/widgets/users.html:47
+#: dashboard/templates/dashboard/widgets/users.html:120
+#: dashboard/templates/dashboard/widgets/users.html:912
 msgid "Diverse"
 msgstr "Divers"
 
@@ -634,15 +635,15 @@ msgstr "Divers"
 #: dashboard/templates/dashboard/widgets/licenses.html:1184
 #: dashboard/templates/dashboard/widgets/licenses.html:1197
 #: dashboard/templates/dashboard/widgets/media_data.html:53
-#: dashboard/templates/dashboard/widgets/media_data.html:305
-#: dashboard/templates/dashboard/widgets/media_data.html:373
-#: dashboard/templates/dashboard/widgets/media_data.html:441
+#: dashboard/templates/dashboard/widgets/media_data.html:353
+#: dashboard/templates/dashboard/widgets/media_data.html:421
+#: dashboard/templates/dashboard/widgets/media_data.html:489
 #: dashboard/templates/dashboard/widgets/projects.html:1124
 #: dashboard/templates/dashboard/widgets/projects.html:1137
 #: dashboard/templates/dashboard/widgets/users.html:53
-#: dashboard/templates/dashboard/widgets/users.html:270
-#: dashboard/templates/dashboard/widgets/users.html:821
-#: dashboard/templates/dashboard/widgets/users.html:834
+#: dashboard/templates/dashboard/widgets/users.html:284
+#: dashboard/templates/dashboard/widgets/users.html:835
+#: dashboard/templates/dashboard/widgets/users.html:848
 msgid "Age Group"
 msgstr "Altersgruppe"
 
@@ -710,10 +711,10 @@ msgstr "Über 50"
 #: dashboard/templates/dashboard/widgets/funnel.html:79
 #: dashboard/templates/dashboard/widgets/inventory.html:88
 #: dashboard/templates/dashboard/widgets/licenses.html:80
-#: dashboard/templates/dashboard/widgets/media_data.html:92
+#: dashboard/templates/dashboard/widgets/media_data.html:100
 #: dashboard/templates/dashboard/widgets/notifications.html:73
 #: dashboard/templates/dashboard/widgets/projects.html:83
-#: dashboard/templates/dashboard/widgets/users.html:82
+#: dashboard/templates/dashboard/widgets/users.html:90
 msgid "Apply Filters"
 msgstr "Filter anwenden"
 
@@ -722,16 +723,16 @@ msgstr "Filter anwenden"
 #: dashboard/templates/dashboard/widgets/funnel.html:80
 #: dashboard/templates/dashboard/widgets/inventory.html:89
 #: dashboard/templates/dashboard/widgets/licenses.html:81
-#: dashboard/templates/dashboard/widgets/media_data.html:93
+#: dashboard/templates/dashboard/widgets/media_data.html:101
 #: dashboard/templates/dashboard/widgets/notifications.html:74
 #: dashboard/templates/dashboard/widgets/projects.html:84
-#: dashboard/templates/dashboard/widgets/users.html:83
+#: dashboard/templates/dashboard/widgets/users.html:91
 msgid "Reset"
 msgstr "Zurücksetzen"
 
 #: dashboard/templates/dashboard/main.html:107
-#: dashboard/templates/dashboard/widgets/users.html:92
-#: dashboard/templates/dashboard/widgets/users.html:94
+#: dashboard/templates/dashboard/widgets/users.html:100
+#: dashboard/templates/dashboard/widgets/users.html:102
 msgid "Total Users"
 msgstr "Benutzer gesamt"
 
@@ -858,8 +859,8 @@ msgstr "Alle anzeigen"
 #: dashboard/templates/dashboard/widgets/notifications.html:763
 #: dashboard/templates/dashboard/widgets/projects.html:1650
 #: dashboard/templates/dashboard/widgets/projects.html:1669
-#: dashboard/templates/dashboard/widgets/users.html:1630
-#: dashboard/templates/dashboard/widgets/users.html:1693
+#: dashboard/templates/dashboard/widgets/users.html:1645
+#: dashboard/templates/dashboard/widgets/users.html:1708
 msgid "Loading..."
 msgstr "Lädt..."
 
@@ -905,7 +906,7 @@ msgstr "Aktive Benutzer"
 
 #: dashboard/templates/dashboard/main.html:417
 msgid "Confirmed Licenses"
-msgstr "Bestätigte Freistellungen"
+msgstr "Genehmigte Freistellungen"
 
 #: dashboard/templates/dashboard/main.html:428
 #: dashboard/templates/dashboard/widgets/contributions.html:101
@@ -955,7 +956,7 @@ msgstr "Beiträge-Dashboard"
 #: dashboard/templates/dashboard/widgets/media_data.html:23
 #: dashboard/templates/dashboard/widgets/projects.html:23
 #: dashboard/templates/dashboard/widgets/users.html:23
-#: dashboard/widgets/filters.py:141
+#: dashboard/widgets/filters.py:142
 msgid "All Time"
 msgstr "Gesamter Zeitraum"
 
@@ -967,7 +968,7 @@ msgstr "Gesamter Zeitraum"
 #: dashboard/templates/dashboard/widgets/notifications.html:27
 #: dashboard/templates/dashboard/widgets/projects.html:24
 #: dashboard/templates/dashboard/widgets/users.html:24
-#: dashboard/widgets/filters.py:142
+#: dashboard/widgets/filters.py:143
 msgid "Custom Period"
 msgstr "Benutzerdefinierter Zeitraum"
 
@@ -1115,10 +1116,10 @@ msgstr "Beiträge nach Medienanstalt"
 #: dashboard/templates/dashboard/widgets/licenses.html:282
 #: dashboard/templates/dashboard/widgets/licenses.html:299
 #: dashboard/templates/dashboard/widgets/licenses.html:312
-#: dashboard/templates/dashboard/widgets/media_data.html:112
-#: dashboard/templates/dashboard/widgets/media_data.html:129
-#: dashboard/templates/dashboard/widgets/media_data.html:146
-#: dashboard/templates/dashboard/widgets/media_data.html:163
+#: dashboard/templates/dashboard/widgets/media_data.html:120
+#: dashboard/templates/dashboard/widgets/media_data.html:137
+#: dashboard/templates/dashboard/widgets/media_data.html:154
+#: dashboard/templates/dashboard/widgets/media_data.html:171
 #: dashboard/templates/dashboard/widgets/projects.html:150
 #: dashboard/templates/dashboard/widgets/projects.html:164
 #: dashboard/templates/dashboard/widgets/projects.html:181
@@ -1126,14 +1127,14 @@ msgstr "Beiträge nach Medienanstalt"
 #: dashboard/templates/dashboard/widgets/projects.html:211
 #: dashboard/templates/dashboard/widgets/projects.html:224
 #: dashboard/templates/dashboard/widgets/projects.html:241
-#: dashboard/templates/dashboard/widgets/users.html:149
 #: dashboard/templates/dashboard/widgets/users.html:163
-#: dashboard/templates/dashboard/widgets/users.html:180
-#: dashboard/templates/dashboard/widgets/users.html:193
-#: dashboard/templates/dashboard/widgets/users.html:210
-#: dashboard/templates/dashboard/widgets/users.html:227
-#: dashboard/templates/dashboard/widgets/users.html:263
-#: dashboard/templates/dashboard/widgets/users.html:318
+#: dashboard/templates/dashboard/widgets/users.html:177
+#: dashboard/templates/dashboard/widgets/users.html:194
+#: dashboard/templates/dashboard/widgets/users.html:207
+#: dashboard/templates/dashboard/widgets/users.html:224
+#: dashboard/templates/dashboard/widgets/users.html:241
+#: dashboard/templates/dashboard/widgets/users.html:277
+#: dashboard/templates/dashboard/widgets/users.html:332
 msgid "Export"
 msgstr "Exportieren"
 
@@ -1178,9 +1179,9 @@ msgstr "Anzahl der Beiträge"
 #: dashboard/templates/dashboard/widgets/notifications.html:556
 #: dashboard/templates/dashboard/widgets/projects.html:798
 #: dashboard/templates/dashboard/widgets/projects.html:1282
-#: dashboard/templates/dashboard/widgets/users.html:741
-#: dashboard/templates/dashboard/widgets/users.html:974
-#: dashboard/templates/dashboard/widgets/users.html:1078
+#: dashboard/templates/dashboard/widgets/users.html:755
+#: dashboard/templates/dashboard/widgets/users.html:988
+#: dashboard/templates/dashboard/widgets/users.html:1092
 msgid "Count"
 msgstr "Anzahl"
 
@@ -1215,7 +1216,7 @@ msgstr "Beitrags-Detailansicht"
 #: dashboard/templates/dashboard/widgets/licenses.html:2040
 #: dashboard/templates/dashboard/widgets/notifications.html:790
 #: dashboard/templates/dashboard/widgets/projects.html:1693
-#: dashboard/templates/dashboard/widgets/users.html:1657
+#: dashboard/templates/dashboard/widgets/users.html:1672
 msgid "Close"
 msgstr "Schließen"
 
@@ -1225,7 +1226,7 @@ msgstr "Schließen"
 #: dashboard/templates/dashboard/widgets/licenses.html:2041
 #: dashboard/templates/dashboard/widgets/notifications.html:791
 #: dashboard/templates/dashboard/widgets/projects.html:1694
-#: dashboard/templates/dashboard/widgets/users.html:1658
+#: dashboard/templates/dashboard/widgets/users.html:1673
 msgid "Export CSV"
 msgstr "CSV exportieren"
 
@@ -1276,7 +1277,7 @@ msgstr "Freistellungsuntertitel"
 
 #: dashboard/templates/dashboard/widgets/contributions.html:1468
 msgid "License Confirmed"
-msgstr "Freistellung bestätigt"
+msgstr "Freistellung genehmigt"
 
 #: dashboard/templates/dashboard/widgets/contributions.html:1469
 #: dashboard/templates/dashboard/widgets/funnel.html:176
@@ -1284,7 +1285,7 @@ msgstr "Freistellung bestätigt"
 #: dashboard/templates/dashboard/widgets/funnel.html:1128
 #: dashboard/templates/dashboard/widgets/funnel.html:1177
 #: dashboard/templates/dashboard/widgets/licenses.html:2100
-#: dashboard/templates/dashboard/widgets/users.html:1722
+#: dashboard/templates/dashboard/widgets/users.html:1737
 msgid "Name"
 msgstr "Name"
 
@@ -1297,7 +1298,7 @@ msgstr "Name"
 #: dashboard/templates/dashboard/widgets/inventory.html:1890
 #: dashboard/templates/dashboard/widgets/licenses.html:64
 #: dashboard/templates/dashboard/widgets/licenses.html:2101
-#: dashboard/templates/dashboard/widgets/media_data.html:506
+#: dashboard/templates/dashboard/widgets/media_data.html:554
 #: dashboard/templates/dashboard/widgets/projects.html:1773
 msgid "Category"
 msgstr "Kategorie"
@@ -1322,7 +1323,7 @@ msgstr "Dauer"
 #: dashboard/templates/dashboard/widgets/funnel.html:1134
 #: dashboard/templates/dashboard/widgets/funnel.html:1182
 #: dashboard/templates/dashboard/widgets/licenses.html:2105
-#: dashboard/templates/dashboard/widgets/users.html:1729
+#: dashboard/templates/dashboard/widgets/users.html:1744
 msgid "City"
 msgstr "Stadt"
 
@@ -1333,13 +1334,15 @@ msgstr "Stadt"
 #: dashboard/templates/dashboard/widgets/funnel.html:1239
 #: dashboard/templates/dashboard/widgets/inventory.html:1902
 #: dashboard/templates/dashboard/widgets/licenses.html:2112
+#: dashboard/templates/dashboard/widgets/media_data.html:85
 #: dashboard/templates/dashboard/widgets/projects.html:67
 #: dashboard/templates/dashboard/widgets/projects.html:77
 #: dashboard/templates/dashboard/widgets/projects.html:1786
 #: dashboard/templates/dashboard/widgets/projects.html:1787
 #: dashboard/templates/dashboard/widgets/projects.html:1788
-#: dashboard/templates/dashboard/widgets/users.html:1743
-#: dashboard/templates/dashboard/widgets/users.html:1744
+#: dashboard/templates/dashboard/widgets/users.html:83
+#: dashboard/templates/dashboard/widgets/users.html:1758
+#: dashboard/templates/dashboard/widgets/users.html:1759
 msgid "Yes"
 msgstr "Ja"
 
@@ -1350,13 +1353,15 @@ msgstr "Ja"
 #: dashboard/templates/dashboard/widgets/funnel.html:1239
 #: dashboard/templates/dashboard/widgets/inventory.html:1902
 #: dashboard/templates/dashboard/widgets/licenses.html:2112
+#: dashboard/templates/dashboard/widgets/media_data.html:86
 #: dashboard/templates/dashboard/widgets/projects.html:68
 #: dashboard/templates/dashboard/widgets/projects.html:78
 #: dashboard/templates/dashboard/widgets/projects.html:1786
 #: dashboard/templates/dashboard/widgets/projects.html:1787
 #: dashboard/templates/dashboard/widgets/projects.html:1788
-#: dashboard/templates/dashboard/widgets/users.html:1743
-#: dashboard/templates/dashboard/widgets/users.html:1744
+#: dashboard/templates/dashboard/widgets/users.html:84
+#: dashboard/templates/dashboard/widgets/users.html:1758
+#: dashboard/templates/dashboard/widgets/users.html:1759
 msgid "No"
 msgstr "Nein"
 
@@ -1403,7 +1408,7 @@ msgstr "bis"
 #: dashboard/templates/dashboard/widgets/contributions.html:1569
 #: dashboard/templates/dashboard/widgets/inventory.html:1829
 #: dashboard/templates/dashboard/widgets/notifications.html:834
-#: dashboard/templates/dashboard/widgets/users.html:1710
+#: dashboard/templates/dashboard/widgets/users.html:1725
 msgid "of"
 msgstr "von"
 
@@ -1419,7 +1424,7 @@ msgstr "Einträge"
 #: dashboard/templates/dashboard/widgets/licenses.html:2159
 #: dashboard/templates/dashboard/widgets/projects.html:1822
 #: dashboard/templates/dashboard/widgets/projects.html:1828
-#: dashboard/templates/dashboard/widgets/users.html:1764
+#: dashboard/templates/dashboard/widgets/users.html:1779
 msgid "Previous"
 msgstr "Vorherige"
 
@@ -1431,7 +1436,7 @@ msgstr "Vorherige"
 #: dashboard/templates/dashboard/widgets/licenses.html:2178
 #: dashboard/templates/dashboard/widgets/projects.html:1857
 #: dashboard/templates/dashboard/widgets/projects.html:1863
-#: dashboard/templates/dashboard/widgets/users.html:1782
+#: dashboard/templates/dashboard/widgets/users.html:1797
 msgid "Next"
 msgstr "Nächste"
 
@@ -1557,8 +1562,8 @@ msgid "Funnel Stage"
 msgstr "Trichter-Stufe"
 
 #: dashboard/templates/dashboard/widgets/funnel.html:588
-#: dashboard/templates/dashboard/widgets/media_data.html:299
-#: dashboard/templates/dashboard/widgets/users.html:854
+#: dashboard/templates/dashboard/widgets/media_data.html:347
+#: dashboard/templates/dashboard/widgets/users.html:868
 msgid "Number of Users"
 msgstr "Anzahl der Benutzer"
 
@@ -1668,7 +1673,7 @@ msgstr "ID"
 
 #: dashboard/templates/dashboard/widgets/funnel.html:1127
 #: dashboard/templates/dashboard/widgets/funnel.html:1176
-#: dashboard/templates/dashboard/widgets/users.html:1723
+#: dashboard/templates/dashboard/widgets/users.html:1738
 msgid "Email"
 msgstr "E-Mail"
 
@@ -1682,7 +1687,7 @@ msgstr "Geburtstag"
 #: dashboard/templates/dashboard/widgets/funnel.html:1231
 #: dashboard/templates/dashboard/widgets/inventory.html:1895
 #: dashboard/templates/dashboard/widgets/licenses.html:2102
-#: dashboard/templates/dashboard/widgets/users.html:1730
+#: dashboard/templates/dashboard/widgets/users.html:1745
 msgid "Created"
 msgstr "Erstellt"
 
@@ -1726,7 +1731,7 @@ msgstr "Profil-E-Mail"
 #: dashboard/templates/dashboard/widgets/licenses.html:1396
 #: dashboard/templates/dashboard/widgets/licenses.html:2103
 msgid "Confirmed"
-msgstr "Bestätigt"
+msgstr "Genehmigt"
 
 #: dashboard/templates/dashboard/widgets/funnel.html:1305
 #: dashboard/templates/dashboard/widgets/inventory.html:1888
@@ -1738,7 +1743,7 @@ msgstr "Beschreibung"
 #: dashboard/templates/dashboard/widgets/licenses.html:2140
 #: dashboard/templates/dashboard/widgets/notifications.html:893
 #: dashboard/templates/dashboard/widgets/projects.html:1874
-#: dashboard/templates/dashboard/widgets/users.html:1789
+#: dashboard/templates/dashboard/widgets/users.html:1804
 msgid "No data found for the selected criteria."
 msgstr "Keine Daten für die ausgewählten Kriterien gefunden."
 
@@ -1762,8 +1767,8 @@ msgid "Membership"
 msgstr "Mitgliedschaft"
 
 #: dashboard/templates/dashboard/widgets/inventory.html:52
-#: dashboard/templates/dashboard/widgets/users.html:124
-#: dashboard/templates/dashboard/widgets/users.html:1005
+#: dashboard/templates/dashboard/widgets/users.html:132
+#: dashboard/templates/dashboard/widgets/users.html:1019
 msgid "Members"
 msgstr "Mitglieder"
 
@@ -1907,7 +1912,7 @@ msgstr "Beliebte Räume"
 #: dashboard/templates/dashboard/widgets/inventory.html:582
 #: dashboard/templates/dashboard/widgets/inventory.html:604
 #: dashboard/templates/dashboard/widgets/inventory.html:623
-#: dashboard/templates/dashboard/widgets/users.html:250
+#: dashboard/templates/dashboard/widgets/users.html:264
 msgid "No data available"
 msgstr "Keine Daten verfügbar"
 
@@ -1919,21 +1924,21 @@ msgstr "Keine Daten verfügbar"
 #: dashboard/templates/dashboard/widgets/licenses.html:1738
 #: dashboard/templates/dashboard/widgets/licenses.html:1847
 #: dashboard/templates/dashboard/widgets/media_data.html:60
-#: dashboard/templates/dashboard/widgets/media_data.html:277
-#: dashboard/templates/dashboard/widgets/media_data.html:343
-#: dashboard/templates/dashboard/widgets/media_data.html:411
-#: dashboard/templates/dashboard/widgets/media_data.html:541
-#: dashboard/templates/dashboard/widgets/media_data.html:567
-#: dashboard/templates/dashboard/widgets/media_data.html:593
+#: dashboard/templates/dashboard/widgets/media_data.html:325
+#: dashboard/templates/dashboard/widgets/media_data.html:391
+#: dashboard/templates/dashboard/widgets/media_data.html:459
+#: dashboard/templates/dashboard/widgets/media_data.html:589
+#: dashboard/templates/dashboard/widgets/media_data.html:615
+#: dashboard/templates/dashboard/widgets/media_data.html:641
 #: dashboard/templates/dashboard/widgets/projects.html:695
 #: dashboard/templates/dashboard/widgets/projects.html:822
 #: dashboard/templates/dashboard/widgets/projects.html:943
 #: dashboard/templates/dashboard/widgets/users.html:60
-#: dashboard/templates/dashboard/widgets/users.html:297
-#: dashboard/templates/dashboard/widgets/users.html:638
-#: dashboard/templates/dashboard/widgets/users.html:765
-#: dashboard/templates/dashboard/widgets/users.html:1401
-#: dashboard/widgets/filters.py:124 dashboard/widgets/inventory.py:249
+#: dashboard/templates/dashboard/widgets/users.html:311
+#: dashboard/templates/dashboard/widgets/users.html:652
+#: dashboard/templates/dashboard/widgets/users.html:779
+#: dashboard/templates/dashboard/widgets/users.html:1415
+#: dashboard/widgets/filters.py:125 dashboard/widgets/inventory.py:249
 #: dashboard/widgets/inventory.py:269
 msgid "Unknown"
 msgstr "Unbekannt"
@@ -2078,7 +2083,7 @@ msgid "Licenses Dashboard"
 msgstr "Freistellungen-Dashboard"
 
 #: dashboard/templates/dashboard/widgets/licenses.html:66
-#: dashboard/templates/dashboard/widgets/media_data.html:84
+#: dashboard/templates/dashboard/widgets/media_data.html:92
 #: dashboard/templates/dashboard/widgets/projects.html:38
 msgid "All Categories"
 msgstr "Alle Kategorien"
@@ -2122,19 +2127,19 @@ msgstr "Freistellungen nach Kategorie"
 
 #: dashboard/templates/dashboard/widgets/licenses.html:155
 #: dashboard/templates/dashboard/widgets/projects.html:139
-#: dashboard/templates/dashboard/widgets/users.html:138
+#: dashboard/templates/dashboard/widgets/users.html:152
 msgid "Doughnut Chart"
 msgstr "Ringdiagramm"
 
 #: dashboard/templates/dashboard/widgets/licenses.html:158
 #: dashboard/templates/dashboard/widgets/projects.html:142
-#: dashboard/templates/dashboard/widgets/users.html:141
+#: dashboard/templates/dashboard/widgets/users.html:155
 msgid "Bar Chart"
 msgstr "Balkendiagramm"
 
 #: dashboard/templates/dashboard/widgets/licenses.html:161
 #: dashboard/templates/dashboard/widgets/projects.html:145
-#: dashboard/templates/dashboard/widgets/users.html:144
+#: dashboard/templates/dashboard/widgets/users.html:158
 msgid "Horizontal Bar Chart"
 msgstr "Horizontales Balkendiagramm"
 
@@ -2156,11 +2161,11 @@ msgstr "Freistellungen-Trend"
 
 #: dashboard/templates/dashboard/widgets/licenses.html:242
 msgid "Confirmation Rate"
-msgstr "Bestätigungsrate"
+msgstr "Genehmigungsrate"
 
 #: dashboard/templates/dashboard/widgets/licenses.html:246
 msgid "of licenses are confirmed"
-msgstr "der Freistellungen sind bestätigt"
+msgstr "der Freistellungen sind genehmigt"
 
 #: dashboard/templates/dashboard/widgets/licenses.html:253
 msgid "License Status Distribution"
@@ -2219,58 +2224,58 @@ msgid "Expired"
 msgstr "Abgelaufen"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:56
-#: dashboard/templates/dashboard/widgets/media_data.html:273
-#: dashboard/templates/dashboard/widgets/media_data.html:339
-#: dashboard/templates/dashboard/widgets/media_data.html:407
-#: dashboard/templates/dashboard/widgets/media_data.html:537
-#: dashboard/templates/dashboard/widgets/media_data.html:563
-#: dashboard/templates/dashboard/widgets/media_data.html:589
+#: dashboard/templates/dashboard/widgets/media_data.html:321
+#: dashboard/templates/dashboard/widgets/media_data.html:387
+#: dashboard/templates/dashboard/widgets/media_data.html:455
+#: dashboard/templates/dashboard/widgets/media_data.html:585
+#: dashboard/templates/dashboard/widgets/media_data.html:611
+#: dashboard/templates/dashboard/widgets/media_data.html:637
 #: dashboard/templates/dashboard/widgets/users.html:56
-#: dashboard/templates/dashboard/widgets/users.html:277
-#: dashboard/templates/dashboard/widgets/users.html:765
-#: dashboard/widgets/filters.py:120
+#: dashboard/templates/dashboard/widgets/users.html:291
+#: dashboard/templates/dashboard/widgets/users.html:779
+#: dashboard/widgets/filters.py:121
 msgid "Up to 34"
 msgstr "Bis zu 34"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:57
-#: dashboard/templates/dashboard/widgets/media_data.html:274
-#: dashboard/templates/dashboard/widgets/media_data.html:340
-#: dashboard/templates/dashboard/widgets/media_data.html:408
-#: dashboard/templates/dashboard/widgets/media_data.html:538
-#: dashboard/templates/dashboard/widgets/media_data.html:564
-#: dashboard/templates/dashboard/widgets/media_data.html:590
+#: dashboard/templates/dashboard/widgets/media_data.html:322
+#: dashboard/templates/dashboard/widgets/media_data.html:388
+#: dashboard/templates/dashboard/widgets/media_data.html:456
+#: dashboard/templates/dashboard/widgets/media_data.html:586
+#: dashboard/templates/dashboard/widgets/media_data.html:612
+#: dashboard/templates/dashboard/widgets/media_data.html:638
 #: dashboard/templates/dashboard/widgets/users.html:57
-#: dashboard/templates/dashboard/widgets/users.html:282
-#: dashboard/templates/dashboard/widgets/users.html:765
-#: dashboard/widgets/filters.py:121
+#: dashboard/templates/dashboard/widgets/users.html:296
+#: dashboard/templates/dashboard/widgets/users.html:779
+#: dashboard/widgets/filters.py:122
 msgid "35-50"
 msgstr "35-50"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:58
-#: dashboard/templates/dashboard/widgets/media_data.html:275
-#: dashboard/templates/dashboard/widgets/media_data.html:341
-#: dashboard/templates/dashboard/widgets/media_data.html:409
-#: dashboard/templates/dashboard/widgets/media_data.html:539
-#: dashboard/templates/dashboard/widgets/media_data.html:565
-#: dashboard/templates/dashboard/widgets/media_data.html:591
+#: dashboard/templates/dashboard/widgets/media_data.html:323
+#: dashboard/templates/dashboard/widgets/media_data.html:389
+#: dashboard/templates/dashboard/widgets/media_data.html:457
+#: dashboard/templates/dashboard/widgets/media_data.html:587
+#: dashboard/templates/dashboard/widgets/media_data.html:613
+#: dashboard/templates/dashboard/widgets/media_data.html:639
 #: dashboard/templates/dashboard/widgets/users.html:58
-#: dashboard/templates/dashboard/widgets/users.html:287
-#: dashboard/templates/dashboard/widgets/users.html:765
-#: dashboard/widgets/filters.py:122
+#: dashboard/templates/dashboard/widgets/users.html:301
+#: dashboard/templates/dashboard/widgets/users.html:779
+#: dashboard/widgets/filters.py:123
 msgid "51-65"
 msgstr "51-65"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:59
-#: dashboard/templates/dashboard/widgets/media_data.html:276
-#: dashboard/templates/dashboard/widgets/media_data.html:342
-#: dashboard/templates/dashboard/widgets/media_data.html:410
-#: dashboard/templates/dashboard/widgets/media_data.html:540
-#: dashboard/templates/dashboard/widgets/media_data.html:566
-#: dashboard/templates/dashboard/widgets/media_data.html:592
+#: dashboard/templates/dashboard/widgets/media_data.html:324
+#: dashboard/templates/dashboard/widgets/media_data.html:390
+#: dashboard/templates/dashboard/widgets/media_data.html:458
+#: dashboard/templates/dashboard/widgets/media_data.html:588
+#: dashboard/templates/dashboard/widgets/media_data.html:614
+#: dashboard/templates/dashboard/widgets/media_data.html:640
 #: dashboard/templates/dashboard/widgets/users.html:59
-#: dashboard/templates/dashboard/widgets/users.html:292
-#: dashboard/templates/dashboard/widgets/users.html:765
-#: dashboard/widgets/filters.py:123
+#: dashboard/templates/dashboard/widgets/users.html:306
+#: dashboard/templates/dashboard/widgets/users.html:779
+#: dashboard/widgets/filters.py:124
 msgid "Over 65"
 msgstr "Über 50"
 
@@ -2281,21 +2286,23 @@ msgstr "Mitgliedsstatus"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:66
 #: dashboard/templates/dashboard/widgets/media_data.html:74
+#: dashboard/templates/dashboard/widgets/media_data.html:84
 #: dashboard/templates/dashboard/widgets/users.html:66
 #: dashboard/templates/dashboard/widgets/users.html:74
-#: dashboard/widgets/filters.py:127 dashboard/widgets/filters.py:132
+#: dashboard/templates/dashboard/widgets/users.html:82
+#: dashboard/widgets/filters.py:128 dashboard/widgets/filters.py:133
 msgid "All Users"
 msgstr "Alle Benutzer"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:67
 #: dashboard/templates/dashboard/widgets/users.html:67
-#: dashboard/widgets/filters.py:128
+#: dashboard/widgets/filters.py:129
 msgid "Members Only"
 msgstr "Nur Mitglieder"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:68
 #: dashboard/templates/dashboard/widgets/users.html:68
-#: dashboard/widgets/filters.py:129
+#: dashboard/widgets/filters.py:130
 msgid "Non-Members Only"
 msgstr "Nur Nicht-Mitglieder"
 
@@ -2306,60 +2313,66 @@ msgstr "Verifizierung"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:75
 #: dashboard/templates/dashboard/widgets/users.html:75
-#: dashboard/widgets/filters.py:133
+#: dashboard/widgets/filters.py:134
 msgid "Verified Only"
 msgstr "Nur verifiziert"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:76
 #: dashboard/templates/dashboard/widgets/users.html:76
-#: dashboard/widgets/filters.py:134
+#: dashboard/widgets/filters.py:135
 msgid "Not Verified"
 msgstr "Nicht verifiziert"
 
 #: dashboard/templates/dashboard/widgets/media_data.html:82
+#: dashboard/templates/dashboard/widgets/users.html:80
+#: dashboard/templates/dashboard/widgets/users.html:138
+msgid "Global Producer"
+msgstr "Globaler Produzent"
+
+#: dashboard/templates/dashboard/widgets/media_data.html:90
 msgid "Categories"
 msgstr "Kategorien"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:100
+#: dashboard/templates/dashboard/widgets/media_data.html:108
 msgid "Active Filters"
 msgstr "Aktive Filter"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:110
-#: dashboard/templates/dashboard/widgets/media_data.html:267
-#: dashboard/templates/dashboard/widgets/media_data.html:534
+#: dashboard/templates/dashboard/widgets/media_data.html:118
+#: dashboard/templates/dashboard/widgets/media_data.html:315
+#: dashboard/templates/dashboard/widgets/media_data.html:582
 msgid "Age Structure of Users with Licenses and Broadcasts"
 msgstr "Altersstruktur der Nutzer mit Freistellungen und Sendungen"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:127
-#: dashboard/templates/dashboard/widgets/media_data.html:333
-#: dashboard/templates/dashboard/widgets/media_data.html:560
+#: dashboard/templates/dashboard/widgets/media_data.html:135
+#: dashboard/templates/dashboard/widgets/media_data.html:381
+#: dashboard/templates/dashboard/widgets/media_data.html:608
 msgid "Number of New Broadcasts by Age"
 msgstr "Anzahl neuer Sendungen nach Alter"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:144
-#: dashboard/templates/dashboard/widgets/media_data.html:401
-#: dashboard/templates/dashboard/widgets/media_data.html:586
+#: dashboard/templates/dashboard/widgets/media_data.html:152
+#: dashboard/templates/dashboard/widgets/media_data.html:449
+#: dashboard/templates/dashboard/widgets/media_data.html:634
 msgid "Broadcast Time by Age (in Minutes)"
 msgstr "Sendezeit nach Alter (in Minuten)"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:161
-#: dashboard/templates/dashboard/widgets/media_data.html:464
-#: dashboard/templates/dashboard/widgets/media_data.html:607
+#: dashboard/templates/dashboard/widgets/media_data.html:169
+#: dashboard/templates/dashboard/widgets/media_data.html:512
+#: dashboard/templates/dashboard/widgets/media_data.html:655
 msgid "Broadcast Time by Categories (in Minutes)"
 msgstr "Sendezeit nach Kategorien (in Minuten)"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:346
+#: dashboard/templates/dashboard/widgets/media_data.html:394
 msgid "Broadcasts"
 msgstr "Sendungen"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:367
+#: dashboard/templates/dashboard/widgets/media_data.html:415
 msgid "Number of Broadcasts"
 msgstr "Anzahl der Sendungen"
 
-#: dashboard/templates/dashboard/widgets/media_data.html:414
-#: dashboard/templates/dashboard/widgets/media_data.html:435
-#: dashboard/templates/dashboard/widgets/media_data.html:485
-#: dashboard/templates/dashboard/widgets/media_data.html:500
+#: dashboard/templates/dashboard/widgets/media_data.html:462
+#: dashboard/templates/dashboard/widgets/media_data.html:483
+#: dashboard/templates/dashboard/widgets/media_data.html:533
+#: dashboard/templates/dashboard/widgets/media_data.html:548
 msgid "Duration (minutes)"
 msgstr "Dauer (Min.)"
 
@@ -2515,22 +2528,22 @@ msgid "Notification Detail View"
 msgstr "Benachrichtigungs-Detailansicht"
 
 #: dashboard/templates/dashboard/widgets/notifications.html:813
-#: dashboard/templates/dashboard/widgets/users.html:1679
+#: dashboard/templates/dashboard/widgets/users.html:1694
 msgid "Error:"
 msgstr "Fehler:"
 
 #: dashboard/templates/dashboard/widgets/notifications.html:816
-#: dashboard/templates/dashboard/widgets/users.html:1682
+#: dashboard/templates/dashboard/widgets/users.html:1697
 msgid "Error loading data:"
 msgstr "Fehler beim Laden der Daten:"
 
 #: dashboard/templates/dashboard/widgets/notifications.html:828
-#: dashboard/templates/dashboard/widgets/users.html:1707
+#: dashboard/templates/dashboard/widgets/users.html:1722
 msgid "Total Records:"
 msgstr "Gesamte Datensätze:"
 
 #: dashboard/templates/dashboard/widgets/notifications.html:831
-#: dashboard/templates/dashboard/widgets/users.html:1710
+#: dashboard/templates/dashboard/widgets/users.html:1725
 msgid "Displayed:"
 msgstr "Angezeigt:"
 
@@ -2720,133 +2733,137 @@ msgstr "Projektdetails"
 msgid "Project pagination"
 msgstr "Projekt-Paginierung"
 
-#: dashboard/templates/dashboard/widgets/users.html:98
+#: dashboard/templates/dashboard/widgets/users.html:106
 msgid "Male Users"
 msgstr "Männliche Benutzer"
 
-#: dashboard/templates/dashboard/widgets/users.html:104
+#: dashboard/templates/dashboard/widgets/users.html:112
 msgid "Female Users"
 msgstr "Weibliche Benutzer"
 
-#: dashboard/templates/dashboard/widgets/users.html:110
+#: dashboard/templates/dashboard/widgets/users.html:118
 msgid "Diverse Users"
 msgstr "Diverse Nutzer"
 
-#: dashboard/templates/dashboard/widgets/users.html:122
+#: dashboard/templates/dashboard/widgets/users.html:130
 msgid "Member Users"
 msgstr "Mitglieder-Benutzer"
 
-#: dashboard/templates/dashboard/widgets/users.html:135
-#: dashboard/templates/dashboard/widgets/users.html:225
+#: dashboard/templates/dashboard/widgets/users.html:136
+msgid "Global Producer Users"
+msgstr "Globale Produzenten-Benutzer"
+
+#: dashboard/templates/dashboard/widgets/users.html:149
+#: dashboard/templates/dashboard/widgets/users.html:239
 msgid "Users by Media Authority"
 msgstr "Benutzer nach Medienanstalt"
 
-#: dashboard/templates/dashboard/widgets/users.html:161
+#: dashboard/templates/dashboard/widgets/users.html:175
 msgid "Age Distribution"
 msgstr "Altersverteilung"
 
-#: dashboard/templates/dashboard/widgets/users.html:178
+#: dashboard/templates/dashboard/widgets/users.html:192
 msgid "Gender Distribution"
 msgstr "Geschlechterverteilung"
 
-#: dashboard/templates/dashboard/widgets/users.html:191
+#: dashboard/templates/dashboard/widgets/users.html:205
 msgid "Member vs Non-Member"
 msgstr "Mitglied vs. Nicht-Mitglied"
 
-#: dashboard/templates/dashboard/widgets/users.html:208
+#: dashboard/templates/dashboard/widgets/users.html:222
 msgid "Registration Trend"
 msgstr "Registrierungs-Trend"
 
-#: dashboard/templates/dashboard/widgets/users.html:235
-#: dashboard/templates/dashboard/widgets/users.html:271
+#: dashboard/templates/dashboard/widgets/users.html:249
+#: dashboard/templates/dashboard/widgets/users.html:285
 msgid "User Count"
 msgstr "Benutzeranzahl"
 
-#: dashboard/templates/dashboard/widgets/users.html:236
-#: dashboard/templates/dashboard/widgets/users.html:272
+#: dashboard/templates/dashboard/widgets/users.html:250
+#: dashboard/templates/dashboard/widgets/users.html:286
 msgid "Percentage"
 msgstr "Prozentsatz"
 
-#: dashboard/templates/dashboard/widgets/users.html:261
+#: dashboard/templates/dashboard/widgets/users.html:275
 msgid "Age Group Breakdown"
 msgstr "Aufschlüsselung nach Altersgruppen"
 
-#: dashboard/templates/dashboard/widgets/users.html:316
-#: dashboard/templates/dashboard/widgets/users.html:1326
+#: dashboard/templates/dashboard/widgets/users.html:330
+#: dashboard/templates/dashboard/widgets/users.html:1340
 msgid "Age Distribution by Gender"
 msgstr "Altersverteilung nach Geschlecht"
 
-#: dashboard/templates/dashboard/widgets/users.html:1005
+#: dashboard/templates/dashboard/widgets/users.html:1019
 msgid "Non-Members"
 msgstr "Nicht-Mitglieder"
 
-#: dashboard/templates/dashboard/widgets/users.html:1111
-#: dashboard/templates/dashboard/widgets/users.html:1165
+#: dashboard/templates/dashboard/widgets/users.html:1125
+#: dashboard/templates/dashboard/widgets/users.html:1179
 msgid "New Registrations"
 msgstr "Neue Registrierungen"
 
-#: dashboard/templates/dashboard/widgets/users.html:1199
+#: dashboard/templates/dashboard/widgets/users.html:1213
 msgid "Number of New Registrations"
 msgstr "Anzahl neuer Registrierungen"
 
-#: dashboard/templates/dashboard/widgets/users.html:1348
+#: dashboard/templates/dashboard/widgets/users.html:1362
 msgid "users"
 msgstr "Benutzer"
 
-#: dashboard/templates/dashboard/widgets/users.html:1393
+#: dashboard/templates/dashboard/widgets/users.html:1407
 msgid "Error updating charts:"
 msgstr "Fehler beim Aktualisieren der Diagramme:"
 
-#: dashboard/templates/dashboard/widgets/users.html:1496
+#: dashboard/templates/dashboard/widgets/users.html:1510
 msgid "updateStatisticsCards START"
 msgstr "updateStatisticsCards START"
 
-#: dashboard/templates/dashboard/widgets/users.html:1497
+#: dashboard/templates/dashboard/widgets/users.html:1511
 msgid "data parameter:"
 msgstr "Datenparameter:"
 
-#: dashboard/templates/dashboard/widgets/users.html:1501
+#: dashboard/templates/dashboard/widgets/users.html:1515
 msgid "data or basic_stats is invalid, skipping statistics update"
 msgstr ""
 "Daten oder basic_stats sind ungültig, Statistik-Update wird übersprungen"
 
-#: dashboard/templates/dashboard/widgets/users.html:1502
+#: dashboard/templates/dashboard/widgets/users.html:1516
 msgid "updateStatisticsCards END (early return)"
 msgstr "updateStatisticsCards END (vorzeitige Rückkehr)"
 
-#: dashboard/templates/dashboard/widgets/users.html:1515
+#: dashboard/templates/dashboard/widgets/users.html:1530
 msgid "Elements to update:"
 msgstr "Zu aktualisierende Elemente:"
 
-#: dashboard/templates/dashboard/widgets/users.html:1521
+#: dashboard/templates/dashboard/widgets/users.html:1536
 msgid "Updated"
 msgstr "Aktualisiert"
 
-#: dashboard/templates/dashboard/widgets/users.html:1521
+#: dashboard/templates/dashboard/widgets/users.html:1536
 msgid "with value:"
 msgstr "mit Wert:"
 
-#: dashboard/templates/dashboard/widgets/users.html:1523
+#: dashboard/templates/dashboard/widgets/users.html:1538
 msgid "Element with id"
 msgstr "Element mit ID"
 
-#: dashboard/templates/dashboard/widgets/users.html:1523
+#: dashboard/templates/dashboard/widgets/users.html:1538
 msgid "not found"
 msgstr "nicht gefunden"
 
-#: dashboard/templates/dashboard/widgets/users.html:1527
+#: dashboard/templates/dashboard/widgets/users.html:1542
 msgid "updateStatisticsCards END"
 msgstr "updateStatisticsCards END"
 
-#: dashboard/templates/dashboard/widgets/users.html:1650
+#: dashboard/templates/dashboard/widgets/users.html:1665
 msgid "Detail View"
 msgstr "Detailansicht"
 
-#: dashboard/templates/dashboard/widgets/users.html:1725
+#: dashboard/templates/dashboard/widgets/users.html:1740
 msgid "Age"
 msgstr "Alter"
 
-#: dashboard/templates/dashboard/widgets/users.html:1761
+#: dashboard/templates/dashboard/widgets/users.html:1776
 msgid "User pagination"
 msgstr "Benutzer-Paginierung"
 
@@ -2873,4 +2890,3 @@ msgstr "Mediendaten-Statistik"
 #: dashboard/widgets/inventory.py:665 dashboard/widgets/inventory.py:679
 msgid "User {}"
 msgstr "Benutzer {}"
-

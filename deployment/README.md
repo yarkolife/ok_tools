@@ -19,6 +19,26 @@ OK Tools has migrated from hybrid .cfg/.env configuration to pure environment va
 
 ## Getting Started
 
+### Prerequisites
+
+Before running the installation script, you need to prepare your logo and favicon files:
+
+1. **Copy your organization's branding files** to `deployment/img/`:
+   - `logo.png` - Your organization logo (recommended size: 200x200px or larger)
+   - `favicon.ico` - Your favicon file
+
+   These files will be automatically copied to `ok_tools/static/img/` during installation.
+
+   **Example:**
+   ```bash
+   cp /path/to/your/logo.png deployment/img/logo.png
+   cp /path/to/your/favicon.ico deployment/img/favicon.ico
+   ```
+
+   If you don't provide these files, default files will be used (if available in the repository).
+
+### Running the Installation
+
 The installation script automates the setup process and guides you through configuration choices. To start the installation:
 
 ```bash

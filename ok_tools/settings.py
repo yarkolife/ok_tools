@@ -495,7 +495,8 @@ else:
 
 # Celery Configuration
 CELERY_BROKER_URL = get_env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
-CELERY_RESULT_BACKEND = get_env('CELERY_RESULT_BACKEND', default='redis://127.0.0.1:6379/0')
+# Use django-db backend to store results in database (visible in admin)
+CELERY_RESULT_BACKEND = get_env('CELERY_RESULT_BACKEND', default='django-db')
 
 # Celery Configuration Options
 CELERY_TIMEZONE = get_env('TIME_ZONE', default='Europe/Berlin')
@@ -505,7 +506,11 @@ CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
 
+# Use django-celery-beat scheduler (allows managing periodic tasks via admin)
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
 # Celery Beat Schedule from environment variables
+# Note: Tasks can also be managed via django-celery-beat admin interface
 CELERY_BEAT_SCHEDULE = {
     'expire_rentals': {
         'task': 'ok_tools.tasks.run_expire_room_rentals_task',

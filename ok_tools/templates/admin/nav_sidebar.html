@@ -1,0 +1,358 @@
+{% load i18n %}
+<button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>
+<nav class="sticky" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}">
+  <input type="search" id="nav-filter"
+         placeholder="{% translate 'Start typing to filter…' %}"
+         aria-label="{% translate 'Filter navigation items' %}">
+  
+  {% if available_apps %}
+    {% for app in available_apps %}
+      <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}" data-app-label="{{ app.app_label }}">
+        <div class="collapsible-app-header" data-app-toggle="{{ app.app_label }}">
+          <span class="collapsible-app-toggle">▶</span>
+          <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+        </div>
+        <table>
+          <thead class="visually-hidden">
+            <tr>
+              <th scope="col">{% translate 'Model name' %}</th>
+            </tr>
+          </thead>
+          <tbody class="collapsible-app-models" id="sidebar-models-{{ app.app_label }}">
+            {% for model in app.models %}
+              {% with model_name=model.object_name|lower %}
+                <tr class="model-{{ model_name }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                  <th scope="row" id="{{ app.app_label }}-{{ model_name }}">
+                    {% if model.admin_url %}
+                      <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a>
+                    {% else %}
+                      {{ model.name }}
+                    {% endif %}
+                  </th>
+                  <td class="sidebar-add">
+                    {% if model.add_url %}
+                      <a href="{{ model.add_url }}" class="addlink" aria-describedby="{{ app.app_label }}-{{ model_name }}">{% trans 'Add' %}</a>
+                    {% else %}
+                      <span class="addlink-placeholder"></span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+  {% endif %}
+</nav>
+
+<style>
+/* Collapsible sidebar menu styles using Django admin standard classes */
+#nav-sidebar .module {
+  margin: 0 !important;
+  border: none !important;
+  border-bottom: none !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#nav-sidebar .module table {
+  margin: 0 !important;
+  border: none !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+  table-layout: auto !important;
+}
+
+.collapsible-app-header {
+  margin: 0 !important;
+  padding: 8px 16px !important;
+  border: none !important;
+  font-weight: 400 !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  background: var(--secondary) !important;
+  color: var(--header-color) !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+#nav-sidebar .module tbody {
+  border: none;
+}
+
+#nav-sidebar .module tr {
+  border: none;
+}
+
+#nav-sidebar .module th {
+  border: none;
+  width: 100%;
+  overflow-wrap: anywhere;
+  padding-left: 16px;
+  font-size: 0.8125rem;
+}
+
+#nav-sidebar .module th a {
+  font-size: 0.8125rem;
+}
+
+#nav-sidebar .sidebar-add {
+  padding-right: 16px;
+  text-align: right;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.collapsible-app-toggle {
+  margin-right: 8px;
+  font-size: 10px;
+  transition: transform 0.3s;
+  color: var(--header-link-color, #fff);
+  width: 14px;
+  display: inline-block;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.collapsible-app-toggle.expanded {
+  transform: rotate(90deg);
+}
+
+.collapsible-app-header .section,
+.collapsible-app-header .section:link,
+.collapsible-app-header .section:visited {
+  color: var(--header-link-color) !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.collapsible-app-header .section:hover,
+.collapsible-app-header .section:focus {
+  color: var(--header-color) !important;
+}
+
+.collapsible-app-models {
+  display: none;
+}
+
+.collapsible-app-models.expanded {
+  display: table-row-group;
+}
+
+.module.collapsed .collapsible-app-models {
+  display: none !important;
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+  
+  // Override Django's default sidebar filter to work with our custom structure
+  // Wait for Django's script to load first
+  function overrideSidebarFilter() {
+    if (!window.initSidebarQuickFilter) {
+      setTimeout(overrideSidebarFilter, 50);
+      return;
+    }
+    
+    const originalInitSidebarQuickFilter = window.initSidebarQuickFilter;
+    window.initSidebarQuickFilter = function() {
+      const navSidebar = document.getElementById('nav-sidebar');
+      if (!navSidebar) {
+        return;
+      }
+      
+      // Check if we're using custom structure (collapsible-app-header exists)
+      if (navSidebar.querySelector('.collapsible-app-header')) {
+        // Custom filter for our structure
+        const options = [];
+        navSidebar.querySelectorAll('.section, .collapsible-app-models th a').forEach((link) => {
+          options.push({title: link.textContent.trim(), node: link});
+        });
+        
+        function checkValue(event) {
+          let filterValue = event.target.value;
+          if (filterValue) {
+            filterValue = filterValue.toLowerCase();
+          }
+          if (event.key === 'Escape') {
+            filterValue = '';
+            event.target.value = '';
+          }
+          
+          let matches = false;
+          for (const o of options) {
+            let displayValue = '';
+            if (filterValue) {
+              if (o.title.toLowerCase().indexOf(filterValue) === -1) {
+                displayValue = 'none';
+              } else {
+                matches = true;
+                displayValue = '';
+              }
+            } else {
+              displayValue = '';
+            }
+            // Show/hide the link's parent container
+            const item = o.node.closest('.module, tr');
+            if (item) {
+              item.style.display = displayValue;
+              // Also show parent app if model matches
+              if (item.tagName === 'TR' && displayValue === '') {
+                const appModule = item.closest('.module');
+                if (appModule) {
+                  appModule.style.display = '';
+                }
+              }
+            }
+          }
+          
+          // Expand all apps when filtering, restore saved state when clearing
+          if (filterValue) {
+            const allModels = document.querySelectorAll('#nav-sidebar .collapsible-app-models');
+            const allToggles = document.querySelectorAll('#nav-sidebar .collapsible-app-toggle');
+            const allHeaders = document.querySelectorAll('#nav-sidebar .collapsible-app-header');
+            allModels.forEach(function(models) {
+              models.classList.add('expanded');
+            });
+            allToggles.forEach(function(toggle) {
+              toggle.classList.add('expanded');
+            });
+            // Remove collapsed class from all modules when filtering
+            navSidebar.querySelectorAll('.module').forEach(function(module) {
+              module.classList.remove('collapsed');
+            });
+          } else {
+            // Restore saved states when filter is cleared
+            const appHeaders = document.querySelectorAll('#nav-sidebar .collapsible-app-header');
+            appHeaders.forEach(function(header) {
+              const appLabel = header.getAttribute('data-app-toggle');
+              const savedState = localStorage.getItem('admin_sidebar_menu_' + appLabel);
+              const modelsList = document.getElementById('sidebar-models-' + appLabel);
+              const toggle = header.querySelector('.collapsible-app-toggle');
+              const module = header.closest('.module');
+              
+              if (modelsList && toggle && module) {
+                if (savedState === 'true') {
+                  modelsList.classList.add('expanded');
+                  toggle.classList.add('expanded');
+                  module.classList.remove('collapsed');
+                } else {
+                  modelsList.classList.remove('expanded');
+                  toggle.classList.remove('expanded');
+                  module.classList.add('collapsed');
+                }
+              }
+            });
+          }
+          
+          if (!filterValue || matches) {
+            event.target.classList.remove('no-results');
+          } else {
+            event.target.classList.add('no-results');
+          }
+          sessionStorage.setItem('django.admin.navSidebarFilterValue', filterValue);
+        }
+        
+        const nav = document.getElementById('nav-filter');
+        if (nav) {
+          nav.addEventListener('change', checkValue, false);
+          nav.addEventListener('input', checkValue, false);
+          nav.addEventListener('keyup', checkValue, false);
+          
+          const storedValue = sessionStorage.getItem('django.admin.navSidebarFilterValue');
+          if (storedValue) {
+            nav.value = storedValue;
+            checkValue({target: nav, key: ''});
+          }
+        }
+      } else {
+        // Fall back to original filter for standard structure
+        originalInitSidebarQuickFilter();
+      }
+    };
+    
+    // Call the overridden function
+    window.initSidebarQuickFilter();
+  }
+  
+  // Start override process
+  overrideSidebarFilter();
+  
+  // Initialize collapsible sidebar menus
+  document.addEventListener('DOMContentLoaded', function() {
+    const appHeaders = document.querySelectorAll('#nav-sidebar .collapsible-app-header');
+    
+    appHeaders.forEach(function(header) {
+      // Prevent toggle when clicking on the app name link
+      const appNameLink = header.querySelector('.section');
+      if (appNameLink) {
+        appNameLink.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+      }
+      
+      header.addEventListener('click', function(e) {
+        // Don't toggle if clicking on a link
+        if (e.target.tagName === 'A') {
+          return;
+        }
+        
+        const appLabel = this.getAttribute('data-app-toggle');
+        const modelsList = document.getElementById('sidebar-models-' + appLabel);
+        const toggle = this.querySelector('.collapsible-app-toggle');
+        const module = this.closest('.module');
+        
+        if (modelsList) {
+          // Toggle expanded state
+          const isExpanded = modelsList.classList.contains('expanded');
+          
+          if (isExpanded) {
+            modelsList.classList.remove('expanded');
+            toggle.classList.remove('expanded');
+            if (module) module.classList.add('collapsed');
+          } else {
+            modelsList.classList.add('expanded');
+            toggle.classList.add('expanded');
+            if (module) module.classList.remove('collapsed');
+          }
+          
+          // Save state to localStorage
+          localStorage.setItem('admin_sidebar_menu_' + appLabel, !isExpanded);
+        }
+      });
+      
+      // Restore saved state
+      const appLabel = header.getAttribute('data-app-toggle');
+      const savedState = localStorage.getItem('admin_sidebar_menu_' + appLabel);
+      if (savedState === 'true') {
+        const modelsList = document.getElementById('sidebar-models-' + appLabel);
+        const toggle = header.querySelector('.collapsible-app-toggle');
+        const module = header.closest('.module');
+        if (modelsList) {
+          modelsList.classList.add('expanded');
+          toggle.classList.add('expanded');
+          if (module) module.classList.remove('collapsed');
+        }
+      } else {
+        // Default: collapsed
+        const modelsList = document.getElementById('sidebar-models-' + appLabel);
+        const module = header.closest('.module');
+        if (modelsList && module) {
+          module.classList.add('collapsed');
+        }
+      }
+    });
+  });
+})();
+</script>
+
