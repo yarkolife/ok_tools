@@ -162,8 +162,6 @@ if [ ${#service_volumes[@]} -eq 0 ]; then
 #   CUSTOM_MOUNT_1_CONTAINER_PATH=/container/path1
 #   etc.
 
-version: '3.8'
-
 services: {}
 EOF
 else
@@ -178,8 +176,6 @@ else
 #   CUSTOM_MOUNT_1_CONTAINER_PATH=/container/path1
 #   CUSTOM_MOUNT_1_MODE=ro
 #   etc.
-
-version: '3.8'
 
 services:
 EOF
