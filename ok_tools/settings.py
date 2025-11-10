@@ -324,6 +324,13 @@ OK_NAME = get_env('OK_NAME', default=_("Open Channel Merseburg-Querfurt e.V."))
 OK_NAME_SHORT = get_env('OK_NAME_SHORT', default=_("OK Merseburg"))
 
 # Organization settings
+OK_WEBSITE = get_env('OK_WEBSITE', default='')
+OK_EMAIL = get_env('OK_EMAIL', default='')
+OK_ADDRESS = get_env('OK_ADDRESS', default='')
+OK_PHONE = get_env('OK_PHONE', default='')
+OK_FAX = get_env('OK_FAX', default='')
+OK_DESCRIPTION = get_env('OK_DESCRIPTION', default='')
+OK_OPENING_HOURS = get_env('OK_OPENING_HOURS', default='')
 STATE_MEDIA_INSTITUTION = get_env('STATE_MEDIA_INSTITUTION', default='MSA')
 ORGANIZATION_OWNER = get_env('ORGANIZATION_OWNER', default='OKMQ')
 
