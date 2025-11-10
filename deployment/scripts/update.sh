@@ -50,9 +50,17 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 # Get current user info for file ownership
-CURRENT_USER=$(id -un)
-CURRENT_UID=$(id -u)
-CURRENT_GID=$(id -g)
+# If running with sudo, try to get the original user from SUDO_USER
+if [ -n "${SUDO_USER:-}" ]; then
+    CURRENT_USER="$SUDO_USER"
+    CURRENT_UID=$(id -u "$SUDO_USER" 2>/dev/null || echo "$(id -u)")
+    CURRENT_GID=$(id -g "$SUDO_USER" 2>/dev/null || echo "$(id -g)")
+    print_info "Detected sudo usage - will use user $CURRENT_USER for file ownership"
+else
+    CURRENT_USER=$(id -un)
+    CURRENT_UID=$(id -u)
+    CURRENT_GID=$(id -g)
+fi
 
 if [ ! -d "$PRODUCTION_DIR" ]; then
     print_error "Production directory not found at $PRODUCTION_DIR"
@@ -428,17 +436,58 @@ print_success "Backup rotation completed (kept 5 most recent)"
 create_local_update_script() {
     local local_update_script="$PRODUCTION_DIR/update.sh"
     
+    # Check if script already exists
     if [ -f "$local_update_script" ]; then
         print_info "Local update script already exists at $local_update_script"
+        # Verify it's executable
+        if [ ! -x "$local_update_script" ]; then
+            print_info "Making local update script executable..."
+            chmod +x "$local_update_script" 2>/dev/null || sudo chmod +x "$local_update_script" 2>/dev/null || true
+        fi
         return 0
     fi
     
     print_info "Creating local update.sh script in production directory..."
+    print_info "Target: $local_update_script"
+    
+    # Ensure production directory exists and is writable
+    if [ ! -d "$PRODUCTION_DIR" ]; then
+        print_error "Production directory does not exist: $PRODUCTION_DIR"
+        return 1
+    fi
     
     # Determine project directory for the script
     local project_dir_for_script="$PROJECT_DIR"
+    print_info "Project directory: $project_dir_for_script"
     
-    cat > "$local_update_script" <<EOF
+    # Check write permissions and determine creation method
+    local need_sudo=false
+    local current_uid_check=$(id -u)
+    print_info "Current UID: $current_uid_check, Current user: $(whoami)"
+    
+    if [ "$current_uid_check" -eq 0 ]; then
+        # Running as root - can write directly
+        need_sudo=false
+        print_info "Running as root - will create file directly"
+    elif [ -w "$PRODUCTION_DIR" ]; then
+        # Have write permission - can write directly
+        need_sudo=false
+        print_info "Have write permission - will create file directly"
+    else
+        # No write permission - need sudo
+        need_sudo=true
+        print_info "No write permission - will use sudo to create file"
+        if ! command -v sudo >/dev/null 2>&1; then
+            print_error "Cannot create local update script - no write permission and sudo not available"
+            print_info "Production directory: $PRODUCTION_DIR"
+            print_info "Current user: $(whoami)"
+            print_info "Directory owner: $(stat -c '%U' "$PRODUCTION_DIR" 2>/dev/null || stat -f '%Su' "$PRODUCTION_DIR" 2>/dev/null || echo 'unknown')"
+            return 1
+        fi
+    fi
+    
+    # Create the script content
+    local script_content=$(cat <<'SCRIPT_EOF'
 #!/bin/bash
 # Local update wrapper script for OK Tools production environment
 # This script updates the code from git and then calls the main update script
@@ -446,60 +495,100 @@ create_local_update_script() {
 set -e
 
 # Get script directory and project directory
-PRODUCTION_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
-PROJECT_DIR="$project_dir_for_script"
+PRODUCTION_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="PROJECT_DIR_PLACEHOLDER"
 
 # Try to find project directory if default path doesn't exist
-if [ ! -d "\$PROJECT_DIR" ] || [ ! -f "\$PROJECT_DIR/deployment/scripts/update.sh" ]; then
+if [ ! -d "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/deployment/scripts/update.sh" ]; then
     # Try to find project directory by looking for deployment/scripts/update.sh
     # Search in parent directory and common locations
-    PARENT_DIR="\$(dirname "\$PRODUCTION_DIR")"
-    for possible_dir in "\$PARENT_DIR"/*; do
-        if [ -d "\$possible_dir" ] && [ -f "\$possible_dir/deployment/scripts/update.sh" ]; then
-            PROJECT_DIR="\$possible_dir"
+    PARENT_DIR="$(dirname "$PRODUCTION_DIR")"
+    for possible_dir in "$PARENT_DIR"/*; do
+        if [ -d "$possible_dir" ] && [ -f "$possible_dir/deployment/scripts/update.sh" ]; then
+            PROJECT_DIR="$possible_dir"
             break
         fi
     done
 fi
 
 # Check if project directory exists
-if [ ! -d "\$PROJECT_DIR" ]; then
-    echo "Error: Project directory not found. Expected at: $project_dir_for_script"
+if [ ! -d "$PROJECT_DIR" ]; then
+    echo "Error: Project directory not found. Expected at: PROJECT_DIR_PLACEHOLDER"
     echo "Please check your installation or set PROJECT_DIR environment variable."
     exit 1
 fi
 
 # Check if main update script exists
-MAIN_UPDATE_SCRIPT="\$PROJECT_DIR/deployment/scripts/update.sh"
-if [ ! -f "\$MAIN_UPDATE_SCRIPT" ]; then
-    echo "Error: Main update script not found at \$MAIN_UPDATE_SCRIPT"
+MAIN_UPDATE_SCRIPT="$PROJECT_DIR/deployment/scripts/update.sh"
+if [ ! -f "$MAIN_UPDATE_SCRIPT" ]; then
+    echo "Error: Main update script not found at $MAIN_UPDATE_SCRIPT"
     exit 1
 fi
 
 # Change to project directory and pull latest code
 echo "Updating code from git repository..."
-cd "\$PROJECT_DIR"
+cd "$PROJECT_DIR"
 git pull
 
 # Call the main update script with flag indicating it was called from local script
 echo "Running update script..."
 export LOCAL_UPDATE_CALLED=1
-exec "\$MAIN_UPDATE_SCRIPT"
-EOF
+exec "$MAIN_UPDATE_SCRIPT"
+SCRIPT_EOF
+)
     
-    chmod +x "$local_update_script"
+    # Replace placeholder with actual project directory
+    script_content="${script_content//PROJECT_DIR_PLACEHOLDER/$project_dir_for_script}"
     
-    # Set ownership if not root
-    if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
-        chown "$CURRENT_UID:$CURRENT_GID" "$local_update_script" 2>/dev/null || true
+    # Create the script file
+    if [ "$need_sudo" = true ]; then
+        print_info "Creating local update script with sudo (permission required)..."
+        echo "$script_content" | sudo tee "$local_update_script" > /dev/null
+        if [ $? -ne 0 ] || [ ! -f "$local_update_script" ]; then
+            print_error "Failed to create local update script with sudo"
+            return 1
+        fi
+        sudo chmod +x "$local_update_script" 2>/dev/null || true
+    else
+        print_info "Creating local update script..."
+        echo "$script_content" > "$local_update_script"
+        if [ $? -ne 0 ] || [ ! -f "$local_update_script" ]; then
+            print_error "Failed to create local update script"
+            return 1
+        fi
+        chmod +x "$local_update_script" 2>/dev/null || true
     fi
     
-    print_success "Local update script created at $local_update_script"
-    print_info "You can now use: $local_update_script"
+    # Set ownership if we know the intended user (even if running as root via sudo)
+    if [ -n "${CURRENT_UID:-}" ] && [ "$CURRENT_UID" != "0" ]; then
+        if [ "$need_sudo" = true ] || [ "$(id -u)" -eq 0 ]; then
+            sudo chown "$CURRENT_UID:$CURRENT_GID" "$local_update_script" 2>/dev/null || true
+        else
+            chown "$CURRENT_UID:$CURRENT_GID" "$local_update_script" 2>/dev/null || true
+        fi
+        print_info "Set ownership of local update script to user $CURRENT_USER (UID: $CURRENT_UID)"
+    fi
+    
+    # Verify file was created successfully
+    if [ -f "$local_update_script" ] && [ -x "$local_update_script" ]; then
+        print_success "Local update script created at $local_update_script"
+        print_info "You can now use: $local_update_script"
+        return 0
+    else
+        print_error "Failed to create or verify local update script at $local_update_script"
+        if [ -f "$local_update_script" ]; then
+            print_warning "File exists but is not executable, attempting to fix..."
+            chmod +x "$local_update_script" 2>/dev/null || sudo chmod +x "$local_update_script" 2>/dev/null || true
+        fi
+        return 1
+    fi
 }
 
 # Check and create local update script if it doesn't exist
-create_local_update_script
+if ! create_local_update_script; then
+    print_warning "Failed to create local update script, but continuing with update..."
+    print_info "You can create it manually later or run update script directly from project directory"
+fi
 
 # Pull latest code (only if called directly, not from local script)
 # Check if we're being called from local script by checking caller
