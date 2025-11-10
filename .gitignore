@@ -149,3 +149,8 @@ y.pub
 
 # Local Docker setup
 docker-local/
+
+# Server-specific configurations (contains sensitive data)
+deployment/servers/
+!deployment/servers/README.md
+!deployment/servers/env.example
