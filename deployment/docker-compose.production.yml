@@ -50,6 +50,7 @@ services:
       - ./data/media:/app/media
       - ./logs:/app/logs
       - ./backups:/app/backups
+      - /mnt/nas:/mnt/nas:ro
     restart: unless-stopped
     networks:
       - oktools-network
@@ -112,6 +113,7 @@ services:
       - ./data/media:/app/media
       - ./logs:/app/logs
       - ./backups:/app/backups
+      - /mnt/nas:/mnt/nas:ro
     command: celery -A ok_tools worker --loglevel=info
     restart: unless-stopped
     networks:

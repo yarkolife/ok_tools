@@ -377,8 +377,12 @@ LEGACY_DATA = "../legacy_data/data.xlsx"
 BACKUP_DIR = get_env('BACKUP_DIR', default='backups/')
 
 # Broadcast time settings for planning - read from environment
-BROADCAST_START = get_env('BROADCAST_START', default='06:00')
-BROADCAST_END = get_env('BROADCAST_END', default='23:00')
+# Support both ORG_BROADCAST_* and BROADCAST_* prefixes for backward compatibility
+# ORG_BROADCAST_* takes precedence over BROADCAST_*
+_org_broadcast_start = os.getenv('ORG_BROADCAST_START')
+BROADCAST_START = _org_broadcast_start if _org_broadcast_start is not None else get_env('BROADCAST_START', default='06:00')
+_org_broadcast_end = os.getenv('ORG_BROADCAST_END')
+BROADCAST_END = _org_broadcast_end if _org_broadcast_end is not None else get_env('BROADCAST_END', default='23:00')
 
 LOGGING = {
     "version": 1,
