@@ -47,6 +47,15 @@
 </nav>
 
 <style>
+/* Override Django admin default sidebar styles to use text arrows instead of images */
+/* Force text rendering for all toggle elements */
+#nav-sidebar *,
+#nav-sidebar *::before,
+#nav-sidebar *::after {
+  /* Prevent any background images from Django admin */
+  background-image: none !important;
+}
+
 /* Collapsible sidebar menu styles using Django admin standard classes */
 #nav-sidebar .module {
   margin: 0 !important;
@@ -82,6 +91,18 @@
   text-align: left !important;
   cursor: pointer !important;
   user-select: none !important;
+  /* Prevent Django admin from adding background images */
+  background-image: none !important;
+  position: relative;
+}
+
+/* Override any Django admin icons that might be added */
+#nav-sidebar .collapsible-app-header::before,
+#nav-sidebar .collapsible-app-header::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  background-image: none !important;
 }
 
 #nav-sidebar .module tbody {
@@ -114,12 +135,34 @@
 .collapsible-app-toggle {
   margin-right: 8px;
   font-size: 10px;
-  transition: transform 0.3s;
-  color: var(--header-link-color, #fff);
+  line-height: 1;
+  transition: transform 0.3s ease;
+  color: var(--header-link-color, #fff) !important;
   width: 14px;
-  display: inline-block;
+  height: 14px;
+  display: inline-block !important;
   text-align: center;
   flex-shrink: 0;
+  /* Force text rendering, prevent image replacement */
+  background: none !important;
+  background-image: none !important;
+  border: none !important;
+  /* Ensure Unicode character is displayed */
+  font-family: system-ui, -apple-system, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Hide any potential images from Django admin */
+  text-indent: 0 !important;
+  overflow: visible !important;
+}
+
+/* Hide any background images that Django admin might add */
+#nav-sidebar .collapsible-app-toggle::before,
+#nav-sidebar .collapsible-app-toggle::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  background-image: none !important;
 }
 
 .collapsible-app-toggle.expanded {
