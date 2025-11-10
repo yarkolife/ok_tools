@@ -46,7 +46,27 @@ ENV_FILE="$PRODUCTION_DIR/.env"
 if [ -f "$ENV_FILE" ]; then
     print_info "Loading environment variables from $ENV_FILE"
     set -a
-    source "$ENV_FILE"
+    # Use a safer method to load .env file that handles values with spaces
+    # This exports variables while ignoring comments and empty lines
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Skip comments and empty lines
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${line// }" ]] && continue
+        # Export variable, handling values with spaces and special characters
+        if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+            var_name="${BASH_REMATCH[1]}"
+            var_value="${BASH_REMATCH[2]}"
+            # Remove leading/trailing whitespace and quotes if present
+            var_value="${var_value#"${var_value%%[![:space:]]*}"}"
+            var_value="${var_value%"${var_value##*[![:space:]]}"}"
+            var_value="${var_value#\"}"
+            var_value="${var_value%\"}"
+            var_value="${var_value#\'}"
+            var_value="${var_value%\'}"
+            # Export the variable
+            export "$var_name=$var_value"
+        fi
+    done < "$ENV_FILE"
     set +a
 fi
 
