@@ -25,22 +25,59 @@ print_error() { echo -e "${RED}✗ $1${NC}"; }
 print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
 print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
 
-# Logging setup
-LOG_FILE="/var/log/ok-tools-update.log"
-# Create log file if it doesn't exist and set permissions
-sudo touch "$LOG_FILE" 2>/dev/null || touch "$LOG_FILE" 2>/dev/null || true
-sudo chmod 644 "$LOG_FILE" 2>/dev/null || chmod 644 "$LOG_FILE" 2>/dev/null || true
-
-# Redirect output to both terminal and log file
-exec > >(tee -a "$LOG_FILE") 2>&1
-
 print_header "OK Tools Production Update"
-print_info "Log file: $LOG_FILE"
+
+# Check if running as root and warn
+if [ "$(id -u)" -eq 0 ]; then
+    echo ""
+    print_warning "═══════════════════════════════════════════════════════════"
+    print_warning "  WARNING: Running as root"
+    print_warning "═══════════════════════════════════════════════════════════"
+    echo ""
+    print_warning "Running update as root is not recommended for security reasons."
+    print_info "Best practice: Run as regular user with docker group membership"
+    echo ""
+    print_info "If you need to fix file permissions, run:"
+    echo "  sudo chown -R \$USER:\$USER $PRODUCTION_DIR"
+    echo ""
+    read -p "Continue update as root anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_info "Update cancelled. Please run as regular user."
+        exit 1
+    fi
+    echo ""
+fi
+
+# Get current user info for file ownership
+CURRENT_USER=$(id -un)
+CURRENT_UID=$(id -u)
+CURRENT_GID=$(id -g)
 
 if [ ! -d "$PRODUCTION_DIR" ]; then
     print_error "Production directory not found at $PRODUCTION_DIR"
     print_info "Please run install.sh first"
     exit 1
+fi
+
+# Logging setup - use production directory for logs
+LOG_DIR="$PRODUCTION_DIR/logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/update-$(date +%Y%m%d-%H%M%S).log"
+
+# Create log file and set permissions
+touch "$LOG_FILE" 2>/dev/null || {
+    print_warning "Cannot create log file at $LOG_FILE, logging to console only"
+    LOG_FILE=""
+}
+
+if [ -n "$LOG_FILE" ]; then
+    chmod 644 "$LOG_FILE" 2>/dev/null || true
+    # Redirect output to both terminal and log file
+    exec > >(tee -a "$LOG_FILE") 2>&1
+    print_info "Log file: $LOG_FILE"
+else
+    print_info "Logging to console only"
 fi
 
 echo ""
@@ -60,6 +97,22 @@ validate_env_file() {
     echo "Validating .env file..."
     echo "======================"
     
+    # Check if file exists
+    if [ ! -f "$env_file" ]; then
+        echo "❌ ERROR: .env file not found at $env_file"
+        return 1
+    fi
+    
+    # Check file permissions
+    if [ ! -r "$env_file" ]; then
+        echo "❌ ERROR: Cannot read .env file at $env_file (permission denied)"
+        echo "   File owner: $(ls -ld "$env_file" | awk '{print $3":"$4}')"
+        echo "   Current user: $(whoami)"
+        echo "   Try: sudo chmod 644 $env_file"
+        echo "   Or: sudo chown $(whoami):$(whoami) $env_file"
+        return 1
+    fi
+    
     # Critical variables that must exist and have values
     local critical_vars=(
         "POSTGRES_PASSWORD"
@@ -70,20 +123,21 @@ validate_env_file() {
         "ALLOWED_HOSTS"
     )
     
-    # Check if file exists
-    if [ ! -f "$env_file" ]; then
-        echo "❌ ERROR: .env file not found at $env_file"
-        return 1
-    fi
-    
     # Check each critical variable
     for var in "${critical_vars[@]}"; do
-        # Extract the value for this variable
-        local value=$(grep "^${var}=" "$env_file" | head -1 | cut -d'=' -f2-)
+        # Extract the value for this variable - try with current user first, then sudo if needed
+        local value=$(grep "^${var}=" "$env_file" 2>/dev/null | head -1 | cut -d'=' -f2-)
+        
+        # If grep failed, try with sudo (if available)
+        if [ $? -ne 0 ] || [ -z "$value" ]; then
+            if command -v sudo >/dev/null 2>&1; then
+                value=$(sudo grep "^${var}=" "$env_file" 2>/dev/null | head -1 | cut -d'=' -f2-)
+            fi
+        fi
         
         # Check if variable exists
         if [ -z "$value" ]; then
-            echo "❌ ERROR: $var is missing or empty"
+            echo "❌ ERROR: $var is missing or empty (or cannot read file)"
             errors=$((errors+1))
             continue
         fi
@@ -165,9 +219,17 @@ repair_env_file() {
         return 1
     fi
     
+    # Check file permissions
+    if [ ! -r "$env_file" ]; then
+        echo "Warning: Cannot read .env file at $env_file (permission denied)"
+        echo "   File owner: $(ls -ld "$env_file" 2>/dev/null | awk '{print $3":"$4}' || echo 'unknown')"
+        echo "   Current user: $(whoami)"
+        return 1
+    fi
+    
     # Check for corruption pattern: ONLY flag clear concatenations of separate variables
     # Pattern: KEY1=VALUE1KEY2=VALUE2 (no space between VALUE1 and KEY2)
-    local corrupted_lines=$(grep -E '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" | wc -l)
+    local corrupted_lines=$(grep -E '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" 2>/dev/null | wc -l || echo "0")
     
     if [ "$corrupted_lines" -gt 0 ]; then
         echo "Detected corruption in .env file ($corrupted_lines corrupted lines)"
@@ -222,6 +284,11 @@ repair_env_file() {
         mv "$temp_file" "$env_file"
         chmod 600 "$env_file"
         
+        # Set ownership if not root and we know the current user
+        if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
+            chown "$CURRENT_UID:$CURRENT_GID" "$env_file" 2>/dev/null || true
+        fi
+        
         echo "✓ .env file repaired successfully"
         return 0
     else
@@ -230,13 +297,89 @@ repair_env_file() {
     fi
 }
 
+# Function to fix file permissions if needed
+fix_permissions() {
+    local target_dir="$1"
+    
+    if [ ! -d "$target_dir" ]; then
+        return 1
+    fi
+    
+    # Check if running as root - if so, try to fix ownership
+    if [ "$(id -u)" -eq 0 ]; then
+        print_info "Running as root - cannot automatically fix ownership"
+        return 1
+    fi
+    
+    # Check if files are owned by different user
+    local dir_owner=$(stat -c '%U' "$target_dir" 2>/dev/null || stat -f '%Su' "$target_dir" 2>/dev/null || echo "")
+    if [ -n "$dir_owner" ] && [ "$dir_owner" != "$CURRENT_USER" ] && [ "$dir_owner" != "root" ]; then
+        print_warning "Production directory is owned by $dir_owner, but running as $CURRENT_USER"
+        print_info "Attempting to fix ownership..."
+        
+        # Try to fix with sudo if available
+        if command -v sudo >/dev/null 2>&1; then
+            if sudo chown -R "$CURRENT_UID:$CURRENT_GID" "$target_dir" 2>/dev/null; then
+                print_success "Fixed ownership of $target_dir to $CURRENT_USER"
+                return 0
+            else
+                print_warning "Could not fix ownership - may need manual intervention"
+                return 1
+            fi
+        else
+            print_warning "sudo not available - cannot fix ownership automatically"
+            return 1
+        fi
+    fi
+    
+    return 0
+}
+
+# Try to fix permissions if needed (but don't fail if we can't)
+fix_permissions "$PRODUCTION_DIR" || true
+
 # Check and repair .env file if needed
 if ! repair_env_file; then
-    print_info "Note: .env file check completed"
+    print_info "Note: .env file check completed (or skipped due to permissions)"
 fi
 
 # Validate .env file before proceeding
-if ! validate_env_file "$PRODUCTION_DIR/.env"; then
+ENV_FILE="$PRODUCTION_DIR/.env"
+if [ ! -r "$ENV_FILE" ]; then
+    echo ""
+    print_error "Cannot read .env file at $ENV_FILE"
+    echo ""
+    print_info "File information:"
+    ls -ld "$ENV_FILE" 2>/dev/null || echo "   File not found or cannot access"
+    echo "   Current user: $CURRENT_USER"
+    echo ""
+    
+    # Try to fix permissions automatically
+    if [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1; then
+        print_info "Attempting to fix .env file permissions..."
+        if sudo chmod 644 "$ENV_FILE" 2>/dev/null && sudo chown "$CURRENT_UID:$CURRENT_GID" "$ENV_FILE" 2>/dev/null; then
+            chmod 600 "$ENV_FILE" 2>/dev/null || true
+            print_success "Fixed .env file permissions"
+        else
+            print_warning "Could not automatically fix permissions"
+        fi
+    fi
+    
+    # Check again after attempt to fix
+    if [ ! -r "$ENV_FILE" ]; then
+        print_warning "To fix permissions manually, run one of these commands:"
+        echo "   sudo chmod 644 $ENV_FILE && sudo chown $CURRENT_USER:$CURRENT_USER $ENV_FILE"
+        echo "   sudo chown $CURRENT_USER:$CURRENT_USER $ENV_FILE"
+        echo ""
+        read -p "Do you want to continue without .env validation? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_info "Update cancelled. Please fix .env file permissions first."
+            exit 1
+        fi
+        print_warning "Continuing without .env validation - this may cause issues later"
+    fi
+elif ! validate_env_file "$ENV_FILE"; then
     echo ""
     print_warning ".env file validation failed. Please review and fix errors"
     read -p "Do you want to continue anyway? (y/n) " -n 1 -r
@@ -345,6 +488,12 @@ exec "\$MAIN_UPDATE_SCRIPT"
 EOF
     
     chmod +x "$local_update_script"
+    
+    # Set ownership if not root
+    if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
+        chown "$CURRENT_UID:$CURRENT_GID" "$local_update_script" 2>/dev/null || true
+    fi
+    
     print_success "Local update script created at $local_update_script"
     print_info "You can now use: $local_update_script"
 }
@@ -388,6 +537,17 @@ fi
 
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
 cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
+
+# Set ownership of copied files if not root
+if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
+    chown "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR/docker-compose.yml" \
+          "$PRODUCTION_DIR/production.Dockerfile" \
+          "$PRODUCTION_DIR/entrypoint.production.sh" 2>/dev/null || true
+    if [ "$INSTALL_TYPE" = "1" ]; then
+        chown "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR/nginx.conf.template" \
+              "$PRODUCTION_DIR/nginx-entrypoint.sh" 2>/dev/null || true
+    fi
+fi
 
 # Copy logo and favicon to project static directory
 print_info "Copying logo and favicon files..."
@@ -496,6 +656,11 @@ if [ "$MIGRATION_NEEDED" = true ]; then
     chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
     chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
     
+    # Set ownership if not root
+    if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
+        chown -R "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR/data" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups" 2>/dev/null || true
+    fi
+    
     # Create temporary container to copy data from volumes
     print_info "Copying data from volumes to bind mounts..."
     
@@ -554,6 +719,11 @@ print_info "Ensuring required directories exist..."
 mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
 chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
 chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+
+# Set ownership if not root
+if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
+    chown -R "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR/data" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups" 2>/dev/null || true
+fi
 
 # Check if static directory is empty (bind mount will hide container files if host dir is empty)
 if [ -z "$(ls -A "$PRODUCTION_DIR/data/static" 2>/dev/null)" ]; then

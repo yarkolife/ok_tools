@@ -27,17 +27,56 @@ print_error() { echo -e "${RED}✗ $1${NC}"; }
 print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
 print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
 
-# Logging setup
-LOG_FILE="/var/log/ok-tools-install.log"
-# Create log file if it doesn't exist and set permissions
-sudo touch "$LOG_FILE" 2>/dev/null || touch "$LOG_FILE" 2>/dev/null || true
-sudo chmod 644 "$LOG_FILE" 2>/dev/null || chmod 644 "$LOG_FILE" 2>/dev/null || true
-
-# Redirect output to both terminal and log file
-exec > >(tee -a "$LOG_FILE") 2>&1
-
 print_header "OK Tools Installation"
-print_info "Log file: $LOG_FILE"
+
+# Check if running as root and warn
+if [ "$(id -u)" -eq 0 ]; then
+    echo ""
+    print_warning "═══════════════════════════════════════════════════════════"
+    print_warning "  WARNING: Running as root"
+    print_warning "═══════════════════════════════════════════════════════════"
+    echo ""
+    print_warning "Running installation as root is not recommended for security reasons."
+    print_info "Best practice: Run as regular user with docker group membership"
+    echo ""
+    print_info "To set up docker without sudo:"
+    echo "  1. Add user to docker group: sudo usermod -aG docker \$USER"
+    echo "  2. Log out and log back in (or run: newgrp docker)"
+    echo "  3. Verify: docker ps (should work without sudo)"
+    echo ""
+    read -p "Continue installation as root anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_info "Installation cancelled. Please run as regular user."
+        exit 1
+    fi
+    echo ""
+fi
+
+# Get current user info for file ownership
+CURRENT_USER=$(id -un)
+CURRENT_UID=$(id -u)
+CURRENT_GID=$(id -g)
+
+# Logging setup - use local directory instead of /var/log
+LOG_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")/ok_tools_production/logs"
+mkdir -p "$LOG_DIR" 2>/dev/null || true
+LOG_FILE="$LOG_DIR/install-$(date +%Y%m%d-%H%M%S).log"
+
+# Create log file and set permissions
+if touch "$LOG_FILE" 2>/dev/null; then
+    chmod 644 "$LOG_FILE" 2>/dev/null || true
+    # Set ownership if not root
+    if [ "$(id -u)" -ne 0 ]; then
+        chown "$CURRENT_UID:$CURRENT_GID" "$LOG_FILE" 2>/dev/null || true
+    fi
+    # Redirect output to both terminal and log file
+    exec > >(tee -a "$LOG_FILE") 2>&1
+    print_info "Log file: $LOG_FILE"
+else
+    print_warning "Cannot create log file at $LOG_FILE, logging to console only"
+    print_info "Logging to console only"
+fi
 
 # Helper function to escape special characters for sed
 escape_for_sed() {
@@ -312,6 +351,12 @@ fi
 # Create production directory
 mkdir -p "$PRODUCTION_DIR"/{data/postgres,data/static,data/media,logs,backups}
 
+# Set ownership of production directory to current user (if not root)
+if [ "$(id -u)" -ne 0 ]; then
+    chown -R "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR" 2>/dev/null || true
+    print_info "Set ownership of $PRODUCTION_DIR to $CURRENT_USER"
+fi
+
 # Ask user for installation mode
 echo "Choose installation mode:"
 echo "1. Use existing template"
@@ -373,6 +418,10 @@ if [ "$INSTALL_MODE" = "1" ]; then
         ENV_FILE="$PRODUCTION_DIR/.env"
         prompt_secrets "$TEMPLATE_FILE" "$ENV_FILE"
         chmod 600 "$ENV_FILE"
+        # Set ownership if not root
+        if [ "$(id -u)" -ne 0 ]; then
+            chown "$CURRENT_UID:$CURRENT_GID" "$ENV_FILE" 2>/dev/null || true
+        fi
         
         echo "✓ Created .env file at: $ENV_FILE"
         
@@ -726,8 +775,12 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "CELERY_BEAT_SYNC_VIDEOS=0 5 * * *" >> "$ENV_FILE"
     echo "CELERY_BEAT_UPDATE_METADATA=0 1 1 * *" >> "$ENV_FILE"
 
-    chmod 600 "$ENV_FILE"
-    echo "✓ Created .env file at: $ENV_FILE"
+        chmod 600 "$ENV_FILE"
+        # Set ownership if not root
+        if [ "$(id -u)" -ne 0 ]; then
+            chown "$CURRENT_UID:$CURRENT_GID" "$ENV_FILE" 2>/dev/null || true
+        fi
+        echo "✓ Created .env file at: $ENV_FILE"
 
     # Validate the generated .env file
     if ! validate_env_file "$ENV_FILE"; then
@@ -801,6 +854,13 @@ echo "Creating required directories..."
 mkdir -p "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media" "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
 chmod 755 "$PRODUCTION_DIR/data/static" "$PRODUCTION_DIR/data/media"
 chmod 755 "$PRODUCTION_DIR/logs" "$PRODUCTION_DIR/backups"
+
+# Set ownership of all production files to current user (if not root)
+if [ "$(id -u)" -ne 0 ]; then
+    chown -R "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR" 2>/dev/null || true
+    print_info "Set ownership of production files to $CURRENT_USER"
+fi
+
 echo "✓ Directories created and permissions set"
 
 # Start containers
