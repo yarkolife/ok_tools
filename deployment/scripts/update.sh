@@ -405,14 +405,59 @@ mkdir -p "$BACKUP_DIR"
 
 print_info "Backing up database..."
 cd "$PRODUCTION_DIR"
-if docker compose ps db | grep -q "Up"; then
-    if docker compose exec -T db pg_dump -U oktools oktools > "$BACKUP_DIR/database.sql" 2>/dev/null; then
-        print_success "Database backup created"
-    else
-        print_warning "Database backup failed (container may not be running)"
-    fi
-else
+
+# Check if database container is running
+if ! docker compose ps db | grep -q "Up"; then
     print_warning "Database container is not running, skipping database backup"
+else
+    # Wait for database to be ready (up to 30 seconds)
+    print_info "Waiting for database to be ready..."
+    DB_READY=false
+    for i in {1..30}; do
+        if docker compose exec -T db pg_isready -U oktools > /dev/null 2>&1; then
+            DB_READY=true
+            break
+        fi
+        if [ $i -lt 30 ]; then
+            sleep 1
+        fi
+    done
+    
+    if [ "$DB_READY" = false ]; then
+        print_warning "Database is not ready after 30 seconds, skipping backup"
+        print_info "Database may still be starting up. Backup will be skipped for safety."
+    else
+        # Attempt to create database backup
+        print_info "Creating database backup..."
+        # Create backup and capture both stdout and stderr
+        if docker compose exec -T db pg_dump -U oktools oktools > "$BACKUP_DIR/database.sql" 2>"$BACKUP_DIR/database_backup_error.log"; then
+            BACKUP_EXIT_CODE=0
+        else
+            BACKUP_EXIT_CODE=$?
+        fi
+        
+        # Check if backup was successful
+        if [ $BACKUP_EXIT_CODE -eq 0 ] && [ -f "$BACKUP_DIR/database.sql" ] && [ -s "$BACKUP_DIR/database.sql" ]; then
+            BACKUP_SIZE=$(du -h "$BACKUP_DIR/database.sql" | cut -f1)
+            print_success "Database backup created successfully (size: $BACKUP_SIZE)"
+            # Remove error log if backup was successful
+            rm -f "$BACKUP_DIR/database_backup_error.log" 2>/dev/null || true
+        else
+            print_warning "Database backup failed"
+            # Show error details if error log exists and has content
+            if [ -f "$BACKUP_DIR/database_backup_error.log" ] && [ -s "$BACKUP_DIR/database_backup_error.log" ]; then
+                print_info "  Error details:"
+                head -5 "$BACKUP_DIR/database_backup_error.log" | sed 's/^/    /'
+            fi
+            # Remove empty backup file
+            if [ -f "$BACKUP_DIR/database.sql" ] && [ ! -s "$BACKUP_DIR/database.sql" ]; then
+                rm -f "$BACKUP_DIR/database.sql"
+                print_info "  Removed empty backup file"
+            fi
+            print_info "  You may want to create a manual backup:"
+            print_info "    docker compose exec -T db pg_dump -U oktools oktools > backup.sql"
+        fi
+    fi
 fi
 
 print_info "Backing up configuration..."
