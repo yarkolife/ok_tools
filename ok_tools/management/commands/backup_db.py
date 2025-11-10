@@ -100,10 +100,15 @@ class Command(BaseCommand):
                 compressed_size = os.path.getsize(compressed_path)
                 logger.info(f'Backup compressed successfully: {compressed_path}, Size: {compressed_size} bytes')
                 
+                # Fix file ownership to match backup directory owner
+                self._fix_file_ownership(compressed_path, output_dir)
+                
                 self.stdout.write(
                     self.style.SUCCESS(f'Successfully compressed backup: {compressed_path} (Size: {compressed_size} bytes)')
                 )
             else:
+                # Fix file ownership to match backup directory owner
+                self._fix_file_ownership(backup_path, output_dir)
                 logger.info(f'Backup operation completed successfully with return code: {result.returncode}')
 
         except FileNotFoundError:
@@ -112,3 +117,32 @@ class Command(BaseCommand):
         except Exception as e:
             logger.error(f'An error occurred during backup: {str(e)}')
             raise CommandError(f'An error occurred during backup: {str(e)}')
+    
+    def _fix_file_ownership(self, file_path, directory_path):
+        """
+        Fix file ownership to match the directory owner.
+        This ensures backup files are owned by the host user, not root.
+        """
+        logger = logging.getLogger(__name__)
+        try:
+            # Get directory owner (uid, gid)
+            dir_stat = os.stat(directory_path)
+            dir_uid = dir_stat.st_uid
+            dir_gid = dir_stat.st_gid
+            
+            # Get file owner
+            file_stat = os.stat(file_path)
+            file_uid = file_stat.st_uid
+            file_gid = file_stat.st_gid
+            
+            # Only change ownership if file is owned by root (uid 0) and directory is not
+            if file_uid == 0 and dir_uid != 0:
+                os.chown(file_path, dir_uid, dir_gid)
+                logger.info(f'Fixed file ownership: {file_path} -> uid={dir_uid}, gid={dir_gid}')
+                self.stdout.write(
+                    self.style.SUCCESS(f'Fixed file ownership to match directory owner')
+                )
+        except (OSError, PermissionError) as e:
+            # Log but don't fail if we can't change ownership
+            logger.warning(f'Could not fix file ownership for {file_path}: {e}')
+            # Don't raise - ownership fix is not critical

@@ -517,8 +517,13 @@ else:
 
 # Celery Configuration
 CELERY_BROKER_URL = get_env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
-# Use django-db backend to store results in database (visible in admin)
-CELERY_RESULT_BACKEND = get_env('CELERY_RESULT_BACKEND', default='django-db')
+# Use django-celery-results backend to store results in database (visible in admin)
+# Allow both 'django-db' (short form) and full path for backward compatibility
+_result_backend = get_env('CELERY_RESULT_BACKEND', default='django-db')
+if _result_backend == 'django-db':
+    CELERY_RESULT_BACKEND = 'django_celery_results.backends.database:DatabaseBackend'
+else:
+    CELERY_RESULT_BACKEND = _result_backend
 
 # Celery Configuration Options
 CELERY_TIMEZONE = get_env('TIME_ZONE', default='Europe/Berlin')
@@ -527,6 +532,10 @@ CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
 CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
+# Enable extended result format to store more task information
+CELERY_RESULT_EXTENDED = True
+CELERY_RESULT_BACKEND_ALWAYS_RETRY = True
+CELERY_RESULT_BACKEND_MAX_RETRIES = 10
 
 # Use django-celery-beat scheduler (allows managing periodic tasks via admin)
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

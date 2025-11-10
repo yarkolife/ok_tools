@@ -22,3 +22,6 @@ class OkToolsConfig(AppConfig):
             import logging
             logger = logging.getLogger(__name__)
             logger.warning(f"Failed to register custom admin: {e}")
+        
+        # Note: Celery admin customizations are imported in urls.py
+        # to ensure django_celery_beat is loaded first

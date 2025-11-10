@@ -11,7 +11,7 @@ import logging
 # Configure logger for this module
 logger = logging.getLogger(__name__)
 
-@shared_task
+@shared_task(name='ok_tools.tasks.run_backup_db_task')
 def run_backup_db_task():
     """
     Celery task to run the 'backup_db' Django management command.
@@ -47,7 +47,7 @@ def run_backup_db_task():
         # Re-raising the exception can be useful for Celery's error handling/reporting
         raise
 
-@shared_task
+@shared_task(name='ok_tools.tasks.run_expire_room_rentals_task')
 def run_expire_room_rentals_task():
     """
     Celery task to run the 'expire_room_rentals' Django management command.
@@ -78,7 +78,7 @@ def run_expire_room_rentals_task():
         # Re-raising the exception can be useful for Celery's error handling/reporting
         raise
 
-@shared_task
+@shared_task(name='ok_tools.tasks.cleanup_old_backups_task')
 def cleanup_old_backups_task(backup_dir=None, keep_daily=7, keep_weekly=4, keep_monthly=1):
     """
     Celery task to clean up old backup files based on retention policy.

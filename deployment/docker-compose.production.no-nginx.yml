@@ -79,6 +79,7 @@ services:
       - ./data/static:/app/staticfiles
       - ./data/media:/app/media
       - ./logs:/app/logs
+      - ./backups:/app/backups
     command: celery -A ok_tools worker --loglevel=info
     restart: unless-stopped
     networks:

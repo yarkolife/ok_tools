@@ -29,6 +29,16 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from .admin_imports import register_custom_admin
 register_custom_admin()
 
+# Import Celery admin customizations after all apps are loaded
+# This ensures django_celery_beat is already registered
+try:
+    from . import admin_celery  # noqa: F401
+except ImportError:
+    # If admin_celery fails to import, log but don't crash
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("Failed to import admin_celery", exc_info=True)
+
 # Serve static files in debug mode
 from django.conf import settings
 from django.conf.urls.static import static
