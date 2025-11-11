@@ -13,7 +13,7 @@ logger = logging.getLogger('django')
 class Command(BaseCommand):
     """Automated scanning of video storage locations."""
 
-    help = 'Automatically scan all active storage locations for new videos'
+    help = 'Automatically scan storage locations with scan enabled for new videos'
 
     def add_arguments(self, parser):
         """Add command arguments."""
@@ -32,20 +32,32 @@ class Command(BaseCommand):
             action='store_true',
             help='Calculate checksums for found files (slow)'
         )
+        parser.add_argument(
+            '--skip-metadata',
+            action='store_true',
+            help='Skip metadata extraction (faster for large files)'
+        )
+        parser.add_argument(
+            '--strict-check',
+            action='store_true',
+            help='Use checksum comparison for strict change detection (slower)'
+        )
 
     def handle(self, *args, **options):
         """Execute the command."""
         storage_type = options.get('storage_type')
         force = options['force']
         calculate_checksums = options['calculate_checksums']
+        skip_metadata = options.get('skip_metadata', False)
+        strict_check = options.get('strict_check', False)
         
-        # Get storage locations to scan
-        storages = StorageLocation.objects.filter(is_active=True)
+        # Get storage locations to scan (only those with scan_enabled=True)
+        storages = StorageLocation.objects.filter(is_active=True, scan_enabled=True)
         if storage_type:
             storages = storages.filter(storage_type=storage_type)
         
         if not storages.exists():
-            self.stdout.write(self.style.ERROR(f'No active storage locations found'))
+            self.stdout.write(self.style.ERROR(f'No active storage locations with scan enabled found'))
             return
         
         self.stdout.write(f'Starting automatic scan of {storages.count()} storage location(s)')
@@ -73,6 +85,10 @@ class Command(BaseCommand):
                     cmd_args.append('--force')
                 if calculate_checksums:
                     cmd_args.append('--calculate-checksum')
+                if skip_metadata:
+                    cmd_args.append('--skip-metadata')
+                if strict_check:
+                    cmd_args.append('--strict-check')
                 
                 # Run scan command
                 call_command(*cmd_args, stdout=out, stderr=err)

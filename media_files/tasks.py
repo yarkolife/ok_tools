@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def run_auto_scan_task():
     """Run the auto_scan management command."""
     logger.info("Starting auto_scan task...")
-    call_command("auto_scan", "--all")
+    call_command("auto_scan")
     logger.info("Finished auto_scan task.")
 
 
