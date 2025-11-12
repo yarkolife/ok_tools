@@ -22,22 +22,42 @@ logger = logging.getLogger(__name__)
 def get_license_by_number(request, number):
     """Return license details by license number."""
     try:
-        license = License.objects.get(number=number)
+        # Optimize: fetch license with related video_file in one query
+        license = License.objects.select_related('profile', 'video_file').get(number=number)
     except License.DoesNotExist:
         raise Http404(_("License not found or not confirmed."))
     
     # Get author name from profile
     author_name = ""
+    sender_responsible = ""
     if license.profile:
         author_name = f"{license.profile.first_name or ''} {license.profile.last_name or ''}".strip()
+        sender_responsible = author_name  # Sendeverantwortung is the same as author
+
+    # Get real duration from VideoFile if available, otherwise use License duration
+    duration_seconds = int(license.duration.total_seconds())
+    if hasattr(license, 'video_file') and license.video_file and license.video_file.duration:
+        # Use real video file duration if available via relationship
+        duration_seconds = int(license.video_file.duration.total_seconds())
+    else:
+        # Try to find VideoFile by number (fallback if relationship is not set)
+        try:
+            from media_files.models import VideoFile
+            video_file = VideoFile.objects.filter(number=number).first()
+            if video_file and video_file.duration:
+                duration_seconds = int(video_file.duration.total_seconds())
+        except ImportError:
+            pass  # media_files app not available
 
     return JsonResponse(
         {
             "number": license.number,
             "title": license.title or "",
             "subtitle": license.subtitle or "",
-            "duration_seconds": int(license.duration.total_seconds()),
+            "duration_seconds": duration_seconds,
             "author": author_name,
+            "sender_responsible": sender_responsible,
+            "license_id": license.id,
         }
     )
 
@@ -120,10 +140,68 @@ def day_plan_detail(request, iso_date):
 
         except TagesPlan.DoesNotExist:
             raise Http404("No plan for this day")
+        
+        # Enrich items with current data from License (dynamic data)
+        items = plan.json_plan.get("items", [])
+        
+        # Optimize: get all license numbers and fetch licenses in one query
+        license_numbers = [item.get("number") for item in items if item.get("number")]
+        licenses_dict = {}
+        video_files_dict = {}
+        
+        if license_numbers:
+            # Fetch all licenses with their profiles and video_files in one query
+            licenses = License.objects.filter(number__in=license_numbers).select_related('profile', 'video_file')
+            licenses_dict = {lic.number: lic for lic in licenses}
+            
+            # Fetch all VideoFiles for these numbers in one query (for cases where license.video_file is None)
+            try:
+                from media_files.models import VideoFile
+                video_files = VideoFile.objects.filter(number__in=license_numbers).select_related('license')
+                video_files_dict = {vf.number: vf for vf in video_files if vf.duration}
+            except ImportError:
+                pass  # media_files app not available
+        
+        enriched_items = []
+        for item in items:
+            license_number = item.get("number")
+            enriched_item = item.copy()  # Start with saved data as fallback
+            
+            if license_number and license_number in licenses_dict:
+                license = licenses_dict[license_number]
+                # Update with current data from License
+                enriched_item["title"] = license.title or item.get("title", "")
+                enriched_item["subtitle"] = license.subtitle or item.get("subtitle", "")
+                
+                # Get real duration from VideoFile if available, otherwise use License duration
+                duration_seconds = int(license.duration.total_seconds())
+                if hasattr(license, 'video_file') and license.video_file and license.video_file.duration:
+                    # Use real video file duration if available via relationship
+                    duration_seconds = int(license.video_file.duration.total_seconds())
+                elif license_number in video_files_dict:
+                    # Use VideoFile found by number if license.video_file is None
+                    video_file = video_files_dict[license_number]
+                    duration_seconds = int(video_file.duration.total_seconds())
+                
+                enriched_item["duration"] = duration_seconds
+                enriched_item["license_id"] = license.id
+                
+                # Get author and sender_responsible from profile
+                if license.profile:
+                    author_name = f"{license.profile.first_name or ''} {license.profile.last_name or ''}".strip()
+                    enriched_item["author"] = author_name
+                    enriched_item["sender_responsible"] = author_name
+                else:
+                    enriched_item["author"] = item.get("author", "")
+                    enriched_item["sender_responsible"] = item.get("sender_responsible", item.get("author", ""))
+            # If license not found, use saved data (fallback)
+            
+            enriched_items.append(enriched_item)
+        
         return JsonResponse(
             {
                 "date": str(plan.datum),  # ✅ Return the actual date from the database
-                "items": plan.json_plan.get("items", []),
+                "items": enriched_items,
                 "draft": plan.json_plan.get("draft", False),
                 "planned": plan.json_plan.get("planned", False),
                 "comment": plan.kommentar or "",

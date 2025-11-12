@@ -480,6 +480,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
 
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'license__profile'),
+        AutocompleteFilterFactory(_('License'), 'license'),
         ('broadcast_date', CustomDateTimeRangeFilter),
         PrimaryFilter,
         YearFilter,

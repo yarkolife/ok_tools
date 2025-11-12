@@ -10,25 +10,174 @@
     const blockEnd = endH * 3600 + endM * 60; // seconds
     const maxBlockSeconds = blockEnd - blockStart;
 
+    // Normalize duration: if value is less than 3600 (1 hour), it might be in minutes (old data)
+    // Convert to seconds if needed
+    function normalizeDuration(duration) {
+      // If duration is less than 3600 seconds (1 hour), it might be stored in minutes
+      // Check if it's a reasonable duration in minutes (e.g., less than 120 minutes = 7200 seconds)
+      if (duration < 3600 && duration > 0) {
+        // This could be minutes, but we need to be careful
+        // If duration is between 1 and 120, it's likely minutes
+        // If duration is already in seconds but less than 3600, keep it as is
+        // We'll assume if it's less than 120, it's minutes (old data format)
+        if (duration < 120) {
+          return duration * 60; // Convert minutes to seconds
+        }
+      }
+      return duration; // Already in seconds
+    }
+
     // Format seconds to MM:SS
     function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
+      const normalized = normalizeDuration(seconds);
+      const mins = Math.floor(normalized / 60);
+      const secs = normalized % 60;
       return mins + ':' + secs.toString().padStart(2, '0');
     }
 
-    // Convert time string HH:MM to seconds
+    // Convert time string HH:MM or HH:MM:SS to seconds
     function timeToSeconds(timeStr) {
       if (!timeStr) return 0;
-      const [h, m] = timeStr.split(":").map(Number);
-      return h * 3600 + m * 60;
+      const parts = timeStr.split(":");
+      const h = parseInt(parts[0], 10) || 0;
+      const m = parseInt(parts[1], 10) || 0;
+      const s = parseInt(parts[2], 10) || 0;
+      return h * 3600 + m * 60 + s;
     }
 
-    // Convert seconds to HH:MM format
+    // Convert seconds to HH:MM:SS format
     function secondsToTimeString(seconds) {
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+    }
+
+    // Convert seconds to HH:MM format (for display without seconds)
+    function secondsToTimeStringShort(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
       return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
+    }
+
+    // Check if time has seconds in second half of minute (30-59)
+    // Accepts both HH:MM:SS and seconds (number)
+    function isInSecondHalf(timeStrOrSeconds) {
+      if (!timeStrOrSeconds) return false;
+      let seconds = 0;
+      if (typeof timeStrOrSeconds === 'number') {
+        seconds = timeStrOrSeconds % 60;
+      } else {
+        const parts = timeStrOrSeconds.split(":");
+        if (parts.length >= 3) {
+          seconds = parseInt(parts[2], 10) || 0;
+        }
+      }
+      return seconds >= 30 && seconds <= 59;
+    }
+    
+    // Convert HH:MM:SS to HH:MM for display
+    function timeToDisplay(timeStr) {
+      if (!timeStr) return '';
+      const parts = timeStr.split(":");
+      if (parts.length >= 2) {
+        return parts[0] + ':' + parts[1];
+      }
+      return timeStr;
+    }
+    
+    // Convert HH:MM to HH:MM:SS (add seconds if missing)
+    function timeWithSeconds(timeStr, defaultSeconds = 0) {
+      if (!timeStr) return '';
+      const parts = timeStr.split(":");
+      if (parts.length === 2) {
+        return timeStr + ':' + defaultSeconds.toString().padStart(2, '0');
+      }
+      return timeStr;
+    }
+    
+    // Get internal time with seconds from input element
+    function getInternalTime($input) {
+      const internalTime = $input.data('internal-time');
+      if (internalTime) {
+        return internalTime;
+      }
+      // Fallback: if no internal time, use display time and add :00
+      const displayTime = $input.val();
+      return timeWithSeconds(displayTime, 0);
+    }
+
+    function setDesiredTime($input, displayTime) {
+      if (displayTime && displayTime.match(/^\d{2}:\d{2}$/)) {
+        $input.data('desired-time', displayTime);
+      }
+    }
+
+    function getDesiredTime($input) {
+      const stored = $input.data('desired-time');
+      if (stored && stored.match(/^\d{2}:\d{2}$/)) {
+        return stored;
+      }
+      const current = $input.val();
+      if (current && current.match(/^\d{2}:\d{2}$/)) {
+        return current;
+      }
+      return '00:00';
+    }
+
+    function normalizeDisplayTime(displayTime) {
+      if (!displayTime) return null;
+      const parts = displayTime.split(':');
+      if (parts.length !== 2) return null;
+      const h = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) {
+        return null;
+      }
+      return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
+    }
+
+    function recalculateSchedule() {
+      let currentEndSec = blockStart;
+
+      $('#licenseTable tbody tr:not(.gap-row)').each(function (idx) {
+        const $row = $(this);
+        const $input = $row.find('.start-time-input');
+        const desiredDisplay = getDesiredTime($input);
+        const desiredSec = timeToSeconds(desiredDisplay + ':00');
+        const startSec = Math.max(desiredSec, currentEndSec);
+        const startWithSeconds = secondsToTimeString(startSec);
+
+        $input.data('internal-time', startWithSeconds);
+        $row.find('.time-with-seconds').text(startWithSeconds);
+
+        if (isInSecondHalf(startSec)) {
+          $input.css('background-color', '#fff3cd').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
+        } else {
+          $input.css('background-color', '').attr('title', '');
+        }
+
+        const duration = plannedItems[idx] ? plannedItems[idx].duration : (function () {
+          const durationText = $row.find('td').eq(5).text();
+          if (!durationText) return 0;
+          const parts = durationText.split(':').map(Number);
+          if (parts.length === 2) {
+            return normalizeDuration(parts[0] * 60 + parts[1]);
+          }
+          return 0;
+        })();
+
+        const endSec = startSec + duration;
+        $row.find('.end-time').text(secondsToTimeString(endSec));
+
+        if (plannedItems[idx]) {
+          plannedItems[idx].start = startWithSeconds;
+        }
+
+        currentEndSec = endSec;
+      });
+
+      updateRemainingTime();
     }
 
     // Round time to nearest 0 or 5 minutes
@@ -52,7 +201,7 @@
       return nextFiveMinuteMark * 60;
     }
 
-    // Calculate end time for display
+    // Calculate end time for display (with seconds)
     function calculateEndTime(startTime, durationSeconds) {
       const startSec = timeToSeconds(startTime);
       const endSec = startSec + durationSeconds;
@@ -87,26 +236,54 @@
             .done(function (data) {
                 // restore rows
                 data.items.forEach(function (item) {
-                    const endTime = calculateEndTime(item.start, item.duration);
-                    const row = '<tr>' +
-                      '<td><input type="time" class="form-control input-sm start-time-input" value="' + item.start + '"></td>' +
+                    // Normalize duration for old data
+                    const normalizedDuration = normalizeDuration(item.duration);
+                    const endTime = calculateEndTime(item.start, normalizedDuration);
+                    const licenseId = item.license_id || '';
+                    const licenseLink = licenseId ? '<a href="/admin/licenses/license/' + licenseId + '/change/" target="_blank">' + item.number + '</a>' : item.number;
+                    const contributionLink = licenseId ? ' <a href="/admin/contributions/contribution/?q=' + item.number + '" target="_blank" title="' + gettext('View Contributions') + '">📺</a>' : '';
+                    const senderResponsible = item.sender_responsible || item.author || '';
+                    // Store time with seconds internally, but display only HH:MM
+                    let startTimeWithSeconds = item.start;
+                    if (startTimeWithSeconds && (!startTimeWithSeconds.includes(':') || (startTimeWithSeconds.match(/:/g) || []).length === 1)) {
+                      // Convert HH:MM to HH:MM:SS
+                      const [h, m] = startTimeWithSeconds.split(":").map(Number);
+                      startTimeWithSeconds = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':00';
+                    }
+                    const startTimeDisplay = timeToDisplay(startTimeWithSeconds); // Show only HH:MM
+                    const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + item.number + '">' +
+                      '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: #6c757d; font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
                       '<td class="end-time">' + endTime + '</td>' +
-                      '<td>' + item.number + '</td>' +
+                      '<td>' + licenseLink + contributionLink + '</td>' +
                       '<td>' + (item.title || '') + (item.subtitle ? ' – ' + item.subtitle : '') + '</td>' +
-                      '<td>' + (item.author || '') + '</td>' +
-                      '<td>' + formatTime(item.duration) + '</td>' +
+                      '<td class="sender-responsible">' + senderResponsible + '</td>' +
+                      '<td>' + formatTime(normalizedDuration) + '</td>' +
                       '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
-                      '</tr>';
-                    $('#licenseTable tbody').append(row);
+                      '</tr>');
+                    $('#licenseTable tbody').append($row);
+
+                    const $input = $row.find('.start-time-input');
+                    setDesiredTime($input, startTimeDisplay);
+                    $input.data('internal-time', startTimeWithSeconds);
+                    $row.find('.time-with-seconds').text(startTimeWithSeconds);
+
+                    // Apply visual indicator if time is in second half of minute (check internal seconds)
+                    const startSec = timeToSeconds(startTimeWithSeconds);
+                    if (isInSecondHalf(startSec)) {
+                      $row.find('.start-time-input').css('background-color', '#fff3cd').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
+                    }
                     plannedItems.push({
                       number: item.number,
-                      duration: item.duration,
+                      duration: normalizedDuration,
                       title: item.title,
                       subtitle: item.subtitle,
-                      author: item.author,
-                      start: item.start
+                      sender_responsible: senderResponsible,
+                      license_id: licenseId,
+                      start: startTimeWithSeconds // Store with seconds
                     });
                 });
+
+                recalculateSchedule();
 
                 $('#noteText').val(data.comment || '');
                 updateRemainingTime();
@@ -131,14 +308,14 @@
           return; // skip gap rows
         }
         
-        const startStr = $row.find('input[type="time"]').val();
-        const durationText = $row.find('td').eq(5).text(); // MM:SS format (column index changed)
+        const $input = $row.find('.start-time-input');
+        const startStr = getInternalTime($input);
+        const durationText = $row.find('td').eq(5).text(); // MM:SS format (Duration is now column 5)
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = mins * 60 + secs;
+        const duration = normalizeDuration(mins * 60 + secs);
         
         if (startStr && duration) {
-          const [h, m] = startStr.split(":").map(Number);
-          const startSec = h * 3600 + m * 60;
+          const startSec = timeToSeconds(startStr);
           const endSec = startSec + duration;
           
           // Update end time display
@@ -309,10 +486,11 @@
       // Collect all current videos
       $('#licenseTable tbody tr:not(.gap-row)').each(function () {
         const $row = $(this);
-        const startStr = $row.find('input[type="time"]').val();
-        const durationText = $row.find('td').eq(5).text();
+        const $input = $row.find('.start-time-input');
+        const startStr = getInternalTime($input); // Get time with seconds
+        const durationText = $row.find('td').eq(5).text(); // Duration column
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = mins * 60 + secs;
+        const duration = normalizeDuration(mins * 60 + secs);
         
         if (startStr && duration) {
           const startSec = timeToSeconds(startStr);
@@ -387,30 +565,49 @@
         const bestPosition = findBestPosition(data.duration_seconds);
         const startTime = secondsToTimeString(bestPosition);
         const endTime = secondsToTimeString(bestPosition + data.duration_seconds);
+        const licenseId = data.license_id || '';
+        const licenseLink = licenseId ? '<a href="/admin/licenses/license/' + licenseId + '/change/" target="_blank">' + data.number + '</a>' : data.number;
+                    const contributionLink = licenseId ? ' <a href="/admin/contributions/contribution/?q=' + data.number + '" target="_blank" title="' + gettext('View Contributions') + '">📺</a>' : '';
+        const senderResponsible = data.sender_responsible || data.author || '';
 
-        const row = '<tr>' +
-          '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTime + '"></td>' +
+        // Format start time: store with seconds internally, display only HH:MM
+        const startTimeWithSeconds = startTime + ':00';
+        const startTimeDisplay = timeToDisplay(startTimeWithSeconds); // Show only HH:MM
+        const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + data.number + '">' +
+          '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: #6c757d; font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
           '<td class="end-time">' + endTime + '</td>' +
-          '<td>' + data.number + '</td>' +
+          '<td>' + licenseLink + contributionLink + '</td>' +
           '<td>' + data.title + (data.subtitle ? ' – ' + data.subtitle : '') + '</td>' +
-          '<td>' + (data.author || '') + '</td>' +
+          '<td class="sender-responsible">' + senderResponsible + '</td>' +
           '<td>' + formatTime(data.duration_seconds) + '</td>' +
           '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
-          '</tr>';
+          '</tr>');
+
+        const $input = $row.find('.start-time-input');
+        setDesiredTime($input, startTimeDisplay);
+        $input.data('internal-time', startTimeWithSeconds);
+        $row.find('.time-with-seconds').text(startTimeWithSeconds);
 
         // Find correct position to insert (sorted by time)
         var inserted = false;
         $('#licenseTable tbody tr:not(.gap-row)').each(function() {
-          const existingStart = timeToSeconds($(this).find('input[type="time"]').val());
+          const $existingInput = $(this).find('.start-time-input');
+          const existingStart = timeToSeconds(getInternalTime($existingInput));
           if (bestPosition < existingStart) {
-            $(this).before(row);
+            $(this).before($row);
             inserted = true;
             return false; // break
           }
         });
         
         if (!inserted) {
-          $('#licenseTable tbody').append(row);
+          $('#licenseTable tbody').append($row);
+        }
+        
+        // Apply visual indicator if time is in second half of minute (check internal seconds)
+        const startSec = timeToSeconds(startTimeWithSeconds);
+        if (isInSecondHalf(startSec)) {
+          $row.find('.start-time-input').css('background-color', '#fff3cd').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
         }
 
         plannedItems.push({
@@ -418,9 +615,12 @@
           duration: data.duration_seconds,
           title: data.title,
           subtitle: data.subtitle,
-          author: data.author,
+          sender_responsible: senderResponsible,
+          license_id: licenseId,
           start: startTime
         });
+
+        recalculateSchedule();
         
         // Re-sort planned items
         syncPlannedItemsFromTable();
@@ -433,98 +633,136 @@
 
     // Synchronize start time when input changes (just update)
     $('#licenseTable').on('input', '.start-time-input', function () {
-      const $row = $(this).closest('tr');
-      const index = $('#licenseTable tbody tr:not(.gap-row)').index($row);
-      const newStart = $(this).val();
-      
-      if (plannedItems[index]) {
-        plannedItems[index].start = newStart;
+      const $input = $(this);
+      const normalized = normalizeDisplayTime($input.val());
+
+      if (!normalized) {
+        return; // wait until input is complete HH:MM
       }
-      updateRemainingTime();
+
+      if ($input.val() !== normalized) {
+        $input.val(normalized);
+      }
+
+      setDesiredTime($input, normalized);
+      recalculateSchedule();
     });
 
     // Validate time conflicts when user finishes editing
     $('#licenseTable').on('blur', '.start-time-input', function () {
       const $input = $(this);
-      const $row = $input.closest('tr');
-      const index = $('#licenseTable tbody tr:not(.gap-row)').index($row);
-      const newStart = $input.val();
-      
-      // Validate only complete time format
-      if (!newStart || !newStart.match(/^\d{2}:\d{2}$/)) {
+      const normalized = normalizeDisplayTime($input.val());
+
+      if (!normalized) {
+        // Revert to previous desired time if current value invalid
+        const fallback = getDesiredTime($input);
+        $input.val(fallback);
         return;
       }
+
+      if ($input.val() !== normalized) {
+        $input.val(normalized);
+      }
+
+      setDesiredTime($input, normalized);
+      recalculateSchedule();
+    });
+
+    // Align all start times to 0 or 5 minutes
+    $('#alignToFiveMinutesBtn').on('click', function () {
+      // Collect all videos with their current positions
+      const videos = [];
+      $('#licenseTable tbody tr:not(.gap-row)').each(function () {
+        const $row = $(this);
+        const $input = $row.find('.start-time-input');
+        const startStr = getInternalTime($input); // Get time with seconds
+        const durationText = $row.find('td').eq(5).text();
+        const [mins, secs] = durationText.split(':').map(Number);
+        const duration = normalizeDuration(mins * 60 + secs);
+        
+        if (startStr) {
+          const startSec = timeToSeconds(startStr);
+          videos.push({
+            $row: $row,
+            startSec: startSec,
+            duration: duration,
+            originalIndex: $('#licenseTable tbody tr:not(.gap-row)').index($row)
+          });
+        }
+      });
       
-      // Validate time conflicts
-      if (plannedItems[index]) {
-        const [h, m] = newStart.split(":").map(Number);
-        const newStartMin = h * 60 + m;
-        // Duration is in SECONDS, convert to minutes
-        const currentDurationMin = Math.ceil(plannedItems[index].duration / 60);
+      // Sort by current start time
+      videos.sort(function(a, b) {
+        return a.startSec - b.startSec;
+      });
+      
+      // Align each video to nearest 5-minute mark, avoiding conflicts
+      let currentPos = blockStart;
+      videos.forEach(function(video, videoIndex) {
+        // Round current position to nearest 5-minute mark
+        const roundedPos = roundToFiveMinutes(currentPos);
         
-        // Check all other videos for conflicts
+        // Check if rounded position would cause conflict with previous videos
+        let finalPos = roundedPos;
         let hasConflict = false;
-        let suggestedTime = null;
+        let maxIterations = 100; // Safety limit
+        let iterations = 0;
         
-        $('#licenseTable tbody tr:not(.gap-row)').each(function (idx) {
-          if (idx === index) return; // skip current row
-          
-          const $otherRow = $(this);
-          const otherStart = $otherRow.find('input[type="time"]').val();
-          // Duration is in SECONDS, convert to minutes
-          const otherDurationMin = plannedItems[idx] ? Math.ceil(plannedItems[idx].duration / 60) : 0;
-          
-          if (otherStart && otherDurationMin) {
-            const [oh, om] = otherStart.split(":").map(Number);
-            const otherStartMin = oh * 60 + om;
-            const otherEndMin = otherStartMin + otherDurationMin;
-            const newEndMin = newStartMin + currentDurationMin;
+        do {
+          hasConflict = false;
+          iterations++;
+          // Check against all already positioned videos
+          for (let i = 0; i < videoIndex; i++) {
+            const otherVideo = videos[i];
+            const otherEndSec = otherVideo.finalPosSec + otherVideo.duration;
+            const newEndSec = finalPos + video.duration;
             
-            // Check for overlap
-            if (
-              (newStartMin >= otherStartMin && newStartMin < otherEndMin) ||
-              (newEndMin > otherStartMin && newEndMin <= otherEndMin) ||
-              (newStartMin <= otherStartMin && newEndMin >= otherEndMin)
-            ) {
+            // Check for overlap (not touching)
+            if (finalPos < otherEndSec && newEndSec > otherVideo.finalPosSec) {
               hasConflict = true;
-              
-              // Suggest time after the conflicting video
-              if (idx < index) {
-                // Video is before current - suggest after it
-                if (!suggestedTime || otherEndMin > suggestedTime) {
-                  suggestedTime = otherEndMin;
-                }
-              } else {
-                // Video is after current - suggest before it
-                const beforeTime = otherStartMin - currentDurationMin;
-                if (beforeTime >= blockStart && (!suggestedTime || beforeTime < suggestedTime)) {
-                  suggestedTime = beforeTime;
-                }
-              }
+              // Move to next 5-minute mark after the conflicting video
+              const nextFiveMin = Math.ceil(otherEndSec / 300) * 300; // Round up to next 5 minutes
+              finalPos = nextFiveMin;
+              break;
             }
           }
-        });
+        } while (hasConflict && iterations < maxIterations);
         
-        if (hasConflict && suggestedTime !== null) {
-          const suggestedTimeStr = Math.floor(suggestedTime / 60).toString().padStart(2, '0') + ':' +
-                                    (suggestedTime % 60).toString().padStart(2, '0');
-          
-          const accept = confirm('⚠️ Zeitkonflikt!\n\n' +
-                'Das Video überschneidet sich mit einem anderen.\n\n' +
-                'Vorgeschlagene Startzeit: ' + suggestedTimeStr + '\n\n' +
-                'OK = Zeit anwenden\nAbbrechen = selbst korrigieren');
-          
-          if (accept) {
-            // User accepted suggestion
-            $input.val(suggestedTimeStr);
-            plannedItems[index].start = suggestedTimeStr;
-            updateRemainingTime();
-          } else {
-            // User wants to fix manually - focus back
-            $input.focus().select();
-          }
-        }
-      }
+        // Store final position
+        video.finalPosSec = finalPos;
+        
+        // Update the row
+        const newStartTimeWithSeconds = secondsToTimeString(finalPos);
+        const newStartTimeDisplay = timeToDisplay(newStartTimeWithSeconds);
+        const $input = video.$row.find('.start-time-input');
+        $input.val(newStartTimeDisplay); // Display only HH:MM
+        $input.data('internal-time', newStartTimeWithSeconds); // Store with seconds
+        setDesiredTime($input, newStartTimeDisplay);
+        $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds); // Update time display
+        const endTime = calculateEndTime(newStartTimeWithSeconds, video.duration);
+        video.$row.find('.end-time').text(endTime);
+        
+        // Move position forward for next video
+        currentPos = finalPos + video.duration;
+      });
+      
+      // Update plannedItems and re-sort rows by time
+      syncPlannedItemsFromTable();
+      
+      // Re-sort table rows by new start times
+      let rows = $('#licenseTable tbody tr:not(.gap-row)').get();
+      rows.sort(function(a, b) {
+        const $aInput = $(a).find('.start-time-input');
+        const $bInput = $(b).find('.start-time-input');
+        const aTime = getInternalTime($aInput);
+        const bTime = getInternalTime($bInput);
+        return aTime.localeCompare(bTime);
+      });
+      $.each(rows, function(idx, row) {
+        $('#licenseTable tbody').append(row);
+      });
+      
+      recalculateSchedule();
     });
 
     $('#licenseTable').on('click', '.remove-row', function () {
@@ -532,7 +770,8 @@
       const index = $('#licenseTable tbody tr:not(.gap-row)').index(row);
       plannedItems.splice(index, 1);
       row.remove();
-      updateRemainingTime();
+      syncPlannedItemsFromTable();
+      recalculateSchedule();
     });
 
     function collectPlanData () {
@@ -553,17 +792,28 @@
             [title, subtitle] = titleCell.split(' – ', 2);
           }
 
-          const durationText = $row.find('td').eq(5).text(); // index changed
+          const durationText = $row.find('td').eq(5).text(); // Duration is now column 5
           const [mins, secs] = durationText.split(':').map(Number);
-          const duration = mins * 60 + secs;
+          const duration = normalizeDuration(mins * 60 + secs);
 
+          // Extract license number from link or text
+          const numberCell = $row.find('td').eq(2);
+          let licenseNumber = numberCell.text().trim();
+          // If it's a link, extract number from link text
+          const linkText = numberCell.find('a').first().text();
+          if (linkText) {
+            licenseNumber = linkText.trim();
+          }
+
+          const $input = $row.find('.start-time-input');
           const item = {
-              number:    parseInt($row.find('td').eq(2).text(), 10), // index changed
-              start:     $row.find('input[type="time"]').val(),
+              number:    parseInt(licenseNumber, 10),
+              start:     getInternalTime($input), // Get time with seconds
               duration:  duration,
               title:     title,
               subtitle:  subtitle,
-              author:    $row.find('td').eq(4).text() // index changed
+              sender_responsible: $row.find('td.sender-responsible').text(),
+              license_id: $row.data('license-id') || null
           };
 
           items.push(item);
@@ -694,15 +944,29 @@
       plannedItems = [];
       $('#licenseTable tbody tr:not(.gap-row)').each(function () {
         const $row = $(this);
-        const start = $row.find('input[type="time"]').val();
-        const number = $row.find('td').eq(2).text(); // index changed
-        const titleCell = $row.find('td').eq(3).text(); // index changed
+        const $input = $row.find('.start-time-input');
+        const start = getInternalTime($input); // Get time with seconds
+        const numberCell = $row.find('td').eq(2);
+        let licenseNumber = numberCell.text().trim();
+        const linkText = numberCell.find('a').first().text();
+        if (linkText) {
+          licenseNumber = linkText.trim();
+        }
+        const titleCell = $row.find('td').eq(3).text();
         let [title, subtitle] = titleCell.split(' – ', 2);
-        const author = $row.find('td').eq(4).text(); // index changed
-        const durationText = $row.find('td').eq(5).text(); // index changed
+        const senderResponsible = $row.find('td.sender-responsible').text();
+        const durationText = $row.find('td').eq(5).text(); // Duration is now column 5
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = mins * 60 + secs;
-        plannedItems.push({ start, number, title, subtitle, author, duration });
+        const duration = normalizeDuration(mins * 60 + secs);
+        plannedItems.push({ 
+          start, 
+          number: parseInt(licenseNumber, 10), 
+          title, 
+          subtitle, 
+          sender_responsible: senderResponsible,
+          license_id: $row.data('license-id') || null,
+          duration 
+        });
       });
     }
 
@@ -712,16 +976,21 @@
       
       $('#licenseTable tbody tr:not(.gap-row)').each(function () {
         const $row = $(this);
-        const durationText = $row.find('td').eq(5).text();
+        const durationText = $row.find('td').eq(5).text(); // Duration is now column 5
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = mins * 60 + secs;
+        const duration = normalizeDuration(mins * 60 + secs);
         
         // Calculate rounded position
         const roundedPos = roundToFiveMinutes(currentPos);
-        const newStartTime = secondsToTimeString(roundedPos);
+        const newStartTimeWithSeconds = secondsToTimeString(roundedPos);
+        const newStartTimeDisplay = timeToDisplay(newStartTimeWithSeconds);
         
         // Update start time input
-        $row.find('input[type="time"]').val(newStartTime);
+        const $input = $row.find('.start-time-input');
+        $input.val(newStartTimeDisplay); // Display only HH:MM
+        $input.data('internal-time', newStartTimeWithSeconds); // Store with seconds
+        setDesiredTime($input, newStartTimeDisplay);
+        $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds); // Update time display
         
         // Update end time display
         const endSec = roundedPos + duration;
@@ -730,6 +999,8 @@
         // Move position forward
         currentPos = endSec;
       });
+      
+      recalculateSchedule();
     }
 
     // Function to load and display weekly statistics

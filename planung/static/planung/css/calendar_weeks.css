@@ -295,6 +295,14 @@
     font-size: 14px;
     height: 32px;
   }
+  #licenseTable .time-with-seconds {
+    display: block;
+    font-size: 11px;
+    color: #6c757d;
+    font-weight: normal;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
   #licenseTable .end-time {
     font-weight: 600;
     color: #495057;
@@ -340,6 +348,14 @@
 
   /* компактная форма ввода номера лицензии */
   #licenseNumberInput { width: 270px !important; min-width: 270px; }
+
+  /* Sendeverantwortung column - narrower width */
+  #licenseTable th:nth-child(5),
+  #licenseTable td:nth-child(5) {
+    width: 140px;
+    max-width: 140px;
+    min-width: 140px;
+  }
 
   /* Gap rows styling */
   #licenseTable tbody .gap-row-small,

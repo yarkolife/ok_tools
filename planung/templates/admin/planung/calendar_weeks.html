@@ -159,9 +159,10 @@
           <br><small>{% trans "Large gaps (≥5 min) can be filled with videos" %}</small>
         </div>
 
-        <div class="d-flex gap-2 mb-3">
+        <div class="d-flex gap-2 mb-3 flex-wrap">
           <input type="number" id="licenseNumberInput" class="form-control" placeholder="{% trans 'Enter license number...' %}" style="width: 270px;">
           <button id="addLicenseBtn" class="btn btn-primary">{% trans "Add" %}</button>
+          <button id="alignToFiveMinutesBtn" class="btn btn-secondary" title="{% trans 'Align all start times to 0 or 5 minutes' %}" style="white-space: nowrap;">⏱️ {% trans "Align to 5 min" %}</button>
         </div>
 
         <table class="table table-bordered table-condensed" id="licenseTable">
@@ -171,7 +172,7 @@
               <th>{% trans "End" %}</th>
               <th>{% trans "Number" %}</th>
               <th>{% trans "Title" %}</th>
-              <th>{% trans "Author" %}</th>
+              <th>{% trans "Sendeverantwortung" %}</th>
               <th>{% trans "Duration" %}</th>
               <th>{% trans "Actions" %}</th>
             </tr>
@@ -187,8 +188,8 @@
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button id="sortByTimeBtn" class="btn btn-secondary me-2" type="button" title="{% trans 'Sort by time' %}">⏱️ {% trans 'Sort by time' %}</button>
+      <div class="modal-footer d-flex flex-wrap gap-2">
+        <button id="sortByTimeBtn" class="btn btn-secondary" type="button" title="{% trans 'Sort by time' %}">⏱️ {% trans 'Sort by time' %}</button>
         <button class="btn btn-danger">{% trans "Delete" %}</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
         <button id="savePlanBtn" class="btn btn-primary">{% trans "Save" %}</button>

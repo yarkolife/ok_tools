@@ -209,3 +209,39 @@ msgstr "Planen!"
 #: planung/views.py:27
 msgid "License not found or not confirmed."
 msgstr "Freistellung nicht gefunden oder nicht genehmigt."
+
+#: planung/templates/admin/planung/calendar_weeks.html:175
+msgid "Sendeverantwortung"
+msgstr "Sendeverantwortung"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "View Contributions"
+msgstr "Beiträge anzeigen"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "Update from License"
+msgstr "Von Freistellung aktualisieren"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "Data updated from License"
+msgstr "Daten von Freistellung aktualisiert"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "License number not found"
+msgstr "Freistellungsnummer nicht gefunden"
+
+#: planung/templates/admin/planung/calendar_weeks.html:165
+msgid "Align to 5 min"
+msgstr "Auf 5 Min. ausrichten"
+
+#: planung/templates/admin/planung/calendar_weeks.html:165
+msgid "Align all start times to 0 or 5 minutes"
+msgstr "Alle Startzeiten auf 0 oder 5 Minuten ausrichten"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "All start times have been aligned to 5-minute marks."
+msgstr "Alle Startzeiten wurden auf 5-Minuten-Marken ausgerichtet."
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "Video starts in second half of minute (30-59 seconds)"
+msgstr "Video startet in der zweiten Hälfte der Minute (30-59 Sekunden)"
