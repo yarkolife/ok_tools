@@ -336,7 +336,7 @@ OK_WEBSITE = _org_website if _org_website is not None else get_env('OK_WEBSITE',
 _org_email = os.getenv('ORG_EMAIL')
 OK_EMAIL = _org_email if _org_email is not None else get_env('OK_EMAIL', default='')
 _org_address = os.getenv('ORG_ADDRESS')
-OK_ADDRESS = _org_address if _org_address is not None else get_env('OK_ADDRESS', default='')
+OK_ADDRESS = (_org_address if _org_address is not None else get_env('OK_ADDRESS', default='')).replace('\\n', '\n')
 _org_phone = os.getenv('ORG_PHONE')
 OK_PHONE = _org_phone if _org_phone is not None else get_env('OK_PHONE', default='')
 _org_fax = os.getenv('ORG_FAX')
@@ -344,7 +344,7 @@ OK_FAX = _org_fax if _org_fax is not None else get_env('OK_FAX', default='')
 _org_description = os.getenv('ORG_DESCRIPTION')
 OK_DESCRIPTION = _org_description if _org_description is not None else get_env('OK_DESCRIPTION', default='')
 _org_opening_hours = os.getenv('ORG_OPENING_HOURS')
-OK_OPENING_HOURS = _org_opening_hours if _org_opening_hours is not None else get_env('OK_OPENING_HOURS', default='')
+OK_OPENING_HOURS = (_org_opening_hours if _org_opening_hours is not None else get_env('OK_OPENING_HOURS', default='')).replace('\\n', '\n')
 STATE_MEDIA_INSTITUTION = get_env('STATE_MEDIA_INSTITUTION', default='MSA')
 _org_owner = os.getenv('ORG_ORGANIZATION_OWNER')
 ORGANIZATION_OWNER = _org_owner if _org_owner is not None else get_env('ORGANIZATION_OWNER', default='OKMQ')
@@ -575,5 +575,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'media_files.tasks.run_update_video_metadata',
         'schedule': parse_crontab_env('CELERY_BEAT_UPDATE_VIDEO_METADATA', '0 1 1 * *'),
         'kwargs': {'missing_only': True},
+    },
+    'cleanup_old_file_operations': {
+        'task': 'media_files.tasks.run_cleanup_old_file_operations',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_OLD_FILE_OPERATIONS', '0 1 * * 0'),
+        'kwargs': {'older_than_days': 30, 'keep_failed': True},
     },
 }

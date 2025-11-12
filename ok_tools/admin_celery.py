@@ -6,7 +6,7 @@ Adds ability to run tasks manually from Django admin interface.
 from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.urls import reverse
-from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSchedule
+from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSchedule, SolarSchedule, ClockedSchedule
 try:
     from django_celery_beat.admin import PeriodicTaskAdmin as BasePeriodicTaskAdmin
 except ImportError:
@@ -209,10 +209,44 @@ def register_periodic_task_admin():
 # Register the admin
 register_periodic_task_admin()
 
+# Hide unused schedule types from admin (we only use Crontab and ClockedSchedule)
+def hide_unused_schedules():
+    """
+    Hide IntervalSchedule and SolarSchedule from admin since we don't use them.
+    
+    ClockedSchedule is kept visible for one-time scheduled tasks (e.g., "run task exactly on Dec 25 at 15:30").
+    """
+    try:
+        # Try to unregister IntervalSchedule if registered
+        try:
+            admin.site.unregister(IntervalSchedule)
+        except admin.sites.NotRegistered:
+            pass
+        
+        # Try to unregister SolarSchedule if registered
+        try:
+            admin.site.unregister(SolarSchedule)
+        except admin.sites.NotRegistered:
+            pass
+        
+        # ClockedSchedule is kept available for one-time scheduled tasks
+        # (not unregistering it)
+        
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.debug("Hidden unused schedule types from admin")
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Failed to hide unused schedules: {e}")
+
+# Hide unused schedules
+hide_unused_schedules()
+
 # Custom admin for TaskResult to improve visibility
 try:
     from django_celery_results.admin import TaskResultAdmin as BaseTaskResultAdmin
-    from django_celery_results.models import TaskResult
+    from django_celery_results.models import TaskResult, GroupResult
     
     class TaskResultAdmin(BaseTaskResultAdmin):
         """Custom admin for TaskResult with better filtering and display."""
@@ -230,6 +264,12 @@ try:
     if TaskResult in admin.site._registry:
         admin.site.unregister(TaskResult)
     admin.site.register(TaskResult, TaskResultAdmin)
+    
+    # Hide GroupResult from admin (not used - we don't use Celery groups/chords/chains)
+    try:
+        admin.site.unregister(GroupResult)
+    except admin.sites.NotRegistered:
+        pass
     
 except (ImportError, Exception):
     # If TaskResultAdmin is not available or registration fails, skip customization

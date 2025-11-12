@@ -1,0 +1,131 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Fix layout to prevent filters from overflowing */
+    #changelist {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+    
+    #changelist-form {
+        flex: 1;
+        min-width: 0;
+        overflow-x: auto;
+    }
+    
+    /* Ensure filters sidebar doesn't overflow */
+    #changelist-filter {
+        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
+        overflow-y: auto;
+        max-height: calc(100vh - 200px);
+        position: sticky;
+        top: 0;
+    }
+    
+    /* Make table scrollable horizontally */
+    .results {
+        overflow-x: auto;
+        width: 100%;
+    }
+    
+    #result_list {
+        table-layout: auto;
+        width: 100%;
+        min-width: 1000px;
+    }
+    
+    /* Limit column widths for better display */
+    #result_list th:nth-child(1),
+    #result_list td:nth-child(1) {
+        /* Video File column */
+        max-width: 300px;
+        width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-wrap: normal;
+        word-break: normal;
+    }
+    
+    /* Show full filename on hover */
+    #result_list td:nth-child(1) {
+        position: relative;
+    }
+    
+    #result_list td:nth-child(1):hover {
+        overflow: visible;
+        white-space: normal;
+        word-break: break-all;
+        z-index: 10;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        padding: 8px;
+    }
+    
+    #result_list th:nth-child(2),
+    #result_list td:nth-child(2) {
+        /* Operation Type column */
+        width: 100px;
+        min-width: 100px;
+        white-space: nowrap;
+    }
+    
+    #result_list th:nth-child(3),
+    #result_list td:nth-child(3) {
+        /* Status column */
+        width: 80px;
+        min-width: 80px;
+        white-space: nowrap;
+    }
+    
+    #result_list th:nth-child(4),
+    #result_list td:nth-child(4) {
+        /* Source Location column */
+        width: 130px;
+        min-width: 130px;
+        word-wrap: break-word;
+    }
+    
+    #result_list th:nth-child(5),
+    #result_list td:nth-child(5) {
+        /* Destination Location column */
+        width: 130px;
+        min-width: 130px;
+        word-wrap: break-word;
+    }
+    
+    #result_list th:nth-child(6),
+    #result_list td:nth-child(6) {
+        /* Performed By column */
+        width: 100px;
+        min-width: 100px;
+        white-space: nowrap;
+    }
+    
+    #result_list th:nth-child(7),
+    #result_list td:nth-child(7) {
+        /* Performed At column */
+        width: 140px;
+        min-width: 140px;
+        white-space: nowrap;
+    }
+    
+    /* Ensure table cells don't overflow */
+    #result_list td {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    #result_list th {
+        padding: 8px;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}
+

@@ -145,6 +145,9 @@ class Command(BaseCommand):
                             }
                         )
                         
+                        # Initialize file_changed flag
+                        file_changed = False
+                        
                         if created:
                             total_created += 1
                             self.stdout.write(
@@ -263,14 +266,16 @@ class Command(BaseCommand):
                         
                         video_file.save()
                         
-                        # Log operation
-                        FileOperation.objects.create(
-                            video_file=video_file,
-                            operation_type='SCAN',
-                            source_location=storage,
-                            status='SUCCESS',
-                            details={'filename': filename, 'path': rel_path}
-                        )
+                        # Log operation only for new files or files that changed
+                        # Skip logging for unchanged files to reduce database bloat
+                        if created or file_changed:
+                            FileOperation.objects.create(
+                                video_file=video_file,
+                                operation_type='SCAN',
+                                source_location=storage,
+                                status='SUCCESS',
+                                details={'filename': filename, 'path': rel_path}
+                            )
                         
                     except Exception as e:
                         total_errors += 1

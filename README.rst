@@ -42,71 +42,76 @@ Features
 Installation & Deployment
 =========================
 
-OK Tools supports two main deployment methods:
+OK Tools uses Docker for production deployment. The installation process consists of 5 steps:
 
-**Docker Deployment (Recommended for production):**
+**Step 1: Clone the Repository**
 ::
 
     git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
     cd ok-tools
+
+**Step 2: Create Your Configuration**
+
+Copy one of the configuration templates from ``deployment/configs/`` and customize it:
+::
+
+    cp deployment/configs/okmq.env.template deployment/configs/my-org.env.template
+    # Edit deployment/configs/my-org.env.template and replace __REPLACE_ME__ placeholders
+
+Available templates:
+- ``okmq.env.template`` - OKMQ configuration template
+- ``ok-bayern.env.template`` - Bayern configuration template
+- ``ok-nrw.env.template`` - NRW configuration template
+
+**Step 3: Add Logo and Favicon**
+
+Place your organization's branding files in ``deployment/img/``:
+::
+
+    cp /path/to/your/logo.png deployment/img/logo.png
+    cp /path/to/your/favicon.ico deployment/img/favicon.ico
+
+**Step 4: Run Installation Script**
+::
+
     chmod +x deployment/scripts/install.sh
     ./deployment/scripts/install.sh
-**Note:** .cfg files are no longer used and have been replaced by .env files. Examples are located in the `deployment/configs` directory. The installation script will prompt for the necessary values.
 
-See ``deployment/docker/README.md`` for detailed Docker setup instructions.
+The script will guide you through installation type selection (Production, Local Network, or Localhost) and create a production directory at ``../ok_tools_production``.
 
-**Gunicorn Deployment (Traditional server setup):**
+**Step 5: Update the Application**
+
+After installation, updates are performed from the production directory:
 ::
 
-    git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
-    cd ok-tools
-    python3.12 -m venv venv
-    venv/bin/pip install -r requirements.txt
-    venv/bin/pip install gunicorn
+    cd ../ok_tools_production
+    ./update.sh
 
-See ``deployment/gunicorn/README.md`` for detailed Gunicorn setup instructions.
+The update script automatically pulls the latest code from git, updates Docker containers, runs migrations, and restarts services.
 
-**Development Setup:**
-::
-
-    git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
-    cd ok-tools
-    python3.12 -m venv venv
-    venv/bin/pip install -r requirements.txt
+See ``deployment/README.md`` for detailed installation instructions.
 
 **Organization Configuration:**
 
-The installation script will guide you through the configuration process. For manual configuration:
+The installation script will guide you through the configuration process. Configuration templates are located in ``deployment/configs/`` directory.
 
-1. Copy the example environment file::
-
-    cp deployment/configs/ok-bayern.env.template .env
-
-2. Edit the environment file with your organization's details::
+Key organization settings in the configuration file:
+::
 
     # Organization Configuration
     ORG_NAME=Your Community Media Organization e.V.
     ORG_SHORT_NAME=Your CMO
     ORG_WEBSITE=https://your-organization.com
     ORG_EMAIL=info@your-organization.com
-    ORG_ADDRESS=Your Address Here
+    ORG_ADDRESS=Your Address Here\nCity, Postal Code
     ORG_PHONE=+49 123 456789
     ORG_FAX=+49 123 456790
     ORG_DESCRIPTION=Welcome to our organization! We provide media services...
     ORG_OPENING_HOURS=Mon: 09:00 - 17:00\nTue-Fri: 09:00 - 18:00
-    # State media institution (accessible to all users)
     STATE_MEDIA_INSTITUTION=MSA
-    # Organization owner (accessible only to members)
-    ORGANIZATION_OWNER=Your CMO
-    # PeerTube integration (ActivityPub/Fediverse format)
-    PEERTUBE_CHANNEL=@your-channel@peertube.your-domain.com
+    ORG_ORGANIZATION_OWNER=Your CMO
 
-3. Run the setup command to create organizations in the database::
-
-    python manage.py setup_organizations
-
-   **Note:** Organizations are also created automatically on application startup,
-   so this step is optional. Use it when you need to manually sync configuration changes.
+**Note:** Use ``\n`` for line breaks in ``ORG_ADDRESS`` and ``ORG_OPENING_HOURS``. Organizations are created automatically on application startup.
 
 **What Gets Created Automatically:**
 
@@ -140,63 +145,26 @@ The system supports all German state media institutions:
 
 See the ``deployment/configs/`` directory for ready-to-use environment file templates for different German states.
 
-3. Set the environment variable to point to your environment file::
-
-    # For development (local)
-    export OKTOOLS_ENV_FILE=/home/user/ok-tools/.env
-    
-    # For production server (typical paths)
-    export OKTOOLS_ENV_FILE=/opt/ok-tools/.env
-    # or
-    export OKTOOLS_ENV_FILE=/etc/ok-tools/.env
-    # or
-    export OKTOOLS_ENV_FILE=/var/www/ok-tools/.env
-
-4. Make the environment variable persistent::
-
-    # Add to ~/.bashrc or ~/.profile for user-level
-    echo 'export OKTOOLS_ENV_FILE=/opt/ok-tools/.env' >> ~/.bashrc
-    
-    # Or add to /etc/environment for system-wide
-    echo 'OKTOOLS_ENV_FILE=/opt/ok-tools/.env' | sudo tee -a /etc/environment
-    
-    # For systemd services, add to service file:
-    # Environment=OKTOOLS_ENV_FILE=/opt/ok-tools/.env
-
-5. The system will use your organization's branding throughout the interface, forms, and communications.
+**Note:** For Docker deployment, the `.env` file is automatically created in the production directory (``../ok_tools_production/.env``) during installation. The system will use your organization's branding throughout the interface, forms, and communications.
 
 **Dependencies:**
-- Python 3.12+
-- Django 5.2.5
-- PostgreSQL (production) / SQLite (development)
-- Redis (optional, for caching)
+- Docker and Docker Compose
+- PostgreSQL (via Docker)
+- Redis (via Docker, for caching and Celery)
 
-**Installation:**
-
-All dependencies are managed in a single ``requirements.txt`` file::
-
-    pip install -r requirements.txt
-
-This file is used for:
-- Local development
-- Docker deployment
-- Gunicorn/production deployment
+All dependencies are automatically installed in Docker containers during deployment. The application uses Python 3.12+ and Django 5.2.5 inside the container.
 
 Tests
 =====
 
-Install the testing dependencies::
+Tests can be run inside Docker containers::
 
-   bin/pip install -r requirements.txt
-   bin/pip install pytest pytest-cov pytest-django
+    cd ../ok_tools_production
+    docker compose exec web python manage.py test
 
-Create static resources::
+Or using pytest::
 
-    OKTOOLS_ENV_FILE=.env bin/python manage.py collectstatic
-
-Run the Tests using pytest::
-
-    bin/pytest
+    docker compose exec web pytest
 
 **Test Coverage:**
 - Unit tests for all applications
@@ -208,74 +176,74 @@ Run the Tests using pytest::
 Configuration
 =============
 
-We have provided environment file templates and comprehensive examples for production deployment.
+Configuration is done via environment variables in `.env` file located in the production directory (``../ok_tools_production/.env``).
 
 **Configuration Files:**
-- `.env` files - Environment configuration files (replacing .cfg files)
+- `.env` file - Environment configuration file (created during installation)
 - `deployment/configs/*.env.template` - Environment file templates for different organizations
-- `deployment/configs/*.cfg` - Legacy configuration files (no longer used)
 
-**Environment Variables:**
-- `OKTOOLS_ENV_FILE` - Path to environment file
-- `DJANGO_SETTINGS_MODULE` - Django settings module
-- `DATABASE_URL` - Database connection string
+**Key Configuration Variables:**
+- `DJANGO_SECRET_KEY` - Secret key for Django (required)
+- `POSTGRES_PASSWORD` - Database password (required)
+- `ALLOWED_HOSTS` - Comma-separated list of allowed hosts
+- `ORG_NAME`, `ORG_SHORT_NAME` - Organization information
+- `ORG_ADDRESS`, `ORG_OPENING_HOURS` - Contact information (use `\n` for line breaks)
 
-Maintenance/Initial Setup
-=========================
+See ``deployment/docs/ENV_VARIABLES.md`` for complete reference.
 
-Run the typical django scripts after install/update::
+Maintenance
+===========
 
-    OKTOOLS_ENV_FILE=.env bin/python manage.py migrate
-    OKTOOLS_ENV_FILE=.env bin/python manage.py collectstatic
-    OKTOOLS_ENV_FILE=.env bin/python manage.py compilemessages
+All maintenance tasks are performed inside Docker containers.
 
-You may want to create a superuser::
+**After installation or update:**
 
-    OKTOOLS_ENV_FILE=.env bin/python manage.py createsuperuser
+The installation and update scripts automatically run::
+- Database migrations
+- Static files collection
+- Translation compilation
 
-Run Server Locally
-==================
+**Manual maintenance commands:**
 
-To run the server locally you first need to specify an environment file. This
-configuration is ment for testing only and should not be used in any way for
-prouction due to security reasons.
-::
+Run migrations::
 
-    OKTOOLS_ENV_FILE=.env bin/python manage.py runserver
+    cd ../ok_tools_production
+    docker compose exec web python manage.py migrate
+
+Collect static files::
+
+    docker compose exec web python manage.py collectstatic --noinput
+
+Compile translations::
+
+    docker compose exec web python manage.py compilemessages
+
+Create superuser::
+
+    docker compose exec web python manage.py createsuperuser
 
 Production Deployment
 =====================
 
-OK Tools supports two production deployment methods:
+OK Tools uses Docker for production deployment.
 
-**Docker Deployment (Recommended):**
+**Docker Deployment:**
 
-See ``deployment/docker/README.md`` for comprehensive Docker setup instructions.
-
-Quick start::
-
-    pavlo@debian:~/docker$ cd ok_tools
-    pavlo@debian:~/docker/ok_tools$ chmod +x deployment/scripts/install.sh
-    pavlo@debian:~/docker/ok_tools$ ./deployment/scripts/install.sh
-**Note:** .cfg files are no longer used and have been replaced by .env files. Examples are located in the `deployment/configs` directory. The installation script will prompt for the necessary values.
-
-**Gunicorn Deployment (Traditional):**
-
-See ``deployment/gunicorn/README.md`` for comprehensive Gunicorn setup instructions.
+See ``deployment/README.md`` for comprehensive Docker setup instructions.
 
 Quick start::
 
-    sudo cp deployment/configs/ok-bayern.env.template /opt/ok-tools/.env
-    # Edit environment file
-    sudo cp deployment/gunicorn/*.service /etc/systemd/system/
-    sudo cp deployment/gunicorn/*.timer /etc/systemd/system/
-    sudo systemctl enable ok-tools ok-tools-cron.timer
-    sudo systemctl start ok-tools
-
-**Systemd Services (Gunicorn deployment):**
-- `deployment/gunicorn/ok-tools.service` - Main application server
-- `deployment/gunicorn/ok-tools-cron.service` - Rental expiration management
-- `deployment/gunicorn/ok-tools-cron.timer` - Automated rental cleanup (every 30 min)
+    git clone https://github.com/Offener-Kanal-Merseburg-Querfurt/ok-tools.git
+    cd ok-tools
+    # Copy and customize config template
+    cp deployment/configs/okmq.env.template deployment/configs/my-org.env.template
+    # Add logo and favicon to deployment/img/
+    # Run installation
+    chmod +x deployment/scripts/install.sh
+    ./deployment/scripts/install.sh
+    # For updates
+    cd ../ok_tools_production
+    ./update.sh
 
 Import Legacy Data
 ==================
@@ -315,33 +283,35 @@ Without further actions the view to export the project dates
 Backup
 ======
 
-To create backups you can simply copy the .sqlite file::
-
-    cp db.sqlite3 backup.sqlite3
-
 **Automated Backups:**
-- Database backup scripts available
-- Cron job configuration for regular backups
-- Backup rotation and cleanup
+
+Database backups are automatically created by the periodic task ``run_backup_db`` (runs daily at 3:00 AM by default). Backups are stored in ``../ok_tools_production/backups/`` directory.
+
+**Manual backup:**
+
+Create a database backup manually::
+
+    cd ../ok_tools_production
+    docker compose exec -T db pg_dump -U oktools oktools > backups/manual-backup-$(date +%Y%m%d-%H%M%S).sql
+
+**Backup management:**
+- Automatic backup rotation (keeps last 5 backups)
+- Backup cleanup task runs daily
+- Backups include database dump and configuration files
 
 Working with translations
 =========================
 
-Find new messages like this::
+**Create/update translation files:**
 
-    OKTOOLS_ENV_FILE=.env bin/python manage.py makemessages -l de --ignore lib
+Translation files are edited in the project directory, then compiled in Docker::
 
-**Translation Management:**
-::
+    # In project directory - create/update translation files
+    docker compose -f docker-local/docker-compose.yml exec web python manage.py makemessages -l de -l en
 
-    # Create/update translation files
-    bin/python manage.py makemessages -l de -l en
-
-    # Compile translations
-    bin/python manage.py compilemessages
-
-    # Collect static files
-    bin/python manage.py collectstatic
+    # In production directory - compile translations
+    cd ../ok_tools_production
+    docker compose exec web python manage.py compilemessages
 
 **Supported Languages:**
 - German (de) - Primary language
@@ -352,8 +322,10 @@ Find new messages like this::
 - `ok_tools/locale/en/LC_MESSAGES/django.po` - English translations
 - `ok_tools/locale/*/LC_MESSAGES/djangojs.po` - JavaScript translations
 
-Development
-===========
+**Note:** Translation compilation is automatically performed during installation and updates.
+
+Technical Details
+==================
 
 **Code Quality:**
 - Pre-commit hooks configuration
@@ -365,6 +337,7 @@ Development
 - pytest configuration
 - Coverage reporting
 - Test data fixtures
+- Tests run inside Docker containers
 
 **Performance:**
 - **Database Query Optimization:**
@@ -414,28 +387,21 @@ Development
 Deployment Architecture
 =======================
 
-**Infrastructure Options:**
+**Infrastructure:**
 
-1. **Docker Deployment** - Containerized setup with Nginx, Gunicorn, PostgreSQL, Redis
-   - Automated SSL certificate management
-   - Isolated environment with security hardening
-   - One-command deployment and updates
-   - See ``deployment/docker/README.md``
-
-2. **Gunicorn Deployment** - Traditional server setup with systemd
-   - Full system control and optimization
-   - Integration with existing infrastructure
-   - Detailed security settings
-   - See ``deployment/gunicorn/README.md``
+**Docker Deployment** - Containerized setup with Nginx, PostgreSQL, Redis
+- Automated SSL certificate management
+- Isolated environment with security hardening
+- One-command deployment and updates
+- See ``deployment/README.md``
 
 **Deployment Resources:**
 - Ready-to-use environment file templates in ``deployment/configs/``
 - Comprehensive deployment guides in ``deployment/README.md``
-- Production-ready systemd service files
 - Nginx configuration with rate limiting and security headers
 
 **Monitoring:**
-- Application logs via journalctl (systemd) or docker logs
+- Application logs via docker logs
 - Error tracking and debugging
 - Performance monitoring
 - Health check endpoints

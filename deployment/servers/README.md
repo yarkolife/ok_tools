@@ -1,17 +1,17 @@
 # Server Configurations
 
-This directory contains server-specific environment configuration files.
+**⚠️ Note:** This directory is optional and contains example server-specific configuration files. The main configuration templates are located in `deployment/configs/` directory.
 
-## ⚠️ Important Security Notice
-
-**This directory is excluded from git** (in `.gitignore`) because it contains sensitive information like passwords and secret keys.
+If you don't need server-specific configurations, you can ignore this directory. The installation script uses templates from `deployment/configs/` directory.
 
 ## Files
 
-- `.env.example` - Template file with placeholders (safe to commit)
-- `.env` - Your actual server configuration (NOT tracked in git, contains real passwords)
+- `env.example` - Example template file (similar to files in `deployment/configs/`)
+- `README.md` - This file
 
-## Usage
+## Usage (Optional)
+
+If you want to maintain server-specific configurations separately:
 
 1. **Copy the example file:**
    ```bash
@@ -20,29 +20,17 @@ This directory contains server-specific environment configuration files.
 
 2. **Edit `.env` and replace all `__REPLACE_ME__` placeholders:**
    - `POSTGRES_PASSWORD` - Database password
-   - `DJANGO_SECRET_KEY` - Django secret key (generate with: `python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`)
+   - `DJANGO_SECRET_KEY` - Django secret key
    - `ALLOWED_HOSTS` - Your domain/IP addresses
    - `SUPERUSER_PASSWORD` - Admin password
    - `EMAIL_HOST_PASSWORD` - Email SMTP password
    - Other organization-specific values
 
-3. **Copy to production directory:**
-   ```bash
-   cp deployment/servers/.env /path/to/production/.env
-   ```
-
-## Pre-configured Settings
-
-The `.env.example` file is pre-configured with:
-- ✅ NAS mount path: `/mnt/nas` (read-only)
-- ✅ Organization: OKMQ defaults
-- ✅ Celery result backend: `django-db` (results visible in admin)
-- ✅ All required variables with sensible defaults
+3. **Use during installation:**
+   The installation script can use templates from `deployment/configs/` or you can manually copy this file to the production directory.
 
 ## Notes
 
-- Never commit `.env` files to git
-- Keep backups of your `.env` file in a secure location
-- Use different `.env` files for different environments (dev, staging, production)
+- This directory is excluded from git (in `.gitignore`) if it contains sensitive `.env` files
+- For most installations, use templates from `deployment/configs/` directory instead
 - See [ENV_TEMPLATE.md](../docs/ENV_TEMPLATE.md) for detailed variable descriptions
-

@@ -229,6 +229,7 @@ class FileOperationInline(admin.TabularInline):
         'performed_by', 'performed_at', 'status', 'error_message'
     ]
     fields = readonly_fields
+    classes = ('collapse',)  # Collapsed by default
     
     def has_add_permission(self, request, obj=None):
         """Disable add permission."""
@@ -478,14 +479,96 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         )
     
     def queryset(self, request, queryset):
+        from django.db.models import Case, When, IntegerField, Max, OuterRef, Subquery, F, Value, Count
+        
+        if not self.value():
+            return queryset
+        
+        # Find numbers that have duplicates
+        duplicated_numbers = VideoFile.objects.values('number').annotate(
+            count=Count('number')
+        ).filter(count__gt=1).values_list('number', flat=True)
+        
+        if not duplicated_numbers:
+            # No duplicates, so all are primary
+            if self.value() == 'primary':
+                return queryset
+            else:
+                return queryset.none()
+        
+        # Calculate storage priority score
+        storage_priority = Case(
+            When(storage_location__storage_type='ARCHIVE', then=3),
+            When(storage_location__storage_type='PLAYOUT', then=2),
+            When(storage_location__storage_type='CUSTOM', then=1),
+            default=0,
+            output_field=IntegerField()
+        )
+        
+        # Quality score = storage_priority * 1000000000 + total_bitrate (or 0)
+        # This ensures ARCHIVE > PLAYOUT > CUSTOM, and within same type, higher bitrate wins
+        quality_score_expr = storage_priority * Value(1000000000) + F('total_bitrate').coalesce(0)
+        
+        # Subquery to get max quality score per number
+        max_quality_subquery = VideoFile.objects.filter(
+            number=OuterRef('number')
+        ).annotate(
+            score=Case(
+                When(storage_location__storage_type='ARCHIVE', then=3),
+                When(storage_location__storage_type='PLAYOUT', then=2),
+                When(storage_location__storage_type='CUSTOM', then=1),
+                default=0,
+                output_field=IntegerField()
+            ) * Value(1000000000) + F('total_bitrate').coalesce(0)
+        ).aggregate(max_score=Max('score'))['max_score']
+        
+        # Annotate queryset with quality score and max quality for its number
+        queryset = queryset.filter(number__in=duplicated_numbers).annotate(
+            quality_score=storage_priority * Value(1000000000) + F('total_bitrate').coalesce(0),
+            max_quality_for_number=Subquery(
+                VideoFile.objects.filter(
+                    number=OuterRef('number')
+                ).annotate(
+                    score=Case(
+                        When(storage_location__storage_type='ARCHIVE', then=3),
+                        When(storage_location__storage_type='PLAYOUT', then=2),
+                        When(storage_location__storage_type='CUSTOM', then=1),
+                        default=0,
+                        output_field=IntegerField()
+                    ) * Value(1000000000) + F('total_bitrate').coalesce(0)
+                ).values('number').annotate(
+                    max_score=Max('score')
+                ).values('max_score')[:1]
+            )
+        )
+        
+        # Filter based on whether quality_score equals max_quality_for_number
         if self.value() == 'primary':
-            # Complex filter - need to evaluate is_primary_version() for each
-            primary_ids = [v.id for v in queryset if v.is_primary_version()]
-            return queryset.filter(id__in=primary_ids)
+            return queryset.filter(quality_score=F('max_quality_for_number'))
         
         if self.value() == 'duplicate':
-            primary_ids = [v.id for v in queryset if v.is_primary_version()]
-            return queryset.exclude(id__in=primary_ids)
+            return queryset.exclude(quality_score=F('max_quality_for_number'))
+
+
+class FPSFilter(admin.SimpleListFilter):
+    title = _('FPS')
+    parameter_name = 'fps'
+    
+    def lookups(self, request, model_admin):
+        return (
+            ('25', _('25 fps (Broadcast Standard)')),
+            ('not_25', _('Not 25 fps (⚠ Warning)')),
+            ('missing', _('FPS not set')),
+        )
+    
+    def queryset(self, request, queryset):
+        if self.value() == '25':
+            return queryset.filter(fps=25.0)
+        elif self.value() == 'not_25':
+            return queryset.exclude(fps=25.0).exclude(fps__isnull=True)
+        elif self.value() == 'missing':
+            return queryset.filter(fps__isnull=True)
+        return queryset
 
 
 @admin.register(VideoFile)
@@ -498,14 +581,14 @@ class VideoFileAdmin(admin.ModelAdmin):
     
     list_display = [
         'filename', 'storage_location', 'number', 'resolution_display',
-        'duration', 'file_size_display', 'format', 'duplicates_indicator',
+        'duration_display', 'fps_display', 'file_size_display', 'format',
         'is_available', 'player_link'
     ]
     list_filter = [
         'storage_location', 'format', 'is_available',
         ('created_at', DateRangeFilter),
         'has_video', 'has_audio',
-        HasDuplicatesFilter, IsPrimaryVersionFilter
+        HasDuplicatesFilter, IsPrimaryVersionFilter, FPSFilter
     ]
     search_fields = ['number', 'filename', 'video_codec', 'audio_codec']
     def get_readonly_fields(self, request, obj=None):
@@ -516,10 +599,10 @@ class VideoFileAdmin(admin.ModelAdmin):
                 'file_size', 'file_size_mb', 'duration', 'format',
                 'last_scanned', 'last_modified', 'checksum',
                 'video_codec', 'video_codec_long', 'video_profile',
-                'video_bitrate', 'video_bitrate_mode', 'fps',
+                'video_bitrate', 'video_bitrate_display', 'video_bitrate_mode', 'fps',
                 'width', 'height', 'resolution_display', 'aspect_ratio',
                 'pixel_format', 'color_space', 'color_range', 'chroma_subsampling',
-                'audio_codec', 'audio_codec_long', 'audio_bitrate',
+                'audio_codec', 'audio_codec_long', 'audio_bitrate', 'audio_bitrate_display',
                 'audio_sample_rate', 'audio_channels', 'audio_channel_layout',
                 'has_video', 'has_audio', 'total_bitrate', 'bitrate_mbps',
                 'license_link', 'video_player', 'duplicate_status_display', 'all_versions_display', 'created_at', 'updated_at'
@@ -539,26 +622,24 @@ class VideoFileAdmin(admin.ModelAdmin):
                 }),
                 (_('File Properties'), {
                     'fields': (
-                        'format', 'file_size', 'file_size_mb', 'duration',
+                        'format', 'file_size_mb', 'duration',
                         'checksum', 'last_modified', 'last_scanned'
                     )
                 }),
                 (_('Video Properties'), {
                     'fields': (
                         'has_video', 'video_codec', 'video_codec_long', 'video_profile',
-                        'video_bitrate', 'video_bitrate_mode', 'fps',
+                        'video_bitrate_display', 'video_bitrate_mode', 'fps',
                         'width', 'height', 'resolution_display', 'aspect_ratio',
-                        'pixel_format', 'color_space', 'color_range', 'chroma_subsampling'
+                        'pixel_format', 'color_space', 'color_range', 'chroma_subsampling',
+                        'bitrate_mbps'
                     )
                 }),
                 (_('Audio Properties'), {
                     'fields': (
-                        'has_audio', 'audio_codec', 'audio_codec_long', 'audio_bitrate',
+                        'has_audio', 'audio_codec', 'audio_codec_long', 'audio_bitrate_display',
                         'audio_sample_rate', 'audio_channels', 'audio_channel_layout'
                     )
-                }),
-                (_('Overall'), {
-                    'fields': ('total_bitrate', 'bitrate_mbps')
                 }),
                 (_('Duplicate Management'), {
                     'fields': ('duplicate_status_display', 'all_versions_display'),
@@ -614,6 +695,53 @@ class VideoFileAdmin(admin.ModelAdmin):
             return f"{obj.file_size_mb} MB"
         return "-"
     file_size_display.short_description = _('Size')
+    
+    def duration_display(self, obj):
+        """Display duration without milliseconds."""
+        if obj.duration:
+            # Format duration as HH:MM:SS (without microseconds)
+            total_seconds = int(obj.duration.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+        return "-"
+    duration_display.short_description = _('Duration')
+    
+    def fps_display(self, obj):
+        """Display FPS with warning if not 25."""
+        if obj.fps is None:
+            return format_html('<span style="color: #999;">—</span>')
+        
+        fps_value = float(obj.fps)
+        fps_formatted = f"{fps_value:.2f}"
+        
+        if fps_value == 25.0:
+            return format_html('<span style="color: #28a745;">{}</span>', fps_formatted)
+        else:
+            warning_text = _('FPS is not 25 - not suitable for broadcast')
+            return format_html(
+                '<span style="color: #dc3545; font-weight: bold;" title="{}">⚠️ {}</span>',
+                warning_text,
+                fps_formatted
+            )
+    fps_display.short_description = _('FPS')
+    
+    def video_bitrate_display(self, obj):
+        """Display video bitrate in kbps."""
+        if obj.video_bitrate:
+            kbps = obj.video_bitrate / 1000
+            return f"{kbps:,.0f} kbps"
+        return "-"
+    video_bitrate_display.short_description = _('Video Bitrate (kbps)')
+    
+    def audio_bitrate_display(self, obj):
+        """Display audio bitrate in kbps."""
+        if obj.audio_bitrate:
+            kbps = obj.audio_bitrate / 1000
+            return f"{kbps:,.0f} kbps"
+        return "-"
+    audio_bitrate_display.short_description = _('Audio Bitrate (kbps)')
     
     def license_link(self, obj):
         """Display link to associated license."""
@@ -1209,6 +1337,8 @@ class VideoFileAdmin(admin.ModelAdmin):
 class FileOperationAdmin(admin.ModelAdmin):
     """Admin interface for file operations (read-only)."""
 
+    change_list_template = 'admin/media_files/fileoperation/change_list.html'
+    
     list_display = [
         'video_file', 'operation_type', 'status',
         'source_location', 'destination_location',

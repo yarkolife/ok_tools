@@ -40,3 +40,20 @@ def run_update_video_metadata_task(**kwargs):
         args.append("--missing-only")
     call_command("update_video_metadata", *args)
     logger.info("Finished update_video_metadata task.")
+
+
+@shared_task(name="media_files.tasks.run_cleanup_old_file_operations")
+def run_cleanup_old_file_operations_task(**kwargs):
+    """Run the cleanup_old_file_operations management command."""
+    logger.info("Starting cleanup_old_file_operations task...")
+    older_than_days = kwargs.get("older_than_days", 30)
+    keep_failed = kwargs.get("keep_failed", True)
+    
+    args = []
+    if older_than_days:
+        args.extend(["--older-than-days", str(older_than_days)])
+    if keep_failed:
+        args.append("--keep-failed")
+    
+    call_command("cleanup_old_file_operations", *args)
+    logger.info("Finished cleanup_old_file_operations task.")
