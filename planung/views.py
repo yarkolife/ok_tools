@@ -137,13 +137,20 @@ def day_plan_detail(request, iso_date):
     if request.method == "GET":
         try:
             plan = TagesPlan.objects.get(datum=date_obj)
-
         except TagesPlan.DoesNotExist:
-            raise Http404("No plan for this day")
-        
+            return JsonResponse(
+                {
+                    "date": str(date_obj),
+                    "items": [],
+                    "draft": False,
+                    "planned": False,
+                    "comment": "",
+                }
+            )
+
         # Enrich items with current data from License (dynamic data)
         items = plan.json_plan.get("items", [])
-        
+
         # Optimize: get all license numbers and fetch licenses in one query
         license_numbers = [item.get("number") for item in items if item.get("number")]
         licenses_dict = {}

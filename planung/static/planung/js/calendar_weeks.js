@@ -201,6 +201,23 @@
       return nextFiveMinuteMark * 60;
     }
 
+    function alignToFiveMinutesKeepingSeconds(seconds) {
+      const remainderSeconds = seconds % 60;
+      const totalMinutes = Math.floor(seconds / 60);
+      let alignedMinutes = totalMinutes;
+
+      if (alignedMinutes % 5 !== 0) {
+        alignedMinutes = Math.ceil(alignedMinutes / 5) * 5;
+      }
+
+      let aligned = alignedMinutes * 60 + remainderSeconds;
+      if (aligned < seconds) {
+        aligned += 300;
+      }
+
+      return aligned;
+    }
+
     // Calculate end time for display (with seconds)
     function calculateEndTime(startTime, durationSeconds) {
       const startSec = timeToSeconds(startTime);
@@ -696,11 +713,11 @@
         return a.startSec - b.startSec;
       });
       
-      // Align each video to nearest 5-minute mark, avoiding conflicts
+      // Align each video to nearest 5-minute mark (minutes only), preserving seconds to follow previous video ends
       let currentPos = blockStart;
       videos.forEach(function(video, videoIndex) {
-        // Round current position to nearest 5-minute mark
-        const roundedPos = roundToFiveMinutes(currentPos);
+        // Find aligned position that keeps seconds continuity
+        const roundedPos = alignToFiveMinutesKeepingSeconds(currentPos);
         
         // Check if rounded position would cause conflict with previous videos
         let finalPos = roundedPos;
@@ -720,9 +737,8 @@
             // Check for overlap (not touching)
             if (finalPos < otherEndSec && newEndSec > otherVideo.finalPosSec) {
               hasConflict = true;
-              // Move to next 5-minute mark after the conflicting video
-              const nextFiveMin = Math.ceil(otherEndSec / 300) * 300; // Round up to next 5 minutes
-              finalPos = nextFiveMin;
+              // Move to next 5-minute-aligned position after the conflicting video, keeping seconds continuity
+              finalPos = alignToFiveMinutesKeepingSeconds(otherEndSec);
               break;
             }
           }
