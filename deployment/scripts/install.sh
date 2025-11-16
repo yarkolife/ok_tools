@@ -29,6 +29,19 @@ print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
 
 print_header "OK Tools Installation"
 
+# Ensure a stable Docker build context path ../ok_tools
+# This allows cloning the repository into arbitrary directory names (e.g. ok_tools_docker)
+# while keeping docker-compose build.context fixed at ../ok_tools
+PARENT_DIR="$(dirname "$PROJECT_DIR")"
+if [ ! -e "$PARENT_DIR/ok_tools" ]; then
+    # Best-effort creation; continue even if it fails
+    if ln -s "$PROJECT_DIR" "$PARENT_DIR/ok_tools" 2>/dev/null; then
+        print_info "Created symlink for Docker build context: $PARENT_DIR/ok_tools -> $PROJECT_DIR"
+    else
+        print_warning "Could not create symlink $PARENT_DIR/ok_tools (build.context ../ok_tools must exist)"
+    fi
+fi
+
 # Check if running as root and warn
 if [ "$(id -u)" -eq 0 ]; then
     echo ""
@@ -283,15 +296,29 @@ prompt_secrets() {
     escaped_django_key=$(escape_for_sed "$django_key")
     sed -i.bak -E "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$escaped_django_key|" "$output_file"
     
-    # ALLOWED_HOSTS - Enhanced for Local Network setup
+    # ALLOWED_HOSTS - keep template value if it already contains a domain,
+    # otherwise fall back to local network defaults
     if [ "$INSTALL_TYPE" = "2" ]; then
-        # Local Network: Auto-detect IP and create comprehensive ALLOWED_HOSTS
+        # Local Network: detect IP and merge with existing template value (if any)
+        existing_hosts=$(grep '^ALLOWED_HOSTS=' "$output_file" | head -1 | cut -d'=' -f2-)
         LOCAL_IP=$(detect_local_ip)
         echo "Detected local IP: $LOCAL_IP" >&2
-        allowed_hosts="localhost,127.0.0.1,$LOCAL_IP"
-        echo "Using ALLOWED_HOSTS: $allowed_hosts" >&2
+
+        if [ -z "$existing_hosts" ] || [[ "$existing_hosts" == *"__REPLACE_ME__"* ]]; then
+            # No meaningful value in template → use default local network pattern
+            allowed_hosts="localhost,127.0.0.1,$LOCAL_IP"
+            echo "Using ALLOWED_HOSTS: $allowed_hosts" >&2
+        else
+            # Keep template value (e.g. portal.okmq.de) and only append local IP if missing
+            if [[ "$existing_hosts" == *"$LOCAL_IP"* ]]; then
+                allowed_hosts="$existing_hosts"
+            else
+                allowed_hosts="$existing_hosts,$LOCAL_IP"
+            fi
+            echo "Keeping template ALLOWED_HOSTS and adding local IP: $allowed_hosts" >&2
+        fi
     else
-        # For other installation types, prompt as before
+        # Production / Localhost: prompt as before, template is just a default
         echo -n "ALLOWED_HOSTS (comma-separated, or press Enter for localhost): " >&2
         read allowed_hosts
         if [ -z "$allowed_hosts" ]; then
@@ -299,7 +326,6 @@ prompt_secrets() {
             echo "Using default: $allowed_hosts" >&2
         fi
     fi
-    # ALLOWED_HOSTS
     sed -i.bak -E "s|^ALLOWED_HOSTS=.*|ALLOWED_HOSTS=$allowed_hosts|" "$output_file"
     
     # SUPERUSER_PASSWORD

@@ -27,6 +27,18 @@ print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
 
 print_header "OK Tools Production Update"
 
+# Ensure a stable Docker build context path ../ok_tools
+# This allows cloning the repository into arbitrary directory names (e.g. ok_tools_docker)
+# while keeping docker-compose build.context fixed at ../ok_tools
+PARENT_DIR="$(dirname "$PROJECT_DIR")"
+if [ ! -e "$PARENT_DIR/ok_tools" ]; then
+    if ln -s "$PROJECT_DIR" "$PARENT_DIR/ok_tools" 2>/dev/null; then
+        print_info "Created symlink for Docker build context: $PARENT_DIR/ok_tools -> $PROJECT_DIR"
+    else
+        print_warning "Could not create symlink $PARENT_DIR/ok_tools (build.context ../ok_tools must exist)"
+    fi
+fi
+
 # Check if running as root and warn
 if [ "$(id -u)" -eq 0 ]; then
     echo ""

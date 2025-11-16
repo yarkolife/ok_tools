@@ -242,6 +242,46 @@ USE_TZ = True
 
 LOCALE_PATHS = [BASE_DIR / "ok_tools/locale"]
 
+# Supported languages for i18n
+# Explicitly set LANGUAGES to prevent Django from using Accept-Language header
+# which can cause inconsistent language selection (sometimes English, sometimes German)
+supported_languages = get_env('I18N_SUPPORTED_LANGUAGES', default='de,en')
+default_language = get_env('I18N_DEFAULT_LANGUAGE', default='de')
+
+# Parse supported languages from comma-separated string
+language_list = [lang.strip() for lang in supported_languages.split(',') if lang.strip()]
+
+# Map language codes to full names (Django expects short codes like 'de', 'en')
+LANGUAGE_NAMES = {
+    'de': 'German',
+    'en': 'English',
+}
+
+# Build LANGUAGES tuple - Django expects format [('de', 'German'), ('en', 'English')]
+# Normalize language codes (de-de -> de, en-us -> en)
+LANGUAGES = []
+for lang_code in language_list:
+    # Extract base language code (de-de -> de, en-us -> en)
+    normalized = lang_code.lower().split('-')[0]
+    if normalized in LANGUAGE_NAMES:
+        # Only add if not already in list (avoid duplicates)
+        if (normalized, LANGUAGE_NAMES[normalized]) not in LANGUAGES:
+            LANGUAGES.append((normalized, LANGUAGE_NAMES[normalized]))
+
+# If no valid languages found, use default
+if not LANGUAGES:
+    LANGUAGES = [('de', 'German'), ('en', 'English')]
+
+# Ensure default language is first in the list (highest priority)
+if default_language:
+    normalized_default = default_language.lower().split('-')[0]
+    if normalized_default in LANGUAGE_NAMES:
+        default_tuple = (normalized_default, LANGUAGE_NAMES[normalized_default])
+        # Move default to front if it exists
+        if default_tuple in LANGUAGES:
+            LANGUAGES.remove(default_tuple)
+        LANGUAGES.insert(0, default_tuple)
+
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
