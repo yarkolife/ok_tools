@@ -5,6 +5,7 @@ from rest_framework import serializers
 from .models import License
 from contributions.models import Contribution
 from planung.models import TagesPlan
+from .admin import MEDIA_AUTHORITY_MAPPING
 
 
 class LicenseMetadataSerializer(serializers.Serializer):
@@ -107,7 +108,21 @@ class LicenseMetadataSerializer(serializers.Serializer):
         """
         Get target channel for video publishing.
         
-        Returns the PeerTube channel from settings in ActivityPub/Fediverse format.
+        Priority:
+        1. Get targetChannel from profile.media_authority via reverse mapping
+        2. Fallback to PEERTUBE_CHANNEL from settings
+        
+        Returns the PeerTube channel in ActivityPub/Fediverse format.
         """
+        # Try to get targetChannel from profile's media_authority
+        if obj.profile and obj.profile.media_authority:
+            # Create reverse mapping: MediaAuthority name -> targetChannel
+            reverse_mapping = {v: k for k, v in MEDIA_AUTHORITY_MAPPING.items()}
+            media_authority_name = obj.profile.media_authority.name
+            target_channel = reverse_mapping.get(media_authority_name)
+            if target_channel:
+                return target_channel
+        
+        # Fallback to settings
         return getattr(settings, 'PEERTUBE_CHANNEL', '')
 

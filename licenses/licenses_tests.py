@@ -1009,8 +1009,9 @@ def test__licenses__api__LicenseMetadataView__planung_time_extraction(
 @pytest.mark.django_db
 def test__licenses__api__LicenseMetadataView__target_channel(
         api_client, api_token, license):
-    """API endpoint returns targetChannel from settings."""
+    """API endpoint returns targetChannel from profile.media_authority or settings."""
     from django.conf import settings
+    from licenses.admin import MEDIA_AUTHORITY_MAPPING
     
     url = reverse_lazy('licenses:api-metadata', args=[license.number])
     api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
@@ -1019,7 +1020,18 @@ def test__licenses__api__LicenseMetadataView__target_channel(
     assert response.status_code == 200
     data = response.json()
     
-    # Should return PeerTube channel from settings
+    # Create reverse mapping: MediaAuthority name -> targetChannel
+    reverse_mapping = {v: k for k, v in MEDIA_AUTHORITY_MAPPING.items()}
+    
+    # If profile has media_authority in mapping, should return that targetChannel
+    if license.profile and license.profile.media_authority:
+        media_authority_name = license.profile.media_authority.name
+        expected_channel = reverse_mapping.get(media_authority_name)
+        if expected_channel:
+            assert data['targetChannel'] == expected_channel
+            return
+    
+    # Otherwise should return PeerTube channel from settings
     expected_channel = getattr(settings, 'PEERTUBE_CHANNEL', '')
     assert data['targetChannel'] == expected_channel
 

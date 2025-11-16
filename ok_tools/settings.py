@@ -424,6 +424,12 @@ BROADCAST_START = _org_broadcast_start if _org_broadcast_start is not None else 
 _org_broadcast_end = os.getenv('ORG_BROADCAST_END')
 BROADCAST_END = _org_broadcast_end if _org_broadcast_end is not None else get_env('BROADCAST_END', default='23:00')
 
+# PeerTube channel - read from environment
+# Support both ORG_PEERTUBE_CHANNEL and PEERTUBE_CHANNEL for backward compatibility
+# ORG_PEERTUBE_CHANNEL takes precedence over PEERTUBE_CHANNEL
+_org_peertube_channel = os.getenv('ORG_PEERTUBE_CHANNEL')
+PEERTUBE_CHANNEL = _org_peertube_channel if _org_peertube_channel is not None else get_env('PEERTUBE_CHANNEL', default='')
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
