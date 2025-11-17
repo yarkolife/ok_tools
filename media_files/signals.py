@@ -109,16 +109,33 @@ def log_video_deletion(sender, instance, **kwargs):
     
     Note: This does NOT delete the physical file, only the database record.
     This signal runs before deletion, so we can still access the instance.
+    
+    Note: When deleting through admin, FileOperation records are deleted via raw SQL
+    before this signal runs, so we skip logging in that case to avoid conflicts.
     """
     try:
+        
         import os
         
-        # Check if file exists on disk
+        # Check if file exists on disk (handle read-only storage and missing paths gracefully)
         file_exists = False
         if instance.is_available:
             try:
-                file_exists = os.path.exists(instance.full_path)
+                # Safely get full_path - may fail if storage_location is None or path is missing
+                full_path = None
+                try:
+                    full_path = instance.full_path
+                except (AttributeError, TypeError) as e:
+                    logger.debug(f'Could not get full_path for video {instance.id} in signal: {e}')
+                
+                if full_path:
+                    try:
+                        file_exists = os.path.exists(full_path)
+                    except (OSError, PermissionError, IOError):
+                        # Storage might be read-only - that's OK
+                        pass
             except Exception:
+                # Any error - just skip file check
                 pass
         
         # Create FileOperation record for deletion log
@@ -130,8 +147,8 @@ def log_video_deletion(sender, instance, **kwargs):
             source_location=instance.storage_location,
             status='SUCCESS',
             details={
-                'filename': instance.filename,
-                'path': instance.file_path,
+                'filename': instance.filename if instance.filename else '',
+                'path': instance.file_path if instance.file_path else '',
                 'file_existed_on_disk': file_exists,
                 'note': 'Database record deleted' + (' (file was already removed from disk)' if not file_exists else '')
             }

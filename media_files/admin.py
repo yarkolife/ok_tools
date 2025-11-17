@@ -506,6 +506,8 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
     
     def queryset(self, request, queryset):
         from django.db.models import Case, When, IntegerField, Max, OuterRef, Subquery, F, Value, Count
+        from django.utils import timezone
+        from datetime import datetime
         
         if not self.value():
             return queryset
@@ -545,7 +547,12 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         
         # Use Python-based approach for reliability (works correctly with complex queries)
         # Get all videos with duplicates and determine primary in memory
-        videos_list = list(queryset.select_related('storage_location'))
+        try:
+            videos_list = list(queryset.select_related('storage_location'))
+        except Exception as e:
+            logger.error(f'Error loading videos for IsPrimaryVersionFilter: {e}')
+            # Fallback: return empty queryset to avoid 500 error
+            return queryset.none()
         
         # Group by number and find primary for each group
         by_number = {}
@@ -561,21 +568,50 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         storage_priority_map = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
         
         for number, video_list in by_number.items():
-            # Find best version
-            best_video = max(video_list, key=lambda v: (
-                storage_priority_map.get(v.storage_location.storage_type if v.storage_location else 'CUSTOM', 1),
-                v.total_bitrate or 0,
-                v.created_at or v.last_scanned or v.updated_at
-            ))
-            primary_ids.add(best_video.id)
-            duplicate_ids.update(v.id for v in video_list if v.id != best_video.id)
+            try:
+                # Find best version with safe handling of None values
+                def get_sort_key(v):
+                    # Safely get storage type
+                    storage_type = 'CUSTOM'
+                    if v.storage_location and hasattr(v.storage_location, 'storage_type'):
+                        storage_type = v.storage_location.storage_type or 'CUSTOM'
+                    
+                    # Get priority
+                    priority = storage_priority_map.get(storage_type, 1)
+                    
+                    # Get bitrate (default to 0)
+                    bitrate = v.total_bitrate if v.total_bitrate is not None else 0
+                    
+                    # Get date (use earliest possible date if all are None)
+                    date = v.created_at or v.last_scanned or v.updated_at
+                    if date is None:
+                        # Use a very old date as fallback
+                        date = datetime(1970, 1, 1, tzinfo=timezone.utc)
+                    
+                    return (priority, bitrate, date)
+                
+                best_video = max(video_list, key=get_sort_key)
+                primary_ids.add(best_video.id)
+                duplicate_ids.update(v.id for v in video_list if v.id != best_video.id)
+            except Exception as e:
+                logger.error(f'Error determining primary version for number {number}: {e}')
+                # If we can't determine, mark all as duplicates (safer than failing)
+                duplicate_ids.update(v.id for v in video_list)
         
         # Filter based on selection
         if self.value() == 'primary':
-            return queryset.filter(id__in=primary_ids)
+            if primary_ids:
+                return queryset.filter(id__in=primary_ids)
+            else:
+                return queryset.none()
         
         if self.value() == 'duplicate':
-            return queryset.filter(id__in=duplicate_ids)
+            if duplicate_ids:
+                return queryset.filter(id__in=duplicate_ids)
+            else:
+                return queryset.none()
+        
+        return queryset
 
 
 class FPSFilter(admin.SimpleListFilter):
@@ -1574,15 +1610,24 @@ class VideoFileAdmin(admin.ModelAdmin):
         file_check_error = None
         if obj.is_available:
             try:
-                file_exists = os.path.exists(obj.full_path)
+                # Safely get full_path - may fail if storage_location is None or path is missing
+                full_path = None
+                try:
+                    full_path = obj.full_path
+                except (AttributeError, TypeError) as e:
+                    logger.debug(f'Could not get full_path for video {obj.id}: {e}')
+                    file_check_error = 'Could not determine file path'
+                
+                if full_path:
+                    file_exists = os.path.exists(full_path)
             except (OSError, PermissionError, IOError) as e:
                 # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
                 file_check_error = str(e)
-                logger.debug(f'Could not check file existence for {obj.full_path}: {e}')
+                logger.debug(f'Could not check file existence: {e}')
             except Exception as e:
                 # Any other error - log but don't fail
                 file_check_error = str(e)
-                logger.warning(f'Unexpected error checking file {obj.full_path}: {e}')
+                logger.warning(f'Unexpected error checking file: {e}')
         
         # Delete related FileOperation objects using raw SQL to bypass permission checks
         # FileOperationAdmin has delete permission disabled, so we use direct SQL
@@ -1640,21 +1685,32 @@ class VideoFileAdmin(admin.ModelAdmin):
             file_check_error = None
             if obj.is_available:
                 try:
-                    file_exists = os.path.exists(obj.full_path)
-                    if not file_exists:
-                        files_missing += 1
+                    # Safely get full_path - may fail if storage_location is None or path is missing
+                    full_path = None
+                    try:
+                        full_path = obj.full_path
+                    except (AttributeError, TypeError) as e:
+                        logger.debug(f'Could not get full_path for video {obj.id}: {e}')
+                        file_check_error = 'Could not determine file path'
+                        read_only_count += 1
+                    
+                    if full_path:
+                        file_exists = os.path.exists(full_path)
+                        if not file_exists:
+                            files_missing += 1
                 except (OSError, PermissionError, IOError) as e:
                     # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
                     file_check_error = str(e)
                     read_only_count += 1
-                    logger.debug(f'Could not check file existence for {obj.full_path}: {e}')
+                    logger.debug(f'Could not check file existence: {e}')
                 except Exception as e:
                     # Any other error - log but don't fail
                     file_check_error = str(e)
                     read_only_count += 1
-                    logger.warning(f'Unexpected error checking file {obj.full_path}: {e}')
+                    logger.warning(f'Unexpected error checking file: {e}')
             
             # Delete related FileOperation objects using raw SQL to bypass permission checks
+            # Do this AFTER getting all info but BEFORE calling obj.delete() to avoid signal conflicts
             from django.db import connection
             try:
                 with connection.cursor() as cursor:
@@ -1667,8 +1723,18 @@ class VideoFileAdmin(admin.ModelAdmin):
                 # Continue anyway - FileOperation will be cascade deleted
             
             # Delete the VideoFile (database record only, not physical file)
-            obj.delete()
-            deleted_count += 1
+            # Wrap in try-except to catch any errors during deletion
+            try:
+                obj.delete()
+                deleted_count += 1
+            except Exception as e:
+                logger.error(f'Error deleting VideoFile {obj.id}: {e}')
+                # Log error but continue with other deletions
+                self.message_user(
+                    request,
+                    _('Error deleting video {}: {}').format(obj.number or obj.id, str(e)),
+                    level='error'
+                )
         
         # Show appropriate message
         if read_only_count > 0:
