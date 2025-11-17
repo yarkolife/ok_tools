@@ -538,7 +538,7 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         
         # Quality score = storage_priority * 1000000000 + total_bitrate (or 0)
         # This ensures ARCHIVE > PLAYOUT > CUSTOM, and within same type, higher bitrate wins
-        from django.db.models import Coalesce
+        from django.db.models.functions import Coalesce
         quality_score = storage_priority * Value(1000000000) + Coalesce(F('total_bitrate'), Value(0), output_field=IntegerField())
         
         # Annotate queryset with quality score
@@ -1603,6 +1603,11 @@ class VideoFileAdmin(admin.ModelAdmin):
         # Remove FileOperation from model_count
         model_count = {key: value for key, value in model_count.items() 
                       if 'FileOperation' not in key and 'file operation' not in key.lower()}
+        
+        # Remove FileOperation from protected objects
+        # protected is a dict mapping models to sets of protected instances
+        protected = {model: instances for model, instances in protected.items()
+                     if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation'}
         
         return deleted_objects, model_count, perms_needed, protected
     
