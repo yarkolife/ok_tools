@@ -522,6 +522,9 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
             else:
                 return queryset.none()
         
+        # Filter to only videos with duplicates
+        queryset = queryset.filter(number__in=duplicated_numbers)
+        
         # Calculate storage priority score
         storage_priority = Case(
             When(storage_location__storage_type='ARCHIVE', then=3),
@@ -533,47 +536,46 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         
         # Quality score = storage_priority * 1000000000 + total_bitrate (or 0)
         # This ensures ARCHIVE > PLAYOUT > CUSTOM, and within same type, higher bitrate wins
-        quality_score_expr = storage_priority * Value(1000000000) + F('total_bitrate').coalesce(0)
+        quality_score = storage_priority * Value(1000000000) + F('total_bitrate').coalesce(0)
         
-        # Subquery to get max quality score per number
-        max_quality_subquery = VideoFile.objects.filter(
-            number=OuterRef('number')
-        ).annotate(
-            score=Case(
-                When(storage_location__storage_type='ARCHIVE', then=3),
-                When(storage_location__storage_type='PLAYOUT', then=2),
-                When(storage_location__storage_type='CUSTOM', then=1),
-                default=0,
-                output_field=IntegerField()
-            ) * Value(1000000000) + F('total_bitrate').coalesce(0)
-        ).aggregate(max_score=Max('score'))['max_score']
-        
-        # Annotate queryset with quality score and max quality for its number
-        queryset = queryset.filter(number__in=duplicated_numbers).annotate(
-            quality_score=storage_priority * Value(1000000000) + F('total_bitrate').coalesce(0),
-            max_quality_for_number=Subquery(
-                VideoFile.objects.filter(
-                    number=OuterRef('number')
-                ).annotate(
-                    score=Case(
-                        When(storage_location__storage_type='ARCHIVE', then=3),
-                        When(storage_location__storage_type='PLAYOUT', then=2),
-                        When(storage_location__storage_type='CUSTOM', then=1),
-                        default=0,
-                        output_field=IntegerField()
-                    ) * Value(1000000000) + F('total_bitrate').coalesce(0)
-                ).values('number').annotate(
-                    max_score=Max('score')
-                ).values('max_score')[:1]
-            )
+        # Annotate queryset with quality score
+        queryset = queryset.annotate(
+            quality_score=quality_score
         )
         
-        # Filter based on whether quality_score equals max_quality_for_number
+        # Use Python-based approach for reliability (works correctly with complex queries)
+        # Get all videos with duplicates and determine primary in memory
+        videos_list = list(queryset.select_related('storage_location'))
+        
+        # Group by number and find primary for each group
+        by_number = {}
+        for video in videos_list:
+            if video.number not in by_number:
+                by_number[video.number] = []
+            by_number[video.number].append(video)
+        
+        # Determine primary versions
+        primary_ids = set()
+        duplicate_ids = set()
+        
+        storage_priority_map = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
+        
+        for number, video_list in by_number.items():
+            # Find best version
+            best_video = max(video_list, key=lambda v: (
+                storage_priority_map.get(v.storage_location.storage_type if v.storage_location else 'CUSTOM', 1),
+                v.total_bitrate or 0,
+                v.created_at or v.last_scanned or v.updated_at
+            ))
+            primary_ids.add(best_video.id)
+            duplicate_ids.update(v.id for v in video_list if v.id != best_video.id)
+        
+        # Filter based on selection
         if self.value() == 'primary':
-            return queryset.filter(quality_score=F('max_quality_for_number'))
+            return queryset.filter(id__in=primary_ids)
         
         if self.value() == 'duplicate':
-            return queryset.exclude(quality_score=F('max_quality_for_number'))
+            return queryset.filter(id__in=duplicate_ids)
 
 
 class FPSFilter(admin.SimpleListFilter):
@@ -1124,10 +1126,19 @@ class VideoFileAdmin(admin.ModelAdmin):
 
             file_path = video.full_path
 
-            if not os.path.exists(file_path):
-                video.is_available = False
-                video.save()
-                return HttpResponse(_('Video file not found'), status=404)
+            # Handle read-only storage gracefully
+            try:
+                if not os.path.exists(file_path):
+                    video.is_available = False
+                    video.save()
+                    return HttpResponse(_('Video file not found'), status=404)
+            except (OSError, PermissionError, IOError) as e:
+                # Storage might be read-only - try to serve anyway if file path is valid
+                logger.debug(f'Could not check file existence for {file_path}: {e}')
+                # Continue to try serving - django-downloadview will handle the error
+            except Exception as e:
+                logger.warning(f'Unexpected error checking file {file_path}: {e}')
+                # Continue to try serving
             
             # Determine content type based on file extension, not database format
             file_extension = os.path.splitext(video.filename)[1].lower()
@@ -1434,13 +1445,17 @@ class VideoFileAdmin(admin.ModelAdmin):
     
     @admin.action(description=_('Cleanup records for files missing from disk'))
     def cleanup_missing_files_action(self, request, queryset):
-        """Delete VideoFile records for files that no longer exist on disk."""
+        """Delete VideoFile records for files that no longer exist on disk.
+        
+        Works with read-only storage - handles errors gracefully when files cannot be checked.
+        """
         import os
         from django.db import connection
         
         deleted_count = 0
         found_count = 0
         error_count = 0
+        read_only_count = 0
         
         for video in queryset:
             try:
@@ -1448,16 +1463,33 @@ class VideoFileAdmin(admin.ModelAdmin):
                     # Skip files already marked as unavailable
                     continue
                 
-                file_exists = os.path.exists(video.full_path)
-                found_count += 1
+                # Check if file exists on disk (handle read-only storage gracefully)
+                file_exists = False
+                try:
+                    file_exists = os.path.exists(video.full_path)
+                    found_count += 1
+                except (OSError, PermissionError, IOError) as e:
+                    # Storage might be read-only - skip this file
+                    read_only_count += 1
+                    logger.debug(f'Could not check file existence for {video.full_path}: {e}')
+                    continue
+                except Exception as e:
+                    # Any other error - log and skip
+                    read_only_count += 1
+                    logger.warning(f'Unexpected error checking file {video.full_path}: {e}')
+                    continue
                 
                 if not file_exists:
                     # Delete related FileOperation objects using raw SQL
-                    with connection.cursor() as cursor:
-                        cursor.execute(
-                            "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
-                            [video.id]
-                        )
+                    try:
+                        with connection.cursor() as cursor:
+                            cursor.execute(
+                                "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                                [video.id]
+                            )
+                    except Exception as e:
+                        logger.error(f'Error deleting FileOperation for video {video.id}: {e}')
+                        # Continue anyway - will be cascade deleted
                     
                     # Delete the VideoFile
                     video.delete()
@@ -1479,13 +1511,19 @@ class VideoFileAdmin(admin.ModelAdmin):
                 _('Deleted {} record(s) for files missing from disk').format(deleted_count),
                 level='success'
             )
+        if read_only_count > 0:
+            self.message_user(
+                request,
+                _('{} file(s) could not be checked (storage may be read-only)').format(read_only_count),
+                level='info'
+            )
         if found_count == 0:
             self.message_user(
                 request,
                 _('No files to check (all selected files are already marked as unavailable)'),
                 level='info'
             )
-        elif deleted_count == 0:
+        elif deleted_count == 0 and read_only_count == 0:
             self.message_user(
                 request,
                 _('All checked files exist on disk'),
@@ -1531,28 +1569,45 @@ class VideoFileAdmin(admin.ModelAdmin):
         """
         import os
         
-        # Check if file exists on disk
+        # Check if file exists on disk (handle read-only storage gracefully)
         file_exists = False
+        file_check_error = None
         if obj.is_available:
             try:
                 file_exists = os.path.exists(obj.full_path)
-            except Exception:
-                pass
+            except (OSError, PermissionError, IOError) as e:
+                # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
+                file_check_error = str(e)
+                logger.debug(f'Could not check file existence for {obj.full_path}: {e}')
+            except Exception as e:
+                # Any other error - log but don't fail
+                file_check_error = str(e)
+                logger.warning(f'Unexpected error checking file {obj.full_path}: {e}')
         
         # Delete related FileOperation objects using raw SQL to bypass permission checks
         # FileOperationAdmin has delete permission disabled, so we use direct SQL
         from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
-                [obj.id]
-            )
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                    [obj.id]
+                )
+        except Exception as e:
+            logger.error(f'Error deleting FileOperation records for video {obj.id}: {e}')
+            # Continue anyway - FileOperation will be cascade deleted
         
-        # Delete the VideoFile
+        # Delete the VideoFile (database record only, not physical file)
         obj.delete()
         
         # Show appropriate message
-        if not file_exists:
+        if file_check_error:
+            self.message_user(
+                request,
+                _('Video record deleted. Could not check file status (storage may be read-only).'),
+                level='info'
+            )
+        elif not file_exists:
             self.message_user(
                 request,
                 _('Video record deleted (file was already removed from disk)'),
@@ -1571,37 +1626,58 @@ class VideoFileAdmin(admin.ModelAdmin):
         
         This allows bulk deletion of VideoFile records even when the user doesn't have
         delete permission for FileOperation (which is intentionally disabled).
+        Works with read-only storage - only deletes database records, not physical files.
         """
         import os
         
         deleted_count = 0
         files_missing = 0
+        read_only_count = 0
         
         for obj in queryset:
-            # Check if file exists on disk
+            # Check if file exists on disk (handle read-only storage gracefully)
             file_exists = False
+            file_check_error = None
             if obj.is_available:
                 try:
                     file_exists = os.path.exists(obj.full_path)
                     if not file_exists:
                         files_missing += 1
-                except Exception:
-                    pass
+                except (OSError, PermissionError, IOError) as e:
+                    # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
+                    file_check_error = str(e)
+                    read_only_count += 1
+                    logger.debug(f'Could not check file existence for {obj.full_path}: {e}')
+                except Exception as e:
+                    # Any other error - log but don't fail
+                    file_check_error = str(e)
+                    read_only_count += 1
+                    logger.warning(f'Unexpected error checking file {obj.full_path}: {e}')
             
             # Delete related FileOperation objects using raw SQL to bypass permission checks
             from django.db import connection
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
-                    [obj.id]
-                )
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                        [obj.id]
+                    )
+            except Exception as e:
+                logger.error(f'Error deleting FileOperation records for video {obj.id}: {e}')
+                # Continue anyway - FileOperation will be cascade deleted
             
-            # Delete the VideoFile
+            # Delete the VideoFile (database record only, not physical file)
             obj.delete()
             deleted_count += 1
         
         # Show appropriate message
-        if files_missing == deleted_count:
+        if read_only_count > 0:
+            self.message_user(
+                request,
+                _('{} video record(s) deleted. {} file(s) could not be checked (storage may be read-only).').format(deleted_count, read_only_count),
+                level='info'
+            )
+        elif files_missing == deleted_count:
             self.message_user(
                 request,
                 _('{} video record(s) deleted (files were already removed from disk)').format(deleted_count),

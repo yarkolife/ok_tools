@@ -150,8 +150,8 @@ class Command(BaseCommand):
                             else:
                                 # Mark as unavailable
                                 if video.is_available:
-                                    video.is_available = False
-                                    video.save(update_fields=['is_available'])
+                        video.is_available = False
+                        video.save(update_fields=['is_available'])
                                     self.stdout.write(
                                         self.style.WARNING(
                                             f'Marked unavailable: {video.number} - {video.filename}'

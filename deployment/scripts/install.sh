@@ -306,9 +306,9 @@ prompt_secrets() {
 
         if [ -z "$existing_hosts" ] || [[ "$existing_hosts" == *"__REPLACE_ME__"* ]]; then
             # No meaningful value in template → use default local network pattern
-            allowed_hosts="localhost,127.0.0.1,$LOCAL_IP"
-            echo "Using ALLOWED_HOSTS: $allowed_hosts" >&2
-        else
+        allowed_hosts="localhost,127.0.0.1,$LOCAL_IP"
+        echo "Using ALLOWED_HOSTS: $allowed_hosts" >&2
+    else
             # Keep template value (e.g. portal.okmq.de) and only append local IP if missing
             if [[ "$existing_hosts" == *"$LOCAL_IP"* ]]; then
                 allowed_hosts="$existing_hosts"
