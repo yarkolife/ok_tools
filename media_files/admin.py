@@ -2,6 +2,7 @@
 
 import logging
 import os
+from datetime import timedelta
 from django import forms
 from django.contrib import admin
 from django.db.models import Count
@@ -319,6 +320,8 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 scan_options['skip_metadata'] = True
             if request.GET.get('calculate_checksum') or request.POST.get('calculate_checksum'):
                 scan_options['calculate_checksum'] = True
+            if request.GET.get('delete_missing') or request.POST.get('delete_missing'):
+                scan_options['delete_missing'] = True
             
             # Capture command output
             out = StringIO()
@@ -327,7 +330,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
             
             # Parse output for statistics
             lines = output.split('\n')
-            stats = {'created': 0, 'updated': 0, 'found': 0, 'skipped': 0}
+            stats = {'created': 0, 'updated': 0, 'found': 0, 'skipped': 0, 'deleted': 0, 'marked_unavailable': 0}
             for line in lines:
                 if 'Created:' in line:
                     stats['created'] += 1
@@ -335,19 +338,40 @@ class StorageLocationAdmin(admin.ModelAdmin):
                     stats['updated'] += 1
                 elif 'Skipped:' in line or 'skipped' in line.lower():
                     stats['skipped'] += 1
+                elif 'Deleted (file missing):' in line or 'deleted (file missing)' in line.lower():
+                    stats['deleted'] += 1
+                elif 'Marked unavailable:' in line or 'marked unavailable' in line.lower():
+                    stats['marked_unavailable'] += 1
                 elif 'Total files found:' in line:
                     try:
                         stats['found'] = int(line.split(':')[1].strip())
                     except:
                         pass
+                elif 'Records deleted (files missing):' in line:
+                    try:
+                        stats['deleted'] = int(line.split(':')[1].strip())
+                    except:
+                        pass
+                elif 'Records marked unavailable:' in line:
+                    try:
+                        stats['marked_unavailable'] = int(line.split(':')[1].strip())
+                    except:
+                        pass
             
-            success_message = (
-                f'✓ {_("Scanning completed")}: {storage.name}\n'
-                f'{_("Found")}: {stats["found"]} {_("files")} | '
-                f'{_("Created")}: {stats["created"]} {_("records")} | '
-                f'{_("Updated")}: {stats["updated"]} {_("records")} | '
+            success_parts = [
+                f'✓ {_("Scanning completed")}: {storage.name}',
+                f'{_("Found")}: {stats["found"]} {_("files")}',
+                f'{_("Created")}: {stats["created"]} {_("records")}',
+                f'{_("Updated")}: {stats["updated"]} {_("records")}',
                 f'{_("Skipped")}: {stats["skipped"]} {_("files")} ({_("no changes")})'
-            )
+            ]
+            
+            if stats['deleted'] > 0:
+                success_parts.append(f'{_("Deleted")}: {stats["deleted"]} {_("records")} ({_("files missing")})')
+            if stats['marked_unavailable'] > 0:
+                success_parts.append(f'{_("Marked unavailable")}: {stats["marked_unavailable"]} {_("records")}')
+            
+            success_message = ' | '.join(success_parts)
             
             # If it's an AJAX request, return JSON
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
@@ -395,6 +419,8 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 scan_options['skip_metadata'] = True
             if request.POST.get('calculate_checksum'):
                 scan_options['calculate_checksum'] = True
+            if request.POST.get('delete_missing'):
+                scan_options['delete_missing'] = True
             
             # Redirect to scan with options as GET parameters
             from django.urls import reverse
@@ -580,7 +606,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     change_list_template = 'admin/media_files/videofile/change_list.html'
     
     list_display = [
-        'filename', 'storage_location', 'number', 'resolution_display',
+        'duplicates_indicator', 'filename', 'storage_location', 'number', 'resolution_display',
         'duration_display', 'fps_display', 'file_size_display', 'format',
         'is_available', 'player_link'
     ]
@@ -665,7 +691,8 @@ class VideoFileAdmin(admin.ModelAdmin):
     
     inlines = [FileOperationInline]
     actions = ['copy_to_playout_action', 'update_metadata_action', 'verify_integrity_action', 
-               'mark_as_primary_action', 'delete_duplicates_action', 'move_to_archive_action']
+               'mark_as_primary_action', 'delete_duplicates_action', 'move_to_archive_action',
+               'cleanup_missing_files_action']
     
     def get_urls(self):
         """Add custom URLs."""
@@ -753,24 +780,67 @@ class VideoFileAdmin(admin.ModelAdmin):
     license_link.short_description = _('License')
     
     def duplicates_indicator(self, obj):
-        """Show duplicate status indicator."""
-        if not obj.has_duplicates:
+        """Show duplicate status indicator with version info."""
+        if not obj.pk:
             return '—'
         
-        count = obj.duplicate_count
+        # Check for duplicates (same number, any storage)
+        all_versions = VideoFile.objects.filter(number=obj.number).exclude(id=obj.id)
+        same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
+        
+        if not all_versions.exists():
+            return format_html('<span style="color: #6c757d;" title="{}">—</span>', _('Unique - no duplicates'))
+        
         is_primary = obj.is_primary_version()
+        total_count = all_versions.count()
+        same_storage_count = same_storage_versions.count()
+        
+        # Build tooltip with version details
+        tooltip_parts = []
+        if same_storage_count > 0:
+            tooltip_parts.append(_('{} version(s) in same storage').format(same_storage_count + 1))
+        if total_count > same_storage_count:
+            tooltip_parts.append(_('{} version(s) in other storages').format(total_count - same_storage_count))
+        
+        tooltip = ' | '.join(tooltip_parts)
         
         if is_primary:
             return format_html(
-                '<span style="color: #28a745;" title="Primary version, {} duplicate(s) exist">✓ PRIMARY ({})</span>',
-                count, count
+                '<span style="color: #28a745; font-weight: bold;" title="{}">✓ PRIMARY</span><br>'
+                '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                tooltip,
+                total_count + 1,
+                _('versions total')
             )
         else:
+            # Check if this is an old version (lower quality or older date)
+            primary_versions = [v for v in obj.get_all_versions() if v.is_primary_version()]
+            if primary_versions:
+                primary = primary_versions[0]
+                is_old = (
+                    obj.total_bitrate and primary.total_bitrate and obj.total_bitrate < primary.total_bitrate
+                ) or (
+                    obj.created_at and primary.created_at and obj.created_at < primary.created_at
+                )
+                
+                if is_old:
+                    return format_html(
+                        '<span style="color: #dc3545; font-weight: bold;" title="{}">⚠️ OLD VERSION</span><br>'
+                        '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                        tooltip,
+                        total_count + 1,
+                        _('versions total')
+                    )
+            
             return format_html(
-                '<span style="color: #ffc107;" title="Duplicate version, primary exists">⚠️ DUPLICATE</span>'
+                '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ DUPLICATE</span><br>'
+                '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                tooltip,
+                total_count + 1,
+                _('versions total')
             )
 
-    duplicates_indicator.short_description = _('Duplicate Status')
+    duplicates_indicator.short_description = _('Versions')
     
     def duplicate_status_display(self, obj):
         """Show detailed duplicate status."""
@@ -801,34 +871,69 @@ class VideoFileAdmin(admin.ModelAdmin):
     duplicate_status_display.short_description = _('Duplicate Status')
 
     def all_versions_display(self, obj):
-        """Show all versions of this video."""
-        if not obj.pk or not obj.has_duplicates:
+        """Show all versions of this video with detailed comparison."""
+        if not obj.pk:
             return '-'
         
-        versions = obj.get_all_versions()
-        html_parts = []
+        # Get all versions (including current)
+        all_versions = VideoFile.objects.filter(number=obj.number).order_by(
+            '-total_bitrate', '-created_at', '-storage_location__storage_type'
+        )
         
-        for v in versions:
+        if all_versions.count() <= 1:
+            return format_html('<span style="color: #6c757d;">{}</span>', _('No other versions'))
+        
+        html_parts = []
+        primary = None
+        
+        for v in all_versions:
             is_current = v.id == obj.id
             is_primary = v.is_primary_version()
-            
-            status = ''
             if is_primary:
-                status = '<span style="color: #28a745;">✓ PRIMARY</span>'
-            elif is_current:
-                status = '<span style="color: #ffc107;">⚠️ CURRENT</span>'
-            else:
-                status = '<span style="color: #999;">DUPLICATE</span>'
+                primary = v
             
-            info = f'{v.storage_location.name} • {v.total_bitrate or 0} bps • {v.width}x{v.height} • {v.file_size_mb} MB'
+            # Determine version status
+            if is_primary:
+                status = '<span style="color: #28a745; font-weight: bold;">✓ PRIMARY</span>'
+            elif is_current:
+                status = '<span style="color: #007bff; font-weight: bold;">📍 CURRENT</span>'
+            else:
+                # Check if old version
+                is_old = False
+                if primary:
+                    is_old = (
+                        (v.total_bitrate and primary.total_bitrate and v.total_bitrate < primary.total_bitrate * 0.8)
+                        or (v.created_at and primary.created_at and v.created_at < primary.created_at - timedelta(days=30))
+                    )
+                
+                if is_old:
+                    status = '<span style="color: #dc3545;">⚠️ OLD</span>'
+                else:
+                    status = '<span style="color: #ffc107;">⚠️ DUPLICATE</span>'
+            
+            # Build version info
+            format_info = v.format.upper() if v.format else '?'
+            resolution = f'{v.width}x{v.height}' if v.width and v.height else '?'
+            bitrate = f'{v.bitrate_mbps} Mbps' if v.bitrate_mbps else '?'
+            size = f'{v.file_size_mb} MB' if v.file_size_mb else '?'
+            date = v.created_at.strftime('%Y-%m-%d') if v.created_at else '?'
+            
+            info = (
+                f'<strong>{v.filename}</strong><br>'
+                f'{v.storage_location.name} • {format_info} • {resolution} • {bitrate} • {size}<br>'
+                f'<small style="color: #6c757d;">{_("Created")}: {date}</small>'
+            )
             
             if is_current:
-                html_parts.append(f'<strong>{status} • {info}</strong>')
+                html_parts.append(f'<div style="padding: 8px; background: #e7f3ff; border-left: 3px solid #007bff; margin: 5px 0;">{status}<br>{info}</div>')
             else:
                 url = reverse('admin:media_files_videofile_change', args=[v.id])
-                html_parts.append(f'{status} • <a href="{url}">{info}</a>')
+                html_parts.append(
+                    f'<div style="padding: 8px; background: #f8f9fa; border-left: 3px solid #dee2e6; margin: 5px 0;">'
+                    f'{status}<br><a href="{url}">{info}</a></div>'
+                )
         
-        return format_html('<br>'.join(html_parts))
+        return format_html(''.join(html_parts))
 
     all_versions_display.short_description = _('All Versions')
 
@@ -1326,6 +1431,194 @@ class VideoFileAdmin(admin.ModelAdmin):
             self.message_user(request, f'{skipped_count} video(s) skipped (still in use)', level='warning')
         if error_count > 0:
             self.message_user(request, f'{error_count} video(s) failed to move', level='error')
+    
+    @admin.action(description=_('Cleanup records for files missing from disk'))
+    def cleanup_missing_files_action(self, request, queryset):
+        """Delete VideoFile records for files that no longer exist on disk."""
+        import os
+        from django.db import connection
+        
+        deleted_count = 0
+        found_count = 0
+        error_count = 0
+        
+        for video in queryset:
+            try:
+                if not video.is_available:
+                    # Skip files already marked as unavailable
+                    continue
+                
+                file_exists = os.path.exists(video.full_path)
+                found_count += 1
+                
+                if not file_exists:
+                    # Delete related FileOperation objects using raw SQL
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                            [video.id]
+                        )
+                    
+                    # Delete the VideoFile
+                    video.delete()
+                    deleted_count += 1
+                    logger.info(f'Deleted VideoFile {video.number} (file missing): {video.filename}')
+            
+            except Exception as e:
+                error_count += 1
+                logger.error(f'Error checking/deleting {video.filename}: {str(e)}')
+                self.message_user(
+                    request,
+                    f'Error processing {video.number}: {str(e)}',
+                    level='error'
+                )
+        
+        if deleted_count > 0:
+            self.message_user(
+                request,
+                _('Deleted {} record(s) for files missing from disk').format(deleted_count),
+                level='success'
+            )
+        if found_count == 0:
+            self.message_user(
+                request,
+                _('No files to check (all selected files are already marked as unavailable)'),
+                level='info'
+            )
+        elif deleted_count == 0:
+            self.message_user(
+                request,
+                _('All checked files exist on disk'),
+                level='info'
+            )
+        if error_count > 0:
+            self.message_user(
+                request,
+                _('{} error(s) occurred').format(error_count),
+                level='error'
+            )
+    
+    def get_deleted_objects(self, objs, request):
+        """
+        Override get_deleted_objects to bypass permission checks for FileOperation.
+        
+        This allows deletion of VideoFile records even when the user doesn't have
+        delete permission for FileOperation (which is intentionally disabled).
+        """
+        # Call parent method to get standard deletion info
+        deleted_objects, model_count, perms_needed, protected = super().get_deleted_objects(objs, request)
+        
+        # Remove FileOperation from perms_needed since we handle it via CASCADE
+        # and don't require explicit delete permission
+        perms_needed = {perm for perm in perms_needed if 'FileOperation' not in perm and 'file operation' not in perm.lower()}
+        
+        # Also filter out FileOperation from deleted_objects list
+        deleted_objects = [(model, instances) for model, instances in deleted_objects 
+                          if model._meta.label != 'media_files.FileOperation']
+        
+        # Remove FileOperation from model_count
+        model_count = {key: value for key, value in model_count.items() 
+                      if 'FileOperation' not in key and 'file operation' not in key.lower()}
+        
+        return deleted_objects, model_count, perms_needed, protected
+    
+    def delete_model(self, request, obj):
+        """
+        Override delete_model to bypass permission checks for related FileOperation objects.
+        
+        This allows deletion of VideoFile records even when the user doesn't have
+        delete permission for FileOperation (which is intentionally disabled).
+        """
+        import os
+        
+        # Check if file exists on disk
+        file_exists = False
+        if obj.is_available:
+            try:
+                file_exists = os.path.exists(obj.full_path)
+            except Exception:
+                pass
+        
+        # Delete related FileOperation objects using raw SQL to bypass permission checks
+        # FileOperationAdmin has delete permission disabled, so we use direct SQL
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                [obj.id]
+            )
+        
+        # Delete the VideoFile
+        obj.delete()
+        
+        # Show appropriate message
+        if not file_exists:
+            self.message_user(
+                request,
+                _('Video record deleted (file was already removed from disk)'),
+                level='success'
+            )
+        else:
+            self.message_user(
+                request,
+                _('Video record deleted. Note: Physical file still exists on disk.'),
+                level='warning'
+            )
+    
+    def delete_queryset(self, request, queryset):
+        """
+        Override delete_queryset to bypass permission checks for related FileOperation objects.
+        
+        This allows bulk deletion of VideoFile records even when the user doesn't have
+        delete permission for FileOperation (which is intentionally disabled).
+        """
+        import os
+        
+        deleted_count = 0
+        files_missing = 0
+        
+        for obj in queryset:
+            # Check if file exists on disk
+            file_exists = False
+            if obj.is_available:
+                try:
+                    file_exists = os.path.exists(obj.full_path)
+                    if not file_exists:
+                        files_missing += 1
+                except Exception:
+                    pass
+            
+            # Delete related FileOperation objects using raw SQL to bypass permission checks
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                    [obj.id]
+                )
+            
+            # Delete the VideoFile
+            obj.delete()
+            deleted_count += 1
+        
+        # Show appropriate message
+        if files_missing == deleted_count:
+            self.message_user(
+                request,
+                _('{} video record(s) deleted (files were already removed from disk)').format(deleted_count),
+                level='success'
+            )
+        elif files_missing > 0:
+            self.message_user(
+                request,
+                _('{} video record(s) deleted. {} file(s) were already missing from disk.').format(deleted_count, files_missing),
+                level='warning'
+            )
+        else:
+            self.message_user(
+                request,
+                _('{} video record(s) deleted. Note: Physical files still exist on disk.').format(deleted_count),
+                level='warning'
+            )
 
     class Media:
         css = {

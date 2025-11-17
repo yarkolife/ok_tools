@@ -52,6 +52,8 @@ class Command(BaseCommand):
             'link_orphan_licenses': ('CELERY_BEAT_LINK_ORPHAN_LICENSES', '0 3 * * *'),
             'sync_licenses_videos': ('CELERY_BEAT_SYNC_LICENSES_VIDEOS', '0 4 * * *'),
             'update_video_metadata': ('CELERY_BEAT_UPDATE_VIDEO_METADATA', '0 1 1 * *'),
+            'cleanup_old_file_operations': ('CELERY_BEAT_CLEANUP_OLD_FILE_OPERATIONS', '0 1 * * 0'),
+            'cleanup_missing_files': ('CELERY_BEAT_CLEANUP_MISSING_FILES', '0 5 * * 0'),
         }
 
         for task_name, task_config in beat_schedule.items():

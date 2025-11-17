@@ -42,6 +42,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Use checksum comparison for strict change detection (slower)'
         )
+        parser.add_argument(
+            '--delete-missing',
+            action='store_true',
+            help='Delete VideoFile records for files that no longer exist on disk (default: mark as unavailable)'
+        )
 
     def handle(self, *args, **options):
         """Execute the command."""
@@ -50,6 +55,7 @@ class Command(BaseCommand):
         calculate_checksums = options['calculate_checksums']
         skip_metadata = options.get('skip_metadata', False)
         strict_check = options.get('strict_check', False)
+        delete_missing = options.get('delete_missing', False)
         
         # Get storage locations to scan (only those with scan_enabled=True)
         storages = StorageLocation.objects.filter(is_active=True, scan_enabled=True)
@@ -89,6 +95,8 @@ class Command(BaseCommand):
                     cmd_args.append('--skip-metadata')
                 if strict_check:
                     cmd_args.append('--strict-check')
+                if delete_missing:
+                    cmd_args.append('--delete-missing')
                 
                 # Run scan command
                 call_command(*cmd_args, stdout=out, stderr=err)

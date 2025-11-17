@@ -165,12 +165,13 @@ class Command(BaseCommand):
                 
                 if success:
                     # Create new VideoFile record for destination
+                    # Use file_path in get_or_create to allow multiple versions
                     new_video, created = VideoFile.objects.get_or_create(
                         number=video.number,
                         storage_location=destination,
+                        file_path=video.filename,  # Include file_path in uniqueness check
                         defaults={
                             'filename': video.filename,
-                            'file_path': video.filename,
                             'file_size': video.file_size,
                             'duration': video.duration,
                             'format': video.format,

@@ -289,10 +289,13 @@ class VideoFile(models.Model):
         verbose_name = _('Video File')
         verbose_name_plural = _('Video Files')
         ordering = ['-created_at']
-        unique_together = [('number', 'storage_location')]
+        # Allow multiple files with same number in same storage (different paths/versions)
+        # Uniqueness is ensured by (number, storage_location, file_path)
+        unique_together = [('number', 'storage_location', 'file_path')]
         indexes = [
             models.Index(fields=['number']),
             models.Index(fields=['storage_location', 'is_available']),
+            models.Index(fields=['number', 'storage_location']),  # For duplicate detection
         ]
 
     def __str__(self):

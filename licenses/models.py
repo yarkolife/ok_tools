@@ -259,10 +259,11 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         return super().save(*args, **kwargs)
 
     def get_video_file(self):
-        """Get associated video file if exists."""
+        """Get associated video file if exists - returns the newest version by creation date."""
         try:
             from media_files.models import VideoFile
-            return VideoFile.objects.filter(number=self.number).first()
+            # Get the newest video file by creation date (most recent version)
+            return VideoFile.objects.filter(number=self.number).order_by('-created_at').first()
         except Exception:
             return None
     

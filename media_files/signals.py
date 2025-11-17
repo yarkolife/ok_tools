@@ -108,16 +108,36 @@ def log_video_deletion(sender, instance, **kwargs):
     Log VideoFile deletion to FileOperation.
     
     Note: This does NOT delete the physical file, only the database record.
+    This signal runs before deletion, so we can still access the instance.
     """
     try:
+        import os
+        
+        # Check if file exists on disk
+        file_exists = False
+        if instance.is_available:
+            try:
+                file_exists = os.path.exists(instance.full_path)
+            except Exception:
+                pass
+        
+        # Create FileOperation record for deletion log
+        # Note: This will be cascade deleted with VideoFile, but it's useful
+        # for logging purposes before the actual deletion happens
         FileOperation.objects.create(
             video_file=instance,
             operation_type='DELETE',
             source_location=instance.storage_location,
             status='SUCCESS',
-            details={'filename': instance.filename, 'path': instance.file_path}
+            details={
+                'filename': instance.filename,
+                'path': instance.file_path,
+                'file_existed_on_disk': file_exists,
+                'note': 'Database record deleted' + (' (file was already removed from disk)' if not file_exists else '')
+            }
         )
-        logger.info(f"Logged deletion of VideoFile: {instance}")
+        logger.info(f"Logged deletion of VideoFile: {instance} (file existed: {file_exists})")
     except Exception as e:
+        # Don't fail deletion if logging fails
         logger.error(f"Error logging VideoFile deletion: {e}")
 

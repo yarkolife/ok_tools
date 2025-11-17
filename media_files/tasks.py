@@ -8,10 +8,25 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(name="media_files.tasks.run_auto_scan")
-def run_auto_scan_task():
+def run_auto_scan_task(**kwargs):
     """Run the auto_scan management command."""
     logger.info("Starting auto_scan task...")
-    call_command("auto_scan")
+    
+    args = []
+    if kwargs.get("delete_missing"):
+        args.append("--delete-missing")
+    if kwargs.get("force"):
+        args.append("--force")
+    if kwargs.get("skip_metadata"):
+        args.append("--skip-metadata")
+    if kwargs.get("strict_check"):
+        args.append("--strict-check")
+    if kwargs.get("calculate_checksums"):
+        args.append("--calculate-checksums")
+    if kwargs.get("storage_type"):
+        args.extend(["--storage-type", kwargs["storage_type"]])
+    
+    call_command("auto_scan", *args)
     logger.info("Finished auto_scan task.")
 
 
@@ -57,3 +72,24 @@ def run_cleanup_old_file_operations_task(**kwargs):
     
     call_command("cleanup_old_file_operations", *args)
     logger.info("Finished cleanup_old_file_operations task.")
+
+
+@shared_task(name="media_files.tasks.run_cleanup_missing_files")
+def run_cleanup_missing_files_task(**kwargs):
+    """Run the cleanup_missing_files management command."""
+    logger.info("Starting cleanup_missing_files task...")
+    
+    args = []
+    if kwargs.get("all_storages"):
+        args.append("--all-storages")
+    elif kwargs.get("storage_id"):
+        args.extend(["--storage-id", str(kwargs["storage_id"])])
+    else:
+        # Default: check all storages
+        args.append("--all-storages")
+    
+    if kwargs.get("mark_unavailable"):
+        args.append("--mark-unavailable")
+    
+    call_command("cleanup_missing_files", *args)
+    logger.info("Finished cleanup_missing_files task.")

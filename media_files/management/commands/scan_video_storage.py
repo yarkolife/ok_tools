@@ -66,6 +66,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Use checksum comparison for strict change detection (slower)',
         )
+        parser.add_argument(
+            '--delete-missing',
+            action='store_true',
+            help='Delete VideoFile records for files that no longer exist on disk (default: mark as unavailable)',
+        )
 
     def handle(self, *args, **options):
         """Execute the command."""
@@ -77,6 +82,7 @@ class Command(BaseCommand):
         skip_metadata = options.get('skip_metadata')
         fast_metadata = options.get('fast_metadata')
         strict_check = options.get('strict_check')
+        delete_missing = options.get('delete_missing')
 
         # Determine which storages to scan
         if storage_id:
@@ -93,6 +99,8 @@ class Command(BaseCommand):
         total_updated = 0
         total_skipped = 0
         total_errors = 0
+        total_deleted = 0
+        total_marked_unavailable = 0
 
         for storage in storages:
             self.stdout.write(f'\nScanning storage: {storage.name} ({storage.path})')
@@ -104,21 +112,63 @@ class Command(BaseCommand):
                 
                 self.stdout.write(f'Found {len(found_files)} video files')
                 
-                # Mark files not found as unavailable
+                # Check existing videos and handle missing files
                 found_numbers = set()
+                found_paths = set()
                 for filename, rel_path, abs_path in found_files:
                     number = extract_number_from_filename(filename)
                     if number:
                         found_numbers.add(number)
+                    found_paths.add(abs_path)
                 
-                # Mark missing files as unavailable
+                # Process existing videos: check if files actually exist on disk
                 existing_videos = VideoFile.objects.filter(storage_location=storage)
                 for video in existing_videos:
-                    if video.number not in found_numbers and video.is_available:
-                        video.is_available = False
-                        video.save(update_fields=['is_available'])
+                    try:
+                        file_path = video.full_path
+                        file_exists = os.path.exists(file_path)
+                        
+                        if not file_exists:
+                            # File doesn't exist on disk
+                            if delete_missing:
+                                # Delete the record and related FileOperation
+                                from django.db import connection
+                                with connection.cursor() as cursor:
+                                    cursor.execute(
+                                        "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                                        [video.id]
+                                    )
+                                
+                                self.stdout.write(
+                                    self.style.WARNING(
+                                        f'Deleted (file missing): {video.number} - {video.filename}'
+                                    )
+                                )
+                                logger.info(f'Deleted VideoFile {video.number} (file missing during scan): {video.filename}')
+                                video.delete()
+                                total_deleted += 1
+                            else:
+                                # Mark as unavailable
+                                if video.is_available:
+                                    video.is_available = False
+                                    video.save(update_fields=['is_available'])
+                                    self.stdout.write(
+                                        self.style.WARNING(
+                                            f'Marked unavailable: {video.number} - {video.filename}'
+                                        )
+                                    )
+                                    total_marked_unavailable += 1
+                        elif video.number not in found_numbers:
+                            # File exists but wasn't found in scan (might be in subdirectory)
+                            # Just ensure it's marked as available
+                            if not video.is_available:
+                                video.is_available = True
+                                video.save(update_fields=['is_available'])
+                    
+                    except Exception as e:
+                        logger.error(f'Error checking file {video.filename}: {str(e)}')
                         self.stdout.write(
-                            self.style.WARNING(f'Marked unavailable: {video.number} - {video.filename}')
+                            self.style.ERROR(f'Error checking {video.number} - {video.filename}: {str(e)}')
                         )
                 
                 for filename, rel_path, abs_path in found_files:
@@ -134,13 +184,14 @@ class Command(BaseCommand):
                             )
                             continue
                         
-                        # Check if VideoFile already exists
+                        # Check if VideoFile already exists by file_path first (most specific)
+                        # This allows multiple files with same number but different paths
                         video_file, created = VideoFile.objects.get_or_create(
                             number=number,
+                            storage_location=storage,
+                            file_path=rel_path,
                             defaults={
                                 'filename': filename,
-                                'storage_location': storage,
-                                'file_path': rel_path,
                                 'is_available': True,
                             }
                         )
@@ -297,6 +348,14 @@ class Command(BaseCommand):
         self.stdout.write(f'New records created: {total_created}')
         self.stdout.write(f'Records updated: {total_updated}')
         self.stdout.write(f'Files skipped (no changes): {total_skipped}')
+        if total_deleted > 0:
+            self.stdout.write(
+                self.style.WARNING(f'Records deleted (files missing): {total_deleted}')
+            )
+        if total_marked_unavailable > 0:
+            self.stdout.write(
+                self.style.WARNING(f'Records marked unavailable: {total_marked_unavailable}')
+            )
         if total_errors > 0:
             self.stdout.write(self.style.ERROR(f'Errors: {total_errors}'))
 

@@ -627,4 +627,9 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_OLD_FILE_OPERATIONS', '0 1 * * 0'),
         'kwargs': {'older_than_days': 30, 'keep_failed': True},
     },
+    'cleanup_missing_files': {
+        'task': 'media_files.tasks.run_cleanup_missing_files',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_MISSING_FILES', '0 5 * * 0'),
+        'kwargs': {'all_storages': True},
+    },
 }
