@@ -528,18 +528,21 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         queryset = queryset.filter(number__in=duplicated_numbers)
         
         # Calculate storage priority score
+        # Use BigIntegerField to avoid integer overflow when multiplying by 1000000000
+        from django.db.models import BigIntegerField
         storage_priority = Case(
             When(storage_location__storage_type='ARCHIVE', then=3),
             When(storage_location__storage_type='PLAYOUT', then=2),
             When(storage_location__storage_type='CUSTOM', then=1),
             default=0,
-            output_field=IntegerField()
+            output_field=BigIntegerField()
         )
         
         # Quality score = storage_priority * 1000000000 + total_bitrate (or 0)
         # This ensures ARCHIVE > PLAYOUT > CUSTOM, and within same type, higher bitrate wins
+        # Use BigIntegerField to avoid integer overflow
         from django.db.models.functions import Coalesce
-        quality_score = storage_priority * Value(1000000000) + Coalesce(F('total_bitrate'), Value(0), output_field=IntegerField())
+        quality_score = storage_priority * Value(1000000000) + Coalesce(F('total_bitrate'), Value(0), output_field=BigIntegerField())
         
         # Annotate queryset with quality score
         queryset = queryset.annotate(
