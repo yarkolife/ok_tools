@@ -527,32 +527,15 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         # Filter to only videos with duplicates
         queryset = queryset.filter(number__in=duplicated_numbers)
         
-        # Calculate storage priority score
-        # Use BigIntegerField to avoid integer overflow when multiplying by 1000000000
-        from django.db.models import BigIntegerField
-        storage_priority = Case(
-            When(storage_location__storage_type='ARCHIVE', then=3),
-            When(storage_location__storage_type='PLAYOUT', then=2),
-            When(storage_location__storage_type='CUSTOM', then=1),
-            default=0,
-            output_field=BigIntegerField()
-        )
-        
-        # Quality score = storage_priority * 1000000000 + total_bitrate (or 0)
-        # This ensures ARCHIVE > PLAYOUT > CUSTOM, and within same type, higher bitrate wins
-        # Use BigIntegerField to avoid integer overflow
-        from django.db.models.functions import Coalesce
-        quality_score = storage_priority * Value(1000000000) + Coalesce(F('total_bitrate'), Value(0), output_field=BigIntegerField())
-        
-        # Annotate queryset with quality score
-        queryset = queryset.annotate(
-            quality_score=quality_score
-        )
-        
         # Use Python-based approach for reliability (works correctly with complex queries)
+        # Don't use SQL annotations that can cause integer overflow - calculate everything in Python
         # Get all videos with duplicates and determine primary in memory
         try:
-            videos_list = list(queryset.select_related('storage_location'))
+            # Load videos without any complex annotations to avoid integer overflow
+            videos_list = list(queryset.select_related('storage_location').only(
+                'id', 'number', 'total_bitrate', 'created_at', 'last_scanned', 'updated_at',
+                'storage_location__storage_type'
+            ))
         except Exception as e:
             logger.error(f'Error loading videos for IsPrimaryVersionFilter: {e}')
             # Fallback: return empty queryset to avoid 500 error
