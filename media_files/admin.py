@@ -1591,9 +1591,26 @@ class VideoFileAdmin(admin.ModelAdmin):
                       if 'FileOperation' not in key and 'file operation' not in key.lower()}
         
         # Remove FileOperation from protected objects
-        # protected is a dict mapping models to sets of protected instances
-        protected = {model: instances for model, instances in protected.items()
-                     if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation'}
+        # protected can be either a dict or a list depending on Django version
+        if isinstance(protected, dict):
+            # Dict format: {model: set of instances}
+            protected = {model: instances for model, instances in protected.items()
+                         if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation'}
+        elif isinstance(protected, list):
+            # List format: list of protected instances or tuples
+            filtered_protected = []
+            for item in protected:
+                if isinstance(item, tuple) and len(item) >= 2:
+                    model, instances = item[0], item[1]
+                    if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation':
+                        filtered_protected.append(item)
+                elif hasattr(item, '_meta') and item._meta.label != 'media_files.FileOperation':
+                    # Single model instance
+                    filtered_protected.append(item)
+                elif not hasattr(item, '_meta'):
+                    # Keep items without _meta (might be strings or other formats)
+                    filtered_protected.append(item)
+            protected = filtered_protected
         
         return deleted_objects, model_count, perms_needed, protected
     
