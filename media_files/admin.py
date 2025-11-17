@@ -538,7 +538,8 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         
         # Quality score = storage_priority * 1000000000 + total_bitrate (or 0)
         # This ensures ARCHIVE > PLAYOUT > CUSTOM, and within same type, higher bitrate wins
-        quality_score = storage_priority * Value(1000000000) + F('total_bitrate').coalesce(0)
+        from django.db.models import Coalesce
+        quality_score = storage_priority * Value(1000000000) + Coalesce(F('total_bitrate'), Value(0), output_field=IntegerField())
         
         # Annotate queryset with quality score
         queryset = queryset.annotate(
@@ -1587,8 +1588,17 @@ class VideoFileAdmin(admin.ModelAdmin):
         perms_needed = {perm for perm in perms_needed if 'FileOperation' not in perm and 'file operation' not in perm.lower()}
         
         # Also filter out FileOperation from deleted_objects list
-        deleted_objects = [(model, instances) for model, instances in deleted_objects 
-                          if model._meta.label != 'media_files.FileOperation']
+        # deleted_objects is a list of tuples, but format may vary - handle safely
+        filtered_deleted_objects = []
+        for item in deleted_objects:
+            if isinstance(item, tuple) and len(item) >= 2:
+                model, instances = item[0], item[1]
+                if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation':
+                    filtered_deleted_objects.append(item)
+            else:
+                # Keep items that don't match expected format (might be strings or other formats)
+                filtered_deleted_objects.append(item)
+        deleted_objects = filtered_deleted_objects
         
         # Remove FileOperation from model_count
         model_count = {key: value for key, value in model_count.items() 
@@ -1604,82 +1614,11 @@ class VideoFileAdmin(admin.ModelAdmin):
         delete permission for FileOperation (which is intentionally disabled).
         """
         import os
+        import traceback
         
-        # Check if file exists on disk (handle read-only storage gracefully)
-        file_exists = False
-        file_check_error = None
-        if obj.is_available:
-            try:
-                # Safely get full_path - may fail if storage_location is None or path is missing
-                full_path = None
-                try:
-                    full_path = obj.full_path
-                except (AttributeError, TypeError) as e:
-                    logger.debug(f'Could not get full_path for video {obj.id}: {e}')
-                    file_check_error = 'Could not determine file path'
-                
-                if full_path:
-                    file_exists = os.path.exists(full_path)
-            except (OSError, PermissionError, IOError) as e:
-                # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
-                file_check_error = str(e)
-                logger.debug(f'Could not check file existence: {e}')
-            except Exception as e:
-                # Any other error - log but don't fail
-                file_check_error = str(e)
-                logger.warning(f'Unexpected error checking file: {e}')
+        logger.info(f'delete_model called for VideoFile {obj.id} (number: {obj.number})')
         
-        # Delete related FileOperation objects using raw SQL to bypass permission checks
-        # FileOperationAdmin has delete permission disabled, so we use direct SQL
-        from django.db import connection
         try:
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
-                    [obj.id]
-                )
-        except Exception as e:
-            logger.error(f'Error deleting FileOperation records for video {obj.id}: {e}')
-            # Continue anyway - FileOperation will be cascade deleted
-        
-        # Delete the VideoFile (database record only, not physical file)
-        obj.delete()
-        
-        # Show appropriate message
-        if file_check_error:
-            self.message_user(
-                request,
-                _('Video record deleted. Could not check file status (storage may be read-only).'),
-                level='info'
-            )
-        elif not file_exists:
-            self.message_user(
-                request,
-                _('Video record deleted (file was already removed from disk)'),
-                level='success'
-            )
-        else:
-            self.message_user(
-                request,
-                _('Video record deleted. Note: Physical file still exists on disk.'),
-                level='warning'
-            )
-    
-    def delete_queryset(self, request, queryset):
-        """
-        Override delete_queryset to bypass permission checks for related FileOperation objects.
-        
-        This allows bulk deletion of VideoFile records even when the user doesn't have
-        delete permission for FileOperation (which is intentionally disabled).
-        Works with read-only storage - only deletes database records, not physical files.
-        """
-        import os
-        
-        deleted_count = 0
-        files_missing = 0
-        read_only_count = 0
-        
-        for obj in queryset:
             # Check if file exists on disk (handle read-only storage gracefully)
             file_exists = False
             file_check_error = None
@@ -1692,25 +1631,20 @@ class VideoFileAdmin(admin.ModelAdmin):
                     except (AttributeError, TypeError) as e:
                         logger.debug(f'Could not get full_path for video {obj.id}: {e}')
                         file_check_error = 'Could not determine file path'
-                        read_only_count += 1
                     
                     if full_path:
                         file_exists = os.path.exists(full_path)
-                        if not file_exists:
-                            files_missing += 1
                 except (OSError, PermissionError, IOError) as e:
                     # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
                     file_check_error = str(e)
-                    read_only_count += 1
                     logger.debug(f'Could not check file existence: {e}')
                 except Exception as e:
                     # Any other error - log but don't fail
                     file_check_error = str(e)
-                    read_only_count += 1
                     logger.warning(f'Unexpected error checking file: {e}')
             
             # Delete related FileOperation objects using raw SQL to bypass permission checks
-            # Do this AFTER getting all info but BEFORE calling obj.delete() to avoid signal conflicts
+            # FileOperationAdmin has delete permission disabled, so we use direct SQL
             from django.db import connection
             try:
                 with connection.cursor() as cursor:
@@ -1723,18 +1657,133 @@ class VideoFileAdmin(admin.ModelAdmin):
                 # Continue anyway - FileOperation will be cascade deleted
             
             # Delete the VideoFile (database record only, not physical file)
-            # Wrap in try-except to catch any errors during deletion
             try:
+                logger.debug(f'Attempting to delete VideoFile {obj.id}')
                 obj.delete()
-                deleted_count += 1
+                logger.info(f'Successfully deleted VideoFile {obj.id}')
             except Exception as e:
-                logger.error(f'Error deleting VideoFile {obj.id}: {e}')
-                # Log error but continue with other deletions
+                error_traceback = traceback.format_exc()
+                logger.error(f'Error in delete_model for VideoFile {obj.id}: {e}')
+                logger.error(f'Traceback: {error_traceback}')
+                # Re-raise to let Django admin handle it properly
+                raise
+            
+            # Show appropriate message (only if deletion succeeded)
+            if file_check_error:
                 self.message_user(
                     request,
-                    _('Error deleting video {}: {}').format(obj.number or obj.id, str(e)),
-                    level='error'
+                    _('Video record deleted. Could not check file status (storage may be read-only).'),
+                    level='info'
                 )
+            elif not file_exists:
+                self.message_user(
+                    request,
+                    _('Video record deleted (file was already removed from disk)'),
+                    level='success'
+                )
+            else:
+                self.message_user(
+                    request,
+                    _('Video record deleted. Note: Physical file still exists on disk.'),
+                    level='warning'
+                )
+        except Exception as e:
+            error_traceback = traceback.format_exc()
+            logger.error(f'Unexpected error in delete_model for VideoFile {obj.id}: {e}')
+            logger.error(f'Traceback: {error_traceback}')
+            raise
+    
+    def delete_queryset(self, request, queryset):
+        """
+        Override delete_queryset to bypass permission checks for related FileOperation objects.
+        
+        This allows bulk deletion of VideoFile records even when the user doesn't have
+        delete permission for FileOperation (which is intentionally disabled).
+        Works with read-only storage - only deletes database records, not physical files.
+        """
+        import os
+        import traceback
+        
+        logger.info(f'delete_queryset called with {queryset.count()} objects')
+        
+        deleted_count = 0
+        files_missing = 0
+        read_only_count = 0
+        error_count = 0
+        
+        try:
+            for obj in queryset:
+                # Check if file exists on disk (handle read-only storage gracefully)
+                file_exists = False
+                file_check_error = None
+                if obj.is_available:
+                    try:
+                        # Safely get full_path - may fail if storage_location is None or path is missing
+                        full_path = None
+                        try:
+                            full_path = obj.full_path
+                        except (AttributeError, TypeError) as e:
+                            logger.debug(f'Could not get full_path for video {obj.id}: {e}')
+                            file_check_error = 'Could not determine file path'
+                            read_only_count += 1
+                        
+                        if full_path:
+                            file_exists = os.path.exists(full_path)
+                            if not file_exists:
+                                files_missing += 1
+                    except (OSError, PermissionError, IOError) as e:
+                        # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
+                        file_check_error = str(e)
+                        read_only_count += 1
+                        logger.debug(f'Could not check file existence: {e}')
+                    except Exception as e:
+                        # Any other error - log but don't fail
+                        file_check_error = str(e)
+                        read_only_count += 1
+                        logger.warning(f'Unexpected error checking file: {e}')
+                
+                # Delete related FileOperation objects using raw SQL to bypass permission checks
+                # Do this AFTER getting all info but BEFORE calling obj.delete() to avoid signal conflicts
+                from django.db import connection
+                try:
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                            [obj.id]
+                        )
+                except Exception as e:
+                    logger.error(f'Error deleting FileOperation records for video {obj.id}: {e}')
+                    # Continue anyway - FileOperation will be cascade deleted
+                
+                # Delete the VideoFile (database record only, not physical file)
+                # Wrap in try-except to catch any errors during deletion
+                try:
+                    logger.debug(f'Attempting to delete VideoFile {obj.id} (number: {obj.number})')
+                    obj.delete()
+                    deleted_count += 1
+                    logger.debug(f'Successfully deleted VideoFile {obj.id}')
+                except Exception as e:
+                    error_count += 1
+                    error_traceback = traceback.format_exc()
+                    logger.error(f'Error deleting VideoFile {obj.id}: {e}')
+                    logger.error(f'Traceback: {error_traceback}')
+                    # Log error but continue with other deletions
+                    self.message_user(
+                        request,
+                        _('Error deleting video {}: {}').format(obj.number or obj.id, str(e)),
+                        level='error'
+                    )
+        
+        except Exception as e:
+            # Catch any unexpected errors in the loop
+            error_traceback = traceback.format_exc()
+            logger.error(f'Unexpected error in delete_queryset loop: {e}')
+            logger.error(f'Traceback: {error_traceback}')
+            self.message_user(
+                request,
+                _('Unexpected error during deletion: {}').format(str(e)),
+                level='error'
+            )
         
         # Show appropriate message
         if read_only_count > 0:
@@ -1761,6 +1810,11 @@ class VideoFileAdmin(admin.ModelAdmin):
                 _('{} video record(s) deleted. Note: Physical files still exist on disk.').format(deleted_count),
                 level='warning'
             )
+        
+        if error_count > 0:
+            logger.warning(f'delete_queryset completed with {error_count} error(s), {deleted_count} successful deletion(s)')
+        else:
+            logger.info(f'delete_queryset completed successfully: {deleted_count} deletion(s)')
 
     class Media:
         css = {
