@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<form action="" method="POST">
+<form action="" method="POST" id="export-form">
   {% csrf_token %}
 
     <fieldset class="module aligned">
@@ -25,6 +25,53 @@
           {% endif %}
         </div>
       {% endfor %}
+      
+      {# Mediathek-specific fields #}
+      <div id="mediathek-fields" style="display: none;">
+        <div class="form-row">
+          <label for="id_date_from">{% translate "Date from" %}:</label>
+          <input type="date" name="date_from" id="id_date_from" required>
+          <input type="time" name="time_from" id="id_time_from" value="00:00">
+        </div>
+        <div class="form-row">
+          <label for="id_date_to">{% translate "Date to" %}:</label>
+          <input type="date" name="date_to" id="id_date_to" required>
+          <input type="time" name="time_to" id="id_time_to" value="23:59">
+        </div>
+        <div class="form-row">
+          <label for="id_media_authority">{% translate "Media Authority" %}:</label>
+          <select name="media_authority" id="id_media_authority">
+            <option value="">{% translate "All" %}</option>
+            {% for ma in media_authorities %}
+            <option value="{{ ma.id }}">{{ ma.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="id_global_producer">{% translate "Global Producer" %}:</label>
+          <select name="global_producer" id="id_global_producer">
+            <option value="">{% translate "All" %}</option>
+            <option value="1">{% translate "Yes" %}</option>
+            <option value="0">{% translate "No" %}</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="id_store_in_mediathek">{% translate "Store in OK media library" %}:</label>
+          <select name="store_in_mediathek" id="id_store_in_mediathek">
+            <option value="">{% translate "All" %}</option>
+            <option value="1">{% translate "Yes" %}</option>
+            <option value="0">{% translate "No" %}</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="id_has_video">{% translate "Has video" %}:</label>
+          <select name="has_video" id="id_has_video">
+            <option value="">{% translate "All" %}</option>
+            <option value="1">{% translate "Yes" %}</option>
+            <option value="0">{% translate "No" %}</option>
+          </select>
+        </div>
+      </div>
     </fieldset>
     <p> {% translate "The data export will only export primary contributions." %}</p>
 
@@ -32,4 +79,30 @@
       <input type="submit" class="default" value="{% translate "Submit" %}">
     </div>
 </form>
+
+<script>
+(function() {
+    const resourceSelect = document.querySelector('select[name="resource"]');
+    const mediathekFields = document.getElementById('mediathek-fields');
+    
+    function toggleMediathekFields() {
+        if (resourceSelect && mediathekFields) {
+            const selectedOption = resourceSelect.options[resourceSelect.selectedIndex];
+            const isMediathek = selectedOption && selectedOption.text.includes('Mediathek');
+            mediathekFields.style.display = isMediathek ? 'block' : 'none';
+            
+            // Make date fields required only for Mediathek
+            const dateFrom = document.getElementById('id_date_from');
+            const dateTo = document.getElementById('id_date_to');
+            if (dateFrom) dateFrom.required = isMediathek;
+            if (dateTo) dateTo.required = isMediathek;
+        }
+    }
+    
+    if (resourceSelect) {
+        resourceSelect.addEventListener('change', toggleMediathekFields);
+        toggleMediathekFields(); // Initial check
+    }
+})();
+</script>
 {% endblock %}

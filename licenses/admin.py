@@ -461,6 +461,31 @@ class GlobalProducerFilter(admin.SimpleListFilter):
         return queryset
 
 
+class HasVideoFilter(admin.SimpleListFilter):
+    """Filter licenses by video file presence and availability."""
+
+    title = _('Has video')
+    parameter_name = 'has_video'
+
+    def lookups(self, request, model_admin):
+        """Define filter options."""
+        return (
+            ('available', _('Available')),
+            ('not_available', _('Not available')),
+            ('no_video', _('No video')),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter licenses by video file presence and availability."""
+        if self.value() == 'available':
+            return queryset.filter(video_file__isnull=False, video_file__is_available=True)
+        elif self.value() == 'not_available':
+            return queryset.filter(video_file__isnull=False, video_file__is_available=False)
+        elif self.value() == 'no_video':
+            return queryset.filter(video_file__isnull=True)
+        return queryset
+
+
 class LicenseAdminForm(forms.ModelForm):
     """Override the clean method for the forms used on the admin site."""
 
@@ -872,6 +897,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         AutocompleteFilterFactory(_('Category'), 'category'),
         'store_in_ok_media_library',
         GlobalProducerFilter,
+        HasVideoFilter,
         WithoutContributionFilter,
     ]
 

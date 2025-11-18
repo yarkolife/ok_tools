@@ -4,23 +4,26 @@ from .models import ContributionManager
 from .models import DisaImport
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from datetime import datetime as dt
+from django import forms
 from django import http
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.decorators import display
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
 from ok_tools.datetime import TZ
+from registration.models import MediaAuthority
 # from rangefilter.filters import DateTimeRangeFilter
 import datetime
 import logging
 import tablib
 
 
-logger = logging.getLogger('django')
+logger = logging.getLogger('contributions')
 
 
 class CustomDateTimeRangeFilter(admin.FieldListFilter):
@@ -145,6 +148,7 @@ class ProgramResource(resources.ModelResource):
             False,
             '',  # category
             '',  # store_in_ok_media_library
+            '',  # number
         ]
 
     # Override for the original method defined in
@@ -217,6 +221,7 @@ class ProgramResource(resources.ModelResource):
     contribution = _f()
     category = _f('license__category', name=_('Category'))
     store_in_ok_media_library = _f('license__store_in_ok_media_library', _('Store in OK media library'))
+    number = _f('license__number', _('Number'))
 
     def _get_start_time(self, contribution: Contribution):
         """Return the start time of a contribution in the current time zone."""
@@ -351,6 +356,191 @@ class ContributionResource(resources.ModelResource):
         fields = []
 
 
+class MediathekExportForm(forms.Form):
+    """Form for Mediathek export parameters."""
+    
+    date_from = forms.DateField(
+        label=_('Date from'),
+        required=True,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    date_to = forms.DateField(
+        label=_('Date to'),
+        required=True,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    media_authority = forms.ModelChoiceField(
+        label=_('Media Authority'),
+        queryset=MediaAuthority.objects.all(),
+        required=False,
+        empty_label=_('All')
+    )
+    global_producer = forms.ChoiceField(
+        label=_('Global Producer'),
+        choices=[('', _('All')), ('1', _('Yes')), ('0', _('No'))],
+        required=False
+    )
+    store_in_mediathek = forms.ChoiceField(
+        label=_('Store in OK media library'),
+        choices=[('', _('All')), ('1', _('Yes')), ('0', _('No'))],
+        required=False
+    )
+    has_video = forms.ChoiceField(
+        label=_('Has video'),
+        choices=[('', _('All')), ('1', _('Yes')), ('0', _('No'))],
+        required=False
+    )
+
+
+class MediathekResource(resources.ModelResource):
+    """Define the export for Mediathek import - only primary contributions."""
+
+    def _apply_filters(self, queryset, params):
+        """Apply filters to queryset based on parameters."""
+        if 'date_from' in params and params['date_from']:
+            date_from = datetime.datetime.strptime(params['date_from'], '%Y-%m-%d').date()
+            time_from_str = params.get('time_from', '00:00')
+            time_from = datetime.datetime.strptime(time_from_str, '%H:%M').time()
+            date_from_dt = timezone.make_aware(
+                datetime.datetime.combine(date_from, time_from)
+            )
+            queryset = queryset.filter(broadcast_date__gte=date_from_dt)
+        
+        if 'date_to' in params and params['date_to']:
+            date_to = datetime.datetime.strptime(params['date_to'], '%Y-%m-%d').date()
+            time_to_str = params.get('time_to', '23:59')
+            time_to = datetime.datetime.strptime(time_to_str, '%H:%M').time()
+            date_to_dt = timezone.make_aware(
+                datetime.datetime.combine(date_to, time_to)
+            )
+            queryset = queryset.filter(broadcast_date__lte=date_to_dt)
+        
+        if 'media_authority' in params and params['media_authority']:
+            queryset = queryset.filter(license__profile__media_authority_id=params['media_authority'])
+        
+        if 'global_producer' in params and params['global_producer']:
+            if params['global_producer'] == '1':
+                queryset = queryset.filter(license__profile__global_producer=True)
+            elif params['global_producer'] == '0':
+                queryset = queryset.filter(license__profile__global_producer=False)
+        
+        if 'store_in_mediathek' in params and params['store_in_mediathek']:
+            if params['store_in_mediathek'] == '1':
+                queryset = queryset.filter(license__store_in_ok_media_library=True)
+            elif params['store_in_mediathek'] == '0':
+                queryset = queryset.filter(license__store_in_ok_media_library=False)
+        
+        if 'has_video' in params and params['has_video']:
+            if params['has_video'] == '1':
+                queryset = queryset.filter(license__video_file__isnull=False)
+            elif params['has_video'] == '0':
+                queryset = queryset.filter(license__video_file__isnull=True)
+        
+        return queryset
+
+    def export(self, queryset=None, *args, **kwargs):
+        """Only export primary contributions with video paths."""
+        from django.db.models import Min
+        
+        if queryset is None:
+            queryset = self.get_queryset()
+        
+        # Get parameters from thread local request
+        import threading
+        request = getattr(threading.current_thread(), 'django_request', None)
+        if request and hasattr(request, 'session'):
+            params = request.session.get('mediathek_export_params', {})
+            if params:
+                logger.info(f'Mediathek export params: {params}')
+                initial_count = queryset.count()
+                # Apply filters
+                queryset = self._apply_filters(queryset, params)
+                filtered_count = queryset.count()
+                logger.info(f'Mediathek export: {initial_count} -> {filtered_count} contributions after filters')
+                # Clear session after use
+                del request.session['mediathek_export_params']
+        
+        # OPTIMIZATION: select_related to avoid N+1 queries
+        queryset = queryset.select_related(
+            'license',
+            'license__profile',
+            'license__video_file',
+            'license__video_file__storage_location'
+        )
+        
+        # Pre-calculate all primary dates with one query
+        license_ids = queryset.values_list('license_id', flat=True).distinct()
+        if not license_ids:
+            return tablib.Dataset()
+        
+        primary_dates = Contribution.objects.filter(
+            license_id__in=license_ids
+        ).values('license_id').annotate(
+            min_date=Min('broadcast_date')
+        )
+        
+        # Create dictionary for O(1) lookup
+        license_primary_dates = {
+            item['license_id']: item['min_date'] 
+            for item in primary_dates
+        }
+        
+        data = tablib.Dataset()
+        data.headers = [field.column_name for field in self.get_export_fields()]
+        if hasattr(queryset, 'iterator'):
+            iterator = queryset.iterator(chunk_size=1000)
+        else:
+            iterator = iter(queryset)
+        
+        # Only export primary contributions
+        for obj in iterator:
+            # Check if contribution is primary without SQL query
+            if license_primary_dates.get(obj.license_id) == obj.broadcast_date:
+                data.append(self.export_resource(obj))
+        
+        self.after_export(queryset, data, *args, **kwargs)
+        return data
+
+    def _f(field, name=None):
+        """Shortcut for field creation."""
+        return Field(attribute=field, column_name=name)
+
+    license_number = _f('license__number', _('License number'))
+    title = _f('license__title', _('Title'))
+    subtitle = _f('license__subtitle', _('Subtitle'))
+    profile = _f('license__profile', _('Profile'))
+    broadcast_datetime = Field(column_name=_('Broadcast date and time'))
+    video_path = Field(column_name=_('Video path (Windows)'))
+
+    def dehydrate_profile(self, contribution: Contribution):
+        """Return profile as string."""
+        return str(contribution.license.profile)
+
+    def dehydrate_broadcast_datetime(self, contribution: Contribution):
+        """Show broadcast date and time in current time zone."""
+        broadcast_dt = contribution.broadcast_date.astimezone(TZ)
+        return broadcast_dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    def dehydrate_video_path(self, contribution: Contribution):
+        """Get Windows path to video file."""
+        video_file = contribution.license.get_video_file()
+        if video_file:
+            # Use UNC path if available, otherwise use full_path converted to Windows format
+            if video_file.unc_path:
+                return video_file.unc_path
+            elif video_file.full_path:
+                # Convert Unix path to Windows format
+                return video_file.full_path.replace('/', '\\')
+        return ''
+
+    class Meta:
+        """Define meta properties for Mediathek export."""
+
+        name = _('Mediathek import')
+        model = Contribution
+        fields = []
+
+
 class WeekFilter(admin.SimpleListFilter):
     """Filter the contributions for the next 3 weeks."""
 
@@ -458,8 +648,75 @@ class YearFilter(admin.SimpleListFilter):
 class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     """How should the Contribution be shown on the admin site."""
 
-    resource_classes = [ProgramResource, ContributionResource]
+    resource_classes = [ProgramResource, ContributionResource, MediathekResource]
     export_template_name = 'admin/export.html'
+    
+    def export_action(self, request, *args, **kwargs):
+        """Override export action to handle Mediathek parameters."""
+        # Check if MediathekResource is selected and parameters are provided
+        resource_index = request.POST.get('resource', '')
+        logger.info(f'Export action called with resource index: {resource_index}')
+        logger.info(f'POST data keys: {list(request.POST.keys())}')
+        
+        # Get resource class by index
+        try:
+            resource_index_int = int(resource_index) if resource_index else -1
+            if 0 <= resource_index_int < len(self.resource_classes):
+                selected_resource_class = self.resource_classes[resource_index_int]
+                logger.info(f'Selected resource class: {selected_resource_class.__name__}')
+                is_mediathek = selected_resource_class == MediathekResource
+            else:
+                is_mediathek = False
+        except (ValueError, IndexError):
+            is_mediathek = False
+        
+        if is_mediathek:
+            # Get parameters from POST
+            date_from = request.POST.get('date_from')
+            time_from = request.POST.get('time_from', '00:00')
+            date_to = request.POST.get('date_to')
+            time_to = request.POST.get('time_to', '23:59')
+            
+            logger.info(f'Mediathek export - date_from: {date_from} {time_from}, date_to: {date_to} {time_to}')
+            logger.info(f'Mediathek export - media_authority: {request.POST.get("media_authority")}')
+            logger.info(f'Mediathek export - global_producer: {request.POST.get("global_producer")}')
+            logger.info(f'Mediathek export - store_in_mediathek: {request.POST.get("store_in_mediathek")}')
+            logger.info(f'Mediathek export - has_video: {request.POST.get("has_video")}')
+            
+            # Validate required fields
+            if not date_from or not date_to:
+                messages.error(request, _('Date from and Date to are required for Mediathek export.'))
+                logger.warning('Mediathek export failed: missing date_from or date_to')
+                return super().export_action(request, *args, **kwargs)
+            
+            # Store request in thread local for MediathekResource to access
+            import threading
+            threading.current_thread().django_request = request
+            
+            # Store parameters in session to pass to export method
+            params = {
+                'date_from': date_from,
+                'time_from': time_from,
+                'date_to': date_to,
+                'time_to': time_to,
+                'media_authority': request.POST.get('media_authority'),
+                'global_producer': request.POST.get('global_producer'),
+                'store_in_mediathek': request.POST.get('store_in_mediathek'),
+                'has_video': request.POST.get('has_video'),
+            }
+            request.session['mediathek_export_params'] = params
+            logger.info(f'Stored mediathek export params in session: {params}')
+        else:
+            logger.info(f'Not MediathekResource, using default export')
+        
+        return super().export_action(request, *args, **kwargs)
+    
+    def get_export_context_data(self, **kwargs):
+        """Add media authorities to export context."""
+        context = super().get_export_context_data(**kwargs)
+        from registration.models import MediaAuthority
+        context['media_authorities'] = MediaAuthority.objects.all().order_by('name')
+        return context
 
     list_display = (
         'get_title',

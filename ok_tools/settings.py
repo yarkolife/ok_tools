@@ -484,6 +484,11 @@ LOGGING = {
             "level": DJANGO_LOG_LEVEL,
             "propagate": True,
         },
+        "contributions": {
+            "handlers": ["file", "console"],
+            "level": DJANGO_LOG_LEVEL,
+            "propagate": True,
+        },
         "console": {
             "handlers": ["console"],
             "level": "CRITICAL",
