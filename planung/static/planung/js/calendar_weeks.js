@@ -27,11 +27,18 @@
       return duration; // Already in seconds
     }
 
-    // Format seconds to MM:SS
+    // Format seconds to MM:SS (with normalization for old data format)
     function formatTime(seconds) {
       const normalized = normalizeDuration(seconds);
       const mins = Math.floor(normalized / 60);
       const secs = normalized % 60;
+      return mins + ':' + secs.toString().padStart(2, '0');
+    }
+
+    // Format seconds to MM:SS (without normalization - for time calculations)
+    function formatTimeOnly(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
       return mins + ':' + secs.toString().padStart(2, '0');
     }
 
@@ -162,7 +169,7 @@
           if (!durationText) return 0;
           const parts = durationText.split(':').map(Number);
           if (parts.length === 2) {
-            return normalizeDuration(parts[0] * 60 + parts[1]);
+            return parts[0] * 60 + parts[1]; // Already in seconds from MM:SS format
           }
           return 0;
         })();
@@ -329,7 +336,7 @@
         const startStr = getInternalTime($input);
         const durationText = $row.find('td').eq(5).text(); // MM:SS format (Duration is now column 5)
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = normalizeDuration(mins * 60 + secs);
+        const duration = mins * 60 + secs; // Already in seconds from MM:SS format
         
         if (startStr && duration) {
           const startSec = timeToSeconds(startStr);
@@ -463,10 +470,10 @@
           .text(gettext('Block filled (video extends beyond)'));
       } else if (remaining < 0) {
         $remaining.removeClass('text-success').addClass('text-danger')
-          .text(gettext('Overplanned by %(time)s!').replace('%(time)s', formatTime(-remaining)));
+          .text(gettext('Overplanned by %(time)s!').replace('%(time)s', formatTimeOnly(-remaining)));
       } else {
         $remaining.removeClass('text-danger').addClass('text-success')
-          .text(gettext('Still %(time)s free').replace('%(time)s', formatTime(remaining)));
+          .text(gettext('Still %(time)s free').replace('%(time)s', formatTimeOnly(remaining)));
       }
     }
 
@@ -507,7 +514,7 @@
         const startStr = getInternalTime($input); // Get time with seconds
         const durationText = $row.find('td').eq(5).text(); // Duration column
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = normalizeDuration(mins * 60 + secs);
+        const duration = mins * 60 + secs; // Already in seconds from MM:SS format
         
         if (startStr && duration) {
           const startSec = timeToSeconds(startStr);
@@ -695,7 +702,7 @@
         const startStr = getInternalTime($input); // Get time with seconds
         const durationText = $row.find('td').eq(5).text();
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = normalizeDuration(mins * 60 + secs);
+        const duration = mins * 60 + secs; // Already in seconds from MM:SS format
         
         if (startStr) {
           const startSec = timeToSeconds(startStr);
@@ -810,7 +817,7 @@
 
           const durationText = $row.find('td').eq(5).text(); // Duration is now column 5
           const [mins, secs] = durationText.split(':').map(Number);
-          const duration = normalizeDuration(mins * 60 + secs);
+          const duration = mins * 60 + secs; // Already in seconds from MM:SS format
 
           // Extract license number from link or text
           const numberCell = $row.find('td').eq(2);
@@ -973,7 +980,7 @@
         const senderResponsible = $row.find('td.sender-responsible').text();
         const durationText = $row.find('td').eq(5).text(); // Duration is now column 5
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = normalizeDuration(mins * 60 + secs);
+        const duration = mins * 60 + secs; // Already in seconds from MM:SS format
         plannedItems.push({ 
           start, 
           number: parseInt(licenseNumber, 10), 
@@ -994,7 +1001,7 @@
         const $row = $(this);
         const durationText = $row.find('td').eq(5).text(); // Duration is now column 5
         const [mins, secs] = durationText.split(':').map(Number);
-        const duration = normalizeDuration(mins * 60 + secs);
+        const duration = mins * 60 + secs; // Already in seconds from MM:SS format
         
         // Calculate rounded position
         const roundedPos = roundToFiveMinutes(currentPos);
