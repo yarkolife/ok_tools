@@ -58,42 +58,12 @@ class LicenseMetadataSerializer(serializers.Serializer):
         Get original publication date in ISO 8601 format.
         
         Priority:
-        1. Search in planung/TagesPlan.json_plan.items by license number
-        2. If not found, get first Contribution.broadcast_date
+        1. Get first Contribution.broadcast_date (final data from playout import)
+        2. If not found, search in planung/TagesPlan.json_plan.items by license number
         
         Returns ISO 8601 formatted datetime string or None.
         """
-        # Try to find in TagesPlan first (optimized query)
-        # Use only_fields to reduce data transfer
-        plans = TagesPlan.objects.only('datum', 'json_plan').all()
-        
-        for plan in plans:
-            items = plan.json_plan.get('items', [])
-            for item in items:
-                if item.get('number') == obj.number:
-                    # Found in planning, use the plan date + time
-                    plan_date = plan.datum
-                    
-                    # Get start time from item
-                    start_time_str = item.get('start', '00:00')
-                    if start_time_str:
-                        try:
-                            # Parse time string like "18:00"
-                            hour, minute = map(int, start_time_str.split(':'))
-                            plan_time = datetime.min.time().replace(hour=hour, minute=minute)
-                        except (ValueError, AttributeError):
-                            # If parsing fails, use midnight
-                            plan_time = datetime.min.time()
-                    else:
-                        plan_time = datetime.min.time()
-                    
-                    # Combine date and time
-                    dt = datetime.combine(plan_date, plan_time)
-                    # Make it timezone-aware
-                    dt = timezone.make_aware(dt)
-                    return dt.isoformat()
-        
-        # If not found in planning, try to get first contribution
+        # First, try to get the actual broadcast date from contributions (priority data)
         # Optimized query with only needed fields
         first_contribution = Contribution.objects.filter(
             license=obj
@@ -102,6 +72,36 @@ class LicenseMetadataSerializer(serializers.Serializer):
         if first_contribution:
             return first_contribution.broadcast_date.isoformat()
         
+        # If no contribution found, fall back to TagesPlan
+        # Use only_fields to reduce data transfer
+        plans = TagesPlan.objects.only('datum', 'json_plan').all()
+        
+        for plan in plans:
+            items = plan.json_plan.get('items', [])
+            for item in items:
+                if item.get('number') == obj.number:
+                    # Found in planning, try to use the plan date + time
+                    plan_date = plan.datum
+                    
+                    # Get start time from item
+                    start_time_str = item.get('start')
+                    # Only use TagesPlan time if we have a valid, non-empty start time
+                    if start_time_str and start_time_str.strip():
+                        try:
+                            # Parse time string like "18:00"
+                            hour, minute = map(int, start_time_str.strip().split(':'))
+                            plan_time = datetime.min.time().replace(hour=hour, minute=minute)
+                            
+                            # Combine date and time
+                            dt = datetime.combine(plan_date, plan_time)
+                            # Make it timezone-aware
+                            dt = timezone.make_aware(dt)
+                            return dt.isoformat()
+                        except (ValueError, AttributeError):
+                            # If parsing fails, continue to next plan
+                            pass
+        
+        # No data found in either Contribution or TagesPlan
         return None
     
     def get_targetChannel(self, obj):
