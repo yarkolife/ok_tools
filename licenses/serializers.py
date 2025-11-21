@@ -88,16 +88,19 @@ class LicenseMetadataSerializer(serializers.Serializer):
                     # Only use TagesPlan time if we have a valid, non-empty start time
                     if start_time_str and start_time_str.strip():
                         try:
-                            # Parse time string like "18:00"
-                            hour, minute = map(int, start_time_str.strip().split(':'))
-                            plan_time = datetime.min.time().replace(hour=hour, minute=minute)
+                            # Parse time string like "18:00" or "18:00:00"
+                            time_parts = start_time_str.strip().split(':')
+                            hour = int(time_parts[0])
+                            minute = int(time_parts[1]) if len(time_parts) > 1 else 0
+                            second = int(time_parts[2]) if len(time_parts) > 2 else 0
+                            plan_time = datetime.min.time().replace(hour=hour, minute=minute, second=second)
                             
                             # Combine date and time
                             dt = datetime.combine(plan_date, plan_time)
                             # Make it timezone-aware
                             dt = timezone.make_aware(dt)
                             return dt.isoformat()
-                        except (ValueError, AttributeError):
+                        except (ValueError, AttributeError, IndexError):
                             # If parsing fails, continue to next plan
                             pass
         
