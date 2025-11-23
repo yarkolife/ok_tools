@@ -45,6 +45,20 @@ find_latest_backup_dir() {
     return 0
 }
 
+# Function to find most recent code backup archive
+find_latest_code_backup() {
+    local code_backup_dir="$PRODUCTION_DIR/backups/code_backups"
+    if [ ! -d "$code_backup_dir" ]; then
+        return 1
+    fi
+    local latest=$(ls -1t "$code_backup_dir"/code_backup_*.tar.gz 2>/dev/null | head -n 1)
+    if [ -z "$latest" ]; then
+        return 1
+    fi
+    echo "$latest"
+    return 0
+}
+
 # Function to confirm action
 confirm_action() {
     local message="$1"
@@ -59,19 +73,52 @@ confirm_action() {
     fi
 }
 
-# Confirm rollback
-confirm_action "This will revert to previous configuration and restart services"
+# Ask what to rollback
+echo ""
+echo "What would you like to rollback?"
+echo "1. Configuration and Database only (from update backups)"
+echo "2. Code only (from code archives)"
+echo "3. Both Configuration/Database and Code"
+read -p "Enter your choice (1, 2, or 3): " ROLLBACK_TYPE
 
 cd "$PRODUCTION_DIR"
 
-# Find backup directory
-BACKUP_DIR=$(find_latest_backup_dir)
-if [ $? -ne 0 ]; then
-    print_error "Cannot proceed without backup directory"
-    exit 1
+# Find backup directory (for config/database)
+BACKUP_DIR=""
+if [ "$ROLLBACK_TYPE" = "1" ] || [ "$ROLLBACK_TYPE" = "3" ]; then
+    BACKUP_DIR=$(find_latest_backup_dir)
+    if [ $? -ne 0 ]; then
+        print_error "Cannot proceed without backup directory"
+        exit 1
+    fi
+    print_success "Found backup: $(basename "$BACKUP_DIR")"
 fi
 
-print_success "Found backup: $(basename "$BACKUP_DIR")"
+# Find code backup archive (for code)
+CODE_BACKUP_ARCHIVE=""
+if [ "$ROLLBACK_TYPE" = "2" ] || [ "$ROLLBACK_TYPE" = "3" ]; then
+    CODE_BACKUP_ARCHIVE=$(find_latest_code_backup)
+    if [ $? -ne 0 ]; then
+        print_error "No code backup archive found in $PRODUCTION_DIR/backups/code_backups/"
+        if [ "$ROLLBACK_TYPE" = "2" ]; then
+            exit 1
+        else
+            print_warning "Will skip code rollback, only configuration/database will be restored"
+            ROLLBACK_TYPE="1"
+        fi
+    else
+        print_success "Found code backup: $(basename "$CODE_BACKUP_ARCHIVE")"
+    fi
+fi
+
+# Confirm rollback
+if [ "$ROLLBACK_TYPE" = "1" ]; then
+    confirm_action "This will revert configuration and database to previous state and restart services"
+elif [ "$ROLLBACK_TYPE" = "2" ]; then
+    confirm_action "This will revert code to previous version and restart services"
+else
+    confirm_action "This will revert code, configuration and database to previous state and restart services"
+fi
 
 print_header "Step 1: Stopping Services"
 docker compose down
@@ -92,27 +139,102 @@ if [ -f "docker-compose.yml" ]; then
     print_success "Backed up current docker-compose.yml"
 fi
 
+# Backup current code if we're going to restore code
+if [ "$ROLLBACK_TYPE" = "2" ] || [ "$ROLLBACK_TYPE" = "3" ]; then
+    print_info "Creating emergency backup of current code..."
+    CODE_BACKUP_ARCHIVE_EMERGENCY="$EMERGENCY_BACKUP_DIR/code_backup_emergency_$(date +%Y%m%d_%H%M%S).tar.gz"
+    cd "$(dirname "$PROJECT_DIR")"
+    PROJECT_BASENAME=$(basename "$PROJECT_DIR")
+    tar -czf "$CODE_BACKUP_ARCHIVE_EMERGENCY" \
+        --exclude="$PROJECT_BASENAME/venv" \
+        --exclude="$PROJECT_BASENAME/__pycache__" \
+        --exclude="$PROJECT_BASENAME/**/__pycache__" \
+        --exclude="$PROJECT_BASENAME/.git" \
+        --exclude="$PROJECT_BASENAME/node_modules" \
+        --exclude="$PROJECT_BASENAME/.pytest_cache" \
+        --exclude="$PROJECT_BASENAME/.mypy_cache" \
+        --exclude="$PROJECT_BASENAME/*.pyc" \
+        --exclude="$PROJECT_BASENAME/**/*.pyc" \
+        --exclude="$PROJECT_BASENAME/staticfiles" \
+        --exclude="$PROJECT_BASENAME/media" \
+        --exclude="$PROJECT_BASENAME/logs" \
+        "$PROJECT_BASENAME" 2>/dev/null || {
+        print_warning "Failed to create emergency code backup, continuing anyway..."
+    }
+    if [ -f "$CODE_BACKUP_ARCHIVE_EMERGENCY" ]; then
+        print_success "Backed up current code"
+    fi
+    cd "$PRODUCTION_DIR"
+fi
+
 print_header "Step 3: Restoring from Backup"
 
-# Restore .env
-if [ -f "$BACKUP_DIR/.env.backup" ]; then
-    cp "$BACKUP_DIR/.env.backup" ".env"
-    chmod 600 ".env"
-    print_success "Restored .env from backup"
-else
-    print_warning "No .env backup found - using current"
+# Restore code first (if needed)
+if [ "$ROLLBACK_TYPE" = "2" ] || [ "$ROLLBACK_TYPE" = "3" ]; then
+    if [ -n "$CODE_BACKUP_ARCHIVE" ] && [ -f "$CODE_BACKUP_ARCHIVE" ]; then
+        print_info "Restoring code from archive: $(basename "$CODE_BACKUP_ARCHIVE")"
+        cd "$(dirname "$PROJECT_DIR")"
+        PROJECT_BASENAME=$(basename "$PROJECT_DIR")
+        
+        # Create temporary directory for extraction
+        TEMP_EXTRACT_DIR=$(mktemp -d)
+        tar -xzf "$CODE_BACKUP_ARCHIVE" -C "$TEMP_EXTRACT_DIR" 2>/dev/null || {
+            print_error "Failed to extract code backup archive"
+            rm -rf "$TEMP_EXTRACT_DIR"
+            exit 1
+        }
+        
+        # Find the extracted directory (should be PROJECT_BASENAME)
+        EXTRACTED_DIR="$TEMP_EXTRACT_DIR/$PROJECT_BASENAME"
+        if [ ! -d "$EXTRACTED_DIR" ]; then
+            # Try to find any directory in temp
+            EXTRACTED_DIR=$(find "$TEMP_EXTRACT_DIR" -mindepth 1 -maxdepth 1 -type d | head -n 1)
+        fi
+        
+        if [ -d "$EXTRACTED_DIR" ]; then
+            # Backup current code directory
+            if [ -d "$PROJECT_DIR" ]; then
+                mv "$PROJECT_DIR" "${PROJECT_DIR}.backup_$(date +%Y%m%d_%H%M%S)"
+            fi
+            
+            # Restore code
+            mv "$EXTRACTED_DIR" "$PROJECT_DIR"
+            print_success "Code restored from backup"
+            
+            # Cleanup
+            rm -rf "$TEMP_EXTRACT_DIR"
+        else
+            print_error "Failed to find extracted code in archive"
+            rm -rf "$TEMP_EXTRACT_DIR"
+            exit 1
+        fi
+        
+        cd "$PRODUCTION_DIR"
+    fi
 fi
 
-# Restore docker-compose.yml
-if [ -f "$BACKUP_DIR/docker-compose.yml.backup" ]; then
-    cp "$BACKUP_DIR/docker-compose.yml.backup" "docker-compose.yml"
-    print_success "Restored docker-compose.yml from backup"
-else
-    print_warning "No docker-compose.yml backup found - using current"
+# Restore .env (if needed)
+if [ "$ROLLBACK_TYPE" = "1" ] || [ "$ROLLBACK_TYPE" = "3" ]; then
+    if [ -n "$BACKUP_DIR" ] && [ -f "$BACKUP_DIR/.env.backup" ]; then
+        cp "$BACKUP_DIR/.env.backup" ".env"
+        chmod 600 ".env"
+        print_success "Restored .env from backup"
+    else
+        print_warning "No .env backup found - using current"
+    fi
+
+    # Restore docker-compose.yml
+    if [ -n "$BACKUP_DIR" ] && [ -f "$BACKUP_DIR/docker-compose.yml.backup" ]; then
+        cp "$BACKUP_DIR/docker-compose.yml.backup" "docker-compose.yml"
+        print_success "Restored docker-compose.yml from backup"
+    else
+        print_warning "No docker-compose.yml backup found - using current"
+    fi
 fi
 
-# Restore database
-if [ -f "$BACKUP_DIR/database.sql" ]; then
+# Restore database (if needed)
+if [ "$ROLLBACK_TYPE" = "1" ] || [ "$ROLLBACK_TYPE" = "3" ]; then
+    if [ -n "$BACKUP_DIR" ] && [ -f "$BACKUP_DIR/database.sql" ]; then
     print_info "Restoring database..."
     docker compose up -d db
     sleep 5
@@ -136,8 +258,9 @@ if [ -f "$BACKUP_DIR/database.sql" ]; then
     else
         print_warning "Database restoration may have failed - check logs"
     fi
-else
-    print_warning "No database backup found - skipping database restoration"
+    else
+        print_warning "No database backup found - skipping database restoration"
+    fi
 fi
 
 print_header "Step 4: Rebuilding Containers with Old Configuration"

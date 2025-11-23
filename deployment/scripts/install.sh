@@ -1020,6 +1020,48 @@ if [ ! -f "\$MAIN_UPDATE_SCRIPT" ]; then
     exit 1
 fi
 
+# Create backup archive of PROJECT_DIR before updating
+echo "Creating backup archive of project directory before update..."
+BACKUP_ARCHIVE_DIR="\$PRODUCTION_DIR/backups/code_backups"
+mkdir -p "\$BACKUP_ARCHIVE_DIR"
+TIMESTAMP=\$(date +%Y%m%d-%H%M%S)
+ARCHIVE_NAME="code_backup_\$TIMESTAMP.tar.gz"
+ARCHIVE_PATH="\$BACKUP_ARCHIVE_DIR/\$ARCHIVE_NAME"
+
+# Create archive excluding unnecessary files
+cd "\$(dirname "\$PROJECT_DIR")"
+PROJECT_BASENAME=\$(basename "\$PROJECT_DIR")
+tar -czf "\$ARCHIVE_PATH" \\
+    --exclude="\$PROJECT_BASENAME/venv" \\
+    --exclude="\$PROJECT_BASENAME/__pycache__" \\
+    --exclude="\$PROJECT_BASENAME/**/__pycache__" \\
+    --exclude="\$PROJECT_BASENAME/.git" \\
+    --exclude="\$PROJECT_BASENAME/node_modules" \\
+    --exclude="\$PROJECT_BASENAME/.pytest_cache" \\
+    --exclude="\$PROJECT_BASENAME/.mypy_cache" \\
+    --exclude="\$PROJECT_BASENAME/*.pyc" \\
+    --exclude="\$PROJECT_BASENAME/**/*.pyc" \\
+    --exclude="\$PROJECT_BASENAME/staticfiles" \\
+    --exclude="\$PROJECT_BASENAME/media" \\
+    --exclude="\$PROJECT_BASENAME/logs" \\
+    "\$PROJECT_BASENAME" 2>/dev/null || {
+    echo "Warning: Failed to create backup archive, continuing anyway..."
+}
+
+if [ -f "\$ARCHIVE_PATH" ]; then
+    ARCHIVE_SIZE=\$(du -h "\$ARCHIVE_PATH" | cut -f1)
+    echo "✓ Backup archive created: \$ARCHIVE_NAME (\$ARCHIVE_SIZE)"
+    
+    # Rotate old backups - keep only last 5
+    OLD_BACKUPS=\$(ls -1t "\$BACKUP_ARCHIVE_DIR"/code_backup_*.tar.gz 2>/dev/null | tail -n +6)
+    if [ -n "\$OLD_BACKUPS" ]; then
+        echo "\$OLD_BACKUPS" | xargs rm -f 2>/dev/null || true
+        echo "✓ Removed old backup archives (kept 5 most recent)"
+    fi
+else
+    echo "⚠ Warning: Backup archive was not created"
+fi
+
 # Change to project directory and pull latest code
 echo "Updating code from git repository..."
 cd "\$PROJECT_DIR"
