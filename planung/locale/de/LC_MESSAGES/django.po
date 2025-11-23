@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-10 12:23+0100\n"
+"POT-Creation-Date: 2025-11-23 22:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,7 +66,7 @@ msgstr "Kommentar"
 msgid "not found"
 msgstr "nicht gefunden"
 
-#: planung/admin.py:223 planung/templates/admin/planung/calendar_weeks.html:170
+#: planung/admin.py:223 planung/templates/admin/planung/calendar_weeks.html:171
 msgid "Start"
 msgstr "Start"
 
@@ -74,11 +74,11 @@ msgstr "Start"
 msgid "License"
 msgstr "Freistellung"
 
-#: planung/admin.py:225 planung/templates/admin/planung/calendar_weeks.html:174
+#: planung/admin.py:225
 msgid "Author"
 msgstr "Sendeverantwortung"
 
-#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:175
+#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:176
 msgid "Duration"
 msgstr "Dauer"
 
@@ -146,7 +146,7 @@ msgid "3 Weeks Ahead"
 msgstr "3 Wochen voraus"
 
 #: planung/templates/admin/planung/calendar_weeks.html:152
-#: planung/templates/admin/planung/calendar_weeks.html:193
+#: planung/templates/admin/planung/calendar_weeks.html:194
 msgid "Close"
 msgstr "Schließen"
 
@@ -170,78 +170,72 @@ msgstr "Freistellungsnummer eingeben..."
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:171
-msgid "End"
-msgstr "Ende"
-
-#: planung/templates/admin/planung/calendar_weeks.html:172
-msgid "Number"
-msgstr "Nummer"
-
-#: planung/templates/admin/planung/calendar_weeks.html:173
-msgid "Title"
-msgstr "Titel"
-
-#: planung/templates/admin/planung/calendar_weeks.html:176
-msgid "Actions"
-msgstr "Aktionen"
-
-#: planung/templates/admin/planung/calendar_weeks.html:185
-msgid "Comment or notes:"
-msgstr "Kommentar oder Notizen:"
-
-#: planung/templates/admin/planung/calendar_weeks.html:191
-msgid "Sort by time"
-msgstr "Nach Zeit sortieren"
-
-#: planung/templates/admin/planung/calendar_weeks.html:192
-msgid "Delete"
-msgstr "Löschen"
-
-#: planung/templates/admin/planung/calendar_weeks.html:194
-msgid "Save"
-msgstr "Speichern"
-
-#: planung/templates/admin/planung/calendar_weeks.html:195
-msgid "Plan!"
-msgstr "Planen!"
-
-#: planung/views.py:27
-msgid "License not found or not confirmed."
-msgstr "Freistellung nicht gefunden oder nicht genehmigt."
-
-#: planung/templates/admin/planung/calendar_weeks.html:175
-msgid "Sendeverantwortung"
-msgstr "Sendeverantwortung"
-
-#: planung/static/planung/js/calendar_weeks.js
-msgid "View Contributions"
-msgstr "Beiträge anzeigen"
-
-#: planung/static/planung/js/calendar_weeks.js
-msgid "Update from License"
-msgstr "Von Freistellung aktualisieren"
-
-#: planung/static/planung/js/calendar_weeks.js
-msgid "Data updated from License"
-msgstr "Daten von Freistellung aktualisiert"
-
-#: planung/static/planung/js/calendar_weeks.js
-msgid "License number not found"
-msgstr "Freistellungsnummer nicht gefunden"
+#: planung/templates/admin/planung/calendar_weeks.html:165
+msgid "Align all start times to 0 or 5 minutes"
+msgstr "Alle Startzeiten auf 0 oder 5 Minuten ausrichten"
 
 #: planung/templates/admin/planung/calendar_weeks.html:165
 msgid "Align to 5 min"
 msgstr "Auf 5 Min. ausrichten"
 
-#: planung/templates/admin/planung/calendar_weeks.html:165
-msgid "Align all start times to 0 or 5 minutes"
-msgstr "Alle Startzeiten auf 0 oder 5 Minuten ausrichten"
+#: planung/templates/admin/planung/calendar_weeks.html:172
+msgid "End"
+msgstr "Ende"
 
-#: planung/static/planung/js/calendar_weeks.js
-msgid "All start times have been aligned to 5-minute marks."
-msgstr "Alle Startzeiten wurden auf 5-Minuten-Marken ausgerichtet."
+#: planung/templates/admin/planung/calendar_weeks.html:173
+msgid "Number"
+msgstr "Nummer"
 
-#: planung/static/planung/js/calendar_weeks.js
-msgid "Video starts in second half of minute (30-59 seconds)"
-msgstr "Video startet in der zweiten Hälfte der Minute (30-59 Sekunden)"
+#: planung/templates/admin/planung/calendar_weeks.html:174
+msgid "Title"
+msgstr "Titel"
+
+#: planung/templates/admin/planung/calendar_weeks.html:175
+msgid "Sendeverantwortung"
+msgstr "Sendeverantwortung"
+
+#: planung/templates/admin/planung/calendar_weeks.html:177
+msgid "Actions"
+msgstr "Aktionen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:186
+msgid "Comment or notes:"
+msgstr "Kommentar oder Notizen:"
+
+#: planung/templates/admin/planung/calendar_weeks.html:192
+msgid "Sort by time"
+msgstr "Nach Zeit sortieren"
+
+#: planung/templates/admin/planung/calendar_weeks.html:193
+msgid "Delete"
+msgstr "Löschen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:195
+msgid "Save"
+msgstr "Speichern"
+
+#: planung/templates/admin/planung/calendar_weeks.html:196
+msgid "Plan!"
+msgstr "Planen!"
+
+#: planung/views.py:28
+msgid "License not found or not confirmed."
+msgstr "Freistellung nicht gefunden oder nicht genehmigt."
+
+#~ msgid "View Contributions"
+#~ msgstr "Beiträge anzeigen"
+
+#~ msgid "Update from License"
+#~ msgstr "Von Freistellung aktualisieren"
+
+#~ msgid "Data updated from License"
+#~ msgstr "Daten von Freistellung aktualisiert"
+
+#~ msgid "License number not found"
+#~ msgstr "Freistellungsnummer nicht gefunden"
+
+#~ msgid "All start times have been aligned to 5-minute marks."
+#~ msgstr "Alle Startzeiten wurden auf 5-Minuten-Marken ausgerichtet."
+
+#~ msgid "Video starts in second half of minute (30-59 seconds)"
+#~ msgstr "Video startet in der zweiten Hälfte der Minute (30-59 Sekunden)"

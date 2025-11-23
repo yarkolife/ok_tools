@@ -5,6 +5,8 @@ from django.conf import settings
 from django.http import FileResponse
 from django.utils.translation import gettext as _
 from fdfgen import forge_fdf
+from PIL import Image, ImageOps, ImageChops
+import base64
 import io
 import os
 import subprocess
@@ -105,13 +107,86 @@ def generate_license_file(lr: License) -> FileResponse:
         fdf = forge_fdf("", fields, [], [], [])
         with open(os.path.join(tmpdirname, "data.fdf"), "wb") as fdf_file:
             fdf_file.write(fdf)
-        result = subprocess.run(
+        
+        # Fill the form
+        subprocess.run(
             [PDFTK,
             'licenses/files/2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf',
             'fill_form',
             os.path.join(tmpdirname, "data.fdf"),
             'output',
-            os.path.join(tmpdirname, "output.pdf")])
+            os.path.join(tmpdirname, "filled.pdf")])
+        
+        # Add signature if present
+        if lr.signature:
+            try:
+                # Decode signature image
+                # Remove header if present (e.g. "data:image/png;base64,")
+                if ',' in lr.signature:
+                    header, encoded = lr.signature.split(',', 1)
+                else:
+                    encoded = lr.signature
+                
+                signature_data = base64.b64decode(encoded)
+                signature_img = Image.open(io.BytesIO(signature_data))
+                
+                # Convert to RGBA if needed
+                if signature_img.mode != 'RGBA':
+                    signature_img = signature_img.convert('RGBA')
+                
+                # Trim whitespace around signature
+                # Create a box around non-transparent pixels
+                bbox = signature_img.getbbox()
+                if bbox:
+                    signature_img = signature_img.crop(bbox)
+                
+                # Create A4 pages (595x842 points at 72 DPI)
+                a4_width, a4_height = 595, 842
+                
+                # Page 1: Transparent
+                page1 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
+                
+                # Page 2: Transparent with signature
+                page2 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
+                
+                # Resize signature to be visible
+                # Calculate new size maintaining aspect ratio
+                sig_width, sig_height = signature_img.size
+                aspect_ratio = sig_width / sig_height
+                target_width = 300
+                target_height = int(target_width / aspect_ratio)
+                signature_img = signature_img.resize((target_width, target_height), Image.Resampling.LANCZOS)
+                
+                # Position signature (approximate coordinates for signature field on page 2)
+                # X: 400, Y: 560 (from top)
+                page2.paste(signature_img, (330, 590), signature_img)
+                
+                # Page 3: Transparent
+                page3 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
+                
+                # Save as PDF
+                stamp_path = os.path.join(tmpdirname, "stamp.pdf")
+                page1.save(stamp_path, save_all=True, append_images=[page2, page3])
+                
+                # Stamp the filled PDF
+                subprocess.run(
+                    [PDFTK,
+                    os.path.join(tmpdirname, "filled.pdf"),
+                    'multistamp',
+                    stamp_path,
+                    'output',
+                    os.path.join(tmpdirname, "output.pdf")])
+                
+            except Exception as e:
+                # If signature processing fails, just return the filled PDF
+                print(f"Signature processing failed: {e}")
+                # Copy filled.pdf to output.pdf
+                import shutil
+                shutil.copy(os.path.join(tmpdirname, "filled.pdf"), os.path.join(tmpdirname, "output.pdf"))
+        else:
+            # No signature, just rename filled to output
+            os.rename(os.path.join(tmpdirname, "filled.pdf"), os.path.join(tmpdirname, "output.pdf"))
+
         with open(os.path.join(tmpdirname, "output.pdf"), "rb") as output:
             result = output.read()
 

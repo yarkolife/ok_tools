@@ -181,6 +181,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "registration.context_processors.context",
                 "ok_tools.context_processors.bootstrap_context",
+                "ok_tools.context_processors.user_display_name",
             ],
         },
     },

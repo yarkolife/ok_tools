@@ -35,4 +35,14 @@ urlpatterns = [
         api.LicenseMetadataView.as_view(),
         name='api-metadata'
     ),
+    path(
+        '<int:pk>/delete/',
+        views.DeleteLicenseView.as_view(),
+        name='delete'
+    ),
+    path(
+        '<int:pk>/copy/',
+        views.CopyLicenseView.as_view(),
+        name='copy'
+    ),
 ]

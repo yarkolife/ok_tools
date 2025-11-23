@@ -41,9 +41,9 @@
                     </label>
                     {{ form.title }}
                     {% if form.title.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.title.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.title.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -54,9 +54,9 @@
                     </label>
                     {{ form.subtitle }}
                     {% if form.subtitle.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.subtitle.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.subtitle.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
                 <div class="col-md-6 mb-3">
@@ -66,9 +66,9 @@
                     </label>
                     {{ form.category }}
                     {% if form.category.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.category.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.category.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -80,9 +80,9 @@
                     </label>
                     {{ form.description }}
                     {% if form.description.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.description.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.description.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -93,9 +93,9 @@
                     </label>
                     {{ form.further_persons }}
                     {% if form.further_persons.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.further_persons.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.further_persons.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                     <div class="form-text">{% trans 'Additional involved persons (optional)' %}</div>
                 </div>
@@ -107,9 +107,9 @@
                     </label>
                     {{ form.tags }}
                     {% if form.tags.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.tags.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.tags.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                     <div class="form-text">{% trans 'Enter tags separated by commas (maximum 4 tags)' %}</div>
                 </div>
@@ -135,9 +135,9 @@
                     </label>
                     {{ form.duration }}
                     {% if form.duration.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.duration.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.duration.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                     <div class="form-text">{% trans 'Format: hh:mm:ss or mm:ss' %}</div>
                 </div>
@@ -147,9 +147,9 @@
                     </label>
                     {{ form.suggested_date }}
                     {% if form.suggested_date.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.suggested_date.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.suggested_date.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -160,9 +160,9 @@
                     </label>
                     {{ form.repetitions_allowed }}
                     {% if form.repetitions_allowed.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.repetitions_allowed.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.repetitions_allowed.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
                 <div class="col-md-6 mb-3">
@@ -171,9 +171,9 @@
                     </label>
                     {{ form.store_in_ok_media_library }}
                     {% if form.store_in_ok_media_library.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.store_in_ok_media_library.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.store_in_ok_media_library.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -197,21 +197,25 @@
                     </label>
                     {{ form.media_authority_exchange_allowed }}
                     {% if form.media_authority_exchange_allowed.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.media_authority_exchange_allowed.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.media_authority_exchange_allowed.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                     <div class="form-text">{% trans 'Saxony-Anhalt' %}</div>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="{{ form.media_authority_exchange_allowed_other_states.id_for_label }}" class="form-label">
+                    <label for="{{ form.media_authority_exchange_allowed_other_states.id_for_label }}"
+                        class="form-label">
                         <i class="bi bi-globe me-1"></i>{{ form.media_authority_exchange_allowed_other_states.label }}
                     </label>
                     {{ form.media_authority_exchange_allowed_other_states }}
                     {% if form.media_authority_exchange_allowed_other_states.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.media_authority_exchange_allowed_other_states.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        <!-- FIXED BY AGENT -->
+                        {% for error in form.media_authority_exchange_allowed_other_states.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
                     {% endif %}
                     <div class="form-text">{% trans 'Other Federal States' %}</div>
                 </div>
@@ -242,9 +246,9 @@
                         </label>
                     </div>
                     {% if form.is_screen_board.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.is_screen_board.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.is_screen_board.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
 
@@ -255,9 +259,9 @@
                     </label>
                     {{ form.youth_protection_necessary }}
                     {% if form.youth_protection_necessary.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.youth_protection_necessary.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.youth_protection_necessary.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -271,17 +275,56 @@
                     </label>
                     {{ form.youth_protection_category }}
                     {% if form.youth_protection_category.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.youth_protection_category.errors %}{{ error }}{% endfor %}
-                        </div>
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.youth_protection_category.errors %}{{ error }}{% endfor %}
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Signature Section -->
+    <div class="dashboard-card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">
+                <i class="bi bi-pen text-dark me-2"></i>
+                {% trans 'Signature' %}
+            </h5>
+            <p class="card-subtitle">{% trans 'Please sign here' %}</p>
+            <p class="card-subtitle mt-2 small">
+                {% blocktranslate with email=OK_EMAIL %}
+                You can sign here and the form will be completely filled out, or click the "Create License" button to print the filled form, sign it, and send us a signed photo or scan copy by email to {{ email }}.
+                {% endblocktranslate %}
+            </p>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <!-- Instruction with icon -->
+                    <div class="mb-2 d-flex align-items-center">
+                        <i class="bi bi-arrow-right-circle text-primary me-2" style="font-size: 1.2rem;"></i>
+                        <span class="fw-bold">{% trans 'Sign here' %}</span>
+                    </div>
+                    <div class="signature-wrapper border rounded p-3 bg-light">
+                        <canvas id="signature-pad" class="signature-canvas bg-white" height="200"></canvas>
+                        <div class="mt-3 mb-3 d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="clear-signature">
+                                <i class="bi bi-eraser me-1"></i>{% trans 'Clear Signature' %}
+                            </button>
+                            <div class="text-muted small">
+                                {% trans 'Please sign in the box above.' %}
+                            </div>
+                        </div>
+                        <div class="d-none">{{ form.signature }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Action Buttons -->
-    <div class="row">
+    <div class="row mb-5">
         <div class="col-12">
             <div class="d-flex justify-content-between">
                 <a href="{% url 'licenses:licenses' %}" class="btn btn-outline-secondary">
@@ -291,7 +334,7 @@
                     <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
                         <i class="bi bi-arrow-clockwise me-2"></i>{% trans 'Reset' %}
                     </button>
-                    <button type="submit" name="save" class="btn btn-primary">
+                    <button type="submit" name="save" class="btn btn-primary" id="create-license-button">
                         <i class="bi bi-check-lg me-2"></i>{% trans 'Create License' %}
                     </button>
                 </div>
@@ -304,93 +347,104 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'licenses/css/tags_input.css' %}">
 <style>
-.form-label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
 
-.form-label .text-danger {
-    font-size: 1.1em;
-}
+    .form-label .text-danger {
+        font-size: 1.1em;
+    }
 
-.card-subtitle {
-    font-size: 0.875rem;
-    color: #6c757d;
-    margin-bottom: 0;
-}
+    .card-subtitle {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0;
+    }
 
-.form-text {
-    font-size: 0.8rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-}
+    .form-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
 
-#license-form .form-control {
-    border-radius: 8px;
-    border: 1px solid #e3e6f0;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
+    #license-form .form-control {
+        border-radius: 8px;
+        border: 1px solid #e3e6f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
 
-#license-form .form-control:focus {
-    border-color: #5e72e4;
-    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
-}
+    #license-form .form-control:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+    }
 
-#license-form .form-select {
-    border-radius: 8px;
-    border: 1px solid #e3e6f0;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-}
+    #license-form .form-select {
+        border-radius: 8px;
+        border: 1px solid #e3e6f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
 
-#license-form .form-select:focus {
-    border-color: #5e72e4;
-    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
-}
+    #license-form .form-select:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+    }
 
-#license-form .form-check-input:checked {
-    background-color: #5e72e4;
-    border-color: #5e72e4;
-}
+    #license-form .form-check-input:checked {
+        background-color: #5e72e4;
+        border-color: #5e72e4;
+    }
 
-#license-form .form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
-}
+    #license-form .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+    }
 
-.form-check-label {
-    font-weight: 500;
-    color: #495057;
-}
+    .form-check-label {
+        font-weight: 500;
+        color: #495057;
+    }
 
-/* Custom styles for screen board checkbox */
-.form-check {
-    margin-top: 0.5rem;
-}
+    /* Custom styles for screen board checkbox */
+    .form-check {
+        margin-top: 0.5rem;
+    }
 
-.form-check-input {
-    width: 1.2em;
-    height: 1.2em;
-    margin-top: 0.1em;
-    margin-right: 0.5em;
-    border: 2px solid #6c757d;
-    border-radius: 4px;
-}
+    .form-check-input {
+        width: 1.2em;
+        height: 1.2em;
+        margin-top: 0.1em;
+        margin-right: 0.5em;
+        border: 2px solid #6c757d;
+        border-radius: 4px;
+    }
 
-.form-check-input:checked {
-    background-color: #5e72e4;
-    border-color: #5e72e4;
-}
+    .form-check-input:checked {
+        background-color: #5e72e4;
+        border-color: #5e72e4;
+    }
 
-.form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
-}
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+    }
 
-textarea.form-control {
-    min-height: 100px;
-    resize: vertical;
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* Signature canvas styling */
+    .signature-canvas {
+        width: 100%;
+        cursor: crosshair;
+        border-color: #6c757d !important;
+    }
+
+    .signature-wrapper {
+        background-color: #f8f9fa;
     }
 </style>
 {% endblock %}
@@ -398,75 +452,249 @@ textarea.form-control {
 {% block extra_js %}
 <script src="{% static 'licenses/js/tags_input.js' %}"></script>
 <script>
-function resetForm() {
-    if (confirm('{% trans "Are you sure you want to reset all inputs?" %}')) {
-        document.getElementById('license-form').reset();
-        toggleYouthProtectionCategory();
-    }
-}
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('signature-pad');
+        const signatureInput = document.getElementById('id_signature');
+        const clearButton = document.getElementById('clear-signature');
 
-function toggleYouthProtectionCategory() {
-    const youthProtectionField = document.getElementById('id_youth_protection_necessary');
-    const youthCategoryRow = document.getElementById('youth-protection-category-row');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
 
-    if (youthProtectionField && youthCategoryRow) {
-        if (youthProtectionField.value === 'true') {
-            youthCategoryRow.style.display = 'block';
-        } else {
-            youthCategoryRow.style.display = 'none';
-        }
-    }
-}
+            // Set canvas size to match display size
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                // Store the current content
+                const dataUrl = canvas.toDataURL();
 
-function toggleScreenBoard(checkbox) {
-    const durationField = document.getElementById('id_duration');
-    if (durationField) {
-        if (checkbox.checked) {
-            durationField.value = '00:00:10';
-            durationField.disabled = true;
-        } else {
-            durationField.disabled = false;
-            durationField.value = '';
-        }
-    }
-}
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                ctx.scale(ratio, ratio);
 
-// Auto-format duration field
-document.addEventListener('DOMContentLoaded', function() {
-    const durationField = document.getElementById('id_duration');
+                // Restore content if it wasn't empty
+                if (dataUrl !== 'data:,') {
+                    const img = new Image();
+                    img.onload = function () {
+                        ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                    };
+                    img.src = dataUrl;
+                }
 
-    if (durationField) {
-        durationField.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^0-9:]/g, '');
-
-            // Auto-format as user types
-            if (value.length === 2 && !value.includes(':')) {
-                value = value + ':';
-            } else if (value.length === 5 && value.split(':').length === 2) {
-                value = value + ':';
+                // Draw inner dashed rectangle
+                drawInnerRectangle();
             }
 
-            e.target.value = value;
-        });
+            // Draw inner dashed rectangle with padding
+            function drawInnerRectangle() {
+                const padding = 8; // 8px padding from edges
+                ctx.save();
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = '#6c757d';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(padding, padding, canvas.offsetWidth - padding * 2, canvas.offsetHeight - padding * 2);
+                ctx.restore();
+            }
+            window.addEventListener('resize', resizeCanvas);
+            // Initial resize
+            setTimeout(resizeCanvas, 100);
 
-        // Set placeholder
-        durationField.placeholder = '00:00:00';
+            // Load existing signature if present
+            if (signatureInput.value) {
+                const img = new Image();
+                img.onload = function () {
+                    ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                    drawInnerRectangle(); // Redraw rectangle over loaded image
+                };
+                img.src = signatureInput.value;
+            }
+
+            function startDrawing(e) {
+                isDrawing = true;
+                [lastX, lastY] = getCoordinates(e);
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const [x, y] = getCoordinates(e);
+
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // Redraw rectangle to keep it visible
+                drawInnerRectangle();
+
+                [lastX, lastY] = [x, y];
+            }
+
+            function stopDrawing() {
+                if (isDrawing) {
+                    isDrawing = false;
+                    saveSignature();
+                }
+            }
+
+            function getCoordinates(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return [
+                    clientX - rect.left,
+                    clientY - rect.top
+                ];
+            }
+
+            function saveSignature() {
+                signatureInput.value = canvas.toDataURL();
+            }
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // Touch events
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDrawing);
+
+            // Clear button
+            clearButton.addEventListener('click', function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                signatureInput.value = '';
+                drawInnerRectangle(); // Redraw rectangle after clearing
+            });
+        }
+    });
+</script>
+<script>
+    function resetForm() {
+        if (confirm('{% trans "Are you sure you want to reset all inputs?" %}')) {
+            document.getElementById('license-form').reset();
+            toggleYouthProtectionCategory();
+        }
     }
 
-    // Initialize youth protection category visibility
-    toggleYouthProtectionCategory();
+    function toggleYouthProtectionCategory() {
+        const youthProtectionField = document.getElementById('id_youth_protection_necessary');
+        const youthCategoryRow = document.getElementById('youth-protection-category-row');
 
-    // Add event listener for youth protection field
-    const youthProtectionField = document.getElementById('id_youth_protection_necessary');
-    if (youthProtectionField) {
-        youthProtectionField.addEventListener('change', toggleYouthProtectionCategory);
+        if (youthProtectionField && youthCategoryRow) {
+            if (youthProtectionField.value === 'true') {
+                youthCategoryRow.style.display = 'block';
+            } else {
+                youthCategoryRow.style.display = 'none';
+            }
+        }
     }
 
-    // Initialize screen board field
-    const screenBoardField = document.getElementById('id_is_screen_board');
-    if (screenBoardField) {
-        toggleScreenBoard(screenBoardField);
+    function toggleScreenBoard(checkbox) {
+        const durationField = document.getElementById('id_duration');
+        if (durationField) {
+            if (checkbox.checked) {
+                durationField.value = '00:00:10';
+                durationField.disabled = true;
+            } else {
+                durationField.disabled = false;
+                durationField.value = '';
+            }
+        }
     }
-});
+
+    // Auto-format duration field
+    document.addEventListener('DOMContentLoaded', function () {
+        const durationField = document.getElementById('id_duration');
+
+        if (durationField) {
+            durationField.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/[^0-9:]/g, '');
+
+                // Auto-format as user types
+                if (value.length === 2 && !value.includes(':')) {
+                    value = value + ':';
+                } else if (value.length === 5 && value.split(':').length === 2) {
+                    value = value + ':';
+                }
+
+                e.target.value = value;
+            });
+
+            // Set placeholder
+            durationField.placeholder = '00:00:00';
+        }
+
+        // Initialize youth protection category visibility
+        toggleYouthProtectionCategory();
+
+        // Add event listener for youth protection field
+        const youthProtectionField = document.getElementById('id_youth_protection_necessary');
+        if (youthProtectionField) {
+            youthProtectionField.addEventListener('change', toggleYouthProtectionCategory);
+        }
+
+        // Initialize screen board field
+        const screenBoardField = document.getElementById('id_is_screen_board');
+        if (screenBoardField) {
+            toggleScreenBoard(screenBoardField);
+        }
+
+        // Handle form submission to open print page in new window
+        const licenseForm = document.getElementById('license-form');
+        const createButton = document.getElementById('create-license-button');
+        
+        if (licenseForm && createButton) {
+            licenseForm.addEventListener('submit', function(e) {
+                // Prevent default form submission
+                e.preventDefault();
+                
+                // Disable submit button to prevent double submission
+                createButton.disabled = true;
+                const originalText = createButton.innerHTML;
+                createButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>{% trans "Creating..." %}';
+                
+                // Submit form via fetch
+                const formData = new FormData(licenseForm);
+                
+                fetch(licenseForm.action || window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                    redirect: 'follow'
+                })
+                .then(response => {
+                    // Check if response is a redirect to print page
+                    if (response.redirected) {
+                        // Open print page in new window
+                        window.open(response.url, '_blank');
+                        // Redirect current window to licenses list
+                        window.location.href = '{% url "licenses:licenses" %}';
+                    } else {
+                        // If not redirected, try to follow the response
+                        return response.text().then(() => {
+                            // If successful, redirect to licenses list
+                            window.location.href = '{% url "licenses:licenses" %}';
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // On error, allow normal form submission
+                    createButton.disabled = false;
+                    createButton.innerHTML = originalText;
+                    licenseForm.submit();
+                });
+            });
+        }
+    });
 </script>
 {% endblock %}

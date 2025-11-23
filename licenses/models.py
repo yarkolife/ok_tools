@@ -156,6 +156,13 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         help_text=_('Maximum 4 tags'),
     )
 
+    signature = models.TextField(
+        _('Signature'),
+        blank=True,
+        null=True,
+        help_text=_('Base64 encoded signature image'),
+    )
+
     created_at = models.DateTimeField(
         _('Created at'),
         auto_now_add=True,

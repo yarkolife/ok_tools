@@ -80,13 +80,17 @@ class TagsInputWidget(forms.TextInput):
         """
         value = data.get(name, '')
         if not value:
-            return []
+            return '[]'  # Return empty JSON array string
         
         # Split by comma and clean each tag
         tags = [tag.strip() for tag in str(value).split(',') if tag.strip()]
         
         # Limit to 4 tags as specified
-        return tags[:4]
+        tags = tags[:4]
+        
+        # Return as JSON string because JSONField.bound_data expects a string to parse
+        import json
+        return json.dumps(tags)
     
     class Media:
         css = {

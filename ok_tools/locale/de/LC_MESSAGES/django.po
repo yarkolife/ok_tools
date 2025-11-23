@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-10 12:23+0100\n"
+"POT-Creation-Date: 2025-11-23 22:05+0100\n"
 "PO-Revision-Date: 2025-01-15 02:03+0100\n"
 "Last-Translator: Daniel Havlik <dh@gocept.com>\n"
 "Language-Team: \n"
@@ -14,68 +14,70 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: contributions/admin.py:30
+#: contributions/admin.py:33
 msgid "Broadcast date"
 msgstr "Sendedatum"
 
-#: contributions/admin.py:52 licenses/admin.py:244
+#: contributions/admin.py:55 contributions/admin.py:363
+#: contributions/templates/admin/export.html:32 licenses/admin.py:244
 #: licenses/templates/admin/filter_datetime_range.html:18 projects/admin.py:49
 msgid "Date from"
 msgstr "Datum von"
 
-#: contributions/admin.py:54 contributions/admin.py:59 licenses/admin.py:246
+#: contributions/admin.py:57 contributions/admin.py:62 licenses/admin.py:246
 #: licenses/admin.py:251 licenses/forms.py:148 projects/admin.py:51
 #: projects/admin.py:56 rental/templates/rental/admin_rental_process.html:62
 #: rental/templates/rental/admin_rental_process.html:385
 msgid "From"
 msgstr "Von"
 
-#: contributions/admin.py:57 licenses/admin.py:249
+#: contributions/admin.py:60 licenses/admin.py:249
 #: licenses/templates/admin/filter_datetime_range.html:27 projects/admin.py:54
 msgid "Time from"
 msgstr "Zeit von"
 
-#: contributions/admin.py:62 licenses/admin.py:254
+#: contributions/admin.py:65 contributions/admin.py:368
+#: contributions/templates/admin/export.html:37 licenses/admin.py:254
 #: licenses/templates/admin/filter_datetime_range.html:36 projects/admin.py:59
 msgid "Date to"
 msgstr "Datum bis"
 
-#: contributions/admin.py:64 contributions/admin.py:69 licenses/admin.py:256
+#: contributions/admin.py:67 contributions/admin.py:72 licenses/admin.py:256
 #: licenses/admin.py:261 licenses/forms.py:152 projects/admin.py:61
 #: projects/admin.py:66 rental/templates/rental/admin_rental_process.html:63
 #: rental/templates/rental/admin_rental_process.html:389
 msgid "To"
 msgstr "Bis"
 
-#: contributions/admin.py:67 licenses/admin.py:259
+#: contributions/admin.py:70 licenses/admin.py:259
 #: licenses/templates/admin/filter_datetime_range.html:45 projects/admin.py:64
 msgid "Time to"
 msgstr "Zeit bis"
 
-#: contributions/admin.py:136
+#: contributions/admin.py:139
 msgid "Info block"
 msgstr "Infoblock"
 
-#: contributions/admin.py:210 contributions/admin.py:325
+#: contributions/admin.py:214 contributions/admin.py:330
 #: contributions/models.py:90
 #: contributions/templates/contributions/list.html:155
 msgid "Broadcast Date"
 msgstr "Sendedatum"
 
-#: contributions/admin.py:211
+#: contributions/admin.py:215
 #: rental/templates/rental/admin_rental_process.html:490
 #: rental/templates/rental/rental_detail.html:610
 msgid "Start Time"
 msgstr "Startzeit"
 
-#: contributions/admin.py:212
+#: contributions/admin.py:216
 #: rental/templates/rental/admin_rental_process.html:523
 #: rental/templates/rental/rental_detail.html:643
 msgid "End Time"
 msgstr "Endzeit"
 
-#: contributions/admin.py:213 contributions/admin.py:323
-#: contributions/admin.py:539
+#: contributions/admin.py:217 contributions/admin.py:328
+#: contributions/admin.py:509 contributions/admin.py:797
 #: contributions/templates/contributions/list.html:154 licenses/admin.py:331
 #: licenses/models.py:74
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:27
@@ -85,12 +87,13 @@ msgstr "Endzeit"
 msgid "Title"
 msgstr "Titel"
 
-#: contributions/admin.py:214 contributions/admin.py:324
-#: contributions/admin.py:544 licenses/admin.py:332 licenses/models.py:81
+#: contributions/admin.py:218 contributions/admin.py:329
+#: contributions/admin.py:510 contributions/admin.py:802 licenses/admin.py:332
+#: licenses/models.py:81
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: contributions/admin.py:215 inventory/admin.py:29 inventory/models.py:31
+#: contributions/admin.py:219 inventory/admin.py:29 inventory/models.py:31
 #: inventory/models.py:48 inventory/models.py:64 inventory/models.py:191
 #: licenses/admin.py:333 licenses/models.py:88 projects/admin.py:173
 #: projects/models.py:143 rental/admin.py:331 rental/models.py:275
@@ -101,58 +104,69 @@ msgstr "Untertitel"
 msgid "Description"
 msgstr "Beschreibung"
 
-#: contributions/admin.py:216
+#: contributions/admin.py:220
 msgid "Credits"
 msgstr "Beteiligte"
 
-#: contributions/admin.py:218
+#: contributions/admin.py:222
 #: contributions/templates/contributions/list.html:157 inventory/admin.py:32
 #: inventory/admin.py:103 inventory/models.py:69 inventory/models.py:212
 #: inventory/templates/inventory/list.html:68 licenses/admin.py:338
-#: licenses/admin.py:872 licenses/models.py:47 licenses/models.py:61
-#: licenses/models.py:186 licenses/templates/licenses/details.html:19
+#: licenses/admin.py:897 licenses/models.py:47 licenses/models.py:61
+#: licenses/models.py:193 licenses/templates/licenses/details.html:19
 #: licenses/templates/licenses/list.html:33
 #: licenses/templates/licenses/list.html:69
 #: rental/templates/rental/rental_stats.html:1175
 msgid "Category"
 msgstr "Kategorie"
 
-#: contributions/admin.py:219 licenses/admin.py:349 licenses/models.py:146
+#: contributions/admin.py:223 contributions/admin.py:384
+#: contributions/templates/admin/export.html:59 licenses/admin.py:349
+#: licenses/models.py:146
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: contributions/admin.py:258
+#: contributions/admin.py:224 contributions/admin.py:813 licenses/admin.py:330
+#: licenses/models.py:174 media_files/models.py:90
+#: media_files/templates/admin/media_files/videofile/change_form.html:71
+#: media_files/templates/admin/media_files/videofile/change_list.html:77
+#: media_files/templates/admin/video_player.html:24
+msgid "Number"
+msgstr "Nummer"
+
+#: contributions/admin.py:263
 msgid "A contribution by {}"
 msgstr "Ein Beitrag von {}"
 
-#: contributions/admin.py:270
+#: contributions/admin.py:275
 msgid "Program"
 msgstr "Programm"
 
-#: contributions/admin.py:322
+#: contributions/admin.py:327 contributions/admin.py:508
 msgid "License number"
 msgstr "Freistellungsnummer"
 
-#: contributions/admin.py:326
+#: contributions/admin.py:331
 msgid "Broadcast Time"
 msgstr "Sendezeit"
 
-#: contributions/admin.py:327 contributions/admin.py:482 licenses/admin.py:334
-#: licenses/admin.py:866 licenses/models.py:177
+#: contributions/admin.py:332 contributions/admin.py:511
+#: contributions/admin.py:739 licenses/admin.py:334 licenses/admin.py:891
+#: licenses/models.py:184
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:31
 #: registration/models.py:244 registration/templates/navbar.html:74
-#: ok_tools/templates/base.html:43 ok_tools/templates/base.html:121
+#: ok_tools/templates/base.html:43 ok_tools/templates/base.html:123
 #: ok_tools/templates/dashboard.html:58
 msgid "Profile"
 msgstr "Profil"
 
-#: contributions/admin.py:328 licenses/admin.py:335
+#: contributions/admin.py:333 licenses/admin.py:335
 msgid "Profile ID"
 msgstr "Profil-ID"
 
-#: contributions/admin.py:329
+#: contributions/admin.py:334
 #: contributions/templates/contributions/list.html:156 licenses/admin.py:337
-#: licenses/models.py:99 media_files/models.py:116
+#: licenses/models.py:99 media_files/admin.py:761 media_files/models.py:116
 #: media_files/templates/admin/media_files/videofile/change_form.html:73
 #: media_files/templates/admin/media_files/videofile/change_list.html:79
 #: media_files/templates/admin/video_player.html:26 projects/admin.py:175
@@ -160,108 +174,149 @@ msgstr "Profil-ID"
 msgid "Duration"
 msgstr "Dauer"
 
-#: contributions/admin.py:330
+#: contributions/admin.py:335
 #: contributions/templates/contributions/list.html:106
 #: contributions/templates/contributions/list.html:184 ok_tools/views.py:191
 msgid "Live"
 msgstr "Live"
 
-#: contributions/admin.py:349
+#: contributions/admin.py:354
 msgid "Data export"
 msgstr "Datenexport"
 
-#: contributions/admin.py:357
-msgid "Broadcast week"
-msgstr "Sendewoche"
-
-#: contributions/admin.py:363
-msgid "In this week"
-msgstr "In dieser Woche"
-
-#: contributions/admin.py:364
-msgid "Until next week"
-msgstr "Bis einschließlich nächste Woche"
-
-#: contributions/admin.py:365
-msgid "Until week after next"
-msgstr "Bis einschließlich übernächste Woche"
-
-#: contributions/admin.py:400
-msgid "Primary Contribution"
-msgstr "Primärbeitrag"
-
-#: contributions/admin.py:406 inventory/models.py:581 inventory/models.py:582
-#: licenses/admin.py:419 licenses/admin.py:451
-#: licenses/templates/licenses/details.html:30
-msgid "Yes"
-msgstr "Ja"
-
-#: contributions/admin.py:407 inventory/models.py:581 inventory/models.py:582
-#: licenses/admin.py:420 licenses/admin.py:452
-#: licenses/templates/licenses/details.html:33
-msgid "No"
-msgstr "Nein"
-
-#: contributions/admin.py:431
-msgid "Broadcast year"
-msgstr "Sendejahr"
-
-#: contributions/admin.py:437 licenses/admin.py:389 projects/admin.py:219
-#: registration/admin.py:162
-msgid "This year"
-msgstr "Dieses Jahr"
-
-#: contributions/admin.py:438 licenses/admin.py:390 projects/admin.py:220
-#: registration/admin.py:163
-msgid "Last year"
-msgstr "Letztes Jahr"
-
-#: contributions/admin.py:479
-msgid "Title, Subtitle, Number"
-msgstr "Titel, Untertitel, Nummer"
-
-#: contributions/admin.py:488 licenses/admin.py:871 registration/admin.py:93
-#: registration/models.py:80 registration/models.py:99
+#: contributions/admin.py:373 contributions/admin.py:746
+#: contributions/templates/admin/export.html:42 licenses/admin.py:896
+#: registration/admin.py:93 registration/models.py:80 registration/models.py:99
 #: registration/models.py:200
 msgid "Media Authority"
 msgstr "Bürgermedium"
 
-#: contributions/admin.py:492
+#: contributions/admin.py:376 contributions/admin.py:380
+#: contributions/admin.py:385 contributions/admin.py:390
+#: contributions/templates/admin/export.html:44
+#: contributions/templates/admin/export.html:53
+#: contributions/templates/admin/export.html:61
+#: contributions/templates/admin/export.html:69
+msgid "All"
+msgstr "Alle"
+
+#: contributions/admin.py:379 contributions/templates/admin/export.html:51
+#: licenses/admin.py:445 registration/models.py:211
+msgid "Global Producer"
+msgstr "Globaler Produzent"
+
+#: contributions/admin.py:380 contributions/admin.py:385
+#: contributions/admin.py:390 contributions/admin.py:596
+#: contributions/templates/admin/export.html:54
+#: contributions/templates/admin/export.html:62
+#: contributions/templates/admin/export.html:70 inventory/models.py:581
+#: inventory/models.py:582 licenses/admin.py:419 licenses/admin.py:451
+#: licenses/templates/licenses/details.html:30
+msgid "Yes"
+msgstr "Ja"
+
+#: contributions/admin.py:380 contributions/admin.py:385
+#: contributions/admin.py:390 contributions/admin.py:597
+#: contributions/templates/admin/export.html:55
+#: contributions/templates/admin/export.html:63
+#: contributions/templates/admin/export.html:71 inventory/models.py:581
+#: inventory/models.py:582 licenses/admin.py:420 licenses/admin.py:452
+#: licenses/templates/licenses/details.html:33
+msgid "No"
+msgstr "Nein"
+
+#: contributions/admin.py:389 contributions/templates/admin/export.html:67
+#: licenses/admin.py:467
+msgid "Has video"
+msgstr "Hat Video"
+
+#: contributions/admin.py:512
+msgid "Broadcast date and time"
+msgstr "Sendedatum und -zeit"
+
+#: contributions/admin.py:513
+msgid "Video path (Windows)"
+msgstr "Videopfad (Windows)"
+
+#: contributions/admin.py:539
+msgid "Mediathek import"
+msgstr "Import in die Mediathek"
+
+#: contributions/admin.py:547
+msgid "Broadcast week"
+msgstr "Sendewoche"
+
+#: contributions/admin.py:553
+msgid "In this week"
+msgstr "In dieser Woche"
+
+#: contributions/admin.py:554
+msgid "Until next week"
+msgstr "Bis einschließlich nächste Woche"
+
+#: contributions/admin.py:555
+msgid "Until week after next"
+msgstr "Bis einschließlich übernächste Woche"
+
+#: contributions/admin.py:590
+msgid "Primary Contribution"
+msgstr "Primärbeitrag"
+
+#: contributions/admin.py:621
+msgid "Broadcast year"
+msgstr "Sendejahr"
+
+#: contributions/admin.py:627 licenses/admin.py:389 projects/admin.py:219
+#: registration/admin.py:162
+msgid "This year"
+msgstr "Dieses Jahr"
+
+#: contributions/admin.py:628 licenses/admin.py:390 projects/admin.py:220
+#: registration/admin.py:163
+msgid "Last year"
+msgstr "Letztes Jahr"
+
+#: contributions/admin.py:688
+msgid "Date from and Date to are required for Mediathek export."
+msgstr "Datum von und Datum bis sind für den Export in die Mediathek erforderlich."
+
+#: contributions/admin.py:736
+msgid "Title, Subtitle, Number"
+msgstr "Titel, Untertitel, Nummer"
+
+#: contributions/admin.py:740 contributions/models.py:84 licenses/admin.py:750
+#: licenses/models.py:288 media_files/admin.py:805 media_files/models.py:137
+msgid "License"
+msgstr "Freistellung"
+
+#: contributions/admin.py:750
 msgid "Broadcast Information"
 msgstr "Sendeinformation"
 
-#: contributions/admin.py:495
+#: contributions/admin.py:753
 msgid "Contribution Status"
 msgstr "Beitragsstatus"
 
-#: contributions/admin.py:498
+#: contributions/admin.py:756
 msgid "Automatically determined based on broadcast date."
 msgstr "Automatisch anhand des Sendedatums ermittelt."
 
-#: contributions/admin.py:533
+#: contributions/admin.py:791
 msgid "Is primary"
 msgstr "Ist primär"
 
-#: contributions/admin.py:549 inventory/models.py:527 registration/models.py:67
+#: contributions/admin.py:807 inventory/models.py:527 registration/models.py:67
 #: registration/models.py:140 rental/admin.py:238 rental/models.py:14
 #: rental/templates/rental/rental_stats.html:1101 rental/views.py:322
 #: rental/views.py:350 ok_tools/templates/rental_dashboard.html:43
 msgid "User"
 msgstr "Benutzer"
 
-#: contributions/admin.py:555 licenses/admin.py:330 licenses/models.py:167
-#: media_files/models.py:90
-#: media_files/templates/admin/media_files/videofile/change_form.html:71
-#: media_files/templates/admin/media_files/videofile/change_list.html:77
-#: media_files/templates/admin/video_player.html:24
-msgid "Number"
-msgstr "Nummer"
-
-#: contributions/admin.py:577
+#: contributions/admin.py:835
 msgid "Import selected DISA exports."
 msgstr "Ausgewählte DISA-Exporte importieren."
 
-#: contributions/admin.py:599
+#: contributions/admin.py:857
 #, python-format
 msgid "\"%(obj)s\" successfully imported."
 msgstr "\"%(obj)s\" wurde erfolgreich importiert."
@@ -323,11 +378,6 @@ msgstr ""
 msgid "Error during import: %(error)s"
 msgstr "Fehler beim Import: %(error)s"
 
-#: contributions/models.py:84 licenses/admin.py:725 licenses/models.py:280
-#: media_files/admin.py:625 media_files/models.py:137
-msgid "License"
-msgstr "Freistellung"
-
 #: contributions/models.py:97
 msgid "Is live"
 msgstr "Ist live"
@@ -372,11 +422,11 @@ msgstr "Importieren"
 msgid "Export"
 msgstr "Exportieren"
 
-#: contributions/templates/admin/export.html:29
+#: contributions/templates/admin/export.html:76
 msgid "The data export will only export primary contributions."
 msgstr "Der Datenexport exportiert nur primäre Beiträge."
 
-#: contributions/templates/admin/export.html:32
+#: contributions/templates/admin/export.html:79
 #: inventory/templates/admin/export.html:27
 msgid "Submit"
 msgstr "Absenden"
@@ -442,7 +492,7 @@ msgstr "Erste Freistellung erstellen"
 #: inventory/models.py:573 inventory/templates/inventory/list.html:78
 #: inventory/templates/inventory/list.html:160
 #: inventory/tests/test_models.py:353 licenses/templates/licenses/list.html:25
-#: licenses/templates/licenses/list.html:70 media_files/models.py:449
+#: licenses/templates/licenses/list.html:70 media_files/models.py:452
 #: rental/admin.py:371 rental/models.py:58 rental/templates/rental/list.html:65
 #: rental/templates/rental/list.html:115
 #: rental/templates/rental/rental_detail.html:511
@@ -935,14 +985,14 @@ msgstr "Nicht angegeben"
 #: inventory/models.py:324 inventory/models.py:411 inventory/models.py:704
 #: licenses/templates/licenses/list.html:29
 #: licenses/templates/licenses/list.html:99
-#: licenses/templates/licenses/list.html:205
+#: licenses/templates/licenses/list.html:224
 #: rental/templates/rental/list.html:174
 #: rental/templates/rental/rental_detail.html:380 ok_tools/views.py:160
 msgid "Pending"
 msgstr "Ausstehend"
 
 #: inventory/models.py:325 inventory/models.py:412 inventory/models.py:705
-#: media_files/models.py:404
+#: media_files/models.py:407
 msgid "In Progress"
 msgstr "In Bearbeitung"
 
@@ -957,7 +1007,7 @@ msgid "Completed with Errors"
 msgstr "Abgeschlossen mit Fehlern"
 
 #: inventory/models.py:328 inventory/models.py:415 inventory/models.py:708
-#: media_files/models.py:403
+#: media_files/models.py:406
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
@@ -1031,17 +1081,17 @@ msgstr "Keine Datei bereitgestellt."
 
 #: inventory/models.py:499
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:44
-#: licenses/templates/licenses/list.html:72 media_files/admin.py:346
-#: rental/templates/rental/rental_stats.html:1103
+#: licenses/templates/licenses/list.html:72 media_files/admin.py:364
+#: media_files/admin.py:949 rental/templates/rental/rental_stats.html:1103
 #: rental/templates/rental/rental_stats.html:1224
 msgid "Created"
 msgstr "Erstellt"
 
-#: inventory/models.py:500 media_files/admin.py:347
+#: inventory/models.py:500 media_files/admin.py:365
 msgid "Updated"
 msgstr "Aktualisiert"
 
-#: inventory/models.py:501
+#: inventory/models.py:501 media_files/admin.py:370
 msgid "Deleted"
 msgstr "Gelöscht"
 
@@ -1156,8 +1206,8 @@ msgstr "Gesamtanzahl der Artikel"
 
 #: inventory/templates/inventory/list.html:41
 #: inventory/templates/inventory/list.html:81
-#: inventory/templates/inventory/list.html:162 licenses/admin.py:705
-#: licenses/admin.py:797 media_files/models.py:126
+#: inventory/templates/inventory/list.html:162 licenses/admin.py:473
+#: licenses/admin.py:730 licenses/admin.py:822 media_files/models.py:126
 #: rental/templates/rental/rental_stats.html:972
 #: rental/templates/rental/rental_stats.html:1157 rental/views.py:869
 #: rental/views.py:3014
@@ -1254,10 +1304,12 @@ msgstr "Details anzeigen"
 
 #: inventory/templates/inventory/list.html:127
 #: licenses/templates/licenses/details.html:45
+#: licenses/templates/licenses/list.html:119
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: inventory/templates/inventory/list.html:131 media_files/models.py:396
+#: inventory/templates/inventory/list.html:131
+#: licenses/templates/licenses/list.html:131 media_files/models.py:399
 msgid "Delete"
 msgstr "Löschen"
 
@@ -1290,37 +1342,37 @@ msgid "Inventory pagination"
 msgstr "Inventarseitenumbruch"
 
 #: inventory/templates/inventory/list.html:218
-#: licenses/templates/licenses/list.html:148
+#: licenses/templates/licenses/list.html:167
 #: rental/templates/rental/list.html:218
 msgid "First"
 msgstr "Erste"
 
 #: inventory/templates/inventory/list.html:221
-#: licenses/templates/licenses/list.html:151
+#: licenses/templates/licenses/list.html:170
 #: rental/templates/rental/list.html:221
 msgid "Previous"
 msgstr "Vorherige"
 
 #: inventory/templates/inventory/list.html:227
-#: licenses/templates/licenses/list.html:157
+#: licenses/templates/licenses/list.html:176
 #: rental/templates/rental/list.html:227
 msgid "Page"
 msgstr "Seite"
 
 #: inventory/templates/inventory/list.html:227
-#: licenses/templates/licenses/list.html:157
+#: licenses/templates/licenses/list.html:176
 #: rental/templates/rental/list.html:227
 msgid "of"
 msgstr "von"
 
 #: inventory/templates/inventory/list.html:233
-#: licenses/templates/licenses/list.html:163
+#: licenses/templates/licenses/list.html:182
 #: rental/templates/rental/list.html:233
 msgid "Next"
 msgstr "Nächste"
 
 #: inventory/templates/inventory/list.html:236
-#: licenses/templates/licenses/list.html:166
+#: licenses/templates/licenses/list.html:185
 #: rental/templates/rental/list.html:236
 msgid "Last"
 msgstr "Letzte"
@@ -1329,12 +1381,12 @@ msgstr "Letzte"
 msgid "Are you sure you want to delete this inventory item?"
 msgstr "Sind Sie sicher, dass Sie diesen Inventarartikel löschen möchten?"
 
-#: licenses/admin.py:64 licenses/admin.py:1299 licenses/models.py:67
+#: licenses/admin.py:64 licenses/admin.py:1325 licenses/models.py:67
 #: projects/models.py:117 projects/models.py:122
 msgid "Not Selected"
 msgstr "Nicht ausgewählt"
 
-#: licenses/admin.py:222 licenses/admin.py:880 licenses/models.py:160
+#: licenses/admin.py:222 licenses/admin.py:906 licenses/models.py:167
 #: rental/models.py:763
 msgid "Created at"
 msgstr "Erstellt am"
@@ -1363,7 +1415,7 @@ msgstr "Austausch mit Medienanstalten erlaubt"
 msgid "Youth protection necessary"
 msgstr "Jugendschutz notwendig"
 
-#: licenses/admin.py:350 licenses/models.py:197
+#: licenses/admin.py:350 licenses/models.py:204
 msgid "Screen Board"
 msgstr "Bildschirmtafel"
 
@@ -1379,11 +1431,15 @@ msgstr "Erstellungsjahr"
 msgid "without contributions"
 msgstr "ohne Beiträge"
 
-#: licenses/admin.py:445 registration/models.py:211
-msgid "Global Producer"
-msgstr "Globaler Produzent"
+#: licenses/admin.py:474 licenses/admin.py:730 licenses/admin.py:835
+msgid "Not available"
+msgstr "Nicht verfügbar"
 
-#: licenses/admin.py:480
+#: licenses/admin.py:475 licenses/admin.py:840
+msgid "No video"
+msgstr "Kein Video"
+
+#: licenses/admin.py:505
 msgid ""
 "The corresponding profile is not verified. The License can not be confirmed "
 "until the profile is verified."
@@ -1391,17 +1447,17 @@ msgstr ""
 "Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann nicht "
 "genehmigt werden, bis das Profil verifiziert ist."
 
-#: licenses/admin.py:521
+#: licenses/admin.py:546
 #, python-format
 msgid "Maximum 4 tags allowed. You provided %(count)d tags."
 msgstr ""
 "Maximal 4 Schlagwörter erlaubt. Sie haben %(count)d Schlagwörter eingegeben."
 
-#: licenses/admin.py:528
+#: licenses/admin.py:553
 msgid "Empty tags are not allowed."
 msgstr "Leere Schlagwörter sind nicht erlaubt."
 
-#: licenses/admin.py:538
+#: licenses/admin.py:563
 msgid ""
 "Enter tags separated by commas. Maximum 4 tags allowed. Example: "
 "documentary, local, culture, news"
@@ -1409,94 +1465,87 @@ msgstr ""
 "Geben Sie Schlagwörter durch Kommas getrennt ein. Maximal 4 Schlagwörter "
 "erlaubt. Beispiel: Dokumentation, lokal, Kultur, Nachrichten"
 
-#: licenses/admin.py:647
+#: licenses/admin.py:672
 msgid "title, subtitle, number, description, further persons"
 msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
 
-#: licenses/admin.py:650 licenses/templates/licenses/create.html:31
-#: media_files/admin.py:534 projects/admin.py:288 registration/admin.py:215
+#: licenses/admin.py:675 licenses/templates/licenses/create.html:31
+#: media_files/admin.py:668 projects/admin.py:288 registration/admin.py:215
 #: registration/admin.py:354
 msgid "Basic Information"
 msgstr "Grundinformationen"
 
-#: licenses/admin.py:653
+#: licenses/admin.py:678
 msgid "Content Details"
 msgstr "Inhaltsdetails"
 
-#: licenses/admin.py:656
+#: licenses/admin.py:681
 msgid "Broadcasting Permissions"
 msgstr "Sendeerlaubnisse"
 
-#: licenses/admin.py:663
+#: licenses/admin.py:688
 msgid "Youth Protection"
 msgstr "Jugendschutz"
 
-#: licenses/admin.py:666
+#: licenses/admin.py:691
 msgid "Media Library & Special Formats"
 msgstr "Mediathek & spezielle Formate"
 
-#: licenses/admin.py:669
+#: licenses/admin.py:694
 msgid "Status & Metadata"
 msgstr "Status & Metadaten"
 
-#: licenses/admin.py:671
+#: licenses/admin.py:696
 msgid "Number is auto-generated but can be manually changed if needed."
 msgstr ""
-"Die Nummer wird automatisch generiert, kann aber bei Bedarf manuell geändert werden."
+"Die Nummer wird automatisch generiert, kann aber bei Bedarf manuell geändert "
+"werden."
 
-#: licenses/admin.py:705 licenses/admin.py:810
-msgid "Not available"
-msgstr "Nicht verfügbar"
-
-#: licenses/admin.py:724
+#: licenses/admin.py:749
 msgid "Duration mismatch"
 msgstr "Abweichende Dauer"
 
-#: licenses/admin.py:727
+#: licenses/admin.py:752
 msgid "Sync from Video"
 msgstr "Mit Video abgleichen"
 
-#: licenses/admin.py:751
+#: licenses/admin.py:776
 msgid "No video file found"
 msgstr "Keine Videodatei gefunden"
 
-#: licenses/admin.py:753
+#: licenses/admin.py:778
 msgid "Search for Video"
 msgstr "Nach Video suchen"
 
-#: licenses/admin.py:758 media_files/models.py:289 media_files/models.py:411
+#: licenses/admin.py:783 media_files/models.py:289 media_files/models.py:414
 msgid "Video File"
 msgstr "Videodatei"
 
-#: licenses/admin.py:805 media_files/admin.py:721 media_files/admin.py:735
+#: licenses/admin.py:830 media_files/admin.py:979 media_files/admin.py:993
 msgid "Player"
 msgstr "Player"
 
-#: licenses/admin.py:815
-msgid "No video"
-msgstr "Kein Video"
-
-#: licenses/admin.py:820
+#: licenses/admin.py:845
 msgid "Video"
 msgstr "Video"
 
-#: licenses/admin.py:882
+#: licenses/admin.py:908
 msgid "Confirm selected Licenses"
 msgstr "Ausgewählte Freistellungen genehmigen"
 
-#: licenses/admin.py:892
+#: licenses/admin.py:918
 msgid "Unconfirm selected Licenses"
 msgstr "Genehmigung der ausgewählten Freistellungen zurückziehen"
 
-#: licenses/admin.py:902
+#: licenses/admin.py:928
 msgid "Create a copy of selected licenses"
 msgstr "Eine Kopie der ausgewählten Freistellungen erstellen"
 
-#: licenses/admin.py:913
+#: licenses/admin.py:939
 msgid "License copies created successfully."
 msgstr "Freistellungskopien wurden erfolgreich erstellt."
 
-#: licenses/admin.py:930
+#: licenses/admin.py:956
 #, python-format
 msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
@@ -1505,124 +1554,126 @@ msgstr ""
 "Das entsprechende Profil von %(obj)s ist nicht verifiziert. Die Freistellung "
 "kann nicht genehmigt werden, bis das Profil verifiziert ist."
 
-#: licenses/admin.py:987
+#: licenses/admin.py:1013
 msgid "Duration synced from video: {} → {}"
 msgstr "Dauer vom Video synchronisiert: {} → {}"
 
-#: licenses/admin.py:993
+#: licenses/admin.py:1019
 msgid "No video file found for this license."
 msgstr "Für diese Freistellung wurde keine Videodatei gefunden."
 
-#: licenses/admin.py:999
+#: licenses/admin.py:1025
 msgid "Video file has no duration information."
 msgstr "Die Videodatei enthält keine Zeitangaben zur Dauer."
 
-#: licenses/admin.py:1037
+#: licenses/admin.py:1063
 msgid "Scanning storages for video"
 msgstr "Durchsuche Speicherorte nach Video"
 
-#: licenses/admin.py:1050
+#: licenses/admin.py:1076
 msgid "Video found and linked to license"
 msgstr "Video gefunden und mit Freistellung verbunden"
 
-#: licenses/admin.py:1055
+#: licenses/admin.py:1081
 msgid "Video with number"
 msgstr "Video mit Nummer"
 
-#: licenses/admin.py:1055
+#: licenses/admin.py:1081
 msgid "not found in storages"
 msgstr "nicht in den Speicherorten gefunden"
 
-#: licenses/admin.py:1056
+#: licenses/admin.py:1082
 msgid "Make sure the file exists and starts with the number"
 msgstr ""
 "Stellen Sie sicher, dass die Datei existiert und mit der Nummer beginnt"
 
-#: licenses/admin.py:1059
+#: licenses/admin.py:1085
 msgid "Search completed. Check the results"
 msgstr "Suche abgeschlossen. Überprüfen Sie die Ergebnisse"
 
-#: licenses/admin.py:1069
+#: licenses/admin.py:1095
 msgid "Search for videos in storage"
 msgstr "Nach Videos in Speicherorten suchen"
 
-#: licenses/admin.py:1099
+#: licenses/admin.py:1125
 msgid "Videos found and linked for"
 msgstr "Videos gefunden und verknüpft für"
 
-#: licenses/admin.py:1099 licenses/admin.py:1105
+#: licenses/admin.py:1125 licenses/admin.py:1131
 msgid "licenses"
 msgstr "Freistellungen"
 
-#: licenses/admin.py:1099 licenses/admin.py:1105
+#: licenses/admin.py:1125 licenses/admin.py:1131
 msgid "license"
 msgstr "Freistellung"
 
-#: licenses/admin.py:1105
+#: licenses/admin.py:1131
 msgid "No videos found for"
 msgstr "Keine Videos für Freistellung gefunden"
 
-#: licenses/admin.py:1111
+#: licenses/admin.py:1137
 msgid "Search errors"
 msgstr "Suchfehler"
 
-#: licenses/admin.py:1127
+#: licenses/admin.py:1153
 msgid "Session expired. Please try importing again."
 msgstr "Sitzung abgelaufen. Bitte versuchen Sie den Import erneut."
 
-#: licenses/admin.py:1171 licenses/admin.py:1370
+#: licenses/admin.py:1197 licenses/admin.py:1396
 #, python-format
 msgid "License \"%(title)s\" successfully imported."
 msgstr "Freistellung \"%(title)s\" erfolgreich importiert."
 
-#: licenses/admin.py:1186
-#, python-format
+#: licenses/admin.py:1212
 msgid "Error creating license: {}"
 msgstr "Fehler beim Erstellen der Freistellung: {}"
 
-#: licenses/admin.py:1199
+#: licenses/admin.py:1225
 msgid "Import cancelled."
 msgstr "Import abgebrochen."
 
-#: licenses/admin.py:1245
+#: licenses/admin.py:1271
 #, python-format
 msgid ""
 "Profile not found for senderResponsible: %(name)s. Created new profile "
 "automatically."
 msgstr ""
-"Profil für senderResponsible: %(name)s nicht gefunden. Neues Profil wurde automatisch erstellt."
+"Profil für senderResponsible: %(name)s nicht gefunden. Neues Profil wurde "
+"automatisch erstellt."
 
-#: licenses/admin.py:1254
+#: licenses/admin.py:1280
 #, python-format
 msgid ""
 "No profile found for senderResponsible: %(name)s. targetChannel is required "
 "to create a new profile."
 msgstr ""
-"Kein Profil für senderResponsible: %(name)s gefunden. targetChannel ist erforderlich, um ein neues Profil zu erstellen."
+"Kein Profil für senderResponsible: %(name)s gefunden. targetChannel ist "
+"erforderlich, um ein neues Profil zu erstellen."
 
-#: licenses/admin.py:1268
+#: licenses/admin.py:1294
 #, python-format
 msgid ""
 "No profile found for targetChannel: %(channel)s. Please create a profile "
 "manually in the admin."
 msgstr ""
-"Kein Profil für targetChannel: %(channel)s gefunden. Bitte erstellen Sie ein Profil manuell im Admin."
+"Kein Profil für targetChannel: %(channel)s gefunden. Bitte erstellen Sie ein "
+"Profil manuell im Admin."
 
-#: licenses/admin.py:1282
+#: licenses/admin.py:1308
 msgid "Either senderResponsible or targetChannel is required in JSON file."
-msgstr "Entweder senderResponsible oder targetChannel wird in der JSON-Datei benötigt."
+msgstr ""
+"Entweder senderResponsible oder targetChannel wird in der JSON-Datei "
+"benötigt."
 
-#: licenses/admin.py:1386
-#, python-format
+#: licenses/admin.py:1412
 msgid "Invalid JSON file: {}"
 msgstr "Ungültige JSON-Datei: {}"
 
-#: licenses/admin.py:1394
-#, python-format
+#: licenses/admin.py:1420
 msgid "Error importing license: {}"
 msgstr "Fehler beim Importieren der Freistellung: {}"
 
-#: licenses/apps.py:10 licenses/models.py:281
+#: licenses/apps.py:10 licenses/models.py:289
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:8
 #: licenses/templates/admin/licenses/import_json.html:7
 #: licenses/templates/licenses/list.html:5
@@ -1647,21 +1698,19 @@ msgstr "Ungültiges Format. Bitte verwenden Sie das Format hh:mm:ss oder mm:ss."
 msgid "The duration field is required."
 msgstr "Das Feld „Dauer“ ist erforderlich."
 
-#: licenses/forms.py:108
+#: licenses/forms.py:108 licenses/templates/licenses/update.html:66
 msgid "Save"
 msgstr "Speichern"
 
 #: licenses/forms.py:160
-#, fuzzy
-#| msgid "File"
 msgid "JSON File"
-msgstr "Datei"
+msgstr "JSON-Datei"
 
 #: licenses/forms.py:161
 msgid "Upload a JSON file with license data"
 msgstr "Laden Sie eine JSON-Datei mit Lizenzdaten hoch"
 
-#: licenses/generate_file.py:122
+#: licenses/generate_file.py:197
 msgid "license.pdf"
 msgstr "freistellung.pdf"
 
@@ -1706,17 +1755,26 @@ msgstr "Tags"
 msgid "Maximum 4 tags"
 msgstr "Maximal 4 Tags"
 
-#: licenses/models.py:190 licenses/templates/licenses/list.html:28
+#: licenses/models.py:160 licenses/templates/licenses/create.html:292
+#: licenses/templates/licenses/update.html:37
+msgid "Signature"
+msgstr "Unterschrift"
+
+#: licenses/models.py:163
+msgid "Base64 encoded signature image"
+msgstr "Base64-codiertes Unterschriftsbild"
+
+#: licenses/models.py:197 licenses/templates/licenses/list.html:28
 #: licenses/templates/licenses/list.html:97
-#: licenses/templates/licenses/list.html:203
+#: licenses/templates/licenses/list.html:222
 msgid "Confirmed"
 msgstr "Genehmigt"
 
-#: licenses/models.py:204
+#: licenses/models.py:211
 msgid "Infoblock"
 msgstr "Infoblock"
 
-#: licenses/models.py:227
+#: licenses/models.py:234
 msgid "Duration must not be null."
 msgstr "Die Dauer darf nicht Null sein."
 
@@ -1726,7 +1784,7 @@ msgstr "Benutzerdefinierter Datumsbereich"
 
 #: licenses/templates/admin/filter_datetime_range.html:79
 #: licenses/templates/admin/filter_numeric_range.html:84
-#: licenses/templates/licenses/create.html:292
+#: licenses/templates/licenses/create.html:335
 #: ok_tools/templates/rental_dashboard.html:214
 msgid "Reset"
 msgstr "Zurücksetzen"
@@ -1770,7 +1828,8 @@ msgstr "Mögliches Duplikat erkannt"
 
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:20
 msgid "Potential duplicate licenses found with similar title and profile."
-msgstr "Potenzielle doppelte Freistellungen mit ähnlichem Titel und Profil gefunden."
+msgstr ""
+"Potenzielle doppelte Freistellungen mit ähnlichem Titel und Profil gefunden."
 
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:24
 msgid "New License to Import"
@@ -1786,13 +1845,15 @@ msgid ""
 "The following licenses have similar titles (80%% or more similarity) for the "
 "same profile:"
 msgstr ""
-"Die folgenden Freistellungen haben ähnliche Titel (80%% oder mehr Ähnlichkeit) für das gleiche Profil:"
+"Die folgenden Freistellungen haben ähnliche Titel (80%% oder mehr "
+"Ähnlichkeit) für das gleiche Profil:"
 
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:43
 msgid "Similarity"
 msgstr "Ähnlichkeit"
 
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:64
+#: licenses/templates/licenses/list.html:115
 #: ok_tools/templates/admin/index.html:143
 msgid "View"
 msgstr "Ansehen"
@@ -1813,7 +1874,8 @@ msgstr "Erstelle die neue Freistellung, auch wenn Duplikate vorhanden sind"
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:76
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:84
 #: licenses/templates/admin/licenses/import_json.html:39
-#: licenses/templates/licenses/create.html:288
+#: licenses/templates/licenses/create.html:331
+#: licenses/templates/licenses/update.html:67
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:200
 #: rental/models.py:391 rental/templates/rental/admin_rental_process.html:244
 #: rental/templates/rental/admin_rental_process.html:282
@@ -1851,14 +1913,17 @@ msgid ""
 "Full name of the profile owner (e.g., \"Bernd Krüger\"). Used to find the "
 "Profile. If not found, targetChannel will be used as fallback."
 msgstr ""
-"Vollständiger Name des Profilinhabers (z. B. „Bernd Krüger“). Wird verwendet, um das Profil zu finden. Falls nicht gefunden, wird targetChannel als Fallback genutzt."
+"Vollständiger Name des Profilinhabers (z. B. „Bernd Krüger“). Wird "
+"verwendet, um das Profil zu finden. Falls nicht gefunden, wird targetChannel "
+"als Fallback genutzt."
 
 #: licenses/templates/admin/licenses/import_json.html:59
 msgid ""
 "Media authority identifier. Used as fallback if senderResponsible profile is "
 "not found."
 msgstr ""
-"Medienanstalten-Kennung. Wird als Fallback verwendet, falls das senderResponsible-Profil nicht gefunden wird."
+"Medienanstalten-Kennung. Wird als Fallback verwendet, falls das "
+"senderResponsible-Profil nicht gefunden wird."
 
 #: licenses/templates/admin/licenses/import_json.html:61
 msgid "Category mapping:"
@@ -1884,7 +1949,7 @@ msgstr ""
 
 #: licenses/templates/licenses/create.html:5
 #: licenses/templates/licenses/create.html:6
-#: licenses/templates/licenses/create.html:295
+#: licenses/templates/licenses/create.html:338
 #: licenses/templates/licenses/list.html:16
 #: ok_tools/templates/dashboard.html:199
 msgid "Create License"
@@ -1935,25 +2000,62 @@ msgstr "Berechtigungen für den Austausch zwischen Bürgermedien"
 msgid "Saxony-Anhalt"
 msgstr "Sachsen-Anhalt"
 
-#: licenses/templates/licenses/create.html:216
+#: licenses/templates/licenses/create.html:220
 msgid "Other Federal States"
 msgstr "Andere Bundesländer"
 
-#: licenses/templates/licenses/create.html:227
+#: licenses/templates/licenses/create.html:231
 msgid "Special Settings"
 msgstr "Spezielle Einstellungen"
 
-#: licenses/templates/licenses/create.html:229
+#: licenses/templates/licenses/create.html:233
 msgid "Special settings and youth protection"
 msgstr "Spezielle Einstellungen und Jugendschutz"
 
-#: licenses/templates/licenses/create.html:241
+#: licenses/templates/licenses/create.html:245
 msgid "Screen board (duration will be set automatically)"
 msgstr "Laufschrift (Dauer wird automatisch gesetzt)"
 
-#: licenses/templates/licenses/create.html:402
+#: licenses/templates/licenses/create.html:294
+#: licenses/templates/licenses/update.html:39
+msgid "Please sign here"
+msgstr "Bitte hier unterschreiben"
+
+#: licenses/templates/licenses/create.html:296
+#, python-format
+msgid ""
+"\n"
+"                You can sign here and the form will be completely filled "
+"out, or click the \"Create License\" button to print the filled form, sign "
+"it, and send us a signed photo or scan copy by email to %(email)s.\n"
+"                "
+msgstr ""
+"\n"
+"                Sie können hier unterschreiben und das Formular wird vollständig ausgefüllt, oder Sie klicken auf die Schaltfläche \"Freistellung erstellen\", um das ausgefüllte Formular auszudrucken, es zu unterschreiben und uns ein unterschriebenes Foto oder eine eingesannte Kopie per E-Mail an %(email)s zu senden.\n"
+"                "
+
+#: licenses/templates/licenses/create.html:307
+#: licenses/templates/licenses/update.html:47
+msgid "Sign here"
+msgstr "Hier unterschreiben"
+
+#: licenses/templates/licenses/create.html:313
+#: licenses/templates/licenses/update.html:53
+msgid "Clear Signature"
+msgstr "Unterschrift löschen"
+
+#: licenses/templates/licenses/create.html:316
+#: licenses/templates/licenses/update.html:56
+msgid "Please sign in the box above."
+msgstr "Bitte unterschreiben Sie im obigen Feld."
+
+#: licenses/templates/licenses/create.html:580
 msgid "Are you sure you want to reset all inputs?"
 msgstr "Sind Sie sicher, dass Sie alle Eingaben zurücksetzen möchten?"
+
+#: licenses/templates/licenses/create.html:661
+msgid "Creating..."
+msgstr "Erstellen..."
 
 #: licenses/templates/licenses/details.html:6
 #: licenses/templates/licenses/details.html:7
@@ -1990,19 +2092,27 @@ msgstr "Vorgeschlagenes Datum"
 msgid "No Date"
 msgstr "Kein Datum"
 
-#: licenses/templates/licenses/list.html:131
+#: licenses/templates/licenses/list.html:123
+msgid "Print PDF"
+msgstr "PDF drucken"
+
+#: licenses/templates/licenses/list.html:127 media_files/models.py:397
+msgid "Copy"
+msgstr "Kopieren"
+
+#: licenses/templates/licenses/list.html:137
+msgid "Cannot delete confirmed license"
+msgstr "Bestätigte Freistellung kann nicht gelöscht werden"
+
+#: licenses/templates/licenses/list.html:149
 msgid "No licenses found"
 msgstr "Keine Freistellungen gefunden"
 
-#: licenses/templates/licenses/list.html:132
-msgid "Create your first license"
-msgstr "Erstellen Sie Ihre erste Freistellung"
-
-#: licenses/templates/licenses/list.html:144
+#: licenses/templates/licenses/list.html:163
 msgid "License pagination"
 msgstr "Freistellungsseiten-Navigation"
 
-#: licenses/templates/licenses/list.html:258
+#: licenses/templates/licenses/list.html:277
 msgid "Are you sure you want to delete this license?"
 msgstr "Sind Sie sicher, dass Sie diese Freistellung löschen möchten?"
 
@@ -2010,27 +2120,30 @@ msgstr "Sind Sie sicher, dass Sie diese Freistellung löschen möchten?"
 #, python-format
 msgid ""
 "\n"
-"        Edit %(object)s:\n"
+"    Edit %(object)s:\n"
 "    "
 msgstr ""
 "\n"
-"        %(object)s bearbeiten:\n"
+"    %(object)s bearbeiten:\n"
 "    "
 
 #: licenses/templates/licenses/update.html:17
 msgid ""
 "\n"
-"        Your License is already confirmed and no longer editable.\n"
+"    Your License is already confirmed and no longer editable.\n"
 "    "
 msgstr ""
 "\n"
-"        Ihre Freistellung ist bereits genehmigt und kann nicht mehr "
-"bearbeitet werden.\n"
+"    Ihre Freistellung ist bereits bestätigt und kann nicht mehr bearbeitet werden.\n"
 "    "
 
 #: licenses/templates/licenses/update.html:21
 msgid "Back to overview"
 msgstr "Zurück zur Übersicht"
+
+#: licenses/templates/licenses/update.html:261
+msgid "Saving..."
+msgstr "Speichern..."
 
 #: licenses/templates/licenses/widgets/tags_input.html:13
 msgid ""
@@ -2040,37 +2153,53 @@ msgstr ""
 "Geben Sie Schlagwörter durch Kommas getrennt ein (z. B. tag1, tag2, tag3). "
 "Es sind maximal 4 Schlagwörter erlaubt."
 
-#: licenses/views.py:25
+#: licenses/views.py:26
 msgid "License not found."
 msgstr "Freistellung nicht gefunden."
 
-#: licenses/views.py:69
+#: licenses/views.py:70
 #, python-format
 msgid "License %(license)s successfully created."
 msgstr "Freistellung %(license)s erfolgreich erstellt."
 
-#: licenses/views.py:116
+#: licenses/views.py:178
 #, python-format
-msgid "License %(license)s successfully edited."
-msgstr "Freistellung %(license)s erfolgreich bearbeitet."
+msgid "License %(license)s successfully copied."
+msgstr "Freistellung %(license)s wurde erfolgreich kopiert."
 
-#: licenses/views.py:125
+#: licenses/views.py:198
+#, python-format
+msgid "License %(license)s successfully updated."
+msgstr "Freistellung %(license)s wurde erfolgreich aktualisiert."
+
+#: licenses/views.py:208
 #, python-format
 msgid ""
 "The License %(license)s is already confirmed and therefore no longer editable."
 msgstr ""
-"Die Freistellung %(license)s ist bereits genehmigt und kann daher nicht mehr bearbeitet werden."
+"Die Freistellung %(license)s ist bereits bestätigt und kann daher nicht mehr "
+"bearbeitet werden."
+
+#: licenses/views.py:257
+#, python-format
+msgid "Cannot delete confirmed license %(license)s"
+msgstr "Bestätigte Freistellung %(license)s kann nicht gelöscht werden."
+
+#: licenses/views.py:263
+#, python-format
+msgid "License %(license)s successfully deleted."
+msgstr "Freistellung %(license)s erfolgreich gelöscht."
 
 #: licenses/widgets.py:18
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr ""
 "Geben Sie Schlagwörter durch Kommas getrennt ein (z. B. tag1, tag2, tag3)"
 
-#: media_files/admin.py:28
+#: media_files/admin.py:29
 msgid "Upload Video File"
 msgstr "Videodatei hochladen"
 
-#: media_files/admin.py:29
+#: media_files/admin.py:30
 msgid ""
 "Upload a video file (mp4, mov, mpeg, mpg). The file will be saved to the "
 "selected storage location."
@@ -2078,169 +2207,190 @@ msgstr ""
 "Laden Sie eine Videodatei hoch (mp4, mov, mpeg, mpg). Die Datei wird am "
 "ausgewählten Speicherort gespeichert."
 
-#: media_files/admin.py:34
+#: media_files/admin.py:35
 msgid "Or specify file path"
 msgstr "Oder Dateipfad angeben"
 
-#: media_files/admin.py:35
+#: media_files/admin.py:36
 msgid "Full path to existing video file on the server"
 msgstr "Vollständiger Pfad zur vorhandenen Videodatei auf dem Server"
 
-#: media_files/admin.py:63
+#: media_files/admin.py:64
 msgid "Please either upload a file or specify an existing file path."
 msgstr ""
 "Bitte laden Sie entweder eine Datei hoch oder geben Sie einen vorhandenen "
 "Dateipfad an."
 
-#: media_files/admin.py:68
+#: media_files/admin.py:69
 msgid "Please provide only one: either upload a file OR specify a path."
 msgstr ""
 "Bitte geben Sie nur eine Option an: Entweder eine Datei hochladen ODER einen "
 "Pfad angeben."
 
-#: media_files/admin.py:72
+#: media_files/admin.py:73
 msgid "Storage location is required."
 msgstr "Speicherort ist erforderlich."
 
-#: media_files/admin.py:95 media_files/admin.py:167
+#: media_files/admin.py:96 media_files/admin.py:168
 msgid "Filename must start with a number (e.g., 12345_title.mp4)"
 msgstr "Dateiname muss mit einer Zahl beginnen (z. B. 12345_title.mp4)"
 
-#: media_files/admin.py:104
+#: media_files/admin.py:105
 msgid "File already exists at: {}"
 msgstr "Datei existiert bereits unter: {}"
 
-#: media_files/admin.py:153
+#: media_files/admin.py:154
 msgid "File does not exist: {}"
 msgstr "Datei existiert nicht: {}"
 
-#: media_files/admin.py:158
+#: media_files/admin.py:159
 msgid "Path is not a file: {}"
 msgstr "Pfad ist keine Datei: {}"
 
-#: media_files/admin.py:174
+#: media_files/admin.py:175
 msgid "File must be within storage location: {}"
 msgstr "Die Datei muss sich im Speicherort befinden: {}"
 
-#: media_files/admin.py:255
+#: media_files/admin.py:257
 msgid "Scanning"
 msgstr "Scannen"
 
-#: media_files/admin.py:258 registration/models.py:256
+#: media_files/admin.py:260 registration/models.py:256
 #: rental/templates/rental/rental_stats.html:1262
 msgid "Information"
 msgstr "Informationen"
 
-#: media_files/admin.py:298
+#: media_files/admin.py:300
 msgid "Videos"
 msgstr "Videos"
 
-#: media_files/admin.py:344
+#: media_files/admin.py:362
 msgid "Scanning completed"
 msgstr "Scan abgeschlossen"
 
-#: media_files/admin.py:345
+#: media_files/admin.py:363
 msgid "Found"
 msgstr "Gefunden"
 
-#: media_files/admin.py:345 media_files/admin.py:348
+#: media_files/admin.py:363 media_files/admin.py:366
 msgid "files"
 msgstr "Dateien"
 
-#: media_files/admin.py:346 media_files/admin.py:347
+#: media_files/admin.py:364 media_files/admin.py:365 media_files/admin.py:370
+#: media_files/admin.py:372
 msgid "records"
 msgstr "Einträge"
 
-#: media_files/admin.py:348
+#: media_files/admin.py:366
 msgid "Skipped"
 msgstr "Übersprungen"
 
-#: media_files/admin.py:348
+#: media_files/admin.py:366
 msgid "no changes"
 msgstr "keine Änderungen"
 
-#: media_files/admin.py:363 media_files/admin.py:383
+#: media_files/admin.py:370
+msgid "files missing"
+msgstr "Dateien fehlen"
+
+#: media_files/admin.py:372
+msgid "Marked unavailable"
+msgstr "Als nicht verfügbar markiert"
+
+#: media_files/admin.py:388 media_files/admin.py:408
 msgid "Storage location #{} not found"
 msgstr "Speicherort #{} nicht gefunden"
 
-#: media_files/admin.py:368
+#: media_files/admin.py:393
 msgid "Error scanning storage: {}"
 msgstr "Fehler beim Scannen des Speicherorts: {}"
 
-#: media_files/admin.py:408
+#: media_files/admin.py:435
 msgid "Scan Options - {}"
 msgstr "Scan-Optionen – {}"
 
-#: media_files/admin.py:421
+#: media_files/admin.py:448
 msgid "Successfully scanned: {}"
 msgstr "Erfolgreich gescannt: {}"
 
-#: media_files/admin.py:423
+#: media_files/admin.py:450
 msgid "Error scanning {}: {}"
 msgstr "Fehler beim Scannen von {}: {}"
 
-#: media_files/admin.py:424
+#: media_files/admin.py:451
 msgid "Scan selected storage locations"
 msgstr "Ausgewählte Speicherorte scannen"
 
-#: media_files/admin.py:439
+#: media_files/admin.py:466
 msgid "Test connection to storage"
 msgstr "Verbindung zum Speicher testen"
 
-#: media_files/admin.py:443
+#: media_files/admin.py:470
 msgid "Has Duplicates"
 msgstr "Hat Duplikate"
 
-#: media_files/admin.py:448
+#: media_files/admin.py:475
 msgid "Yes - has duplicates"
 msgstr "Ja – hat Duplikate"
 
-#: media_files/admin.py:449
+#: media_files/admin.py:476
 msgid "No - unique"
 msgstr "Nein – eindeutig"
 
-#: media_files/admin.py:471
+#: media_files/admin.py:498
 msgid "Version Type"
 msgstr "Versionstyp"
 
-#: media_files/admin.py:476
+#: media_files/admin.py:503
 msgid "Primary versions"
 msgstr "Primärversionen"
 
-#: media_files/admin.py:477
+#: media_files/admin.py:504
 msgid "Duplicate versions"
 msgstr "Duplikatversionen"
 
-#: media_files/admin.py:540
+#: media_files/admin.py:605 media_files/admin.py:780 media_files/models.py:186
+msgid "FPS"
+msgstr "FPS"
+
+#: media_files/admin.py:610
+msgid "25 fps (Broadcast Standard)"
+msgstr "25 fps (Rundfunkstandard)"
+
+#: media_files/admin.py:611
+msgid "Not 25 fps (⚠ Warning)"
+msgstr "Nicht 25 fps (⚠ Warnung)"
+
+#: media_files/admin.py:612
+msgid "FPS not set"
+msgstr "FPS nicht gesetzt"
+
+#: media_files/admin.py:674
 msgid "File Properties"
 msgstr "Dateieigenschaften"
 
-#: media_files/admin.py:546
+#: media_files/admin.py:680
 msgid "Video Properties"
 msgstr "Videoeigenschaften"
 
-#: media_files/admin.py:554
+#: media_files/admin.py:689
 msgid "Audio Properties"
 msgstr "Audioeigenschaften"
 
-#: media_files/admin.py:560
-msgid "Overall"
-msgstr "Gesamt"
-
-#: media_files/admin.py:563
-#: media_files/templates/admin/system_management.html:890
+#: media_files/admin.py:695
+#: media_files/templates/admin/system_management.html:886
 msgid "Duplicate Management"
 msgstr "Duplikatverwaltung"
 
-#: media_files/admin.py:567
+#: media_files/admin.py:699
 msgid "Timestamps"
 msgstr "Zeitstempel"
 
-#: media_files/admin.py:574
+#: media_files/admin.py:706
 msgid "Add Video File"
 msgstr "Videodatei hinzufügen"
 
-#: media_files/admin.py:577
+#: media_files/admin.py:709
 msgid ""
 "Choose a storage location, then either:<br>• <strong>Upload a file</strong> "
 "- File will be saved to the storage location<br>• <strong>Specify a path</"
@@ -2253,34 +2403,70 @@ msgstr ""
 "verknüpfen<br><br><strong>Wichtig:</strong> Der Dateiname muss mit einer "
 "Zahl beginnen (z. B. 12345_title.mp4)"
 
-#: media_files/admin.py:616
+#: media_files/admin.py:749
 #: media_files/templates/admin/media_files/videofile/change_form.html:74
 #: media_files/templates/admin/media_files/videofile/change_list.html:80
 #: media_files/templates/admin/video_player.html:27
 msgid "Size"
 msgstr "Größe"
 
-#: media_files/admin.py:645 media_files/admin.py:673
+#: media_files/admin.py:774
+msgid "FPS is not 25 - not suitable for broadcast"
+msgstr "FPS ist nicht 25 – nicht für die Ausstrahlung geeignet"
+
+#: media_files/admin.py:788
+msgid "Video Bitrate (kbps)"
+msgstr "Video-Bitrate (kbps)"
+
+#: media_files/admin.py:796
+msgid "Audio Bitrate (kbps)"
+msgstr "Audio-Bitrate (kbps)"
+
+#: media_files/admin.py:817
+msgid "Unique - no duplicates"
+msgstr "Einzigartig – keine Duplikate"
+
+#: media_files/admin.py:826
+msgid "{} version(s) in same storage"
+msgstr "{} Version(en) im selben Speicher"
+
+#: media_files/admin.py:828
+msgid "{} version(s) in other storages"
+msgstr "{} Version(en) in anderen Speichern"
+
+#: media_files/admin.py:838 media_files/admin.py:857 media_files/admin.py:865
+msgid "versions total"
+msgstr "Versionen insgesamt"
+
+#: media_files/admin.py:868
+msgid "Versions"
+msgstr "Versionen"
+
+#: media_files/admin.py:896
 msgid "Duplicate Status"
 msgstr "Duplikatstatus"
 
-#: media_files/admin.py:705
+#: media_files/admin.py:909
+msgid "No other versions"
+msgstr "Keine weiteren Versionen"
+
+#: media_files/admin.py:963
 msgid "All Versions"
 msgstr "Alle Versionen"
 
-#: media_files/admin.py:760
+#: media_files/admin.py:1018
 msgid "File path (Linux)"
 msgstr "Dateipfad (Linux)"
 
-#: media_files/admin.py:761
+#: media_files/admin.py:1019
 msgid "File path (Windows UNC)"
 msgstr "Dateipfad (Windows UNC)"
 
-#: media_files/admin.py:868 media_files/admin.py:890
+#: media_files/admin.py:1126 media_files/admin.py:1148
 msgid "Video not available"
 msgstr "Video nicht verfügbar"
 
-#: media_files/admin.py:870
+#: media_files/admin.py:1128
 #: media_files/templates/admin/media_files/videofile/change_form.html:67
 #: media_files/templates/admin/media_files/videofile/change_list.html:70
 #: media_files/templates/admin/video_player.html:5
@@ -2288,55 +2474,125 @@ msgstr "Video nicht verfügbar"
 msgid "Video Player"
 msgstr "Videoplayer"
 
-#: media_files/admin.py:878 media_files/admin.py:949
+#: media_files/admin.py:1136 media_files/admin.py:1216
 msgid "Video not found"
 msgstr "Video nicht gefunden"
 
-#: media_files/admin.py:881 media_files/admin.py:952
+#: media_files/admin.py:1139 media_files/admin.py:1219
 msgid "Error: {}"
 msgstr "Fehler: {}"
 
-#: media_files/admin.py:897
+#: media_files/admin.py:1157
 msgid "Video file not found"
 msgstr "Videodatei nicht gefunden"
 
-#: media_files/admin.py:968
+#: media_files/admin.py:1235
 msgid "No PLAYOUT storage configured"
 msgstr "Kein PLAYOUT-Speicher konfiguriert"
 
-#: media_files/admin.py:1000
+#: media_files/admin.py:1267
 msgid "Copy to playout storage"
 msgstr "In PLAYOUT-Speicher kopieren"
 
-#: media_files/admin.py:1049
+#: media_files/admin.py:1316
 msgid "Update metadata"
 msgstr "Metadaten aktualisieren"
 
-#: media_files/admin.py:1080
+#: media_files/admin.py:1347
 msgid "Verify file integrity"
 msgstr "Dateiintegrität überprüfen"
 
-#: media_files/admin.py:1082
+#: media_files/admin.py:1349
 msgid "Mark selected as primary version"
 msgstr "Ausgewählte als Hauptversion markieren"
 
-#: media_files/admin.py:1111
+#: media_files/admin.py:1378
 msgid "Delete duplicate versions (keep best quality)"
 msgstr "Doppelte Versionen löschen (beste Qualität behalten)"
 
-#: media_files/admin.py:1149
+#: media_files/admin.py:1416
 msgid "Move to archive storage"
 msgstr "In Archivspeicher verschieben"
 
-#: media_files/admin.py:1235
+#: media_files/admin.py:1469
+msgid "Cleanup records for files missing from disk"
+msgstr "Aufräumen von Einträgen für Dateien, die auf dem Datenträger fehlen"
+
+#: media_files/admin.py:1534
+msgid "Deleted {} record(s) for files missing from disk"
+msgstr "{} Eintrag/Einträge für fehlende Dateien wurden gelöscht"
+
+#: media_files/admin.py:1540
+msgid "{} file(s) could not be checked (storage may be read-only)"
+msgstr "{} Datei(en) konnten nicht überprüft werden (Speicher ist möglicherweise schreibgeschützt)"
+
+#: media_files/admin.py:1546
+msgid ""
+"No files to check (all selected files are already marked as unavailable)"
+msgstr ""
+"Keine Dateien zu prüfen (alle ausgewählten Dateien sind bereits als nicht verfügbar markiert)"
+
+#: media_files/admin.py:1552
+msgid "All checked files exist on disk"
+msgstr "Alle geprüften Dateien existieren auf dem Datenträger"
+
+#: media_files/admin.py:1558
+msgid "{} error(s) occurred"
+msgstr "{} Fehler sind aufgetreten"
+
+#: media_files/admin.py:1683
+msgid ""
+"Video record deleted. Could not check file status (storage may be read-only)."
+msgstr ""
+"Videoeintrag gelöscht. Der Dateistatus konnte nicht überprüft werden (Speicher ist möglicherweise schreibgeschützt)."
+
+#: media_files/admin.py:1689
+msgid "Video record deleted (file was already removed from disk)"
+msgstr "Videoeintrag gelöscht (Datei wurde bereits vom Datenträger entfernt)"
+
+#: media_files/admin.py:1695
+msgid "Video record deleted. Note: Physical file still exists on disk."
+msgstr "Videoeintrag gelöscht. Hinweis: Die Datei existiert weiterhin physisch auf dem Datenträger."
+
+#: media_files/admin.py:1781
+msgid "Error deleting video {}: {}"
+msgstr "Fehler beim Löschen des Videos {}: {}"
+
+#: media_files/admin.py:1792
+msgid "Unexpected error during deletion: {}"
+msgstr "Unerwarteter Fehler beim Löschen: {}"
+
+#: media_files/admin.py:1800
+msgid ""
+"{} video record(s) deleted. {} file(s) could not be checked (storage may be "
+"read-only)."
+msgstr ""
+"{} Videoeintrag/-einträge gelöscht. {} Datei(en) konnten nicht überprüft werden (Speicher ist möglicherweise schreibgeschützt)."
+
+#: media_files/admin.py:1806
+msgid "{} video record(s) deleted (files were already removed from disk)"
+msgstr ""
+"{} Videoeintrag/-einträge gelöscht (Dateien wurden bereits vom Datenträger entfernt)."
+
+#: media_files/admin.py:1812
+msgid "{} video record(s) deleted. {} file(s) were already missing from disk."
+msgstr ""
+"{} Videoeintrag/-einträge gelöscht. {} Datei(en) fehlten bereits vom Datenträger."
+
+#: media_files/admin.py:1818
+msgid "{} video record(s) deleted. Note: Physical files still exist on disk."
+msgstr ""
+"{} Videoeintrag/-einträge gelöscht. Hinweis: Die Datei(en) existieren weiterhin physisch auf dem Datenträger."
+
+#: media_files/admin.py:1862
 msgid "Execution"
 msgstr "Ausführung"
 
-#: media_files/admin.py:1238 media_files/models.py:458 rental/admin.py:350
+#: media_files/admin.py:1865 media_files/models.py:461 rental/admin.py:350
 msgid "Details"
 msgstr "Details"
 
-#: media_files/admin.py:1263 media_files/admin.py:1264
+#: media_files/admin.py:1890 media_files/admin.py:1891
 msgid "🎛️ System Management"
 msgstr "🎛️ Systemverwaltung"
 
@@ -2357,7 +2613,7 @@ msgid "Command execution error"
 msgstr "Fehler bei der Befehlsausführung"
 
 #: media_files/admin_commands.py:168
-#: media_files/templates/admin/system_management.html:423
+#: media_files/templates/admin/system_management.html:419
 msgid "System Management"
 msgstr "Systemverwaltung"
 
@@ -2382,9 +2638,9 @@ msgid "Display name for this storage location"
 msgstr "Anzeigename für diesen Speicherort"
 
 #: media_files/models.py:31
-#: media_files/templates/admin/system_management.html:503
-#: media_files/templates/admin/system_management.html:919
-#: media_files/templates/admin/system_management.html:951
+#: media_files/templates/admin/system_management.html:499
+#: media_files/templates/admin/system_management.html:915
+#: media_files/templates/admin/system_management.html:947
 msgid "Storage Type"
 msgstr "Speichertyp"
 
@@ -2435,7 +2691,7 @@ msgid "Cron-style schedule for automatic scanning (optional)"
 msgstr "Cron-artiger Zeitplan für das automatische Scannen (optional)"
 
 #: media_files/models.py:66 media_files/models.py:101
-#: media_files/templates/admin/system_management.html:535
+#: media_files/templates/admin/system_management.html:531
 msgid "Storage Location"
 msgstr "Speicherort"
 
@@ -2514,10 +2770,6 @@ msgstr "Video-Bitrate (bps)"
 #: media_files/models.py:181
 msgid "Bitrate Mode"
 msgstr "Bitratenmodus"
-
-#: media_files/models.py:186
-msgid "FPS"
-msgstr "FPS"
 
 #: media_files/models.py:191
 msgid "Width"
@@ -2603,63 +2855,59 @@ msgstr "Pfad zum Vorschaubild"
 msgid "Video Files"
 msgstr "Videodateien"
 
-#: media_files/models.py:393
+#: media_files/models.py:396
 msgid "Scan"
 msgstr "Scannen"
 
-#: media_files/models.py:394
-msgid "Copy"
-msgstr "Kopieren"
-
-#: media_files/models.py:395
+#: media_files/models.py:398
 msgid "Move"
 msgstr "Verschieben"
 
-#: media_files/models.py:397
+#: media_files/models.py:400
 msgid "Metadata Update"
 msgstr "Metadatenaktualisierung"
 
-#: media_files/models.py:398
+#: media_files/models.py:401
 msgid "Verify Integrity"
 msgstr "Integrität überprüfen"
 
-#: media_files/models.py:402 registration/models.py:257
+#: media_files/models.py:405 registration/models.py:257
 msgid "Success"
 msgstr "Erfolg"
 
-#: media_files/models.py:416
+#: media_files/models.py:419
 msgid "Operation Type"
 msgstr "Operationstyp"
 
-#: media_files/models.py:424
+#: media_files/models.py:427
 msgid "Source Location"
 msgstr "Quell-Speicherort"
 
-#: media_files/models.py:432
+#: media_files/models.py:435
 msgid "Destination Location"
 msgstr "Ziel-Speicherort"
 
-#: media_files/models.py:439
+#: media_files/models.py:442
 msgid "Performed By"
 msgstr "Durchgeführt von"
 
-#: media_files/models.py:443
+#: media_files/models.py:446
 msgid "Performed At"
 msgstr "Durchgeführt am"
 
-#: media_files/models.py:453
+#: media_files/models.py:456
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
-#: media_files/models.py:459
+#: media_files/models.py:462
 msgid "Additional operation details"
 msgstr "Weitere Details zur Operation"
 
-#: media_files/models.py:465
+#: media_files/models.py:468
 msgid "File Operation"
 msgstr "Dateioperation"
 
-#: media_files/models.py:466
+#: media_files/models.py:469
 msgid "File Operations"
 msgstr "Dateioperationen"
 
@@ -2696,9 +2944,9 @@ msgstr "Aktuelle Videos"
 
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:172
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:191
-#: media_files/templates/admin/system_management.html:445
-#: media_files/templates/admin/system_management.html:556
-#: media_files/templates/admin/system_management.html:725
+#: media_files/templates/admin/system_management.html:441
+#: media_files/templates/admin/system_management.html:552
+#: media_files/templates/admin/system_management.html:721
 msgid "Force rescan"
 msgstr "Erneutes Scannen erzwingen"
 
@@ -2708,9 +2956,9 @@ msgstr "Alle Dateien erneut scannen, auch wenn sie bereits gescannt wurden"
 
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:176
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:192
-#: media_files/templates/admin/system_management.html:460
-#: media_files/templates/admin/system_management.html:571
-#: media_files/templates/admin/system_management.html:740
+#: media_files/templates/admin/system_management.html:456
+#: media_files/templates/admin/system_management.html:567
+#: media_files/templates/admin/system_management.html:736
 msgid "Strict checksum check"
 msgstr "Strenge Prüfsummenprüfung"
 
@@ -2722,8 +2970,8 @@ msgstr ""
 
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:180
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:193
-#: media_files/templates/admin/system_management.html:475
-#: media_files/templates/admin/system_management.html:586
+#: media_files/templates/admin/system_management.html:471
+#: media_files/templates/admin/system_management.html:582
 msgid "Calculate checksums"
 msgstr "Prüfsummen berechnen"
 
@@ -2734,9 +2982,9 @@ msgstr ""
 
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:184
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:194
-#: media_files/templates/admin/system_management.html:490
-#: media_files/templates/admin/system_management.html:601
-#: media_files/templates/admin/system_management.html:755
+#: media_files/templates/admin/system_management.html:486
+#: media_files/templates/admin/system_management.html:597
+#: media_files/templates/admin/system_management.html:751
 msgid "Skip metadata extraction"
 msgstr "Metadatenextraktion überspringen"
 
@@ -2811,29 +3059,29 @@ msgstr "Videodatei nicht verfügbar. Pfad überprüfen:"
 msgid "File"
 msgstr "Datei"
 
-#: media_files/templates/admin/system_management.html:425
+#: media_files/templates/admin/system_management.html:421
 msgid "Run management commands directly from the admin interface."
 msgstr "Führen Sie Verwaltungsbefehle direkt aus der Admin-Oberfläche aus."
 
-#: media_files/templates/admin/system_management.html:431
+#: media_files/templates/admin/system_management.html:427
 msgid "Storage Scanning"
 msgstr "Speicher-Scan"
 
-#: media_files/templates/admin/system_management.html:432
+#: media_files/templates/admin/system_management.html:428
 msgid "Last scan: 2 hours ago"
 msgstr "Letzter Scan: vor 2 Stunden"
 
-#: media_files/templates/admin/system_management.html:434
+#: media_files/templates/admin/system_management.html:430
 msgid "Scan storage locations to find and index video files."
 msgstr "Scannen Sie Speicherorte, um Videodateien zu finden und zu indexieren."
 
-#: media_files/templates/admin/system_management.html:440
+#: media_files/templates/admin/system_management.html:436
 msgid "Auto Scan All Storages"
 msgstr "Alle Speicher automatisch scannen"
 
-#: media_files/templates/admin/system_management.html:447
-#: media_files/templates/admin/system_management.html:558
-#: media_files/templates/admin/system_management.html:727
+#: media_files/templates/admin/system_management.html:443
+#: media_files/templates/admin/system_management.html:554
+#: media_files/templates/admin/system_management.html:723
 msgid ""
 "Rescans all files even if they were recently scanned. Use this when you have "
 "made changes to files outside the system."
@@ -2842,20 +3090,20 @@ msgstr ""
 "Verwenden Sie diese Option, wenn Sie Änderungen an Dateien außerhalb des "
 "Systems vorgenommen haben."
 
-#: media_files/templates/admin/system_management.html:449
-#: media_files/templates/admin/system_management.html:560
-#: media_files/templates/admin/system_management.html:729
+#: media_files/templates/admin/system_management.html:445
+#: media_files/templates/admin/system_management.html:556
+#: media_files/templates/admin/system_management.html:725
 msgid "Help for Force rescan option"
 msgstr "Hilfe zur Option 'Erneutes Scannen erzwingen'"
 
-#: media_files/templates/admin/system_management.html:453
-#: media_files/templates/admin/system_management.html:564
-#: media_files/templates/admin/system_management.html:733
+#: media_files/templates/admin/system_management.html:449
+#: media_files/templates/admin/system_management.html:560
+#: media_files/templates/admin/system_management.html:729
 msgid "Rescans all files even if they were recently scanned"
 msgstr "Scannt alle Dateien erneut, auch wenn sie kürzlich gescannt wurden"
 
-#: media_files/templates/admin/system_management.html:462
-#: media_files/templates/admin/system_management.html:573
+#: media_files/templates/admin/system_management.html:458
+#: media_files/templates/admin/system_management.html:569
 msgid ""
 "Compares file checksums to detect changes reliably. This is slower but "
 "ensures accurate change detection, especially for large files."
@@ -2864,20 +3112,20 @@ msgstr ""
 "langsamer, sorgt aber für eine genaue Änderungserkennung, besonders bei "
 "großen Dateien."
 
-#: media_files/templates/admin/system_management.html:464
-#: media_files/templates/admin/system_management.html:575
-#: media_files/templates/admin/system_management.html:744
+#: media_files/templates/admin/system_management.html:460
+#: media_files/templates/admin/system_management.html:571
+#: media_files/templates/admin/system_management.html:740
 msgid "Help for Strict checksum check option"
 msgstr "Hilfe zur Option 'Strenge Prüfsummenprüfung'"
 
-#: media_files/templates/admin/system_management.html:468
-#: media_files/templates/admin/system_management.html:579
-#: media_files/templates/admin/system_management.html:748
+#: media_files/templates/admin/system_management.html:464
+#: media_files/templates/admin/system_management.html:575
+#: media_files/templates/admin/system_management.html:744
 msgid "Compares file checksums to detect changes reliably"
 msgstr "Vergleicht Datei-Prüfsummen, um Änderungen zuverlässig zu erkennen"
 
-#: media_files/templates/admin/system_management.html:477
-#: media_files/templates/admin/system_management.html:588
+#: media_files/templates/admin/system_management.html:473
+#: media_files/templates/admin/system_management.html:584
 msgid ""
 "Generates and stores file checksums for integrity verification. This slows "
 "down scanning but enables reliable duplicate detection and corruption checks."
@@ -2886,19 +3134,19 @@ msgstr ""
 "verlangsamt den Scan, ermöglicht aber eine zuverlässige Duplikaterkennung "
 "und Prüfung auf Beschädigungen."
 
-#: media_files/templates/admin/system_management.html:479
-#: media_files/templates/admin/system_management.html:590
+#: media_files/templates/admin/system_management.html:475
+#: media_files/templates/admin/system_management.html:586
 msgid "Help for Calculate checksums option"
 msgstr "Hilfe zur Option 'Prüfsummen berechnen'"
 
-#: media_files/templates/admin/system_management.html:483
-#: media_files/templates/admin/system_management.html:594
+#: media_files/templates/admin/system_management.html:479
+#: media_files/templates/admin/system_management.html:590
 msgid "Generates and stores file checksums for integrity verification"
 msgstr "Erzeugt und speichert Datei-Prüfsummen zur Integritätsprüfung"
 
-#: media_files/templates/admin/system_management.html:492
-#: media_files/templates/admin/system_management.html:603
-#: media_files/templates/admin/system_management.html:757
+#: media_files/templates/admin/system_management.html:488
+#: media_files/templates/admin/system_management.html:599
+#: media_files/templates/admin/system_management.html:753
 msgid ""
 "Speeds up scanning by not extracting video properties (duration, codec, "
 "resolution). Use this for quick file inventory without detailed information."
@@ -2907,30 +3155,30 @@ msgstr ""
 "nicht ausgelesen werden. Verwenden Sie dies für eine schnelle "
 "Bestandsaufnahme ohne Detailinformationen."
 
-#: media_files/templates/admin/system_management.html:494
-#: media_files/templates/admin/system_management.html:605
-#: media_files/templates/admin/system_management.html:759
+#: media_files/templates/admin/system_management.html:490
+#: media_files/templates/admin/system_management.html:601
+#: media_files/templates/admin/system_management.html:755
 msgid "Help for Skip metadata extraction option"
 msgstr "Hilfe zur Option 'Metadatenextraktion überspringen'"
 
-#: media_files/templates/admin/system_management.html:498
-#: media_files/templates/admin/system_management.html:609
-#: media_files/templates/admin/system_management.html:763
+#: media_files/templates/admin/system_management.html:494
+#: media_files/templates/admin/system_management.html:605
+#: media_files/templates/admin/system_management.html:759
 msgid "Speeds up scanning by not extracting video properties"
 msgstr ""
 "Beschleunigt das Scannen, indem Videoeigenschaften nicht ausgelesen werden"
 
-#: media_files/templates/admin/system_management.html:503
-#: media_files/templates/admin/system_management.html:634
-#: media_files/templates/admin/system_management.html:691
-#: media_files/templates/admin/system_management.html:803
-#: media_files/templates/admin/system_management.html:919
-#: media_files/templates/admin/system_management.html:951
-#: media_files/templates/admin/system_management.html:970
+#: media_files/templates/admin/system_management.html:499
+#: media_files/templates/admin/system_management.html:630
+#: media_files/templates/admin/system_management.html:687
+#: media_files/templates/admin/system_management.html:799
+#: media_files/templates/admin/system_management.html:915
+#: media_files/templates/admin/system_management.html:947
+#: media_files/templates/admin/system_management.html:966
 msgid "optional"
 msgstr "optional"
 
-#: media_files/templates/admin/system_management.html:505
+#: media_files/templates/admin/system_management.html:501
 msgid ""
 "Filter scan by storage type. ARCHIVE stores master files, PLAYOUT contains "
 "broadcast-ready files, CUSTOM is for other uses."
@@ -2938,30 +3186,30 @@ msgstr ""
 "Scan nach Speichertyp filtern. ARCHIVE speichert Masterdateien, PLAYOUT "
 "enthält sendefertige Dateien, CUSTOM ist für andere Verwendungen."
 
-#: media_files/templates/admin/system_management.html:507
-#: media_files/templates/admin/system_management.html:923
+#: media_files/templates/admin/system_management.html:503
+#: media_files/templates/admin/system_management.html:919
 msgid "Help for Storage Type option"
 msgstr "Hilfe zur Option 'Speichertyp'"
 
-#: media_files/templates/admin/system_management.html:511
+#: media_files/templates/admin/system_management.html:507
 msgid "Filter scan by storage type"
 msgstr "Scan nach Speichertyp filtern"
 
-#: media_files/templates/admin/system_management.html:514
-#: media_files/templates/admin/system_management.html:930
-#: media_files/templates/admin/system_management.html:962
+#: media_files/templates/admin/system_management.html:510
+#: media_files/templates/admin/system_management.html:926
+#: media_files/templates/admin/system_management.html:958
 msgid "All types"
 msgstr "Alle Typen"
 
-#: media_files/templates/admin/system_management.html:522
+#: media_files/templates/admin/system_management.html:518
 msgid "Run Auto Scan"
 msgstr "Automatischen Scan ausführen"
 
-#: media_files/templates/admin/system_management.html:532
+#: media_files/templates/admin/system_management.html:528
 msgid "Scan Specific Storage"
 msgstr "Bestimmten Speicher scannen"
 
-#: media_files/templates/admin/system_management.html:537
+#: media_files/templates/admin/system_management.html:533
 msgid ""
 "Select a specific storage location to scan. Leave empty to scan all "
 "locations."
@@ -2969,77 +3217,77 @@ msgstr ""
 "Wählen Sie einen bestimmten Speicherort zum Scannen aus. Leer lassen, um "
 "alle Speicherorte zu scannen."
 
-#: media_files/templates/admin/system_management.html:539
+#: media_files/templates/admin/system_management.html:535
 msgid "Help for Storage Location option"
 msgstr "Hilfe zur Option 'Speicherort'"
 
-#: media_files/templates/admin/system_management.html:543
+#: media_files/templates/admin/system_management.html:539
 msgid "Select a specific storage location to scan"
 msgstr "Einen bestimmten Speicherort zum Scannen auswählen"
 
-#: media_files/templates/admin/system_management.html:546
+#: media_files/templates/admin/system_management.html:542
 msgid "All storages"
 msgstr "Alle Speicher"
 
-#: media_files/templates/admin/system_management.html:614
+#: media_files/templates/admin/system_management.html:610
 msgid "Run Scan"
 msgstr "Scan ausführen"
 
-#: media_files/templates/admin/system_management.html:622
+#: media_files/templates/admin/system_management.html:618
 msgid "Synchronization"
 msgstr "Synchronisierung"
 
-#: media_files/templates/admin/system_management.html:623
+#: media_files/templates/admin/system_management.html:619
 msgid "Last sync: 1 hour ago"
 msgstr "Letzter Abgleich: vor 1 Stunde"
 
-#: media_files/templates/admin/system_management.html:625
+#: media_files/templates/admin/system_management.html:621
 msgid "Sync licenses with videos and link orphan files."
 msgstr ""
 "Freistellungen mit Videos synchronisieren und verwaiste Dateien verknüpfen."
 
-#: media_files/templates/admin/system_management.html:631
+#: media_files/templates/admin/system_management.html:627
 msgid "Sync Licenses and Videos"
 msgstr "Freistellungen und Videos synchronisieren"
 
-#: media_files/templates/admin/system_management.html:634
-#: media_files/templates/admin/system_management.html:691
+#: media_files/templates/admin/system_management.html:630
+#: media_files/templates/admin/system_management.html:687
 msgid "License Number"
 msgstr "Freistellungsnummer"
 
-#: media_files/templates/admin/system_management.html:636
+#: media_files/templates/admin/system_management.html:632
 msgid ""
 "Specify a specific license number to sync. Leave empty to sync all licenses."
 msgstr ""
 "Geben Sie eine bestimmte Freistellungsnummer an, die synchronisiert werden "
 "soll. Leer lassen, um alle Freistellungen zu synchronisieren."
 
-#: media_files/templates/admin/system_management.html:638
-#: media_files/templates/admin/system_management.html:695
+#: media_files/templates/admin/system_management.html:634
+#: media_files/templates/admin/system_management.html:691
 msgid "Help for License Number option"
 msgstr "Hilfe zur Option 'Freistellungsnummer'"
 
-#: media_files/templates/admin/system_management.html:642
+#: media_files/templates/admin/system_management.html:638
 msgid "Specify a specific license number to sync"
 msgstr ""
 "Geben Sie eine bestimmte Freistellungsnummer für die Synchronisierung an"
 
-#: media_files/templates/admin/system_management.html:644
-#: media_files/templates/admin/system_management.html:701
-#: media_files/templates/admin/system_management.html:980
+#: media_files/templates/admin/system_management.html:640
+#: media_files/templates/admin/system_management.html:697
+#: media_files/templates/admin/system_management.html:976
 msgid "Leave empty for all"
 msgstr "Für alle leer lassen"
 
-#: media_files/templates/admin/system_management.html:650
-#: media_files/templates/admin/system_management.html:771
-#: media_files/templates/admin/system_management.html:869
-#: media_files/templates/admin/system_management.html:986
+#: media_files/templates/admin/system_management.html:646
+#: media_files/templates/admin/system_management.html:767
+#: media_files/templates/admin/system_management.html:865
+#: media_files/templates/admin/system_management.html:982
 msgid "Dry run"
 msgstr "Testlauf"
 
-#: media_files/templates/admin/system_management.html:652
-#: media_files/templates/admin/system_management.html:773
-#: media_files/templates/admin/system_management.html:871
+#: media_files/templates/admin/system_management.html:648
+#: media_files/templates/admin/system_management.html:769
+#: media_files/templates/admin/system_management.html:867
 msgid ""
 "Simulates the operation without making changes. Review what would happen "
 "before actually executing."
@@ -3047,23 +3295,23 @@ msgstr ""
 "Simuliert die Ausführung, ohne Änderungen vorzunehmen. Prüfen Sie vorab, was "
 "passieren würde."
 
-#: media_files/templates/admin/system_management.html:654
-#: media_files/templates/admin/system_management.html:775
-#: media_files/templates/admin/system_management.html:873
+#: media_files/templates/admin/system_management.html:650
+#: media_files/templates/admin/system_management.html:771
+#: media_files/templates/admin/system_management.html:869
 msgid "Help for Dry run option"
 msgstr "Hilfe zur Option 'Testlauf'"
 
-#: media_files/templates/admin/system_management.html:658
-#: media_files/templates/admin/system_management.html:779
-#: media_files/templates/admin/system_management.html:877
+#: media_files/templates/admin/system_management.html:654
+#: media_files/templates/admin/system_management.html:775
+#: media_files/templates/admin/system_management.html:873
 msgid "Simulates the operation without making changes"
 msgstr "Simuliert den Vorgang, ohne Änderungen vorzunehmen"
 
-#: media_files/templates/admin/system_management.html:665
+#: media_files/templates/admin/system_management.html:661
 msgid "Force sync duration"
 msgstr "Synchronisierungsdauer erzwingen"
 
-#: media_files/templates/admin/system_management.html:667
+#: media_files/templates/admin/system_management.html:663
 msgid ""
 "Updates license duration even if it already has a value. Use when video "
 "duration has changed."
@@ -3071,23 +3319,23 @@ msgstr ""
 "Aktualisiert die Dauer der Freistellung, auch wenn bereits ein Wert "
 "vorhanden ist. Verwenden Sie dies, wenn sich die Videodauer geändert hat."
 
-#: media_files/templates/admin/system_management.html:669
+#: media_files/templates/admin/system_management.html:665
 msgid "Help for Force sync duration option"
 msgstr "Hilfe zur Option 'Synchronisierungsdauer erzwingen'"
 
-#: media_files/templates/admin/system_management.html:673
+#: media_files/templates/admin/system_management.html:669
 msgid "Updates license duration even if it already has a value"
 msgstr "Aktualisiert die Dauer der Freistellung auch bei vorhandenem Wert"
 
-#: media_files/templates/admin/system_management.html:678
+#: media_files/templates/admin/system_management.html:674
 msgid "Sync Licenses"
 msgstr "Freistellungen abgleichen"
 
-#: media_files/templates/admin/system_management.html:688
+#: media_files/templates/admin/system_management.html:684
 msgid "Link Orphan Licenses"
 msgstr "Verwaiste Freistellungen verbinden"
 
-#: media_files/templates/admin/system_management.html:693
+#: media_files/templates/admin/system_management.html:689
 msgid ""
 "Specify a specific license number to link. Leave empty to link all orphan "
 "licenses."
@@ -3095,15 +3343,15 @@ msgstr ""
 "Geben Sie eine bestimmte Freistellungsnummer an, die verknüpft werden soll. "
 "Leer lassen, um alle verwaisten Freistellungen zu verknüpfen."
 
-#: media_files/templates/admin/system_management.html:699
+#: media_files/templates/admin/system_management.html:695
 msgid "Specify a specific license number to link"
 msgstr "Geben Sie eine bestimmte Freistellungsnummer für die Verknüpfung an"
 
-#: media_files/templates/admin/system_management.html:707
+#: media_files/templates/admin/system_management.html:703
 msgid "Scan storages first"
 msgstr "Speicher zuerst scannen"
 
-#: media_files/templates/admin/system_management.html:709
+#: media_files/templates/admin/system_management.html:705
 msgid ""
 "Performs a storage scan before linking licenses. Recommended when you have "
 "added new video files."
@@ -3111,19 +3359,19 @@ msgstr ""
 "Führt vor der Verknüpfung der Freistellungen einen Speicherscan durch. "
 "Empfehlenswert, wenn Sie neue Videodateien hinzugefügt haben."
 
-#: media_files/templates/admin/system_management.html:711
+#: media_files/templates/admin/system_management.html:707
 msgid "Help for Scan storages first option"
 msgstr "Hilfe zur Option 'Speicher zuerst scannen'"
 
-#: media_files/templates/admin/system_management.html:715
+#: media_files/templates/admin/system_management.html:711
 msgid "Performs a storage scan before linking licenses"
 msgstr "Führt einen Speicherscan vor der Verknüpfung der Freistellungen durch"
 
-#: media_files/templates/admin/system_management.html:720
+#: media_files/templates/admin/system_management.html:716
 msgid "Scan Options"
 msgstr "Scan-Optionen"
 
-#: media_files/templates/admin/system_management.html:742
+#: media_files/templates/admin/system_management.html:738
 msgid ""
 "Compares file checksums to detect changes reliably. This is slower but "
 "ensures accurate change detection."
@@ -3131,31 +3379,31 @@ msgstr ""
 "Vergleicht Datei-Checksummen, um Änderungen zuverlässig zu erkennen. Dies "
 "ist langsamer, gewährleistet aber eine genaue Erkennung von Änderungen."
 
-#: media_files/templates/admin/system_management.html:784
+#: media_files/templates/admin/system_management.html:780
 msgid "Link Orphans"
 msgstr "Verwaiste Freistellungen verknüpfen"
 
-#: media_files/templates/admin/system_management.html:792
+#: media_files/templates/admin/system_management.html:788
 msgid "Cleanup & Maintenance"
 msgstr "Bereinigung & Wartung"
 
-#: media_files/templates/admin/system_management.html:793
+#: media_files/templates/admin/system_management.html:789
 msgid "Last cleanup: 3 days ago"
 msgstr "Letztes Aufräumen: vor 3 Tagen"
 
-#: media_files/templates/admin/system_management.html:795
+#: media_files/templates/admin/system_management.html:791
 msgid "Clean up playout storage and move videos to archive."
 msgstr "Playout-Speicher aufräumen und Videos ins Archiv verschieben."
 
-#: media_files/templates/admin/system_management.html:800
+#: media_files/templates/admin/system_management.html:796
 msgid "Cleanup Playout Storage"
 msgstr "Playout-Speicher aufräumen"
 
-#: media_files/templates/admin/system_management.html:803
+#: media_files/templates/admin/system_management.html:799
 msgid "Playout Storage"
 msgstr "Playout-Speicher"
 
-#: media_files/templates/admin/system_management.html:805
+#: media_files/templates/admin/system_management.html:801
 msgid ""
 "Select a specific playout storage to clean up. Leave empty to clean up all "
 "playout storages."
@@ -3163,23 +3411,23 @@ msgstr ""
 "Wählen Sie einen bestimmten Playout-Speicher zum Aufräumen aus. Leer lassen, "
 "um alle Playout-Speicher aufzuräumen."
 
-#: media_files/templates/admin/system_management.html:807
+#: media_files/templates/admin/system_management.html:803
 msgid "Help for Playout Storage option"
 msgstr "Hilfe zur Option 'Playout-Speicher'"
 
-#: media_files/templates/admin/system_management.html:811
+#: media_files/templates/admin/system_management.html:807
 msgid "Select a specific playout storage to clean up"
 msgstr "Wählen Sie einen bestimmten Playout-Speicher zum Bereinigen aus"
 
-#: media_files/templates/admin/system_management.html:814
+#: media_files/templates/admin/system_management.html:810
 msgid "All playout storages"
 msgstr "Alle Playout-Speicher"
 
-#: media_files/templates/admin/system_management.html:822
+#: media_files/templates/admin/system_management.html:818
 msgid "Older than (days)"
 msgstr "Älter als (Tage)"
 
-#: media_files/templates/admin/system_management.html:824
+#: media_files/templates/admin/system_management.html:820
 msgid ""
 "Only moves videos that are older than this number of days. Default is 7 days "
 "to ensure recently used files are not moved."
@@ -3187,23 +3435,23 @@ msgstr ""
 "Verschiebt nur Videos, die älter als diese Anzahl an Tagen sind. Standard "
 "ist 7 Tage, damit kürzlich genutzte Dateien nicht verschoben werden."
 
-#: media_files/templates/admin/system_management.html:826
+#: media_files/templates/admin/system_management.html:822
 msgid "Help for Older than option"
 msgstr "Hilfe zur Option 'Älter als'"
 
-#: media_files/templates/admin/system_management.html:830
+#: media_files/templates/admin/system_management.html:826
 msgid "Only moves videos that are older than this number of days"
 msgstr "Verschiebt nur Videos, die älter als diese Anzahl an Tagen sind"
 
-#: media_files/templates/admin/system_management.html:833
+#: media_files/templates/admin/system_management.html:829
 msgid "Move videos older than N days"
 msgstr "Videos verschieben, die älter als N Tage sind"
 
-#: media_files/templates/admin/system_management.html:839
+#: media_files/templates/admin/system_management.html:835
 msgid "Check file attributes"
 msgstr "Dateiattribute prüfen"
 
-#: media_files/templates/admin/system_management.html:841
+#: media_files/templates/admin/system_management.html:837
 msgid ""
 "Verifies if files have Windows system/hidden attributes indicating they are "
 "in use by broadcast automation. Prevents moving active files."
@@ -3212,20 +3460,20 @@ msgstr ""
 "anzeigen, dass sie von der Sendeautomation verwendet werden. Verhindert das "
 "Verschieben aktiver Dateien."
 
-#: media_files/templates/admin/system_management.html:843
+#: media_files/templates/admin/system_management.html:839
 msgid "Warning for Check file attributes option"
 msgstr "Warnung zur Option 'Dateiattribute prüfen'"
 
-#: media_files/templates/admin/system_management.html:847
+#: media_files/templates/admin/system_management.html:843
 msgid "Verifies if files have Windows system/hidden attributes"
 msgstr ""
 "Überprüft, ob Dateien Windows-System- oder versteckte Attribute besitzen"
 
-#: media_files/templates/admin/system_management.html:854
+#: media_files/templates/admin/system_management.html:850
 msgid "Check file locks"
 msgstr "Dateisperren überprüfen"
 
-#: media_files/templates/admin/system_management.html:856
+#: media_files/templates/admin/system_management.html:852
 msgid ""
 "Checks if files are currently locked by other processes. Essential to avoid "
 "corrupting files during active use."
@@ -3234,58 +3482,58 @@ msgstr ""
 "wichtig, um eine Beschädigung der Dateien während der aktiven Nutzung zu "
 "vermeiden."
 
-#: media_files/templates/admin/system_management.html:858
+#: media_files/templates/admin/system_management.html:854
 msgid "Warning for Check file locks option"
 msgstr "Warnung zur Option 'Dateisperren überprüfen'"
 
-#: media_files/templates/admin/system_management.html:862
+#: media_files/templates/admin/system_management.html:858
 msgid "Checks if files are currently locked by other processes"
 msgstr "Überprüft, ob Dateien momentan von anderen Prozessen gesperrt sind"
 
-#: media_files/templates/admin/system_management.html:882
+#: media_files/templates/admin/system_management.html:878
 msgid "Run Cleanup"
 msgstr "Bereinigung starten"
 
-#: media_files/templates/admin/system_management.html:891
+#: media_files/templates/admin/system_management.html:887
 msgid "Last duplicate check: 1 day ago"
 msgstr "Letzte Duplikatprüfung: vor 1 Tag"
 
-#: media_files/templates/admin/system_management.html:893
+#: media_files/templates/admin/system_management.html:889
 msgid "Find and manage duplicate video files."
 msgstr "Duplizierte Videodateien finden und verwalten."
 
-#: media_files/templates/admin/system_management.html:899
-#: media_files/templates/admin/system_management.html:938
+#: media_files/templates/admin/system_management.html:895
+#: media_files/templates/admin/system_management.html:934
 msgid "Find Duplicates"
 msgstr "Duplikate finden"
 
-#: media_files/templates/admin/system_management.html:902
+#: media_files/templates/admin/system_management.html:898
 msgid "Output Format"
 msgstr "Ausgabeformat"
 
-#: media_files/templates/admin/system_management.html:904
+#: media_files/templates/admin/system_management.html:900
 msgid ""
 "Console format is human-readable, JSON format is for programmatic processing."
 msgstr ""
 "Konsolenformat ist menschenlesbar, JSON-Format ist für die automatisierte "
 "Verarbeitung geeignet."
 
-#: media_files/templates/admin/system_management.html:906
+#: media_files/templates/admin/system_management.html:902
 msgid "Help for Output Format option"
 msgstr "Hilfe zur Option 'Ausgabeformat'"
 
-#: media_files/templates/admin/system_management.html:910
+#: media_files/templates/admin/system_management.html:906
 msgid ""
 "Console format is human-readable, JSON format is for programmatic processing"
 msgstr ""
 "Konsolenformat ist für Menschen lesbar, JSON-Format ist für die "
 "automatisierte Verarbeitung geeignet"
 
-#: media_files/templates/admin/system_management.html:913
+#: media_files/templates/admin/system_management.html:909
 msgid "Console (readable)"
 msgstr "Konsole (lesbar)"
 
-#: media_files/templates/admin/system_management.html:921
+#: media_files/templates/admin/system_management.html:917
 msgid ""
 "Filter duplicate search by storage type. ARCHIVE stores master files, "
 "PLAYOUT contains broadcast-ready files, CUSTOM is for other uses."
@@ -3293,16 +3541,16 @@ msgstr ""
 "Duplikatsuche nach Speichertyp filtern. ARCHIVE speichert Masterdateien, "
 "PLAYOUT enthält sendefertige Dateien, CUSTOM ist für andere Zwecke."
 
-#: media_files/templates/admin/system_management.html:927
+#: media_files/templates/admin/system_management.html:923
 msgid "Filter duplicate search by storage type"
 msgstr "Duplikatsuche nach Speichertyp filtern"
 
-#: media_files/templates/admin/system_management.html:948
-#: media_files/templates/admin/system_management.html:1000
+#: media_files/templates/admin/system_management.html:944
+#: media_files/templates/admin/system_management.html:996
 msgid "Cleanup Duplicates"
 msgstr "Duplikate bereinigen"
 
-#: media_files/templates/admin/system_management.html:953
+#: media_files/templates/admin/system_management.html:949
 msgid ""
 "Filter duplicate cleanup by storage type. Be careful when selecting specific "
 "types as this permanently deletes files."
@@ -3310,19 +3558,19 @@ msgstr ""
 "Filtern Sie die Duplikatbereinigung nach Speichertyp. Seien Sie vorsichtig "
 "bei der Auswahl bestimmter Typen, da dies Dateien dauerhaft löscht."
 
-#: media_files/templates/admin/system_management.html:955
+#: media_files/templates/admin/system_management.html:951
 msgid "Warning for Storage Type option"
 msgstr "Warnung zur Option 'Speichertyp'"
 
-#: media_files/templates/admin/system_management.html:959
+#: media_files/templates/admin/system_management.html:955
 msgid "Filter duplicate cleanup by storage type"
 msgstr "Duplikatbereinigung nach Speichertyp filtern"
 
-#: media_files/templates/admin/system_management.html:970
+#: media_files/templates/admin/system_management.html:966
 msgid "Video Number"
 msgstr "Videonummer"
 
-#: media_files/templates/admin/system_management.html:972
+#: media_files/templates/admin/system_management.html:968
 msgid ""
 "Specify a specific video number to clean up duplicates for. Leave empty to "
 "clean up all duplicates."
@@ -3330,15 +3578,15 @@ msgstr ""
 "Geben Sie eine bestimmte Videonummer für die Duplikatbereinigung an. Leer "
 "lassen, um alle Duplikate zu bereinigen."
 
-#: media_files/templates/admin/system_management.html:974
+#: media_files/templates/admin/system_management.html:970
 msgid "Warning for Video Number option"
 msgstr "Warnung zur Option 'Videonummer'"
 
-#: media_files/templates/admin/system_management.html:978
+#: media_files/templates/admin/system_management.html:974
 msgid "Specify a specific video number to clean up duplicates for"
 msgstr "Geben Sie eine bestimmte Videonummer zur Duplikatbereinigung an"
 
-#: media_files/templates/admin/system_management.html:988
+#: media_files/templates/admin/system_management.html:984
 msgid ""
 "STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting. "
 "Review carefully before proceeding!"
@@ -3346,17 +3594,17 @@ msgstr ""
 "DRINGEND EMPFOHLEN: Zeigt an, was gelöscht würde, ohne tatsächlich zu "
 "löschen. Bitte prüfen Sie alles sorgfältig, bevor Sie fortfahren!"
 
-#: media_files/templates/admin/system_management.html:990
+#: media_files/templates/admin/system_management.html:986
 msgid "Warning for Dry run option"
 msgstr "Warnung zur Option 'Probelauf'"
 
-#: media_files/templates/admin/system_management.html:994
+#: media_files/templates/admin/system_management.html:990
 msgid ""
 "STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting"
 msgstr ""
 "DRINGEND EMPFOHLEN: Zeigt an, was gelöscht würde, ohne tatsächlich zu löschen"
 
-#: media_files/templates/admin/system_management.html:996
+#: media_files/templates/admin/system_management.html:992
 msgid "Recommended! Uncheck only when you're sure."
 msgstr "Empfohlen! Entfernen Sie das Häkchen nur, wenn Sie sich sicher sind."
 
@@ -3781,7 +4029,7 @@ msgid "Birthday"
 msgstr "Geburtstag"
 
 #: registration/forms.py:135 registration/templates/navbar.html:135
-#: ok_tools/templates/base.html:134 ok_tools/templates/guest_welcome.html:85
+#: ok_tools/templates/base.html:136 ok_tools/templates/guest_welcome.html:85
 msgid "Register"
 msgstr "Registrieren"
 
@@ -3814,14 +4062,12 @@ msgid "Users"
 msgstr "Nutzer"
 
 #: registration/models.py:86
-#, fuzzy
-#| msgid "Full name"
 msgid "Full Name"
 msgstr "Vollständiger Name"
 
 #: registration/models.py:90
 msgid "Full name of the media authority (e.g., \"Offener Kanal Dessau\")"
-msgstr ""
+msgstr "Vollständiger Name der Medienanstalt (z. B. „Offener Kanal Dessau“)"
 
 #: registration/models.py:100
 msgid "Media Authorities"
@@ -4090,14 +4336,14 @@ msgstr "Übersicht"
 msgid "Create license"
 msgstr "Freistellung beantragen"
 
-#: registration/templates/navbar.html:129 ok_tools/templates/base.html:84
-#: ok_tools/templates/base.html:126 ok_tools/templates/dashboard.html:150
+#: registration/templates/navbar.html:129 ok_tools/templates/base.html:86
+#: ok_tools/templates/base.html:128 ok_tools/templates/dashboard.html:150
 msgid "Logout"
 msgstr "Abmelden"
 
 #: registration/templates/navbar.html:141
 #: registration/templates/registration/login.html:6
-#: ok_tools/templates/base.html:135 ok_tools/templates/guest_welcome.html:82
+#: ok_tools/templates/base.html:137 ok_tools/templates/guest_welcome.html:82
 msgid "Login"
 msgstr "Anmelden"
 
@@ -6001,11 +6247,81 @@ msgstr ""
 "Beim Senden Ihrer Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie "
 "es später erneut."
 
-#: ok_tools/settings.py:323
+#: ok_tools/admin_celery.py:20
+msgid "Run selected periodic tasks now"
+msgstr "Ausgewählte periodische Aufgaben jetzt ausführen"
+
+#: ok_tools/admin_celery.py:35 ok_tools/admin_celery.py:146
+#, python-format
+msgid "Task \"%(task_name)s\" not found in Celery app."
+msgstr "Aufgabe \"%(task_name)s\" wurde in der Celery-App nicht gefunden."
+
+#: ok_tools/admin_celery.py:54
+#, python-format
+msgid "Task \"%(task_name)s\" started. Task ID: %(task_id)s"
+msgstr "Aufgabe \"%(task_name)s\" gestartet. Vorgangs-ID: %(task_id)s"
+
+#: ok_tools/admin_celery.py:64 ok_tools/admin_celery.py:171
+#, python-format
+msgid "Error running task \"%(task_name)s\": %(error)s"
+msgstr "Fehler beim Ausführen der Aufgabe \"%(task_name)s\": %(error)s"
+
+#: ok_tools/admin_celery.py:72
+#, python-format
+msgid "%d task(s) started successfully."
+msgstr "%d Aufgabe(n) erfolgreich gestartet."
+
+#: ok_tools/admin_celery.py:74
+#, python-format
+msgid "%d task(s) failed to start."
+msgstr "%d Aufgabe(n) konnten nicht gestartet werden."
+
+#: ok_tools/admin_celery.py:102
+msgid "Total runs: {}"
+msgstr "Gesamtausführungen: {}"
+
+#: ok_tools/admin_celery.py:104
+msgid "Never run"
+msgstr "Nie ausgeführt"
+
+#: ok_tools/admin_celery.py:105
+msgid "Last Run"
+msgstr "Letzte Ausführung"
+
+#: ok_tools/admin_celery.py:110
+msgid "No task specified"
+msgstr "Keine Aufgabe angegeben"
+
+#: ok_tools/admin_celery.py:117
+msgid "No results yet"
+msgstr "Noch keine Ergebnisse"
+
+#: ok_tools/admin_celery.py:131
+msgid "View Results"
+msgstr "Ergebnisse anzeigen"
+
+#: ok_tools/admin_celery.py:133
+msgid "Last: {}"
+msgstr "Zuletzt: {}"
+
+#: ok_tools/admin_celery.py:133
+msgid "N/A"
+msgstr "k. A."
+
+#: ok_tools/admin_celery.py:135
+msgid "Task Results"
+msgstr "Aufgabenergebnisse"
+
+#: ok_tools/admin_celery.py:163
+#, python-format
+msgid "Task \"%(task_name)s\" started successfully. Task ID: %(task_id)s"
+msgstr "Aufgabe \"%(task_name)s\" wurde erfolgreich gestartet. Vorgangs-ID: %(task_id)s"
+
+#: ok_tools/settings.py:368
 msgid "Open Channel Merseburg-Querfurt e.V."
 msgstr "Offener Kanal Merseburg-Querfurt e.V."
 
-#: ok_tools/settings.py:324
+#: ok_tools/settings.py:370
 msgid "OK Merseburg"
 msgstr "OK Merseburg"
 
@@ -6013,6 +6329,21 @@ msgstr "OK Merseburg"
 #: ok_tools/templates/admin/base_site.html:126
 msgid "Administration interface"
 msgstr "Verwaltungsoberfläche"
+
+#: ok_tools/templates/admin/django_celery_beat/periodictask/change_form.html:8
+msgid "Run task now"
+msgstr "Aufgabe jetzt ausführen"
+
+#: ok_tools/templates/admin/django_celery_beat/periodictask/change_form.html:10
+msgid "Are you sure you want to run this task now?"
+msgstr "Sind Sie sicher, dass Sie diese Aufgabe jetzt ausführen möchten?"
+
+#: ok_tools/templates/admin/django_celery_beat/periodictask/change_form.html:13
+msgid ""
+"This will execute the task immediately asynchronously. Check task results to "
+"see the execution status."
+msgstr ""
+"Dies führt die Aufgabe sofort asynchron aus. Überprüfen Sie die Aufgabenergebnisse, um den Ausführungsstatus zu sehen."
 
 #: ok_tools/templates/admin/index.html:113
 #: ok_tools/templates/admin/nav_sidebar.html:13
@@ -6044,7 +6375,8 @@ msgstr "Ändern"
 
 #: ok_tools/templates/admin/index.html:158
 msgid "You don't have permission to view or edit anything."
-msgstr "Sie haben keine Berechtigung, irgendetwas anzusehen oder zu bearbeiten."
+msgstr ""
+"Sie haben keine Berechtigung, irgendetwas anzusehen oder zu bearbeiten."
 
 #: ok_tools/templates/admin/index.html:238
 msgid "Recent actions"
@@ -6098,20 +6430,20 @@ msgstr "OK Tools Dashboard"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: ok_tools/templates/base.html:76
+#: ok_tools/templates/base.html:77
 msgid "Website"
 msgstr "Website"
 
-#: ok_tools/templates/base.html:168
+#: ok_tools/templates/base.html:170
 msgid "Coming Soon!"
 msgstr "Demnächst verfügbar!"
 
-#: ok_tools/templates/base.html:176 ok_tools/templates/dashboard.html:206
+#: ok_tools/templates/base.html:178 ok_tools/templates/dashboard.html:206
 #: ok_tools/templates/dashboard.html:210
 msgid "Rental Dashboard"
 msgstr "Ausleih-Dashboard"
 
-#: ok_tools/templates/base.html:178
+#: ok_tools/templates/base.html:180
 msgid ""
 "We're working hard to bring you the rental dashboard feature. Soon you'll be "
 "able to book equipment and studio rooms with ease!"
@@ -6119,11 +6451,11 @@ msgstr ""
 "Wir arbeiten daran, Ihnen die Ausleih-Dashboard-Funktion bereitzustellen. "
 "Bald können Sie Ausrüstung und Studioräume ganz einfach buchen!"
 
-#: ok_tools/templates/base.html:183
+#: ok_tools/templates/base.html:185
 msgid "Development Progress"
 msgstr "Entwicklungsfortschritt"
 
-#: ok_tools/templates/base.html:187
+#: ok_tools/templates/base.html:189
 msgid "Got it!"
 msgstr "Verstanden!"
 
@@ -6528,6 +6860,12 @@ msgstr "Sie haben %(count)d Beiträge diese Woche"
 #, python-format
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
+
+#~ msgid "Create your first license"
+#~ msgstr "Erstellen Sie Ihre erste Freistellung"
+
+#~ msgid "Overall"
+#~ msgstr "Gesamt"
 
 #, python-format
 #~ msgid " By %(filter_title)s "

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-05 21:07+0100\n"
+"POT-Creation-Date: 2025-11-23 22:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,17 +18,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: planung/static/planung/js/calendar_weeks.js:162
+#: planung/static/planung/js/calendar_weeks.js:297
+#: planung/static/planung/js/calendar_weeks.js:634
+msgid "Video starts in second half of minute (30-59 seconds)"
+msgstr "Video startet in der zweiten Hälfte der Minute (30-59 Sekunden)"
+
+#: planung/static/planung/js/calendar_weeks.js:268
+#: planung/static/planung/js/calendar_weeks.js:594
+msgid "View Contributions"
+msgstr "Beiträge anzeigen"
+
+#: planung/static/planung/js/calendar_weeks.js:366
 msgid "Full available"
 msgstr "Voll verfügbar"
 
+#: planung/static/planung/js/calendar_weeks.js:470
 msgid "Block filled (video extends beyond)"
 msgstr "Block gefüllt (Video überschreitet die Dauer)"
 
+#: planung/static/planung/js/calendar_weeks.js:473
 msgid "Overplanned by %(time)s!"
 msgstr "Überplant um %(time)s!"
 
+#: planung/static/planung/js/calendar_weeks.js:476
 msgid "Still %(time)s free"
 msgstr "Noch %(time)s frei"
 
+#: planung/static/planung/js/calendar_weeks.js:654
 msgid "License not found or not confirmed"
 msgstr "Freistellung nicht gefunden oder nicht genehmigt"
