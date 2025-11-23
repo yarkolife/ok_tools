@@ -646,6 +646,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'duration',
         'created_at',
         'confirmed',
+        'has_signature',
         'video_status',
     )
     autocomplete_fields = ['profile']
@@ -692,11 +693,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             'fields': ('store_in_ok_media_library', 'is_screen_board', 'infoblock'),
         }),
         (_('Status & Metadata'), {
-            'fields': ('number', 'confirmed', 'created_at', 'video_file_info'),
+            'fields': ('number', 'confirmed', 'created_at', 'has_signature_display', 'video_file_info'),
             'description': _('Number is auto-generated but can be manually changed if needed.')
         }),
     )
-    readonly_fields = ('created_at', 'video_file_info')
+    readonly_fields = ('created_at', 'has_signature_display', 'video_file_info')
     
     def video_file_info(self, obj):
         """Display video file information if exists."""
@@ -844,6 +845,42 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     
     video_status.short_description = _('Video')
     
+    def has_signature(self, obj):
+        """Display signature status in list view."""
+        if not obj.pk:
+            return '-'
+        
+        if obj.signature:
+            return format_html(
+                '<span style="color: #28a745;">✓ {}</span>',
+                _('Yes')
+            )
+        else:
+            return format_html(
+                '<span style="color: #999;">✗ {}</span>',
+                _('No')
+            )
+    
+    has_signature.short_description = _('Signature')
+    has_signature.admin_order_field = 'signature'
+    
+    def has_signature_display(self, obj):
+        """Display signature status in change form."""
+        if not obj.pk:
+            return '-'
+        
+        if obj.signature:
+            return format_html(
+                '<span style="color: #28a745; font-weight: bold;">✓ {}</span>',
+                _('Digital signature is present')
+            )
+        else:
+            return format_html(
+                '<span style="color: #999;">✗ {}</span>',
+                _('No digital signature')
+            )
+    
+    has_signature_display.short_description = _('Digital Signature')
     
     
     # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view

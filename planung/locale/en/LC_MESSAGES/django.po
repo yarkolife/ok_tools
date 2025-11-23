@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-25 01:13+0200\n"
+"POT-Creation-Date: 2025-11-23 23:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,7 +66,7 @@ msgstr ""
 msgid "not found"
 msgstr ""
 
-#: planung/admin.py:223 planung/templates/admin/planung/calendar_weeks.html:170
+#: planung/admin.py:223 planung/templates/admin/planung/calendar_weeks.html:171
 msgid "Start"
 msgstr ""
 
@@ -74,11 +74,11 @@ msgstr ""
 msgid "License"
 msgstr ""
 
-#: planung/admin.py:225 planung/templates/admin/planung/calendar_weeks.html:174
+#: planung/admin.py:225
 msgid "Author"
 msgstr ""
 
-#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:175
+#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:176
 msgid "Duration"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgid "3 Weeks Ahead"
 msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:152
-#: planung/templates/admin/planung/calendar_weeks.html:193
+#: planung/templates/admin/planung/calendar_weeks.html:194
 msgid "Close"
 msgstr ""
 
@@ -170,42 +170,54 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:171
-msgid "End"
+#: planung/templates/admin/planung/calendar_weeks.html:165
+msgid "Align all start times to 0 or 5 minutes"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:165
+msgid "Align to 5 min"
 msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:172
-msgid "Number"
+msgid "End"
 msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:173
+msgid "Number"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:174
 msgid "Title"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:176
+#: planung/templates/admin/planung/calendar_weeks.html:175
+msgid "Sendeverantwortung"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:177
 msgid "Actions"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:185
+#: planung/templates/admin/planung/calendar_weeks.html:186
 msgid "Comment or notes:"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:191
+#: planung/templates/admin/planung/calendar_weeks.html:192
 msgid "Sort by time"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:192
+#: planung/templates/admin/planung/calendar_weeks.html:193
 msgid "Delete"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:194
+#: planung/templates/admin/planung/calendar_weeks.html:195
 msgid "Save"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:195
+#: planung/templates/admin/planung/calendar_weeks.html:196
 msgid "Plan!"
 msgstr ""
 
-#: planung/views.py:27
+#: planung/views.py:28
 msgid "License not found or not confirmed."
 msgstr ""
