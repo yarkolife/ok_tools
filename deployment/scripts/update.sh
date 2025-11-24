@@ -1017,6 +1017,23 @@ if ! docker compose exec -T web python manage.py compilemessages; then
     print_warning "Failed to compile translation messages, continuing..."
 else
     print_success "Translation messages compiled successfully"
+    
+    # Verify compiled translation files exist
+    print_info "Verifying compiled translation files..."
+    MO_FILES=$(docker compose exec -T web find /app -name "*.mo" -type f 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+    if [ "$MO_FILES" -gt 0 ]; then
+        print_success "Found $MO_FILES compiled translation files (.mo)"
+        
+        # Check for German translations specifically
+        DE_MO_FILES=$(docker compose exec -T web find /app -path "*/locale/de/LC_MESSAGES/*.mo" -type f 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+        if [ "$DE_MO_FILES" -gt 0 ]; then
+            print_success "Found $DE_MO_FILES German translation files"
+        else
+            print_warning "No German translation files found - translations may not work"
+        fi
+    else
+        print_warning "No compiled translation files found - translations will not work"
+    fi
 fi
 
 # Collect static files
