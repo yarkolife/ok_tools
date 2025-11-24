@@ -977,12 +977,31 @@ if [ "$MIGRATION_NEEDED" != true ]; then
 fi
 
 # Rebuild Docker images
-print_info "Rebuilding Docker images..."
-docker compose build --no-cache
+# Interactive choice: use cache (faster) or rebuild without cache (clean)
+echo ""
+print_info "Docker image build options:"
+echo "  1) Build with cache (faster, recommended for regular updates)"
+echo "  2) Build without cache (full rebuild, use when dependencies changed)"
+echo ""
+read -p "Choose build option (1 or 2, default: 1): " -n 1 -r BUILD_OPTION
+echo ""
+
+if [ "$BUILD_OPTION" = "2" ]; then
+    print_info "Rebuilding Docker images (without cache - full rebuild)..."
+    docker compose build --no-cache
+else
+    print_info "Rebuilding Docker images (using cache for faster builds)..."
+    docker compose build
+fi
+
+# Clean up build cache to free disk space
+print_info "Cleaning up Docker build cache..."
+docker builder prune -f > /dev/null 2>&1
+print_success "Build cache cleaned"
 
 # Start containers
 print_info "Starting containers..."
-docker compose up -d --build
+docker compose up -d
 
 # Wait for containers to be ready
 print_info "Waiting for containers to be ready..."
