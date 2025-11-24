@@ -150,10 +150,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # WhiteNoise must be after SecurityMiddleware
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # Must be after SessionMiddleware to save language preference
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -233,7 +233,9 @@ if use_secure_settings:
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = get_env('LANGUAGE_CODE', default='de-de')
+# Normalize LANGUAGE_CODE to base language code (de-de -> de, en-us -> en)
+_language_code = get_env('LANGUAGE_CODE', default='de-de')
+LANGUAGE_CODE = _language_code.lower().split('-')[0]  # Normalize to base code
 
 TIME_ZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 
