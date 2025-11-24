@@ -30,17 +30,14 @@ class ForceDefaultLanguageMiddleware:
         This middleware runs after LocaleMiddleware and ensures that if no language
         was saved in session, we use LANGUAGE_CODE instead of Accept-Language.
         """
-        # Check if language is already set (by LocaleMiddleware)
-        current_language = translation.get_language()
-        
-        # If no language in session and current language doesn't match LANGUAGE_CODE,
-        # force LANGUAGE_CODE (this happens when Accept-Language was used)
+        # Force default language if not set in session
+        # This prevents Accept-Language header from overriding default language
         if not request.session.get('django_language'):
-            # Language was likely set from Accept-Language header
-            # Force default language from settings
-            if current_language != settings.LANGUAGE_CODE:
-                translation.activate(settings.LANGUAGE_CODE)
-                request.LANGUAGE_CODE = settings.LANGUAGE_CODE
+            # No language saved in session - force default language
+            translation.activate(settings.LANGUAGE_CODE)
+            request.LANGUAGE_CODE = settings.LANGUAGE_CODE
+            # Save to session so it persists
+            request.session['django_language'] = settings.LANGUAGE_CODE
         
         response = self.get_response(request)
         return response

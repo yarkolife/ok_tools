@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.sites import site as default_site
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from typing import Any
 from typing import Dict
 from typing import List
@@ -60,13 +61,13 @@ def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # typ
     # Add dashboard link to the beginning of the list
     if app_label is None:  # Only on the main admin page
         dashboard_app = {
-            'name': 'Dashboard',
+            'name': _('Dashboard'),
             'app_label': 'dashboard',
             'app_url': '/admin-dashboard/',
             'has_module_perms': True,
             'models': [
                 {
-                    'name': 'Main Dashboard',
+                    'name': _('Main Dashboard'),
                     'object_name': 'Dashboard',
                     'admin_url': '/admin-dashboard/',
                     'add_url': None,
