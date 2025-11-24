@@ -983,15 +983,20 @@ print_info "Docker image build options:"
 echo "  1) Build with cache (faster, recommended for regular updates)"
 echo "  2) Build without cache (full rebuild, use when dependencies changed)"
 echo ""
-read -p "Choose build option (1 or 2, default: 1): " -n 1 -r BUILD_OPTION
+read -p "Choose build option (1 or 2, default: 1): " -t 10 BUILD_OPTION
 echo ""
+
+# Normalize BUILD_OPTION - default to 1 if empty or invalid
+BUILD_OPTION=${BUILD_OPTION:-1}
+BUILD_OPTION=$(echo "$BUILD_OPTION" | tr -d '[:space:]' | head -c 1)
 
 if [ "$BUILD_OPTION" = "2" ]; then
     print_info "Rebuilding Docker images (without cache - full rebuild)..."
     docker compose build --no-cache
 else
     print_info "Rebuilding Docker images (using cache for faster builds)..."
-    docker compose build
+    # Use --pull=never to avoid pulling base images if they exist locally
+    docker compose build --pull=never
 fi
 
 # Clean up build cache to free disk space
