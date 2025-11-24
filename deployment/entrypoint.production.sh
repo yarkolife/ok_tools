@@ -19,6 +19,10 @@ fi
 echo "Running database migrations..."
 python manage.py migrate --noinput
 
+# Compile translation messages
+echo "Compiling translation messages..."
+python manage.py compilemessages || echo "Warning: Failed to compile translation messages, continuing anyway..."
+
 # Collect static files
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
