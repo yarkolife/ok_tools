@@ -153,8 +153,8 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # WhiteNoise must be after SecurityMiddleware
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",  # Must be after SessionMiddleware to save language preference
-    "ok_tools.middleware.ForceDefaultLanguageMiddleware",  # Force LANGUAGE_CODE if no session language
+    "ok_tools.middleware.ForceDefaultLanguageMiddleware",  # Set default language in session BEFORE LocaleMiddleware
+    "django.middleware.locale.LocaleMiddleware",  # Must be after SessionMiddleware to use session language
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

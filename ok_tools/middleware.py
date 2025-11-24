@@ -18,26 +18,30 @@ class ForceDefaultLanguageMiddleware:
     
     def __call__(self, request):
         """
-        Force default language if no language is set in session.
+        Force default language in session if not set.
         
-        LocaleMiddleware sets language in this order:
+        This middleware runs BEFORE LocaleMiddleware to ensure that:
+        1. If no language is saved in session, we set LANGUAGE_CODE in session
+        2. LocaleMiddleware will then use session language instead of Accept-Language header
+        
+        LocaleMiddleware checks language in this order:
         1. URL language (if i18n_patterns used)
-        2. Session language
+        2. Session language (we set this here)
         3. Cookie language
         4. Accept-Language header
         5. LANGUAGE_CODE from settings
-        
-        This middleware runs after LocaleMiddleware and ensures that if no language
-        was saved in session, we use LANGUAGE_CODE instead of Accept-Language.
         """
-        # Force default language if not set in session
-        # This prevents Accept-Language header from overriding default language
+        # Ensure session is initialized
+        if not hasattr(request, 'session'):
+            request.session = {}
+        
+        # Force default language in session if not set
+        # This prevents LocaleMiddleware from using Accept-Language header
         if not request.session.get('django_language'):
-            # No language saved in session - force default language
-            translation.activate(settings.LANGUAGE_CODE)
-            request.LANGUAGE_CODE = settings.LANGUAGE_CODE
-            # Save to session so it persists
+            # No language saved in session - set default language
             request.session['django_language'] = settings.LANGUAGE_CODE
+            # Mark session as modified so it gets saved
+            request.session.modified = True
         
         response = self.get_response(request)
         return response
