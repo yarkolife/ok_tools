@@ -310,11 +310,19 @@ class DirectInventoryService(InventoryServiceInterface):
                     # Member can access state institution + organization
                     state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
                     organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
-                    query = query.filter(owner__name__in=[state_institution, organization_owner])
+                    # Filter by owner name, ensuring owner is not None
+                    query = query.filter(
+                        owner__isnull=False,
+                        owner__name__in=[state_institution, organization_owner]
+                    )
                 else:
                     # Non-member can only access state media institution
                     state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-                    query = query.filter(owner__name=state_institution)
+                    # Filter by owner name, ensuring owner is not None
+                    query = query.filter(
+                        owner__isnull=False,
+                        owner__name=state_institution
+                    )
             except OKUser.DoesNotExist:
                 # If user doesn't exist, return empty list
                 return []

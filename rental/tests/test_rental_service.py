@@ -267,6 +267,21 @@ class RentalServiceTestCase(TestCase):
                 # Should only include state institution items (MSA)
                 state_items = [item for item in result if item['owner'] == state_org.id]
                 self.assertEqual(len(state_items), 1)  # Only the state_item
+                
+                # Verify that items with None owner are not accessible to non-members
+                none_owner_item = InventoryItem.objects.create(
+                    inventory_number='OK-005',
+                    description='No Owner Item',
+                    quantity=1,
+                    status='in_stock',
+                    available_for_rent=True,
+                    owner=None,  # No owner
+                    location=self.location
+                )
+                result = self.rental_service.get_user_available_inventory(self.user)
+                # Should still only have 1 item (the state_item), not the none_owner_item
+                self.assertEqual(len(result), 1)
+                self.assertNotIn(none_owner_item.id, [item['id'] for item in result])
     
     def test_get_available_quantity_for_period(self):
         """Test calculating available quantity for a period."""
@@ -297,11 +312,47 @@ class RentalServiceTestCase(TestCase):
             quantity_requested=2
         )
         
-        # Test with conflicting rentals
+        # Test with conflicting reserved rentals
         result = self.rental_service.get_available_quantity_for_period(
             self.inventory_item.id, start_date, end_date
         )
         self.assertEqual(result, 3)  # 5 - 2 = 3
+        
+        # Test with issued rental (should use quantity_issued, not quantity_requested)
+        issued_request = RentalRequest.objects.create(
+            user=self.user,
+            created_by=self.admin_user,
+            project_name='Issued Project',
+            purpose='Issued Purpose',
+            requested_start_date=timezone.now() + timedelta(days=2),
+            requested_end_date=timezone.now() + timedelta(days=4),
+            rental_type='equipment',
+            status='issued'
+        )
+        
+        issued_item = RentalItem.objects.create(
+            rental_request=issued_request,
+            inventory_item=self.inventory_item,
+            quantity_requested=3,
+            quantity_issued=1  # Only 1 was actually issued
+        )
+        
+        # Should subtract quantity_issued (1), not quantity_requested (3)
+        result = self.rental_service.get_available_quantity_for_period(
+            self.inventory_item.id, start_date, end_date
+        )
+        # Total: 5, reserved: 2, issued: 1 = 5 - 2 - 1 = 2
+        self.assertEqual(result, 2)
+        
+        # Test edge case: quantity_issued > quantity_requested (should use quantity_issued)
+        issued_item.quantity_issued = 5  # More than requested
+        issued_item.save()
+        
+        result = self.rental_service.get_available_quantity_for_period(
+            self.inventory_item.id, start_date, end_date
+        )
+        # Total: 5, reserved: 2, issued: 5 = 5 - 2 - 5 = -2, but max(0, -2) = 0
+        self.assertEqual(result, 0)
     
     def test_check_room_availability(self):
         """Test checking room availability."""

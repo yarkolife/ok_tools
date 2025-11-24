@@ -317,48 +317,36 @@ def api_search_users(request):
     for user in users:
         profile = getattr(user, 'profile', None)
         
+        # Determine role: Staff has highest priority, then Member, then User
+        if user.is_staff:
+            member_status = _('Staff')
+            # Staff have access to all items
+            permissions_text = _('All items')
+        elif profile and profile.member:
+            member_status = _('Member')
+            permissions_text = f"{state_institution}, {organization_owner}"
+        else:
+            member_status = _('User')
+            permissions_text = state_institution
+        
+        # Get user name
         if profile:
-            # User with profile
-            member_status = _('Member') if profile.member else _('User')
-            if profile.member:
-                permissions_text = f"{state_institution}, {organization_owner}"
-            else:
-                permissions_text = state_institution
-            
             name = f"{profile.first_name} {profile.last_name}".strip()
             if not name:
                 name = user.email  # Fallback to email if name is empty
-                
-            result.append({
-                'id': user.id,
-                'name': name,
-                'email': user.email,
-                'member_status': member_status,
-                'permissions': permissions_text,
-                'is_member': profile.member,
-                'is_staff': user.is_staff,
-            })
         else:
             # User without profile (e.g., staff members with only email/password)
-            # Use email as name if no profile exists
             name = user.email
-            if user.is_staff:
-                member_status = _('Staff')
-                # Staff have access to all items
-                permissions_text = _('All items')
-            else:
-                member_status = _('User')
-                permissions_text = state_institution
-            
-            result.append({
-                'id': user.id,
-                'name': name,
-                'email': user.email,
-                'member_status': member_status,
-                'permissions': permissions_text,
-                'is_member': False,
-                'is_staff': user.is_staff,
-            })
+                
+        result.append({
+            'id': user.id,
+            'name': name,
+            'email': user.email,
+            'member_status': member_status,
+            'permissions': permissions_text,
+            'is_member': profile.member if profile else False,
+            'is_staff': user.is_staff,
+        })
     
     return JsonResponse({'users': result})
 
@@ -449,7 +437,24 @@ def api_get_user_inventory(request, user_id):
         category_data = item.get('category') or {}
         category_name = category_data.get('name') if isinstance(category_data, dict) else (category_data or '')
         if category_filter and category_filter != 'all':
-            if category_name.lower() != category_filter.lower():
+            # Normalize both strings: strip whitespace and compare case-insensitively
+            category_name_normalized = category_name.strip().lower() if category_name else ''
+            category_filter_normalized = category_filter.strip().lower()
+            if category_name_normalized != category_filter_normalized:
+                continue
+        
+        # Apply location filter
+        location_data = item.get('location') or {}
+        if isinstance(location_data, dict):
+            location_path = location_data.get('full_path', '')
+            location_name = location_data.get('name', '')
+        else:
+            location_path = ''
+            location_name = ''
+        
+        if location_filter and location_filter != 'all':
+            # Compare with full_path (as stored in filter)
+            if location_path != location_filter:
                 continue
         
         # Apply search query
@@ -471,13 +476,6 @@ def api_get_user_inventory(request, user_id):
         # For staff users, show all items even if available_qty is 0
         # For regular users, only show items with available_qty > 0
         if available_qty > 0 or is_staff:
-            location_data = item.get('location') or {}
-            if isinstance(location_data, dict):
-                location_path = location_data.get('full_path', '')
-                location_name = location_data.get('name', '')
-            else:
-                location_path = ''
-                location_name = ''
             
             filtered_inventory.append({
                 'id': item.get('id'),
@@ -687,16 +685,48 @@ def api_get_filter_options(request):
 
     Returns available filter options for organizations (owners),
     locations, and categories to help with inventory filtering.
+    If user_id is provided, filters owners based on user access rights.
 
     Args:
-        request: HTTP request object
+        request: HTTP request object with optional user_id parameter
 
     Returns:
         JsonResponse: Available filter options for inventory
     """
-
+    from django.conf import settings
+    
+    # Get user_id if provided
+    user_id = request.GET.get('user_id', None)
+    
     # Get organizations (owners)
-    organizations = inventory_service.get_item_organizations()
+    all_organizations = inventory_service.get_item_organizations()
+    
+    # Filter owners based on user access if user_id provided
+    if user_id:
+        try:
+            user = OKUser.objects.get(id=user_id)
+            state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+            organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+            
+            if user.is_staff:
+                # Staff can see all owners
+                organizations = all_organizations
+            elif hasattr(user, 'profile') and user.profile and user.profile.member:
+                # Members can see state institution + organization
+                organizations = [
+                    org for org in all_organizations 
+                    if org.get('name') in [state_institution, organization_owner]
+                ]
+            else:
+                # Regular users can only see state institution
+                organizations = [
+                    org for org in all_organizations 
+                    if org.get('name') == state_institution
+                ]
+        except OKUser.DoesNotExist:
+            organizations = all_organizations
+    else:
+        organizations = all_organizations
 
     # Get locations with hierarchical structure
     locations = inventory_service.get_item_locations()
@@ -2862,7 +2892,10 @@ def api_get_user_inventory_simple(request, user_id):
         category_data = item.get('category') or {}
         category_name = category_data.get('name') if isinstance(category_data, dict) else (category_data or '')
         if category_filter and category_filter != 'all':
-            if category_name.lower() != category_filter.lower():
+            # Normalize both strings: strip whitespace and compare case-insensitively
+            category_name_normalized = category_name.strip().lower() if category_name else ''
+            category_filter_normalized = category_filter.strip().lower()
+            if category_name_normalized != category_filter_normalized:
                 continue
         
         # Apply search query
@@ -3672,6 +3705,29 @@ def api_issue_from_reservation(request):
             for item_id, quantity in item_quantities.items():
                 try:
                     rental_item = RentalItem.objects.get(id=item_id, rental_request=rental)
+                    
+                    # Validate that the requested quantity is available
+                    available_qty = RentalService.get_available_quantity_for_period(
+                        rental_item.inventory_item_id,
+                        start_datetime,
+                        end_datetime,
+                        exclude_rental_request=rental.id
+                    )
+                    
+                    # Add back the currently issued quantity (if any) since we're excluding this rental
+                    # This allows increasing quantity_issued up to the available limit
+                    current_issued = rental_item.quantity_issued or 0
+                    available_qty += current_issued
+                    
+                    if available_qty < quantity:
+                        return JsonResponse({
+                            'error': _('Item "{item_description}" is not available in requested quantity. Available: {available}, requested: {requested}').format(
+                                item_description=rental_item.inventory_item.description,
+                                available=available_qty,
+                                requested=quantity
+                            )
+                        }, status=400)
+                    
                     rental_item.quantity_issued = quantity
                     rental_item.save()
                 except RentalItem.DoesNotExist:
@@ -3686,9 +3742,16 @@ def api_issue_from_reservation(request):
 
                     # Get the inventory item
                     inventory_item = inventory_service.get_item(inventory_id)
+                    if not inventory_item:
+                        return JsonResponse({'error': _('Inventory item not found')}, status=400)
 
-                    # Check availability
-                    available_qty = get_available_quantity_for_period(inventory_item, start_datetime, end_datetime)
+                    # Check availability - pass item_id (int) not dict
+                    available_qty = RentalService.get_available_quantity_for_period(
+                        inventory_id,
+                        start_datetime,
+                        end_datetime,
+                        exclude_rental_request=rental.id
+                    )
 
                     if available_qty < quantity:
                         return JsonResponse({

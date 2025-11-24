@@ -101,8 +101,17 @@ class RentalService:
             # Check time interval overlap
             if rental_start and rental_end:
                 if (start_date < rental_end and end_date > rental_start):
-                    # There is overlap, subtract the quantity
-                    available_quantity -= (rental_item.quantity_issued or rental_item.quantity_requested or 0)
+                    # There is overlap, subtract the quantity based on rental status
+                    rental_status = rental_item.rental_request.status
+                    if rental_status == 'issued':
+                        # For issued rentals, use quantity_issued (what's actually taken)
+                        # If quantity_issued is 0 (edge case), fall back to quantity_requested
+                        quantity_to_subtract = rental_item.quantity_issued or rental_item.quantity_requested or 0
+                    else:
+                        # For reserved rentals, use quantity_requested (what's reserved)
+                        quantity_to_subtract = rental_item.quantity_requested or 0
+                    
+                    available_quantity -= quantity_to_subtract
         
         return max(0, available_quantity)
     

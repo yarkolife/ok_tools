@@ -195,6 +195,9 @@ document.addEventListener('DOMContentLoaded', function() {
       this.showSelectDatesHint();
 
       try {
+        // Reload filter options with user_id to show only accessible owners
+        await this.loadFilterOptions(u.id);
+        
         await Promise.all([
           this.loadUserStats(u.id),
           this.loadActiveItems(u.id)
@@ -405,9 +408,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    async loadFilterOptions() {
+    async loadFilterOptions(userId = null) {
       try {
-        const resp = await fetch(URLS.filterOptions);
+        let url = URLS.filterOptions;
+        if (userId) {
+          // Add user_id parameter to filter owners based on user access
+          url += (url.includes('?') ? '&' : '?') + 'user_id=' + userId;
+        }
+        const resp = await fetch(url);
         const data = await resp.json();
         this.filterOptions = data;
         this.populateFilterDropdowns(data);
@@ -429,45 +437,87 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
 
-      // Populate category filter (manufacturers)
+      // Populate category filter from available items if user is selected
       const categorySelect = document.getElementById('categoryFilter');
-      if (categorySelect && options.categories) {
-        categorySelect.innerHTML = '<option value="all">' + gettext('All categories') + '</option>';
-        options.categories.forEach(category => {
-          const option = document.createElement('option');
-          option.value = category.name;
-          option.textContent = category.name;
-          categorySelect.appendChild(option);
-        });
-      }
-
-      // Populate location filter with hierarchical structure
-      const locationSelect = document.getElementById('locationFilter');
-      if (locationSelect && options.locations) {
-        locationSelect.innerHTML = '<option value="all">' + gettext('All Locations') + '</option>';
-
-        // Recursive function to add location options with proper indentation
-        const addLocationOptions = (locations, level = 0) => {
-          locations.forEach(location => {
-            const option = document.createElement('option');
-            option.value = location.full_path;
-
-            // Create indentation based on level
-            const indent = '&nbsp;'.repeat(level * 4);
-            option.innerHTML = indent + location.name;
-            option.dataset.level = level;
-            option.dataset.fullPath = location.full_path;
-
-            locationSelect.appendChild(option);
-
-            // Add children recursively
-            if (location.children && location.children.length > 0) {
-              addLocationOptions(location.children, level + 1);
+      if (categorySelect) {
+        if (this.selectedUser && this.activeItems && this.activeItems.length > 0) {
+          // Extract unique categories from available items
+          const categories = new Set();
+          this.activeItems.forEach(item => {
+            if (item.category) {
+              categories.add(item.category);
             }
           });
-        };
+          categorySelect.innerHTML = '<option value="all">' + gettext('All categories') + '</option>';
+          Array.from(categories).sort().forEach(categoryName => {
+            const option = document.createElement('option');
+            option.value = categoryName;
+            option.textContent = categoryName;
+            categorySelect.appendChild(option);
+          });
+        } else if (options.categories) {
+          // Fallback to all categories if no user selected
+          categorySelect.innerHTML = '<option value="all">' + gettext('All categories') + '</option>';
+          options.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.name;
+            option.textContent = category.name;
+            categorySelect.appendChild(option);
+          });
+        }
+      }
 
-        addLocationOptions(options.locations);
+      // Populate location filter from available items if user is selected
+      const locationSelect = document.getElementById('locationFilter');
+      if (locationSelect) {
+        if (this.selectedUser && this.activeItems && this.activeItems.length > 0) {
+          // Extract unique locations from available items using full_path
+          const locations = new Map();
+          this.activeItems.forEach(item => {
+            if (item.location_path) {
+              // Use full_path as both key and display value to show hierarchical path
+              const fullPath = item.location_path;
+              // Only add if not already in map (removes duplicates)
+              if (!locations.has(fullPath)) {
+                locations.set(fullPath, fullPath);
+              }
+            }
+          });
+          locationSelect.innerHTML = '<option value="all">' + gettext('All Locations') + '</option>';
+          // Sort by full path to maintain hierarchy
+          Array.from(locations.entries()).sort((a, b) => a[0].localeCompare(b[0])).forEach(([path, displayPath]) => {
+            const option = document.createElement('option');
+            option.value = path; // Use full_path as value for filtering
+            option.textContent = displayPath; // Show full hierarchical path
+            locationSelect.appendChild(option);
+          });
+        } else if (options.locations) {
+          // Fallback to all locations if no user selected
+          locationSelect.innerHTML = '<option value="all">' + gettext('All Locations') + '</option>';
+
+          // Recursive function to add location options with proper indentation
+          const addLocationOptions = (locations, level = 0) => {
+            locations.forEach(location => {
+              const option = document.createElement('option');
+              option.value = location.full_path;
+
+              // Create indentation based on level
+              const indent = '&nbsp;'.repeat(level * 4);
+              option.innerHTML = indent + location.name;
+              option.dataset.level = level;
+              option.dataset.fullPath = location.full_path;
+
+              locationSelect.appendChild(option);
+
+              // Add children recursively
+              if (location.children && location.children.length > 0) {
+                addLocationOptions(location.children, level + 1);
+              }
+            });
+          };
+
+          addLocationOptions(options.locations);
+        }
       }
     }
 
@@ -479,20 +529,114 @@ document.addEventListener('DOMContentLoaded', function() {
         const startDate = document.querySelector('input[name="start_date"]')?.value;
         const endDate = document.querySelector('input[name="end_date"]')?.value;
 
+        // Get current filter values
+        const searchQuery = document.getElementById('inventorySearch')?.value || '';
+        const ownerFilter = document.getElementById('ownerFilter')?.value || 'all';
+        const categoryFilter = document.getElementById('categoryFilter')?.value || 'all';
+        const locationFilter = document.getElementById('locationFilter')?.value || 'all';
+
         // Add date parameters if available
         const params = new URLSearchParams();
         if (startDate) params.append('start_date', startDate);
         if (endDate) params.append('end_date', endDate);
+        if (searchQuery) params.append('search', searchQuery);
+        if (ownerFilter !== 'all') params.append('owner', ownerFilter);
+        if (categoryFilter !== 'all') params.append('category', categoryFilter);
+        if (locationFilter !== 'all') params.append('location', locationFilter);
 
         const finalUrl = params.toString() ? `${url}?${params.toString()}` : url;
 
         const resp = await fetch(finalUrl);
         const data = await resp.json();
-        this.renderInventory(data.inventory || []);
+        this.activeItems = data.inventory || [];
+        this.renderInventory(this.activeItems);
+        
+        // Update filter dropdowns with available options from loaded items
+        this.updateFiltersFromInventory(this.activeItems);
+        
         const panel = document.querySelector('.inventory-selection-panel');
         if (panel) panel.classList.remove('d-none');
       } catch (error) {
         console.error('Error loading inventory:', error);
+      }
+    }
+    
+    updateFiltersFromInventory(items) {
+      // Update category filter from available items
+      const categorySelect = document.getElementById('categoryFilter');
+      if (categorySelect && items && items.length > 0) {
+        const currentValue = categorySelect.value;
+        const categories = new Set();
+        items.forEach(item => {
+          if (item.category) {
+            // Handle both string and object formats
+            const categoryName = typeof item.category === 'string' ? item.category : (item.category.name || item.category);
+            if (categoryName) {
+              categories.add(categoryName);
+            }
+          }
+        });
+        
+        // Preserve current selection if it exists
+        const hasCurrentValue = currentValue && currentValue !== 'all' && categories.has(currentValue);
+        
+        categorySelect.innerHTML = '<option value="all">' + gettext('All categories') + '</option>';
+        Array.from(categories).sort().forEach(categoryName => {
+          const option = document.createElement('option');
+          option.value = categoryName;
+          option.textContent = categoryName;
+          if (categoryName === currentValue || (hasCurrentValue && categoryName === currentValue)) {
+            option.selected = true;
+          }
+          categorySelect.appendChild(option);
+        });
+        
+        // If current value was not in the filtered results but was valid, add it back
+        if (currentValue && currentValue !== 'all' && !hasCurrentValue) {
+          const option = document.createElement('option');
+          option.value = currentValue;
+          option.textContent = currentValue;
+          option.selected = true;
+          categorySelect.appendChild(option);
+        }
+      }
+
+      // Update location filter from available items
+      const locationSelect = document.getElementById('locationFilter');
+      if (locationSelect && items && items.length > 0) {
+        const currentValue = locationSelect.value;
+        // Use Map with full_path as key to avoid duplicates
+        const locations = new Map();
+        items.forEach(item => {
+          if (item.location_path) {
+            // Use full_path as both key and display value to show hierarchical path
+            const fullPath = item.location_path;
+            // Only add if not already in map (removes duplicates)
+            if (!locations.has(fullPath)) {
+              locations.set(fullPath, fullPath);
+            }
+          }
+        });
+        locationSelect.innerHTML = '<option value="all">' + gettext('All Locations') + '</option>';
+        // Sort by full path to maintain hierarchy
+        Array.from(locations.entries()).sort((a, b) => a[0].localeCompare(b[0])).forEach(([path, displayPath]) => {
+          const option = document.createElement('option');
+          option.value = path; // Use full_path as value for filtering
+          option.textContent = displayPath; // Show full hierarchical path
+          if (path === currentValue) {
+            option.selected = true;
+          }
+          locationSelect.appendChild(option);
+        });
+        
+        // If current value was not in the filtered results but was valid, add it back
+        if (currentValue && currentValue !== 'all' && !locations.has(currentValue)) {
+          const option = document.createElement('option');
+          option.value = currentValue;
+          option.textContent = currentValue;
+          option.selected = true;
+          locationSelect.appendChild(option);
+        }
       }
     }
 
@@ -520,7 +664,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = URLS.getUserInventory.replace('{userId}', this.selectedUser.id);
         const resp = await fetch(`${url}?${params.toString()}`);
         const data = await resp.json();
-        this.renderInventory(data.inventory || []);
+        this.activeItems = data.inventory || [];
+        this.renderInventory(this.activeItems);
+        
+        // Update filter dropdowns with available options from filtered items
+        this.updateFiltersFromInventory(this.activeItems);
       } catch (error) {
         console.error('Error applying filters:', error);
       }

@@ -41,13 +41,19 @@ class InventoryItemViewSet(viewsets.ReadOnlyModelViewSet):
                     # Member can access state institution + organization
                     state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
                     organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+                    # Filter by owner name, ensuring owner is not None
                     queryset = queryset.filter(
-                        Q(owner__name__in=[state_institution, organization_owner])
+                        owner__isnull=False,
+                        owner__name__in=[state_institution, organization_owner]
                     )
                 else:
                     # Non-member can only access state media institution
                     state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-                    queryset = queryset.filter(owner__name=state_institution)
+                    # Filter by owner name, ensuring owner is not None
+                    queryset = queryset.filter(
+                        owner__isnull=False,
+                        owner__name=state_institution
+                    )
             except (OKUser.DoesNotExist, ValueError):
                 # If user doesn't exist or invalid ID, return empty queryset
                 return InventoryItem.objects.none()

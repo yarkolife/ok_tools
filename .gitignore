@@ -143,6 +143,8 @@ deployment/gunicorn/
 !deployment/docs/
 deployment/reports/
 
+deployment/scripts/update.sh.local.template
+
 # SSH keys
 y
 y.pub

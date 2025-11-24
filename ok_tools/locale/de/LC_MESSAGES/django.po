@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 23:02+0100\n"
+"POT-Creation-Date: 2025-11-24 19:27+0100\n"
 "PO-Revision-Date: 2025-01-15 02:03+0100\n"
 "Last-Translator: Daniel Havlik <dh@gocept.com>\n"
 "Language-Team: \n"
@@ -311,8 +311,8 @@ msgstr "Ist primär"
 
 #: contributions/admin.py:807 inventory/models.py:527 registration/models.py:67
 #: registration/models.py:140 rental/admin.py:238 rental/models.py:14
-#: rental/templates/rental/rental_stats.html:1101 rental/views.py:322
-#: rental/views.py:350 ok_tools/templates/rental_dashboard.html:43
+#: rental/templates/rental/rental_stats.html:1101 rental/views.py:329
+#: ok_tools/templates/rental_dashboard.html:43
 msgid "User"
 msgstr "Benutzer"
 
@@ -1213,8 +1213,8 @@ msgstr "Gesamtanzahl der Artikel"
 #: inventory/templates/inventory/list.html:162 licenses/admin.py:473
 #: licenses/admin.py:731 licenses/admin.py:823 media_files/models.py:126
 #: rental/templates/rental/rental_stats.html:972
-#: rental/templates/rental/rental_stats.html:1157 rental/views.py:869
-#: rental/views.py:3014
+#: rental/templates/rental/rental_stats.html:1157 rental/views.py:857
+#: rental/views.py:3002
 msgid "Available"
 msgstr "Verfügbar"
 
@@ -3874,9 +3874,9 @@ msgstr "Administrator"
 msgid "permissions"
 msgstr "Berechtigungen"
 
-#: registration/admin.py:48 registration/admin.py:59 rental/views.py:346
+#: registration/admin.py:48 registration/admin.py:59 rental/views.py:322
 msgid "Staff"
-msgstr "Personal"
+msgstr "Mitarbeiter"
 
 #: registration/admin.py:78
 msgid "ID"
@@ -5187,36 +5187,36 @@ msgstr "Es kann nicht mehr als angefordert reserviert werden."
 msgid "Cannot return more than outstanding issued."
 msgstr "Es kann nicht mehr zurückgegeben werden als ausgegeben wurde."
 
-#: rental/services/rental_service.py:263
+#: rental/services/rental_service.py:272
 msgid "Project name is required"
 msgstr "Projektname ist erforderlich"
 
-#: rental/services/rental_service.py:265
+#: rental/services/rental_service.py:274
 msgid "Purpose is required"
 msgstr "Zweck ist erforderlich"
 
-#: rental/services/rental_service.py:267
+#: rental/services/rental_service.py:276
 msgid "Start date and end date are required"
 msgstr "Startdatum und Enddatum sind erforderlich"
 
-#: rental/services/rental_service.py:287 rental/views.py:3630
+#: rental/services/rental_service.py:296 rental/views.py:3618
 msgid "Invalid date format"
 msgstr "Ungültiges Datumsformat"
 
-#: rental/services/rental_service.py:296
+#: rental/services/rental_service.py:305
 msgid "End date must be after start date"
 msgstr "Das Enddatum muss nach dem Startdatum liegen."
 
-#: rental/services/rental_service.py:300
+#: rental/services/rental_service.py:309
 msgid "Please select at least one item or room"
 msgstr "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
 
-#: rental/services/rental_service.py:353
+#: rental/services/rental_service.py:362
 msgid "User does not have access to one or more selected items"
 msgstr ""
 "Der Benutzer hat auf einen oder mehrere ausgewählte Artikel keinen Zugriff"
 
-#: rental/services/rental_service.py:367
+#: rental/services/rental_service.py:376
 #, python-brace-format
 msgid ""
 "Item is not available for the selected period. Available: {available}, "
@@ -5225,32 +5225,32 @@ msgstr ""
 "Der Artikel ist im ausgewählten Zeitraum nicht verfügbar. Verfügbar: "
 "{available}, angefragt: {requested}"
 
-#: rental/services/rental_service.py:402
+#: rental/services/rental_service.py:411
 msgid "Room not found"
 msgstr "Raum nicht gefunden"
 
-#: rental/services/rental_service.py:438
+#: rental/services/rental_service.py:447
 #, python-brace-format
 msgid "Room \"{room_name}\" is not available for the selected period"
 msgstr "Raum „{room_name}“ ist im ausgewählten Zeitraum nicht verfügbar"
 
-#: rental/services/rental_service.py:902
+#: rental/services/rental_service.py:911
 msgid "Only draft, reserved or issued rentals can be cancelled"
 msgstr ""
 "Nur Entwurfs-, reservierte oder ausgegebene Ausleihen können storniert "
 "werden."
 
-#: rental/services/rental_service.py:915
+#: rental/services/rental_service.py:924
 msgid "Cancelled reserved quantity via admin interface"
 msgstr "Reservierte Menge über die Admin-Oberfläche storniert"
 
-#: rental/services/rental_service.py:926
+#: rental/services/rental_service.py:935
 msgid "Returned issued quantity due to cancellation via admin interface"
 msgstr ""
 "Ausgegebene Menge wurde über die Admin-Oberfläche aufgrund einer Stornierung "
 "zurückgebucht"
 
-#: rental/services/rental_service.py:936
+#: rental/services/rental_service.py:945
 #, python-brace-format
 msgid "Rental request {rental_id} has been cancelled successfully"
 msgstr "Die Mietanfrage {rental_id} wurde erfolgreich storniert"
@@ -6045,103 +6045,103 @@ msgstr ""
 "Sie haben keine Berechtigung, auf diese Seite zuzugreifen. Nur Mitarbeitende "
 "haben Zugriff."
 
-#: rental/views.py:322 ok_tools/templates/dashboard.html:119
-msgid "Member"
-msgstr "Mitglied"
-
-#: rental/views.py:348
+#: rental/views.py:324
 msgid "All items"
 msgstr "Alle Artikel"
 
-#: rental/views.py:386 rental/views.py:2805
+#: rental/views.py:326 ok_tools/templates/dashboard.html:119
+msgid "Member"
+msgstr "Mitglied"
+
+#: rental/views.py:374 rental/views.py:2793
 msgid "User profile not found"
 msgstr "Benutzerprofil nicht gefunden"
 
-#: rental/views.py:512 rental/views.py:544 rental/views.py:667
-#: rental/views.py:1066 rental/views.py:1104 rental/views.py:1260
-#: rental/views.py:1446 rental/views.py:1980 rental/views.py:2032
-#: rental/views.py:3322 rental/views.py:3424 rental/views.py:3578
-#: rental/views.py:3607 rental/views.py:3742
+#: rental/views.py:500 rental/views.py:532 rental/views.py:655
+#: rental/views.py:1054 rental/views.py:1092 rental/views.py:1248
+#: rental/views.py:1434 rental/views.py:1968 rental/views.py:2020
+#: rental/views.py:3310 rental/views.py:3412 rental/views.py:3566
+#: rental/views.py:3595 rental/views.py:3760
 msgid "Method not allowed"
 msgstr "Methode nicht erlaubt"
 
-#: rental/views.py:796
+#: rental/views.py:784
 msgid "Location not specified"
 msgstr "Standort nicht angegeben"
 
-#: rental/views.py:797
+#: rental/views.py:785
 msgid "No category"
 msgstr "Keine Kategorie"
 
-#: rental/views.py:880 rental/views.py:2503 rental/views.py:3373
+#: rental/views.py:868 rental/views.py:2491 rental/views.py:3361
 msgid "Unknown user"
 msgstr "Unbekannte:r Benutzer:in"
 
-#: rental/views.py:899 rental/views.py:901 rental/views.py:2523
-#: rental/views.py:2529 rental/views.py:3392 rental/views.py:3394
+#: rental/views.py:887 rental/views.py:889 rental/views.py:2511
+#: rental/views.py:2517 rental/views.py:3380 rental/views.py:3382
 #, python-brace-format
 msgid "User #{user_id}"
 msgstr "Benutzer #{user_id}"
 
-#: rental/views.py:907
+#: rental/views.py:895
 #, python-brace-format
 msgid "Not available - Conflicts: {conflicts}"
 msgstr "Nicht verfügbar – Konflikte: {conflicts}"
 
-#: rental/views.py:911
+#: rental/views.py:899
 #, python-brace-format
 msgid " and {count} more"
 msgstr " und {count} weitere"
 
-#: rental/views.py:1073
+#: rental/views.py:1061
 msgid "Rental ID is required"
 msgstr "Ausleih-ID ist erforderlich"
 
-#: rental/views.py:1112
+#: rental/views.py:1100
 msgid "Rental ID and items are required"
 msgstr "Ausleih-ID und Artikel sind erforderlich"
 
-#: rental/views.py:1122
+#: rental/views.py:1110
 msgid "Only active rentals can have returns"
 msgstr "Nur aktive Ausleihen können zurückgegeben werden"
 
-#: rental/views.py:1192
+#: rental/views.py:1180
 msgid "Items returned successfully"
 msgstr "Artikel erfolgreich zurückgegeben"
 
-#: rental/views.py:1268
+#: rental/views.py:1256
 msgid "Rental ID and new end date are required"
 msgstr "Ausleih-ID und neues Enddatum sind erforderlich"
 
-#: rental/views.py:1277
+#: rental/views.py:1265
 msgid "Only active rentals can be extended"
 msgstr "Nur aktive Ausleihen können verlängert werden"
 
-#: rental/views.py:1309
+#: rental/views.py:1297
 msgid "Invalid date format. Please use YYYY-MM-DDTHH:MM or ISO format"
 msgstr ""
 "Ungültiges Datumsformat. Bitte verwenden Sie das Format JJJJ-MM-TTTHH:MM "
 "oder das ISO-Format."
 
-#: rental/views.py:1319
+#: rental/views.py:1307
 msgid "New end date must be after current end date"
 msgstr "Neues Enddatum muss nach dem aktuellen Enddatum liegen"
 
-#: rental/views.py:1322
+#: rental/views.py:1310
 #, python-brace-format
 msgid "Invalid date format: {error}"
 msgstr "Ungültiges Datumsformat: {error}"
 
-#: rental/views.py:1330
+#: rental/views.py:1318
 #, python-brace-format
 msgid "Rental request {rental_id} has been extended until {end_date}"
 msgstr "Ausleihanfrage {rental_id} wurde bis {end_date} verlängert"
 
-#: rental/views.py:1455
+#: rental/views.py:1443
 msgid "Invalid confirmation code"
 msgstr "Ungültiger Bestätigungscode"
 
-#: rental/views.py:1472
+#: rental/views.py:1460
 msgid ""
 "All rental data has been reset (inventory quantities reset not supported "
 "through API)"
@@ -6149,11 +6149,11 @@ msgstr ""
 "Alle Ausleihdaten wurden zurückgesetzt (Das Zurücksetzen der Inventarmengen "
 "wird über die API nicht unterstützt)"
 
-#: rental/views.py:1477
+#: rental/views.py:1465
 msgid "Inventory quantities reset not supported through API"
 msgstr "Zurücksetzen der Inventarmengen wird über die API nicht unterstützt"
 
-#: rental/views.py:1493
+#: rental/views.py:1481
 #, python-brace-format
 msgid ""
 "{count} active rentals have been cancelled (inventory quantities reset not "
@@ -6162,97 +6162,97 @@ msgstr ""
 "{count} aktive Ausleihen wurden storniert (Das Zurücksetzen der "
 "Inventarmengen wird über die API nicht unterstützt)"
 
-#: rental/views.py:1496
+#: rental/views.py:1484
 msgid "Invalid action"
 msgstr "Ungültige Aktion"
 
-#: rental/views.py:2007
+#: rental/views.py:1995
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully created."
 msgstr "Ausrüstungsset \"{name}\" wurde erfolgreich erstellt."
 
-#: rental/views.py:2043
+#: rental/views.py:2031
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully deleted."
 msgstr "Ausrüstungsset \"{name}\" wurde erfolgreich gelöscht."
 
-#: rental/views.py:2210 rental/views.py:2252
+#: rental/views.py:2198 rental/views.py:2240
 #, python-brace-format
 msgid "Error loading rental: {error}"
 msgstr "Fehler beim Laden der Ausleihe: {error}"
 
-#: rental/views.py:2316
+#: rental/views.py:2304
 msgid "Only POST method allowed"
 msgstr "Nur POST-Methode erlaubt"
 
-#: rental/views.py:2358
+#: rental/views.py:2346
 msgid "Automatic expiration of room rentals completed"
 msgstr "Automatisches Ablaufen von Raumausleihen abgeschlossen"
 
-#: rental/views.py:2369
+#: rental/views.py:2357
 #, python-brace-format
 msgid "Error executing command: {error}"
 msgstr "Fehler beim Ausführen des Befehls: {error}"
 
-#: rental/views.py:2533
+#: rental/views.py:2521
 msgid "No project"
 msgstr "Kein Projekt"
 
-#: rental/views.py:3019
+#: rental/views.py:3007
 msgid "Not available for selected period"
 msgstr "Für den gewählten Zeitraum nicht verfügbar"
 
-#: rental/views.py:3332 rental/views.py:3620
+#: rental/views.py:3320 rental/views.py:3608
 msgid "Missing required parameters"
 msgstr "Erforderliche Parameter fehlen"
 
-#: rental/views.py:3345
+#: rental/views.py:3333
 msgid "Invalid date/time format"
 msgstr "Ungültiges Datum/Zeit-Format"
 
-#: rental/views.py:3364
+#: rental/views.py:3352
 msgid "Room is available for the selected period."
 msgstr "Raum ist für den gewählten Zeitraum verfügbar."
 
-#: rental/views.py:3403
+#: rental/views.py:3391
 msgid "Room is not available for the selected period."
 msgstr "Raum ist für den gewählten Zeitraum nicht verfügbar."
 
-#: rental/views.py:3434
+#: rental/views.py:3422
 msgid "Template name is required"
 msgstr "Vorlagenname ist erforderlich"
 
-#: rental/views.py:3437
+#: rental/views.py:3425
 msgid "At least one item is required"
 msgstr "Mindestens ein Artikel ist erforderlich"
 
-#: rental/views.py:3442
+#: rental/views.py:3430
 msgid "Template with this name already exists"
 msgstr "Vorlage mit diesem Namen existiert bereits"
 
-#: rental/views.py:3464
+#: rental/views.py:3452
 msgid "Invalid inventory item ID"
 msgstr "Ungültige Inventargegenstand-ID"
 
-#: rental/views.py:3471
+#: rental/views.py:3459
 msgid "Template saved successfully"
 msgstr "Vorlage erfolgreich gespeichert"
 
-#: rental/views.py:3475
+#: rental/views.py:3463
 msgid "Invalid JSON data"
 msgstr "Ungültige JSON-Daten"
 
-#: rental/views.py:3589
+#: rental/views.py:3577
 msgid "Template deleted successfully"
 msgstr "Vorlage erfolgreich gelöscht"
 
-#: rental/views.py:3643
+#: rental/views.py:3631
 msgid "Rental must be in draft or reserved status to issue"
 msgstr ""
 "Ausleihe muss im Status 'Entwurf' oder 'reserviert' sein, um ausgegeben zu "
 "werden"
 
-#: rental/views.py:3649
+#: rental/views.py:3637
 msgid ""
 "Cannot issue rental with only rooms. Equipment is required to change status "
 "from reserved to issued."
@@ -6260,11 +6260,29 @@ msgstr ""
 "Ausleihe mit nur Räumen kann nicht ausgegeben werden. Ausrüstung ist "
 "erforderlich, um den Status von 'reserviert' auf 'ausgegeben' zu ändern."
 
-#: rental/views.py:3659
+#: rental/views.py:3647
 msgid "Invalid user ID"
 msgstr "Ungültige Benutzer-ID"
 
-#: rental/views.py:3695
+#: rental/views.py:3679
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "Item \"{item_description}\" is not available for the selected period. "
+#| "Available: {available}, requested: {requested}"
+msgid ""
+"Item \"{item_description}\" is not available in requested quantity. "
+"Available: {available}, requested: {requested}"
+msgstr ""
+"Der Artikel \"{item_description}\" ist für den gewählten Zeitraum nicht "
+"verfügbar. Verfügbar: {available}, angefragt: {requested}"
+
+#: rental/views.py:3701
+#, fuzzy
+#| msgid "Inventory item not found."
+msgid "Inventory item not found"
+msgstr "Inventargegenstand nicht gefunden."
+
+#: rental/views.py:3713
 #, python-brace-format
 msgid ""
 "Item \"{item_description}\" is not available for the selected period. "
@@ -6273,7 +6291,7 @@ msgstr ""
 "Der Artikel \"{item_description}\" ist für den gewählten Zeitraum nicht "
 "verfügbar. Verfügbar: {available}, angefragt: {requested}"
 
-#: rental/views.py:3723
+#: rental/views.py:3741
 msgid "Rental successfully issued from reservation"
 msgstr "Ausleihe erfolgreich aus der Reservierung ausgegeben"
 
