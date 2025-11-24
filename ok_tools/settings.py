@@ -233,10 +233,6 @@ if use_secure_settings:
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-# Normalize LANGUAGE_CODE to base language code (de-de -> de, en-us -> en)
-_language_code = get_env('LANGUAGE_CODE', default='de-de')
-LANGUAGE_CODE = _language_code.lower().split('-')[0]  # Normalize to base code
-
 TIME_ZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 
 USE_I18N = True
@@ -250,6 +246,20 @@ LOCALE_PATHS = [BASE_DIR / "ok_tools/locale"]
 # which can cause inconsistent language selection (sometimes English, sometimes German)
 supported_languages = get_env('I18N_SUPPORTED_LANGUAGES', default='de,en')
 default_language = get_env('I18N_DEFAULT_LANGUAGE', default='de')
+
+# Normalize default language to base code (de-de -> de, en-us -> en)
+normalized_default_language = default_language.lower().split('-')[0] if default_language else 'de'
+
+# Set LANGUAGE_CODE from I18N_DEFAULT_LANGUAGE if LANGUAGE_CODE is not explicitly set
+# This ensures consistency between default language and LANGUAGE_CODE
+# Support both LANGUAGE_CODE and DJANGO_LANGUAGE for backward compatibility
+_language_code = get_env('LANGUAGE_CODE', default=None) or get_env('DJANGO_LANGUAGE', default=None)
+if _language_code:
+    # If LANGUAGE_CODE is explicitly set, use it (normalized)
+    LANGUAGE_CODE = _language_code.lower().split('-')[0]
+else:
+    # If not set, use I18N_DEFAULT_LANGUAGE to ensure consistency
+    LANGUAGE_CODE = normalized_default_language
 
 # Parse supported languages from comma-separated string
 language_list = [lang.strip() for lang in supported_languages.split(',') if lang.strip()]
@@ -276,14 +286,12 @@ if not LANGUAGES:
     LANGUAGES = [('de', 'German'), ('en', 'English')]
 
 # Ensure default language is first in the list (highest priority)
-if default_language:
-    normalized_default = default_language.lower().split('-')[0]
-    if normalized_default in LANGUAGE_NAMES:
-        default_tuple = (normalized_default, LANGUAGE_NAMES[normalized_default])
-        # Move default to front if it exists
-        if default_tuple in LANGUAGES:
-            LANGUAGES.remove(default_tuple)
-        LANGUAGES.insert(0, default_tuple)
+if normalized_default_language in LANGUAGE_NAMES:
+    default_tuple = (normalized_default_language, LANGUAGE_NAMES[normalized_default_language])
+    # Move default to front if it exists
+    if default_tuple in LANGUAGES:
+        LANGUAGES.remove(default_tuple)
+    LANGUAGES.insert(0, default_tuple)
 
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
