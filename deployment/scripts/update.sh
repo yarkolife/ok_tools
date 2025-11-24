@@ -995,8 +995,8 @@ if [ "$BUILD_OPTION" = "2" ]; then
     docker compose build --no-cache
 else
     print_info "Rebuilding Docker images (using cache for faster builds)..."
-    # Use --pull=never to avoid pulling base images if they exist locally
-    docker compose build --pull=never
+    # Docker will use local base images if available (no need for --pull flag)
+    docker compose build
 fi
 
 # Clean up build cache to free disk space
