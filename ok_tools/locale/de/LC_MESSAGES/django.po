@@ -7685,7 +7685,7 @@ msgstr "OK Tools Dashboard"
 
 #: ok_tools/templates/base.html:37
 msgid "Dashboard"
-msgstr "Dashboard"
+msgstr "Übersicht"
 
 #: ok_tools/templates/base.html:77
 msgid "Website"
