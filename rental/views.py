@@ -393,7 +393,11 @@ def api_get_user_inventory(request, user_id):
     if start_date_str:
         try:
             start_date = parse_datetime(start_date_str)
-            if not start_date:
+            if start_date:
+                # Make sure date is timezone-aware
+                if timezone.is_naive(start_date):
+                    start_date = timezone.make_aware(start_date)
+            else:
                 # Try parsing as date only
                 from django.utils.dateparse import parse_date
                 date_only = parse_date(start_date_str)
@@ -405,7 +409,11 @@ def api_get_user_inventory(request, user_id):
     if end_date_str:
         try:
             end_date = parse_datetime(end_date_str)
-            if not end_date:
+            if end_date:
+                # Make sure date is timezone-aware
+                if timezone.is_naive(end_date):
+                    end_date = timezone.make_aware(end_date)
+            else:
                 # Try parsing as date only
                 from django.utils.dateparse import parse_date
                 date_only = parse_date(end_date_str)
@@ -467,11 +475,20 @@ def api_get_user_inventory(request, user_id):
                 continue
         
         # Check availability for the period
-        available_qty = inventory_service.get_available_quantity(item.get('id'))
         if start_date and end_date:
-            # For now, just use the available quantity without considering reservations
-            # In a more complex implementation, we would check reservations for the period
-            pass
+            # Use period-specific availability calculation
+            try:
+                available_qty = RentalService.get_available_quantity_for_period(
+                    item.get('id'),
+                    start_date,
+                    end_date
+                )
+            except Exception:
+                # Fallback to general availability if period calculation fails
+                available_qty = inventory_service.get_available_quantity(item.get('id'))
+        else:
+            # No dates specified, use general availability
+            available_qty = inventory_service.get_available_quantity(item.get('id'))
         
         # For staff users, show all items even if available_qty is 0
         # For regular users, only show items with available_qty > 0
@@ -2854,7 +2871,11 @@ def api_get_user_inventory_simple(request, user_id):
     if start_date_str:
         try:
             start_date = parse_datetime(start_date_str)
-            if not start_date:
+            if start_date:
+                # Make sure date is timezone-aware
+                if timezone.is_naive(start_date):
+                    start_date = timezone.make_aware(start_date)
+            else:
                 # Try parsing as date only
                 from django.utils.dateparse import parse_date
                 date_only = parse_date(start_date_str)
@@ -2866,7 +2887,11 @@ def api_get_user_inventory_simple(request, user_id):
     if end_date_str:
         try:
             end_date = parse_datetime(end_date_str)
-            if not end_date:
+            if end_date:
+                # Make sure date is timezone-aware
+                if timezone.is_naive(end_date):
+                    end_date = timezone.make_aware(end_date)
+            else:
                 # Try parsing as date only
                 from django.utils.dateparse import parse_date
                 date_only = parse_date(end_date_str)
@@ -2908,11 +2933,20 @@ def api_get_user_inventory_simple(request, user_id):
                 continue
         
         # Check availability for the period
-        available_qty = inventory_service.get_available_quantity(item['id'])
         if start_date and end_date:
-            # For now, just use the available quantity without considering reservations
-            # In a more complex implementation, we would check reservations for the period
-            pass
+            # Use period-specific availability calculation
+            try:
+                available_qty = RentalService.get_available_quantity_for_period(
+                    item['id'],
+                    start_date,
+                    end_date
+                )
+            except Exception:
+                # Fallback to general availability if period calculation fails
+                available_qty = inventory_service.get_available_quantity(item['id'])
+        else:
+            # No dates specified, use general availability
+            available_qty = inventory_service.get_available_quantity(item['id'])
         
         if available_qty > 0:
             location_data = item.get('location') or {}
