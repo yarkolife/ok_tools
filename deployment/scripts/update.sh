@@ -993,16 +993,16 @@ BUILD_OPTION=$(echo "$BUILD_OPTION" | tr -d '[:space:]' | head -c 1)
 if [ "$BUILD_OPTION" = "2" ]; then
     print_info "Rebuilding Docker images (without cache - full rebuild)..."
     docker compose build --no-cache
+    # Clean up build cache after full rebuild to free disk space
+    print_info "Cleaning up Docker build cache after full rebuild..."
+    docker builder prune -f > /dev/null 2>&1
+    print_success "Build cache cleaned"
 else
     print_info "Rebuilding Docker images (using cache for faster builds)..."
     # Docker will use local base images if available (no need for --pull flag)
+    # Keep build cache for faster subsequent builds
     docker compose build
 fi
-
-# Clean up build cache to free disk space
-print_info "Cleaning up Docker build cache..."
-docker builder prune -f > /dev/null 2>&1
-print_success "Build cache cleaned"
 
 # Start containers
 print_info "Starting containers..."
