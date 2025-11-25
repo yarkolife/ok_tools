@@ -17,29 +17,57 @@ def auto_link_to_license(sender, instance, created, **kwargs):
     Also sync duration from video to license.
     
     This runs after VideoFile is saved and attempts to find
-    a matching License by number.
+    a matching License by number. Only the newest VideoFile
+    (by created_at or updated_at) will be linked to the License.
     """
     try:
         from licenses.models import License
+        from django.db import transaction
         
-        # Try to find or get existing license
-        license = None
-        if instance.license:
-            license = instance.license
+        # Find license by number
+        try:
+            license = License.objects.get(number=instance.number)
+        except License.DoesNotExist:
+            logger.debug(f"No License found for VideoFile number {instance.number}")
+            return
+        
+        # Find all VideoFiles with the same number
+        # Find the newest VideoFile by updated_at (or created_at if updated_at is None)
+        # Priority: updated_at > created_at
+        newest_video = (
+            VideoFile.objects
+            .filter(number=instance.number)
+            .order_by('-updated_at', '-created_at', '-id')
+            .first()
+        )
+        
+        if not newest_video:
+            logger.debug(f"No VideoFile found for number {instance.number}")
+            return
+        
+        # Check if license is already linked to a different VideoFile
+        if license.video_file and license.video_file.id != newest_video.id:
+            # newest_video is already the newest by order_by, so we should link it
+            # Unlink old one and link new one
+            current_video = license.video_file
+            with transaction.atomic():
+                VideoFile.objects.filter(pk=current_video.pk).update(license=None)
+                VideoFile.objects.filter(pk=newest_video.pk).update(license=license)
+            logger.info(f"Re-linked License #{license.number} from VideoFile {current_video.id} to newer VideoFile {newest_video.id}")
+        elif not license.video_file:
+            # License is not linked, link to newest video
+            with transaction.atomic():
+                VideoFile.objects.filter(pk=newest_video.pk).update(license=license)
+            logger.info(f"Auto-linked VideoFile {newest_video.id} (number {instance.number}) to License #{license.number}")
         else:
-            try:
-                license = License.objects.get(number=instance.number)
-                # Use update to avoid triggering signal again
-                VideoFile.objects.filter(pk=instance.pk).update(license=license)
-                logger.info(f"Auto-linked VideoFile {instance.number} to License")
-            except License.DoesNotExist:
-                logger.debug(f"No License found for VideoFile number {instance.number}")
+            # License is already linked to the newest video, nothing to do
+            logger.debug(f"License #{license.number} already linked to newest VideoFile {newest_video.id}")
         
-        # Sync duration from video to license if video has duration
-        if license and instance.duration:
+        # Sync duration from newest video to license if video has duration
+        if newest_video.duration:
             # Round to seconds (hh:mm:ss format)
             from datetime import timedelta
-            video_duration = instance.duration
+            video_duration = newest_video.duration
             # Round to nearest second
             rounded_duration = timedelta(seconds=int(video_duration.total_seconds()))
             
@@ -72,31 +100,57 @@ def auto_link_license_to_video(sender, instance, created, **kwargs):
     Also sync duration from video to license if video exists.
     
     This runs after License is saved and attempts to find
-    a matching VideoFile by number.
+    a matching VideoFile by number. Only the newest VideoFile
+    (by created_at or updated_at) will be linked to the License.
     """
     try:
         from licenses.models import License
+        from django.db import transaction
         
         # Only process if this is a License instance
         if not isinstance(instance, License):
             return
             
-        if created and instance.number:
-            # Find video with same number
-            video_file = VideoFile.objects.filter(number=instance.number).first()
-            if video_file:
-                # Link video to license
-                video_file.license = instance
-                video_file.save(update_fields=['license'])
-                logger.info(f"Auto-linked License {instance.number} to VideoFile")
-                
-                # Sync duration from video to license if license has no duration
-                if video_file.duration and not instance.duration:
-                    from datetime import timedelta
-                    rounded_duration = timedelta(seconds=int(video_file.duration.total_seconds()))
-                    instance.duration = rounded_duration
-                    instance.save(update_fields=['duration'])
-                    logger.info(f"Synced duration from VideoFile to License #{instance.number}: {rounded_duration}")
+        if instance.number:
+            # Find all videos with same number
+            # Find the newest VideoFile by updated_at (or created_at if updated_at is None)
+            # Priority: updated_at > created_at
+            newest_video = (
+                VideoFile.objects
+                .filter(number=instance.number)
+                .order_by('-updated_at', '-created_at', '-id')
+                .first()
+            )
+            
+            if not newest_video:
+                logger.debug(f"No VideoFile found for License number {instance.number}")
+                return
+            
+            # Check if license is already linked to a different VideoFile
+            if instance.video_file and instance.video_file.id != newest_video.id:
+                # newest_video is already the newest by order_by, so we should link it
+                # Unlink old one and link new one
+                current_video = instance.video_file
+                with transaction.atomic():
+                    VideoFile.objects.filter(pk=current_video.pk).update(license=None)
+                    VideoFile.objects.filter(pk=newest_video.pk).update(license=instance)
+                logger.info(f"Re-linked License #{instance.number} from VideoFile {current_video.id} to newer VideoFile {newest_video.id}")
+            elif not instance.video_file:
+                # License is not linked, link to newest video
+                with transaction.atomic():
+                    VideoFile.objects.filter(pk=newest_video.pk).update(license=instance)
+                logger.info(f"Auto-linked License {instance.number} to VideoFile {newest_video.id}")
+            else:
+                # License is already linked to the newest video, nothing to do
+                logger.debug(f"License #{instance.number} already linked to newest VideoFile {newest_video.id}")
+            
+            # Sync duration from newest video to license if license has no duration
+            if newest_video.duration and not instance.duration:
+                from datetime import timedelta
+                rounded_duration = timedelta(seconds=int(newest_video.duration.total_seconds()))
+                instance.duration = rounded_duration
+                instance.save(update_fields=['duration'])
+                logger.info(f"Synced duration from VideoFile to License #{instance.number}: {rounded_duration}")
                 
     except Exception as e:
         logger.error(f"Error in auto_link_license_to_video signal: {e}")
