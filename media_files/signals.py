@@ -46,15 +46,22 @@ def auto_link_to_license(sender, instance, created, **kwargs):
             return
         
         # Check if license is already linked to a different VideoFile
-        if license.video_file and license.video_file.id != newest_video.id:
+        # Use safe access to avoid RelatedObjectDoesNotExist exception
+        try:
+            current_video = license.video_file
+            has_video_file = current_video is not None
+        except License.video_file.RelatedObjectDoesNotExist:
+            current_video = None
+            has_video_file = False
+        
+        if has_video_file and current_video.id != newest_video.id:
             # newest_video is already the newest by order_by, so we should link it
             # Unlink old one and link new one
-            current_video = license.video_file
             with transaction.atomic():
                 VideoFile.objects.filter(pk=current_video.pk).update(license=None)
                 VideoFile.objects.filter(pk=newest_video.pk).update(license=license)
             logger.info(f"Re-linked License #{license.number} from VideoFile {current_video.id} to newer VideoFile {newest_video.id}")
-        elif not license.video_file:
+        elif not has_video_file:
             # License is not linked, link to newest video
             with transaction.atomic():
                 VideoFile.objects.filter(pk=newest_video.pk).update(license=license)
@@ -62,6 +69,24 @@ def auto_link_to_license(sender, instance, created, **kwargs):
         else:
             # License is already linked to the newest video, nothing to do
             logger.debug(f"License #{license.number} already linked to newest VideoFile {newest_video.id}")
+        
+        # Reload license from DB to get updated video_file relationship
+        # (after update() the in-memory object may be stale)
+        license.refresh_from_db()
+        
+        # Check if license has video_file before syncing duration
+        # Use safe access to avoid RelatedObjectDoesNotExist exception
+        try:
+            has_video_file_after = license.video_file is not None
+        except License.video_file.RelatedObjectDoesNotExist:
+            has_video_file_after = False
+        
+        if not has_video_file_after:
+            # This is normal for some licenses - they just don't have a file yet
+            logger.warning(
+                f"auto_link_to_license: License #{license.number} has no video_file yet, skipping duration sync."
+            )
+            return
         
         # Sync duration from newest video to license if video has duration
         if newest_video.duration:

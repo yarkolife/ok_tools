@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.forms import ValidationError
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from io import BytesIO
 from licenses.models import License
@@ -146,7 +147,7 @@ def get_unique_dates(file) -> list[date_type]:
             
             date_str = row[BEGIN].value
             if date_str:
-                parsed_date = _parse_date_string(str(date_str))
+                parsed_date = _parse_date_string(date_str)
                 if parsed_date:
                     unique_dates.add(parsed_date.date())
         
@@ -243,17 +244,27 @@ def validate(file):
         raise ValidationError(errors)
 
 
-def _parse_date_string(date_str):
+def _parse_date_string(date_value):
     """
-    Parse date string from DISA format.
+    Parse date from DISA format (string or datetime object).
     
     Args:
-        date_str: Date string in format DD.MM.YYYY HH:MM:SS
+        date_value: Date string in format DD.MM.YYYY HH:MM:SS or datetime object
         
     Returns:
-        datetime object with timezone
+        datetime object with timezone (timezone-aware)
     """
     try:
+        # If it's already a datetime object (from openpyxl)
+        if isinstance(date_value, datetime):
+            # If it's naive, make it timezone-aware
+            if timezone.is_naive(date_value):
+                return timezone.make_aware(date_value, timezone=ZoneInfo(settings.TIME_ZONE))
+            # If it's already aware, return as is
+            return date_value
+        
+        # If it's a string, parse it
+        date_str = str(date_value)
         date_parts = [int(x) for x in re.split(r'\.| |:', date_str)]
         return datetime(
             day=date_parts[0],
@@ -264,8 +275,8 @@ def _parse_date_string(date_str):
             second=date_parts[5],
             tzinfo=ZoneInfo(settings.TIME_ZONE)
         )
-    except (ValueError, IndexError) as e:
-        logger.error(f"Error parsing date '{date_str}': {e}")
+    except (ValueError, IndexError, TypeError) as e:
+        logger.error(f"Error parsing date '{date_value}': {e}")
         return None
 
 
@@ -312,7 +323,7 @@ def _process_row_data(rows, from_date: date_type = None):
         if from_date:
             date_str = row[BEGIN].value
             if date_str:
-                parsed_date = _parse_date_string(str(date_str))
+                parsed_date = _parse_date_string(date_str)
                 if parsed_date and parsed_date.date() < from_date:
                     continue
 
