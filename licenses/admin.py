@@ -1090,6 +1090,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         from django.contrib import messages
         from django.core.management import call_command
         from io import StringIO
+        from media_files.models import VideoFile
         
         try:
             license_obj = License.objects.get(id=license_id)
@@ -1106,17 +1107,41 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             call_command('link_orphan_licenses', number=license_obj.number, stdout=out)
             output = out.getvalue()
             
-            # Check if video was found
-            if 'Found video' in output or 'Videos found:' in output:
+            # Refresh license from DB to check if video was actually linked
+            license_obj.refresh_from_db()
+            
+            # Check if video is now linked (via OneToOne relation or by number)
+            video_linked = False
+            try:
+                # First check via OneToOne relation (reverse lookup)
+                if hasattr(license_obj, 'video_file') and license_obj.video_file:
+                    video_linked = True
+                else:
+                    # Fallback: check by number
+                    video_linked = VideoFile.objects.filter(
+                        number=license_obj.number,
+                        is_available=True
+                    ).exists()
+            except VideoFile.DoesNotExist:
+                pass
+            
+            # Show appropriate message based on actual result
+            if video_linked:
                 messages.success(
                     request,
                     f'✓ {_("Video found and linked to license")} #{license_obj.number}!'
                 )
-            elif 'No video found' in output:
+            elif 'No video found' in output or 'not found' in output.lower():
                 messages.warning(
                     request,
-                    f'⚠️ {_("Video with number")} {license_obj.number} {_("not found in storages")}. '
+                    f'{_("Video with number")} {license_obj.number} {_("not found in storages")}. '
                     f'{_("Make sure the file exists and starts with the number")}.'
+                )
+            elif 'Error' in output:
+                # Extract error message from output
+                messages.error(
+                    request,
+                    f'{_("Error linking video")}: {output}'
                 )
             else:
                 messages.info(request, f'{_("Search completed. Check the results")}.')
@@ -1165,13 +1190,13 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if not_found_count > 0:
             self.message_user(
                 request,
-                f'⚠️ {_("No videos found for")} {not_found_count} {_("licenses") if not_found_count != 1 else _("license")}',
+                f'{_("No videos found for")} {not_found_count} {_("licenses") if not_found_count != 1 else _("license")}',
                 messages.WARNING
             )
         if error_count > 0:
             self.message_user(
                 request,
-                f'❌ {_("Search errors")}: {error_count}',
+                f'{_("Search errors")}: {error_count}',
                 messages.ERROR
             )
     

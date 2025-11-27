@@ -160,7 +160,11 @@ msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:159
 msgid "Large gaps (≥5 min) can be filled with videos"
-msgstr ""
+msgstr "Large gaps (≥5 min) can be filled with videos"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "You can manually set any time (including 00:00 and times outside the block) by editing the start time field"
+msgstr "You can manually set any time (including 00:00 and times outside the block) by editing the start time field"
 
 #: planung/templates/admin/planung/calendar_weeks.html:163
 msgid "Enter license number..."

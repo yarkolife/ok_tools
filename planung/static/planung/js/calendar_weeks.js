@@ -12,17 +12,20 @@
 
     // Normalize duration: if value is less than 3600 (1 hour), it might be in minutes (old data)
     // Convert to seconds if needed
+    // NOTE: This function is only used for formatTime() to handle old data format.
+    // When loading from API, duration is always in seconds and should NOT be normalized.
     function normalizeDuration(duration) {
       // If duration is less than 3600 seconds (1 hour), it might be stored in minutes
-      // Check if it's a reasonable duration in minutes (e.g., less than 120 minutes = 7200 seconds)
+      // But we need to be more careful - short videos (1-2 minutes) are valid in seconds
+      // Only convert if the value is suspiciously small for a video (less than 30 seconds)
+      // and could reasonably be minutes (e.g., 5 minutes = 5, which would be 5 seconds if in seconds)
       if (duration < 3600 && duration > 0) {
-        // This could be minutes, but we need to be careful
-        // If duration is between 1 and 120, it's likely minutes
-        // If duration is already in seconds but less than 3600, keep it as is
-        // We'll assume if it's less than 120, it's minutes (old data format)
-        if (duration < 120) {
+        // If duration is less than 30, it's likely minutes (old format)
+        // Videos shorter than 30 seconds are very rare, so this is a safe threshold
+        if (duration < 30) {
           return duration * 60; // Convert minutes to seconds
         }
+        // For 30-3600 seconds, assume it's already in seconds (could be 30s to 1h video)
       }
       return duration; // Already in seconds
     }
@@ -150,19 +153,55 @@
       $('#licenseTable tbody tr:not(.gap-row)').each(function (idx) {
         const $row = $(this);
         const $input = $row.find('.start-time-input');
-        const desiredDisplay = getDesiredTime($input);
-        const desiredSec = timeToSeconds(desiredDisplay + ':00');
-        const startSec = Math.max(desiredSec, currentEndSec);
-        const startWithSeconds = secondsToTimeString(startSec);
+        const isManualTime = $input.data('manual-time') === true;
+        
+        let startSec;
+        let startWithSeconds;
+        
+        if (isManualTime) {
+          // Manual time mode: use the time exactly as set by user
+          const desiredDisplay = getDesiredTime($input);
+          startSec = timeToSeconds(desiredDisplay + ':00');
+          startWithSeconds = secondsToTimeString(startSec);
+        } else {
+          // Auto mode: calculate based on previous video end time
+          const desiredDisplay = getDesiredTime($input);
+          const desiredSec = timeToSeconds(desiredDisplay + ':00');
+          startSec = Math.max(desiredSec, currentEndSec);
+          startWithSeconds = secondsToTimeString(startSec);
+        }
 
         $input.data('internal-time', startWithSeconds);
         $row.find('.time-with-seconds').text(startWithSeconds);
 
-        if (isInSecondHalf(startSec)) {
-          $input.css('background-color', '#fff3cd').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
-        } else {
-          $input.css('background-color', '').attr('title', '');
+        // Visual indicators
+        let bgColor = '';
+        let title = '';
+        
+        if (isManualTime) {
+          // Manual time mode indicator
+          bgColor = '#e7f3ff';
+          title = gettext('Manual time setting (can be outside block)');
+        } else if (isInSecondHalf(startSec)) {
+          bgColor = '#fff3cd';
+          title = gettext('Video starts in second half of minute (30-59 seconds)');
         }
+        
+        // Check if outside block
+        if (startSec < blockStart || startSec >= blockEnd) {
+          if (bgColor) {
+            bgColor = '#ffe7e7'; // Light red for outside block
+          } else {
+            bgColor = '#ffe7e7';
+          }
+          if (title) {
+            title += ' • ' + gettext('Outside broadcast block');
+          } else {
+            title = gettext('Outside broadcast block');
+          }
+        }
+        
+        $input.css('background-color', bgColor).attr('title', title);
 
         const duration = plannedItems[idx] ? plannedItems[idx].duration : (function () {
           const durationText = $row.find('td').eq(5).text();
@@ -181,7 +220,13 @@
           plannedItems[idx].start = startWithSeconds;
         }
 
-        currentEndSec = endSec;
+        // Only update currentEndSec if not in manual mode or if video is within block
+        if (!isManualTime || (startSec >= blockStart && startSec < blockEnd)) {
+          currentEndSec = Math.max(currentEndSec, endSec);
+        } else if (isManualTime && endSec > currentEndSec) {
+          // For manual mode outside block, still track the latest end time for next auto items
+          currentEndSec = endSec;
+        }
       });
 
       updateRemainingTime();
@@ -260,9 +305,10 @@
             .done(function (data) {
                 // restore rows
                 data.items.forEach(function (item) {
-                    // Normalize duration for old data
-                    const normalizedDuration = normalizeDuration(item.duration);
-                    const endTime = calculateEndTime(item.start, normalizedDuration);
+                    // Duration from API is already in seconds (from License/VideoFile)
+                    // Don't normalize it, as API always returns correct duration in seconds
+                    const durationSeconds = item.duration || 0;
+                    const endTime = calculateEndTime(item.start, durationSeconds);
                     const licenseId = item.license_id || '';
                     const licenseLink = licenseId ? '<a href="/admin/licenses/license/' + licenseId + '/change/" target="_blank">' + item.number + '</a>' : item.number;
                     const contributionLink = licenseId ? ' <a href="/admin/contributions/contribution/?q=' + item.number + '" target="_blank" title="' + gettext('View Contributions') + '">📺</a>' : '';
@@ -281,7 +327,7 @@
                       '<td>' + licenseLink + contributionLink + '</td>' +
                       '<td>' + (item.title || '') + (item.subtitle ? ' – ' + item.subtitle : '') + '</td>' +
                       '<td class="sender-responsible">' + senderResponsible + '</td>' +
-                      '<td>' + formatTime(normalizedDuration) + '</td>' +
+                      '<td>' + formatTime(durationSeconds) + '</td>' +
                       '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
                       '</tr>');
                     $('#licenseTable tbody').append($row);
@@ -289,16 +335,23 @@
                     const $input = $row.find('.start-time-input');
                     setDesiredTime($input, startTimeDisplay);
                     $input.data('internal-time', startTimeWithSeconds);
+                    // Check if time is outside block - if so, mark as manual
+                    const startSec = timeToSeconds(startTimeWithSeconds);
+                    if (startSec < blockStart || startSec >= blockEnd) {
+                      $input.data('manual-time', true);
+                    } else {
+                      $input.data('manual-time', false);
+                    }
                     $row.find('.time-with-seconds').text(startTimeWithSeconds);
 
                     // Apply visual indicator if time is in second half of minute (check internal seconds)
-                    const startSec = timeToSeconds(startTimeWithSeconds);
+                    // Note: startSec is already defined above, so we reuse it
                     if (isInSecondHalf(startSec)) {
                       $row.find('.start-time-input').css('background-color', '#fff3cd').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
                     }
                     plannedItems.push({
                       number: item.number,
-                      duration: normalizedDuration,
+                      duration: durationSeconds,
                       title: item.title,
                       subtitle: item.subtitle,
                       sender_responsible: senderResponsible,
@@ -375,22 +428,24 @@
       // Calculate total used time and insert gap visualization
       var totalUsedTime = 0;
       var currentPos = blockStart; // start from block beginning
+      var outsideBlockCount = 0; // Count videos outside block
 
       for (var i = 0; i < videoItems.length; i++) {
         var item = videoItems[i];
         
-        // Check if video is within broadcast block
+        // Check if video is completely outside broadcast block
         if (item.end <= blockStart || item.start >= blockEnd) {
-          // Video is completely outside the block, skip it
+          // Video is completely outside the block
+          outsideBlockCount++;
           continue;
         }
 
-        // Clamp video to block boundaries
+        // Clamp video to block boundaries (video may partially overlap)
         var videoStart = Math.max(item.start, blockStart);
         var videoEnd = Math.min(item.end, blockEnd);
         var videoInBlockDuration = videoEnd - videoStart;
 
-        // Calculate gap before this video
+        // Calculate gap before this video (only within block)
         var gapStart = currentPos;
         var gapEnd = videoStart;
         var gapDuration = gapEnd - gapStart;
@@ -425,7 +480,7 @@
           }
         }
 
-        // Add video time
+        // Add video time (only the part within block)
         totalUsedTime += videoInBlockDuration;
         currentPos = videoEnd;
       }
@@ -462,19 +517,31 @@
       // Calculate remaining time
       var remaining = maxBlockSeconds - totalUsedTime;
       const $remaining = $('#remainingTime');
-
+      
+      // Build status message
+      var statusText = '';
+      var statusClass = 'text-success';
+      
       // Block is full only if: video extends beyond AND no large gaps AND remaining < 5 min
       if (hasVideoExtendingBeyondBlock && !hasLargeGaps && remaining >= 0 && remaining < 300) {
         // Block is considered full
-        $remaining.removeClass('text-danger').addClass('text-success')
-          .text(gettext('Block filled (video extends beyond)'));
+        statusText = gettext('Block filled (video extends beyond)');
+        statusClass = 'text-success';
       } else if (remaining < 0) {
-        $remaining.removeClass('text-success').addClass('text-danger')
-          .text(gettext('Overplanned by %(time)s!').replace('%(time)s', formatTimeOnly(-remaining)));
+        statusText = gettext('Overplanned by %(time)s!').replace('%(time)s', formatTimeOnly(-remaining));
+        statusClass = 'text-danger';
       } else {
-        $remaining.removeClass('text-danger').addClass('text-success')
-          .text(gettext('Still %(time)s free').replace('%(time)s', formatTimeOnly(remaining)));
+        statusText = gettext('Still %(time)s free').replace('%(time)s', formatTimeOnly(remaining));
+        statusClass = 'text-success';
       }
+      
+      // Add info about outside block broadcasts
+      if (outsideBlockCount > 0) {
+        statusText += ' • ' + gettext('%(count)s broadcast(s) outside block').replace('%(count)s', outsideBlockCount);
+      }
+      
+      $remaining.removeClass('text-danger text-success').addClass(statusClass)
+        .text(statusText);
     }
 
     // Check if position is free (no overlaps with existing videos)
@@ -595,7 +662,8 @@
         const senderResponsible = data.sender_responsible || data.author || '';
 
         // Format start time: store with seconds internally, display only HH:MM
-        const startTimeWithSeconds = startTime + ':00';
+        // startTime is already HH:MM:SS from secondsToTimeString()
+        const startTimeWithSeconds = startTime;
         const startTimeDisplay = timeToDisplay(startTimeWithSeconds); // Show only HH:MM
         const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + data.number + '">' +
           '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: #6c757d; font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
@@ -610,6 +678,8 @@
         const $input = $row.find('.start-time-input');
         setDesiredTime($input, startTimeDisplay);
         $input.data('internal-time', startTimeWithSeconds);
+        // New items are auto-positioned, not manual
+        $input.data('manual-time', false);
         $row.find('.time-with-seconds').text(startTimeWithSeconds);
 
         // Find correct position to insert (sorted by time)
@@ -644,10 +714,9 @@
           start: startTime
         });
 
-        recalculateSchedule();
-        
-        // Re-sort planned items
+        // Sync planned items first to match DOM order before recalculating
         syncPlannedItemsFromTable();
+        recalculateSchedule();
         updateRemainingTime();
         $('#licenseNumberInput').val('');
       }).fail(function () {
@@ -668,6 +737,8 @@
         $input.val(normalized);
       }
 
+      // Mark as manual time when user edits
+      $input.data('manual-time', true);
       setDesiredTime($input, normalized);
       recalculateSchedule();
     });
@@ -688,6 +759,8 @@
         $input.val(normalized);
       }
 
+      // Mark as manual time when user edits
+      $input.data('manual-time', true);
       setDesiredTime($input, normalized);
       recalculateSchedule();
     });
@@ -696,9 +769,11 @@
     $('#alignToFiveMinutesBtn').on('click', function () {
       // Collect all videos with their current positions
       const videos = [];
+      const manualVideos = [];
       $('#licenseTable tbody tr:not(.gap-row)').each(function () {
         const $row = $(this);
         const $input = $row.find('.start-time-input');
+        const isManualTime = $input.data('manual-time') === true;
         const startStr = getInternalTime($input); // Get time with seconds
         const durationText = $row.find('td').eq(5).text();
         const [mins, secs] = durationText.split(':').map(Number);
@@ -706,12 +781,19 @@
         
         if (startStr) {
           const startSec = timeToSeconds(startStr);
-          videos.push({
+          const videoData = {
             $row: $row,
             startSec: startSec,
             duration: duration,
             originalIndex: $('#licenseTable tbody tr:not(.gap-row)').index($row)
-          });
+          };
+          
+          if (isManualTime) {
+            // Keep manual videos separate - they won't be aligned
+            manualVideos.push(videoData);
+          } else {
+            videos.push(videoData);
+          }
         }
       });
       
@@ -720,13 +802,31 @@
         return a.startSec - b.startSec;
       });
       
-      // Align each video to nearest 5-minute mark (minutes only), preserving seconds to follow previous video ends
+      // Combine manual and auto videos, sort by start time
+      const allVideos = [...manualVideos, ...videos].sort(function(a, b) {
+        return a.startSec - b.startSec;
+      });
+      
+      // Align each auto video to nearest 5-minute mark (minutes only), preserving seconds to follow previous video ends
       let currentPos = blockStart;
       videos.forEach(function(video, videoIndex) {
-        // Find aligned position that keeps seconds continuity
-        const roundedPos = alignToFiveMinutesKeepingSeconds(currentPos);
+        // Check manual videos that might affect positioning
+        let effectiveStartPos = currentPos;
+        for (let i = 0; i < manualVideos.length; i++) {
+          const manualVideo = manualVideos[i];
+          const manualEndSec = manualVideo.startSec + manualVideo.duration;
+          // If manual video is within block and affects positioning
+          if (manualVideo.startSec >= blockStart && manualVideo.startSec < blockEnd) {
+            if (manualEndSec > currentPos && manualEndSec <= blockEnd) {
+              effectiveStartPos = Math.max(effectiveStartPos, manualEndSec);
+            }
+          }
+        }
         
-        // Check if rounded position would cause conflict with previous videos
+        // Find aligned position that keeps seconds continuity
+        const roundedPos = alignToFiveMinutesKeepingSeconds(effectiveStartPos);
+        
+        // Check if rounded position would cause conflict with previous videos (both auto and manual)
         let finalPos = roundedPos;
         let hasConflict = false;
         let maxIterations = 100; // Safety limit
@@ -735,7 +835,7 @@
         do {
           hasConflict = false;
           iterations++;
-          // Check against all already positioned videos
+          // Check against all already positioned auto videos
           for (let i = 0; i < videoIndex; i++) {
             const otherVideo = videos[i];
             const otherEndSec = otherVideo.finalPosSec + otherVideo.duration;
@@ -749,6 +849,24 @@
               break;
             }
           }
+          
+          // Also check against manual videos
+          if (!hasConflict) {
+            for (let i = 0; i < manualVideos.length; i++) {
+              const manualVideo = manualVideos[i];
+              const manualStartSec = manualVideo.startSec;
+              const manualEndSec = manualStartSec + manualVideo.duration;
+              const newEndSec = finalPos + video.duration;
+              
+              // Check for overlap with manual videos
+              if (finalPos < manualEndSec && newEndSec > manualStartSec) {
+                hasConflict = true;
+                // Move to next 5-minute-aligned position after the conflicting manual video
+                finalPos = alignToFiveMinutesKeepingSeconds(manualEndSec);
+                break;
+              }
+            }
+          }
         } while (hasConflict && iterations < maxIterations);
         
         // Store final position
@@ -760,6 +878,7 @@
         const $input = video.$row.find('.start-time-input');
         $input.val(newStartTimeDisplay); // Display only HH:MM
         $input.data('internal-time', newStartTimeWithSeconds); // Store with seconds
+        $input.data('manual-time', false); // Auto-aligned items are not manual
         setDesiredTime($input, newStartTimeDisplay);
         $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds); // Update time display
         const endTime = calculateEndTime(newStartTimeWithSeconds, video.duration);
@@ -999,6 +1118,23 @@
       
       $('#licenseTable tbody tr:not(.gap-row)').each(function () {
         const $row = $(this);
+        const $input = $row.find('.start-time-input');
+        const isManualTime = $input.data('manual-time') === true;
+        
+        // Skip manual time items
+        if (isManualTime) {
+          const startStr = getInternalTime($input);
+          const startSec = timeToSeconds(startStr);
+          const durationText = $row.find('td').eq(5).text();
+          const [mins, secs] = durationText.split(':').map(Number);
+          const duration = mins * 60 + secs;
+          // Update currentPos to be after this manual item if it's within block
+          if (startSec >= blockStart && startSec < blockEnd) {
+            currentPos = Math.max(currentPos, startSec + duration);
+          }
+          return; // Skip this row
+        }
+        
         const durationText = $row.find('td').eq(5).text(); // Duration is now column 5
         const [mins, secs] = durationText.split(':').map(Number);
         const duration = mins * 60 + secs; // Already in seconds from MM:SS format
@@ -1009,10 +1145,10 @@
         const newStartTimeDisplay = timeToDisplay(newStartTimeWithSeconds);
         
         // Update start time input
-        const $input = $row.find('.start-time-input');
         $input.val(newStartTimeDisplay); // Display only HH:MM
         $input.data('internal-time', newStartTimeWithSeconds); // Store with seconds
         setDesiredTime($input, newStartTimeDisplay);
+        $input.data('manual-time', false); // Auto-positioned items are not manual
         $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds); // Update time display
         
         // Update end time display

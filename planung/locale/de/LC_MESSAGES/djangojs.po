@@ -48,3 +48,15 @@ msgstr "Noch %(time)s frei"
 #: planung/static/planung/js/calendar_weeks.js:654
 msgid "License not found or not confirmed"
 msgstr "Freistellung nicht gefunden oder nicht genehmigt"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "Manual time setting (can be outside block)"
+msgstr "Manuelle Zeiteinstellung (kann außerhalb des Blocks sein)"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "Outside broadcast block"
+msgstr "Außerhalb des Sendeblocks"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "%(count)s broadcast(s) outside block"
+msgstr "%(count)s Sendung(en) außerhalb des Blocks"

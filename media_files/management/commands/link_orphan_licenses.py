@@ -85,7 +85,22 @@ class Command(BaseCommand):
             stats['checked'] += 1
             
             try:
-                # Search for video with same number
+                # Check if license already has a linked video (via OneToOne relation)
+                existing_video = None
+                try:
+                    existing_video = license.video_file
+                except VideoFile.DoesNotExist:
+                    pass
+                
+                if existing_video:
+                    self.stdout.write(
+                        f'#{license.number}: Already has linked video '
+                        f'({existing_video.filename} in {existing_video.storage_location.name})'
+                    )
+                    stats['linked'] += 1  # Count as already linked
+                    continue
+                
+                # Search for video with same number (prefer unlinked videos)
                 videos = VideoFile.objects.filter(
                     number=license.number,
                     is_available=True
@@ -95,6 +110,11 @@ class Command(BaseCommand):
                     self.stdout.write(f'#{license.number}: No video found in storage')
                     stats['not_found'] += 1
                     continue
+                
+                # Prefer videos not linked to any license
+                unlinked_videos = videos.filter(license__isnull=True)
+                if unlinked_videos.exists():
+                    videos = unlinked_videos
                 
                 # If multiple videos, select best quality
                 if videos.count() > 1:
@@ -115,6 +135,15 @@ class Command(BaseCommand):
                     )
                 
                 stats['found'] += 1
+                
+                # Check if selected video is already linked to another license
+                if video.license and video.license.id != license.id:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f'  ⚠ Video already linked to license #{video.license.number}, '
+                            f'will be re-linked to #{license.number}'
+                        )
+                    )
                 
                 # Link video to license
                 if not dry_run:
