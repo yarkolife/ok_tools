@@ -2,9 +2,215 @@
 
 {% load i18n %}
 
+{% block extrahead %}
+{{ block.super }}
+<style>
+    #date-selection-container {
+        margin: 15px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    #date-selection-container label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 8px;
+    }
+    #import_from_date_select {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        min-width: 200px;
+        height: auto;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    #dates-loading {
+        color: #666;
+        font-style: italic;
+    }
+    #dates-count {
+        margin-left: 10px;
+        color: #666;
+        font-size: 0.9em;
+    }
+    #dates-error {
+        color: #dc3545;
+        margin-top: 5px;
+    }
+    .custom-submit-row {
+        padding: 12px 14px;
+        margin: 0 0 20px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: flex;
+        gap: 10px;
+    }
+    .custom-submit-row input[type="submit"] {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .custom-submit-row input[name="_save"] {
+        background: #6c757d;
+        color: white;
+    }
+    .custom-submit-row input[name="_save"]:hover {
+        background: #5a6268;
+    }
+    .custom-submit-row input[name="_import_disa"] {
+        background: #417690;
+        color: white;
+    }
+    .custom-submit-row input[name="_import_disa"]:hover {
+        background: #205067;
+    }
+</style>
+{% endblock %}
+
 {% block submit_buttons_bottom %}
-    {{ block.super }}
-    <div class="submit-row">
-        <input type="submit" value="{% translate 'Import' %}" name='_import_disa'>
+    <div id="date-selection-container" style="display: none;">
+        <label for="import_from_date_select">{% translate 'Import from date' %}:</label>
+        <select name="import_from_date_select" id="import_from_date_select" size="1">
+            <option value="">{% translate 'All dates' %}</option>
+        </select>
+        <span id="dates-count"></span>
+        <span id="dates-loading" style="display: none;">{% translate 'Loading dates...' %}</span>
+        <div id="dates-error" style="display: none;"></div>
     </div>
+    
+    <div class="custom-submit-row">
+        <input type="submit" value="{% translate 'Save' %}" name="_save">
+        <input type="submit" value="{% translate 'Save and Import' %}" name="_import_disa">
+    </div>
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script>
+(function() {
+    const fileInput = document.getElementById('id_file');
+    const dateContainer = document.getElementById('date-selection-container');
+    const dateSelect = document.getElementById('import_from_date_select');
+    const datesCount = document.getElementById('dates-count');
+    const datesLoading = document.getElementById('dates-loading');
+    const datesError = document.getElementById('dates-error');
+    
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    function showLoading() {
+        datesLoading.style.display = 'inline';
+        datesError.style.display = 'none';
+        dateSelect.disabled = true;
+    }
+    
+    function hideLoading() {
+        datesLoading.style.display = 'none';
+        dateSelect.disabled = false;
+    }
+    
+    function showError(message) {
+        datesError.textContent = message;
+        datesError.style.display = 'block';
+    }
+    
+    function populateDates(dates, selectedValue) {
+        // Clear existing options except "All dates"
+        dateSelect.innerHTML = '<option value="">{% translate "All dates" %}</option>';
+        
+        dates.forEach(function(date) {
+            const option = document.createElement('option');
+            option.value = date.value;
+            option.textContent = date.label;
+            if (selectedValue && date.value === selectedValue) {
+                option.selected = true;
+            }
+            dateSelect.appendChild(option);
+        });
+        
+        datesCount.textContent = '(' + dates.length + ' {% translate "dates available" %})';
+        dateContainer.style.display = 'block';
+    }
+    
+    // Handle file selection (for new uploads)
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                showLoading();
+                dateContainer.style.display = 'block';
+                
+                const formData = new FormData();
+                formData.append('file', this.files[0]);
+                
+                fetch('/contributions/api/extract-dates/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        populateDates(data.dates, null);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showError('{% translate "Error loading dates" %}: ' + error.message);
+                });
+            }
+        });
+    }
+    
+    // For existing objects, load dates on page load
+    {% if original and original.pk %}
+    (function() {
+        showLoading();
+        dateContainer.style.display = 'block';
+        
+        fetch('/contributions/api/extract-dates/{{ original.pk }}/', {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.error) {
+                showError(data.error);
+            } else {
+                populateDates(data.dates, data.selected);
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showError('{% translate "Error loading dates" %}: ' + error.message);
+        });
+    })();
+    {% endif %}
+})();
+</script>
 {% endblock %}

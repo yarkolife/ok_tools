@@ -122,23 +122,31 @@ class DisaImport(models.Model):
     """
     Model representing the DISA-Import.
 
-    The Contributions get imported from a xlsx-file.
+    The Contributions get imported from a xlsx/xls-file.
     """
 
     def timestamp_path(instance, filename):
         """Create a path based on the current timestamp."""
         now: datetime = datetime.now()
+        ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else 'xlsx'
         return (f'{now.year}/{now.month}/{now.day}/{now.hour}-{now.minute}-'
-                f'{now.second}-{now.microsecond}.xlsx')
+                f'{now.second}-{now.microsecond}.{ext}')
 
     file = models.FileField(
         verbose_name=_('DISA export file'),
         upload_to=timestamp_path,
         validators=[
-            FileExtensionValidator(allowed_extensions=['xlsx']),
+            FileExtensionValidator(allowed_extensions=['xlsx', 'xls']),
         ],
         blank=False,
         null=False,
+    )
+
+    import_from_date = models.DateField(
+        verbose_name=_('Import from date'),
+        null=True,
+        blank=True,
+        help_text=_('Only import contributions from this date onwards.')
     )
 
     imported = models.BooleanField(

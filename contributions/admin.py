@@ -826,9 +826,11 @@ class DisaImportAdmin(admin.ModelAdmin):
 
     list_display = (
         '__str__',
+        'import_from_date',
         'imported',
     )
 
+    exclude = ['import_from_date', 'imported']
     ordering = ['-file']
     actions = ['import_files']
 
@@ -837,7 +839,7 @@ class DisaImportAdmin(admin.ModelAdmin):
         """Import selected files."""
         imported = 0
         for i in queryset:
-            disa_import(request, i.file)
+            disa_import(request, i.file, from_date=i.import_from_date)
             i.imported = True
             i.save()
             imported += 1
@@ -848,15 +850,36 @@ class DisaImportAdmin(admin.ModelAdmin):
             imported
         ) % imported, messages.SUCCESS)
 
-    def response_change(self, request, obj: DisaImport):
-        """Add 'Import' button to change view."""
-        if '_import_disa' in request.POST:
-            disa_import(request, obj.file)
-            obj.imported = True
-            obj.save()
-            self.message_user(request, _('"%(obj)s" successfully imported.') %
-                              {'obj': obj}, level=messages.SUCCESS)
+    def _handle_import(self, request, obj):
+        """Handle import action from form submission."""
+        selected_date_str = request.POST.get('import_from_date_select')
+        from_date = None
+        if selected_date_str:
+            try:
+                from_date = datetime.datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+                obj.import_from_date = from_date
+            except ValueError:
+                pass
+        
+        disa_import(request, obj.file, from_date=from_date)
+        obj.imported = True
+        obj.save()
+        self.message_user(request, _('"%(obj)s" successfully imported.') %
+                          {'obj': obj}, level=messages.SUCCESS)
 
+    def response_add(self, request, obj, post_url_continue=None):
+        """Handle 'Import' button on add view."""
+        if '_import_disa' in request.POST:
+            self._handle_import(request, obj)
+            return http.HttpResponseRedirect(
+                f'../{obj.pk}/change/'
+            )
+        return super().response_add(request, obj, post_url_continue)
+
+    def response_change(self, request, obj: DisaImport):
+        """Handle 'Import' button on change view."""
+        if '_import_disa' in request.POST:
+            self._handle_import(request, obj)
             return http.HttpResponseRedirect(request.path_info)
         return super().response_change(request, obj)
 

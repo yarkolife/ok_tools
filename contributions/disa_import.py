@@ -1,14 +1,19 @@
 from . import models
 from datetime import datetime
+from datetime import date as date_type
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
+from io import BytesIO
 from licenses.models import License
 from openpyxl import load_workbook
+from openpyxl import Workbook
 from zoneinfo import ZoneInfo
 import logging
+import os
+import pandas as pd
 import re
 
 
@@ -24,6 +29,132 @@ WS_NAME = 'Auftragsfenster'
 INFO = 'Infoblock'
 LIVE = 'Live-Quelle'
 IGNORED_PREFIXES = ['Trailer', 'Programmvorschau']
+
+
+def _detect_excel_format(file) -> str:
+    """
+    Detect Excel file format by checking magic bytes.
+    
+    Args:
+        file: File object
+        
+    Returns:
+        'xlsx' for Office Open XML format, 'xls' for legacy BIFF format
+    """
+    if hasattr(file, 'seek'):
+        file.seek(0)
+    
+    # Read first 8 bytes to detect format
+    if hasattr(file, 'read'):
+        header = file.read(8)
+        file.seek(0)
+    else:
+        with open(file, 'rb') as f:
+            header = f.read(8)
+    
+    # XLSX files start with PK (ZIP archive)
+    if header[:2] == b'PK':
+        return 'xlsx'
+    # XLS files start with compound document header (D0 CF 11 E0)
+    elif header[:4] == b'\xd0\xcf\x11\xe0':
+        return 'xls'
+    else:
+        # Fallback: try by extension
+        filename = getattr(file, 'name', str(file))
+        if filename.lower().endswith('.xls'):
+            return 'xls'
+        return 'xlsx'
+
+
+def convert_xls_to_xlsx(file) -> BytesIO:
+    """
+    Convert .xls file to .xlsx format using pandas + xlrd.
+    
+    Args:
+        file: File object or path to .xls file (must be actual XLS format)
+        
+    Returns:
+        BytesIO object containing .xlsx data
+    """
+    if hasattr(file, 'seek'):
+        file.seek(0)
+    
+    # Read .xls file with xlrd engine
+    df = pd.read_excel(file, engine='xlrd', sheet_name=WS_NAME, header=None)
+    
+    # Create new .xlsx in memory
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name=WS_NAME, index=False, header=False)
+    
+    output.seek(0)
+    return output
+
+
+def _load_workbook_auto(file):
+    """
+    Load workbook from file, automatically handling format detection and conversion.
+    
+    Args:
+        file: File object (can be .xls or .xlsx, detected by content)
+        
+    Returns:
+        openpyxl Workbook object
+    """
+    file_format = _detect_excel_format(file)
+    
+    if file_format == 'xls':
+        # Convert real XLS to XLSX
+        if hasattr(file, 'seek'):
+            file.seek(0)
+        xlsx_data = convert_xls_to_xlsx(file)
+        return load_workbook(xlsx_data)
+    else:
+        # Already XLSX format (even if extension is .xls)
+        if hasattr(file, 'seek'):
+            file.seek(0)
+        return load_workbook(file)
+
+
+def get_unique_dates(file) -> list[date_type]:
+    """
+    Extract unique dates from the Anfang column of DISA export file.
+    
+    Args:
+        file: File object (.xls or .xlsx)
+        
+    Returns:
+        Sorted list of unique dates found in the file
+    """
+    try:
+        wb = _load_workbook_auto(file)
+        
+        if WS_NAME not in wb.sheetnames:
+            logger.warning(f'Worksheet {WS_NAME} not found in file')
+            return []
+        
+        ws = wb[WS_NAME]
+        rows = ws.rows
+        next(rows)  # Skip header
+        
+        unique_dates = set()
+        
+        for row in rows:
+            # Skip empty rows
+            if not any([row[i].value for i in range(TYPE)]):
+                continue
+            
+            date_str = row[BEGIN].value
+            if date_str:
+                parsed_date = _parse_date_string(str(date_str))
+                if parsed_date:
+                    unique_dates.add(parsed_date.date())
+        
+        return sorted(unique_dates)
+        
+    except Exception as e:
+        logger.error(f'Error extracting dates from file: {e}')
+        return []
 
 
 def _check_title(title: str, type: str) -> bool:
@@ -45,8 +176,9 @@ def validate(file):
     Validate the DISA export file.
 
     Check weather the column and title naming is right.
+    Supports both .xls and .xlsx formats.
     """
-    wb = load_workbook(file)
+    wb = _load_workbook_auto(file)
     errors: list[ValidationError] = []
 
     def e(message: str) -> None:
@@ -151,12 +283,13 @@ def _extract_license_number(title):
     return int(match[0]) if match else None
 
 
-def _process_row_data(rows):
+def _process_row_data(rows, from_date: date_type = None):
     """
     Process and validate row data from Excel file.
     
     Args:
         rows: Iterator of Excel rows
+        from_date: Optional date to filter rows (only include rows >= from_date)
         
     Returns:
         Tuple of (processed_rows_data, license_numbers_set)
@@ -165,14 +298,23 @@ def _process_row_data(rows):
     license_numbers = set()
     
     for row in rows:
+        # Skip empty rows (continue instead of break to process entire file)
         if not any([row[i].value for i in range(TYPE)]):
-            break
+            continue
 
         if (
             row[TYPE].value == INFO or
             any([row[TITLE].value.startswith(x) for x in IGNORED_PREFIXES])
         ):
             continue
+
+        # Filter by date if from_date is specified
+        if from_date:
+            date_str = row[BEGIN].value
+            if date_str:
+                parsed_date = _parse_date_string(str(date_str))
+                if parsed_date and parsed_date.date() < from_date:
+                    continue
 
         license_number = _extract_license_number(row[TITLE].value)
         if license_number:
@@ -330,11 +472,17 @@ def _batch_create_contributions(contributions_to_create):
     return created_count
 
 
-def disa_import(request, file):
+def disa_import(request, file, from_date: date_type = None):
     """
     Import contributions from DISA export - OPTIMIZED VERSION.
 
     All valid data gets imported even if an error occurs.
+    Supports both .xls and .xlsx formats.
+    
+    Args:
+        request: HTTP request object
+        file: File object (.xls or .xlsx)
+        from_date: Optional date to filter rows (only import rows >= from_date)
     
     Optimizations:
     1. Minimal database queries using preloading
@@ -343,14 +491,14 @@ def disa_import(request, file):
     4. Better code organization and readability
     """
     try:
-        wb = load_workbook(file)
+        wb = _load_workbook_auto(file)
         ws = wb[WS_NAME]
         rows = ws.rows
         next(rows)  # ignore headers
         next(rows)  # ignore empty row
 
-        # Process row data and extract license numbers
-        rows_data, license_numbers = _process_row_data(rows)
+        # Process row data and extract license numbers (with optional date filtering)
+        rows_data, license_numbers = _process_row_data(rows, from_date)
         
         if not rows_data:
             msg = _('No valid data found in file.')

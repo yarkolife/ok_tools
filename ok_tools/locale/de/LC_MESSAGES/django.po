@@ -420,6 +420,26 @@ msgstr "DISA-Importe"
 msgid "Import"
 msgstr "Importieren"
 
+#: contributions/templates/admin/disa_import_change_form.html
+msgid "Save and Import"
+msgstr "Speichern und Importieren"
+
+#: contributions/templates/admin/disa_import_change_form.html
+msgid "All dates"
+msgstr "Alle Daten"
+
+#: contributions/templates/admin/disa_import_change_form.html
+msgid "dates available"
+msgstr "Daten verfügbar"
+
+#: contributions/templates/admin/disa_import_change_form.html
+msgid "Loading dates..."
+msgstr "Daten werden geladen..."
+
+#: contributions/templates/admin/disa_import_change_form.html
+msgid "Error loading dates"
+msgstr "Fehler beim Laden der Daten"
+
 #: contributions/templates/admin/export.html:7
 #: inventory/templates/admin/export.html:7
 #: inventory/templates/admin/inventory_item_change_list.html:7

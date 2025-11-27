@@ -1,14 +1,20 @@
-from .models import Contribution
+from .disa_import import get_unique_dates
+from .models import Contribution, DisaImport
 from collections import defaultdict
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import generic
+from django.views.decorators.http import require_http_methods
 from licenses.models import License
 from registration.models import Profile
+import logging
 
 
 User = get_user_model()
+logger = logging.getLogger('django')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -76,3 +82,62 @@ class ListContributionsView(generic.list.ListView):
     def get_queryset(self):
         """Return empty queryset since we handle data in get_context_data."""
         return Contribution.objects.none()
+
+
+@staff_member_required
+@require_http_methods(["POST"])
+def extract_dates_from_file(request):
+    """
+    Extract unique dates from uploaded DISA export file.
+    Used for AJAX request when adding new DisaImport.
+    """
+    if 'file' not in request.FILES:
+        return JsonResponse({'error': 'No file provided'}, status=400)
+    
+    uploaded_file = request.FILES['file']
+    
+    try:
+        dates = get_unique_dates(uploaded_file)
+        dates_formatted = [
+            {
+                'value': date.strftime('%Y-%m-%d'),
+                'label': date.strftime('%d.%m.%Y')
+            }
+            for date in dates
+        ]
+        return JsonResponse({
+            'dates': dates_formatted,
+            'count': len(dates)
+        })
+    except Exception as e:
+        logger.error(f'Error extracting dates from file: {e}')
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@staff_member_required
+@require_http_methods(["GET"])
+def extract_dates_from_saved_file(request, pk):
+    """
+    Extract unique dates from saved DisaImport file.
+    Used for AJAX request when editing existing DisaImport.
+    """
+    try:
+        disa_import = DisaImport.objects.get(pk=pk)
+        dates = get_unique_dates(disa_import.file)
+        dates_formatted = [
+            {
+                'value': date.strftime('%Y-%m-%d'),
+                'label': date.strftime('%d.%m.%Y')
+            }
+            for date in dates
+        ]
+        return JsonResponse({
+            'dates': dates_formatted,
+            'count': len(dates),
+            'selected': disa_import.import_from_date.strftime('%Y-%m-%d') if disa_import.import_from_date else None
+        })
+    except DisaImport.DoesNotExist:
+        return JsonResponse({'error': 'DisaImport not found'}, status=404)
+    except Exception as e:
+        logger.error(f'Error extracting dates from saved file: {e}')
+        return JsonResponse({'error': str(e)}, status=500)
