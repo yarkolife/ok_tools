@@ -148,6 +148,12 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         null=True,
     )
 
+    is_live = models.BooleanField(
+        _('Live broadcast'),
+        default=False,
+        help_text=_('Live broadcasts do not allow repetitions, exchange, or mediathek storage.')
+    )
+
     tags = models.JSONField(
         _('Tags'),
         blank=True,
@@ -241,7 +247,15 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         Make confirmed Licenses not editable.
 
         Nevertheless the confirmed status itself should stay editable.
+        Live broadcasts automatically disable repetitions, exchange, and mediathek.
         """
+        # Auto-set fields for Live broadcasts
+        if self.is_live:
+            self.repetitions_allowed = False
+            self.media_authority_exchange_allowed = False
+            self.media_authority_exchange_allowed_other_states = False
+            self.store_in_ok_media_library = False
+
         # Emulate an Autofield for number.
         if self.id is None:  # license is new created
 

@@ -397,8 +397,9 @@ def _prepare_contributions_for_batch_creation(rows_data, licenses_dict, no_repet
         # Collect dates for batch deletion
         dates_to_delete.add(broadcast_date.date())
         
-        # Check if repetitions are allowed
-        if (license.id in no_repetition_license_ids and
+        # Check if repetitions are allowed (skip for Live broadcasts)
+        if (not license.is_live and
+            license.id in no_repetition_license_ids and
             license.id in existing_contributions_set):
             msg = _('No repetitions for number %(n)s allowed and already'
                     ' found a primary contribution.') % {'n': license_number}

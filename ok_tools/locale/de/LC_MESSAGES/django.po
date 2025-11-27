@@ -485,6 +485,18 @@ msgstr "Gesamtsendungen"
 msgid "Live Broadcasts"
 msgstr "Live-Sendungen"
 
+#: licenses/models.py
+msgid "Live broadcast"
+msgstr "Live-Sendung"
+
+#: licenses/models.py
+msgid "Live broadcasts do not allow repetitions, exchange, or mediathek storage."
+msgstr "Live-Sendungen erlauben keine Wiederholungen, keinen Austausch oder Mediathek-Speicherung."
+
+#: licenses/templates/licenses/create.html
+msgid "Live broadcast (no repetitions, exchange, or mediathek)"
+msgstr "Live-Sendung (keine Wiederholungen, kein Austausch, keine Mediathek)"
+
 #: contributions/templates/contributions/list.html:61
 msgid "Recordings"
 msgstr "Aufzeichnungen"

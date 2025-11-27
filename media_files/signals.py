@@ -110,6 +110,11 @@ def auto_link_license_to_video(sender, instance, created, **kwargs):
         # Only process if this is a License instance
         if not isinstance(instance, License):
             return
+        
+        # Skip video linking for Live broadcasts (they don't have video files)
+        if instance.is_live:
+            logger.debug(f"License {instance.number} is Live, skipping video link")
+            return
             
         if instance.number:
             # Find all videos with same number

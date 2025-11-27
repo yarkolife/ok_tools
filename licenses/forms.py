@@ -97,6 +97,7 @@ class CreateLicenseForm(forms.ModelForm):
             'tags',
             HTML(_screen_board_js()),
             Field('is_screen_board', onclick="showDuration()"),
+            'is_live',
             'duration',
             'suggested_date',
             'repetitions_allowed',

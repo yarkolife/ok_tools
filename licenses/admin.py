@@ -681,6 +681,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         }),
         (_('Broadcasting Permissions'), {
             'fields': (
+                'is_live',
                 'repetitions_allowed',
                 'media_authority_exchange_allowed',
                 'media_authority_exchange_allowed_other_states',
@@ -932,6 +933,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         AutocompleteFilterFactory(
             _('Media Authority'), 'profile__media_authority'),
         AutocompleteFilterFactory(_('Category'), 'category'),
+        'is_live',
         'store_in_ok_media_library',
         GlobalProducerFilter,
         HasVideoFilter,

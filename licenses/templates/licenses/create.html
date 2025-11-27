@@ -235,7 +235,7 @@
         <div class="card-body">
             <div class="row">
                 <!-- Left side: Bildschirmtafel -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label for="{{ form.is_screen_board.id_for_label }}" class="form-label">
                         <i class="bi bi-display me-1"></i>{{ form.is_screen_board.label }}
                     </label>
@@ -252,8 +252,26 @@
                     {% endif %}
                 </div>
 
+                <!-- Middle: Live broadcast -->
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.is_live.id_for_label }}" class="form-label">
+                        <i class="bi bi-broadcast-pin text-danger me-1"></i>{{ form.is_live.label }}
+                    </label>
+                    <div class="form-check">
+                        {{ form.is_live }}
+                        <label class="form-check-label" for="{{ form.is_live.id_for_label }}">
+                            {% trans 'Live broadcast (no repetitions, exchange, or mediathek)' %}
+                        </label>
+                    </div>
+                    {% if form.is_live.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.is_live.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
                 <!-- Right side: Jugendschutz -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label for="{{ form.youth_protection_necessary.id_for_label }}" class="form-label">
                         <i class="bi bi-shield-exclamation me-1"></i>{{ form.youth_protection_necessary.label }}
                     </label>
@@ -609,6 +627,39 @@
         }
     }
 
+    function toggleLiveBroadcast(checkbox) {
+        const repetitionsField = document.getElementById('id_repetitions_allowed');
+        const exchangeSAField = document.getElementById('id_media_authority_exchange_allowed');
+        const exchangeOtherField = document.getElementById('id_media_authority_exchange_allowed_other_states');
+        const mediathekField = document.getElementById('id_store_in_ok_media_library');
+
+        if (checkbox.checked) {
+            // Set all related fields to "No" and disable them
+            if (repetitionsField) {
+                repetitionsField.value = '2';  // "No" for NullBooleanSelect
+                repetitionsField.disabled = true;
+            }
+            if (exchangeSAField) {
+                exchangeSAField.value = '2';
+                exchangeSAField.disabled = true;
+            }
+            if (exchangeOtherField) {
+                exchangeOtherField.value = '2';
+                exchangeOtherField.disabled = true;
+            }
+            if (mediathekField) {
+                mediathekField.value = '2';
+                mediathekField.disabled = true;
+            }
+        } else {
+            // Re-enable fields
+            if (repetitionsField) repetitionsField.disabled = false;
+            if (exchangeSAField) exchangeSAField.disabled = false;
+            if (exchangeOtherField) exchangeOtherField.disabled = false;
+            if (mediathekField) mediathekField.disabled = false;
+        }
+    }
+
     // Auto-format duration field
     document.addEventListener('DOMContentLoaded', function () {
         const durationField = document.getElementById('id_duration');
@@ -644,6 +695,15 @@
         const screenBoardField = document.getElementById('id_is_screen_board');
         if (screenBoardField) {
             toggleScreenBoard(screenBoardField);
+        }
+
+        // Initialize Live broadcast field
+        const isLiveField = document.getElementById('id_is_live');
+        if (isLiveField) {
+            toggleLiveBroadcast(isLiveField);
+            isLiveField.addEventListener('change', function() {
+                toggleLiveBroadcast(this);
+            });
         }
 
         // Handle form submission to open print page in new window

@@ -15,6 +15,55 @@
 (function() {
     'use strict';
     
+    // Handle is_live checkbox - auto-set related fields
+    function handleIsLiveChange() {
+        const isLiveField = document.getElementById('id_is_live');
+        const repetitionsField = document.getElementById('id_repetitions_allowed');
+        const exchangeSAField = document.getElementById('id_media_authority_exchange_allowed');
+        const exchangeOtherField = document.getElementById('id_media_authority_exchange_allowed_other_states');
+        const mediathekField = document.getElementById('id_store_in_ok_media_library');
+        
+        if (!isLiveField) {
+            return;
+        }
+        
+        const isLive = isLiveField.checked;
+        
+        if (isLive) {
+            // Set all related fields to "No" (value '2' for NullBooleanSelect)
+            if (repetitionsField) {
+                repetitionsField.value = '2';
+                repetitionsField.disabled = true;
+            }
+            if (exchangeSAField) {
+                exchangeSAField.value = '2';
+                exchangeSAField.disabled = true;
+            }
+            if (exchangeOtherField) {
+                exchangeOtherField.value = '2';
+                exchangeOtherField.disabled = true;
+            }
+            if (mediathekField) {
+                mediathekField.value = '2';
+                mediathekField.disabled = true;
+            }
+        } else {
+            // Re-enable fields
+            if (repetitionsField) repetitionsField.disabled = false;
+            if (exchangeSAField) exchangeSAField.disabled = false;
+            if (exchangeOtherField) exchangeOtherField.disabled = false;
+            if (mediathekField) mediathekField.disabled = false;
+        }
+    }
+    
+    function initIsLiveToggle() {
+        const isLiveField = document.getElementById('id_is_live');
+        if (isLiveField) {
+            handleIsLiveChange();
+            isLiveField.addEventListener('change', handleIsLiveChange);
+        }
+    }
+    
     function toggleYouthProtectionCategory() {
         const youthProtectionField = document.getElementById('id_youth_protection_necessary');
         const youthCategorySelect = document.getElementById('id_youth_protection_category');
@@ -142,11 +191,17 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             // Wait a bit for Django admin to fully render
-            setTimeout(initYouthProtectionToggle, 300);
+            setTimeout(function() {
+                initYouthProtectionToggle();
+                initIsLiveToggle();
+            }, 300);
         });
     } else {
         // DOM already loaded
-        setTimeout(initYouthProtectionToggle, 300);
+        setTimeout(function() {
+            initYouthProtectionToggle();
+            initIsLiveToggle();
+        }, 300);
     }
 })();
 </script>

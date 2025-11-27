@@ -118,6 +118,47 @@
             toggleYouthCategoryRow(); // Initialize visibility
         }
 
+        // Live broadcast toggle
+        const isLiveField = document.getElementById("id_is_live");
+        
+        function toggleLiveBroadcast() {
+            const repetitionsField = document.getElementById('id_repetitions_allowed');
+            const exchangeSAField = document.getElementById('id_media_authority_exchange_allowed');
+            const exchangeOtherField = document.getElementById('id_media_authority_exchange_allowed_other_states');
+            const mediathekField = document.getElementById('id_store_in_ok_media_library');
+
+            if (isLiveField && isLiveField.checked) {
+                // Set all related fields to "No" and disable them
+                if (repetitionsField) {
+                    repetitionsField.value = '2';  // "No" for NullBooleanSelect
+                    repetitionsField.disabled = true;
+                }
+                if (exchangeSAField) {
+                    exchangeSAField.value = '2';
+                    exchangeSAField.disabled = true;
+                }
+                if (exchangeOtherField) {
+                    exchangeOtherField.value = '2';
+                    exchangeOtherField.disabled = true;
+                }
+                if (mediathekField) {
+                    mediathekField.value = '2';
+                    mediathekField.disabled = true;
+                }
+            } else {
+                // Re-enable fields
+                if (repetitionsField) repetitionsField.disabled = false;
+                if (exchangeSAField) exchangeSAField.disabled = false;
+                if (exchangeOtherField) exchangeOtherField.disabled = false;
+                if (mediathekField) mediathekField.disabled = false;
+            }
+        }
+
+        if (isLiveField) {
+            isLiveField.addEventListener("change", toggleLiveBroadcast);
+            toggleLiveBroadcast(); // Initialize
+        }
+
         // Signature pad functionality
         const canvas = document.getElementById('signature-pad');
         const signatureInput = document.getElementById('id_signature');
