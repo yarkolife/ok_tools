@@ -81,3 +81,4 @@ django-celery-beat==2.8.1
 django-celery-results==2.5.1
 
 dj-database-url==2.1.0
+requests==2.31.0

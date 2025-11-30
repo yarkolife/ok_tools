@@ -1,0 +1,307 @@
+"""Service for interacting with Nextcloud via WebDAV API."""
+
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import gettext_lazy as _
+import logging
+import os
+import requests
+from datetime import datetime
+from urllib.parse import urljoin, quote
+
+
+logger = logging.getLogger('django')
+
+
+class NextcloudService:
+    """Service class for Nextcloud WebDAV operations."""
+
+    def __init__(self):
+        """Initialize Nextcloud service."""
+        if not settings.NEXTCLOUD_ENABLED:
+            raise ImproperlyConfigured(
+                _('Nextcloud integration is disabled. Set NEXTCLOUD_ENABLED=true to enable.')
+            )
+
+        self.base_url = settings.NEXTCLOUD_URL.rstrip('/')
+        self.username = settings.NEXTCLOUD_USERNAME
+        self.password = settings.NEXTCLOUD_PASSWORD
+        self.upload_folder = settings.NEXTCLOUD_UPLOAD_FOLDER.strip('/')
+        self.webdav_path = settings.NEXTCLOUD_WEBDAV_PATH.format(username=self.username)
+
+        # Construct WebDAV base URL
+        self.webdav_url = urljoin(self.base_url, self.webdav_path)
+
+        # Ensure upload folder exists
+        self._ensure_upload_folder_exists()
+
+    def _ensure_upload_folder_exists(self):
+        """Ensure the upload folder exists in Nextcloud."""
+        # Create nested folders if path contains slashes
+        folder_parts = [part for part in self.upload_folder.split('/') if part]
+        
+        current_path = self.webdav_url.rstrip('/')
+        
+        for folder_part in folder_parts:
+            current_path = f"{current_path}/{folder_part}"
+            try:
+                # Try to create folder (MKCOL request)
+                response = requests.request(
+                    'MKCOL',
+                    current_path,
+                    auth=(self.username, self.password),
+                    timeout=10
+                )
+                # 201 = created, 405 = already exists (both are OK)
+                if response.status_code not in [201, 405]:
+                    logger.warning(
+                        f'Failed to create folder {folder_part}: {response.status_code} - {response.text}'
+                    )
+            except Exception as e:
+                logger.error(f'Error creating folder {folder_part}: {e}')
+
+    def _get_auth(self):
+        """Get authentication tuple for requests."""
+        return (self.username, self.password)
+
+    def upload_video(self, file, license_number, filename, progress_callback=None):
+        """
+        Upload video file to Nextcloud.
+
+        Args:
+            file: Django UploadedFile object
+            license_number: License number (int)
+            filename: Original filename (str)
+            progress_callback: Optional callback function(bytes_sent, total_bytes) for progress tracking
+
+        Returns:
+            dict with keys: file_id, file_url, nextcloud_url
+        """
+        try:
+            # Generate unique filename
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            safe_filename = self._sanitize_filename(filename)
+            unique_filename = f"{license_number}_{timestamp}_{safe_filename}"
+
+            # Construct full path in Nextcloud
+            # Ensure proper path formatting
+            upload_folder = self.upload_folder.strip('/')
+            file_path = f"{upload_folder}/{unique_filename}" if upload_folder else unique_filename
+            # Ensure webdav_url doesn't have trailing slash and file_path starts with /
+            webdav_base = self.webdav_url.rstrip('/')
+            full_url = f"{webdav_base}/{file_path}"
+
+            # Read file content
+            file.seek(0)  # Reset file pointer
+            file_content = file.read()
+            file_size = len(file_content)
+
+            # Create a file-like object with progress tracking
+            if progress_callback:
+                class ProgressFile:
+                    def __init__(self, content, callback, total_size):
+                        self.content = content
+                        self.callback = callback
+                        self.total_size = total_size
+                        self.bytes_sent = 0
+                        self.position = 0
+                        self.chunk_size = 1024 * 1024  # 1MB chunks for progress updates
+
+                    def read(self, size=-1):
+                        if size == -1:
+                            # Read all remaining content
+                            chunk = self.content[self.position:]
+                            self.position = len(self.content)
+                        else:
+                            chunk = self.content[self.position:self.position + size]
+                            self.position += len(chunk)
+                        
+                        self.bytes_sent += len(chunk)
+                        if self.callback and len(chunk) > 0:
+                            self.callback(self.bytes_sent, self.total_size)
+                        return chunk
+
+                    def __len__(self):
+                        return len(self.content)
+                    
+                    def __iter__(self):
+                        return self
+                    
+                    def __next__(self):
+                        if self.position >= len(self.content):
+                            raise StopIteration
+                        chunk = self.read(min(self.chunk_size, len(self.content) - self.position))
+                        return chunk
+
+                progress_file = ProgressFile(file_content, progress_callback, file_size)
+            else:
+                progress_file = file_content
+
+            # Upload via WebDAV PUT request
+            # Use stream=True to enable progress tracking
+            if progress_callback:
+                # Use iterator for streaming upload with progress
+                response = requests.put(
+                    full_url,
+                    data=progress_file,
+                    auth=self._get_auth(),
+                    headers={
+                        'Content-Type': 'application/octet-stream',
+                        'Content-Length': str(file_size),
+                    },
+                    timeout=300,  # 5 minutes for large files
+                    stream=False  # requests will iterate over the data
+                )
+            else:
+                response = requests.put(
+                    full_url,
+                    data=file_content,
+                    auth=self._get_auth(),
+                    headers={
+                        'Content-Type': 'application/octet-stream',
+                    },
+                    timeout=300  # 5 minutes for large files
+                )
+
+            if response.status_code in [201, 204]:
+                # File uploaded successfully
+                # Try to get shareable URL (optional)
+                share_url = self._get_share_url(file_path)
+
+                logger.info(
+                    f'Successfully uploaded video {unique_filename} to Nextcloud for license {license_number}'
+                )
+
+                return {
+                    'file_id': file_path,
+                    'file_url': full_url,
+                    'nextcloud_url': share_url or full_url,
+                    'filename': unique_filename,
+                }
+            else:
+                error_msg = f'Failed to upload video to Nextcloud: {response.status_code} - {response.text}'
+                logger.error(error_msg)
+                raise Exception(error_msg)
+
+        except Exception as e:
+            logger.error(f'Error uploading video to Nextcloud: {e}')
+            raise
+
+    def delete_video(self, file_id):
+        """
+        Delete video file from Nextcloud.
+
+        Args:
+            file_id: File path in Nextcloud (str)
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Ensure proper path formatting
+            webdav_base = self.webdav_url.rstrip('/')
+            file_path = file_id.lstrip('/')
+            full_url = f"{webdav_base}/{file_path}"
+
+            response = requests.delete(
+                full_url,
+                auth=self._get_auth(),
+                timeout=30
+            )
+
+            if response.status_code in [204, 404]:  # 404 = already deleted
+                logger.info(f'Successfully deleted video {file_id} from Nextcloud')
+                return True
+            else:
+                logger.warning(
+                    f'Failed to delete video from Nextcloud: {response.status_code} - {response.text}'
+                )
+                return False
+
+        except Exception as e:
+            logger.error(f'Error deleting video from Nextcloud: {e}')
+            return False
+
+    def check_file_exists(self, file_id):
+        """
+        Check if file exists in Nextcloud.
+
+        Args:
+            file_id: File path in Nextcloud (str)
+
+        Returns:
+            bool: True if file exists, False otherwise
+        """
+        try:
+            # Ensure proper path formatting
+            webdav_base = self.webdav_url.rstrip('/')
+            file_path = file_id.lstrip('/')
+            full_url = f"{webdav_base}/{file_path}"
+
+            response = requests.head(
+                full_url,
+                auth=self._get_auth(),
+                timeout=10
+            )
+
+            return response.status_code == 200
+
+        except Exception as e:
+            logger.error(f'Error checking file existence in Nextcloud: {e}')
+            return False
+
+    def get_file_url(self, file_id):
+        """
+        Get shareable/download URL for file.
+
+        Args:
+            file_id: File path in Nextcloud (str)
+
+        Returns:
+            str: Shareable URL or None
+        """
+        # For now, return the WebDAV URL
+        # In the future, could create a public share and return that URL
+        webdav_base = self.webdav_url.rstrip('/')
+        file_path = file_id.lstrip('/')
+        return f"{webdav_base}/{file_path}"
+
+    def _get_share_url(self, file_path):
+        """
+        Try to create a public share and get shareable URL.
+
+        Args:
+            file_path: File path in Nextcloud (str)
+
+        Returns:
+            str: Shareable URL or None
+        """
+        # This is optional - could use Nextcloud Sharing API
+        # For now, return None and use WebDAV URL
+        return None
+
+    def _sanitize_filename(self, filename):
+        """
+        Sanitize filename for safe upload.
+
+        Args:
+            filename: Original filename (str)
+
+        Returns:
+            str: Sanitized filename
+        """
+        # Remove path components
+        filename = os.path.basename(filename)
+
+        # Replace spaces and special characters
+        # Keep alphanumeric, dots, hyphens, underscores
+        import re
+        filename = re.sub(r'[^a-zA-Z0-9._-]', '_', filename)
+
+        # Limit length
+        if len(filename) > 200:
+            name, ext = os.path.splitext(filename)
+            filename = name[:200-len(ext)] + ext
+
+        return filename
+

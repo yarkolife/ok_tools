@@ -28,3 +28,10 @@ def bootstrap_context(request):
         'BOOTSTRAP_ICONS_VERSION': settings.BOOTSTRAP_ICONS_VERSION,
         'BOOTSTRAP_ICONS_URL': settings.BOOTSTRAP_ICONS_URL,
     }
+
+
+def nextcloud_context(request):
+    """Add Nextcloud configuration to global context."""
+    return {
+        'NEXTCLOUD_ENABLED': settings.NEXTCLOUD_ENABLED,
+    }

@@ -166,3 +166,29 @@ def cleanup_old_backups_task(backup_dir=None, keep_daily=7, keep_weekly=4, keep_
     except Exception as e:
         logger.error(f"Error during backup cleanup: {e}")
         raise
+
+@shared_task(name='ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task')
+def run_cleanup_deleted_nextcloud_videos_task():
+    """
+    Celery task to run the 'cleanup_deleted_nextcloud_videos' Django management command.
+    
+    This task checks Nextcloud for deleted videos and marks them as deleted in the database.
+    It should be scheduled via Celery Beat to run periodically (e.g., daily).
+    
+    The command executed is roughly equivalent to:
+    `python manage.py cleanup_deleted_nextcloud_videos`
+    """
+    # Check if Nextcloud is enabled
+    if not getattr(settings, 'NEXTCLOUD_ENABLED', False):
+        logger.info("Nextcloud integration is disabled. Skipping cleanup task.")
+        return
+    
+    logger.info("Starting cleanup of deleted Nextcloud videos task.")
+    
+    try:
+        # Call the Django management command
+        call_command('cleanup_deleted_nextcloud_videos')
+        logger.info("Cleanup of deleted Nextcloud videos task completed successfully.")
+    except Exception as e:
+        logger.error(f"Error occurred during cleanup of deleted Nextcloud videos task: {e}")
+        raise

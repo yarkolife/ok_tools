@@ -183,6 +183,7 @@ TEMPLATES = [
                 "registration.context_processors.context",
                 "ok_tools.context_processors.bootstrap_context",
                 "ok_tools.context_processors.user_display_name",
+                "ok_tools.context_processors.nextcloud_context",
             ],
         },
     },
@@ -442,6 +443,23 @@ BROADCAST_END = _org_broadcast_end if _org_broadcast_end is not None else get_en
 _org_peertube_channel = os.getenv('ORG_PEERTUBE_CHANNEL')
 PEERTUBE_CHANNEL = _org_peertube_channel if _org_peertube_channel is not None else get_env('PEERTUBE_CHANNEL', default='')
 
+# Nextcloud integration settings
+NEXTCLOUD_ENABLED = get_env('NEXTCLOUD_ENABLED', default=False, cast=bool)
+
+if NEXTCLOUD_ENABLED:
+    NEXTCLOUD_URL = get_env('NEXTCLOUD_URL', required=True)
+    NEXTCLOUD_USERNAME = get_env('NEXTCLOUD_USERNAME', required=True)
+    NEXTCLOUD_PASSWORD = get_env('NEXTCLOUD_PASSWORD', required=True)
+    NEXTCLOUD_UPLOAD_FOLDER = get_env('NEXTCLOUD_UPLOAD_FOLDER', default='Freistellungen/Videos')
+    NEXTCLOUD_WEBDAV_PATH = get_env('NEXTCLOUD_WEBDAV_PATH', default='/remote.php/dav/files/{username}/')
+else:
+    # Set defaults when disabled to avoid errors
+    NEXTCLOUD_URL = ''
+    NEXTCLOUD_USERNAME = ''
+    NEXTCLOUD_PASSWORD = ''
+    NEXTCLOUD_UPLOAD_FOLDER = ''
+    NEXTCLOUD_WEBDAV_PATH = '/remote.php/dav/files/{username}/'
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -648,5 +666,9 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'media_files.tasks.run_cleanup_missing_files',
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_MISSING_FILES', '0 5 * * 0'),
         'kwargs': {'all_storages': True},
+    },
+    'cleanup_deleted_nextcloud_videos': {
+        'task': 'ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_DELETED_NEXTCLOUD_VIDEOS', '0 2 * * *'),
     },
 }

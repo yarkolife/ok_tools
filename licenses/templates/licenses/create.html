@@ -302,6 +302,23 @@
         </div>
     </div>
 
+    <!-- Video Upload Info Section -->
+    {% if NEXTCLOUD_ENABLED %}
+    <div class="dashboard-card mb-4">
+        <div class="card-body">
+            <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>{% trans 'Video Upload' %}</strong>
+                <p class="mb-0 mt-2">
+                    {% trans 'You can upload a video file after creating the license. Go to the license list and use the upload button to add your video file.' %}
+                    <br>
+                    <small>{% trans 'Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Signature Section -->
     <div class="dashboard-card mb-4">
         <div class="card-header">
@@ -756,5 +773,6 @@
             });
         }
     });
+
 </script>
 {% endblock %}

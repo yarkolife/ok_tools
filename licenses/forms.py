@@ -8,6 +8,8 @@ from crispy_forms.layout import Layout
 from crispy_forms.layout import Submit
 from datetime import timedelta
 from django import forms
+from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext_lazy as _
 import logging
 import re
@@ -81,14 +83,21 @@ class CreateLicenseForm(forms.ModelForm):
             self.add_error('duration', _('The duration field is required.'))
             return super().is_valid and False  # to collect further errors
 
+        # Video upload is now handled separately after license creation
+        # No validation needed here
+        
         return super().is_valid()
 
 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Video upload is now handled separately after license creation
+        # No need to add video_file field here
+        
         self.helper = FormHelper()
-        self.helper.layout = Layout(
+        layout_fields = [
             'title',
             'subtitle',
             'description',
@@ -106,8 +115,10 @@ class CreateLicenseForm(forms.ModelForm):
             'youth_protection_necessary',
             'youth_protection_category',
             'store_in_ok_media_library',
-            Submit('save', _('Save'))
-        )
+        ]
+        
+        layout_fields.append(Submit('save', _('Save')))
+        self.helper.layout = Layout(*layout_fields)
 
 
 def _screen_board_js() -> str:

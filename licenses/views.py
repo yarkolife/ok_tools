@@ -1,11 +1,13 @@
 from . import forms
 from .generate_file import generate_license_file
 from .models import License
+from .models import NextcloudVideoFile
 from .models import YouthProtectionCategory
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
@@ -41,6 +43,12 @@ class ListLicensesView(generic.list.ListView):
     model = License
     context_object_name = 'licenses'
 
+    def get_context_data(self, **kwargs):
+        """Add NEXTCLOUD_ENABLED to context."""
+        context = super().get_context_data(**kwargs)
+        context['NEXTCLOUD_ENABLED'] = settings.NEXTCLOUD_ENABLED
+        return context
+    
     def get_queryset(self):
         """List only the licenses of the logged in user."""
         try:
@@ -49,8 +57,21 @@ class ListLicensesView(generic.list.ListView):
         except Profile.DoesNotExist:
             return self.model.objects.none()
 
-        # Get all licenses for the user
-        return self.model.objects.filter(profile=profile).order_by('-created_at')
+        # Get all licenses for the user with prefetch for Nextcloud videos
+        queryset = self.model.objects.filter(profile=profile).order_by('-created_at')
+        
+        # Prefetch Nextcloud videos to check if video exists
+        if settings.NEXTCLOUD_ENABLED:
+            from .models import NextcloudVideoFile
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    'nextcloud_videos',
+                    queryset=NextcloudVideoFile.objects.filter(is_deleted=False),
+                    to_attr='active_videos'
+                )
+            )
+        
+        return queryset
 
 
 @method_decorator(login_required, name='dispatch')
@@ -63,6 +84,15 @@ class CreateLicenseView(generic.CreateView):
     template_name = 'licenses/create.html'
 
     success_url = reverse_lazy('licenses:licenses')
+
+    def form_valid(self, form):
+        """Handle form submission and video upload if enabled."""
+        response = super().form_valid(form)
+        
+        # Video upload is now handled separately after license creation
+        # No need to handle it here
+        
+        return response
 
     def get_success_url(self) -> str:
         """Show a message to confirm the creation."""
@@ -93,6 +123,12 @@ class CreateLicenseView(generic.CreateView):
         except Profile.DoesNotExist:
             pass
         return form
+
+    def get_context_data(self, **kwargs):
+        """Add NEXTCLOUD_ENABLED to context."""
+        context = super().get_context_data(**kwargs)
+        context['NEXTCLOUD_ENABLED'] = settings.NEXTCLOUD_ENABLED
+        return context
 
     def get(self, request, *args, **kwargs) -> http.HttpResponse:
         """Get handler to create a LR."""
@@ -201,6 +237,20 @@ class UpdateLicensesView(generic.edit.UpdateView):
         # Auto-open the generated PDF
         return reverse('licenses:print', kwargs={'pk': self.object.pk})
 
+    def get_context_data(self, **kwargs):
+        """Add NEXTCLOUD_ENABLED and existing video to context."""
+        context = super().get_context_data(**kwargs)
+        context['NEXTCLOUD_ENABLED'] = settings.NEXTCLOUD_ENABLED
+        
+        # Add existing Nextcloud video if exists
+        if settings.NEXTCLOUD_ENABLED:
+            context['nextcloud_video'] = NextcloudVideoFile.objects.filter(
+                license=self.object,
+                is_deleted=False
+            ).first()
+        
+        return context
+
     def post(self, request, *args, **kwargs) -> http.HttpResponse:
         """Show error message for editing confirmed Licenses."""
         license = self.get_object()
@@ -216,7 +266,182 @@ class UpdateLicensesView(generic.edit.UpdateView):
         if form.instance.is_screen_board:
             form.instance.duration = datetime.timedelta(
                 seconds=settings.SCREEN_BOARD_DURATION)
-        return super().form_valid(form)
+        
+        response = super().form_valid(form)
+        
+        # Video upload is now handled separately via UploadVideoView
+        # No need to handle it here anymore
+        
+        return response
+
+
+@method_decorator(login_required, name='dispatch')
+class UploadVideoView(generic.View):
+    """Separate view for uploading video to Nextcloud."""
+    
+    def post(self, request, *args, **kwargs):
+        """Handle video upload separately from license update."""
+        if not settings.NEXTCLOUD_ENABLED:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Nextcloud integration is disabled.')
+            }, status=400)
+        
+        license_pk = kwargs.get('pk')
+        try:
+            license = License.objects.get(pk=license_pk, profile__okuser=request.user)
+        except License.DoesNotExist:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('License not found.')
+            }, status=404)
+        
+        # Check if license is confirmed
+        if license.confirmed:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Cannot upload video to confirmed license.')
+            }, status=400)
+        
+        # Check if video already exists
+        existing_video = NextcloudVideoFile.objects.filter(
+            license=license,
+            is_deleted=False
+        ).first()
+        
+        if existing_video:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Video already uploaded. Cannot upload second video.')
+            }, status=400)
+        
+        # Check if video file was provided
+        if 'video_file' not in request.FILES:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('No video file provided.')
+            }, status=400)
+        
+        video_file = request.FILES['video_file']
+        
+        # Validate file size (20GB limit)
+        max_size = 20 * 1024 * 1024 * 1024  # 20GB in bytes
+        if video_file.size > max_size:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Video file is too large. Maximum size is 20GB.')
+            }, status=400)
+        
+        # Validate file extension
+        allowed_extensions = ['mp4', 'mov', 'avi', 'mkv', 'webm']
+        file_extension = video_file.name.split('.')[-1].lower() if '.' in video_file.name else ''
+        if file_extension not in allowed_extensions:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Invalid file format. Supported formats: mp4, mov, avi, mkv, webm.')
+            }, status=400)
+        
+        try:
+            from .services.nextcloud_service import NextcloudService
+            
+            # Store upload session ID for progress tracking
+            upload_session_id = f"upload_{license_pk}_{datetime.datetime.now().timestamp()}"
+            request.session[f'upload_progress_{upload_session_id}'] = {
+                'stage': 'uploading_to_nextcloud',
+                'progress': 0,
+                'total': video_file.size
+            }
+            request.session.modified = True
+            
+            # Progress callback for Nextcloud upload
+            def progress_callback(bytes_sent, total_bytes):
+                progress_percent = int((bytes_sent / total_bytes) * 100) if total_bytes > 0 else 0
+                request.session[f'upload_progress_{upload_session_id}'] = {
+                    'stage': 'uploading_to_nextcloud',
+                    'progress': progress_percent,
+                    'bytes_sent': bytes_sent,
+                    'total': total_bytes
+                }
+                request.session.modified = True
+            
+            # Upload video to Nextcloud
+            nextcloud_service = NextcloudService()
+            upload_result = nextcloud_service.upload_video(
+                file=video_file,
+                license_number=license.number,
+                filename=video_file.name,
+                progress_callback=progress_callback
+            )
+            
+            # Create NextcloudVideoFile record
+            NextcloudVideoFile.objects.create(
+                license=license,
+                nextcloud_file_id=upload_result['file_id'],
+                nextcloud_url=upload_result['nextcloud_url'],
+                filename=upload_result['filename'],
+                file_size=video_file.size,
+            )
+            
+            logger.info(
+                f'Video uploaded to Nextcloud for license {license.number}'
+            )
+            
+            # Set progress to 100% and mark as completed before returning response
+            request.session[f'upload_progress_{upload_session_id}'] = {
+                'stage': 'completed',
+                'progress': 100,
+                'bytes_sent': video_file.size,
+                'total': video_file.size
+            }
+            request.session.modified = True
+            
+            # Don't delete session data immediately - let client poll it first
+            # It will be cleaned up on next upload or can be cleaned manually
+            
+            return http.JsonResponse({
+                'success': True,
+                'message': _('Video uploaded successfully.'),
+                'filename': upload_result['filename'],
+                'url': upload_result['nextcloud_url'],
+                'session_id': upload_session_id
+            })
+            
+        except Exception as e:
+            logger.error(
+                f'Error uploading video to Nextcloud for license {license.number}: {e}',
+                exc_info=True
+            )
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Failed to upload video: %(error)s') % {'error': str(e)}
+            }, status=500)
+
+
+class UploadProgressView(generic.View):
+    """View to check upload progress."""
+    
+    def get(self, request, *args, **kwargs):
+        """Get current upload progress."""
+        upload_session_id = request.GET.get('session_id')
+        if not upload_session_id:
+            return http.JsonResponse({
+                'error': _('Session ID required.')
+            }, status=400)
+        
+        progress_key = f'upload_progress_{upload_session_id}'
+        progress_data = request.session.get(progress_key, {})
+        
+        if not progress_data:
+            return http.JsonResponse({
+                'error': _('Upload session not found.')
+            }, status=404)
+        
+        return http.JsonResponse({
+            'progress': progress_data.get('progress', 0),
+            'stage': progress_data.get('stage', 'unknown'),
+            'bytes_sent': progress_data.get('bytes_sent', 0),
+            'total': progress_data.get('total', 0)
+        })
 
 
 @method_decorator(login_required, name='dispatch')
@@ -236,6 +461,14 @@ class DetailsLicensesView(generic.detail.DetailView):
         context = super().get_context_data(**kwargs)
         context['form'] = forms.CreateLicenseForm(instance=self.object)
         context['ypc_title'] = YouthProtectionCategory.verbose_name(self.object.youth_protection_category)
+        
+        # Add Nextcloud video if exists
+        if settings.NEXTCLOUD_ENABLED:
+            context['nextcloud_video'] = NextcloudVideoFile.objects.filter(
+                license=self.object,
+                is_deleted=False
+            ).first()
+        
         return context
 
 

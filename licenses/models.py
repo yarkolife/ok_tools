@@ -318,3 +318,63 @@ class License(ExportModelOperationsMixin('license'), models.Model):
 
         verbose_name = _('License')
         verbose_name_plural = _('Licenses')
+
+
+class NextcloudVideoFile(models.Model):
+    """Model representing a video file uploaded to Nextcloud."""
+
+    license = models.ForeignKey(
+        License,
+        on_delete=models.CASCADE,
+        related_name='nextcloud_videos',
+        verbose_name=_('License'),
+    )
+    nextcloud_file_id = models.CharField(
+        max_length=500,
+        verbose_name=_('Nextcloud File ID'),
+        help_text=_('File ID or path in Nextcloud'),
+    )
+    nextcloud_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        null=True,
+        verbose_name=_('Nextcloud URL'),
+        help_text=_('Direct link to file in Nextcloud'),
+    )
+    filename = models.CharField(
+        max_length=500,
+        verbose_name=_('Filename'),
+        help_text=_('Original filename'),
+    )
+    file_size = models.BigIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_('File Size (bytes)'),
+    )
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Uploaded at'),
+        db_index=True,
+    )
+    is_deleted = models.BooleanField(
+        default=False,
+        verbose_name=_('Is Deleted'),
+        help_text=_('Flag if file was deleted from Nextcloud'),
+    )
+    deleted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Deleted at'),
+        help_text=_('When file was deleted from Nextcloud'),
+    )
+
+    def __str__(self) -> str:
+        """Return string representation."""
+        return f"{self.license.number} - {self.filename}"
+
+    class Meta:
+        """Meta options for NextcloudVideoFile."""
+
+        verbose_name = _('Nextcloud Video File')
+        verbose_name_plural = _('Nextcloud Video Files')
+        ordering = ['-uploaded_at']

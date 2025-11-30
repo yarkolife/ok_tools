@@ -6,6 +6,9 @@
 {% block page_title %}{% trans 'Licenses' %}{% endblock %}
 
 {% block content %}
+{% if NEXTCLOUD_ENABLED %}
+{% csrf_token %}
+{% endif %}
 <!-- Header Actions -->
 <div class="row mb-4">
     <div class="col-md-6">
@@ -127,6 +130,20 @@
                                 title="{% trans 'Copy' %}">
                                 <i class="bi bi-files"></i>
                             </a>
+                            {% if NEXTCLOUD_ENABLED and not license.confirmed %}
+                                {% if license.active_videos %}
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                        title="{% trans 'Video already uploaded' %}" disabled>
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-outline-warning" 
+                                        title="{% trans 'Upload Video' %}"
+                                        onclick="openVideoUploadModal('{{ license.id }}', '{{ license.title|escapejs }}')">
+                                        <i class="bi bi-cloud-upload"></i>
+                                    </button>
+                                {% endif %}
+                            {% endif %}
                             {% if not license.confirmed %}
                             <button type="button" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}"
                                 onclick="deleteLicense('{{ license.id }}')">
@@ -191,7 +208,366 @@
 {% endblock %}
 
 {% block extra_js %}
+{% if NEXTCLOUD_ENABLED %}
+<!-- Video Upload Modal -->
+<div class="modal fade" id="videoUploadModal" tabindex="-1" aria-labelledby="videoUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoUploadModalLabel">
+                    <i class="bi bi-cloud-upload me-2"></i>{% trans 'Upload Video' %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3" id="modal-license-title"></p>
+                <div class="mb-3">
+                    <label for="modal-video-file" class="form-label">
+                        <i class="bi bi-file-earmark-play me-1"></i>{% trans 'Video File' %}
+                    </label>
+                    <input type="file" class="form-control" id="modal-video-file" accept="video/*">
+                    <div class="form-text">
+                        {% trans 'Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}
+                    </div>
+                </div>
+                <div id="upload-progress" class="progress mb-3" style="display: none; height: 30px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; line-height: 30px; font-size: 14px; font-weight: 600;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <span id="progress-text" style="line-height: 30px;">0%</span>
+                    </div>
+                </div>
+                <div id="upload-status" class="alert" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+                <button type="button" class="btn btn-primary" id="modal-upload-button" onclick="uploadVideo()">
+                    <i class="bi bi-cloud-upload me-2"></i>{% trans 'Upload' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <script>
+    {% if NEXTCLOUD_ENABLED %}
+    let currentLicenseId = null;
+    
+    function openVideoUploadModal(licenseId, licenseTitle) {
+        currentLicenseId = licenseId;
+        document.getElementById('modal-license-title').textContent = 
+            '{% trans "License" %}: ' + licenseTitle;
+        document.getElementById('modal-video-file').value = '';
+        document.getElementById('upload-progress').style.display = 'none';
+        document.getElementById('upload-status').style.display = 'none';
+        document.getElementById('modal-upload-button').disabled = false;
+        
+        const modal = new bootstrap.Modal(document.getElementById('videoUploadModal'));
+        modal.show();
+    }
+    
+    function uploadVideo() {
+        const fileInput = document.getElementById('modal-video-file');
+        const uploadButton = document.getElementById('modal-upload-button');
+        const progressBar = document.getElementById('upload-progress');
+        const progressBarInner = progressBar.querySelector('.progress-bar');
+        const statusDiv = document.getElementById('upload-status');
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+            statusDiv.className = 'alert alert-warning';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>{% trans "Please select a video file first." %}';
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        
+        // Validate file size (20GB)
+        const maxSize = 20 * 1024 * 1024 * 1024; // 20GB in bytes
+        if (file.size > maxSize) {
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "File is too large. Maximum size is 20GB." %}';
+            return;
+        }
+        
+        // Validate file extension
+        const allowedExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(fileExtension)) {
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm." %}';
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('video_file', file);
+        
+        // Disable button and show progress
+        uploadButton.disabled = true;
+        progressBar.style.display = 'block';
+        progressBarInner.style.width = '0%';
+        progressBarInner.setAttribute('aria-valuenow', '0');
+        const progressText = document.getElementById('progress-text');
+        if (progressText) progressText.textContent = '0%';
+        statusDiv.style.display = 'none';
+        
+        const uploadUrl = '/licenses/' + currentLicenseId + '/upload-video/';
+        
+        const xhr = new XMLHttpRequest();
+        let uploadSessionId = null;
+        let progressPollInterval = null;
+        
+        // Two-stage progress: 0-80% = upload to server, 80-100% = upload to Nextcloud
+        const SERVER_UPLOAD_MAX = 80;
+        const NEXTCLOUD_UPLOAD_MIN = 80;
+        
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable && e.total > 0) {
+                // Stage 1: Upload to Django server (0-80%)
+                const serverPercent = Math.round((e.loaded / e.total) * SERVER_UPLOAD_MAX);
+                progressBarInner.style.width = serverPercent + '%';
+                progressBarInner.setAttribute('aria-valuenow', serverPercent);
+                if (progressText) {
+                    progressText.textContent = serverPercent + '%';
+                }
+                console.log('Upload to server progress:', serverPercent + '%', '(' + Math.round(e.loaded / 1024 / 1024) + ' MB / ' + Math.round(e.total / 1024 / 1024) + ' MB)');
+                
+                // If upload to server is almost complete (75%), start preparing for Nextcloud polling
+                if (serverPercent >= 75 && !uploadSessionId) {
+                    // Get session ID from request if available
+                    // We'll start polling when we get the response
+                }
+            }
+        });
+        
+        // Function to poll Nextcloud upload progress
+        function pollNextcloudProgress(sessionId, isLastCall) {
+            if (!sessionId) return;
+            
+            const progressUrl = '/licenses/upload-progress/?session_id=' + encodeURIComponent(sessionId);
+            fetch(progressUrl, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+            })
+            .then(response => {
+                if (response.status === 404) {
+                    // Session not found - upload might be complete or failed
+                    if (!isLastCall) {
+                        // Try once more after a delay
+                        setTimeout(() => pollNextcloudProgress(sessionId, true), 500);
+                    } else {
+                        // Final attempt failed, assume 100%
+                        progressBarInner.style.width = '100%';
+                        progressBarInner.setAttribute('aria-valuenow', '100');
+                        if (progressText) {
+                            progressText.textContent = '100%';
+                        }
+                    }
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                
+                if (data.error) {
+                    console.error('Progress error:', data.error);
+                    return;
+                }
+                
+                if (data.progress !== undefined) {
+                    // Stage 2: Upload to Nextcloud (80-100%)
+                    let nextcloudPercent;
+                    if (data.progress >= 100 || data.stage === 'completed') {
+                        nextcloudPercent = 100;
+                    } else {
+                        nextcloudPercent = NEXTCLOUD_UPLOAD_MIN + Math.round((data.progress / 100) * (100 - NEXTCLOUD_UPLOAD_MIN));
+                    }
+                    
+                    progressBarInner.style.width = nextcloudPercent + '%';
+                    progressBarInner.setAttribute('aria-valuenow', nextcloudPercent);
+                    if (progressText) {
+                        progressText.textContent = nextcloudPercent + '%';
+                    }
+                    console.log('Upload to Nextcloud progress:', data.progress + '%', 'Total:', nextcloudPercent + '%', 'Stage:', data.stage);
+                    
+                    // Continue polling if not complete
+                    if (data.progress < 100 && data.stage !== 'completed') {
+                        setTimeout(() => pollNextcloudProgress(sessionId, false), 500);
+                    } else {
+                        // Complete - ensure 100% and stop polling
+                        progressBarInner.style.width = '100%';
+                        progressBarInner.setAttribute('aria-valuenow', '100');
+                        if (progressText) {
+                            progressText.textContent = '100%';
+                        }
+                        // Stop polling - progress is complete
+                        if (progressPollInterval) {
+                            clearInterval(progressPollInterval);
+                            progressPollInterval = null;
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error polling progress:', error);
+                // On error, don't stop polling immediately - try a few more times
+                if (!isLastCall) {
+                    setTimeout(() => pollNextcloudProgress(sessionId, false), 1000);
+                }
+            });
+        }
+        
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        // Start polling Nextcloud progress if session_id is provided
+                        if (response.session_id) {
+                            uploadSessionId = response.session_id;
+                            // Start polling immediately - the upload might still be in progress
+                            pollNextcloudProgress(uploadSessionId, false);
+                            
+                            // Poll every 500ms until complete
+                            progressPollInterval = setInterval(() => {
+                                pollNextcloudProgress(uploadSessionId, false);
+                            }, 500);
+                            
+                            // Stop polling after 5 minutes max
+                            setTimeout(() => {
+                                if (progressPollInterval) {
+                                    clearInterval(progressPollInterval);
+                                    progressPollInterval = null;
+                                }
+                            }, 300000);
+                            
+                            // Function to show success message
+                            function showSuccessMessage() {
+                                // Ensure progress is 100%
+                                progressBarInner.style.width = '100%';
+                                progressBarInner.setAttribute('aria-valuenow', '100');
+                                if (progressText) progressText.textContent = '100%';
+                                
+                                statusDiv.className = 'alert alert-success';
+                                statusDiv.style.display = 'block';
+                                statusDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + (response.message || '{% trans "Video uploaded successfully!" %}');
+                                
+                                // Stop polling
+                                if (progressPollInterval) {
+                                    clearInterval(progressPollInterval);
+                                    progressPollInterval = null;
+                                }
+                                
+                                // Close modal after 1.5 seconds
+                                setTimeout(() => {
+                                    const modal = bootstrap.Modal.getInstance(document.getElementById('videoUploadModal'));
+                                    modal.hide();
+                                    window.location.reload();
+                                }, 1500);
+                            }
+                            
+                            // Track if we've shown success
+                            let successShown = false;
+                            
+                            // Check progress periodically and show success when ready
+                            const successCheckInterval = setInterval(() => {
+                                const currentWidth = parseInt(progressBarInner.style.width) || 0;
+                                if (currentWidth >= 100 && !successShown) {
+                                    successShown = true;
+                                    clearInterval(successCheckInterval);
+                                    showSuccessMessage();
+                                }
+                            }, 200);
+                            
+                            // Fallback: show success after 10 seconds max
+                            setTimeout(() => {
+                                clearInterval(successCheckInterval);
+                                if (!successShown) {
+                                    successShown = true;
+                                    showSuccessMessage();
+                                }
+                            }, 10000);
+                        } else {
+                            // No session ID, just show 100%
+                            progressBarInner.style.width = '100%';
+                            progressBarInner.setAttribute('aria-valuenow', '100');
+                            if (progressText) progressText.textContent = '100%';
+                            
+                            statusDiv.className = 'alert alert-success';
+                            statusDiv.style.display = 'block';
+                            statusDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + (response.message || '{% trans "Video uploaded successfully!" %}');
+                            
+                            // Close modal after 1.5 seconds
+                            setTimeout(() => {
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('videoUploadModal'));
+                                modal.hide();
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    } else {
+                        if (progressPollInterval) {
+                            clearInterval(progressPollInterval);
+                            progressPollInterval = null;
+                        }
+                        statusDiv.className = 'alert alert-danger';
+                        statusDiv.style.display = 'block';
+                        statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (response.error || '{% trans "Upload failed" %}');
+                        uploadButton.disabled = false;
+                        progressBar.style.display = 'none';
+                    }
+                } catch (e) {
+                    if (progressPollInterval) {
+                        clearInterval(progressPollInterval);
+                        progressPollInterval = null;
+                    }
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.style.display = 'block';
+                    statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Error parsing server response." %}';
+                    uploadButton.disabled = false;
+                    progressBar.style.display = 'none';
+                }
+            } else {
+                if (progressPollInterval) {
+                    clearInterval(progressPollInterval);
+                    progressPollInterval = null;
+                }
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.style.display = 'block';
+                    statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (response.error || '{% trans "Upload failed" %}');
+                } catch (e) {
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.style.display = 'block';
+                    statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Upload failed. Please try again." %}';
+                }
+                uploadButton.disabled = false;
+                progressBar.style.display = 'none';
+            }
+        });
+        
+        xhr.addEventListener('error', function() {
+            if (progressPollInterval) {
+                clearInterval(progressPollInterval);
+                progressPollInterval = null;
+            }
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Network error. Please check your connection and try again." %}';
+            uploadButton.disabled = false;
+            progressBar.style.display = 'none';
+        });
+        
+        xhr.open('POST', uploadUrl);
+        xhr.setRequestHeader('X-CSRFToken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        xhr.send(formData);
+    }
+    {% endif %}
+    
     // Filter functionality
     document.addEventListener('DOMContentLoaded', function () {
         const statusFilter = document.getElementById('statusFilter');

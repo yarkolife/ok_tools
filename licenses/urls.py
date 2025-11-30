@@ -45,4 +45,14 @@ urlpatterns = [
         views.CopyLicenseView.as_view(),
         name='copy'
     ),
+    path(
+        '<int:pk>/upload-video/',
+        views.UploadVideoView.as_view(),
+        name='upload_video'
+    ),
+    path(
+        'upload-progress/',
+        views.UploadProgressView.as_view(),
+        name='upload_progress'
+    ),
 ]

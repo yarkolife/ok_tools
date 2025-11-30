@@ -3,6 +3,7 @@ from .forms import RangeNumericForm
 from .generate_file import generate_license_file
 from .models import Category
 from .models import License
+from .models import NextcloudVideoFile
 from .widgets import TagsInputWidget
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
@@ -788,10 +789,30 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         """Display video status with modal player link in list view."""
         from django.urls import reverse
         from django.utils.html import format_html
+        from django.conf import settings
         
         if not obj.pk:
             return '-'
         
+        # Check for Nextcloud video first (if enabled)
+        if settings.NEXTCLOUD_ENABLED:
+            # Use prefetched data if available
+            if hasattr(obj, 'active_nextcloud_videos') and obj.active_nextcloud_videos:
+                nextcloud_video = obj.active_nextcloud_videos[0]
+            else:
+                nextcloud_video = NextcloudVideoFile.objects.filter(
+                    license=obj,
+                    is_deleted=False
+                ).first()
+            
+            if nextcloud_video:
+                # Show simple Nextcloud video status
+                return format_html(
+                    '<span style="color: #17a2b8;">☁️ {}</span>',
+                    _('Nextcloud Video')
+                )
+        
+        # Check for regular video file (old system)
         try:
             video_file = obj.get_video_file()
             if video_file:
@@ -887,7 +908,10 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
     def get_queryset(self, request):
         """Optimize queryset with select_related and prefetch_related."""
-        return super().get_queryset(request).select_related(
+        from django.conf import settings
+        from django.db.models import Prefetch
+        
+        queryset = super().get_queryset(request).select_related(
             'profile',
             'profile__okuser',
             'profile__media_authority',
@@ -896,6 +920,18 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             'video_file',  # OneToOneField from VideoFile to License
             'video_file__storage_location'
         )  # tags is JSONField, not ManyToMany - no prefetch needed
+        
+        # Prefetch Nextcloud videos if enabled
+        if settings.NEXTCLOUD_ENABLED:
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    'nextcloud_videos',
+                    queryset=NextcloudVideoFile.objects.filter(is_deleted=False),
+                    to_attr='active_nextcloud_videos'
+                )
+            )
+        
+        return queryset
     
     def get_fieldsets(self, request, obj=None):
         """Remove 'number' field from fieldsets when adding new license."""
@@ -1504,3 +1540,75 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Category, CategoryAdmin)
+
+
+class NextcloudVideoFileAdmin(admin.ModelAdmin):
+    """Admin interface for NextcloudVideoFile."""
+
+    list_display = (
+        'license_number',
+        'profile_display',
+        'filename',
+        'file_size',
+        'uploaded_at',
+        'is_deleted',
+        'deleted_at',
+    )
+    list_filter = (
+        'is_deleted',
+        'uploaded_at',
+        'deleted_at',
+    )
+    search_fields = (
+        'filename',
+        'license__number',
+        'license__title',
+    )
+    readonly_fields = (
+        'uploaded_at',
+        'deleted_at',
+    )
+    autocomplete_fields = ['license']
+    
+    fieldsets = (
+        (_('File Information'), {
+            'fields': ('license', 'filename', 'file_size', 'nextcloud_file_id', 'nextcloud_url')
+        }),
+        (_('Status'), {
+            'fields': ('is_deleted', 'uploaded_at', 'deleted_at')
+        }),
+    )
+
+    def get_queryset(self, request):
+        """Optimize queryset with select_related."""
+        return super().get_queryset(request).select_related('license', 'license__profile')
+    
+    def license_number(self, obj):
+        """Display license number."""
+        if obj.license and obj.license.number:
+            return obj.license.number
+        return '-'
+    license_number.short_description = _('License Number')
+    license_number.admin_order_field = 'license__number'
+    
+    def profile_display(self, obj):
+        """Display profile name."""
+        if obj.license and obj.license.profile:
+            profile = obj.license.profile
+            if profile.first_name and profile.last_name:
+                return f"{profile.first_name} {profile.last_name}"
+            elif profile.first_name:
+                return profile.first_name
+            elif profile.last_name:
+                return profile.last_name
+            else:
+                return str(profile)
+        return '-'
+    profile_display.short_description = _('Profile')
+    profile_display.admin_order_field = 'license__profile'
+
+
+# Only register if Nextcloud is enabled
+from django.conf import settings
+if settings.NEXTCLOUD_ENABLED:
+    admin.site.register(NextcloudVideoFile, NextcloudVideoFileAdmin)
