@@ -3762,8 +3762,21 @@ def api_issue_from_reservation(request):
                             )
                         }, status=400)
                     
-                    rental_item.quantity_issued = quantity
-                    rental_item.save()
+                    # Calculate difference and create transaction instead of setting directly
+                    # This ensures the signal handler updates quantity_issued correctly
+                    old_issued = rental_item.quantity_issued or 0
+                    quantity_to_issue = quantity - old_issued
+                    
+                    if quantity_to_issue > 0:
+                        # Create transaction for the difference
+                        RentalService.create_transaction(
+                            rental_item=rental_item,
+                            transaction_type='issue',
+                            quantity=quantity_to_issue,
+                            performed_by=created_by_user
+                        )
+                    # Note: quantity_issued will be updated by the signal handler
+                    # Don't set it directly to avoid double increment
                 except RentalItem.DoesNotExist:
                     continue
 
@@ -3797,11 +3810,19 @@ def api_issue_from_reservation(request):
                         }, status=400)
 
                     # Create new rental item
-                    RentalItem.objects.create(
+                    new_rental_item = RentalItem.objects.create(
                         rental_request=rental,
                         inventory_item_id=inventory_item['id'],
                         quantity_requested=quantity,
-                        quantity_issued=quantity
+                        quantity_issued=0  # Will be set by transaction
+                    )
+                    
+                    # Create transaction to issue the item
+                    RentalService.create_transaction(
+                        rental_item=new_rental_item,
+                        transaction_type='issue',
+                        quantity=quantity,
+                        performed_by=created_by_user
                     )
 
                 except Exception as e:

@@ -380,11 +380,12 @@ class RentalService:
                         }
                     
                     # Create rental item
+                    # Note: quantity_issued will be set by transaction signal, not directly
                     rental_item = RentalItem.objects.create(
                         rental_request=rental_request,
                         inventory_item_id=inventory_item_id,
                         quantity_requested=quantity_requested,
-                        quantity_issued=quantity_requested if action == 'issued' else 0,
+                        quantity_issued=0,  # Will be set by transaction signal
                         notes=item_data.get('notes', '')
                     )
                     
@@ -627,14 +628,12 @@ class RentalService:
         )
         
         # Update rental item quantities if applicable
+        # Note: quantity_issued and quantity_returned are updated by the signal handler
+        # We only need to update actual_return_date here for returns
         if rental_item:
-            if transaction_type == 'issue':
-                rental_item.quantity_issued = (rental_item.quantity_issued or 0) + quantity
-                rental_item.save(update_fields=['quantity_issued'])
-            elif transaction_type == 'return':
-                rental_item.quantity_returned = (rental_item.quantity_returned or 0) + quantity
+            if transaction_type == 'return':
                 rental_item.actual_return_date = timezone.now()
-                rental_item.save(update_fields=['quantity_returned', 'actual_return_date'])
+                rental_item.save(update_fields=['actual_return_date'])
         
         return transaction
     
