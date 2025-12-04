@@ -182,9 +182,12 @@ class ProgramResource(resources.ModelResource):
                          dt.combine(today, end_time))
 
                 if delta > TOLERANCE:
+                    # Use obj's date converted to correct timezone
+                    # This ensures correct date even when gap crosses midnight
+                    screen_board_date = obj.broadcast_date.astimezone(tz=TZ).date()
                     data.append(
                         self._create_screen_board(
-                            obj.broadcast_date.date(),
+                            screen_board_date,
                             end_time,
                             start_time
                         )
