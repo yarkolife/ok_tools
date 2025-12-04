@@ -269,11 +269,43 @@ class ProgramResource(resources.ModelResource):
             return self.INFO_BLOCK_TITLE
         return str(contribution.license.title)
 
+    def dehydrate_subtitle(self, contribution: Contribution):
+        """Show empty subtitle for infoblock licenses."""
+        if getattr(contribution.license, 'infoblock', False):
+            return ''
+        return str(contribution.license.subtitle) if contribution.license.subtitle else ''
+
+    def dehydrate_description(self, contribution: Contribution):
+        """Show empty description for infoblock licenses."""
+        if getattr(contribution.license, 'infoblock', False):
+            return ''
+        return str(contribution.license.description) if contribution.license.description else ''
+
     def dehydrate_credits(self, contribution: Contribution):
-        """Show the author with introduction."""
+        """Show empty credits for infoblock licenses."""
+        if getattr(contribution.license, 'infoblock', False):
+            return ''
         contributor_name = str(contribution.license.profile)
         text = _('A contribution by {}').format(contributor_name)
         return text
+
+    def dehydrate_category(self, contribution: Contribution):
+        """Show empty category for infoblock licenses."""
+        if getattr(contribution.license, 'infoblock', False):
+            return ''
+        return str(contribution.license.category) if contribution.license.category else ''
+
+    def dehydrate_store_in_ok_media_library(self, contribution: Contribution):
+        """Show empty store_in_ok_media_library for infoblock licenses."""
+        if getattr(contribution.license, 'infoblock', False):
+            return ''
+        return str(contribution.license.store_in_ok_media_library) if contribution.license.store_in_ok_media_library else ''
+
+    def dehydrate_number(self, contribution: Contribution):
+        """Show empty number for infoblock licenses."""
+        if getattr(contribution.license, 'infoblock', False):
+            return ''
+        return str(contribution.license.number) if contribution.license.number else ''
 
     def dehydrate_contribution(self, contribution: Contribution):
         """Show whether it is a contribution or a screen board or infoblock."""
