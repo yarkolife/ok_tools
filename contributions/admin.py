@@ -134,9 +134,11 @@ class CustomDateTimeRangeFilter(admin.FieldListFilter):
 class ProgramResource(resources.ModelResource):
     """Define the export for the TV program."""
 
+    INFO_BLOCK_TITLE = str(_('Info block'))
+
     def _create_screen_board(self, date, start_time, end_time):
         """Create a screen board for the given time slot."""
-        SCREEN_BOARD = _('Info block')
+        SCREEN_BOARD = self.INFO_BLOCK_TITLE
         return [
             str(date),
             str(start_time),
@@ -188,6 +190,7 @@ class ProgramResource(resources.ModelResource):
                         )
                     )
 
+            # export current contribution as a row
             data.append(self.export_resource(obj))
             prev_contr = obj
 
@@ -202,6 +205,9 @@ class ProgramResource(resources.ModelResource):
                     datetime.time(hour=0, minute=0)
                 )
             )
+
+        # merge consecutive Info block rows without crossing midnight
+        data = self._merge_info_blocks(data)
 
         self.after_export(queryset, data, *args, **kwargs)
 
@@ -257,6 +263,12 @@ class ProgramResource(resources.ModelResource):
         """Show broadcast time in current time zone."""
         return str(self._get_end_time(contribution))
 
+    def dehydrate_title(self, contribution: Contribution):
+        """Show 'Info block' title for infoblock licenses."""
+        if getattr(contribution.license, 'infoblock', False):
+            return self.INFO_BLOCK_TITLE
+        return str(contribution.license.title)
+
     def dehydrate_credits(self, contribution: Contribution):
         """Show the author with introduction."""
         contributor_name = str(contribution.license.profile)
@@ -268,6 +280,46 @@ class ProgramResource(resources.ModelResource):
         if getattr(contribution.license, 'infoblock', False):
             return False
         return True
+
+    def _merge_info_blocks(self, dataset: tablib.Dataset) -> tablib.Dataset:
+        """Merge consecutive Info block rows on the same day.
+
+        We work on a copy of the rows to avoid mutating tablib.Row tuples in place.
+        """
+        if not dataset:
+            return dataset
+
+        merged = tablib.Dataset()
+        merged.headers = dataset.headers
+
+        def is_info_row(row_list):
+            return (
+                len(row_list) > 7
+                and row_list[3] == self.INFO_BLOCK_TITLE
+                and row_list[7] is False
+            )
+
+        prev = None
+        for row in dataset:
+            current = list(row)
+            if prev is not None and is_info_row(prev) and is_info_row(current):
+                # only merge when date (column 0) is identical -> no crossing midnight
+                if prev[0] == current[0]:
+                    # extend end time of previous Info block
+                    prev[2] = current[2]
+                    continue
+                else:
+                    merged.append(prev)
+                    prev = current
+            else:
+                if prev is not None:
+                    merged.append(prev)
+                prev = current
+
+        if prev is not None:
+            merged.append(prev)
+
+        return merged
 
     class Meta:
         """Define meta properties for Contribution export."""
