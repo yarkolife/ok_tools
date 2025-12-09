@@ -445,6 +445,215 @@ class UploadProgressView(generic.View):
 
 
 @method_decorator(login_required, name='dispatch')
+class GetUploadTokenView(generic.View):
+    """
+    Get a temporary upload token for direct Nextcloud upload.
+    
+    This creates a temporary upload-only share in Nextcloud,
+    allowing the client to upload directly without going through Django.
+    """
+    
+    def get(self, request, *args, **kwargs):
+        """Return upload token and URL for direct Nextcloud upload."""
+        if not settings.NEXTCLOUD_ENABLED:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Nextcloud integration is disabled.')
+            }, status=400)
+        
+        license_pk = kwargs.get('pk')
+        try:
+            license = License.objects.get(pk=license_pk, profile__okuser=request.user)
+        except License.DoesNotExist:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('License not found.')
+            }, status=404)
+        
+        # Check if license is confirmed
+        if license.confirmed:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Cannot upload video to confirmed license.')
+            }, status=400)
+        
+        # Check if video already exists
+        existing_video = NextcloudVideoFile.objects.filter(
+            license=license,
+            is_deleted=False
+        ).first()
+        
+        if existing_video:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Video already uploaded. Cannot upload second video.')
+            }, status=400)
+        
+        try:
+            from .services.nextcloud_service import NextcloudService
+            
+            nextcloud_service = NextcloudService()
+            
+            # Create upload share (expires in 24 hours)
+            share_data = nextcloud_service.create_upload_share(
+                license_number=license.number,
+                expire_hours=24
+            )
+            
+            # Store share info in session for later cleanup
+            upload_session_id = f"direct_upload_{license_pk}_{datetime.datetime.now().timestamp()}"
+            request.session[f'upload_share_{upload_session_id}'] = {
+                'share_id': share_data['share_id'],
+                'license_pk': license_pk,
+                'created_at': datetime.datetime.now().isoformat(),
+            }
+            request.session.modified = True
+            
+            logger.info(
+                f'Created upload token for license {license.number}, '
+                f'session={upload_session_id}'
+            )
+            
+            return http.JsonResponse({
+                'success': True,
+                'token': share_data['token'],
+                'upload_url': share_data['upload_url'],
+                'session_id': upload_session_id,
+                'license_number': license.number,
+            })
+            
+        except Exception as e:
+            logger.error(
+                f'Error creating upload token for license {license.number}: {e}',
+                exc_info=True
+            )
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Failed to create upload token: %(error)s') % {'error': str(e)}
+            }, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
+class ConfirmUploadView(generic.View):
+    """
+    Confirm that a direct upload to Nextcloud has completed.
+    
+    This verifies the file exists, creates the database record,
+    and cleans up the temporary share.
+    """
+    
+    def post(self, request, *args, **kwargs):
+        """Confirm upload completion and create database record."""
+        if not settings.NEXTCLOUD_ENABLED:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Nextcloud integration is disabled.')
+            }, status=400)
+        
+        license_pk = kwargs.get('pk')
+        try:
+            license = License.objects.get(pk=license_pk, profile__okuser=request.user)
+        except License.DoesNotExist:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('License not found.')
+            }, status=404)
+        
+        # Get filename and session_id from request
+        import json
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            
+            filename = data.get('filename')
+            session_id = data.get('session_id')
+            file_size = int(data.get('file_size', 0))
+        except (json.JSONDecodeError, ValueError) as e:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Invalid request data.')
+            }, status=400)
+        
+        if not filename:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Filename is required.')
+            }, status=400)
+        
+        # Check if video already exists
+        existing_video = NextcloudVideoFile.objects.filter(
+            license=license,
+            is_deleted=False
+        ).first()
+        
+        if existing_video:
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Video already uploaded. Cannot upload second video.')
+            }, status=400)
+        
+        try:
+            from .services.nextcloud_service import NextcloudService
+            
+            nextcloud_service = NextcloudService()
+            
+            # Verify file exists in Nextcloud
+            file_info = nextcloud_service.verify_uploaded_file(filename)
+            
+            if not file_info:
+                return http.JsonResponse({
+                    'success': False,
+                    'error': _('File not found in Nextcloud. Upload may have failed.')
+                }, status=400)
+            
+            # Use file size from verification or from client
+            actual_size = file_info.get('size', 0) or file_size
+            
+            # Create NextcloudVideoFile record
+            NextcloudVideoFile.objects.create(
+                license=license,
+                nextcloud_file_id=file_info['file_path'],
+                nextcloud_url=file_info['file_url'],
+                filename=filename,
+                file_size=actual_size,
+            )
+            
+            logger.info(
+                f'Video upload confirmed for license {license.number}, '
+                f'filename={filename}, size={actual_size}'
+            )
+            
+            # Clean up the share if session_id provided
+            if session_id:
+                share_key = f'upload_share_{session_id}'
+                share_data = request.session.get(share_key, {})
+                
+                if share_data and share_data.get('share_id'):
+                    nextcloud_service.delete_share(share_data['share_id'])
+                    del request.session[share_key]
+                    request.session.modified = True
+            
+            return http.JsonResponse({
+                'success': True,
+                'message': _('Video uploaded successfully.'),
+                'filename': filename,
+                'file_size': actual_size,
+            })
+            
+        except Exception as e:
+            logger.error(
+                f'Error confirming upload for license {license.number}: {e}',
+                exc_info=True
+            )
+            return http.JsonResponse({
+                'success': False,
+                'error': _('Failed to confirm upload: %(error)s') % {'error': str(e)}
+            }, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
 class DetailsLicensesView(generic.detail.DetailView):
     """Details of a License."""
 

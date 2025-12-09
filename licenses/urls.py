@@ -55,4 +55,15 @@ urlpatterns = [
         views.UploadProgressView.as_view(),
         name='upload_progress'
     ),
+    # Direct upload endpoints (bypasses Django server)
+    path(
+        '<int:pk>/get-upload-token/',
+        views.GetUploadTokenView.as_view(),
+        name='get_upload_token'
+    ),
+    path(
+        '<int:pk>/confirm-upload/',
+        views.ConfirmUploadView.as_view(),
+        name='confirm_upload'
+    ),
 ]

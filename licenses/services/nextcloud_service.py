@@ -5,8 +5,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 import logging
 import os
+import re
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import urljoin, quote
 
 
@@ -279,6 +280,218 @@ class NextcloudService:
         # This is optional - could use Nextcloud Sharing API
         # For now, return None and use WebDAV URL
         return None
+
+    def create_upload_share(self, license_number, expire_hours=24):
+        """
+        Create temporary upload-only share for direct client upload.
+        
+        This allows clients to upload files directly to Nextcloud without
+        exposing service account credentials.
+
+        Args:
+            license_number: License number for subfolder naming
+            expire_hours: Hours until share expires (default 24)
+
+        Returns:
+            dict with keys: share_id, token, upload_url, target_folder
+        """
+        try:
+            expire_date = (datetime.now() + timedelta(hours=expire_hours)).strftime('%Y-%m-%d')
+            
+            # Create share on the upload folder
+            share_path = f'/{self.upload_folder}'
+            
+            response = requests.post(
+                f"{self.base_url}/ocs/v2.php/apps/files_sharing/api/v1/shares",
+                auth=self._get_auth(),
+                headers={
+                    'OCS-APIRequest': 'true',
+                    'Accept': 'application/json',
+                },
+                data={
+                    'path': share_path,
+                    'shareType': 3,      # Public link
+                    'permissions': 4,    # Upload only (create)
+                    'expireDate': expire_date,
+                },
+                timeout=30
+            )
+            
+            if response.status_code not in [200, 201]:
+                error_msg = f'Failed to create upload share: {response.status_code} - {response.text}'
+                logger.error(error_msg)
+                raise Exception(error_msg)
+            
+            data = response.json()
+            
+            # Handle OCS response format
+            if 'ocs' in data and 'data' in data['ocs']:
+                share_data = data['ocs']['data']
+            else:
+                error_msg = f'Unexpected response format: {data}'
+                logger.error(error_msg)
+                raise Exception(error_msg)
+            
+            share_id = share_data.get('id')
+            token = share_data.get('token')
+            
+            if not token:
+                error_msg = 'No token in share response'
+                logger.error(error_msg)
+                raise Exception(error_msg)
+            
+            # WebDAV URL for public share upload
+            upload_url = f"{self.base_url}/public.php/webdav/"
+            
+            logger.info(
+                f'Created upload share for license {license_number}, '
+                f'share_id={share_id}, expires={expire_date}'
+            )
+            
+            return {
+                'share_id': share_id,
+                'token': token,
+                'upload_url': upload_url,
+                'target_folder': self.upload_folder,
+            }
+            
+        except Exception as e:
+            logger.error(f'Error creating upload share: {e}')
+            raise
+
+    def delete_share(self, share_id):
+        """
+        Delete a share by its ID.
+
+        Args:
+            share_id: Share ID to delete
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            response = requests.delete(
+                f"{self.base_url}/ocs/v2.php/apps/files_sharing/api/v1/shares/{share_id}",
+                auth=self._get_auth(),
+                headers={
+                    'OCS-APIRequest': 'true',
+                },
+                timeout=30
+            )
+            
+            if response.status_code in [200, 204, 404]:
+                logger.info(f'Deleted share {share_id}')
+                return True
+            else:
+                logger.warning(
+                    f'Failed to delete share {share_id}: {response.status_code} - {response.text}'
+                )
+                return False
+                
+        except Exception as e:
+            logger.error(f'Error deleting share {share_id}: {e}')
+            return False
+
+    def verify_uploaded_file(self, filename):
+        """
+        Verify that a file was uploaded to the upload folder.
+
+        Args:
+            filename: Filename to check
+
+        Returns:
+            dict with file info if exists, None otherwise
+        """
+        try:
+            file_path = f"{self.upload_folder}/{filename}"
+            webdav_base = self.webdav_url.rstrip('/')
+            full_url = f"{webdav_base}/{file_path}"
+            
+            # Use PROPFIND to get file info
+            response = requests.request(
+                'PROPFIND',
+                full_url,
+                auth=self._get_auth(),
+                headers={
+                    'Depth': '0',
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 207:  # Multi-Status = file exists
+                # Parse size from response if needed
+                content = response.text
+                size = 0
+                
+                # Try to extract content-length from PROPFIND response
+                import re
+                size_match = re.search(r'<d:getcontentlength>(\d+)</d:getcontentlength>', content)
+                if size_match:
+                    size = int(size_match.group(1))
+                
+                logger.info(f'Verified file exists: {filename}, size={size}')
+                return {
+                    'exists': True,
+                    'file_path': file_path,
+                    'file_url': full_url,
+                    'size': size,
+                }
+            elif response.status_code == 404:
+                logger.warning(f'File not found: {filename}')
+                return None
+            else:
+                logger.warning(
+                    f'Unexpected response verifying file {filename}: {response.status_code}'
+                )
+                return None
+                
+        except Exception as e:
+            logger.error(f'Error verifying uploaded file {filename}: {e}')
+            return None
+
+    def get_file_size(self, file_path):
+        """
+        Get the size of a file in Nextcloud.
+
+        Args:
+            file_path: Path to file in Nextcloud
+
+        Returns:
+            int: File size in bytes, or 0 if not found
+        """
+        try:
+            webdav_base = self.webdav_url.rstrip('/')
+            full_url = f"{webdav_base}/{file_path.lstrip('/')}"
+            
+            response = requests.head(
+                full_url,
+                auth=self._get_auth(),
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                content_length = response.headers.get('Content-Length', '0')
+                return int(content_length)
+            return 0
+            
+        except Exception as e:
+            logger.error(f'Error getting file size for {file_path}: {e}')
+            return 0
+
+    def generate_unique_filename(self, license_number, original_filename):
+        """
+        Generate a unique filename for upload.
+
+        Args:
+            license_number: License number
+            original_filename: Original filename from client
+
+        Returns:
+            str: Unique sanitized filename
+        """
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        safe_filename = self._sanitize_filename(original_filename)
+        return f"{license_number}_{timestamp}_{safe_filename}"
 
     def _sanitize_filename(self, filename):
         """

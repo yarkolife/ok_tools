@@ -230,9 +230,12 @@
                         {% trans 'Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}
                     </div>
                 </div>
-                <div id="upload-progress" class="progress mb-3" style="display: none; height: 30px;">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; line-height: 30px; font-size: 14px; font-weight: 600;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                        <span id="progress-text" style="line-height: 30px;">0%</span>
+                <div id="upload-progress" class="mb-3" style="display: none;">
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small id="progress-text" class="text-muted fw-bold">0%</small>
                     </div>
                 </div>
                 <div id="upload-status" class="alert" style="display: none;"></div>
@@ -265,12 +268,44 @@
         modal.show();
     }
     
-    function uploadVideo() {
+    // Format bytes to human readable format
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+    
+    // Format seconds to human readable time
+    function formatTime(seconds) {
+        if (!isFinite(seconds) || seconds < 0) return '{% trans "calculating..." %}';
+        if (seconds < 60) return Math.round(seconds) + ' {% trans "sec" %}';
+        if (seconds < 3600) return Math.round(seconds / 60) + ' {% trans "min" %}';
+        return Math.round(seconds / 3600) + ' {% trans "h" %}';
+    }
+    
+    // Sanitize filename for Nextcloud upload
+    function sanitizeFilename(filename) {
+        // Remove path components, keep only filename
+        filename = filename.split('/').pop().split('\\').pop();
+        // Replace spaces and special characters
+        filename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+        // Limit length
+        if (filename.length > 200) {
+            const ext = filename.substring(filename.lastIndexOf('.'));
+            filename = filename.substring(0, 200 - ext.length) + ext;
+        }
+        return filename;
+    }
+    
+    async function uploadVideo() {
         const fileInput = document.getElementById('modal-video-file');
         const uploadButton = document.getElementById('modal-upload-button');
         const progressBar = document.getElementById('upload-progress');
         const progressBarInner = progressBar.querySelector('.progress-bar');
         const statusDiv = document.getElementById('upload-status');
+        const progressText = document.getElementById('progress-text');
         
         if (!fileInput.files || fileInput.files.length === 0) {
             statusDiv.className = 'alert alert-warning';
@@ -282,7 +317,7 @@
         const file = fileInput.files[0];
         
         // Validate file size (20GB)
-        const maxSize = 20 * 1024 * 1024 * 1024; // 20GB in bytes
+        const maxSize = 20 * 1024 * 1024 * 1024;
         if (file.size > maxSize) {
             statusDiv.className = 'alert alert-danger';
             statusDiv.style.display = 'block';
@@ -300,271 +335,156 @@
             return;
         }
         
-        const formData = new FormData();
-        formData.append('video_file', file);
-        
         // Disable button and show progress
         uploadButton.disabled = true;
         progressBar.style.display = 'block';
         progressBarInner.style.width = '0%';
         progressBarInner.setAttribute('aria-valuenow', '0');
-        const progressText = document.getElementById('progress-text');
-        if (progressText) progressText.textContent = '0%';
+        if (progressText) progressText.textContent = '{% trans "Getting upload token..." %}';
         statusDiv.style.display = 'none';
         
-        const uploadUrl = '/licenses/' + currentLicenseId + '/upload-video/';
-        
-        const xhr = new XMLHttpRequest();
-        let uploadSessionId = null;
-        let progressPollInterval = null;
-        
-        // Two-stage progress: 0-80% = upload to server, 80-100% = upload to Nextcloud
-        const SERVER_UPLOAD_MAX = 80;
-        const NEXTCLOUD_UPLOAD_MIN = 80;
-        
-        xhr.upload.addEventListener('progress', function(e) {
-            if (e.lengthComputable && e.total > 0) {
-                // Stage 1: Upload to Django server (0-80%)
-                const serverPercent = Math.round((e.loaded / e.total) * SERVER_UPLOAD_MAX);
-                progressBarInner.style.width = serverPercent + '%';
-                progressBarInner.setAttribute('aria-valuenow', serverPercent);
-                if (progressText) {
-                    progressText.textContent = serverPercent + '%';
-                }
-                console.log('Upload to server progress:', serverPercent + '%', '(' + Math.round(e.loaded / 1024 / 1024) + ' MB / ' + Math.round(e.total / 1024 / 1024) + ' MB)');
-                
-                // If upload to server is almost complete (75%), start preparing for Nextcloud polling
-                if (serverPercent >= 75 && !uploadSessionId) {
-                    // Get session ID from request if available
-                    // We'll start polling when we get the response
-                }
-            }
-        });
-        
-        // Function to poll Nextcloud upload progress
-        function pollNextcloudProgress(sessionId, isLastCall) {
-            if (!sessionId) return;
-            
-            const progressUrl = '/licenses/upload-progress/?session_id=' + encodeURIComponent(sessionId);
-            fetch(progressUrl, {
+        try {
+            // Step 1: Get upload token from Django
+            const tokenUrl = '/licenses/' + currentLicenseId + '/get-upload-token/';
+            const tokenResponse = await fetch(tokenUrl, {
                 method: 'GET',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
                 },
-            })
-            .then(response => {
-                if (response.status === 404) {
-                    // Session not found - upload might be complete or failed
-                    if (!isLastCall) {
-                        // Try once more after a delay
-                        setTimeout(() => pollNextcloudProgress(sessionId, true), 500);
-                    } else {
-                        // Final attempt failed, assume 100%
-                        progressBarInner.style.width = '100%';
-                        progressBarInner.setAttribute('aria-valuenow', '100');
-                        if (progressText) {
-                            progressText.textContent = '100%';
-                        }
-                    }
-                    return null;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return;
-                
-                if (data.error) {
-                    console.error('Progress error:', data.error);
-                    return;
-                }
-                
-                if (data.progress !== undefined) {
-                    // Stage 2: Upload to Nextcloud (80-100%)
-                    let nextcloudPercent;
-                    if (data.progress >= 100 || data.stage === 'completed') {
-                        nextcloudPercent = 100;
-                    } else {
-                        nextcloudPercent = NEXTCLOUD_UPLOAD_MIN + Math.round((data.progress / 100) * (100 - NEXTCLOUD_UPLOAD_MIN));
-                    }
+            });
+            
+            if (!tokenResponse.ok) {
+                const errorData = await tokenResponse.json();
+                throw new Error(errorData.error || '{% trans "Failed to get upload token" %}');
+            }
+            
+            const tokenData = await tokenResponse.json();
+            if (!tokenData.success) {
+                throw new Error(tokenData.error || '{% trans "Failed to get upload token" %}');
+            }
+            
+            const { token, upload_url, session_id, license_number } = tokenData;
+            
+            // Generate unique filename
+            const timestamp = new Date().toISOString().replace(/[-:T]/g, '').substring(0, 14);
+            const safeName = sanitizeFilename(file.name);
+            const uniqueFilename = `${license_number}_${timestamp}_${safeName}`;
+            
+            console.log('Direct upload to Nextcloud:', {
+                upload_url: upload_url,
+                filename: uniqueFilename,
+                file_size: formatBytes(file.size)
+            });
+            
+            // Step 2: Upload directly to Nextcloud
+            if (progressText) progressText.textContent = '0%';
+            
+            const xhr = new XMLHttpRequest();
+            let startTime = Date.now();
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable && e.total > 0) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const speed = e.loaded / elapsed;
+                    const remaining = (e.total - e.loaded) / speed;
                     
-                    progressBarInner.style.width = nextcloudPercent + '%';
-                    progressBarInner.setAttribute('aria-valuenow', nextcloudPercent);
+                    progressBarInner.style.width = percent + '%';
+                    progressBarInner.setAttribute('aria-valuenow', percent);
+                    
                     if (progressText) {
-                        progressText.textContent = nextcloudPercent + '%';
+                        // Show detailed progress: percent, bytes, speed, ETA
+                        progressText.textContent = `${percent}% (${formatBytes(e.loaded)} / ${formatBytes(e.total)}) - ${formatBytes(speed)}/s - ~${formatTime(remaining)}`;
                     }
-                    console.log('Upload to Nextcloud progress:', data.progress + '%', 'Total:', nextcloudPercent + '%', 'Stage:', data.stage);
                     
-                    // Continue polling if not complete
-                    if (data.progress < 100 && data.stage !== 'completed') {
-                        setTimeout(() => pollNextcloudProgress(sessionId, false), 500);
-                    } else {
-                        // Complete - ensure 100% and stop polling
-                        progressBarInner.style.width = '100%';
-                        progressBarInner.setAttribute('aria-valuenow', '100');
-                        if (progressText) {
-                            progressText.textContent = '100%';
-                        }
-                        // Stop polling - progress is complete
-                        if (progressPollInterval) {
-                            clearInterval(progressPollInterval);
-                            progressPollInterval = null;
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error polling progress:', error);
-                // On error, don't stop polling immediately - try a few more times
-                if (!isLastCall) {
-                    setTimeout(() => pollNextcloudProgress(sessionId, false), 1000);
+                    console.log('Direct upload progress:', percent + '%', 
+                        '(' + formatBytes(e.loaded) + ' / ' + formatBytes(e.total) + ')',
+                        'Speed:', formatBytes(speed) + '/s'
+                    );
                 }
             });
-        }
-        
-        xhr.addEventListener('load', function() {
-            if (xhr.status === 200) {
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        // Start polling Nextcloud progress if session_id is provided
-                        if (response.session_id) {
-                            uploadSessionId = response.session_id;
-                            // Start polling immediately - the upload might still be in progress
-                            pollNextcloudProgress(uploadSessionId, false);
-                            
-                            // Poll every 500ms until complete
-                            progressPollInterval = setInterval(() => {
-                                pollNextcloudProgress(uploadSessionId, false);
-                            }, 500);
-                            
-                            // Stop polling after 5 minutes max
-                            setTimeout(() => {
-                                if (progressPollInterval) {
-                                    clearInterval(progressPollInterval);
-                                    progressPollInterval = null;
-                                }
-                            }, 300000);
-                            
-                            // Function to show success message
-                            function showSuccessMessage() {
-                                // Ensure progress is 100%
-                                progressBarInner.style.width = '100%';
-                                progressBarInner.setAttribute('aria-valuenow', '100');
-                                if (progressText) progressText.textContent = '100%';
-                                
-                                statusDiv.className = 'alert alert-success';
-                                statusDiv.style.display = 'block';
-                                statusDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + (response.message || '{% trans "Video uploaded successfully!" %}');
-                                
-                                // Stop polling
-                                if (progressPollInterval) {
-                                    clearInterval(progressPollInterval);
-                                    progressPollInterval = null;
-                                }
-                                
-                                // Close modal after 1.5 seconds
-                                setTimeout(() => {
-                                    const modal = bootstrap.Modal.getInstance(document.getElementById('videoUploadModal'));
-                                    modal.hide();
-                                    window.location.reload();
-                                }, 1500);
-                            }
-                            
-                            // Track if we've shown success
-                            let successShown = false;
-                            
-                            // Check progress periodically and show success when ready
-                            const successCheckInterval = setInterval(() => {
-                                const currentWidth = parseInt(progressBarInner.style.width) || 0;
-                                if (currentWidth >= 100 && !successShown) {
-                                    successShown = true;
-                                    clearInterval(successCheckInterval);
-                                    showSuccessMessage();
-                                }
-                            }, 200);
-                            
-                            // Fallback: show success after 10 seconds max
-                            setTimeout(() => {
-                                clearInterval(successCheckInterval);
-                                if (!successShown) {
-                                    successShown = true;
-                                    showSuccessMessage();
-                                }
-                            }, 10000);
-                        } else {
-                            // No session ID, just show 100%
-                            progressBarInner.style.width = '100%';
-                            progressBarInner.setAttribute('aria-valuenow', '100');
-                            if (progressText) progressText.textContent = '100%';
-                            
-                            statusDiv.className = 'alert alert-success';
-                            statusDiv.style.display = 'block';
-                            statusDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + (response.message || '{% trans "Video uploaded successfully!" %}');
-                            
-                            // Close modal after 1.5 seconds
-                            setTimeout(() => {
-                                const modal = bootstrap.Modal.getInstance(document.getElementById('videoUploadModal'));
-                                modal.hide();
-                                window.location.reload();
-                            }, 1500);
-                        }
+            
+            // Create promise for XHR
+            const uploadPromise = new Promise((resolve, reject) => {
+                xhr.addEventListener('load', function() {
+                    if (xhr.status === 201 || xhr.status === 204) {
+                        resolve();
                     } else {
-                        if (progressPollInterval) {
-                            clearInterval(progressPollInterval);
-                            progressPollInterval = null;
-                        }
-                        statusDiv.className = 'alert alert-danger';
-                        statusDiv.style.display = 'block';
-                        statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (response.error || '{% trans "Upload failed" %}');
-                        uploadButton.disabled = false;
-                        progressBar.style.display = 'none';
+                        reject(new Error(`{% trans "Upload failed with status" %}: ${xhr.status}`));
                     }
-                } catch (e) {
-                    if (progressPollInterval) {
-                        clearInterval(progressPollInterval);
-                        progressPollInterval = null;
-                    }
-                    statusDiv.className = 'alert alert-danger';
-                    statusDiv.style.display = 'block';
-                    statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Error parsing server response." %}';
-                    uploadButton.disabled = false;
-                    progressBar.style.display = 'none';
-                }
-            } else {
-                if (progressPollInterval) {
-                    clearInterval(progressPollInterval);
-                    progressPollInterval = null;
-                }
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    statusDiv.className = 'alert alert-danger';
-                    statusDiv.style.display = 'block';
-                    statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (response.error || '{% trans "Upload failed" %}');
-                } catch (e) {
-                    statusDiv.className = 'alert alert-danger';
-                    statusDiv.style.display = 'block';
-                    statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Upload failed. Please try again." %}';
-                }
-                uploadButton.disabled = false;
-                progressBar.style.display = 'none';
+                });
+                
+                xhr.addEventListener('error', function() {
+                    reject(new Error('{% trans "Network error during upload" %}'));
+                });
+                
+                xhr.addEventListener('abort', function() {
+                    reject(new Error('{% trans "Upload was cancelled" %}'));
+                });
+            });
+            
+            // Open connection to Nextcloud public share WebDAV endpoint
+            xhr.open('PUT', upload_url + encodeURIComponent(uniqueFilename));
+            xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
+            xhr.send(file);
+            
+            // Wait for upload to complete
+            await uploadPromise;
+            
+            // Step 3: Confirm upload with Django
+            if (progressText) progressText.textContent = '{% trans "Confirming upload..." %}';
+            
+            const confirmUrl = '/licenses/' + currentLicenseId + '/confirm-upload/';
+            const confirmResponse = await fetch(confirmUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify({
+                    filename: uniqueFilename,
+                    session_id: session_id,
+                    file_size: file.size,
+                }),
+            });
+            
+            if (!confirmResponse.ok) {
+                const errorData = await confirmResponse.json();
+                throw new Error(errorData.error || '{% trans "Failed to confirm upload" %}');
             }
-        });
-        
-        xhr.addEventListener('error', function() {
-            if (progressPollInterval) {
-                clearInterval(progressPollInterval);
-                progressPollInterval = null;
+            
+            const confirmData = await confirmResponse.json();
+            if (!confirmData.success) {
+                throw new Error(confirmData.error || '{% trans "Failed to confirm upload" %}');
             }
+            
+            // Success!
+            progressBarInner.style.width = '100%';
+            progressBarInner.setAttribute('aria-valuenow', '100');
+            if (progressText) progressText.textContent = '100%';
+            
+            statusDiv.className = 'alert alert-success';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + 
+                (confirmData.message || '{% trans "Video uploaded successfully!" %}');
+            
+            // Close modal and reload after 1.5 seconds
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('videoUploadModal'));
+                modal.hide();
+                window.location.reload();
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Upload error:', error);
+            
             statusDiv.className = 'alert alert-danger';
             statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Network error. Please check your connection and try again." %}';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + error.message;
+            
             uploadButton.disabled = false;
             progressBar.style.display = 'none';
-        });
-        
-        xhr.open('POST', uploadUrl);
-        xhr.setRequestHeader('X-CSRFToken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-        xhr.send(formData);
+        }
     }
     {% endif %}
     

@@ -2,6 +2,7 @@ from .admin import LicenseAdmin
 from .admin import WithoutContributionFilter
 from .admin import YearFilter
 from .models import License
+from .models import YouthProtectionCategory
 from .models import default_category
 from contributions.models import Contribution
 from django.conf import settings
@@ -789,6 +790,8 @@ def test__licenses__api__LicenseMetadataView__authorized(
         api_client, api_token, license):
     """API endpoint returns license metadata when valid token is provided."""
     license.tags = ['tag1', 'tag2']
+    license.youth_protection_necessary = True
+    license.youth_protection_category = YouthProtectionCategory.FROM_16
     license.save()
     
     url = reverse_lazy('licenses:api-metadata', args=[license.number])
@@ -808,6 +811,8 @@ def test__licenses__api__LicenseMetadataView__authorized(
     assert data['videoNumber'] == license.number
     assert data['saveToMediathek'] == license.store_in_ok_media_library
     assert data['allowExchange'] == license.media_authority_exchange_allowed
+    assert data['youthProtectionNecessary'] is True
+    assert data['youthProtectionCategory'] == YouthProtectionCategory.FROM_16
 
 
 @pytest.mark.django_db

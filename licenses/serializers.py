@@ -24,6 +24,15 @@ class LicenseMetadataSerializer(serializers.Serializer):
     videoNumber = serializers.IntegerField(source='number')
     saveToMediathek = serializers.BooleanField(source='store_in_ok_media_library')
     allowExchange = serializers.BooleanField(source='media_authority_exchange_allowed')
+    youthProtectionNecessary = serializers.BooleanField(
+        source='youth_protection_necessary',
+        allow_null=True
+    )
+    youthProtectionCategory = serializers.CharField(
+        source='youth_protection_category',
+        allow_blank=True,
+        allow_null=True
+    )
     targetChannel = serializers.SerializerMethodField()
     
     def get_category(self, obj):

@@ -394,11 +394,37 @@
             });
         }
 
-        // Video file upload
+        // Video file upload - Direct upload to Nextcloud
         {% if NEXTCLOUD_ENABLED %}
         const videoFileInput = document.getElementById('id_video_file');
         const uploadVideoButton = document.getElementById('upload-video-button');
         const uploadStatus = document.getElementById('upload-status');
+
+        // Helper functions
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatTime(seconds) {
+            if (!isFinite(seconds) || seconds < 0) return '{% trans "calculating..." %}';
+            if (seconds < 60) return Math.round(seconds) + ' {% trans "sec" %}';
+            if (seconds < 3600) return Math.round(seconds / 60) + ' {% trans "min" %}';
+            return Math.round(seconds / 3600) + ' {% trans "h" %}';
+        }
+
+        function sanitizeFilename(filename) {
+            filename = filename.split('/').pop().split('\\').pop();
+            filename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+            if (filename.length > 200) {
+                const ext = filename.substring(filename.lastIndexOf('.'));
+                filename = filename.substring(0, 200 - ext.length) + ext;
+            }
+            return filename;
+        }
 
         if (videoFileInput && uploadVideoButton) {
             // Validate file on selection
@@ -406,7 +432,7 @@
                 const file = e.target.files[0];
                 if (file) {
                     // Validate file size (20GB)
-                    const maxSize = 20 * 1024 * 1024 * 1024; // 20GB in bytes
+                    const maxSize = 20 * 1024 * 1024 * 1024;
                     if (file.size > maxSize) {
                         alert('{% trans "File is too large. Maximum size is 20GB." %}');
                         e.target.value = '';
@@ -425,15 +451,14 @@
                     }
 
                     // Show file info
-                    const fileSizeGB = (file.size / (1024 * 1024 * 1024)).toFixed(2);
-                    uploadStatus.innerHTML = `<small class="text-muted">${file.name} (${fileSizeGB} GB)</small>`;
+                    uploadStatus.innerHTML = `<small class="text-muted">${file.name} (${formatBytes(file.size)})</small>`;
                 } else {
                     uploadStatus.textContent = '';
                 }
             });
 
-            // Handle upload button click
-            uploadVideoButton.addEventListener('click', function(e) {
+            // Handle upload button click - Direct Nextcloud upload
+            uploadVideoButton.addEventListener('click', async function(e) {
                 e.preventDefault();
                 
                 if (!videoFileInput.files || videoFileInput.files.length === 0) {
@@ -442,14 +467,12 @@
                 }
 
                 const file = videoFileInput.files[0];
-                const formData = new FormData();
-                formData.append('video_file', file);
 
                 // Disable button and show loading
                 uploadVideoButton.disabled = true;
                 const originalText = uploadVideoButton.innerHTML;
                 uploadVideoButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>{% trans "Uploading..." %}';
-                uploadStatus.innerHTML = '<small class="text-info">{% trans "Uploading video..." %}</small>';
+                uploadStatus.innerHTML = '<small class="text-info">{% trans "Getting upload token..." %}</small>';
 
                 // Get license ID from URL
                 const currentUrl = window.location.href;
@@ -462,38 +485,120 @@
                 }
 
                 const licenseId = match[1];
-                const uploadUrl = '{% url "licenses:upload_video" pk=0 %}'.replace('0', licenseId);
 
-                // Upload video
-                fetch(uploadUrl, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        uploadStatus.innerHTML = '<small class="text-success"><i class="bi bi-check-circle me-1"></i>{% trans "Video uploaded successfully!" %}</small>';
-                        // Clear file input
-                        videoFileInput.value = '';
-                        // Reload page after 1 second to show the uploaded video
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        uploadStatus.innerHTML = `<small class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>${data.error || '{% trans "Upload failed" %}'}</small>`;
-                        uploadVideoButton.disabled = false;
-                        uploadVideoButton.innerHTML = originalText;
+                try {
+                    // Step 1: Get upload token from Django
+                    const tokenUrl = '/licenses/' + licenseId + '/get-upload-token/';
+                    const tokenResponse = await fetch(tokenUrl, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                    });
+
+                    if (!tokenResponse.ok) {
+                        const errorData = await tokenResponse.json();
+                        throw new Error(errorData.error || '{% trans "Failed to get upload token" %}');
                     }
-                })
-                .catch(error => {
+
+                    const tokenData = await tokenResponse.json();
+                    if (!tokenData.success) {
+                        throw new Error(tokenData.error || '{% trans "Failed to get upload token" %}');
+                    }
+
+                    const { token, upload_url, session_id, license_number } = tokenData;
+
+                    // Generate unique filename
+                    const timestamp = new Date().toISOString().replace(/[-:T]/g, '').substring(0, 14);
+                    const safeName = sanitizeFilename(file.name);
+                    const uniqueFilename = `${license_number}_${timestamp}_${safeName}`;
+
+                    console.log('Direct upload to Nextcloud:', {
+                        upload_url: upload_url,
+                        filename: uniqueFilename,
+                        file_size: formatBytes(file.size)
+                    });
+
+                    // Step 2: Upload directly to Nextcloud
+                    const xhr = new XMLHttpRequest();
+                    let startTime = Date.now();
+
+                    xhr.upload.addEventListener('progress', function(ev) {
+                        if (ev.lengthComputable && ev.total > 0) {
+                            const percent = Math.round((ev.loaded / ev.total) * 100);
+                            const elapsed = (Date.now() - startTime) / 1000;
+                            const speed = ev.loaded / elapsed;
+                            const remaining = (ev.total - ev.loaded) / speed;
+
+                            uploadStatus.innerHTML = `<small class="text-info">${percent}% (${formatBytes(ev.loaded)} / ${formatBytes(ev.total)}) - ${formatBytes(speed)}/s - ~${formatTime(remaining)}</small>`;
+                        }
+                    });
+
+                    // Create promise for XHR
+                    const uploadPromise = new Promise((resolve, reject) => {
+                        xhr.addEventListener('load', function() {
+                            if (xhr.status === 201 || xhr.status === 204) {
+                                resolve();
+                            } else {
+                                reject(new Error(`{% trans "Upload failed with status" %}: ${xhr.status}`));
+                            }
+                        });
+
+                        xhr.addEventListener('error', function() {
+                            reject(new Error('{% trans "Network error during upload" %}'));
+                        });
+                    });
+
+                    // Open connection to Nextcloud public share WebDAV endpoint
+                    xhr.open('PUT', upload_url + encodeURIComponent(uniqueFilename));
+                    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
+                    xhr.send(file);
+
+                    // Wait for upload to complete
+                    await uploadPromise;
+
+                    // Step 3: Confirm upload with Django
+                    uploadStatus.innerHTML = '<small class="text-info">{% trans "Confirming upload..." %}</small>';
+
+                    const confirmUrl = '/licenses/' + licenseId + '/confirm-upload/';
+                    const confirmResponse = await fetch(confirmUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                        body: JSON.stringify({
+                            filename: uniqueFilename,
+                            session_id: session_id,
+                            file_size: file.size,
+                        }),
+                    });
+
+                    if (!confirmResponse.ok) {
+                        const errorData = await confirmResponse.json();
+                        throw new Error(errorData.error || '{% trans "Failed to confirm upload" %}');
+                    }
+
+                    const confirmData = await confirmResponse.json();
+                    if (!confirmData.success) {
+                        throw new Error(confirmData.error || '{% trans "Failed to confirm upload" %}');
+                    }
+
+                    // Success!
+                    uploadStatus.innerHTML = '<small class="text-success"><i class="bi bi-check-circle me-1"></i>{% trans "Video uploaded successfully!" %}</small>';
+                    videoFileInput.value = '';
+
+                    // Reload page after 1 second to show the uploaded video
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+
+                } catch (error) {
                     console.error('Upload error:', error);
-                    uploadStatus.innerHTML = '<small class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>{% trans "Network error. Please try again." %}</small>';
+                    uploadStatus.innerHTML = `<small class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>${error.message}</small>`;
                     uploadVideoButton.disabled = false;
                     uploadVideoButton.innerHTML = originalText;
-                });
+                }
             });
         }
         {% endif %}
