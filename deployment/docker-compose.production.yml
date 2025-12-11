@@ -70,7 +70,6 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
-      - ./nginx-conf.d:/etc/nginx/conf.d
       - ./data/static:/var/www/static:ro
       - ./data/media:/var/www/media:ro
       - ./certbot/conf:/etc/letsencrypt

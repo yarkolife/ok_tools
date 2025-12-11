@@ -1,10 +1,10 @@
 #!/bin/sh
 set -e
 
-# Рендерим конфиг сразу в /etc/nginx/conf.d (обходит default.conf из образа)
-envsubst '${DOMAIN_NAME}' < /etc/nginx/templates/nginx.conf.template > /etc/nginx/conf.d/nginx.conf
+# Рендерим полный конфиг в /etc/nginx/nginx.conf (перезаписывает базовый конфиг)
+envsubst '${DOMAIN_NAME}' < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf
 
-# Убираем дефолтный сервер, чтобы не перекрывал наш
+# Убираем дефолтный сервер из conf.d, если он есть
 rm -f /etc/nginx/conf.d/default.conf || true
 
 # Ожидаем сертификаты, если домен указан

@@ -776,7 +776,6 @@ INSTALL_TYPE=""
 if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAME=' "$PRODUCTION_DIR/.env" | cut -d'=' -f2)" ]; then
     print_info "Detected: Production with Nginx and SSL"
     INSTALL_TYPE="1"
-    mkdir -p "$PRODUCTION_DIR/nginx-conf.d"
     copy_as_new_if_changed "deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml" "docker-compose.yml"
     copy_as_new_if_changed "deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template" "nginx.conf.template"
     cp -f deployment/nginx-entrypoint.sh "$PRODUCTION_DIR/"

@@ -496,7 +496,6 @@ if [ "$INSTALL_MODE" = "1" ]; then
         echo "Copying deployment files..."
         if [ "$INSTALL_TYPE" = "1" ]; then
             # Production: use nginx-enabled compose file and copy nginx files
-            mkdir -p "$PRODUCTION_DIR/nginx-conf.d"
             cp "$PROJECT_DIR/deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml"
             if [ -f "$PRODUCTION_DIR/nginx.conf.template" ]; then
                 TS=$(date +%Y%m%d-%H%M%S)
@@ -867,7 +866,6 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "Copying deployment files..."
     if [ "$INSTALL_TYPE" = "1" ]; then
         # Production: use nginx-enabled compose file and copy nginx files
-        mkdir -p "$PRODUCTION_DIR/nginx-conf.d"
         cp "$PROJECT_DIR/deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml"
         if [ -f "$PRODUCTION_DIR/nginx.conf.template" ]; then
             TS=$(date +%Y%m%d-%H%M%S)
