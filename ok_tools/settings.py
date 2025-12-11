@@ -460,6 +460,49 @@ else:
     NEXTCLOUD_UPLOAD_FOLDER = ''
     NEXTCLOUD_WEBDAV_PATH = '/remote.php/dav/files/{username}/'
 
+# Nextcloud Calendar integration settings (CalDAV)
+NEXTCLOUD_CALENDAR_ENABLED = get_env('NEXTCLOUD_CALENDAR_ENABLED', default=False, cast=bool)
+
+if NEXTCLOUD_CALENDAR_ENABLED:
+    # CalDAV base URL (e.g., https://cloud.lokalmedial.de/remote.php/dav/calendars)
+    NEXTCLOUD_CALDAV_BASE_URL = get_env(
+        'NEXTCLOUD_CALDAV_BASE_URL',
+        default=None
+    )
+    # If not set, try to construct from NEXTCLOUD_URL
+    if not NEXTCLOUD_CALDAV_BASE_URL and NEXTCLOUD_ENABLED:
+        NEXTCLOUD_CALDAV_BASE_URL = f"{NEXTCLOUD_URL.rstrip('/')}/remote.php/dav/calendars"
+    
+    # Calendar service account credentials (can be different from file upload account)
+    NEXTCLOUD_CALENDAR_USERNAME = get_env('NEXTCLOUD_CALENDAR_USERNAME', default=None)
+    NEXTCLOUD_CALENDAR_PASSWORD = get_env('NEXTCLOUD_CALENDAR_PASSWORD', default=None)
+    
+    # If not set, fall back to main Nextcloud credentials
+    if not NEXTCLOUD_CALENDAR_USERNAME and NEXTCLOUD_ENABLED:
+        NEXTCLOUD_CALENDAR_USERNAME = NEXTCLOUD_USERNAME
+    if not NEXTCLOUD_CALENDAR_PASSWORD and NEXTCLOUD_ENABLED:
+        NEXTCLOUD_CALENDAR_PASSWORD = NEXTCLOUD_PASSWORD
+    
+    # Default calendar name for all rooms (if set, all rooms will use this calendar)
+    NEXTCLOUD_DEFAULT_CALENDAR_NAME = get_env('NEXTCLOUD_DEFAULT_CALENDAR_NAME', default=None)
+    
+    # Room to calendar mapping (room name/slug -> calendar name in Nextcloud)
+    # Format: "room_name:calendar_name,room_id:calendar_name"
+    # Only used if NEXTCLOUD_DEFAULT_CALENDAR_NAME is not set
+    room_calendars_str = get_env('NEXTCLOUD_ROOM_CALENDARS', default='')
+    NEXTCLOUD_ROOM_CALENDARS = {}
+    if room_calendars_str:
+        for mapping in room_calendars_str.split(','):
+            if ':' in mapping:
+                room_key, calendar_name = mapping.split(':', 1)
+                NEXTCLOUD_ROOM_CALENDARS[room_key.strip()] = calendar_name.strip()
+else:
+    NEXTCLOUD_CALDAV_BASE_URL = ''
+    NEXTCLOUD_CALENDAR_USERNAME = ''
+    NEXTCLOUD_CALENDAR_PASSWORD = ''
+    NEXTCLOUD_DEFAULT_CALENDAR_NAME = None
+    NEXTCLOUD_ROOM_CALENDARS = {}
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

@@ -664,6 +664,12 @@ class RoomRental(models.Model):
         verbose_name=_('Notes'),
         help_text=_('Additional notes for room rental'),
     )
+    nextcloud_event_href = models.URLField(
+        blank=True,
+        null=True,
+        verbose_name=_('Nextcloud Event URL'),
+        help_text=_('URL of the event in Nextcloud Calendar (for CalDAV sync)'),
+    )
 
     class Meta:
         """Django model metadata for ``RoomRental``."""

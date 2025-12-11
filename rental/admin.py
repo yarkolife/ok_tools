@@ -325,6 +325,7 @@ class RoomAdmin(admin.ModelAdmin):
         }),
     )
 
+
     def description_short(self, obj):
         """Return truncated description for list view."""
         return obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
