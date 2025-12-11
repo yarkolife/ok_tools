@@ -1092,7 +1092,24 @@ fi
 # Change to project directory and pull latest code
 echo "Updating code from git repository..."
 cd "\$PROJECT_DIR"
-git pull
+
+# Check if this is a git repository and handle errors
+if [ ! -d ".git" ]; then
+    echo "⚠ Warning: Not a git repository - skipping git pull"
+    echo "To enable updates from git, initialize repository: git init && git remote add origin <url>"
+elif ! git pull 2>&1; then
+    GIT_PULL_EXIT=\$?
+    echo "⚠ Warning: git pull failed (exit code: \$GIT_PULL_EXIT)"
+    echo "Possible reasons:"
+    echo "  - No internet connection"
+    echo "  - Git remote not configured"
+    echo "  - Merge conflicts (resolve manually)"
+    echo "  - Authentication required"
+    echo ""
+    echo "Continuing update without git pull - using current code"
+else
+    echo "✓ Code updated from repository"
+fi
 
 # Call the main update script with flag indicating it was called from local script
 echo "Running update script..."

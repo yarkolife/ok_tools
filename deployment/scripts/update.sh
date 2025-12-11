@@ -723,8 +723,30 @@ SCRIPT_EOF
 if [ -z "${LOCAL_UPDATE_CALLED:-}" ]; then
     print_info "Pulling latest code from repository..."
     cd "$PROJECT_DIR"
-    git pull
-    print_success "Code updated from repository"
+    
+    # Check if this is a git repository
+    if [ ! -d ".git" ]; then
+        print_warning "Not a git repository - skipping git pull"
+        print_info "To enable updates from git, initialize repository: git init && git remote add origin <url>"
+    elif ! git pull 2>&1; then
+        GIT_PULL_EXIT=$?
+        print_warning "git pull failed (exit code: $GIT_PULL_EXIT)"
+        print_info "Possible reasons:"
+        print_info "  - No internet connection"
+        print_info "  - Git remote not configured (run: git remote add origin <url>)"
+        print_info "  - Merge conflicts (resolve manually and retry)"
+        print_info "  - Authentication required (configure git credentials)"
+        echo ""
+        read -p "Continue update anyway? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_info "Update cancelled. Please fix git issues and retry."
+            exit 1
+        fi
+        print_warning "Continuing update without git pull - using current code"
+    else
+        print_success "Code updated from repository"
+    fi
 fi
 
 # Check and create local update script AFTER git pull (so we have latest version)
