@@ -9,19 +9,15 @@ if [ -n "${DOMAIN_NAME}" ]; then
   fi
 fi
 
-# Рендерим базовый конфиг
-envsubst '${DOMAIN_NAME}' < /etc/nginx/templates-custom/nginx.conf.template > /etc/nginx/nginx.conf.tmp
-
-# Если это localhost/локальный IP и нет сертификатов, модифицируем конфиг для работы без SSL
+# Если это localhost/локальный IP и нет сертификатов, создаем конфиг без SSL
 if [ "$IS_LOCAL" = "true" ] && [ ! -f "/etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem" ]; then
   echo "DOMAIN_NAME is localhost or local IP (${DOMAIN_NAME}) - configuring HTTP without SSL"
   
-  # Создаем конфиг без HTTPS блока и без редиректа на HTTPS
-  # Удаляем редирект на HTTPS и блокируем HTTPS блок
-  sed -i '/# Redirect all HTTP traffic to HTTPS/,/^}/d' /etc/nginx/nginx.conf.tmp
-  sed -i '/# HTTPS server/,/^}$/d' /etc/nginx/nginx.conf.tmp
+  # Создаем конфиг для localhost (без SSL)
+  # Сначала копируем начало шаблона (events, http начало, upstream)
+  head -n 37 /etc/nginx/templates-custom/nginx.conf.template > /etc/nginx/nginx.conf.tmp
   
-  # Добавляем проксирование на Django в HTTP блок
+  # Затем добавляем HTTP-only server блок (без редиректа на HTTPS)
   cat >> /etc/nginx/nginx.conf.tmp << 'EOF'
 
 # HTTP server (no SSL for localhost)
@@ -102,14 +98,15 @@ server {
         proxy_read_timeout 60s;
     }
 }
+}
 EOF
   
-  # Заменяем DOMAIN_NAME в новом блоке
+  # Заменяем DOMAIN_NAME в конфиге
   envsubst '${DOMAIN_NAME}' < /etc/nginx/nginx.conf.tmp > /etc/nginx/nginx.conf
   rm -f /etc/nginx/nginx.conf.tmp
 else
-  # Для реальных доменов используем стандартный конфиг
-  mv /etc/nginx/nginx.conf.tmp /etc/nginx/nginx.conf
+  # Для реальных доменов используем стандартный конфиг из шаблона
+  envsubst '${DOMAIN_NAME}' < /etc/nginx/templates-custom/nginx.conf.template > /etc/nginx/nginx.conf
   
   # Ожидаем сертификаты для реальных доменов
   if [ -n "${DOMAIN_NAME}" ] && [ "$IS_LOCAL" = "false" ]; then
