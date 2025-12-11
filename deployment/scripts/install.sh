@@ -505,8 +505,9 @@ if [ "$INSTALL_MODE" = "1" ]; then
                 cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template"
                 echo "✓ Copied nginx.conf.template"
             fi
-            cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/nginx-entrypoint.sh"
-            chmod +x "$PRODUCTION_DIR/nginx-entrypoint.sh"
+            mkdir -p "$PRODUCTION_DIR/deployment"
+            cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+            chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
         else
             # Local Network or Localhost: use compose file without nginx
             cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
@@ -514,7 +515,7 @@ if [ "$INSTALL_MODE" = "1" ]; then
         
         if [ "$INSTALL_TYPE" = "1" ]; then
             echo "✓ Copied docker-compose.yml (with nginx)"
-            echo "✓ Copied nginx-entrypoint.sh"
+            echo "✓ Copied nginx entrypoint script"
         else
             echo "✓ Copied docker-compose.yml (without nginx)"
         fi

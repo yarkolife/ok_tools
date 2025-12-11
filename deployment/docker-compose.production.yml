@@ -74,7 +74,7 @@ services:
       - ./data/media:/var/www/media:ro
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-      - ./deployment/nginx-entrypoint.sh:/docker-entrypoint.d/nginx-entrypoint.sh:ro
+      - ./deployment/99-custom-nginx-config.sh:/docker-entrypoint.d/99-custom-nginx-config.sh:ro
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     depends_on:

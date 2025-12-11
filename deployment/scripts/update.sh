@@ -778,8 +778,8 @@ if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAM
     INSTALL_TYPE="1"
     copy_as_new_if_changed "deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml" "docker-compose.yml"
     copy_as_new_if_changed "deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template" "nginx.conf.template"
-    cp -f deployment/nginx-entrypoint.sh "$PRODUCTION_DIR/"
-    chmod +x "$PRODUCTION_DIR/nginx-entrypoint.sh"
+    cp -f "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+    chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
 else
     # Check if it's Local Network or Localhost
     if grep -q "127.0.0.1" "$PRODUCTION_DIR/.env" && grep -q "localhost" "$PRODUCTION_DIR/.env"; then
