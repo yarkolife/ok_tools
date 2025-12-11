@@ -2,7 +2,7 @@
 set -e
 
 # Рендерим полный конфиг в /etc/nginx/nginx.conf (перезаписывает базовый конфиг)
-envsubst '${DOMAIN_NAME}' < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf
+envsubst '${DOMAIN_NAME}' < /etc/nginx/templates-custom/nginx.conf.template > /etc/nginx/nginx.conf
 
 # Убираем файлы из conf.d, так как мы используем полный конфиг
 rm -f /etc/nginx/conf.d/default.conf || true
