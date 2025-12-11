@@ -70,6 +70,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+      - ./nginx-conf.d:/etc/nginx/conf.d
       - ./data/static:/var/www/static:ro
       - ./data/media:/var/www/media:ro
       - ./certbot/conf:/etc/letsencrypt
@@ -90,7 +91,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait ${!}; done;'"
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     depends_on:
       - web
 

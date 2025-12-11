@@ -107,6 +107,41 @@ escape_for_sed() {
     echo "$1" | sed -e 's/[]\/$*.^[]/\\&/g'
 }
 
+# Copy helper: keep existing file, write new version to .new unless forced
+copy_as_new_if_changed() {
+    local src="$1"
+    local dest="$2"
+    local label="$3"
+    local force="${FORCE_OVERWRITE:-0}"
+
+    if [ ! -f "$src" ]; then
+        print_warning "Source file not found: $src"
+        return 1
+    fi
+
+    if [ "$force" = "1" ]; then
+        cp -f "$src" "$dest"
+        print_info "$label overwritten (FORCE_OVERWRITE=1)"
+        return 0
+    fi
+
+    if [ ! -f "$dest" ]; then
+        cp "$src" "$dest"
+        print_success "$label copied"
+        return 0
+    fi
+
+    if cmp -s "$src" "$dest"; then
+        print_info "$label unchanged"
+        return 0
+    fi
+
+    local new_path="${dest}.new"
+    cp "$src" "$new_path"
+    print_warning "$label differs; kept existing, new saved as $(basename "$new_path")"
+    return 0
+}
+
 # Function to validate .env file (from install.sh)
 validate_env_file() {
     local env_file="$1"
@@ -741,8 +776,9 @@ INSTALL_TYPE=""
 if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAME=' "$PRODUCTION_DIR/.env" | cut -d'=' -f2)" ]; then
     print_info "Detected: Production with Nginx and SSL"
     INSTALL_TYPE="1"
-    cp -f deployment/docker-compose.production.yml "$PRODUCTION_DIR/docker-compose.yml"
-    cp -f deployment/nginx.conf.template "$PRODUCTION_DIR/"
+    mkdir -p "$PRODUCTION_DIR/nginx-conf.d"
+    copy_as_new_if_changed "deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml" "docker-compose.yml"
+    copy_as_new_if_changed "deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template" "nginx.conf.template"
     cp -f deployment/nginx-entrypoint.sh "$PRODUCTION_DIR/"
     chmod +x "$PRODUCTION_DIR/nginx-entrypoint.sh"
 else
@@ -754,7 +790,7 @@ else
         print_info "Detected: Local Network (LAN access, no domain or SSL)"
         INSTALL_TYPE="2"
     fi
-    cp -f deployment/docker-compose.production.no-nginx.yml "$PRODUCTION_DIR/docker-compose.yml"
+    copy_as_new_if_changed "deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml" "docker-compose.yml"
 fi
 
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"

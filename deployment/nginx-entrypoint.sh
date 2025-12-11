@@ -1,15 +1,21 @@
 #!/bin/sh
 set -e
 
-# Заменяем переменную в шаблоне и создаем конечный конфиг
-envsubst '${DOMAIN_NAME}' < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf
+# Рендерим конфиг сразу в /etc/nginx/conf.d (обходит default.conf из образа)
+envsubst '${DOMAIN_NAME}' < /etc/nginx/templates/nginx.conf.template > /etc/nginx/conf.d/nginx.conf
 
-# Ожидаем, пока Certbot создаст сертификаты
-until [ -f /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem ]; do
-  echo "Waiting for Certbot to create certificates for ${DOMAIN_NAME}..."
-  sleep 5
-done
+# Убираем дефолтный сервер, чтобы не перекрывал наш
+rm -f /etc/nginx/conf.d/default.conf || true
 
-echo "Certificates found. Starting Nginx..."
-# Запускаем Nginx в фоновом режиме
+# Ожидаем сертификаты, если домен указан
+if [ -n "${DOMAIN_NAME}" ]; then
+  until [ -f /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem ]; do
+    echo "Waiting for Certbot to create certificates for ${DOMAIN_NAME}..."
+    sleep 5
+  done
+  echo "Certificates found. Starting Nginx..."
+else
+  echo "DOMAIN_NAME is empty; skipping cert wait, starting Nginx..."
+fi
+
 nginx -g 'daemon off;'

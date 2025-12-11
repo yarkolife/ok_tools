@@ -22,9 +22,7 @@ RUN apt-get update && apt-get install -y \
     libtiff5-dev \
     libwebp-dev \
     ffmpeg \
-    libmediainfo0v5 \
     libmediainfo-dev \
-    libzen0v5 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create symlinks for ffprobe and ffmpeg tools

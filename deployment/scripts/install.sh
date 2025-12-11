@@ -443,6 +443,13 @@ if [ "$INSTALL_MODE" = "1" ]; then
         # Prompt for secrets and create .env file directly
         ENV_FILE="$PRODUCTION_DIR/.env"
         prompt_secrets "$TEMPLATE_FILE" "$ENV_FILE"
+        if [ "$INSTALL_TYPE" = "1" ] && ! grep -q "^DOMAIN_NAME=" "$ENV_FILE"; then
+            ALLOWED_VAL=$(grep '^ALLOWED_HOSTS=' "$ENV_FILE" | cut -d'=' -f2-)
+            DOMAIN_CANDIDATE=$(echo "$ALLOWED_VAL" | tr ',' '\n' | grep -v -E '^(localhost|127\\.0\\.0\\.1)$' | head -1)
+            DOMAIN_CANDIDATE=${DOMAIN_CANDIDATE:-localhost}
+            echo "DOMAIN_NAME=$DOMAIN_CANDIDATE" >> "$ENV_FILE"
+            echo "✓ Added DOMAIN_NAME=$DOMAIN_CANDIDATE to .env"
+        fi
         chmod 600 "$ENV_FILE"
         # Set ownership if not root
         if [ "$(id -u)" -ne 0 ]; then
@@ -489,8 +496,16 @@ if [ "$INSTALL_MODE" = "1" ]; then
         echo "Copying deployment files..."
         if [ "$INSTALL_TYPE" = "1" ]; then
             # Production: use nginx-enabled compose file and copy nginx files
+            mkdir -p "$PRODUCTION_DIR/nginx-conf.d"
             cp "$PROJECT_DIR/deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml"
-            cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template"
+            if [ -f "$PRODUCTION_DIR/nginx.conf.template" ]; then
+                TS=$(date +%Y%m%d-%H%M%S)
+                cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template.new.$TS"
+                echo "⚠️  Existing nginx.conf.template kept, new version saved as nginx.conf.template.new.$TS"
+            else
+                cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template"
+                echo "✓ Copied nginx.conf.template"
+            fi
             cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/nginx-entrypoint.sh"
             chmod +x "$PRODUCTION_DIR/nginx-entrypoint.sh"
         else
@@ -500,7 +515,6 @@ if [ "$INSTALL_MODE" = "1" ]; then
         
         if [ "$INSTALL_TYPE" = "1" ]; then
             echo "✓ Copied docker-compose.yml (with nginx)"
-            echo "✓ Copied nginx.conf.template"
             echo "✓ Copied nginx-entrypoint.sh"
         else
             echo "✓ Copied docker-compose.yml (without nginx)"
@@ -801,6 +815,13 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "CELERY_BEAT_SYNC_VIDEOS=0 5 * * *" >> "$ENV_FILE"
     echo "CELERY_BEAT_UPDATE_METADATA=0 1 1 * *" >> "$ENV_FILE"
 
+        if [ "$INSTALL_TYPE" = "1" ] && ! grep -q "^DOMAIN_NAME=" "$ENV_FILE"; then
+            ALLOWED_VAL=$(grep '^ALLOWED_HOSTS=' "$ENV_FILE" | cut -d'=' -f2-)
+            DOMAIN_CANDIDATE=$(echo "$ALLOWED_VAL" | tr ',' '\n' | grep -v -E '^(localhost|127\\.0\\.0\\.1)$' | head -1)
+            DOMAIN_CANDIDATE=${DOMAIN_CANDIDATE:-localhost}
+            echo "DOMAIN_NAME=$DOMAIN_CANDIDATE" >> "$ENV_FILE"
+            echo "✓ Added DOMAIN_NAME=$DOMAIN_CANDIDATE to .env"
+        fi
         chmod 600 "$ENV_FILE"
         # Set ownership if not root
         if [ "$(id -u)" -ne 0 ]; then
@@ -846,12 +867,19 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "Copying deployment files..."
     if [ "$INSTALL_TYPE" = "1" ]; then
         # Production: use nginx-enabled compose file and copy nginx files
+        mkdir -p "$PRODUCTION_DIR/nginx-conf.d"
         cp "$PROJECT_DIR/deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml"
-        cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template"
+        if [ -f "$PRODUCTION_DIR/nginx.conf.template" ]; then
+            TS=$(date +%Y%m%d-%H%M%S)
+            cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template.new.$TS"
+            echo "⚠️  Existing nginx.conf.template kept, new version saved as nginx.conf.template.new.$TS"
+        else
+            cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template"
+            echo "✓ Copied nginx.conf.template"
+        fi
         cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/nginx-entrypoint.sh"
         chmod +x "$PRODUCTION_DIR/nginx-entrypoint.sh"
         echo "✓ Copied docker-compose.yml (with nginx)"
-        echo "✓ Copied nginx.conf.template"
         echo "✓ Copied nginx-entrypoint.sh"
     else
         # Local Network or Localhost: use compose file without nginx
