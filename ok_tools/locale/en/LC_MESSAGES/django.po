@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-24 19:27+0100\n"
+"POT-Creation-Date: 2025-12-12 02:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,141 +17,141 @@ msgstr ""
 msgid "Broadcast date"
 msgstr ""
 
-#: contributions/admin.py:55 contributions/admin.py:363
-#: contributions/templates/admin/export.html:32 licenses/admin.py:244
+#: contributions/admin.py:55 contributions/admin.py:450
+#: contributions/templates/admin/export.html:32 licenses/admin.py:245
 #: licenses/templates/admin/filter_datetime_range.html:18 projects/admin.py:49
 msgid "Date from"
 msgstr ""
 
-#: contributions/admin.py:57 contributions/admin.py:62 licenses/admin.py:246
-#: licenses/admin.py:251 licenses/forms.py:148 projects/admin.py:51
+#: contributions/admin.py:57 contributions/admin.py:62 licenses/admin.py:247
+#: licenses/admin.py:252 licenses/forms.py:160 projects/admin.py:51
 #: projects/admin.py:56 rental/templates/rental/admin_rental_process.html:62
 #: rental/templates/rental/admin_rental_process.html:385
 msgid "From"
 msgstr ""
 
-#: contributions/admin.py:60 licenses/admin.py:249
+#: contributions/admin.py:60 licenses/admin.py:250
 #: licenses/templates/admin/filter_datetime_range.html:27 projects/admin.py:54
 msgid "Time from"
 msgstr ""
 
-#: contributions/admin.py:65 contributions/admin.py:368
-#: contributions/templates/admin/export.html:37 licenses/admin.py:254
+#: contributions/admin.py:65 contributions/admin.py:455
+#: contributions/templates/admin/export.html:37 licenses/admin.py:255
 #: licenses/templates/admin/filter_datetime_range.html:36 projects/admin.py:59
 msgid "Date to"
 msgstr ""
 
-#: contributions/admin.py:67 contributions/admin.py:72 licenses/admin.py:256
-#: licenses/admin.py:261 licenses/forms.py:152 projects/admin.py:61
+#: contributions/admin.py:67 contributions/admin.py:72 licenses/admin.py:257
+#: licenses/admin.py:262 licenses/forms.py:164 projects/admin.py:61
 #: projects/admin.py:66 rental/templates/rental/admin_rental_process.html:63
 #: rental/templates/rental/admin_rental_process.html:389
 msgid "To"
 msgstr ""
 
-#: contributions/admin.py:70 licenses/admin.py:259
+#: contributions/admin.py:70 licenses/admin.py:260
 #: licenses/templates/admin/filter_datetime_range.html:45 projects/admin.py:64
 msgid "Time to"
 msgstr ""
 
-#: contributions/admin.py:139
+#: contributions/admin.py:137
 msgid "Info block"
 msgstr ""
 
-#: contributions/admin.py:214 contributions/admin.py:330
+#: contributions/admin.py:223 contributions/admin.py:417
 #: contributions/models.py:90
 #: contributions/templates/contributions/list.html:155
 msgid "Broadcast Date"
 msgstr ""
 
-#: contributions/admin.py:215
+#: contributions/admin.py:224
 #: rental/templates/rental/admin_rental_process.html:490
 #: rental/templates/rental/rental_detail.html:610
 msgid "Start Time"
 msgstr ""
 
-#: contributions/admin.py:216
+#: contributions/admin.py:225
 #: rental/templates/rental/admin_rental_process.html:523
 #: rental/templates/rental/rental_detail.html:643
 msgid "End Time"
 msgstr ""
 
-#: contributions/admin.py:217 contributions/admin.py:328
-#: contributions/admin.py:509 contributions/admin.py:797
-#: contributions/templates/contributions/list.html:154 licenses/admin.py:331
+#: contributions/admin.py:226 contributions/admin.py:415
+#: contributions/admin.py:596 contributions/admin.py:884
+#: contributions/templates/contributions/list.html:154 licenses/admin.py:332
 #: licenses/models.py:74
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:27
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:42
-#: licenses/templates/licenses/list.html:68 projects/admin.py:171
+#: licenses/templates/licenses/list.html:71 projects/admin.py:171
 #: registration/models.py:276
 msgid "Title"
 msgstr ""
 
-#: contributions/admin.py:218 contributions/admin.py:329
-#: contributions/admin.py:510 contributions/admin.py:802 licenses/admin.py:332
+#: contributions/admin.py:227 contributions/admin.py:416
+#: contributions/admin.py:597 contributions/admin.py:889 licenses/admin.py:333
 #: licenses/models.py:81
 msgid "Subtitle"
 msgstr ""
 
-#: contributions/admin.py:219 inventory/admin.py:29 inventory/models.py:31
+#: contributions/admin.py:228 inventory/admin.py:29 inventory/models.py:31
 #: inventory/models.py:48 inventory/models.py:64 inventory/models.py:191
-#: licenses/admin.py:333 licenses/models.py:88 projects/admin.py:173
-#: projects/models.py:143 rental/admin.py:331 rental/models.py:275
-#: rental/models.py:476 rental/models.py:524 rental/models.py:751
+#: licenses/admin.py:334 licenses/models.py:88 projects/admin.py:173
+#: projects/models.py:143 rental/admin.py:332 rental/models.py:275
+#: rental/models.py:476 rental/models.py:524 rental/models.py:757
 #: rental/templates/rental/rental_stats.html:1172
 #: rental/templates/rental/rental_stats.html:1221
 #: rental/templates/rental/rental_stats.html:1331
 msgid "Description"
 msgstr ""
 
-#: contributions/admin.py:220
+#: contributions/admin.py:229
 msgid "Credits"
 msgstr ""
 
-#: contributions/admin.py:222
+#: contributions/admin.py:231
 #: contributions/templates/contributions/list.html:157 inventory/admin.py:32
 #: inventory/admin.py:103 inventory/models.py:69 inventory/models.py:212
-#: inventory/templates/inventory/list.html:68 licenses/admin.py:338
-#: licenses/admin.py:934 licenses/models.py:47 licenses/models.py:61
-#: licenses/models.py:193 licenses/templates/licenses/details.html:19
-#: licenses/templates/licenses/list.html:33
-#: licenses/templates/licenses/list.html:69
+#: inventory/templates/inventory/list.html:68 licenses/admin.py:339
+#: licenses/admin.py:971 licenses/models.py:47 licenses/models.py:61
+#: licenses/models.py:199 licenses/templates/licenses/details.html:19
+#: licenses/templates/licenses/list.html:36
+#: licenses/templates/licenses/list.html:72
 #: rental/templates/rental/rental_stats.html:1175
 msgid "Category"
 msgstr ""
 
-#: contributions/admin.py:223 contributions/admin.py:384
-#: contributions/templates/admin/export.html:59 licenses/admin.py:349
+#: contributions/admin.py:232 contributions/admin.py:471
+#: contributions/templates/admin/export.html:59 licenses/admin.py:350
 #: licenses/models.py:146
 msgid "Store in OK media library"
 msgstr ""
 
-#: contributions/admin.py:224 contributions/admin.py:813 licenses/admin.py:330
-#: licenses/models.py:174 media_files/models.py:90
+#: contributions/admin.py:233 contributions/admin.py:900 licenses/admin.py:331
+#: licenses/models.py:180 media_files/models.py:90
 #: media_files/templates/admin/media_files/videofile/change_form.html:71
 #: media_files/templates/admin/media_files/videofile/change_list.html:77
 #: media_files/templates/admin/video_player.html:24
 msgid "Number"
 msgstr ""
 
-#: contributions/admin.py:263
+#: contributions/admin.py:292
 msgid "A contribution by {}"
 msgstr ""
 
-#: contributions/admin.py:275
+#: contributions/admin.py:362
 msgid "Program"
 msgstr ""
 
-#: contributions/admin.py:327 contributions/admin.py:508
+#: contributions/admin.py:414 contributions/admin.py:595
 msgid "License number"
 msgstr ""
 
-#: contributions/admin.py:331
+#: contributions/admin.py:418
 msgid "Broadcast Time"
 msgstr ""
 
-#: contributions/admin.py:332 contributions/admin.py:511
-#: contributions/admin.py:739 licenses/admin.py:334 licenses/admin.py:928
-#: licenses/models.py:184
+#: contributions/admin.py:419 contributions/admin.py:598
+#: contributions/admin.py:826 licenses/admin.py:335 licenses/admin.py:965
+#: licenses/admin.py:1607 licenses/models.py:190
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:31
 #: registration/models.py:244 registration/templates/navbar.html:74
 #: ok_tools/templates/base.html:43 ok_tools/templates/base.html:123
@@ -159,40 +159,39 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
-#: contributions/admin.py:333 licenses/admin.py:335
+#: contributions/admin.py:420 licenses/admin.py:336
 msgid "Profile ID"
 msgstr ""
 
-#: contributions/admin.py:334
-#: contributions/templates/contributions/list.html:156 licenses/admin.py:337
+#: contributions/admin.py:421
+#: contributions/templates/contributions/list.html:156 licenses/admin.py:338
 #: licenses/models.py:99 media_files/admin.py:761 media_files/models.py:116
 #: media_files/templates/admin/media_files/videofile/change_form.html:73
 #: media_files/templates/admin/media_files/videofile/change_list.html:79
 #: media_files/templates/admin/video_player.html:26 projects/admin.py:175
 #: projects/models.py:155
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1868
 msgid "Duration"
 msgstr ""
 
-#: contributions/admin.py:335
+#: contributions/admin.py:422
 #: contributions/templates/contributions/list.html:106
 #: contributions/templates/contributions/list.html:184 ok_tools/views.py:191
 msgid "Live"
 msgstr ""
 
-#: contributions/admin.py:354
+#: contributions/admin.py:441
 msgid "Data export"
 msgstr ""
 
-#: contributions/admin.py:373 contributions/admin.py:746
-#: contributions/templates/admin/export.html:42 licenses/admin.py:933
+#: contributions/admin.py:460 contributions/admin.py:833
+#: contributions/templates/admin/export.html:42 licenses/admin.py:970
 #: registration/admin.py:93 registration/models.py:80 registration/models.py:99
 #: registration/models.py:200
 msgid "Media Authority"
 msgstr ""
 
-#: contributions/admin.py:376 contributions/admin.py:380
-#: contributions/admin.py:385 contributions/admin.py:390
+#: contributions/admin.py:463 contributions/admin.py:467
+#: contributions/admin.py:472 contributions/admin.py:477
 #: contributions/templates/admin/export.html:44
 #: contributions/templates/admin/export.html:53
 #: contributions/templates/admin/export.html:61
@@ -200,125 +199,125 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: contributions/admin.py:379 contributions/templates/admin/export.html:51
-#: licenses/admin.py:445 registration/models.py:211
+#: contributions/admin.py:466 contributions/templates/admin/export.html:51
+#: licenses/admin.py:446 registration/models.py:211
 msgid "Global Producer"
 msgstr ""
 
-#: contributions/admin.py:380 contributions/admin.py:385
-#: contributions/admin.py:390 contributions/admin.py:596
+#: contributions/admin.py:467 contributions/admin.py:472
+#: contributions/admin.py:477 contributions/admin.py:683
 #: contributions/templates/admin/export.html:54
 #: contributions/templates/admin/export.html:62
 #: contributions/templates/admin/export.html:70 inventory/models.py:581
-#: inventory/models.py:582 licenses/admin.py:419 licenses/admin.py:451
-#: licenses/admin.py:856 licenses/templates/licenses/details.html:30
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:867
+#: inventory/models.py:582 licenses/admin.py:420 licenses/admin.py:452
+#: licenses/admin.py:878 licenses/templates/licenses/details.html:30
 msgid "Yes"
 msgstr ""
 
-#: contributions/admin.py:380 contributions/admin.py:385
-#: contributions/admin.py:390 contributions/admin.py:597
+#: contributions/admin.py:467 contributions/admin.py:472
+#: contributions/admin.py:477 contributions/admin.py:684
 #: contributions/templates/admin/export.html:55
 #: contributions/templates/admin/export.html:63
 #: contributions/templates/admin/export.html:71 inventory/models.py:581
-#: inventory/models.py:582 licenses/admin.py:420 licenses/admin.py:452
-#: licenses/admin.py:861 licenses/templates/licenses/details.html:33
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:868
+#: inventory/models.py:582 licenses/admin.py:421 licenses/admin.py:453
+#: licenses/admin.py:883 licenses/templates/licenses/details.html:33
 msgid "No"
 msgstr ""
 
-#: contributions/admin.py:389 contributions/templates/admin/export.html:67
-#: licenses/admin.py:467
+#: contributions/admin.py:476 contributions/templates/admin/export.html:67
+#: licenses/admin.py:468
 msgid "Has video"
 msgstr ""
 
-#: contributions/admin.py:512
+#: contributions/admin.py:599
 msgid "Broadcast date and time"
 msgstr ""
 
-#: contributions/admin.py:513
+#: contributions/admin.py:600
 msgid "Video path (Windows)"
 msgstr ""
 
-#: contributions/admin.py:539
+#: contributions/admin.py:626
 msgid "Mediathek import"
 msgstr ""
 
-#: contributions/admin.py:547
+#: contributions/admin.py:634
 msgid "Broadcast week"
 msgstr ""
 
-#: contributions/admin.py:553
+#: contributions/admin.py:640
 msgid "In this week"
 msgstr ""
 
-#: contributions/admin.py:554
+#: contributions/admin.py:641
 msgid "Until next week"
 msgstr ""
 
-#: contributions/admin.py:555
+#: contributions/admin.py:642
 msgid "Until week after next"
 msgstr ""
 
-#: contributions/admin.py:590
+#: contributions/admin.py:677
 msgid "Primary Contribution"
 msgstr ""
 
-#: contributions/admin.py:621
+#: contributions/admin.py:708
 msgid "Broadcast year"
 msgstr ""
 
-#: contributions/admin.py:627 licenses/admin.py:389 projects/admin.py:219
+#: contributions/admin.py:714 licenses/admin.py:390 projects/admin.py:219
 #: registration/admin.py:162
 msgid "This year"
 msgstr ""
 
-#: contributions/admin.py:628 licenses/admin.py:390 projects/admin.py:220
+#: contributions/admin.py:715 licenses/admin.py:391 projects/admin.py:220
 #: registration/admin.py:163
 msgid "Last year"
 msgstr ""
 
-#: contributions/admin.py:688
+#: contributions/admin.py:775
 msgid "Date from and Date to are required for Mediathek export."
 msgstr ""
 
-#: contributions/admin.py:736
+#: contributions/admin.py:823
 msgid "Title, Subtitle, Number"
 msgstr ""
 
-#: contributions/admin.py:740 contributions/models.py:84 licenses/admin.py:751
-#: licenses/models.py:288 media_files/admin.py:805 media_files/models.py:137
+#: contributions/admin.py:827 contributions/models.py:84 licenses/admin.py:753
+#: licenses/models.py:319 licenses/models.py:330
+#: licenses/templates/licenses/list.html:261 media_files/admin.py:805
+#: media_files/models.py:137
 msgid "License"
 msgstr ""
 
-#: contributions/admin.py:750
+#: contributions/admin.py:837
 msgid "Broadcast Information"
 msgstr ""
 
-#: contributions/admin.py:753
+#: contributions/admin.py:840
 msgid "Contribution Status"
 msgstr ""
 
-#: contributions/admin.py:756
+#: contributions/admin.py:843
 msgid "Automatically determined based on broadcast date."
 msgstr ""
 
-#: contributions/admin.py:791
+#: contributions/admin.py:878
 msgid "Is primary"
 msgstr ""
 
-#: contributions/admin.py:807 inventory/models.py:527 registration/models.py:67
+#: contributions/admin.py:894 inventory/models.py:527 registration/models.py:67
 #: registration/models.py:140 rental/admin.py:238 rental/models.py:14
 #: rental/templates/rental/rental_stats.html:1101 rental/views.py:329
 #: ok_tools/templates/rental_dashboard.html:43
 msgid "User"
 msgstr ""
 
-#: contributions/admin.py:835
+#: contributions/admin.py:924
 msgid "Import selected DISA exports."
 msgstr ""
 
-#: contributions/admin.py:857
+#: contributions/admin.py:954
 #, python-format
 msgid "\"%(obj)s\" successfully imported."
 msgstr ""
@@ -329,47 +328,47 @@ msgstr ""
 msgid "Contributions"
 msgstr ""
 
-#: contributions/disa_import.py:57
+#: contributions/disa_import.py:190
 #, python-format
 msgid "The worksheet needs to be named \"%(name)s\"."
 msgstr ""
 
-#: contributions/disa_import.py:65 contributions/disa_import.py:72
-#: contributions/disa_import.py:79 contributions/disa_import.py:86
-#: contributions/disa_import.py:93
+#: contributions/disa_import.py:198 contributions/disa_import.py:205
+#: contributions/disa_import.py:212 contributions/disa_import.py:219
+#: contributions/disa_import.py:226
 #, python-format
 msgid "Column %(nr)s needs to be named %(name)s"
 msgstr ""
 
-#: contributions/disa_import.py:103
+#: contributions/disa_import.py:236
 #, python-format
 msgid "Invalid title in cell %(c)s%(r)s. Title needs the format <nr>_<title>."
 msgstr ""
 
-#: contributions/disa_import.py:244
+#: contributions/disa_import.py:397
 #, python-format
 msgid "No license with number %(n)s found."
 msgstr ""
 
-#: contributions/disa_import.py:261
+#: contributions/disa_import.py:415
 #, python-format
 msgid ""
 "No repetitions for number %(n)s allowed and already found a primary "
 "contribution."
 msgstr ""
 
-#: contributions/disa_import.py:356
+#: contributions/disa_import.py:516
 msgid "No valid data found in file."
 msgstr ""
 
-#: contributions/disa_import.py:378
+#: contributions/disa_import.py:538
 #, python-format
 msgid ""
 "Successfully processed %(total)d rows, created %(created)d contributions, "
 "%(errors)d errors."
 msgstr ""
 
-#: contributions/disa_import.py:387
+#: contributions/disa_import.py:547
 #, python-format
 msgid "Error during import: %(error)s"
 msgstr ""
@@ -382,32 +381,62 @@ msgstr ""
 msgid "Contribution"
 msgstr ""
 
-#: contributions/models.py:135
+#: contributions/models.py:136
 msgid "DISA export file"
 msgstr ""
 
-#: contributions/models.py:145 inventory/models.py:355 inventory/models.py:735
+#: contributions/models.py:146
+#: contributions/templates/admin/disa_import_change_form.html:77
+msgid "Import from date"
+msgstr ""
+
+#: contributions/models.py:149
+msgid "Only import contributions from this date onwards."
+msgstr ""
+
+#: contributions/models.py:153 inventory/models.py:355 inventory/models.py:735
 msgid "Imported"
 msgstr ""
 
-#: contributions/models.py:149 inventory/models.py:357 inventory/models.py:737
+#: contributions/models.py:157 inventory/models.py:357 inventory/models.py:737
 msgid "Just marking the file as imported does not import the file!"
 msgstr ""
 
-#: contributions/models.py:165
+#: contributions/models.py:173
 msgid "DISA-Import"
 msgstr ""
 
-#: contributions/models.py:166
+#: contributions/models.py:174
 msgid "DISA-Imports"
 msgstr ""
 
-#: contributions/templates/admin/disa_import_change_form.html:8
-#: inventory/templates/admin/inspection_import_change_form.html:7
-#: inventory/templates/admin/inventory_import_change_form.html:7
-#: inventory/templates/inventory/list.html:16
-#: licenses/templates/admin/licenses/import_json.html:38
-msgid "Import"
+#: contributions/templates/admin/disa_import_change_form.html:79
+#: contributions/templates/admin/disa_import_change_form.html:137
+#, fuzzy
+#| msgid "All items"
+msgid "All dates"
+msgstr "All items"
+
+#: contributions/templates/admin/disa_import_change_form.html:82
+msgid "Loading dates..."
+msgstr ""
+
+#: contributions/templates/admin/disa_import_change_form.html:87
+#: licenses/forms.py:120 licenses/templates/licenses/update.html:126
+msgid "Save"
+msgstr ""
+
+#: contributions/templates/admin/disa_import_change_form.html:88
+msgid "Save and Import"
+msgstr ""
+
+#: contributions/templates/admin/disa_import_change_form.html:149
+msgid "dates available"
+msgstr ""
+
+#: contributions/templates/admin/disa_import_change_form.html:181
+#: contributions/templates/admin/disa_import_change_form.html:210
+msgid "Error loading dates"
 msgstr ""
 
 #: contributions/templates/admin/export.html:7
@@ -484,9 +513,10 @@ msgstr ""
 #: inventory/admin.py:271 inventory/admin.py:378 inventory/models.py:227
 #: inventory/models.py:573 inventory/templates/inventory/list.html:78
 #: inventory/templates/inventory/list.html:160
-#: inventory/tests/test_models.py:353 licenses/templates/licenses/list.html:25
-#: licenses/templates/licenses/list.html:70 media_files/models.py:452
-#: rental/admin.py:371 rental/models.py:58 rental/templates/rental/list.html:65
+#: inventory/tests/test_models.py:353 licenses/admin.py:1577
+#: licenses/templates/licenses/list.html:28
+#: licenses/templates/licenses/list.html:73 media_files/models.py:452
+#: rental/admin.py:372 rental/models.py:58 rental/templates/rental/list.html:65
 #: rental/templates/rental/list.html:115
 #: rental/templates/rental/rental_detail.html:511
 #: rental/templates/rental/rental_stats.html:1102
@@ -498,7 +528,7 @@ msgstr ""
 
 #: contributions/templates/contributions/list.html:159
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:45
-#: licenses/templates/licenses/list.html:73
+#: licenses/templates/licenses/list.html:76
 #: rental/templates/rental/list.html:116
 #: rental/templates/rental/rental_detail.html:260
 #: rental/templates/rental/rental_stats.html:1225
@@ -536,7 +566,7 @@ msgstr ""
 
 #: inventory/admin.py:34 inventory/models.py:221 inventory/models.py:572
 #: inventory/tests/test_models.py:352 rental/models.py:344 rental/models.py:399
-#: rental/models.py:798 rental/templates/rental/rental_detail.html:402
+#: rental/models.py:804 rental/templates/rental/rental_detail.html:402
 #: rental/templates/rental/rental_stats.html:1360
 msgid "Quantity"
 msgstr ""
@@ -952,7 +982,7 @@ msgstr ""
 msgid "Rented Quantity"
 msgstr ""
 
-#: inventory/models.py:288 inventory/models.py:667 rental/models.py:793
+#: inventory/models.py:288 inventory/models.py:667 rental/models.py:799
 msgid "Inventory Item"
 msgstr ""
 
@@ -965,9 +995,9 @@ msgid "Not specified"
 msgstr ""
 
 #: inventory/models.py:324 inventory/models.py:411 inventory/models.py:704
-#: licenses/templates/licenses/list.html:29
-#: licenses/templates/licenses/list.html:99
-#: licenses/templates/licenses/list.html:224
+#: licenses/templates/licenses/list.html:32
+#: licenses/templates/licenses/list.html:102
+#: licenses/templates/licenses/list.html:520
 #: rental/templates/rental/list.html:174
 #: rental/templates/rental/rental_detail.html:380 ok_tools/views.py:160
 msgid "Pending"
@@ -1063,7 +1093,7 @@ msgstr ""
 
 #: inventory/models.py:499
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:44
-#: licenses/templates/licenses/list.html:72 media_files/admin.py:364
+#: licenses/templates/licenses/list.html:75 media_files/admin.py:364
 #: media_files/admin.py:949 rental/templates/rental/rental_stats.html:1103
 #: rental/templates/rental/rental_stats.html:1224
 msgid "Created"
@@ -1172,6 +1202,13 @@ msgstr ""
 msgid "The data export will include all inventory items."
 msgstr ""
 
+#: inventory/templates/admin/inspection_import_change_form.html:7
+#: inventory/templates/admin/inventory_import_change_form.html:7
+#: inventory/templates/inventory/list.html:16
+#: licenses/templates/admin/licenses/import_json.html:38
+msgid "Import"
+msgstr ""
+
 #: inventory/templates/inventory/list.html:12
 msgid "Manage your equipment and inventory items"
 msgstr ""
@@ -1186,11 +1223,11 @@ msgstr ""
 
 #: inventory/templates/inventory/list.html:41
 #: inventory/templates/inventory/list.html:81
-#: inventory/templates/inventory/list.html:162 licenses/admin.py:473
-#: licenses/admin.py:731 licenses/admin.py:823 media_files/models.py:126
+#: inventory/templates/inventory/list.html:162 licenses/admin.py:474
+#: licenses/admin.py:733 licenses/admin.py:845 media_files/models.py:126
 #: rental/templates/rental/rental_stats.html:972
-#: rental/templates/rental/rental_stats.html:1157 rental/views.py:857
-#: rental/views.py:3002
+#: rental/templates/rental/rental_stats.html:1157 rental/views.py:916
+#: rental/views.py:3081
 msgid "Available"
 msgstr ""
 
@@ -1262,7 +1299,7 @@ msgstr ""
 #: inventory/templates/inventory/list.html:97
 #: licenses/templates/admin/filter_datetime_range.html:63
 #: licenses/templates/admin/filter_numeric_range.html:83
-#: licenses/templates/licenses/list.html:50
+#: licenses/templates/licenses/list.html:53
 #: rental/templates/rental/list.html:93
 msgid "Search"
 msgstr ""
@@ -1273,7 +1310,7 @@ msgid "Search items..."
 msgstr ""
 
 #: inventory/templates/inventory/list.html:103
-#: licenses/templates/licenses/list.html:56
+#: licenses/templates/licenses/list.html:59
 #: rental/templates/rental/list.html:99
 msgid "Clear Filters"
 msgstr ""
@@ -1284,18 +1321,16 @@ msgstr ""
 
 #: inventory/templates/inventory/list.html:127
 #: licenses/templates/licenses/details.html:45
-#: licenses/templates/licenses/list.html:119
+#: licenses/templates/licenses/list.html:122
 msgid "Edit"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:131
-#: licenses/templates/licenses/list.html:131 media_files/models.py:399
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:499
+#: licenses/templates/licenses/list.html:148 media_files/models.py:399
 msgid "Delete"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:168
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:866
 msgid "Unknown"
 msgstr ""
 
@@ -1324,37 +1359,37 @@ msgid "Inventory pagination"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:218
-#: licenses/templates/licenses/list.html:167
+#: licenses/templates/licenses/list.html:184
 #: rental/templates/rental/list.html:218
 msgid "First"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:221
-#: licenses/templates/licenses/list.html:170
+#: licenses/templates/licenses/list.html:187
 #: rental/templates/rental/list.html:221
 msgid "Previous"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:227
-#: licenses/templates/licenses/list.html:176
+#: licenses/templates/licenses/list.html:193
 #: rental/templates/rental/list.html:227
 msgid "Page"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:227
-#: licenses/templates/licenses/list.html:176
+#: licenses/templates/licenses/list.html:193
 #: rental/templates/rental/list.html:227
 msgid "of"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:233
-#: licenses/templates/licenses/list.html:182
+#: licenses/templates/licenses/list.html:199
 #: rental/templates/rental/list.html:233
 msgid "Next"
 msgstr ""
 
 #: inventory/templates/inventory/list.html:236
-#: licenses/templates/licenses/list.html:185
+#: licenses/templates/licenses/list.html:202
 #: rental/templates/rental/list.html:236
 msgid "Last"
 msgstr ""
@@ -1363,299 +1398,318 @@ msgstr ""
 msgid "Are you sure you want to delete this inventory item?"
 msgstr ""
 
-#: licenses/admin.py:64 licenses/admin.py:1362 licenses/models.py:67
+#: licenses/admin.py:65 licenses/admin.py:1425 licenses/models.py:67
 #: projects/models.py:117 projects/models.py:122
 msgid "Not Selected"
 msgstr ""
 
-#: licenses/admin.py:222 licenses/admin.py:943 licenses/models.py:167
-#: rental/models.py:763
+#: licenses/admin.py:223 licenses/admin.py:981 licenses/models.py:173
+#: rental/models.py:769
 msgid "Created at"
 msgstr ""
 
-#: licenses/admin.py:336 licenses/models.py:94
+#: licenses/admin.py:337 licenses/models.py:94
 msgid "Further involved persons"
 msgstr ""
 
-#: licenses/admin.py:339 licenses/models.py:107
+#: licenses/admin.py:340 licenses/models.py:107
 msgid "Suggested broadcast date"
 msgstr ""
 
-#: licenses/admin.py:340
+#: licenses/admin.py:341
 msgid "Suggested broadcast time"
 msgstr ""
 
-#: licenses/admin.py:341 licenses/models.py:113
+#: licenses/admin.py:342 licenses/models.py:113
 msgid "Repetitions allowed"
 msgstr ""
 
-#: licenses/admin.py:344
+#: licenses/admin.py:345
 msgid "Media Authority exchange allowed"
 msgstr ""
 
-#: licenses/admin.py:347 licenses/models.py:131
+#: licenses/admin.py:348 licenses/models.py:131
 msgid "Youth protection necessary"
 msgstr ""
 
-#: licenses/admin.py:350 licenses/models.py:204
+#: licenses/admin.py:351 licenses/models.py:210
 msgid "Screen Board"
 msgstr ""
 
-#: licenses/admin.py:351 registration/admin.py:91 registration/models.py:191
+#: licenses/admin.py:352 registration/admin.py:91 registration/models.py:191
 msgid "created at"
 msgstr ""
 
-#: licenses/admin.py:382
+#: licenses/admin.py:383
 msgid "Creation year"
 msgstr ""
 
-#: licenses/admin.py:413
+#: licenses/admin.py:414
 msgid "without contributions"
 msgstr ""
 
-#: licenses/admin.py:474 licenses/admin.py:731 licenses/admin.py:836
+#: licenses/admin.py:475 licenses/admin.py:733 licenses/admin.py:858
 msgid "Not available"
 msgstr ""
 
-#: licenses/admin.py:475 licenses/admin.py:841
+#: licenses/admin.py:476 licenses/admin.py:863
 msgid "No video"
 msgstr ""
 
-#: licenses/admin.py:505
+#: licenses/admin.py:506
 msgid ""
 "The corresponding profile is not verified. The License can not be confirmed "
 "until the profile is verified."
 msgstr ""
 
-#: licenses/admin.py:546
+#: licenses/admin.py:547
 #, python-format
 msgid "Maximum 4 tags allowed. You provided %(count)d tags."
 msgstr ""
 
-#: licenses/admin.py:553
+#: licenses/admin.py:554
 msgid "Empty tags are not allowed."
 msgstr ""
 
-#: licenses/admin.py:563
+#: licenses/admin.py:564
 msgid ""
 "Enter tags separated by commas. Maximum 4 tags allowed. Example: "
 "documentary, local, culture, news"
 msgstr ""
 
-#: licenses/admin.py:673
+#: licenses/admin.py:674
 msgid "title, subtitle, number, description, further persons"
 msgstr ""
 
-#: licenses/admin.py:676 licenses/templates/licenses/create.html:31
+#: licenses/admin.py:677 licenses/templates/licenses/create.html:31
 #: media_files/admin.py:668 projects/admin.py:288 registration/admin.py:215
 #: registration/admin.py:354
 msgid "Basic Information"
 msgstr ""
 
-#: licenses/admin.py:679
+#: licenses/admin.py:680
 msgid "Content Details"
 msgstr ""
 
-#: licenses/admin.py:682
+#: licenses/admin.py:683
 msgid "Broadcasting Permissions"
 msgstr ""
 
-#: licenses/admin.py:689
+#: licenses/admin.py:691
 msgid "Youth Protection"
 msgstr ""
 
-#: licenses/admin.py:692
+#: licenses/admin.py:694
 msgid "Media Library & Special Formats"
 msgstr ""
 
-#: licenses/admin.py:695
+#: licenses/admin.py:697
 msgid "Status & Metadata"
 msgstr ""
 
-#: licenses/admin.py:697
+#: licenses/admin.py:699
 msgid "Number is auto-generated but can be manually changed if needed."
 msgstr ""
 
-#: licenses/admin.py:750
+#: licenses/admin.py:752
 msgid "Duration mismatch"
 msgstr ""
 
-#: licenses/admin.py:753
+#: licenses/admin.py:755
 msgid "Sync from Video"
 msgstr ""
 
-#: licenses/admin.py:777
+#: licenses/admin.py:779
 msgid "No video file found"
 msgstr ""
 
-#: licenses/admin.py:779
+#: licenses/admin.py:781
 msgid "Search for Video"
 msgstr ""
 
-#: licenses/admin.py:784 media_files/models.py:289 media_files/models.py:414
+#: licenses/admin.py:786 licenses/templates/licenses/list.html:226
+#: media_files/models.py:289 media_files/models.py:414
 msgid "Video File"
 msgstr ""
 
-#: licenses/admin.py:831 media_files/admin.py:979 media_files/admin.py:993
+#: licenses/admin.py:812
+msgid "Nextcloud Video"
+msgstr ""
+
+#: licenses/admin.py:853 media_files/admin.py:979 media_files/admin.py:993
 msgid "Player"
 msgstr ""
 
-#: licenses/admin.py:846
+#: licenses/admin.py:868
 msgid "Video"
 msgstr ""
 
-#: licenses/admin.py:864 licenses/models.py:160
-#: licenses/templates/licenses/create.html:292
-#: licenses/templates/licenses/update.html:37
+#: licenses/admin.py:886 licenses/models.py:166
+#: licenses/templates/licenses/create.html:327
+#: licenses/templates/licenses/update.html:97
 msgid "Signature"
 msgstr ""
 
-#: licenses/admin.py:875
+#: licenses/admin.py:897
 msgid "Digital signature is present"
 msgstr ""
 
-#: licenses/admin.py:880
+#: licenses/admin.py:902
 msgid "No digital signature"
 msgstr ""
 
-#: licenses/admin.py:883
+#: licenses/admin.py:905
 msgid "Digital Signature"
 msgstr ""
 
-#: licenses/admin.py:945
+#: licenses/admin.py:983
 msgid "Confirm selected Licenses"
 msgstr ""
 
-#: licenses/admin.py:955
+#: licenses/admin.py:993
 msgid "Unconfirm selected Licenses"
 msgstr ""
 
-#: licenses/admin.py:965
+#: licenses/admin.py:1003
 msgid "Create a copy of selected licenses"
 msgstr ""
 
-#: licenses/admin.py:976
+#: licenses/admin.py:1014
 msgid "License copies created successfully."
 msgstr ""
 
-#: licenses/admin.py:993
+#: licenses/admin.py:1031
 #, python-format
 msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
 "confirmed until the profile is verified."
 msgstr ""
 
-#: licenses/admin.py:1050
+#: licenses/admin.py:1088
 msgid "Duration synced from video: {} → {}"
 msgstr ""
 
-#: licenses/admin.py:1056
+#: licenses/admin.py:1094
 msgid "No video file found for this license."
 msgstr ""
 
-#: licenses/admin.py:1062
+#: licenses/admin.py:1100
 msgid "Video file has no duration information."
 msgstr ""
 
-#: licenses/admin.py:1100
+#: licenses/admin.py:1139
 msgid "Scanning storages for video"
 msgstr ""
 
-#: licenses/admin.py:1113
+#: licenses/admin.py:1170
 msgid "Video found and linked to license"
 msgstr ""
 
-#: licenses/admin.py:1118
+#: licenses/admin.py:1175
 msgid "Video with number"
 msgstr ""
 
-#: licenses/admin.py:1118
+#: licenses/admin.py:1175
 msgid "not found in storages"
 msgstr ""
 
-#: licenses/admin.py:1119
+#: licenses/admin.py:1176
 msgid "Make sure the file exists and starts with the number"
 msgstr ""
 
-#: licenses/admin.py:1122
+#: licenses/admin.py:1182
+msgid "Error linking video"
+msgstr ""
+
+#: licenses/admin.py:1185
 msgid "Search completed. Check the results"
 msgstr ""
 
-#: licenses/admin.py:1132
+#: licenses/admin.py:1195
 msgid "Search for videos in storage"
 msgstr ""
 
-#: licenses/admin.py:1162
+#: licenses/admin.py:1225
 msgid "Videos found and linked for"
 msgstr ""
 
-#: licenses/admin.py:1162 licenses/admin.py:1168
+#: licenses/admin.py:1225 licenses/admin.py:1231
 msgid "licenses"
 msgstr ""
 
-#: licenses/admin.py:1162 licenses/admin.py:1168
+#: licenses/admin.py:1225 licenses/admin.py:1231
 msgid "license"
 msgstr ""
 
-#: licenses/admin.py:1168
+#: licenses/admin.py:1231
 msgid "No videos found for"
 msgstr ""
 
-#: licenses/admin.py:1174
+#: licenses/admin.py:1237
 msgid "Search errors"
 msgstr ""
 
-#: licenses/admin.py:1190
+#: licenses/admin.py:1253
 msgid "Session expired. Please try importing again."
 msgstr ""
 
-#: licenses/admin.py:1234 licenses/admin.py:1433
+#: licenses/admin.py:1297 licenses/admin.py:1496
 #, python-format
 msgid "License \"%(title)s\" successfully imported."
 msgstr ""
 
-#: licenses/admin.py:1249
+#: licenses/admin.py:1312
 msgid "Error creating license: {}"
 msgstr ""
 
-#: licenses/admin.py:1262
+#: licenses/admin.py:1325
 msgid "Import cancelled."
 msgstr ""
 
-#: licenses/admin.py:1308
+#: licenses/admin.py:1371
 #, python-format
 msgid ""
 "Profile not found for senderResponsible: %(name)s. Created new profile "
 "automatically."
 msgstr ""
 
-#: licenses/admin.py:1317
+#: licenses/admin.py:1380
 #, python-format
 msgid ""
 "No profile found for senderResponsible: %(name)s. targetChannel is required "
 "to create a new profile."
 msgstr ""
 
-#: licenses/admin.py:1331
+#: licenses/admin.py:1394
 #, python-format
 msgid ""
 "No profile found for targetChannel: %(channel)s. Please create a profile "
 "manually in the admin."
 msgstr ""
 
-#: licenses/admin.py:1345
+#: licenses/admin.py:1408
 msgid "Either senderResponsible or targetChannel is required in JSON file."
 msgstr ""
 
-#: licenses/admin.py:1449
+#: licenses/admin.py:1512
 msgid "Invalid JSON file: {}"
 msgstr ""
 
-#: licenses/admin.py:1457
+#: licenses/admin.py:1520
 msgid "Error importing license: {}"
 msgstr ""
 
-#: licenses/apps.py:10 licenses/models.py:289
+#: licenses/admin.py:1574
+msgid "File Information"
+msgstr ""
+
+#: licenses/admin.py:1591
+#: media_files/templates/admin/system_management.html:630
+#: media_files/templates/admin/system_management.html:687
+msgid "License Number"
+msgstr ""
+
+#: licenses/apps.py:10 licenses/models.py:320
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:8
 #: licenses/templates/admin/licenses/import_json.html:7
 #: licenses/templates/licenses/list.html:5
@@ -1664,34 +1718,79 @@ msgstr ""
 msgid "Licenses"
 msgstr ""
 
-#: licenses/forms.py:49
+#: licenses/forms.py:51
 msgid ""
 "If youth protection is necessary, you have to choose a youth protection "
 "category."
 msgstr ""
 
-#: licenses/forms.py:61
+#: licenses/forms.py:63
 msgid "Invalid format. Please use the format hh:mm:ss or mm:ss."
 msgstr ""
 
-#: licenses/forms.py:81
+#: licenses/forms.py:83
 msgid "The duration field is required."
 msgstr ""
 
-#: licenses/forms.py:108 licenses/templates/licenses/update.html:66
-msgid "Save"
-msgstr ""
-
-#: licenses/forms.py:160
+#: licenses/forms.py:172
 msgid "JSON File"
 msgstr ""
 
-#: licenses/forms.py:161
+#: licenses/forms.py:173
 msgid "Upload a JSON file with license data"
 msgstr ""
 
 #: licenses/generate_file.py:197
 msgid "license.pdf"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:17
+msgid "Check Nextcloud for deleted videos and mark them as deleted in database"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:24
+msgid ""
+"Delete database records after marking as deleted (default: only mark as "
+"deleted)"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:30
+msgid ""
+"Days to keep deleted records before removing from database (default: 30)"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:39
+msgid "Nextcloud integration is disabled. Skipping cleanup."
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:50
+#, python-format
+msgid "Failed to initialize Nextcloud service: %(error)s"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:62
+#, python-format
+msgid "Checking %(count)d videos in Nextcloud..."
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:79
+#, python-format
+msgid "Marked video as deleted: %(filename)s (License %(license)s)"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:94
+#, python-format
+msgid "Error checking video %(filename)s: %(error)s"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:113
+#, python-format
+msgid "Deleted %(count)d old records (deleted more than %(days)d days ago)"
+msgstr ""
+
+#: licenses/management/commands/cleanup_deleted_nextcloud_videos.py:123
+#, python-format
+msgid "Cleanup completed: %(deleted)d marked as deleted, %(errors)d errors"
 msgstr ""
 
 #: licenses/models.py:22
@@ -1728,29 +1827,99 @@ msgid "Youth protection category"
 msgstr ""
 
 #: licenses/models.py:152
+msgid "Live broadcast"
+msgstr ""
+
+#: licenses/models.py:154
+msgid ""
+"Live broadcasts do not allow repetitions, exchange, or mediathek storage."
+msgstr ""
+
+#: licenses/models.py:158
 msgid "Tags"
 msgstr ""
 
-#: licenses/models.py:156
+#: licenses/models.py:162
 msgid "Maximum 4 tags"
 msgstr ""
 
-#: licenses/models.py:163
+#: licenses/models.py:169
 msgid "Base64 encoded signature image"
 msgstr ""
 
-#: licenses/models.py:197 licenses/templates/licenses/list.html:28
-#: licenses/templates/licenses/list.html:97
-#: licenses/templates/licenses/list.html:222
+#: licenses/models.py:203 licenses/templates/licenses/list.html:31
+#: licenses/templates/licenses/list.html:100
+#: licenses/templates/licenses/list.html:518
 msgid "Confirmed"
 msgstr ""
 
-#: licenses/models.py:211
+#: licenses/models.py:217
 msgid "Infoblock"
 msgstr ""
 
-#: licenses/models.py:234
+#: licenses/models.py:240
 msgid "Duration must not be null."
+msgstr ""
+
+#: licenses/models.py:334
+msgid "Nextcloud File ID"
+msgstr ""
+
+#: licenses/models.py:335
+msgid "File ID or path in Nextcloud"
+msgstr ""
+
+#: licenses/models.py:341
+msgid "Nextcloud URL"
+msgstr ""
+
+#: licenses/models.py:342
+msgid "Direct link to file in Nextcloud"
+msgstr ""
+
+#: licenses/models.py:346 media_files/models.py:96
+msgid "Filename"
+msgstr ""
+
+#: licenses/models.py:347
+msgid "Original filename"
+msgstr ""
+
+#: licenses/models.py:352 media_files/models.py:111
+msgid "File Size (bytes)"
+msgstr ""
+
+#: licenses/models.py:356
+msgid "Uploaded at"
+msgstr ""
+
+#: licenses/models.py:361
+msgid "Is Deleted"
+msgstr ""
+
+#: licenses/models.py:362
+msgid "Flag if file was deleted from Nextcloud"
+msgstr ""
+
+#: licenses/models.py:367
+msgid "Deleted at"
+msgstr ""
+
+#: licenses/models.py:368
+msgid "When file was deleted from Nextcloud"
+msgstr ""
+
+#: licenses/models.py:378
+msgid "Nextcloud Video File"
+msgstr ""
+
+#: licenses/models.py:379
+msgid "Nextcloud Video Files"
+msgstr ""
+
+#: licenses/services/nextcloud_service.py:24
+msgid ""
+"Nextcloud integration is disabled. Set NEXTCLOUD_ENABLED=true to enable."
 msgstr ""
 
 #: licenses/templates/admin/filter_datetime_range.html:7
@@ -1759,7 +1928,7 @@ msgstr ""
 
 #: licenses/templates/admin/filter_datetime_range.html:79
 #: licenses/templates/admin/filter_numeric_range.html:84
-#: licenses/templates/licenses/create.html:335
+#: licenses/templates/licenses/create.html:370
 #: ok_tools/templates/rental_dashboard.html:214
 msgid "Reset"
 msgstr ""
@@ -1825,7 +1994,7 @@ msgid "Similarity"
 msgstr ""
 
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:64
-#: licenses/templates/licenses/list.html:115
+#: licenses/templates/licenses/list.html:118
 #: ok_tools/templates/admin/index.html:143
 msgid "View"
 msgstr ""
@@ -1846,8 +2015,8 @@ msgstr ""
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:76
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:84
 #: licenses/templates/admin/licenses/import_json.html:39
-#: licenses/templates/licenses/create.html:331
-#: licenses/templates/licenses/update.html:67
+#: licenses/templates/licenses/create.html:366
+#: licenses/templates/licenses/update.html:127
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:200
 #: rental/models.py:391 rental/templates/rental/admin_rental_process.html:244
 #: rental/templates/rental/admin_rental_process.html:282
@@ -1900,11 +2069,11 @@ msgstr ""
 msgid "Media Authority mapping:"
 msgstr ""
 
-#: licenses/templates/admin/licenses_change_form_edit.html:160
+#: licenses/templates/admin/licenses_change_form_edit.html:215
 msgid "Print license"
 msgstr ""
 
-#: licenses/templates/admin/licenses_change_form_edit.html:165
+#: licenses/templates/admin/licenses_change_form_edit.html:220
 msgid ""
 "\n"
 "            Confirmed licenses are not editable!\n"
@@ -1913,8 +2082,8 @@ msgstr ""
 
 #: licenses/templates/licenses/create.html:5
 #: licenses/templates/licenses/create.html:6
-#: licenses/templates/licenses/create.html:338
-#: licenses/templates/licenses/list.html:16
+#: licenses/templates/licenses/create.html:373
+#: licenses/templates/licenses/list.html:19
 #: ok_tools/templates/dashboard.html:199
 msgid "Create License"
 msgstr ""
@@ -1979,12 +2148,33 @@ msgstr ""
 msgid "Screen board (duration will be set automatically)"
 msgstr ""
 
-#: licenses/templates/licenses/create.html:294
-#: licenses/templates/licenses/update.html:39
+#: licenses/templates/licenses/create.html:263
+msgid "Live broadcast (no repetitions, exchange, or mediathek)"
+msgstr ""
+
+#: licenses/templates/licenses/create.html:311
+#: licenses/templates/licenses/update.html:38
+msgid "Video Upload"
+msgstr ""
+
+#: licenses/templates/licenses/create.html:313
+msgid ""
+"You can upload a video file after creating the license. Go to the license "
+"list and use the upload button to add your video file."
+msgstr ""
+
+#: licenses/templates/licenses/create.html:315
+#: licenses/templates/licenses/list.html:230
+#: licenses/templates/licenses/update.html:70
+msgid "Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB."
+msgstr ""
+
+#: licenses/templates/licenses/create.html:329
+#: licenses/templates/licenses/update.html:99
 msgid "Please sign here"
 msgstr ""
 
-#: licenses/templates/licenses/create.html:296
+#: licenses/templates/licenses/create.html:331
 #, python-format
 msgid ""
 "\n"
@@ -1994,26 +2184,26 @@ msgid ""
 "                "
 msgstr ""
 
-#: licenses/templates/licenses/create.html:307
-#: licenses/templates/licenses/update.html:47
+#: licenses/templates/licenses/create.html:342
+#: licenses/templates/licenses/update.html:107
 msgid "Sign here"
 msgstr ""
 
-#: licenses/templates/licenses/create.html:313
-#: licenses/templates/licenses/update.html:53
+#: licenses/templates/licenses/create.html:348
+#: licenses/templates/licenses/update.html:113
 msgid "Clear Signature"
 msgstr ""
 
-#: licenses/templates/licenses/create.html:316
-#: licenses/templates/licenses/update.html:56
+#: licenses/templates/licenses/create.html:351
+#: licenses/templates/licenses/update.html:116
 msgid "Please sign in the box above."
 msgstr ""
 
-#: licenses/templates/licenses/create.html:580
+#: licenses/templates/licenses/create.html:615
 msgid "Are you sure you want to reset all inputs?"
 msgstr ""
 
-#: licenses/templates/licenses/create.html:661
+#: licenses/templates/licenses/create.html:738
 msgid "Creating..."
 msgstr ""
 
@@ -2030,49 +2220,157 @@ msgstr ""
 msgid "Print"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:12
+#: licenses/templates/licenses/list.html:15
 msgid "Manage your licenses and permissions"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:27
+#: licenses/templates/licenses/list.html:30
 #: rental/templates/rental/rental_stats.html:1067
 #: rental/templates/rental/rental_stats.html:1156
 msgid "All Status"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:51
+#: licenses/templates/licenses/list.html:54
 msgid "Search licenses..."
 msgstr ""
 
-#: licenses/templates/licenses/list.html:71
+#: licenses/templates/licenses/list.html:74
 msgid "Suggested Date"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:108
+#: licenses/templates/licenses/list.html:111
 msgid "No Date"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:123
+#: licenses/templates/licenses/list.html:126
 msgid "Print PDF"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:127 media_files/models.py:397
+#: licenses/templates/licenses/list.html:130 media_files/models.py:397
 msgid "Copy"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:137
+#: licenses/templates/licenses/list.html:136
+msgid "Video already uploaded"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:141
+#: licenses/templates/licenses/list.html:218
+msgid "Upload Video"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:154
 msgid "Cannot delete confirmed license"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:149
+#: licenses/templates/licenses/list.html:166
 msgid "No licenses found"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:163
+#: licenses/templates/licenses/list.html:180
 msgid "License pagination"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:277
+#: licenses/templates/licenses/list.html:244
+#: rental/templates/rental/admin_rental_process.html:178
+#: rental/templates/rental/admin_rental_process.html:201
+#: rental/templates/rental/admin_rental_process.html:224
+#: rental/templates/rental/admin_rental_process.html:317
+#: rental/templates/rental/admin_rental_process.html:435
+#: rental/templates/rental/admin_rental_process.html:617
+#: rental/templates/rental/rental_detail.html:737
+#: ok_tools/templates/rental_dashboard.html:261
+#: ok_tools/templates/rental_dashboard.html:349
+#: ok_tools/templates/rental_dashboard.html:375
+#: ok_tools/templates/rental_dashboard.html:400
+#: ok_tools/templates/rental_dashboard.html:425
+msgid "Close"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:246
+#: licenses/templates/licenses/update.html:74
+msgid "Upload"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:282
+#: licenses/templates/licenses/update.html:414
+msgid "calculating..."
+msgstr ""
+
+#: licenses/templates/licenses/list.html:283
+#: licenses/templates/licenses/update.html:415
+msgid "sec"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:284
+#: licenses/templates/licenses/update.html:416
+msgid "min"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:285
+#: licenses/templates/licenses/update.html:417
+msgid "h"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:313
+#: licenses/templates/licenses/update.html:466
+msgid "Please select a video file first."
+msgstr ""
+
+#: licenses/templates/licenses/list.html:324
+#: licenses/templates/licenses/update.html:438
+msgid "File is too large. Maximum size is 20GB."
+msgstr ""
+
+#: licenses/templates/licenses/list.html:334
+#: licenses/templates/licenses/update.html:448 licenses/views.py:341
+msgid "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm."
+msgstr ""
+
+#: licenses/templates/licenses/list.html:343
+#: licenses/templates/licenses/update.html:476
+msgid "Getting upload token..."
+msgstr ""
+
+#: licenses/templates/licenses/list.html:358
+#: licenses/templates/licenses/list.html:363
+#: licenses/templates/licenses/update.html:502
+#: licenses/templates/licenses/update.html:507
+msgid "Failed to get upload token"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:413
+#: licenses/templates/licenses/update.html:544
+msgid "Upload failed with status"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:418
+#: licenses/templates/licenses/update.html:549
+msgid "Network error during upload"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:422
+msgid "Upload was cancelled"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:435
+#: licenses/templates/licenses/update.html:562
+msgid "Confirming upload..."
+msgstr ""
+
+#: licenses/templates/licenses/list.html:453
+#: licenses/templates/licenses/list.html:458
+#: licenses/templates/licenses/update.html:580
+#: licenses/templates/licenses/update.html:585
+msgid "Failed to confirm upload"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:469
+#: licenses/templates/licenses/update.html:589
+msgid "Video uploaded successfully!"
+msgstr ""
+
+#: licenses/templates/licenses/list.html:573
 msgid "Are you sure you want to delete this license?"
 msgstr ""
 
@@ -2095,8 +2393,33 @@ msgstr ""
 msgid "Back to overview"
 msgstr ""
 
-#: licenses/templates/licenses/update.html:261
+#: licenses/templates/licenses/update.html:40
+msgid "Upload a video file to Nextcloud (optional)"
+msgstr ""
+
+#: licenses/templates/licenses/update.html:48
+msgid "Current video:"
+msgstr ""
+
+#: licenses/templates/licenses/update.html:51
+msgid "Download"
+msgstr ""
+
+#: licenses/templates/licenses/update.html:57 licenses/views.py:315
+#: licenses/views.py:489 licenses/views.py:594
+msgid "Video already uploaded. Cannot upload second video."
+msgstr ""
+
+#: licenses/templates/licenses/update.html:362
 msgid "Saving..."
+msgstr ""
+
+#: licenses/templates/licenses/update.html:475
+msgid "Uploading..."
+msgstr ""
+
+#: licenses/templates/licenses/update.html:482
+msgid "Error: Could not determine license ID."
 msgstr ""
 
 #: licenses/templates/licenses/widgets/tags_input.html:13
@@ -2105,37 +2428,93 @@ msgid ""
 "allowed."
 msgstr ""
 
-#: licenses/views.py:26
+#: licenses/views.py:28 licenses/views.py:296 licenses/views.py:470
+#: licenses/views.py:559
 msgid "License not found."
 msgstr ""
 
-#: licenses/views.py:70
+#: licenses/views.py:100
 #, python-format
 msgid "License %(license)s successfully created."
 msgstr ""
 
-#: licenses/views.py:178
+#: licenses/views.py:214
 #, python-format
 msgid "License %(license)s successfully copied."
 msgstr ""
 
-#: licenses/views.py:198
+#: licenses/views.py:234
 #, python-format
 msgid "License %(license)s successfully updated."
 msgstr ""
 
-#: licenses/views.py:208
+#: licenses/views.py:258
 #, python-format
 msgid ""
 "The License %(license)s is already confirmed and therefor no longer editable."
 msgstr ""
 
-#: licenses/views.py:257
+#: licenses/views.py:287 licenses/views.py:461 licenses/views.py:550
+msgid "Nextcloud integration is disabled."
+msgstr ""
+
+#: licenses/views.py:303 licenses/views.py:477
+msgid "Cannot upload video to confirmed license."
+msgstr ""
+
+#: licenses/views.py:322
+msgid "No video file provided."
+msgstr ""
+
+#: licenses/views.py:332
+msgid "Video file is too large. Maximum size is 20GB."
+msgstr ""
+
+#: licenses/views.py:403 licenses/views.py:640
+msgid "Video uploaded successfully."
+msgstr ""
+
+#: licenses/views.py:416
+#, python-format
+msgid "Failed to upload video: %(error)s"
+msgstr ""
+
+#: licenses/views.py:428
+msgid "Session ID required."
+msgstr ""
+
+#: licenses/views.py:436
+msgid "Upload session not found."
+msgstr ""
+
+#: licenses/views.py:532
+#, python-format
+msgid "Failed to create upload token: %(error)s"
+msgstr ""
+
+#: licenses/views.py:576
+msgid "Invalid request data."
+msgstr ""
+
+#: licenses/views.py:582
+msgid "Filename is required."
+msgstr ""
+
+#: licenses/views.py:608
+msgid "File not found in Nextcloud. Upload may have failed."
+msgstr ""
+
+#: licenses/views.py:652
+#, python-format
+msgid "Failed to confirm upload: %(error)s"
+msgstr ""
+
+#: licenses/views.py:699
 #, python-format
 msgid "Cannot delete confirmed license %(license)s"
 msgstr ""
 
-#: licenses/views.py:263
+#: licenses/views.py:705
 #, python-format
 msgid "License %(license)s successfully deleted."
 msgstr ""
@@ -2520,7 +2899,7 @@ msgstr ""
 msgid "Execution"
 msgstr ""
 
-#: media_files/admin.py:1865 media_files/models.py:461 rental/admin.py:350
+#: media_files/admin.py:1865 media_files/models.py:461 rental/admin.py:351
 msgid "Details"
 msgstr ""
 
@@ -2595,7 +2974,7 @@ msgid "Windows UNC path (e.g., \\\\192.168.88.2\\Share) - optional"
 msgstr ""
 
 #: media_files/models.py:46 registration/models.py:303 rental/models.py:527
-#: rental/models.py:726 rental/templates/rental/list.html:68
+#: rental/models.py:732 rental/templates/rental/list.html:68
 #: rental/templates/rental/list.html:166
 #: rental/templates/rental/rental_stats.html:1338
 #: ok_tools/templates/dashboard.html:40
@@ -2640,10 +3019,6 @@ msgid ""
 "Identification number matching License number (unique per storage location)"
 msgstr ""
 
-#: media_files/models.py:96
-msgid "Filename"
-msgstr ""
-
 #: media_files/models.py:105
 #: media_files/templates/admin/media_files/videofile/change_form.html:99
 msgid "File Path"
@@ -2651,10 +3026,6 @@ msgstr ""
 
 #: media_files/models.py:106
 msgid "Relative path within the storage location"
-msgstr ""
-
-#: media_files/models.py:111
-msgid "File Size (bytes)"
 msgstr ""
 
 #: media_files/models.py:121
@@ -2977,7 +3348,6 @@ msgid "Video file unavailable. Check path:"
 msgstr ""
 
 #: media_files/templates/admin/media_files/videofile/change_list.html:76
-#: venv/lib/python3.13/site-packages/django/db/models/fields/files.py:244
 msgid "File"
 msgstr ""
 
@@ -3152,11 +3522,6 @@ msgstr ""
 
 #: media_files/templates/admin/system_management.html:627
 msgid "Sync Licenses and Videos"
-msgstr ""
-
-#: media_files/templates/admin/system_management.html:630
-#: media_files/templates/admin/system_management.html:687
-msgid "License Number"
 msgstr ""
 
 #: media_files/templates/admin/system_management.html:632
@@ -3766,62 +4131,50 @@ msgid "birthmonth"
 msgstr ""
 
 #: registration/admin.py:122
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:25
 msgid "January"
 msgstr ""
 
 #: registration/admin.py:123
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:26
 msgid "February"
 msgstr ""
 
 #: registration/admin.py:124
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:27
 msgid "March"
 msgstr ""
 
 #: registration/admin.py:125
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:28
 msgid "April"
 msgstr ""
 
 #: registration/admin.py:126
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:29
 msgid "May"
 msgstr ""
 
 #: registration/admin.py:127
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:30
 msgid "June"
 msgstr ""
 
 #: registration/admin.py:128
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:31
 msgid "July"
 msgstr ""
 
 #: registration/admin.py:129
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:32
 msgid "August"
 msgstr ""
 
 #: registration/admin.py:130
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:33
 msgid "September"
 msgstr ""
 
 #: registration/admin.py:131
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:34
 msgid "October"
 msgstr ""
 
 #: registration/admin.py:132
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:35
 msgid "November"
 msgstr ""
 
 #: registration/admin.py:133
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:36
 msgid "December"
 msgstr ""
 
@@ -3874,7 +4227,6 @@ msgid "Registration"
 msgstr ""
 
 #: registration/forms.py:25 registration/forms.py:89
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1920
 msgid "Email address"
 msgstr ""
 
@@ -4428,7 +4780,7 @@ msgid "Equipment sets"
 msgstr ""
 
 #: rental/admin.py:243 rental/models.py:20 rental/models.py:284
-#: rental/models.py:758 rental/templates/rental/admin_rental_process.html:559
+#: rental/models.py:764 rental/templates/rental/admin_rental_process.html:559
 #: rental/templates/rental/rental_detail.html:679
 msgid "Created by"
 msgstr ""
@@ -4463,7 +4815,7 @@ msgstr ""
 msgid "Capacity & Location"
 msgstr ""
 
-#: rental/admin.py:378
+#: rental/admin.py:379
 msgid "Rental dates"
 msgstr ""
 
@@ -4520,10 +4872,14 @@ msgid ""
 msgstr ""
 
 #: rental/management/commands/expire_room_rentals.py:26
+#: rental/management/commands/fix_missing_issue_transactions.py:30
+#: rental/management/commands/fix_quantity_issued.py:29
 msgid "Show what would be done without applying changes"
 msgstr ""
 
 #: rental/management/commands/expire_room_rentals.py:31
+#: rental/management/commands/fix_missing_issue_transactions.py:35
+#: rental/management/commands/fix_quantity_issued.py:34
 msgid "Verbose output"
 msgstr ""
 
@@ -4548,6 +4904,8 @@ msgid "  • {} - {} ({}) - Expired: {}"
 msgstr ""
 
 #: rental/management/commands/expire_room_rentals.py:101
+#: rental/management/commands/fix_missing_issue_transactions.py:124
+#: rental/management/commands/fix_quantity_issued.py:123
 msgid ""
 "\n"
 "⚠️  In test mode, changes are not applied"
@@ -4587,6 +4945,116 @@ msgstr ""
 msgid ""
 "\n"
 "🎉 Automatic expiration of expired room rentals completed!"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:23
+msgid "Create missing issue transactions for rental items."
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:104
+#: rental/management/commands/fix_quantity_issued.py:102
+msgid ""
+"\n"
+"📋 Items to fix:"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:109
+#, python-brace-format
+msgid "  • Rental #{rental_id}, Item #{item_id} ({inventory_number}): {reason}"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:119
+#: rental/management/commands/fix_quantity_issued.py:118
+msgid "  ... and {} more items"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:129
+msgid ""
+"\n"
+"🔄 Creating missing issue transactions..."
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:148
+msgid "Created automatically to fix missing issue transaction"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:155
+#, python-brace-format
+msgid ""
+"  ✅ Created issue transaction for Rental #{rental_id}, Item #{item_id}: "
+"{quantity} unit(s)"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:165
+msgid ""
+"\n"
+"✅ Successfully created {} issue transactions"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:171
+msgid "Created missing issue transactions: created {} transactions"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:179
+msgid "Error during creation of missing issue transactions: {}"
+msgstr ""
+
+#: rental/management/commands/fix_missing_issue_transactions.py:183
+msgid ""
+"\n"
+"🎉 Fix of missing issue transactions completed!"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:22
+msgid "Fix quantity_issued for rental items based on transactions."
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:39
+msgid "Fix all items, not just those with incorrect values"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:106
+#, python-brace-format
+msgid ""
+"  • Rental #{rental_id}, Item #{item_id} ({inventory_number}): "
+"current={current}, correct={correct}, diff={diff}"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:128
+msgid ""
+"\n"
+"🔄 Applying fixes..."
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:148
+#, python-brace-format
+msgid "  ✅ Fixed Rental #{rental_id}, Item #{item_id}: {old} → {new}"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:159
+msgid ""
+"\n"
+"✅ Successfully fixed {} rental items"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:163
+msgid "📊 Total correction: {} units"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:168
+msgid ""
+"Fixed quantity_issued for rental items: fixed {} items, total correction: {} "
+"units"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:179
+msgid "Error during fix of quantity_issued: {}"
+msgstr ""
+
+#: rental/management/commands/fix_quantity_issued.py:183
+msgid ""
+"\n"
+"🎉 Fix of quantity_issued completed!"
 msgstr ""
 
 #: rental/models.py:39
@@ -4872,66 +5340,74 @@ msgstr ""
 msgid "Additional notes for room rental"
 msgstr ""
 
+#: rental/models.py:670
+msgid "Nextcloud Event URL"
+msgstr ""
+
 #: rental/models.py:671
+msgid "URL of the event in Nextcloud Calendar (for CalDAV sync)"
+msgstr ""
+
+#: rental/models.py:677
 msgid "Room rental"
 msgstr ""
 
-#: rental/models.py:672
+#: rental/models.py:678
 msgid "Room rentals"
 msgstr ""
 
-#: rental/models.py:722 ok_tools/templates/rental_dashboard.html:75
+#: rental/models.py:728 ok_tools/templates/rental_dashboard.html:75
 msgid "Expired"
 msgstr ""
 
-#: rental/models.py:724
+#: rental/models.py:730
 msgid "Expiring soon"
 msgstr ""
 
-#: rental/models.py:736 rental/models.py:737
+#: rental/models.py:742 rental/models.py:743
 #: rental/templates/rental/admin_rental_process.html:49
 msgid "Rental Process"
 msgstr ""
 
-#: rental/models.py:745
+#: rental/models.py:751
 msgid "Template Name"
 msgstr ""
 
-#: rental/models.py:746
+#: rental/models.py:752
 msgid ""
 "Name of the equipment template (e.g., \"Concert Setup\", \"Workshop "
 "Equipment\")"
 msgstr ""
 
-#: rental/models.py:752
+#: rental/models.py:758
 msgid "Optional description of what this template is used for"
 msgstr ""
 
-#: rental/models.py:768
+#: rental/models.py:774
 msgid "Updated at"
 msgstr ""
 
-#: rental/models.py:772
+#: rental/models.py:778
 msgid "Equipment Template"
 msgstr ""
 
-#: rental/models.py:773
+#: rental/models.py:779
 msgid "Equipment Templates"
 msgstr ""
 
-#: rental/models.py:787
+#: rental/models.py:793
 msgid "Template"
 msgstr ""
 
-#: rental/models.py:799
+#: rental/models.py:805
 msgid "Default quantity for this item in the template"
 msgstr ""
 
-#: rental/models.py:803
+#: rental/models.py:809
 msgid "Template Item"
 msgstr ""
 
-#: rental/models.py:804
+#: rental/models.py:810
 msgid "Template Items"
 msgstr ""
 
@@ -4941,6 +5417,71 @@ msgstr ""
 
 #: rental/serializers.py:129
 msgid "Cannot return more than outstanding issued."
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:23
+msgid ""
+"Nextcloud Calendar integration is disabled. Set "
+"NEXTCLOUD_CALENDAR_ENABLED=true to enable."
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:59
+msgid ""
+"caldav library is required for Nextcloud Calendar integration. Install it "
+"with: pip install caldav"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:73
+#, python-brace-format
+msgid ""
+"Failed to import caldav library due to icalendar compatibility issue: {error}"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:86
+msgid "NEXTCLOUD_CALDAV_BASE_URL is required for Calendar integration"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:90
+msgid ""
+"NEXTCLOUD_CALENDAR_USERNAME and NEXTCLOUD_CALENDAR_PASSWORD are required"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:104
+#, python-brace-format
+msgid "Failed to connect to Nextcloud CalDAV server: {error}"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:308
+#, python-brace-format
+msgid "OK-Tools Booking #{booking_id}"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:309
+#, python-brace-format
+msgid "User: {user_name} ({email})"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:310
+#, python-brace-format
+msgid "Project: {project}"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:311
+#, python-brace-format
+msgid "Purpose: {purpose}"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:312
+#, python-brace-format
+msgid "People: {count}"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:316
+msgid "Notes:"
+msgstr ""
+
+#: rental/services/nextcloud_calendar_service.py:319
+msgid "Request Notes:"
 msgstr ""
 
 #: rental/services/rental_service.py:272
@@ -4955,7 +5496,7 @@ msgstr ""
 msgid "Start date and end date are required"
 msgstr ""
 
-#: rental/services/rental_service.py:296 rental/views.py:3618
+#: rental/services/rental_service.py:296 rental/views.py:3697
 msgid "Invalid date format"
 msgstr ""
 
@@ -4978,28 +5519,28 @@ msgid ""
 "requested: {requested}"
 msgstr ""
 
-#: rental/services/rental_service.py:411
+#: rental/services/rental_service.py:412
 msgid "Room not found"
 msgstr ""
 
-#: rental/services/rental_service.py:447
+#: rental/services/rental_service.py:448
 #, python-brace-format
 msgid "Room \"{room_name}\" is not available for the selected period"
 msgstr ""
 
-#: rental/services/rental_service.py:911
+#: rental/services/rental_service.py:910
 msgid "Only draft, reserved or issued rentals can be cancelled"
 msgstr ""
 
-#: rental/services/rental_service.py:924
+#: rental/services/rental_service.py:923
 msgid "Cancelled reserved quantity via admin interface"
 msgstr ""
 
-#: rental/services/rental_service.py:935
+#: rental/services/rental_service.py:934
 msgid "Returned issued quantity due to cancellation via admin interface"
 msgstr ""
 
-#: rental/services/rental_service.py:945
+#: rental/services/rental_service.py:944
 #, python-brace-format
 msgid "Rental request {rental_id} has been cancelled successfully"
 msgstr ""
@@ -5160,21 +5701,6 @@ msgstr ""
 
 #: rental/templates/rental/admin_rental_process.html:173
 msgid "Loading active rentals..."
-msgstr ""
-
-#: rental/templates/rental/admin_rental_process.html:178
-#: rental/templates/rental/admin_rental_process.html:201
-#: rental/templates/rental/admin_rental_process.html:224
-#: rental/templates/rental/admin_rental_process.html:317
-#: rental/templates/rental/admin_rental_process.html:435
-#: rental/templates/rental/admin_rental_process.html:617
-#: rental/templates/rental/rental_detail.html:737
-#: ok_tools/templates/rental_dashboard.html:261
-#: ok_tools/templates/rental_dashboard.html:349
-#: ok_tools/templates/rental_dashboard.html:375
-#: ok_tools/templates/rental_dashboard.html:400
-#: ok_tools/templates/rental_dashboard.html:425
-msgid "Close"
 msgstr ""
 
 #: rental/templates/rental/admin_rental_process.html:189
@@ -5788,1384 +6314,227 @@ msgstr "All items"
 msgid "Member"
 msgstr "Member"
 
-#: rental/views.py:374 rental/views.py:2793
+#: rental/views.py:374 rental/views.py:2852
 msgid "User profile not found"
 msgstr ""
 
-#: rental/views.py:500 rental/views.py:532 rental/views.py:655
-#: rental/views.py:1054 rental/views.py:1092 rental/views.py:1248
-#: rental/views.py:1434 rental/views.py:1968 rental/views.py:2020
-#: rental/views.py:3310 rental/views.py:3412 rental/views.py:3566
-#: rental/views.py:3595 rental/views.py:3760
+#: rental/views.py:527 rental/views.py:559 rental/views.py:682
+#: rental/views.py:1113 rental/views.py:1151 rental/views.py:1307
+#: rental/views.py:1493 rental/views.py:2027 rental/views.py:2079
+#: rental/views.py:3389 rental/views.py:3491 rental/views.py:3645
+#: rental/views.py:3674 rental/views.py:3860
 msgid "Method not allowed"
 msgstr ""
 
-#: rental/views.py:784
+#: rental/views.py:843
 msgid "Location not specified"
 msgstr ""
 
-#: rental/views.py:785
+#: rental/views.py:844
 msgid "No category"
 msgstr ""
 
-#: rental/views.py:868 rental/views.py:2491 rental/views.py:3361
+#: rental/views.py:927 rental/views.py:2550 rental/views.py:3440
 msgid "Unknown user"
 msgstr ""
 
-#: rental/views.py:887 rental/views.py:889 rental/views.py:2511
-#: rental/views.py:2517 rental/views.py:3380 rental/views.py:3382
+#: rental/views.py:946 rental/views.py:948 rental/views.py:2570
+#: rental/views.py:2576 rental/views.py:3459 rental/views.py:3461
 #, python-brace-format
 msgid "User #{user_id}"
 msgstr ""
 
-#: rental/views.py:895
+#: rental/views.py:954
 #, python-brace-format
 msgid "Not available - Conflicts: {conflicts}"
 msgstr ""
 
-#: rental/views.py:899
+#: rental/views.py:958
 #, python-brace-format
 msgid " and {count} more"
 msgstr ""
 
-#: rental/views.py:1061
+#: rental/views.py:1120
 msgid "Rental ID is required"
 msgstr ""
 
-#: rental/views.py:1100
+#: rental/views.py:1159
 msgid "Rental ID and items are required"
 msgstr ""
 
-#: rental/views.py:1110
+#: rental/views.py:1169
 msgid "Only active rentals can have returns"
 msgstr ""
 
-#: rental/views.py:1180
+#: rental/views.py:1239
 msgid "Items returned successfully"
 msgstr ""
 
-#: rental/views.py:1256
+#: rental/views.py:1315
 msgid "Rental ID and new end date are required"
 msgstr ""
 
-#: rental/views.py:1265
+#: rental/views.py:1324
 msgid "Only active rentals can be extended"
 msgstr ""
 
-#: rental/views.py:1297
+#: rental/views.py:1356
 msgid "Invalid date format. Please use YYYY-MM-DDTHH:MM or ISO format"
 msgstr ""
 
-#: rental/views.py:1307
+#: rental/views.py:1366
 msgid "New end date must be after current end date"
 msgstr ""
 
-#: rental/views.py:1310
+#: rental/views.py:1369
 #, python-brace-format
 msgid "Invalid date format: {error}"
 msgstr ""
 
-#: rental/views.py:1318
+#: rental/views.py:1377
 #, python-brace-format
 msgid "Rental request {rental_id} has been extended until {end_date}"
 msgstr ""
 
-#: rental/views.py:1443
+#: rental/views.py:1502
 msgid "Invalid confirmation code"
 msgstr ""
 
-#: rental/views.py:1460
+#: rental/views.py:1519
 msgid ""
 "All rental data has been reset (inventory quantities reset not supported "
 "through API)"
 msgstr ""
 
-#: rental/views.py:1465
+#: rental/views.py:1524
 msgid "Inventory quantities reset not supported through API"
 msgstr ""
 
-#: rental/views.py:1481
+#: rental/views.py:1540
 #, python-brace-format
 msgid ""
 "{count} active rentals have been cancelled (inventory quantities reset not "
 "supported through API)"
 msgstr ""
 
-#: rental/views.py:1484
+#: rental/views.py:1543
 msgid "Invalid action"
 msgstr ""
 
-#: rental/views.py:1995
+#: rental/views.py:2054
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully created."
 msgstr ""
 
-#: rental/views.py:2031
+#: rental/views.py:2090
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully deleted."
 msgstr ""
 
-#: rental/views.py:2198 rental/views.py:2240
+#: rental/views.py:2257 rental/views.py:2299
 #, python-brace-format
 msgid "Error loading rental: {error}"
 msgstr ""
 
-#: rental/views.py:2304
+#: rental/views.py:2363
 msgid "Only POST method allowed"
 msgstr ""
 
-#: rental/views.py:2346
+#: rental/views.py:2405
 msgid "Automatic expiration of room rentals completed"
 msgstr ""
 
-#: rental/views.py:2357
+#: rental/views.py:2416
 #, python-brace-format
 msgid "Error executing command: {error}"
 msgstr ""
 
-#: rental/views.py:2521
+#: rental/views.py:2580
 msgid "No project"
 msgstr ""
 
-#: rental/views.py:3007
+#: rental/views.py:3086
 msgid "Not available for selected period"
 msgstr ""
 
-#: rental/views.py:3320 rental/views.py:3608
+#: rental/views.py:3399 rental/views.py:3687
 msgid "Missing required parameters"
 msgstr ""
 
-#: rental/views.py:3333
+#: rental/views.py:3412
 msgid "Invalid date/time format"
 msgstr ""
 
-#: rental/views.py:3352
+#: rental/views.py:3431
 msgid "Room is available for the selected period."
 msgstr ""
 
-#: rental/views.py:3391
+#: rental/views.py:3470
 msgid "Room is not available for the selected period."
 msgstr ""
 
-#: rental/views.py:3422
+#: rental/views.py:3501
 msgid "Template name is required"
 msgstr ""
 
-#: rental/views.py:3425
+#: rental/views.py:3504
 msgid "At least one item is required"
 msgstr ""
 
-#: rental/views.py:3430
+#: rental/views.py:3509
 msgid "Template with this name already exists"
 msgstr ""
 
-#: rental/views.py:3452
+#: rental/views.py:3531
 msgid "Invalid inventory item ID"
 msgstr ""
 
-#: rental/views.py:3459
+#: rental/views.py:3538
 msgid "Template saved successfully"
 msgstr ""
 
-#: rental/views.py:3463
+#: rental/views.py:3542
 msgid "Invalid JSON data"
 msgstr ""
 
-#: rental/views.py:3577
+#: rental/views.py:3656
 msgid "Template deleted successfully"
 msgstr ""
 
-#: rental/views.py:3631
+#: rental/views.py:3710
 msgid "Rental must be in draft or reserved status to issue"
 msgstr ""
 
-#: rental/views.py:3637
+#: rental/views.py:3716
 msgid ""
 "Cannot issue rental with only rooms. Equipment is required to change status "
 "from reserved to issued."
 msgstr ""
 
-#: rental/views.py:3647
+#: rental/views.py:3726
 msgid "Invalid user ID"
 msgstr ""
 
-#: rental/views.py:3679
+#: rental/views.py:3758
 #, python-brace-format
 msgid ""
 "Item \"{item_description}\" is not available in requested quantity. "
 "Available: {available}, requested: {requested}"
 msgstr ""
 
-#: rental/views.py:3701
+#: rental/views.py:3793
 msgid "Inventory item not found"
 msgstr ""
 
-#: rental/views.py:3713
+#: rental/views.py:3805
 #, python-brace-format
 msgid ""
 "Item \"{item_description}\" is not available for the selected period. "
 "Available: {available}, requested: {requested}"
 msgstr ""
 
-#: rental/views.py:3741
+#: rental/views.py:3841
 msgid "Rental successfully issued from reservation"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/admin_auto_filters/templates/django-admin-autocomplete-filter/autocomplete-filter.html:3
-#: venv/lib/python3.13/site-packages/admin_searchable_dropdown/templates/django-admin-autocomplete-filter/autocomplete-filter.html:3
-#: venv/lib/python3.13/site-packages/admin_searchable_dropdown/templates/django-admin-searchable-dropdown/autocomplete-filter.html:3
-#: venv/lib/python3.13/site-packages/django_admin_listfilter_dropdown/templates/django_admin_listfilter_dropdown/dropdown_filter.html:3
-#, python-format
-msgid " By %(filter_title)s "
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/contrib/messages/apps.py:16
-msgid "Messages"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/contrib/sitemaps/apps.py:8
-msgid "Site Maps"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/contrib/staticfiles/apps.py:9
-msgid "Static Files"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/contrib/syndication/apps.py:7
-msgid "Syndication"
-msgstr ""
-
-#. Translators: String used to replace omitted page numbers in elided page
-#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:30
-msgid "…"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:32
-msgid "That page number is not an integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:33
-msgid "That page number is less than 1"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:34
-msgid "That page contains no results"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:22
-msgid "Enter a valid value."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:70
-msgid "Enter a valid domain name."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:153
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:775
-msgid "Enter a valid URL."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:200
-msgid "Enter a valid integer."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:211
-msgid "Enter a valid email address."
-msgstr ""
-
-#. Translators: "letters" means latin letters: a-z and A-Z.
-#: venv/lib/python3.13/site-packages/django/core/validators.py:289
-msgid ""
-"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:297
-msgid ""
-"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
-"hyphens."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:309
-#: venv/lib/python3.13/site-packages/django/core/validators.py:318
-#: venv/lib/python3.13/site-packages/django/core/validators.py:332
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2220
-#, python-format
-msgid "Enter a valid %(protocol)s address."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:311
-msgid "IPv4"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:320
-#: venv/lib/python3.13/site-packages/django/utils/ipv6.py:43
-msgid "IPv6"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:334
-msgid "IPv4 or IPv6"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:375
-msgid "Enter only digits separated by commas."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:381
-#, python-format
-msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:416
-#, python-format
-msgid "Ensure this value is less than or equal to %(limit_value)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:425
-#, python-format
-msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:434
-#, python-format
-msgid "Ensure this value is a multiple of step size %(limit_value)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:441
-#, python-format
-msgid ""
-"Ensure this value is a multiple of step size %(limit_value)s, starting from "
-"%(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and so on."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:473
-#, python-format
-msgid ""
-"Ensure this value has at least %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at least %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:491
-#, python-format
-msgid ""
-"Ensure this value has at most %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at most %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:514
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:366
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:405
-msgid "Enter a number."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:516
-#, python-format
-msgid "Ensure that there are no more than %(max)s digit in total."
-msgid_plural "Ensure that there are no more than %(max)s digits in total."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:521
-#, python-format
-msgid "Ensure that there are no more than %(max)s decimal place."
-msgid_plural "Ensure that there are no more than %(max)s decimal places."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:526
-#, python-format
-msgid ""
-"Ensure that there are no more than %(max)s digit before the decimal point."
-msgid_plural ""
-"Ensure that there are no more than %(max)s digits before the decimal point."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:597
-#, python-format
-msgid ""
-"File extension “%(extension)s” is not allowed. Allowed extensions are: "
-"%(allowed_extensions)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:659
-msgid "Null characters are not allowed."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/base.py:1600
-#: venv/lib/python3.13/site-packages/django/forms/models.py:908
-msgid "and"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/base.py:1602
-#, python-format
-msgid "%(model_name)s with this %(field_labels)s already exists."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/constraints.py:22
-#, python-format
-msgid "Constraint “%(name)s” is violated."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:134
-#, python-format
-msgid "Value %(value)r is not a valid choice."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:135
-msgid "This field cannot be null."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:136
-msgid "This field cannot be blank."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:137
-#, python-format
-msgid "%(model_name)s with this %(field_label)s already exists."
-msgstr ""
-
-#. Translators: The 'lookup_type' is one of 'date', 'year' or
-#. 'month'. Eg: "Title must be unique for pub_date year"
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:141
-#, python-format
-msgid ""
-"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:180
-#, python-format
-msgid "Field of type: %(field_type)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1162
-#, python-format
-msgid "“%(value)s” value must be either True or False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1163
-#, python-format
-msgid "“%(value)s” value must be either True, False, or None."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1165
-msgid "Boolean (Either True or False)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1215
-#, python-format
-msgid "String (up to %(max_length)s)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1217
-msgid "String (unlimited)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1326
-msgid "Comma-separated integers"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1427
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
-"format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1431
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1566
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
-"date."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1435
-msgid "Date (without time)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1562
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
-"HH:MM[:ss[.uuuuuu]][TZ] format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1570
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
-"[TZ]) but it is an invalid date/time."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1575
-msgid "Date (with time)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1702
-#, python-format
-msgid "“%(value)s” value must be a decimal number."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1704
-msgid "Decimal number"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1864
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in [DD] "
-"[[HH:]MM:]ss[.uuuuuu] format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1945
-msgid "File path"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2023
-#, python-format
-msgid "“%(value)s” value must be a float."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2025
-msgid "Floating point number"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2065
-#, python-format
-msgid "“%(value)s” value must be an integer."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2067
-msgid "Integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2163
-msgid "Big (8 byte) integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2180
-msgid "Small integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2188
-msgid "IPv4 address"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2219
-msgid "IP address"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2310
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2311
-#, python-format
-msgid "“%(value)s” value must be either None, True or False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2313
-msgid "Boolean (Either True, False or None)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2364
-msgid "Positive big integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2379
-msgid "Positive integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2394
-msgid "Positive small integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2410
-#, python-format
-msgid "Slug (up to %(max_length)s)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2446
-msgid "Text"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2526
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
-"format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2530
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
-"invalid time."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2534
-msgid "Time"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2642
-msgid "URL"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2666
-msgid "Raw binary data"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2731
-#, python-format
-msgid "“%(value)s” is not a valid UUID."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2733
-msgid "Universally unique identifier"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/files.py:420
-msgid "Image"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/json.py:24
-msgid "A JSON object"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/json.py:26
-msgid "Value must be valid JSON."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:979
-#, python-format
-msgid "%(model)s instance with %(field)s %(value)r is not a valid choice."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:982
-msgid "Foreign Key (type determined by related field)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1276
-msgid "One-to-one relationship"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1333
-#, python-format
-msgid "%(from)s-%(to)s relationship"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1335
-#, python-format
-msgid "%(from)s-%(to)s relationships"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1383
-msgid "Many-to-many relationship"
-msgstr ""
-
-#. Translators: If found as last label character, these punctuation
-#. characters will prevent the default label_suffix to be appended to the label
-#: venv/lib/python3.13/site-packages/django/forms/boundfield.py:185
-msgid ":?.!"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:95
-msgid "This field is required."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:315
-msgid "Enter a whole number."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:486
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1267
-msgid "Enter a valid date."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:509
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1268
-msgid "Enter a valid time."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:536
-msgid "Enter a valid date/time."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:570
-msgid "Enter a valid duration."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:571
-#, python-brace-format
-msgid "The number of days must be between {min_days} and {max_days}."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:640
-msgid "No file was submitted. Check the encoding type on the form."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:641
-msgid "No file was submitted."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:642
-msgid "The submitted file is empty."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:644
-#, python-format
-msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
-msgid_plural ""
-"Ensure this filename has at most %(max)d characters (it has %(length)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:649
-msgid "Please either submit a file or check the clear checkbox, not both."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:717
-msgid ""
-"Upload a valid image. The file you uploaded was either not an image or a "
-"corrupted image."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:889
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:975
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1592
-#, python-format
-msgid "Select a valid choice. %(value)s is not one of the available choices."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:977
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1096
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1590
-msgid "Enter a list of values."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1097
-msgid "Enter a complete value."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1339
-msgid "Enter a valid UUID."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1369
-msgid "Enter a valid JSON."
-msgstr ""
-
-#. Translators: This is the default suffix added to form field labels
-#: venv/lib/python3.13/site-packages/django/forms/forms.py:97
-msgid ":"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/forms.py:239
-#, python-format
-msgid "(Hidden field %(name)s) %(error)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:61
-#, python-format
-msgid ""
-"ManagementForm data is missing or has been tampered with. Missing fields: "
-"%(field_names)s. You may need to file a bug report if the issue persists."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:65
-#, python-format
-msgid "Please submit at most %(num)d form."
-msgid_plural "Please submit at most %(num)d forms."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:70
-#, python-format
-msgid "Please submit at least %(num)d form."
-msgid_plural "Please submit at least %(num)d forms."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:484
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:491
-msgid "Order"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:901
-#, python-format
-msgid "Please correct the duplicate data for %(field)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:906
-#, python-format
-msgid "Please correct the duplicate data for %(field)s, which must be unique."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:913
-#, python-format
-msgid ""
-"Please correct the duplicate data for %(field_name)s which must be unique "
-"for the %(lookup)s in %(date_field)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:922
-msgid "Please correct the duplicate values below."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1359
-msgid "The inline value did not match the parent instance."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1450
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1594
-#, python-format
-msgid "“%(pk)s” is not a valid value."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/utils.py:229
-#, python-format
-msgid ""
-"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
-"may be ambiguous or it may not exist."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:527
-msgid "Clear"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:528
-msgid "Currently"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:529
-#: ok_tools/templates/admin/index.html:145
-msgid "Change"
-msgstr ""
-
-#. Translators: Please do not add spaces around commas.
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:873
-msgid "yes,no,maybe"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:903
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:920
-#, python-format
-msgid "%(size)d byte"
-msgid_plural "%(size)d bytes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:922
-#, python-format
-msgid "%s KB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:924
-#, python-format
-msgid "%s MB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:926
-#, python-format
-msgid "%s GB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:928
-#, python-format
-msgid "%s TB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:930
-#, python-format
-msgid "%s PB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:74
-msgid "p.m."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:75
-msgid "a.m."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:80
-msgid "PM"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:81
-msgid "AM"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:153
-msgid "midnight"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:155
-msgid "noon"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:7
-msgid "Monday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:8
-msgid "Tuesday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:9
-msgid "Wednesday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:10
-msgid "Thursday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:11
-msgid "Friday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:12
-msgid "Saturday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:13
-msgid "Sunday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:16
-msgid "Mon"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:17
-msgid "Tue"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:18
-msgid "Wed"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:19
-msgid "Thu"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:20
-msgid "Fri"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:21
-msgid "Sat"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:22
-msgid "Sun"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:39
-msgid "jan"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:40
-msgid "feb"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:41
-msgid "mar"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:42
-msgid "apr"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:43
-msgid "may"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:44
-msgid "jun"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:45
-msgid "jul"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:46
-msgid "aug"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:47
-msgid "sep"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:48
-msgid "oct"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:49
-msgid "nov"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:50
-msgid "dec"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:53
-msgctxt "abbrev. month"
-msgid "Jan."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:54
-msgctxt "abbrev. month"
-msgid "Feb."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:55
-msgctxt "abbrev. month"
-msgid "March"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:56
-msgctxt "abbrev. month"
-msgid "April"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:57
-msgctxt "abbrev. month"
-msgid "May"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:58
-msgctxt "abbrev. month"
-msgid "June"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:59
-msgctxt "abbrev. month"
-msgid "July"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:60
-msgctxt "abbrev. month"
-msgid "Aug."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:61
-msgctxt "abbrev. month"
-msgid "Sept."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:62
-msgctxt "abbrev. month"
-msgid "Oct."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:63
-msgctxt "abbrev. month"
-msgid "Nov."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:64
-msgctxt "abbrev. month"
-msgid "Dec."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:67
-msgctxt "alt. month"
-msgid "January"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:68
-msgctxt "alt. month"
-msgid "February"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:69
-msgctxt "alt. month"
-msgid "March"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:70
-msgctxt "alt. month"
-msgid "April"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:71
-msgctxt "alt. month"
-msgid "May"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:72
-msgctxt "alt. month"
-msgid "June"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:73
-msgctxt "alt. month"
-msgid "July"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:74
-msgctxt "alt. month"
-msgid "August"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:75
-msgctxt "alt. month"
-msgid "September"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:76
-msgctxt "alt. month"
-msgid "October"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:77
-msgctxt "alt. month"
-msgid "November"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:78
-msgctxt "alt. month"
-msgid "December"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/ipv6.py:20
-msgid "This is not a valid IPv6 address."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/text.py:76
-#, python-format
-msgctxt "String to return when truncating text"
-msgid "%(truncated_text)s…"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/text.py:287
-msgid "or"
-msgstr ""
-
-#. Translators: This string is used as a separator between list elements
-#: venv/lib/python3.13/site-packages/django/utils/text.py:306
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:135
-msgid ", "
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:8
-#, python-format
-msgid "%(num)d year"
-msgid_plural "%(num)d years"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:9
-#, python-format
-msgid "%(num)d month"
-msgid_plural "%(num)d months"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:10
-#, python-format
-msgid "%(num)d week"
-msgid_plural "%(num)d weeks"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:11
-#, python-format
-msgid "%(num)d day"
-msgid_plural "%(num)d days"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:12
-#, python-format
-msgid "%(num)d hour"
-msgid_plural "%(num)d hours"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:13
-#, python-format
-msgid "%(num)d minute"
-msgid_plural "%(num)d minutes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:29
-msgid "Forbidden"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:30
-msgid "CSRF verification failed. Request aborted."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:34
-msgid ""
-"You are seeing this message because this HTTPS site requires a “Referer "
-"header” to be sent by your web browser, but none was sent. This header is "
-"required for security reasons, to ensure that your browser is not being "
-"hijacked by third parties."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:40
-msgid ""
-"If you have configured your browser to disable “Referer” headers, please re-"
-"enable them, at least for this site, or for HTTPS connections, or for “same-"
-"origin” requests."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:45
-msgid ""
-"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
-"including the “Referrer-Policy: no-referrer” header, please remove them. The "
-"CSRF protection requires the “Referer” header to do strict referer checking. "
-"If you’re concerned about privacy, use alternatives like <a "
-"rel=\"noreferrer\" …> for links to third-party sites."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:54
-msgid ""
-"You are seeing this message because this site requires a CSRF cookie when "
-"submitting forms. This cookie is required for security reasons, to ensure "
-"that your browser is not being hijacked by third parties."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:60
-msgid ""
-"If you have configured your browser to disable cookies, please re-enable "
-"them, at least for this site, or for “same-origin” requests."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:66
-msgid "More information is available with DEBUG=True."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:44
-msgid "No year specified"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:64
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:115
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:214
-msgid "Date out of range"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:94
-msgid "No month specified"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:147
-msgid "No day specified"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:194
-msgid "No week specified"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:353
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:384
-#, python-format
-msgid "No %(verbose_name_plural)s available"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:680
-#, python-format
-msgid ""
-"Future %(verbose_name_plural)s not available because "
-"%(class_name)s.allow_future is False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:720
-#, python-format
-msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/detail.py:56
-#, python-format
-msgid "No %(verbose_name)s found matching the query"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/list.py:70
-msgid "Page is not “last”, nor can it be converted to an int."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/list.py:77
-#, python-format
-msgid "Invalid page (%(page_number)s): %(message)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/list.py:173
-#, python-format
-msgid "Empty list and “%(class_name)s.allow_empty” is False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/static.py:49
-msgid "Directory indexes are not allowed here."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/static.py:51
-#, python-format
-msgid "“%(path)s” does not exist"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/static.py:68
-#: venv/lib/python3.13/site-packages/django/views/templates/directory_index.html:8
-#: venv/lib/python3.13/site-packages/django/views/templates/directory_index.html:11
-#, python-format
-msgid "Index of %(directory)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:7
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:204
-msgid "The install worked successfully! Congratulations!"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:206
-#, python-format
-msgid ""
-"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
-"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:208
-#, python-format
-msgid ""
-"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
-"%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
-"configured any URLs."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:217
-msgid "Django Documentation"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:218
-msgid "Topics, references, &amp; how-to’s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:226
-msgid "Tutorial: A Polling App"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:227
-msgid "Get started with Django"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:235
-msgid "Django Community"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:236
-msgid "Connect, get help, or contribute"
 msgstr ""
 
 #: ok_tools/accessibility_views.py:28
@@ -7183,6 +6552,14 @@ msgstr ""
 
 #: ok_tools/accessibility_views.py:55
 msgid "There was an error sending your message. Please try again later."
+msgstr ""
+
+#: ok_tools/admin.py:64 ok_tools/templates/base.html:37
+msgid "Dashboard"
+msgstr ""
+
+#: ok_tools/admin.py:70
+msgid "Main Dashboard"
 msgstr ""
 
 #: ok_tools/admin_celery.py:20
@@ -7255,11 +6632,11 @@ msgstr ""
 msgid "Task \"%(task_name)s\" started successfully. Task ID: %(task_id)s"
 msgstr ""
 
-#: ok_tools/settings.py:368
+#: ok_tools/settings.py:380
 msgid "Open Channel Merseburg-Querfurt e.V."
 msgstr ""
 
-#: ok_tools/settings.py:370
+#: ok_tools/settings.py:382
 msgid "OK Merseburg"
 msgstr ""
 
@@ -7304,6 +6681,10 @@ msgstr ""
 #: ok_tools/templates/admin/index.html:136
 #: ok_tools/templates/admin/nav_sidebar.html:34
 msgid "Add"
+msgstr ""
+
+#: ok_tools/templates/admin/index.html:145
+msgid "Change"
 msgstr ""
 
 #: ok_tools/templates/admin/index.html:158
@@ -7356,10 +6737,6 @@ msgstr ""
 
 #: ok_tools/templates/base.html:12
 msgid "OK Tools Dashboard"
-msgstr ""
-
-#: ok_tools/templates/base.html:37
-msgid "Dashboard"
 msgstr ""
 
 #: ok_tools/templates/base.html:77

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 23:02+0100\n"
+"POT-Creation-Date: 2025-12-12 02:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,7 +66,7 @@ msgstr ""
 msgid "not found"
 msgstr ""
 
-#: planung/admin.py:223 planung/templates/admin/planung/calendar_weeks.html:171
+#: planung/admin.py:223 planung/templates/admin/planung/calendar_weeks.html:172
 msgid "Start"
 msgstr ""
 
@@ -78,7 +78,7 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
-#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:176
+#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:177
 msgid "Duration"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgid "3 Weeks Ahead"
 msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:152
-#: planung/templates/admin/planung/calendar_weeks.html:194
+#: planung/templates/admin/planung/calendar_weeks.html:195
 msgid "Close"
 msgstr ""
 
@@ -162,63 +162,67 @@ msgstr ""
 msgid "Large gaps (≥5 min) can be filled with videos"
 msgstr "Large gaps (≥5 min) can be filled with videos"
 
-#: planung/templates/admin/planung/calendar_weeks.html
-msgid "You can manually set any time (including 00:00 and times outside the block) by editing the start time field"
-msgstr "You can manually set any time (including 00:00 and times outside the block) by editing the start time field"
+#: planung/templates/admin/planung/calendar_weeks.html:160
+msgid ""
+"You can manually set any time (including 00:00 and times outside the block) "
+"by editing the start time field"
+msgstr ""
+"You can manually set any time (including 00:00 and times outside the block) "
+"by editing the start time field"
 
-#: planung/templates/admin/planung/calendar_weeks.html:163
+#: planung/templates/admin/planung/calendar_weeks.html:164
 msgid "Enter license number..."
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:164
+#: planung/templates/admin/planung/calendar_weeks.html:165
 msgid "Add"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:165
+#: planung/templates/admin/planung/calendar_weeks.html:166
 msgid "Align all start times to 0 or 5 minutes"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:165
+#: planung/templates/admin/planung/calendar_weeks.html:166
 msgid "Align to 5 min"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:172
+#: planung/templates/admin/planung/calendar_weeks.html:173
 msgid "End"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:173
+#: planung/templates/admin/planung/calendar_weeks.html:174
 msgid "Number"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:174
+#: planung/templates/admin/planung/calendar_weeks.html:175
 msgid "Title"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:175
+#: planung/templates/admin/planung/calendar_weeks.html:176
 msgid "Sendeverantwortung"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:177
+#: planung/templates/admin/planung/calendar_weeks.html:178
 msgid "Actions"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:186
+#: planung/templates/admin/planung/calendar_weeks.html:187
 msgid "Comment or notes:"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:192
+#: planung/templates/admin/planung/calendar_weeks.html:193
 msgid "Sort by time"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:193
+#: planung/templates/admin/planung/calendar_weeks.html:194
 msgid "Delete"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:195
+#: planung/templates/admin/planung/calendar_weeks.html:196
 msgid "Save"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:196
+#: planung/templates/admin/planung/calendar_weeks.html:197
 msgid "Plan!"
 msgstr ""
 

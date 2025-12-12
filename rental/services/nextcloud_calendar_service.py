@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 from django.utils import timezone
 from icalendar import Calendar, Event
 from datetime import datetime
@@ -303,20 +303,27 @@ class NextcloudCalendarService:
             event.add("dtend", end_date)
 
             # Description: Booking details
+            # Ensure translations use the correct language (from Django settings)
+            from django.utils.translation import get_language, activate
+            current_language = get_language()
+            # Activate default language if not set (should be 'de' based on settings)
+            if not current_language:
+                activate(getattr(settings, 'LANGUAGE_CODE', 'de'))
+            
             user_name = user_display_name
             description_parts = [
-                f"OK-Tools Booking #{room_rental.rental_request.id}",
-                f"User: {user_name} ({user.email})",
-                f"Project: {room_rental.rental_request.project_name}",
-                f"Purpose: {room_rental.rental_request.purpose}",
-                f"People: {room_rental.people_count}",
+                gettext("OK-Tools Booking #{booking_id}").format(booking_id=room_rental.rental_request.id),
+                gettext("User: {user_name} ({email})").format(user_name=user_name, email=user.email),
+                gettext("Project: {project}").format(project=room_rental.rental_request.project_name),
+                gettext("Purpose: {purpose}").format(purpose=room_rental.rental_request.purpose),
+                gettext("People: {count}").format(count=room_rental.people_count),
             ]
             
             if room_rental.notes:
-                description_parts.append(f"\nNotes:\n{room_rental.notes}")
+                description_parts.append(f"\n{gettext('Notes:')}\n{room_rental.notes}")
             
             if room_rental.rental_request.notes:
-                description_parts.append(f"\nRequest Notes:\n{room_rental.rental_request.notes}")
+                description_parts.append(f"\n{gettext('Request Notes:')}\n{room_rental.rental_request.notes}")
 
             event.add("description", "\n".join(description_parts))
 
