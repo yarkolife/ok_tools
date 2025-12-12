@@ -49,7 +49,8 @@ class Command(BaseCommand):
             'videos_found': 0,
             'linked': 0,
             'duration_synced': 0,
-            'errors': 0
+            'errors': 0,
+            'duplicates_found': 0
         }
         
         with transaction.atomic():
@@ -82,6 +83,13 @@ class Command(BaseCommand):
         self.stdout.write(f'Videos found: {stats["videos_found"]}')
         self.stdout.write(f'Linked: {stats["linked"]}')
         self.stdout.write(f'Duration synced: {stats["duration_synced"]}')
+        if stats['duplicates_found'] > 0:
+            self.stdout.write(
+                self.style.WARNING(
+                    f'Numbers with duplicates: {stats["duplicates_found"]} '
+                    f'(run find_duplicates for details)'
+                )
+            )
         if stats['errors'] > 0:
             self.stdout.write(self.style.ERROR(f'Errors: {stats["errors"]}'))
 
@@ -96,12 +104,39 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(f'License #{number} not found'))
                 return stats
             
-            try:
-                video = VideoFile.objects.get(number=number)
-                stats['videos_found'] += 1
-            except VideoFile.DoesNotExist:
+            # Handle potential duplicates safely
+            videos = VideoFile.objects.filter(number=number)
+            video_count = videos.count()
+            
+            if video_count == 0:
                 self.stdout.write(self.style.WARNING(f'Video #{number} not found'))
                 return stats
+            
+            # Select video: if duplicates exist, choose best one
+            if video_count > 1:
+                stats['duplicates_found'] += 1
+                # Multiple videos with same number - select the best one
+                # Priority: 1) already linked to license, 2) most recent, 3) available
+                video = videos.filter(license=license).first()
+                if not video:
+                    video = videos.order_by('-updated_at', '-is_available').first()
+                
+                selected_id = video.id
+                all_ids = list(videos.values_list('id', flat=True))
+                logger.warning(
+                    f'Found {video_count} duplicates for #{number}, selected id={selected_id} '
+                    f'(rule: linked={video.license == license if video.license else False}, '
+                    f'updated_at={video.updated_at}, is_available={video.is_available}). All IDs: {all_ids}'
+                )
+                self.stdout.write(
+                    self.style.WARNING(
+                        f'#{number}: Found {video_count} duplicates, selected id={selected_id}'
+                    )
+                )
+            else:
+                video = videos.first()
+            
+            stats['videos_found'] += 1
             
             # Check if already linked
             if license == video.license:
