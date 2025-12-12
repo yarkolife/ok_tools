@@ -184,6 +184,7 @@ TEMPLATES = [
                 "ok_tools.context_processors.bootstrap_context",
                 "ok_tools.context_processors.user_display_name",
                 "ok_tools.context_processors.nextcloud_context",
+                "ok_tools.context_processors.dashboard_theme_context",
             ],
         },
     },
@@ -590,6 +591,9 @@ BOOTSTRAP_VERSION = get_env('BOOTSTRAP_VERSION', default='5.3.2')
 BOOTSTRAP_CDN_URL = f"https://cdn.jsdelivr.net/npm/bootstrap@{BOOTSTRAP_VERSION}"
 BOOTSTRAP_ICONS_VERSION = get_env('BOOTSTRAP_ICONS_VERSION', default='1.1.1')
 BOOTSTRAP_ICONS_URL = f"https://cdn.jsdelivr.net/npm/bootstrap-icons@{BOOTSTRAP_ICONS_VERSION}"
+
+# Dashboard Theme Configuration
+DASHBOARD_THEME = get_env('DASHBOARD_THEME', default='default')
 
 # Cache Configuration
 # Get cache backend from environment or use Redis if available

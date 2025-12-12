@@ -1,0 +1,28 @@
+/* Vibrant Theme - Bright and colorful */
+:root {
+    --primary-color: #6366f1;
+    --secondary-color: #f7fafc;
+    --success-color: #10b981;
+    --info-color: #3b82f6;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --dark-color: #1e293b;
+    --light-color: #f1f5f9;
+}
+
+/* Sidebar gradient for vibrant theme */
+.sidebar {
+    background: linear-gradient(135deg, var(--primary-color) 100%, #8b5cf6 100%);
+}
+
+/* Vibrant theme specific enhancements */
+.btn-primary:hover {
+    background-color: #818cf8;
+    border-color: #818cf8;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+

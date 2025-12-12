@@ -35,3 +35,11 @@ def nextcloud_context(request):
     return {
         'NEXTCLOUD_ENABLED': settings.NEXTCLOUD_ENABLED,
     }
+
+
+def dashboard_theme_context(request):
+    """Add dashboard theme configuration to global context."""
+    return {
+        'DASHBOARD_THEME': settings.DASHBOARD_THEME,
+        'DASHBOARD_THEME_FILE': f'css/themes/theme-{settings.DASHBOARD_THEME}.css',
+    }

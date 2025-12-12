@@ -1,0 +1,17 @@
+/* Default Theme - Current theme colors */
+:root {
+    --primary-color: #004354;
+    --secondary-color: #f7fafc;
+    --success-color: #2dce89;
+    --info-color: #11cdef;
+    --warning-color: #fb6340;
+    --danger-color: #f5365c;
+    --dark-color: #172b4d;
+    --light-color: #f8f9fe;
+}
+
+/* Sidebar gradient for default theme */
+.sidebar {
+    background: linear-gradient(135deg, var(--primary-color) 100%, #825ee4 100%);
+}
+

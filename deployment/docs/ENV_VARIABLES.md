@@ -419,6 +419,16 @@ This document provides comprehensive reference for all environment variables use
 - **Example:** `BOOTSTRAP_ICONS_VERSION=1.10.0`
 - **Notes:** Must match available CDN version
 
+### DASHBOARD_THEME
+- **Description:** Color theme for user dashboard
+- **Type:** String
+- **Required:** No
+- **Default:** `default`
+- **Example:** `DASHBOARD_THEME=default` or `DASHBOARD_THEME=dark` or `DASHBOARD_THEME=vibrant`
+- **Notes:**
+  - Available themes: `default` (blue), `dark` (dark background with orange accents), `vibrant` (purple)
+  - Affects colors, gradients, and styling of the user dashboard interface
+
 ---
 
 ## Video Configuration
