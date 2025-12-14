@@ -1103,7 +1103,15 @@ fi
 
 # Start containers
 print_info "Starting containers..."
-docker compose up -d
+# Force recreate containers if docker-compose.yml was updated to ensure new volume mounts are applied
+if [ -f "$PRODUCTION_DIR/docker-compose.yml.new" ]; then
+    print_info "docker-compose.yml was updated - recreating containers to apply changes..."
+    docker compose up -d --force-recreate
+    # Remove the .new file after successful recreation
+    rm -f "$PRODUCTION_DIR/docker-compose.yml.new"
+else
+    docker compose up -d
+fi
 
 # Wait for containers to be ready
 print_info "Waiting for containers to be ready..."
