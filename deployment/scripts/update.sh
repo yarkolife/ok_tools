@@ -802,6 +802,19 @@ if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAM
     copy_as_new_if_changed "deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template" "nginx.conf.template"
     # Ensure deployment directory exists
     mkdir -p "$PRODUCTION_DIR/deployment" 2>/dev/null || sudo mkdir -p "$PRODUCTION_DIR/deployment" 2>/dev/null || true
+    # Move file from root to deployment/ if it exists in wrong location (fix for old installations)
+    if [ -f "$PRODUCTION_DIR/99-custom-nginx-config.sh" ] && [ ! -f "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" ]; then
+        print_info "Moving 99-custom-nginx-config.sh from root to deployment/ directory"
+        if mv "$PRODUCTION_DIR/99-custom-nginx-config.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null; then
+            print_success "File moved successfully"
+        elif command -v sudo >/dev/null 2>&1; then
+            sudo mv "$PRODUCTION_DIR/99-custom-nginx-config.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null && \
+            sudo chown "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || true
+            print_success "File moved with sudo"
+        else
+            print_warning "Cannot move file - please manually move: mv $PRODUCTION_DIR/99-custom-nginx-config.sh $PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+        fi
+    fi
     # Remove directory if it exists instead of file (fix for incorrect previous installations)
     if [ -d "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" ]; then
         print_warning "Removing directory that should be a file: $PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
