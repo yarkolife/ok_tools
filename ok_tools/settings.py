@@ -110,6 +110,33 @@ if ',' in allowed_hosts_str:
 else:
     ALLOWED_HOSTS = allowed_hosts_str.split()
 
+# =============================================================================
+# Site / URLs
+# =============================================================================
+SITE_BASE_URL = get_env('SITE_BASE_URL', default='')
+if not SITE_BASE_URL:
+    # Best-effort fallback for building absolute URLs in emails.
+    # Prefer explicit SITE_BASE_URL in production.
+    default_scheme = 'http' if DEBUG else 'https'
+    fallback_host = next((h for h in ALLOWED_HOSTS if h and h != '*'), 'localhost')
+    SITE_BASE_URL = f"{default_scheme}://{fallback_host}"
+
+# =============================================================================
+# Rental: user approval via email
+# =============================================================================
+RENTAL_USER_REQUEST_REQUIRES_APPROVAL = get_env(
+    'RENTAL_USER_REQUEST_REQUIRES_APPROVAL',
+    default=False,
+    cast=bool,
+)
+RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS = get_env(
+    'RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS',
+    default=60 * 60 * 24 * 7,  # 7 days
+    cast=int,
+)
+# Optional explicit list of admin recipients. If empty, fall back to all active staff users with email.
+RENTAL_APPROVAL_RECIPIENT_EMAILS = get_env_list('RENTAL_APPROVAL_RECIPIENT_EMAILS', default=[])
+
 # Loglevel
 DJANGO_LOG_LEVEL = get_env('DJANGO_LOG_LEVEL', default='INFO')
 
@@ -460,6 +487,12 @@ else:
     NEXTCLOUD_PASSWORD = ''
     NEXTCLOUD_UPLOAD_FOLDER = ''
     NEXTCLOUD_WEBDAV_PATH = '/remote.php/dav/files/{username}/'
+
+# Registration form PDF template - read from environment
+REGISTRATION_FORM_PDF = get_env('REGISTRATION_FORM_PDF', default='Nutzerkartei.pdf')
+
+# Registration form type - PDF, HTML, or TEXT
+REGISTRATION_FORM_TYPE = get_env('REGISTRATION_FORM_TYPE', default='PDF')
 
 # Nextcloud Calendar integration settings (CalDAV)
 NEXTCLOUD_CALENDAR_ENABLED = get_env('NEXTCLOUD_CALENDAR_ENABLED', default=False, cast=bool)

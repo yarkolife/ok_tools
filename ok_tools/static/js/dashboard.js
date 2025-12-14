@@ -71,8 +71,57 @@ function initializeCharts() {
             }
         }
 
+        // Check if dark theme is active
+        const isDarkTheme = document.body.classList.contains('theme-dark') || 
+                           document.documentElement.classList.contains('theme-dark') ||
+                           window.getComputedStyle(document.body).backgroundColor === 'rgb(26, 26, 26)';
+
         // Create new chart with real data
         try {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            color: isDarkTheme ? '#cccccc' : undefined
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: isDarkTheme ? '#cccccc' : undefined
+                        },
+                        grid: {
+                            color: isDarkTheme ? 'rgba(255, 255, 255, 0.1)' : undefined
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            maxTicksLimit: 5,
+                            color: isDarkTheme ? '#cccccc' : undefined
+                        },
+                        grid: {
+                            color: isDarkTheme ? 'rgba(255, 255, 255, 0.1)' : undefined
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            };
+
+            // Add background color for dark theme
+            if (isDarkTheme) {
+                chartOptions.plugins.legend.labels.color = '#cccccc';
+            }
+
             window.dashboardChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -81,47 +130,23 @@ function initializeCharts() {
                         label: 'Licenses',
                         data: window.monthlyStats.licenses || [],
                         borderColor: '#5e72e4',
-                        backgroundColor: 'rgba(94, 114, 228, 0.1)',
+                        backgroundColor: isDarkTheme ? 'rgba(94, 114, 228, 0.2)' : 'rgba(94, 114, 228, 0.1)',
                         tension: 0.4
                     }, {
                         label: 'Rentals',
                         data: window.monthlyStats.rentals || [],
                         borderColor: '#2dce89',
-                        backgroundColor: 'rgba(45, 206, 137, 0.1)',
+                        backgroundColor: isDarkTheme ? 'rgba(45, 206, 137, 0.2)' : 'rgba(45, 206, 137, 0.1)',
                         tension: 0.4
                     }, {
                         label: 'Contributions',
                         data: window.monthlyStats.contributions || [],
                         borderColor: '#f5365c',
-                        backgroundColor: 'rgba(245, 54, 92, 0.1)',
+                        backgroundColor: isDarkTheme ? 'rgba(245, 54, 92, 0.2)' : 'rgba(245, 54, 92, 0.1)',
                         tension: 0.4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                maxTicksLimit: 5
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
+                options: chartOptions
             });
         } catch (e) {
             console.error('Error creating chart:', e);

@@ -59,20 +59,26 @@
                     <div class="row g-2">
                         <div class="col-4">
                             <div class="stats-card stats-card-primary" data-type="active">
+                                <div class="stats-icon-small">
+                                    <i class="bi bi-clock"></i>
+                                </div>
                                 <div class="stats-number">{{ active_rentals|default:0 }}</div>
-                                <div class="stats-label">{% trans "Current" %}</div>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="stats-card stats-card-success" data-type="returned">
+                                <div class="stats-icon-small">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
                                 <div class="stats-number">{{ returned_rentals|default:0 }}</div>
-                                <div class="stats-label">{% trans "Returned" %}</div>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="stats-card stats-card-warning" data-type="overdue">
+                                <div class="stats-icon-small">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
                                 <div class="stats-number">{{ overdue_rentals|default:0 }}</div>
-                                <div class="stats-label">{% trans "Expired" %}</div>
                             </div>
                         </div>
                     </div>
@@ -130,11 +136,6 @@
                             <i class="bi bi-bookmark me-1"></i>{% trans "Reserve" %}
                         </button>
                     </div>
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <i class="bi bi-info-circle me-1"></i>{% trans "Rooms are automatically returned after scheduled time" %}
-                        </small>
-                    </div>
                 </div>
             </div>
         </div>
@@ -142,15 +143,17 @@
 
     <!-- Main Content -->
     <div class="col-lg-9">
-        <!-- Quick Filters -->
-        <div class="dashboard-card mb-4">
+        <!-- Inventory Selection Panel -->
+        <div class="dashboard-card rental-inventory-card">
             <div class="card-header">
                 <h5 class="card-title">
-                    <i class="bi bi-funnel text-info me-2"></i>
-                    {% trans "Filters" %}
+                    <i class="bi bi-boxes text-success me-2"></i>
+                    {% trans "Available Inventory" %}
                 </h5>
             </div>
-            <div class="card-body">
+            
+            <!-- Quick Filters -->
+            <div class="card-body border-bottom">
                 <div class="row align-items-center">
                     <div class="col-md-4">
                         <div class="input-group search-group">
@@ -163,43 +166,24 @@
                             <option value="all">{% trans "All Owners" %}</option>
                         </select>
                     </div> -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select class="form-select filter-select" id="categoryFilter">
                             <option value="all">{% trans "All Categories" %}</option>
                         </select>
-                        </select>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select filter-select" id="locationFilter">
-                            <option value="all">{% trans "All Locations" %}</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-outline-success w-100 mb-2" id="roomsFilterBtn">
+                        <button class="btn btn-outline-success w-100" id="roomsFilterBtn">
                             <i class="bi bi-building me-1"></i>{% trans "Rooms" %}
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Inventory Selection Panel -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <h5 class="card-title">
-                    <i class="bi bi-boxes text-success me-2"></i>
-                    {% trans "Available Inventory" %}
-                </h5>
-            </div>
+            
+            <!-- Inventory Grid -->
             <div class="card-body">
                 <div class="inventory-grid">
                     <div class="row" id="inventoryGrid">
-                        <div class="col-12">
-                            <div class="text-center p-5">
-                                <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
-                                <p class="mt-3 text-muted">{% trans "Select dates to view availability" %}</p>
-                            </div>
-                        </div>
+                        <!-- Content will be loaded by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -212,9 +196,6 @@
                     <div>
                         <button class="btn btn-outline-secondary me-2" id="clearFormBtn">
                             <i class="bi bi-eraser me-1"></i>{% trans "Reset" %}
-                        </button>
-                        <button class="btn btn-outline-info" id="groupByLocationBtn">
-                            <i class="bi bi-sitemap me-1"></i>{% trans "Group by Location" %}
                         </button>
                     </div>
                     <div>
@@ -429,6 +410,92 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Rental inventory card must not stretch with the left workflow column.
+       Global dashboard styles make .dashboard-card / .card-body flex with flex: 1,
+       which can push the grid to the bottom of a tall card. */
+    .dashboard-card.rental-inventory-card {
+        height: auto !important;
+        display: block !important;
+    }
+    
+    .dashboard-card.rental-inventory-card .card-body {
+        flex: 0 0 auto !important;
+        display: block !important;
+    }
+
+    /* Override max-height restriction for inventory grid */
+    .inventory-grid {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    /* Reduce height of filters section */
+    .card-body.border-bottom {
+        padding: 1rem !important;
+        min-height: auto !important;
+        height: auto !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 1rem !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+    
+    .card-body.border-bottom .row {
+        margin-bottom: 0 !important;
+    }
+    
+    /* Position inventory grid directly under filters - remove all spacing */
+    .card-body.border-bottom + .card-body {
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 1.5rem !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Ensure inventory grid starts immediately */
+    .card-body.border-bottom + .card-body .inventory-grid {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    
+    /* Ensure inventory grid row uses Bootstrap flexbox properly */
+    #inventoryGrid.row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin-left: -0.75rem !important;
+        margin-right: -0.75rem !important;
+    }
+    
+    /* Ensure columns are properly displayed */
+    #inventoryGrid .col-md-6,
+    #inventoryGrid .col-lg-4 {
+        display: flex !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    
+    /* Ensure item cards are visible */
+    .item-card {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 150px !important;
+        width: 100% !important;
+        background: white !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    /* Align rooms filter button with category filter select */
+    #roomsFilterBtn {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <!-- JavaScript translations -->
 <script src="{% url 'javascript-catalog' %}"></script>
@@ -438,7 +505,7 @@
     const URLS = {
         filterOptions: "{% url 'rental:api_filter_options_user' %}",
         equipmentSets: "{% url 'rental:api_equipment_sets_user' %}",
-        equipmentSetDetails: "{% url 'rental:api_equipment_set_details' set_id=0 %}".replace('0','{setId}'),
+        equipmentSetDetails: "{% url 'rental:api_equipment_set_details_user' set_id=0 %}".replace('0','{setId}'),
         rooms: "{% url 'rental:api_rooms_user' %}",
         roomSchedule: "{% url 'rental:api_room_schedule_user' %}",
         createRental: "{% url 'rental:api_create_rental_user' %}",
@@ -447,6 +514,7 @@
     };
     const CSRF_TOKEN = "{{ csrf_token }}";
     const USER_ID = "{{ user_id }}";
+    const RENTAL_REQUIRES_APPROVAL = {{ rental_requires_approval|yesno:"true,false" }};
 </script>
 
 <script src="{% static 'js/rental_dashboard.js' %}"></script>

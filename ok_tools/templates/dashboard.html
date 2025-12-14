@@ -201,14 +201,9 @@
                 <a href="{% url 'contributions:contributions' %}" class="btn btn-outline-primary">
                     <i class="bi bi-hand-thumbs-up me-2"></i>{% trans "Contributions" %}
                 </a>
-                <!-- RESTORE_WORKING_LINK: To re-enable, replace the button below with the anchor in this comment.
                 <a href="{% url 'rental_dashboard' %}" class="btn btn-outline-primary">
                     <i class="bi bi-calendar-plus me-2"></i>{% trans "Rental Dashboard" %}
                 </a>
-                -->
-                <button type="button" class="btn btn-outline-primary coming-soon-btn" data-feature="rental">
-                    <i class="bi bi-calendar-plus me-2"></i>{% trans "Rental Dashboard" %}
-                </button>
                 {% if OK_WEBSITE %}
                 <a href="{{ OK_WEBSITE }}" target="_blank" class="btn btn-outline-danger">
                     <i class="bi bi-box-arrow-up-right me-2"></i>{% trans "Organization Website" %}

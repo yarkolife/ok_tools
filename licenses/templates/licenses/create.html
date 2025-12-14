@@ -342,7 +342,7 @@
                         <span class="fw-bold">{% trans 'Sign here' %}</span>
                     </div>
                     <div class="signature-wrapper border rounded p-3 bg-light">
-                        <canvas id="signature-pad" class="signature-canvas bg-white" height="200"></canvas>
+                        <canvas id="signature-pad" class="signature-canvas bg-white" height="150"></canvas>
                         <div class="mt-3 mb-3 d-flex justify-content-between align-items-center">
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="clear-signature">
                                 <i class="bi bi-eraser me-1"></i>{% trans 'Clear Signature' %}
@@ -474,6 +474,8 @@
     /* Signature canvas styling */
     .signature-canvas {
         width: 100%;
+        max-width: 400px;
+        height: 150px;
         cursor: crosshair;
         border-color: #6c757d !important;
     }
@@ -501,18 +503,45 @@
             // Set canvas size to match display size
             function resizeCanvas() {
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                // Store the current content
                 const dataUrl = canvas.toDataURL();
+                
+                // Save display dimensions before changing canvas size
+                const displayWidth = canvas.offsetWidth;
+                const displayHeight = canvas.offsetHeight;
 
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
+                canvas.width = displayWidth * ratio;
+                canvas.height = displayHeight * ratio;
                 ctx.scale(ratio, ratio);
+                
+                // Set line width that scales properly with ratio (reduced by 2x)
+                ctx.lineWidth = 3 * ratio;
 
-                // Restore content if it wasn't empty
                 if (dataUrl !== 'data:,') {
                     const img = new Image();
                     img.onload = function () {
-                        ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                        // Calculate scaling to fit image without stretching
+                        const imgAspect = img.width / img.height;
+                        const canvasAspect = displayWidth / displayHeight;
+                        
+                        let drawWidth, drawHeight, drawX, drawY;
+                        
+                        if (imgAspect > canvasAspect) {
+                            // Image is wider - fit to width
+                            drawWidth = displayWidth * 0.9; // Use 90% of width
+                            drawHeight = drawWidth / imgAspect;
+                            drawX = (displayWidth - drawWidth) / 2;
+                            // Position signature higher (top 20% instead of center)
+                            drawY = displayHeight * 0.2;
+                        } else {
+                            // Image is taller - fit to height
+                            drawHeight = displayHeight * 0.6; // Use 60% of height
+                            drawWidth = drawHeight * imgAspect;
+                            drawX = (displayWidth - drawWidth) / 2;
+                            // Position signature higher
+                            drawY = displayHeight * 0.15;
+                        }
+                        
+                        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
                     };
                     img.src = dataUrl;
                 }
@@ -524,26 +553,55 @@
             // Draw inner dashed rectangle with padding
             function drawInnerRectangle() {
                 const padding = 8; // 8px padding from edges
+                const displayWidth = canvas.offsetWidth;
+                const displayHeight = canvas.offsetHeight;
                 ctx.save();
                 ctx.setLineDash([5, 5]);
                 ctx.strokeStyle = '#6c757d';
                 ctx.lineWidth = 1;
-                ctx.strokeRect(padding, padding, canvas.offsetWidth - padding * 2, canvas.offsetHeight - padding * 2);
+                ctx.strokeRect(padding, padding, displayWidth - padding * 2, displayHeight - padding * 2);
                 ctx.restore();
             }
-            window.addEventListener('resize', resizeCanvas);
-            // Initial resize
-            setTimeout(resizeCanvas, 100);
-
-            // Load existing signature if present
-            if (signatureInput.value) {
-                const img = new Image();
-                img.onload = function () {
-                    ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
-                    drawInnerRectangle(); // Redraw rectangle over loaded image
-                };
-                img.src = signatureInput.value;
+            
+            // Load existing signature if present (after canvas is initialized)
+            function loadExistingSignature() {
+                if (signatureInput.value) {
+                    const displayWidth = canvas.offsetWidth;
+                    const displayHeight = canvas.offsetHeight;
+                    const img = new Image();
+                    img.onload = function () {
+                        // Calculate scaling to fit image without stretching
+                        const imgAspect = img.width / img.height;
+                        const canvasAspect = displayWidth / displayHeight;
+                        
+                        let drawWidth, drawHeight, drawX, drawY;
+                        
+                        if (imgAspect > canvasAspect) {
+                            // Image is wider - fit to width
+                            drawWidth = displayWidth * 0.9; // Use 90% of width
+                            drawHeight = drawWidth / imgAspect;
+                            drawX = (displayWidth - drawWidth) / 2;
+                            // Position signature higher (top 20% instead of center)
+                            drawY = displayHeight * 0.2;
+                        } else {
+                            // Image is taller - fit to height
+                            drawHeight = displayHeight * 0.6; // Use 60% of height
+                            drawWidth = drawHeight * imgAspect;
+                            drawX = (displayWidth - drawWidth) / 2;
+                            // Position signature higher
+                            drawY = displayHeight * 0.15;
+                        }
+                        
+                        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+                        drawInnerRectangle(); // Redraw rectangle over loaded image
+                    };
+                    img.src = signatureInput.value;
+                }
             }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas(); // Initialize canvas first
+            setTimeout(loadExistingSignature, 150); // Load signature after canvas is ready
 
             function startDrawing(e) {
                 isDrawing = true;
@@ -554,13 +612,17 @@
                 if (!isDrawing) return;
                 e.preventDefault();
                 const [x, y] = getCoordinates(e);
+                
+                // Get current ratio for proper line width scaling
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
 
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
                 ctx.lineTo(x, y);
                 ctx.strokeStyle = '#000';
-                ctx.lineWidth = 4;
+                ctx.lineWidth = 3 * ratio;
                 ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
                 ctx.stroke();
 
                 // Redraw rectangle to keep it visible

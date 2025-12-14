@@ -1,0 +1,15 @@
+{% load i18n %}
+{% trans "Status: Pending approval" %}
+
+{% blocktrans with ok_name=ok_name rental_id=rental_id %}Your rental request #{{ rental_id }} in {{ ok_name }} has been submitted and is pending approval.{% endblocktrans %}
+
+
+{% blocktrans with project_name=project_name %}Project: {{ project_name }}{% endblocktrans %}
+{% blocktrans with purpose=purpose %}Purpose: {{ purpose }}{% endblocktrans %}
+{% blocktrans with start=start end=end %}Period: {{ start }} – {{ end }}{% endblocktrans %}
+
+
+{% trans "You will receive an email notification once your request has been reviewed." %}
+
+
+{% blocktrans with rental_id=rental_id %}Please reference request #{{ rental_id }} in any communication.{% endblocktrans %}

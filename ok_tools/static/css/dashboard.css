@@ -273,6 +273,21 @@ body {
     min-height: 60px !important;
     max-height: 60px !important;
     padding: 0.25rem 0.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Icon style for compact stats cards */
+.workflow-step .stats-card .stats-icon-small {
+    font-size: 1rem !important;
+    color: white !important;
+    margin-bottom: 0.15rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0.95;
 }
 
 .stats-icon {
@@ -830,14 +845,9 @@ body {
 .workflow-step .stats-card .stats-number {
     font-size: 1rem !important;
     font-weight: bold;
-    margin-bottom: 0.15rem !important;
+    margin-bottom: 0 !important;
     color: white;
-}
-
-.workflow-step .stats-card .stats-label {
-    font-size: 0.65rem !important;
-    opacity: 0.9;
-    color: white;
+    line-height: 1.2;
 }
 
 .workflow-step .stats-card-primary {
@@ -1645,6 +1655,22 @@ input:disabled {
     flex: 1;
     display: flex;
     flex-direction: column;
+}
+
+.card-body.border-bottom {
+    height: auto;
+}
+
+/* Remove top padding from inventory grid to position it directly under filters */
+.dashboard-card .card-body.border-bottom + .card-body {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+/* Ensure no gap between filters and inventory grid */
+.dashboard-card .card-body.border-bottom + .card-body .inventory-grid {
+    margin-top: 0;
+    padding-top: 0;
 }
 
 .chart-container {

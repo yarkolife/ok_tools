@@ -2267,6 +2267,10 @@ msgstr ""
 msgid "No licenses found"
 msgstr ""
 
+#: licenses/templates/licenses/list.html:167
+msgid "Create your first license"
+msgstr ""
+
 #: licenses/templates/licenses/list.html:180
 msgid "License pagination"
 msgstr ""
@@ -2432,6 +2436,21 @@ msgstr ""
 #: licenses/views.py:559
 msgid "License not found."
 msgstr ""
+
+#: licenses/admin.py:1188
+#, python-format
+msgid "License #%(id)s not found"
+msgstr "License #%(id)s not found"
+
+#: licenses/admin.py:1190
+#, python-format
+msgid "Error searching for video: %(error)s"
+msgstr "Error searching for video: %(error)s"
+
+#: licenses/admin.py:406 licenses/admin.py:438
+#, python-format
+msgid "Invalid value %(value)s."
+msgstr "Invalid value %(value)s."
 
 #: licenses/views.py:100
 #, python-format

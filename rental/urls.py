@@ -27,6 +27,7 @@ from .views import api_get_all_equipment_sets
 from .views import api_get_all_inventory_status
 from .views import api_get_all_rentals
 from .views import api_get_equipment_set_details
+from .views import api_get_equipment_set_details_user
 from .views import api_get_equipment_sets
 from .views import api_get_equipment_sets_user
 from .views import api_get_filter_options
@@ -53,6 +54,7 @@ from .views import api_save_template
 from .views import api_search_inventory_items
 from .views import api_search_users
 from .views import api_user_active_items
+from .email_approval_views import email_approval_action
 from django.urls import include
 from django.urls import path
 from rest_framework.routers import DefaultRouter
@@ -122,6 +124,7 @@ urlpatterns = [
     path('api/user/filter-options/', api_get_filter_options_user, name='api_filter_options_user'),
     path('api/user/<int:user_id>/inventory-simple/', api_get_user_inventory_simple, name='api_user_inventory_simple'),
     path('api/user/equipment-sets/', api_get_equipment_sets_user, name='api_equipment_sets_user'),
+    path('api/user/equipment-set/<int:set_id>/details/', api_get_equipment_set_details_user, name='api_equipment_set_details_user'),
     path('api/user/rooms/', api_get_rooms_user, name='api_rooms_user'),
     path('api/user/create-rental/', api_create_rental_user, name='api_create_rental_user'),
     path('api/user/room-schedule/', api_get_room_schedule_user, name='api_room_schedule_user'),
@@ -135,4 +138,7 @@ urlpatterns = [
     path('print/msa/<int:rental_id>/', PrintFormMSAView.as_view(), name='print_form_msa'),
     path('print/okmq/<int:rental_id>/', PrintFormOKMQView.as_view(), name='print_form_okmq'),
     path('api/rental/<int:rental_id>/print-info/', api_get_rental_print_info, name='api_rental_print_info'),
+
+    # Email approval (signed links)
+    path('email-approval/<int:rental_id>/<str:action>/<str:token>/', email_approval_action, name='email_approval_action'),
 ]

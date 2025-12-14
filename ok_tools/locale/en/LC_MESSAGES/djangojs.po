@@ -1267,3 +1267,19 @@ msgstr "Detaillierte Rückgabe mit Zustandsbewertung"
 
 msgid "Detailed"
 msgstr "Detailliert"
+
+#: ok_tools/static/js/rental_dashboard.js:607
+msgid "3. Time Period"
+msgstr "3. Time Period"
+
+#: ok_tools/static/js/rental_dashboard.js:610
+msgid "From:"
+msgstr "From:"
+
+#: ok_tools/static/js/rental_dashboard.js:614
+msgid "To:"
+msgstr "To:"
+
+#: ok_tools/static/js/rental_dashboard.js:618
+msgid "Select dates above to view availability"
+msgstr "Select dates above to view availability"

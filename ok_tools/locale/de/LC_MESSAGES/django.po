@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-12 02:22+0100\n"
+"POT-Creation-Date: 2025-12-13 20:39+0100\n"
 "PO-Revision-Date: 2025-01-15 02:03+0100\n"
 "Last-Translator: Daniel Havlik <dh@gocept.com>\n"
 "Language-Team: \n"
@@ -155,7 +155,7 @@ msgstr "Sendezeit"
 #: licenses/admin.py:1607 licenses/models.py:190
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:31
 #: registration/models.py:244 registration/templates/navbar.html:74
-#: ok_tools/templates/base.html:43 ok_tools/templates/base.html:123
+#: ok_tools/templates/base.html:45 ok_tools/templates/base.html:119
 #: ok_tools/templates/dashboard.html:58
 msgid "Profile"
 msgstr "Profil"
@@ -171,7 +171,6 @@ msgstr "Profil-ID"
 #: media_files/templates/admin/media_files/videofile/change_list.html:79
 #: media_files/templates/admin/video_player.html:26 projects/admin.py:175
 #: projects/models.py:155
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1868
 msgid "Duration"
 msgstr "Dauer"
 
@@ -213,7 +212,6 @@ msgstr "Globaler Produzent"
 #: contributions/templates/admin/export.html:70 inventory/models.py:581
 #: inventory/models.py:582 licenses/admin.py:420 licenses/admin.py:452
 #: licenses/admin.py:878 licenses/templates/licenses/details.html:30
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:867
 msgid "Yes"
 msgstr "Ja"
 
@@ -224,7 +222,6 @@ msgstr "Ja"
 #: contributions/templates/admin/export.html:71 inventory/models.py:581
 #: inventory/models.py:582 licenses/admin.py:421 licenses/admin.py:453
 #: licenses/admin.py:883 licenses/templates/licenses/details.html:33
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:868
 msgid "No"
 msgstr "Nein"
 
@@ -328,7 +325,7 @@ msgid "\"%(obj)s\" successfully imported."
 msgstr "\"%(obj)s\" wurde erfolgreich importiert."
 
 #: contributions/apps.py:10 contributions/models.py:118
-#: registration/templates/navbar.html:118 ok_tools/templates/base.html:56
+#: registration/templates/navbar.html:118 ok_tools/templates/base.html:58
 #: ok_tools/templates/dashboard.html:202
 msgid "Contributions"
 msgstr "Beiträge"
@@ -536,7 +533,7 @@ msgstr "Erste Freistellung erstellen"
 #: rental/templates/rental/rental_stats.html:1102
 #: rental/templates/rental/rental_stats.html:1178
 #: rental/templates/rental/rental_stats.html:1223
-#: ok_tools/templates/dashboard.html:239
+#: ok_tools/templates/dashboard.html:234
 msgid "Status"
 msgstr "Status"
 
@@ -1254,7 +1251,7 @@ msgstr "Gesamtanzahl der Artikel"
 #: licenses/admin.py:733 licenses/admin.py:845 media_files/models.py:126
 #: rental/templates/rental/rental_stats.html:972
 #: rental/templates/rental/rental_stats.html:1157 rental/views.py:916
-#: rental/views.py:3081
+#: rental/views.py:3133
 msgid "Available"
 msgstr "Verfügbar"
 
@@ -1266,7 +1263,7 @@ msgstr "Wartung"
 
 #: inventory/templates/inventory/list.html:70
 #: rental/templates/rental/admin_rental_process.html:106
-#: ok_tools/templates/rental_dashboard.html:168
+#: ok_tools/templates/rental_dashboard.html:170
 msgid "All Categories"
 msgstr "Alle Kategorien"
 
@@ -1303,7 +1300,6 @@ msgstr "Reserviert"
 
 #: inventory/templates/inventory/list.html:90
 #: rental/templates/rental/admin_rental_process.html:111
-#: ok_tools/templates/rental_dashboard.html:174
 msgid "All Locations"
 msgstr "Alle Standorte"
 
@@ -1354,12 +1350,10 @@ msgstr "Bearbeiten"
 
 #: inventory/templates/inventory/list.html:131
 #: licenses/templates/licenses/list.html:148 media_files/models.py:399
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:499
 msgid "Delete"
 msgstr "Löschen"
 
 #: inventory/templates/inventory/list.html:168
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:866
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -1765,7 +1759,7 @@ msgstr "Freistellungsnummer"
 #: licenses/templates/admin/licenses/import_json.html:7
 #: licenses/templates/licenses/list.html:5
 #: licenses/templates/licenses/list.html:6
-#: registration/templates/navbar.html:105 ok_tools/templates/base.html:50
+#: registration/templates/navbar.html:105 ok_tools/templates/base.html:52
 msgid "Licenses"
 msgstr "Freistellungen"
 
@@ -2009,7 +2003,7 @@ msgstr "Benutzerdefinierter Datumsbereich"
 #: licenses/templates/admin/filter_datetime_range.html:79
 #: licenses/templates/admin/filter_numeric_range.html:84
 #: licenses/templates/licenses/create.html:370
-#: ok_tools/templates/rental_dashboard.html:214
+#: ok_tools/templates/rental_dashboard.html:202
 msgid "Reset"
 msgstr "Zurücksetzen"
 
@@ -2371,6 +2365,10 @@ msgstr "Bestätigte Freistellung kann nicht gelöscht werden"
 msgid "No licenses found"
 msgstr "Keine Freistellungen gefunden"
 
+#: licenses/templates/licenses/list.html:167
+msgid "Create your first license"
+msgstr "Erstellen Sie Ihre erste Freistellung"
+
 #: licenses/templates/licenses/list.html:180
 msgid "License pagination"
 msgstr "Freistellungsseiten-Navigation"
@@ -2383,11 +2381,11 @@ msgstr "Freistellungsseiten-Navigation"
 #: rental/templates/rental/admin_rental_process.html:435
 #: rental/templates/rental/admin_rental_process.html:617
 #: rental/templates/rental/rental_detail.html:737
-#: ok_tools/templates/rental_dashboard.html:261
-#: ok_tools/templates/rental_dashboard.html:349
-#: ok_tools/templates/rental_dashboard.html:375
-#: ok_tools/templates/rental_dashboard.html:400
-#: ok_tools/templates/rental_dashboard.html:425
+#: ok_tools/templates/rental_dashboard.html:249
+#: ok_tools/templates/rental_dashboard.html:337
+#: ok_tools/templates/rental_dashboard.html:363
+#: ok_tools/templates/rental_dashboard.html:388
+#: ok_tools/templates/rental_dashboard.html:413
 msgid "Close"
 msgstr "Schließen"
 
@@ -2563,6 +2561,21 @@ msgstr ""
 #: licenses/views.py:559
 msgid "License not found."
 msgstr "Freistellung nicht gefunden."
+
+#: licenses/admin.py:1188
+#, python-format
+msgid "License #%(id)s not found"
+msgstr "Freistellung #%(id)s nicht gefunden."
+
+#: licenses/admin.py:1190
+#, python-format
+msgid "Error searching for video: %(error)s"
+msgstr "Fehler beim Suchen nach Video: %(error)s"
+
+#: licenses/admin.py:406 licenses/admin.py:438
+#, python-format
+msgid "Invalid value %(value)s."
+msgstr "Ungültiger Wert %(value)s."
 
 #: licenses/views.py:100
 #, python-format
@@ -3533,7 +3546,6 @@ msgid "Video file unavailable. Check path:"
 msgstr "Videodatei nicht verfügbar. Pfad überprüfen:"
 
 #: media_files/templates/admin/media_files/videofile/change_list.html:76
-#: venv/lib/python3.13/site-packages/django/db/models/fields/files.py:244
 msgid "File"
 msgstr "Datei"
 
@@ -4095,7 +4107,7 @@ msgstr "Thema"
 
 #: projects/admin.py:174 projects/models.py:149
 #: rental/templates/rental/admin_rental_process.html:411
-#: ok_tools/templates/dashboard.html:238
+#: ok_tools/templates/dashboard.html:233
 msgid "Date"
 msgstr "Datum"
 
@@ -4378,62 +4390,50 @@ msgid "birthmonth"
 msgstr "Geburtsmonat"
 
 #: registration/admin.py:122
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:25
 msgid "January"
 msgstr "Januar"
 
 #: registration/admin.py:123
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:26
 msgid "February"
 msgstr "Februar"
 
 #: registration/admin.py:124
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:27
 msgid "March"
 msgstr "März"
 
 #: registration/admin.py:125
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:28
 msgid "April"
 msgstr "April"
 
 #: registration/admin.py:126
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:29
 msgid "May"
 msgstr "Mai"
 
 #: registration/admin.py:127
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:30
 msgid "June"
 msgstr "Juni"
 
 #: registration/admin.py:128
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:31
 msgid "July"
 msgstr "Juli"
 
 #: registration/admin.py:129
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:32
 msgid "August"
 msgstr "August"
 
 #: registration/admin.py:130
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:33
 msgid "September"
 msgstr "September"
 
 #: registration/admin.py:131
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:34
 msgid "October"
 msgstr "Oktober"
 
 #: registration/admin.py:132
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:35
 msgid "November"
 msgstr "November"
 
 #: registration/admin.py:133
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:36
 msgid "December"
 msgstr "Dezember"
 
@@ -4486,7 +4486,6 @@ msgid "Registration"
 msgstr "Registrierung"
 
 #: registration/forms.py:25 registration/forms.py:89
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1920
 msgid "Email address"
 msgstr "E-Mail-Adresse"
 
@@ -4515,7 +4514,7 @@ msgid "Birthday"
 msgstr "Geburtstag"
 
 #: registration/forms.py:135 registration/templates/navbar.html:135
-#: ok_tools/templates/base.html:136 ok_tools/templates/guest_welcome.html:85
+#: ok_tools/templates/base.html:132 ok_tools/templates/guest_welcome.html:85
 msgid "Register"
 msgstr "Registrieren"
 
@@ -4822,14 +4821,14 @@ msgstr "Übersicht"
 msgid "Create license"
 msgstr "Freistellung beantragen"
 
-#: registration/templates/navbar.html:129 ok_tools/templates/base.html:86
-#: ok_tools/templates/base.html:128 ok_tools/templates/dashboard.html:150
+#: registration/templates/navbar.html:129 ok_tools/templates/base.html:82
+#: ok_tools/templates/base.html:124 ok_tools/templates/dashboard.html:150
 msgid "Logout"
 msgstr "Abmelden"
 
 #: registration/templates/navbar.html:141
 #: registration/templates/registration/login.html:6
-#: ok_tools/templates/base.html:137 ok_tools/templates/guest_welcome.html:82
+#: ok_tools/templates/base.html:133 ok_tools/templates/guest_welcome.html:82
 msgid "Login"
 msgstr "Anmelden"
 
@@ -5125,11 +5124,64 @@ msgid "Rental dates"
 msgstr "Ausleihdaten"
 
 #: rental/apps.py:10 rental/templates/rental/admin_rental_process.html:261
-#: ok_tools/templates/base.html:64 ok_tools/templates/base.html:69
-#: ok_tools/templates/dashboard.html:37
+#: ok_tools/templates/base.html:65 ok_tools/templates/dashboard.html:37
 #: ok_tools/templates/rental_dashboard.html:5
 msgid "Rental"
 msgstr "Ausleihe"
+
+#: rental/email_approval_views.py:32
+msgid "Invalid or expired link"
+msgstr ""
+
+#: rental/email_approval_views.py:33
+msgid "This approval link is invalid or has expired."
+msgstr ""
+
+#: rental/email_approval_views.py:44
+#, fuzzy
+#| msgid "Invalid action"
+msgid "Invalid link"
+msgstr "Ungültige Aktion"
+
+#: rental/email_approval_views.py:45
+msgid "This approval link does not match the request."
+msgstr ""
+
+#: rental/email_approval_views.py:56 rental/views.py:1543
+msgid "Invalid action"
+msgstr "Ungültige Aktion"
+
+#: rental/email_approval_views.py:57
+msgid "Unsupported approval action."
+msgstr ""
+
+#: rental/email_approval_views.py:71
+#, fuzzy
+#| msgid "Nothing selected"
+msgid "Nothing to do"
+msgstr "Nichts ausgewählt"
+
+#: rental/email_approval_views.py:72
+msgid "This request has already been processed."
+msgstr ""
+
+#: rental/email_approval_views.py:95
+msgid "Approved"
+msgstr ""
+
+#: rental/email_approval_views.py:96
+msgid "The request has been approved and reserved."
+msgstr ""
+
+#: rental/email_approval_views.py:119
+#, fuzzy
+#| msgid "Timeline"
+msgid "Declined"
+msgstr "Zeitlinie"
+
+#: rental/email_approval_views.py:120
+msgid "The request has been declined."
+msgstr ""
 
 #: rental/forms.py:26
 msgid "Requested end date must be after start date."
@@ -5658,7 +5710,7 @@ msgstr "Kapazität"
 #: rental/models.py:533 rental/templates/rental/admin_rental_process.html:115
 #: rental/templates/rental/rental_detail.html:457
 #: rental/templates/rental/rental_stats.html:1078
-#: ok_tools/templates/rental_dashboard.html:179
+#: ok_tools/templates/rental_dashboard.html:175
 msgid "Rooms"
 msgstr "Räume"
 
@@ -5805,69 +5857,69 @@ msgstr ""
 msgid "Failed to connect to Nextcloud CalDAV server: {error}"
 msgstr "Video-Upload fehlgeschlagen: %(error)s"
 
-#: rental/services/nextcloud_calendar_service.py:308
+#: rental/services/nextcloud_calendar_service.py:315
 #, python-brace-format
 msgid "OK-Tools Booking #{booking_id}"
 msgstr "OK-Tools Buchung #{booking_id}"
 
-#: rental/services/nextcloud_calendar_service.py:309
+#: rental/services/nextcloud_calendar_service.py:316
 #, python-brace-format
 msgid "User: {user_name} ({email})"
 msgstr "Benutzer: {user_name} ({email})"
 
-#: rental/services/nextcloud_calendar_service.py:310
+#: rental/services/nextcloud_calendar_service.py:317
 #, python-brace-format
 msgid "Project: {project}"
 msgstr "Projekt: {project}"
 
-#: rental/services/nextcloud_calendar_service.py:311
+#: rental/services/nextcloud_calendar_service.py:318
 #, python-brace-format
 msgid "Purpose: {purpose}"
 msgstr "Verwendungszweck: {purpose}"
 
-#: rental/services/nextcloud_calendar_service.py:312
+#: rental/services/nextcloud_calendar_service.py:319
 #, python-brace-format
 msgid "People: {count}"
 msgstr "Personen: {count}"
 
-#: rental/services/nextcloud_calendar_service.py:316
+#: rental/services/nextcloud_calendar_service.py:323
 msgid "Notes:"
 msgstr "Notizen:"
 
-#: rental/services/nextcloud_calendar_service.py:319
+#: rental/services/nextcloud_calendar_service.py:326
 msgid "Request Notes:"
 msgstr "Anfrage-Notizen:"
 
-#: rental/services/rental_service.py:272
+#: rental/services/rental_service.py:273
 msgid "Project name is required"
 msgstr "Projektname ist erforderlich"
 
-#: rental/services/rental_service.py:274
+#: rental/services/rental_service.py:275
 msgid "Purpose is required"
 msgstr "Zweck ist erforderlich"
 
-#: rental/services/rental_service.py:276
+#: rental/services/rental_service.py:277
 msgid "Start date and end date are required"
 msgstr "Startdatum und Enddatum sind erforderlich"
 
-#: rental/services/rental_service.py:296 rental/views.py:3697
+#: rental/services/rental_service.py:297 rental/views.py:3749
 msgid "Invalid date format"
 msgstr "Ungültiges Datumsformat"
 
-#: rental/services/rental_service.py:305
+#: rental/services/rental_service.py:306
 msgid "End date must be after start date"
 msgstr "Das Enddatum muss nach dem Startdatum liegen."
 
-#: rental/services/rental_service.py:309
+#: rental/services/rental_service.py:310
 msgid "Please select at least one item or room"
 msgstr "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
 
-#: rental/services/rental_service.py:362
+#: rental/services/rental_service.py:367
 msgid "User does not have access to one or more selected items"
 msgstr ""
 "Der Benutzer hat auf einen oder mehrere ausgewählte Artikel keinen Zugriff"
 
-#: rental/services/rental_service.py:376
+#: rental/services/rental_service.py:381
 #, python-brace-format
 msgid ""
 "Item is not available for the selected period. Available: {available}, "
@@ -5876,32 +5928,32 @@ msgstr ""
 "Der Artikel ist im ausgewählten Zeitraum nicht verfügbar. Verfügbar: "
 "{available}, angefragt: {requested}"
 
-#: rental/services/rental_service.py:412
+#: rental/services/rental_service.py:417
 msgid "Room not found"
 msgstr "Raum nicht gefunden"
 
-#: rental/services/rental_service.py:448
+#: rental/services/rental_service.py:453
 #, python-brace-format
 msgid "Room \"{room_name}\" is not available for the selected period"
 msgstr "Raum „{room_name}“ ist im ausgewählten Zeitraum nicht verfügbar"
 
-#: rental/services/rental_service.py:910
+#: rental/services/rental_service.py:927
 msgid "Only draft, reserved or issued rentals can be cancelled"
 msgstr ""
 "Nur Entwurfs-, reservierte oder ausgegebene Ausleihen können storniert "
 "werden."
 
-#: rental/services/rental_service.py:923
+#: rental/services/rental_service.py:940
 msgid "Cancelled reserved quantity via admin interface"
 msgstr "Reservierte Menge über die Admin-Oberfläche storniert"
 
-#: rental/services/rental_service.py:934
+#: rental/services/rental_service.py:951
 msgid "Returned issued quantity due to cancellation via admin interface"
 msgstr ""
 "Ausgegebene Menge wurde über die Admin-Oberfläche aufgrund einer Stornierung "
 "zurückgebucht"
 
-#: rental/services/rental_service.py:944
+#: rental/services/rental_service.py:961
 #, python-brace-format
 msgid "Rental request {rental_id} has been cancelled successfully"
 msgstr "Die Mietanfrage {rental_id} wurde erfolgreich storniert"
@@ -5918,6 +5970,139 @@ msgstr "Mietvorgang öffnen"
 #: rental/templates/admin/rental/rent_sets_form.html:12
 msgid "Create"
 msgstr "Erstellen"
+
+#: rental/templates/email/rental_request_approval_body.txt:2
+#, python-format
+msgid "A new rental request needs approval in %(ok_name)s (ID: %(rental_id)s)."
+msgstr "Eine neue Buchungsanfrage benötigt eine Bestätigung in %(ok_name)s (ID: %(rental_id)s)."
+
+#: rental/templates/email/rental_request_approval_body.txt:5
+#, python-format
+msgid "Name: %(first_name)s %(last_name)s"
+msgstr "Name: %(first_name)s %(last_name)s"
+
+#: rental/templates/email/rental_request_approval_body.txt:7
+#, python-format
+msgid "Email: %(user_email)s"
+msgstr "E-Mail: %(user_email)s"
+
+#: rental/templates/email/rental_request_approval_body.txt:8
+#: rental/templates/email/rental_request_approved_body.txt:7
+#: rental/templates/email/rental_request_declined_body.txt:7
+#: rental/templates/email/rental_request_pending_body.txt:7
+#, python-format
+msgid "Project: %(project_name)s"
+msgstr "Projekt: %(project_name)s"
+
+#: rental/templates/email/rental_request_approval_body.txt:9
+#: rental/templates/email/rental_request_approved_body.txt:8
+#: rental/templates/email/rental_request_declined_body.txt:8
+#: rental/templates/email/rental_request_pending_body.txt:8
+#, python-format
+msgid "Purpose: %(purpose)s"
+msgstr "Verwendungszweck: %(purpose)s"
+
+#: rental/templates/email/rental_request_approval_body.txt:10
+#: rental/templates/email/rental_request_approved_body.txt:9
+#: rental/templates/email/rental_request_declined_body.txt:9
+#: rental/templates/email/rental_request_pending_body.txt:9
+#, python-format
+msgid "Period: %(start)s – %(end)s"
+msgstr "Zeitraum: %(start)s – %(end)s"
+
+#: rental/templates/email/rental_request_approval_body.txt:12
+msgid "Approve:"
+msgstr "Genehmigen:"
+
+#: rental/templates/email/rental_request_approval_body.txt:13
+msgid "Decline:"
+msgstr "Ablehnen:"
+
+#: rental/templates/email/rental_request_approval_subject.txt:2
+#, python-format
+msgid "Approval required: rental request #%(rental_id)s"
+msgstr "Bestätigung erforderlich: Buchungsanfrage #%(rental_id)s"
+
+#: rental/templates/email/rental_request_approved_body.txt:2
+msgid "Status: Approved ✓"
+msgstr "Status: Genehmigt ✓"
+
+#: rental/templates/email/rental_request_approved_body.txt:4
+#, python-format
+msgid ""
+"Your rental request #%(rental_id)s in %(ok_name)s has been approved and is "
+"now reserved."
+msgstr ""
+"Ihre Buchungsanfrage #%(rental_id)s in %(ok_name)s wurde genehmigt und ist "
+"jetzt reserviert."
+
+#: rental/templates/email/rental_request_approved_body.txt:12
+msgid "Your rental is confirmed. You can proceed with your project."
+msgstr "Ihre Buchung ist bestätigt. Sie können mit Ihrem Projekt fortfahren."
+
+#: rental/templates/email/rental_request_approved_body.txt:15
+#: rental/templates/email/rental_request_declined_body.txt:21
+#: rental/templates/email/rental_request_pending_body.txt:15
+#, python-format
+msgid "Please reference request #%(rental_id)s in any communication."
+msgstr "Bitte geben Sie bei jeder Kommunikation die Anfrage #%(rental_id)s an."
+
+#: rental/templates/email/rental_request_approved_subject.txt:2
+#, python-format
+msgid "Rental request #%(rental_id)s has been approved"
+msgstr "Buchungsanfrage #%(rental_id)s wurde genehmigt"
+
+#: rental/templates/email/rental_request_declined_body.txt:2
+msgid "Status: Declined ✗"
+msgstr "Status: Abgelehnt ✗"
+
+#: rental/templates/email/rental_request_declined_body.txt:4
+#, python-format
+msgid "Your rental request #%(rental_id)s in %(ok_name)s has been declined."
+msgstr "Ihre Buchungsanfrage #%(rental_id)s in %(ok_name)s wurde abgelehnt."
+
+#: rental/templates/email/rental_request_declined_body.txt:13
+#: rental/templates/email/rental_request_declined_body.txt:17
+#, python-format
+msgid ""
+"If you have questions or would like to submit a revised request, please "
+"contact the %(ok_name)s administration."
+msgstr ""
+"Wenn Sie Fragen haben oder eine überarbeitete Anfrage einreichen möchten, "
+"wenden Sie sich bitte an die Verwaltung von %(ok_name)s."
+
+#: rental/templates/email/rental_request_declined_body.txt:15
+msgid "Contact:"
+msgstr "Kontakt:"
+
+#: rental/templates/email/rental_request_declined_subject.txt:2
+#, python-format
+msgid "Rental request #%(rental_id)s has been declined"
+msgstr "Buchungsanfrage #%(rental_id)s wurde abgelehnt"
+
+#: rental/templates/email/rental_request_pending_body.txt:2
+msgid "Status: Pending approval"
+msgstr "Status: Wartet auf Bestätigung"
+
+#: rental/templates/email/rental_request_pending_body.txt:4
+#, python-format
+msgid ""
+"Your rental request #%(rental_id)s in %(ok_name)s has been submitted and is "
+"pending approval."
+msgstr ""
+"Ihre Buchungsanfrage #%(rental_id)s in %(ok_name)s wurde eingereicht und "
+"wartet auf Bestätigung."
+
+#: rental/templates/email/rental_request_pending_body.txt:12
+msgid ""
+"You will receive an email notification once your request has been reviewed."
+msgstr ""
+"Sie erhalten eine E-Mail-Benachrichtigung, sobald Ihre Anfrage geprüft wurde."
+
+#: rental/templates/email/rental_request_pending_subject.txt:2
+#, python-format
+msgid "Rental request #%(rental_id)s is pending approval"
+msgstr "Buchungsanfrage #%(rental_id)s wartet auf Bestätigung"
 
 #: rental/templates/rental/access_denied.html:11
 #: rental/templates/rental/access_denied.html:22
@@ -6008,13 +6193,13 @@ msgstr ""
 "Zeit zurück."
 
 #: rental/templates/rental/admin_rental_process.html:96
-#: ok_tools/templates/rental_dashboard.html:158
+#: ok_tools/templates/rental_dashboard.html:160
 msgid "Search inventory..."
 msgstr "Inventar durchsuchen..."
 
 #: rental/templates/rental/admin_rental_process.html:101
 #: rental/templates/rental/rental_stats.html:1149
-#: ok_tools/templates/rental_dashboard.html:163
+#: ok_tools/templates/rental_dashboard.html:165
 msgid "All Owners"
 msgstr "Alle Eigentümer"
 
@@ -6022,7 +6207,7 @@ msgstr "Alle Eigentümer"
 #: rental/templates/rental/admin_rental_process.html:294
 #: rental/templates/rental/rental_stats.html:1042
 #: rental/templates/rental/rental_stats.html:1206
-#: ok_tools/templates/rental_dashboard.html:237
+#: ok_tools/templates/rental_dashboard.html:225
 msgid "Equipment Sets"
 msgstr "Ausrüstungssets"
 
@@ -6031,7 +6216,7 @@ msgid "User Statistics"
 msgstr "Benutzerstatistiken"
 
 #: rental/templates/rental/admin_rental_process.html:139
-#: ok_tools/templates/rental_dashboard.html:191
+#: ok_tools/templates/rental_dashboard.html:150
 msgid "Available Inventory"
 msgstr "Verfügbares Inventar"
 
@@ -6040,7 +6225,7 @@ msgid "Reset Form"
 msgstr "Formular zurücksetzen"
 
 #: rental/templates/rental/admin_rental_process.html:148
-#: ok_tools/templates/rental_dashboard.html:217
+#: ok_tools/templates/rental_dashboard.html:205
 msgid "Group by Location"
 msgstr "Nach Standort gruppieren"
 
@@ -6071,7 +6256,7 @@ msgid "Returned Rentals"
 msgstr "Zurückgegebene Ausleihen"
 
 #: rental/templates/rental/admin_rental_process.html:196
-#: ok_tools/templates/rental_dashboard.html:395
+#: ok_tools/templates/rental_dashboard.html:383
 msgid "Loading returned rentals..."
 msgstr "Lade zurückgegebene Ausleihen..."
 
@@ -6121,19 +6306,19 @@ msgid "Extend"
 msgstr "Verlängern"
 
 #: rental/templates/rental/admin_rental_process.html:300
-#: ok_tools/templates/rental_dashboard.html:244
+#: ok_tools/templates/rental_dashboard.html:232
 msgid "Available Sets"
 msgstr "Verfügbare Sets"
 
 #: rental/templates/rental/admin_rental_process.html:304
 #: rental/templates/rental/rental_stats.html:1231
-#: ok_tools/templates/rental_dashboard.html:248
+#: ok_tools/templates/rental_dashboard.html:236
 msgid "Loading sets..."
 msgstr "Lade Sets..."
 
 #: rental/templates/rental/admin_rental_process.html:309
 #: rental/templates/rental/rental_stats.html:1354
-#: ok_tools/templates/rental_dashboard.html:253
+#: ok_tools/templates/rental_dashboard.html:241
 msgid "Set Contents"
 msgstr "Set-Inhalte"
 
@@ -6147,19 +6332,19 @@ msgstr "Set zur Ausleihe hinzufügen"
 
 #: rental/templates/rental/admin_rental_process.html:329
 #: rental/templates/rental/admin_rental_process.html:358
-#: ok_tools/templates/rental_dashboard.html:274
-#: ok_tools/templates/rental_dashboard.html:299
+#: ok_tools/templates/rental_dashboard.html:262
+#: ok_tools/templates/rental_dashboard.html:287
 msgid "Available Rooms"
 msgstr "Verfügbare Räume"
 
 #: rental/templates/rental/admin_rental_process.html:337
-#: ok_tools/templates/rental_dashboard.html:283
+#: ok_tools/templates/rental_dashboard.html:271
 msgid "List"
 msgstr "Liste"
 
 #: rental/templates/rental/admin_rental_process.html:342
 #: rental/templates/rental/rental_stats.html:1179
-#: ok_tools/templates/rental_dashboard.html:288
+#: ok_tools/templates/rental_dashboard.html:276
 msgid "Calendar"
 msgstr "Kalender"
 
@@ -6168,7 +6353,7 @@ msgid "Timeline"
 msgstr "Zeitlinie"
 
 #: rental/templates/rental/admin_rental_process.html:362
-#: ok_tools/templates/rental_dashboard.html:303
+#: ok_tools/templates/rental_dashboard.html:291
 msgid "Loading rooms..."
 msgstr "Lade Räume..."
 
@@ -6187,12 +6372,12 @@ msgstr "Raum auswählen"
 
 #: rental/templates/rental/admin_rental_process.html:381
 #: rental/templates/rental/admin_rental_process.html:407
-#: ok_tools/templates/rental_dashboard.html:322
+#: ok_tools/templates/rental_dashboard.html:310
 msgid "All Rooms"
 msgstr "Alle Räume"
 
 #: rental/templates/rental/admin_rental_process.html:396
-#: ok_tools/templates/rental_dashboard.html:337
+#: ok_tools/templates/rental_dashboard.html:325
 msgid "Loading calendar..."
 msgstr "Kalender wird geladen..."
 
@@ -6298,6 +6483,10 @@ msgid "Click '+' to add items. Modal stays open for multiple selections."
 msgstr ""
 "Klicken Sie auf '+', um Artikel hinzuzufügen. Das Modal bleibt für mehrere "
 "Auswahlen geöffnet."
+
+#: rental/templates/rental/email_approval_result.html:13
+msgid "You can close this page now."
+msgstr ""
 
 #: rental/templates/rental/list.html:5 rental/templates/rental/list.html:6
 msgid "Rentals"
@@ -6696,25 +6885,25 @@ msgstr "Benutzerprofil nicht gefunden"
 #: rental/views.py:527 rental/views.py:559 rental/views.py:682
 #: rental/views.py:1113 rental/views.py:1151 rental/views.py:1307
 #: rental/views.py:1493 rental/views.py:2027 rental/views.py:2079
-#: rental/views.py:3389 rental/views.py:3491 rental/views.py:3645
-#: rental/views.py:3674 rental/views.py:3860
+#: rental/views.py:3441 rental/views.py:3543 rental/views.py:3697
+#: rental/views.py:3726 rental/views.py:3912
 msgid "Method not allowed"
 msgstr "Methode nicht erlaubt"
 
-#: rental/views.py:843
+#: rental/views.py:843 rental/views.py:3070
 msgid "Location not specified"
 msgstr "Standort nicht angegeben"
 
-#: rental/views.py:844
+#: rental/views.py:844 rental/views.py:3071
 msgid "No category"
 msgstr "Keine Kategorie"
 
-#: rental/views.py:927 rental/views.py:2550 rental/views.py:3440
+#: rental/views.py:927 rental/views.py:2550 rental/views.py:3492
 msgid "Unknown user"
 msgstr "Unbekannte:r Benutzer:in"
 
 #: rental/views.py:946 rental/views.py:948 rental/views.py:2570
-#: rental/views.py:2576 rental/views.py:3459 rental/views.py:3461
+#: rental/views.py:2576 rental/views.py:3511 rental/views.py:3513
 #, python-brace-format
 msgid "User #{user_id}"
 msgstr "Benutzer #{user_id}"
@@ -6798,10 +6987,6 @@ msgstr ""
 "{count} aktive Ausleihen wurden storniert (Das Zurücksetzen der "
 "Inventarmengen wird über die API nicht unterstützt)"
 
-#: rental/views.py:1543
-msgid "Invalid action"
-msgstr "Ungültige Aktion"
-
 #: rental/views.py:2054
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully created."
@@ -6834,61 +7019,61 @@ msgstr "Fehler beim Ausführen des Befehls: {error}"
 msgid "No project"
 msgstr "Kein Projekt"
 
-#: rental/views.py:3086
+#: rental/views.py:3138
 msgid "Not available for selected period"
 msgstr "Für den gewählten Zeitraum nicht verfügbar"
 
-#: rental/views.py:3399 rental/views.py:3687
+#: rental/views.py:3451 rental/views.py:3739
 msgid "Missing required parameters"
 msgstr "Erforderliche Parameter fehlen"
 
-#: rental/views.py:3412
+#: rental/views.py:3464
 msgid "Invalid date/time format"
 msgstr "Ungültiges Datum/Zeit-Format"
 
-#: rental/views.py:3431
+#: rental/views.py:3483
 msgid "Room is available for the selected period."
 msgstr "Raum ist für den gewählten Zeitraum verfügbar."
 
-#: rental/views.py:3470
+#: rental/views.py:3522
 msgid "Room is not available for the selected period."
 msgstr "Raum ist für den gewählten Zeitraum nicht verfügbar."
 
-#: rental/views.py:3501
+#: rental/views.py:3553
 msgid "Template name is required"
 msgstr "Vorlagenname ist erforderlich"
 
-#: rental/views.py:3504
+#: rental/views.py:3556
 msgid "At least one item is required"
 msgstr "Mindestens ein Artikel ist erforderlich"
 
-#: rental/views.py:3509
+#: rental/views.py:3561
 msgid "Template with this name already exists"
 msgstr "Vorlage mit diesem Namen existiert bereits"
 
-#: rental/views.py:3531
+#: rental/views.py:3583
 msgid "Invalid inventory item ID"
 msgstr "Ungültige Inventargegenstand-ID"
 
-#: rental/views.py:3538
+#: rental/views.py:3590
 msgid "Template saved successfully"
 msgstr "Vorlage erfolgreich gespeichert"
 
-#: rental/views.py:3542
+#: rental/views.py:3594
 msgid "Invalid JSON data"
 msgstr "Ungültige JSON-Daten"
 
-#: rental/views.py:3656
+#: rental/views.py:3708
 msgid "Template deleted successfully"
 msgstr "Vorlage erfolgreich gelöscht"
 
-#: rental/views.py:3710
+#: rental/views.py:3762
 msgid "Rental must be in draft or reserved status to issue"
 msgstr ""
 "Ausleihe muss im Status 'Entwurf' oder 'reserviert' sein, um ausgegeben zu "
 "werden"
 
-#: rental/views.py:3716
+#: rental/views.py:3768
 msgid ""
 "Cannot issue rental with only rooms. Equipment is required to change status "
 "from reserved to issued."
@@ -6896,11 +7081,11 @@ msgstr ""
 "Ausleihe mit nur Räumen kann nicht ausgegeben werden. Ausrüstung ist "
 "erforderlich, um den Status von 'reserviert' auf 'ausgegeben' zu ändern."
 
-#: rental/views.py:3726
+#: rental/views.py:3778
 msgid "Invalid user ID"
 msgstr "Ungültige Benutzer-ID"
 
-#: rental/views.py:3758
+#: rental/views.py:3810
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Item \"{item_description}\" is not available for the selected period. "
@@ -6912,13 +7097,13 @@ msgstr ""
 "Der Artikel \"{item_description}\" ist für den gewählten Zeitraum nicht "
 "verfügbar. Verfügbar: {available}, angefragt: {requested}"
 
-#: rental/views.py:3793
+#: rental/views.py:3845
 #, fuzzy
 #| msgid "Inventory item not found."
 msgid "Inventory item not found"
 msgstr "Inventargegenstand nicht gefunden."
 
-#: rental/views.py:3805
+#: rental/views.py:3857
 #, python-brace-format
 msgid ""
 "Item \"{item_description}\" is not available for the selected period. "
@@ -6927,1207 +7112,9 @@ msgstr ""
 "Der Artikel \"{item_description}\" ist für den gewählten Zeitraum nicht "
 "verfügbar. Verfügbar: {available}, angefragt: {requested}"
 
-#: rental/views.py:3841
+#: rental/views.py:3893
 msgid "Rental successfully issued from reservation"
 msgstr "Ausleihe erfolgreich aus der Reservierung ausgegeben"
-
-#: venv/lib/python3.13/site-packages/admin_auto_filters/templates/django-admin-autocomplete-filter/autocomplete-filter.html:3
-#: venv/lib/python3.13/site-packages/admin_searchable_dropdown/templates/django-admin-autocomplete-filter/autocomplete-filter.html:3
-#: venv/lib/python3.13/site-packages/admin_searchable_dropdown/templates/django-admin-searchable-dropdown/autocomplete-filter.html:3
-#: venv/lib/python3.13/site-packages/django_admin_listfilter_dropdown/templates/django_admin_listfilter_dropdown/dropdown_filter.html:3
-#, python-format
-msgid " By %(filter_title)s "
-msgstr "Nach %(filter_title)s"
-
-#: venv/lib/python3.13/site-packages/django/contrib/messages/apps.py:16
-msgid "Messages"
-msgstr "Nachrichten"
-
-#: venv/lib/python3.13/site-packages/django/contrib/sitemaps/apps.py:8
-msgid "Site Maps"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/contrib/staticfiles/apps.py:9
-msgid "Static Files"
-msgstr "Statische Dateien"
-
-#: venv/lib/python3.13/site-packages/django/contrib/syndication/apps.py:7
-msgid "Syndication"
-msgstr "Syndizierung"
-
-#. Translators: String used to replace omitted page numbers in elided page
-#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:30
-msgid "…"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:32
-msgid "That page number is not an integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:33
-msgid "That page number is less than 1"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/paginator.py:34
-msgid "That page contains no results"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:22
-#, fuzzy
-#| msgid "Enter a valid date."
-msgid "Enter a valid value."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:70
-#, fuzzy
-#| msgid "Enter a valid date."
-msgid "Enter a valid domain name."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:153
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:775
-#, fuzzy
-#| msgid "Enter a valid date."
-msgid "Enter a valid URL."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:200
-msgid "Enter a valid integer."
-msgstr "Geben Sie eine gültige ganze Zahl ein."
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:211
-msgid "Enter a valid email address."
-msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
-
-#. Translators: "letters" means latin letters: a-z and A-Z.
-#: venv/lib/python3.13/site-packages/django/core/validators.py:289
-msgid ""
-"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:297
-msgid ""
-"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
-"hyphens."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:309
-#: venv/lib/python3.13/site-packages/django/core/validators.py:318
-#: venv/lib/python3.13/site-packages/django/core/validators.py:332
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2220
-#, fuzzy, python-format
-#| msgid "Enter a valid email address."
-msgid "Enter a valid %(protocol)s address."
-msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:311
-msgid "IPv4"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:320
-#: venv/lib/python3.13/site-packages/django/utils/ipv6.py:43
-msgid "IPv6"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:334
-msgid "IPv4 or IPv6"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:375
-msgid "Enter only digits separated by commas."
-msgstr "Geben Sie nur durch Kommas getrennte Ziffern ein."
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:381
-#, python-format
-msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:416
-#, python-format
-msgid "Ensure this value is less than or equal to %(limit_value)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:425
-#, python-format
-msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:434
-#, python-format
-msgid "Ensure this value is a multiple of step size %(limit_value)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:441
-#, python-format
-msgid ""
-"Ensure this value is a multiple of step size %(limit_value)s, starting from "
-"%(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and so on."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:473
-#, python-format
-msgid ""
-"Ensure this value has at least %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at least %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:491
-#, python-format
-msgid ""
-"Ensure this value has at most %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at most %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:514
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:366
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:405
-msgid "Enter a number."
-msgstr "Geben Sie eine Zahl ein."
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:516
-#, python-format
-msgid "Ensure that there are no more than %(max)s digit in total."
-msgid_plural "Ensure that there are no more than %(max)s digits in total."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:521
-#, python-format
-msgid "Ensure that there are no more than %(max)s decimal place."
-msgid_plural "Ensure that there are no more than %(max)s decimal places."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:526
-#, python-format
-msgid ""
-"Ensure that there are no more than %(max)s digit before the decimal point."
-msgid_plural ""
-"Ensure that there are no more than %(max)s digits before the decimal point."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:597
-#, python-format
-msgid ""
-"File extension “%(extension)s” is not allowed. Allowed extensions are: "
-"%(allowed_extensions)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/core/validators.py:659
-msgid "Null characters are not allowed."
-msgstr "Null-Zeichen sind nicht erlaubt."
-
-#: venv/lib/python3.13/site-packages/django/db/models/base.py:1600
-#: venv/lib/python3.13/site-packages/django/forms/models.py:908
-msgid "and"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/base.py:1602
-#, python-format
-msgid "%(model_name)s with this %(field_labels)s already exists."
-msgstr "%(model_name)s mit diesen %(field_labels)s existiert bereits."
-
-#: venv/lib/python3.13/site-packages/django/db/models/constraints.py:22
-#, python-format
-msgid "Constraint “%(name)s” is violated."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:134
-#, python-format
-msgid "Value %(value)r is not a valid choice."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:135
-#, fuzzy
-#| msgid "This field is required."
-msgid "This field cannot be null."
-msgstr "Dieses Feld ist erforderlich."
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:136
-#, fuzzy
-#| msgid "This field is required."
-msgid "This field cannot be blank."
-msgstr "Dieses Feld ist erforderlich."
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:137
-#, python-format
-msgid "%(model_name)s with this %(field_label)s already exists."
-msgstr "%(model_name)s mit diesem %(field_label)s existiert bereits."
-
-#. Translators: The 'lookup_type' is one of 'date', 'year' or
-#. 'month'. Eg: "Title must be unique for pub_date year"
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:141
-#, python-format
-msgid ""
-"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:180
-#, python-format
-msgid "Field of type: %(field_type)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1162
-#, python-format
-msgid "“%(value)s” value must be either True or False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1163
-#, python-format
-msgid "“%(value)s” value must be either True, False, or None."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1165
-msgid "Boolean (Either True or False)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1215
-#, python-format
-msgid "String (up to %(max_length)s)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1217
-msgid "String (unlimited)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1326
-#, fuzzy
-#| msgid "Positive integer"
-msgid "Comma-separated integers"
-msgstr "Positive ganze Zahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1427
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
-"format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1431
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1566
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
-"date."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1435
-msgid "Date (without time)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1562
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
-"HH:MM[:ss[.uuuuuu]][TZ] format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1570
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
-"[TZ]) but it is an invalid date/time."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1575
-msgid "Date (with time)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1702
-#, python-format
-msgid "“%(value)s” value must be a decimal number."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1704
-msgid "Decimal number"
-msgstr "Dezimalzahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1864
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in [DD] "
-"[[HH:]MM:]ss[.uuuuuu] format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:1945
-msgid "File path"
-msgstr "Dateipfad"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2023
-#, python-format
-msgid "“%(value)s” value must be a float."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2025
-msgid "Floating point number"
-msgstr "Gleitkommazahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2065
-#, python-format
-msgid "“%(value)s” value must be an integer."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2067
-msgid "Integer"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2163
-#, fuzzy
-#| msgid "Positive integer"
-msgid "Big (8 byte) integer"
-msgstr "Positive ganze Zahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2180
-#, fuzzy
-#| msgid "Positive integer"
-msgid "Small integer"
-msgstr "Positive ganze Zahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2188
-msgid "IPv4 address"
-msgstr "IPv4-Adresse"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2219
-msgid "IP address"
-msgstr "IP-Adresse"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2310
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2311
-#, python-format
-msgid "“%(value)s” value must be either None, True or False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2313
-msgid "Boolean (Either True, False or None)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2364
-#, fuzzy
-#| msgid "Positive integer"
-msgid "Positive big integer"
-msgstr "Positive ganze Zahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2379
-msgid "Positive integer"
-msgstr "Positive ganze Zahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2394
-#, fuzzy
-#| msgid "Positive integer"
-msgid "Positive small integer"
-msgstr "Positive ganze Zahl"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2410
-#, python-format
-msgid "Slug (up to %(max_length)s)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2446
-msgid "Text"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2526
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
-"format."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2530
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
-"invalid time."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2534
-msgid "Time"
-msgstr "Zeit"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2642
-msgid "URL"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2666
-msgid "Raw binary data"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2731
-#, python-format
-msgid "“%(value)s” is not a valid UUID."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/__init__.py:2733
-msgid "Universally unique identifier"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/files.py:420
-msgid "Image"
-msgstr "Bild"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/json.py:24
-msgid "A JSON object"
-msgstr "Ein JSON-Objekt"
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/json.py:26
-#, fuzzy
-#| msgid "Enter a valid JSON."
-msgid "Value must be valid JSON."
-msgstr "Geben Sie ein gültiges JSON ein."
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:979
-#, python-format
-msgid "%(model)s instance with %(field)s %(value)r is not a valid choice."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:982
-msgid "Foreign Key (type determined by related field)"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1276
-msgid "One-to-one relationship"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1333
-#, python-format
-msgid "%(from)s-%(to)s relationship"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1335
-#, python-format
-msgid "%(from)s-%(to)s relationships"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1383
-msgid "Many-to-many relationship"
-msgstr ""
-
-#. Translators: If found as last label character, these punctuation
-#. characters will prevent the default label_suffix to be appended to the label
-#: venv/lib/python3.13/site-packages/django/forms/boundfield.py:185
-msgid ":?.!"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:95
-msgid "This field is required."
-msgstr "Dieses Feld ist erforderlich."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:315
-msgid "Enter a whole number."
-msgstr "Geben Sie eine ganze Zahl ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:486
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1267
-msgid "Enter a valid date."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:509
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1268
-msgid "Enter a valid time."
-msgstr "Geben Sie eine gültige Uhrzeit ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:536
-msgid "Enter a valid date/time."
-msgstr "Geben Sie ein gültiges Datum/Uhrzeit ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:570
-msgid "Enter a valid duration."
-msgstr "Geben Sie eine gültige Dauer ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:571
-#, python-brace-format
-msgid "The number of days must be between {min_days} and {max_days}."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:640
-msgid "No file was submitted. Check the encoding type on the form."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:641
-msgid "No file was submitted."
-msgstr "Es wurde keine Datei übermittelt."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:642
-msgid "The submitted file is empty."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:644
-#, python-format
-msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
-msgid_plural ""
-"Ensure this filename has at most %(max)d characters (it has %(length)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:649
-msgid "Please either submit a file or check the clear checkbox, not both."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:717
-msgid ""
-"Upload a valid image. The file you uploaded was either not an image or a "
-"corrupted image."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:889
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:975
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1592
-#, python-format
-msgid "Select a valid choice. %(value)s is not one of the available choices."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:977
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1096
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1590
-#, fuzzy
-#| msgid "Enter a valid date."
-msgid "Enter a list of values."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1097
-#, fuzzy
-#| msgid "Enter a whole number."
-msgid "Enter a complete value."
-msgstr "Geben Sie eine ganze Zahl ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1339
-#, fuzzy
-#| msgid "Enter a valid date."
-msgid "Enter a valid UUID."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/fields.py:1369
-msgid "Enter a valid JSON."
-msgstr "Geben Sie ein gültiges JSON ein."
-
-#. Translators: This is the default suffix added to form field labels
-#: venv/lib/python3.13/site-packages/django/forms/forms.py:97
-msgid ":"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/forms.py:239
-#, fuzzy, python-format
-#| msgid "Error processing row %(row_num)s: %(error)s"
-msgid "(Hidden field %(name)s) %(error)s"
-msgstr "Fehler beim Verarbeiten der Zeile %(row_num)s: %(error)s"
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:61
-#, python-format
-msgid ""
-"ManagementForm data is missing or has been tampered with. Missing fields: "
-"%(field_names)s. You may need to file a bug report if the issue persists."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:65
-#, fuzzy, python-format
-#| msgid "Please select at least one item or room"
-msgid "Please submit at most %(num)d form."
-msgid_plural "Please submit at most %(num)d forms."
-msgstr[0] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
-msgstr[1] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:70
-#, fuzzy, python-format
-#| msgid "Please select at least one item or room"
-msgid "Please submit at least %(num)d form."
-msgid_plural "Please submit at least %(num)d forms."
-msgstr[0] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
-msgstr[1] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
-
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:484
-#: venv/lib/python3.13/site-packages/django/forms/formsets.py:491
-msgid "Order"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:901
-#, python-format
-msgid "Please correct the duplicate data for %(field)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:906
-#, python-format
-msgid "Please correct the duplicate data for %(field)s, which must be unique."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:913
-#, python-format
-msgid ""
-"Please correct the duplicate data for %(field_name)s which must be unique "
-"for the %(lookup)s in %(date_field)s."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:922
-msgid "Please correct the duplicate values below."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1359
-msgid "The inline value did not match the parent instance."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1450
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/models.py:1594
-#, fuzzy, python-format
-#| msgid "Enter a valid date."
-msgid "“%(pk)s” is not a valid value."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-#: venv/lib/python3.13/site-packages/django/forms/utils.py:229
-#, python-format
-msgid ""
-"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
-"may be ambiguous or it may not exist."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:527
-msgid "Clear"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:528
-msgid "Currently"
-msgstr "Derzeit"
-
-#: venv/lib/python3.13/site-packages/django/forms/widgets.py:529
-#: ok_tools/templates/admin/index.html:145
-msgid "Change"
-msgstr "Ändern"
-
-#. Translators: Please do not add spaces around commas.
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:873
-msgid "yes,no,maybe"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:903
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:920
-#, python-format
-msgid "%(size)d byte"
-msgid_plural "%(size)d bytes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:922
-#, python-format
-msgid "%s KB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:924
-#, python-format
-msgid "%s MB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:926
-#, python-format
-msgid "%s GB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:928
-#, python-format
-msgid "%s TB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/template/defaultfilters.py:930
-#, python-format
-msgid "%s PB"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:74
-msgid "p.m."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:75
-msgid "a.m."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:80
-msgid "PM"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:81
-msgid "AM"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:153
-msgid "midnight"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dateformat.py:155
-msgid "noon"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:7
-msgid "Monday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:8
-msgid "Tuesday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:9
-msgid "Wednesday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:10
-msgid "Thursday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:11
-msgid "Friday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:12
-msgid "Saturday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:13
-msgid "Sunday"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:16
-msgid "Mon"
-msgstr "Mo"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:17
-msgid "Tue"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:18
-msgid "Wed"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:19
-msgid "Thu"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:20
-msgid "Fri"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:21
-msgid "Sat"
-msgstr "Sa"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:22
-msgid "Sun"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:39
-msgid "jan"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:40
-msgid "feb"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:41
-#, fuzzy
-#| msgid "may"
-msgid "mar"
-msgstr "Mai"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:42
-#, fuzzy
-#| msgid "may"
-msgid "apr"
-msgstr "Mai"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:43
-msgid "may"
-msgstr "Mai"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:44
-msgid "jun"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:45
-msgid "jul"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:46
-msgid "aug"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:47
-msgid "sep"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:48
-msgid "oct"
-msgstr "Okt"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:49
-msgid "nov"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:50
-msgid "dec"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:53
-msgctxt "abbrev. month"
-msgid "Jan."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:54
-msgctxt "abbrev. month"
-msgid "Feb."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:55
-msgctxt "abbrev. month"
-msgid "March"
-msgstr "Mär"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:56
-msgctxt "abbrev. month"
-msgid "April"
-msgstr "Apr"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:57
-msgctxt "abbrev. month"
-msgid "May"
-msgstr "Mai"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:58
-msgctxt "abbrev. month"
-msgid "June"
-msgstr "Jun"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:59
-msgctxt "abbrev. month"
-msgid "July"
-msgstr "Jul"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:60
-msgctxt "abbrev. month"
-msgid "Aug."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:61
-msgctxt "abbrev. month"
-msgid "Sept."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:62
-msgctxt "abbrev. month"
-msgid "Oct."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:63
-msgctxt "abbrev. month"
-msgid "Nov."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:64
-msgctxt "abbrev. month"
-msgid "Dec."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:67
-msgctxt "alt. month"
-msgid "January"
-msgstr "Januar"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:68
-msgctxt "alt. month"
-msgid "February"
-msgstr "Februar"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:69
-msgctxt "alt. month"
-msgid "March"
-msgstr "März"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:70
-msgctxt "alt. month"
-msgid "April"
-msgstr "April"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:71
-msgctxt "alt. month"
-msgid "May"
-msgstr "Mai"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:72
-msgctxt "alt. month"
-msgid "June"
-msgstr "Juni"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:73
-msgctxt "alt. month"
-msgid "July"
-msgstr "Juli"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:74
-msgctxt "alt. month"
-msgid "August"
-msgstr "August"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:75
-msgctxt "alt. month"
-msgid "September"
-msgstr "September"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:76
-msgctxt "alt. month"
-msgid "October"
-msgstr "Oktober"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:77
-msgctxt "alt. month"
-msgid "November"
-msgstr "November"
-
-#: venv/lib/python3.13/site-packages/django/utils/dates.py:78
-msgctxt "alt. month"
-msgid "December"
-msgstr "Dezember"
-
-#: venv/lib/python3.13/site-packages/django/utils/ipv6.py:20
-#, fuzzy
-#| msgid "Enter a valid email address."
-msgid "This is not a valid IPv6 address."
-msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
-
-#: venv/lib/python3.13/site-packages/django/utils/text.py:76
-#, python-format
-msgctxt "String to return when truncating text"
-msgid "%(truncated_text)s…"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/text.py:287
-msgid "or"
-msgstr "oder"
-
-#. Translators: This string is used as a separator between list elements
-#: venv/lib/python3.13/site-packages/django/utils/text.py:306
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:135
-msgid ", "
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:8
-#, python-format
-msgid "%(num)d year"
-msgid_plural "%(num)d years"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:9
-#, python-format
-msgid "%(num)d month"
-msgid_plural "%(num)d months"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:10
-#, python-format
-msgid "%(num)d week"
-msgid_plural "%(num)d weeks"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:11
-#, python-format
-msgid "%(num)d day"
-msgid_plural "%(num)d days"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:12
-#, python-format
-msgid "%(num)d hour"
-msgid_plural "%(num)d hours"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/utils/timesince.py:13
-#, python-format
-msgid "%(num)d minute"
-msgid_plural "%(num)d minutes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:29
-msgid "Forbidden"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:30
-msgid "CSRF verification failed. Request aborted."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:34
-msgid ""
-"You are seeing this message because this HTTPS site requires a “Referer "
-"header” to be sent by your web browser, but none was sent. This header is "
-"required for security reasons, to ensure that your browser is not being "
-"hijacked by third parties."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:40
-msgid ""
-"If you have configured your browser to disable “Referer” headers, please re-"
-"enable them, at least for this site, or for HTTPS connections, or for “same-"
-"origin” requests."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:45
-msgid ""
-"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
-"including the “Referrer-Policy: no-referrer” header, please remove them. The "
-"CSRF protection requires the “Referer” header to do strict referer checking. "
-"If you’re concerned about privacy, use alternatives like <a "
-"rel=\"noreferrer\" …> for links to third-party sites."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:54
-msgid ""
-"You are seeing this message because this site requires a CSRF cookie when "
-"submitting forms. This cookie is required for security reasons, to ensure "
-"that your browser is not being hijacked by third parties."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:60
-msgid ""
-"If you have configured your browser to disable cookies, please re-enable "
-"them, at least for this site, or for “same-origin” requests."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/csrf.py:66
-msgid "More information is available with DEBUG=True."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:44
-msgid "No year specified"
-msgstr "Kein Jahr angegeben"
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:64
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:115
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:214
-msgid "Date out of range"
-msgstr "Datum außerhalb des gültigen Bereichs"
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:94
-msgid "No month specified"
-msgstr "Kein Monat angegeben"
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:147
-msgid "No day specified"
-msgstr "Kein Tag angegeben"
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:194
-msgid "No week specified"
-msgstr "Keine Woche angegeben"
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:353
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:384
-#, python-format
-msgid "No %(verbose_name_plural)s available"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:680
-#, python-format
-msgid ""
-"Future %(verbose_name_plural)s not available because "
-"%(class_name)s.allow_future is False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/dates.py:720
-#, python-format
-msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/detail.py:56
-#, python-format
-msgid "No %(verbose_name)s found matching the query"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/list.py:70
-msgid "Page is not “last”, nor can it be converted to an int."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/list.py:77
-#, python-format
-msgid "Invalid page (%(page_number)s): %(message)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/generic/list.py:173
-#, python-format
-msgid "Empty list and “%(class_name)s.allow_empty” is False."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/static.py:49
-msgid "Directory indexes are not allowed here."
-msgstr "Verzeichnisindexe sind hier nicht erlaubt."
-
-#: venv/lib/python3.13/site-packages/django/views/static.py:51
-#, python-format
-msgid "“%(path)s” does not exist"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/static.py:68
-#: venv/lib/python3.13/site-packages/django/views/templates/directory_index.html:8
-#: venv/lib/python3.13/site-packages/django/views/templates/directory_index.html:11
-#, python-format
-msgid "Index of %(directory)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:7
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:204
-msgid "The install worked successfully! Congratulations!"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:206
-#, python-format
-msgid ""
-"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
-"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:208
-#, python-format
-msgid ""
-"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
-"%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
-"configured any URLs."
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:217
-msgid "Django Documentation"
-msgstr "Django Dokumentation"
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:218
-msgid "Topics, references, &amp; how-to’s"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:226
-msgid "Tutorial: A Polling App"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:227
-msgid "Get started with Django"
-msgstr ""
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:235
-#, fuzzy
-#| msgid "Django Documentation"
-msgid "Django Community"
-msgstr "Django Dokumentation"
-
-#: venv/lib/python3.13/site-packages/django/views/templates/default_urlconf.html:236
-msgid "Connect, get help, or contribute"
-msgstr ""
 
 #: ok_tools/accessibility_views.py:28
 msgid "Please fill in all required fields."
@@ -8150,7 +7137,7 @@ msgstr ""
 "Beim Senden Ihrer Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie "
 "es später erneut."
 
-#: ok_tools/admin.py:64 ok_tools/templates/base.html:37
+#: ok_tools/admin.py:64 ok_tools/templates/base.html:39
 msgid "Dashboard"
 msgstr "Übersicht"
 
@@ -8232,11 +7219,11 @@ msgstr ""
 "Aufgabe \"%(task_name)s\" wurde erfolgreich gestartet. Vorgangs-ID: "
 "%(task_id)s"
 
-#: ok_tools/settings.py:380
+#: ok_tools/settings.py:408
 msgid "Open Channel Merseburg-Querfurt e.V."
 msgstr "Offener Kanal Merseburg-Querfurt e.V."
 
-#: ok_tools/settings.py:382
+#: ok_tools/settings.py:410
 msgid "OK Merseburg"
 msgstr "OK Merseburg"
 
@@ -8284,6 +7271,10 @@ msgstr "Link zur Änderung oder Listenansicht"
 #: ok_tools/templates/admin/nav_sidebar.html:34
 msgid "Add"
 msgstr "Hinzufügen"
+
+#: ok_tools/templates/admin/index.html:145
+msgid "Change"
+msgstr "Ändern"
 
 #: ok_tools/templates/admin/index.html:158
 msgid "You don't have permission to view or edit anything."
@@ -8338,20 +7329,19 @@ msgstr "Navigationspunkte filtern"
 msgid "OK Tools Dashboard"
 msgstr "OK Tools Dashboard"
 
-#: ok_tools/templates/base.html:77
+#: ok_tools/templates/base.html:73
 msgid "Website"
 msgstr "Website"
 
-#: ok_tools/templates/base.html:170
+#: ok_tools/templates/base.html:166
 msgid "Coming Soon!"
 msgstr "Demnächst verfügbar!"
 
-#: ok_tools/templates/base.html:178 ok_tools/templates/dashboard.html:206
-#: ok_tools/templates/dashboard.html:210
+#: ok_tools/templates/base.html:174 ok_tools/templates/dashboard.html:205
 msgid "Rental Dashboard"
 msgstr "Ausleih-Dashboard"
 
-#: ok_tools/templates/base.html:180
+#: ok_tools/templates/base.html:176
 msgid ""
 "We're working hard to bring you the rental dashboard feature. Soon you'll be "
 "able to book equipment and studio rooms with ease!"
@@ -8359,11 +7349,11 @@ msgstr ""
 "Wir arbeiten daran, Ihnen die Ausleih-Dashboard-Funktion bereitzustellen. "
 "Bald können Sie Ausrüstung und Studioräume ganz einfach buchen!"
 
-#: ok_tools/templates/base.html:185
+#: ok_tools/templates/base.html:181
 msgid "Development Progress"
 msgstr "Entwicklungsfortschritt"
 
-#: ok_tools/templates/base.html:189
+#: ok_tools/templates/base.html:185
 msgid "Got it!"
 msgstr "Verstanden!"
 
@@ -8411,35 +7401,35 @@ msgstr "Alle Systeme funktionsfähig"
 msgid "Your common tasks and shortcuts"
 msgstr "Ihre häufigen Aufgaben und Schnellzugriffe"
 
-#: ok_tools/templates/dashboard.html:214
+#: ok_tools/templates/dashboard.html:209
 msgid "Organization Website"
 msgstr "Organisationswebsite"
 
-#: ok_tools/templates/dashboard.html:228
+#: ok_tools/templates/dashboard.html:223
 msgid "Recent Activities"
 msgstr "Letzte Aktivitäten"
 
-#: ok_tools/templates/dashboard.html:230
+#: ok_tools/templates/dashboard.html:225
 msgid "Your latest updates and activities"
 msgstr "Ihre neuesten Updates und Aktivitäten"
 
-#: ok_tools/templates/dashboard.html:237
+#: ok_tools/templates/dashboard.html:232
 msgid "Activity"
 msgstr "Aktivität"
 
-#: ok_tools/templates/dashboard.html:261
+#: ok_tools/templates/dashboard.html:256
 msgid "No recent activities"
 msgstr "Keine aktuellen Aktivitäten"
 
-#: ok_tools/templates/dashboard.html:262
+#: ok_tools/templates/dashboard.html:257
 msgid "Your activities will appear here when you use the system"
 msgstr "Ihre Aktivitäten werden hier angezeigt, wenn Sie das System nutzen"
 
-#: ok_tools/templates/dashboard.html:278
+#: ok_tools/templates/dashboard.html:273
 msgid "Monthly Overview"
 msgstr "Monatsübersicht"
 
-#: ok_tools/templates/dashboard.html:280
+#: ok_tools/templates/dashboard.html:275
 msgid "Your activity trends over the last 6 months"
 msgstr "Ihre Aktivitätstrends der letzten 6 Monate"
 
@@ -8648,12 +7638,12 @@ msgid "3. Time Period"
 msgstr "3. Zeitraum"
 
 #: ok_tools/templates/rental_dashboard.html:102
-#: ok_tools/templates/rental_dashboard.html:326
+#: ok_tools/templates/rental_dashboard.html:314
 msgid "From:"
 msgstr "Von:"
 
 #: ok_tools/templates/rental_dashboard.html:106
-#: ok_tools/templates/rental_dashboard.html:330
+#: ok_tools/templates/rental_dashboard.html:318
 msgid "To:"
 msgstr "Bis:"
 
@@ -8670,63 +7660,59 @@ msgid "5. Action"
 msgstr "5. Aktion"
 
 #: ok_tools/templates/rental_dashboard.html:135
-#: ok_tools/templates/rental_dashboard.html:346
+#: ok_tools/templates/rental_dashboard.html:334
 msgid "Rooms are automatically returned after scheduled time"
 msgstr "Räume werden nach der gebuchten Zeit automatisch zurückgegeben"
 
-#: ok_tools/templates/rental_dashboard.html:150
-msgid "Filters"
-msgstr "Filter"
-
-#: ok_tools/templates/rental_dashboard.html:200
+#: ok_tools/templates/rental_dashboard.html:188
 msgid "Select dates to view availability"
 msgstr "Wählen Sie Daten aus, um die Verfügbarkeit anzuzeigen"
 
-#: ok_tools/templates/rental_dashboard.html:222
+#: ok_tools/templates/rental_dashboard.html:210
 msgid "Show Sets"
 msgstr "Sets anzeigen"
 
-#: ok_tools/templates/rental_dashboard.html:255
+#: ok_tools/templates/rental_dashboard.html:243
 msgid "Select a set to view contents"
 msgstr "Wählen Sie ein Set aus, um den Inhalt anzuzeigen"
 
-#: ok_tools/templates/rental_dashboard.html:262
+#: ok_tools/templates/rental_dashboard.html:250
 msgid "Add Set"
 msgstr "Set hinzufügen"
 
-#: ok_tools/templates/rental_dashboard.html:308
+#: ok_tools/templates/rental_dashboard.html:296
 msgid "Booking"
 msgstr "Buchung"
 
-#: ok_tools/templates/rental_dashboard.html:310
+#: ok_tools/templates/rental_dashboard.html:298
 msgid "Select a room to book time"
 msgstr "Wählen Sie einen Raum, um ein Zeitfenster zu buchen"
 
-#: ok_tools/templates/rental_dashboard.html:320
+#: ok_tools/templates/rental_dashboard.html:308
 msgid "Select room:"
 msgstr "Raum auswählen:"
 
-#: ok_tools/templates/rental_dashboard.html:350
+#: ok_tools/templates/rental_dashboard.html:338
 msgid "Add Room"
 msgstr "Raum hinzufügen"
 
-#: ok_tools/templates/rental_dashboard.html:362
+#: ok_tools/templates/rental_dashboard.html:350
 msgid "CURRENT RENTALS"
 msgstr "AKTUELLE AUSLEIHEN"
 
-#: ok_tools/templates/rental_dashboard.html:370
+#: ok_tools/templates/rental_dashboard.html:358
 msgid "Loading current rentals..."
 msgstr "Lade aktuelle Ausleihen..."
 
-#: ok_tools/templates/rental_dashboard.html:387
+#: ok_tools/templates/rental_dashboard.html:375
 msgid "RETURNED RENTALS"
 msgstr "ZURÜCKGEGEBENE AUSLEIHEN"
 
-#: ok_tools/templates/rental_dashboard.html:412
+#: ok_tools/templates/rental_dashboard.html:400
 msgid "EXPIRED RENTALS"
 msgstr "ABGELAUFENE AUSLEIHEN"
 
-#: ok_tools/templates/rental_dashboard.html:420
+#: ok_tools/templates/rental_dashboard.html:408
 msgid "Loading expired rentals..."
 msgstr "Lade abgelaufene Ausleihen..."
 
@@ -8769,6 +7755,322 @@ msgstr "Sie haben %(count)d Beiträge diese Woche"
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
 
+#, python-format
+#~ msgid " By %(filter_title)s "
+#~ msgstr "Nach %(filter_title)s"
+
+#~ msgid "Messages"
+#~ msgstr "Nachrichten"
+
+#~ msgid "Static Files"
+#~ msgstr "Statische Dateien"
+
+#~ msgid "Syndication"
+#~ msgstr "Syndizierung"
+
+#, fuzzy
+#~| msgid "Enter a valid date."
+#~ msgid "Enter a valid value."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#, fuzzy
+#~| msgid "Enter a valid date."
+#~ msgid "Enter a valid domain name."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#, fuzzy
+#~| msgid "Enter a valid date."
+#~ msgid "Enter a valid URL."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#~ msgid "Enter a valid integer."
+#~ msgstr "Geben Sie eine gültige ganze Zahl ein."
+
+#~ msgid "Enter a valid email address."
+#~ msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
+
+#, fuzzy, python-format
+#~| msgid "Enter a valid email address."
+#~ msgid "Enter a valid %(protocol)s address."
+#~ msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
+
+#~ msgid "Enter only digits separated by commas."
+#~ msgstr "Geben Sie nur durch Kommas getrennte Ziffern ein."
+
+#~ msgid "Enter a number."
+#~ msgstr "Geben Sie eine Zahl ein."
+
+#~ msgid "Null characters are not allowed."
+#~ msgstr "Null-Zeichen sind nicht erlaubt."
+
+#, python-format
+#~ msgid "%(model_name)s with this %(field_labels)s already exists."
+#~ msgstr "%(model_name)s mit diesen %(field_labels)s existiert bereits."
+
+#, fuzzy
+#~| msgid "This field is required."
+#~ msgid "This field cannot be null."
+#~ msgstr "Dieses Feld ist erforderlich."
+
+#, fuzzy
+#~| msgid "This field is required."
+#~ msgid "This field cannot be blank."
+#~ msgstr "Dieses Feld ist erforderlich."
+
+#, python-format
+#~ msgid "%(model_name)s with this %(field_label)s already exists."
+#~ msgstr "%(model_name)s mit diesem %(field_label)s existiert bereits."
+
+#, fuzzy
+#~| msgid "Positive integer"
+#~ msgid "Comma-separated integers"
+#~ msgstr "Positive ganze Zahl"
+
+#~ msgid "Decimal number"
+#~ msgstr "Dezimalzahl"
+
+#~ msgid "File path"
+#~ msgstr "Dateipfad"
+
+#~ msgid "Floating point number"
+#~ msgstr "Gleitkommazahl"
+
+#, fuzzy
+#~| msgid "Positive integer"
+#~ msgid "Big (8 byte) integer"
+#~ msgstr "Positive ganze Zahl"
+
+#, fuzzy
+#~| msgid "Positive integer"
+#~ msgid "Small integer"
+#~ msgstr "Positive ganze Zahl"
+
+#~ msgid "IPv4 address"
+#~ msgstr "IPv4-Adresse"
+
+#~ msgid "IP address"
+#~ msgstr "IP-Adresse"
+
+#, fuzzy
+#~| msgid "Positive integer"
+#~ msgid "Positive big integer"
+#~ msgstr "Positive ganze Zahl"
+
+#~ msgid "Positive integer"
+#~ msgstr "Positive ganze Zahl"
+
+#, fuzzy
+#~| msgid "Positive integer"
+#~ msgid "Positive small integer"
+#~ msgstr "Positive ganze Zahl"
+
+#~ msgid "Time"
+#~ msgstr "Zeit"
+
+#~ msgid "Image"
+#~ msgstr "Bild"
+
+#~ msgid "A JSON object"
+#~ msgstr "Ein JSON-Objekt"
+
+#, fuzzy
+#~| msgid "Enter a valid JSON."
+#~ msgid "Value must be valid JSON."
+#~ msgstr "Geben Sie ein gültiges JSON ein."
+
+#~ msgid "This field is required."
+#~ msgstr "Dieses Feld ist erforderlich."
+
+#~ msgid "Enter a whole number."
+#~ msgstr "Geben Sie eine ganze Zahl ein."
+
+#~ msgid "Enter a valid date."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#~ msgid "Enter a valid time."
+#~ msgstr "Geben Sie eine gültige Uhrzeit ein."
+
+#~ msgid "Enter a valid date/time."
+#~ msgstr "Geben Sie ein gültiges Datum/Uhrzeit ein."
+
+#~ msgid "Enter a valid duration."
+#~ msgstr "Geben Sie eine gültige Dauer ein."
+
+#~ msgid "No file was submitted."
+#~ msgstr "Es wurde keine Datei übermittelt."
+
+#, fuzzy
+#~| msgid "Enter a valid date."
+#~ msgid "Enter a list of values."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#, fuzzy
+#~| msgid "Enter a whole number."
+#~ msgid "Enter a complete value."
+#~ msgstr "Geben Sie eine ganze Zahl ein."
+
+#, fuzzy
+#~| msgid "Enter a valid date."
+#~ msgid "Enter a valid UUID."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#~ msgid "Enter a valid JSON."
+#~ msgstr "Geben Sie ein gültiges JSON ein."
+
+#, fuzzy, python-format
+#~| msgid "Error processing row %(row_num)s: %(error)s"
+#~ msgid "(Hidden field %(name)s) %(error)s"
+#~ msgstr "Fehler beim Verarbeiten der Zeile %(row_num)s: %(error)s"
+
+#, fuzzy, python-format
+#~| msgid "Please select at least one item or room"
+#~ msgid "Please submit at most %(num)d form."
+#~ msgid_plural "Please submit at most %(num)d forms."
+#~ msgstr[0] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
+#~ msgstr[1] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
+
+#, fuzzy, python-format
+#~| msgid "Please select at least one item or room"
+#~ msgid "Please submit at least %(num)d form."
+#~ msgid_plural "Please submit at least %(num)d forms."
+#~ msgstr[0] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
+#~ msgstr[1] "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
+
+#, fuzzy, python-format
+#~| msgid "Enter a valid date."
+#~ msgid "“%(pk)s” is not a valid value."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#~ msgid "Currently"
+#~ msgstr "Derzeit"
+
+#~ msgid "Mon"
+#~ msgstr "Mo"
+
+#~ msgid "Sat"
+#~ msgstr "Sa"
+
+#, fuzzy
+#~| msgid "may"
+#~ msgid "mar"
+#~ msgstr "Mai"
+
+#, fuzzy
+#~| msgid "may"
+#~ msgid "apr"
+#~ msgstr "Mai"
+
+#~ msgid "may"
+#~ msgstr "Mai"
+
+#~ msgid "oct"
+#~ msgstr "Okt"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "March"
+#~ msgstr "Mär"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "April"
+#~ msgstr "Apr"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "May"
+#~ msgstr "Mai"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "June"
+#~ msgstr "Jun"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "July"
+#~ msgstr "Jul"
+
+#~ msgctxt "alt. month"
+#~ msgid "January"
+#~ msgstr "Januar"
+
+#~ msgctxt "alt. month"
+#~ msgid "February"
+#~ msgstr "Februar"
+
+#~ msgctxt "alt. month"
+#~ msgid "March"
+#~ msgstr "März"
+
+#~ msgctxt "alt. month"
+#~ msgid "April"
+#~ msgstr "April"
+
+#~ msgctxt "alt. month"
+#~ msgid "May"
+#~ msgstr "Mai"
+
+#~ msgctxt "alt. month"
+#~ msgid "June"
+#~ msgstr "Juni"
+
+#~ msgctxt "alt. month"
+#~ msgid "July"
+#~ msgstr "Juli"
+
+#~ msgctxt "alt. month"
+#~ msgid "August"
+#~ msgstr "August"
+
+#~ msgctxt "alt. month"
+#~ msgid "September"
+#~ msgstr "September"
+
+#~ msgctxt "alt. month"
+#~ msgid "October"
+#~ msgstr "Oktober"
+
+#~ msgctxt "alt. month"
+#~ msgid "November"
+#~ msgstr "November"
+
+#~ msgctxt "alt. month"
+#~ msgid "December"
+#~ msgstr "Dezember"
+
+#, fuzzy
+#~| msgid "Enter a valid email address."
+#~ msgid "This is not a valid IPv6 address."
+#~ msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
+
+#~ msgid "or"
+#~ msgstr "oder"
+
+#~ msgid "No year specified"
+#~ msgstr "Kein Jahr angegeben"
+
+#~ msgid "Date out of range"
+#~ msgstr "Datum außerhalb des gültigen Bereichs"
+
+#~ msgid "No month specified"
+#~ msgstr "Kein Monat angegeben"
+
+#~ msgid "No day specified"
+#~ msgstr "Kein Tag angegeben"
+
+#~ msgid "No week specified"
+#~ msgstr "Keine Woche angegeben"
+
+#~ msgid "Directory indexes are not allowed here."
+#~ msgstr "Verzeichnisindexe sind hier nicht erlaubt."
+
+#~ msgid "Django Documentation"
+#~ msgstr "Django Dokumentation"
+
+#, fuzzy
+#~| msgid "Django Documentation"
+#~ msgid "Django Community"
+#~ msgstr "Django Dokumentation"
+
+#~ msgid "Filters"
+#~ msgstr "Filter"
+
 #~ msgid "Error parsing server response."
 #~ msgstr "Fehler beim Parsen der Serverantwort."
 
@@ -8791,9 +8093,6 @@ msgstr "Willkommen zurück, %(name)s!"
 #~ msgstr ""
 #~ "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es "
 #~ "erneut."
-
-#~ msgid "Create your first license"
-#~ msgstr "Erstellen Sie Ihre erste Freistellung"
 
 #~ msgid "Overall"
 #~ msgstr "Gesamt"

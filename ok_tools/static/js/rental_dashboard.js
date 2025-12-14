@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.selectedRoom = null;
             this.equipmentSets = [];
             this.rooms = [];
-            this.groupByLocation = false;
 
             // Bind events
             this.bindEvents();
@@ -26,19 +25,36 @@ document.addEventListener('DOMContentLoaded', function() {
             // Load filter options
             this.loadFilterOptions();
 
+            // Check if dates are already selected and load inventory
+            if (this.isPeriodSelected()) {
+                this.loadInventory();
+            } else {
+                // Show date selection hint if dates are not selected
+                this.showSelectDatesHint();
+            }
+
         }
 
         bindEvents() {
             // Date field event listeners
             const startDateField = document.querySelector('input[name="start_date"]');
             if (startDateField) {
+                this.setupDateFieldConstraints(startDateField, null);
                 startDateField.addEventListener('change', this.debounce(() => {
+                    // Update end_date min when start_date changes
+                    const endDateField = document.querySelector('input[name="end_date"]');
+                    if (endDateField && startDateField.value) {
+                        this.setupDateFieldConstraints(endDateField, startDateField.value);
+                    }
                     this.loadInventoryIfPeriodSelected();
                 }, 300));
             }
 
             const endDateField = document.querySelector('input[name="end_date"]');
             if (endDateField) {
+                // Initial setup will be done after start_date is set
+                const startDate = startDateField?.value;
+                this.setupDateFieldConstraints(endDateField, startDate);
                 endDateField.addEventListener('change', this.debounce(() => {
                     this.loadInventoryIfPeriodSelected();
                 }, 300));
@@ -82,19 +98,50 @@ document.addEventListener('DOMContentLoaded', function() {
             if (showSetsBtn) showSetsBtn.addEventListener('click', this.showEquipmentSets.bind(this));
 
             const reserveBtn = document.getElementById('reserveBtn');
-            if (reserveBtn) reserveBtn.addEventListener('click', () => this.createRental('reserved'));
+            if (reserveBtn) {
+                reserveBtn.addEventListener('click', () => {
+                    const action = (typeof RENTAL_REQUIRES_APPROVAL !== 'undefined' && RENTAL_REQUIRES_APPROVAL)
+                        ? 'draft'
+                        : 'reserved';
+                    this.createRental(action);
+                });
+            }
 
             const addSetToRentalBtn = document.getElementById('addSetToRentalBtn');
             if (addSetToRentalBtn) addSetToRentalBtn.addEventListener('click', this.addSetToRental.bind(this));
-
-            const groupByLocationBtn = document.getElementById('groupByLocationBtn');
-            if (groupByLocationBtn) groupByLocationBtn.addEventListener('click', this.toggleLocationGrouping.bind(this));
 
             const roomsFilterBtn = document.getElementById('roomsFilterBtn');
             if (roomsFilterBtn) roomsFilterBtn.addEventListener('click', this.showRooms.bind(this));
 
             const addRoomToRentalBtn = document.getElementById('addRoomToRentalBtn');
             if (addRoomToRentalBtn) addRoomToRentalBtn.addEventListener('click', this.addRoomToRental.bind(this));
+        }
+
+        // Setup date field constraints (min date only, default time behavior)
+        setupDateFieldConstraints(field, minStartDate) {
+            if (!field) return;
+            
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            // Set minimum date: today, or minStartDate if provided
+            let minDate;
+            if (minStartDate) {
+                // For end_date: use start_date as minimum
+                minDate = new Date(minStartDate);
+            } else {
+                // For start_date: use today
+                minDate = new Date(today);
+            }
+            
+            // Format as datetime-local string (YYYY-MM-DDTHH:MM)
+            // Use default time (00:00) to allow any time selection
+            minDate.setHours(0, 0, 0, 0);
+            const minDateString = minDate.toISOString().slice(0, 16);
+            field.min = minDateString;
+            
+            // Clear max to allow any time selection (no time restrictions)
+            field.max = '';
         }
 
         // Check if period is selected
@@ -505,6 +552,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const response = await fetch(url);
                 if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('HTTP error response:', response.status, errorText);
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
@@ -552,11 +601,86 @@ document.addEventListener('DOMContentLoaded', function() {
             grid.innerHTML = `
                 <div class="col-12">
                     <div class="text-center p-5">
-                        <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
-                        <p class="mt-3 text-muted">${gettext('Select dates to view availability')}</p>
+                        <div class="workflow-step p-3 rounded mb-3 d-inline-block" style="max-width: 400px;">
+                            <div class="d-flex align-items-center mb-2 justify-content-center">
+                                <i class="bi bi-calendar-check text-secondary me-2"></i>
+                                <strong>${gettext('3. Time Period')}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label form-label-sm">${gettext('From:')}</label>
+                                <input name="start_date_hint" type="datetime-local" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label form-label-sm">${gettext('To:')}</label>
+                                <input name="end_date_hint" type="datetime-local" class="form-control form-control-sm" required>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-muted">${gettext('Select dates above to view availability')}</p>
                     </div>
                 </div>
             `;
+            
+            // Sync hint fields with main fields
+            const startHintField = grid.querySelector('input[name="start_date_hint"]');
+            const endHintField = grid.querySelector('input[name="end_date_hint"]');
+            const startMainField = document.querySelector('input[name="start_date"]');
+            const endMainField = document.querySelector('input[name="end_date"]');
+            
+            if (startHintField && startMainField) {
+                startHintField.value = startMainField.value || '';
+                // Setup constraints for hint field
+                this.setupDateFieldConstraints(startHintField, null);
+                startHintField.addEventListener('change', (e) => {
+                    if (startMainField) {
+                        startMainField.value = e.target.value;
+                        // Update end_date min when start_date changes
+                        if (endMainField && e.target.value) {
+                            this.setupDateFieldConstraints(endMainField, e.target.value);
+                        }
+                        // Also update hint end_date
+                        if (endHintField && e.target.value) {
+                            this.setupDateFieldConstraints(endHintField, e.target.value);
+                        }
+                        startMainField.dispatchEvent(new Event('change'));
+                    }
+                });
+            }
+            
+            if (endHintField && endMainField) {
+                endHintField.value = endMainField.value || '';
+                const startDate = startMainField?.value || startHintField?.value;
+                // Setup constraints for hint field
+                this.setupDateFieldConstraints(endHintField, startDate);
+                endHintField.addEventListener('change', (e) => {
+                    if (endMainField) {
+                        endMainField.value = e.target.value;
+                        endMainField.dispatchEvent(new Event('change'));
+                    }
+                });
+            }
+            
+            // Also sync main fields changes to hint fields
+            if (startMainField && startHintField) {
+                const syncStartHandler = () => {
+                    if (startHintField && startMainField.value) {
+                        startHintField.value = startMainField.value;
+                        // Update hint end_date constraints when main start_date changes
+                        if (endHintField) {
+                            this.setupDateFieldConstraints(endHintField, startMainField.value);
+                        }
+                    }
+                };
+                startMainField.addEventListener('change', syncStartHandler);
+            }
+            
+            if (endMainField && endHintField) {
+                const syncEndHandler = () => {
+                    if (endHintField && endMainField.value) {
+                        endHintField.value = endMainField.value;
+                    }
+                };
+                endMainField.addEventListener('change', syncEndHandler);
+            }
         }
 
         async applyFilters() {
@@ -615,30 +739,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        toggleLocationGrouping() {
-            this.groupByLocation = !this.groupByLocation;
-            const btn = document.getElementById('groupByLocationBtn');
-            if (btn) {
-                if (this.groupByLocation) {
-                    btn.classList.remove('btn-outline-info');
-                    btn.classList.add('btn-info');
-                    btn.innerHTML = `<i class="bi bi-sitemap me-1"></i>${gettext('Ungroup')}`;
-                } else {
-                    btn.classList.remove('btn-info');
-                    btn.classList.add('btn-outline-info');
-                    btn.innerHTML = `<i class="bi bi-sitemap me-1"></i>${gettext('Group by location')}`;
-                }
-            }
-
-            // Re-render inventory if we have items
-            if (this.isPeriodSelected()) {
-                this.loadInventory();
-            }
-        }
-
         renderInventory(items) {
             const grid = document.getElementById('inventoryGrid');
-            if (!grid) return;
+            if (!grid) {
+                console.error('inventoryGrid element not found');
+                return;
+            }
 
             if (items.length === 0) {
                 grid.innerHTML = `
@@ -652,25 +758,82 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (this.groupByLocation) {
-                this.renderInventoryGrouped(items, grid);
-            } else {
-                this.renderInventoryFlat(items, grid);
-            }
+            this.renderInventoryFlat(items, grid);
         }
 
         renderInventoryFlat(items, grid) {
-            grid.innerHTML = '';
-            items.forEach(item => {
+            // Clear existing content but keep the row structure
+            while (grid.firstChild) {
+                grid.removeChild(grid.firstChild);
+            }
+            
+            items.forEach((item, index) => {
                 const col = document.createElement('div');
                 col.className = 'col-md-6 col-lg-4 mb-3 d-flex';
-                col.innerHTML = this.createItemCardHTML(item);
+                
+                // Ensure column has minimum height and is visible
+                col.style.minHeight = '150px';
+                col.style.display = 'flex';
+                
+                const cardHTML = this.createItemCardHTML(item);
+                col.innerHTML = cardHTML;
 
                 const card = col.querySelector('.item-card');
-                this.bindItemCardEvents(card, item);
+                if (card) {
+                    // Ensure card is visible
+                    card.style.display = 'flex';
+                    card.style.flexDirection = 'column';
+                    card.style.minHeight = '150px';
+                    this.bindItemCardEvents(card, item);
+                } else {
+                    console.error('Item card not found for item', index);
+                }
 
                 grid.appendChild(col);
             });
+            // Ensure grid and parent are visible
+            // Grid is a Bootstrap row, so it should use default row display
+            if (grid.parentElement) {
+                const parent = grid.parentElement;
+                parent.style.display = 'block';
+                parent.style.minHeight = '200px';
+                
+                // Remove max-height restriction if exists (from admin_rental.css)
+                const parentMaxHeight = window.getComputedStyle(parent).maxHeight;
+                if (parentMaxHeight && parentMaxHeight !== 'none') {
+                    const maxHeightValue = parseFloat(parentMaxHeight);
+                    if (maxHeightValue < 1000) {
+                        parent.style.maxHeight = 'none';
+                    }
+                }
+                
+                // Ensure overflow is visible or auto, not hidden
+                const parentOverflow = window.getComputedStyle(parent).overflow;
+                if (parentOverflow === 'hidden') {
+                    parent.style.overflow = 'visible';
+                }
+            }
+            
+            // Ensure grid (row) is visible and uses Bootstrap row behavior
+            if (grid.classList.contains('row')) {
+                grid.style.display = 'flex';
+                grid.style.flexWrap = 'wrap';
+                grid.style.marginLeft = '-0.75rem';
+                grid.style.marginRight = '-0.75rem';
+            }
+            
+            // Scroll to first element if it's below viewport
+            if (grid.children.length > 0) {
+                const firstChildRect = grid.children[0].getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                
+                if (firstChildRect.top > viewportHeight) {
+                    grid.children[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            // Force reflow to ensure rendering
+            grid.offsetHeight;
         }
 
         renderInventoryGrouped(items, grid) {
@@ -728,27 +891,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         createItemCardHTML(item) {
-            return `
-                <div class="item-card p-3 w-100 h-100 d-flex flex-column" data-item-id="${item.id}">
+            const html = `
+                <div class="item-card p-3 w-100 h-100 d-flex flex-column border rounded bg-white" data-item-id="${item.id}" style="min-height: 150px; border: 1px solid #dee2e6 !important;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="mb-1">${item.description || item.inventory_number}</h6>
+                        <h6 class="mb-1">${this.escapeHtml(item.description || item.inventory_number || 'Unknown')}</h6>
                         <span class="badge bg-success status-badge">${gettext('Available')}</span>
                     </div>
                     <div class="d-flex align-items-center text-muted small mb-1">
-                        <span class="me-3"><i class="bi bi-barcode me-1"></i>${item.inventory_number}</span>
-                        <span><i class="bi bi-tag me-1"></i>${item.category || gettext('No category')}</span>
+                        <span class="me-3"><i class="bi bi-barcode me-1"></i>${this.escapeHtml(item.inventory_number || 'N/A')}</span>
+                        <span><i class="bi bi-tag me-1"></i>${this.escapeHtml(item.category || gettext('No category'))}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-auto">
-                        <small class="text-muted">${gettext('Owner')}: ${item.owner || '-'}</small>
+                        <small class="text-muted">${gettext('Owner')}: ${this.escapeHtml(item.owner || '-')}</small>
                         <div class="quantity-controls">
                             <div class="input-group input-group-sm">
                                 <button class="btn btn-outline-secondary qty-minus" type="button">-</button>
-                                <input type="number" class="form-control text-center qty-input" value="1" min="1" max="${item.available_quantity}">
+                                <input type="number" class="form-control text-center qty-input" value="1" min="1" max="${item.available_quantity || 1}">
                                 <button class="btn btn-outline-secondary qty-plus" type="button">+</button>
                             </div>
                         </div>
                     </div>
                 </div>`;
+            return html;
+        }
+
+        escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         bindItemCardEvents(card, item) {
@@ -2094,6 +2265,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
+                // Validate purpose
+                const purpose = document.querySelector('[name="purpose"]').value.trim();
+                if (!purpose) {
+                    alert(gettext('Please enter purpose of use'));
+                    return;
+                }
+
                 // Validate dates
                 const startDate = document.querySelector('[name="start_date"]').value;
                 const endDate = document.querySelector('[name="end_date"]').value;
@@ -2114,7 +2292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const rentalData = {
                     user_id: parseInt(USER_ID), // Convert string to integer for Django comparison
                     project_name: projectName,
-                    purpose: document.querySelector('[name="purpose"]').value.trim(),
+                    purpose: purpose,
                     start_date: startDate,
                     end_date: endDate,
                     action: action,
@@ -2135,15 +2313,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const result = await response.json();
 
+                if (!response.ok) {
+                    console.error('Rental creation failed:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        error: result.error || result,
+                        requestData: rentalData
+                    });
+                }
+
                 if (result.success) {
-                    alert(gettext('Rental successfully booked! ID: ') + result.rental_id);
+                    if (action === 'draft') {
+                        alert(gettext('Request submitted for approval. ID: ') + result.rental_id);
+                    } else {
+                        alert(gettext('Rental successfully booked! ID: ') + result.rental_id);
+                    }
                     this.clearForm();
                 } else {
-                    alert(gettext('Error: ') + result.error);
+                    const errorMessage = result.error || gettext('Unknown error occurred');
+                    console.error('Rental creation error:', errorMessage);
+                    alert(gettext('Error: ') + errorMessage);
                 }
             } catch (error) {
                 console.error('Error creating rental:', error);
-                alert(gettext('Error creating rental'));
+                console.error('Request data was:', rentalData);
+                alert(gettext('Error creating rental: ') + error.message);
             }
         }
 

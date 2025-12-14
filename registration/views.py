@@ -16,10 +16,12 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from typing import Tuple
+from pathlib import Path
 import django.contrib.auth.forms
 import django.http as http
 import functools
 import logging
+import os
 
 
 User = get_user_model()
@@ -105,24 +107,65 @@ class RegistrationFilledFormFile(generic.View):
     """View to deliver a filled registration form."""
 
     def get(self, request):
-        """Handle the get request and return the pdf file."""
+        """Handle the get request and return the form file (PDF or text)."""
         user, profile = _get_user_and_profile(request)
 
         if not profile:
             return _no_profile_error(request)
 
-        return generate_registration_form(user, profile)
+        # Check form type from settings
+        form_type = getattr(settings, 'REGISTRATION_FORM_TYPE', 'PDF').upper()
+        
+        if form_type == 'HTML':
+            from .print import generate_registration_form_html
+            return generate_registration_form_html(user, profile)
+        elif form_type == 'TEXT':
+            from .print import generate_registration_form_text
+            return generate_registration_form_text(user, profile)
+        else:
+            # Default to PDF
+            return generate_registration_form(user, profile)
 
 
 class RegistrationPlainFormFile(generic.View):
     """View to deliver a plain registration form."""
 
     def get(self, request):
-        """Handle the get request and return the pdf file."""
-        return http.FileResponse(
-            open('files/Nutzerkartei_Anmeldung_2022.pdf', 'rb'),
-            filename=('registration_form.pdf')
-        )
+        """Handle the get request and return the form file."""
+        # Check form type from settings
+        form_type = getattr(settings, 'REGISTRATION_FORM_TYPE', 'PDF').upper()
+        
+        if form_type == 'HTML':
+            # Return empty HTML template
+            from django.template.loader import render_to_string
+            context = {
+                'first_name': '',
+                'last_name': '',
+                'street': '',
+                'zip_city': '',
+                'phone_private': '',
+                'phone_service': '',
+                'email': '',
+                'ausweisnr': '',
+                'birthday': '',
+                'media_authority_name': 'Offenen Kanals Magdeburg',
+                'city': '',
+                'date': '',
+            }
+            html_content = render_to_string('registration/nutzerkartei_form.html', context)
+            return http.HttpResponse(html_content, content_type='text/html; charset=utf-8')
+        else:
+            # Use PDF template from settings
+            pdf_filename = str(getattr(settings, 'REGISTRATION_FORM_PDF', 'Nutzerkartei.pdf'))
+            template_pdf = Path(settings.BASE_DIR) / 'files' / pdf_filename
+            
+            if not template_pdf.is_file():
+                raise FileNotFoundError(f'PDF template not found: {template_pdf}')
+            
+            return http.FileResponse(
+                open(template_pdf, 'rb'),
+                filename=str(_('registration_form.pdf'))
+            )
 
 
 @method_decorator(login_required, name='dispatch')

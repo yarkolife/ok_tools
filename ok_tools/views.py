@@ -350,6 +350,7 @@ class RentalDashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         """Add rental-specific context data."""
         context = super().get_context_data(**kwargs)
+        from django.conf import settings
 
         # Import Profile model
         from registration.models import Profile
@@ -380,6 +381,7 @@ class RentalDashboardView(LoginRequiredMixin, TemplateView):
 
         # Add user ID for JavaScript API calls
         context['user_id'] = self.request.user.id
+        context['rental_requires_approval'] = bool(getattr(settings, 'RENTAL_USER_REQUEST_REQUIRES_APPROVAL', False))
 
         # Add rental statistics for the current user
         try:

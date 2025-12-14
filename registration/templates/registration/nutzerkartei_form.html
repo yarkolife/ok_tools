@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nutzerkartei</title>
+  <style>
+    /* A4 print */
+    @page { size: A4; margin: 0; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      line-height: 1.25;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      padding: 28mm 25mm 25mm 28mm; /* визуально похоже на PDF */
+      box-sizing: border-box;
+    }
+
+    .title {
+      font-weight: 700;
+      font-size: 12.5pt;
+      margin: 0 0 2mm 0;
+    }
+    .subtitle {
+      margin: 0 0 12mm 0;
+      font-size: 10pt;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 28mm;
+      row-gap: 9mm;
+      margin-bottom: 16mm;
+    }
+
+    .field {
+      display: flex;
+      align-items: baseline;
+      gap: 6mm;
+      white-space: nowrap;
+    }
+    .label {
+      min-width: 22mm;
+    }
+    .line {
+      flex: 1 1 auto;
+      border-bottom: 1px solid #000;
+      height: 0.9em;
+      transform: translateY(-0.1em);
+    }
+    .line-filled {
+      flex: 1 1 auto;
+      border-bottom: 1px solid #000;
+      height: 0.9em;
+      transform: translateY(-0.1em);
+      padding-left: 2mm;
+    }
+
+    .textblock {
+      margin: 0 0 10mm 0;
+      max-width: 155mm;
+      font-size: 10pt;
+    }
+
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14mm;
+      margin: 0 0 10mm 0;
+    }
+
+    .field3 { display:flex; align-items:baseline; gap: 6mm; }
+    .label3 { min-width: 12mm; }
+    .line3 { flex: 1; border-bottom: 1px solid #000; height: 0.9em; transform: translateY(-0.1em); }
+    .line3-filled {
+      flex: 1;
+      border-bottom: 1px solid #000;
+      height: 0.9em;
+      transform: translateY(-0.1em);
+      padding-left: 2mm;
+    }
+
+    .consent2 {
+      margin: 0 0 6mm 0;
+      max-width: 165mm;
+      font-size: 10pt;
+    }
+
+    .ja-nein {
+      display: flex;
+      gap: 35mm;
+      margin: 0 0 8mm 0;
+      font-size: 10pt;
+    }
+    .choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6mm;
+    }
+    .box {
+      width: 4.2mm;
+      height: 4.2mm;
+      border: 1px solid #000;
+      display: inline-block;
+      transform: translateY(0.4mm);
+    }
+
+    .forms {
+      margin: 0 0 12mm 0;
+      font-size: 10pt;
+    }
+    .forms .head { margin: 0 0 4mm 0; }
+    .forms .item { margin: 0; }
+
+    /* make screen preview centered (optional) */
+    @media screen {
+      body { background: #f3f3f3; }
+      .page { margin: 10mm auto; background:#fff; box-shadow: 0 2mm 8mm rgba(0,0,0,.12); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <p class="title">Nutzerkartei</p>
+    <p class="subtitle">(Die mit einem * versehen Angaben sind freiwillig und dienen uns zu statistischen Zwecken)</p>
+
+    <div class="grid">
+      <div class="field">
+        <span class="label">Vorname:</span>
+        <span class="line-filled">{% if first_name %}{{ first_name }}{% endif %}</span>
+      </div>
+      <div class="field">
+        <span class="label">Name:</span>
+        <span class="line-filled">{% if last_name %}{{ last_name }}{% endif %}</span>
+      </div>
+
+      <div class="field">
+        <span class="label">Straße:</span>
+        <span class="line-filled">{% if street %}{{ street }}{% endif %}</span>
+      </div>
+      <div class="field">
+        <span class="label">PLZ/Ort:</span>
+        <span class="line-filled">{% if zip_city %}{{ zip_city }}{% endif %}</span>
+      </div>
+
+      <div class="field">
+        <span class="label">Tel.privat:</span>
+        <span class="line-filled">{% if phone_private %}{{ phone_private }}{% endif %}</span>
+      </div>
+      <div class="field">
+        <span class="label">Tel.dienstlich:</span>
+        <span class="line-filled">{% if phone_service %}{{ phone_service }}{% endif %}</span>
+      </div>
+
+      <div class="field">
+        <span class="label">E-mail:</span>
+        <span class="line-filled">{% if email %}{{ email }}{% endif %}</span>
+      </div>
+      <div class="field">
+        <span class="label">Beruf*:</span>
+        <span class="line-filled"></span>
+      </div>
+
+      <div class="field">
+        <span class="label">Ausweisnr:</span>
+        <span class="line-filled">{% if ausweisnr %}{{ ausweisnr }}{% endif %}</span>
+      </div>
+      <div class="field">
+        <span class="label">Geb.Datum:</span>
+        <span class="line-filled">{% if birthday %}{{ birthday }}{% endif %}</span>
+      </div>
+    </div>
+
+    <p class="textblock">
+      Mit der Speicherung der auf der Nutzerkartei angegebenen personenbezogenen<br>
+      Daten in die Nutzerkartei des {{ media_authority_name }} bin ich einverstanden. Mit<br>
+      ist bekannt, dass ich die erteilte Einwilligung ohne Angabe von Gründen jederzeit<br>
+      widerrufen kann.<br>
+      Die Speicherung der personenbezogenen Daten erfolgt lediglich zur Sicherung und<br>
+      Vereinfachung des Informationsaustausches zwischen Offenem Kanal und Nutzer.<br>
+      Die gespeicherten Daten unterliegen dem Datenschutz nach den Bestimmungen des<br>
+      Landesschutzgesetzes. Eine Weiterleitung der Daten an Dritte ist ausgeschlossen.<br>
+      Ich bin darauf hingewiesen worden, dass eine Ablehnung des Einverständnisses zur<br>
+      Speicherung der angegebenen personenbezogenen Daten keine Nachteile für den<br>
+      gleichberechtigten Zugang zum {{ media_authority_name }} entstehen lässt.
+    </p>
+
+    <div class="row3">
+      <div class="field3"><span class="label3">Ort:</span><span class="line3-filled">{% if city %}{{ city }}{% endif %}</span></div>
+      <div class="field3"><span class="label3">Datum:</span><span class="line3-filled">{% if date %}{{ date }}{% endif %}</span></div>
+      <div class="field3"><span class="label3">Unterschrift:</span><span class="line3"></span></div>
+    </div>
+
+    <p class="consent2">
+      Mit der Archivierung meiner Beiträge im {{ media_authority_name }} und der<br>
+      Verwendung der Beiträge zum Zwecke der Öffentlichkeitsarbeit bin ich<br>
+      einverstanden:
+    </p>
+
+    <div class="ja-nein">
+      <span class="choice"><span class="box"></span> ja</span>
+      <span class="choice"><span class="box"></span> nein</span>
+    </div>
+
+    <div class="forms">
+      <p class="head">Folgend aufgeführte Formblätter habe ich zur Kenntnis genommen:</p>
+      <p class="item">Nutzungsordnung</p>
+      <p class="item">Zitatrecht, Werbeverbot</p>
+    </div>
+
+    <div class="row3">
+      <div class="field3"><span class="label3">Ort:</span><span class="line3-filled">{% if city %}{{ city }}{% endif %}</span></div>
+      <div class="field3"><span class="label3">Datum:</span><span class="line3-filled">{% if date %}{{ date }}{% endif %}</span></div>
+      <div class="field3"><span class="label3">Unterschrift:</span><span class="line3"></span></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% load i18n %}
+{% blocktrans with ok_name=ok_name rental_id=rental_id %}A new rental request needs approval in {{ ok_name }} (ID: {{ rental_id }}).{% endblocktrans %}
+
+{% if user_first_name or user_last_name %}
+{% blocktrans with first_name=user_first_name|default:"" last_name=user_last_name|default:"" %}Name: {{ first_name }} {{ last_name }}{% endblocktrans %}
+{% endif %}
+{% blocktrans with user_email=user_email %}Email: {{ user_email }}{% endblocktrans %}
+{% blocktrans with project_name=project_name %}Project: {{ project_name }}{% endblocktrans %}
+{% blocktrans with purpose=purpose %}Purpose: {{ purpose }}{% endblocktrans %}
+{% blocktrans with start=start end=end %}Period: {{ start }} – {{ end }}{% endblocktrans %}
+
+{% trans "Approve:" %} {{ approve_url }}
+{% trans "Decline:" %} {{ deny_url }}
+
+

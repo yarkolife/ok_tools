@@ -1,0 +1,4 @@
+{% load i18n %}
+{% blocktrans with rental_id=rental_id %}Approval required: rental request #{{ rental_id }}{% endblocktrans %}
+
+

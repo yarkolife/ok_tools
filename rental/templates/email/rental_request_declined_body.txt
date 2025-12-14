@@ -1,0 +1,21 @@
+{% load i18n %}
+{% trans "Status: Declined ✗" %}
+
+{% blocktrans with ok_name=ok_name rental_id=rental_id %}Your rental request #{{ rental_id }} in {{ ok_name }} has been declined.{% endblocktrans %}
+
+
+{% blocktrans with project_name=project_name %}Project: {{ project_name }}{% endblocktrans %}
+{% blocktrans with purpose=purpose %}Purpose: {{ purpose }}{% endblocktrans %}
+{% blocktrans with start=start end=end %}Period: {{ start }} – {{ end }}{% endblocktrans %}
+
+
+{% if contact_email %}
+{% blocktrans with ok_name=ok_name contact_email=contact_email %}If you have questions or would like to submit a revised request, please contact the {{ ok_name }} administration.{% endblocktrans %}
+
+{% trans "Contact:" %} {{ contact_email }}
+{% else %}
+{% blocktrans with ok_name=ok_name %}If you have questions or would like to submit a revised request, please contact the {{ ok_name }} administration.{% endblocktrans %}
+{% endif %}
+
+
+{% blocktrans with rental_id=rental_id %}Please reference request #{{ rental_id }} in any communication.{% endblocktrans %}

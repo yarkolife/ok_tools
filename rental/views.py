@@ -3033,6 +3033,58 @@ def api_get_equipment_sets_user(request):
 
 
 @login_required
+def api_get_equipment_set_details_user(request, set_id):
+    """
+    Get detailed information about a specific equipment set (user version).
+    This version is accessible to regular users.
+
+    Returns comprehensive details about an equipment set including
+    all items, their availability, and metadata.
+
+    Args:
+        request: HTTP request object
+        set_id: ID of the equipment set to get details for
+
+    Returns:
+        JsonResponse: Detailed equipment set information
+    """
+    try:
+        from .models import EquipmentSet
+        equipment_set = get_object_or_404(EquipmentSet, id=set_id, is_active=True)
+
+        items_data = []
+        for set_item in equipment_set.items.all():
+            inventory_item = set_item.inventory_item
+            if inventory_item:
+                # Check item availability
+                is_available = inventory_item.available_for_rent and inventory_item.status == 'in_stock'
+
+                items_data.append({
+                    'id': set_item.id,
+                    'inventory_item_id': inventory_item.id,
+                    'inventory_number': inventory_item.inventory_number,
+                    'description': inventory_item.description,
+                    'quantity_needed': set_item.quantity,
+                    'quantity_available': inventory_item.quantity if is_available else 0,
+                    'is_available': is_available,
+                    'location': inventory_item.location.full_path if inventory_item.location else _('Location not specified'),
+                    'category': inventory_item.category.name if inventory_item.category else _('No category')
+                })
+
+        result = {
+            'id': equipment_set.id,
+            'name': equipment_set.name,
+            'description': equipment_set.description,
+            'items': items_data,
+            'total_items': len(items_data)
+        }
+
+        return JsonResponse({'success': True, 'equipment_set': result})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
 def api_get_rooms_user(request):
     """
     Get available rooms (user version).

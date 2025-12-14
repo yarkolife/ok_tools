@@ -12,6 +12,7 @@ from django.db import transaction
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from django.conf import settings
+import logging
 
 from ..models import (
     RentalRequest, RentalItem, RentalTransaction, EquipmentSet,
@@ -321,6 +322,10 @@ class RentalService:
             # Validate action
             if action not in ['draft', 'reserved', 'issued']:
                 action = 'draft'
+
+            # If user requests require approval, force 'draft' regardless of what client sends.
+            if is_user_request and getattr(settings, 'RENTAL_USER_REQUEST_REQUIRES_APPROVAL', False):
+                action = 'draft'
             
             # For mixed rentals (rooms + equipment), if action is 'issued', 
             # create as 'reserved' first - equipment can be issued separately
@@ -461,6 +466,18 @@ class RentalService:
                         room_rental_data['requested_end_date'] = room_end_date
                     
                     RoomRental.objects.create(**room_rental_data)
+
+            # Notify admins and user if this is a user request that requires approval.
+            if is_user_request and getattr(settings, 'RENTAL_USER_REQUEST_REQUIRES_APPROVAL', False) and action == 'draft':
+                try:
+                    from rental.email_approval import send_admin_approval_email, send_user_pending_email
+                    send_admin_approval_email(rental_request=rental_request)
+                    send_user_pending_email(rental_request=rental_request)
+                except Exception:
+                    # Do not fail rental creation on notification errors.
+                    logging.getLogger('django').exception(
+                        "Failed to send rental approval email (rental_request_id=%s)", rental_request.id
+                    )
             
             return {
                 'success': True,

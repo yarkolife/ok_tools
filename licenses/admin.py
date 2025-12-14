@@ -403,7 +403,7 @@ class YearFilter(admin.SimpleListFilter):
                 return queryset.filter(
                     created_at__year=datetime.datetime.now().year-1)
             case _:
-                msg = f'Invalid value {self.value()}.'
+                msg = _('Invalid value %(value)s.') % {'value': self.value()}
                 logger.error(msg)
                 raise ValueError(msg)
 
@@ -435,7 +435,7 @@ class WithoutContributionFilter(admin.SimpleListFilter):
                         .annotate(num_contr=Count('contribution'))
                         .filter(num_contr__gt=0))
             case _:
-                msg = f'Invalid value {self.value()}.'
+                msg = _('Invalid value %(value)s.') % {'value': self.value()}
                 logger.error(msg)
                 raise ValueError(msg)
 
@@ -1185,9 +1185,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 messages.info(request, f'{_("Search completed. Check the results")}.')
             
         except License.DoesNotExist:
-            messages.error(request, f'License #{license_id} not found')
+            messages.error(request, _('License #%(id)s not found') % {'id': license_id})
         except Exception as e:
-            messages.error(request, f'Error searching for video: {str(e)}')
+            messages.error(request, _('Error searching for video: %(error)s') % {'error': str(e)})
             logger.error(f'Error in search_video_view for license {license_id}: {str(e)}', exc_info=True)
         
         return redirect('admin:licenses_license_change', license_id)
