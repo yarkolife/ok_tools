@@ -473,22 +473,29 @@ if [ "$INSTALL_MODE" = "1" ]; then
         # Copy logo and favicon to project static directory
         echo ""
         echo "Copying logo and favicon files..."
-        if [ -d "$PROJECT_DIR/deployment/img" ]; then
-            mkdir -p "$PROJECT_DIR/ok_tools/static/img"
-            if [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
-                cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-                echo "✓ Copied logo.png"
-            else
-                echo "⚠️  Warning: logo.png not found in deployment/img/"
-            fi
-            if [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
-                cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-                echo "✓ Copied favicon.ico"
-            else
-                echo "⚠️  Warning: favicon.ico not found in deployment/img/"
-            fi
+        mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+        
+        # Check for custom logo in production directory first
+        CUSTOM_IMG_DIR="$PRODUCTION_DIR/custom"
+        if [ -f "$CUSTOM_IMG_DIR/logo.png" ]; then
+            cp "$CUSTOM_IMG_DIR/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+            echo "✓ Copied custom logo.png from $CUSTOM_IMG_DIR/"
+        elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+            cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+            echo "✓ Copied logo.png from deployment/img/"
         else
-            echo "⚠️  Warning: deployment/img/ directory not found. Please copy logo.png and favicon.ico to ok_tools/static/img/ manually."
+            echo "⚠️  Warning: logo.png not found. Add it to $CUSTOM_IMG_DIR/logo.png or deployment/img/logo.png"
+        fi
+        
+        # Check for custom favicon in production directory first
+        if [ -f "$CUSTOM_IMG_DIR/favicon.ico" ]; then
+            cp "$CUSTOM_IMG_DIR/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+            echo "✓ Copied custom favicon.ico from $CUSTOM_IMG_DIR/"
+        elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+            cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+            echo "✓ Copied favicon.ico from deployment/img/"
+        else
+            echo "⚠️  Warning: favicon.ico not found. Add it to $CUSTOM_IMG_DIR/favicon.ico or deployment/img/favicon.ico"
         fi
         
         # Copy necessary files based on installation type
@@ -869,22 +876,29 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     # Copy logo and favicon to project static directory
     echo ""
     echo "Copying logo and favicon files..."
-    if [ -d "$PROJECT_DIR/deployment/img" ]; then
-        mkdir -p "$PROJECT_DIR/ok_tools/static/img"
-        if [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
-            cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-            echo "✓ Copied logo.png"
-        else
-            echo "⚠️  Warning: logo.png not found in deployment/img/"
-        fi
-        if [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
-            cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-            echo "✓ Copied favicon.ico"
-        else
-            echo "⚠️  Warning: favicon.ico not found in deployment/img/"
-        fi
+    mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+    
+    # Check for custom logo in production directory first
+    CUSTOM_IMG_DIR="$PRODUCTION_DIR/custom"
+    if [ -f "$CUSTOM_IMG_DIR/logo.png" ]; then
+        cp "$CUSTOM_IMG_DIR/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+        echo "✓ Copied custom logo.png from $CUSTOM_IMG_DIR/"
+    elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+        cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+        echo "✓ Copied logo.png from deployment/img/"
     else
-        echo "⚠️  Warning: deployment/img/ directory not found. Please copy logo.png and favicon.ico to ok_tools/static/img/ manually."
+        echo "⚠️  Warning: logo.png not found. Add it to $CUSTOM_IMG_DIR/logo.png or deployment/img/logo.png"
+    fi
+    
+    # Check for custom favicon in production directory first
+    if [ -f "$CUSTOM_IMG_DIR/favicon.ico" ]; then
+        cp "$CUSTOM_IMG_DIR/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+        echo "✓ Copied custom favicon.ico from $CUSTOM_IMG_DIR/"
+    elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+        cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+        echo "✓ Copied favicon.ico from deployment/img/"
+    else
+        echo "⚠️  Warning: favicon.ico not found. Add it to $CUSTOM_IMG_DIR/favicon.ico or deployment/img/favicon.ico"
     fi
     
     # Copy necessary files based on installation type
