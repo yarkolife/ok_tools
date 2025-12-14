@@ -72,7 +72,7 @@ def save_day_plan(request):
         # This explicitly parses ISO date as server timezone, timezone-naive
         date = parse_date(data.get("date"))
         if not date:
-            return JsonResponse({"error": "Invalid date"}, status=400)
+            return JsonResponse({"error": _("Invalid date")}, status=400)
 
 
 
@@ -131,8 +131,8 @@ def day_plan_detail(request, iso_date):
     date_obj = parse_date(iso_date)
     if not date_obj:
         if request.method == "GET":
-            raise Http404("Bad date format")
-        return JsonResponse({"error": "Bad date format"}, status=400)
+            raise Http404(_("Bad date format"))
+        return JsonResponse({"error": _("Bad date format")}, status=400)
 
     if request.method == "GET":
         try:
@@ -220,9 +220,9 @@ def day_plan_detail(request, iso_date):
             plan.delete()
             return JsonResponse({"status": "deleted"}, status=204)
         except TagesPlan.DoesNotExist:
-            return JsonResponse({"error": "No plan for this day"}, status=404)
+            return JsonResponse({"error": _("No plan for this day")}, status=404)
     else:
-        return JsonResponse({"error": "Method not allowed"}, status=405)
+        return JsonResponse({"error": _("Method not allowed")}, status=405)
 
 
 def calendar_weeks_view(request):

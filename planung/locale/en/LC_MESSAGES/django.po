@@ -229,3 +229,19 @@ msgstr ""
 #: planung/views.py:28
 msgid "License not found or not confirmed."
 msgstr ""
+
+#: planung/views.py:75
+msgid "Invalid date"
+msgstr ""
+
+#: planung/views.py:134 planung/views.py:135
+msgid "Bad date format"
+msgstr ""
+
+#: planung/views.py:223
+msgid "No plan for this day"
+msgstr ""
+
+#: planung/views.py:225
+msgid "Method not allowed"
+msgstr ""

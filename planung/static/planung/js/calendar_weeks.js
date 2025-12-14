@@ -458,8 +458,8 @@
             const gapFormatted = gapMins + ':' + gapSecs.toString().padStart(2, '0');
             
             const gapRow = '<tr class="gap-row gap-row-small">' +
-              '<td colspan="2" style="text-align:center; font-weight: bold;">⬇ Gap</td>' +
-              '<td colspan="5" style="text-align:center;">' + gapFormatted + ' free</td>' +
+              '<td colspan="2" style="text-align:center; font-weight: bold;">⬇ ' + gettext('Gap') + '</td>' +
+              '<td colspan="5" style="text-align:center;">' + gapFormatted + ' ' + gettext('free') + '</td>' +
               '<td></td>' +
               '</tr>';
             
@@ -471,8 +471,8 @@
             const gapFormatted = gapMins + ':' + gapSecs.toString().padStart(2, '0');
             
             const gapRow = '<tr class="gap-row gap-row-large">' +
-              '<td colspan="2" style="text-align:center; font-weight: bold;">⬇ Large gap</td>' +
-              '<td colspan="5" style="text-align:center;">' + gapFormatted + ' free (can add video)</td>' +
+              '<td colspan="2" style="text-align:center; font-weight: bold;">⬇ ' + gettext('Large gap') + '</td>' +
+              '<td colspan="5" style="text-align:center;">' + gapFormatted + ' ' + gettext('free (can add video)') + '</td>' +
               '<td></td>' +
               '</tr>';
             
@@ -919,7 +919,7 @@
     function collectPlanData () {
       const isoDate = $('#dayPlanModal').data('isoDate');   // yyyy‑MM‑dd
       if (!isoDate) {
-          alert("⚠️ Date is missing.");
+          alert(gettext("⚠️ Date is missing."));
           return null;
       }
 
@@ -980,11 +980,11 @@
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function (response) {
-          alert("Draft saved successfully.");
+          alert(gettext("Draft saved successfully."));
           location.reload(); // refresh calendar
         },
         error: function (xhr, status, error) {
-          alert("Error saving the draft.");
+          alert(gettext("Error saving the draft."));
         }
       });
     });
@@ -1001,13 +1001,13 @@
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function () {
-          alert("Plan saved successfully!");
+          alert(gettext("Plan saved successfully!"));
           const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
           modal.hide();
           location.reload(); // refresh calendar
         },
         error: function () {
-          alert("Error saving the plan. Please try again.");
+          alert(gettext("Error saving the plan. Please try again."));
         }
       });
     });
@@ -1031,10 +1031,10 @@
     $('#dayPlanModal .btn-danger').on('click', function () {
       const isoDate = $('#dayPlanModal').data('isoDate');
       if (!isoDate) {
-          alert("⚠️ Date is missing.");
+          alert(gettext("⚠️ Date is missing."));
           return;
       }
-      if (!confirm("Delete plan for this day?")) return;
+      if (!confirm(gettext("Delete plan for this day?"))) return;
 
       $.ajax({
         url: '/api/day-plan/' + isoDate + '/',
@@ -1043,13 +1043,13 @@
           xhr.setRequestHeader('X-CSRFToken', csrftoken);
         },
         success: function () {
-          alert("Plan deleted!");
+          alert(gettext("Plan deleted!"));
           const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
           modal.hide();
           location.reload(); // refresh calendar
         },
         error: function () {
-          alert("Error deleting the plan.");
+          alert(gettext("Error deleting the plan."));
         }
       });
     });

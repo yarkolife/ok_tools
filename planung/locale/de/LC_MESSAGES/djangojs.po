@@ -60,3 +60,51 @@ msgstr "Außerhalb des Sendeblocks"
 #: planung/static/planung/js/calendar_weeks.js
 msgid "%(count)s broadcast(s) outside block"
 msgstr "%(count)s Sendung(en) außerhalb des Blocks"
+
+#: planung/static/planung/js/calendar_weeks.js:461
+msgid "Gap"
+msgstr "Lücke"
+
+#: planung/static/planung/js/calendar_weeks.js:462
+msgid "free"
+msgstr "frei"
+
+#: planung/static/planung/js/calendar_weeks.js:474
+msgid "Large gap"
+msgstr "Große Lücke"
+
+#: planung/static/planung/js/calendar_weeks.js:475
+msgid "free (can add video)"
+msgstr "frei (Video kann hinzugefügt werden)"
+
+#: planung/static/planung/js/calendar_weeks.js:922 planung/static/planung/js/calendar_weeks.js:1034
+msgid "⚠️ Date is missing."
+msgstr "⚠️ Datum fehlt."
+
+#: planung/static/planung/js/calendar_weeks.js:983
+msgid "Draft saved successfully."
+msgstr "Entwurf erfolgreich gespeichert."
+
+#: planung/static/planung/js/calendar_weeks.js:987
+msgid "Error saving the draft."
+msgstr "Fehler beim Speichern des Entwurfs."
+
+#: planung/static/planung/js/calendar_weeks.js:1004
+msgid "Plan saved successfully!"
+msgstr "Plan erfolgreich gespeichert!"
+
+#: planung/static/planung/js/calendar_weeks.js:1010
+msgid "Error saving the plan. Please try again."
+msgstr "Fehler beim Speichern des Plans. Bitte versuchen Sie es erneut."
+
+#: planung/static/planung/js/calendar_weeks.js:1037
+msgid "Delete plan for this day?"
+msgstr "Plan für diesen Tag löschen?"
+
+#: planung/static/planung/js/calendar_weeks.js:1046
+msgid "Plan deleted!"
+msgstr "Plan gelöscht!"
+
+#: planung/static/planung/js/calendar_weeks.js:1052
+msgid "Error deleting the plan."
+msgstr "Fehler beim Löschen des Plans."
