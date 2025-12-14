@@ -800,6 +800,13 @@ if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAM
     INSTALL_TYPE="1"
     copy_as_new_if_changed "deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml" "docker-compose.yml"
     copy_as_new_if_changed "deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template" "nginx.conf.template"
+    # Ensure deployment directory exists
+    mkdir -p "$PRODUCTION_DIR/deployment"
+    # Remove directory if it exists instead of file (fix for incorrect previous installations)
+    if [ -d "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" ]; then
+        print_warning "Removing directory that should be a file: $PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+        rm -rf "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+    fi
     cp -f "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
     chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
 else
@@ -838,7 +845,7 @@ if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
           "$PRODUCTION_DIR/entrypoint.production.sh" 2>/dev/null || true
     if [ "$INSTALL_TYPE" = "1" ]; then
         chown "$CURRENT_UID:$CURRENT_GID" "$PRODUCTION_DIR/nginx.conf.template" \
-              "$PRODUCTION_DIR/nginx-entrypoint.sh" 2>/dev/null || true
+              "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || true
     fi
 fi
 

@@ -506,6 +506,11 @@ if [ "$INSTALL_MODE" = "1" ]; then
                 echo "✓ Copied nginx.conf.template"
             fi
             mkdir -p "$PRODUCTION_DIR/deployment"
+            # Remove directory if it exists instead of file (fix for incorrect previous installations)
+            if [ -d "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" ]; then
+                echo "⚠️  Removing directory that should be a file: $PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+                rm -rf "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+            fi
             cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
             chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
         else
