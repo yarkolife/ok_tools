@@ -801,14 +801,34 @@ if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAM
     copy_as_new_if_changed "deployment/docker-compose.production.yml" "$PRODUCTION_DIR/docker-compose.yml" "docker-compose.yml"
     copy_as_new_if_changed "deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template" "nginx.conf.template"
     # Ensure deployment directory exists
-    mkdir -p "$PRODUCTION_DIR/deployment"
+    mkdir -p "$PRODUCTION_DIR/deployment" 2>/dev/null || sudo mkdir -p "$PRODUCTION_DIR/deployment" 2>/dev/null || true
     # Remove directory if it exists instead of file (fix for incorrect previous installations)
     if [ -d "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" ]; then
         print_warning "Removing directory that should be a file: $PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
-        rm -rf "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+        rm -rf "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || {
+            if command -v sudo >/dev/null 2>&1; then
+                sudo rm -rf "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || {
+                    print_error "Cannot remove directory - insufficient permissions even with sudo"
+                    print_info "Please manually remove: sudo rm -rf $PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+                }
+            else
+                print_error "Cannot remove directory - insufficient permissions and sudo not available"
+                print_info "Please manually remove: rm -rf $PRODUCTION_DIR/deployment/99-custom-nginx-config.sh (as root)"
+            fi
+        }
     fi
-    cp -f "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
-    chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+    # Copy file with sudo if needed
+    if cp -f "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null; then
+        chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || sudo chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || true
+    else
+        if command -v sudo >/dev/null 2>&1; then
+            sudo cp -f "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+            sudo chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+        else
+            print_error "Cannot copy nginx entrypoint script - insufficient permissions and sudo not available"
+            exit 1
+        fi
+    fi
 else
     # Check if it's Local Network or Localhost
     if grep -q "127.0.0.1" "$PRODUCTION_DIR/.env" && grep -q "localhost" "$PRODUCTION_DIR/.env"; then
