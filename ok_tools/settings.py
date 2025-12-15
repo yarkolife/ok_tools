@@ -434,6 +434,8 @@ ORGANIZATION_OWNER = _org_owner if _org_owner is not None else get_env('ORGANIZA
 SCREEN_BOARD_DURATION = get_env('SCREEN_BOARD_DURATION', default=20, cast=int)
 
 # Which site should be seen after log in and log out
+# Use named URL patterns so redirects stay stable if paths change.
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
