@@ -5,7 +5,7 @@ from django.conf import settings
 from django.http import FileResponse
 from django.utils.translation import gettext as _
 from fdfgen import forge_fdf
-from PIL import Image, ImageOps, ImageChops, ImageFilter, ImageEnhance
+from PIL import Image, ImageOps, ImageChops, ImageEnhance
 import base64
 import io
 import os
@@ -140,24 +140,25 @@ def generate_license_file(lr: License) -> FileResponse:
                 if bbox:
                     signature_img = signature_img.crop(bbox)
                 
-                # Enhance signature to make lines thicker and more visible
-                # Extract alpha channel first
+                # Keep the signature image as-is for PDF insertion (no additional strokes/guide artifacts).
+                # If needed, only a mild contrast boost can be applied here without introducing extra lines.
+                # Convert to grayscale for contrast boost, then restore original alpha.
                 alpha = signature_img.split()[3] if signature_img.mode == 'RGBA' else None
-                # Convert to grayscale for processing
                 gray = signature_img.convert('L')
-                # Increase contrast to make lines more prominent
                 enhancer = ImageEnhance.Contrast(gray)
-                gray = enhancer.enhance(1.5)
-                # Apply dilation filter to thicken lines
-                gray = gray.filter(ImageFilter.MaxFilter(size=3))
-                # Convert back to RGBA, preserving alpha
+                gray = enhancer.enhance(1.2)
                 if alpha:
                     signature_img = Image.merge('RGBA', (gray, gray, gray, alpha))
                 else:
                     signature_img = gray.convert('RGBA')
                 
-                # Create A4 pages (595x842 points at 72 DPI)
-                a4_width, a4_height = 595, 842
+                # Create A4 pages for stamp PDF.
+                # Use higher DPI to avoid pixelation when stamping the signature into the PDF.
+                # PDF points are based on 72 DPI. We render at STAMP_DPI and save with that resolution
+                # so the physical page size stays A4 while raster detail increases.
+                STAMP_DPI = 144  # 2x of 72 DPI (faster, still smoother than 72)
+                scale = STAMP_DPI / 72.0
+                a4_width, a4_height = int(round(595 * scale)), int(round(842 * scale))
                 
                 # Page 1: Transparent
                 page1 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
@@ -169,11 +170,11 @@ def generate_license_file(lr: License) -> FileResponse:
                 # Calculate new size maintaining aspect ratio
                 sig_width, sig_height = signature_img.size
                 aspect_ratio = sig_width / sig_height
-                # Width to fit in form field without exceeding boundaries (reduced by 2x)
-                target_width = 125
+                # Width to fit in form field without exceeding boundaries (in PDF points)
+                target_width = int(round(125 * scale))
                 target_height = int(target_width / aspect_ratio)
-                # Limit height to prevent signature from being too tall (reduced by 2x)
-                max_height = 40
+                # Limit height to prevent signature from being too tall (in PDF points)
+                max_height = int(round(40 * scale))
                 if target_height > max_height:
                     target_height = max_height
                     target_width = int(target_height * aspect_ratio)
@@ -182,14 +183,23 @@ def generate_license_file(lr: License) -> FileResponse:
                 # Position signature right of "Unterschrift" on page 2
                 # X: positioned to the right of "Unterschrift" text, Y: aligned with date line
                 # Adjusted coordinates to fit within form boundaries
-                page2.paste(signature_img, (360, 590), signature_img)
+                page2.paste(
+                    signature_img,
+                    (int(round(360 * scale)), int(round(590 * scale))),
+                    signature_img,
+                )
                 
                 # Page 3: Transparent
                 page3 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
                 
                 # Save as PDF
                 stamp_path = os.path.join(tmpdirname, "stamp.pdf")
-                page1.save(stamp_path, save_all=True, append_images=[page2, page3])
+                page1.save(
+                    stamp_path,
+                    save_all=True,
+                    append_images=[page2, page3],
+                    resolution=STAMP_DPI,
+                )
                 
                 # Stamp the filled PDF
                 subprocess.run(
