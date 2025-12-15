@@ -703,6 +703,10 @@ CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
 CELERY_RESULT_EXTENDED = True
 CELERY_RESULT_BACKEND_ALWAYS_RETRY = True
 CELERY_RESULT_BACKEND_MAX_RETRIES = 10
+# Fix deprecation warning: use new broker connection retry setting
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Fix security warning: prevent running with superuser privileges
+CELERYD_FORCE_EXECV = True
 
 # Use django-celery-beat scheduler (allows managing periodic tasks via admin)
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

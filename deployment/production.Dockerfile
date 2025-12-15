@@ -49,8 +49,10 @@ COPY . .
 # Create directories for static files and media
 RUN mkdir -p /app/staticfiles /app/media
 
-# Create a non-root user for security
-RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
+# Create a non-root user for security (UID 1000:1000)
+RUN groupadd --gid 1000 app && \
+    useradd --create-home --shell /bin/bash --uid 1000 --gid 1000 app && \
+    chown -R app:app /app
 
 # Make entrypoint executable
 RUN chmod +x /app/deployment/entrypoint.production.sh

@@ -271,8 +271,8 @@ class License(ExportModelOperationsMixin('license'), models.Model):
 
         old = License.objects.get(id=self.id)
 
-        # editing is allowed if only action was to unconfirm license
-        if old.confirmed and update_fields != ['confirmed']:
+        # editing is allowed if only action was to unconfirm license or update duration
+        if old.confirmed and update_fields not in (['confirmed'], ['duration']):
             logger.warning(
                 f'Not saved {self} because it is already confirmed.')
             return
