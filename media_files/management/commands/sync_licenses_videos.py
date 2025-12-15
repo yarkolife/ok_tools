@@ -123,7 +123,8 @@ class Command(BaseCommand):
                 
                 selected_id = video.id
                 all_ids = list(videos.values_list('id', flat=True))
-                logger.warning(
+                # Use INFO level instead of WARNING - duplicates are handled automatically
+                logger.info(
                     f'Found {video_count} duplicates for #{number}, selected id={selected_id} '
                     f'(rule: linked={video.license == license if video.license else False}, '
                     f'updated_at={video.updated_at}, is_available={video.is_available}). All IDs: {all_ids}'
