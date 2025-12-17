@@ -139,6 +139,7 @@ copy_as_new_if_changed() {
     local new_path="${dest}.new"
     cp "$src" "$new_path"
     print_warning "$label differs; kept existing, new saved as $(basename "$new_path")"
+    print_warning "To apply it automatically, re-run with: FORCE_OVERWRITE=1 ./update.sh"
     return 0
 }
 
@@ -943,6 +944,11 @@ if [ -f "$ENV_FILE" ]; then
             echo "  ✓ $key already exists, keeping current value"
         fi
     }
+
+    # Ensure host/container UID/GID alignment variables exist (used as Docker build args)
+    # Default to current host user UID/GID to avoid permission issues with bind mounts (backups/logs/media/static)
+    add_env_var_if_missing "USER_UID" "$CURRENT_UID"
+    add_env_var_if_missing "USER_GID" "$CURRENT_GID"
     
     # Add new ENV variables with defaults
     add_env_var_if_missing "DJANGO_LOG_LEVEL" "INFO"
@@ -1117,15 +1123,14 @@ fi
 
 # Start containers
 print_info "Starting containers..."
-# Force recreate containers if docker-compose.yml was updated to ensure new volume mounts are applied
+# If docker-compose.yml.new exists, it has NOT been applied (we keep the existing file by design).
+# Do NOT remove the .new file; let the operator review/apply it explicitly.
 if [ -f "$PRODUCTION_DIR/docker-compose.yml.new" ]; then
-    print_info "docker-compose.yml was updated - recreating containers to apply changes..."
-    docker compose up -d --force-recreate
-    # Remove the .new file after successful recreation
-    rm -f "$PRODUCTION_DIR/docker-compose.yml.new"
-else
-    docker compose up -d
+    print_warning "docker-compose.yml.new exists (new version saved but not applied)."
+    print_warning "Your current deployment is still using the existing docker-compose.yml."
+    print_warning "If you want to apply the new compose file automatically, re-run with: FORCE_OVERWRITE=1 ./update.sh"
 fi
+docker compose up -d
 
 # Wait for containers to be ready
 print_info "Waiting for containers to be ready..."

@@ -746,6 +746,12 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     
     echo "# Backup Configuration" >> "$ENV_FILE"
     echo "BACKUP_DIR=$BACKUP_DIR" >> "$ENV_FILE"
+    echo "" >> "$ENV_FILE"
+    
+    # Docker build args for UID/GID alignment (bind mounts permissions)
+    echo "# Container User UID/GID (for matching host file permissions)" >> "$ENV_FILE"
+    echo "USER_UID=$CURRENT_UID" >> "$ENV_FILE"
+    echo "USER_GID=$CURRENT_GID" >> "$ENV_FILE"
     echo "# Set Docker Compose project name" >> "$ENV_FILE"
     echo "COMPOSE_PROJECT_NAME=oktools" >> "$ENV_FILE"
     
