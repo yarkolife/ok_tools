@@ -49,13 +49,26 @@ COPY . .
 # Create directories for static files and media
 RUN mkdir -p /app/staticfiles /app/media
 
-# Create a non-root user for security (UID 1000:1000)
-RUN groupadd --gid 1000 app && \
-    useradd --create-home --shell /bin/bash --uid 1000 --gid 1000 app && \
+# Build arguments for user UID/GID (default to 1000 if not provided)
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+# Create a non-root user for security with configurable UID/GID
+# This allows matching the host user's UID/GID for proper file permissions
+# Remove existing user/group if they exist with different UID/GID
+RUN if getent group app > /dev/null 2>&1; then \
+        groupdel app || true; \
+    fi && \
+    if getent passwd app > /dev/null 2>&1; then \
+        userdel app || true; \
+    fi && \
+    groupadd --gid ${USER_GID} app && \
+    useradd --create-home --shell /bin/bash --uid ${USER_UID} --gid ${USER_GID} app && \
     chown -R app:app /app
 
-# Make entrypoint executable
+# Make entrypoints executable
 RUN chmod +x /app/deployment/entrypoint.production.sh
+RUN chmod +x /app/deployment/entrypoint.celery.sh
 
 
 

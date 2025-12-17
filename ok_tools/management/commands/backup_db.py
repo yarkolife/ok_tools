@@ -42,6 +42,33 @@ class Command(BaseCommand):
         output_dir = options['output_dir']
         os.makedirs(output_dir, exist_ok=True)
 
+        # Check if output directory is writable
+        if not os.access(output_dir, os.W_OK):
+            current_user = os.getenv('USER', os.getenv('USERNAME', 'unknown'))
+            try:
+                current_uid = os.getuid() if hasattr(os, 'getuid') else None
+            except (AttributeError, OSError):
+                current_uid = None
+            
+            try:
+                dir_stat = os.stat(output_dir)
+                dir_owner_uid = dir_stat.st_uid if hasattr(dir_stat, 'st_uid') else None
+                dir_permissions = oct(dir_stat.st_mode)[-3:] if hasattr(dir_stat, 'st_mode') else 'unknown'
+            except OSError:
+                dir_owner_uid = None
+                dir_permissions = 'unknown'
+            
+            error_msg = (
+                f'Permission denied: Cannot write to backup directory "{output_dir}".\n'
+                f'Current user: {current_user}' + (f' (UID: {current_uid})' if current_uid is not None else '') + '\n'
+                + (f'Directory owner UID: {dir_owner_uid}\n' if dir_owner_uid is not None else '')
+                + (f'Directory permissions: {dir_permissions}\n' if dir_permissions != 'unknown' else '')
+                + f'Please ensure the directory is writable by the current user.\n'
+                + (f'On the host system, you may need to run: chown -R {current_uid}:{current_uid} {output_dir}' if current_uid is not None else '')
+            )
+            logger.error(error_msg)
+            raise CommandError(error_msg)
+
         # Generate backup filename with timestamp
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_filename = f'backup-{timestamp}.sql'

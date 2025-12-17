@@ -471,31 +471,38 @@ if [ "$INSTALL_MODE" = "1" ]; then
         fi
         
         # Copy logo and favicon to project static directory
+        # Priority: custom files in production > default files in deployment/img
         echo ""
         echo "Copying logo and favicon files..."
         mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+        mkdir -p "$PRODUCTION_DIR/custom/img"
         
         # Check for custom logo in production directory first
-        CUSTOM_IMG_DIR="$PRODUCTION_DIR/custom"
-        if [ -f "$CUSTOM_IMG_DIR/logo.png" ]; then
-            cp "$CUSTOM_IMG_DIR/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-            echo "✓ Copied custom logo.png from $CUSTOM_IMG_DIR/"
-        elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+        if [ -f "$PRODUCTION_DIR/custom/img/logo.png" ]; then
+            cp "$PRODUCTION_DIR/custom/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+            echo "✓ Copied custom logo.png from production directory"
+        elif [ -f "$PRODUCTION_DIR/data/static/img/logo.png" ]; then
+            cp "$PRODUCTION_DIR/data/static/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+            echo "✓ Copied logo.png from data/static/img/"
+        elif [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
             cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-            echo "✓ Copied logo.png from deployment/img/"
+            echo "✓ Copied default logo.png"
         else
-            echo "⚠️  Warning: logo.png not found. Add it to $CUSTOM_IMG_DIR/logo.png or deployment/img/logo.png"
+            echo "⚠️  Warning: logo.png not found"
         fi
         
         # Check for custom favicon in production directory first
-        if [ -f "$CUSTOM_IMG_DIR/favicon.ico" ]; then
-            cp "$CUSTOM_IMG_DIR/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-            echo "✓ Copied custom favicon.ico from $CUSTOM_IMG_DIR/"
-        elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+        if [ -f "$PRODUCTION_DIR/custom/img/favicon.ico" ]; then
+            cp "$PRODUCTION_DIR/custom/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+            echo "✓ Copied custom favicon.ico from production directory"
+        elif [ -f "$PRODUCTION_DIR/data/static/img/favicon.ico" ]; then
+            cp "$PRODUCTION_DIR/data/static/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+            echo "✓ Copied favicon.ico from data/static/img/"
+        elif [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
             cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-            echo "✓ Copied favicon.ico from deployment/img/"
+            echo "✓ Copied default favicon.ico"
         else
-            echo "⚠️  Warning: favicon.ico not found. Add it to $CUSTOM_IMG_DIR/favicon.ico or deployment/img/favicon.ico"
+            echo "⚠️  Warning: favicon.ico not found"
         fi
         
         # Copy necessary files based on installation type
@@ -874,31 +881,38 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     fi
 
     # Copy logo and favicon to project static directory
+    # Priority: custom files in production > default files in deployment/img
     echo ""
     echo "Copying logo and favicon files..."
     mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+    mkdir -p "$PRODUCTION_DIR/custom/img"
     
     # Check for custom logo in production directory first
-    CUSTOM_IMG_DIR="$PRODUCTION_DIR/custom"
-    if [ -f "$CUSTOM_IMG_DIR/logo.png" ]; then
-        cp "$CUSTOM_IMG_DIR/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-        echo "✓ Copied custom logo.png from $CUSTOM_IMG_DIR/"
-    elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+    if [ -f "$PRODUCTION_DIR/custom/img/logo.png" ]; then
+        cp "$PRODUCTION_DIR/custom/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+        echo "✓ Copied custom logo.png from production directory"
+    elif [ -f "$PRODUCTION_DIR/data/static/img/logo.png" ]; then
+        cp "$PRODUCTION_DIR/data/static/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+        echo "✓ Copied logo.png from data/static/img/"
+    elif [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
         cp "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-        echo "✓ Copied logo.png from deployment/img/"
+        echo "✓ Copied default logo.png"
     else
-        echo "⚠️  Warning: logo.png not found. Add it to $CUSTOM_IMG_DIR/logo.png or deployment/img/logo.png"
+        echo "⚠️  Warning: logo.png not found"
     fi
     
     # Check for custom favicon in production directory first
-    if [ -f "$CUSTOM_IMG_DIR/favicon.ico" ]; then
-        cp "$CUSTOM_IMG_DIR/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-        echo "✓ Copied custom favicon.ico from $CUSTOM_IMG_DIR/"
-    elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+    if [ -f "$PRODUCTION_DIR/custom/img/favicon.ico" ]; then
+        cp "$PRODUCTION_DIR/custom/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+        echo "✓ Copied custom favicon.ico from production directory"
+    elif [ -f "$PRODUCTION_DIR/data/static/img/favicon.ico" ]; then
+        cp "$PRODUCTION_DIR/data/static/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+        echo "✓ Copied favicon.ico from data/static/img/"
+    elif [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
         cp "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-        echo "✓ Copied favicon.ico from deployment/img/"
+        echo "✓ Copied default favicon.ico"
     else
-        echo "⚠️  Warning: favicon.ico not found. Add it to $CUSTOM_IMG_DIR/favicon.ico or deployment/img/favicon.ico"
+        echo "⚠️  Warning: favicon.ico not found"
     fi
     
     # Copy necessary files based on installation type

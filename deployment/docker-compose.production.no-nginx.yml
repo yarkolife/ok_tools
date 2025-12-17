@@ -36,6 +36,9 @@ services:
     build:
       context: ../ok_tools
       dockerfile: deployment/production.Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
     container_name: oktools_web
     ports:
       - "8010:8000"
@@ -69,6 +72,9 @@ services:
     build:
       context: ../ok_tools
       dockerfile: deployment/production.Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
     container_name: oktools_celery_worker
     user: app
     env_file:
@@ -88,6 +94,7 @@ services:
       - ./backups:/app/backups
       # Additional mounts (NAS, custom volumes) can be added via docker-compose.override.yml
       # Run: ./deployment/scripts/generate-override.sh to generate override file from .env
+    entrypoint: ["/app/deployment/entrypoint.celery.sh"]
     command: celery -A ok_tools worker --loglevel=info
     restart: unless-stopped
     networks:
@@ -103,6 +110,9 @@ services:
     build:
       context: ../ok_tools
       dockerfile: deployment/production.Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
     container_name: oktools_celery_beat
     user: app
     env_file:

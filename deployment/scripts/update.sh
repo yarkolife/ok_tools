@@ -883,49 +883,37 @@ if [ "$(id -u)" -ne 0 ] && [ -n "${CURRENT_UID:-}" ]; then
 fi
 
 # Copy logo and favicon to project static directory
-# Priority: 1) Custom files from production directory, 2) Files from deployment/img, 3) Keep existing
+# Priority: custom files in production > default files in deployment/img
 print_info "Copying logo and favicon files..."
 mkdir -p "$PROJECT_DIR/ok_tools/static/img"
+mkdir -p "$PRODUCTION_DIR/custom/img"
 
 # Check for custom logo in production directory first
-CUSTOM_IMG_DIR="$PRODUCTION_DIR/custom"
-if [ -f "$CUSTOM_IMG_DIR/logo.png" ]; then
-    cp -f "$CUSTOM_IMG_DIR/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-    print_success "Copied custom logo.png from $CUSTOM_IMG_DIR/"
-elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
-    # Only copy from git if file doesn't exist yet
-    if [ ! -f "$PROJECT_DIR/ok_tools/static/img/logo.png" ]; then
-        cp -f "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
-        print_success "Copied logo.png from deployment/img/"
-    else
-        print_info "Keeping existing logo.png (use $CUSTOM_IMG_DIR/logo.png to override)"
-    fi
+if [ -f "$PRODUCTION_DIR/custom/img/logo.png" ]; then
+    cp -f "$PRODUCTION_DIR/custom/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+    print_success "Copied custom logo.png from production directory"
+elif [ -f "$PRODUCTION_DIR/data/static/img/logo.png" ]; then
+    cp -f "$PRODUCTION_DIR/data/static/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+    print_success "Copied logo.png from data/static/img/"
+elif [ -f "$PROJECT_DIR/deployment/img/logo.png" ]; then
+    cp -f "$PROJECT_DIR/deployment/img/logo.png" "$PROJECT_DIR/ok_tools/static/img/logo.png"
+    print_success "Copied default logo.png"
 else
-    if [ ! -f "$PROJECT_DIR/ok_tools/static/img/logo.png" ]; then
-        print_warning "logo.png not found - please add it to $CUSTOM_IMG_DIR/logo.png or deployment/img/logo.png"
-    else
-        print_info "Keeping existing logo.png"
-    fi
+    print_warning "logo.png not found - keeping existing file if present"
 fi
 
 # Check for custom favicon in production directory first
-if [ -f "$CUSTOM_IMG_DIR/favicon.ico" ]; then
-    cp -f "$CUSTOM_IMG_DIR/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-    print_success "Copied custom favicon.ico from $CUSTOM_IMG_DIR/"
-elif [ -d "$PROJECT_DIR/deployment/img" ] && [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
-    # Only copy from git if file doesn't exist yet
-    if [ ! -f "$PROJECT_DIR/ok_tools/static/img/favicon.ico" ]; then
-        cp -f "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
-        print_success "Copied favicon.ico from deployment/img/"
-    else
-        print_info "Keeping existing favicon.ico (use $CUSTOM_IMG_DIR/favicon.ico to override)"
-    fi
+if [ -f "$PRODUCTION_DIR/custom/img/favicon.ico" ]; then
+    cp -f "$PRODUCTION_DIR/custom/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+    print_success "Copied custom favicon.ico from production directory"
+elif [ -f "$PRODUCTION_DIR/data/static/img/favicon.ico" ]; then
+    cp -f "$PRODUCTION_DIR/data/static/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+    print_success "Copied favicon.ico from data/static/img/"
+elif [ -f "$PROJECT_DIR/deployment/img/favicon.ico" ]; then
+    cp -f "$PROJECT_DIR/deployment/img/favicon.ico" "$PROJECT_DIR/ok_tools/static/img/favicon.ico"
+    print_success "Copied default favicon.ico"
 else
-    if [ ! -f "$PROJECT_DIR/ok_tools/static/img/favicon.ico" ]; then
-        print_warning "favicon.ico not found - please add it to $CUSTOM_IMG_DIR/favicon.ico or deployment/img/favicon.ico"
-    else
-        print_info "Keeping existing favicon.ico"
-    fi
+    print_warning "favicon.ico not found - keeping existing file if present"
 fi
 
 # Create configs directory if it doesn't exist and copy config files
