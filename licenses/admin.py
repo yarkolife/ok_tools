@@ -50,6 +50,7 @@ CATEGORY_MAPPING = {
 MEDIA_AUTHORITY_MAPPING = {
     "@ok_dessau@lokalmedial.de": "OK Dessau",
     "@ok_magdeburg@lokalmedial.de": "OK Magdeburg",
+    "@okmq@lokalmedial.de": "OK Merseburg-Querfurt",
     "@ok_salzwedel@lokalmedial.de": "OK Salzwedel",
     "@ok_wettin@lokalmedial.de": "OK Wettin",
     "@ok_wernigerode@lokalmedial.de": "OK Wernigerode",

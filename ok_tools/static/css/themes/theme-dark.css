@@ -780,7 +780,8 @@ h4.text-muted,
 }
 
 .signature-canvas {
-    background-color: #1a1a1a !important;
+    /* Keep signature legible: black ink on white canvas */
+    background-color: #ffffff !important;
 }
 
 /* Invalid feedback text in dark theme */

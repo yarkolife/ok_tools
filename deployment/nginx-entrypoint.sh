@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# Определяем, является ли домен localhost или локальным IP
+# Detect whether the domain is localhost or a private IP.
 IS_LOCAL=false
 if [ -n "${DOMAIN_NAME}" ]; then
   if [ "${DOMAIN_NAME}" = "localhost" ] || [ "${DOMAIN_NAME}" = "127.0.0.1" ] || echo "${DOMAIN_NAME}" | grep -qE '^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[01])\.'; then
@@ -9,15 +9,15 @@ if [ -n "${DOMAIN_NAME}" ]; then
   fi
 fi
 
-# Если это localhost/локальный IP и нет сертификатов, создаем конфиг без SSL
+# If this is localhost/private IP and there are no certificates, generate HTTP-only config (no SSL).
 if [ "$IS_LOCAL" = "true" ] && [ ! -f "/etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem" ]; then
   echo "DOMAIN_NAME is localhost or local IP (${DOMAIN_NAME}) - configuring HTTP without SSL"
   
-  # Создаем конфиг для localhost (без SSL)
-  # Сначала копируем начало шаблона (events, http начало, upstream)
+  # Generate config for localhost (without SSL).
+  # First, copy the beginning of the template (events, http start, upstream).
   head -n 37 /etc/nginx/templates-custom/nginx.conf.template > /etc/nginx/nginx.conf.tmp
   
-  # Затем добавляем HTTP-only server блок (без редиректа на HTTPS)
+  # Then append an HTTP-only server block (no redirect to HTTPS).
   cat >> /etc/nginx/nginx.conf.tmp << 'EOF'
 
 # HTTP server (no SSL for localhost)
@@ -48,7 +48,7 @@ server {
     # Video streaming with range support
     location ~ ^/admin/media_files/videofile/\d+/stream/ {
         proxy_pass http://django;
-        proxy_set_header Host $host;
+        proxy_set_header Host $server_name;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -69,7 +69,7 @@ server {
     location ~ ^/(admin|api)/ {
         limit_req zone=api burst=10 nodelay;
         proxy_pass http://django;
-        proxy_set_header Host $host;
+        proxy_set_header Host $server_name;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -79,7 +79,7 @@ server {
     location /profile/login/ {
         limit_req zone=login burst=3 nodelay;
         proxy_pass http://django;
-        proxy_set_header Host $host;
+        proxy_set_header Host $server_name;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -88,7 +88,7 @@ server {
     # All other requests
     location / {
         proxy_pass http://django;
-        proxy_set_header Host $host;
+        proxy_set_header Host $server_name;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -101,14 +101,14 @@ server {
 }
 EOF
   
-  # Заменяем DOMAIN_NAME в конфиге
+  # Substitute DOMAIN_NAME in the config.
   envsubst '${DOMAIN_NAME}' < /etc/nginx/nginx.conf.tmp > /etc/nginx/nginx.conf
   rm -f /etc/nginx/nginx.conf.tmp
 else
-  # Для реальных доменов используем стандартный конфиг из шаблона
+  # For real domains, use the standard template config.
   envsubst '${DOMAIN_NAME}' < /etc/nginx/templates-custom/nginx.conf.template > /etc/nginx/nginx.conf
   
-  # Ожидаем сертификаты для реальных доменов
+  # Wait for certificates for real domains.
   if [ -n "${DOMAIN_NAME}" ] && [ "$IS_LOCAL" = "false" ]; then
     until [ -f /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem ]; do
       echo "Waiting for Certbot to create certificates for ${DOMAIN_NAME}..."
@@ -118,6 +118,6 @@ else
   fi
 fi
 
-# Убираем файлы из conf.d, так как мы используем полный конфиг
+# Remove default conf.d files because we use a full nginx.conf.
 rm -f /etc/nginx/conf.d/default.conf || true
 rm -f /etc/nginx/conf.d/nginx.conf || true
