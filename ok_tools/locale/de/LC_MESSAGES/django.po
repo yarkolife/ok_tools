@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-13 20:39+0100\n"
+"POT-Creation-Date: 2025-12-20 02:14+0100\n"
 "PO-Revision-Date: 2025-01-15 02:03+0100\n"
 "Last-Translator: Daniel Havlik <dh@gocept.com>\n"
 "Language-Team: \n"
@@ -19,37 +19,37 @@ msgid "Broadcast date"
 msgstr "Sendedatum"
 
 #: contributions/admin.py:55 contributions/admin.py:450
-#: contributions/templates/admin/export.html:32 licenses/admin.py:245
+#: contributions/templates/admin/export.html:32 licenses/admin.py:217
 #: licenses/templates/admin/filter_datetime_range.html:18 projects/admin.py:49
 msgid "Date from"
 msgstr "Datum von"
 
-#: contributions/admin.py:57 contributions/admin.py:62 licenses/admin.py:247
-#: licenses/admin.py:252 licenses/forms.py:160 projects/admin.py:51
+#: contributions/admin.py:57 contributions/admin.py:62 licenses/admin.py:219
+#: licenses/admin.py:224 licenses/forms.py:218 projects/admin.py:51
 #: projects/admin.py:56 rental/templates/rental/admin_rental_process.html:62
 #: rental/templates/rental/admin_rental_process.html:385
 msgid "From"
 msgstr "Von"
 
-#: contributions/admin.py:60 licenses/admin.py:250
+#: contributions/admin.py:60 licenses/admin.py:222
 #: licenses/templates/admin/filter_datetime_range.html:27 projects/admin.py:54
 msgid "Time from"
 msgstr "Zeit von"
 
 #: contributions/admin.py:65 contributions/admin.py:455
-#: contributions/templates/admin/export.html:37 licenses/admin.py:255
+#: contributions/templates/admin/export.html:37 licenses/admin.py:227
 #: licenses/templates/admin/filter_datetime_range.html:36 projects/admin.py:59
 msgid "Date to"
 msgstr "Datum bis"
 
-#: contributions/admin.py:67 contributions/admin.py:72 licenses/admin.py:257
-#: licenses/admin.py:262 licenses/forms.py:164 projects/admin.py:61
+#: contributions/admin.py:67 contributions/admin.py:72 licenses/admin.py:229
+#: licenses/admin.py:234 licenses/forms.py:222 projects/admin.py:61
 #: projects/admin.py:66 rental/templates/rental/admin_rental_process.html:63
 #: rental/templates/rental/admin_rental_process.html:389
 msgid "To"
 msgstr "Bis"
 
-#: contributions/admin.py:70 licenses/admin.py:260
+#: contributions/admin.py:70 licenses/admin.py:232
 #: licenses/templates/admin/filter_datetime_range.html:45 projects/admin.py:64
 msgid "Time to"
 msgstr "Zeit bis"
@@ -78,24 +78,24 @@ msgstr "Endzeit"
 
 #: contributions/admin.py:226 contributions/admin.py:415
 #: contributions/admin.py:596 contributions/admin.py:884
-#: contributions/templates/contributions/list.html:154 licenses/admin.py:332
-#: licenses/models.py:74
+#: contributions/templates/contributions/list.html:154 licenses/admin.py:304
+#: licenses/models.py:82
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:27
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:42
 #: licenses/templates/licenses/list.html:71 projects/admin.py:171
-#: registration/models.py:276
+#: registration/models.py:285
 msgid "Title"
 msgstr "Titel"
 
 #: contributions/admin.py:227 contributions/admin.py:416
-#: contributions/admin.py:597 contributions/admin.py:889 licenses/admin.py:333
-#: licenses/models.py:81
+#: contributions/admin.py:597 contributions/admin.py:889 licenses/admin.py:305
+#: licenses/models.py:89
 msgid "Subtitle"
 msgstr "Untertitel"
 
 #: contributions/admin.py:228 inventory/admin.py:29 inventory/models.py:31
 #: inventory/models.py:48 inventory/models.py:64 inventory/models.py:191
-#: licenses/admin.py:334 licenses/models.py:88 projects/admin.py:173
+#: licenses/admin.py:306 licenses/models.py:96 projects/admin.py:173
 #: projects/models.py:143 rental/admin.py:332 rental/models.py:275
 #: rental/models.py:476 rental/models.py:524 rental/models.py:757
 #: rental/templates/rental/rental_stats.html:1172
@@ -111,9 +111,9 @@ msgstr "Beteiligte"
 #: contributions/admin.py:231
 #: contributions/templates/contributions/list.html:157 inventory/admin.py:32
 #: inventory/admin.py:103 inventory/models.py:69 inventory/models.py:212
-#: inventory/templates/inventory/list.html:68 licenses/admin.py:339
-#: licenses/admin.py:971 licenses/models.py:47 licenses/models.py:61
-#: licenses/models.py:199 licenses/templates/licenses/details.html:19
+#: inventory/templates/inventory/list.html:68 licenses/admin.py:311
+#: licenses/admin.py:943 licenses/models.py:47 licenses/models.py:69
+#: licenses/models.py:207 licenses/templates/licenses/details.html:19
 #: licenses/templates/licenses/list.html:36
 #: licenses/templates/licenses/list.html:72
 #: rental/templates/rental/rental_stats.html:1175
@@ -121,13 +121,13 @@ msgid "Category"
 msgstr "Kategorie"
 
 #: contributions/admin.py:232 contributions/admin.py:471
-#: contributions/templates/admin/export.html:59 licenses/admin.py:350
-#: licenses/models.py:146
+#: contributions/templates/admin/export.html:59 licenses/admin.py:322
+#: licenses/models.py:154
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: contributions/admin.py:233 contributions/admin.py:900 licenses/admin.py:331
-#: licenses/models.py:180 media_files/models.py:90
+#: contributions/admin.py:233 contributions/admin.py:900 licenses/admin.py:303
+#: licenses/models.py:188 media_files/models.py:90
 #: media_files/templates/admin/media_files/videofile/change_form.html:71
 #: media_files/templates/admin/media_files/videofile/change_list.html:77
 #: media_files/templates/admin/video_player.html:24
@@ -151,22 +151,22 @@ msgid "Broadcast Time"
 msgstr "Sendezeit"
 
 #: contributions/admin.py:419 contributions/admin.py:598
-#: contributions/admin.py:826 licenses/admin.py:335 licenses/admin.py:965
-#: licenses/admin.py:1607 licenses/models.py:190
+#: contributions/admin.py:826 licenses/admin.py:307 licenses/admin.py:937
+#: licenses/admin.py:1587 licenses/models.py:198
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:31
-#: registration/models.py:244 registration/templates/navbar.html:74
+#: registration/models.py:253 registration/templates/navbar.html:74
 #: ok_tools/templates/base.html:45 ok_tools/templates/base.html:119
 #: ok_tools/templates/dashboard.html:58
 msgid "Profile"
 msgstr "Profil"
 
-#: contributions/admin.py:420 licenses/admin.py:336
+#: contributions/admin.py:420 licenses/admin.py:308
 msgid "Profile ID"
 msgstr "Profil-ID"
 
 #: contributions/admin.py:421
-#: contributions/templates/contributions/list.html:156 licenses/admin.py:338
-#: licenses/models.py:99 media_files/admin.py:761 media_files/models.py:116
+#: contributions/templates/contributions/list.html:156 licenses/admin.py:310
+#: licenses/models.py:107 media_files/admin.py:761 media_files/models.py:116
 #: media_files/templates/admin/media_files/videofile/change_form.html:73
 #: media_files/templates/admin/media_files/videofile/change_list.html:79
 #: media_files/templates/admin/video_player.html:26 projects/admin.py:175
@@ -185,9 +185,9 @@ msgid "Data export"
 msgstr "Datenexport"
 
 #: contributions/admin.py:460 contributions/admin.py:833
-#: contributions/templates/admin/export.html:42 licenses/admin.py:970
-#: registration/admin.py:93 registration/models.py:80 registration/models.py:99
-#: registration/models.py:200
+#: contributions/templates/admin/export.html:42 licenses/admin.py:942
+#: registration/admin.py:93 registration/models.py:80
+#: registration/models.py:108 registration/models.py:209
 msgid "Media Authority"
 msgstr "Bürgermedium"
 
@@ -201,7 +201,7 @@ msgid "All"
 msgstr "Alle"
 
 #: contributions/admin.py:466 contributions/templates/admin/export.html:51
-#: licenses/admin.py:446 registration/models.py:211
+#: licenses/admin.py:418 registration/models.py:220
 msgid "Global Producer"
 msgstr "Globaler Produzent"
 
@@ -210,8 +210,9 @@ msgstr "Globaler Produzent"
 #: contributions/templates/admin/export.html:54
 #: contributions/templates/admin/export.html:62
 #: contributions/templates/admin/export.html:70 inventory/models.py:581
-#: inventory/models.py:582 licenses/admin.py:420 licenses/admin.py:452
-#: licenses/admin.py:878 licenses/templates/licenses/details.html:30
+#: inventory/models.py:582 licenses/admin.py:392 licenses/admin.py:424
+#: licenses/admin.py:850 licenses/forms.py:24
+#: licenses/templates/licenses/details.html:30
 msgid "Yes"
 msgstr "Ja"
 
@@ -220,13 +221,14 @@ msgstr "Ja"
 #: contributions/templates/admin/export.html:55
 #: contributions/templates/admin/export.html:63
 #: contributions/templates/admin/export.html:71 inventory/models.py:581
-#: inventory/models.py:582 licenses/admin.py:421 licenses/admin.py:453
-#: licenses/admin.py:883 licenses/templates/licenses/details.html:33
+#: inventory/models.py:582 licenses/admin.py:393 licenses/admin.py:425
+#: licenses/admin.py:855 licenses/forms.py:25
+#: licenses/templates/licenses/details.html:33
 msgid "No"
 msgstr "Nein"
 
 #: contributions/admin.py:476 contributions/templates/admin/export.html:67
-#: licenses/admin.py:468
+#: licenses/admin.py:440
 msgid "Has video"
 msgstr "Hat Video"
 
@@ -266,12 +268,12 @@ msgstr "Primärbeitrag"
 msgid "Broadcast year"
 msgstr "Sendejahr"
 
-#: contributions/admin.py:714 licenses/admin.py:390 projects/admin.py:219
+#: contributions/admin.py:714 licenses/admin.py:362 projects/admin.py:219
 #: registration/admin.py:162
 msgid "This year"
 msgstr "Dieses Jahr"
 
-#: contributions/admin.py:715 licenses/admin.py:391 projects/admin.py:220
+#: contributions/admin.py:715 licenses/admin.py:363 projects/admin.py:220
 #: registration/admin.py:163
 msgid "Last year"
 msgstr "Letztes Jahr"
@@ -285,9 +287,9 @@ msgstr ""
 msgid "Title, Subtitle, Number"
 msgstr "Titel, Untertitel, Nummer"
 
-#: contributions/admin.py:827 contributions/models.py:84 licenses/admin.py:753
-#: licenses/models.py:319 licenses/models.py:330
-#: licenses/templates/licenses/list.html:261 media_files/admin.py:805
+#: contributions/admin.py:827 contributions/models.py:84 licenses/admin.py:725
+#: licenses/models.py:327 licenses/models.py:338
+#: licenses/templates/licenses/list.html:260 media_files/admin.py:805
 #: media_files/models.py:137
 msgid "License"
 msgstr "Freistellung"
@@ -309,7 +311,7 @@ msgid "Is primary"
 msgstr "Ist primär"
 
 #: contributions/admin.py:894 inventory/models.py:527 registration/models.py:67
-#: registration/models.py:140 rental/admin.py:238 rental/models.py:14
+#: registration/models.py:149 rental/admin.py:238 rental/models.py:14
 #: rental/templates/rental/rental_stats.html:1101 rental/views.py:329
 #: ok_tools/templates/rental_dashboard.html:43
 msgid "User"
@@ -432,7 +434,7 @@ msgid "Loading dates..."
 msgstr "Daten werden geladen..."
 
 #: contributions/templates/admin/disa_import_change_form.html:87
-#: licenses/forms.py:120 licenses/templates/licenses/update.html:126
+#: licenses/forms.py:178 licenses/templates/licenses/update.html:129
 msgid "Save"
 msgstr "Speichern"
 
@@ -524,7 +526,7 @@ msgstr "Erste Freistellung erstellen"
 #: inventory/admin.py:271 inventory/admin.py:378 inventory/models.py:227
 #: inventory/models.py:573 inventory/templates/inventory/list.html:78
 #: inventory/templates/inventory/list.html:160
-#: inventory/tests/test_models.py:353 licenses/admin.py:1577
+#: inventory/tests/test_models.py:353 licenses/admin.py:1557
 #: licenses/templates/licenses/list.html:28
 #: licenses/templates/licenses/list.html:73 media_files/models.py:452
 #: rental/admin.py:372 rental/models.py:58 rental/templates/rental/list.html:65
@@ -944,7 +946,7 @@ msgstr "Organisation"
 msgid "Organizations"
 msgstr "Organisationen"
 
-#: inventory/models.py:70 licenses/models.py:62
+#: inventory/models.py:70 licenses/models.py:70
 msgid "Categories"
 msgstr "Kategorien"
 
@@ -1019,7 +1021,7 @@ msgstr "Nicht angegeben"
 #: inventory/models.py:324 inventory/models.py:411 inventory/models.py:704
 #: licenses/templates/licenses/list.html:32
 #: licenses/templates/licenses/list.html:102
-#: licenses/templates/licenses/list.html:520
+#: licenses/templates/licenses/list.html:519
 #: rental/templates/rental/list.html:174
 #: rental/templates/rental/rental_detail.html:380 ok_tools/views.py:160
 msgid "Pending"
@@ -1247,8 +1249,8 @@ msgstr "Gesamtanzahl der Artikel"
 
 #: inventory/templates/inventory/list.html:41
 #: inventory/templates/inventory/list.html:81
-#: inventory/templates/inventory/list.html:162 licenses/admin.py:474
-#: licenses/admin.py:733 licenses/admin.py:845 media_files/models.py:126
+#: inventory/templates/inventory/list.html:162 licenses/admin.py:446
+#: licenses/admin.py:705 licenses/admin.py:817 media_files/models.py:126
 #: rental/templates/rental/rental_stats.html:972
 #: rental/templates/rental/rental_stats.html:1157 rental/views.py:916
 #: rental/views.py:3133
@@ -1263,7 +1265,7 @@ msgstr "Wartung"
 
 #: inventory/templates/inventory/list.html:70
 #: rental/templates/rental/admin_rental_process.html:106
-#: ok_tools/templates/rental_dashboard.html:170
+#: ok_tools/templates/rental_dashboard.html:171
 msgid "All Categories"
 msgstr "Alle Kategorien"
 
@@ -1382,37 +1384,37 @@ msgid "Inventory pagination"
 msgstr "Inventarseitenumbruch"
 
 #: inventory/templates/inventory/list.html:218
-#: licenses/templates/licenses/list.html:184
+#: licenses/templates/licenses/list.html:183
 #: rental/templates/rental/list.html:218
 msgid "First"
 msgstr "Erste"
 
 #: inventory/templates/inventory/list.html:221
-#: licenses/templates/licenses/list.html:187
+#: licenses/templates/licenses/list.html:186
 #: rental/templates/rental/list.html:221
 msgid "Previous"
 msgstr "Vorherige"
 
 #: inventory/templates/inventory/list.html:227
-#: licenses/templates/licenses/list.html:193
+#: licenses/templates/licenses/list.html:192
 #: rental/templates/rental/list.html:227
 msgid "Page"
 msgstr "Seite"
 
 #: inventory/templates/inventory/list.html:227
-#: licenses/templates/licenses/list.html:193
+#: licenses/templates/licenses/list.html:192
 #: rental/templates/rental/list.html:227
 msgid "of"
 msgstr "von"
 
 #: inventory/templates/inventory/list.html:233
-#: licenses/templates/licenses/list.html:199
+#: licenses/templates/licenses/list.html:198
 #: rental/templates/rental/list.html:233
 msgid "Next"
 msgstr "Nächste"
 
 #: inventory/templates/inventory/list.html:236
-#: licenses/templates/licenses/list.html:202
+#: licenses/templates/licenses/list.html:201
 #: rental/templates/rental/list.html:236
 msgid "Last"
 msgstr "Letzte"
@@ -1421,65 +1423,70 @@ msgstr "Letzte"
 msgid "Are you sure you want to delete this inventory item?"
 msgstr "Sind Sie sicher, dass Sie diesen Inventarartikel löschen möchten?"
 
-#: licenses/admin.py:65 licenses/admin.py:1425 licenses/models.py:67
+#: licenses/admin.py:42 licenses/admin.py:1403 licenses/models.py:75
 #: projects/models.py:117 projects/models.py:122
 msgid "Not Selected"
 msgstr "Nicht ausgewählt"
 
-#: licenses/admin.py:223 licenses/admin.py:981 licenses/models.py:173
+#: licenses/admin.py:195 licenses/admin.py:953 licenses/models.py:181
 #: rental/models.py:769
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: licenses/admin.py:337 licenses/models.py:94
+#: licenses/admin.py:309 licenses/models.py:102
 msgid "Further involved persons"
 msgstr "Weitere beteiligte Personen"
 
-#: licenses/admin.py:340 licenses/models.py:107
+#: licenses/admin.py:312 licenses/models.py:115
 msgid "Suggested broadcast date"
 msgstr "Vorgeschlagenes Sendedatum"
 
-#: licenses/admin.py:341
+#: licenses/admin.py:313
 msgid "Suggested broadcast time"
 msgstr "Vorgeschlagene Sendezeit"
 
-#: licenses/admin.py:342 licenses/models.py:113
+#: licenses/admin.py:314 licenses/models.py:121
 msgid "Repetitions allowed"
 msgstr "Wiederholungen erlaubt"
 
-#: licenses/admin.py:345
+#: licenses/admin.py:317
 msgid "Media Authority exchange allowed"
 msgstr "Austausch mit Medienanstalten erlaubt"
 
-#: licenses/admin.py:348 licenses/models.py:131
+#: licenses/admin.py:320 licenses/models.py:139
 msgid "Youth protection necessary"
 msgstr "Jugendschutz notwendig"
 
-#: licenses/admin.py:351 licenses/models.py:210
+#: licenses/admin.py:323 licenses/models.py:218
 msgid "Screen Board"
 msgstr "Bildschirmtafel"
 
-#: licenses/admin.py:352 registration/admin.py:91 registration/models.py:191
+#: licenses/admin.py:324 registration/admin.py:91 registration/models.py:200
 msgid "created at"
 msgstr "erstellt am"
 
-#: licenses/admin.py:383
+#: licenses/admin.py:355
 msgid "Creation year"
 msgstr "Erstellungsjahr"
 
-#: licenses/admin.py:414
+#: licenses/admin.py:378 licenses/admin.py:410
+#, python-format
+msgid "Invalid value %(value)s."
+msgstr "Ungültiger Wert %(value)s."
+
+#: licenses/admin.py:386
 msgid "without contributions"
 msgstr "ohne Beiträge"
 
-#: licenses/admin.py:475 licenses/admin.py:733 licenses/admin.py:858
+#: licenses/admin.py:447 licenses/admin.py:705 licenses/admin.py:830
 msgid "Not available"
 msgstr "Nicht verfügbar"
 
-#: licenses/admin.py:476 licenses/admin.py:863
+#: licenses/admin.py:448 licenses/admin.py:835
 msgid "No video"
 msgstr "Kein Video"
 
-#: licenses/admin.py:506
+#: licenses/admin.py:478
 msgid ""
 "The corresponding profile is not verified. The License can not be confirmed "
 "until the profile is verified."
@@ -1487,17 +1494,17 @@ msgstr ""
 "Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann nicht "
 "genehmigt werden, bis das Profil verifiziert ist."
 
-#: licenses/admin.py:547
+#: licenses/admin.py:519
 #, python-format
 msgid "Maximum 4 tags allowed. You provided %(count)d tags."
 msgstr ""
 "Maximal 4 Schlagwörter erlaubt. Sie haben %(count)d Schlagwörter eingegeben."
 
-#: licenses/admin.py:554
+#: licenses/admin.py:526
 msgid "Empty tags are not allowed."
 msgstr "Leere Schlagwörter sind nicht erlaubt."
 
-#: licenses/admin.py:564
+#: licenses/admin.py:536
 msgid ""
 "Enter tags separated by commas. Maximum 4 tags allowed. Example: "
 "documentary, local, culture, news"
@@ -1505,110 +1512,110 @@ msgstr ""
 "Geben Sie Schlagwörter durch Kommas getrennt ein. Maximal 4 Schlagwörter "
 "erlaubt. Beispiel: Dokumentation, lokal, Kultur, Nachrichten"
 
-#: licenses/admin.py:674
+#: licenses/admin.py:646
 msgid "title, subtitle, number, description, further persons"
 msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
 
-#: licenses/admin.py:677 licenses/templates/licenses/create.html:31
+#: licenses/admin.py:649 licenses/templates/licenses/create.html:31
 #: media_files/admin.py:668 projects/admin.py:288 registration/admin.py:215
 #: registration/admin.py:354
 msgid "Basic Information"
 msgstr "Grundinformationen"
 
-#: licenses/admin.py:680
+#: licenses/admin.py:652
 msgid "Content Details"
 msgstr "Inhaltsdetails"
 
-#: licenses/admin.py:683
+#: licenses/admin.py:655
 msgid "Broadcasting Permissions"
 msgstr "Sendeerlaubnisse"
 
-#: licenses/admin.py:691
+#: licenses/admin.py:663
 msgid "Youth Protection"
 msgstr "Jugendschutz"
 
-#: licenses/admin.py:694
+#: licenses/admin.py:666
 msgid "Media Library & Special Formats"
 msgstr "Mediathek & spezielle Formate"
 
-#: licenses/admin.py:697
+#: licenses/admin.py:669
 msgid "Status & Metadata"
 msgstr "Status & Metadaten"
 
-#: licenses/admin.py:699
+#: licenses/admin.py:671
 msgid "Number is auto-generated but can be manually changed if needed."
 msgstr ""
 "Die Nummer wird automatisch generiert, kann aber bei Bedarf manuell geändert "
 "werden."
 
-#: licenses/admin.py:752
+#: licenses/admin.py:724
 msgid "Duration mismatch"
 msgstr "Abweichende Dauer"
 
-#: licenses/admin.py:755
+#: licenses/admin.py:727
 msgid "Sync from Video"
 msgstr "Mit Video abgleichen"
 
-#: licenses/admin.py:779
+#: licenses/admin.py:751
 msgid "No video file found"
 msgstr "Keine Videodatei gefunden"
 
-#: licenses/admin.py:781
+#: licenses/admin.py:753
 msgid "Search for Video"
 msgstr "Nach Video suchen"
 
-#: licenses/admin.py:786 licenses/templates/licenses/list.html:226
+#: licenses/admin.py:758 licenses/templates/licenses/list.html:225
 #: media_files/models.py:289 media_files/models.py:414
 msgid "Video File"
 msgstr "Videodatei"
 
-#: licenses/admin.py:812
+#: licenses/admin.py:784
 msgid "Nextcloud Video"
 msgstr "Nextcloud Video"
 
-#: licenses/admin.py:853 media_files/admin.py:979 media_files/admin.py:993
+#: licenses/admin.py:825 media_files/admin.py:979 media_files/admin.py:993
 msgid "Player"
 msgstr "Player"
 
-#: licenses/admin.py:868
+#: licenses/admin.py:840
 msgid "Video"
 msgstr "Video"
 
-#: licenses/admin.py:886 licenses/models.py:166
-#: licenses/templates/licenses/create.html:327
+#: licenses/admin.py:858 licenses/models.py:174
+#: licenses/templates/licenses/create.html:332
 #: licenses/templates/licenses/update.html:97
 msgid "Signature"
 msgstr "Unterschrift"
 
-#: licenses/admin.py:897
+#: licenses/admin.py:869
 msgid "Digital signature is present"
 msgstr "Digitale Unterschrift vorhanden"
 
-#: licenses/admin.py:902
+#: licenses/admin.py:874
 msgid "No digital signature"
 msgstr "Keine digitale Unterschrift"
 
-#: licenses/admin.py:905
+#: licenses/admin.py:877
 msgid "Digital Signature"
 msgstr "Digitale Unterschrift"
 
-#: licenses/admin.py:983
+#: licenses/admin.py:955
 msgid "Confirm selected Licenses"
 msgstr "Ausgewählte Freistellungen genehmigen"
 
-#: licenses/admin.py:993
+#: licenses/admin.py:965
 msgid "Unconfirm selected Licenses"
 msgstr "Genehmigung der ausgewählten Freistellungen zurückziehen"
 
-#: licenses/admin.py:1003
+#: licenses/admin.py:975
 msgid "Create a copy of selected licenses"
 msgstr "Eine Kopie der ausgewählten Freistellungen erstellen"
 
-#: licenses/admin.py:1014
+#: licenses/admin.py:986
 msgid "License copies created successfully."
 msgstr "Freistellungskopien wurden erfolgreich erstellt."
 
-#: licenses/admin.py:1031
+#: licenses/admin.py:1003
 #, python-format
 msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
@@ -1617,91 +1624,101 @@ msgstr ""
 "Das entsprechende Profil von %(obj)s ist nicht verifiziert. Die Freistellung "
 "kann nicht genehmigt werden, bis das Profil verifiziert ist."
 
-#: licenses/admin.py:1088
+#: licenses/admin.py:1067
 msgid "Duration synced from video: {} → {}"
 msgstr "Dauer vom Video synchronisiert: {} → {}"
 
-#: licenses/admin.py:1094
+#: licenses/admin.py:1073
 msgid "No video file found for this license."
 msgstr "Für diese Freistellung wurde keine Videodatei gefunden."
 
-#: licenses/admin.py:1100
+#: licenses/admin.py:1079
 msgid "Video file has no duration information."
 msgstr "Die Videodatei enthält keine Zeitangaben zur Dauer."
 
-#: licenses/admin.py:1139
+#: licenses/admin.py:1118
 msgid "Scanning storages for video"
 msgstr "Durchsuche Speicherorte nach Video"
 
-#: licenses/admin.py:1170
+#: licenses/admin.py:1149
 msgid "Video found and linked to license"
 msgstr "Video gefunden und mit Freistellung verbunden"
 
-#: licenses/admin.py:1175
+#: licenses/admin.py:1154
 msgid "Video with number"
 msgstr "Video mit Nummer"
 
-#: licenses/admin.py:1175
+#: licenses/admin.py:1154
 msgid "not found in storages"
 msgstr "nicht in den Speicherorten gefunden"
 
-#: licenses/admin.py:1176
+#: licenses/admin.py:1155
 msgid "Make sure the file exists and starts with the number"
 msgstr ""
 "Stellen Sie sicher, dass die Datei existiert und mit der Nummer beginnt"
 
-#: licenses/admin.py:1182
+#: licenses/admin.py:1161
 #, fuzzy
 #| msgid "Error deleting video {}: {}"
 msgid "Error linking video"
 msgstr "Fehler beim Löschen des Videos {}: {}"
 
-#: licenses/admin.py:1185
+#: licenses/admin.py:1164
 msgid "Search completed. Check the results"
 msgstr "Suche abgeschlossen. Überprüfen Sie die Ergebnisse"
 
-#: licenses/admin.py:1195
+#: licenses/admin.py:1167
+#, python-format
+msgid "License #%(id)s not found"
+msgstr "Freistellung #%(id)s nicht gefunden."
+
+#: licenses/admin.py:1169
+#, python-format
+msgid "Error searching for video: %(error)s"
+msgstr "Fehler beim Suchen nach Video: %(error)s"
+
+#: licenses/admin.py:1174
 msgid "Search for videos in storage"
 msgstr "Nach Videos in Speicherorten suchen"
 
-#: licenses/admin.py:1225
+#: licenses/admin.py:1204
 msgid "Videos found and linked for"
 msgstr "Videos gefunden und verknüpft für"
 
-#: licenses/admin.py:1225 licenses/admin.py:1231
+#: licenses/admin.py:1204 licenses/admin.py:1210
 msgid "licenses"
 msgstr "Freistellungen"
 
-#: licenses/admin.py:1225 licenses/admin.py:1231
+#: licenses/admin.py:1204 licenses/admin.py:1210
 msgid "license"
 msgstr "Freistellung"
 
-#: licenses/admin.py:1231
+#: licenses/admin.py:1210
 msgid "No videos found for"
 msgstr "Keine Videos für Freistellung gefunden"
 
-#: licenses/admin.py:1237
+#: licenses/admin.py:1216
 msgid "Search errors"
 msgstr "Suchfehler"
 
-#: licenses/admin.py:1253
+#: licenses/admin.py:1232
 msgid "Session expired. Please try importing again."
 msgstr "Sitzung abgelaufen. Bitte versuchen Sie den Import erneut."
 
-#: licenses/admin.py:1297 licenses/admin.py:1496
+#: licenses/admin.py:1276 licenses/admin.py:1474
 #, python-format
 msgid "License \"%(title)s\" successfully imported."
 msgstr "Freistellung \"%(title)s\" erfolgreich importiert."
 
-#: licenses/admin.py:1312
+#: licenses/admin.py:1291
 msgid "Error creating license: {}"
 msgstr "Fehler beim Erstellen der Freistellung: {}"
 
-#: licenses/admin.py:1325
+#: licenses/admin.py:1304
 msgid "Import cancelled."
 msgstr "Import abgebrochen."
 
-#: licenses/admin.py:1371
+#: licenses/admin.py:1349
 #, python-format
 msgid ""
 "Profile not found for senderResponsible: %(name)s. Created new profile "
@@ -1710,7 +1727,7 @@ msgstr ""
 "Profil für senderResponsible: %(name)s nicht gefunden. Neues Profil wurde "
 "automatisch erstellt."
 
-#: licenses/admin.py:1380
+#: licenses/admin.py:1358
 #, python-format
 msgid ""
 "No profile found for senderResponsible: %(name)s. targetChannel is required "
@@ -1719,7 +1736,7 @@ msgstr ""
 "Kein Profil für senderResponsible: %(name)s gefunden. targetChannel ist "
 "erforderlich, um ein neues Profil zu erstellen."
 
-#: licenses/admin.py:1394
+#: licenses/admin.py:1372
 #, python-format
 msgid ""
 "No profile found for targetChannel: %(channel)s. Please create a profile "
@@ -1728,33 +1745,33 @@ msgstr ""
 "Kein Profil für targetChannel: %(channel)s gefunden. Bitte erstellen Sie ein "
 "Profil manuell im Admin."
 
-#: licenses/admin.py:1408
+#: licenses/admin.py:1386
 msgid "Either senderResponsible or targetChannel is required in JSON file."
 msgstr ""
 "Entweder senderResponsible oder targetChannel wird in der JSON-Datei "
 "benötigt."
 
-#: licenses/admin.py:1512
+#: licenses/admin.py:1490
 msgid "Invalid JSON file: {}"
 msgstr "Ungültige JSON-Datei: {}"
 
-#: licenses/admin.py:1520
+#: licenses/admin.py:1498
 msgid "Error importing license: {}"
 msgstr "Fehler beim Importieren der Freistellung: {}"
 
-#: licenses/admin.py:1574
+#: licenses/admin.py:1554
 #, fuzzy
 #| msgid "Information"
 msgid "File Information"
 msgstr "Informationen"
 
-#: licenses/admin.py:1591
+#: licenses/admin.py:1571
 #: media_files/templates/admin/system_management.html:630
 #: media_files/templates/admin/system_management.html:687
 msgid "License Number"
 msgstr "Freistellungsnummer"
 
-#: licenses/apps.py:10 licenses/models.py:320
+#: licenses/apps.py:10 licenses/models.py:328
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:8
 #: licenses/templates/admin/licenses/import_json.html:7
 #: licenses/templates/licenses/list.html:5
@@ -1763,7 +1780,19 @@ msgstr "Freistellungsnummer"
 msgid "Licenses"
 msgstr "Freistellungen"
 
-#: licenses/forms.py:51
+#: licenses/forms.py:23
+#, fuzzy
+#| msgid "Please sign here"
+msgid "Please select"
+msgstr "Bitte hier unterschreiben"
+
+#: licenses/forms.py:91
+#, fuzzy
+#| msgid "This field is required."
+msgid "This field is required. Please select Yes or No."
+msgstr "Dieses Feld ist erforderlich."
+
+#: licenses/forms.py:102
 msgid ""
 "If youth protection is necessary, you have to choose a youth protection "
 "category."
@@ -1771,23 +1800,23 @@ msgstr ""
 "Falls Jugendschutz notwendig ist, müssen Sie eine Jugendschutzkategorie "
 "auswählen."
 
-#: licenses/forms.py:63
+#: licenses/forms.py:114
 msgid "Invalid format. Please use the format hh:mm:ss or mm:ss."
 msgstr "Ungültiges Format. Bitte verwenden Sie das Format hh:mm:ss oder mm:ss."
 
-#: licenses/forms.py:83
+#: licenses/forms.py:134
 msgid "The duration field is required."
 msgstr "Das Feld „Dauer“ ist erforderlich."
 
-#: licenses/forms.py:172
+#: licenses/forms.py:230
 msgid "JSON File"
 msgstr "JSON-Datei"
 
-#: licenses/forms.py:173
+#: licenses/forms.py:231
 msgid "Upload a JSON file with license data"
 msgstr "Laden Sie eine JSON-Datei mit Lizenzdaten hoch"
 
-#: licenses/generate_file.py:197
+#: licenses/generate_file.py:306
 msgid "license.pdf"
 msgstr "freistellung.pdf"
 
@@ -1861,129 +1890,137 @@ msgstr "ab 16"
 msgid "from 18"
 msgstr "ab 18"
 
-#: licenses/models.py:100 licenses/templates/licenses/create.html:142
+#: licenses/models.py:55
+msgid "Numeric ID"
+msgstr "Numerische ID"
+
+#: licenses/models.py:59
+msgid "Numeric ID used for import from external systems (e.g., 101, 102, 103)"
+msgstr "Numerische ID für Import aus externen Systemen (z.B. 101, 102, 103)"
+
+#: licenses/models.py:108 licenses/templates/licenses/create.html:142
 #: projects/models.py:156
 msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
-#: licenses/models.py:119
+#: licenses/models.py:127
 msgid "Media Authority exchange allowed in Saxony-Anhalt"
 msgstr "Austausch zwischen Medienanstalten in Sachsen-Anhalt erlaubt"
 
-#: licenses/models.py:125
+#: licenses/models.py:133
 msgid "Media Authority exchange allowed in other states than Saxony-Anhalt."
 msgstr "Austausch zwischen Medienanstalten in anderen Bundesländern erlaubt."
 
-#: licenses/models.py:137 licenses/templates/licenses/details.html:20
+#: licenses/models.py:145 licenses/templates/licenses/details.html:20
 msgid "Youth protection category"
 msgstr "Jugendschutzkategorie"
 
-#: licenses/models.py:152
+#: licenses/models.py:160
 msgid "Live broadcast"
 msgstr "Live-Sendung"
 
-#: licenses/models.py:154
+#: licenses/models.py:162
 msgid ""
 "Live broadcasts do not allow repetitions, exchange, or mediathek storage."
 msgstr ""
 "Live-Sendungen erlauben keine Wiederholungen, keinen Austausch oder "
 "Mediathek-Speicherung."
 
-#: licenses/models.py:158
+#: licenses/models.py:166
 msgid "Tags"
 msgstr "Tags"
 
-#: licenses/models.py:162
+#: licenses/models.py:170
 msgid "Maximum 4 tags"
 msgstr "Maximal 4 Tags"
 
-#: licenses/models.py:169
+#: licenses/models.py:177
 msgid "Base64 encoded signature image"
 msgstr "Base64-codiertes Unterschriftsbild"
 
-#: licenses/models.py:203 licenses/templates/licenses/list.html:31
+#: licenses/models.py:211 licenses/templates/licenses/list.html:31
 #: licenses/templates/licenses/list.html:100
-#: licenses/templates/licenses/list.html:518
+#: licenses/templates/licenses/list.html:517
 msgid "Confirmed"
 msgstr "Genehmigt"
 
-#: licenses/models.py:217
+#: licenses/models.py:225
 msgid "Infoblock"
 msgstr "Infoblock"
 
-#: licenses/models.py:240
+#: licenses/models.py:248
 msgid "Duration must not be null."
 msgstr "Die Dauer darf nicht Null sein."
 
-#: licenses/models.py:334
+#: licenses/models.py:342
 #, fuzzy
 #| msgid "Nextcloud Video"
 msgid "Nextcloud File ID"
 msgstr "Nextcloud Video"
 
-#: licenses/models.py:335
+#: licenses/models.py:343
 #, fuzzy
 #| msgid "Open in Nextcloud"
 msgid "File ID or path in Nextcloud"
 msgstr "In Nextcloud öffnen"
 
-#: licenses/models.py:341
+#: licenses/models.py:349
 #, fuzzy
 #| msgid "Nextcloud Video"
 msgid "Nextcloud URL"
 msgstr "Nextcloud Video"
 
-#: licenses/models.py:342
+#: licenses/models.py:350
 #, fuzzy
 #| msgid "Open in Nextcloud"
 msgid "Direct link to file in Nextcloud"
 msgstr "In Nextcloud öffnen"
 
-#: licenses/models.py:346 media_files/models.py:96
+#: licenses/models.py:354 media_files/models.py:96
 msgid "Filename"
 msgstr "Dateiname"
 
-#: licenses/models.py:347
+#: licenses/models.py:355
 msgid "Original filename"
 msgstr ""
 
-#: licenses/models.py:352 media_files/models.py:111
+#: licenses/models.py:360 media_files/models.py:111
 msgid "File Size (bytes)"
 msgstr "Dateigröße (Bytes)"
 
-#: licenses/models.py:356
+#: licenses/models.py:364
 #, fuzzy
 #| msgid "Updated at"
 msgid "Uploaded at"
 msgstr "Aktualisiert am"
 
-#: licenses/models.py:361
+#: licenses/models.py:369
 #, fuzzy
 #| msgid "Deleted"
 msgid "Is Deleted"
 msgstr "Gelöscht"
 
-#: licenses/models.py:362
+#: licenses/models.py:370
 msgid "Flag if file was deleted from Nextcloud"
 msgstr ""
 
-#: licenses/models.py:367
+#: licenses/models.py:375
 #, fuzzy
 #| msgid "Deleted"
 msgid "Deleted at"
 msgstr "Gelöscht"
 
-#: licenses/models.py:368
+#: licenses/models.py:376
 msgid "When file was deleted from Nextcloud"
 msgstr ""
 
-#: licenses/models.py:378
+#: licenses/models.py:386
 #, fuzzy
 #| msgid "Nextcloud Video"
 msgid "Nextcloud Video File"
 msgstr "Nextcloud Video"
 
-#: licenses/models.py:379
+#: licenses/models.py:387
 #, fuzzy
 #| msgid "Nextcloud Video"
 msgid "Nextcloud Video Files"
@@ -2002,8 +2039,8 @@ msgstr "Benutzerdefinierter Datumsbereich"
 
 #: licenses/templates/admin/filter_datetime_range.html:79
 #: licenses/templates/admin/filter_numeric_range.html:84
-#: licenses/templates/licenses/create.html:370
-#: ok_tools/templates/rental_dashboard.html:202
+#: licenses/templates/licenses/create.html:378
+#: ok_tools/templates/rental_dashboard.html:198
 msgid "Reset"
 msgstr "Zurücksetzen"
 
@@ -2092,8 +2129,8 @@ msgstr "Erstelle die neue Freistellung, auch wenn Duplikate vorhanden sind"
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:76
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:84
 #: licenses/templates/admin/licenses/import_json.html:39
-#: licenses/templates/licenses/create.html:366
-#: licenses/templates/licenses/update.html:127
+#: licenses/templates/licenses/create.html:374
+#: licenses/templates/licenses/update.html:130
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:200
 #: rental/models.py:391 rental/templates/rental/admin_rental_process.html:244
 #: rental/templates/rental/admin_rental_process.html:282
@@ -2155,7 +2192,13 @@ msgstr "Medienanstalten-Zuordnung:"
 msgid "Print license"
 msgstr "Freistellung drucken"
 
-#: licenses/templates/admin/licenses_change_form_edit.html:220
+#: licenses/templates/admin/licenses_change_form_edit.html:219
+#, fuzzy
+#| msgid "Download"
+msgid "Download PDF"
+msgstr "Herunterladen"
+
+#: licenses/templates/admin/licenses_change_form_edit.html:225
 msgid ""
 "\n"
 "            Confirmed licenses are not editable!\n"
@@ -2167,7 +2210,7 @@ msgstr ""
 
 #: licenses/templates/licenses/create.html:5
 #: licenses/templates/licenses/create.html:6
-#: licenses/templates/licenses/create.html:373
+#: licenses/templates/licenses/create.html:381
 #: licenses/templates/licenses/list.html:19
 #: ok_tools/templates/dashboard.html:199
 msgid "Create License"
@@ -2206,46 +2249,46 @@ msgstr "Medieneinstellungen"
 msgid "Duration, broadcast date and repetitions"
 msgstr "Dauer, Sendedatum und Wiederholungen"
 
-#: licenses/templates/licenses/create.html:188
+#: licenses/templates/licenses/create.html:190
 msgid "Exchange Settings"
 msgstr "Austauscheinstellungen"
 
-#: licenses/templates/licenses/create.html:190
+#: licenses/templates/licenses/create.html:192
 msgid "Permissions for exchange between citizen media"
 msgstr "Berechtigungen für den Austausch zwischen Bürgermedien"
 
-#: licenses/templates/licenses/create.html:204
+#: licenses/templates/licenses/create.html:207
 msgid "Saxony-Anhalt"
 msgstr "Sachsen-Anhalt"
 
-#: licenses/templates/licenses/create.html:220
+#: licenses/templates/licenses/create.html:224
 msgid "Other Federal States"
 msgstr "Andere Bundesländer"
 
-#: licenses/templates/licenses/create.html:231
+#: licenses/templates/licenses/create.html:235
 msgid "Special Settings"
 msgstr "Spezielle Einstellungen"
 
-#: licenses/templates/licenses/create.html:233
+#: licenses/templates/licenses/create.html:237
 msgid "Special settings and youth protection"
 msgstr "Spezielle Einstellungen und Jugendschutz"
 
-#: licenses/templates/licenses/create.html:245
+#: licenses/templates/licenses/create.html:249
 msgid "Screen board (duration will be set automatically)"
 msgstr "Laufschrift (Dauer wird automatisch gesetzt)"
 
-#: licenses/templates/licenses/create.html:263
+#: licenses/templates/licenses/create.html:267
 msgid "Live broadcast (no repetitions, exchange, or mediathek)"
 msgstr "Live-Sendung (keine Wiederholungen, kein Austausch, keine Mediathek)"
 
-#: licenses/templates/licenses/create.html:311
+#: licenses/templates/licenses/create.html:316
 #: licenses/templates/licenses/update.html:38
 #, fuzzy
 #| msgid "Video Codec"
 msgid "Video Upload"
 msgstr "Video-Codec"
 
-#: licenses/templates/licenses/create.html:313
+#: licenses/templates/licenses/create.html:318
 msgid ""
 "You can upload a video file after creating the license. Go to the license "
 "list and use the upload button to add your video file."
@@ -2254,18 +2297,18 @@ msgstr ""
 "Gehen Sie zur Freistellungsliste und verwenden Sie die Upload-Schaltfläche, "
 "um Ihre Videodatei hinzuzufügen."
 
-#: licenses/templates/licenses/create.html:315
-#: licenses/templates/licenses/list.html:230
+#: licenses/templates/licenses/create.html:320
+#: licenses/templates/licenses/list.html:229
 #: licenses/templates/licenses/update.html:70
 msgid "Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB."
 msgstr "Unterstützte Formate: mp4, mov, avi, mkv, webm. Maximale Größe: 20GB."
 
-#: licenses/templates/licenses/create.html:329
+#: licenses/templates/licenses/create.html:334
 #: licenses/templates/licenses/update.html:99
 msgid "Please sign here"
 msgstr "Bitte hier unterschreiben"
 
-#: licenses/templates/licenses/create.html:331
+#: licenses/templates/licenses/create.html:336
 #, python-format
 msgid ""
 "\n"
@@ -2282,26 +2325,26 @@ msgstr ""
 "%(email)s zu senden.\n"
 "                "
 
-#: licenses/templates/licenses/create.html:342
+#: licenses/templates/licenses/create.html:347
 #: licenses/templates/licenses/update.html:107
 msgid "Sign here"
 msgstr "Hier unterschreiben"
 
-#: licenses/templates/licenses/create.html:348
-#: licenses/templates/licenses/update.html:113
+#: licenses/templates/licenses/create.html:356
+#: licenses/templates/licenses/update.html:116
 msgid "Clear Signature"
 msgstr "Unterschrift löschen"
 
-#: licenses/templates/licenses/create.html:351
-#: licenses/templates/licenses/update.html:116
+#: licenses/templates/licenses/create.html:359
+#: licenses/templates/licenses/update.html:119
 msgid "Please sign in the box above."
 msgstr "Bitte unterschreiben Sie im obigen Feld."
 
-#: licenses/templates/licenses/create.html:615
+#: licenses/templates/licenses/create.html:692
 msgid "Are you sure you want to reset all inputs?"
 msgstr "Sind Sie sicher, dass Sie alle Eingaben zurücksetzen möchten?"
 
-#: licenses/templates/licenses/create.html:738
+#: licenses/templates/licenses/create.html:815
 msgid "Creating..."
 msgstr "Erstellen..."
 
@@ -2353,7 +2396,7 @@ msgid "Video already uploaded"
 msgstr "Video bereits hochgeladen"
 
 #: licenses/templates/licenses/list.html:141
-#: licenses/templates/licenses/list.html:218
+#: licenses/templates/licenses/list.html:217
 msgid "Upload Video"
 msgstr "Video hochladen"
 
@@ -2369,11 +2412,11 @@ msgstr "Keine Freistellungen gefunden"
 msgid "Create your first license"
 msgstr "Erstellen Sie Ihre erste Freistellung"
 
-#: licenses/templates/licenses/list.html:180
+#: licenses/templates/licenses/list.html:179
 msgid "License pagination"
 msgstr "Freistellungsseiten-Navigation"
 
-#: licenses/templates/licenses/list.html:244
+#: licenses/templates/licenses/list.html:243
 #: rental/templates/rental/admin_rental_process.html:178
 #: rental/templates/rental/admin_rental_process.html:201
 #: rental/templates/rental/admin_rental_process.html:224
@@ -2381,111 +2424,111 @@ msgstr "Freistellungsseiten-Navigation"
 #: rental/templates/rental/admin_rental_process.html:435
 #: rental/templates/rental/admin_rental_process.html:617
 #: rental/templates/rental/rental_detail.html:737
-#: ok_tools/templates/rental_dashboard.html:249
-#: ok_tools/templates/rental_dashboard.html:337
-#: ok_tools/templates/rental_dashboard.html:363
-#: ok_tools/templates/rental_dashboard.html:388
-#: ok_tools/templates/rental_dashboard.html:413
+#: ok_tools/templates/rental_dashboard.html:242
+#: ok_tools/templates/rental_dashboard.html:330
+#: ok_tools/templates/rental_dashboard.html:356
+#: ok_tools/templates/rental_dashboard.html:381
+#: ok_tools/templates/rental_dashboard.html:406
 msgid "Close"
 msgstr "Schließen"
 
-#: licenses/templates/licenses/list.html:246
+#: licenses/templates/licenses/list.html:245
 #: licenses/templates/licenses/update.html:74
 msgid "Upload"
 msgstr "Hochladen"
 
-#: licenses/templates/licenses/list.html:282
-#: licenses/templates/licenses/update.html:414
+#: licenses/templates/licenses/list.html:281
+#: licenses/templates/licenses/update.html:490
 #, fuzzy
 #| msgid "Creating..."
 msgid "calculating..."
 msgstr "Erstellen..."
 
-#: licenses/templates/licenses/list.html:283
-#: licenses/templates/licenses/update.html:415
+#: licenses/templates/licenses/list.html:282
+#: licenses/templates/licenses/update.html:491
 msgid "sec"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:284
-#: licenses/templates/licenses/update.html:416
+#: licenses/templates/licenses/list.html:283
+#: licenses/templates/licenses/update.html:492
 #, fuzzy
 #| msgid "Admin"
 msgid "min"
 msgstr "Administrator"
 
-#: licenses/templates/licenses/list.html:285
-#: licenses/templates/licenses/update.html:417
+#: licenses/templates/licenses/list.html:284
+#: licenses/templates/licenses/update.html:493
 msgid "h"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:313
-#: licenses/templates/licenses/update.html:466
+#: licenses/templates/licenses/list.html:312
+#: licenses/templates/licenses/update.html:542
 msgid "Please select a video file first."
 msgstr "Bitte wählen Sie zuerst eine Videodatei aus."
 
-#: licenses/templates/licenses/list.html:324
-#: licenses/templates/licenses/update.html:438
+#: licenses/templates/licenses/list.html:323
+#: licenses/templates/licenses/update.html:514
 msgid "File is too large. Maximum size is 20GB."
 msgstr "Datei ist zu groß. Maximale Größe beträgt 20GB."
 
-#: licenses/templates/licenses/list.html:334
-#: licenses/templates/licenses/update.html:448 licenses/views.py:341
+#: licenses/templates/licenses/list.html:333
+#: licenses/templates/licenses/update.html:524 licenses/views.py:341
 msgid "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm."
 msgstr ""
 "Ungültiges Dateiformat. Unterstützte Formate: mp4, mov, avi, mkv, webm."
 
-#: licenses/templates/licenses/list.html:343
-#: licenses/templates/licenses/update.html:476
+#: licenses/templates/licenses/list.html:342
+#: licenses/templates/licenses/update.html:552
 msgid "Getting upload token..."
 msgstr ""
 
-#: licenses/templates/licenses/list.html:358
-#: licenses/templates/licenses/list.html:363
-#: licenses/templates/licenses/update.html:502
-#: licenses/templates/licenses/update.html:507
+#: licenses/templates/licenses/list.html:357
+#: licenses/templates/licenses/list.html:362
+#: licenses/templates/licenses/update.html:578
+#: licenses/templates/licenses/update.html:583
 #, fuzzy
 #| msgid "Failed to upload video: %(error)s"
 msgid "Failed to get upload token"
 msgstr "Video-Upload fehlgeschlagen: %(error)s"
 
-#: licenses/templates/licenses/list.html:413
-#: licenses/templates/licenses/update.html:544
+#: licenses/templates/licenses/list.html:412
+#: licenses/templates/licenses/update.html:620
 #, fuzzy
 #| msgid "Upload failed"
 msgid "Upload failed with status"
 msgstr "Upload fehlgeschlagen"
 
-#: licenses/templates/licenses/list.html:418
-#: licenses/templates/licenses/update.html:549
+#: licenses/templates/licenses/list.html:417
+#: licenses/templates/licenses/update.html:625
 #, fuzzy
 #| msgid "No errors during import."
 msgid "Network error during upload"
 msgstr "Keine Fehler während des Imports."
 
-#: licenses/templates/licenses/list.html:422
+#: licenses/templates/licenses/list.html:421
 #, fuzzy
 #| msgid "Upload failed"
 msgid "Upload was cancelled"
 msgstr "Upload fehlgeschlagen"
 
-#: licenses/templates/licenses/list.html:435
-#: licenses/templates/licenses/update.html:562
+#: licenses/templates/licenses/list.html:434
+#: licenses/templates/licenses/update.html:638
 msgid "Confirming upload..."
 msgstr ""
 
-#: licenses/templates/licenses/list.html:453
-#: licenses/templates/licenses/list.html:458
-#: licenses/templates/licenses/update.html:580
-#: licenses/templates/licenses/update.html:585
+#: licenses/templates/licenses/list.html:452
+#: licenses/templates/licenses/list.html:457
+#: licenses/templates/licenses/update.html:656
+#: licenses/templates/licenses/update.html:661
 msgid "Failed to confirm upload"
 msgstr ""
 
-#: licenses/templates/licenses/list.html:469
-#: licenses/templates/licenses/update.html:589
+#: licenses/templates/licenses/list.html:468
+#: licenses/templates/licenses/update.html:665
 msgid "Video uploaded successfully!"
 msgstr "Video erfolgreich hochgeladen!"
 
-#: licenses/templates/licenses/list.html:573
+#: licenses/templates/licenses/list.html:572
 msgid "Are you sure you want to delete this license?"
 msgstr "Sind Sie sicher, dass Sie diese Freistellung löschen möchten?"
 
@@ -2533,17 +2576,17 @@ msgid "Video already uploaded. Cannot upload second video."
 msgstr ""
 "Video bereits hochgeladen. Zweites Video kann nicht hochgeladen werden."
 
-#: licenses/templates/licenses/update.html:362
+#: licenses/templates/licenses/update.html:438
 msgid "Saving..."
 msgstr "Speichern..."
 
-#: licenses/templates/licenses/update.html:475
+#: licenses/templates/licenses/update.html:551
 #, fuzzy
 #| msgid "Saving..."
 msgid "Uploading..."
 msgstr "Speichern..."
 
-#: licenses/templates/licenses/update.html:482
+#: licenses/templates/licenses/update.html:558
 #, fuzzy
 #| msgid "Could not determine headers from the file."
 msgid "Error: Could not determine license ID."
@@ -2561,21 +2604,6 @@ msgstr ""
 #: licenses/views.py:559
 msgid "License not found."
 msgstr "Freistellung nicht gefunden."
-
-#: licenses/admin.py:1188
-#, python-format
-msgid "License #%(id)s not found"
-msgstr "Freistellung #%(id)s nicht gefunden."
-
-#: licenses/admin.py:1190
-#, python-format
-msgid "Error searching for video: %(error)s"
-msgstr "Fehler beim Suchen nach Video: %(error)s"
-
-#: licenses/admin.py:406 licenses/admin.py:438
-#, python-format
-msgid "Invalid value %(value)s."
-msgstr "Ungültiger Wert %(value)s."
 
 #: licenses/views.py:100
 #, python-format
@@ -2743,7 +2771,7 @@ msgstr "Die Datei muss sich im Speicherort befinden: {}"
 msgid "Scanning"
 msgstr "Scannen"
 
-#: media_files/admin.py:260 registration/models.py:256
+#: media_files/admin.py:260 registration/models.py:265
 #: rental/templates/rental/rental_stats.html:1262
 msgid "Information"
 msgstr "Informationen"
@@ -3119,6 +3147,115 @@ msgstr "Systemverwaltung"
 msgid "Media Files"
 msgstr "Mediendateien"
 
+#: media_files/management/commands/purge_videofile_records.py:37
+msgid ""
+"Purge VideoFile database records without deleting any physical video files."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:44
+#, fuzzy
+#| msgid "Display name for this storage location"
+msgid "Only purge records from this storage location ID."
+msgstr "Anzeigename für diesen Speicherort"
+
+#: media_files/management/commands/purge_videofile_records.py:49
+msgid "Only purge records from storage locations with this exact name."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:54
+msgid "Only purge records from storages of this type."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:59
+msgid "Only purge records currently marked as available."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:64
+msgid "Only purge records currently marked as unavailable."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:70
+msgid "How many records to print in dry-run preview (default: 20)."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:76
+msgid "Delete in chunks of N rows (default: 2000)."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:82
+msgid ""
+"Keep the pre_delete logging signal enabled (slower). By default, deletion "
+"logging is disabled during purge."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:89
+msgid "Actually delete records. Without this flag, runs in dry-run mode."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:104
+msgid "Use only one of --only-available / --only-unavailable."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:106
+#, fuzzy
+#| msgid "Quantity must be positive."
+msgid "--chunk-size must be a positive integer."
+msgstr "Die Menge muss positiv sein."
+
+#: media_files/management/commands/purge_videofile_records.py:117
+#, fuzzy
+#| msgid "Scan storage locations to find and index video files."
+msgid "No storage locations match the provided filter(s)."
+msgstr "Scannen Sie Speicherorte, um Videodateien zu finden und zu indexieren."
+
+#: media_files/management/commands/purge_videofile_records.py:128
+msgid "VideoFile purge summary"
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:130
+msgid "Storage id filter: {}"
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:132
+msgid "Storage name filter: {}"
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:134
+#, fuzzy
+#| msgid "Storage Type"
+msgid "Storage type filter: {}"
+msgstr "Speichertyp"
+
+#: media_files/management/commands/purge_videofile_records.py:136
+msgid "Availability filter: available only"
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:138
+msgid "Availability filter: unavailable only"
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:139
+msgid "Matched VideoFile records: {}"
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:142
+msgid "DRY RUN - no changes will be made (pass --yes to apply)."
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:144
+msgid "Preview (newest first):"
+msgstr ""
+
+#: media_files/management/commands/purge_videofile_records.py:160
+#, fuzzy
+#| msgid "Nothing selected"
+msgid "Nothing to delete."
+msgstr "Nichts ausgewählt"
+
+#: media_files/management/commands/purge_videofile_records.py:178
+msgid "Deleted VideoFile records: {}"
+msgstr ""
+
 #: media_files/models.py:17
 msgid "Archive"
 msgstr "Archiv"
@@ -3160,7 +3297,7 @@ msgstr "UNC-Pfad"
 msgid "Windows UNC path (e.g., \\\\192.168.88.2\\Share) - optional"
 msgstr "Windows UNC-Pfad (z. B. \\\\192.168.88.2\\Share) – optional"
 
-#: media_files/models.py:46 registration/models.py:303 rental/models.py:527
+#: media_files/models.py:46 registration/models.py:312 rental/models.py:527
 #: rental/models.py:732 rental/templates/rental/list.html:68
 #: rental/templates/rental/list.html:166
 #: rental/templates/rental/rental_stats.html:1338
@@ -3361,7 +3498,7 @@ msgstr "Metadatenaktualisierung"
 msgid "Verify Integrity"
 msgstr "Integrität überprüfen"
 
-#: media_files/models.py:405 registration/models.py:257
+#: media_files/models.py:405 registration/models.py:266
 msgid "Success"
 msgstr "Erfolg"
 
@@ -3424,7 +3561,7 @@ msgid "Storage Information"
 msgstr "Speicherinformationen"
 
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:164
-#: registration/models.py:287 rental/templates/rental/list.html:75
+#: registration/models.py:296 rental/templates/rental/list.html:75
 msgid "Type"
 msgstr "Typ"
 
@@ -4179,7 +4316,7 @@ msgstr "weiblich"
 msgid "männlich"
 msgstr "männlich"
 
-#: projects/admin.py:192 projects/models.py:282 registration/models.py:115
+#: projects/admin.py:192 projects/models.py:282 registration/models.py:124
 #: registration/registration_tests.py:534
 msgid "diverse"
 msgstr "divers"
@@ -4329,15 +4466,15 @@ msgstr "Mitarbeiter"
 msgid "ID"
 msgstr "ID"
 
-#: registration/admin.py:79 registration/models.py:144
+#: registration/admin.py:79 registration/models.py:153
 msgid "first name"
 msgstr "Vorname"
 
-#: registration/admin.py:80 registration/models.py:146
+#: registration/admin.py:80 registration/models.py:155
 msgid "last name"
 msgstr "Nachname"
 
-#: registration/admin.py:81 registration/models.py:149
+#: registration/admin.py:81 registration/models.py:158
 msgid "gender"
 msgstr "Geschlecht"
 
@@ -4345,43 +4482,43 @@ msgstr "Geschlecht"
 msgid "email address"
 msgstr "E-Mail-Adresse"
 
-#: registration/admin.py:83 registration/models.py:158
+#: registration/admin.py:83 registration/models.py:167
 msgid "phone number"
 msgstr "Telefonnummer"
 
-#: registration/admin.py:84 registration/models.py:161
+#: registration/admin.py:84 registration/models.py:170
 msgid "mobile number"
 msgstr "Handynummer"
 
-#: registration/admin.py:85 registration/models.py:165
+#: registration/admin.py:85 registration/models.py:174
 msgid "ID document number"
 msgstr "Ausweisnummer"
 
-#: registration/admin.py:86 registration/models.py:171
+#: registration/admin.py:86 registration/models.py:180
 msgid "birthday"
 msgstr "Geburtstag"
 
-#: registration/admin.py:87 registration/models.py:174
+#: registration/admin.py:87 registration/models.py:183
 msgid "street"
 msgstr "Straße"
 
-#: registration/admin.py:88 registration/models.py:176
+#: registration/admin.py:88 registration/models.py:185
 msgid "house number"
 msgstr "Hausnummer"
 
-#: registration/admin.py:89 registration/models.py:178
+#: registration/admin.py:89 registration/models.py:187
 msgid "zipcode"
 msgstr "Postleitzahl"
 
-#: registration/admin.py:90 registration/models.py:180
+#: registration/admin.py:90 registration/models.py:189
 msgid "city"
 msgstr "Stadt"
 
-#: registration/admin.py:92 registration/models.py:204
+#: registration/admin.py:92 registration/models.py:213
 msgid "member"
 msgstr "Mitglied"
 
-#: registration/admin.py:94 registration/models.py:219
+#: registration/admin.py:94 registration/models.py:228
 msgid "comment"
 msgstr "Kommentar"
 
@@ -4554,189 +4691,203 @@ msgstr "Vollständiger Name"
 msgid "Full name of the media authority (e.g., \"Offener Kanal Dessau\")"
 msgstr "Vollständiger Name der Medienanstalt (z. B. „Offener Kanal Dessau“)"
 
-#: registration/models.py:100
+#: registration/models.py:93
+msgid "Target Channel"
+msgstr "Zielkanal"
+
+#: registration/models.py:98
+msgid "Target channel identifier (e.g., \"@ok_dessau@lokalmedial.de\")"
+msgstr "Zielkanal-Kennung (z.B. \"@ok_dessau@lokalmedial.de\")"
+
+#: registration/models.py:109
 msgid "Media Authorities"
 msgstr "Medienanstalten"
 
-#: registration/models.py:112 registration/registration_tests.py:535
+#: registration/models.py:121 registration/registration_tests.py:535
 msgid "not given"
 msgstr "nicht angegeben"
 
-#: registration/models.py:113 registration/registration_tests.py:532
+#: registration/models.py:122 registration/registration_tests.py:532
 msgid "male"
 msgstr "männlich"
 
-#: registration/models.py:114 registration/registration_tests.py:533
+#: registration/models.py:123 registration/registration_tests.py:533
 msgid "female"
 msgstr "weiblich"
 
-#: registration/models.py:166
+#: registration/models.py:175
 msgid "ID document number (passport, ID card, etc.)"
 msgstr "Dokumentennummer (Reisepass, Personalausweis, etc.)"
 
-#: registration/models.py:184
+#: registration/models.py:193
 msgid "verified"
 msgstr "verifiziert"
 
-#: registration/models.py:186
+#: registration/models.py:195
 msgid "The profile data was verified by showing the ID to an employee."
 msgstr ""
 "Die Profildaten wurden durch Vorlage des Ausweises einem Mitarbeitenden "
 "gegenüber verifiziert."
 
-#: registration/models.py:215
+#: registration/models.py:224
 msgid "Global producer status for the profile."
 msgstr "Globaler Produzentenstatus für das Profil."
 
-#: registration/models.py:226
+#: registration/models.py:235
 msgid "Phone data sharing allowed"
 msgstr "Telefonnummer-Freigabe erlaubt"
 
-#: registration/models.py:228
+#: registration/models.py:237
 msgid "Permission to share phone number with third parties"
 msgstr "Erlaubnis, die Telefonnummer an Dritte weiterzugeben"
 
-#: registration/models.py:232
+#: registration/models.py:241
 msgid "Email data sharing allowed"
 msgstr "E-Mail-Freigabe erlaubt"
 
-#: registration/models.py:234
+#: registration/models.py:243
 msgid "Permission to share email address with third parties"
 msgstr "Erlaubnis, die E-Mail-Adresse an Dritte weiterzugeben"
 
-#: registration/models.py:245
+#: registration/models.py:254
 msgid "Profiles"
 msgstr "Profile"
 
-#: registration/models.py:258 rental/templates/rental/rental_stats.html:1269
+#: registration/models.py:267 rental/templates/rental/rental_stats.html:1269
 msgid "Warning"
 msgstr "Warnung"
 
-#: registration/models.py:259
+#: registration/models.py:268
 msgid "Danger"
 msgstr "Gefahr"
 
-#: registration/models.py:263
+#: registration/models.py:272
 msgid "Info Circle"
 msgstr "Informationskreis"
 
-#: registration/models.py:264
+#: registration/models.py:273
 msgid "Check Circle"
 msgstr "Häkchenkreis"
 
-#: registration/models.py:265
+#: registration/models.py:274
 msgid "Exclamation Triangle"
 msgstr "Ausrufezeichendreieck"
 
-#: registration/models.py:266
+#: registration/models.py:275
 msgid "Exclamation Circle"
 msgstr "Ausrufezeichenkreis"
 
-#: registration/models.py:267
+#: registration/models.py:276
 msgid "Clock"
 msgstr "Uhr"
 
-#: registration/models.py:268
+#: registration/models.py:277
 msgid "Bell"
 msgstr "Glocke"
 
-#: registration/models.py:269
+#: registration/models.py:278
 msgid "Broadcast"
 msgstr "Sendung"
 
-#: registration/models.py:270
+#: registration/models.py:279
 msgid "Star"
 msgstr "Stern"
 
-#: registration/models.py:271
+#: registration/models.py:280
 msgid "Gear"
 msgstr "Zahnrad"
 
-#: registration/models.py:272
+#: registration/models.py:281
 msgid "Shield Check"
 msgstr "Schutzschild mit Häkchen"
 
-#: registration/models.py:278
+#: registration/models.py:287
 msgid "Short title for the notification"
 msgstr "Kurztitel für die Benachrichtigung"
 
-#: registration/models.py:282
+#: registration/models.py:291
 msgid "Message"
 msgstr "Nachricht"
 
-#: registration/models.py:283
+#: registration/models.py:292
 msgid "Main notification text"
 msgstr "Haupttext der Benachrichtigung"
 
-#: registration/models.py:291
+#: registration/models.py:300
 msgid "Notification type determines color and style"
 msgstr "Der Benachrichtigungstyp bestimmt Farbe und Stil"
 
-#: registration/models.py:295
+#: registration/models.py:304
 msgid "Icon"
 msgstr "Symbol"
 
-#: registration/models.py:299
+#: registration/models.py:308
 msgid "Bootstrap Icons icon name"
 msgstr "Bootstrap-Icons-Symbolname"
 
-#: registration/models.py:305
+#: registration/models.py:314
 msgid "Only active notifications are displayed to users"
 msgstr "Nur aktive Benachrichtigungen werden den Nutzern angezeigt"
 
-#: registration/models.py:309
+#: registration/models.py:318
 msgid "Priority"
 msgstr "Priorität"
 
-#: registration/models.py:311
+#: registration/models.py:320
 msgid "Higher priority notifications appear first (1-10)"
 msgstr "Benachrichtigungen mit höherer Priorität erscheinen zuerst (1–10)"
 
-#: registration/models.py:315
+#: registration/models.py:324
 #: rental/templates/rental/admin_rental_process.html:475
 #: rental/templates/rental/list.html:113
 #: rental/templates/rental/rental_detail.html:595
 msgid "Start Date"
 msgstr "Startdatum"
 
-#: registration/models.py:317
+#: registration/models.py:326
 msgid "When to start showing this notification"
 msgstr "Ab wann diese Benachrichtigung angezeigt werden soll"
 
-#: registration/models.py:321
+#: registration/models.py:330
 #: rental/templates/rental/admin_rental_process.html:481
 #: rental/templates/rental/list.html:114
 #: rental/templates/rental/rental_detail.html:601
 msgid "End Date"
 msgstr "Enddatum"
 
-#: registration/models.py:324
+#: registration/models.py:333
 msgid "When to stop showing this notification (optional)"
 msgstr "Bis wann diese Benachrichtigung angezeigt werden soll (optional)"
 
-#: registration/models.py:328
+#: registration/models.py:337
 msgid "Created At"
 msgstr "Erstellt am"
 
-#: registration/models.py:337
+#: registration/models.py:346
 msgid "Created By"
 msgstr "Erstellt von"
 
-#: registration/models.py:338
+#: registration/models.py:347
 msgid "Admin who created this notification (auto-filled)"
 msgstr ""
 "Administrator, der diese Benachrichtigung erstellt hat (automatisch "
 "ausgefüllt)"
 
-#: registration/models.py:348
+#: registration/models.py:357
 msgid "Notification"
 msgstr "Benachrichtigung"
 
-#: registration/models.py:349 ok_tools/templates/dashboard.html:168
+#: registration/models.py:358 ok_tools/templates/dashboard.html:168
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
-#: registration/print.py:94
+#: registration/print.py:151
+#, fuzzy
+#| msgid "registration_form.pdf"
+msgid "registration_form.txt"
+msgstr "Nutzer_innenantrag.pdf"
+
+#: registration/print.py:226 registration/views.py:167
 msgid "registration_form.pdf"
 msgstr "Nutzer_innenantrag.pdf"
 
@@ -5037,12 +5188,12 @@ msgstr ""
 msgid "Back to the start page"
 msgstr "Zurück zur Startseite"
 
-#: registration/views.py:48
+#: registration/views.py:50
 #, python-format
 msgid "There is no profile for %(user)s"
 msgstr "Es existiert kein Profil für %(user)s"
 
-#: registration/views.py:217
+#: registration/views.py:260
 msgid "Your profile was successfully updated."
 msgstr "Ihr Profil wurde erfolgreich aktualisiert."
 
@@ -5476,7 +5627,6 @@ msgstr "Ausgegeben"
 #: rental/templates/rental/rental_detail.html:514
 #: rental/templates/rental/rental_stats.html:1070
 #: ok_tools/templates/dashboard.html:41
-#: ok_tools/templates/rental_dashboard.html:69
 msgid "Returned"
 msgstr "Zurückgegeben"
 
@@ -5578,7 +5728,7 @@ msgid "Equipment set items"
 msgstr "Ausrüstungsset-Artikel"
 
 #: rental/models.py:388 rental/templates/rental/admin_rental_process.html:72
-#: ok_tools/templates/rental_dashboard.html:130
+#: ok_tools/templates/rental_dashboard.html:136
 msgid "Reserve"
 msgstr "Reservieren"
 
@@ -5710,7 +5860,7 @@ msgstr "Kapazität"
 #: rental/models.py:533 rental/templates/rental/admin_rental_process.html:115
 #: rental/templates/rental/rental_detail.html:457
 #: rental/templates/rental/rental_stats.html:1078
-#: ok_tools/templates/rental_dashboard.html:175
+#: ok_tools/templates/rental_dashboard.html:176
 msgid "Rooms"
 msgstr "Räume"
 
@@ -5757,7 +5907,7 @@ msgstr "Raumausleihe"
 msgid "Room rentals"
 msgstr "Raumausleihen"
 
-#: rental/models.py:728 ok_tools/templates/rental_dashboard.html:75
+#: rental/models.py:728
 msgid "Expired"
 msgstr "Abgelaufen"
 
@@ -5974,7 +6124,9 @@ msgstr "Erstellen"
 #: rental/templates/email/rental_request_approval_body.txt:2
 #, python-format
 msgid "A new rental request needs approval in %(ok_name)s (ID: %(rental_id)s)."
-msgstr "Eine neue Buchungsanfrage benötigt eine Bestätigung in %(ok_name)s (ID: %(rental_id)s)."
+msgstr ""
+"Eine neue Buchungsanfrage benötigt eine Bestätigung in %(ok_name)s (ID: "
+"%(rental_id)s)."
 
 #: rental/templates/email/rental_request_approval_body.txt:5
 #, python-format
@@ -6193,13 +6345,13 @@ msgstr ""
 "Zeit zurück."
 
 #: rental/templates/rental/admin_rental_process.html:96
-#: ok_tools/templates/rental_dashboard.html:160
+#: ok_tools/templates/rental_dashboard.html:161
 msgid "Search inventory..."
 msgstr "Inventar durchsuchen..."
 
 #: rental/templates/rental/admin_rental_process.html:101
 #: rental/templates/rental/rental_stats.html:1149
-#: ok_tools/templates/rental_dashboard.html:165
+#: ok_tools/templates/rental_dashboard.html:166
 msgid "All Owners"
 msgstr "Alle Eigentümer"
 
@@ -6207,7 +6359,7 @@ msgstr "Alle Eigentümer"
 #: rental/templates/rental/admin_rental_process.html:294
 #: rental/templates/rental/rental_stats.html:1042
 #: rental/templates/rental/rental_stats.html:1206
-#: ok_tools/templates/rental_dashboard.html:225
+#: ok_tools/templates/rental_dashboard.html:218
 msgid "Equipment Sets"
 msgstr "Ausrüstungssets"
 
@@ -6216,7 +6368,7 @@ msgid "User Statistics"
 msgstr "Benutzerstatistiken"
 
 #: rental/templates/rental/admin_rental_process.html:139
-#: ok_tools/templates/rental_dashboard.html:150
+#: ok_tools/templates/rental_dashboard.html:151
 msgid "Available Inventory"
 msgstr "Verfügbares Inventar"
 
@@ -6225,7 +6377,6 @@ msgid "Reset Form"
 msgstr "Formular zurücksetzen"
 
 #: rental/templates/rental/admin_rental_process.html:148
-#: ok_tools/templates/rental_dashboard.html:205
 msgid "Group by Location"
 msgstr "Nach Standort gruppieren"
 
@@ -6256,7 +6407,7 @@ msgid "Returned Rentals"
 msgstr "Zurückgegebene Ausleihen"
 
 #: rental/templates/rental/admin_rental_process.html:196
-#: ok_tools/templates/rental_dashboard.html:383
+#: ok_tools/templates/rental_dashboard.html:376
 msgid "Loading returned rentals..."
 msgstr "Lade zurückgegebene Ausleihen..."
 
@@ -6306,19 +6457,19 @@ msgid "Extend"
 msgstr "Verlängern"
 
 #: rental/templates/rental/admin_rental_process.html:300
-#: ok_tools/templates/rental_dashboard.html:232
+#: ok_tools/templates/rental_dashboard.html:225
 msgid "Available Sets"
 msgstr "Verfügbare Sets"
 
 #: rental/templates/rental/admin_rental_process.html:304
 #: rental/templates/rental/rental_stats.html:1231
-#: ok_tools/templates/rental_dashboard.html:236
+#: ok_tools/templates/rental_dashboard.html:229
 msgid "Loading sets..."
 msgstr "Lade Sets..."
 
 #: rental/templates/rental/admin_rental_process.html:309
 #: rental/templates/rental/rental_stats.html:1354
-#: ok_tools/templates/rental_dashboard.html:241
+#: ok_tools/templates/rental_dashboard.html:234
 msgid "Set Contents"
 msgstr "Set-Inhalte"
 
@@ -6332,19 +6483,19 @@ msgstr "Set zur Ausleihe hinzufügen"
 
 #: rental/templates/rental/admin_rental_process.html:329
 #: rental/templates/rental/admin_rental_process.html:358
-#: ok_tools/templates/rental_dashboard.html:262
-#: ok_tools/templates/rental_dashboard.html:287
+#: ok_tools/templates/rental_dashboard.html:255
+#: ok_tools/templates/rental_dashboard.html:280
 msgid "Available Rooms"
 msgstr "Verfügbare Räume"
 
 #: rental/templates/rental/admin_rental_process.html:337
-#: ok_tools/templates/rental_dashboard.html:271
+#: ok_tools/templates/rental_dashboard.html:264
 msgid "List"
 msgstr "Liste"
 
 #: rental/templates/rental/admin_rental_process.html:342
 #: rental/templates/rental/rental_stats.html:1179
-#: ok_tools/templates/rental_dashboard.html:276
+#: ok_tools/templates/rental_dashboard.html:269
 msgid "Calendar"
 msgstr "Kalender"
 
@@ -6353,7 +6504,7 @@ msgid "Timeline"
 msgstr "Zeitlinie"
 
 #: rental/templates/rental/admin_rental_process.html:362
-#: ok_tools/templates/rental_dashboard.html:291
+#: ok_tools/templates/rental_dashboard.html:284
 msgid "Loading rooms..."
 msgstr "Lade Räume..."
 
@@ -6372,12 +6523,12 @@ msgstr "Raum auswählen"
 
 #: rental/templates/rental/admin_rental_process.html:381
 #: rental/templates/rental/admin_rental_process.html:407
-#: ok_tools/templates/rental_dashboard.html:310
+#: ok_tools/templates/rental_dashboard.html:303
 msgid "All Rooms"
 msgstr "Alle Räume"
 
 #: rental/templates/rental/admin_rental_process.html:396
-#: ok_tools/templates/rental_dashboard.html:325
+#: ok_tools/templates/rental_dashboard.html:318
 msgid "Loading calendar..."
 msgstr "Kalender wird geladen..."
 
@@ -7617,102 +7768,93 @@ msgstr "Buchungsprozess"
 msgid "1. Your Information"
 msgstr "1. Ihre Informationen"
 
-#: ok_tools/templates/rental_dashboard.html:63
-msgid "Current"
-msgstr "Aktuell"
-
-#: ok_tools/templates/rental_dashboard.html:85
+#: ok_tools/templates/rental_dashboard.html:91
 msgid "2. Project Information"
 msgstr "2. Projektinformationen"
 
-#: ok_tools/templates/rental_dashboard.html:88
+#: ok_tools/templates/rental_dashboard.html:94
 msgid "Project Name"
 msgstr "Projektname"
 
-#: ok_tools/templates/rental_dashboard.html:91
+#: ok_tools/templates/rental_dashboard.html:97
 msgid "Purpose of Use"
 msgstr "Verwendungszweck"
 
-#: ok_tools/templates/rental_dashboard.html:99
+#: ok_tools/templates/rental_dashboard.html:105
 msgid "3. Time Period"
 msgstr "3. Zeitraum"
 
-#: ok_tools/templates/rental_dashboard.html:102
-#: ok_tools/templates/rental_dashboard.html:314
+#: ok_tools/templates/rental_dashboard.html:108
+#: ok_tools/templates/rental_dashboard.html:307
 msgid "From:"
 msgstr "Von:"
 
-#: ok_tools/templates/rental_dashboard.html:106
-#: ok_tools/templates/rental_dashboard.html:318
+#: ok_tools/templates/rental_dashboard.html:112
+#: ok_tools/templates/rental_dashboard.html:311
 msgid "To:"
 msgstr "Bis:"
 
-#: ok_tools/templates/rental_dashboard.html:115
+#: ok_tools/templates/rental_dashboard.html:121
 msgid "4. Selection"
 msgstr "4. Auswahl"
 
-#: ok_tools/templates/rental_dashboard.html:118
+#: ok_tools/templates/rental_dashboard.html:124
 msgid "Nothing selected"
 msgstr "Nichts ausgewählt"
 
-#: ok_tools/templates/rental_dashboard.html:126
+#: ok_tools/templates/rental_dashboard.html:132
 msgid "5. Action"
 msgstr "5. Aktion"
 
-#: ok_tools/templates/rental_dashboard.html:135
-#: ok_tools/templates/rental_dashboard.html:334
-msgid "Rooms are automatically returned after scheduled time"
-msgstr "Räume werden nach der gebuchten Zeit automatisch zurückgegeben"
-
-#: ok_tools/templates/rental_dashboard.html:188
-msgid "Select dates to view availability"
-msgstr "Wählen Sie Daten aus, um die Verfügbarkeit anzuzeigen"
-
-#: ok_tools/templates/rental_dashboard.html:210
+#: ok_tools/templates/rental_dashboard.html:203
 msgid "Show Sets"
 msgstr "Sets anzeigen"
 
-#: ok_tools/templates/rental_dashboard.html:243
+#: ok_tools/templates/rental_dashboard.html:236
 msgid "Select a set to view contents"
 msgstr "Wählen Sie ein Set aus, um den Inhalt anzuzeigen"
 
-#: ok_tools/templates/rental_dashboard.html:250
+#: ok_tools/templates/rental_dashboard.html:243
 msgid "Add Set"
 msgstr "Set hinzufügen"
 
-#: ok_tools/templates/rental_dashboard.html:296
+#: ok_tools/templates/rental_dashboard.html:289
 msgid "Booking"
 msgstr "Buchung"
 
-#: ok_tools/templates/rental_dashboard.html:298
+#: ok_tools/templates/rental_dashboard.html:291
 msgid "Select a room to book time"
 msgstr "Wählen Sie einen Raum, um ein Zeitfenster zu buchen"
 
-#: ok_tools/templates/rental_dashboard.html:308
+#: ok_tools/templates/rental_dashboard.html:301
 msgid "Select room:"
 msgstr "Raum auswählen:"
 
-#: ok_tools/templates/rental_dashboard.html:338
+#: ok_tools/templates/rental_dashboard.html:327
+msgid "Rooms are automatically returned after scheduled time"
+msgstr "Räume werden nach der gebuchten Zeit automatisch zurückgegeben"
+
+#: ok_tools/templates/rental_dashboard.html:331
 msgid "Add Room"
 msgstr "Raum hinzufügen"
 
-#: ok_tools/templates/rental_dashboard.html:350
+#: ok_tools/templates/rental_dashboard.html:343
 msgid "CURRENT RENTALS"
 msgstr "AKTUELLE AUSLEIHEN"
 
-#: ok_tools/templates/rental_dashboard.html:358
+#: ok_tools/templates/rental_dashboard.html:351
 msgid "Loading current rentals..."
 msgstr "Lade aktuelle Ausleihen..."
 
-#: ok_tools/templates/rental_dashboard.html:375
+#: ok_tools/templates/rental_dashboard.html:368
 msgid "RETURNED RENTALS"
 msgstr "ZURÜCKGEGEBENE AUSLEIHEN"
 
-#: ok_tools/templates/rental_dashboard.html:400
+#: ok_tools/templates/rental_dashboard.html:393
 msgid "EXPIRED RENTALS"
 msgstr "ABGELAUFENE AUSLEIHEN"
 
-#: ok_tools/templates/rental_dashboard.html:408
+#: ok_tools/templates/rental_dashboard.html:401
 msgid "Loading expired rentals..."
 msgstr "Lade abgelaufene Ausleihen..."
 
@@ -7754,6 +7896,12 @@ msgstr "Sie haben %(count)d Beiträge diese Woche"
 #, python-format
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
+
+#~ msgid "Current"
+#~ msgstr "Aktuell"
+
+#~ msgid "Select dates to view availability"
+#~ msgstr "Wählen Sie Daten aus, um die Verfügbarkeit anzuzeigen"
 
 #, python-format
 #~ msgid " By %(filter_title)s "
@@ -7877,9 +8025,6 @@ msgstr "Willkommen zurück, %(name)s!"
 #~| msgid "Enter a valid JSON."
 #~ msgid "Value must be valid JSON."
 #~ msgstr "Geben Sie ein gültiges JSON ein."
-
-#~ msgid "This field is required."
-#~ msgstr "Dieses Feld ist erforderlich."
 
 #~ msgid "Enter a whole number."
 #~ msgstr "Geben Sie eine ganze Zahl ein."

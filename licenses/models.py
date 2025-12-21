@@ -51,6 +51,14 @@ class Category(models.Model):
         unique=True,
     )
 
+    numeric_id = models.IntegerField(
+        _('Numeric ID'),
+        blank=True,
+        null=True,
+        unique=True,
+        help_text=_('Numeric ID used for import from external systems (e.g., 101, 102, 103)'),
+    )
+
     def __str__(self) -> str:
         """Represent category by its String."""
         return self.name

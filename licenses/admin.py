@@ -32,39 +32,24 @@ from difflib import SequenceMatcher
 logger = logging.getLogger('django')
 
 
-# Category mapping from numeric ID to category name
-CATEGORY_MAPPING = {
-    101: "Kurzfilm",
-    102: "Trailer",
-    103: "Medienpädagogische Produktionen",
-    104: "Experimentierfeld \"Video\"",
-    105: "Orientierungshilfen",
-    106: "Heimatdoku",
-    107: "Kulturelles und soziales Engagement",
-    108: "Politisch orientiertes Bürgerfernsehen",
-    109: "Familie und Freizeit",
-    110: "Sonstiges",
-}
-
-# Media authority mapping from targetChannel to MediaAuthority name
-MEDIA_AUTHORITY_MAPPING = {
-    "@ok_dessau@lokalmedial.de": "OK Dessau",
-    "@ok_magdeburg@lokalmedial.de": "OK Magdeburg",
-    "@okmq@lokalmedial.de": "OK Merseburg-Querfurt",
-    "@ok_salzwedel@lokalmedial.de": "OK Salzwedel",
-    "@ok_wettin@lokalmedial.de": "OK Wettin",
-    "@ok_wernigerode@lokalmedial.de": "OK Wernigerode",
-    "@ok_stendal@lokalmedial.de": "OK Stendal",
-}
-
-
 def get_category_by_id(category_id):
-    """Get or create Category by numeric ID."""
-    category_name = CATEGORY_MAPPING.get(category_id)
-    if not category_name:
+    """Get Category by numeric ID."""
+    try:
+        category = Category.objects.get(numeric_id=category_id)
+        return category
+    except Category.DoesNotExist:
         logger.warning(f'Unknown category ID: {category_id}')
-        return Category.objects.get_or_create(name=_('Not Selected'))[0]
-    return Category.objects.get_or_create(name=category_name)[0]
+        return None
+
+
+def get_category_by_name(category_name):
+    """Get Category by name."""
+    try:
+        category = Category.objects.get(name=category_name)
+        return category
+    except Category.DoesNotExist:
+        logger.warning(f'Unknown category name: {category_name}')
+        return None
 
 
 def get_profile_by_name(name):
@@ -144,16 +129,12 @@ def create_profile_by_name(name, media_authority=None):
 
 
 def get_profile_by_target_channel(target_channel):
-    """Get Profile by targetChannel (MediaAuthority mapping)."""
-    media_authority_name = MEDIA_AUTHORITY_MAPPING.get(target_channel)
-    if not media_authority_name:
+    """Get Profile by targetChannel."""
+    try:
+        media_authority = MediaAuthority.objects.get(target_channel=target_channel)
+    except MediaAuthority.DoesNotExist:
         logger.warning(f'Unknown targetChannel: {target_channel}')
         return None
-    
-    # Get or create MediaAuthority
-    media_authority, _created = MediaAuthority.objects.get_or_create(
-        name=media_authority_name
-    )
     
     # Try to find a profile with this media_authority
     # Prefer verified profiles, then members, then any profile
@@ -1074,6 +1055,13 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if '_print_license' in request.POST:
             return generate_license_file(obj)
         
+        if '_download_pdf' in request.POST:
+            from .generate_file import normalize_filename
+            # Generate filename: Nummer_Titel.pdf
+            title_normalized = normalize_filename(obj.title) if obj.title else 'Untitled'
+            filename = f"{obj.number}_{title_normalized}.pdf"
+            return generate_license_file(obj, filename=filename, as_attachment=True)
+        
         if '_sync_duration_from_video' in request.POST:
             # Get associated video file
             video_file = obj.get_video_file()
@@ -1354,11 +1342,10 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     # Get media_authority from targetChannel if available
                     media_authority = None
                     if target_channel:
-                        media_authority_name = MEDIA_AUTHORITY_MAPPING.get(target_channel)
-                        if media_authority_name:
-                            media_authority, _created = MediaAuthority.objects.get_or_create(
-                                name=media_authority_name
-                            )
+                        try:
+                            media_authority = MediaAuthority.objects.get(target_channel=target_channel)
+                        except MediaAuthority.DoesNotExist:
+                            logger.warning(f'Unknown targetChannel: {target_channel}')
                     
                     # Try to find profile by senderResponsible
                     if sender_responsible:
@@ -1420,10 +1407,27 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     # Category mapping
                     category_id = json_data.get('category')
                     if category_id:
-                        license_data['category'] = get_category_by_id(category_id)
+                        category = None
+                        # Check if category_id is a number
+                        try:
+                            # Try to convert to int to validate it's numeric
+                            numeric_category_id = int(category_id)
+                            category = get_category_by_id(numeric_category_id)
+                        except (ValueError, TypeError):
+                            # If category_id is not numeric, try to find by name
+                            category = get_category_by_name(category_id)
+                        
+                        # If category not found by ID or name, use "Gastbeitrag"
+                        if not category:
+                            license_data['category'] = Category.objects.get_or_create(
+                                name=_('Gastbeitrag')
+                            )[0]
+                        else:
+                            license_data['category'] = category
                     else:
+                        # If no category provided, use "Gastbeitrag"
                         license_data['category'] = Category.objects.get_or_create(
-                            name=_('Not Selected')
+                            name=_('Gastbeitrag')
                         )[0]
                     
                     # Exchange permissions
@@ -1535,9 +1539,11 @@ admin.site.register(License, LicenseAdmin)
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    """Define search_fields for AutocompleteFilterFactory."""
-
-    search_fields = ['name']
+    """Admin interface for Category model."""
+    
+    list_display = ['name', 'numeric_id']
+    search_fields = ['name', 'numeric_id']
+    fields = ['name', 'numeric_id']
 
 
 admin.site.register(Category, CategoryAdmin)

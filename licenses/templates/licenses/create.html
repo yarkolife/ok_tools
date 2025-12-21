@@ -157,6 +157,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="{{ form.repetitions_allowed.id_for_label }}" class="form-label">
                         <i class="bi bi-arrow-repeat me-1"></i>{{ form.repetitions_allowed.label }}
+                        <span class="text-danger">*</span>
                     </label>
                     {{ form.repetitions_allowed }}
                     {% if form.repetitions_allowed.errors %}
@@ -168,6 +169,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="{{ form.store_in_ok_media_library.id_for_label }}" class="form-label">
                         <i class="bi bi-archive me-1"></i>{{ form.store_in_ok_media_library.label }}
+                        <span class="text-danger">*</span>
                     </label>
                     {{ form.store_in_ok_media_library }}
                     {% if form.store_in_ok_media_library.errors %}
@@ -194,6 +196,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="{{ form.media_authority_exchange_allowed.id_for_label }}" class="form-label">
                         <i class="bi bi-building me-1"></i>{{ form.media_authority_exchange_allowed.label }}
+                        <span class="text-danger">*</span>
                     </label>
                     {{ form.media_authority_exchange_allowed }}
                     {% if form.media_authority_exchange_allowed.errors %}
@@ -207,6 +210,7 @@
                     <label for="{{ form.media_authority_exchange_allowed_other_states.id_for_label }}"
                         class="form-label">
                         <i class="bi bi-globe me-1"></i>{{ form.media_authority_exchange_allowed_other_states.label }}
+                        <span class="text-danger">*</span>
                     </label>
                     {{ form.media_authority_exchange_allowed_other_states }}
                     {% if form.media_authority_exchange_allowed_other_states.errors %}
@@ -274,6 +278,7 @@
                 <div class="col-md-4 mb-3">
                     <label for="{{ form.youth_protection_necessary.id_for_label }}" class="form-label">
                         <i class="bi bi-shield-exclamation me-1"></i>{{ form.youth_protection_necessary.label }}
+                        <span class="text-danger">*</span>
                     </label>
                     {{ form.youth_protection_necessary }}
                     {% if form.youth_protection_necessary.errors %}
@@ -393,6 +398,14 @@
 
     .form-label .text-danger {
         font-size: 1.1em;
+    }
+
+    /* Red asterisk for required fields (for crispy forms compatibility) */
+    label.required::after,
+    .form-label.required::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
     }
 
     .card-subtitle {
@@ -687,7 +700,7 @@
         const youthCategoryRow = document.getElementById('youth-protection-category-row');
 
         if (youthProtectionField && youthCategoryRow) {
-            if (youthProtectionField.value === 'true') {
+            if (youthProtectionField.value === '1' || youthProtectionField.value === 'true') {
                 youthCategoryRow.style.display = 'block';
             } else {
                 youthCategoryRow.style.display = 'none';
@@ -717,19 +730,19 @@
         if (checkbox.checked) {
             // Set all related fields to "No" and disable them
             if (repetitionsField) {
-                repetitionsField.value = '2';  // "No" for NullBooleanSelect
+                repetitionsField.value = '0';  // "No" for BooleanSelectOnly
                 repetitionsField.disabled = true;
             }
             if (exchangeSAField) {
-                exchangeSAField.value = '2';
+                exchangeSAField.value = '0';
                 exchangeSAField.disabled = true;
             }
             if (exchangeOtherField) {
-                exchangeOtherField.value = '2';
+                exchangeOtherField.value = '0';
                 exchangeOtherField.disabled = true;
             }
             if (mediathekField) {
-                mediathekField.value = '2';
+                mediathekField.value = '0';
                 mediathekField.disabled = true;
             }
         } else {

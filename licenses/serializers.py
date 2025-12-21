@@ -5,7 +5,6 @@ from rest_framework import serializers
 from .models import License
 from contributions.models import Contribution
 from planung.models import TagesPlan
-from .admin import MEDIA_AUTHORITY_MAPPING
 
 
 class LicenseMetadataSerializer(serializers.Serializer):
@@ -128,10 +127,7 @@ class LicenseMetadataSerializer(serializers.Serializer):
         """
         # Try to get targetChannel from profile's media_authority
         if obj.profile and obj.profile.media_authority:
-            # Create reverse mapping: MediaAuthority name -> targetChannel
-            reverse_mapping = {v: k for k, v in MEDIA_AUTHORITY_MAPPING.items()}
-            media_authority_name = obj.profile.media_authority.name
-            target_channel = reverse_mapping.get(media_authority_name)
+            target_channel = obj.profile.media_authority.target_channel
             if target_channel:
                 return target_channel
         

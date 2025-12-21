@@ -180,6 +180,15 @@
         color: #6c757d;
         margin-bottom: 0;
     }
+
+    /* Red asterisk for required fields */
+    label.required::after,
+    .form-label.required::after,
+    .control-label.required::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 
@@ -192,7 +201,7 @@
         const youthCategoryRow = document.getElementById("div_id_youth_protection_category");
 
         function toggleYouthCategoryRow() {
-            if (youthProtectionField.value === "true") {
+            if (youthProtectionField.value === "1" || youthProtectionField.value === "true") {
                 youthCategoryRow.style.display = "block";
             } else {
                 youthCategoryRow.style.display = "none";
@@ -216,19 +225,19 @@
             if (isLiveField && isLiveField.checked) {
                 // Set all related fields to "No" and disable them
                 if (repetitionsField) {
-                    repetitionsField.value = '2';  // "No" for NullBooleanSelect
+                    repetitionsField.value = '0';  // "No" for BooleanSelectOnly
                     repetitionsField.disabled = true;
                 }
                 if (exchangeSAField) {
-                    exchangeSAField.value = '2';
+                    exchangeSAField.value = '0';
                     exchangeSAField.disabled = true;
                 }
                 if (exchangeOtherField) {
-                    exchangeOtherField.value = '2';
+                    exchangeOtherField.value = '0';
                     exchangeOtherField.disabled = true;
                 }
                 if (mediathekField) {
-                    mediathekField.value = '2';
+                    mediathekField.value = '0';
                     mediathekField.disabled = true;
                 }
             } else {

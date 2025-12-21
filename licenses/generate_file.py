@@ -5,10 +5,11 @@ from django.conf import settings
 from django.http import FileResponse
 from django.utils.translation import gettext as _
 from fdfgen import forge_fdf
-from PIL import Image, ImageOps, ImageChops, ImageEnhance
+from PIL import Image, ImageOps, ImageChops, ImageEnhance, ImageDraw, ImageFont
 import base64
 import io
 import os
+import re
 import subprocess
 import tempfile
 
@@ -57,7 +58,46 @@ def val(value):
     return ''
 
 
-def generate_license_file(lr: License) -> FileResponse:
+def normalize_filename(title):
+    """Normalize title for use in filename.
+    
+    Replaces spaces with _, converts umlauts to digraphs (ü→ue, ö→oe, ä→ae),
+    and removes all non-alphanumeric characters except _.
+    
+    Args:
+        title: Title string to normalize.
+        
+    Returns:
+        str: Normalized filename-safe string.
+    """
+    if not title:
+        return ''
+    
+    # Convert to string
+    text = str(title)
+    
+    # Replace umlauts with digraphs
+    text = text.replace('ü', 'ue').replace('Ü', 'Ue')
+    text = text.replace('ö', 'oe').replace('Ö', 'Oe')
+    text = text.replace('ä', 'ae').replace('Ä', 'Ae')
+    text = text.replace('ß', 'ss')
+    
+    # Replace spaces with underscores
+    text = text.replace(' ', '_')
+    
+    # Remove all non-alphanumeric characters except underscores
+    text = re.sub(r'[^a-zA-Z0-9_]', '', text)
+    
+    # Remove multiple consecutive underscores
+    text = re.sub(r'_+', '_', text)
+    
+    # Remove leading/trailing underscores
+    text = text.strip('_')
+    
+    return text
+
+
+def generate_license_file(lr: License, filename=None, as_attachment=False) -> FileResponse:
     """Generate a License as pdf file.
 
     As template the '2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf' from
@@ -117,6 +157,59 @@ def generate_license_file(lr: License) -> FileResponse:
             'output',
             os.path.join(tmpdirname, "filled.pdf")])
         
+        # Create A4 pages for stamp PDF with license number
+        # Use higher DPI to avoid pixelation when stamping into the PDF
+        STAMP_DPI = 144  # 2x of 72 DPI (faster, still smoother than 72)
+        scale = STAMP_DPI / 72.0
+        a4_width, a4_height = int(round(595 * scale)), int(round(842 * scale))
+        
+        # Page 1: Transparent with license number
+        page1 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
+        draw1 = ImageDraw.Draw(page1)
+        
+        # Page 2: Transparent with license number
+        page2 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
+        draw2 = ImageDraw.Draw(page2)
+        
+        # Add license number at the top of pages 1 and 2
+        license_number_text = str(lr.number)
+        font_size = int(round(18 * scale))
+        
+        # Try to use a default font, fallback to default if not available
+        try:
+            font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", font_size)
+        except (OSError, IOError):
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
+            except (OSError, IOError):
+                font = ImageFont.load_default()
+        
+        # Get text dimensions for positioning
+        bbox1 = draw1.textbbox((0, 0), license_number_text, font=font)
+        text_width = bbox1[2] - bbox1[0]
+        text_height = bbox1[3] - bbox1[1]
+        
+        # Padding around text for frame
+        padding = int(round(8 * scale))
+        
+        # Position at top center with small margin
+        x_pos = int((a4_width - text_width) / 2)
+        y_pos = int(round(20 * scale))
+        
+        # Frame coordinates
+        frame_x1 = x_pos - padding
+        frame_y1 = y_pos - padding
+        frame_x2 = x_pos + text_width + padding
+        frame_y2 = y_pos + text_height + padding
+        
+        # Draw frame and license number on page 1
+        draw1.rectangle([frame_x1, frame_y1, frame_x2, frame_y2], outline=(0, 0, 0, 255), width=int(round(2 * scale)))
+        draw1.text((x_pos, y_pos), license_number_text, fill=(0, 0, 0, 255), font=font)
+        
+        # Draw frame and license number on page 2
+        draw2.rectangle([frame_x1, frame_y1, frame_x2, frame_y2], outline=(0, 0, 0, 255), width=int(round(2 * scale)))
+        draw2.text((x_pos, y_pos), license_number_text, fill=(0, 0, 0, 255), font=font)
+        
         # Add signature if present
         if lr.signature:
             try:
@@ -152,20 +245,6 @@ def generate_license_file(lr: License) -> FileResponse:
                 else:
                     signature_img = gray.convert('RGBA')
                 
-                # Create A4 pages for stamp PDF.
-                # Use higher DPI to avoid pixelation when stamping the signature into the PDF.
-                # PDF points are based on 72 DPI. We render at STAMP_DPI and save with that resolution
-                # so the physical page size stays A4 while raster detail increases.
-                STAMP_DPI = 144  # 2x of 72 DPI (faster, still smoother than 72)
-                scale = STAMP_DPI / 72.0
-                a4_width, a4_height = int(round(595 * scale)), int(round(842 * scale))
-                
-                # Page 1: Transparent
-                page1 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
-                
-                # Page 2: Transparent with signature
-                page2 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
-                
                 # Resize signature to fit in form field right of "Unterschrift"
                 # Calculate new size maintaining aspect ratio
                 sig_width, sig_height = signature_img.size
@@ -189,36 +268,30 @@ def generate_license_file(lr: License) -> FileResponse:
                     signature_img,
                 )
                 
-                # Page 3: Transparent
-                page3 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
-                
-                # Save as PDF
-                stamp_path = os.path.join(tmpdirname, "stamp.pdf")
-                page1.save(
-                    stamp_path,
-                    save_all=True,
-                    append_images=[page2, page3],
-                    resolution=STAMP_DPI,
-                )
-                
-                # Stamp the filled PDF
-                subprocess.run(
-                    [PDFTK,
-                    os.path.join(tmpdirname, "filled.pdf"),
-                    'multistamp',
-                    stamp_path,
-                    'output',
-                    os.path.join(tmpdirname, "output.pdf")])
-                
             except Exception as e:
-                # If signature processing fails, just return the filled PDF
+                # If signature processing fails, continue without signature
                 print(f"Signature processing failed: {e}")
-                # Copy filled.pdf to output.pdf
-                import shutil
-                shutil.copy(os.path.join(tmpdirname, "filled.pdf"), os.path.join(tmpdirname, "output.pdf"))
-        else:
-            # No signature, just rename filled to output
-            os.rename(os.path.join(tmpdirname, "filled.pdf"), os.path.join(tmpdirname, "output.pdf"))
+        
+        # Page 3: Transparent
+        page3 = Image.new('RGBA', (a4_width, a4_height), (255, 255, 255, 0))
+        
+        # Save as PDF
+        stamp_path = os.path.join(tmpdirname, "stamp.pdf")
+        page1.save(
+            stamp_path,
+            save_all=True,
+            append_images=[page2, page3],
+            resolution=STAMP_DPI,
+        )
+        
+        # Stamp the filled PDF
+        subprocess.run(
+            [PDFTK,
+            os.path.join(tmpdirname, "filled.pdf"),
+            'multistamp',
+            stamp_path,
+            'output',
+            os.path.join(tmpdirname, "output.pdf")])
 
         with open(os.path.join(tmpdirname, "output.pdf"), "rb") as output:
             result = output.read()
@@ -227,4 +300,7 @@ def generate_license_file(lr: License) -> FileResponse:
     apl_stream.write(result)
     apl_stream.seek(0)
 
-    return FileResponse(apl_stream, filename=_('license.pdf'))
+    # Use provided filename or default
+    if filename:
+        return FileResponse(apl_stream, filename=filename, as_attachment=as_attachment)
+    return FileResponse(apl_stream, filename=_('license.pdf'), as_attachment=as_attachment)

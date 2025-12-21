@@ -89,6 +89,15 @@ class MediaAuthority(models.Model):
         null=True,
         help_text=_('Full name of the media authority (e.g., "Offener Kanal Dessau")'))
 
+    target_channel = models.CharField(
+        _('Target Channel'),
+        max_length=255,
+        blank=True,
+        null=True,
+        unique=True,
+        help_text=_('Target channel identifier (e.g., "@ok_dessau@lokalmedial.de")'),
+    )
+
     def __str__(self) -> str:
         """Represent a MediaAuthority by its name."""
         return self.name

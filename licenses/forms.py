@@ -15,6 +15,35 @@ import logging
 import re
 
 
+class BooleanSelectOnly(forms.Select):
+    """Select widget with only Yes/No options (no Unknown) for user forms."""
+    
+    def __init__(self, attrs=None):
+        choices = [
+            ('', _('Please select')),
+            ('1', _('Yes')),
+            ('0', _('No')),
+        ]
+        super().__init__(attrs, choices=choices)
+    
+    def value_from_datadict(self, data, files, name):
+        """Convert form value to boolean or None."""
+        value = data.get(name)
+        if value == '1':
+            return True
+        elif value == '0':
+            return False
+        return None
+    
+    def format_value(self, value):
+        """Convert boolean value to string for display."""
+        if value is True:
+            return '1'
+        elif value is False:
+            return '0'
+        return ''
+
+
 logger = logging.getLogger('django')
 
 
@@ -27,7 +56,11 @@ class CreateLicenseForm(forms.ModelForm):
         model = License
         exclude = ('profile', 'confirmed', 'number')
         widgets = {
-            'youth_protection_necessary': forms.NullBooleanSelect(attrs={'id': 'id_youth_protection_necessary'}),
+            'repetitions_allowed': BooleanSelectOnly(attrs={'id': 'id_repetitions_allowed', 'required': True}),
+            'store_in_ok_media_library': BooleanSelectOnly(attrs={'id': 'id_store_in_ok_media_library', 'required': True}),
+            'media_authority_exchange_allowed': BooleanSelectOnly(attrs={'id': 'id_media_authority_exchange_allowed', 'required': True}),
+            'media_authority_exchange_allowed_other_states': BooleanSelectOnly(attrs={'id': 'id_media_authority_exchange_allowed_other_states', 'required': True}),
+            'youth_protection_necessary': BooleanSelectOnly(attrs={'id': 'id_youth_protection_necessary', 'required': True}),
             'youth_protection_category': forms.Select(attrs={'id': 'id_youth_protection_category'}),
             'duration': forms.widgets.TimeInput,
             'suggested_date': forms.DateInput(attrs={"type": "date"}),
@@ -41,8 +74,26 @@ class CreateLicenseForm(forms.ModelForm):
             # it's a screen board, we are fine
             return super().is_valid()
 
+        # Validate required boolean fields (must be Yes or No, not empty)
+        boolean_fields = [
+            'repetitions_allowed',
+            'store_in_ok_media_library',
+            'media_authority_exchange_allowed',
+            'media_authority_exchange_allowed_other_states',
+            'youth_protection_necessary',
+        ]
+        
+        for field_name in boolean_fields:
+            value = self.data.get(field_name)
+            if not value or value == '':
+                self.add_error(
+                    field_name,
+                    _('This field is required. Please select Yes or No.')
+                )
+
         # Convert youth_protection to boolean
-        youth_protection = self.data.get('youth_protection_necessary') in ['true', 'True', 'Ja', True]
+        youth_protection_value = self.data.get('youth_protection_necessary')
+        youth_protection = youth_protection_value in ['true', 'True', 'Ja', True, '1'] or str(youth_protection_value) == '1'
         if youth_protection:  # If youth protection is necessary
             youth_category = self.data.get('youth_protection_category')
             if youth_category == YouthProtectionCategory.NONE:
@@ -95,6 +146,13 @@ class CreateLicenseForm(forms.ModelForm):
         
         # Video upload is now handled separately after license creation
         # No need to add video_file field here
+        
+        # Make boolean fields required for user forms
+        self.fields['repetitions_allowed'].required = True
+        self.fields['store_in_ok_media_library'].required = True
+        self.fields['media_authority_exchange_allowed'].required = True
+        self.fields['media_authority_exchange_allowed_other_states'].required = True
+        self.fields['youth_protection_necessary'].required = True
         
         self.helper = FormHelper()
         layout_fields = [
