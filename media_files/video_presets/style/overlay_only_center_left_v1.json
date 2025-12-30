@@ -1,0 +1,104 @@
+{
+  "name": "overlay_only_center_left_v1",
+  "intro_clip": null,
+  "outro_clip": null,
+  "segment_duration": 5.0,
+  "overlays": {
+    "intro": [
+      {
+        "type": "text",
+        "template": "{license.title_line_wrapped}",
+        "x": "(W-text_w)/2",
+        "y": "(H-text_h)/2",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.6,
+        "fade_out": 0.6,
+        "fontfile": "fonts/Roboto-Bold.ttf",
+        "fontsize": 64,
+        "fontcolor": "white",
+        "box": true,
+        "boxcolor": "black@0.4",
+        "boxborderw": 24
+      },
+      {
+        "type": "text",
+        "template": "{labels.broadcast_responsibility}: {profile.display}",
+        "x": "40",
+        "y": "H-120",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_up",
+        "fade_in": 0.5,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 30,
+        "fontcolor": "white"
+      },
+      {
+        "type": "text",
+        "template": "{profile.media_authority_full_name}, {license.created_year}",
+        "x": "40",
+        "y": "H-75",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_left",
+        "fade_in": 0.6,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 30,
+        "fontcolor": "white"
+      }
+    ],
+    "outro": [
+      {
+        "type": "text",
+        "template": "{license.title_line_wrapped}",
+        "x": "(W-text_w)/2",
+        "y": "(H-text_h)/2",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.6,
+        "fade_out": 0.6,
+        "fontfile": "fonts/Roboto-Bold.ttf",
+        "fontsize": 64,
+        "fontcolor": "white",
+        "box": true,
+        "boxcolor": "black@0.4",
+        "boxborderw": 24
+      },
+      {
+        "type": "text",
+        "template": "{labels.broadcast_responsibility}: {profile.display}",
+        "x": "40",
+        "y": "H-120",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_up",
+        "fade_in": 0.5,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 30,
+        "fontcolor": "white"
+      },
+      {
+        "type": "text",
+        "template": "{profile.media_authority_full_name}, {license.created_year}",
+        "x": "40",
+        "y": "H-75",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_left",
+        "fade_in": 0.6,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 30,
+        "fontcolor": "white"
+      }
+    ]
+  }
+}
+
+

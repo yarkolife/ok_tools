@@ -1,0 +1,69 @@
+{
+  "name": "film_title_v1",
+  "intro_clip": null,
+  "outro_clip": null,
+  "segment_duration": 5.0,
+  "overlays": {
+    "intro": [
+      {
+        "type": "text",
+        "template": "{license.title}",
+        "x": "(W-text_w)/2",
+        "y": "(H-text_h)/2-55",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.7,
+        "fade_out": 0.6,
+        "fontfile": "fonts/PlayfairDisplay-Regular.ttf",
+        "fontsize": 64,
+        "fontcolor": "white"
+      },
+      {
+        "type": "text",
+        "template": "{license.subtitle}",
+        "x": "(W-text_w)/2",
+        "y": "(H-text_h)/2+80",
+        "start": 0.1,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.7,
+        "fade_out": 0.6,
+        "fontfile": "fonts/PlayfairDisplay-Regular.ttf",
+        "fontsize": 28,
+        "fontcolor": "white"
+      }
+    ],
+    "outro": [
+      {
+        "type": "text",
+        "template": "{license.title}",
+        "x": "(W-text_w)/2",
+        "y": "(H-text_h)/2-55",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.7,
+        "fade_out": 0.6,
+        "fontfile": "fonts/PlayfairDisplay-Regular.ttf",
+        "fontsize": 64,
+        "fontcolor": "white"
+      },
+      {
+        "type": "text",
+        "template": "{license.subtitle}",
+        "x": "(W-text_w)/2",
+        "y": "(H-text_h)/2+80",
+        "start": 0.1,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.7,
+        "fade_out": 0.6,
+        "fontfile": "fonts/PlayfairDisplay-Regular.ttf",
+        "fontsize": 28,
+        "fontcolor": "white"
+      }
+    ]
+  }
+}
+

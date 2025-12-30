@@ -3,8 +3,11 @@
 import logging
 import os
 from datetime import timedelta
+from pathlib import Path
+from django.conf import settings
 from django import forms
 from django.contrib import admin
+from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -14,8 +17,17 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
 
-from .models import StorageLocation, VideoFile, FileOperation
+from .models import StorageLocation, VideoFile, FileOperation, VideoPreset, PresetOverlay, VideoEncodePreset, POSITION_PRESET_CHOICES
 from .utils import verify_file_integrity, extract_video_metadata, extract_video_metadata_fast, extract_number_from_filename, calculate_checksum, copy_file_with_progress, copy_video_to_playout
+from media_files.management.commands.render_video_preset import _apply_metadata, _ensure_unique_output_relpath
+from media_files.rendering.ffmpeg import (
+    FfmpegError,
+    render_with_intro_outro,
+    render_with_overlays_on_main_edges,
+    render_preview_overlays_on_main_edges,
+)
+from media_files.rendering.presets import load_encode_preset, load_style_preset, resolve_preset_asset_path, OverlayLayer
+from media_files.rendering.templates import build_template_context
 
 
 logger = logging.getLogger('django')
@@ -534,7 +546,7 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
             # Load videos without any complex annotations to avoid integer overflow
             videos_list = list(queryset.select_related('storage_location').only(
                 'id', 'number', 'total_bitrate', 'created_at', 'last_scanned', 'updated_at',
-                'storage_location__storage_type'
+                'storage_location__storage_type', 'is_manual_primary'
             ))
         except Exception as e:
             logger.error(f'Error loading videos for IsPrimaryVersionFilter: {e}')
@@ -556,6 +568,13 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         
         for number, video_list in by_number.items():
             try:
+                # Check if any version is manually marked as primary
+                manual_primary = next((v for v in video_list if getattr(v, 'is_manual_primary', False)), None)
+                if manual_primary:
+                    primary_ids.add(manual_primary.id)
+                    duplicate_ids.update(v.id for v in video_list if v.id != manual_primary.id)
+                    continue
+                
                 # Find best version with safe handling of None values
                 def get_sort_key(v):
                     # Safely get storage type
@@ -575,7 +594,7 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
                         # Use a very old date as fallback
                         date = datetime(1970, 1, 1, tzinfo=timezone.utc)
                     
-                    return (priority, bitrate, date)
+                    return (date, bitrate, priority)
                 
                 best_video = max(video_list, key=get_sort_key)
                 primary_ids.add(best_video.id)
@@ -629,6 +648,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     form = VideoFileAdminForm
     change_form_template = 'admin/media_files/videofile/change_form.html'
     change_list_template = 'admin/media_files/videofile/change_list.html'
+    delete_selected_confirmation_template = 'admin/media_files/videofile/delete_selected_confirmation.html'
     
     list_display = [
         'duplicates_indicator', 'filename', 'storage_location', 'number', 'resolution_display',
@@ -670,6 +690,9 @@ class VideoFileAdmin(admin.ModelAdmin):
                         'number', 'filename', 'storage_location', 'file_path',
                         'license_link', 'is_available'
                     )
+                }),
+                (_('Video Player'), {
+                    'fields': ('video_player',)
                 }),
                 (_('File Properties'), {
                     'fields': (
@@ -717,7 +740,733 @@ class VideoFileAdmin(admin.ModelAdmin):
     inlines = [FileOperationInline]
     actions = ['copy_to_playout_action', 'update_metadata_action', 'verify_integrity_action', 
                'mark_as_primary_action', 'delete_duplicates_action', 'move_to_archive_action',
-               'cleanup_missing_files_action']
+               'cleanup_missing_files_action', 'render_default_preset_action', 'render_preview_default_action',
+               'delete_records_without_video_action', 'render_with_intro_outro_full_overlays_action']
+
+    def get_actions(self, request):
+        """Hide rendering actions when the feature flag is disabled."""
+        actions = super().get_actions(request)
+        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+            actions.pop("render_default_preset_action", None)
+            actions.pop("render_preview_default_action", None)
+        return actions
+
+    @admin.action(description=_('Render video (default presets)'))
+    def render_default_preset_action(self, request, queryset):
+        """
+        Render selected videos using default presets.
+
+        This is intentionally minimal. For full control, use the management command
+        `python manage.py render_video_preset ...`.
+        """
+        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+            self.message_user(
+                request,
+                _(
+                    "Video overlay rendering is disabled. Set VIDEO_OVERLAY_RENDERING_ENABLED=true to enable it."
+                ),
+                level=messages.ERROR,
+            )
+            return
+
+        style_name = "overlay_only_center_left_v1"
+        encode_name = "1080p25_9000k"
+
+        try:
+            style = load_style_preset(style_name)
+            encode = load_encode_preset(encode_name)
+        except Exception as e:
+            self.message_user(
+                request,
+                _("Failed to load presets: {err}").format(err=str(e)),
+                level=messages.ERROR,
+            )
+            return
+
+        intro_clip = resolve_preset_asset_path(style.intro_clip) if style.intro_clip else None
+        outro_clip = resolve_preset_asset_path(style.outro_clip) if style.outro_clip else None
+
+        if intro_clip and not os.path.exists(intro_clip):
+            self.message_user(request, _("Intro clip not found: {p}").format(p=intro_clip), level=messages.ERROR)
+            return
+        if outro_clip and not os.path.exists(outro_clip):
+            self.message_user(request, _("Outro clip not found: {p}").format(p=outro_clip), level=messages.ERROR)
+            return
+
+        rendered = 0
+        failed = 0
+
+        for source in queryset:
+            license_obj = source.get_license()
+            if not license_obj:
+                failed += 1
+                continue
+
+            logger.info(
+                "Rendering video %s with presets style=%s encode=%s (intro=%s outro=%s)",
+                source.full_path,
+                style.name,
+                encode.name,
+                bool(intro_clip),
+                bool(outro_clip),
+            )
+
+            storage_root = Path(source.storage_location.path)
+            rel_dir = Path("rendered") / style.name / encode.name
+            src_stem = Path(source.filename).stem
+            out_name = f"{src_stem}__rendered__{style.name}__{encode.name}.mp4"
+            rel_out = _ensure_unique_output_relpath(source.storage_location, source.number, rel_dir / out_name)
+            abs_out = storage_root / rel_out
+            abs_out.parent.mkdir(parents=True, exist_ok=True)
+
+            new_video = VideoFile.objects.create(
+                number=source.number,
+                filename=abs_out.name,
+                file_path=str(rel_out).replace("\\", "/"),
+                storage_location=source.storage_location,
+                is_available=True,
+            )
+
+            operation = FileOperation.objects.create(
+                video_file=new_video,
+                operation_type="RENDER",
+                source_location=source.storage_location,
+                destination_location=source.storage_location,
+                performed_by=request.user,
+                status="IN_PROGRESS",
+                details={
+                    "source_video_id": source.id,
+                    "style": style.name,
+                    "encode": encode.name,
+                    "intro_clip": intro_clip,
+                    "outro_clip": outro_clip,
+                },
+            )
+
+            try:
+                ctx = build_template_context(license_obj)
+                if intro_clip and outro_clip:
+                    render_with_intro_outro(
+                        intro_video=intro_clip,
+                        main_video=source.full_path,
+                        outro_video=outro_clip,
+                        output_mp4=str(abs_out),
+                        encode=encode,
+                        intro_layers=style.intro_overlays,
+                        outro_layers=style.outro_overlays,
+                        ctx=ctx,
+                    )
+                else:
+                    render_with_overlays_on_main_edges(
+                        main_video=source.full_path,
+                        output_mp4=str(abs_out),
+                        encode=encode,
+                        intro_layers=style.intro_overlays,
+                        outro_layers=style.outro_overlays,
+                        ctx=ctx,
+                        segment_duration=style.segment_duration,
+                    )
+                _apply_metadata(new_video, str(abs_out))
+                new_video.save()
+                operation.status = "SUCCESS"
+                operation.save(update_fields=["status"])
+                logger.info("Rendered output: %s (VideoFile id=%s)", str(abs_out), new_video.id)
+                rendered += 1
+            except FfmpegError as e:
+                failed += 1
+                new_video.is_available = False
+                new_video.save(update_fields=["is_available"])
+                operation.status = "FAILED"
+                operation.error_message = str(e)
+                operation.save(update_fields=["status", "error_message"])
+                logger.error("Render failed for %s: %s", source.full_path, str(e))
+
+        if rendered:
+            self.message_user(
+                request,
+                _("Rendered successfully: {n}").format(n=rendered),
+                level=messages.SUCCESS,
+            )
+        if failed:
+            self.message_user(
+                request,
+                _("Failed: {n}").format(n=failed),
+                level=messages.WARNING,
+            )
+
+    @admin.action(description=_('Render preview (10s)'))
+    def render_preview_default_action(self, request, queryset):
+        """
+        Render a fast 10-second preview (5s start + 5s end) using default presets.
+
+        Intended for quick visual verification of overlays.
+        """
+        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+            self.message_user(
+                request,
+                _(
+                    "Video overlay rendering is disabled. Set VIDEO_OVERLAY_RENDERING_ENABLED=true to enable it."
+                ),
+                level=messages.ERROR,
+            )
+            return
+
+        style_name = "overlay_only_center_left_v1"
+        encode_name = "1080p25_9000k"
+        preview_seconds = 5.0
+
+        try:
+            style = load_style_preset(style_name)
+            encode = load_encode_preset(encode_name)
+        except Exception as e:
+            self.message_user(
+                request,
+                _("Failed to load presets: {err}").format(err=str(e)),
+                level=messages.ERROR,
+            )
+            return
+
+        rendered = 0
+        failed = 0
+
+        for source in queryset:
+            license_obj = source.get_license()
+            if not license_obj:
+                failed += 1
+                continue
+
+            storage_root = Path(source.storage_location.path)
+            rel_dir = Path("rendered") / style.name / encode.name
+            src_stem = Path(source.filename).stem
+            out_name = f"{src_stem}__preview__{int(preview_seconds)}s__{style.name}__{encode.name}.mp4"
+            rel_out = _ensure_unique_output_relpath(source.storage_location, source.number, rel_dir / out_name)
+            abs_out = storage_root / rel_out
+            abs_out.parent.mkdir(parents=True, exist_ok=True)
+
+            new_video = VideoFile.objects.create(
+                number=source.number,
+                filename=abs_out.name,
+                file_path=str(rel_out).replace("\\", "/"),
+                storage_location=source.storage_location,
+                is_available=True,
+            )
+
+            operation = FileOperation.objects.create(
+                video_file=new_video,
+                operation_type="RENDER",
+                source_location=source.storage_location,
+                destination_location=source.storage_location,
+                performed_by=request.user,
+                status="IN_PROGRESS",
+                details={
+                    "source_video_id": source.id,
+                    "style": style.name,
+                    "encode": encode.name,
+                    "preview": True,
+                    "preview_seconds": preview_seconds,
+                },
+            )
+
+            try:
+                logger.info(
+                    "Rendering PREVIEW for %s with presets style=%s encode=%s",
+                    source.full_path,
+                    style.name,
+                    encode.name,
+                )
+                ctx = build_template_context(license_obj)
+                render_preview_overlays_on_main_edges(
+                    main_video=source.full_path,
+                    output_mp4=str(abs_out),
+                    encode=encode,
+                    intro_layers=style.intro_overlays,
+                    outro_layers=style.outro_overlays,
+                    ctx=ctx,
+                    segment_duration=preview_seconds,
+                )
+                _apply_metadata(new_video, str(abs_out))
+                new_video.save()
+                operation.status = "SUCCESS"
+                operation.save(update_fields=["status"])
+                logger.info("Rendered preview output: %s (VideoFile id=%s)", str(abs_out), new_video.id)
+                rendered += 1
+            except FfmpegError as e:
+                failed += 1
+                new_video.is_available = False
+                new_video.save(update_fields=["is_available"])
+                operation.status = "FAILED"
+                operation.error_message = str(e)
+                operation.save(update_fields=["status", "error_message"])
+                logger.error("Preview render failed for %s: %s", source.full_path, str(e))
+
+        if rendered:
+            self.message_user(
+                request,
+                _("Rendered successfully: {n}").format(n=rendered),
+                level=messages.SUCCESS,
+            )
+        if failed:
+            self.message_user(
+                request,
+                _("Failed: {n}").format(n=failed),
+                level=messages.WARNING,
+            )
+    
+    @admin.action(description=_('Delete selected records without video'))
+    def delete_records_without_video_action(self, request, queryset):
+        """
+        Delete VideoFile records for selected entries where the video file does not exist on disk.
+        
+        Only deletes database records, not physical files. Checks if file exists before deletion.
+        """
+        from django.db import connection
+        
+        deleted_count = 0
+        found_count = 0
+        error_count = 0
+        read_only_count = 0
+        
+        for video in queryset:
+            try:
+                # Check if file exists on disk (handle read-only storage gracefully)
+                file_exists = False
+                try:
+                    file_exists = os.path.exists(video.full_path)
+                    found_count += 1
+                except (OSError, PermissionError, IOError) as e:
+                    # Storage might be read-only - skip this file
+                    read_only_count += 1
+                    logger.debug(f'Could not check file existence for {video.full_path}: {e}')
+                    continue
+                except Exception as e:
+                    # Any other error - log and skip
+                    read_only_count += 1
+                    logger.warning(f'Unexpected error checking file {video.full_path}: {e}')
+                    continue
+                
+                if not file_exists:
+                    # Delete related FileOperation objects using raw SQL
+                    try:
+                        with connection.cursor() as cursor:
+                            cursor.execute(
+                                "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                                [video.id]
+                            )
+                    except Exception as e:
+                        logger.error(f'Error deleting FileOperation for video {video.id}: {e}')
+                        # Continue anyway - will be cascade deleted
+                    
+                    # Delete the VideoFile
+                    video.delete()
+                    deleted_count += 1
+                    logger.info(f'Deleted VideoFile {video.number} (file missing): {video.filename}')
+            
+            except Exception as e:
+                error_count += 1
+                logger.error(f'Error checking/deleting {video.filename}: {str(e)}')
+        
+        if deleted_count > 0:
+            self.message_user(
+                request,
+                _('Deleted {} record(s) without video files').format(deleted_count),
+                level='success',
+            )
+        if read_only_count > 0:
+            self.message_user(
+                request,
+                _('{} file(s) could not be checked (storage may be read-only)').format(read_only_count),
+                level='info',
+            )
+        if found_count == 0:
+            self.message_user(
+                request,
+                _('No files could be checked'),
+                level='info',
+            )
+        elif deleted_count == 0 and read_only_count == 0:
+            self.message_user(
+                request,
+                _('All checked files exist on disk'),
+                level='info',
+            )
+        if error_count > 0:
+            self.message_user(
+                request,
+                _('{} error(s) occurred').format(error_count),
+                level='error',
+            )
+
+    @admin.action(description=_('Render with intro/outro and full overlays'))
+    def render_with_intro_outro_full_overlays_action(self, request, queryset):
+        """
+        Render selected videos with intro/outro clips and full text overlays
+        (title, subtitle, broadcast responsibility, media authority).
+        
+        Uses intro.mp4 and outro.mp4 from docker-local/data/media/intro_outro/
+        and applies all text overlays to them.
+        """
+        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+            self.message_user(
+                request,
+                _(
+                    "Video overlay rendering is disabled. Set VIDEO_OVERLAY_RENDERING_ENABLED=true to enable it."
+                ),
+                level=messages.ERROR,
+            )
+            return
+
+        encode_name = "1080p25_9000k"
+
+        try:
+            encode = load_encode_preset(encode_name)
+        except Exception as e:
+            self.message_user(
+                request,
+                _("Failed to load encode preset: {err}").format(err=str(e)),
+                level=messages.ERROR,
+            )
+            return
+
+        # Find intro and outro files
+        # In production: ./data/media is mounted to /app/media
+        # In local dev: docker-local/data/media is mounted to /app/media
+        # Files should be placed in: <media_root>/intro_outro/intro.mp4 and outro.mp4
+        
+        media_root = Path(settings.MEDIA_ROOT)
+        base_dir = Path(settings.BASE_DIR)
+        
+        # Build list of candidate paths in order of preference
+        # 1. MEDIA_ROOT/intro_outro/ (works for both production and local)
+        # 2. /app/media/intro_outro/ (Docker path - production and local)
+        # 3. BASE_DIR relative paths (for local development)
+        
+        intro_candidates = [
+            # Primary: MEDIA_ROOT (works everywhere)
+            media_root / "intro_outro" / "intro.mp4",
+            # Docker paths (production: ./data/media -> /app/media, local: docker-local/data/media -> /app/media)
+            Path("/app/media/intro_outro/intro.mp4"),
+            # Local development paths (relative to BASE_DIR)
+            base_dir / "docker-local" / "data" / "media" / "intro_outro" / "intro.mp4",
+            base_dir / "media" / "intro_outro" / "intro.mp4",
+        ]
+        outro_candidates = [
+            # Primary: MEDIA_ROOT (works everywhere)
+            media_root / "intro_outro" / "outro.mp4",
+            # Docker paths (production: ./data/media -> /app/media, local: docker-local/data/media -> /app/media)
+            Path("/app/media/intro_outro/outro.mp4"),
+            # Local development paths (relative to BASE_DIR)
+            base_dir / "docker-local" / "data" / "media" / "intro_outro" / "outro.mp4",
+            base_dir / "media" / "intro_outro" / "outro.mp4",
+        ]
+        
+        intro_path = None
+        outro_path = None
+        
+        for candidate in intro_candidates:
+            try:
+                if candidate.exists() and candidate.is_file():
+                    intro_path = str(candidate.resolve())
+                    logger.info(f"Found intro file at: {intro_path}")
+                    break
+            except (OSError, ValueError):
+                continue
+        
+        for candidate in outro_candidates:
+            try:
+                if candidate.exists() and candidate.is_file():
+                    outro_path = str(candidate.resolve())
+                    logger.info(f"Found outro file at: {outro_path}")
+                    break
+            except (OSError, ValueError):
+                continue
+
+        if not intro_path or not outro_path:
+            missing = []
+            if not intro_path:
+                missing.append("intro.mp4")
+            if not outro_path:
+                missing.append("outro.mp4")
+            
+            # Provide helpful error message with correct paths for production and local
+            media_root_str = str(media_root)
+            error_msg = _(
+                "Intro/outro files not found: {files}.\n\n"
+                "Please place the files in one of these locations:\n"
+                "- Production: <deployment_dir>/data/media/intro_outro/\n"
+                "- Local dev: docker-local/data/media/intro_outro/\n"
+                "- Or: {media_root}/intro_outro/\n\n"
+                "Files will be accessible at /app/media/intro_outro/ inside the container."
+            ).format(
+                files=", ".join(missing),
+                media_root=media_root_str
+            )
+            self.message_user(
+                request,
+                error_msg,
+                level=messages.ERROR,
+            )
+            return
+
+        # Create full overlay layers for intro and outro
+        # Requirements:
+        # - Title: centered, large font, no box
+        # - Subtitle: centered, smaller font, only if title is not too long (not 3+ lines)
+        # - Broadcast responsibility: right-aligned, y=882, fontsize=50
+        # - Media authority: right-aligned, y=947, fontsize=38
+        
+        # Default font file (will be resolved by the rendering system)
+        default_font = "fonts/Roboto-Bold.ttf"
+        regular_font = "fonts/Roboto-Regular.ttf"
+        
+        # Helper function to create intro/outro overlays dynamically
+        # We'll create overlays that check title length at render time
+        def create_title_subtitle_overlays():
+            """Create title and subtitle overlays with conditional subtitle display."""
+            from media_files.rendering.templates import _wrap_text
+            
+            # We need to check title length, but we don't have context here
+            # So we'll use a template that will be evaluated at render time
+            # Title overlay - always shown, with proper wrapping
+            title_overlay = OverlayLayer(
+                type="text",
+                template="{license.title_wrapped}",  # Will be created dynamically
+                x="(w-text_w)/2",
+                y="(h-text_h)/2-60",  # Centered vertically, slightly above center
+                start=0.0,
+                end=5.0,
+                animation="fade",
+                fade_in=0.6,
+                fade_out=0.6,
+                fontsize=64,  # Large font for title
+                fontcolor="white",
+                fontfile=default_font,
+                box=False,  # No box
+            )
+            
+            # Subtitle overlay - will be conditionally shown
+            # We'll use a special template that checks title length
+            subtitle_overlay = OverlayLayer(
+                type="text",
+                template="{license.subtitle_conditional}",  # Will check if title is short
+                x="(w-text_w)/2",
+                y="(h-text_h)/2+40",  # Below title
+                start=0.2,
+                end=5.0,
+                animation="fade",
+                fade_in=0.5,
+                fade_out=0.4,
+                fontsize=48,  # Smaller font for subtitle
+                fontcolor="white",
+                fontfile=regular_font,
+                box=False,
+            )
+            
+            return [title_overlay, subtitle_overlay]
+        
+        # Intro overlays
+        # Position text below logo (approximately 3 lines down from top)
+        # For 1080p: logo is typically at y~250, text should start at y~400
+        intro_overlays = [
+            # Title - centered horizontally and vertically
+            OverlayLayer(
+                type="text",
+                template="{license.title_wrapped_short}",  # Max 3 lines, ~30 chars per line
+                x="(W-text_w)/2",  # Proper horizontal centering
+                y="(H/2)-72",  # Centered vertically, accounting for 3-line title block
+                start=0.0,
+                end=5.0,
+                animation="fade",
+                fade_in=0.6,
+                fade_out=0.6,
+                fontsize=64,  # Large font for title
+                fontcolor="white",
+                fontfile=default_font,
+                box=False,  # No box
+            ),
+            # Subtitle - centered horizontally, below title
+            OverlayLayer(
+                type="text",
+                template="{license.subtitle_wrapped}",  # Only shown if title < 3 lines
+                x="(W-text_w)/2",  # Proper horizontal centering
+                y="(H/2)+180",  # Below title (allows for 3-line title block, ~252px spacing)
+                start=0.2,
+                end=5.0,
+                animation="fade",
+                fade_in=0.5,
+                fade_out=0.4,
+                fontsize=48,  # Smaller font for subtitle
+                fontcolor="white",
+                fontfile=regular_font,
+                box=False,  # No box
+            ),
+            # Broadcast responsibility - right-aligned, bottom
+            OverlayLayer(
+                type="text",
+                template="{labels.broadcast_responsibility}: {profile.display}",
+                x="w-text_w-120",  # More padding from right edge (was 97)
+                y="882",
+                start=0.2,
+                end=5.0,
+                animation="slide_up",
+                fade_in=0.5,
+                fade_out=0.4,
+                fontsize=50,
+                fontcolor="white",
+                fontfile=regular_font,
+            ),
+            # Media authority - right-aligned, bottom
+            OverlayLayer(
+                type="text",
+                template="{profile.media_authority_full_name}, {license.created_year}",
+                x="w-text_w-120",  # More padding from right edge (was 97)
+                y="947",
+                start=0.2,
+                end=5.0,
+                animation="slide_left",
+                fade_in=0.6,
+                fade_out=0.4,
+                fontsize=38,
+                fontcolor="white",
+                fontfile=regular_font,
+            ),
+        ]
+        
+        # Outro overlays (same structure as intro)
+        outro_overlays = [
+            # Title - centered horizontally and vertically
+            OverlayLayer(
+                type="text",
+                template="{license.title_wrapped_short}",  # Max 3 lines, ~30 chars per line
+                x="(W-text_w)/2",  # Proper horizontal centering
+                y="(H/2)-72",  # Centered vertically, accounting for 3-line title block
+                start=0.0,
+                end=5.0,
+                animation="fade",
+                fade_in=0.6,
+                fade_out=0.6,
+                fontsize=64,  # Large font for title
+                fontcolor="white",
+                fontfile=default_font,
+                box=False,  # No box
+            ),
+            # Subtitle - centered horizontally, below title
+            OverlayLayer(
+                type="text",
+                template="{license.subtitle_wrapped}",  # Only shown if title < 3 lines
+                x="(W-text_w)/2",  # Proper horizontal centering
+                y="(H/2)+180",  # Below title (allows for 3-line title block, ~252px spacing)
+                start=0.2,
+                end=5.0,
+                animation="fade",
+                fade_in=0.5,
+                fade_out=0.4,
+                fontsize=48,  # Smaller font for subtitle
+                fontcolor="white",
+                fontfile=regular_font,
+                box=False,  # No box
+            ),
+            # Broadcast responsibility
+            OverlayLayer(
+                type="text",
+                template="{labels.broadcast_responsibility}: {profile.display}",
+                x="w-text_w-120",  # More padding from right edge (was 97)
+                y="882",
+                start=0.2,
+                end=5.0,
+                animation="slide_up",
+                fade_in=0.5,
+                fade_out=0.4,
+                fontsize=50,
+                fontcolor="white",
+                fontfile=regular_font,
+            ),
+            # Media authority
+            OverlayLayer(
+                type="text",
+                template="{profile.media_authority_full_name}, {license.created_year}",
+                x="w-text_w-120",  # More padding from right edge (was 97)
+                y="947",
+                start=0.2,
+                end=5.0,
+                animation="slide_left",
+                fade_in=0.6,
+                fade_out=0.4,
+                fontsize=38,
+                fontcolor="white",
+                fontfile=regular_font,
+            ),
+        ]
+
+        # Create operations and start async rendering via Celery
+        created = 0
+        failed = 0
+
+        for source in queryset:
+            license_obj = source.get_license()
+            if not license_obj:
+                failed += 1
+                continue
+
+            try:
+                storage_root = Path(source.storage_location.path)
+                rel_dir = Path("rendered") / "intro_outro_full" / encode.name
+                src_stem = Path(source.filename).stem
+                out_name = f"{src_stem}__intro_outro_full__{encode.name}.mp4"
+                rel_out = _ensure_unique_output_relpath(source.storage_location, source.number, rel_dir / out_name)
+                abs_out = storage_root / rel_out
+                abs_out.parent.mkdir(parents=True, exist_ok=True)
+
+                new_video = VideoFile.objects.create(
+                    number=source.number,
+                    filename=abs_out.name,
+                    file_path=str(rel_out).replace("\\", "/"),
+                    storage_location=source.storage_location,
+                    is_available=False,  # Will be set to True after rendering completes
+                )
+
+                operation = FileOperation.objects.create(
+                    video_file=new_video,
+                    operation_type="RENDER",
+                    source_location=source.storage_location,
+                    destination_location=source.storage_location,
+                    performed_by=request.user,
+                    status="IN_PROGRESS",
+                    details={
+                        "source_video_id": source.id,
+                        "license_number": license_obj.number,
+                        "encode": encode.name,
+                        "intro_clip": intro_path,
+                        "outro_clip": outro_path,
+                        "overlay_type": "full_intro_outro",
+                    },
+                )
+
+                # Start async rendering task via Celery
+                from media_files.tasks import render_video_task
+                render_video_task.delay(operation.id)
+                
+                logger.info(
+                    "Started async rendering for video %s with intro/outro and full overlays (operation_id=%s)",
+                    source.full_path,
+                    operation.id,
+                )
+                created += 1
+            except Exception as e:
+                failed += 1
+                logger.error("Failed to create operation for %s: %s", source.full_path, str(e))
+
+        if created:
+            self.message_user(
+                request,
+                _("Started rendering with intro/outro and full overlays: {n} video(s). You can track progress in File Operations.").format(n=created),
+                level=messages.SUCCESS,
+            )
+        if failed:
+            self.message_user(
+                request,
+                _("Failed to start rendering: {n}").format(n=failed),
+                level=messages.WARNING,
+            )
     
     def get_urls(self):
         """Add custom URLs."""
@@ -1017,6 +1766,12 @@ class VideoFileAdmin(admin.ModelAdmin):
             # Get translated strings beforehand
             file_path_linux = _("File path (Linux)")
             file_path_windows = _("File path (Windows UNC)")
+            try:
+                render_url = reverse('media_files:render_video_admin', args=[obj.id])
+            except Exception:
+                render_url = f'/media-files/render/video/{obj.id}/'
+            
+            render_label = _('Render Video with Overlays')
             
             return format_html(
                 '''
@@ -1033,13 +1788,20 @@ class VideoFileAdmin(admin.ModelAdmin):
                         width="640"
                         height="360">
                         <source src="{}" type="{}">
-                        <p>{% trans "To view the video, enable JavaScript or use" %}
-                            <a href="{}" download>{% trans "download video" %}</a>
+                        <p>To view the video, enable JavaScript or use
+                            <a href="{}" download>download video</a>
                         </p>
                     </video>
                     
                     <!-- Plyr JavaScript -->
                     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+                    
+                    <!-- Render Button -->
+                    <div style="margin-top: 15px; text-align: center;">
+                        <a href="{}" class="button" style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
+                            🎬 {}
+                        </a>
+                    </div>
                     
                     <!-- Video Info -->
                     <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
@@ -1113,6 +1875,8 @@ class VideoFileAdmin(admin.ModelAdmin):
                 stream_url,
                 mime_type,
                 stream_url,
+                render_url,  # Render button URL
+                render_label,  # Render button label
                 file_path_linux,  # Use pre-translated string
                 obj.full_path,
                 f'''
@@ -1348,7 +2112,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     
     @admin.action(description=_('Mark selected as primary version'))
     def mark_as_primary_action(self, request, queryset):
-        """Mark selected videos as primary (keep), find and report duplicates."""
+        """Mark selected videos as primary (manual override)."""
         # Group by number
         by_number = {}
         for video in queryset:
@@ -1356,24 +2120,37 @@ class VideoFileAdmin(admin.ModelAdmin):
                 by_number[video.number] = []
             by_number[video.number].append(video)
         
+        marked_count = 0
+        
         for number, videos in by_number.items():
             if len(videos) > 1:
                 self.message_user(
                     request,
-                    f'Multiple videos selected for number {number}. Please select only one per number.',
+                    _('Multiple videos selected for number {}. Please select only one per number.').format(number),
                     level='error'
                 )
                 continue
             
             primary = videos[0]
-            all_versions = VideoFile.objects.filter(number=number).exclude(id=primary.id)
             
+            # Clear manual primary flag from all other versions with same number
+            VideoFile.objects.filter(number=number).exclude(id=primary.id).update(is_manual_primary=False)
+            
+            # Set manual primary flag for selected video
+            primary.is_manual_primary = True
+            primary.save(update_fields=['is_manual_primary'])
+            marked_count += 1
+            
+            all_versions = VideoFile.objects.filter(number=number).exclude(id=primary.id)
             if all_versions.exists():
-                self.message_user(
-                    request,
-                    f'Video #{number} marked as primary. Found {all_versions.count()} duplicate(s) in: {", ".join([v.storage_location.name for v in all_versions])}',
-                    level='success'
-                )
+                logger.info(f'Video #{number} marked as manual primary. Found {all_versions.count()} duplicate(s)')
+        
+        if marked_count > 0:
+            self.message_user(
+                request,
+                _('Marked {} video(s) as primary version').format(marked_count),
+                level='success'
+            )
     
     @admin.action(description=_('Delete duplicate versions (keep best quality)'))
     def delete_duplicates_action(self, request, queryset):
@@ -1389,13 +2166,18 @@ class VideoFileAdmin(admin.ModelAdmin):
             if versions.count() <= 1:
                 continue
             
-            # Find primary version
-            storage_priority = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
-            primary = max(versions, key=lambda v: (
-                storage_priority.get(v.storage_location.storage_type, 0),
-                v.total_bitrate or 0,
-                v.created_at
-            ))
+            # Check if any version is manually marked as primary
+            manual_primary = versions.filter(is_manual_primary=True).first()
+            if manual_primary:
+                primary = manual_primary
+            else:
+                # Find primary version by quality (date first, then bitrate, then storage)
+                storage_priority = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
+                primary = max(versions, key=lambda v: (
+                    v.created_at,
+                    v.total_bitrate or 0,
+                    storage_priority.get(v.storage_location.storage_type, 0)
+                ))
             
             # Delete others
             duplicates = versions.exclude(id=primary.id)
@@ -1559,6 +2341,17 @@ class VideoFileAdmin(admin.ModelAdmin):
                 level='error'
             )
     
+    def has_delete_permission(self, request, obj=None):
+        """
+        Check if user has permission to delete VideoFile.
+        
+        By default, uses Django's standard permission system.
+        Override this method to add custom permission logic.
+        """
+        # Use default Django permission checking
+        # This checks for 'media_files.delete_videofile' permission
+        return super().has_delete_permission(request, obj)
+    
     def get_deleted_objects(self, objs, request):
         """
         Override get_deleted_objects to bypass permission checks for FileOperation.
@@ -1566,53 +2359,48 @@ class VideoFileAdmin(admin.ModelAdmin):
         This allows deletion of VideoFile records even when the user doesn't have
         delete permission for FileOperation (which is intentionally disabled).
         """
-        # Call parent method to get standard deletion info
-        deleted_objects, model_count, perms_needed, protected = super().get_deleted_objects(objs, request)
+        from django.contrib.admin.utils import NestedObjects
         
-        # Remove FileOperation from perms_needed since we handle it via CASCADE
-        # and don't require explicit delete permission
-        perms_needed = {perm for perm in perms_needed if 'FileOperation' not in perm and 'file operation' not in perm.lower()}
+        # Use collector to get all related objects
+        collector = NestedObjects(using='default')
+        collector.collect(objs)
         
-        # Also filter out FileOperation from deleted_objects list
-        # deleted_objects is a list of tuples, but format may vary - handle safely
-        filtered_deleted_objects = []
-        for item in deleted_objects:
-            if isinstance(item, tuple) and len(item) >= 2:
-                model, instances = item[0], item[1]
-                if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation':
-                    filtered_deleted_objects.append(item)
-            else:
-                # Keep items that don't match expected format (might be strings or other formats)
-                filtered_deleted_objects.append(item)
-        deleted_objects = filtered_deleted_objects
+        # Filter out FileOperation from all collections
+        file_operation_label = 'media_files.fileoperation'
         
-        # Remove FileOperation from model_count
-        model_count = {key: value for key, value in model_count.items() 
-                      if 'FileOperation' not in key and 'file operation' not in key.lower()}
+        # Filter model_objs - remove FileOperation
+        filtered_model_objs = {}
+        for model, instances in collector.model_objs.items():
+            if model._meta.label_lower != file_operation_label:
+                filtered_model_objs[model] = instances
         
-        # Remove FileOperation from protected objects
-        # protected can be either a dict or a list depending on Django version
-        if isinstance(protected, dict):
-            # Dict format: {model: set of instances}
-            protected = {model: instances for model, instances in protected.items()
-                         if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation'}
-        elif isinstance(protected, list):
-            # List format: list of protected instances or tuples
-            filtered_protected = []
-            for item in protected:
-                if isinstance(item, tuple) and len(item) >= 2:
-                    model, instances = item[0], item[1]
-                    if hasattr(model, '_meta') and model._meta.label != 'media_files.FileOperation':
-                        filtered_protected.append(item)
-                elif hasattr(item, '_meta') and item._meta.label != 'media_files.FileOperation':
-                    # Single model instance
-                    filtered_protected.append(item)
-                elif not hasattr(item, '_meta'):
-                    # Keep items without _meta (might be strings or other formats)
-                    filtered_protected.append(item)
-            protected = filtered_protected
+        # Filter protected - remove FileOperation
+        filtered_protected = []
+        for item in collector.protected:
+            if hasattr(item, '_meta') and item._meta.label_lower != file_operation_label:
+                filtered_protected.append(item)
+            elif not hasattr(item, '_meta'):
+                filtered_protected.append(item)
         
-        return deleted_objects, model_count, perms_needed, protected
+        # Build deleted_objects list (format: list of tuples (model, instances))
+        deleted_objects = []
+        for model, instances in filtered_model_objs.items():
+            deleted_objects.append((model, instances))
+        
+        # Build model_count dict (format: {verbose_name_plural: count})
+        model_count = {}
+        for model, instances in filtered_model_objs.items():
+            model_count[model._meta.verbose_name_plural] = len(instances)
+        
+        # Build perms_needed set - check permissions for each model (excluding FileOperation)
+        perms_needed = set()
+        for model, instances in filtered_model_objs.items():
+            # Check if user has delete permission for this model
+            model_admin = self.admin_site._registry.get(model)
+            if model_admin and not model_admin.has_delete_permission(request):
+                perms_needed.add(model._meta.verbose_name)
+        
+        return deleted_objects, model_count, perms_needed, filtered_protected
     
     def delete_model(self, request, obj):
         """
@@ -1620,6 +2408,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         
         This allows deletion of VideoFile records even when the user doesn't have
         delete permission for FileOperation (which is intentionally disabled).
+        Also deletes physical files from disk.
         """
         import os
         import traceback
@@ -1664,7 +2453,37 @@ class VideoFileAdmin(admin.ModelAdmin):
                 logger.error(f'Error deleting FileOperation records for video {obj.id}: {e}')
                 # Continue anyway - FileOperation will be cascade deleted
             
-            # Delete the VideoFile (database record only, not physical file)
+            # Delete physical file if it exists
+            file_deleted = False
+            file_delete_error = None
+            if file_exists and full_path:
+                try:
+                    os.remove(full_path)
+                    file_deleted = True
+                    logger.info(f'Deleted physical file: {full_path}')
+                except (OSError, PermissionError, IOError) as e:
+                    file_delete_error = str(e)
+                    logger.warning(f'Could not delete physical file {full_path}: {e}')
+                    # Continue with DB deletion even if file deletion fails
+                except Exception as e:
+                    file_delete_error = str(e)
+                    logger.error(f'Unexpected error deleting file {full_path}: {e}')
+                    # Continue with DB deletion even if file deletion fails
+            
+            # Delete related FileOperation objects using raw SQL to bypass permission checks
+            # FileOperationAdmin has delete permission disabled, so we use direct SQL
+            from django.db import connection
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM media_files_fileoperation WHERE video_file_id = %s",
+                        [obj.id]
+                    )
+            except Exception as e:
+                logger.error(f'Error deleting FileOperation records for video {obj.id}: {e}')
+                # Continue anyway - FileOperation will be cascade deleted
+            
+            # Delete the VideoFile (database record)
             try:
                 logger.debug(f'Attempting to delete VideoFile {obj.id}')
                 obj.delete()
@@ -1677,11 +2496,23 @@ class VideoFileAdmin(admin.ModelAdmin):
                 raise
             
             # Show appropriate message (only if deletion succeeded)
-            if file_check_error:
+            if file_delete_error:
+                self.message_user(
+                    request,
+                    _('Video record deleted. Could not delete physical file: {error}').format(error=file_delete_error),
+                    level='warning'
+                )
+            elif file_check_error:
                 self.message_user(
                     request,
                     _('Video record deleted. Could not check file status (storage may be read-only).'),
                     level='info'
+                )
+            elif file_deleted:
+                self.message_user(
+                    request,
+                    _('Video record and physical file deleted successfully.'),
+                    level='success'
                 )
             elif not file_exists:
                 self.message_user(
@@ -1692,8 +2523,8 @@ class VideoFileAdmin(admin.ModelAdmin):
             else:
                 self.message_user(
                     request,
-                    _('Video record deleted. Note: Physical file still exists on disk.'),
-                    level='warning'
+                    _('Video record deleted.'),
+                    level='success'
                 )
         except Exception as e:
             error_traceback = traceback.format_exc()
@@ -1707,7 +2538,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         
         This allows bulk deletion of VideoFile records even when the user doesn't have
         delete permission for FileOperation (which is intentionally disabled).
-        Works with read-only storage - only deletes database records, not physical files.
+        Also deletes physical files from disk.
         """
         import os
         import traceback
@@ -1715,19 +2546,23 @@ class VideoFileAdmin(admin.ModelAdmin):
         logger.info(f'delete_queryset called with {queryset.count()} objects')
         
         deleted_count = 0
+        files_deleted = 0
         files_missing = 0
+        files_delete_errors = 0
         read_only_count = 0
         error_count = 0
         
         try:
             for obj in queryset:
-                # Check if file exists on disk (handle read-only storage gracefully)
+                # Check if file exists on disk and delete it
                 file_exists = False
+                file_deleted = False
                 file_check_error = None
+                full_path = None
+                
                 if obj.is_available:
                     try:
                         # Safely get full_path - may fail if storage_location is None or path is missing
-                        full_path = None
                         try:
                             full_path = obj.full_path
                         except (AttributeError, TypeError) as e:
@@ -1739,8 +2574,23 @@ class VideoFileAdmin(admin.ModelAdmin):
                             file_exists = os.path.exists(full_path)
                             if not file_exists:
                                 files_missing += 1
+                            elif file_exists:
+                                # Try to delete the physical file
+                                try:
+                                    os.remove(full_path)
+                                    file_deleted = True
+                                    files_deleted += 1
+                                    logger.info(f'Deleted physical file: {full_path}')
+                                except (OSError, PermissionError, IOError) as e:
+                                    files_delete_errors += 1
+                                    logger.warning(f'Could not delete physical file {full_path}: {e}')
+                                    # Continue with DB deletion even if file deletion fails
+                                except Exception as e:
+                                    files_delete_errors += 1
+                                    logger.error(f'Unexpected error deleting file {full_path}: {e}')
+                                    # Continue with DB deletion even if file deletion fails
                     except (OSError, PermissionError, IOError) as e:
-                        # Storage might be read-only or inaccessible - that's OK, we're only deleting DB record
+                        # Storage might be read-only or inaccessible
                         file_check_error = str(e)
                         read_only_count += 1
                         logger.debug(f'Could not check file existence: {e}')
@@ -1763,7 +2613,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                     logger.error(f'Error deleting FileOperation records for video {obj.id}: {e}')
                     # Continue anyway - FileOperation will be cascade deleted
                 
-                # Delete the VideoFile (database record only, not physical file)
+                # Delete the VideoFile (database record)
                 # Wrap in try-except to catch any errors during deletion
                 try:
                     logger.debug(f'Attempting to delete VideoFile {obj.id} (number: {obj.number})')
@@ -1794,10 +2644,20 @@ class VideoFileAdmin(admin.ModelAdmin):
             )
         
         # Show appropriate message
-        if read_only_count > 0:
+        if files_delete_errors > 0:
             self.message_user(
                 request,
-                _('{} video record(s) deleted. {} file(s) could not be checked (storage may be read-only).').format(deleted_count, read_only_count),
+                _('{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could not be deleted from disk.').format(
+                    deleted_count, files_deleted, files_delete_errors
+                ),
+                level='warning'
+            )
+        elif read_only_count > 0:
+            self.message_user(
+                request,
+                _('{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could not be checked (storage may be read-only).').format(
+                    deleted_count, files_deleted, read_only_count
+                ),
                 level='info'
             )
         elif files_missing == deleted_count:
@@ -1806,23 +2666,23 @@ class VideoFileAdmin(admin.ModelAdmin):
                 _('{} video record(s) deleted (files were already removed from disk)').format(deleted_count),
                 level='success'
             )
-        elif files_missing > 0:
+        elif files_deleted > 0:
             self.message_user(
                 request,
-                _('{} video record(s) deleted. {} file(s) were already missing from disk.').format(deleted_count, files_missing),
-                level='warning'
+                _('{} video record(s) and {} physical file(s) deleted successfully.').format(deleted_count, files_deleted),
+                level='success'
             )
         else:
             self.message_user(
                 request,
-                _('{} video record(s) deleted. Note: Physical files still exist on disk.').format(deleted_count),
-                level='warning'
+                _('{} video record(s) deleted.').format(deleted_count),
+                level='success'
             )
         
         if error_count > 0:
             logger.warning(f'delete_queryset completed with {error_count} error(s), {deleted_count} successful deletion(s)')
         else:
-            logger.info(f'delete_queryset completed successfully: {deleted_count} deletion(s)')
+            logger.info(f'delete_queryset completed successfully: {deleted_count} deletion(s), {files_deleted} file(s) deleted')
 
     class Media:
         css = {
@@ -1909,3 +2769,401 @@ class SystemManagementProxyAdmin(admin.ModelAdmin):
         """Redirect to System Management page."""
         url = reverse('admin:media_files_system_management')
         return HttpResponseRedirect(url)
+
+
+class PresetOverlayInline(admin.TabularInline):
+    """Inline admin for preset overlays."""
+
+    model = PresetOverlay
+    extra = 0
+    fields = [
+        'segment', 'order', 'overlay_type', 'text_template', 'image_path',
+        'position_preset', 'animation', 'start_time', 'end_time'
+    ]
+    ordering = ['segment', 'order']
+
+
+@admin.register(VideoPreset)
+class VideoPresetAdmin(admin.ModelAdmin):
+    """Admin interface for video presets."""
+
+    change_form_template = 'admin/media_files/videopreset/change_form.html'
+    change_list_template = 'admin/media_files/videopreset/change_list.html'
+    
+    list_display = [
+        'display_name', 'name', 'is_template', 'is_public',
+        'created_by', 'overlay_count', 'updated_at', 'edit_in_ui'
+    ]
+    list_filter = ['is_template', 'is_public']
+    search_fields = ['name', 'display_name', 'description']
+    readonly_fields = ['created_at', 'updated_at', 'overlay_count']
+    inlines = [PresetOverlayInline]
+    
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'display_name', 'description')
+        }),
+        (_('Settings'), {
+            'fields': (
+                'segment_duration', 'intro_clip_path', 'outro_clip_path',
+                'is_template', 'is_public', 'based_on'
+            )
+        }),
+        (_('Ownership'), {
+            'fields': ('created_by',)
+        }),
+        (_('Information'), {
+            'fields': ('overlay_count', 'created_at', 'updated_at')
+        }),
+    )
+    
+    def get_urls(self):
+        """Add custom URLs for preset editor and import."""
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:object_id>/edit-preset/',
+                self.admin_site.admin_view(self.preset_editor_view),
+                name='media_files_videopreset_edit_preset',
+            ),
+            path(
+                '<int:object_id>/preset-load/',
+                self.admin_site.admin_view(self.preset_load_view),
+                name='media_files_videopreset_preset_load',
+            ),
+            path(
+                '<int:object_id>/preset-save/',
+                self.admin_site.admin_view(self.preset_save_view),
+                name='media_files_videopreset_preset_save',
+            ),
+            path(
+                'import-all/',
+                self.admin_site.admin_view(self.import_all_presets_view),
+                name='media_files_videopreset_import_all',
+            ),
+            path(
+                'import-single/<str:preset_name>/',
+                self.admin_site.admin_view(self.import_single_preset_view),
+                name='media_files_videopreset_import_single',
+            ),
+        ]
+        return custom_urls + urls
+    
+    def preset_editor_view(self, request, object_id):
+        """Visual preset editor view in admin."""
+        from django.shortcuts import get_object_or_404
+        from licenses.models import License
+        
+        preset = get_object_or_404(VideoPreset, id=object_id)
+        
+        # Check permissions
+        if not request.user.is_superuser and preset.created_by != request.user and not preset.is_public:
+            messages.error(request, _('You do not have permission to edit this preset.'))
+            return redirect('admin:media_files_videopreset_changelist')
+        
+        # Get a sample license for preview
+        sample_license = License.objects.filter(title__isnull=False).first()
+        
+        context = {
+            **self.admin_site.each_context(request),
+            'title': _('Edit Preset'),
+            'preset': preset,
+            'sample_license': sample_license,
+            'position_presets': POSITION_PRESET_CHOICES,
+            'animation_choices': PresetOverlay._meta.get_field('animation').choices,
+            'font_choices': [
+                ('fonts/Roboto-Regular.ttf', 'Roboto Regular'),
+                ('fonts/Roboto-Bold.ttf', 'Roboto Bold'),
+            ],
+            'opts': self.model._meta,
+            'has_view_permission': self.has_view_permission(request, preset),
+            'has_change_permission': self.has_change_permission(request, preset),
+        }
+        return render(request, 'admin/media_files/preset_editor.html', context)
+    
+    def preset_load_view(self, request, object_id):
+        """Load preset data via AJAX."""
+        from django.http import JsonResponse
+        from django.shortcuts import get_object_or_404
+        
+        preset = get_object_or_404(VideoPreset, id=object_id)
+        
+        overlays = []
+        for overlay in preset.overlays.all().order_by('segment', 'order'):
+            overlays.append({
+                'id': overlay.id,
+                'type': overlay.overlay_type,
+                'segment': overlay.segment,
+                'order': overlay.order,
+                'text_template': overlay.text_template,
+                'image_path': overlay.image_path,
+                'image_width': overlay.image_width,
+                'image_height': overlay.image_height,
+                'position_preset': overlay.position_preset,
+                'x_position': overlay.x_position,
+                'y_position': overlay.y_position,
+                'start_time': overlay.start_time,
+                'end_time': overlay.end_time,
+                'animation': overlay.animation,
+                'fade_in_duration': overlay.fade_in_duration,
+                'fade_out_duration': overlay.fade_out_duration,
+                'font_file': overlay.font_file,
+                'font_size': overlay.font_size,
+                'font_color': overlay.font_color,
+                'has_box': overlay.has_box,
+                'box_color': overlay.box_color,
+                'box_border_width': overlay.box_border_width,
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'preset': {
+                'id': preset.id,
+                'name': preset.name,
+                'display_name': preset.display_name,
+                'description': preset.description,
+                'segment_duration': preset.segment_duration,
+                'intro_clip_path': preset.intro_clip_path,
+                'outro_clip_path': preset.outro_clip_path,
+                'is_public': preset.is_public,
+                'overlays': overlays,
+            }
+        })
+    
+    def preset_save_view(self, request, object_id):
+        """Save preset via AJAX."""
+        import json
+        import logging
+        from django.http import JsonResponse
+        from django.shortcuts import get_object_or_404
+        from django.views.decorators.http import require_http_methods
+        
+        logger = logging.getLogger('django')
+        
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+        
+        try:
+            data = json.loads(request.body)
+            preset = get_object_or_404(VideoPreset, id=object_id)
+            
+            # Check permissions
+            if not request.user.is_superuser and preset.created_by != request.user:
+                return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+            
+            # Update preset fields
+            preset.name = data.get('name', preset.name)
+            preset.display_name = data.get('display_name', preset.display_name)
+            preset.description = data.get('description', preset.description)
+            preset.segment_duration = float(data.get('segment_duration', preset.segment_duration))
+            preset.intro_clip_path = data.get('intro_clip_path', preset.intro_clip_path)
+            preset.outro_clip_path = data.get('outro_clip_path', preset.outro_clip_path)
+            preset.is_public = data.get('is_public', preset.is_public)
+            preset.save()
+            
+            # Delete existing overlays
+            preset.overlays.all().delete()
+            
+            # Create new overlays
+            for overlay_data in data.get('overlays', []):
+                overlay = PresetOverlay(
+                    preset=preset,
+                    overlay_type=overlay_data.get('type', 'text'),
+                    segment=overlay_data.get('segment', 'intro'),
+                    order=overlay_data.get('order', 0),
+                    text_template=overlay_data.get('text_template', ''),
+                    image_path=overlay_data.get('image_path', ''),
+                    image_width=overlay_data.get('image_width'),
+                    image_height=overlay_data.get('image_height'),
+                    position_preset=overlay_data.get('position_preset', 'custom'),
+                    x_position=overlay_data.get('x_position', '(w-text_w)/2'),
+                    y_position=overlay_data.get('y_position', '(h-text_h)/2'),
+                    start_time=float(overlay_data.get('start_time', 0.0)),
+                    end_time=float(overlay_data.get('end_time', 5.0)),
+                    animation=overlay_data.get('animation', 'fade'),
+                    fade_in_duration=float(overlay_data.get('fade_in_duration', 0.4)),
+                    fade_out_duration=float(overlay_data.get('fade_out_duration', 0.4)),
+                    font_file=overlay_data.get('font_file', 'fonts/Roboto-Regular.ttf'),
+                    font_size=int(overlay_data.get('font_size', 48)),
+                    font_color=overlay_data.get('font_color', 'white'),
+                    has_box=overlay_data.get('has_box', False),
+                    box_color=overlay_data.get('box_color', 'black@0.5'),
+                    box_border_width=int(overlay_data.get('box_border_width', 12)),
+                )
+                overlay.save()
+            
+            return JsonResponse({
+                'success': True,
+                'preset_id': preset.id,
+                'message': _('Preset saved successfully')
+            })
+            
+        except Exception as e:
+            logger.exception("Error saving preset")
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    
+    def overlay_count(self, obj):
+        """Display count of overlays."""
+        if obj.pk:
+            return obj.overlays.count()
+        return 0
+    overlay_count.short_description = _('Overlays')
+    
+    def edit_in_ui(self, obj):
+        """Link to visual editor."""
+        if obj.pk:
+            url = reverse('admin:media_files_videopreset_edit_preset', args=[obj.id])
+            return format_html(
+                '<a href="{}" class="button">🎨 {}</a>',
+                url,
+                _('Visual Editor')
+            )
+        return '-'
+    edit_in_ui.short_description = _('Editor')
+    
+    def save_model(self, request, obj, form, change):
+        """Set created_by on new presets."""
+        if not change and not obj.created_by:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+    
+    def changelist_view(self, request, extra_context=None):
+        """Add available JSON presets to changelist context."""
+        extra_context = extra_context or {}
+        from media_files.rendering.presets import list_style_presets
+        extra_context['available_json_presets'] = list_style_presets()
+        return super().changelist_view(request, extra_context=extra_context)
+    
+    def import_all_presets_view(self, request):
+        """Import all JSON presets from video_presets/style directory."""
+        from django.core.management import call_command
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        
+        try:
+            call_command('import_json_presets')
+            messages.success(request, _('All presets imported successfully'))
+        except Exception as e:
+            messages.error(request, _('Error importing presets: %s') % str(e))
+        
+        return redirect('admin:media_files_videopreset_changelist')
+    
+    def import_single_preset_view(self, request, preset_name):
+        """Import a single JSON preset by name."""
+        from django.core.management import call_command
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        
+        try:
+            call_command('import_json_presets', preset_name=preset_name)
+            messages.success(request, _('Preset "%s" imported successfully') % preset_name)
+        except Exception as e:
+            messages.error(request, _('Error importing preset "%s": %s') % (preset_name, str(e)))
+        
+        return redirect('admin:media_files_videopreset_changelist')
+
+
+@admin.register(VideoEncodePreset)
+class VideoEncodePresetAdmin(admin.ModelAdmin):
+    """Admin interface for video encode presets."""
+
+    list_display = [
+        'display_name', 'name', 'width', 'height', 'fps', 
+        'video_bitrate_k', 'audio_bitrate_k', 'updated_at'
+    ]
+    list_filter = ['vcodec', 'acodec', 'x264_preset', 'x264_profile']
+    search_fields = ['name', 'display_name', 'description']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'display_name', 'description')
+        }),
+        (_('Video Settings'), {
+            'fields': (
+                'width', 'height', 'fps', 'vcodec', 'video_bitrate_k',
+                'pix_fmt', 'x264_preset', 'x264_profile'
+            )
+        }),
+        (_('Audio Settings'), {
+            'fields': (
+                'acodec', 'audio_bitrate_k', 'audio_sample_rate', 'audio_channels'
+            )
+        }),
+        (_('Information'), {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        """Auto-generate display_name if not provided and save to JSON file."""
+        if not obj.display_name:
+            obj.display_name = f"{obj.height}p ({obj.video_bitrate_k}k)"
+        super().save_model(request, obj, form, change)
+        
+        # Export to JSON file after saving
+        try:
+            import json
+            from pathlib import Path
+            from django.conf import settings
+            
+            encode_dir = Path(settings.BASE_DIR) / 'media_files' / 'video_presets' / 'encode'
+            encode_dir.mkdir(parents=True, exist_ok=True)
+            
+            json_file = encode_dir / f"{obj.name}.json"
+            with open(json_file, 'w', encoding='utf-8') as f:
+                json.dump(obj.to_json(), f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            logger.error(f"Failed to save encode preset to JSON: {e}")
+
+
+@admin.register(PresetOverlay)
+class PresetOverlayAdmin(admin.ModelAdmin):
+    """Admin interface for preset overlays."""
+
+    list_display = [
+        'preset', 'segment', 'order', 'overlay_type',
+        'preview_text', 'animation', 'timing'
+    ]
+    list_filter = ['preset', 'segment', 'overlay_type', 'animation']
+    search_fields = ['preset__name', 'text_template', 'image_path']
+    
+    fieldsets = (
+        (None, {
+            'fields': ('preset', 'segment', 'order', 'overlay_type')
+        }),
+        (_('Content'), {
+            'fields': ('text_template', 'image_path', 'image_width', 'image_height')
+        }),
+        (_('Position'), {
+            'fields': ('position_preset', 'x_position', 'y_position')
+        }),
+        (_('Timing & Animation'), {
+            'fields': (
+                'start_time', 'end_time', 'animation',
+                'fade_in_duration', 'fade_out_duration'
+            )
+        }),
+        (_('Text Styling'), {
+            'fields': (
+                'font_file', 'font_size', 'font_color',
+                'has_box', 'box_color', 'box_border_width'
+            )
+        }),
+    )
+    
+    def preview_text(self, obj):
+        """Show preview of text or image path."""
+        if obj.overlay_type == 'text':
+            text = obj.text_template[:50]
+            if len(obj.text_template) > 50:
+                text += '...'
+            return text
+        else:
+            return obj.image_path
+    preview_text.short_description = _('Content')
+    
+    def timing(self, obj):
+        """Show timing info."""
+        return f"{obj.start_time}s - {obj.end_time}s"
+    timing.short_description = _('Timing')

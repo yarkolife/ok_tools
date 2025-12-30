@@ -1,0 +1,41 @@
+{
+  "name": "bold_web_caption_v1",
+  "intro_clip": null,
+  "outro_clip": null,
+  "segment_duration": 5.0,
+  "overlays": {
+    "intro": [
+      {
+        "type": "text",
+        "template": "{license.title}",
+        "x": "(W-text_w)/2",
+        "y": "H-90",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.4,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Montserrat-SemiBold.ttf",
+        "fontsize": 32,
+        "fontcolor": "white"
+      }
+    ],
+    "outro": [
+      {
+        "type": "text",
+        "template": "{license.title}",
+        "x": "(W-text_w)/2",
+        "y": "H-90",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.4,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Montserrat-SemiBold.ttf",
+        "fontsize": 32,
+        "fontcolor": "white"
+      }
+    ]
+  }
+}
+
