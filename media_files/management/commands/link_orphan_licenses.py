@@ -120,9 +120,9 @@ class Command(BaseCommand):
                 if videos.count() > 1:
                     storage_priority = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
                     video = max(videos, key=lambda v: (
-                        storage_priority.get(v.storage_location.storage_type, 0),
+                        v.created_at,
                         v.total_bitrate or 0,
-                        v.created_at
+                        storage_priority.get(v.storage_location.storage_type, 0)
                     ))
                     self.stdout.write(
                         f'#{license.number}: Found {videos.count()} videos, '

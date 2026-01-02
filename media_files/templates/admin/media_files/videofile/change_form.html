@@ -85,8 +85,11 @@
         </div>
         
         <div style="margin-top: 10px; text-align: center;">
-            <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download class="button" style="padding: 8px 16px; background: #417690; color: white; text-decoration: none; border-radius: 4px;">
+            <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download class="button" style="padding: 8px 16px; background: #417690; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">
                 📥 {% trans "Download Video" %}
+            </a>
+            <a href="{% url 'media_files:render_video_admin' original.id %}" class="button" style="padding: 8px 16px; background: #28a745; color: white; text-decoration: none; border-radius: 4px;">
+                🎬 {% trans "Render Video with Overlays" %}
             </a>
         </div>
         

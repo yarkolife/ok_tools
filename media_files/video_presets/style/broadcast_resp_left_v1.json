@@ -1,0 +1,41 @@
+{
+  "name": "broadcast_resp_left_v1",
+  "intro_clip": null,
+  "outro_clip": null,
+  "segment_duration": 5.0,
+  "overlays": {
+    "intro": [
+      {
+        "type": "text",
+        "template": "{labels.broadcast_responsibility}: {profile.display}",
+        "x": "40",
+        "y": "h-120",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_up",
+        "fade_in": 0.5,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 30,
+        "fontcolor": "white"
+      }
+    ],
+    "outro": [
+      {
+        "type": "text",
+        "template": "{labels.broadcast_responsibility}: {profile.display}",
+        "x": "40",
+        "y": "h-120",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_up",
+        "fade_in": 0.5,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 30,
+        "fontcolor": "white"
+      }
+    ]
+  }
+}
+

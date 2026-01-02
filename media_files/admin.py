@@ -661,6 +661,11 @@ class VideoFileAdmin(admin.ModelAdmin):
         'has_video', 'has_audio',
         HasDuplicatesFilter, IsPrimaryVersionFilter, FPSFilter
     ]
+    
+    def get_rangefilter_created_at_title(self, request, field_path):
+        """Set a custom filter name for created_at DateRangeFilter."""
+        return _('Created at')
+    
     search_fields = ['number', 'filename', 'video_codec', 'audio_codec']
     def get_readonly_fields(self, request, obj=None):
         """Make fields editable when adding new video."""
@@ -812,10 +817,42 @@ class VideoFileAdmin(admin.ModelAdmin):
             )
 
             storage_root = Path(source.storage_location.path)
-            rel_dir = Path("rendered") / style.name / encode.name
+            source_rel_path = Path(source.file_path)
+            rel_dir = source_rel_path.parent  # Same directory as source
             src_stem = Path(source.filename).stem
-            out_name = f"{src_stem}__rendered__{style.name}__{encode.name}.mp4"
-            rel_out = _ensure_unique_output_relpath(source.storage_location, source.number, rel_dir / out_name)
+            
+            # Base filename with version suffix (_v1, _v2, etc.)
+            base_stem = src_stem
+            base_suffix = ".mp4"
+            
+            def is_path_taken(candidate_rel: Path) -> bool:
+                """Check if path is taken (exists in DB or filesystem)."""
+                cand_str = str(candidate_rel).replace("\\", "/")
+                # Check database
+                if VideoFile.objects.filter(
+                    storage_location=source.storage_location,
+                    file_path=cand_str
+                ).exists():
+                    return True
+                # Check filesystem
+                abs_candidate = storage_root / candidate_rel
+                if abs_candidate.exists():
+                    return True
+                return False
+            
+            # Find first available version starting from _v1
+            version = 1
+            while version < 1000:
+                candidate_name = f"{base_stem}_v{version}{base_suffix}"
+                rel_out = rel_dir / candidate_name
+                if not is_path_taken(rel_out):
+                    break
+                version += 1
+            else:
+                logger.error("Could not find a free output filename for %s (too many versions exist)", source.full_path)
+                failed += 1
+                continue
+            
             abs_out = storage_root / rel_out
             abs_out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -936,10 +973,43 @@ class VideoFileAdmin(admin.ModelAdmin):
                 continue
 
             storage_root = Path(source.storage_location.path)
-            rel_dir = Path("rendered") / style.name / encode.name
+            source_rel_path = Path(source.file_path)
+            rel_dir = source_rel_path.parent  # Same directory as source
             src_stem = Path(source.filename).stem
-            out_name = f"{src_stem}__preview__{int(preview_seconds)}s__{style.name}__{encode.name}.mp4"
-            rel_out = _ensure_unique_output_relpath(source.storage_location, source.number, rel_dir / out_name)
+            
+            # Base filename with version suffix (_v1, _v2, etc.)
+            # For preview, add _preview to the stem
+            base_stem = f"{src_stem}_preview"
+            base_suffix = ".mp4"
+            
+            def is_path_taken(candidate_rel: Path) -> bool:
+                """Check if path is taken (exists in DB or filesystem)."""
+                cand_str = str(candidate_rel).replace("\\", "/")
+                # Check database
+                if VideoFile.objects.filter(
+                    storage_location=source.storage_location,
+                    file_path=cand_str
+                ).exists():
+                    return True
+                # Check filesystem
+                abs_candidate = storage_root / candidate_rel
+                if abs_candidate.exists():
+                    return True
+                return False
+            
+            # Find first available version starting from _v1
+            version = 1
+            while version < 1000:
+                candidate_name = f"{base_stem}_v{version}{base_suffix}"
+                rel_out = rel_dir / candidate_name
+                if not is_path_taken(rel_out):
+                    break
+                version += 1
+            else:
+                logger.error("Could not find a free output filename for %s (too many versions exist)", source.full_path)
+                failed += 1
+                continue
+            
             abs_out = storage_root / rel_out
             abs_out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1409,10 +1479,42 @@ class VideoFileAdmin(admin.ModelAdmin):
 
             try:
                 storage_root = Path(source.storage_location.path)
-                rel_dir = Path("rendered") / "intro_outro_full" / encode.name
+                source_rel_path = Path(source.file_path)
+                rel_dir = source_rel_path.parent  # Same directory as source
                 src_stem = Path(source.filename).stem
-                out_name = f"{src_stem}__intro_outro_full__{encode.name}.mp4"
-                rel_out = _ensure_unique_output_relpath(source.storage_location, source.number, rel_dir / out_name)
+                
+                # Base filename with version suffix (_v1, _v2, etc.)
+                base_stem = src_stem
+                base_suffix = ".mp4"
+                
+                def is_path_taken(candidate_rel: Path) -> bool:
+                    """Check if path is taken (exists in DB or filesystem)."""
+                    cand_str = str(candidate_rel).replace("\\", "/")
+                    # Check database
+                    if VideoFile.objects.filter(
+                        storage_location=source.storage_location,
+                        file_path=cand_str
+                    ).exists():
+                        return True
+                    # Check filesystem
+                    abs_candidate = storage_root / candidate_rel
+                    if abs_candidate.exists():
+                        return True
+                    return False
+                
+                # Find first available version starting from _v1
+                version = 1
+                while version < 1000:
+                    candidate_name = f"{base_stem}_v{version}{base_suffix}"
+                    rel_out = rel_dir / candidate_name
+                    if not is_path_taken(rel_out):
+                        break
+                    version += 1
+                else:
+                    logger.error("Could not find a free output filename for %s (too many versions exist)", source.full_path)
+                    failed += 1
+                    continue
+                
                 abs_out = storage_root / rel_out
                 abs_out.parent.mkdir(parents=True, exist_ok=True)
 

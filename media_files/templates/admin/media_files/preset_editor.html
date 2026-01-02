@@ -1,0 +1,1076 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% if preset %}{% trans "Edit Preset" %}{% else %}{% trans "New Preset" %}{% endif %}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    body {
+        background: #1e1e1e;
+        color: #e0e0e0;
+    }
+    
+    #content {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .preset-editor {
+        height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .editor-toolbar {
+        background: #2d2d2d;
+        border-bottom: 1px solid #3d3d3d;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .editor-toolbar input,
+    .editor-toolbar button,
+    .editor-toolbar a {
+        background: #3d3d3d;
+        border: 1px solid #4d4d4d;
+        color: #e0e0e0;
+        padding: 6px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .editor-toolbar button:hover,
+    .editor-toolbar a:hover {
+        background: #4d4d4d;
+    }
+    
+    .editor-main {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+    
+    .preview-panel {
+        flex: 1;
+        background: #1a1a1a;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    
+    .preview-canvas {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .video-preview {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        max-width: 90%;
+        max-height: 80%;
+        background: #000;
+        border: 2px solid #3d3d3d;
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+    
+    .overlay-element {
+        position: absolute;
+        cursor: move;
+        border: 2px solid transparent;
+        transition: border-color 0.2s;
+        min-width: 50px;
+        min-height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .overlay-element:hover {
+        border-color: #00a8ff;
+    }
+    
+    .overlay-element.selected {
+        border-color: #00ff00;
+        box-shadow: 0 0 10px rgba(0,255,0,0.5);
+    }
+    
+    .overlay-text {
+        padding: 8px 16px;
+        font-family: Arial, sans-serif;
+        white-space: pre-wrap;
+        text-align: center;
+    }
+    
+    .overlay-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .timeline-panel {
+        background: #252525;
+        border-top: 1px solid #3d3d3d;
+        height: 200px;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    
+    .timeline-track {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        background: #2d2d2d;
+        border-radius: 4px;
+        padding: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .timeline-track:hover {
+        background: #3d3d3d;
+    }
+    
+    .timeline-track.selected {
+        background: #004080;
+        border-left: 3px solid #00a8ff;
+    }
+    
+    .track-label {
+        width: 150px;
+        font-size: 12px;
+        color: #a0a0a0;
+    }
+    
+    .track-content {
+        flex: 1;
+        height: 30px;
+        background: #1a1a1a;
+        border-radius: 3px;
+        position: relative;
+    }
+    
+    .track-clip {
+        position: absolute;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 3px;
+        border: 1px solid rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        font-size: 11px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    
+    .properties-panel {
+        width: 350px;
+        background: #252525;
+        border-left: 1px solid #3d3d3d;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    
+    .property-group {
+        margin-bottom: 20px;
+    }
+    
+    .property-group h6 {
+        color: #a0a0a0;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #3d3d3d;
+        padding-bottom: 5px;
+    }
+    
+    .property-row {
+        margin-bottom: 12px;
+    }
+    
+    .property-row label {
+        display: block;
+        font-size: 12px;
+        color: #b0b0b0;
+        margin-bottom: 4px;
+    }
+    
+    .property-row input,
+    .property-row select,
+    .property-row textarea {
+        width: 100%;
+        background: #3d3d3d;
+        border: 1px solid #4d4d4d;
+        color: #e0e0e0;
+        padding: 6px 10px;
+        border-radius: 3px;
+        font-size: 13px;
+        box-sizing: border-box;
+    }
+    
+    .property-row input:focus,
+    .property-row select:focus,
+    .property-row textarea:focus {
+        outline: none;
+        border-color: #00a8ff;
+    }
+    
+    .property-row textarea {
+        resize: vertical;
+        min-height: 60px;
+        font-family: monospace;
+    }
+    
+    .property-row input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+    }
+    
+    .property-row input[type="color"] {
+        height: 35px;
+        padding: 2px;
+    }
+    
+    .btn-add-overlay {
+        width: 100%;
+        background: #00a8ff;
+        border: none;
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+    
+    .btn-add-overlay:hover {
+        background: #0088cc;
+    }
+    
+    .segment-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+    
+    .segment-tab {
+        flex: 1;
+        background: #3d3d3d;
+        border: 1px solid #4d4d4d;
+        color: #a0a0a0;
+        padding: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+    
+    .segment-tab.active {
+        background: #00a8ff;
+        color: white;
+        border-color: #00a8ff;
+    }
+    
+    .template-variables {
+        background: #2d2d2d;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+    
+    .template-variables h6 {
+        font-size: 11px;
+        color: #a0a0a0;
+        margin-bottom: 8px;
+    }
+    
+    .template-var {
+        display: inline-block;
+        background: #3d3d3d;
+        padding: 3px 8px;
+        margin: 3px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-family: monospace;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .template-var:hover {
+        background: #4d4d4d;
+    }
+    
+    .color-picker-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .color-picker-wrapper input[type="color"] {
+        width: 60px;
+    }
+    
+    .color-picker-wrapper input[type="text"] {
+        flex: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="preset-editor">
+    <!-- Toolbar -->
+    <div class="editor-toolbar">
+        <input type="text" id="preset-name" placeholder="{% trans 'Preset Name' %}" value="{{ preset.name|default:'' }}">
+        <input type="text" id="preset-display-name" placeholder="{% trans 'Display Name' %}" value="{{ preset.display_name|default:'' }}">
+        <button id="save-preset" class="btn btn-success">
+            <i class="fas fa-save"></i> {% trans "Save" %}
+        </button>
+        <button id="preview-render" class="btn btn-info">
+            <i class="fas fa-play"></i> {% trans "Preview" %}
+        </button>
+        <a href="{% url 'admin:media_files_videopreset_changelist' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> {% trans "Back" %}
+        </a>
+    </div>
+
+    <!-- Main Editor Area -->
+    <div class="editor-main">
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <!-- Segment Tabs -->
+            <div class="segment-tabs" style="padding: 10px 20px;">
+                <div class="segment-tab active" data-segment="intro">
+                    <i class="fas fa-film"></i> {% trans "Intro" %}
+                </div>
+                <div class="segment-tab" data-segment="outro">
+                    <i class="fas fa-film"></i> {% trans "Outro" %}
+                </div>
+            </div>
+
+            <!-- Video Preview Canvas -->
+            <div class="preview-canvas">
+                <div class="video-preview" id="video-preview">
+                    <!-- Overlay elements will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-panel">
+                <div id="timeline-tracks">
+                    <!-- Timeline tracks will be rendered here -->
+                </div>
+                <button class="btn-add-overlay" id="add-text-overlay">
+                    <i class="fas fa-plus"></i> {% trans "Add Text Overlay" %}
+                </button>
+                <button class="btn-add-overlay" id="add-image-overlay" style="background: #764ba2;">
+                    <i class="fas fa-plus"></i> {% trans "Add Image Overlay" %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Properties Panel -->
+        <div class="properties-panel">
+            <div id="properties-content">
+                <p class="text-muted text-center">{% trans "Select an overlay to edit properties" %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global state
+let overlays = [];
+let selectedOverlay = null;
+let currentSegment = 'intro';
+let presetId = {{ preset.id|default:'null' }};
+const loadPresetUrl = '{% url "admin:media_files_videopreset_preset_load" preset.id %}';
+const savePresetUrl = '{% url "admin:media_files_videopreset_preset_save" preset.id %}';
+
+// Template variables for quick insertion
+const templateVars = [
+    '{license.title}',
+    '{license.subtitle}',
+    '{license.number}',
+    '{license.title_line_wrapped}',
+    '{license.created_year}',
+    '{profile.display}',
+    '{profile.media_authority_full_name}',
+    '{labels.broadcast_responsibility}'
+];
+
+// Position presets
+const positionPresets = {
+    'center': { x: '(w-text_w)/2', y: '(h-text_h)/2' },
+    'top_left': { x: '40', y: '40' },
+    'top_center': { x: '(w-text_w)/2', y: '40' },
+    'top_right': { x: 'w-text_w-40', y: '40' },
+    'bottom_left': { x: '40', y: 'h-text_h-40' },
+    'bottom_center': { x: '(w-text_w)/2', y: 'h-text_h-40' },
+    'bottom_right': { x: 'w-text_w-40', y: 'h-text_h-40' },
+    'lower_third_left': { x: '40', y: 'h-140' },
+    'lower_third_right': { x: 'w-text_w-40', y: 'h-140' }
+};
+
+// Sample license data for preview
+const sampleLicense = {
+    title: '{{ sample_license.title|default:"Sample Title"|escapejs }}',
+    subtitle: '{{ sample_license.subtitle|default:"Sample Subtitle"|escapejs }}',
+    number: '{{ sample_license.number|default:"12345" }}',
+    created_year: '{{ sample_license.created_at.year|default:"2024" }}'
+};
+
+const sampleProfile = {
+    display: 'Sample Profile',
+    media_authority_full_name: 'Media Authority Name'
+};
+
+const sampleLabels = {
+    broadcast_responsibility: 'Sendeverantwortung'
+};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    setupSegmentTabs();
+    setupAddOverlayButtons();
+    
+    {% if preset %}
+        loadPreset({{ preset.id }});
+    {% else %}
+        renderPreview();
+    {% endif %}
+    
+    document.getElementById('save-preset').addEventListener('click', savePreset);
+});
+
+// Segment tabs
+function setupSegmentTabs() {
+    document.querySelectorAll('.segment-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.segment-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            currentSegment = this.dataset.segment;
+            renderPreview();
+            renderTimeline();
+        });
+    });
+}
+
+// Add overlay buttons
+function setupAddOverlayButtons() {
+    document.getElementById('add-text-overlay').addEventListener('click', () => addOverlay('text'));
+    document.getElementById('add-image-overlay').addEventListener('click', () => addOverlay('image'));
+}
+
+// Add new overlay
+function addOverlay(type) {
+    const overlay = {
+        id: Date.now(),
+        type: type,
+        segment: currentSegment,
+        order: overlays.filter(o => o.segment === currentSegment).length,
+        text_template: type === 'text' ? '{license.title}' : '',
+        image_path: type === 'image' ? 'logo.png' : '',
+        image_width: 120,
+        image_height: 120,
+        position_preset: 'center',
+        x_position: '(w-text_w)/2',
+        y_position: '(h-text_h)/2',
+        start_time: 0.0,
+        end_time: 5.0,
+        animation: 'fade',
+        fade_in_duration: 0.4,
+        fade_out_duration: 0.4,
+        font_file: 'fonts/Roboto-Regular.ttf',
+        font_size: 48,
+        font_color: 'white',
+        has_box: false,
+        box_color: 'black@0.5',
+        box_border_width: 12
+    };
+    
+    overlays.push(overlay);
+    selectOverlay(overlay);
+    renderPreview();
+    renderTimeline();
+}
+
+// Render preview
+function renderPreview() {
+    const preview = document.getElementById('video-preview');
+    preview.innerHTML = '';
+    
+    const currentOverlays = overlays.filter(o => o.segment === currentSegment);
+    currentOverlays.sort((a, b) => a.order - b.order);
+    
+    currentOverlays.forEach(overlay => {
+        const el = document.createElement('div');
+        el.className = 'overlay-element';
+        el.dataset.overlayId = overlay.id;
+        
+        if (selectedOverlay && selectedOverlay.id === overlay.id) {
+            el.classList.add('selected');
+        }
+        
+        if (overlay.type === 'text') {
+            const textEl = document.createElement('div');
+            textEl.className = 'overlay-text';
+            textEl.textContent = renderTemplate(overlay.text_template);
+            textEl.style.fontSize = overlay.font_size + 'px';
+            textEl.style.color = overlay.font_color;
+            
+            if (overlay.has_box) {
+                const bgColor = overlay.box_color.replace('@', ',').replace(')', '');
+                textEl.style.backgroundColor = bgColor.includes(',') ? `rgba(${bgColor})` : overlay.box_color;
+                textEl.style.padding = overlay.box_border_width + 'px';
+            }
+            
+            el.appendChild(textEl);
+        } else {
+            const imgEl = document.createElement('div');
+            imgEl.className = 'overlay-image';
+            imgEl.textContent = '[Image: ' + overlay.image_path + ']';
+            imgEl.style.width = overlay.image_width + 'px';
+            imgEl.style.height = overlay.image_height + 'px';
+            imgEl.style.border = '2px dashed #666';
+            imgEl.style.display = 'flex';
+            imgEl.style.alignItems = 'center';
+            imgEl.style.justifyContent = 'center';
+            imgEl.style.fontSize = '12px';
+            el.appendChild(imgEl);
+        }
+        
+        // Position
+        const pos = calculatePosition(overlay);
+        el.style.left = pos.x + 'px';
+        el.style.top = pos.y + 'px';
+        
+        // Click to select
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectOverlay(overlay);
+        });
+        
+        // Drag to move
+        makeDraggable(el, overlay);
+        
+        preview.appendChild(el);
+    });
+}
+
+// Calculate position from expression
+function calculatePosition(overlay) {
+    const preview = document.getElementById('video-preview');
+    if (!preview) {
+        return { x: 0, y: 0 };
+    }
+    
+    const w = preview.offsetWidth || 1280;
+    const h = preview.offsetHeight || 720;
+    const text_w = 200; // Estimated text width
+    const text_h = 50;  // Estimated text height
+    
+    // Safe evaluation function
+    function safeEval(expr, vars) {
+        try {
+            if (!expr || typeof expr !== 'string') {
+                return parseFloat(expr) || 0;
+            }
+            
+            let safeExpr = expr.trim();
+            
+            // Define replacement order: longest variable names first to avoid partial matches
+            // This ensures 'text_w' is replaced before 'w', and 'text_h' before 'h'
+            const replacementOrder = ['text_w', 'text_h', 'w', 'h'];
+            
+            for (const key of replacementOrder) {
+                if (vars.hasOwnProperty(key)) {
+                    const value = vars[key];
+                    // Escape special regex characters in the key
+                    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    // Use a regex that matches the key as a complete identifier
+                    // Match only when key is not part of another identifier
+                    // Pattern: (start or non-identifier char) + key + (end or non-identifier char)
+                    // Identifier chars are: a-z, A-Z, 0-9, _
+                    const regex = new RegExp('(^|[^a-zA-Z0-9_])' + escapedKey + '([^a-zA-Z0-9_]|$)', 'g');
+                    safeExpr = safeExpr.replace(regex, function(match, prefix, suffix) {
+                        // Keep the prefix (non-identifier char or start), replace key with value, keep suffix
+                        return prefix + value + (suffix || '');
+                    });
+                }
+            }
+            
+            // Use Function constructor instead of eval for better security
+            const result = new Function('return ' + safeExpr)();
+            return typeof result === 'number' ? result : 0;
+        } catch (e) {
+            console.warn('Error evaluating position expression:', expr, e);
+            // Fallback: try to parse as number
+            const num = parseFloat(expr);
+            return isNaN(num) ? 0 : num;
+        }
+    }
+    
+    const vars = {
+        'w': w,
+        'h': h,
+        'text_w': text_w,
+        'text_h': text_h
+    };
+    
+    let x = safeEval(overlay.x_position || '0', vars);
+    let y = safeEval(overlay.y_position || '0', vars);
+    
+    return { x: Math.max(0, x), y: Math.max(0, y) };
+}
+
+// Render template with sample data
+function renderTemplate(template) {
+    return template
+        .replace(/{license\.title}/g, sampleLicense.title)
+        .replace(/{license\.subtitle}/g, sampleLicense.subtitle)
+        .replace(/{license\.number}/g, sampleLicense.number)
+        .replace(/{license\.title_line_wrapped}/g, sampleLicense.title)
+        .replace(/{license\.created_year}/g, sampleLicense.created_year)
+        .replace(/{profile\.display}/g, sampleProfile.display)
+        .replace(/{profile\.media_authority_full_name}/g, sampleProfile.media_authority_full_name)
+        .replace(/{labels\.broadcast_responsibility}/g, sampleLabels.broadcast_responsibility);
+}
+
+// Make element draggable
+function makeDraggable(el, overlay) {
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
+    
+    const handleMouseDown = function(e) {
+        if (e.target !== el && e.target.parentElement !== el) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialX = el.offsetLeft;
+        initialY = el.offsetTop;
+        e.preventDefault();
+    };
+    
+    const handleMouseMove = function(e) {
+        if (!isDragging) return;
+        
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        
+        el.style.left = (initialX + dx) + 'px';
+        el.style.top = (initialY + dy) + 'px';
+    };
+    
+    const handleMouseUp = function() {
+        if (isDragging) {
+            isDragging = false;
+            // Update overlay position
+            overlay.x_position = el.offsetLeft.toString();
+            overlay.y_position = el.offsetTop.toString();
+            overlay.position_preset = 'custom';
+            if (selectedOverlay && selectedOverlay.id === overlay.id) {
+                renderProperties();
+            }
+            // Remove listeners
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+    };
+    
+    el.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+}
+
+// Select overlay
+function selectOverlay(overlay) {
+    selectedOverlay = overlay;
+    renderPreview();
+    renderTimeline();
+    renderProperties();
+}
+
+// Render timeline
+function renderTimeline() {
+    const timeline = document.getElementById('timeline-tracks');
+    timeline.innerHTML = '';
+    
+    const currentOverlays = overlays.filter(o => o.segment === currentSegment);
+    currentOverlays.sort((a, b) => a.order - b.order);
+    
+    currentOverlays.forEach(overlay => {
+        const track = document.createElement('div');
+        track.className = 'timeline-track';
+        if (selectedOverlay && selectedOverlay.id === overlay.id) {
+            track.classList.add('selected');
+        }
+        
+        const label = document.createElement('div');
+        label.className = 'track-label';
+        label.textContent = overlay.type === 'text' 
+            ? renderTemplate(overlay.text_template).substring(0, 20) 
+            : overlay.image_path;
+        
+        const content = document.createElement('div');
+        content.className = 'track-content';
+        
+        const clip = document.createElement('div');
+        clip.className = 'track-clip';
+        const duration = 5.0; // segment duration
+        clip.style.left = (overlay.start_time / duration * 100) + '%';
+        clip.style.width = ((overlay.end_time - overlay.start_time) / duration * 100) + '%';
+        clip.textContent = overlay.animation;
+        
+        content.appendChild(clip);
+        track.appendChild(label);
+        track.appendChild(content);
+        
+        track.addEventListener('click', () => selectOverlay(overlay));
+        
+        timeline.appendChild(track);
+    });
+}
+
+// Render properties panel
+function renderProperties() {
+    if (!selectedOverlay) {
+        document.getElementById('properties-content').innerHTML = 
+            '<p class="text-muted text-center">{% trans "Select an overlay to edit properties" %}</p>';
+        return;
+    }
+    
+    const o = selectedOverlay;
+    let html = `
+        <div class="property-group">
+            <h6>{% trans "Overlay Type" %}</h6>
+            <div class="property-row">
+                <label>{% trans "Type" %}</label>
+                <select id="prop-type" disabled>
+                    <option value="text" ${o.type === 'text' ? 'selected' : ''}>{% trans "Text" %}</option>
+                    <option value="image" ${o.type === 'image' ? 'selected' : ''}>{% trans "Image" %}</option>
+                </select>
+            </div>
+        </div>
+    `;
+    
+    if (o.type === 'text') {
+        html += `
+            <div class="property-group">
+                <h6>{% trans "Text Content" %}</h6>
+                <div class="property-row">
+                    <label>{% trans "Template" %}</label>
+                    <textarea id="prop-text-template">${o.text_template}</textarea>
+                </div>
+                <div class="template-variables">
+                    <h6>{% trans "Quick Insert" %}</h6>
+                    ${templateVars.map(v => `<span class="template-var" onclick="insertTemplate('${v}')">${v}</span>`).join('')}
+                </div>
+            </div>
+            
+            <div class="property-group">
+                <h6>{% trans "Text Style" %}</h6>
+                <div class="property-row">
+                    <label>{% trans "Font Size" %}</label>
+                    <input type="number" id="prop-font-size" value="${o.font_size}" min="12" max="200">
+                </div>
+                <div class="property-row">
+                    <label>{% trans "Font Color" %}</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="prop-font-color-picker" value="${o.font_color === 'white' ? '#ffffff' : o.font_color}">
+                        <input type="text" id="prop-font-color" value="${o.font_color}">
+                    </div>
+                </div>
+                <div class="property-row">
+                    <label>
+                        <input type="checkbox" id="prop-has-box" ${o.has_box ? 'checked' : ''}>
+                        {% trans "Background Box" %}
+                    </label>
+                </div>
+                <div class="property-row" id="box-settings" style="display: ${o.has_box ? 'block' : 'none'}">
+                    <label>{% trans "Box Color" %}</label>
+                    <input type="text" id="prop-box-color" value="${o.box_color}">
+                </div>
+                <div class="property-row" id="box-border-settings" style="display: ${o.has_box ? 'block' : 'none'}">
+                    <label>{% trans "Box Padding" %}</label>
+                    <input type="number" id="prop-box-border" value="${o.box_border_width}" min="0" max="50">
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="property-group">
+                <h6>{% trans "Image" %}</h6>
+                <div class="property-row">
+                    <label>{% trans "Image Path" %}</label>
+                    <input type="text" id="prop-image-path" value="${o.image_path}">
+                </div>
+                <div class="property-row">
+                    <label>{% trans "Width" %}</label>
+                    <input type="number" id="prop-image-width" value="${o.image_width}" min="10" max="1000">
+                </div>
+                <div class="property-row">
+                    <label>{% trans "Height" %}</label>
+                    <input type="number" id="prop-image-height" value="${o.image_height}" min="10" max="1000">
+                </div>
+            </div>
+        `;
+    }
+    
+    html += `
+        <div class="property-group">
+            <h6>{% trans "Position" %}</h6>
+            <div class="property-row">
+                <label>{% trans "Position Preset" %}</label>
+                <select id="prop-position-preset">
+                    <option value="custom" ${o.position_preset === 'custom' ? 'selected' : ''}>{% trans "Custom" %}</option>
+                    <option value="center" ${o.position_preset === 'center' ? 'selected' : ''}>{% trans "Center" %}</option>
+                    <option value="top_left" ${o.position_preset === 'top_left' ? 'selected' : ''}>{% trans "Top Left" %}</option>
+                    <option value="top_center" ${o.position_preset === 'top_center' ? 'selected' : ''}>{% trans "Top Center" %}</option>
+                    <option value="top_right" ${o.position_preset === 'top_right' ? 'selected' : ''}>{% trans "Top Right" %}</option>
+                    <option value="bottom_left" ${o.position_preset === 'bottom_left' ? 'selected' : ''}>{% trans "Bottom Left" %}</option>
+                    <option value="bottom_center" ${o.position_preset === 'bottom_center' ? 'selected' : ''}>{% trans "Bottom Center" %}</option>
+                    <option value="bottom_right" ${o.position_preset === 'bottom_right' ? 'selected' : ''}>{% trans "Bottom Right" %}</option>
+                    <option value="lower_third_left" ${o.position_preset === 'lower_third_left' ? 'selected' : ''}>{% trans "Lower Third Left" %}</option>
+                    <option value="lower_third_right" ${o.position_preset === 'lower_third_right' ? 'selected' : ''}>{% trans "Lower Third Right" %}</option>
+                </select>
+            </div>
+            <div class="property-row">
+                <label>{% trans "X Position" %}</label>
+                <input type="text" id="prop-x-position" value="${o.x_position}">
+            </div>
+            <div class="property-row">
+                <label>{% trans "Y Position" %}</label>
+                <input type="text" id="prop-y-position" value="${o.y_position}">
+            </div>
+        </div>
+        
+        <div class="property-group">
+            <h6>{% trans "Timing & Animation" %}</h6>
+            <div class="property-row">
+                <label>{% trans "Start Time (s)" %}</label>
+                <input type="number" id="prop-start-time" value="${o.start_time}" min="0" max="10" step="0.1">
+            </div>
+            <div class="property-row">
+                <label>{% trans "End Time (s)" %}</label>
+                <input type="number" id="prop-end-time" value="${o.end_time}" min="0" max="10" step="0.1">
+            </div>
+            <div class="property-row">
+                <label>{% trans "Animation" %}</label>
+                <select id="prop-animation">
+                    <option value="none" ${o.animation === 'none' ? 'selected' : ''}>{% trans "None" %}</option>
+                    <option value="fade" ${o.animation === 'fade' ? 'selected' : ''}>{% trans "Fade" %}</option>
+                    <option value="slide_up" ${o.animation === 'slide_up' ? 'selected' : ''}>{% trans "Slide Up" %}</option>
+                    <option value="slide_left" ${o.animation === 'slide_left' ? 'selected' : ''}>{% trans "Slide Left" %}</option>
+                    <option value="slide_right" ${o.animation === 'slide_right' ? 'selected' : ''}>{% trans "Slide Right" %}</option>
+                    <option value="slide_down" ${o.animation === 'slide_down' ? 'selected' : ''}>{% trans "Slide Down" %}</option>
+                </select>
+            </div>
+            <div class="property-row">
+                <label>{% trans "Fade In (s)" %}</label>
+                <input type="number" id="prop-fade-in" value="${o.fade_in_duration}" min="0" max="5" step="0.1">
+            </div>
+            <div class="property-row">
+                <label>{% trans "Fade Out (s)" %}</label>
+                <input type="number" id="prop-fade-out" value="${o.fade_out_duration}" min="0" max="5" step="0.1">
+            </div>
+        </div>
+        
+        <div class="property-group">
+            <button class="btn btn-danger btn-sm w-100" onclick="deleteOverlay()">
+                <i class="fas fa-trash"></i> {% trans "Delete Overlay" %}
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('properties-content').innerHTML = html;
+    
+    // Attach event listeners
+    attachPropertyListeners();
+}
+
+// Attach property change listeners
+function attachPropertyListeners() {
+    const props = [
+        'text-template', 'font-size', 'font-color', 'has-box', 'box-color', 'box-border',
+        'image-path', 'image-width', 'image-height',
+        'position-preset', 'x-position', 'y-position',
+        'start-time', 'end-time', 'animation', 'fade-in', 'fade-out'
+    ];
+    
+    props.forEach(prop => {
+        const el = document.getElementById('prop-' + prop);
+        if (!el) return;
+        
+        el.addEventListener('input', function() {
+            updateSelectedOverlay(prop, this.type === 'checkbox' ? this.checked : this.value);
+        });
+    });
+    
+    // Position preset change
+    const posPreset = document.getElementById('prop-position-preset');
+    if (posPreset) {
+        posPreset.addEventListener('change', function() {
+            if (this.value !== 'custom' && positionPresets[this.value]) {
+                selectedOverlay.x_position = positionPresets[this.value].x;
+                selectedOverlay.y_position = positionPresets[this.value].y;
+                document.getElementById('prop-x-position').value = selectedOverlay.x_position;
+                document.getElementById('prop-y-position').value = selectedOverlay.y_position;
+            }
+            selectedOverlay.position_preset = this.value;
+            renderPreview();
+        });
+    }
+    
+    // Has box toggle
+    const hasBox = document.getElementById('prop-has-box');
+    if (hasBox) {
+        hasBox.addEventListener('change', function() {
+            document.getElementById('box-settings').style.display = this.checked ? 'block' : 'none';
+            document.getElementById('box-border-settings').style.display = this.checked ? 'block' : 'none';
+            updateSelectedOverlay('has-box', this.checked);
+        });
+    }
+    
+    // Color picker sync
+    const colorPicker = document.getElementById('prop-font-color-picker');
+    const colorText = document.getElementById('prop-font-color');
+    if (colorPicker && colorText) {
+        colorPicker.addEventListener('input', function() {
+            colorText.value = this.value;
+            updateSelectedOverlay('font-color', this.value);
+        });
+    }
+}
+
+// Update selected overlay property
+function updateSelectedOverlay(prop, value) {
+    if (!selectedOverlay) return;
+    
+    const mapping = {
+        'text-template': 'text_template',
+        'font-size': 'font_size',
+        'font-color': 'font_color',
+        'has-box': 'has_box',
+        'box-color': 'box_color',
+        'box-border': 'box_border_width',
+        'image-path': 'image_path',
+        'image-width': 'image_width',
+        'image-height': 'image_height',
+        'position-preset': 'position_preset',
+        'x-position': 'x_position',
+        'y-position': 'y_position',
+        'start-time': 'start_time',
+        'end-time': 'end_time',
+        'animation': 'animation',
+        'fade-in': 'fade_in_duration',
+        'fade-out': 'fade_out_duration'
+    };
+    
+    const key = mapping[prop];
+    if (key) {
+        selectedOverlay[key] = value;
+        renderPreview();
+        renderTimeline();
+    }
+}
+
+// Insert template variable
+function insertTemplate(variable) {
+    const textarea = document.getElementById('prop-text-template');
+    if (textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        textarea.value = text.substring(0, start) + variable + text.substring(end);
+        selectedOverlay.text_template = textarea.value;
+        renderPreview();
+    }
+}
+
+// Delete overlay
+function deleteOverlay() {
+    if (!selectedOverlay) return;
+    if (!confirm('{% trans "Delete this overlay?" %}')) return;
+    
+    overlays = overlays.filter(o => o.id !== selectedOverlay.id);
+    selectedOverlay = null;
+    renderPreview();
+    renderTimeline();
+    renderProperties();
+}
+
+// Load preset
+function loadPreset(id) {
+    fetch(loadPresetUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const preset = data.preset;
+                document.getElementById('preset-name').value = preset.name;
+                document.getElementById('preset-display-name').value = preset.display_name;
+                overlays = preset.overlays;
+                renderPreview();
+                renderTimeline();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading preset:', error);
+        });
+}
+
+// Save preset
+function savePreset() {
+    const name = document.getElementById('preset-name').value.trim();
+    const displayName = document.getElementById('preset-display-name').value.trim();
+    
+    if (!name || !displayName) {
+        alert('{% trans "Please enter preset name and display name" %}');
+        return;
+    }
+    
+    const data = {
+        name: name,
+        display_name: displayName,
+        description: '',
+        segment_duration: 5.0,
+        intro_clip_path: '',
+        outro_clip_path: '',
+        is_public: false,
+        overlays: overlays
+    };
+    
+    fetch(savePresetUrl, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert(result.message || '{% trans "Preset saved successfully" %}');
+        } else {
+            alert('Error: ' + (result.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        alert('Error saving preset: ' + error);
+    });
+}
+</script>
+{% endblock %}
+

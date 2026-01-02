@@ -9,15 +9,16 @@
         "type": "text",
         "template": "{license.title}",
         "x": "(W-text_w)/2",
-        "y": "H-90",
+        "y": "(H-text_h)/2",
         "start": 0.0,
         "end": 5.0,
         "animation": "fade",
         "fade_in": 0.4,
         "fade_out": 0.4,
-        "fontfile": "fonts/Montserrat-SemiBold.ttf",
-        "fontsize": 32,
-        "fontcolor": "white"
+        "fontfile": "fonts/Impact.ttf",
+        "fontsize": 72,
+        "fontcolor": "white",
+        "uppercase": true
       }
     ],
     "outro": [
@@ -25,15 +26,16 @@
         "type": "text",
         "template": "{license.title}",
         "x": "(W-text_w)/2",
-        "y": "H-90",
+        "y": "(H-text_h)/2",
         "start": 0.0,
         "end": 5.0,
         "animation": "fade",
         "fade_in": 0.4,
         "fade_out": 0.4,
-        "fontfile": "fonts/Montserrat-SemiBold.ttf",
-        "fontsize": 32,
-        "fontcolor": "white"
+        "fontfile": "fonts/Impact.ttf",
+        "fontsize": 72,
+        "fontcolor": "white",
+        "uppercase": true
       }
     ]
   }

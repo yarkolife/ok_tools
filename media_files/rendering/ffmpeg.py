@@ -291,6 +291,8 @@ def _segment_filter_complex(
         current = out_label
 
     # Add text overlays via drawtext on the current stream.
+    # Track title line count to enforce rule: if title is 3+ lines, skip subtitle
+    title_lines_count = None
     for i, layer in enumerate([l for l in layers if l.type == "text"], start=1):
         if not layer.template:
             raise FfmpegError(_("Text overlay layer missing 'template'."))
@@ -313,10 +315,26 @@ def _segment_filter_complex(
             # Import locally to avoid importing Pillow on cold paths.
             from PIL import ImageFont
 
+            font = None
             try:
                 font = ImageFont.truetype(font_path, font_size_px)
             except Exception:
-                return [line]
+                # Try fallback fonts (same as in _render_text_png)
+                fallback_candidates = [
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf",
+                    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                ]
+                for cand in fallback_candidates:
+                    try:
+                        if Path(cand).exists():
+                            font = ImageFont.truetype(cand, font_size_px)
+                            break
+                    except Exception:
+                        continue
+                # If no font could be loaded, return original line
+                if font is None:
+                    return [line]
 
             def _measure(text: str) -> float:
                 try:
@@ -548,6 +566,10 @@ def _segment_filter_complex(
         # Render template and split into lines
         rendered_text = render_text_template(layer.template, ctx)
         
+        # Apply uppercase transformation if requested
+        if layer.uppercase:
+            rendered_text = rendered_text.upper()
+        
         # DEBUG: Log raw rendered text with code points (using INFO level to ensure visibility)
         logger.info(
             f"[TEXT DEBUG] Layer {i} template='{layer.template}' "
@@ -635,31 +657,182 @@ def _segment_filter_complex(
 
         # Determine if this is a title layer (we treat title specially)
         is_title_layer = bool(layer.template and "title" in layer.template.lower())
+        # Determine if this is a subtitle layer
+        is_subtitle_layer = bool(layer.template and "subtitle" in layer.template.lower())
+
+        # Rule: if title is 3+ lines, skip subtitle
+        if is_subtitle_layer and title_lines_count is not None and title_lines_count >= 3:
+            logger.info(
+                f"[TEXT DEBUG] Layer {i} (subtitle) skipped because title has {title_lines_count} lines "
+                f"(rule: max 4 lines total, skip subtitle if title >= 3 lines)"
+            )
+            continue
 
         # Pixel-based wrapping pass (prevents last-letter clipping on near-max lines).
-        # For title layers (template contains 'title'), use 3-line split with font adjustment
+        # For title layers: first try standard wrapping, only split into 3 lines if needed
         adjusted_fontsize = layer.fontsize  # Will be updated if fontsize is adjusted
         
-        if fontfile and is_title_layer and len(cleaned_lines) == 1:
-            # For title: split into exactly 3 lines with dynamic fontsize adjustment
+        if fontfile and is_title_layer:
+            # For title: join all lines back into single text for pixel-based wrapping
+            # This handles cases where title might come pre-split from template
             max_width_px = int(encode.width * 0.85)  # 85% of screen width
-            original_text = cleaned_lines[0]
-            cleaned_lines, adjusted_fontsize = _split_into_3_lines_with_font_adjustment(
-                original_text,
-                font_path=fontfile,
-                initial_fontsize=int(layer.fontsize),
-                max_width_px=max_width_px,
-                min_fontsize=48,  # Minimum fontsize
-            )
-            if adjusted_fontsize != layer.fontsize:
-                logger.info(
-                    f"[TEXT DEBUG] Layer {i} fontsize adjusted from {layer.fontsize} to {adjusted_fontsize} "
-                    f"for 3-line split"
+            original_text = " ".join(cleaned_lines)
+            
+            # Try with initial fontsize, then reduce if needed
+            current_fontsize = int(layer.fontsize)
+            min_fontsize = 48
+            fontsize_step = 2
+            
+            best_result = None
+            best_fontsize = current_fontsize
+            
+            # Try to fit text in 1-3 lines by adjusting fontsize
+            while current_fontsize >= min_fontsize:
+                # Try pixel-based wrapping with current fontsize
+                wrapped = _wrap_line_by_pixels(
+                    original_text,
+                    max_width_px=max_width_px,
+                    font_path=fontfile,
+                    font_size_px=current_fontsize,
+                )
+                
+                # Check if single line is too wide (more than 80% of max_width)
+                # If so, force split into 2 lines for better readability
+                force_split_success = False
+                single_line_too_wide = False
+                
+                if len(wrapped) == 1:
+                    from PIL import ImageFont
+                    font = None
+                    used_font_path = fontfile
+                    try:
+                        font = ImageFont.truetype(fontfile, current_fontsize)
+                    except Exception as e:
+                        # Try fallback fonts (same as in _render_text_png)
+                        fallback_candidates = [
+                            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                            "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf",
+                            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                        ]
+                        for cand in fallback_candidates:
+                            try:
+                                if Path(cand).exists():
+                                    font = ImageFont.truetype(cand, current_fontsize)
+                                    used_font_path = cand
+                                    logger.warning(
+                                        f"[TEXT DEBUG] Layer {i} font '{fontfile}' failed to load, using fallback '{cand}' for width measurement"
+                                    )
+                                    break
+                            except Exception:
+                                continue
+                    
+                    if font is not None:
+                        def _measure(text: str) -> float:
+                            try:
+                                return float(font.getlength(text))
+                            except Exception:
+                                bbox = font.getbbox(text)
+                                return float(bbox[2] - bbox[0]) if bbox else float(len(text) * current_fontsize)
+                        
+                        line_width = _measure(wrapped[0])
+                        # If line width is more than 80% of max_width, force split into 2 lines
+                        if line_width > max_width_px * 0.80:
+                            single_line_too_wide = True
+                            # Try to split into 2 lines
+                            words = original_text.split(" ")
+                            if len(words) > 1:
+                                # Find best split point (middle of text)
+                                mid_point = len(words) // 2
+                                # Try to find a good split point near the middle
+                                best_split = None
+                                best_balance = float('inf')
+                                
+                                # Search for split points around the middle
+                                for split_idx in range(max(1, mid_point - 3), min(len(words), mid_point + 4)):
+                                    line1_test = " ".join(words[:split_idx])
+                                    line2_test = " ".join(words[split_idx:])
+                                    w1 = _measure(line1_test)
+                                    w2 = _measure(line2_test)
+                                    # Check if both lines fit
+                                    if w1 <= max_width_px and w2 <= max_width_px:
+                                        # Calculate balance (difference between line widths)
+                                        balance = abs(w1 - w2)
+                                        # Prefer split that makes lines more balanced
+                                        if balance < best_balance:
+                                            best_balance = balance
+                                            best_split = split_idx
+                                
+                                # If we found a valid split point, use it
+                                if best_split is not None:
+                                    line1 = " ".join(words[:best_split])
+                                    line2 = " ".join(words[best_split:])
+                                    wrapped = [line1, line2]
+                                    force_split_success = True
+                                    logger.info(
+                                        f"[TEXT DEBUG] Layer {i} single line too wide ({line_width:.0f}px > {max_width_px * 0.80:.0f}px), "
+                                        f"forced split into 2 lines at word {best_split}"
+                                    )
+                                else:
+                                    # No valid split point found - will try with smaller fontsize
+                                    logger.info(
+                                        f"[TEXT DEBUG] Layer {i} single line too wide ({line_width:.0f}px > {max_width_px * 0.80:.0f}px), "
+                                        f"but no valid split point found, will try smaller fontsize"
+                                    )
+                    else:
+                        # If font loading completely failed, log warning but continue
+                        logger.warning(f"[TEXT DEBUG] Layer {i} font measurement failed: could not load font or fallback")
+                
+                # If text fits in 1-3 lines AND (it's not a single wide line OR we successfully split it), use this result
+                if len(wrapped) <= 3:
+                    if len(wrapped) == 1 and single_line_too_wide and not force_split_success:
+                        # Single line is too wide and we couldn't split it - try with smaller fontsize
+                        current_fontsize -= fontsize_step
+                        continue
+                    else:
+                        # Use this result (either multiple lines, or single line that's not too wide, or successfully split)
+                        best_result = wrapped
+                        best_fontsize = current_fontsize
+                        break
+                
+                # If text doesn't fit (more than 3 lines), try with smaller fontsize
+                current_fontsize -= fontsize_step
+            
+            # If we found a result that fits, use it
+            if best_result is not None:
+                cleaned_lines = best_result
+                adjusted_fontsize = best_fontsize
+                title_lines_count = len(cleaned_lines)
+                if adjusted_fontsize != layer.fontsize:
+                    logger.info(
+                        f"[TEXT DEBUG] Layer {i} fontsize adjusted from {layer.fontsize} to {adjusted_fontsize} "
+                        f"to fit title in {len(cleaned_lines)} line(s)"
+                    )
+                else:
+                    logger.info(
+                        f"[TEXT DEBUG] Layer {i} title fits in {len(cleaned_lines)} line(s) with original fontsize"
+                    )
+            else:
+                # Last resort: use result with min_fontsize even if it's more than 3 lines
+                wrapped = _wrap_line_by_pixels(
+                    original_text,
+                    max_width_px=max_width_px,
+                    font_path=fontfile,
+                    font_size_px=min_fontsize,
+                )
+                cleaned_lines = wrapped
+                adjusted_fontsize = min_fontsize
+                title_lines_count = len(cleaned_lines)
+                logger.warning(
+                    f"[TEXT DEBUG] Layer {i} title requires {len(cleaned_lines)} lines even at min fontsize {min_fontsize}"
                 )
         elif fontfile:
             # For non-title layers: use standard pixel-based wrapping
-            # Use 80% width for large fonts (64px) to prevent last-letter clipping
-            max_width_px = int(encode.width * 0.80) if layer.fontsize >= 60 else int(encode.width * 0.90)
+            # For subtitle: use same width as title (85%) for consistency
+            # For other layers: use 80% width for large fonts (64px) to prevent last-letter clipping
+            if is_subtitle_layer:
+                max_width_px = int(encode.width * 0.85)  # Same as title for consistency
+            else:
+                max_width_px = int(encode.width * 0.80) if layer.fontsize >= 60 else int(encode.width * 0.90)
             wrapped: List[str] = []
             for ln in cleaned_lines:
                 wrapped.extend(
@@ -672,6 +845,10 @@ def _segment_filter_complex(
                 )
             cleaned_lines = [x for x in wrapped if x]
             
+            # Store title line count if this is a title layer (after wrapping)
+            if is_title_layer:
+                title_lines_count = len(cleaned_lines)
+            
             # DEBUG: Log after pixel-based wrapping (using INFO level to ensure visibility)
             logger.info(
                 f"[TEXT DEBUG] Layer {i} after pixel-based wrapping: "
@@ -682,6 +859,9 @@ def _segment_filter_complex(
         # If this is a title layer and we have a font, render each line to a PNG and overlay as an image.
         # This avoids FFmpeg drawtext glyph clipping (e.g. "und" -> "un").
         if is_title_layer and fontfile and cleaned_lines:
+            # Ensure title_lines_count is set (in case title wasn't wrapped above)
+            if title_lines_count is None:
+                title_lines_count = len(cleaned_lines)
             # Calculate line height from adjusted fontsize
             line_height = int(adjusted_fontsize * 1.3)
 

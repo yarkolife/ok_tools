@@ -129,6 +129,15 @@ RENTAL_USER_REQUEST_REQUIRES_APPROVAL = get_env(
     default=False,
     cast=bool,
 )
+
+# =============================================================================
+# Media: optional video rendering features (ffmpeg presets)
+# =============================================================================
+VIDEO_OVERLAY_RENDERING_ENABLED = get_env(
+    'VIDEO_OVERLAY_RENDERING_ENABLED',
+    default=False,
+    cast=bool,
+)
 RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS = get_env(
     'RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS',
     default=60 * 60 * 24 * 7,  # 7 days
@@ -699,6 +708,16 @@ CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
 CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
+# Celery worker concurrency (number of parallel processes)
+# None = auto-detect CPU cores, integer = specific number
+_celery_concurrency = get_env('CELERY_WORKER_CONCURRENCY', default=None)
+if _celery_concurrency and _celery_concurrency.strip():
+    try:
+        CELERY_WORKER_CONCURRENCY = int(_celery_concurrency)
+    except (ValueError, TypeError):
+        CELERY_WORKER_CONCURRENCY = None
+else:
+    CELERY_WORKER_CONCURRENCY = None
 # Enable extended result format to store more task information
 CELERY_RESULT_EXTENDED = True
 CELERY_RESULT_BACKEND_ALWAYS_RETRY = True

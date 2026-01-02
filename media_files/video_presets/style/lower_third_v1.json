@@ -1,0 +1,100 @@
+{
+  "name": "lower_third_v1",
+  "intro_clip": null,
+  "outro_clip": null,
+  "segment_duration": 5.0,
+  "intro_overlays": [
+      {
+        "type": "image",
+        "path": "logo.png",
+        "x": "40",
+        "y": "h-140",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.4,
+        "fade_out": 0.4,
+        "scale_w": 120,
+        "scale_h": 120
+      },
+      {
+        "type": "text",
+        "template": "{license.number}",
+        "x": "180",
+        "y": "h-130",
+        "start": 0.1,
+        "end": 5.0,
+        "animation": "slide_up",
+        "fade_in": 0.5,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Bold.ttf",
+        "fontsize": 52,
+        "fontcolor": "white",
+        "box": true,
+        "boxcolor": "black@0.45",
+        "boxborderw": 18
+      },
+      {
+        "type": "text",
+        "template": "{license.title}",
+        "x": "180",
+        "y": "h-70",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_left",
+        "fade_in": 0.6,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 34,
+        "fontcolor": "white"
+      }
+    ],
+    "outro_overlays": [
+      {
+        "type": "image",
+        "path": "logo.png",
+        "x": "40",
+        "y": "h-140",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.4,
+        "fade_out": 0.4,
+        "scale_w": 120,
+        "scale_h": 120
+      },
+      {
+        "type": "text",
+        "template": "{license.number}",
+        "x": "180",
+        "y": "h-130",
+        "start": 0.1,
+        "end": 5.0,
+        "animation": "slide_up",
+        "fade_in": 0.5,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Bold.ttf",
+        "fontsize": 52,
+        "fontcolor": "white",
+        "box": true,
+        "boxcolor": "black@0.45",
+        "boxborderw": 18
+      },
+      {
+        "type": "text",
+        "template": "{license.title}",
+        "x": "180",
+        "y": "h-70",
+        "start": 0.2,
+        "end": 5.0,
+        "animation": "slide_left",
+        "fade_in": 0.6,
+        "fade_out": 0.4,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 34,
+        "fontcolor": "white"
+      }
+    ]
+}
+
+

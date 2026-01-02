@@ -1,0 +1,17 @@
+{
+  "name": "1080p25_9000k",
+  "width": 1920,
+  "height": 1080,
+  "fps": 25,
+  "vcodec": "libx264",
+  "acodec": "aac",
+  "video_bitrate_k": 9000,
+  "audio_bitrate_k": 192,
+  "audio_sample_rate": 48000,
+  "audio_channels": 2,
+  "pix_fmt": "yuv420p",
+  "x264_preset": "veryfast",
+  "x264_profile": "high"
+}
+
+

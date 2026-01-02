@@ -1,0 +1,955 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Render Video" %} - {{ video.filename }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    .render-form {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+    
+    .form-section {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+    
+    .checkbox-group {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+    
+    .video-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #417690;
+    }
+    
+    .video-info h3 {
+        margin-top: 0;
+        color: #417690;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+    
+    .form-section h3 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #417690;
+        padding-bottom: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #555;
+    }
+    
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    #encoding-select {
+        padding: 12px;
+        min-height: 44px;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        transition: all 0.2s;
+        cursor: pointer;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    .checkbox-item > label {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+    
+    .checkbox-item:hover {
+        background: #f8f9fa;
+        border-color: #417690;
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        cursor: pointer;
+    }
+    
+    .checkbox-item label {
+        margin: 0;
+        cursor: pointer;
+        flex: 1;
+        width: 100%;
+    }
+    
+    .checkbox-label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .checkbox-item input[type="text"] {
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 13px;
+        background: #fff;
+        cursor: default;
+    }
+    
+    .style-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+        margin-top: 15px;
+    }
+    
+    .element-style-selection {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #e0e0e0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .element-style-selection .style-preview {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 15px;
+        padding: 10px 0 15px 0;
+        margin: 0;
+        margin-top: 15px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #417690 #f0f0f0;
+    }
+    
+    .element-style-selection .style-preview::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .element-style-selection .style-preview::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 4px;
+        margin: 0 5px;
+    }
+    
+    .element-style-selection .style-preview::-webkit-scrollbar-thumb {
+        background: #417690;
+        border-radius: 4px;
+    }
+    
+    .element-style-selection .style-preview::-webkit-scrollbar-thumb:hover {
+        background: #2e5266;
+    }
+    
+    .style-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        overflow: hidden;
+        background: white;
+        flex-shrink: 0;
+    }
+    
+    .element-style-selection .style-card {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+        flex-shrink: 0;
+        flex-grow: 0;
+        box-sizing: border-box;
+    }
+    
+    .element-style-selection .style-card-preview {
+        height: 110px;
+    }
+    
+    .element-style-selection .style-card-info {
+        padding: 10px;
+    }
+    
+    .element-style-selection .style-card-name {
+        font-size: 12px;
+    }
+    
+    .element-style-selection .style-desc {
+        font-size: 10px;
+        margin-top: 3px;
+        margin-left: 22px;
+    }
+    
+    .style-card:hover {
+        border-color: #417690;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .style-card.selected {
+        border-color: #417690;
+        border-width: 3px;
+        box-shadow: 0 0 0 2px #e7f3ff;
+    }
+    
+    .style-card-preview {
+        width: 100%;
+        height: 120px;
+        background: #000;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 11px;
+    }
+    
+    .style-card-preview::after {
+        content: "TA";
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 20px;
+        height: 20px;
+        background: #ffd700;
+        border: 1px solid #000;
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+        color: #000;
+    }
+    
+    .style-card-info {
+        padding: 12px;
+        background: #2d2d2d;
+    }
+    
+    .style-card-info label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        margin: 0;
+    }
+    
+    .style-card input[type="radio"] {
+        margin-right: 8px;
+    }
+    
+    .style-card-name {
+        font-weight: 500;
+        color: #fff;
+        font-size: 13px;
+    }
+    
+    .style-desc {
+        font-size: 11px;
+        color: #aaa;
+        margin-top: 4px;
+        margin-left: 24px;
+    }
+    
+    .btn-render {
+        background: #28a745;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    
+    .btn-render:hover {
+        background: #218838;
+    }
+    
+    .btn-preview {
+        background: #417690;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    
+    .btn-preview:hover {
+        background: #2e5266;
+    }
+    
+    .alert {
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .alert-error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 20px;
+        display: none;
+    }
+    
+    .loading.active {
+        display: block;
+    }
+    
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #417690;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .breadcrumbs {
+        padding: 10px 0;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:media_files_videofile_changelist' %}">{% trans 'Video Files' %}</a>
+    &rsaquo; <a href="{% url 'admin:media_files_videofile_change' video.id %}">{{ video.filename }}</a>
+    &rsaquo; {% trans 'Render with Overlays' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="render-form">
+    <h1>{% trans "Render Video with Overlays" %}</h1>
+    
+    <!-- Video Info -->
+    <div class="video-info">
+        <h3>{% trans "Video Information" %}</h3>
+        <p><strong>{% trans "File" %}:</strong> {{ video.filename }}</p>
+        <p><strong>{% trans "License" %}:</strong> #{{ license.number }} - {{ license.title }}</p>
+        <p><strong>{% trans "Resolution" %}:</strong> {{ video.resolution_display }}</p>
+        <p><strong>{% trans "Duration" %}:</strong> {{ video.duration }}</p>
+    </div>
+    
+    <div id="alert-container"></div>
+    
+    <form id="render-form">
+        {% csrf_token %}
+        <input type="hidden" name="license_number" value="{{ license.number }}">
+        
+        <!-- Elements Selection with Style Selection for each -->
+        <div class="form-section" id="elements-section">
+            <h3>{% trans "1. Select Elements to Show" %}</h3>
+            <div class="checkbox-group">
+                <div class="checkbox-item" data-element="title">
+                    <input type="checkbox" id="show-title" name="show_title" value="true">
+                    <label for="show-title">
+                        <div class="checkbox-label">{% trans "Titel" %}</div>
+                        <input type="text" value="{{ license.title }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                    </label>
+                    <div class="element-style-selection" style="display: none;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Title:" %}</label>
+                        <div class="style-preview">
+                            {% for style in title_styles|default:styles %}
+                                <div class="style-card" data-style="{{ style.id }}">
+                                    <div class="style-card-preview">
+                                        {% if style.preview_type == "modern_title" %}
+                                            <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
+                                                <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_left" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_right" %}
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "caption" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center; font-family: 'Montserrat', sans-serif;">
+                                                <div style="font-size: 14px; font-weight: 600; color: white; text-transform: uppercase;">WEB CAPTION</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_left" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_right" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "film_title" %}
+                                            <div style="text-align: center; font-family: 'Playfair Display', serif;">
+                                                <div style="font-size: 18px; font-weight: 400; color: white; margin-bottom: 8px;">Your Title Here</div>
+                                                <div style="font-size: 12px; font-weight: 400; color: white;">Your Subtitle Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "title" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "broadcast" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+                                                <div style="font-size: 12px; font-weight: bold;">CAPTIONS FOR BROADCAST</div>
+                                                <div style="font-size: 10px;">(smaller text)</div>
+                                            </div>
+                                        {% else %}
+                                            <div style="text-align: center; font-size: 12px;">Preview</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="style-card-info">
+                                        <label>
+                                            <input type="radio" name="style_title" value="{{ style.id }}">
+                                            <span class="style-card-name">{{ style.name }}</span>
+                                        </label>
+                                        {% if style.description %}
+                                        <div class="style-desc">{{ style.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if license.subtitle %}
+                <div class="checkbox-item" data-element="subtitle">
+                    <input type="checkbox" id="show-subtitle" name="show_subtitle" value="true">
+                    <label for="show-subtitle">
+                        <div class="checkbox-label">{% trans "Untertitel" %}</div>
+                        <input type="text" value="{{ license.subtitle }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                    </label>
+                    <div class="element-style-selection" style="display: none;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Subtitle:" %}</label>
+                        <div class="style-preview">
+                            {% for style in subtitle_styles|default:styles %}
+                                <div class="style-card" data-style="{{ style.id }}">
+                                    <div class="style-card-preview">
+                                        {% if style.preview_type == "subtitle" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 14px; font-weight: normal; color: white;">Your Subtitle Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "modern_title" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: #4ec3e0;">[ Your Title Here ]</div>
+                                                <div style="font-size: 10px; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_left" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_right" %}
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "caption" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center; font-family: 'Montserrat', sans-serif;">
+                                                <div style="font-size: 14px; font-weight: 600; color: white; text-transform: uppercase;">WEB CAPTION</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_left" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_right" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "film_title" %}
+                                            <div style="text-align: center; font-family: 'Playfair Display', serif;">
+                                                <div style="font-size: 18px; font-weight: 400; color: white; margin-bottom: 8px;">Your Title Here</div>
+                                                <div style="font-size: 12px; font-weight: 400; color: white;">Your Subtitle Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "title" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "broadcast" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+                                                <div style="font-size: 12px; font-weight: bold;">CAPTIONS FOR BROADCAST</div>
+                                                <div style="font-size: 10px;">(smaller text)</div>
+                                            </div>
+                                        {% else %}
+                                            <div style="text-align: center; font-size: 12px;">Preview</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="style-card-info">
+                                        <label>
+                                            <input type="radio" name="style_subtitle" value="{{ style.id }}">
+                                            <span class="style-card-name">{{ style.name }}</span>
+                                        </label>
+                                        {% if style.description %}
+                                        <div class="style-desc">{{ style.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="checkbox-item" data-element="broadcast">
+                    <input type="checkbox" id="show-broadcast" name="show_broadcast_resp" value="true" checked>
+                    <label for="show-broadcast">
+                        <div class="checkbox-label">{% trans "Broadcast Responsibility" %}</div>
+                        <input type="text" value="{% trans "Sendeverantwortung" %}: {{ license.profile }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                    </label>
+                    <div class="element-style-selection" style="display: block;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Broadcast Responsibility:" %}</label>
+                        <div class="style-preview">
+                            {% for style in broadcast_styles|default:styles %}
+                                <div class="style-card" data-style="{{ style.id }}">
+                                    <div class="style-card-preview">
+                                        {% if style.preview_type == "modern_title" %}
+                                            <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
+                                                <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_left" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_right" %}
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "caption" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center; font-family: 'Montserrat', sans-serif;">
+                                                <div style="font-size: 14px; font-weight: 600; color: white; text-transform: uppercase;">WEB CAPTION</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_left" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_right" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "film_title" %}
+                                            <div style="text-align: center; font-family: 'Playfair Display', serif;">
+                                                <div style="font-size: 18px; font-weight: 400; color: white; margin-bottom: 8px;">Your Title Here</div>
+                                                <div style="font-size: 12px; font-weight: 400; color: white;">Your Subtitle Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "title" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "broadcast" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+                                                <div style="font-size: 12px; font-weight: bold;">CAPTIONS FOR BROADCAST</div>
+                                                <div style="font-size: 10px;">(smaller text)</div>
+                                            </div>
+                                        {% else %}
+                                            <div style="text-align: center; font-size: 12px;">Preview</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="style-card-info">
+                                        <label>
+                                            <input type="radio" name="style_broadcast" value="{{ style.id }}" {% if forloop.first %}checked{% endif %}>
+                                            <span class="style-card-name">{{ style.name }}</span>
+                                        </label>
+                                        {% if style.description %}
+                                        <div class="style-desc">{{ style.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checkbox-item" data-element="authority">
+                    <input type="checkbox" id="show-authority" name="show_media_authority" value="true" checked>
+                    <label for="show-authority">
+                        <div class="checkbox-label">{% trans "Bürgermedium" %}</div>
+                        <input type="text" value="{{ license.profile.media_authority.full_name|default:license.profile.media_authority.name }}, {{ license.created_at.year }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                    </label>
+                    <div class="element-style-selection" style="display: block;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Media Authority:" %}</label>
+                        <div class="style-preview">
+                            {% for style in authority_styles|default:styles %}
+                                <div class="style-card" data-style="{{ style.id }}">
+                                    <div class="style-card-preview">
+                                        {% if style.preview_type == "media_authority" %}
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 12px; font-weight: normal; color: white;">Media Authority Name, 2024</div>
+                                            </div>
+                                        {% elif style.preview_type == "modern_title" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: #4ec3e0;">[ Your Title Here ]</div>
+                                                <div style="font-size: 10px; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_left" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third_right" %}
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "lower_third" %}
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 14px; font-weight: bold;">Your Name Here</div>
+                                                <div style="font-size: 11px; margin-top: 5px;">Second Line is Smaller</div>
+                                            </div>
+                                        {% elif style.preview_type == "caption" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center; font-family: 'Montserrat', sans-serif;">
+                                                <div style="font-size: 14px; font-weight: 600; color: white; text-transform: uppercase;">WEB CAPTION</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_left" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay_right" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Your Title Here</div>
+                                            </div>
+                                            <div style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+                                                <div style="font-size: 11px; color: white;">{% trans "Broadcast Info" %}</div>
+                                            </div>
+                                        {% elif style.preview_type == "overlay" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "film_title" %}
+                                            <div style="text-align: center; font-family: 'Playfair Display', serif;">
+                                                <div style="font-size: 18px; font-weight: 400; color: white; margin-bottom: 8px;">Your Title Here</div>
+                                                <div style="font-size: 12px; font-weight: 400; color: white;">Your Subtitle Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "title" %}
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 16px; font-weight: bold; color: white;">Your Title Here</div>
+                                            </div>
+                                        {% elif style.preview_type == "broadcast" %}
+                                            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+                                                <div style="font-size: 12px; font-weight: bold;">CAPTIONS FOR BROADCAST</div>
+                                                <div style="font-size: 10px;">(smaller text)</div>
+                                            </div>
+                                        {% else %}
+                                            <div style="text-align: center; font-size: 12px;">Preview</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="style-card-info">
+                                        <label>
+                                            <input type="radio" name="style_authority" value="{{ style.id }}" {% if forloop.first %}checked{% endif %}>
+                                            <span class="style-card-name">{{ style.name }}</span>
+                                        </label>
+                                        {% if style.description %}
+                                        <div class="style-desc">{{ style.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Encoding -->
+        <div class="form-section">
+            <h3>{% trans "2. Quality Settings" %}</h3>
+            <div class="form-group">
+                <label for="encoding-select">{% trans "Encoding Quality" %}</label>
+                <select id="encoding-select" name="encoding">
+                    {% for encoding in encodings %}
+                        <option value="{{ encoding.id }}">{{ encoding.name }} - {{ encoding.description }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <!-- Rendering Mode -->
+        <div class="form-section">
+            <h3>{% trans "3. Rendering Mode" %}</h3>
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="use-intro-outro" name="use_intro_outro" value="true" style="margin-right: 8px; width: auto;">
+                            <span>{% trans "Add intro/outro clips and apply overlays to them" %}</span>
+                        </label>
+                        <p style="margin-left: 24px; margin-top: 4px; color: #666; font-size: 13px;">
+                            {% trans "If checked: intro and outro clips will be added to the main video, and overlays will be applied to these clips. If unchecked: overlays will be applied to the first and last 5 seconds of the main video." %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submit Buttons -->
+        <div class="form-section">
+            <button type="submit" class="btn-preview" data-preview="true">
+                {% trans "Preview (5s)" %}
+            </button>
+            <button type="submit" class="btn-render" data-preview="false">
+                {% trans "Render Full Video" %}
+            </button>
+            <a href="{% url 'admin:media_files_videofile_change' video.id %}" class="button" style="margin-left: 10px;">
+                {% trans "Cancel" %}
+            </a>
+        </div>
+    </form>
+    
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>{% trans "Rendering video... This may take a few minutes." %}</p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('render-form');
+    const loading = document.getElementById('loading');
+    const alertContainer = document.getElementById('alert-container');
+    
+    // Element checkbox selection - show/hide style selection
+    document.querySelectorAll('.checkbox-item').forEach(item => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        const styleSelection = item.querySelector('.element-style-selection');
+        
+        if (checkbox && styleSelection) {
+            // Show/hide on checkbox change
+            checkbox.addEventListener('change', function() {
+                styleSelection.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            // Initialize visibility based on checkbox state
+            styleSelection.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    });
+    
+    // Style card selection within element style selections
+    document.querySelectorAll('.element-style-selection .style-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Find the radio button name for this element's style selection
+            const radioName = this.querySelector('input[type="radio"]').name;
+            // Uncheck all radios with the same name in this element's selection
+            const parent = this.closest('.element-style-selection');
+            parent.querySelectorAll(`input[type="radio"][name="${radioName}"]`).forEach(r => r.checked = false);
+            // Check the clicked one
+            this.querySelector('input[type="radio"]').checked = true;
+            // Visual selection
+            parent.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const isPreview = e.submitter.dataset.preview === 'true';
+        const formData = new FormData(form);
+        formData.append('preview', isPreview);
+        
+        // Add intro/outro mode checkbox
+        const useIntroOutro = form.querySelector('[name="use_intro_outro"]');
+        formData.set('use_intro_outro', useIntroOutro && useIntroOutro.checked ? 'true' : 'false');
+        
+        // Convert checkboxes and get selected styles for each element
+        ['show_title', 'show_subtitle', 'show_broadcast_resp', 'show_media_authority'].forEach(name => {
+            const checkbox = form.querySelector(`[name="${name}"]`);
+            formData.set(name, checkbox && checkbox.checked ? 'true' : 'false');
+            
+            // Get selected style for this element
+            if (checkbox && checkbox.checked) {
+                const elementName = name.replace('show_', '');
+                const styleRadio = form.querySelector(`input[type="radio"][name="style_${elementName}"]:checked`);
+                if (styleRadio) {
+                    formData.set(`style_${elementName}`, styleRadio.value);
+                }
+            }
+        });
+        
+        // Show loading
+        loading.classList.add('active');
+        form.style.display = 'none';
+        alertContainer.innerHTML = '';
+        
+        // Submit
+        fetch('{% url "media_files:render_submit" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            loading.classList.remove('active');
+            form.style.display = 'block';
+            
+            if (data.success) {
+                const operationId = data.operation_id || '';
+                alertContainer.innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✓ {% trans "Success!" %}</strong> ${data.message}<br>
+                        <a href="/admin/media_files/fileoperation/${operationId}/change/" target="_blank">{% trans "Track progress" %}</a> | 
+                        <a href="/admin/media_files/fileoperation/?status__exact=IN_PROGRESS" target="_blank">{% trans "View all active operations" %}</a> | 
+                        <a href="/admin/media_files/videofile/${data.video_id}/change/" target="_blank">{% trans "View video file" %}</a>
+                    </div>
+                `;
+                window.scrollTo(0, 0);
+            } else {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>✗ {% trans "Error" %}</strong> ${data.error}
+                    </div>
+                `;
+                window.scrollTo(0, 0);
+            }
+        })
+        .catch(error => {
+            loading.classList.remove('active');
+            form.style.display = 'block';
+            alertContainer.innerHTML = `
+                <div class="alert alert-error">
+                    <strong>✗ {% trans "Error" %}</strong> ${error.message}
+                </div>
+            `;
+            window.scrollTo(0, 0);
+        });
+    });
+});
+</script>
+{% endblock %}
+

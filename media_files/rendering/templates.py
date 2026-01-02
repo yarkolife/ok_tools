@@ -113,36 +113,18 @@ def render_text_template(template: str, ctx: TemplateContext) -> str:
     
     # Title wrapped with ~32 chars per line for better text flow
     # Check if title is long (3+ lines) - if so, don't show subtitle
-    # Rule: title + subtitle max 4 lines total (1-3, 2-2), if title is 3 lines then no subtitle
-    # IMPORTANT: In ffmpeg.py, title layers are ALWAYS split into exactly 3 lines if they are title layers.
-    # So we need to be conservative: if title wraps to 2+ lines, assume it will be 3 lines in ffmpeg.
     title_wrapped_full = _wrap_text(title, width=32, max_lines=4)  # Allow 4 lines to avoid cutting text
-    title_lines_count_estimate = len(title_wrapped_full.split('\n')) if title_wrapped_full else 0
+    title_lines_count = len(title_wrapped_full.split('\n')) if title_wrapped_full else 0
     
-    # Conservative check: if title wraps to 2+ lines, assume it will be 3 lines in ffmpeg (title layers always split to 3)
-    # Only show subtitle if title is clearly 1 line (won't wrap)
-    will_be_3_lines = title_lines_count_estimate >= 2
-    
-    # Format title: add " -" at the end if subtitle exists and title is not too long (less than 3 lines)
-    if subtitle and not will_be_3_lines:
-        title_with_dash = f"{title} -"
-    else:
-        title_with_dash = title
-    
-    # IMPORTANT: Do not pre-wrap the title here.
-    # Title wrapping / splitting is handled in the FFmpeg renderer, where we can make
-    # pixel-accurate decisions and dynamically adjust fontsize.
-    title_wrapped_short = title_with_dash
+    # IMPORTANT: Do not add dash to title here.
+    # Dash between title and subtitle should be handled visually by spacing, not as part of title text.
+    # Real title line count is determined in FFmpeg renderer with pixel-accurate measurements.
+    # Do not pre-wrap the title here - title wrapping / splitting is handled in the FFmpeg renderer.
+    title_wrapped_short = title
     
     # Subtitle only if title is not too long (less than 3 lines)
-    # Rule: if title is 3 lines, subtitle is not shown (max 4 lines total: 1-3, 2-2, 3-0)
-    # Conservative: if title wraps to 2+ lines, assume 3 lines in ffmpeg, so no subtitle
-    subtitle_conditional = subtitle if not will_be_3_lines else ""
-    # Limit subtitle to ensure total (title + subtitle) doesn't exceed 4 lines
-    # If title is 1 line, subtitle can be max 3 lines
-    # If title is 2+ lines (will be 3 in ffmpeg), subtitle is not shown
-    subtitle_max_lines = 3 if title_lines_count_estimate <= 1 else 0
-    subtitle_wrapped = _wrap_text(subtitle_conditional, width=32, max_lines=subtitle_max_lines) if subtitle_conditional else ""
+    subtitle_conditional = subtitle if title_lines_count < 3 else ""
+    subtitle_wrapped = _wrap_text(subtitle_conditional, width=32, max_lines=3) if subtitle_conditional else ""
 
     mapping: Dict[str, Any] = {
         "license": _DotDict(

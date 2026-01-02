@@ -69,14 +69,14 @@ class Command(BaseCommand):
         for number, video_list in by_number.items():
             self.stdout.write(f'\nProcessing video #{number} ({len(video_list)} versions):')
             
-            # Sort by quality (storage priority, bitrate, creation date)
+            # Sort by quality (creation date, bitrate, storage priority)
             storage_priority = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
             
             def quality_score(video):
                 return (
-                    storage_priority.get(video.storage_location.storage_type, 0),
+                    video.created_at or video.last_scanned,
                     video.total_bitrate or 0,
-                    video.created_at or video.last_scanned
+                    storage_priority.get(video.storage_location.storage_type, 0)
                 )
             
             # Keep the best quality version

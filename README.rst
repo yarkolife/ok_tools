@@ -4,39 +4,221 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 3
-**Last Updated**: October 2025
+**Current Version**: 3.2
+**Last Updated**: January 2026
 
 Features
 ========
 
 **Core Applications:**
+
 - **User Registration** - User management with privacy controls and notification system
+  - Email-based authentication (no username required)
+  - Profile management with GDPR-compliant data sharing permissions
+  - Media authority association for user profiles
+  - Print registration form generation
+  - Email verification system
+  - Member status tracking
+
 - **License Management** - Manage broadcasting licenses with tags and metadata export
+  - License creation and confirmation workflow
+  - Nextcloud video file integration
+  - Video upload support
+  - Metadata export for planning systems
+  - License-to-video file synchronization
+  - Tag-based categorization
+  - Planning system integration with time extraction
+
 - **Media Files Management** - Advanced video file management with metadata extraction, storage location tracking, and license synchronization
+  - Multiple storage location support (Archive, Playout, Custom)
+  - Automatic video file scanning and metadata extraction (ffprobe)
+  - Video rendering with customizable presets and overlays
+  - Storage location tracking with UNC path support
+  - License-to-video file linking and synchronization
+  - Checksum calculation (SHA256) for file integrity
+  - File operation tracking and logging
+  - Automatic orphan license linking
+  - Video preset management (database and JSON-based)
+  - Background task processing for scanning and metadata updates
+
 - **Planning Tools** - Calendar weeks and scheduling functionality with time extraction
+  - Daily broadcast plan management (TagesPlan)
+  - Calendar week view
+  - License integration for broadcast planning
+  - Draft and planned status tracking
+  - Time extraction from license data
+  - JSON-based plan storage with comments
+
 - **Contributions Management** - Handle user contributions and submissions
+  - DISA import from Excel files (XLSX/XLS format support)
+  - Primary and repetition contribution detection
+  - Broadcast date tracking with live/recorded distinction
+  - User contribution listing with statistics (total, live, recorded)
+  - Grouped contribution display by license
+  - Date extraction from DISA export files (AJAX)
+  - Export functionality for contributions
+  - Custom date/time range filtering in admin
+
 - **Project Management** - Organize and track various projects
+  - Project creation with categories and target groups
+  - Project leader and media education supervisor assignment
+  - Participant tracking and demographics
+  - ICS calendar export for project dates
+  - Project characteristics analysis (external venue rate, etc.)
+  - Date-based project organization
+
 - **Inventory Management** - Track equipment and resources with serial numbers
+  - Hierarchical location management (Room -> Cabinet structure)
+  - Excel import (XLSX) with batch processing
+  - Inspection import from CSV/XLSX files
+  - Manufacturer, category, and organization tracking
+  - Serial number and inventory number management
+  - Status tracking (in stock, rented, written off, defect)
+  - Quantity management with reserved/rented tracking
+  - Audit logging for inventory changes
+  - Owner-based access control
+  - Inventory service interface for rental integration
+
 - **Rental System** - Equipment rental management with expiration tracking
+  - Equipment rental requests with status workflow (draft, reserved, issued, returned, cancelled)
+  - Room rental support with capacity tracking
+  - Equipment sets and templates for predefined configurations
+  - Rental transactions (reserve, issue, return, cancel) with audit trail
+  - User access control based on membership status (members can access organization equipment)
+  - Availability checking for equipment and rooms
+  - Rental item tracking with quantity management
+  - Rental issues and problem reporting
+  - Equipment condition tracking
+  - REST API endpoints for rental operations
+  - Calendar view for rental scheduling
+  - Automatic rental expiration management via cron jobs
+
 - **Dashboard Analytics** - Comprehensive data visualization and monitoring
+  - Multiple dashboard widgets (Users, Licenses, Contributions, Projects, Inventory, Notifications, Funnel, Media Data)
+  - Interactive charts (doughnut, bar, horizontal bar) with data export
+  - User journey tracking through participation funnel
+  - Funnel metrics with conversion rate analysis
+  - Alert system with configurable thresholds
+  - Notification management and statistics
+  - Cache invalidation on data changes
+  - Statistics service for aggregated data
+  - User service for user analytics
+  - Notification service for system alerts
+  - Real-time dashboard updates
+  - Filter system for date ranges and categories
+  - Quick stats overview
+  - System status monitoring
+
 - **Background Task Processing** - Asynchronous task execution with Celery for handling time-intensive operations
+  - Video file scanning and metadata extraction
+  - License-to-video synchronization
+  - File operation cleanup
+  - Inventory import processing
+  - Rental expiration checks
+  - Database backup automation
+
 - **Monitoring & Metrics** - Prometheus integration for application performance monitoring and metrics collection
+  - Model operation metrics export
+  - Performance tracking
+  - Application health monitoring
 
 **Additional Features:**
+
 - **Accessibility Compliance** - WCAG compliant interface
+
 - **Multi-language Support** - German and English localization
+  - Translation files (.po) for all user-facing text
+  - JavaScript translations (djangojs.po)
+  - Automatic translation compilation during deployment
+
 - **Dashboard System** - Comprehensive activity monitoring with interactive charts
+  - Main dashboard with overview statistics
+  - Specialized widget views for each module
+  - Filter system for date ranges and categories
+  - Real-time data updates
+  - Export functionality for charts and data
+
 - **Admin Interface** - Django admin customization with direct dashboard access
+  - Custom admin actions for bulk operations
+  - Enhanced filtering and search capabilities
+  - Autocomplete fields for related models
+  - Export/import functionality (django-import-export)
+  - Custom date/time range filters
+  - Inline editing for related models
+
 - **REST API** - JSON endpoints for data access with token authentication
+  - Rental API endpoints (equipment, rooms, requests, transactions)
+  - Dashboard statistics API endpoints
+  - Inventory API with user-based filtering
+  - Pagination support (default 20 items, configurable up to 200)
+  - Search and filtering capabilities
+  - Ordering support for list endpoints
+
 - **Token Authentication** - Secure API access with customizable permissions
+  - Staff-only token filtering
+  - Copy-to-clipboard functionality
+  - API documentation modal with code examples
+  - Token-based access control
+
 - **PeerTube Integration** - ActivityPub/Fediverse format support for video publishing
+
 - **Custom Widgets** - Enhanced form widgets for improved user experience
+  - Tag selection widgets
+  - User autocomplete widgets
+  - Media data widgets
+  - Enhanced form field rendering
+
 - **Data Privacy Controls** - GDPR-compliant data sharing permissions
+  - User consent management
+  - Selective field exposure in forms
+  - Admin-only access to sensitive data
+
 - **Cron Jobs** - Automated rental expiration management
+  - Daily rental expiration checks
+  - Automated backup creation
+  - Cache cleanup tasks
+  - File operation cleanup
+
 - **Interactive Charts** - Multiple chart types (doughnut, bar, horizontal bar) with data export
+  - Chart.js integration
+  - Data export to CSV/Excel
+  - Responsive chart rendering
+  - Interactive tooltips and legends
+
 - **Real-time Analytics** - User journey tracking and funnel metrics
+  - User participation funnel tracking
+  - Conversion rate analysis
+  - Stage-based journey tracking
+  - Funnel breakdown by date ranges
+
 - **Alert System** - Automated monitoring and threshold-based notifications
+  - Configurable alert thresholds
+  - Multiple metric types (conversion rate, absolute count, trend change)
+  - Alert logging and resolution tracking
+  - Notification recipients configuration
+  - Active/inactive threshold management
+
+- **Video Rendering** - Advanced video rendering with presets and overlays
+  - Video preset management (database and JSON-based)
+  - Customizable intro/outro overlays
+  - Text and image overlay support
+  - Animation effects (fade, slide, zoom)
+  - Position presets (center, corners, lower third)
+  - Template-based rendering
+  - Preview functionality for presets
+
+- **Storage Management** - Multiple storage location support
+  - Hierarchical storage location tracking
+  - UNC path support for Windows networks
+  - Automatic file scanning with scheduling
+  - Storage type classification (Archive, Playout, Custom)
+  - File availability tracking
+
+- **Equipment Sets** - Predefined equipment configurations
+  - Equipment set templates
+  - Quick rental setup with equipment sets
+  - Member-created equipment sets
+  - Template-based equipment selection
 
 
 Installation & Deployment
@@ -151,8 +333,9 @@ See the ``deployment/configs/`` directory for ready-to-use environment file temp
 - Docker and Docker Compose
 - PostgreSQL (via Docker)
 - Redis (via Docker, for caching and Celery)
+- Celery and Celery Beat (for background task processing)
 
-All dependencies are automatically installed in Docker containers during deployment. The application uses Python 3.12+ and Django 5.2.5 inside the container.
+All dependencies are automatically installed in Docker containers during deployment. The application uses Python 3.12+ and Django 5.2.7 inside the container.
 
 Tests
 =====
@@ -222,6 +405,60 @@ Create superuser::
 
     docker compose exec web python manage.py createsuperuser
 
+Setup periodic tasks (first time setup)::
+
+    docker compose exec web python manage.py setup_periodic_tasks
+
+**Available Management Commands:**
+
+Media Files::
+    - auto_scan - Automated scanning of video storage locations
+    - scan_video_storage - Scan video storage and update database
+    - update_video_metadata - Update video metadata from files
+    - link_orphan_licenses - Link videos for licenses without video files
+    - sync_licenses_videos - Sync licenses and videos
+    - copy_to_playout - Copy video files to playout storage
+    - cleanup_playout - Cleanup playout storage
+    - cleanup_missing_files - Cleanup VideoFile records for missing files
+    - cleanup_old_file_operations - Cleanup old FileOperation records
+    - find_duplicates - Find duplicate video files
+    - cleanup_duplicates - Cleanup duplicate video files
+
+Rental::
+    - expire_room_rentals - Expire room rentals and generate transactions
+    - fix_quantity_issued - Fix quantity_issued for rental items
+    - fix_missing_issue_transactions - Create missing issue transactions
+    - test_nextcloud_calendar - Test Nextcloud Calendar integration
+
+Inventory::
+    - import_inspections - Import inspections from CSV/XLSX files
+    - link_inspections - Link unbound inspections to inventory items
+    - import_locations - Import locations from file
+
+Licenses::
+    - import_licenses_from_wp - Import licenses from WordPress SQL dump or CSV
+    - delete_imported_licenses - Delete licenses imported from WordPress
+    - cleanup_deleted_nextcloud_videos - Cleanup deleted Nextcloud videos
+
+Contributions::
+    - export_mediathek_report - Export mediathek import report
+
+Registration::
+    - setup_organizations - Create MediaAuthority and Organization objects
+
+Dashboard::
+    - check_alerts - Check and trigger alert thresholds
+
+**Note:** Many management commands can be run directly from the admin interface via the System Management page (requires staff access).
+
+**Database backup:**
+
+Create a database backup manually::
+
+    docker compose exec web python manage.py backup_db --compress
+
+Database backups are automatically created daily via Celery Beat (configurable via `CELERY_BEAT_RUN_BACKUP_DB` environment variable). Backups are stored in the configured backup directory (default: `backups/`).
+
 Production Deployment
 =====================
 
@@ -245,8 +482,10 @@ Quick start::
     cd ../ok_tools_production
     ./update.sh
 
-Import Legacy Data
-==================
+Data Import
+============
+
+**Legacy Data Import:**
 
 It is possible to import legacy data from Excel files (:code:`.xlsx`).
 
@@ -255,6 +494,35 @@ The import functionality requires:
 - Configure the path in :code:`settings.py` via :code:`LEGACY_DATA` (default: :code:`../legacy_data/data.xlsx`)
 
 **Note:** The legacy import script is a one-time migration tool. If you've already completed your data migration, this feature is not needed for daily operations.
+
+**Contributions Import (DISA):**
+
+Import contributions from DISA export files (Excel format):
+- Supports both XLSX and XLS file formats (automatic conversion)
+- Date-based filtering (import from specific date onwards)
+- Automatic primary/repetition detection
+- Batch processing for performance
+- AJAX date extraction for user convenience
+- Validation of file structure and required worksheets
+
+**Inventory Import:**
+
+Import inventory items from Excel files:
+- Excel import (XLSX format) with batch processing (500 items per batch)
+- Automatic creation of manufacturers, categories, locations, and organizations
+- Inventory number validation (OK-XXXX format)
+- Location hierarchy creation (Room -> Cabinet structure)
+- Error logging with detailed reports
+- Status tracking (pending, processing, completed, failed)
+
+**Inspection Import:**
+
+Import equipment inspection data:
+- Supports both CSV and XLSX formats
+- Automatic date parsing from various formats
+- Links inspections to inventory items by inspection number
+- Batch processing for large datasets
+- Error handling with detailed logging
 
 Privacy Policy
 ==============
@@ -289,15 +557,20 @@ Database backups are automatically created by the periodic task ``run_backup_db`
 
 **Manual backup:**
 
-Create a database backup manually::
+Create a database backup manually using the management command::
 
     cd ../ok_tools_production
+    docker compose exec web python manage.py backup_db --compress
+
+Or using direct pg_dump::
+
     docker compose exec -T db pg_dump -U oktools oktools > backups/manual-backup-$(date +%Y%m%d-%H%M%S).sql
 
 **Backup management:**
 - Automatic backup rotation (keeps last 5 backups)
-- Backup cleanup task runs daily
-- Backups include database dump and configuration files
+- Backup cleanup task runs daily via Celery Beat
+- Backups include database dump (compressed .sql.gz files)
+- Backup directory configurable via `BACKUP_DIR` setting (default: `backups/`)
 
 Working with translations
 =========================
@@ -371,12 +644,41 @@ Technical Details
 - Custom widget development and integration
 - Admin interface enhancements and customization
 
+**Service Layer Architecture:**
+- Inventory service interface for business logic separation
+- Rental service for rental operations
+- Statistics service for dashboard data aggregation
+- Notification service for alert management
+- User service for user analytics
+- Service-based architecture for better testability and maintainability
+
+**Caching Strategy:**
+- Redis-based caching for dashboard statistics
+- Cache invalidation on data changes via signals
+- Pattern-based cache key management
+- Cache versioning support
+- Performance optimization through intelligent caching
+
+**Database Optimization:**
+- Batch processing for imports (500 items per batch)
+- Optimized contribution primary/repetition detection
+- Query optimization with select_related and prefetch_related
+- Composite indexes for common query patterns
+- Pagination with preserved prefetch relationships
+
 **Admin Interface Enhancements:**
 - Custom Token Admin with staff-only filtering
 - Enhanced user search with autocomplete functionality
 - API documentation modal with code examples
 - Copy-to-clipboard functionality for tokens
 - Improved form widgets for better user experience
+- Custom date/time range filters for contributions
+- Export/import functionality for inventory items
+- Bulk import actions for DISA files and inventory
+- Inline editing for inspections
+- Hierarchical location management in admin
+- Equipment set management interface
+- Rental transaction history view
 
 **Privacy and Security:**
 - GDPR-compliant data sharing permissions
@@ -405,6 +707,10 @@ Deployment Architecture
 - Error tracking and debugging
 - Performance monitoring
 - Health check endpoints
+- Prometheus metrics export
+- Alert logging and resolution tracking
+- System status API endpoint
+- Dashboard quick stats monitoring
 
 Support
 ========

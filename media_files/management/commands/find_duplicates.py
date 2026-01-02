@@ -91,12 +91,12 @@ class Command(BaseCommand):
         }
 
         for number, videos in videos_by_number.items():
-            # Sort by priority: ARCHIVE > PLAYOUT > CUSTOM, then by quality
+            # Sort by quality (date, bitrate) then by storage priority
             storage_priority = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
             sorted_videos = sorted(videos, key=lambda v: (
-                storage_priority.get(v.storage_location.storage_type, 0),
+                v.created_at,
                 v.total_bitrate or 0,
-                v.created_at
+                storage_priority.get(v.storage_location.storage_type, 0)
             ), reverse=True)
 
             primary = sorted_videos[0]
@@ -157,12 +157,12 @@ class Command(BaseCommand):
         for number in sorted(videos_by_number.keys()):
             videos = videos_by_number[number]
             
-            # Sort by priority: ARCHIVE > PLAYOUT > CUSTOM, then by quality
+            # Sort by quality (date, bitrate) then by storage priority
             storage_priority = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
             sorted_videos = sorted(videos, key=lambda v: (
-                storage_priority.get(v.storage_location.storage_type, 0),
+                v.created_at,
                 v.total_bitrate or 0,
-                v.created_at
+                storage_priority.get(v.storage_location.storage_type, 0)
             ), reverse=True)
 
             primary = sorted_videos[0]

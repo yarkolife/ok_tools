@@ -1,6 +1,97 @@
 CHANGELOG
 =========
 
+2026-01-02 (Version 3.2)
+========================
+
+* **Documentation Enhancements**
+  * **Comprehensive README Update**: Significantly expanded README.rst with detailed module descriptions
+    * Added detailed feature descriptions for all core applications (User Registration, License Management, Media Files, Planning Tools, Contributions, Projects, Inventory, Rental, Dashboard)
+    * Documented all management commands organized by module (Media Files, Rental, Inventory, Licenses, Contributions, Registration, Dashboard)
+    * Added comprehensive data import documentation (DISA, Inventory, Inspections) with format support and batch processing details
+    * Documented service layer architecture (Inventory, Rental, Statistics, Notification, User services)
+    * Added technical details about caching strategies, database optimization, and API performance
+    * Enhanced feature descriptions with sub-features and capabilities for each module
+  * **Module Documentation**: Complete feature breakdown for each application
+    * User Registration: Email-based authentication, GDPR compliance, profile management, print registration forms
+    * License Management: Nextcloud integration, video upload, metadata export, planning system integration
+    * Media Files: Multiple storage locations, video rendering with presets, checksum calculation, automatic scanning
+    * Planning Tools: Daily broadcast plans (TagesPlan), calendar weeks, time extraction, JSON-based storage
+    * Contributions: DISA import (XLSX/XLS), primary/repetition detection, statistics, grouped display
+    * Projects: ICS export, categories, target groups, demographics, project leaders
+    * Inventory: Hierarchical locations, batch imports (500 items), inspection import, audit logging
+    * Rental: Equipment sets, room rentals, transactions, API endpoints, availability checking
+    * Dashboard: Multiple widgets, funnel metrics, alert system, real-time updates
+
+* **Management Commands Documentation**
+  * Documented all available management commands organized by module:
+    * **Media Files**: auto_scan, scan_video_storage, update_video_metadata, link_orphan_licenses, sync_licenses_videos, copy_to_playout, cleanup_playout, cleanup_missing_files, cleanup_old_file_operations, find_duplicates, cleanup_duplicates
+    * **Rental**: expire_room_rentals, fix_quantity_issued, fix_missing_issue_transactions, test_nextcloud_calendar
+    * **Inventory**: import_inspections, link_inspections, import_locations
+    * **Licenses**: import_licenses_from_wp, delete_imported_licenses, cleanup_deleted_nextcloud_videos
+    * **Contributions**: export_mediathek_report
+    * **Registration**: setup_organizations
+    * **Dashboard**: check_alerts
+  * Noted that many commands can be run from admin interface via System Management page (requires staff access)
+
+* **Data Import Documentation**
+  * **DISA Import**: Documented Excel import (XLSX/XLS) with automatic format conversion, date-based filtering, batch processing, AJAX date extraction, and validation
+  * **Inventory Import**: Documented Excel import with batch processing (500 items per batch), automatic entity creation (manufacturers, categories, locations, organizations), inventory number validation (OK-XXXX format), location hierarchy creation, error logging, and status tracking
+  * **Inspection Import**: Documented CSV/XLSX import with automatic date parsing from various formats, linking to inventory items by inspection number, batch processing, and error handling
+
+* **Technical Architecture Documentation**
+  * **Service Layer**: Documented service layer architecture with Inventory, Rental, Statistics, Notification, and User services for better testability and maintainability
+  * **Caching Strategy**: Documented Redis-based caching with pattern-based cache key management, cache invalidation on data changes via signals, and cache versioning support
+  * **Database Optimization**: Documented batch processing for imports, optimized contribution primary/repetition detection, query optimization with select_related and prefetch_related, composite indexes, and pagination with preserved prefetch relationships
+  * **API Documentation**: Enhanced REST API documentation with pagination support (default 20 items, configurable up to 200), search and filtering capabilities, and ordering support
+
+* **Additional Features Documentation**
+  * **Video Rendering**: Documented preset management (database and JSON-based), customizable intro/outro overlays, text and image overlay support, animation effects (fade, slide, zoom), position presets, template-based rendering, and preview functionality
+  * **Storage Management**: Documented multiple storage location support with hierarchical tracking, UNC path support for Windows networks, automatic file scanning with scheduling, storage type classification (Archive, Playout, Custom), and file availability tracking
+  * **Equipment Sets**: Documented equipment set templates, quick rental setup with equipment sets, member-created equipment sets, and template-based equipment selection
+  * **Alert System**: Documented configurable alert thresholds, multiple metric types (conversion rate, absolute count, trend change), alert logging and resolution tracking, notification recipients configuration, and active/inactive threshold management
+
+2026-01-02 (Version 3.2.0)
+===========================
+
+* **Bug Fixes and Data Integrity**
+  * **Rental Quantity Fix**: Fixed critical double increment bug in `quantity_issued` calculation
+    * Resolved issue where `quantity_issued` was incremented twice (once in `create_transaction()` method and once in signal handler)
+    * Added management commands `fix_quantity_issued` and `fix_missing_issue_transactions` for data correction
+    * Commands support dry-run mode for safe testing before applying fixes
+    * Full documentation added in `deployment/docs/FIX_QUANTITY_ISSUED.md`
+  * **Transaction Integrity**: Ensured all rental transactions are properly tracked and synchronized
+  * **Data Migration Tools**: Added tools to fix existing data affected by the bug
+
+* **License Management Enhancements**
+  * **License Cleanup Tools**: Added management command `delete_imported_licenses` for bulk deletion of imported licenses
+    * Supports deletion by date range, license number range, or profile ID
+    * Includes dry-run mode for safe testing
+    * Automatically handles related contributions deletion
+  * **Nextcloud Integration**: Added `cleanup_deleted_nextcloud_videos` command for managing deleted videos
+    * Checks Nextcloud for deleted videos and marks them as deleted in database
+    * Supports configurable grace period before permanent deletion
+    * Integrated as periodic Celery task for automated cleanup
+
+* **Periodic Tasks Management**
+  * **Task Setup Command**: Added `setup_periodic_tasks` management command for initializing Celery Beat tasks
+    * Migrates tasks from `CELERY_BEAT_SCHEDULE` to django-celery-beat database scheduler
+    * Makes tasks visible and manageable via Django admin interface
+    * Supports update mode for modifying existing tasks
+  * **New Periodic Tasks**: Added automated cleanup tasks
+    * `cleanup_deleted_nextcloud_videos`: Periodic cleanup of deleted Nextcloud videos
+    * All tasks configurable via environment variables with sensible defaults
+
+* **Database Backup Improvements**
+  * **Backup Command**: Enhanced `backup_db` management command
+    * Supports compression (gzip) for space-efficient backups
+    * Configurable output directory
+    * Automatic backup rotation via `cleanup_old_backups` task
+    * Integrated as periodic Celery task (runs daily by default)
+
+* **Version Updates**
+  * **Django**: Updated to 5.2.7 (from 5.2.5)
+
 2025-10-25 (Version 3)
 ========================
 

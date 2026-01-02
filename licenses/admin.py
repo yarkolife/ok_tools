@@ -22,7 +22,17 @@ from import_export.fields import Field
 from ok_tools.datetime import TZ
 from registration.models import MediaAuthority
 from registration.models import Profile
-# from rangefilter.filters import DateTimeRangeFilter
+from rangefilter.filters import DateTimeRangeFilter
+
+
+class TranslatedDateTimeRangeFilter(DateTimeRangeFilter):
+    """DateTimeRangeFilter with translated title."""
+
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        super().__init__(field, request, params, model, model_admin, field_path)
+        self.title = "Erstellt am"
+
+
 import datetime
 import json
 import logging
@@ -331,7 +341,7 @@ class LicenseResource(resources.ModelResource):
     media_library = _f(
         'store_in_ok_media_library', _('Store in OK media library'))
     screen_board = _f('is_screen_board', _('Screen Board'))
-    created_at = _f('created_at', _('created at'))
+    created_at = _f('created_at', _('Created at'))
 
     def dehydrate_suggested_date(self, license: License):
         """Return the suggested date in the current time zone."""
@@ -737,11 +747,23 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                             _('Sync from Video')
                         )
                 
+                # Render button if video is available
+                render_button = ''
+                if video_file.is_available:
+                    render_url = reverse('media_files:render_video_admin', args=[video_file.id])
+                    render_button = format_html(
+                        '<br><a href="{}" class="button" style="padding: 8px 16px; background: #28a745; color: white; '
+                        'text-decoration: none; border-radius: 4px; margin-top: 5px; display: inline-block;">'
+                        '🎬 {}</a>',
+                        render_url,
+                        _('Render Video with Overlays')
+                    )
+                
                 return format_html(
                     '{} <a href="{}">{}</a><br>'
                     '<span style="color: #666;">{}</span><br>'
                     '<span class="badge badge-{}">{}</span> • <span style="color: #666;">{}</span>'
-                    '{}',
+                    '{}{}',
                     icon,
                     url,
                     video_file.filename,
@@ -749,7 +771,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     status_class,
                     status_text,
                     video_file.storage_location.name if video_file.storage_location else '-',
-                    duration_warning
+                    duration_warning,
+                    render_button
                 )
             else:
                 search_url = reverse('admin:licenses_license_search_video', args=[obj.id])
@@ -945,7 +968,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
-        ('created_at', CustomDateTimeRangeFilter),
+        'created_at',
         YearFilter,
         ('duration', DurationRangeFilter),
         AutocompleteFilterFactory(

@@ -7,7 +7,7 @@
     "intro": [
       {
         "type": "text",
-        "template": "{license.title_line_wrapped}",
+        "template": "{license.title_wrapped_short}",
         "x": "(W-text_w)/2",
         "y": "(H-text_h)/2",
         "start": 0.0,
@@ -21,6 +21,20 @@
         "box": true,
         "boxcolor": "black@0.4",
         "boxborderw": 24
+      },
+      {
+        "type": "text",
+        "template": "{license.subtitle_wrapped}",
+        "x": "W-text_w-40",
+        "y": "(H-text_h)/2+100",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.6,
+        "fade_out": 0.6,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 32,
+        "fontcolor": "white"
       },
       {
         "type": "text",
@@ -54,7 +68,7 @@
     "outro": [
       {
         "type": "text",
-        "template": "{license.title_line_wrapped}",
+        "template": "{license.title_wrapped_short}",
         "x": "(W-text_w)/2",
         "y": "(H-text_h)/2",
         "start": 0.0,
@@ -68,6 +82,20 @@
         "box": true,
         "boxcolor": "black@0.4",
         "boxborderw": 24
+      },
+      {
+        "type": "text",
+        "template": "{license.subtitle_wrapped}",
+        "x": "W-text_w-40",
+        "y": "(H-text_h)/2+100",
+        "start": 0.0,
+        "end": 5.0,
+        "animation": "fade",
+        "fade_in": 0.6,
+        "fade_out": 0.6,
+        "fontfile": "fonts/Roboto-Regular.ttf",
+        "fontsize": 32,
+        "fontcolor": "white"
       },
       {
         "type": "text",
