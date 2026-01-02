@@ -182,6 +182,26 @@ VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS = get_env(
     cast=int,
 )
 
+# Default playout storage selection
+VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME = get_env(
+    'VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME',
+    default=None,
+    cast=str,
+)
+
+VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH = get_env(
+    'VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH',
+    default=None,
+    cast=str,
+)
+
+# Auto-delete from CUSTOM storage after successful copy
+VIDEO_AUTO_DELETE_FROM_CUSTOM = get_env(
+    'VIDEO_AUTO_DELETE_FROM_CUSTOM',
+    default=True,
+    cast=bool,
+)
+
 RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS = get_env(
     'RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS',
     default=60 * 60 * 24 * 7,  # 7 days

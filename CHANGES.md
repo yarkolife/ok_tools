@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+2026-01-02 (Version 3.2.3)
+==========================
+
+* **Video Storage Automation Enhancements**
+  * **Default Playout Storage Selection**: Added intelligent selection of default playout storage for main broadcasts
+    * Configurable via `VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME` or `VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH`
+    * Auto-detects storage containing "000_Sendungen" in path or "Sendungen" in name
+    * Falls back to first available PLAYOUT storage if nothing matches
+    * Ensures videos are copied to correct playout location (main broadcasts vs. previews/trailers)
+  * **Automatic Deletion from CUSTOM Storage**: Added automatic cleanup of CUSTOM storage after successful copy
+    * Videos are moved (deleted from CUSTOM) after successful copy to archive and playout
+    * Only deletes if source was CUSTOM and all required copies succeeded
+    * Prevents duplicate records and keeps CUSTOM storage (entry point) clean
+    * Configurable via `VIDEO_AUTO_DELETE_FROM_CUSTOM` setting (default: true)
+    * Creates FileOperation records for deletion tracking
+    * Updates all database records properly during copy and delete operations
+  * **Enhanced Database Record Management**: Improved database record updates during video operations
+    * All metadata is copied when creating new VideoFile records
+    * FileOperation records are properly linked to new video records
+    * Deletion operations are fully tracked in FileOperation table
+    * Better logging for all database operations
+
 2026-01-02 (Version 3.2.2)
 ==========================
 

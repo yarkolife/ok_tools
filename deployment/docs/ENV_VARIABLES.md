@@ -525,6 +525,45 @@ This document provides comprehensive reference for all environment variables use
   - Older files use ARCHIVE as preferred source
   - Adjust based on your workflow (how long files stay in CUSTOM before archiving)
 
+### VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME
+- **Description:** Name of default playout storage for main broadcasts
+- **Type:** String
+- **Required:** No
+- **Default:** `None` (auto-detects)
+- **Example:** `VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME=Sendungen`
+- **Notes:**
+  - Used to select which PLAYOUT storage to use when multiple playout storages exist
+  - Searches for storage location with name containing this value (case-insensitive)
+  - If not set, auto-detects storage containing "000_Sendungen" in path or "Sendungen" in name
+  - Falls back to first available PLAYOUT storage if nothing matches
+
+### VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH
+- **Description:** Path pattern to identify default playout storage
+- **Type:** String
+- **Required:** No
+- **Default:** `None` (auto-detects)
+- **Example:** `VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH=000_Sendungen`
+- **Notes:**
+  - Used to select which PLAYOUT storage to use when multiple playout storages exist
+  - Searches for storage location with path containing this value (case-insensitive)
+  - Checked after `VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME` if name is not set
+  - If not set, auto-detects storage containing "000_Sendungen" in path
+  - Falls back to first available PLAYOUT storage if nothing matches
+
+### VIDEO_AUTO_DELETE_FROM_CUSTOM
+- **Description:** Automatically delete videos from CUSTOM storage after successful copy
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `true`
+- **Example:** `VIDEO_AUTO_DELETE_FROM_CUSTOM=true`
+- **Notes:**
+  - When enabled: videos are moved (deleted from CUSTOM) after successful copy to archive and playout
+  - Only deletes if source was CUSTOM storage and all required copies succeeded
+  - Prevents duplicate records and keeps CUSTOM storage (entry point) clean
+  - Deletes both physical file and VideoFile database record
+  - Creates FileOperation record for deletion tracking
+  - Set to `false` to keep videos in CUSTOM storage after copying
+
 ---
 
 ## I18n Configuration

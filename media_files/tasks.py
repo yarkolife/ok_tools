@@ -735,7 +735,7 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             operation.save()
             return False, message
         
-        # Create new VideoFile record
+        # Create new VideoFile record with all metadata
         new_video = VideoFile.objects.create(
             number=source_video.number,
             filename=source_video.filename,
@@ -749,21 +749,121 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             has_video=source_video.has_video,
             has_audio=source_video.has_audio,
             video_codec=source_video.video_codec,
+            video_codec_long=source_video.video_codec_long,
+            video_profile=source_video.video_profile,
+            video_bitrate=source_video.video_bitrate,
+            video_bitrate_mode=source_video.video_bitrate_mode,
             audio_codec=source_video.audio_codec,
+            audio_codec_long=source_video.audio_codec_long,
+            audio_bitrate=source_video.audio_bitrate,
+            audio_sample_rate=source_video.audio_sample_rate,
+            audio_channels=source_video.audio_channels,
             width=source_video.width,
             height=source_video.height,
             fps=source_video.fps,
+            aspect_ratio=source_video.aspect_ratio,
+            pixel_format=source_video.pixel_format,
+            color_space=source_video.color_space,
+            color_range=source_video.color_range,
+            chroma_subsampling=source_video.chroma_subsampling,
             total_bitrate=source_video.total_bitrate,
             last_scanned=timezone.now(),
         )
         
+        # Update operation with new video reference
+        operation.video_file = new_video
         operation.status = 'SUCCESS'
         operation.save()
         
+        logger.info(f"Created VideoFile record {new_video.id} for video {new_video.number} in {destination_storage.name}")
         return True, f"Video copied successfully"
         
     except Exception as e:
         error_msg = f'Error copying video: {str(e)}'
+        logger.error(error_msg, exc_info=True)
+        
+        if 'operation' in locals():
+            operation.status = 'FAILED'
+            operation.error_message = error_msg
+            operation.save()
+        
+        return False, error_msg
+
+
+def _delete_source_from_custom(source_video, user):
+    """
+    Delete video file and VideoFile record from CUSTOM storage after successful copy.
+    
+    Args:
+        source_video: VideoFile instance from CUSTOM storage
+        user: User performing operation (optional)
+        
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    from media_files.models import FileOperation
+    from pathlib import Path
+    import os
+    
+    try:
+        # Only delete if source is CUSTOM storage
+        if source_video.storage_location.storage_type != 'CUSTOM':
+            return False, "Source is not CUSTOM storage"
+        
+        # Check if file exists
+        full_path = Path(source_video.full_path)
+        file_exists = full_path.exists()
+        
+        if not file_exists:
+            logger.warning(f"Source file does not exist: {full_path}")
+            # Delete record anyway if file is missing
+            video_id = source_video.id
+            video_number = source_video.number
+            source_video.delete()
+            logger.info(f"Deleted source video record {video_number} (ID: {video_id}) - file was already missing")
+            return True, "Source file already missing, deleted record"
+        
+        # Create operation record
+        operation = FileOperation.objects.create(
+            video_file=source_video,
+            operation_type='DELETE',
+            source_location=source_video.storage_location,
+            destination_location=None,
+            performed_by=user,
+            status='IN_PROGRESS',
+        )
+        
+        # Delete physical file
+        try:
+            os.remove(str(full_path))
+            logger.info(f"Deleted source file: {full_path}")
+        except Exception as e:
+            logger.error(f"Error deleting source file {full_path}: {e}")
+            operation.status = 'FAILED'
+            operation.error_message = f"Error deleting file: {str(e)}"
+            operation.save()
+            return False, f"Error deleting file: {str(e)}"
+        
+        # Delete VideoFile record (this will cascade delete related FileOperations)
+        video_id = source_video.id
+        video_number = source_video.number
+        storage_name = source_video.storage_location.name
+        
+        # Delete the record
+        source_video.delete()
+        
+        # Update operation status
+        operation.status = 'SUCCESS'
+        operation.save()
+        
+        logger.info(
+            f"Deleted source video {video_number} (ID: {video_id}) from CUSTOM storage "
+            f"({storage_name}) - file and database record removed"
+        )
+        return True, "Source deleted successfully"
+        
+    except Exception as e:
+        error_msg = f'Error deleting source: {str(e)}'
         logger.error(error_msg, exc_info=True)
         
         if 'operation' in locals():
@@ -814,10 +914,45 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
     
     playout_storage = None
     if getattr(settings, 'VIDEO_AUTO_COPY_TO_PLAYOUT', False):
-        playout_storage = StorageLocation.objects.filter(
+        # Try to find default playout storage (000_Sendungen for main broadcasts)
+        default_playout_name = getattr(settings, 'VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME', None)
+        default_playout_path = getattr(settings, 'VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH', None)
+        
+        playout_query = StorageLocation.objects.filter(
             storage_type='PLAYOUT',
             is_active=True
-        ).first()
+        )
+        
+        # Priority 1: Use configured name
+        if default_playout_name and default_playout_name.strip():
+            playout_storage = playout_query.filter(name__icontains=default_playout_name).first()
+            if playout_storage:
+                logger.info(f"Using playout storage by name '{default_playout_name}': {playout_storage.name}")
+        
+        # Priority 2: Use configured path
+        if not playout_storage and default_playout_path and default_playout_path.strip():
+            playout_storage = playout_query.filter(path__icontains=default_playout_path).first()
+            if playout_storage:
+                logger.info(f"Using playout storage by path '{default_playout_path}': {playout_storage.name}")
+        
+        # Priority 3: Auto-detect by path (000_Sendungen)
+        if not playout_storage:
+            playout_storage = playout_query.filter(path__icontains='000_Sendungen').first()
+            if playout_storage:
+                logger.info(f"Auto-detected playout storage by path '000_Sendungen': {playout_storage.name}")
+        
+        # Priority 4: Auto-detect by name (Sendungen)
+        if not playout_storage:
+            playout_storage = playout_query.filter(name__icontains='Sendungen').first()
+            if playout_storage:
+                logger.info(f"Auto-detected playout storage by name 'Sendungen': {playout_storage.name}")
+        
+        # Priority 5: Fallback to first available
+        if not playout_storage:
+            playout_storage = playout_query.first()
+            if playout_storage:
+                logger.warning(f"Using first available playout storage (fallback): {playout_storage.name}")
+        
         if not playout_storage:
             logger.warning("VIDEO_AUTO_COPY_TO_PLAYOUT enabled but no PLAYOUT storage found")
     
@@ -863,7 +998,13 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                 f"({source_video.storage_location.storage_type}) - {selection_reason}"
             )
             
+            # Save original source info for potential deletion from CUSTOM
+            original_source_type = source_video.storage_location.storage_type
+            original_source_id = source_video.id
+            should_delete_from_custom = False
+            
             # Step 1: Copy to archive if needed
+            archive_copy_success = False
             if archive_storage:
                 archive_exists = VideoFile.objects.filter(
                     number=number,
@@ -879,6 +1020,7 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                     )
                     if success:
                         copied_to_archive += 1
+                        archive_copy_success = True
                         logger.info(f"Video {number}: ✓ Copied to archive")
                         # Update source_video to use archive version for next copy
                         source_video = VideoFile.objects.get(
@@ -894,9 +1036,13 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                             'message': f'Archive copy failed: {msg}'
                         })
                 else:
+                    archive_copy_success = True  # Already exists, consider as success
                     logger.debug(f"Video {number}: Already in archive, skipping")
+            else:
+                archive_copy_success = True  # Archive copy not required
             
             # Step 2: Copy to playout in weekly folder
+            playout_copy_success = False
             if playout_storage:
                 # Check if already exists in this week folder (or root if no weekly folders)
                 if week_folder:
@@ -920,6 +1066,7 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                     )
                     if success:
                         copied_to_playout += 1
+                        playout_copy_success = True
                         logger.info(f"Video {number}: ✓ Copied to playout/{week_folder or 'root'}")
                     else:
                         logger.error(f"Video {number}: ✗ Failed to copy to playout: {msg}")
@@ -929,10 +1076,38 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                             'message': f'Playout copy failed: {msg}'
                         })
                 else:
+                    playout_copy_success = True  # Already exists, consider as success
                     logger.debug(f"Video {number}: Already in playout/{week_folder or 'root'}, skipping")
                     skipped += 1
             else:
+                playout_copy_success = True  # Playout copy not required
                 skipped += 1
+            
+            # Step 3: Delete from CUSTOM if source was CUSTOM and all copies succeeded
+            auto_delete_enabled = getattr(settings, 'VIDEO_AUTO_DELETE_FROM_CUSTOM', True)
+            if (auto_delete_enabled 
+                and original_source_type == 'CUSTOM'
+                and archive_copy_success 
+                and playout_copy_success):
+                
+                # Find CUSTOM source video (may have been updated, so reload)
+                try:
+                    custom_source = VideoFile.objects.filter(
+                        id=original_source_id,
+                        storage_location__storage_type='CUSTOM',
+                        is_available=True
+                    ).first()
+                    
+                    if custom_source:
+                        delete_success, delete_msg = _delete_source_from_custom(custom_source, user)
+                        if delete_success:
+                            logger.info(f"Video {number}: ✓ Deleted from CUSTOM storage (moved to archive/playout)")
+                        else:
+                            logger.warning(f"Video {number}: ⚠ Failed to delete from CUSTOM: {delete_msg}")
+                    else:
+                        logger.debug(f"Video {number}: CUSTOM source already deleted or not found")
+                except Exception as e:
+                    logger.error(f"Video {number}: Error deleting from CUSTOM: {str(e)}", exc_info=True)
                 
         except Exception as e:
             logger.error(f"Video {number}: ERROR - {str(e)}", exc_info=True)
