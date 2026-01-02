@@ -814,24 +814,39 @@ def _delete_source_from_custom(source_video, user):
         full_path = Path(source_video.full_path)
         file_exists = full_path.exists()
         
+        # Save video info before deletion (needed for logging and operation)
+        video_id = source_video.id
+        video_number = source_video.number
+        storage_name = source_video.storage_location.name
+        source_location = source_video.storage_location
+        
         if not file_exists:
             logger.warning(f"Source file does not exist: {full_path}")
+            # Create operation record before deletion
+            operation = FileOperation.objects.create(
+                video_file_id=video_id,  # Use ID to avoid issues after deletion
+                operation_type='DELETE',
+                source_location=source_location,
+                destination_location=None,
+                performed_by=user,
+                status='SUCCESS',
+            )
             # Delete record anyway if file is missing
-            video_id = source_video.id
-            video_number = source_video.number
             source_video.delete()
             logger.info(f"Deleted source video record {video_number} (ID: {video_id}) - file was already missing")
             return True, "Source file already missing, deleted record"
         
-        # Create operation record
+        # Create operation record BEFORE deleting video_file
         operation = FileOperation.objects.create(
             video_file=source_video,
             operation_type='DELETE',
-            source_location=source_video.storage_location,
+            source_location=source_location,
             destination_location=None,
             performed_by=user,
             status='IN_PROGRESS',
         )
+        # Save operation immediately to ensure it's persisted
+        operation.save()
         
         # Delete physical file
         try:
@@ -844,17 +859,12 @@ def _delete_source_from_custom(source_video, user):
             operation.save()
             return False, f"Error deleting file: {str(e)}"
         
-        # Delete VideoFile record (this will cascade delete related FileOperations)
-        video_id = source_video.id
-        video_number = source_video.number
-        storage_name = source_video.storage_location.name
-        
-        # Delete the record
-        source_video.delete()
-        
-        # Update operation status
+        # Update operation status BEFORE deleting video_file
         operation.status = 'SUCCESS'
         operation.save()
+        
+        # Now delete VideoFile record (operation is already saved with status)
+        source_video.delete()
         
         logger.info(
             f"Deleted source video {video_number} (ID: {video_id}) from CUSTOM storage "

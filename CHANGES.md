@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-01-02 (Version 3.2.4)
+==========================
+
+* **Bug Fix: Video Deletion from CUSTOM Storage**
+  * **Fixed Database Error**: Resolved error when deleting VideoFile records from CUSTOM storage after successful copy
+    * Fixed `ValueError: save() prohibited to prevent data loss due to unsaved related object 'video_file'`
+    * FileOperation records are now saved before deleting VideoFile to prevent database errors
+    * Operation status is updated and saved before VideoFile deletion
+    * Improved error handling for cases when source file is missing
+    * All database records are now properly updated during deletion operations
+
 2026-01-02 (Version 3.2.3)
 ==========================
 
