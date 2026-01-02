@@ -447,26 +447,30 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 )
         
         if task_ids:
-            # Create links to task results
-            links = []
+            # Create links to task results and build HTML structure
+            links_html_parts = []
             for storage_name, task_id in task_ids:
                 task_results_url = reverse('admin:django_celery_results_taskresult_changelist')
                 task_results_url += f'?task_id__exact={task_id}'
-                links.append(
-                    format_html(
-                        '<a href="{}" target="_blank">{} (Task: {})</a>',
-                        task_results_url,
-                        storage_name,
-                        task_id[:8]  # Show first 8 chars of task ID
-                    )
+                link_html = format_html(
+                    '<a href="{}" target="_blank">{} (Task: {})</a>',
+                    task_results_url,
+                    storage_name,
+                    task_id[:8]  # Show first 8 chars of task ID
                 )
+                links_html_parts.append(link_html)
+            
+            # Build complete message - format_html handles SafeString properly
+            # Create a template with placeholders for each link
+            links_template = '<br>'.join(['{}'] * len(links_html_parts))
+            links_combined = format_html(links_template, *links_html_parts)
             
             message = format_html(
                 '✓ {} {} {}<br>{}',
                 _("Scan tasks queued for"),
                 len(task_ids),
                 _("storage location(s)"),
-                '<br>'.join(links)
+                links_combined
             )
             self.message_user(request, message)
     scan_storage.short_description = _('Scan selected storage locations')
