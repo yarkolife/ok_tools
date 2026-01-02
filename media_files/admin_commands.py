@@ -5,8 +5,20 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
+from django.utils.html import format_html
 from io import StringIO
 import logging
+
+from media_files.tasks import (
+    run_auto_scan_task,
+    run_scan_video_storage_task,
+    run_sync_licenses_videos_task,
+    run_link_orphan_licenses_task,
+    run_cleanup_playout_task,
+    run_find_duplicates_task,
+    run_cleanup_duplicates_task,
+)
 
 
 logger = logging.getLogger('django')
@@ -59,6 +71,8 @@ def system_management_view(request):
                 options['calculate_checksum'] = True
             if request.POST.get('skip_metadata'):
                 options['skip_metadata'] = True
+            if request.POST.get('delete_missing'):
+                options['delete_missing'] = True
         
         elif command == 'auto_scan':
             if request.POST.get('force'):
@@ -130,34 +144,55 @@ def system_management_view(request):
             if number:
                 options['number'] = int(number)
         
-        # Execute command
+        # Execute command via Celery task
         try:
-            out = StringIO()
-            err = StringIO()
+            task = None
             
-            call_command(command, stdout=out, stderr=err, **options)
-            
-            output = out.getvalue()
-            errors = err.getvalue()
-            
-            if errors:
-                messages.error(request, f'❌ {_("Errors during execution")}:\n{errors}')
+            # Map commands to Celery tasks
+            if command == 'scan_video_storage':
+                task = run_scan_video_storage_task.delay(**options)
+            elif command == 'auto_scan':
+                task = run_auto_scan_task.delay(**options)
+            elif command == 'sync_licenses_videos':
+                task = run_sync_licenses_videos_task.delay(**options)
+            elif command == 'link_orphan_licenses':
+                task = run_link_orphan_licenses_task.delay(**options)
+            elif command == 'cleanup_playout':
+                task = run_cleanup_playout_task.delay(**options)
+            elif command == 'find_duplicates':
+                task = run_find_duplicates_task.delay(**options)
+            elif command == 'cleanup_duplicates':
+                task = run_cleanup_duplicates_task.delay(**options)
             else:
-                messages.success(request, f'✓ {_("Command executed successfully")}!')
-                
-                # Show output in a more readable format
-                if output:
-                    # Parse output for key statistics
-                    lines = output.split('\n')
-                    for line in lines:
-                        if 'Complete' in line or 'found' in line.lower() or 'created' in line.lower():
-                            messages.info(request, line)
+                messages.error(request, f'❌ {_("Unknown command")}: {command}')
+                logger.error(f'Unknown command: {command}')
+                return redirect('admin:media_files_system_management')
             
-            logger.info(f'User {request.user.username} executed command: {command} with options: {options}')
+            if task:
+                # Create link to task results
+                task_results_url = reverse('admin:django_celery_results_taskresult_changelist')
+                task_results_url += f'?task_id__exact={task.id}'
+                
+                message = format_html(
+                    '✓ {}! {}: <strong>{}</strong>. {}<br>'
+                    '<a href="{}" target="_blank">{} →</a>',
+                    _("Task queued successfully"),
+                    _("Task ID"),
+                    task.id,
+                    _("The command is running in the background. Check task results for progress."),
+                    task_results_url,
+                    _("View Task Results")
+                )
+                messages.success(request, message)
+                
+                logger.info(
+                    f'User {request.user.username} queued Celery task: {command} '
+                    f'(task_id={task.id}) with options: {options}'
+                )
             
         except Exception as e:
-            messages.error(request, f'❌ {_("Command execution error")}: {str(e)}')
-            logger.error(f'Error executing command {command}: {str(e)}', exc_info=True)
+            messages.error(request, f'❌ {_("Error queueing task")}: {str(e)}')
+            logger.error(f'Error queueing task {command}: {str(e)}', exc_info=True)
     
     # Get list of available storage locations for dropdowns
     from media_files.models import StorageLocation

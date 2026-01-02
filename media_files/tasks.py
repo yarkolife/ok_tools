@@ -38,20 +38,122 @@ def run_auto_scan_task(**kwargs):
     logger.info("Finished auto_scan task.")
 
 
+@shared_task(name="media_files.tasks.run_scan_video_storage")
+def run_scan_video_storage_task(**kwargs):
+    """Run the scan_video_storage management command."""
+    logger.info("Starting scan_video_storage task...")
+    
+    options = {}
+    if kwargs.get("storage_id"):
+        options['storage_id'] = kwargs['storage_id']
+    elif kwargs.get("all"):
+        options['all'] = True
+    if kwargs.get("force"):
+        options['force'] = True
+    if kwargs.get("strict_check"):
+        options['strict_check'] = True
+    if kwargs.get("calculate_checksum"):
+        options['calculate_checksum'] = True
+    if kwargs.get("skip_metadata"):
+        options['skip_metadata'] = True
+    if kwargs.get("delete_missing"):
+        options['delete_missing'] = True
+    
+    call_command("scan_video_storage", **options)
+    logger.info("Finished scan_video_storage task.")
+
+
 @shared_task(name="media_files.tasks.run_link_orphan_licenses")
-def run_link_orphan_licenses_task():
+def run_link_orphan_licenses_task(**kwargs):
     """Run the link_orphan_licenses management command."""
     logger.info("Starting link_orphan_licenses task...")
-    call_command("link_orphan_licenses")
+    
+    options = {}
+    if kwargs.get("dry_run"):
+        options['dry_run'] = True
+    if kwargs.get("scan_first"):
+        options['scan_first'] = True
+        if kwargs.get("force_scan"):
+            options['force_scan'] = True
+        if kwargs.get("strict_check_scan"):
+            options['strict_check_scan'] = True
+        if kwargs.get("skip_metadata_scan"):
+            options['skip_metadata_scan'] = True
+    if kwargs.get("number"):
+        options['number'] = kwargs['number']
+    
+    call_command("link_orphan_licenses", **options)
     logger.info("Finished link_orphan_licenses task.")
 
 
 @shared_task(name="media_files.tasks.run_sync_licenses_videos")
-def run_sync_licenses_videos_task():
+def run_sync_licenses_videos_task(**kwargs):
     """Run the sync_licenses_videos management command."""
     logger.info("Starting sync_licenses_videos task...")
-    call_command("sync_licenses_videos")
+    
+    options = {}
+    if kwargs.get("dry_run"):
+        options['dry_run'] = True
+    if kwargs.get("force_sync_duration"):
+        options['force_sync_duration'] = True
+    if kwargs.get("number"):
+        options['number'] = kwargs['number']
+    
+    call_command("sync_licenses_videos", **options)
     logger.info("Finished sync_licenses_videos task.")
+
+
+@shared_task(name="media_files.tasks.run_cleanup_playout")
+def run_cleanup_playout_task(**kwargs):
+    """Run the cleanup_playout management command."""
+    logger.info("Starting cleanup_playout task...")
+    
+    options = {}
+    if kwargs.get("dry_run"):
+        options['dry_run'] = True
+    if kwargs.get("check_attributes"):
+        options['check_attributes'] = True
+    if kwargs.get("check_locks"):
+        options['check_locks'] = True
+    if kwargs.get("older_than"):
+        options['older_than'] = kwargs['older_than']
+    if kwargs.get("storage_id"):
+        options['storage_id'] = kwargs['storage_id']
+    
+    call_command("cleanup_playout", **options)
+    logger.info("Finished cleanup_playout task.")
+
+
+@shared_task(name="media_files.tasks.run_find_duplicates")
+def run_find_duplicates_task(**kwargs):
+    """Run the find_duplicates management command."""
+    logger.info("Starting find_duplicates task...")
+    
+    options = {}
+    if kwargs.get("json"):
+        options['json'] = True
+    if kwargs.get("storage_type"):
+        options['storage_type'] = kwargs['storage_type']
+    
+    call_command("find_duplicates", **options)
+    logger.info("Finished find_duplicates task.")
+
+
+@shared_task(name="media_files.tasks.run_cleanup_duplicates")
+def run_cleanup_duplicates_task(**kwargs):
+    """Run the cleanup_duplicates management command."""
+    logger.info("Starting cleanup_duplicates task...")
+    
+    options = {}
+    if kwargs.get("dry_run"):
+        options['dry_run'] = True
+    if kwargs.get("storage_type"):
+        options['storage_type'] = kwargs['storage_type']
+    if kwargs.get("number"):
+        options['number'] = kwargs['number']
+    
+    call_command("cleanup_duplicates", **options)
+    logger.info("Finished cleanup_duplicates task.")
 
 
 @shared_task(name="media_files.tasks.run_update_video_metadata")

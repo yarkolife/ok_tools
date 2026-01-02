@@ -1,6 +1,26 @@
 CHANGELOG
 =========
 
+2026-01-02 (Version 3.2.6)
+==========================
+
+* **Celery Integration for System Management Commands**
+  * **All System Management Commands Now Run via Celery**: Migrated all management commands to asynchronous execution
+    * System Management page commands now execute via Celery tasks instead of blocking web requests
+    * Commands include: scan_video_storage, auto_scan, sync_licenses_videos, link_orphan_licenses, cleanup_playout, find_duplicates, cleanup_duplicates
+    * Tasks run in background, allowing users to continue working while commands execute
+    * Improved scalability - can distribute workload across multiple Celery workers
+  * **Storage Location Scanning via Celery**: Scan button and bulk scan actions now use Celery
+    * Individual storage scan button (🔍 Scan) now queues Celery task instead of blocking
+    * Bulk "Scan selected storage locations" action queues tasks for all selected storages
+    * All scan operations execute asynchronously in background
+    * Users receive Task ID and link to monitor progress via Celery Results admin
+  * **Enhanced User Feedback**: Improved task status tracking and user notifications
+    * Task ID displayed after queuing commands
+    * Direct links to Celery Results admin page for monitoring task progress
+    * Better error handling and user messaging for task queueing
+    * All task executions are logged with user information for audit trail
+
 2026-01-02 (Version 3.2.5)
 ==========================
 

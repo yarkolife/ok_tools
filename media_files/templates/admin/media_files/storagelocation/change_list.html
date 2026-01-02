@@ -97,18 +97,34 @@ function submitScan() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
+            // Show success message with task info
+            let message = data.message;
+            if (data.task_id) {
+                message += '\n\n{% trans "Task ID" %}: ' + data.task_id;
+            }
+            if (data.task_results_url) {
+                message += '\n\n{% trans "Check task results for progress" %}';
+            }
+            alert(message);
+            
+            // Optionally open task results in new tab
+            if (data.task_results_url && confirm('{% trans "Open task results page?" %}')) {
+                window.open(data.task_results_url, '_blank');
+            }
+            
             closeModal();
-            location.reload();
+            // Reload page to show updated video counts after task completes
+            // Note: Task runs in background, so counts may not update immediately
+            setTimeout(() => location.reload(), 2000);
         } else {
             alert('{% trans "Error" %}: ' + (data.message || '{% trans "Unknown error" %}'));
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
     })
     .catch(err => {
         console.error('Error:', err);
         alert('{% trans "Error occurred during scanning. Please try again." %}');
-    })
-    .finally(() => {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     });

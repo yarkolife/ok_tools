@@ -317,18 +317,20 @@ class StorageLocationAdmin(admin.ModelAdmin):
     video_count_display.short_description = _('Videos')
     
     def scan_storage_view(self, request, storage_id):
-        """View to scan a single storage location."""
+        """View to scan a single storage location via Celery task."""
         from django.shortcuts import redirect
         from django.contrib import messages
-        from django.core.management import call_command
         from django.http import JsonResponse
-        from io import StringIO
+        from django.urls import reverse
+        from django.utils.html import format_html
+        
+        from media_files.tasks import run_scan_video_storage_task
         
         try:
             storage = StorageLocation.objects.get(id=storage_id)
             
             # Get scan options from request parameters (both GET and POST)
-            scan_options = {}
+            scan_options = {'storage_id': storage_id}
             if request.GET.get('force') or request.POST.get('force'):
                 scan_options['force'] = True
             if request.GET.get('strict_check') or request.POST.get('strict_check'):
@@ -340,62 +342,32 @@ class StorageLocationAdmin(admin.ModelAdmin):
             if request.GET.get('delete_missing') or request.POST.get('delete_missing'):
                 scan_options['delete_missing'] = True
             
-            # Capture command output
-            out = StringIO()
-            call_command('scan_video_storage', storage_id=storage_id, stdout=out, **scan_options)
-            output = out.getvalue()
+            # Queue Celery task
+            task = run_scan_video_storage_task.delay(**scan_options)
             
-            # Parse output for statistics
-            lines = output.split('\n')
-            stats = {'created': 0, 'updated': 0, 'found': 0, 'skipped': 0, 'deleted': 0, 'marked_unavailable': 0}
-            for line in lines:
-                if 'Created:' in line:
-                    stats['created'] += 1
-                elif 'Updated:' in line or 'updated' in line.lower():
-                    stats['updated'] += 1
-                elif 'Skipped:' in line or 'skipped' in line.lower():
-                    stats['skipped'] += 1
-                elif 'Deleted (file missing):' in line or 'deleted (file missing)' in line.lower():
-                    stats['deleted'] += 1
-                elif 'Marked unavailable:' in line or 'marked unavailable' in line.lower():
-                    stats['marked_unavailable'] += 1
-                elif 'Total files found:' in line:
-                    try:
-                        stats['found'] = int(line.split(':')[1].strip())
-                    except:
-                        pass
-                elif 'Records deleted (files missing):' in line:
-                    try:
-                        stats['deleted'] = int(line.split(':')[1].strip())
-                    except:
-                        pass
-                elif 'Records marked unavailable:' in line:
-                    try:
-                        stats['marked_unavailable'] = int(line.split(':')[1].strip())
-                    except:
-                        pass
+            # Create link to task results
+            task_results_url = reverse('admin:django_celery_results_taskresult_changelist')
+            task_results_url += f'?task_id__exact={task.id}'
             
-            success_parts = [
-                f'✓ {_("Scanning completed")}: {storage.name}',
-                f'{_("Found")}: {stats["found"]} {_("files")}',
-                f'{_("Created")}: {stats["created"]} {_("records")}',
-                f'{_("Updated")}: {stats["updated"]} {_("records")}',
-                f'{_("Skipped")}: {stats["skipped"]} {_("files")} ({_("no changes")})'
-            ]
-            
-            if stats['deleted'] > 0:
-                success_parts.append(f'{_("Deleted")}: {stats["deleted"]} {_("records")} ({_("files missing")})')
-            if stats['marked_unavailable'] > 0:
-                success_parts.append(f'{_("Marked unavailable")}: {stats["marked_unavailable"]} {_("records")}')
-            
-            success_message = ' | '.join(success_parts)
+            success_message = format_html(
+                '✓ {}: {}<br>{}: <strong>{}</strong><br>'
+                '<a href="{}" target="_blank">{} →</a>',
+                _("Scan task queued successfully"),
+                storage.name,
+                _("Task ID"),
+                task.id,
+                _("The scan is running in the background. Check task results for progress."),
+                task_results_url,
+                _("View Task Results")
+            )
             
             # If it's an AJAX request, return JSON
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
                 return JsonResponse({
                     'success': True,
-                    'message': success_message,
-                    'stats': stats
+                    'message': str(success_message),
+                    'task_id': task.id,
+                    'task_results_url': task_results_url
                 })
             
             # Otherwise, redirect with message
@@ -407,7 +379,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 return JsonResponse({'success': False, 'message': error_message})
             messages.error(request, error_message)
         except Exception as e:
-            error_message = _('Error scanning storage: {}').format(str(e))
+            error_message = _('Error queueing scan task: {}').format(str(e))
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'POST':
                 return JsonResponse({'success': False, 'message': error_message})
             messages.error(request, error_message)
@@ -456,15 +428,47 @@ class StorageLocationAdmin(admin.ModelAdmin):
         return render(request, 'admin/media_files/storagelocation/scan_options.html', context)
     
     def scan_storage(self, request, queryset):
-        """Action to scan selected storage locations."""
-        from django.core.management import call_command
+        """Action to scan selected storage locations via Celery tasks."""
+        from django.urls import reverse
+        from django.utils.html import format_html
         
+        from media_files.tasks import run_scan_video_storage_task
+        
+        task_ids = []
         for storage in queryset:
             try:
-                call_command('scan_video_storage', storage_id=storage.id)
-                self.message_user(request, _('Successfully scanned: {}').format(storage.name))
+                task = run_scan_video_storage_task.delay(storage_id=storage.id)
+                task_ids.append((storage.name, task.id))
             except Exception as e:
-                self.message_user(request, _('Error scanning {}: {}').format(storage.name, str(e)), level='error')
+                self.message_user(
+                    request,
+                    _('Error queueing scan task for {}: {}').format(storage.name, str(e)),
+                    level='error'
+                )
+        
+        if task_ids:
+            # Create links to task results
+            links = []
+            for storage_name, task_id in task_ids:
+                task_results_url = reverse('admin:django_celery_results_taskresult_changelist')
+                task_results_url += f'?task_id__exact={task_id}'
+                links.append(
+                    format_html(
+                        '<a href="{}" target="_blank">{} (Task: {})</a>',
+                        task_results_url,
+                        storage_name,
+                        task_id[:8]  # Show first 8 chars of task ID
+                    )
+                )
+            
+            message = format_html(
+                '✓ {} {} {}<br>{}',
+                _("Scan tasks queued for"),
+                len(task_ids),
+                _("storage location(s)"),
+                '<br>'.join(links)
+            )
+            self.message_user(request, message)
     scan_storage.short_description = _('Scan selected storage locations')
     
     def test_connection(self, request, queryset):
