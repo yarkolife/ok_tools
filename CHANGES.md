@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-01-02 (Version 3.2.1)
+==========================
+
+* **Celery Configuration Improvements**
+  * **Configurable Task Time Limits**: Added support for configuring Celery task time limits via environment variables
+    * `CELERY_TASK_TIME_LIMIT` and `CELERY_TASK_SOFT_TIME_LIMIT` can now be set in `.env` files
+    * Default values remain 30 minutes (hard limit) and 25 minutes (soft limit)
+    * Recommended values for large video rendering: 60-120 minutes
+    * Updated all configuration templates (okmq, ok-nrw, ok-bayern) with recommended values
+  * **Video Rendering**: Fixed timeout issues for long video rendering tasks by making time limits configurable
+
 2026-01-02 (Version 3.2)
 ========================
 

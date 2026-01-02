@@ -704,8 +704,9 @@ else:
 # Celery Configuration Options
 CELERY_TIMEZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
-CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
+# Allow overriding time limits via environment variables
+CELERY_TASK_TIME_LIMIT = get_env('CELERY_TASK_TIME_LIMIT', default=30 * 60, cast=int)  # 30 minutes default
+CELERY_TASK_SOFT_TIME_LIMIT = get_env('CELERY_TASK_SOFT_TIME_LIMIT', default=25 * 60, cast=int)  # 25 minutes default
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
 # Celery worker concurrency (number of parallel processes)
