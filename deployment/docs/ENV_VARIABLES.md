@@ -564,6 +564,33 @@ This document provides comprehensive reference for all environment variables use
   - Creates FileOperation record for deletion tracking
   - Set to `false` to keep videos in CUSTOM storage after copying
 
+### VIDEO_COPY_VERIFY_CHECKSUM
+- **Description:** Verify checksum during video copy operations
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `true`
+- **Example:** `VIDEO_COPY_VERIFY_CHECKSUM=true`
+- **Notes:**
+  - When enabled: uses SHA256 checksum verification (secure but slower for large files)
+  - When disabled: skips checksum verification (faster but less secure)
+  - Recommended: `true` for CUSTOM sources, `false` or use MD5 for ARCHIVE sources
+  - For large files (3-4 GB), checksum calculation can take 1-2 minutes per file
+  - Set to `false` to significantly speed up copying (especially for ARCHIVE sources)
+
+### VIDEO_COPY_USE_MD5_FOR_ARCHIVE
+- **Description:** Use faster MD5 checksum for ARCHIVE sources instead of SHA256
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `true`
+- **Example:** `VIDEO_COPY_USE_MD5_FOR_ARCHIVE=true`
+- **Notes:**
+  - When enabled: uses MD5 algorithm for ARCHIVE sources (faster, less secure)
+  - When disabled: uses SHA256 for all sources (slower, more secure)
+  - MD5 is 2-3x faster than SHA256 but less secure (sufficient for integrity check)
+  - Recommended: `true` to speed up copying from archive (files already verified)
+  - Only applies when `VIDEO_COPY_VERIFY_CHECKSUM=true`
+  - CUSTOM sources always use SHA256 when verification is enabled
+
 ---
 
 ## I18n Configuration

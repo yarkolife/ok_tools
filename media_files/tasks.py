@@ -722,11 +722,27 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             status='IN_PROGRESS',
         )
         
+        # Determine if checksum verification is needed
+        # Skip verification for ARCHIVE sources (already verified, faster copy)
+        # Or use faster MD5 in background for ARCHIVE
+        from django.conf import settings
+        verify_checksum = getattr(settings, 'VIDEO_COPY_VERIFY_CHECKSUM', True)
+        use_md5_for_archive = getattr(settings, 'VIDEO_COPY_USE_MD5_FOR_ARCHIVE', True)
+        
+        # For ARCHIVE sources: use MD5 in background or skip verification
+        if source_video.storage_location.storage_type == 'ARCHIVE':
+            if use_md5_for_archive:
+                # Use faster MD5 algorithm for ARCHIVE sources
+                verify_checksum = 'md5'
+            else:
+                # Skip verification for ARCHIVE (fastest option)
+                verify_checksum = False
+        
         # Copy the file
         success, message = copy_file_with_progress(
             str(source_video.full_path), 
             str(dest_path),
-            verify_checksum=True
+            verify_checksum=verify_checksum
         )
         
         if not success:

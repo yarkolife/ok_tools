@@ -246,6 +246,9 @@ def copy_file_with_progress(source: str, destination: str, verify_checksum=True)
         source: Source file path
         destination: Destination file path
         verify_checksum: Whether to verify checksum after copy
+                        - True: Use SHA256 (default, most secure)
+                        - False: Skip verification (fastest)
+                        - 'md5': Use MD5 (faster, less secure)
         
     Returns:
         Tuple of (success: bool, message: str)
@@ -261,19 +264,31 @@ def copy_file_with_progress(source: str, destination: str, verify_checksum=True)
         
         logger.info(f"Copying {source} to {destination} ({file_size_mb:.2f} MB)")
         
+        # Determine checksum algorithm
+        checksum_algorithm = 'sha256'  # Default
+        if verify_checksum == 'md5':
+            checksum_algorithm = 'md5'
+            verify_checksum = True  # Enable verification with MD5
+        
         # Calculate source checksum if verification is enabled
         source_checksum = None
         if verify_checksum:
-            logger.debug("Calculating source checksum...")
-            source_checksum = calculate_checksum(source)
+            if checksum_algorithm == 'md5':
+                logger.debug("Calculating source checksum (MD5)...")
+            else:
+                logger.debug("Calculating source checksum (SHA256)...")
+            source_checksum = calculate_checksum(source, algorithm=checksum_algorithm)
         
         # Copy the file
         shutil.copy2(source, destination)
         
         # Verify checksum
         if verify_checksum and source_checksum:
-            logger.debug("Verifying destination checksum...")
-            dest_checksum = calculate_checksum(destination)
+            if checksum_algorithm == 'md5':
+                logger.debug("Verifying destination checksum (MD5)...")
+            else:
+                logger.debug("Verifying destination checksum (SHA256)...")
+            dest_checksum = calculate_checksum(destination, algorithm=checksum_algorithm)
             if source_checksum != dest_checksum:
                 os.remove(destination)
                 error_msg = "Checksum mismatch - file may be corrupted"

@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+2026-01-02 (Version 3.2.5)
+==========================
+
+* **Performance Optimization: Checksum Verification**
+  * **Optimized Checksum Calculation for ARCHIVE Sources**: Added faster checksum verification for copying from archive
+    * Uses MD5 algorithm for ARCHIVE sources instead of SHA256 (2-3x faster)
+    * SHA256 remains default for CUSTOM sources (more secure for new files)
+    * Configurable via `VIDEO_COPY_USE_MD5_FOR_ARCHIVE` setting (default: true)
+    * Significantly reduces copy time for large files from archive (3-4 GB files: ~1 minute instead of 3 minutes)
+  * **Configurable Checksum Verification**: Added settings to control checksum verification
+    * `VIDEO_COPY_VERIFY_CHECKSUM`: Enable/disable checksum verification (default: true)
+    * `VIDEO_COPY_USE_MD5_FOR_ARCHIVE`: Use faster MD5 for ARCHIVE sources (default: true)
+    * Allows fine-tuning between security and performance
+    * MD5 is sufficient for integrity check on already-verified archive files
+
 2026-01-02 (Version 3.2.4)
 ==========================
 

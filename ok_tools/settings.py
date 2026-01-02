@@ -202,6 +202,20 @@ VIDEO_AUTO_DELETE_FROM_CUSTOM = get_env(
     cast=bool,
 )
 
+# Checksum verification during copy
+VIDEO_COPY_VERIFY_CHECKSUM = get_env(
+    'VIDEO_COPY_VERIFY_CHECKSUM',
+    default=True,
+    cast=bool,
+)
+
+# Use faster MD5 checksum for ARCHIVE sources (instead of SHA256)
+VIDEO_COPY_USE_MD5_FOR_ARCHIVE = get_env(
+    'VIDEO_COPY_USE_MD5_FOR_ARCHIVE',
+    default=True,
+    cast=bool,
+)
+
 RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS = get_env(
     'RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS',
     default=60 * 60 * 24 * 7,  # 7 days
