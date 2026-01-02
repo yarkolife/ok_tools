@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import path, reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
@@ -341,6 +342,11 @@ class StorageLocationAdmin(admin.ModelAdmin):
                 scan_options['calculate_checksum'] = True
             if request.GET.get('delete_missing') or request.POST.get('delete_missing'):
                 scan_options['delete_missing'] = True
+            
+            # Update storage updated_at to show scan was initiated
+            # The date will be updated again when task completes
+            storage.updated_at = timezone.now()
+            storage.save(update_fields=['updated_at'])
             
             # Queue Celery task
             task = run_scan_video_storage_task.delay(**scan_options)

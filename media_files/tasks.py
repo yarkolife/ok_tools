@@ -43,11 +43,17 @@ def run_scan_video_storage_task(**kwargs):
     """Run the scan_video_storage management command."""
     logger.info("Starting scan_video_storage task...")
     
+    from media_files.models import StorageLocation
+    
     options = {}
+    storage_ids = []
     if kwargs.get("storage_id"):
         options['storage_id'] = kwargs['storage_id']
+        storage_ids = [kwargs['storage_id']]
     elif kwargs.get("all"):
         options['all'] = True
+        # Get all active storage IDs that will be scanned
+        storage_ids = list(StorageLocation.objects.filter(is_active=True).values_list('id', flat=True))
     if kwargs.get("force"):
         options['force'] = True
     if kwargs.get("strict_check"):
@@ -60,6 +66,12 @@ def run_scan_video_storage_task(**kwargs):
         options['delete_missing'] = True
     
     call_command("scan_video_storage", **options)
+    
+    # Update updated_at for scanned storage locations
+    if storage_ids:
+        StorageLocation.objects.filter(id__in=storage_ids).update(updated_at=timezone.now())
+        logger.info(f"Updated updated_at for {len(storage_ids)} storage location(s)")
+    
     logger.info("Finished scan_video_storage task.")
 
 
