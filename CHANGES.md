@@ -15,6 +15,10 @@ CHANGELOG
     * `VIDEO_COPY_USE_MD5_FOR_ARCHIVE`: Use faster MD5 for ARCHIVE sources (default: true)
     * Allows fine-tuning between security and performance
     * MD5 is sufficient for integrity check on already-verified archive files
+  * **Improved Logging for Checksum Operations**: Enhanced logging to track checksum algorithm usage
+    * Added INFO-level logging to show which algorithm is used (MD5 vs SHA256)
+    * Logs checksum calculation and verification steps for better debugging
+    * Helps monitor performance improvements and verify correct algorithm selection
 
 2026-01-02 (Version 3.2.4)
 ==========================

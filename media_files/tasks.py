@@ -734,9 +734,13 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             if use_md5_for_archive:
                 # Use faster MD5 algorithm for ARCHIVE sources
                 verify_checksum = 'md5'
+                logger.info(f"Using MD5 checksum for ARCHIVE source (faster than SHA256)")
             else:
                 # Skip verification for ARCHIVE (fastest option)
                 verify_checksum = False
+                logger.info(f"Skipping checksum verification for ARCHIVE source (fastest option)")
+        elif verify_checksum:
+            logger.info(f"Using SHA256 checksum for {source_video.storage_location.storage_type} source")
         
         # Copy the file
         success, message = copy_file_with_progress(

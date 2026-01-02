@@ -155,8 +155,6 @@ msgstr "Nicht 25 fps (⚠ Warnung)"
 msgid "FPS not set"
 msgstr "FPS nicht gesetzt"
 
-#, fuzzy
-#| msgid "Created"
 msgid "Created at"
 msgstr "Erstellt am"
 

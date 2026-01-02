@@ -274,20 +274,23 @@ def copy_file_with_progress(source: str, destination: str, verify_checksum=True)
         source_checksum = None
         if verify_checksum:
             if checksum_algorithm == 'md5':
-                logger.debug("Calculating source checksum (MD5)...")
+                logger.info(f"Calculating source checksum (MD5, faster algorithm)...")
             else:
-                logger.debug("Calculating source checksum (SHA256)...")
+                logger.info(f"Calculating source checksum (SHA256)...")
             source_checksum = calculate_checksum(source, algorithm=checksum_algorithm)
+            logger.info(f"Source checksum calculated ({checksum_algorithm})")
         
         # Copy the file
+        logger.info(f"Starting file copy...")
         shutil.copy2(source, destination)
+        logger.info(f"File copy completed, verifying integrity...")
         
         # Verify checksum
         if verify_checksum and source_checksum:
             if checksum_algorithm == 'md5':
-                logger.debug("Verifying destination checksum (MD5)...")
+                logger.info(f"Verifying destination checksum (MD5)...")
             else:
-                logger.debug("Verifying destination checksum (SHA256)...")
+                logger.info(f"Verifying destination checksum (SHA256)...")
             dest_checksum = calculate_checksum(destination, algorithm=checksum_algorithm)
             if source_checksum != dest_checksum:
                 os.remove(destination)

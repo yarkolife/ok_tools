@@ -54,10 +54,8 @@ msgstr "Beschreibung"
 msgid "Profile"
 msgstr "Profil"
 
-#, fuzzy
-#| msgid "Profile"
 msgid "Profile ID"
-msgstr "Profil"
+msgstr "Profil-ID"
 
 msgid "Further involved persons"
 msgstr "Weitere beteiligte Personen"
@@ -71,18 +69,14 @@ msgstr "Kategorie"
 msgid "Suggested broadcast date"
 msgstr "Vorgeschlagenes Sendungsdatum"
 
-#, fuzzy
-#| msgid "Suggested broadcast date"
 msgid "Suggested broadcast time"
-msgstr "Vorgeschlagenes Sendungsdatum"
+msgstr "Vorgeschlagene Sendezeit"
 
 msgid "Repetitions allowed"
 msgstr "Wiederholungen erlaubt"
 
-#, fuzzy
-#| msgid "Media Authority exchange allowed in Saxony-Anhalt"
 msgid "Media Authority exchange allowed"
-msgstr "Medienanstalt-Austausch erlaubt in Sachsen-Anhalt"
+msgstr "Medienanstalten-Übertragung erlaubt"
 
 msgid "Youth protection necessary"
 msgstr "Jugendschutz notwendig"
@@ -93,25 +87,21 @@ msgstr "In OK-Mediathek speichern"
 msgid "Screen Board"
 msgstr "Bildschirm-Board"
 
-#, fuzzy
-#| msgid "Create anyway"
 msgid "Creation year"
-msgstr "Trotzdem erstellen"
+msgstr "Erstellungsjahr"
 
 msgid "This year"
-msgstr ""
+msgstr "Dieses Jahr"
 
-#, fuzzy
-#| msgid "Last"
 msgid "Last year"
-msgstr "Letzte"
+msgstr "Letztes Jahr"
 
 #, python-format
 msgid "Invalid value %(value)s."
-msgstr ""
+msgstr "Ungültiger Wert %(value)s."
 
 msgid "without contributions"
-msgstr ""
+msgstr "ohne Beiträge"
 
 msgid "Yes"
 msgstr "Ja"
@@ -120,234 +110,192 @@ msgid "No"
 msgstr "Nein"
 
 msgid "Global Producer"
-msgstr ""
+msgstr "Globaler Produzent"
 
 msgid "Has video"
-msgstr ""
+msgstr "Hat Video"
 
 msgid "Available"
-msgstr ""
+msgstr "Verfügbar"
 
 msgid "Not available"
-msgstr ""
+msgstr "Nicht verfügbar"
 
-#, fuzzy
-#| msgid "Upload Video"
 msgid "No video"
-msgstr "Video hochladen"
+msgstr "Kein Video"
 
 msgid ""
 "The corresponding profile is not verified. The License can not be confirmed "
 "until the profile is verified."
 msgstr ""
+"Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann erst bestätigt werden, nachdem das Profil verifiziert wurde."
 
 #, python-format
 msgid "Maximum 4 tags allowed. You provided %(count)d tags."
-msgstr ""
+msgstr "Maximal 4 Schlagwörter erlaubt. Sie haben %(count)d Schlagwörter angegeben."
 
 msgid "Empty tags are not allowed."
-msgstr ""
+msgstr "Leere Schlagwörter sind nicht erlaubt."
 
-#, fuzzy
-#| msgid ""
-#| "Enter tags separated by commas (e.g., tag1, tag2, tag3). Maximum 4 tags "
-#| "allowed."
 msgid ""
 "Enter tags separated by commas. Maximum 4 tags allowed. Example: "
 "documentary, local, culture, news"
 msgstr ""
-"Tags durch Kommas getrennt eingeben (z.B. tag1, tag2, tag3). Maximal 4 Tags "
-"erlaubt."
+"Geben Sie Schlagwörter durch Kommas getrennt ein. Maximal 4 Schlagwörter erlaubt. Beispiel: Dokumentation, lokal, Kultur, Nachrichten"
 
 msgid "title, subtitle, number, description, further persons"
-msgstr ""
+msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
 
 msgid "Basic Information"
 msgstr "Grundinformationen"
 
-#, fuzzy
-#| msgid "License Details"
 msgid "Content Details"
-msgstr "Freistellungsdetails"
+msgstr "Inhaltsdetails"
 
 msgid "Broadcasting Permissions"
-msgstr ""
+msgstr "Sendeberechtigungen"
 
-#, fuzzy
-#| msgid "Youth protection category"
 msgid "Youth Protection"
-msgstr "Jugendschutzkategorie"
+msgstr "Jugendschutz"
 
 msgid "Media Library & Special Formats"
-msgstr ""
+msgstr "Mediathek & Spezialformate"
 
 msgid "Status & Metadata"
-msgstr ""
+msgstr "Status & Metadaten"
 
 msgid "Number is auto-generated but can be manually changed if needed."
-msgstr ""
+msgstr "Die Nummer wird automatisch generiert, kann aber bei Bedarf manuell geändert werden."
 
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration mismatch"
-msgstr "Dauer"
+msgstr "Abweichende Dauer"
 
 msgid "License"
 msgstr "Freistellung"
 
 msgid "Sync from Video"
-msgstr ""
+msgstr "Von Video synchronisieren"
 
-#, fuzzy
-#| msgid "No video file provided."
 msgid "No video file found"
-msgstr "Keine Videodatei bereitgestellt."
+msgstr "Keine Videodatei gefunden"
 
 msgid "Search for Video"
-msgstr ""
+msgstr "Video suchen"
 
 msgid "Video File"
 msgstr "Videodatei"
 
-#, fuzzy
-#| msgid "Nextcloud Video File"
 msgid "Nextcloud Video"
-msgstr "Nextcloud-Videodatei"
+msgstr "Nextcloud-Video"
 
 msgid "Player"
-msgstr ""
+msgstr "Player"
 
-#, fuzzy
-#| msgid "Video File"
 msgid "Video"
-msgstr "Videodatei"
+msgstr "Video"
 
 msgid "Signature"
 msgstr "Unterschrift"
 
 msgid "Digital signature is present"
-msgstr ""
+msgstr "Digitale Signatur ist vorhanden"
 
 msgid "No digital signature"
-msgstr ""
+msgstr "Keine digitale Signatur"
 
-#, fuzzy
-#| msgid "Signature"
 msgid "Digital Signature"
-msgstr "Unterschrift"
+msgstr "Digitale Signatur"
 
-#, fuzzy
-#| msgid "Media Authority mapping:"
 msgid "Media Authority"
-msgstr "Medienanstalt-Zuordnung:"
+msgstr "Medienanstalt"
 
-#, fuzzy
-#| msgid "Create License"
 msgid "Confirm selected Licenses"
-msgstr "Freistellung erstellen"
+msgstr "Ausgewählte Freistellungen bestätigen"
 
 msgid "Unconfirm selected Licenses"
-msgstr ""
+msgstr "Ausgewählte Freistellungen zurückziehen"
 
-#, fuzzy
-#| msgid "Create your first license"
 msgid "Create a copy of selected licenses"
-msgstr "Erstellen Sie Ihre erste Freistellung"
+msgstr "Kopie der ausgewählten Freistellungen erstellen"
 
-#, fuzzy
-#| msgid "License %(license)s successfully copied."
 msgid "License copies created successfully."
-msgstr "Freistellung %(license)s erfolgreich kopiert."
+msgstr "Kopien der Freistellungen wurden erfolgreich erstellt."
 
 #, python-format
 msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
 "confirmed until the profile is verified."
 msgstr ""
+"Das zugehörige Profil von %(obj)s ist nicht verifiziert. Die Freistellung kann erst bestätigt werden, nachdem das Profil verifiziert wurde."
 
 msgid "Duration synced from video: {} → {}"
-msgstr ""
+msgstr "Dauer vom Video übernommen: {} → {}"
 
-#, fuzzy
-#| msgid "No video file provided."
 msgid "No video file found for this license."
-msgstr "Keine Videodatei bereitgestellt."
+msgstr "Für diese Freistellung wurde keine Videodatei gefunden."
 
 msgid "Video file has no duration information."
-msgstr ""
+msgstr "Die Videodatei enthält keine Dauerinformation."
 
 msgid "Scanning storages for video"
-msgstr ""
+msgstr "Speicherorte werden nach Video durchsucht"
 
 msgid "Video found and linked to license"
-msgstr ""
+msgstr "Video gefunden und mit der Freistellung verknüpft"
 
 msgid "Video with number"
-msgstr ""
+msgstr "Video mit Nummer"
 
 msgid "not found in storages"
-msgstr ""
+msgstr "in den Speicherorten nicht gefunden"
 
 msgid "Make sure the file exists and starts with the number"
-msgstr ""
+msgstr "Stellen Sie sicher, dass die Datei existiert und mit der Nummer beginnt"
 
 msgid "Error linking video"
-msgstr ""
+msgstr "Fehler beim Verknüpfen des Videos"
 
 msgid "Search completed. Check the results"
-msgstr ""
+msgstr "Suche abgeschlossen. Überprüfen Sie die Ergebnisse"
 
-#, fuzzy, python-format
-#| msgid "License not found."
+#, python-format
 msgid "License #%(id)s not found"
-msgstr "Freistellung nicht gefunden."
+msgstr "Freistellung #%(id)s nicht gefunden"
 
-#, fuzzy, python-format
-#| msgid "Error checking video %(filename)s: %(error)s"
+#, python-format
 msgid "Error searching for video: %(error)s"
-msgstr "Fehler beim Prüfen des Videos %(filename)s: %(error)s"
+msgstr "Fehler bei der Videosuche: %(error)s"
 
 msgid "Search for videos in storage"
-msgstr ""
+msgstr "Suche nach Videos im Speicher"
 
 msgid "Videos found and linked for"
-msgstr ""
+msgstr "Videos gefunden und verknüpft für"
 
-#, fuzzy
-#| msgid "Licenses"
 msgid "licenses"
 msgstr "Freistellungen"
 
-#, fuzzy
-#| msgid "License"
 msgid "license"
 msgstr "Freistellung"
 
-#, fuzzy
-#| msgid "No licenses found"
 msgid "No videos found for"
-msgstr "Keine Freistellungen gefunden"
+msgstr "Keine Videos gefunden für"
 
-#, fuzzy
-#| msgid "Search"
 msgid "Search errors"
-msgstr "Suchen"
+msgstr "Suchfehler"
 
 msgid "Session expired. Please try importing again."
-msgstr ""
+msgstr "Sitzung abgelaufen. Bitte versuchen Sie den Import erneut."
 
-#, fuzzy, python-format
-#| msgid "License %(license)s successfully created."
+#, python-format
 msgid "License \"%(title)s\" successfully imported."
-msgstr "Freistellung %(license)s erfolgreich erstellt."
+msgstr "Freistellung \"%(title)s\" erfolgreich importiert."
 
 msgid "Error creating license: {}"
-msgstr ""
+msgstr "Fehler beim Erstellen der Freistellung: {}"
 
-#, fuzzy
-#| msgid "Upload was cancelled"
 msgid "Import cancelled."
-msgstr "Upload wurde abgebrochen"
+msgstr "Import abgebrochen."
 
 #, python-format
 msgid ""
@@ -368,29 +316,25 @@ msgid ""
 msgstr ""
 
 msgid "Either senderResponsible or targetChannel is required in JSON file."
-msgstr ""
+msgstr "Im JSON-Dokument ist entweder senderResponsible oder targetChannel erforderlich."
 
 msgid "Gastbeitrag"
-msgstr ""
+msgstr "Gastbeitrag"
 
 msgid "Invalid JSON file: {}"
-msgstr ""
+msgstr "Ungültige JSON-Datei: {}"
 
 msgid "Error importing license: {}"
-msgstr ""
+msgstr "Fehler beim Importieren der Freistellung: {}"
 
-#, fuzzy
-#| msgid "Basic Information"
 msgid "File Information"
-msgstr "Grundinformationen"
+msgstr "Dateiinformationen"
 
 msgid "Status"
 msgstr "Status"
 
-#, fuzzy
-#| msgid "License"
 msgid "License Number"
-msgstr "Freistellung"
+msgstr "Freistellungsnummer"
 
 msgid "Licenses"
 msgstr "Freistellungen"
