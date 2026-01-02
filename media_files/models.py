@@ -87,8 +87,14 @@ class StorageLocation(models.Model):
         verbose_name=_('Scan Schedule'),
         help_text=_('Cron-style schedule for automatic scanning (optional)'),
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Created at')
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Updated at')
+    )
 
     class Meta:
         """Meta options for StorageLocation."""

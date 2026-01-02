@@ -451,6 +451,82 @@ This document provides comprehensive reference for all environment variables use
 
 ---
 
+## Video Storage Automation Configuration
+
+### VIDEO_AUTO_COPY_ON_SCHEDULE
+- **Description:** Enable automatic video copying when saving broadcast plans in planung module
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `false`
+- **Example:** `VIDEO_AUTO_COPY_ON_SCHEDULE=true`
+- **Notes:**
+  - Only works if plan is not in draft mode
+  - Requires `VIDEO_AUTO_COPY_TO_ARCHIVE` or `VIDEO_AUTO_COPY_TO_PLAYOUT` to be enabled
+  - Requires ARCHIVE and/or PLAYOUT storage locations to be configured
+  - Set to `false` for installations without archive/playout workflow
+
+### VIDEO_AUTO_COPY_TO_ARCHIVE
+- **Description:** Automatically copy videos to archive storage when planning
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `false`
+- **Example:** `VIDEO_AUTO_COPY_TO_ARCHIVE=true`
+- **Notes:**
+  - Requires ARCHIVE storage location to be configured
+  - Videos are copied to archive before being copied to playout
+  - Skips if video already exists in archive
+  - Set to `false` for installations without archive storage
+
+### VIDEO_AUTO_COPY_TO_PLAYOUT
+- **Description:** Automatically copy videos to playout storage when planning
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `false`
+- **Example:** `VIDEO_AUTO_COPY_TO_PLAYOUT=true`
+- **Notes:**
+  - Requires PLAYOUT storage location to be configured
+  - Uses weekly folders if `VIDEO_USE_WEEKLY_FOLDERS=true`
+  - Skips if video already exists in target weekly folder
+  - Set to `false` for installations without playout storage
+
+### VIDEO_USE_WEEKLY_FOLDERS
+- **Description:** Use weekly folders (YYYY_KW_WW format) in playout storage
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `true`
+- **Example:** `VIDEO_USE_WEEKLY_FOLDERS=true`
+- **Notes:**
+  - Creates folders like `2025_KW_41` for week 41 of 2025
+  - Automatically determines week from planning date
+  - Recommended for organized playout storage
+  - Set to `false` to store videos directly in playout root
+
+### VIDEO_ARCHIVE_PROTECTED
+- **Description:** Protect ARCHIVE storage from deletion
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `true`
+- **Example:** `VIDEO_ARCHIVE_PROTECTED=true`
+- **Notes:**
+  - When enabled: videos in ARCHIVE can be read and copied, but not deleted
+  - Prevents accidental data loss
+  - Deletion is disabled in admin interface for ARCHIVE storage
+  - Set to `false` to allow deletion from archive (not recommended)
+
+### VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS
+- **Description:** Number of days to consider CUSTOM storage files as "recent"
+- **Type:** Integer
+- **Required:** No
+- **Default:** `7`
+- **Example:** `VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS=7`
+- **Notes:**
+  - Recent CUSTOM files are preferred over ARCHIVE when selecting source
+  - Files updated within this period are considered "freshly processed"
+  - Older files use ARCHIVE as preferred source
+  - Adjust based on your workflow (how long files stay in CUSTOM before archiving)
+
+---
+
 ## I18n Configuration
 
 ### I18N_DEFAULT_LANGUAGE

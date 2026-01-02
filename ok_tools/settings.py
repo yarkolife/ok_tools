@@ -138,6 +138,50 @@ VIDEO_OVERLAY_RENDERING_ENABLED = get_env(
     default=False,
     cast=bool,
 )
+
+# =============================================================================
+# Media Files: Video Storage and Automation Configuration
+# =============================================================================
+
+# Auto-copy configuration for planning module
+VIDEO_AUTO_COPY_ON_SCHEDULE = get_env(
+    'VIDEO_AUTO_COPY_ON_SCHEDULE',
+    default=False,
+    cast=bool,
+)
+
+VIDEO_AUTO_COPY_TO_ARCHIVE = get_env(
+    'VIDEO_AUTO_COPY_TO_ARCHIVE',
+    default=False,
+    cast=bool,
+)
+
+VIDEO_AUTO_COPY_TO_PLAYOUT = get_env(
+    'VIDEO_AUTO_COPY_TO_PLAYOUT',
+    default=False,
+    cast=bool,
+)
+
+VIDEO_USE_WEEKLY_FOLDERS = get_env(
+    'VIDEO_USE_WEEKLY_FOLDERS',
+    default=True,
+    cast=bool,
+)
+
+# Archive protection
+VIDEO_ARCHIVE_PROTECTED = get_env(
+    'VIDEO_ARCHIVE_PROTECTED',
+    default=True,
+    cast=bool,
+)
+
+# Source selection preferences
+VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS = get_env(
+    'VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS',
+    default=7,
+    cast=int,
+)
+
 RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS = get_env(
     'RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS',
     default=60 * 60 * 24 * 7,  # 7 days

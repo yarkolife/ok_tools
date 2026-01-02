@@ -6,6 +6,7 @@ from pathlib import Path
 from celery import shared_task
 from django.core.management import call_command
 from django.db import transaction
+from django.utils import timezone
 import logging
 
 from media_files.models import FileOperation, VideoFile
@@ -646,3 +647,310 @@ def render_video_task(operation_id):
             operation.error_message = str(e)
             operation.save(update_fields=["status", "error_message"])
         raise
+
+
+def _copy_video_to_storage(source_video, destination_storage, user, destination_subfolder=None):
+    """
+    Helper function to copy video to storage location.
+    
+    Args:
+        source_video: VideoFile instance to copy
+        destination_storage: Destination StorageLocation
+        user: User performing operation (optional)
+        destination_subfolder: Optional subfolder (e.g., "2025_KW_41")
+        
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    from media_files.models import VideoFile, FileOperation
+    from media_files.utils import (
+        copy_file_with_progress,
+        check_duplicate_before_copy,
+    )
+    from pathlib import Path
+    import os
+    
+    try:
+        # Check for duplicates
+        is_dup, existing, dup_msg = check_duplicate_before_copy(
+            source_video, destination_storage
+        )
+        
+        if is_dup and existing:
+            # Check if it's the same file (same checksum) or different
+            if source_video.checksum and existing.checksum:
+                if source_video.checksum == existing.checksum:
+                    # Identical file - just update file_path if needed
+                    if destination_subfolder and not existing.file_path.startswith(destination_subfolder):
+                        # Move to correct weekly folder
+                        old_path = Path(destination_storage.path) / existing.file_path
+                        new_path = Path(destination_storage.path) / destination_subfolder / source_video.filename
+                        new_path.parent.mkdir(parents=True, exist_ok=True)
+                        if old_path.exists():
+                            os.rename(str(old_path), str(new_path))
+                        existing.file_path = f"{destination_subfolder}/{source_video.filename}"
+                        existing.save(update_fields=['file_path'])
+                    return True, f"Video already exists (identical file)"
+                else:
+                    # Different file with same number - skip to avoid overwrite
+                    return False, f"Different file with same number exists: {dup_msg}"
+            else:
+                # No checksum - compare by size
+                if source_video.file_size == existing.file_size:
+                    return True, f"Video already exists (same size)"
+                else:
+                    return False, f"Different file with same number exists: {dup_msg}"
+        
+        # Build destination path
+        if destination_subfolder:
+            dest_path = Path(destination_storage.path) / destination_subfolder / source_video.filename
+            file_path = f"{destination_subfolder}/{source_video.filename}"
+        else:
+            dest_path = Path(destination_storage.path) / source_video.filename
+            file_path = source_video.filename
+        
+        # Ensure destination directory exists
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Create operation record
+        operation = FileOperation.objects.create(
+            video_file=source_video,
+            operation_type='COPY',
+            source_location=source_video.storage_location,
+            destination_location=destination_storage,
+            performed_by=user,
+            status='IN_PROGRESS',
+        )
+        
+        # Copy the file
+        success, message = copy_file_with_progress(
+            str(source_video.full_path), 
+            str(dest_path),
+            verify_checksum=True
+        )
+        
+        if not success:
+            operation.status = 'FAILED'
+            operation.error_message = message
+            operation.save()
+            return False, message
+        
+        # Create new VideoFile record
+        new_video = VideoFile.objects.create(
+            number=source_video.number,
+            filename=source_video.filename,
+            file_path=file_path,
+            storage_location=destination_storage,
+            is_available=True,
+            format=source_video.format,
+            file_size=source_video.file_size,
+            duration=source_video.duration,
+            checksum=source_video.checksum,
+            has_video=source_video.has_video,
+            has_audio=source_video.has_audio,
+            video_codec=source_video.video_codec,
+            audio_codec=source_video.audio_codec,
+            width=source_video.width,
+            height=source_video.height,
+            fps=source_video.fps,
+            total_bitrate=source_video.total_bitrate,
+            last_scanned=timezone.now(),
+        )
+        
+        operation.status = 'SUCCESS'
+        operation.save()
+        
+        return True, f"Video copied successfully"
+        
+    except Exception as e:
+        error_msg = f'Error copying video: {str(e)}'
+        logger.error(error_msg, exc_info=True)
+        
+        if 'operation' in locals():
+            operation.status = 'FAILED'
+            operation.error_message = error_msg
+            operation.save()
+        
+        return False, error_msg
+
+
+@shared_task(name="media_files.tasks.copy_videos_for_plan")
+def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
+    """
+    Automatically copy videos to archive and playout storage when planning.
+    
+    Uses smart source selection: prefers CUSTOM if recent, otherwise ARCHIVE.
+    
+    Args:
+        video_numbers: List of video numbers (license numbers)
+        plan_date: Date object from planning
+        user_id: Optional user ID for operation tracking
+        
+    Returns:
+        Dictionary with operation results
+    """
+    from datetime import date
+    from pathlib import Path
+    from django.utils import timezone
+    from django.contrib.auth import get_user_model
+    from django.conf import settings
+    from media_files.models import StorageLocation, VideoFile, FileOperation
+    from media_files.utils import select_best_source_video
+    
+    User = get_user_model()
+    user = User.objects.get(id=user_id) if user_id else None
+    
+    logger.info(f"[AUTO-COPY] Starting auto-copy for plan date {plan_date}, {len(video_numbers)} videos")
+    
+    # Get storage locations
+    archive_storage = None
+    if getattr(settings, 'VIDEO_AUTO_COPY_TO_ARCHIVE', False):
+        archive_storage = StorageLocation.objects.filter(
+            storage_type='ARCHIVE',
+            is_active=True
+        ).first()
+        if not archive_storage:
+            logger.warning("VIDEO_AUTO_COPY_TO_ARCHIVE enabled but no ARCHIVE storage found")
+    
+    playout_storage = None
+    if getattr(settings, 'VIDEO_AUTO_COPY_TO_PLAYOUT', False):
+        playout_storage = StorageLocation.objects.filter(
+            storage_type='PLAYOUT',
+            is_active=True
+        ).first()
+        if not playout_storage:
+            logger.warning("VIDEO_AUTO_COPY_TO_PLAYOUT enabled but no PLAYOUT storage found")
+    
+    if not archive_storage and not playout_storage:
+        logger.warning("No target storages configured for auto-copy")
+        return {
+            'copied_to_archive': 0,
+            'copied_to_playout': 0,
+            'skipped': 0,
+            'errors': len(video_numbers),
+        }
+    
+    # Calculate calendar week folder name
+    use_weekly_folders = getattr(settings, 'VIDEO_USE_WEEKLY_FOLDERS', True)
+    if use_weekly_folders and playout_storage:
+        year, week, _ = plan_date.isocalendar()
+        week_folder = f"{year}_KW_{week:02d}"
+    else:
+        week_folder = None
+    
+    copied_to_archive = 0
+    copied_to_playout = 0
+    skipped = 0
+    errors = 0
+    operation_details = {'errors': []}
+    
+    for number in video_numbers:
+        try:
+            # Use smart source selection
+            source_video, selection_reason = select_best_source_video(number)
+            
+            if not source_video:
+                logger.warning(f"Video {number}: Not found in source storages (CUSTOM/ARCHIVE)")
+                errors += 1
+                operation_details['errors'].append({
+                    'number': number,
+                    'message': 'Not found in CUSTOM or ARCHIVE storage'
+                })
+                continue
+            
+            logger.info(
+                f"Video {number}: Selected source from {source_video.storage_location.name} "
+                f"({source_video.storage_location.storage_type}) - {selection_reason}"
+            )
+            
+            # Step 1: Copy to archive if needed
+            if archive_storage:
+                archive_exists = VideoFile.objects.filter(
+                    number=number,
+                    storage_location=archive_storage,
+                    is_available=True
+                ).exists()
+                
+                if not archive_exists:
+                    # Copy to archive
+                    success, msg = _copy_video_to_storage(
+                        source_video, archive_storage, user, 
+                        destination_subfolder=None
+                    )
+                    if success:
+                        copied_to_archive += 1
+                        logger.info(f"Video {number}: ✓ Copied to archive")
+                        # Update source_video to use archive version for next copy
+                        source_video = VideoFile.objects.get(
+                            number=number,
+                            storage_location=archive_storage,
+                            is_available=True
+                        )
+                    else:
+                        logger.error(f"Video {number}: ✗ Failed to copy to archive: {msg}")
+                        errors += 1
+                        operation_details['errors'].append({
+                            'number': number,
+                            'message': f'Archive copy failed: {msg}'
+                        })
+                else:
+                    logger.debug(f"Video {number}: Already in archive, skipping")
+            
+            # Step 2: Copy to playout in weekly folder
+            if playout_storage:
+                # Check if already exists in this week folder (or root if no weekly folders)
+                if week_folder:
+                    playout_exists = VideoFile.objects.filter(
+                        number=number,
+                        storage_location=playout_storage,
+                        file_path__startswith=week_folder,
+                        is_available=True
+                    ).exists()
+                else:
+                    playout_exists = VideoFile.objects.filter(
+                        number=number,
+                        storage_location=playout_storage,
+                        is_available=True
+                    ).exists()
+                
+                if not playout_exists:
+                    success, msg = _copy_video_to_storage(
+                        source_video, playout_storage, user,
+                        destination_subfolder=week_folder
+                    )
+                    if success:
+                        copied_to_playout += 1
+                        logger.info(f"Video {number}: ✓ Copied to playout/{week_folder or 'root'}")
+                    else:
+                        logger.error(f"Video {number}: ✗ Failed to copy to playout: {msg}")
+                        errors += 1
+                        operation_details['errors'].append({
+                            'number': number,
+                            'message': f'Playout copy failed: {msg}'
+                        })
+                else:
+                    logger.debug(f"Video {number}: Already in playout/{week_folder or 'root'}, skipping")
+                    skipped += 1
+            else:
+                skipped += 1
+                
+        except Exception as e:
+            logger.error(f"Video {number}: ERROR - {str(e)}", exc_info=True)
+            errors += 1
+            operation_details['errors'].append({
+                'number': number,
+                'message': str(e)
+            })
+    
+    logger.info(
+        f"[AUTO-COPY] Completed: archive={copied_to_archive}, "
+        f"playout={copied_to_playout}, skipped={skipped}, errors={errors}"
+    )
+    
+    return {
+        'copied_to_archive': copied_to_archive,
+        'copied_to_playout': copied_to_playout,
+        'skipped': skipped,
+        'errors': errors,
+        'details': operation_details
+    }

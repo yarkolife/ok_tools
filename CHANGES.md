@@ -1,6 +1,44 @@
 CHANGELOG
 =========
 
+2026-01-02 (Version 3.2.2)
+==========================
+
+* **Video Storage Automation and Archive Protection**
+  * **Automatic Video Copying During Planning**: Added automatic video file copying when saving broadcast plans
+    * Videos are automatically copied to archive and playout storage when plan is saved (not draft)
+    * Smart source selection: prefers CUSTOM storage if file is recent (within configured days), otherwise uses ARCHIVE
+    * Supports weekly folder organization (YYYY_KW_WW format) in playout storage
+    * Configurable via environment variables for different installation types
+    * Comprehensive logging and error handling
+  * **Archive Storage Protection**: Added protection against accidental deletion of archive videos
+    * Videos in ARCHIVE storage can be read and copied, but deletion is disabled in admin interface
+    * Protection can be enabled/disabled via `VIDEO_ARCHIVE_PROTECTED` setting
+    * Works for both single and bulk deletion operations
+    * Prevents data loss while allowing read and copy operations
+  * **Smart Source Selection**: Intelligent video source selection for copying operations
+    * Prefers CUSTOM storage if file was updated within configured days (default: 7 days)
+    * Falls back to ARCHIVE storage for older files
+    * Excludes PLAYOUT storage from source selection to avoid circular copying
+    * Configurable via `VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS` setting
+  * **Configuration via Environment Variables**: Added 6 new settings for flexible configuration
+    * `VIDEO_AUTO_COPY_ON_SCHEDULE`: Enable automatic copying when saving plans
+    * `VIDEO_AUTO_COPY_TO_ARCHIVE`: Copy videos to archive storage automatically
+    * `VIDEO_AUTO_COPY_TO_PLAYOUT`: Copy videos to playout storage automatically
+    * `VIDEO_USE_WEEKLY_FOLDERS`: Use weekly folders (YYYY_KW_WW) in playout storage
+    * `VIDEO_ARCHIVE_PROTECTED`: Protect archive from deletion (default: true)
+    * `VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS`: Days to consider CUSTOM files as recent (default: 7)
+    * All settings default to safe values (disabled) for backward compatibility
+  * **Celery Task Integration**: New Celery task `copy_videos_for_plan` for asynchronous video copying
+    * Runs automatically when plan is saved (if enabled)
+    * Can run synchronously if Celery is not available
+    * Returns detailed results for user notifications
+    * Handles errors gracefully with comprehensive logging
+  * **Documentation Updates**: Added comprehensive documentation for new features
+    * New section in ENV_VARIABLES.md for video storage automation configuration
+    * Examples for different installation types (with/without archive)
+    * Configuration examples for full automation vs. disabled mode
+
 2026-01-02 (Version 3.2.1)
 ==========================
 

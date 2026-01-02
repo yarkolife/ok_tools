@@ -23,7 +23,7 @@
 - **User Registration & Profiles**: Manage user accounts with membership status and permissions
 - **Project Planning**: Track media projects and productions
 - **Contribution Tracking**: Record and manage user contributions
-- **Media File Management**: Organize and manage video/audio files with archive and playout integration
+- **Media File Management**: Organize and manage video/audio files with archive and playout integration, automatic copying during planning, and archive protection
 - **Dashboard & Analytics**: Provide real-time insights into system operations
 
 ### Key Characteristics

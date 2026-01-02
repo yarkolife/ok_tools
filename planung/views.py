@@ -104,13 +104,28 @@ def save_day_plan(request):
         )
 
         # Auto-copy videos to playout if plan is not draft and feature is enabled
-        if not plan_data.get('draft') and getattr(settings, 'VIDEO_AUTO_COPY_ON_SCHEDULE', False):
+        # Check all required settings before proceeding
+        auto_copy_enabled = getattr(settings, 'VIDEO_AUTO_COPY_ON_SCHEDULE', False)
+        copy_to_archive = getattr(settings, 'VIDEO_AUTO_COPY_TO_ARCHIVE', False)
+        copy_to_playout = getattr(settings, 'VIDEO_AUTO_COPY_TO_PLAYOUT', False)
+        
+        if (not plan_data.get('draft') 
+            and auto_copy_enabled 
+            and (copy_to_archive or copy_to_playout)):
             try:
                 from media_files.tasks import copy_videos_for_plan
                 numbers = [item.get('number') for item in plan_data.get('items', []) if item.get('number')]
                 if numbers:
-                    logger.info(f"Triggering auto-copy for {len(numbers)} videos for plan {date}")
-                    copy_videos_for_plan(numbers, date)
+                    logger.info(
+                        f"Triggering auto-copy for {len(numbers)} videos for plan {date} "
+                        f"(archive={copy_to_archive}, playout={copy_to_playout})"
+                    )
+                    # Run asynchronously via Celery if available, otherwise sync
+                    try:
+                        copy_videos_for_plan.delay(numbers, date, user_id=request.user.id)
+                    except AttributeError:
+                        # Celery not available, run synchronously
+                        copy_videos_for_plan(numbers, date, user_id=request.user.id)
             except ImportError:
                 logger.warning("media_files module not available, skipping auto-copy")
             except Exception as e:

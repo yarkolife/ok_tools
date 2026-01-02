@@ -413,6 +413,76 @@ def check_duplicate_before_copy(source_video, destination_storage):
     return True, existing, "File with same number but different characteristics exists"
 
 
+def select_best_source_video(number, recent_days=None):
+    """
+    Select best source video with smart priority:
+    - Prefer CUSTOM if file is recent (freshly processed)
+    - Otherwise prefer ARCHIVE (more stable, higher quality)
+    
+    Args:
+        number: Video number (license number)
+        recent_days: Number of days to consider CUSTOM as "recent" 
+                    (if None, uses VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS setting)
+        
+    Returns:
+        Tuple of (VideoFile or None, reason: str)
+    """
+    from datetime import timedelta
+    from django.conf import settings
+    from .models import VideoFile
+    
+    # Get recent_days from settings if not provided
+    if recent_days is None:
+        recent_days = getattr(settings, 'VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS', 7)
+    
+    # Find all available versions (exclude PLAYOUT to avoid copying from playout)
+    all_versions = VideoFile.objects.filter(
+        number=number,
+        is_available=True
+    ).exclude(
+        storage_location__storage_type='PLAYOUT'
+    ).select_related('storage_location')
+    
+    if not all_versions.exists():
+        return None, "No source found (not in CUSTOM or ARCHIVE)"
+    
+    # Check if CUSTOM version is recent (within last N days)
+    recent_threshold = timezone.now() - timedelta(days=recent_days)
+    
+    custom_versions = [v for v in all_versions if v.storage_location.storage_type == 'CUSTOM']
+    archive_versions = [v for v in all_versions if v.storage_location.storage_type == 'ARCHIVE']
+    
+    # If CUSTOM version is recent, prefer it (might be freshly processed)
+    recent_custom = [
+        v for v in custom_versions 
+        if v.updated_at and v.updated_at > recent_threshold
+    ]
+    
+    if recent_custom:
+        # Prefer recent CUSTOM version (best bitrate among recent)
+        source_video = max(recent_custom, key=lambda v: (v.total_bitrate or 0, v.updated_at))
+        days_ago = (timezone.now() - source_video.updated_at).days
+        return source_video, f"Recent CUSTOM version (updated {days_ago} days ago, freshly processed)"
+    
+    # Otherwise use standard priority: ARCHIVE > CUSTOM
+    # Priority: storage type > bitrate > date
+    storage_priority = {'ARCHIVE': 3, 'CUSTOM': 1}
+    
+    source_video = max(
+        all_versions,
+        key=lambda v: (
+            storage_priority.get(v.storage_location.storage_type, 0),
+            v.total_bitrate or 0,
+            v.created_at or timezone.now()
+        )
+    )
+    
+    storage_type = source_video.storage_location.storage_type
+    bitrate_info = f"{source_video.total_bitrate or 'N/A'} bps" if source_video.total_bitrate else "unknown bitrate"
+    
+    return source_video, f"Best quality from {storage_type} ({bitrate_info})"
+
+
 def has_system_attributes(file_path):
     """
     Check if file has hidden/system attributes (Windows) or special permissions (Linux).

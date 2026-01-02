@@ -259,7 +259,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
     ]
     list_filter = ['storage_type', 'is_active', 'scan_enabled']
     search_fields = ['name', 'path']
-    readonly_fields = ['created_at', 'updated_at', 'video_count']
+    readonly_fields = ['created_at', 'updated_at', 'video_count_info']
     change_list_template = 'admin/media_files/storagelocation/change_list.html'
     
     fieldsets = (
@@ -270,7 +270,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
             'fields': ('scan_enabled', 'scan_schedule')
         }),
         (_('Information'), {
-            'fields': ('video_count', 'created_at', 'updated_at')
+            'fields': ('video_count_info', 'created_at', 'updated_at')
         }),
     )
     
@@ -293,6 +293,11 @@ class StorageLocationAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + urls
+    
+    def video_count_info(self, obj):
+        """Display video count in fieldsets."""
+        return obj.video_count
+    video_count_info.short_description = _('Video count')
     
     def video_count_display(self, obj):
         """Display video count with link and scan button."""
@@ -2257,11 +2262,26 @@ class VideoFileAdmin(admin.ModelAdmin):
         """
         Check if user has permission to delete VideoFile.
         
-        By default, uses Django's standard permission system.
-        Override this method to add custom permission logic.
+        ARCHIVE storage protection can be configured via VIDEO_ARCHIVE_PROTECTED setting.
         """
-        # Use default Django permission checking
-        # This checks for 'media_files.delete_videofile' permission
+        from django.conf import settings
+        
+        # Check if archive protection is enabled
+        archive_protected = getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True)
+        
+        if archive_protected:
+            # PROTECTION: Prevent deletion from ARCHIVE storage
+            if obj and hasattr(obj, 'storage_location'):
+                if obj.storage_location.storage_type == 'ARCHIVE':
+                    return False
+            
+            # For queryset (bulk delete), check if any video is in ARCHIVE
+            if hasattr(request, '_delete_queryset'):
+                queryset = request._delete_queryset
+                if queryset and queryset.filter(storage_location__storage_type='ARCHIVE').exists():
+                    return False
+        
+        # Use default Django permission checking for other storages
         return super().has_delete_permission(request, obj)
     
     def get_deleted_objects(self, objs, request):
@@ -2322,8 +2342,23 @@ class VideoFileAdmin(admin.ModelAdmin):
         delete permission for FileOperation (which is intentionally disabled).
         Also deletes physical files from disk.
         """
+        from django.conf import settings
         import os
         import traceback
+        
+        # PROTECTION: Prevent deletion from ARCHIVE storage
+        archive_protected = getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True)
+        if archive_protected and obj.storage_location.storage_type == 'ARCHIVE':
+            from django.contrib import messages
+            from django.utils.translation import gettext_lazy as _
+            self.message_user(
+                request,
+                _('Cannot delete videos from ARCHIVE storage. '
+                  'Archive is read-only for deletion to prevent data loss. '
+                  'You can read and copy videos from archive, but deletion is disabled.'),
+                level='error'
+            )
+            raise PermissionError('ARCHIVE storage is protected from deletion')
         
         logger.info(f'delete_model called for VideoFile {obj.id} (number: {obj.number})')
         
@@ -2452,8 +2487,33 @@ class VideoFileAdmin(admin.ModelAdmin):
         delete permission for FileOperation (which is intentionally disabled).
         Also deletes physical files from disk.
         """
+        from django.conf import settings
         import os
         import traceback
+        
+        # PROTECTION: Check if any video is in ARCHIVE storage
+        archive_protected = getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True)
+        if archive_protected:
+            archive_videos = queryset.filter(storage_location__storage_type='ARCHIVE')
+            if archive_videos.exists():
+                archive_count = archive_videos.count()
+                from django.contrib import messages
+                from django.utils.translation import gettext_lazy as _
+                self.message_user(
+                    request,
+                    _('Cannot delete %(count)d video(s) from ARCHIVE storage. '
+                      'Archive is read-only for deletion to prevent data loss. '
+                      'You can read and copy videos from archive, but deletion is disabled.') % {
+                        'count': archive_count
+                    },
+                    level='error'
+                )
+                # Filter out ARCHIVE videos and continue with others
+                queryset = queryset.exclude(storage_location__storage_type='ARCHIVE')
+                
+                if not queryset.exists():
+                    # All videos were in ARCHIVE, nothing to delete
+                    return
         
         logger.info(f'delete_queryset called with {queryset.count()} objects')
         

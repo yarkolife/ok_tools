@@ -160,6 +160,12 @@ msgstr "FPS nicht gesetzt"
 msgid "Created at"
 msgstr "Erstellt am"
 
+msgid "Updated at"
+msgstr "Aktualisiert am"
+
+msgid "Video count"
+msgstr "Anzahl Videos"
+
 msgid "Basic Information"
 msgstr "Grundlegende Informationen"
 
