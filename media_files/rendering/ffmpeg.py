@@ -863,7 +863,7 @@ def _segment_filter_complex(
             if title_lines_count is None:
                 title_lines_count = len(cleaned_lines)
             # Calculate line height from adjusted fontsize
-            line_height = int(adjusted_fontsize * 1.3)
+            line_height = int(adjusted_fontsize * 1.2)
 
             # Base expressions for image overlay (convert text_* to overlay_*)
             img_x_base = layer.x.replace("text_w", "overlay_w").replace("text_h", "overlay_h")

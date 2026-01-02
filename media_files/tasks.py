@@ -189,7 +189,7 @@ def render_video_task(operation_id):
                     type="text",
                     template="{license.subtitle_wrapped}",
                     x="(W-text_w)/2",  # Proper horizontal centering
-                    y="(H/2)+210",  # Close below title, forming a combined centered block
+                    y="(H/2)+220",  # Close below title, forming a combined centered block
                     start=0.2,
                     end=5.0,
                     animation="fade",

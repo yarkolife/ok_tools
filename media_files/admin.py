@@ -19,14 +19,14 @@ from rangefilter.filters import DateRangeFilter
 
 from .models import StorageLocation, VideoFile, FileOperation, VideoPreset, PresetOverlay, VideoEncodePreset, POSITION_PRESET_CHOICES
 from .utils import verify_file_integrity, extract_video_metadata, extract_video_metadata_fast, extract_number_from_filename, calculate_checksum, copy_file_with_progress, copy_video_to_playout
-from media_files.management.commands.render_video_preset import _apply_metadata, _ensure_unique_output_relpath
+from media_files.management.commands.render_video_preset import _apply_metadata
 from media_files.rendering.ffmpeg import (
     FfmpegError,
     render_with_intro_outro,
     render_with_overlays_on_main_edges,
     render_preview_overlays_on_main_edges,
 )
-from media_files.rendering.presets import load_encode_preset, load_style_preset, resolve_preset_asset_path, OverlayLayer
+from media_files.rendering.presets import load_encode_preset, load_style_preset, resolve_preset_asset_path
 from media_files.rendering.templates import build_template_context
 
 
@@ -1276,196 +1276,6 @@ class VideoFileAdmin(admin.ModelAdmin):
                 level=messages.ERROR,
             )
             return
-
-        # Create full overlay layers for intro and outro
-        # Requirements:
-        # - Title: centered, large font, no box
-        # - Subtitle: centered, smaller font, only if title is not too long (not 3+ lines)
-        # - Broadcast responsibility: right-aligned, y=882, fontsize=50
-        # - Media authority: right-aligned, y=947, fontsize=38
-        
-        # Default font file (will be resolved by the rendering system)
-        default_font = "fonts/Roboto-Bold.ttf"
-        regular_font = "fonts/Roboto-Regular.ttf"
-        
-        # Helper function to create intro/outro overlays dynamically
-        # We'll create overlays that check title length at render time
-        def create_title_subtitle_overlays():
-            """Create title and subtitle overlays with conditional subtitle display."""
-            from media_files.rendering.templates import _wrap_text
-            
-            # We need to check title length, but we don't have context here
-            # So we'll use a template that will be evaluated at render time
-            # Title overlay - always shown, with proper wrapping
-            title_overlay = OverlayLayer(
-                type="text",
-                template="{license.title_wrapped}",  # Will be created dynamically
-                x="(w-text_w)/2",
-                y="(h-text_h)/2-60",  # Centered vertically, slightly above center
-                start=0.0,
-                end=5.0,
-                animation="fade",
-                fade_in=0.6,
-                fade_out=0.6,
-                fontsize=64,  # Large font for title
-                fontcolor="white",
-                fontfile=default_font,
-                box=False,  # No box
-            )
-            
-            # Subtitle overlay - will be conditionally shown
-            # We'll use a special template that checks title length
-            subtitle_overlay = OverlayLayer(
-                type="text",
-                template="{license.subtitle_conditional}",  # Will check if title is short
-                x="(w-text_w)/2",
-                y="(h-text_h)/2+40",  # Below title
-                start=0.2,
-                end=5.0,
-                animation="fade",
-                fade_in=0.5,
-                fade_out=0.4,
-                fontsize=48,  # Smaller font for subtitle
-                fontcolor="white",
-                fontfile=regular_font,
-                box=False,
-            )
-            
-            return [title_overlay, subtitle_overlay]
-        
-        # Intro overlays
-        # Position text below logo (approximately 3 lines down from top)
-        # For 1080p: logo is typically at y~250, text should start at y~400
-        intro_overlays = [
-            # Title - centered horizontally and vertically
-            OverlayLayer(
-                type="text",
-                template="{license.title_wrapped_short}",  # Max 3 lines, ~30 chars per line
-                x="(W-text_w)/2",  # Proper horizontal centering
-                y="(H/2)-72",  # Centered vertically, accounting for 3-line title block
-                start=0.0,
-                end=5.0,
-                animation="fade",
-                fade_in=0.6,
-                fade_out=0.6,
-                fontsize=64,  # Large font for title
-                fontcolor="white",
-                fontfile=default_font,
-                box=False,  # No box
-            ),
-            # Subtitle - centered horizontally, below title
-            OverlayLayer(
-                type="text",
-                template="{license.subtitle_wrapped}",  # Only shown if title < 3 lines
-                x="(W-text_w)/2",  # Proper horizontal centering
-                y="(H/2)+180",  # Below title (allows for 3-line title block, ~252px spacing)
-                start=0.2,
-                end=5.0,
-                animation="fade",
-                fade_in=0.5,
-                fade_out=0.4,
-                fontsize=48,  # Smaller font for subtitle
-                fontcolor="white",
-                fontfile=regular_font,
-                box=False,  # No box
-            ),
-            # Broadcast responsibility - right-aligned, bottom
-            OverlayLayer(
-                type="text",
-                template="{labels.broadcast_responsibility}: {profile.display}",
-                x="w-text_w-120",  # More padding from right edge (was 97)
-                y="882",
-                start=0.2,
-                end=5.0,
-                animation="slide_up",
-                fade_in=0.5,
-                fade_out=0.4,
-                fontsize=50,
-                fontcolor="white",
-                fontfile=regular_font,
-            ),
-            # Media authority - right-aligned, bottom
-            OverlayLayer(
-                type="text",
-                template="{profile.media_authority_full_name}, {license.created_year}",
-                x="w-text_w-120",  # More padding from right edge (was 97)
-                y="947",
-                start=0.2,
-                end=5.0,
-                animation="slide_left",
-                fade_in=0.6,
-                fade_out=0.4,
-                fontsize=38,
-                fontcolor="white",
-                fontfile=regular_font,
-            ),
-        ]
-        
-        # Outro overlays (same structure as intro)
-        outro_overlays = [
-            # Title - centered horizontally and vertically
-            OverlayLayer(
-                type="text",
-                template="{license.title_wrapped_short}",  # Max 3 lines, ~30 chars per line
-                x="(W-text_w)/2",  # Proper horizontal centering
-                y="(H/2)-72",  # Centered vertically, accounting for 3-line title block
-                start=0.0,
-                end=5.0,
-                animation="fade",
-                fade_in=0.6,
-                fade_out=0.6,
-                fontsize=64,  # Large font for title
-                fontcolor="white",
-                fontfile=default_font,
-                box=False,  # No box
-            ),
-            # Subtitle - centered horizontally, below title
-            OverlayLayer(
-                type="text",
-                template="{license.subtitle_wrapped}",  # Only shown if title < 3 lines
-                x="(W-text_w)/2",  # Proper horizontal centering
-                y="(H/2)+180",  # Below title (allows for 3-line title block, ~252px spacing)
-                start=0.2,
-                end=5.0,
-                animation="fade",
-                fade_in=0.5,
-                fade_out=0.4,
-                fontsize=48,  # Smaller font for subtitle
-                fontcolor="white",
-                fontfile=regular_font,
-                box=False,  # No box
-            ),
-            # Broadcast responsibility
-            OverlayLayer(
-                type="text",
-                template="{labels.broadcast_responsibility}: {profile.display}",
-                x="w-text_w-120",  # More padding from right edge (was 97)
-                y="882",
-                start=0.2,
-                end=5.0,
-                animation="slide_up",
-                fade_in=0.5,
-                fade_out=0.4,
-                fontsize=50,
-                fontcolor="white",
-                fontfile=regular_font,
-            ),
-            # Media authority
-            OverlayLayer(
-                type="text",
-                template="{profile.media_authority_full_name}, {license.created_year}",
-                x="w-text_w-120",  # More padding from right edge (was 97)
-                y="947",
-                start=0.2,
-                end=5.0,
-                animation="slide_left",
-                fade_in=0.6,
-                fade_out=0.4,
-                fontsize=38,
-                fontcolor="white",
-                fontfile=regular_font,
-            ),
-        ]
 
         # Create operations and start async rendering via Celery
         created = 0
