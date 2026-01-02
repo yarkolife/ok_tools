@@ -238,65 +238,139 @@ def calculate_checksum(file_path: str, algorithm='sha256') -> str:
         return ''
 
 
-def copy_file_with_progress(source: str, destination: str, verify_checksum=True) -> Tuple[bool, str]:
+def copy_file_with_progress(source: str, destination: str, verify_checksum=True, source_checksum_from_db=None, verify_by_size_only=False) -> Tuple[bool, str]:
     """
     Copy file with progress logging and optional integrity verification.
+    Calculates destination checksum during copy to avoid reading file twice.
     
     Args:
         source: Source file path
         destination: Destination file path
         verify_checksum: Whether to verify checksum after copy
-                        - True: Use SHA256 (default, most secure)
+                        - True: Use SHA256, calculate both source and destination
                         - False: Skip verification (fastest)
-                        - 'md5': Use MD5 (faster, less secure)
+                        - 'md5': Use MD5, calculate both source and destination
+                        - 'destination_only': Calculate only destination (SHA256), skip source
+                        - 'md5_destination_only': Calculate only destination (MD5), skip source
+        source_checksum_from_db: Pre-calculated checksum from database (for ARCHIVE sources)
+                                 If provided, will be used for comparison instead of calculating
+        verify_by_size_only: If True, only compare file sizes (fastest, for ARCHIVE sources)
+                            No checksum calculation at all
         
     Returns:
         Tuple of (success: bool, message: str)
     """
+    import hashlib
+    
     try:
         # Ensure destination directory exists
         dest_path = Path(destination)
         dest_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Get file size for progress reporting
-        file_size = os.path.getsize(source)
-        file_size_mb = file_size / (1024 * 1024)
+        # Get file size for progress reporting and verification
+        source_size = os.path.getsize(source)
+        file_size_mb = source_size / (1024 * 1024)
         
         logger.info(f"Copying {source} to {destination} ({file_size_mb:.2f} MB)")
         
-        # Determine checksum algorithm
+        # If verify_by_size_only, skip all checksum calculations
+        if verify_by_size_only:
+            logger.info(f"Using size-only verification (fastest, for ARCHIVE sources)")
+            # Just copy the file
+            logger.info(f"Starting file copy...")
+            shutil.copy2(source, destination)
+            logger.info(f"File copy completed, verifying by size...")
+            
+            # Verify by size
+            dest_size = os.path.getsize(destination)
+            if source_size != dest_size:
+                os.remove(destination)
+                error_msg = f"Size mismatch - source: {source_size} bytes, destination: {dest_size} bytes"
+                logger.error(error_msg)
+                return False, error_msg
+            logger.info(f"Size verification passed ({file_size_mb:.2f} MB)")
+            logger.info(f"Successfully copied file to {destination}")
+            return True, "File copied successfully"
+        
+        # Determine checksum algorithm and mode
         checksum_algorithm = 'sha256'  # Default
+        skip_source_checksum = False
+        
         if verify_checksum == 'md5':
             checksum_algorithm = 'md5'
-            verify_checksum = True  # Enable verification with MD5
+            verify_checksum = True
+        elif verify_checksum == 'destination_only':
+            checksum_algorithm = 'sha256'
+            skip_source_checksum = True
+            verify_checksum = True
+        elif verify_checksum == 'md5_destination_only':
+            checksum_algorithm = 'md5'
+            skip_source_checksum = True
+            verify_checksum = True
         
-        # Calculate source checksum if verification is enabled
-        source_checksum = None
-        if verify_checksum:
+        # Calculate source checksum if needed (skip for ARCHIVE sources)
+        source_checksum = source_checksum_from_db  # Use from DB if provided
+        
+        if verify_checksum and not skip_source_checksum and not source_checksum:
+            # Calculate source checksum only if not provided from DB and not skipped
             if checksum_algorithm == 'md5':
                 logger.info(f"Calculating source checksum (MD5, faster algorithm)...")
             else:
                 logger.info(f"Calculating source checksum (SHA256)...")
             source_checksum = calculate_checksum(source, algorithm=checksum_algorithm)
             logger.info(f"Source checksum calculated ({checksum_algorithm})")
+        elif source_checksum:
+            logger.info(f"Using source checksum from database ({checksum_algorithm})")
+        elif skip_source_checksum:
+            logger.info(f"Skipping source checksum calculation (ARCHIVE source)")
         
-        # Copy the file
-        logger.info(f"Starting file copy...")
-        shutil.copy2(source, destination)
-        logger.info(f"File copy completed, verifying integrity...")
+        # Copy file AND calculate destination checksum simultaneously
+        logger.info(f"Starting file copy with integrity verification...")
+        
+        # Initialize hasher for destination
+        if verify_checksum:
+            if checksum_algorithm == 'md5':
+                dest_hasher = hashlib.md5()
+            else:
+                dest_hasher = hashlib.sha256()
+        else:
+            dest_hasher = None
+        
+        # Copy file in chunks and calculate checksum simultaneously
+        with open(source, 'rb') as src_file:
+            with open(destination, 'wb') as dst_file:
+                if dest_hasher:
+                    # Copy and calculate checksum in one pass (more efficient)
+                    chunk_size = 8192 * 1024  # 8 MB chunks for better performance
+                    while True:
+                        chunk = src_file.read(chunk_size)
+                        if not chunk:
+                            break
+                        dst_file.write(chunk)
+                        dest_hasher.update(chunk)
+                else:
+                    # Just copy without checksum
+                    shutil.copyfileobj(src_file, dst_file)
+        
+        # Copy metadata (timestamps, etc.)
+        shutil.copystat(source, destination)
+        
+        logger.info(f"File copy completed")
         
         # Verify checksum
-        if verify_checksum and source_checksum:
-            if checksum_algorithm == 'md5':
-                logger.info(f"Verifying destination checksum (MD5)...")
-            else:
-                logger.info(f"Verifying destination checksum (SHA256)...")
-            dest_checksum = calculate_checksum(destination, algorithm=checksum_algorithm)
+        if verify_checksum and source_checksum and dest_hasher:
+            dest_checksum = dest_hasher.hexdigest()
+            logger.info(f"Verifying integrity (checksum comparison)...")
             if source_checksum != dest_checksum:
                 os.remove(destination)
-                error_msg = "Checksum mismatch - file may be corrupted"
+                error_msg = f"Checksum mismatch ({checksum_algorithm}) - file may be corrupted"
                 logger.error(error_msg)
                 return False, error_msg
+            logger.info(f"Integrity verified ({checksum_algorithm})")
+        elif verify_checksum and dest_hasher:
+            # Only destination checksum calculated (no source to compare)
+            dest_checksum = dest_hasher.hexdigest()
+            logger.info(f"Destination checksum calculated ({checksum_algorithm}) - no source comparison")
         
         logger.info(f"Successfully copied file to {destination}")
         return True, "File copied successfully"

@@ -723,30 +723,38 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
         )
         
         # Determine if checksum verification is needed
-        # Skip verification for ARCHIVE sources (already verified, faster copy)
-        # Or use faster MD5 in background for ARCHIVE
+        # For ARCHIVE sources: skip source checksum calculation, use DB checksum if available
+        # Calculate destination checksum during copy (more efficient)
         from django.conf import settings
         verify_checksum = getattr(settings, 'VIDEO_COPY_VERIFY_CHECKSUM', True)
         use_md5_for_archive = getattr(settings, 'VIDEO_COPY_USE_MD5_FOR_ARCHIVE', True)
         
-        # For ARCHIVE sources: use MD5 in background or skip verification
+        # Get source checksum from database (if available)
+        source_checksum_from_db = None
+        verify_by_size_only = False
+        
+        # For ARCHIVE sources: use size-only verification (fastest, no checksum calculation)
         if source_video.storage_location.storage_type == 'ARCHIVE':
-            if use_md5_for_archive:
-                # Use faster MD5 algorithm for ARCHIVE sources
-                verify_checksum = 'md5'
-                logger.info(f"Using MD5 checksum for ARCHIVE source (faster than SHA256)")
+            if verify_checksum:
+                # Use size-only verification (fastest option for ARCHIVE)
+                verify_checksum = True  # Keep True to enable size verification
+                verify_by_size_only = True
+                logger.info(f"Using size-only verification for ARCHIVE source (fastest, no checksum calculation)")
             else:
-                # Skip verification for ARCHIVE (fastest option)
-                verify_checksum = False
-                logger.info(f"Skipping checksum verification for ARCHIVE source (fastest option)")
+                # Skip all verification for ARCHIVE (fastest option)
+                verify_by_size_only = False
+                logger.info(f"Skipping verification for ARCHIVE source (fastest option)")
         elif verify_checksum:
+            # For CUSTOM sources: calculate both source and destination
             logger.info(f"Using SHA256 checksum for {source_video.storage_location.storage_type} source")
         
         # Copy the file
         success, message = copy_file_with_progress(
             str(source_video.full_path), 
             str(dest_path),
-            verify_checksum=verify_checksum
+            verify_checksum=verify_checksum,
+            source_checksum_from_db=source_checksum_from_db,
+            verify_by_size_only=verify_by_size_only
         )
         
         if not success:

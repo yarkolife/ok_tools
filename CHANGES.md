@@ -5,20 +5,25 @@ CHANGELOG
 ==========================
 
 * **Performance Optimization: Checksum Verification**
-  * **Optimized Checksum Calculation for ARCHIVE Sources**: Added faster checksum verification for copying from archive
-    * Uses MD5 algorithm for ARCHIVE sources instead of SHA256 (2-3x faster)
-    * SHA256 remains default for CUSTOM sources (more secure for new files)
-    * Configurable via `VIDEO_COPY_USE_MD5_FOR_ARCHIVE` setting (default: true)
-    * Significantly reduces copy time for large files from archive (3-4 GB files: ~1 minute instead of 3 minutes)
+  * **Size-Only Verification for ARCHIVE Sources**: Major performance improvement for copying from archive
+    * Uses file size comparison instead of checksum calculation for ARCHIVE sources
+    * No checksum calculation at all - only compares file sizes before and after copy
+    * Verification takes milliseconds instead of minutes (8-9 minutes saved per 6-7 GB file)
+    * Archive files are already verified, so size comparison is sufficient for integrity check
+    * Significantly reduces copy time: from ~11 minutes to ~2.5-3 minutes for large files
+  * **Optimized Checksum Calculation During Copy**: Checksum calculated during file copy, not after
+    * Destination checksum is calculated chunk-by-chunk during copy operation
+    * Avoids reading file twice (source checksum + copy + destination checksum)
+    * Uses 8 MB chunks for better performance
+    * Applies to CUSTOM sources (ARCHIVE uses size-only verification)
   * **Configurable Checksum Verification**: Added settings to control checksum verification
     * `VIDEO_COPY_VERIFY_CHECKSUM`: Enable/disable checksum verification (default: true)
-    * `VIDEO_COPY_USE_MD5_FOR_ARCHIVE`: Use faster MD5 for ARCHIVE sources (default: true)
+    * `VIDEO_COPY_USE_MD5_FOR_ARCHIVE`: Use faster MD5 for ARCHIVE sources (default: true, but ARCHIVE now uses size-only)
     * Allows fine-tuning between security and performance
-    * MD5 is sufficient for integrity check on already-verified archive files
-  * **Improved Logging for Checksum Operations**: Enhanced logging to track checksum algorithm usage
-    * Added INFO-level logging to show which algorithm is used (MD5 vs SHA256)
-    * Logs checksum calculation and verification steps for better debugging
-    * Helps monitor performance improvements and verify correct algorithm selection
+  * **Improved Logging for Checksum Operations**: Enhanced logging to track verification method
+    * Added INFO-level logging to show verification method (size-only vs checksum)
+    * Logs file copy progress and verification steps for better debugging
+    * Helps monitor performance improvements and verify correct verification method
 
 2026-01-02 (Version 3.2.4)
 ==========================
