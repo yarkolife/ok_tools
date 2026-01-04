@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-31 01:04+0100\n"
+"POT-Creation-Date: 2026-01-04 21:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,11 +128,13 @@ msgid ""
 "The corresponding profile is not verified. The License can not be confirmed "
 "until the profile is verified."
 msgstr ""
-"Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann erst bestätigt werden, nachdem das Profil verifiziert wurde."
+"Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann erst "
+"genehmigt werden, nachdem das Profil verifiziert wurde."
 
 #, python-format
 msgid "Maximum 4 tags allowed. You provided %(count)d tags."
-msgstr "Maximal 4 Schlagwörter erlaubt. Sie haben %(count)d Schlagwörter angegeben."
+msgstr ""
+"Maximal 4 Schlagwörter erlaubt. Sie haben %(count)d Schlagwörter angegeben."
 
 msgid "Empty tags are not allowed."
 msgstr "Leere Schlagwörter sind nicht erlaubt."
@@ -141,7 +143,8 @@ msgid ""
 "Enter tags separated by commas. Maximum 4 tags allowed. Example: "
 "documentary, local, culture, news"
 msgstr ""
-"Geben Sie Schlagwörter durch Kommas getrennt ein. Maximal 4 Schlagwörter erlaubt. Beispiel: Dokumentation, lokal, Kultur, Nachrichten"
+"Geben Sie Schlagwörter durch Kommas getrennt ein. Maximal 4 Schlagwörter "
+"erlaubt. Beispiel: Dokumentation, lokal, Kultur, Nachrichten"
 
 msgid "title, subtitle, number, description, further persons"
 msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
@@ -165,7 +168,9 @@ msgid "Status & Metadata"
 msgstr "Status & Metadaten"
 
 msgid "Number is auto-generated but can be manually changed if needed."
-msgstr "Die Nummer wird automatisch generiert, kann aber bei Bedarf manuell geändert werden."
+msgstr ""
+"Die Nummer wird automatisch generiert, kann aber bei Bedarf manuell geändert "
+"werden."
 
 msgid "Duration mismatch"
 msgstr "Abweichende Dauer"
@@ -175,6 +180,11 @@ msgstr "Freistellung"
 
 msgid "Sync from Video"
 msgstr "Von Video synchronisieren"
+
+#, fuzzy
+#| msgid "Video with number"
+msgid "Render Video with Overlays"
+msgstr "Video mit Nummer"
 
 msgid "No video file found"
 msgstr "Keine Videodatei gefunden"
@@ -210,10 +220,22 @@ msgid "Media Authority"
 msgstr "Medienanstalt"
 
 msgid "Confirm selected Licenses"
-msgstr "Ausgewählte Freistellungen bestätigen"
+msgstr "Ausgewählte Freistellungen genehmigen"
+
+#, python-format
+msgid "%d License was successfully confirmed."
+msgid_plural "%d Licenses were successfully confirmed."
+msgstr[0] "%d Freistellung wurde erfolgreich genehmigt."
+msgstr[1] "%d Freistellungen wurden erfolgreich genehmigt."
 
 msgid "Unconfirm selected Licenses"
 msgstr "Ausgewählte Freistellungen zurückziehen"
+
+#, python-format
+msgid "%d License was successfully unconfirmed."
+msgid_plural "%d Licenses were successfully unconfirmed."
+msgstr[0] "%d Freistellung wurde erfolgreich zurückgezogen."
+msgstr[1] "%d Freistellungen wurden erfolgreich zurückgezogen."
 
 msgid "Create a copy of selected licenses"
 msgstr "Kopie der ausgewählten Freistellungen erstellen"
@@ -226,7 +248,8 @@ msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
 "confirmed until the profile is verified."
 msgstr ""
-"Das zugehörige Profil von %(obj)s ist nicht verifiziert. Die Freistellung kann erst bestätigt werden, nachdem das Profil verifiziert wurde."
+"Das zugehörige Profil von %(obj)s ist nicht verifiziert. Die Freistellung "
+"kann erst genehmigt werden, nachdem das Profil verifiziert wurde."
 
 msgid "Duration synced from video: {} → {}"
 msgstr "Dauer vom Video übernommen: {} → {}"
@@ -250,7 +273,8 @@ msgid "not found in storages"
 msgstr "in den Speicherorten nicht gefunden"
 
 msgid "Make sure the file exists and starts with the number"
-msgstr "Stellen Sie sicher, dass die Datei existiert und mit der Nummer beginnt"
+msgstr ""
+"Stellen Sie sicher, dass die Datei existiert und mit der Nummer beginnt"
 
 msgid "Error linking video"
 msgstr "Fehler beim Verknüpfen des Videos"
@@ -316,7 +340,9 @@ msgid ""
 msgstr ""
 
 msgid "Either senderResponsible or targetChannel is required in JSON file."
-msgstr "Im JSON-Dokument ist entweder senderResponsible oder targetChannel erforderlich."
+msgstr ""
+"Im JSON-Dokument ist entweder senderResponsible oder targetChannel "
+"erforderlich."
 
 msgid "Gastbeitrag"
 msgstr "Gastbeitrag"

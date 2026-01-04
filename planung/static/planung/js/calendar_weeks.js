@@ -160,15 +160,34 @@
         
         if (isManualTime) {
           // Manual time mode: use the time exactly as set by user
-          const desiredDisplay = getDesiredTime($input);
-          startSec = timeToSeconds(desiredDisplay + ':00');
-          startWithSeconds = secondsToTimeString(startSec);
+          // Check if internal-time is already set (with seconds), otherwise use desired-time
+          const internalTime = getInternalTime($input);
+          if (internalTime && internalTime.includes(':') && (internalTime.match(/:/g) || []).length === 2) {
+            // Internal time already has seconds (HH:MM:SS format)
+            startSec = timeToSeconds(internalTime);
+            startWithSeconds = internalTime;
+          } else {
+            // Fallback to desired time (HH:MM format)
+            const desiredDisplay = getDesiredTime($input);
+            startSec = timeToSeconds(desiredDisplay + ':00');
+            startWithSeconds = secondsToTimeString(startSec);
+          }
         } else {
           // Auto mode: calculate based on previous video end time
-          const desiredDisplay = getDesiredTime($input);
-          const desiredSec = timeToSeconds(desiredDisplay + ':00');
-          startSec = Math.max(desiredSec, currentEndSec);
-          startWithSeconds = secondsToTimeString(startSec);
+          // But if internal-time is already set (e.g., from recalculateAllStartTimes), use it
+          const internalTime = getInternalTime($input);
+          if (internalTime && internalTime.includes(':') && (internalTime.match(/:/g) || []).length === 2) {
+            // Internal time already set with seconds (HH:MM:SS format) - use it but ensure it's not before currentEndSec
+            const internalSec = timeToSeconds(internalTime);
+            startSec = Math.max(internalSec, currentEndSec);
+            startWithSeconds = secondsToTimeString(startSec);
+          } else {
+            // Fallback to desired time calculation
+            const desiredDisplay = getDesiredTime($input);
+            const desiredSec = timeToSeconds(desiredDisplay + ':00');
+            startSec = Math.max(desiredSec, currentEndSec);
+            startWithSeconds = secondsToTimeString(startSec);
+          }
         }
 
         $input.data('internal-time', startWithSeconds);
@@ -724,6 +743,69 @@
       });
     });
 
+    // Get maximum allowed start time that doesn't cause overlaps
+    // Returns object with {minStart, maxStart}
+    function getAllowedStartTimeRange($input, currentNewStartSec) {
+      const $currentRow = $input.closest('tr');
+      const allRows = [];
+      
+      // Get current row's duration
+      const currentDurationText = $currentRow.find('td').eq(5).text();
+      const [currentMins, currentSecs] = currentDurationText.split(':').map(Number);
+      const currentDuration = currentMins * 60 + currentSecs;
+      
+      // Collect all OTHER rows (excluding current row) with their start times and durations
+      $('#licenseTable tbody tr:not(.gap-row)').each(function() {
+        const $row = $(this);
+        if ($row[0] === $currentRow[0]) {
+          return; // Skip current row
+        }
+        
+        const $rowInput = $row.find('.start-time-input');
+        const startStr = getInternalTime($rowInput);
+        if (!startStr) return;
+        const startSec = timeToSeconds(startStr);
+        
+        const durationText = $row.find('td').eq(5).text();
+        const [mins, secs] = durationText.split(':').map(Number);
+        const duration = mins * 60 + secs;
+        allRows.push({
+          $row: $row,
+          startSec: startSec,
+          endSec: startSec + duration,
+          duration: duration
+        });
+      });
+      
+      // Sort by start time
+      allRows.sort(function(a, b) {
+        return a.startSec - b.startSec;
+      });
+      
+      // Find min start: maximum end time of all other videos (or block start if larger)
+      let minStart = blockStart;
+      for (let i = 0; i < allRows.length; i++) {
+        if (allRows[i].endSec > minStart) {
+          minStart = allRows[i].endSec;
+        }
+      }
+      
+      // Find max start: minimum start time of all other videos minus current duration
+      // This ensures current video ends before any other video starts
+      let maxStart = Infinity;
+      for (let i = 0; i < allRows.length; i++) {
+        const maxStartForThisItem = allRows[i].startSec - currentDuration;
+        if (maxStartForThisItem < maxStart) {
+          maxStart = maxStartForThisItem;
+        }
+      }
+      
+      return {
+        minStart: minStart,
+        maxStart: maxStart
+      };
+    }
+
     // Synchronize start time when input changes (just update)
     $('#licenseTable').on('input', '.start-time-input', function () {
       const $input = $(this);
@@ -759,10 +841,68 @@
         $input.val(normalized);
       }
 
-      // Mark as manual time when user edits
-      $input.data('manual-time', true);
-      setDesiredTime($input, normalized);
-      recalculateSchedule();
+      // Validate that time doesn't cause overlaps with other items
+      const newStartSec = timeToSeconds(normalized + ':00');
+      const allowedRange = getAllowedStartTimeRange($input, newStartSec);
+      
+      // Get current row's duration for overlap check
+      const $currentRow = $input.closest('tr');
+      const currentDurationText = $currentRow.find('td').eq(5).text();
+      const [currentMins, currentSecs] = currentDurationText.split(':').map(Number);
+      const currentDuration = currentMins * 60 + currentSecs;
+      
+      // Check for overlaps and calculate adjusted time
+      let needsAdjustment = false;
+      let adjustedStartSec = newStartSec;
+      let adjustmentReason = '';
+      
+      // If maxStart < minStart, there's no valid range (video is too long to fit)
+      // In this case, use minStart as the only valid position
+      const effectiveMaxStart = Math.max(allowedRange.maxStart, allowedRange.minStart);
+      
+      if (newStartSec < allowedRange.minStart) {
+        // Too early - before previous item ends
+        needsAdjustment = true;
+        adjustedStartSec = allowedRange.minStart;
+        adjustmentReason = gettext('Start time cannot be earlier than the end time of the previous item. Adjusted to %(time)s.').replace('%(time)s', secondsToTimeString(adjustedStartSec));
+      } else if (newStartSec > effectiveMaxStart) {
+        // Too late - would overlap with next item
+        needsAdjustment = true;
+        adjustedStartSec = effectiveMaxStart;
+        adjustmentReason = gettext('Start time would cause overlap with the next item. Adjusted to %(time)s.').replace('%(time)s', secondsToTimeString(adjustedStartSec));
+      }
+      
+      if (needsAdjustment) {
+        // Adjust to valid time
+        const adjustedTimeWithSeconds = secondsToTimeString(adjustedStartSec);
+        const adjustedDisplay = secondsToTimeStringShort(adjustedStartSec);
+        
+        // Update display time (HH:MM)
+        $input.val(adjustedDisplay);
+        setDesiredTime($input, adjustedDisplay);
+        
+        // Update internal time with seconds (HH:MM:SS) - this must be set before recalculateSchedule
+        $input.data('internal-time', adjustedTimeWithSeconds);
+        $input.siblings('.time-with-seconds').text(adjustedTimeWithSeconds);
+        
+        // Mark as manual time before alert
+        $input.data('manual-time', true);
+        
+        alert(adjustmentReason);
+        
+        // Recalculate after alert to ensure everything is updated
+        recalculateSchedule();
+      } else {
+        // Time is valid, but ensure internal time is set correctly
+        const newStartTimeWithSeconds = secondsToTimeString(newStartSec);
+        $input.data('internal-time', newStartTimeWithSeconds);
+        $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds);
+        
+        // Mark as manual time when user edits
+        $input.data('manual-time', true);
+        setDesiredTime($input, $input.val());
+        recalculateSchedule();
+      }
     });
 
     // Align all start times to 0 or 5 minutes
@@ -1159,6 +1299,9 @@
         currentPos = endSec;
       });
       
+      // Sync plannedItems before recalculateSchedule to ensure correct duration is used
+      syncPlannedItemsFromTable();
+      // recalculateSchedule will update visual indicators but should preserve the rounded times
       recalculateSchedule();
     }
 

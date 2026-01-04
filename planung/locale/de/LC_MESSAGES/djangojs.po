@@ -83,3 +83,9 @@ msgstr "Plan gelöscht!"
 
 msgid "Error deleting the plan."
 msgstr "Fehler beim Löschen des Plans."
+
+msgid "Start time cannot be earlier than the end time of the previous item. Adjusted to %(time)s."
+msgstr "Startzeit kann nicht früher als die Endzeit des vorherigen Elements sein. Angepasst auf %(time)s."
+
+msgid "Start time would cause overlap with the next item. Adjusted to %(time)s."
+msgstr "Startzeit würde eine Überlappung mit dem nächsten Element verursachen. Angepasst auf %(time)s."
