@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-01-05 (Version 3.2.7)
+==========================
+
+* **Bug Fix: Video Deletion Error**
+  * **Fixed UnboundLocalError in VideoFile bulk deletion**: Resolved 500 error when deleting videos through admin interface
+    * Removed duplicate local import of translation function `_` that caused scope issue
+    * Translation function now correctly uses module-level import throughout the method
+    * Bulk deletion of videos now works without Internal Server Error
+
 2026-01-02 (Version 3.2.6)
 ==========================
 

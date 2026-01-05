@@ -2511,8 +2511,6 @@ class VideoFileAdmin(admin.ModelAdmin):
             archive_videos = queryset.filter(storage_location__storage_type='ARCHIVE')
             if archive_videos.exists():
                 archive_count = archive_videos.count()
-                from django.contrib import messages
-                from django.utils.translation import gettext_lazy as _
                 self.message_user(
                     request,
                     _('Cannot delete %(count)d video(s) from ARCHIVE storage. '
