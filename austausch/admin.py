@@ -207,6 +207,7 @@ class ExchangeImportAdmin(admin.ModelAdmin):
         'created_at',
         'completed_at',
         'license_link',
+        'error_message_short',
     ]
     list_filter = ['status', 'created_at', 'completed_at']
     search_fields = [
@@ -263,4 +264,17 @@ class ExchangeImportAdmin(admin.ModelAdmin):
             return format_html('<a href="{}">{}</a>', url, obj.video_file)
         return '-'
     video_file_link.short_description = _('Video File')
+    
+    def error_message_short(self, obj):
+        """Display shortened error message."""
+        if obj.error_message:
+            if len(obj.error_message) > 100:
+                return format_html(
+                    '<span style="color: red;" title="{}">{}...</span>',
+                    obj.error_message,
+                    obj.error_message[:97]
+                )
+            return format_html('<span style="color: red;">{}</span>', obj.error_message)
+        return '-'
+    error_message_short.short_description = _('Error Message')
 

@@ -107,11 +107,13 @@ class ExchangeFeedView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         context['legacy_only'] = self.request.GET.get('legacy_only', '')
         context['search'] = self.request.GET.get('search', '')
         
-        # Statistics
-        context['total_items'] = ExchangeItem.objects.count()
-        context['new_items'] = ExchangeItem.objects.filter(import_status='new').count()
-        context['imported_items'] = ExchangeItem.objects.filter(import_status='imported').count()
-        context['oktools_items'] = ExchangeItem.objects.filter(is_oktools_managed=True).count()
+        # Statistics (only video items, matching the queryset filter)
+        video_items = ExchangeItem.objects.filter(file_type='video')
+        context['total_items'] = video_items.count()
+        context['new_items'] = video_items.filter(import_status='new').count()
+        context['imported_items'] = video_items.filter(import_status='imported').count()
+        context['failed_items'] = video_items.filter(import_status='failed').count()
+        context['oktools_items'] = video_items.filter(is_oktools_managed=True).count()
         
         return context
 

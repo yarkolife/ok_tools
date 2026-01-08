@@ -3,6 +3,8 @@
 import os
 import hashlib
 import logging
+import re
+import unicodedata
 from pathlib import Path
 from typing import Tuple, Optional, List
 from difflib import SequenceMatcher
@@ -241,8 +243,12 @@ class ImportService:
         """
         Download video and PDF files from Nextcloud.
         
-        Files are saved with license number prefix: {number}_{original_filename}
-        Spaces in filenames are replaced with underscores.
+        Files are saved with license number prefix: {number}_{normalized_filename}
+        Filename normalization:
+        - Spaces are replaced with underscores
+        - German umlauts are normalized: ü->ue, ä->ae, ö->oe, ß->ss
+        - Other non-ASCII characters are normalized using Unicode decomposition
+        - Invalid filesystem characters are removed or replaced
         Supports resume download if file partially exists.
         
         Returns:
@@ -264,9 +270,54 @@ class ImportService:
         pdf_path = None
         
         def format_filename(original_filename: str) -> str:
-            """Format filename with license number prefix and replace spaces."""
+            """
+            Format filename with license number prefix, normalize German characters,
+            and sanitize for filesystem compatibility.
+            
+            Rules:
+            - Replace spaces with underscores
+            - Normalize German umlauts: ü->ue, ä->ae, ö->oe, ß->ss
+            - Normalize other non-ASCII characters using Unicode decomposition
+            - Remove or replace invalid filesystem characters
+            """
+            # Normalize German umlauts according to German rules
+            german_replacements = {
+                'ü': 'ue',
+                'Ü': 'Ue',
+                'ä': 'ae',
+                'Ä': 'Ae',
+                'ö': 'oe',
+                'Ö': 'Oe',
+                'ß': 'ss',
+            }
+            
+            # Apply German character replacements
+            safe_name = original_filename
+            for char, replacement in german_replacements.items():
+                safe_name = safe_name.replace(char, replacement)
+            
+            # Normalize Unicode characters (decompose and remove combining marks)
+            # This handles accented characters from other languages
+            safe_name = unicodedata.normalize('NFD', safe_name)
+            # Remove combining diacritical marks (accents)
+            safe_name = ''.join(
+                char for char in safe_name
+                if unicodedata.category(char) != 'Mn'
+            )
+            
             # Replace spaces with underscores
-            safe_name = original_filename.replace(' ', '_')
+            safe_name = safe_name.replace(' ', '_')
+            
+            # Remove or replace invalid filesystem characters
+            # Keep: letters, digits, underscore, dash, dot
+            # Remove: other special characters that might cause issues
+            safe_name = re.sub(r'[^\w\-.]', '_', safe_name)
+            
+            # Remove multiple consecutive underscores
+            safe_name = re.sub(r'_+', '_', safe_name)
+            
+            # Remove leading/trailing underscores and dots
+            safe_name = safe_name.strip('_.')
             
             # Add license number prefix if available
             if license_number:

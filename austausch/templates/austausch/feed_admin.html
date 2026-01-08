@@ -300,6 +300,10 @@
             <div class="stat-label">{% trans 'Imported' %}</div>
         </div>
         <div class="stat-card">
+            <div class="stat-number" style="color: {% if failed_items %}red{% else %}#007cba{% endif %};">{{ failed_items|default:0 }}</div>
+            <div class="stat-label">{% trans 'Failed' %}</div>
+        </div>
+        <div class="stat-card">
             <div class="stat-number">{{ oktools_items|default:0 }}</div>
             <div class="stat-label">{% trans 'OK-Tools Verified' %}</div>
         </div>
