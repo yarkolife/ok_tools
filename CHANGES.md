@@ -1,6 +1,37 @@
 CHANGELOG
 =========
 
+2026-01-07 (Version 3.2.9)
+==========================
+
+* **Content Exchange Module Enhancements**
+  * **Automatic Thumbnail Generation**: Added automatic thumbnail generation for exchange videos
+    * Thumbnails are generated on-demand from video files via HTTP URL (WebDAV)
+    * Supports both standard WebDAV and GroupFolders paths
+    * Thumbnails are cached locally to avoid repeated generation
+    * Fallback mechanism: direct HTTP input, then range download if first method fails
+    * Integration with exchange feed view for visual preview
+  * **HTTP Thumbnail Generation**: New utility functions for generating thumbnails from HTTP URLs
+    * `generate_thumbnail_from_http_url()` - Direct HTTP input with seeking support
+    * `generate_thumbnail_from_http_range()` - Range request fallback for compatibility
+    * Both methods support HTTP authentication (username:password@host format)
+    * Configurable timeout (60 seconds for HTTP URLs vs 10 seconds for local files)
+    * Efficient seeking without downloading entire video file
+  * **WebDAV URL Resolution**: Improved WebDAV URL handling for different Nextcloud storage types
+    * New `get_webdav_url_for_path()` method to determine correct WebDAV base URL
+    * Automatic detection of GroupFolders vs standard WebDAV paths
+    * Proper URL encoding for special characters in file paths
+  * **Template Improvements**: Enhanced exchange feed template for better thumbnail display
+    * Improved error handling for missing thumbnails
+    * Graceful fallback to play icon if thumbnail generation fails
+    * Better visual feedback with onload/onerror handlers
+
+* **Media Files Utils Enhancements**
+  * **HTTP URL Support**: Extended `generate_thumbnail()` function to support HTTP/HTTPS URLs
+    * Automatically detects HTTP URLs and increases timeout accordingly
+    * Works with WebDAV endpoints for remote video file processing
+    * Supports both local file paths and HTTP URLs seamlessly
+
 2026-01-07 (Version 3.2.8)
 ==========================
 

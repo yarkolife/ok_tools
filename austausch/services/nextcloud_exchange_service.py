@@ -57,6 +57,23 @@ class NextcloudExchangeService:
         """Get authentication tuple for requests."""
         return (self.username, self.password)
     
+    def get_webdav_url_for_path(self, file_path: str) -> str:
+        """
+        Get the correct WebDAV base URL for a given file path.
+        Checks if path is in GroupFolders and returns appropriate base URL.
+        
+        Args:
+            file_path: Relative path in Nextcloud
+            
+        Returns:
+            WebDAV base URL (with trailing slash removed)
+        """
+        # Check if path starts with GroupFolders
+        if 'GroupFolders' in file_path or file_path.startswith('GroupFolders/'):
+            return self.groupfolders_url.rstrip('/')
+        else:
+            return self.webdav_url.rstrip('/')
+    
     def list_root_folders(self) -> List[str]:
         """
         List folders in the root of WebDAV to help debug folder structure.

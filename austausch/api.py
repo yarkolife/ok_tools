@@ -431,6 +431,74 @@ class DownloadExchangeFileView(APIView):
         check_austausch_enabled()
         return super().dispatch(request, *args, **kwargs)
     
+    def _generate_thumbnail(self, exchange_item, service):
+        """
+        Generate thumbnail from video file.
+        
+        Returns:
+            FileResponse with thumbnail if successful, None otherwise
+        """
+        from pathlib import Path
+        from django.http import FileResponse
+        from urllib.parse import quote
+        from media_files.utils import generate_thumbnail_from_http_url, generate_thumbnail_from_http_range
+        
+        logger.info(f"Generating thumbnail for exchange_item {exchange_item.id}, video: {exchange_item.file_path}")
+        
+        # Create thumbnail directory
+        thumbnail_dir = Path(settings.MEDIA_ROOT) / 'exchange_thumbnails'
+        thumbnail_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate thumbnail filename
+        thumbnail_filename = f"exchange_{exchange_item.id}.jpg"
+        local_thumbnail_path = thumbnail_dir / thumbnail_filename
+        
+        # Check if thumbnail already exists locally
+        if local_thumbnail_path.exists():
+            logger.info(f"Thumbnail already exists locally: {local_thumbnail_path}")
+            relative_thumbnail_path = f"exchange_thumbnails/{thumbnail_filename}"
+            exchange_item.thumbnail_path = relative_thumbnail_path
+            exchange_item.save(update_fields=['thumbnail_path'])
+            return FileResponse(
+                open(local_thumbnail_path, 'rb'),
+                content_type='image/jpeg'
+            )
+        
+        # Build WebDAV URL for video file
+        webdav_base = service.get_webdav_url_for_path(exchange_item.file_path)
+        video_path_clean = exchange_item.file_path.lstrip('/')
+        encoded_path = '/'.join(quote(part, safe='') for part in video_path_clean.split('/'))
+        video_url = f"{webdav_base}/{encoded_path}"
+        
+        logger.info(f"Generating thumbnail from URL: {video_url} (masked)")
+        
+        # Generate thumbnail using HTTP URL
+        timestamp = '00:00:05'
+        auth = service._get_auth()
+        
+        # Try direct HTTP input first, then fallback to range download
+        success = generate_thumbnail_from_http_url(
+            video_url, str(local_thumbnail_path), timestamp, auth=auth
+        )
+        if not success:
+            logger.info(f"Direct HTTP failed, trying range download for exchange_item {exchange_item.id}")
+            success = generate_thumbnail_from_http_range(
+                video_url, str(local_thumbnail_path), timestamp, auth=auth
+            )
+        
+        if success:
+            logger.info(f"Successfully generated thumbnail: {local_thumbnail_path}")
+            relative_thumbnail_path = f"exchange_thumbnails/{thumbnail_filename}"
+            exchange_item.thumbnail_path = relative_thumbnail_path
+            exchange_item.save(update_fields=['thumbnail_path'])
+            return FileResponse(
+                open(local_thumbnail_path, 'rb'),
+                content_type='image/jpeg'
+            )
+        else:
+            logger.error(f"Failed to generate thumbnail for exchange_item {exchange_item.id} (both methods failed)")
+            return None
+    
     def get(self, request, item_id, file_type):
         """
         Download file from Nextcloud.
@@ -439,8 +507,7 @@ class DownloadExchangeFileView(APIView):
             item_id: ExchangeItem ID
             file_type: 'video' or 'pdf'
         """
-        from django.http import StreamingHttpResponse, HttpResponse
-        import tempfile
+        from django.http import StreamingHttpResponse
         import os
         
         exchange_item = get_object_or_404(ExchangeItem, id=item_id)
@@ -448,18 +515,52 @@ class DownloadExchangeFileView(APIView):
         service = NextcloudExchangeService(config)
         
         # Determine file to download
+        file_path = None  # Initialize to avoid UnboundLocalError
         if file_type == 'video':
             # Use video file path directly (stored in file_path)
             file_path = exchange_item.file_path
         elif file_type == 'thumbnail':
-            # Use thumbnail path if available
-            if exchange_item.thumbnail_path:
+            # Check if thumbnail is available locally or in Nextcloud
+            from pathlib import Path
+            from django.http import FileResponse
+            
+            logger.info(f"Thumbnail request for exchange_item {exchange_item.id}, thumbnail_path: {exchange_item.thumbnail_path}")
+            
+            # Check if thumbnail_path is a local path (starts with exchange_thumbnails/)
+            if exchange_item.thumbnail_path and exchange_item.thumbnail_path.startswith('exchange_thumbnails/'):
+                # Local thumbnail path
+                local_thumbnail_path = Path(settings.MEDIA_ROOT) / exchange_item.thumbnail_path
+                if local_thumbnail_path.exists():
+                    logger.info(f"Serving local thumbnail: {local_thumbnail_path}")
+                    return FileResponse(
+                        open(local_thumbnail_path, 'rb'),
+                        content_type='image/jpeg'
+                    )
+                else:
+                    # Local path doesn't exist, need to generate
+                    logger.warning(f"Local thumbnail path doesn't exist: {local_thumbnail_path}, clearing path")
+                    exchange_item.thumbnail_path = ''  # Clear invalid path
+                    exchange_item.save(update_fields=['thumbnail_path'])
+            
+            # If thumbnail_path exists and is not local, try to download from Nextcloud
+            # But don't check existence here - let streaming code handle 404 and fallback to generation
+            if exchange_item.thumbnail_path and not exchange_item.thumbnail_path.startswith('exchange_thumbnails/'):
+                logger.info(f"Using Nextcloud thumbnail path: {exchange_item.thumbnail_path}")
+                # Set file_path - streaming code will handle 404 and fallback to generation
                 file_path = exchange_item.thumbnail_path
-            else:
-                return Response(
-                    {'error': 'Thumbnail not available'},
-                    status=status.HTTP_404_NOT_FOUND
-                )
+                # Will be handled by streaming code below (with fallback to generation on 404)
+            
+            # Generate thumbnail if file_path is not set (no valid thumbnail found)
+            # This includes: no thumbnail_path, invalid local path, or Nextcloud file not found
+            if not file_path:
+                result = self._generate_thumbnail(exchange_item, service)
+                if result:
+                    return result
+                else:
+                    return Response(
+                        {'error': 'Failed to generate thumbnail'},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
         elif file_type == 'pdf':
             # Use PDF path from exchange_item (if part of package)
             if exchange_item.pdf_path:
@@ -484,11 +585,22 @@ class DownloadExchangeFileView(APIView):
             )
         
         # Stream directly from Nextcloud without downloading completely
+        # file_path should be set at this point
+        if not file_path:
+            return Response(
+                {'error': 'File path not determined'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
         import os
         import requests
         
         # Determine content type based on file extension
-        file_extension = os.path.splitext(exchange_item.filename)[1].lower()
+        # For thumbnails, use the thumbnail file extension, not the video filename
+        if file_type == 'thumbnail':
+            file_extension = os.path.splitext(file_path)[1].lower() if file_path else '.jpg'
+        else:
+            file_extension = os.path.splitext(exchange_item.filename)[1].lower()
         content_types = {
             '.mp4': 'video/mp4',
             '.mov': 'video/quicktime',
@@ -511,7 +623,7 @@ class DownloadExchangeFileView(APIView):
         
         # Build WebDAV URL for direct streaming
         from urllib.parse import quote
-        webdav_base = service.webdav_url.rstrip('/')
+        webdav_base = service.get_webdav_url_for_path(file_path)
         file_path_clean = file_path.lstrip('/')
         encoded_path = '/'.join(quote(part, safe='') for part in file_path_clean.split('/'))
         stream_url = f"{webdav_base}/{encoded_path}"
@@ -538,7 +650,23 @@ class DownloadExchangeFileView(APIView):
             )
             
             if nc_response.status_code not in (200, 206):
-                logger.error(f"Nextcloud returned status {nc_response.status_code}: {nc_response.text[:200]}")
+                logger.error(f"Nextcloud returned status {nc_response.status_code} for {file_path}: {nc_response.text[:200]}")
+                # If thumbnail file not found, try to generate it
+                if file_type == 'thumbnail' and nc_response.status_code == 404:
+                    logger.info(f"Thumbnail file not found in Nextcloud, generating from video")
+                    # Clear invalid thumbnail_path
+                    exchange_item.thumbnail_path = ''
+                    exchange_item.save(update_fields=['thumbnail_path'])
+                    
+                    # Generate thumbnail using shared method
+                    result = self._generate_thumbnail(exchange_item, service)
+                    if result:
+                        return result
+                    else:
+                        return Response(
+                            {'error': 'Failed to generate thumbnail'},
+                            status=status.HTTP_404_NOT_FOUND
+                        )
                 return Response(
                     {'error': f'Failed to stream from Nextcloud: {nc_response.status_code}'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR

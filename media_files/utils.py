@@ -416,7 +416,7 @@ def generate_thumbnail(file_path: str, output_path: str, timestamp='00:00:05') -
     Generate thumbnail image from video.
     
     Args:
-        file_path: Path to video file
+        file_path: Path to video file (local path or HTTP URL)
         output_path: Path for output thumbnail
         timestamp: Time position for thumbnail (format: HH:MM:SS)
         
@@ -437,7 +437,10 @@ def generate_thumbnail(file_path: str, output_path: str, timestamp='00:00:05') -
             output_path
         ]
         
-        result = subprocess.run(cmd, capture_output=True, timeout=10)
+        # For HTTP URLs, increase timeout and allow seeking
+        timeout = 60 if file_path.startswith(('http://', 'https://')) else 10
+        
+        result = subprocess.run(cmd, capture_output=True, timeout=timeout)
         
         if result.returncode == 0 and os.path.exists(output_path):
             logger.info(f"Generated thumbnail: {output_path}")
@@ -448,6 +451,164 @@ def generate_thumbnail(file_path: str, output_path: str, timestamp='00:00:05') -
             
     except Exception as e:
         logger.error(f"Error generating thumbnail: {e}")
+        return False
+
+
+def generate_thumbnail_from_http_url(
+    http_url: str,
+    output_path: str,
+    timestamp: str = '00:00:05',
+    auth: Optional[Tuple[str, str]] = None
+) -> bool:
+    """
+    Generate thumbnail image from video via HTTP URL without downloading entire file.
+    Uses ffmpeg with HTTP input, which supports range requests for efficient seeking.
+    
+    Args:
+        http_url: HTTP/HTTPS URL to video file (supports WebDAV)
+        output_path: Path for output thumbnail
+        timestamp: Time position for thumbnail (format: HH:MM:SS)
+        auth: Optional tuple of (username, password) for HTTP authentication
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        # Ensure output directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        
+        # Build ffmpeg command
+        # -ss before -i enables input seeking (more efficient for HTTP)
+        # -seekable 1 allows seeking in HTTP streams
+        cmd = [
+            'ffmpeg',
+            '-y',  # Overwrite output
+            '-seekable', '1',  # Allow seeking in HTTP streams
+            '-ss', timestamp,  # Seek to position before input
+            '-i', http_url,
+            '-vframes', '1',  # Extract only one frame
+            '-q:v', '2',  # High quality JPEG
+            output_path
+        ]
+        
+        # If authentication is required, add it to URL
+        # ffmpeg supports http://user:pass@host/path format
+        # Need to URL-encode username and password to handle special characters
+        if auth:
+            from urllib.parse import urlparse, urlunparse, quote
+            parsed = urlparse(http_url)
+            # URL-encode username and password to handle special characters like @, :, etc.
+            encoded_username = quote(auth[0], safe='')
+            encoded_password = quote(auth[1], safe='')
+            netloc = f"{encoded_username}:{encoded_password}@{parsed.netloc}"
+            http_url_with_auth = urlunparse((
+                parsed.scheme,
+                netloc,
+                parsed.path,
+                parsed.params,
+                parsed.query,
+                parsed.fragment
+            ))
+            cmd[cmd.index(http_url)] = http_url_with_auth
+        
+        # Run ffmpeg with longer timeout for HTTP (may need to download some data)
+        # Log URL without password for debugging
+        debug_url = http_url
+        if auth:
+            from urllib.parse import urlparse
+            parsed = urlparse(http_url)
+            debug_url = f"{parsed.scheme}://{auth[0]}:***@{parsed.netloc}{parsed.path}"
+        logger.info(f"Generating thumbnail from HTTP URL: {debug_url} (timestamp: {timestamp})")
+        
+        result = subprocess.run(cmd, capture_output=True, timeout=120)
+        
+        if result.returncode == 0 and os.path.exists(output_path):
+            logger.info(f"Generated thumbnail from HTTP URL: {output_path}")
+            return True
+        else:
+            error_msg = result.stderr.decode('utf-8', errors='ignore') if result.stderr else 'Unknown error'
+            stdout_msg = result.stdout.decode('utf-8', errors='ignore') if result.stdout else ''
+            logger.error(
+                f"Failed to generate thumbnail from HTTP URL: {debug_url}\n"
+                f"Return code: {result.returncode}\n"
+                f"Stderr: {error_msg[:500]}\n"
+                f"Stdout: {stdout_msg[:500]}"
+            )
+            return False
+            
+    except subprocess.TimeoutExpired:
+        logger.error(f"Timeout generating thumbnail from HTTP URL: {http_url}")
+        return False
+    except Exception as e:
+        logger.error(f"Error generating thumbnail from HTTP URL: {e}", exc_info=True)
+        return False
+
+
+def generate_thumbnail_from_http_range(
+    http_url: str,
+    output_path: str,
+    timestamp: str = '00:00:05',
+    auth: Optional[Tuple[str, str]] = None,
+    range_size: int = 15 * 1024 * 1024  # 15 MB should be enough for first few seconds
+) -> bool:
+    """
+    Generate thumbnail by downloading a small range of video via HTTP Range request.
+    This is more reliable than direct HTTP input for ffmpeg with WebDAV auth.
+    
+    Args:
+        http_url: HTTP/HTTPS URL to video file
+        output_path: Path for output thumbnail
+        timestamp: Time position for thumbnail (format: HH:MM:SS)
+        auth: Optional tuple of (username, password) for HTTP authentication
+        range_size: Size of range to download in bytes (default 15MB)
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    import tempfile
+    import requests
+    
+    try:
+        # Ensure output directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        
+        # Download first N bytes of video (should contain the frame we need)
+        headers = {'Range': f'bytes=0-{range_size-1}'}
+        
+        response = requests.get(
+            http_url,
+            auth=auth,
+            headers=headers,
+            timeout=60,
+            stream=True
+        )
+        
+        if response.status_code not in (200, 206):  # 206 = Partial Content
+            logger.error(f"Failed to download video range: HTTP {response.status_code}")
+            return False
+        
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_file:
+            temp_path = temp_file.name
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    temp_file.write(chunk)
+        
+        try:
+            # Generate thumbnail from temporary file
+            if generate_thumbnail(temp_path, output_path, timestamp):
+                logger.info(f"Generated thumbnail from HTTP range: {output_path}")
+                return True
+            else:
+                logger.error(f"Failed to generate thumbnail from downloaded range")
+                return False
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+                
+    except Exception as e:
+        logger.error(f"Error generating thumbnail from HTTP range: {e}", exc_info=True)
         return False
 
 

@@ -375,12 +375,8 @@
             {% if item.file_type == 'video' %}
             <div class="video-preview-container" onclick="openVideoPlayer({{ item.id }}, '{{ item.filename|escapejs }}')">
                 <div class="video-preview-thumbnail">
-                    {% if item.thumbnail_path %}
-                    <img src="{% url 'austausch:api_download' item.id 'thumbnail' %}" alt="{% trans 'Video thumbnail' %}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-                    <span class="play-icon">▶</span>
-                    {% else %}
-                    <span class="play-icon">▶</span>
-                    {% endif %}
+                    <img src="{% url 'austausch:api_download' item.id 'thumbnail' %}" alt="{% trans 'Video thumbnail' %}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; {% if not item.thumbnail_path %}display: none;{% endif %}" onload="this.style.display='block'; this.nextElementSibling.style.display='block';" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <span class="play-icon" style="{% if item.thumbnail_path %}display: block;{% else %}display: flex;{% endif %}">▶</span>
                 </div>
             </div>
             {% elif item.file_type == 'pdf' %}
