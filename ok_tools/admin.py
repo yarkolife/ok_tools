@@ -76,6 +76,23 @@ def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # typ
             ]
         }
         app_list.insert(0, dashboard_app)
+        
+        # Add Exchange Feed link to Austausch app if module is enabled
+        from django.conf import settings
+        if getattr(settings, 'AUSTAUSCH_ENABLED', False):
+            # Find Austausch app in the list
+            for app in app_list:
+                if app.get('app_label') == 'austausch':
+                    # Add Exchange Feed link as first model
+                    feed_model = {
+                        'name': _('Exchange Feed'),
+                        'object_name': 'ExchangeFeed',
+                        'admin_url': '/austausch/feed/',
+                        'add_url': None,
+                        'view_only': True,
+                    }
+                    app['models'].insert(0, feed_model)
+                    break
 
     return _reorder_app_list(app_list)
 

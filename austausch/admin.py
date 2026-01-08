@@ -1,0 +1,266 @@
+"""Django admin configuration for Austausch module."""
+
+from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+from django.utils.html import format_html
+from django.urls import reverse
+
+from .models import ExchangeItem, ExchangeImport, ExchangeConfig
+from .tasks import import_exchange_item_task
+
+
+@admin.register(ExchangeConfig)
+class ExchangeConfigAdmin(admin.ModelAdmin):
+    """Admin for ExchangeConfig (singleton)."""
+    
+    def has_add_permission(self, request):
+        """Only allow one config instance."""
+        return not ExchangeConfig.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of config."""
+        return False
+    
+    def exchange_feed_link(self, obj):
+        """Link to Exchange Feed UI."""
+        url = reverse('austausch:feed')
+        return format_html(
+            '<a href="{}" class="button" target="_blank">{}</a>',
+            url,
+            _('Open Exchange Feed')
+        )
+    exchange_feed_link.short_description = _('Exchange Feed UI')
+    
+    list_display = ['nextcloud_base_url', 'sync_lookback_days', 'sync_date_folders_days', 'exchange_feed_link']
+    fieldsets = (
+        (_('Quick Links'), {
+            'fields': ('exchange_feed_link',),
+            'classes': ('wide',),
+        }),
+        (_('Nextcloud Settings'), {
+            'fields': ('nextcloud_base_url', 'nextcloud_username', 'nextcloud_password')
+        }),
+        (_('Folder Patterns'), {
+            'fields': ('channel_folder_pattern', 'exchange_folder_pattern')
+        }),
+        (_('Sync Settings'), {
+            'fields': ('sync_lookback_days', 'sync_date_folders_days', 'channels_list'),
+            'description': _(
+                'Note: Periodic sync schedule is managed via '
+                '<a href="/admin/django_celery_beat/periodictask/" target="_blank">Periodic Tasks</a> '
+                '(task name: "sync_exchange_folders"). '
+                'You can enable/disable and change schedule there.'
+            ),
+        }),
+        (_('Storage Settings'), {
+            'fields': ('download_storage_path',)
+        }),
+        (_('Auto-Import Settings'), {
+            'fields': ('auto_import_enabled',)
+        }),
+    )
+    
+    readonly_fields = ['exchange_feed_link']
+
+
+@admin.register(ExchangeItem)
+class ExchangeItemAdmin(admin.ModelAdmin):
+    """Admin for ExchangeItem."""
+    
+    def changelist_view(self, request, extra_context=None):
+        """Add link to Exchange Feed UI in changelist."""
+        extra_context = extra_context or {}
+        extra_context['exchange_feed_url'] = reverse('austausch:feed')
+        return super().changelist_view(request, extra_context)
+    
+    list_display = [
+        'id',
+        'contribution_id',
+        'filename_short',
+        'channel',
+        'file_type',
+        'import_status_badge',
+        'is_oktools_managed_badge',
+        'discovered_at',
+        'actions_column'
+    ]
+    list_filter = [
+        'channel',
+        'import_status',
+        'is_oktools_managed',
+        'is_legacy',
+        'file_type',
+        'discovered_at',
+    ]
+    search_fields = ['filename', 'title', 'description', 'contribution_id']
+    readonly_fields = [
+        'contribution_id',
+        'filename',
+        'file_path',
+        'channel',
+        'file_size',
+        'file_type',
+        'checksum',
+        'title',
+        'description',
+        'duration',
+        'sendeverantwortung',
+        'is_oktools_managed',
+        'is_legacy',
+        'discovered_at',
+        'last_seen_at',
+        'imported_at',
+        'imported_license_link',
+    ]
+    
+    actions = ['import_selected_items']
+    
+    def filename_short(self, obj):
+        """Display shortened filename."""
+        if len(obj.filename) > 50:
+            return obj.filename[:47] + '...'
+        return obj.filename
+    filename_short.short_description = _('Filename')
+    
+    def import_status_badge(self, obj):
+        """Display import status as badge."""
+        colors = {
+            'new': 'warning',
+            'imported': 'success',
+            'failed': 'danger',
+        }
+        color = colors.get(obj.import_status, 'secondary')
+        return format_html(
+            '<span class="badge bg-{}">{}</span>',
+            color,
+            obj.get_import_status_display()
+        )
+    import_status_badge.short_description = _('Status')
+    
+    def is_oktools_managed_badge(self, obj):
+        """Display OK-Tools managed badge."""
+        if obj.is_oktools_managed:
+            return format_html('<span class="badge bg-success">{}</span>', _('OK-Tools'))
+        elif obj.is_legacy:
+            return format_html('<span class="badge bg-secondary">{}</span>', _('Legacy'))
+        return '-'
+    is_oktools_managed_badge.short_description = _('Type')
+    
+    def imported_license_link(self, obj):
+        """Link to imported license."""
+        if obj.imported_license:
+            url = reverse('admin:licenses_license_change', args=[obj.imported_license.id])
+            return format_html('<a href="{}">{}</a>', url, obj.imported_license)
+        return '-'
+    imported_license_link.short_description = _('Imported License')
+    
+    def actions_column(self, obj):
+        """Action buttons column."""
+        if obj.import_status == 'new':
+            url = reverse('austausch:api_import', args=[obj.id])
+            return format_html(
+                '<a href="{}" class="button" onclick="return confirm(\'{}\')">{}</a>',
+                url,
+                _('Import this item?'),
+                _('Import')
+            )
+        elif obj.import_status == 'imported' and obj.imported_license:
+            url = reverse('admin:licenses_license_change', args=[obj.imported_license.id])
+            return format_html('<a href="{}">{}</a>', url, _('View License'))
+        return '-'
+    actions_column.short_description = _('Actions')
+    
+    def import_selected_items(self, request, queryset):
+        """Admin action to import selected items."""
+        count = 0
+        for item in queryset.filter(import_status='new'):
+            try:
+                # Import synchronously in admin (or could use Celery task)
+                from .services.import_service import ImportService
+                import_service = ImportService(item, request.user)
+                import_service.import_item()
+                count += 1
+            except Exception as e:
+                self.message_user(
+                    request,
+                    _('Error importing {}: {}').format(item.filename, str(e)),
+                    level='ERROR'
+                )
+        
+        self.message_user(
+            request,
+            _('Successfully imported {} items.').format(count),
+            level='SUCCESS'
+        )
+    import_selected_items.short_description = _('Import selected items')
+
+
+@admin.register(ExchangeImport)
+class ExchangeImportAdmin(admin.ModelAdmin):
+    """Admin for ExchangeImport."""
+    
+    list_display = [
+        'id',
+        'exchange_item_link',
+        'status_badge',
+        'imported_by',
+        'created_at',
+        'completed_at',
+        'license_link',
+    ]
+    list_filter = ['status', 'created_at', 'completed_at']
+    search_fields = [
+        'exchange_item__filename',
+        'exchange_item__title',
+        'error_message',
+    ]
+    readonly_fields = [
+        'exchange_item',
+        'imported_by',
+        'status',
+        'error_message',
+        'created_at',
+        'completed_at',
+        'license_link',
+        'video_file_link',
+    ]
+    
+    def exchange_item_link(self, obj):
+        """Link to exchange item."""
+        url = reverse('admin:austausch_exchangeitem_change', args=[obj.exchange_item.id])
+        return format_html('<a href="{}">{}</a>', url, obj.exchange_item.filename)
+    exchange_item_link.short_description = _('Exchange Item')
+    
+    def status_badge(self, obj):
+        """Display status as badge."""
+        colors = {
+            'pending': 'secondary',
+            'downloading': 'info',
+            'processing': 'primary',
+            'completed': 'success',
+            'failed': 'danger',
+        }
+        color = colors.get(obj.status, 'secondary')
+        return format_html(
+            '<span class="badge bg-{}">{}</span>',
+            color,
+            obj.get_status_display()
+        )
+    status_badge.short_description = _('Status')
+    
+    def license_link(self, obj):
+        """Link to license."""
+        if obj.license:
+            url = reverse('admin:licenses_license_change', args=[obj.license.id])
+            return format_html('<a href="{}">{}</a>', url, obj.license)
+        return '-'
+    license_link.short_description = _('License')
+    
+    def video_file_link(self, obj):
+        """Link to video file."""
+        if obj.video_file:
+            url = reverse('admin:media_files_videofile_change', args=[obj.video_file.id])
+            return format_html('<a href="{}">{}</a>', url, obj.video_file)
+        return '-'
+    video_file_link.short_description = _('Video File')
+

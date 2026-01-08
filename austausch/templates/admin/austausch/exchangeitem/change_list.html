@@ -1,0 +1,64 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  <li>
+    <a href="{% url 'austausch:feed' %}" class="addlink">{% trans "Exchange Feed" %}</a>
+  </li>
+  <li>
+    <a href="{% url 'austausch:api_import_batch' %}" class="addlink" onclick="return importSelectedFromList()">{% trans "Import Selected" %}</a>
+  </li>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+function importSelectedFromList() {
+    const selected = document.querySelectorAll('#result_list input[type="checkbox"]:checked');
+    const itemIds = Array.from(selected).map(cb => {
+        const row = cb.closest('tr');
+        const link = row.querySelector('a');
+        if (link) {
+            const match = link.href.match(/exchangeitem\/(\d+)\//);
+            if (match) return parseInt(match[1]);
+        }
+        return null;
+    }).filter(id => id !== null);
+    
+    if (itemIds.length === 0) {
+        alert('{% trans "Please select items to import" %}');
+        return false;
+    }
+    
+    if (!confirm('{% trans "Import" %} ' + itemIds.length + ' {% trans "selected items?" %}')) {
+        return false;
+    }
+    
+    fetch('{% url "austausch:api_import_batch" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ item_ids: itemIds }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Import started for" %} ' + data.count + ' {% trans "items" %}');
+            location.reload();
+        } else {
+            alert('{% trans "Import failed: " %}' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{% trans "Import failed. Please try again." %}');
+    });
+    
+    return false;
+}
+</script>
+{% endblock %}
+

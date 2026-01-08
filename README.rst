@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 3.2.7
+**Current Version**: 3.2.8
 **Last Updated**: January 2026
 
 Features
@@ -66,6 +66,15 @@ Features
   - ICS calendar export for project dates
   - Project characteristics analysis (external venue rate, etc.)
   - Date-based project organization
+
+- **Content Exchange (Austausch)** - Exchange content between channels via Nextcloud
+  - Nextcloud folder synchronization for content exchange
+  - Automatic discovery of exchange items (videos, PDFs, thumbnails)
+  - Contribution ID extraction from filenames
+  - Exchange feed view for staff members
+  - Configurable sync schedule via Celery Beat
+  - Support for multiple exchange folders and channels
+  - Optional module (enabled via AUSTAUSCH_ENABLED setting)
 
 - **Inventory Management** - Track equipment and resources with serial numbers
   - Hierarchical location management (Room -> Cabinet structure)

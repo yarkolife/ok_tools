@@ -1,6 +1,36 @@
 CHANGELOG
 =========
 
+2026-01-07 (Version 3.2.8)
+==========================
+
+* **Content Exchange Module (Austausch)**
+  * **New Module for Content Exchange**: Added comprehensive content exchange module for sharing content between channels
+    * Nextcloud folder synchronization for automatic content discovery
+    * Exchange item tracking with video files, PDFs, and thumbnails
+    * Contribution ID extraction from filenames for OK-Tools managed content
+    * Exchange feed view accessible to staff members via admin interface
+    * Configurable sync schedule via Celery Beat (default: daily at 2:00 AM)
+    * Support for multiple exchange folders and channel identification
+    * Optional module - enabled via `AUSTAUSCH_ENABLED` environment variable
+  * **Configuration Templates Updated**: Added Austausch configuration to all deployment templates
+    * Added `AUSTAUSCH_ENABLED` setting to ok-bayern, ok-nrw, and okmq templates
+    * Added `CELERY_BEAT_SYNC_EXCHANGE` cron schedule configuration
+    * Default: disabled for backward compatibility
+  * **Admin Integration**: Exchange Feed link added to admin sidebar when module is enabled
+    * Accessible via Austausch → Exchange Feed in admin menu
+    * Staff-only access with login requirement
+    * Paginated list view with filtering and search capabilities
+  * **Celery Task Integration**: New periodic task `sync_exchange_folders` for automated synchronization
+    * Runs automatically when module is enabled and Celery Beat is configured
+    * Integrated with `setup_periodic_tasks` management command
+    * Configurable schedule via environment variable
+
+* **Media Files Migration**
+  * **Database Schema Update**: Added verbose name to VideoFile.created_at field
+    * Migration 0015_alter_videofile_created_at.py
+    * Improves admin interface display consistency
+
 2026-01-05 (Version 3.2.7)
 ==========================
 

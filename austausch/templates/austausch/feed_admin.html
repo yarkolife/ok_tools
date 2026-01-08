@@ -1,0 +1,721 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Exchange Feed' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:austausch_exchangeitem_changelist' %}">{% trans 'Exchange Items' %}</a>
+    &rsaquo; {% trans 'Exchange Feed' %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .exchange-feed-container {
+        padding: 20px;
+    }
+    .stats-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    .stat-card {
+        flex: 1;
+        min-width: 200px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 20px;
+        text-align: center;
+    }
+    .stat-number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #007cba;
+    }
+    .stat-label {
+        color: #666;
+        margin-top: 5px;
+    }
+    .filter-section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .item-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        position: relative;
+    }
+    .item-card.selected {
+        border-color: #007cba;
+        background: #f0f8ff;
+    }
+    .item-checkbox {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 2px solid #007cba;
+        border-radius: 3px;
+    }
+    .item-checkbox:hover {
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .item-checkbox:checked {
+        background-color: #007cba;
+        border-color: #007cba;
+    }
+    .item-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+        line-height: 1.4;
+    }
+    .item-description {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+        line-height: 1.5;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+    .item-author {
+        color: #555;
+        font-size: 14px;
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+    .item-author strong {
+        color: #333;
+    }
+    .item-meta {
+        display: flex;
+        gap: 10px;
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 10px;
+    }
+    .item-preview {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    .item-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .batch-actions {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+        display: none;
+    }
+    .batch-actions.active {
+        display: block;
+    }
+    .video-preview-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+    .video-preview {
+        width: 100%;
+        max-height: 200px;
+        border-radius: 4px;
+        background: #000;
+    }
+    .video-preview-thumbnail {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        cursor: pointer;
+        position: relative;
+        transition: opacity 0.3s;
+        overflow: hidden;
+    }
+    .video-preview-thumbnail:hover {
+        opacity: 0.9;
+    }
+    .video-preview-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 64px;
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        z-index: 2;
+        pointer-events: none;
+    }
+    .video-preview-thumbnail img {
+        position: relative;
+        z-index: 0;
+    }
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal.show {
+        display: block;
+    }
+    .modal-dialog {
+        position: relative;
+        width: auto;
+        margin: 30px auto;
+        max-width: 90%;
+    }
+    .modal-content {
+        position: relative;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    }
+    .modal-header {
+        padding: 15px;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .modal-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
+    }
+    .btn-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+    }
+    .btn-close:hover {
+        color: #333;
+    }
+    .modal-body {
+        padding: 15px;
+    }
+    .modal-footer {
+        padding: 15px;
+        border-top: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="exchange-feed-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h1 style="margin: 0;">{% trans 'Exchange Feed' %}</h1>
+        <button type="button" id="sync-button" class="button default" onclick="triggerSync()" style="padding: 10px 20px; font-size: 14px; white-space: nowrap;">
+            {% trans "Sync Exchange Folders" %}
+        </button>
+    </div>
+    <p class="help">{% trans 'Browse and import content from exchange folders' %}</p>
+    
+    <!-- Statistics -->
+    <div class="stats-row" style="margin-bottom: 20px;">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_items|default:0 }}</div>
+            <div class="stat-label">{% trans 'Total Items' %}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ new_items|default:0 }}</div>
+            <div class="stat-label">{% trans 'New Items' %}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ imported_items|default:0 }}</div>
+            <div class="stat-label">{% trans 'Imported' %}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ oktools_items|default:0 }}</div>
+            <div class="stat-label">{% trans 'OK-Tools Verified' %}</div>
+        </div>
+    </div>
+    
+    <!-- Batch Actions -->
+    <div class="batch-actions" id="batchActions">
+        <strong>{% trans 'Selected items:' %} <span id="selectedCount">0</span></strong>
+        <div style="margin-top: 10px;">
+            <button type="button" class="button" id="importSelectedBtn" onclick="importSelected()">
+                {% trans 'Import Selected' %}
+            </button>
+            <button type="button" class="button" onclick="clearSelection()">
+                {% trans 'Clear Selection' %}
+            </button>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" action="{% url 'austausch:feed' %}" class="form-row">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label for="channel">{% trans 'Channel' %}</label>
+                    <select class="form-control" id="channel" name="channel">
+                        <option value="">{% trans 'All Channels' %}</option>
+                        {% for channel in channels %}
+                        <option value="{{ channel }}" {% if current_channel == channel %}selected{% endif %}>
+                            {{ channel }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="status">{% trans 'Status' %}</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="">{% trans 'All Status' %}</option>
+                        <option value="new" {% if current_status == 'new' %}selected{% endif %}>{% trans 'New' %}</option>
+                        <option value="imported" {% if current_status == 'imported' %}selected{% endif %}>{% trans 'Imported' %}</option>
+                        <option value="failed" {% if current_status == 'failed' %}selected{% endif %}>{% trans 'Failed' %}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="date_from">{% trans 'From Date' %}</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ current_date_from }}">
+                </div>
+                <div>
+                    <label for="search">{% trans 'Search' %}</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="{% trans 'Title, description, author...' %}" value="{{ search }}">
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <div>
+                    <label>
+                        <input type="checkbox" id="oktools_only" name="oktools_only" value="true" {% if oktools_only %}checked{% endif %}>
+                        {% trans 'OK-Tools managed only' %}
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" id="legacy_only" name="legacy_only" value="true" {% if legacy_only %}checked{% endif %}>
+                        {% trans 'Legacy items only' %}
+                    </label>
+                </div>
+                <button type="submit" class="button default">
+                    {% trans 'Filter' %}
+                </button>
+                <a href="{% url 'austausch:feed' %}" class="button">{% trans 'Reset' %}</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Items Grid -->
+    <div class="items-grid">
+        {% for item in exchange_items %}
+        <div class="item-card" data-item-id="{{ item.id }}" data-import-status="{{ item.import_status }}">
+            <input type="checkbox" class="item-checkbox" data-item-id="{{ item.id }}" onchange="updateSelection()">
+            
+            {% if item.file_type == 'video' %}
+            <div class="video-preview-container" onclick="openVideoPlayer({{ item.id }}, '{{ item.filename|escapejs }}')">
+                <div class="video-preview-thumbnail">
+                    {% if item.thumbnail_path %}
+                    <img src="{% url 'austausch:api_download' item.id 'thumbnail' %}" alt="{% trans 'Video thumbnail' %}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                    <span class="play-icon">▶</span>
+                    {% else %}
+                    <span class="play-icon">▶</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% elif item.file_type == 'pdf' %}
+            <div style="width: 100%; height: 150px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                <span style="font-size: 48px;">📄</span>
+            </div>
+            {% endif %}
+            
+            <div class="item-title">
+                {% if item.title %}
+                    {{ item.title }}
+                {% else %}
+                    <span class="text-muted">{% trans 'No title' %}</span>
+                {% endif %}
+            </div>
+            
+            {% if item.description %}
+            <div class="item-description">
+                {{ item.description|linebreaksbr }}
+            </div>
+            {% endif %}
+            
+            {% if item.sendeverantwortung %}
+            <div class="item-author">
+                <strong>{% trans 'Author' %}:</strong> {{ item.sendeverantwortung }}
+            </div>
+            {% endif %}
+            
+            <div class="item-meta">
+                <span>{% if item.contribution_id %}#{{ item.contribution_id }}{% else %}{% trans 'Legacy' %}{% endif %}</span>
+                <span>{{ item.channel }}</span>
+                <span>{{ item.file_type|upper }}</span>
+                {% if item.file_size %}
+                <span>{{ item.file_size|filesizeformat }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="item-actions">
+                {% if item.file_type == 'video' %}
+                <button type="button" class="button" onclick="openVideoPlayer({{ item.id }}, '{{ item.filename|escapejs }}')">
+                    {% trans 'Preview' %}
+                </button>
+                {% endif %}
+                {% if item.import_status == 'new' %}
+                <button type="button" class="button default" onclick="importItem({{ item.id }}, '{{ item.filename|escapejs }}')">
+                    {% trans 'Import' %}
+                </button>
+                {% elif item.import_status == 'imported' %}
+                {% if item.imported_license %}
+                <a href="{% url 'admin:licenses_license_change' item.imported_license.id %}" class="button">
+                    {% trans 'View License' %}
+                </a>
+                {% else %}
+                <span class="button" disabled>{% trans 'Imported' %}</span>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #999;">
+            {% trans 'No exchange items found' %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="paginator" style="margin-top: 30px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if current_channel %}&channel={{ current_channel }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Previous' %}</a>
+        {% endif %}
+        <span class="this-page">{% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if current_channel %}&channel={{ current_channel }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Next' %}</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Video Player Modal -->
+<div class="modal" id="videoPlayerModal" tabindex="-1" aria-labelledby="videoPlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoPlayerModalLabel">{% trans 'Video Preview' %}</h5>
+                <button type="button" class="btn-close" onclick="closeVideoModal()" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="videoPlayerContainer" style="width: 100%;">
+                    <video id="videoPlayer" controls style="width: 100%; height: auto; max-height: 70vh;">
+                        <source id="videoSource" src="" type="video/mp4">
+                        {% trans 'Your browser does not support video playback.' %}
+                    </video>
+                </div>
+                <div id="videoInfo" style="margin-top: 15px;">
+                    <p><strong>{% trans 'Filename' %}:</strong> <span id="videoFilename"></span></p>
+                    <p><strong>{% trans 'Title' %}:</strong> <span id="videoTitle"></span></p>
+                    <p><strong>{% trans 'Author' %}:</strong> <span id="videoAuthor"></span></p>
+                    <p><strong>{% trans 'Size' %}:</strong> <span id="videoSize"></span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button" onclick="closeVideoModal()">{% trans 'Close' %}</button>
+                <button type="button" class="button default" id="importFromModalBtn" onclick="importFromModal()" style="display: none;">
+                    {% trans 'Import' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedItems = new Set();
+let currentVideoItemId = null;
+
+function openVideoPlayer(itemId, filename) {
+    currentVideoItemId = itemId;
+    const videoUrl = '{% url "austausch:api_download" 0 "video" %}'.replace('0', itemId);
+    const modal = document.getElementById('videoPlayerModal');
+    
+    // Get item data from the card
+    const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (!itemCard) {
+        alert('{% trans "Item not found" %}');
+        return;
+    }
+    
+    const titleEl = itemCard.querySelector('.item-title');
+    const title = titleEl ? titleEl.textContent.trim() : '';
+    const authorEl = itemCard.querySelector('.item-author');
+    const author = authorEl ? authorEl.textContent.replace(/{% trans "Author" %}:?/g, '').trim() : '';
+    const sizeEl = itemCard.querySelector('.item-meta');
+    const size = sizeEl ? Array.from(sizeEl.querySelectorAll('span')).map(s => s.textContent).join(' ') : '';
+    const importStatus = itemCard.dataset.importStatus || 'new';
+    
+    // Update modal content
+    document.getElementById('videoSource').setAttribute('src', videoUrl);
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.load();
+    document.getElementById('videoFilename').textContent = filename || '{% trans "Unknown" %}';
+    document.getElementById('videoTitle').textContent = title || '{% trans "No title" %}';
+    document.getElementById('videoAuthor').textContent = author || '{% trans "Unknown" %}';
+    document.getElementById('videoSize').textContent = size || '{% trans "Unknown" %}';
+    
+    // Show/hide import button
+    const importBtn = document.getElementById('importFromModalBtn');
+    if (importStatus === 'new') {
+        importBtn.style.display = 'inline-block';
+    } else {
+        importBtn.style.display = 'none';
+    }
+    
+    // Show modal
+    modal.style.display = 'block';
+    modal.classList.add('show');
+    document.body.classList.add('modal-open');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.id = 'modalBackdrop';
+    backdrop.onclick = closeVideoModal;
+    document.body.appendChild(backdrop);
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('videoPlayerModal');
+    const backdrop = document.getElementById('modalBackdrop');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        document.getElementById('videoSource').setAttribute('src', '');
+        document.getElementById('videoPlayer').load();
+        currentVideoItemId = null;
+    }
+    if (backdrop) {
+        backdrop.remove();
+    }
+}
+
+function importFromModal() {
+    if (currentVideoItemId) {
+        const itemCard = document.querySelector(`[data-item-id="${currentVideoItemId}"]`);
+        const titleEl = itemCard ? itemCard.querySelector('.item-title') : null;
+        const filename = titleEl ? titleEl.textContent.trim() : '';
+        importItem(currentVideoItemId, filename);
+        closeVideoModal();
+    }
+}
+
+// Close modal on backdrop click
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('videoPlayerModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeVideoModal();
+            }
+        });
+    }
+});
+
+function updateSelection() {
+    selectedItems.clear();
+    document.querySelectorAll('.item-checkbox:checked').forEach(cb => {
+        selectedItems.add(parseInt(cb.dataset.itemId));
+    });
+    
+    document.querySelectorAll('.item-card').forEach(card => {
+        const itemId = parseInt(card.dataset.itemId);
+        if (selectedItems.has(itemId)) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    });
+    
+    const batchActions = document.getElementById('batchActions');
+    const selectedCount = document.getElementById('selectedCount');
+    if (selectedItems.size > 0) {
+        batchActions.classList.add('active');
+        selectedCount.textContent = selectedItems.size;
+    } else {
+        batchActions.classList.remove('active');
+    }
+}
+
+function clearSelection() {
+    document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = false);
+    updateSelection();
+}
+
+function triggerSync() {
+    const button = document.getElementById('sync-button');
+    const originalText = button.textContent;
+    
+    // Disable button and show loading
+    button.disabled = true;
+    button.textContent = '{% trans "Syncing..." %}';
+    button.style.opacity = '0.6';
+    
+    fetch('{% url "austausch:api_sync" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Sync started successfully! The sync is running in the background. Please refresh the page in a few moments to see new items." %}');
+            // Optionally reload page after a short delay
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            alert('{% trans "Sync failed: " %}' + (data.error || '{% trans "Unknown error" %}'));
+            button.disabled = false;
+            button.textContent = originalText;
+            button.style.opacity = '1';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{% trans "Error triggering sync: " %}' + error.message);
+        button.disabled = false;
+        button.textContent = originalText;
+        button.style.opacity = '1';
+    });
+}
+
+function importItem(itemId, filename) {
+    if (!confirm('{% trans "Import this item?" %} ' + filename)) {
+        return;
+    }
+    
+    fetch('{% url "austausch:api_import" 0 %}'.replace('0', itemId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Import started successfully!" %}');
+            location.reload();
+        } else if (data.status === 'already_imported') {
+            alert('{% trans "Item has already been imported." %}');
+            location.reload();
+        } else {
+            alert('{% trans "Import failed: " %}' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{% trans "Import failed. Please try again." %}');
+    });
+}
+
+function importSelected() {
+    if (selectedItems.size === 0) {
+        alert('{% trans "Please select items to import" %}');
+        return;
+    }
+    
+    if (!confirm('{% trans "Import" %} ' + selectedItems.size + ' {% trans "selected items?" %}')) {
+        return;
+    }
+    
+    const itemIds = Array.from(selectedItems);
+    fetch('{% url "austausch:api_import_batch" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ item_ids: itemIds }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Import started for" %} ' + data.count + ' {% trans "items" %}');
+            location.reload();
+        } else {
+            alert('{% trans "Import failed: " %}' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{% trans "Import failed. Please try again." %}');
+    });
+}
+</script>
+
+{% endblock %}
+

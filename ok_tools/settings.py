@@ -583,6 +583,12 @@ REGISTRATION_FORM_PDF = get_env('REGISTRATION_FORM_PDF', default='Nutzerkartei.p
 # Registration form type - PDF, HTML, or TEXT
 REGISTRATION_FORM_TYPE = get_env('REGISTRATION_FORM_TYPE', default='PDF')
 
+# Austausch (content exchange) module settings
+AUSTAUSCH_ENABLED = get_env('AUSTAUSCH_ENABLED', default=False, cast=bool)
+
+if AUSTAUSCH_ENABLED:
+    INSTALLED_APPS.append("austausch")
+
 # Nextcloud Calendar integration settings (CalDAV)
 NEXTCLOUD_CALENDAR_ENABLED = get_env('NEXTCLOUD_CALENDAR_ENABLED', default=False, cast=bool)
 
@@ -854,5 +860,9 @@ CELERY_BEAT_SCHEDULE = {
     'cleanup_deleted_nextcloud_videos': {
         'task': 'ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task',
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_DELETED_NEXTCLOUD_VIDEOS', '0 2 * * *'),
+    },
+    'sync_exchange_folders': {
+        'task': 'austausch.tasks.sync_exchange_folders',
+        'schedule': parse_crontab_env('CELERY_BEAT_SYNC_EXCHANGE', '0 2 * * *'),
     },
 }

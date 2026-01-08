@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Exchange Feed' %} - OK Tools{% endblock %}
+{% block page_title %}{% trans 'Exchange Feed' %}{% endblock %}
+
+{% block content %}
+<!-- Header Actions -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h5 class="text-muted">{% trans 'Browse and import content from exchange folders' %}</h5>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'austausch:api_items' %}" class="btn btn-outline-secondary me-2" target="_blank">
+            <i class="bi bi-code-square me-2"></i>{% trans 'API' %}
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="dashboard-card stats-card text-center">
+            <div class="stats-icon info">
+                <i class="bi bi-folder2-open"></i>
+            </div>
+            <div class="stats-number">{{ total_items|default:0 }}</div>
+            <div class="stats-label">{% trans 'Total Items' %}</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="dashboard-card stats-card text-center">
+            <div class="stats-icon warning">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stats-number">{{ new_items|default:0 }}</div>
+            <div class="stats-label">{% trans 'New Items' %}</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="dashboard-card stats-card text-center">
+            <div class="stats-icon success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stats-number">{{ imported_items|default:0 }}</div>
+            <div class="stats-label">{% trans 'Imported' %}</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="dashboard-card stats-card text-center">
+            <div class="stats-icon primary">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="stats-number">{{ oktools_items|default:0 }}</div>
+            <div class="stats-label">{% trans 'OK-Tools Verified' %}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="dashboard-card mb-4">
+    <form method="get" action="{% url 'austausch:feed' %}" class="row g-3">
+        <div class="col-md-3">
+            <label for="channel" class="form-label">{% trans 'Channel' %}</label>
+            <select class="form-select" id="channel" name="channel">
+                <option value="">{% trans 'All Channels' %}</option>
+                {% for channel in channels %}
+                <option value="{{ channel }}" {% if current_channel == channel %}selected{% endif %}>
+                    {{ channel }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="status" class="form-label">{% trans 'Status' %}</label>
+            <select class="form-select" id="status" name="status">
+                <option value="">{% trans 'All Status' %}</option>
+                <option value="new" {% if current_status == 'new' %}selected{% endif %}>{% trans 'New' %}</option>
+                <option value="imported" {% if current_status == 'imported' %}selected{% endif %}>{% trans 'Imported' %}</option>
+                <option value="failed" {% if current_status == 'failed' %}selected{% endif %}>{% trans 'Failed' %}</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="date_from" class="form-label">{% trans 'From Date' %}</label>
+            <input type="date" class="form-control" id="date_from" name="date_from" value="{{ current_date_from }}">
+        </div>
+        <div class="col-md-3">
+            <label for="search" class="form-label">{% trans 'Search' %}</label>
+            <input type="text" class="form-control" id="search" name="search" placeholder="{% trans 'Title, description, filename...' %}" value="{{ search }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-funnel me-2"></i>{% trans 'Filter' %}
+                </button>
+                <a href="{% url 'austausch:feed' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="oktools_only" name="oktools_only" value="true" {% if oktools_only %}checked{% endif %}>
+                <label class="form-check-label" for="oktools_only">
+                    {% trans 'OK-Tools managed only' %}
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="legacy_only" name="legacy_only" value="true" {% if legacy_only %}checked{% endif %}>
+                <label class="form-check-label" for="legacy_only">
+                    {% trans 'Legacy items only' %}
+                </label>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Exchange Items List -->
+<div class="dashboard-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>{% trans 'ID' %}</th>
+                    <th>{% trans 'Filename' %}</th>
+                    <th>{% trans 'Channel' %}</th>
+                    <th>{% trans 'Title' %}</th>
+                    <th>{% trans 'Type' %}</th>
+                    <th>{% trans 'Size' %}</th>
+                    <th>{% trans 'Status' %}</th>
+                    <th>{% trans 'Discovered' %}</th>
+                    <th>{% trans 'Actions' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in exchange_items %}
+                <tr>
+                    <td>
+                        {% if item.contribution_id %}
+                        <span class="badge bg-primary">{{ item.contribution_id }}</span>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <code class="small">{{ item.filename|truncatechars:40 }}</code>
+                    </td>
+                    <td>{{ item.channel }}</td>
+                    <td>
+                        {% if item.title %}
+                        <strong>{{ item.title|truncatechars:50 }}</strong>
+                        {% if item.description %}
+                        <br><small class="text-muted">{{ item.description|truncatechars:60 }}</small>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-muted">{% trans 'No metadata' %}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.file_type == 'video' %}
+                        <span class="badge bg-danger">{% trans 'Video' %}</span>
+                        {% elif item.file_type == 'pdf' %}
+                        <span class="badge bg-warning text-dark">{% trans 'PDF' %}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ item.file_type }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.file_size %}
+                        {{ item.file_size|filesizeformat }}
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.is_oktools_managed %}
+                        <span class="badge bg-success">{% trans 'OK-Tools Verified' %}</span>
+                        {% elif item.is_legacy %}
+                        <span class="badge bg-secondary">{% trans 'Legacy' %}</span>
+                        {% endif %}
+                        <br>
+                        {% if item.import_status == 'new' %}
+                        <span class="badge bg-warning text-dark">{% trans 'New' %}</span>
+                        {% elif item.import_status == 'imported' %}
+                        <span class="badge bg-success">{% trans 'Imported' %}</span>
+                        {% elif item.import_status == 'failed' %}
+                        <span class="badge bg-danger">{% trans 'Failed' %}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <small>{{ item.discovered_at|date:"Y-m-d H:i" }}</small>
+                    </td>
+                    <td>
+                        {% if item.import_status == 'new' %}
+                        <button class="btn btn-sm btn-primary import-btn" data-item-id="{{ item.id }}" data-filename="{{ item.filename }}">
+                            <i class="bi bi-download me-1"></i>{% trans 'Import' %}
+                        </button>
+                        {% elif item.import_status == 'imported' %}
+                        {% if item.imported_license %}
+                        <a href="{% url 'licenses:details' item.imported_license.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-eye me-1"></i>{% trans 'View License' %}
+                        </a>
+                        {% else %}
+                        <span class="badge bg-success">{% trans 'Imported' %}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        {% trans 'No exchange items found' %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="{% trans 'Pagination' %}">
+        <ul class="pagination justify-content-center mt-4">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_channel %}&channel={{ current_channel }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{% trans 'Previous' %}</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">
+                    {% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_channel %}&channel={{ current_channel }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{% trans 'Next' %}</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans 'Import Exchange Item' %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans 'Importing' %}: <strong id="import-filename"></strong></p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                </div>
+                <p class="mt-2 mb-0"><small class="text-muted">{% trans 'This may take a few minutes...' %}</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const importButtons = document.querySelectorAll('.import-btn');
+    const importModal = new bootstrap.Modal(document.getElementById('importModal'));
+    
+    importButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const filename = this.dataset.filename;
+            
+            document.getElementById('import-filename').textContent = filename;
+            importModal.show();
+            
+            // Make API call to import
+            fetch(`{% url 'austausch:api_import' 0 %}`.replace('0', itemId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                importModal.hide();
+                if (data.status === 'success') {
+                    alert('{% trans "Import started successfully!" %}');
+                    location.reload();
+                } else if (data.status === 'already_imported') {
+                    alert('{% trans "Item has already been imported." %}');
+                    location.reload();
+                } else {
+                    alert('{% trans "Import failed: " %}' + (data.error || '{% trans "Unknown error" %}'));
+                }
+            })
+            .catch(error => {
+                importModal.hide();
+                console.error('Error:', error);
+                alert('{% trans "Import failed. Please try again." %}');
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+

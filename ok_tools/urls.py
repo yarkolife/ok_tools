@@ -87,12 +87,18 @@ urlpatterns = [
     path('accessibility-feedback/', accessibility_views.accessibility_feedback, name='accessibility_feedback'),
     path('health/', views.health, name='health'),
     path('prometheus/', include('django_prometheus.urls')),
-        # API Schema and Documentation
-        path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-        # Optional UI:
-        path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-        path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    ]
+    # API Schema and Documentation
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    # Optional UI:
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+]
+
+# Add Austausch URLs if module is enabled
+if getattr(settings, 'AUSTAUSCH_ENABLED', False):
+    urlpatterns.append(
+        path('austausch/', include('austausch.urls', namespace='austausch')),
+    )
 
 # Serve static files in debug mode
 if settings.DEBUG:
