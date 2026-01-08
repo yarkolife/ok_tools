@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-01-07 (Version 3.2.10)
+===========================
+
+* **Admin Interface Fixes**
+  * **Icon Color Fix**: Fixed icon color in admin sidebar and index page
+    * Replaced CSS variable with explicit white color (#fff) for better compatibility
+    * Ensures icons are always visible regardless of theme settings
+    * Applied !important flag to prevent theme overrides
+
 2026-01-07 (Version 3.2.9)
 ==========================
 
