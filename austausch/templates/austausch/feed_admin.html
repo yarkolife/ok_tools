@@ -181,10 +181,16 @@
         left: 50%;
         transform: translate(-50%, -50%);
         font-size: 64px;
-        color: rgba(255, 255, 255, 0.95);
+        color: rgba(255, 255, 255, 0.95) !important;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         z-index: 2;
         pointer-events: none;
+        /* Ensure Unicode triangle character is displayed correctly */
+        font-family: "Segoe UI Symbol", "Apple Color Emoji", "Segoe UI Emoji", system-ui, -apple-system, "Arial Unicode MS", monospace, sans-serif !important;
+        font-style: normal !important;
+        font-weight: normal !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     .video-preview-thumbnail img {
         position: relative;
