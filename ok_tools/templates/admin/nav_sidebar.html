@@ -147,10 +147,14 @@
   background: none !important;
   background-image: none !important;
   border: none !important;
-  /* Ensure Unicode character is displayed */
-  font-family: system-ui, -apple-system, sans-serif !important;
+  /* Ensure Unicode character is displayed with explicit font */
+  /* Use monospace fallback to ensure consistent triangle rendering */
+  font-family: "Segoe UI Symbol", "Apple Color Emoji", "Segoe UI Emoji", system-ui, -apple-system, "Arial Unicode MS", monospace, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent font inheritance from parent elements */
+  font-style: normal !important;
+  font-weight: normal !important;
   /* Hide any potential images from Django admin */
   text-indent: 0 !important;
   overflow: visible !important;

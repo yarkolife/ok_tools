@@ -64,6 +64,13 @@
         display: inline-block;
         text-align: center;
         flex-shrink: 0;
+        /* Ensure Unicode character is displayed with explicit font */
+        /* Use monospace fallback to ensure consistent triangle rendering */
+        font-family: "Segoe UI Symbol", "Apple Color Emoji", "Segoe UI Emoji", system-ui, -apple-system, "Arial Unicode MS", monospace, sans-serif !important;
+        font-style: normal !important;
+        font-weight: normal !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     .collapsible-app-toggle.expanded {
