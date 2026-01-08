@@ -9,7 +9,9 @@
     {% for app in available_apps %}
       <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}" data-app-label="{{ app.app_label }}">
         <div class="collapsible-app-header" data-app-toggle="{{ app.app_label }}">
-          <span class="collapsible-app-toggle">▶</span>
+          <svg class="collapsible-app-toggle" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0; margin-right: 8px;">
+            <path d="M3 2 L7 5 L3 8 Z" fill="#ffffff" stroke="none"/>
+          </svg>
           <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
         </div>
         <table>
@@ -96,6 +98,12 @@
   position: relative;
 }
 
+/* Ensure toggle doesn't inherit color from header */
+.collapsible-app-header > .collapsible-app-toggle {
+  color: #ffffff !important;
+  color: rgb(255, 255, 255) !important;
+}
+
 /* Override any Django admin icons that might be added */
 #nav-sidebar .collapsible-app-header::before,
 #nav-sidebar .collapsible-app-header::after {
@@ -132,32 +140,26 @@
   font-size: 0.75rem;
 }
 
+/* SVG triangle icon - white, no container */
 .collapsible-app-toggle {
+  width: 15px;
+  height: 15px;
   margin-right: 8px;
-  font-size: 10px;
-  line-height: 1;
-  transition: transform 0.3s ease;
-  color: #fff !important;
-  width: 14px;
-  height: 14px;
   display: inline-block !important;
-  text-align: center;
   flex-shrink: 0;
-  /* Force text rendering, prevent image replacement */
+  vertical-align: middle;
+  transition: transform 0.3s ease;
   background: none !important;
-  background-image: none !important;
   border: none !important;
-  /* Ensure Unicode character is displayed with explicit font */
-  /* Use monospace fallback to ensure consistent triangle rendering */
-  font-family: "Segoe UI Symbol", "Apple Color Emoji", "Segoe UI Emoji", system-ui, -apple-system, "Arial Unicode MS", monospace, sans-serif !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* Prevent font inheritance from parent elements */
-  font-style: normal !important;
-  font-weight: normal !important;
-  /* Hide any potential images from Django admin */
-  text-indent: 0 !important;
-  overflow: visible !important;
+  padding: 0 !important;
+}
+
+.collapsible-app-toggle path {
+  fill: #ffffff !important;
+}
+
+.collapsible-app-toggle.expanded {
+  transform: rotate(90deg);
 }
 
 /* Hide any background images that Django admin might add */
@@ -165,12 +167,83 @@
 #nav-sidebar .collapsible-app-toggle::after {
   display: none !important;
   content: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure no background or border from any parent selectors */
+#nav-sidebar .collapsible-app-toggle,
+#nav-sidebar .collapsible-app-header .collapsible-app-toggle,
+.collapsible-app-header .collapsible-app-toggle,
+#nav-sidebar .module .collapsible-app-toggle,
+.module .collapsible-app-header .collapsible-app-toggle,
+#nav-sidebar .module .collapsible-app-header .collapsible-app-toggle {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 8px 0 0 !important;
+  /* Remove any rounded corners or visual container */
+  border-radius: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  /* Ensure it's just text */
+  line-height: 1 !important;
+  vertical-align: baseline !important;
+}
+
+/* Override any styles from parent .collapsible-app-header */
+#nav-sidebar .collapsible-app-header::before,
+#nav-sidebar .collapsible-app-header::after {
+  display: none !important;
+  content: none !important;
   background: none !important;
+  background-image: none !important;
+}
+
+/* Ensure SVG is properly styled */
+#nav-sidebar svg.collapsible-app-toggle,
+#nav-sidebar .module svg.collapsible-app-toggle,
+#nav-sidebar .collapsible-app-header svg.collapsible-app-toggle,
+#nav-sidebar .module .collapsible-app-header svg.collapsible-app-toggle {
+  width: 15px !important;
+  height: 15px !important;
+  margin-right: 8px !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  vertical-align: middle !important;
+  transition: transform 0.3s ease !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Make sure parent doesn't add visual styling to toggle */
+#nav-sidebar .collapsible-app-header {
+  /* Don't style toggle as part of header */
+  background: var(--secondary) !important;
   background-image: none !important;
 }
 
 .collapsible-app-toggle.expanded {
   transform: rotate(90deg);
+}
+
+/* SVG path fill - ensure white color */
+#nav-sidebar .collapsible-app-toggle path,
+.collapsible-app-toggle path {
+  fill: #ffffff !important;
 }
 
 .collapsible-app-header .section,
