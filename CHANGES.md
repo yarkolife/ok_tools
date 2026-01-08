@@ -4,6 +4,35 @@ CHANGELOG
 2026-01-07 (Version 3.2.10)
 ===========================
 
+* **Admin Interface Improvements**
+  * **Icon Font Rendering**: Improved icon font rendering in admin sidebar and index page
+    * Added explicit font family stack for better Unicode character support
+    * Included monospace fallback for consistent triangle rendering
+    * Added font-style and font-weight normalization
+    * Improved cross-platform compatibility (Windows, macOS, Linux)
+
+* **Content Exchange Module Enhancements**
+  * **Filename Normalization**: Added comprehensive filename normalization for exchange imports
+    * German umlaut support: ü->ue, ä->ae, ö->oe, ß->ss
+    * Normalize non-ASCII characters using Unicode decomposition
+    * Sanitize filenames for filesystem compatibility
+    * Remove or replace invalid filesystem characters
+    * Remove multiple consecutive underscores
+  * **Error Handling Improvements**: Enhanced error handling in ExchangeImport admin
+    * Added error message display in ExchangeImport admin list
+    * Error messages truncated to 100 characters with full message in tooltip
+    * Red color styling for error visibility
+  * **Statistics Improvements**: Improved exchange feed statistics
+    * Statistics now only count video items (matching queryset filter)
+    * Added failed items counter to exchange feed statistics
+    * Failed count displayed with red color for visibility
+  * **Play Icon Rendering**: Improved play icon rendering in exchange feed template
+    * Added !important flag to play icon color for better visibility
+    * Added explicit font family stack for Unicode triangle character
+    * Included monospace fallback for consistent rendering
+    * Added font-style and font-weight normalization
+    * Improved cross-platform compatibility
+
 * **Admin Interface Fixes**
   * **Icon Color Fix**: Fixed icon color in admin sidebar and index page
     * Replaced CSS variable with explicit white color (#fff) for better compatibility

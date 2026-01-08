@@ -66,6 +66,34 @@
         border-color: #007cba;
         background: #f0f8ff;
     }
+    .item-card.imported {
+        border-color: #28a745;
+        border-width: 2px;
+    }
+    .import-status-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background-color: #28a745;
+        border-radius: 50%;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        margin-right: 8px;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+    .item-title {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+        line-height: 1.4;
+    }
     .item-checkbox {
         position: absolute;
         top: 10px;
@@ -85,13 +113,6 @@
     .item-checkbox:checked {
         background-color: #007cba;
         border-color: #007cba;
-    }
-    .item-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #333;
-        line-height: 1.4;
     }
     .item-description {
         color: #666;
@@ -379,7 +400,7 @@
     <!-- Items Grid -->
     <div class="items-grid">
         {% for item in exchange_items %}
-        <div class="item-card" data-item-id="{{ item.id }}" data-import-status="{{ item.import_status }}">
+        <div class="item-card {% if item.import_status == 'imported' %}imported{% endif %}" data-item-id="{{ item.id }}" data-import-status="{{ item.import_status }}">
             <input type="checkbox" class="item-checkbox" data-item-id="{{ item.id }}" onchange="updateSelection()">
             
             {% if item.file_type == 'video' %}
@@ -396,11 +417,16 @@
             {% endif %}
             
             <div class="item-title">
-                {% if item.title %}
-                    {{ item.title }}
-                {% else %}
-                    <span class="text-muted">{% trans 'No title' %}</span>
+                {% if item.import_status == 'imported' %}
+                <span class="import-status-icon" title="{% trans 'Imported' %}">✓</span>
                 {% endif %}
+                <span style="flex: 1;">
+                    {% if item.title %}
+                        {{ item.title }}
+                    {% else %}
+                        <span class="text-muted">{% trans 'No title' %}</span>
+                    {% endif %}
+                </span>
             </div>
             
             {% if item.description %}
