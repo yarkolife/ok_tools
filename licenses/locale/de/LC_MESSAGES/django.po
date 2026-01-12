@@ -76,7 +76,7 @@ msgid "Repetitions allowed"
 msgstr "Wiederholungen erlaubt"
 
 msgid "Media Authority exchange allowed"
-msgstr "Medienanstalten-Übertragung erlaubt"
+msgstr "OK-/Bürgermedien-Austausch erlaubt"
 
 msgid "Youth protection necessary"
 msgstr "Jugendschutz notwendig"
@@ -217,7 +217,7 @@ msgid "Digital Signature"
 msgstr "Digitale Signatur"
 
 msgid "Media Authority"
-msgstr "Medienanstalt"
+msgstr "Offener Kanal/Bürgermedium"
 
 msgid "Confirm selected Licenses"
 msgstr "Ausgewählte Freistellungen genehmigen"
@@ -472,11 +472,11 @@ msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
 msgid "Media Authority exchange allowed in Saxony-Anhalt"
-msgstr "Medienanstalt-Austausch erlaubt in Sachsen-Anhalt"
+msgstr "Austausch zwischen Offenen Kanälen/Bürgermedien in Sachsen-Anhalt erlaubt"
 
 msgid "Media Authority exchange allowed in other states than Saxony-Anhalt."
 msgstr ""
-"Medienanstalt-Austausch erlaubt in anderen Bundesländern als Sachsen-Anhalt."
+"Austausch zwischen Offenen Kanälen/Bürgermedien außerhalb Sachsen-Anhalts erlaubt"
 
 msgid "Youth protection category"
 msgstr "Jugendschutzkategorie"
@@ -661,14 +661,13 @@ msgid ""
 "Media authority identifier. Used as fallback if senderResponsible profile is "
 "not found."
 msgstr ""
-"Medienanstalt-Kennung. Wird als Fallback verwendet, wenn das "
-"senderResponsible-Profil nicht gefunden wird."
+"Kennung des Offenen Kanals/Bürgermediums. Wird als Fallback verwendet, wenn das senderResponsible-Profil nicht gefunden wird."
 
 msgid "Category mapping:"
-msgstr "Kategoriezuordnung:"
+msgstr "Kategorie-Zuordnung:"
 
 msgid "Media Authority mapping:"
-msgstr "Medienanstalt-Zuordnung:"
+msgstr "OK-/Bürgermedien-Zuordnung:"
 
 msgid "Print license"
 msgstr "Freistellung drucken"

@@ -100,7 +100,7 @@ msgid "Data export"
 msgstr "Datenexport"
 
 msgid "Media Authority"
-msgstr "Medienanstalt"
+msgstr "Offener Kanal/Bürgermedium"
 
 msgid "All"
 msgstr "Alle"
