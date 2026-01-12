@@ -234,6 +234,8 @@ graph TB
 - **Key Features**:
   - Event planning
   - Schedule management
+  - Manual and automatic time positioning with overlap protection
+  - Multi-day video support with day offset display
 
 ---
 

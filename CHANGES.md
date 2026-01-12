@@ -1,6 +1,24 @@
 CHANGELOG
 =========
 
+2026-01-12 (Version 3.2.11)
+===========================
+
+* **Planning Module (Planung) Enhancements**
+  * **Manual Time Setting Improvements**: Enhanced manual time setting with overlap protection
+    * Strict mode: Manual time settings are preserved and not auto-adjusted
+    * Added overlap validation to prevent videos from overlapping when manually positioned
+    * Videos cannot start before the previous video ends (even in manual mode)
+    * Visual indicator (light blue background) for manually set times
+  * **Multi-Day Video Support**: Added support for videos extending beyond midnight
+    * End times now display day offset when video extends to next day (e.g., "02:00:00 (+1 day)")
+    * Day offset shown in small gray text below the time (similar to seconds display)
+    * Proper handling of videos longer than the broadcast block
+    * Correct time calculation across day boundaries
+  * **German Translations**: Added German translations for new messages
+    * "day" → "Tag"
+    * Overlap warning messages in German
+
 2026-01-07 (Version 3.2.10)
 ===========================
 

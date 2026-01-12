@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 3.2.10
+**Current Version**: 3.2.11
 **Last Updated**: January 2026
 
 Features
@@ -45,6 +45,8 @@ Features
   - Daily broadcast plan management (TagesPlan)
   - Calendar week view
   - License integration for broadcast planning
+  - Manual and automatic time positioning with overlap protection
+  - Multi-day video support with day offset display
   - Draft and planned status tracking
   - Time extraction from license data
   - JSON-based plan storage with comments

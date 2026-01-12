@@ -89,3 +89,9 @@ msgstr "Startzeit kann nicht früher als die Endzeit des vorherigen Elements sei
 
 msgid "Start time would cause overlap with the next item. Adjusted to %(time)s."
 msgstr "Startzeit würde eine Überlappung mit dem nächsten Element verursachen. Angepasst auf %(time)s."
+
+msgid "day"
+msgstr "Tag"
+
+msgid "Start time would cause overlap with another video. Adjusted to %(time)s."
+msgstr "Startzeit würde eine Überlappung mit einem anderen Video verursachen. Angepasst auf %(time)s."

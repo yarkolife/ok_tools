@@ -57,10 +57,16 @@
 
     // Convert seconds to HH:MM:SS format
     function secondsToTimeString(seconds) {
-      const h = Math.floor(seconds / 3600);
+      const days = Math.floor(seconds / 86400);
+      const h = Math.floor((seconds % 86400) / 3600);
       const m = Math.floor((seconds % 3600) / 60);
       const s = seconds % 60;
       return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+    }
+
+    // Get day offset from seconds (0 = same day, 1 = next day, etc.)
+    function getDayOffset(seconds) {
+      return Math.floor(seconds / 86400);
     }
 
     // Convert seconds to HH:MM format (for display without seconds)
@@ -159,8 +165,8 @@
         let startWithSeconds;
         
         if (isManualTime) {
-          // Manual time mode: use the time exactly as set by user
-          // Check if internal-time is already set (with seconds), otherwise use desired-time
+          // Manual time mode: use the time exactly as set by user (STRICT MODE)
+          // Do NOT recalculate or adjust the time
           const internalTime = getInternalTime($input);
           if (internalTime && internalTime.includes(':') && (internalTime.match(/:/g) || []).length === 2) {
             // Internal time already has seconds (HH:MM:SS format)
@@ -233,19 +239,23 @@
         })();
 
         const endSec = startSec + duration;
-        $row.find('.end-time').text(secondsToTimeString(endSec));
+        const endTimeString = secondsToTimeString(endSec);
+        const endDayOffset = getDayOffset(endSec);
+        
+        // Update end time display with day offset if needed
+        let endTimeHTML = endTimeString;
+        if (endDayOffset > 0) {
+          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+        }
+        $row.find('.end-time').html(endTimeHTML);
 
         if (plannedItems[idx]) {
           plannedItems[idx].start = startWithSeconds;
         }
 
-        // Only update currentEndSec if not in manual mode or if video is within block
-        if (!isManualTime || (startSec >= blockStart && startSec < blockEnd)) {
-          currentEndSec = Math.max(currentEndSec, endSec);
-        } else if (isManualTime && endSec > currentEndSec) {
-          // For manual mode outside block, still track the latest end time for next auto items
-          currentEndSec = endSec;
-        }
+        // Update currentEndSec to track the latest end time
+        // (used for positioning next auto-mode videos)
+        currentEndSec = Math.max(currentEndSec, endSec);
       });
 
       updateRemainingTime();
@@ -289,11 +299,17 @@
       return aligned;
     }
 
-    // Calculate end time for display (with seconds)
+    // Calculate end time for display (with seconds and day offset if needed)
     function calculateEndTime(startTime, durationSeconds) {
       const startSec = timeToSeconds(startTime);
       const endSec = startSec + durationSeconds;
-      return secondsToTimeString(endSec);
+      const endTimeString = secondsToTimeString(endSec);
+      const endDayOffset = getDayOffset(endSec);
+      
+      if (endDayOffset > 0) {
+        return endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+      }
+      return endTimeString;
     }
 
     // Display block duration on page load
@@ -414,8 +430,14 @@
           const startSec = timeToSeconds(startStr);
           const endSec = startSec + duration;
           
-          // Update end time display
-          $row.find('.end-time').text(secondsToTimeString(endSec));
+          // Update end time display with day offset if needed
+          const endTimeString = secondsToTimeString(endSec);
+          const endDayOffset = getDayOffset(endSec);
+          let endTimeHTML = endTimeString;
+          if (endDayOffset > 0) {
+            endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+          }
+          $row.find('.end-time').html(endTimeHTML);
           
           videoItems.push({
             start: startSec,
@@ -825,6 +847,45 @@
       recalculateSchedule();
     });
 
+    // Check if video overlaps with any other video
+    function checkVideoOverlap($input, startSec, duration) {
+      const $currentRow = $input.closest('tr');
+      const endSec = startSec + duration;
+      
+      let hasOverlap = false;
+      let conflictVideo = null;
+      
+      $('#licenseTable tbody tr:not(.gap-row)').each(function() {
+        const $row = $(this);
+        if ($row[0] === $currentRow[0]) {
+          return; // Skip current row
+        }
+        
+        const $rowInput = $row.find('.start-time-input');
+        const rowStartStr = getInternalTime($rowInput);
+        if (!rowStartStr) return;
+        const rowStartSec = timeToSeconds(rowStartStr);
+        
+        const rowDurationText = $row.find('td').eq(5).text();
+        const [mins, secs] = rowDurationText.split(':').map(Number);
+        const rowDuration = mins * 60 + secs;
+        const rowEndSec = rowStartSec + rowDuration;
+        
+        // Check for overlap: current video starts before other ends AND current ends after other starts
+        if (startSec < rowEndSec && endSec > rowStartSec) {
+          hasOverlap = true;
+          conflictVideo = {
+            startSec: rowStartSec,
+            endSec: rowEndSec,
+            $row: $row
+          };
+          return false; // break
+        }
+      });
+      
+      return { hasOverlap, conflictVideo };
+    }
+
     // Validate time conflicts when user finishes editing
     $('#licenseTable').on('blur', '.start-time-input', function () {
       const $input = $(this);
@@ -841,39 +902,23 @@
         $input.val(normalized);
       }
 
-      // Validate that time doesn't cause overlaps with other items
-      const newStartSec = timeToSeconds(normalized + ':00');
-      const allowedRange = getAllowedStartTimeRange($input, newStartSec);
-      
       // Get current row's duration for overlap check
       const $currentRow = $input.closest('tr');
       const currentDurationText = $currentRow.find('td').eq(5).text();
       const [currentMins, currentSecs] = currentDurationText.split(':').map(Number);
       const currentDuration = currentMins * 60 + currentSecs;
+
+      // Validate that time doesn't cause overlaps with other items
+      const newStartSec = timeToSeconds(normalized + ':00');
       
-      // Check for overlaps and calculate adjusted time
-      let needsAdjustment = false;
-      let adjustedStartSec = newStartSec;
-      let adjustmentReason = '';
+      // Check for overlaps
+      const overlapCheck = checkVideoOverlap($input, newStartSec, currentDuration);
       
-      // If maxStart < minStart, there's no valid range (video is too long to fit)
-      // In this case, use minStart as the only valid position
-      const effectiveMaxStart = Math.max(allowedRange.maxStart, allowedRange.minStart);
-      
-      if (newStartSec < allowedRange.minStart) {
-        // Too early - before previous item ends
-        needsAdjustment = true;
-        adjustedStartSec = allowedRange.minStart;
-        adjustmentReason = gettext('Start time cannot be earlier than the end time of the previous item. Adjusted to %(time)s.').replace('%(time)s', secondsToTimeString(adjustedStartSec));
-      } else if (newStartSec > effectiveMaxStart) {
-        // Too late - would overlap with next item
-        needsAdjustment = true;
-        adjustedStartSec = effectiveMaxStart;
-        adjustmentReason = gettext('Start time would cause overlap with the next item. Adjusted to %(time)s.').replace('%(time)s', secondsToTimeString(adjustedStartSec));
-      }
-      
-      if (needsAdjustment) {
-        // Adjust to valid time
+      if (overlapCheck.hasOverlap) {
+        // Find nearest non-overlapping position
+        const conflictEndSec = overlapCheck.conflictVideo.endSec;
+        const adjustedStartSec = conflictEndSec; // Start right after the conflicting video
+        
         const adjustedTimeWithSeconds = secondsToTimeString(adjustedStartSec);
         const adjustedDisplay = secondsToTimeStringShort(adjustedStartSec);
         
@@ -881,19 +926,20 @@
         $input.val(adjustedDisplay);
         setDesiredTime($input, adjustedDisplay);
         
-        // Update internal time with seconds (HH:MM:SS) - this must be set before recalculateSchedule
+        // Update internal time with seconds (HH:MM:SS)
         $input.data('internal-time', adjustedTimeWithSeconds);
         $input.siblings('.time-with-seconds').text(adjustedTimeWithSeconds);
         
-        // Mark as manual time before alert
+        // Mark as manual time
         $input.data('manual-time', true);
         
+        const adjustmentReason = gettext('Start time would cause overlap with another video. Adjusted to %(time)s.').replace('%(time)s', adjustedDisplay);
         alert(adjustmentReason);
         
         // Recalculate after alert to ensure everything is updated
         recalculateSchedule();
       } else {
-        // Time is valid, but ensure internal time is set correctly
+        // Time is valid, set internal time
         const newStartTimeWithSeconds = secondsToTimeString(newStartSec);
         $input.data('internal-time', newStartTimeWithSeconds);
         $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds);
@@ -1021,8 +1067,14 @@
         $input.data('manual-time', false); // Auto-aligned items are not manual
         setDesiredTime($input, newStartTimeDisplay);
         $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds); // Update time display
-        const endTime = calculateEndTime(newStartTimeWithSeconds, video.duration);
-        video.$row.find('.end-time').text(endTime);
+        const endSec = finalPos + video.duration;
+        const endTimeString = secondsToTimeString(endSec);
+        const endDayOffset = getDayOffset(endSec);
+        let endTimeHTML = endTimeString;
+        if (endDayOffset > 0) {
+          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+        }
+        video.$row.find('.end-time').html(endTimeHTML);
         
         // Move position forward for next video
         currentPos = finalPos + video.duration;
@@ -1291,9 +1343,15 @@
         $input.data('manual-time', false); // Auto-positioned items are not manual
         $input.siblings('.time-with-seconds').text(newStartTimeWithSeconds); // Update time display
         
-        // Update end time display
+        // Update end time display with day offset if needed
         const endSec = roundedPos + duration;
-        $row.find('.end-time').text(secondsToTimeString(endSec));
+        const endTimeString = secondsToTimeString(endSec);
+        const endDayOffset = getDayOffset(endSec);
+        let endTimeHTML = endTimeString;
+        if (endDayOffset > 0) {
+          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+        }
+        $row.find('.end-time').html(endTimeHTML);
         
         // Move position forward
         currentPos = endSec;
