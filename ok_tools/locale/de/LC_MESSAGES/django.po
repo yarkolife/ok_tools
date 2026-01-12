@@ -1261,7 +1261,7 @@ msgid "Target channel identifier (e.g., \"@ok_dessau@lokalmedial.de\")"
 msgstr "Zielkanal-Kennung (z. B. „@ok_dessau@lokalmedial.de“)"
 
 msgid "Media Authorities"
-msgstr "Medienanstalten"
+msgstr "Offene Kanäle/Bürgermedien"
 
 msgid "not given"
 msgstr "nicht angegeben"
