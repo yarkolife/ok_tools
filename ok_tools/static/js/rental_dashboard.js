@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Load filter options
             this.loadFilterOptions();
 
+            // Load active requests list
+            this.loadUserActiveRequests();
+
             // Check if dates are already selected and load inventory
             if (this.isPeriodSelected()) {
                 this.loadInventory();
@@ -167,6 +170,61 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.showRentalDetails(type);
                 });
             });
+        }
+
+        async loadUserActiveRequests() {
+            const container = document.getElementById('userActiveRequests');
+            if (!container) return;
+
+            try {
+                const resp = await fetch(`${URLS.userRentalDetails}?type=active`);
+                if (!resp.ok) {
+                    throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+                }
+
+                const data = await resp.json();
+                if (!data.success) {
+                    throw new Error(data.error || 'Unknown error');
+                }
+
+                const rentals = (data.rentals || []).filter(rental => {
+                    const status = (rental.status || '').toLowerCase();
+                    return status === 'draft' || status === 'reserved';
+                });
+                if (!rentals.length) {
+                    container.innerHTML = `<div class="text-muted">${container.dataset.labelNoActive || gettext('No active rentals')}</div>`;
+                    return;
+                }
+
+                const labelRequest = container.dataset.labelRequest || gettext('Request');
+                const labelStatus = container.dataset.labelStatus || gettext('Status');
+                const labelPeriod = container.dataset.labelPeriod || gettext('Period');
+                const labelItems = container.dataset.labelItems || gettext('Items');
+                const labelRooms = container.dataset.labelRooms || gettext('Rooms');
+
+                const rows = rentals.map(rental => {
+                    const status = rental.status_display || rental.status || '';
+                    const start = rental.requested_start_date ? new Date(rental.requested_start_date).toLocaleString() : '-';
+                    const end = rental.requested_end_date ? new Date(rental.requested_end_date).toLocaleString() : '-';
+                    const itemsCount = (rental.items || []).length;
+                    const roomsCount = (rental.room_rentals || []).length;
+                    return `
+                        <div class="border rounded p-2 mb-2 bg-light">
+                            <div class="fw-semibold">
+                                ${labelRequest} #${rental.id}: ${rental.project_name || ''}
+                            </div>
+                            <div>${labelStatus}: ${status}</div>
+                            <div>${labelPeriod}: ${start} – ${end}</div>
+                            <div>${labelItems}: ${itemsCount} • ${labelRooms}: ${roomsCount}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = rows;
+            } catch (error) {
+                console.error('Error loading active requests:', error);
+                container.innerHTML = `<div class="text-muted">${container.dataset.labelNoActive || gettext('No active rentals')}</div>`;
+            }
         }
 
         async showRentalDetails(type) {

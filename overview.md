@@ -35,6 +35,11 @@
 - **Scalable**: Uses Celery for asynchronous task processing
 - **Monitored**: Integrated Prometheus metrics and JSON logging
 
+### Recent Updates
+
+- **Rental emails**: HTML templates with booking details and user-facing links
+- **User rentals**: New user request detail page and improved request visibility
+
 ---
 
 ## System Architecture (C4 Model)

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Your rental request" %} - OK Tools{% endblock %}
+{% block page_title %}{% trans "Your rental request" %}{% endblock %}
+
+{% block content %}
+{% if error %}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    </div>
+{% elif rental %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h4 class="mb-1">{{ rental.project_name }}</h4>
+                    <div class="text-muted mb-2">{{ rental.purpose }}</div>
+                    <div class="text-muted">
+                        <i class="bi bi-calendar me-1"></i>
+                        {{ rental.requested_start_date|date:"d.m.Y H:i" }} – {{ rental.requested_end_date|date:"d.m.Y H:i" }}
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-secondary">
+                        {% if rental.status == 'reserved' %}{% trans "Reserved" %}
+                        {% elif rental.status == 'issued' %}{% trans "Issued" %}
+                        {% elif rental.status == 'returned' %}{% trans "Returned" %}
+                        {% elif rental.status == 'cancelled' %}{% trans "Cancelled" %}
+                        {% elif rental.status == 'draft' %}{% trans "Pending approval" %}
+                        {% else %}{{ rental.status }}{% endif %}
+                    </span>
+                    <div class="small text-muted mt-1">ID: {{ rental.id }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>{% trans "Equipment" %}</strong> ({{ rental.items.count }} {% trans "items" %})
+        </div>
+        <div class="card-body">
+            {% if rental.items.all %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Item" %}</th>
+                                <th>{% trans "Quantity requested" %}</th>
+                                <th>{% trans "Quantity issued" %}</th>
+                                <th>{% trans "Quantity returned" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in rental.items.all %}
+                            <tr>
+                                <td>
+                                    {{ item.inventory_item.description|default:item.inventory_item.inventory_number }}
+                                    <div class="small text-muted">{{ item.inventory_item.inventory_number }}</div>
+                                </td>
+                                <td>{{ item.quantity_requested }}</td>
+                                <td>{{ item.quantity_issued|default:0 }}</td>
+                                <td>{{ item.quantity_returned|default:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-muted">{% trans "No equipment items." %}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong>{% trans "Rooms" %}</strong> ({{ rental.room_rentals.count }} {% trans "rooms" %})
+        </div>
+        <div class="card-body">
+            {% if rental.room_rentals.all %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Room" %}</th>
+                                <th>{% trans "People" %}</th>
+                                <th>{% trans "Period" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for room_rental in rental.room_rentals.all %}
+                            <tr>
+                                <td>{{ room_rental.room.name }}</td>
+                                <td>{{ room_rental.people_count }}</td>
+                                <td>
+                                    {{ room_rental.get_start_date|date:"d.m.Y H:i" }} – {{ room_rental.get_end_date|date:"d.m.Y H:i" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-muted">{% trans "No rooms." %}</div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

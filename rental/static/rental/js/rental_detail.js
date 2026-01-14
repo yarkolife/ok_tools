@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     extendRental: dataElement.dataset.extendUrl || '',
                     returnItems: dataElement.dataset.returnUrl || '',
                     cancelRental: dataElement.dataset.cancelUrl || '',
+                    confirmRental: dataElement.dataset.confirmUrl || '',
                     issueFromReservation: dataElement.dataset.issueFromReservationUrl || '',
                     getStaffUsers: dataElement.dataset.getStaffUsersUrl || '',
                     searchInventory: dataElement.dataset.searchInventoryUrl || ''
@@ -73,6 +74,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Cancel button
             const cancelBtn = document.getElementById('cancelBtn');
             if (cancelBtn) cancelBtn.addEventListener('click', this.cancelRental.bind(this));
+
+            // Confirm button
+            const confirmBtn = document.getElementById('confirmBtn');
+            if (confirmBtn) confirmBtn.addEventListener('click', this.confirmRental.bind(this));
 
             // Issue from Reservation button
             const issueFromReservationBtn = document.getElementById('issueFromReservationBtn');
@@ -143,6 +148,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 returnBtn.disabled = false; // Allow clicking even without selection
                 returnBtn.className = 'btn btn-outline-success';
                 returnBtn.innerHTML = '<i class="fas fa-save me-1"></i>' + gettext('Save return');
+            }
+        }
+
+        async confirmRental() {
+            if (!this.urls.confirmRental) {
+                alert(gettext('Confirm action is not available.'));
+                return;
+            }
+
+            if (!confirm(gettext('Confirm this request?'))) {
+                return;
+            }
+
+            try {
+                const resp = await fetch(this.urls.confirmRental, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.csrfToken,
+                    },
+                    body: JSON.stringify({
+                        rental_id: this.rentalId,
+                    })
+                });
+
+                const data = await resp.json();
+                if (!resp.ok || !data.success) {
+                    throw new Error(data.error || 'Unknown error');
+                }
+
+                location.reload();
+            } catch (error) {
+                console.error('Error confirming rental:', error);
+                alert(gettext('Error confirming request: ') + error.message);
             }
         }
 

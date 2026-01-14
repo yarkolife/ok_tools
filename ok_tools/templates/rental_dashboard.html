@@ -84,6 +84,24 @@
                     </div>
                 </div>
 
+                <div class="workflow-step p-3 rounded mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-receipt text-secondary me-2"></i>
+                        <strong>{% trans "Your requests" %}</strong>
+                    </div>
+                    <div
+                        id="userActiveRequests"
+                        data-label-no-active="{% trans 'No active requests' %}"
+                        data-label-request="{% trans 'Request' %}"
+                        data-label-status="{% trans 'Status' %}"
+                        data-label-period="{% trans 'Period' %}"
+                        data-label-items="{% trans 'Items' %}"
+                        data-label-rooms="{% trans 'Rooms' %}"
+                    >
+                        <small class="text-muted">{% trans "Loading..." %}</small>
+                    </div>
+                </div>
+
                 <!-- Step 2: Project Info -->
                 <div class="workflow-step p-3 rounded mb-3">
                     <div class="d-flex align-items-center mb-2">

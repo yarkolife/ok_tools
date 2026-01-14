@@ -610,7 +610,7 @@ def api_get_user_stats(request, user_id):
     """
     from django.utils import timezone
     user = get_object_or_404(OKUser, id=user_id)
-    active_rentals = RentalRequest.objects.filter(user=user, status__in=['reserved', 'issued']).count()
+    active_rentals = RentalRequest.objects.filter(user=user, status__in=['draft', 'reserved', 'issued']).count()
     completed_rentals = RentalRequest.objects.filter(user=user, status='returned').count()
     overdue_rentals = RentalRequest.objects.filter(user=user, status='issued', requested_end_date__lt=timezone.now()).count()
     recent_activities = RentalRequest.objects.filter(user=user).order_by('-created_at')[:5]
@@ -1069,6 +1069,7 @@ def api_get_user_rental_details_by_id(request, user_id=None):
             'project_name': rental.project_name,
             'purpose': rental.purpose,
             'status': rental.status,
+            'status_display': rental.get_status_display(),
             'requested_start_date': rental.requested_start_date.isoformat() if rental.requested_start_date else None,
             'requested_end_date': rental.requested_end_date.isoformat() if rental.requested_end_date else None,
             'actual_start_date': rental.actual_start_date.isoformat() if rental.actual_start_date else None,
@@ -1127,6 +1128,44 @@ def api_cancel_rental(request):
         else:
             return JsonResponse({'error': result['error']}, status=400)
 
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@staff_member_required
+def api_confirm_rental(request):
+    """
+    Confirm a draft rental request (status -> reserved).
+
+    Args:
+        request: HTTP request object with rental ID
+
+    Returns:
+        JsonResponse: Success status and updated rental status
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        rental_id = data.get('rental_id')
+
+        if not rental_id:
+            return JsonResponse({'error': _('Rental ID is required')}, status=400)
+
+        rental = get_object_or_404(RentalRequest, id=rental_id)
+        if rental.status != 'draft':
+            return JsonResponse({'error': _('Only draft requests can be confirmed')}, status=400)
+
+        rental.status = 'reserved'
+        rental.save(update_fields=['status'])
+
+        return JsonResponse({
+            'success': True,
+            'rental_id': rental.id,
+            'status': rental.status,
+        })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -1278,9 +1317,49 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             ).get(id=rental_id)
 
             context['rental'] = rental
+            context['can_confirm'] = rental.status == 'draft'
             context['can_return'] = rental.status in ['reserved', 'issued']
             context['can_extend'] = rental.status in ['reserved', 'issued']
 
+        except Exception as e:
+            context['error'] = str(e)
+
+        return context
+
+
+class UserRentalDetailView(LoginRequiredMixin, TemplateView):
+    """
+    User-facing detail view for a specific rental request.
+
+    Shows summary details for the owning user without staff actions.
+    """
+
+    template_name = 'rental/user_rental_detail.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Prepare context data for user rental detail page.
+
+        Args:
+            **kwargs: Additional context data including rental_id
+
+        Returns:
+            dict: Context with rental details
+        """
+        context = super().get_context_data(**kwargs)
+        rental_id = kwargs.get('rental_id')
+
+        try:
+            from .models import RentalRequest
+            rental = RentalRequest.objects.select_related('user', 'created_by').prefetch_related(
+                'items__inventory_item__owner',
+                'items__inventory_item__location',
+                'items__inventory_item__category',
+                'items__issues',
+                'room_rentals__room'
+            ).get(id=rental_id, user=self.request.user)
+
+            context['rental'] = rental
         except Exception as e:
             context['error'] = str(e)
 
@@ -3401,6 +3480,7 @@ def api_get_user_rental_details(request):
                 'requested_end_date': rental.requested_end_date.isoformat() if rental.requested_end_date else None,
                 'actual_end_date': rental.actual_end_date.isoformat() if rental.actual_end_date else None,
                 'status': rental.status or '',
+                'status_display': rental.get_status_display() if rental else '',
                 'items': rental_items or [],
                 'room_rentals': room_rentals or [],
                 'days_overdue': days_overdue or 0

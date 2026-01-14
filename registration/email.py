@@ -21,6 +21,7 @@ def send_mail(
     context: dict[str, Any],
     from_email: str,
     to_email: str,
+    html_email_template_name: str | None = None,
 ) -> None:
     """
     Send a django.core.mail.EmailMultiAlternatives to `to_email`.
@@ -34,11 +35,9 @@ def send_mail(
 
     email_message = EmailMultiAlternatives(
         subject, body, from_email, [to_email])
-    # not relevant yet because no template is used
-
-    # if html_email_template_name is not None:
-    #   html_email = loader.render_to_string(html_email_template_name, context)
-    #     email_message.attach_alternative(html_email, "text/html")
+    if html_email_template_name:
+        html_email = loader.render_to_string(html_email_template_name, context)
+        email_message.attach_alternative(html_email, "text/html")
 
     email_message.send()
 

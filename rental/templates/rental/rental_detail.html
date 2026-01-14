@@ -252,13 +252,18 @@
             </div>
 
             <!-- Action Buttons -->
-            {% if can_return or can_extend %}
+            {% if can_confirm or can_return or can_extend %}
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title"><i class="fas fa-tools me-2"></i>{% trans "Actions" %}</h5>
                             <div class="btn-group" role="group">
+                                {% if can_confirm %}
+                                <button class="btn btn-outline-success" id="confirmBtn">
+                                    <i class="fas fa-check me-1"></i>{% trans "Confirm request" %}
+                                </button>
+                                {% endif %}
                                 {% if rental.status == 'draft' or rental.status == 'reserved' and rental.items.all %}
                                 <button class="btn btn-outline-warning" id="issueFromReservationBtn">
                                     <i class="fas fa-box-open me-1"></i>{% trans "Issue Equipment from Reservation" %}
@@ -296,18 +301,20 @@
                                 {% for item in rental.items.all %}
                                 <div class="col-md-6 col-lg-4 mb-3">
                                     <div class="item-card p-3" data-item-id="{{ item.id }}">
-                                        <!-- Return Selection Checkbox -->
-                                        <div class="mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input item-return-checkbox" type="checkbox"
-                                                       id="item-checkbox-{{ item.id }}"
-                                                       data-item-id="{{ item.id }}"
-                                                       {% if item.quantity_issued|default:0|add:item.quantity_returned|default:0 > 0 %}checked{% endif %}>
-                                                <label class="form-check-label" for="item-checkbox-{{ item.id }}">
-                                                    <strong>{% trans "Select for return" %}</strong>
-                                                </label>
+                                        {% if can_return %}
+                                            <!-- Return Selection Checkbox -->
+                                            <div class="mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input item-return-checkbox" type="checkbox"
+                                                           id="item-checkbox-{{ item.id }}"
+                                                           data-item-id="{{ item.id }}"
+                                                           {% if item.quantity_issued|default:0|add:item.quantity_returned|default:0 > 0 %}checked{% endif %}>
+                                                    <label class="form-check-label" for="item-checkbox-{{ item.id }}">
+                                                        <strong>{% trans "Select for return" %}</strong>
+                                                    </label>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
 
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <h6 class="mb-1">{{ item.inventory_item.description|default:item.inventory_item.inventory_number }}</h6>
@@ -338,106 +345,114 @@
                                             </div>
                                         </div>
 
-                                        <!-- Return Date Information -->
-                                        {% if item.actual_return_date or item.quantity_returned > 0 %}
-                                        <div class="mb-2 p-2 rounded {% if item.actual_return_date %}{% if item.is_overdue %}overdue-highlight{% else %}ontime-highlight{% endif %}{% else %}return-info{% endif %}">
-                                            <div class="row text-center">
-                                                <div class="col-6">
-                                                    <small class="text-muted d-block">
-                                                        <i class="fas fa-calendar-alt me-1"></i>{% trans "Planned until" %}:
-                                                    </small>
-                                                    <strong class="text-info">{{ rental.requested_end_date|date:"d.m.Y H:i" }}</strong>
-                                                </div>
-                                                <div class="col-6">
-                                                    {% if item.actual_return_date %}
+                                        {% if can_return %}
+                                            <!-- Return Date Information -->
+                                            {% if item.actual_return_date or item.quantity_returned > 0 %}
+                                            <div class="mb-2 p-2 rounded {% if item.actual_return_date %}{% if item.is_overdue %}overdue-highlight{% else %}ontime-highlight{% endif %}{% else %}return-info{% endif %}">
+                                                <div class="row text-center">
+                                                    <div class="col-6">
                                                         <small class="text-muted d-block">
-                                                            <i class="fas fa-calendar-check me-1"></i>{% trans "Actually returned" %}:
+                                                            <i class="fas fa-calendar-alt me-1"></i>{% trans "Planned until" %}:
                                                         </small>
-                                                        <strong class="{% if item.is_overdue %}text-danger{% else %}text-success{% endif %}">
-                                                            {{ item.actual_return_date|date:"d.m.Y H:i" }}
-                                                        </strong>
-                                                        {% if item.is_overdue and item.days_overdue > 0 %}
-                                                            <br><small class="text-danger fw-bold">
-                                                                <i class="fas fa-exclamation-triangle me-1"></i>{{ item.days_overdue }} {% trans "day" %}{{ item.days_overdue|pluralize:"s" }} {% trans "overdue" %}
+                                                        <strong class="text-info">{{ rental.requested_end_date|date:"d.m.Y H:i" }}</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        {% if item.actual_return_date %}
+                                                            <small class="text-muted d-block">
+                                                                <i class="fas fa-calendar-check me-1"></i>{% trans "Actually returned" %}:
                                                             </small>
-                                                        {% elif not item.is_overdue %}
-                                                            <br><small class="text-success fw-bold">
-                                                                <i class="fas fa-check me-1"></i>{% trans "Returned on time" %}
+                                                            <strong class="{% if item.is_overdue %}text-danger{% else %}text-success{% endif %}">
+                                                                {{ item.actual_return_date|date:"d.m.Y H:i" }}
+                                                            </strong>
+                                                            {% if item.is_overdue and item.days_overdue > 0 %}
+                                                                <br><small class="text-danger fw-bold">
+                                                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ item.days_overdue }} {% trans "day" %}{{ item.days_overdue|pluralize:"s" }} {% trans "overdue" %}
+                                                                </small>
+                                                            {% elif not item.is_overdue %}
+                                                                <br><small class="text-success fw-bold">
+                                                                    <i class="fas fa-check me-1"></i>{% trans "Returned on time" %}
+                                                                </small>
+                                                            {% endif %}
+                                                        {% else %}
+                                                            <small class="text-muted d-block">
+                                                                <i class="fas fa-hourglass-half me-1"></i>{% trans "Not yet returned" %}
                                                             </small>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <small class="text-muted d-block">
-                                                            <i class="fas fa-hourglass-half me-1"></i>{% trans "Not yet returned" %}
-                                                        </small>
-                                                        {% if item.outstanding_to_return > 0 %}
-                                                            {% now "Y-m-d H:i" as current_time %}
-                                                            {% if rental.requested_end_date|date:"Y-m-d H:i" < current_time %}
-                                                                <strong class="text-warning">
-                                                                    <i class="fas fa-clock me-1"></i>{% trans "Overdue" %}
-                                                                </strong>
-                                                            {% else %}
-                                                                <strong class="text-info">
-                                                                    <i class="fas fa-hourglass-half me-1"></i>{% trans "Pending" %}
-                                                                </strong>
+                                                            {% if item.outstanding_to_return > 0 %}
+                                                                {% now "Y-m-d H:i" as current_time %}
+                                                                {% if rental.requested_end_date|date:"Y-m-d H:i" < current_time %}
+                                                                    <strong class="text-warning">
+                                                                        <i class="fas fa-clock me-1"></i>{% trans "Overdue" %}
+                                                                    </strong>
+                                                                {% else %}
+                                                                    <strong class="text-info">
+                                                                        <i class="fas fa-hourglass-half me-1"></i>{% trans "Pending" %}
+                                                                    </strong>
+                                                                {% endif %}
                                                             {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                            {% endif %}
                                         {% endif %}
 
-                                        {% with outstanding=item.quantity_issued|default:0|add:item.quantity_returned|default:0 %}
-                                        {% if outstanding > 0 %}
-                                        <div class="text-center mb-2">
-                                            <span class="badge bg-warning">{{ outstanding }} {% trans "outstanding" %}</span>
-                                        </div>
+                                        {% if can_return %}
+                                            {% with outstanding=item.quantity_issued|default:0|add:item.quantity_returned|default:0 %}
+                                            {% if outstanding > 0 %}
+                                            <div class="text-center mb-2">
+                                                <span class="badge bg-warning">{{ outstanding }} {% trans "outstanding" %}</span>
+                                            </div>
+                                            {% endif %}
+                                            {% endwith %}
                                         {% endif %}
-                                        {% endwith %}
 
-                                        <!-- Return Form for this item (hidden initially) -->
-                                        <div class="return-form d-none mt-3 p-2 bg-light rounded" data-item-id="{{ item.id }}">
-                                            <h6>{% trans "Return" %}</h6>
-                                            <div class="mb-2">
-                                                <label class="form-label form-label-sm">{% trans "Quantity" %}:</label>
-                                                <input type="number" class="form-control form-control-sm return-quantity"
-                                                       min="1" max="{{ item.quantity_issued|default:0|add:item.quantity_returned|default:0 }}"
-                                                       value="{{ item.quantity_issued|default:0|add:item.quantity_returned|default:0 }}">
-                                            </div>
-                                            <div class="mb-2">
-                                                <label class="form-label form-label-sm">{% trans "Condition" %}:</label>
-                                                <select class="form-select form-select-sm return-condition">
-                                                    <option value="excellent">{% trans "Excellent" %}</option>
-                                                    <option value="good" selected>{% trans "Good" %}</option>
-                                                    <option value="fair">{% trans "Fair" %}</option>
-                                                    <option value="poor">{% trans "Poor" %}</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label class="form-label form-label-sm">{% trans "Notes" %}:</label>
-                                                <textarea class="form-control form-control-sm return-notes" rows="2"></textarea>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label class="form-label form-label-sm">{% trans "Issues" %}:</label>
-                                                <div class="issues-container">
-                                                    <button type="button" class="btn btn-sm btn-outline-warning add-issue-btn">
-                                                        <i class="fas fa-plus me-1"></i>{% trans "Add Issue" %}
-                                                    </button>
+                                        {% if can_return %}
+                                            <!-- Return Form for this item (hidden initially) -->
+                                            <div class="return-form d-none mt-3 p-2 bg-light rounded" data-item-id="{{ item.id }}">
+                                                <h6>{% trans "Return" %}</h6>
+                                                <div class="mb-2">
+                                                    <label class="form-label form-label-sm">{% trans "Quantity" %}:</label>
+                                                    <input type="number" class="form-control form-control-sm return-quantity"
+                                                           min="1" max="{{ item.quantity_issued|default:0|add:item.quantity_returned|default:0 }}"
+                                                           value="{{ item.quantity_issued|default:0|add:item.quantity_returned|default:0 }}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label form-label-sm">{% trans "Condition" %}:</label>
+                                                    <select class="form-select form-select-sm return-condition">
+                                                        <option value="excellent">{% trans "Excellent" %}</option>
+                                                        <option value="good" selected>{% trans "Good" %}</option>
+                                                        <option value="fair">{% trans "Fair" %}</option>
+                                                        <option value="poor">{% trans "Poor" %}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label form-label-sm">{% trans "Notes" %}:</label>
+                                                    <textarea class="form-control form-control-sm return-notes" rows="2"></textarea>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label form-label-sm">{% trans "Issues" %}:</label>
+                                                    <div class="issues-container">
+                                                        <button type="button" class="btn btn-sm btn-outline-warning add-issue-btn">
+                                                            <i class="fas fa-plus me-1"></i>{% trans "Add Issue" %}
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
 
-                                        <!-- Issues Display -->
-                                        {% if item.issues.all %}
-                                        <div class="mt-2">
-                                            <h6 class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>{% trans "Issues" %}:</h6>
-                                            {% for issue in item.issues.all %}
-                                            <div class="alert alert-sm p-2 mb-1 issue-{{ issue.severity }}">
-                                                <strong>{{ issue.get_issue_type_display }}:</strong> {{ issue.description }}
-                                                <br><small class="text-muted">{{ issue.reported_at|date:"d.m.Y H:i" }} {% trans "by" %} {{ issue.reported_by.email }}</small>
+                                        {% if can_return %}
+                                            <!-- Issues Display -->
+                                            {% if item.issues.all %}
+                                            <div class="mt-2">
+                                                <h6 class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>{% trans "Issues" %}:</h6>
+                                                {% for issue in item.issues.all %}
+                                                <div class="alert alert-sm p-2 mb-1 issue-{{ issue.severity }}">
+                                                    <strong>{{ issue.get_issue_type_display }}:</strong> {{ issue.description }}
+                                                    <br><small class="text-muted">{{ issue.reported_at|date:"d.m.Y H:i" }} {% trans "by" %} {{ issue.reported_by.email }}</small>
+                                                </div>
+                                                {% endfor %}
                                             </div>
-                                            {% endfor %}
-                                        </div>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                 </div>
@@ -760,6 +775,7 @@
          data-extend-url="{% url 'rental:api_extend_rental' %}"
          data-return-url="{% url 'rental:api_return_rental_items' %}"
          data-cancel-url="{% url 'rental:api_cancel_rental' %}"
+         data-confirm-url="{% url 'rental:api_confirm_rental' %}"
          data-issue-from-reservation-url="{% url 'rental:api_issue_from_reservation' %}"
          data-get-staff-users-url="{% url 'rental:api_get_staff_users' %}"
          data-search-inventory-url="{% url 'rental:api_search_inventory' %}"

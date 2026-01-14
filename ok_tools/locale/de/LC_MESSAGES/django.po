@@ -3213,3 +3213,74 @@ msgstr "Sie haben %(count)d Beitrag/Beiträge diese Woche"
 #, python-format
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
+
+msgid "Open your request:"
+msgstr "Deine Anfrage öffnen:"
+
+#, python-format
+msgid "Items (%(items_total)s total):"
+msgstr "Items (insgesamt %(items_total)s):"
+
+#, python-format
+msgid "Rooms (%(rooms_total)s total):"
+msgstr "Räume (insgesamt %(rooms_total)s):"
+
+msgid "people"
+msgstr "Personen"
+
+msgid "Confirm request"
+msgstr "Anfrage bestätigen"
+
+msgid "Confirm action is not available."
+msgstr "Bestätigung ist nicht verfügbar."
+
+msgid "Confirm this request?"
+msgstr "Diese Anfrage bestätigen?"
+
+msgid "Error confirming request: "
+msgstr "Fehler beim Bestätigen der Anfrage: "
+
+msgid "Period"
+msgstr "Zeitraum"
+
+msgid "Your requests"
+msgstr "Deine Anfragen"
+
+msgid "Active requests"
+msgstr "Aktive Anfragen"
+
+msgid "No active requests"
+msgstr "Keine aktiven Anfragen"
+
+msgid "Request"
+msgstr "Anfrage"
+
+msgid "Items"
+msgstr "Items"
+
+msgid "Your rental request"
+msgstr "Deine Ausleihanfrage"
+
+msgid "Pending approval"
+msgstr "Freigabe ausstehend"
+
+msgid "Item"
+msgstr "Artikel"
+
+msgid "Quantity requested"
+msgstr "Angefragt"
+
+msgid "Quantity issued"
+msgstr "Ausgegeben"
+
+msgid "Quantity returned"
+msgstr "Zurückgegeben"
+
+msgid "No equipment items."
+msgstr "Keine Geräte."
+
+msgid "People"
+msgstr "Personen"
+
+msgid "No rooms."
+msgstr "Keine Räume."

@@ -1130,6 +1130,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
               </div>
             </div>
+          </div>
+          <div class="mt-3">
+            <h6 class="mb-2">${stats.dataset.labelActiveRequests || gettext('Active Rentals')}</h6>
+            <div id="userActiveRequests" class="small"></div>
           </div>`;
 
         // Add click handlers to stats cards
@@ -1139,6 +1143,8 @@ document.addEventListener('DOMContentLoaded', function() {
             this.showRentalDetails(uid, type);
           });
         });
+
+        await this.loadUserActiveRequests(uid);
       } catch (error) {
         console.error('Error loading stats:', error);
         // Show error in interface
@@ -1150,6 +1156,63 @@ document.addEventListener('DOMContentLoaded', function() {
               ${gettext('Error loading statistics:')} ${error.message}
             </div>`;
         }
+      }
+    }
+
+    async loadUserActiveRequests(uid) {
+      const stats = document.getElementById('userStats');
+      const container = document.getElementById('userActiveRequests');
+      if (!stats || !container) return;
+
+      try {
+        const url = URLS.userRentalDetails.replace('{userId}', uid);
+        const resp = await fetch(`${url}?type=active`);
+        if (!resp.ok) {
+          throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+        }
+
+        const data = await resp.json();
+        const rentals = data.rentals || [];
+
+        if (!rentals.length) {
+          container.innerHTML = `
+            <div class="text-muted">${stats.dataset.labelNoActive || gettext('No active rentals')}</div>
+          `;
+          return;
+        }
+
+        const labelRequest = stats.dataset.labelRequest || gettext('Request');
+        const labelStatus = stats.dataset.labelStatus || gettext('Status');
+        const labelPeriod = stats.dataset.labelPeriod || gettext('Period');
+        const labelItems = stats.dataset.labelItems || gettext('Items');
+        const labelRooms = stats.dataset.labelRooms || gettext('Rooms');
+
+        const rows = rentals.map(rental => {
+          const status = rental.status_display || rental.status || '';
+          const start = rental.requested_start_date ? new Date(rental.requested_start_date).toLocaleString() : '-';
+          const end = rental.requested_end_date ? new Date(rental.requested_end_date).toLocaleString() : '-';
+          const itemsCount = rental.total_items || 0;
+          const roomsCount = rental.total_rooms || 0;
+          const link = `/rental/rental/${rental.id}/`;
+          return `
+            <div class="border rounded p-2 mb-2 bg-light">
+              <div class="fw-semibold">
+                ${labelRequest} #${rental.id}: ${rental.project_name || ''}
+              </div>
+              <div>${labelStatus}: ${status}</div>
+              <div>${labelPeriod}: ${start} – ${end}</div>
+              <div>${labelItems}: ${itemsCount} • ${labelRooms}: ${roomsCount}</div>
+              <div><a href="${link}">${link}</a></div>
+            </div>
+          `;
+        }).join('');
+
+        container.innerHTML = rows;
+      } catch (error) {
+        console.error('Error loading active requests:', error);
+        container.innerHTML = `
+          <div class="text-muted">${stats.dataset.labelNoActive || gettext('No active rentals')}</div>
+        `;
       }
     }
 

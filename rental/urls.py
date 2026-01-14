@@ -5,6 +5,7 @@ from .views import InventoryItemViewSet
 from .views import PrintFormMSAView
 from .views import PrintFormOKMQView
 from .views import RentalDetailView
+from .views import UserRentalDetailView
 from .views import RentalIssueViewSet
 from .views import RentalItemViewSet
 from .views import RentalProcessView
@@ -15,6 +16,7 @@ from .views import InventoryCalendarWeekView
 from .views import api_inventory_calendar
 from .views import RentalTransactionViewSet
 from .views import api_cancel_rental
+from .views import api_confirm_rental
 from .views import api_check_room_availability
 from .views import api_create_equipment_set
 from .views import api_create_rental
@@ -99,6 +101,7 @@ urlpatterns = [
     path('api/user/<int:user_id>/rental-details/', api_get_user_rental_details_by_id, name='api_user_rental_details'),
     path('api/rental-details/', api_get_user_rental_details, name='api_rental_details'),
     path('api/cancel-rental/', api_cancel_rental, name='api_cancel_rental'),
+    path('api/confirm-rental/', api_confirm_rental, name='api_confirm_rental'),
     path('api/extend-rental/', api_extend_rental, name='api_extend_rental'),
     path('api/issue-from-reservation/', api_issue_from_reservation, name='api_issue_from_reservation'),
     path('api/get-staff-users/', api_get_staff_users, name='api_get_staff_users'),
@@ -133,6 +136,8 @@ urlpatterns = [
 
     # Detail page for rental
     path('rental/<int:rental_id>/', RentalDetailView.as_view(), name='rental_detail'),
+    # User detail page for rental
+    path('user/rental/<int:rental_id>/', UserRentalDetailView.as_view(), name='user_rental_detail'),
 
     # Print forms
     path('print/msa/<int:rental_id>/', PrintFormMSAView.as_view(), name='print_form_msa'),

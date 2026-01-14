@@ -39,6 +39,56 @@ def _get_site_base_url() -> str:
     return base_url.rstrip("/")
 
 
+def _build_rental_request_urls(*, rental_request) -> dict[str, str]:
+    user_url = ""
+    url_template = getattr(settings, "RENTAL_REQUEST_URL_TEMPLATE", "") or ""
+    if url_template:
+        try:
+            user_url = url_template.format(rental_id=int(rental_request.id))
+        except Exception:
+            user_url = ""
+
+    base = _get_site_base_url()
+    staff_url = ""
+    if base:
+        try:
+            path = reverse("rental:rental_detail", kwargs={"rental_id": int(rental_request.id)})
+            staff_url = f"{base}{path}"
+        except Exception:
+            staff_url = ""
+
+    return {
+        "user_rental_url": user_url,
+        "staff_rental_url": staff_url,
+    }
+
+
+def _build_rental_summary_context(*, rental_request) -> dict[str, Any]:
+    items = []
+    for item in rental_request.items.select_related("inventory_item").all():
+        items.append({
+            "name": str(item.inventory_item),
+            "quantity": item.quantity_requested,
+        })
+
+    rooms = []
+    for room_rental in rental_request.room_rentals.select_related("room").all():
+        rooms.append({
+            "name": room_rental.room.name,
+            "people_count": room_rental.people_count,
+            "start": room_rental.get_start_date(),
+            "end": room_rental.get_end_date(),
+        })
+
+    return {
+        "items": items,
+        "rooms": rooms,
+        "items_total": rental_request.total_items_count,
+        "rooms_total": rental_request.total_rooms_count,
+        **_build_rental_request_urls(rental_request=rental_request),
+    }
+
+
 def _get_recipients() -> list[str]:
     explicit = list(getattr(settings, "RENTAL_APPROVAL_RECIPIENT_EMAILS", []) or [])
     explicit = [e.strip() for e in explicit if e and e.strip()]
@@ -129,6 +179,7 @@ def send_admin_approval_email(*, rental_request) -> None:
                 send_mail(
                     subject_template_name="email/rental_request_approval_subject.txt",
                     email_template_name="email/rental_request_approval_body.txt",
+                    html_email_template_name="email/rental_request_approval_body.html",
                     context=context,
                     from_email=from_email,
                     to_email=to_email,
@@ -166,6 +217,7 @@ def send_user_pending_email(*, rental_request) -> None:
         "end": rental_request.requested_end_date,
         "contact_email": contact_email,
     }
+    context.update(_build_rental_summary_context(rental_request=rental_request))
 
     from_email = getattr(settings, "EMAIL_HOST_USER", "")
 
@@ -175,6 +227,7 @@ def send_user_pending_email(*, rental_request) -> None:
         send_mail(
             subject_template_name="email/rental_request_pending_subject.txt",
             email_template_name="email/rental_request_pending_body.txt",
+            html_email_template_name="email/rental_request_pending_body.html",
             context=context,
             from_email=from_email,
             to_email=user_email,
@@ -211,6 +264,7 @@ def send_user_approved_email(*, rental_request) -> None:
         "end": rental_request.requested_end_date,
         "contact_email": contact_email,
     }
+    context.update(_build_rental_summary_context(rental_request=rental_request))
 
     from_email = getattr(settings, "EMAIL_HOST_USER", "")
 
@@ -220,6 +274,7 @@ def send_user_approved_email(*, rental_request) -> None:
         send_mail(
             subject_template_name="email/rental_request_approved_subject.txt",
             email_template_name="email/rental_request_approved_body.txt",
+            html_email_template_name="email/rental_request_approved_body.html",
             context=context,
             from_email=from_email,
             to_email=user_email,
@@ -256,6 +311,7 @@ def send_user_declined_email(*, rental_request) -> None:
         "end": rental_request.requested_end_date,
         "contact_email": contact_email,
     }
+    context.update(_build_rental_summary_context(rental_request=rental_request))
 
     from_email = getattr(settings, "EMAIL_HOST_USER", "")
 
@@ -265,6 +321,7 @@ def send_user_declined_email(*, rental_request) -> None:
         send_mail(
             subject_template_name="email/rental_request_declined_subject.txt",
             email_template_name="email/rental_request_declined_body.txt",
+            html_email_template_name="email/rental_request_declined_body.html",
             context=context,
             from_email=from_email,
             to_email=user_email,

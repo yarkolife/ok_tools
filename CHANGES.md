@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-01-14 (Version 3.2.12)
+===========================
+
+* **Rental System Updates**
+  * **Email confirmations** now include booking details and HTML versions
+  * **User-friendly booking links** via `RENTAL_REQUEST_URL_TEMPLATE`
+  * **User detail page** at `/rental/user/rental/<id>/` with request summary
+  * **Admin confirmation action** for draft requests in rental detail view
+  * **User/Admin request visibility** improvements in dashboards
+  * **Deployment templates** updated with `RENTAL_REQUEST_URL_TEMPLATE`
+
 2026-01-12 (Version 3.2.11)
 ===========================
 

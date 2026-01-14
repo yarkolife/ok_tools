@@ -391,9 +391,9 @@ class RentalDashboardView(LoginRequiredMixin, TemplateView):
             # Get user's rental requests
             user_rental_requests = RentalRequest.objects.filter(user=self.request.user)
 
-            # Count active rentals (reserved/issued and not expired)
+            # Count active rentals (draft/reserved/issued and not expired)
             context['active_rentals'] = user_rental_requests.filter(
-                status__in=['reserved', 'issued']
+                status__in=['draft', 'reserved', 'issued']
             ).filter(
                 requested_end_date__isnull=False,
                 requested_end_date__gte=timezone.now()

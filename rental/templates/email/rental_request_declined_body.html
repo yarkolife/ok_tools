@@ -1,0 +1,44 @@
+{% load i18n %}
+<p>{% trans "Status: Declined ✗" %}</p>
+
+<p>{% blocktrans with ok_name=ok_name rental_id=rental_id %}Your rental request #{{ rental_id }} in {{ ok_name }} has been declined.{% endblocktrans %}</p>
+
+<p>
+  {% blocktrans with project_name=project_name %}Project: {{ project_name }}{% endblocktrans %}<br>
+  {% blocktrans with purpose=purpose %}Purpose: {{ purpose }}{% endblocktrans %}<br>
+  {% blocktrans with start=start end=end %}Period: {{ start }} – {{ end }}{% endblocktrans %}
+</p>
+
+{% if user_rental_url %}
+<p>{% trans "Open your request:" %} <a href="{{ user_rental_url }}">{{ user_rental_url }}</a></p>
+{% endif %}
+
+{% if items %}
+<p><strong>{% blocktrans with items_total=items_total %}Items ({{ items_total }} total):{% endblocktrans %}</strong></p>
+<ul>
+  {% for item in items %}
+  <li>{{ item.quantity }} x {{ item.name }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if rooms %}
+<p><strong>{% blocktrans with rooms_total=rooms_total %}Rooms ({{ rooms_total }} total):{% endblocktrans %}</strong></p>
+<ul>
+  {% for room in rooms %}
+  <li>
+    {{ room.name }} ({{ room.people_count }} {% trans "people" %})
+    {% if room.start and room.end %}, {{ room.start|date:"Y-m-d H:i" }} to {{ room.end|date:"Y-m-d H:i" }}{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if contact_email %}
+<p>{% blocktrans with ok_name=ok_name contact_email=contact_email %}If you have questions or would like to submit a revised request, please contact the {{ ok_name }} administration.{% endblocktrans %}</p>
+<p>{% trans "Contact:" %} {{ contact_email }}</p>
+{% else %}
+<p>{% blocktrans with ok_name=ok_name %}If you have questions or would like to submit a revised request, please contact the {{ ok_name }} administration.{% endblocktrans %}</p>
+{% endif %}
+
+<p>{% blocktrans with rental_id=rental_id %}Please reference request #{{ rental_id }} in any communication.{% endblocktrans %}</p>

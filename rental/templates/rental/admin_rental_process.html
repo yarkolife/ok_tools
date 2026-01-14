@@ -127,7 +127,19 @@
                                     <div class="list-group user-list" style="max-height: 400px; overflow-y: auto;" id="userResults"></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="user-stats"><h6>{% trans "User Statistics" %}</h6><div id="userStats"></div></div>
+                                    <div class="user-stats">
+                                        <h6>{% trans "User Statistics" %}</h6>
+                                        <div
+                                            id="userStats"
+                                            data-label-active-requests="{% trans 'Active requests' %}"
+                                            data-label-no-active="{% trans 'No active requests' %}"
+                                            data-label-request="{% trans 'Request' %}"
+                                            data-label-status="{% trans 'Status' %}"
+                                            data-label-period="{% trans 'Period' %}"
+                                            data-label-items="{% trans 'Items' %}"
+                                            data-label-rooms="{% trans 'Rooms' %}"
+                                        ></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
