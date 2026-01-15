@@ -150,21 +150,86 @@ Ort: {val(profile.city):<15} Datum: {date_str:<15} Unterschrift:
     text_stream.seek(0)
     return FileResponse(text_stream, filename=str(_('registration_form.txt')), content_type='text/plain; charset=utf-8')
 
+def _get_pdf_field_mapping(user: User, profile: Profile, pdf_filename: str) -> list:
+    """Get field mapping for the specified PDF template.
+    
+    Args:
+        user: User instance
+        profile: Profile instance
+        pdf_filename: Name of the PDF template file
+        
+    Returns:
+        List of (field_name, value) tuples for PDF form filling
+    """
+    today = date.today()
+    today_str = today.strftime('%d.%m.%Y')
+    birthday_str = profile.birthday.strftime('%d.%m.%Y') if profile.birthday else ''
+    
+    # Format address fields
+    zip_city = f'{val(profile.zipcode)} {val(profile.city)}'
+    street_full = f'{val(profile.street)} {val(profile.house_number)}'
+    
+    # Determine template type and create appropriate mapping
+    if pdf_filename == 'Nutzerkartei.pdf':
+        # German field names (original template)
+        fields = [
+            ('Vorname', val(profile.first_name)),
+            ('Name', val(profile.last_name)),
+            ('Straße', street_full),
+            ('PLZOrt', zip_city),
+            ('Telpriv', _f_number(profile.phone_number)),
+            ('Teldienst', _f_number(profile.mobile_number)),
+            ('Email', getattr(user, 'email', '') or ''),
+            ('Ausweisnr', val(profile.ausweisnummer)),
+            ('GebDatum', birthday_str),
+            ('Ort1', val(profile.city)),
+            ('Datum1', today_str),
+            ('Unterschrift1', ''),
+            ('Ort2', val(profile.city)),
+            ('Datum2', today_str),
+            ('Unterschrift2', ''),
+            ('Beruf', ''),  # Optional field, usually empty
+        ]
+    elif pdf_filename == 'Nutzerkartei_Anmeldung_2022_n.pdf':
+        # English field names (newer template)
+        fields = [
+            ('first_name', val(profile.first_name)),
+            ('last_name', val(profile.last_name)),
+            ('street', street_full),
+            ('zip_city', zip_city),
+            ('phone', _f_number(profile.phone_number)),
+            ('mobile', _f_number(profile.mobile_number)),
+            ('email', getattr(user, 'email', '') or ''),
+            ('birthday', birthday_str),
+            ('city_date_member', f'{val(profile.city)} {today_str}'),
+            ('anrede', ''),  # Optional: salutation (Mr/Mrs)
+            ('titel', ''),   # Optional: title
+            ('Signatur3', ''),  # Signature field
+        ]
+    else:
+        # Default: try English field names (backwards compatible)
+        # This handles any other templates that might use English names
+        fields = [
+            ('first_name', val(profile.first_name)),
+            ('last_name', val(profile.last_name)),
+            ('zip_city', zip_city),
+            ('street', street_full),
+            ('birthday', birthday_str),
+            ('phone', _f_number(profile.phone_number)),
+            ('mobile', _f_number(profile.mobile_number)),
+            ('email', getattr(user, 'email', '') or ''),
+            ('city_date_member', f'{val(profile.city)} {today_str}')
+        ]
+    
+    return fields
+
 def generate_registration_form(user: User, profile: Profile) -> FileResponse:
     """Generate a registration form in PDF format.
 
-    This function uses the PDF template
-    'files/Nutzerkartei_Anmeldung_2022.pdf' and fills it with user data.
-
-    It is assumed that the PDF template contains fields with the following names:
-      - first_name
-      - last_name
-      - zip_city
-      - street
-      - birthday
-      - phone
-      - mobile
-      - email
+    This function uses the PDF template specified in REGISTRATION_FORM_PDF
+    setting and fills it with user data. Supports multiple PDF templates:
+      - Nutzerkartei.pdf (German field names)
+      - Nutzerkartei_Anmeldung_2022_n.pdf (English field names)
 
     Returns:
         FileResponse: A response containing the filled-out PDF form.
@@ -175,18 +240,8 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
     if not os.path.isfile(template_pdf):
         raise FileNotFoundError(f'PDF template not found: {template_pdf}')
 
-    # Forming a list of "field name" — "value" pairs
-    fields = [
-        ('first_name', profile.first_name),
-        ('last_name', profile.last_name),
-        ('zip_city', f'{profile.zipcode} {profile.city}'),
-        ('street', f'{profile.street} {profile.house_number}'),
-        ('birthday', profile.birthday.strftime('%d.%m.%Y') if profile.birthday else ''),
-        ('phone', _f_number(profile.phone_number)),
-        ('mobile', _f_number(profile.mobile_number)),
-        ('email', getattr(user, 'email', '')),
-        ('city_date_member', f'{val(profile.city)} {date.today().strftime("%d.%m.%Y")}')
-    ]
+    # Get field mapping based on template
+    fields = _get_pdf_field_mapping(user, profile, pdf_filename)
 
     # Create a temporary directory for the FDF file and output PDF
     with tempfile.TemporaryDirectory() as tmpdirname:
