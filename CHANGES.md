@@ -5,14 +5,35 @@ CHANGELOG
 ==========================
 
 * **Major Release: Config & Tools Consolidation**
-  * **Module configuration models** for core apps (Registration, Rental, Media Files, Licenses, Tools)
-    * Centralized settings in the database (admin-managed), with environment fallbacks
-    * Migration helper command: `migrate_module_configs`
-  * **New/expanded background tasks** (Celery) for module automation and cleanup
-  * **Email notifications** for license workflow events (templates + tasks)
-  * **Tools module expansion**
-    * Video presets moved/organized under Tools presets infrastructure
-    * Additional admin/editor UIs for presets and jobs
+  * **New app: Tools**
+    * **Video slideshow creator** (models, views, templates) with async generation via Celery
+    * **Video render jobs** (models, views, templates) + rendering pipeline utilities
+    * **Preset management UI** in Django admin (preset editor + VideoPreset admin pages)
+    * **Audio normalize jobs** (models, services, presets JSON, waveform generation) + Celery tasks
+    * **New Tools API endpoints** (project/job CRUD and status endpoints)
+  * **DB-backed module configuration (with env fallbacks)**
+    * **Registration**: `RegistrationConfig` + `OrganizationConfig` (+ migrations)
+    * **Rental**: `RentalConfig` (+ migration) and centralized config helpers
+    * **Licenses**: `LicensesConfig` (+ migrations) incl. download path + email toggles
+    * **Media Files**: `MediaFilesConfig` (+ migrations) incl. supported formats + HEVC transcode toggle
+    * **Tools**: Tools config model added as part of new app
+    * **Migration helper command**: `migrate_module_configs` (fills DB config from env for empty/default values)
+  * **Licenses: workflow notifications & automation**
+    * **License notification event model** + Celery tasks for scheduled status emails
+    * **Email templates** added (draft/planned scheduled, video uploaded, contributions available)
+    * Updates to serializers/services/views for Nextcloud + notification flow
+  * **Media Files refactor**
+    * **Video presets moved out of `media_files` into Tools presets infrastructure** (+ migration)
+    * Admin/commands/tasks cleanup and maintenance improvements
+    * Added admin confirmation template for force-deleting protected archive entries
+  * **Dashboard & analytics**
+    * Cache invalidation and signal handling updates
+    * Widget improvements (inventory/projects/funnel) + dashboard base template update
+  * **Deployment & operations**
+    * Updated `.env` templates with new module flags/settings (Tools, configs, tasks)
+    * Entrypoint/update scripts run config migration step (`migrate_module_configs`)
+  * **Translations**
+    * Updated German `.po` files across modules and added Tools translations
 
 2026-01-15 (Version 3.3.1)
 ===========================
