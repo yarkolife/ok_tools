@@ -239,8 +239,9 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         """Either the LR is a screen_board or the duration isn't null."""
         if self.is_screen_board:
             # it's a screen board, we are fine
+            from licenses.config import get_screen_board_duration
             self.duration = timedelta(
-                seconds=settings.SCREEN_BOARD_DURATION)
+                seconds=get_screen_board_duration())
             return super().clean()
 
         if not self.duration:
@@ -386,3 +387,99 @@ class NextcloudVideoFile(models.Model):
         verbose_name = _('Nextcloud Video File')
         verbose_name_plural = _('Nextcloud Video Files')
         ordering = ['-uploaded_at']
+
+
+class LicensesConfig(models.Model):
+    """Configuration for licenses module (singleton)."""
+    
+    # Fixed duration of a screen board (Bildschirmtafel) in seconds
+    screen_board_duration = models.IntegerField(
+        default=20,
+        verbose_name=_('Screen Board Duration (seconds)'),
+        help_text=_('Fixed duration for screen board display in seconds')
+    )
+
+    # Storage settings
+    download_storage_path = models.CharField(
+        max_length=500,
+        default='/app/media/',
+        verbose_name=_('Download Storage Path'),
+        help_text=_('Local path for downloaded files')
+    )
+
+    send_status_emails = models.BooleanField(
+        default=True,
+        verbose_name=_('Send status emails'),
+        help_text=_('Send email notifications about video status (upload, scheduling, broadcast dates).'),
+    )
+    
+    class Meta:
+        verbose_name = _('Licenses Configuration')
+        verbose_name_plural = _('Licenses Configuration')
+    
+    def __str__(self):
+        """Return string representation."""
+        return str(_("Licenses Configuration"))
+    
+    def save(self, *args, **kwargs):
+        """Ensure only one config instance exists."""
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_config(cls):
+        """Get the singleton config instance, create if doesn't exist."""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class LicenseNotificationEventType(models.TextChoices):
+    """Notification event types for license-related user emails."""
+
+    VIDEO_UPLOADED = "video_uploaded", _("Video uploaded")
+    DRAFT_SCHEDULED = "draft_scheduled", _("Draft scheduled")
+    PLANNED_SCHEDULED = "planned_scheduled", _("Planned scheduled")
+    CONTRIBUTIONS_AVAILABLE = "contributions_available", _("Contributions available")
+
+
+class LicenseNotificationEvent(models.Model):
+    """
+    Deduplication log for license-related user notification emails.
+
+    We deduplicate by license number + event type. This keeps mail sending
+    idempotent across retries and repeated saves/imports.
+    """
+
+    license_number = models.IntegerField(
+        _("License number"),
+        db_index=True,
+        help_text=_("License number used for matching and deduplication."),
+    )
+    event_type = models.CharField(
+        _("Event type"),
+        max_length=64,
+        choices=LicenseNotificationEventType.choices,
+        db_index=True,
+    )
+    created_at = models.DateTimeField(
+        _("Created at"),
+        auto_now_add=True,
+        db_index=True,
+    )
+    payload = models.JSONField(
+        _("Payload"),
+        blank=True,
+        null=True,
+        default=None,
+        help_text=_("Optional structured data about the event (e.g., schedule time, filenames)."),
+    )
+
+    class Meta:
+        verbose_name = _("License Notification Event")
+        verbose_name_plural = _("License Notification Events")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["license_number", "event_type"],
+                name="uniq_license_notification_event",
+            ),
+        ]

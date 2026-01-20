@@ -29,6 +29,38 @@
         </div>
 
         {% if video.is_available %}
+            {% if not video.is_browser_compatible %}
+            <!-- Browser compatibility warning -->
+            <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="font-size: 24px;">⚠️</span>
+                    <div>
+                        <strong style="color: #856404;">{% trans "Browser Compatibility Issue" %}</strong>
+                        <p style="margin: 5px 0 0 0; color: #856404;">
+                            {% if video.video_codec == "hevc" or video.video_codec == "h265" %}
+                                {% trans "This video uses H.265/HEVC codec which is NOT supported by Chrome, Firefox, and Edge. Only audio will play." %}
+                            {% else %}
+                                {% trans "This video codec may not be supported by your browser. Only audio might play." %}
+                            {% endif %}
+                        </p>
+                        <p style="margin: 10px 0 0 0; color: #856404; font-size: 13px;">
+                            <strong>{% trans "Solutions" %}:</strong><br>
+                            • {% trans "Use Safari browser (native HEVC support)" %}<br>
+                            • {% trans "Install HEVC Video Extension in Microsoft Edge" %}<br>
+                            • {% trans "Transcode video to H.264 format" %}
+                            {% if video.id %}
+                            <a href="{% url 'admin:media_files_videofile_changelist' %}?action=transcode_to_h264&_selected_action={{ video.id }}" 
+                               style="color: #007bff; margin-left: 5px;">[{% trans "Transcode now" %}]</a>
+                            {% endif %}
+                        </p>
+                        <p style="margin: 10px 0 0 0; color: #6c757d; font-size: 12px;">
+                            <strong>{% trans "Codec" %}:</strong> {{ video.video_codec_long|default:video.video_codec }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Direct Stream video -->
             <video 
                 controls 

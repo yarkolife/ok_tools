@@ -1,0 +1,136 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Audio Normalize Jobs' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a>
+    &rsaquo; {% trans 'Audio Normalize Jobs' %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .jobs-container { padding: 20px; }
+    .filter-section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .job-table { width: 100%; border-collapse: collapse; }
+    .job-table th, .job-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: top;
+    }
+    .job-table th { background: #f8f9fa; font-weight: bold; }
+    .status-badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .status-pending { background: #6c757d; color: white; }
+    .status-analyzing { background: #0dcaf0; color: #000; }
+    .status-processing { background: #ffc107; color: #000; }
+    .status-completed { background: #28a745; color: white; }
+    .status-failed { background: #dc3545; color: white; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="jobs-container">
+    <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px;">
+        <div>
+            <h1 style="margin:0;">{% trans 'Audio Broadcast Normalize (R128)' %}</h1>
+            <p class="help" style="margin-top:6px;">{% trans 'Queue and history of audio normalization jobs.' %}</p>
+        </div>
+        <a href="{% url 'tools:audio_normalize_new' %}" class="button default" style="padding: 10px 20px; font-size: 14px; white-space: nowrap;">
+            {% trans 'New Job' %}
+        </a>
+    </div>
+
+    <div class="filter-section">
+        <form method="get" action="{% url 'tools:audio_normalize' %}">
+            <label for="status">{% trans 'Status' %}:</label>
+            <select name="status" id="status" onchange="this.form.submit()">
+                <option value="">{% trans 'All' %}</option>
+                <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>{% trans 'Pending' %}</option>
+                <option value="analyzing" {% if current_status == 'analyzing' %}selected{% endif %}>{% trans 'Analyzing' %}</option>
+                <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>{% trans 'Processing' %}</option>
+                <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>{% trans 'Completed' %}</option>
+                <option value="failed" {% if current_status == 'failed' %}selected{% endif %}>{% trans 'Failed' %}</option>
+            </select>
+        </form>
+    </div>
+
+    <table class="job-table">
+        <thead>
+            <tr>
+                <th>{% trans 'Job' %}</th>
+                <th>{% trans 'Status' %}</th>
+                <th>{% trans 'Created' %}</th>
+                <th>{% trans 'Preset' %}</th>
+                <th>{% trans 'Progress' %}</th>
+                <th>{% trans 'Actions' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>
+                    <a href="{% url 'tools:audio_normalize_job_detail' job.id %}">
+                        <strong>#{{ job.id }}</strong>
+                    </a>
+                    <div class="mono" style="margin-top: 4px; color:#666;">
+                        {% if job.input_file %}{{ job.input_file.name|cut:"tools/audio_normalize/" }}{% else %}-{% endif %}
+                    </div>
+                </td>
+                <td>
+                    <span class="status-badge status-{{ job.status }}">{{ job.get_status_display }}</span>
+                    {% if job.error_message %}
+                        <div style="margin-top: 6px; color:#721c24; background:#f8d7da; padding: 8px; border-radius: 4px;">
+                            <strong>{% trans 'Error' %}:</strong> {{ job.error_message|truncatechars:160 }}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>{{ job.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <div class="mono">{{ job.preset_id }}</div>
+                    <div class="mono">{{ job.audio_bitrate }} / {{ job.sample_rate }} Hz{% if job.force_stereo %} / 2ch{% endif %}</div>
+                </td>
+                <td>{{ job.progress }}%</td>
+                <td>
+                    <a href="{% url 'tools:audio_normalize_job_detail' job.id %}" class="button">{% trans 'View' %}</a>
+                    <a href="{% url 'tools:audio_normalize_new' %}?job={{ job.id }}" class="button">{% trans 'Open Tool' %}</a>
+                    {% if job.status == 'completed' and job.output_file %}
+                        <a href="{% url 'tools:api_audio_download' job.id %}" class="button default">{% trans 'Download' %}</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                    {% trans 'No jobs found' %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div class="paginator" style="margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="{% url 'tools:audio_normalize' %}?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Previous' %}</a>
+        {% endif %}
+        <span class="this-page">{% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="{% url 'tools:audio_normalize' %}?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Next' %}</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

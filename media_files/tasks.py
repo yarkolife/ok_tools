@@ -185,12 +185,18 @@ def run_cleanup_old_file_operations_task(**kwargs):
     logger.info("Starting cleanup_old_file_operations task...")
     older_than_days = kwargs.get("older_than_days", 30)
     keep_failed = kwargs.get("keep_failed", True)
+    all_types = kwargs.get("all_types", False)
+    operation_type = kwargs.get("operation_type")
     
     args = []
     if older_than_days:
         args.extend(["--older-than-days", str(older_than_days)])
     if keep_failed:
         args.append("--keep-failed")
+    if all_types:
+        args.append("--all-types")
+    elif operation_type:
+        args.extend(["--operation-type", str(operation_type)])
     
     call_command("cleanup_old_file_operations", *args)
     logger.info("Finished cleanup_old_file_operations task.")
@@ -242,6 +248,7 @@ def render_video_task(operation_id):
         encode_name = details.get("encode", "1080p25_9000k")
         is_preview = details.get("preview", False)
         use_intro_outro = details.get("use_intro_outro", False)
+        invert_text_color = bool(details.get("invert_text_color", False))
         overlay_type = details.get("overlay_type")
         elements = details.get("elements", {})
         styles = details.get("styles", {})
@@ -257,7 +264,7 @@ def render_video_task(operation_id):
             license_obj = License.objects.get(number=source_video.number)
         
         # Build overlays - import here to avoid circular imports
-        from media_files.rendering.presets import (
+        from tools.rendering.presets import (
             load_style_preset_from_db,
             load_style_preset,
             load_encode_preset,
@@ -269,14 +276,20 @@ def render_video_task(operation_id):
             render_preview_overlays_on_main_edges,
             FfmpegError,
         )
+        from django.apps import apps
         from django.conf import settings as django_settings
-        from media_files.models import VideoPreset
         from media_files.utils import extract_video_metadata_fast
+
+        VideoPresetModel = None
+        try:
+            VideoPresetModel = apps.get_model("tools", "VideoPreset")
+        except Exception:
+            VideoPresetModel = None
         
         # Check if this is full intro/outro overlay type (from admin action)
         if overlay_type == "full_intro_outro":
             # Use predefined full overlays (title, subtitle, broadcast_resp, media_authority)
-            from media_files.rendering.presets import OverlayLayer
+            from tools.rendering.presets import OverlayLayer
             
             default_font = "fonts/Roboto-Bold.ttf"
             regular_font = "fonts/Roboto-Regular.ttf"
@@ -426,6 +439,42 @@ def render_video_task(operation_id):
             outro_path = None
             intro_path = None
             outro_path = None
+
+        def _force_box_color_white_spec(color: str) -> str:
+            """
+            Keep alpha component (e.g. black@0.45) but force base color to white.
+            If parsing fails, return original.
+            """
+            raw = (color or "").strip()
+            if not raw:
+                return raw
+            base, alpha = (raw.split("@", 1) + [""])[:2]
+            # Preserve existing alpha if present; otherwise keep it fully opaque.
+            return f"white@{alpha}" if alpha else "white"
+
+        def _force_layers_text_black(layers):
+            """
+            Force ALL text overlays to pure black (no alpha suffix).
+            If a layer uses a text box background, flip it to white (keeping alpha),
+            otherwise black text on black box becomes unreadable.
+            """
+            if not layers:
+                return layers
+            from dataclasses import replace
+
+            out = []
+            for layer in layers:
+                try:
+                    if getattr(layer, "type", None) != "text":
+                        out.append(layer)
+                        continue
+                    updates = {"fontcolor": "black"}
+                    if bool(getattr(layer, "box", False)):
+                        updates["boxcolor"] = _force_box_color_white_spec(getattr(layer, "boxcolor", "") or "")
+                    out.append(replace(layer, **updates))
+                except Exception:
+                    out.append(layer)
+            return out
         
         def filter_overlays_by_element(overlays, element_type):
             """Filter overlays to only include text overlays relevant to the specified element type."""
@@ -489,10 +538,13 @@ def render_video_task(operation_id):
         
         if show_title and style_title:
             try:
-                try:
-                    db_preset = VideoPreset.objects.get(name=style_title)
-                    style_preset = load_style_preset_from_db(db_preset)
-                except VideoPreset.DoesNotExist:
+                if VideoPresetModel is not None:
+                    try:
+                        db_preset = VideoPresetModel.objects.get(name=style_title)
+                        style_preset = load_style_preset_from_db(db_preset)
+                    except VideoPresetModel.DoesNotExist:
+                        style_preset = load_style_preset(style_title)
+                else:
                     style_preset = load_style_preset(style_title)
                 
                 title_intro = filter_overlays_by_element(style_preset.intro_overlays, "title")
@@ -505,10 +557,13 @@ def render_video_task(operation_id):
         
         if show_subtitle and style_subtitle:
             try:
-                try:
-                    db_preset = VideoPreset.objects.get(name=style_subtitle)
-                    style_preset = load_style_preset_from_db(db_preset)
-                except VideoPreset.DoesNotExist:
+                if VideoPresetModel is not None:
+                    try:
+                        db_preset = VideoPresetModel.objects.get(name=style_subtitle)
+                        style_preset = load_style_preset_from_db(db_preset)
+                    except VideoPresetModel.DoesNotExist:
+                        style_preset = load_style_preset(style_subtitle)
+                else:
                     style_preset = load_style_preset(style_subtitle)
                 
                 subtitle_intro = filter_overlays_by_element(style_preset.intro_overlays, "subtitle")
@@ -521,10 +576,13 @@ def render_video_task(operation_id):
         
         if show_broadcast_resp and style_broadcast:
             try:
-                try:
-                    db_preset = VideoPreset.objects.get(name=style_broadcast)
-                    style_preset = load_style_preset_from_db(db_preset)
-                except VideoPreset.DoesNotExist:
+                if VideoPresetModel is not None:
+                    try:
+                        db_preset = VideoPresetModel.objects.get(name=style_broadcast)
+                        style_preset = load_style_preset_from_db(db_preset)
+                    except VideoPresetModel.DoesNotExist:
+                        style_preset = load_style_preset(style_broadcast)
+                else:
                     style_preset = load_style_preset(style_broadcast)
                 
                 broadcast_intro = filter_overlays_by_element(style_preset.intro_overlays, "broadcast_resp")
@@ -537,10 +595,13 @@ def render_video_task(operation_id):
         
         if show_media_authority and style_authority:
             try:
-                try:
-                    db_preset = VideoPreset.objects.get(name=style_authority)
-                    style_preset = load_style_preset_from_db(db_preset)
-                except VideoPreset.DoesNotExist:
+                if VideoPresetModel is not None:
+                    try:
+                        db_preset = VideoPresetModel.objects.get(name=style_authority)
+                        style_preset = load_style_preset_from_db(db_preset)
+                    except VideoPresetModel.DoesNotExist:
+                        style_preset = load_style_preset(style_authority)
+                else:
                     style_preset = load_style_preset(style_authority)
                 
                 authority_intro = filter_overlays_by_element(style_preset.intro_overlays, "media_authority")
@@ -553,6 +614,11 @@ def render_video_task(operation_id):
         
         if overlay_type != "full_intro_outro" and not intro_overlays:
             raise ValueError("No valid presets found for selected elements")
+
+        # Optional: invert overlay text color (white ↔ black)
+        if invert_text_color:
+            intro_overlays = _force_layers_text_black(intro_overlays)
+            outro_overlays = _force_layers_text_black(outro_overlays)
         
         # Load encoding preset
         encode = load_encode_preset(encode_name)
@@ -763,6 +829,246 @@ def render_video_task(operation_id):
         raise
 
 
+@shared_task(name="media_files.tasks.transcode_hevc_to_h264")
+def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
+    """
+    Transcode HEVC/H.265 video to H.264 for browser compatibility.
+    
+    Args:
+        video_id: VideoFile ID to transcode
+        user_id: Optional user ID for operation tracking
+        encode_preset: Optional encoding preset name (defaults to config setting)
+        
+    Returns:
+        Dictionary with operation result
+    """
+    import subprocess
+    from pathlib import Path
+    from django.contrib.auth import get_user_model
+    
+    User = get_user_model()
+    user = User.objects.get(id=user_id) if user_id else None
+    
+    logger.info(f"Starting HEVC→H.264 transcode for video_id={video_id}")
+    
+    try:
+        # Get source video
+        source_video = VideoFile.objects.get(id=video_id)
+        
+        # Validate it's HEVC
+        if source_video.is_browser_compatible:
+            logger.info(f"Video {video_id} is already browser compatible, skipping transcode")
+            return {
+                'success': True,
+                'message': 'Video is already browser compatible',
+                'video_id': video_id,
+                'skipped': True,
+            }
+        
+        # Get encoding preset
+        from media_files.config import get_transcode_encode_preset
+        from tools.rendering.presets import load_encode_preset
+        
+        preset_name = encode_preset or get_transcode_encode_preset()
+        
+        try:
+            encode = load_encode_preset(preset_name)
+        except Exception as e:
+            logger.warning(f"Failed to load preset {preset_name}, using defaults: {e}")
+            # Fallback to basic settings
+            encode = type('Encode', (), {
+                'width': source_video.width or 1920,
+                'height': source_video.height or 1080,
+                'fps': int(source_video.fps or 25),
+                'vcodec': 'libx264',
+                'acodec': 'aac',
+                'video_bitrate_k': 9000,
+                'audio_bitrate_k': 192,
+                'audio_sample_rate': 48000,
+                'audio_channels': 2,
+                'pix_fmt': 'yuv420p',
+                'x264_preset': 'medium',
+                'x264_profile': 'high',
+            })()
+        
+        # Build output path
+        source_path = Path(source_video.full_path)
+        
+        if not source_path.exists():
+            raise FileNotFoundError(f"Source video not found: {source_path}")
+        
+        # Create output filename with _h264 suffix
+        stem = source_path.stem
+        # Remove _hevc suffix if present
+        if stem.endswith('_hevc'):
+            stem = stem[:-5]
+        
+        output_filename = f"{stem}_h264.mp4"
+        output_path = source_path.parent / output_filename
+        
+        # Check if output already exists
+        version = 1
+        while output_path.exists() and version < 100:
+            output_filename = f"{stem}_h264_v{version}.mp4"
+            output_path = source_path.parent / output_filename
+            version += 1
+        
+        # Create operation record
+        # First create placeholder VideoFile for the output
+        rel_path = str(output_path.relative_to(source_video.storage_location.path)).replace("\\", "/")
+        
+        new_video = VideoFile.objects.create(
+            number=source_video.number,
+            filename=output_filename,
+            file_path=rel_path,
+            storage_location=source_video.storage_location,
+            is_available=False,  # Will be set True after transcode completes
+        )
+        
+        operation = FileOperation.objects.create(
+            video_file=new_video,
+            operation_type='RENDER',
+            source_location=source_video.storage_location,
+            destination_location=source_video.storage_location,
+            performed_by=user,
+            status='IN_PROGRESS',
+            details={
+                'source_video_id': source_video.id,
+                'transcode_type': 'hevc_to_h264',
+                'source_codec': source_video.video_codec,
+                'target_codec': 'h264',
+                'encode_preset': preset_name,
+            }
+        )
+        
+        # Build FFmpeg command
+        cmd = [
+            'ffmpeg',
+            '-y',  # Overwrite output
+            '-i', str(source_path),
+            '-c:v', encode.vcodec,
+            '-preset', encode.x264_preset,
+            '-profile:v', encode.x264_profile,
+            '-b:v', f'{encode.video_bitrate_k}k',
+            '-maxrate', f'{int(encode.video_bitrate_k * 1.5)}k',
+            '-bufsize', f'{encode.video_bitrate_k * 2}k',
+            '-pix_fmt', encode.pix_fmt,
+            '-c:a', encode.acodec,
+            '-b:a', f'{encode.audio_bitrate_k}k',
+            '-ar', str(encode.audio_sample_rate),
+            '-ac', str(encode.audio_channels),
+            '-movflags', '+faststart',  # Enable streaming
+            str(output_path),
+        ]
+        
+        logger.info(f"Running FFmpeg: {' '.join(cmd)}")
+        
+        # Run FFmpeg
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=7200,  # 2 hour timeout for long videos
+        )
+        
+        if result.returncode != 0:
+            error_msg = result.stderr[-2000:] if result.stderr else "Unknown FFmpeg error"
+            logger.error(f"FFmpeg failed: {error_msg}")
+            
+            # Update operation as failed
+            operation.status = 'FAILED'
+            operation.error_message = error_msg
+            operation.save()
+            
+            # Delete placeholder video record
+            new_video.delete()
+            
+            return {
+                'success': False,
+                'message': f'FFmpeg transcode failed: {error_msg}',
+                'video_id': video_id,
+            }
+        
+        # Transcode successful - update metadata
+        from media_files.utils import extract_video_metadata_fast
+        
+        with transaction.atomic():
+            metadata = extract_video_metadata_fast(str(output_path))
+            
+            new_video.format = metadata.get('format', 'mp4')
+            new_video.duration = metadata.get('duration')
+            new_video.file_size = output_path.stat().st_size
+            new_video.has_video = metadata.get('has_video', True)
+            new_video.video_codec = metadata.get('video_codec', 'h264')
+            new_video.video_codec_long = metadata.get('video_codec_long', 'H.264 / AVC')
+            new_video.video_bitrate = metadata.get('video_bitrate')
+            new_video.fps = metadata.get('fps')
+            new_video.width = metadata.get('width')
+            new_video.height = metadata.get('height')
+            new_video.aspect_ratio = metadata.get('aspect_ratio')
+            new_video.pixel_format = metadata.get('pixel_format')
+            new_video.has_audio = metadata.get('has_audio', True)
+            new_video.audio_codec = metadata.get('audio_codec')
+            new_video.audio_codec_long = metadata.get('audio_codec_long')
+            new_video.audio_bitrate = metadata.get('audio_bitrate')
+            new_video.audio_sample_rate = metadata.get('audio_sample_rate')
+            new_video.audio_channels = metadata.get('audio_channels')
+            new_video.total_bitrate = metadata.get('total_bitrate')
+            new_video.is_available = True
+            new_video.last_scanned = timezone.now()
+            new_video.save()
+            
+            operation.status = 'SUCCESS'
+            operation.save()
+        
+        logger.info(
+            f"Successfully transcoded video {video_id} to H.264: "
+            f"new_video_id={new_video.id}, output={output_path}"
+        )
+        
+        return {
+            'success': True,
+            'message': 'Video transcoded successfully',
+            'source_video_id': video_id,
+            'new_video_id': new_video.id,
+            'output_path': str(output_path),
+        }
+        
+    except VideoFile.DoesNotExist:
+        logger.error(f"VideoFile {video_id} not found")
+        return {
+            'success': False,
+            'message': f'Video {video_id} not found',
+            'video_id': video_id,
+        }
+    except subprocess.TimeoutExpired:
+        logger.error(f"FFmpeg transcode timed out for video {video_id}")
+        if 'operation' in locals():
+            operation.status = 'FAILED'
+            operation.error_message = 'Transcode timed out (exceeded 2 hours)'
+            operation.save()
+        if 'new_video' in locals():
+            new_video.delete()
+        return {
+            'success': False,
+            'message': 'Transcode timed out',
+            'video_id': video_id,
+        }
+    except Exception as e:
+        logger.exception(f"Error transcoding video {video_id}")
+        if 'operation' in locals():
+            operation.status = 'FAILED'
+            operation.error_message = str(e)
+            operation.save()
+        if 'new_video' in locals():
+            new_video.delete()
+        return {
+            'success': False,
+            'message': str(e),
+            'video_id': video_id,
+        }
+
+
 def _copy_video_to_storage(source_video, destination_storage, user, destination_subfolder=None):
     """
     Helper function to copy video to storage location.
@@ -836,18 +1142,23 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             status='IN_PROGRESS',
         )
         
-        # Determine if checksum verification is needed
-        # For ARCHIVE sources: skip source checksum calculation, use DB checksum if available
-        # Calculate destination checksum during copy (more efficient)
-        from django.conf import settings
-        verify_checksum = getattr(settings, 'VIDEO_COPY_VERIFY_CHECKSUM', True)
-        use_md5_for_archive = getattr(settings, 'VIDEO_COPY_USE_MD5_FOR_ARCHIVE', True)
+        # Determine if checksum verification is needed.
+        # Use module config (DB-backed) with env fallbacks to keep behavior consistent
+        # with admin-configurable settings.
+        from media_files.config import (
+            get_video_copy_verify_checksum,
+            get_video_copy_use_md5_for_archive,
+        )
+        verify_checksum = get_video_copy_verify_checksum()
+        use_md5_for_archive = get_video_copy_use_md5_for_archive()
         
-        # Get source checksum from database (if available)
-        source_checksum_from_db = None
+        # Get source checksum from database (if available).
+        # If we already have a checksum stored on the VideoFile, use it to avoid
+        # reading the source file again for checksum calculation.
+        source_checksum_from_db = source_video.checksum or None
         verify_by_size_only = False
         
-        # For ARCHIVE sources: use size-only verification (fastest, no checksum calculation)
+        # For ARCHIVE sources: use size-only verification by default (fastest, no checksum calculation)
         if source_video.storage_location.storage_type == 'ARCHIVE':
             if verify_checksum:
                 # Use size-only verification (fastest option for ARCHIVE)
@@ -872,6 +1183,14 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
         )
         
         if not success:
+            # Avoid leaving partially copied files behind. These can later be picked up by scans
+            # and incorrectly treated as valid duplicates/primary versions.
+            try:
+                if dest_path.exists():
+                    dest_path.unlink()
+            except Exception:
+                logger.exception(f"Failed to cleanup destination file after copy failure: {dest_path}")
+
             operation.status = 'FAILED'
             operation.error_message = message
             operation.save()
@@ -923,6 +1242,17 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
     except Exception as e:
         error_msg = f'Error copying video: {str(e)}'
         logger.error(error_msg, exc_info=True)
+
+        # Best-effort cleanup: if a partial destination file exists, remove it.
+        # Keep fully copied files (same size) to allow future scans to register them.
+        try:
+            if 'dest_path' in locals() and dest_path.exists():
+                src_size = source_video.file_size or 0
+                dst_size = dest_path.stat().st_size
+                if src_size and dst_size < src_size:
+                    dest_path.unlink()
+        except Exception:
+            logger.exception(f"Failed to cleanup destination file after exception: {locals().get('dest_path')}")
         
         if 'operation' in locals():
             operation.status = 'FAILED'
@@ -1055,8 +1385,15 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
     logger.info(f"[AUTO-COPY] Starting auto-copy for plan date {plan_date}, {len(video_numbers)} videos")
     
     # Get storage locations
+    from media_files.config import (
+        get_video_auto_copy_to_archive,
+        get_video_auto_copy_to_playout,
+        get_video_default_playout_storage_name,
+        get_video_default_playout_storage_path,
+    )
+    
     archive_storage = None
-    if getattr(settings, 'VIDEO_AUTO_COPY_TO_ARCHIVE', False):
+    if get_video_auto_copy_to_archive():
         archive_storage = StorageLocation.objects.filter(
             storage_type='ARCHIVE',
             is_active=True
@@ -1065,10 +1402,10 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
             logger.warning("VIDEO_AUTO_COPY_TO_ARCHIVE enabled but no ARCHIVE storage found")
     
     playout_storage = None
-    if getattr(settings, 'VIDEO_AUTO_COPY_TO_PLAYOUT', False):
+    if get_video_auto_copy_to_playout():
         # Try to find default playout storage (000_Sendungen for main broadcasts)
-        default_playout_name = getattr(settings, 'VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME', None)
-        default_playout_path = getattr(settings, 'VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH', None)
+        default_playout_name = get_video_default_playout_storage_name()
+        default_playout_path = get_video_default_playout_storage_path()
         
         playout_query = StorageLocation.objects.filter(
             storage_type='PLAYOUT',
@@ -1274,10 +1611,18 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
         f"playout={copied_to_playout}, skipped={skipped}, errors={errors}"
     )
     
-    return {
+    result = {
         'copied_to_archive': copied_to_archive,
         'copied_to_playout': copied_to_playout,
         'skipped': skipped,
         'errors': errors,
         'details': operation_details
     }
+    
+    # IMPORTANT: do not silently report SUCCESS when there were copy errors.
+    # Operators rely on the task state in admin; partial copies must be visible.
+    if errors > 0:
+        import json
+        raise RuntimeError(json.dumps(result, ensure_ascii=False))
+
+    return result

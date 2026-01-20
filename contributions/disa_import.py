@@ -542,6 +542,84 @@ def disa_import(request, file, from_date: date_type = None):
         }
         logger.info(msg)
         messages.info(request, msg)
+
+        # ------------------------------------------------------------------
+        # User notifications (stage 3): contributions available (premiere + repeats)
+        #
+        # NOTE: Contributions are created via bulk_create(), so signals are not
+        # reliable. We trigger notifications explicitly here after the import.
+        # Only notify if a video is linked to the license and only once per license.
+        # ------------------------------------------------------------------
+        try:
+            from licenses.models import (
+                License,
+                LicenseNotificationEvent,
+                LicenseNotificationEventType,
+                NextcloudVideoFile,
+            )
+            from licenses.tasks import enqueue_license_notification_email
+            from licenses.config import get_send_status_emails
+
+            # Determine which licenses were part of this import batch
+            imported_license_ids = {
+                int(getattr(c, "license_id", 0) or 0)
+                for c in (contributions_to_create or [])
+                if getattr(c, "license_id", None)
+            }
+
+            if not get_send_status_emails():
+                imported_license_ids = set()
+
+            if imported_license_ids:
+                tz = ZoneInfo(settings.TIME_ZONE)
+
+                def has_linked_video(license_obj: License) -> bool:
+                    try:
+                        if license_obj.get_video_file():
+                            return True
+                    except Exception:
+                        pass
+                    try:
+                        return NextcloudVideoFile.objects.filter(
+                            license=license_obj,
+                            is_deleted=False,
+                        ).exists()
+                    except Exception:
+                        return False
+
+                for lic in licenses_dict.values():
+                    if int(getattr(lic, "id", 0) or 0) not in imported_license_ids:
+                        continue
+                    if not has_linked_video(lic):
+                        continue
+
+                    qs = models.Contribution.objects.filter(license=lic).order_by("broadcast_date")
+                    if not qs.exists():
+                        continue
+
+                    broadcast_times = [c.broadcast_date.astimezone(tz) for c in qs]
+                    premiere_dt = broadcast_times[0].strftime("%Y-%m-%d %H:%M")
+                    repeats = [dt.strftime("%Y-%m-%d %H:%M") for dt in broadcast_times[1:]]
+
+                    payload = {
+                        "premiere_datetime": premiere_dt,
+                        "repeats": repeats,
+                    }
+
+                    ev, ev_created = LicenseNotificationEvent.objects.get_or_create(
+                        license_number=int(lic.number),
+                        event_type=LicenseNotificationEventType.CONTRIBUTIONS_AVAILABLE,
+                        defaults={"payload": payload},
+                    )
+                    if ev_created:
+                        enqueue_license_notification_email(
+                            LicenseNotificationEventType.CONTRIBUTIONS_AVAILABLE,
+                            int(lic.number),
+                            payload=payload,
+                        )
+        except Exception:
+            # Never block import due to email issues.
+            logger.exception("Failed to send contributions-related license notifications")
         
     except Exception as e:
         error_msg = _('Error during import: %(error)s') % {'error': str(e)}

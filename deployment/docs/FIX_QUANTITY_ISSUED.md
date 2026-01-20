@@ -19,7 +19,7 @@ First, commit and push all code changes to the repository:
 ```bash
 git add .
 git commit -m "Fix double increment bug in quantity_issued calculation"
-git push origin version_3  # or your branch name
+git push -u origin HEAD  # or your branch name
 ```
 
 ### Step 2: Update Production Server

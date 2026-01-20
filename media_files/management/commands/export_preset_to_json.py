@@ -6,7 +6,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from media_files.models import VideoPreset
+from tools.models import VideoPreset
 
 
 class Command(BaseCommand):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-28 21:47+0100\n"
+"POT-Creation-Date: 2026-01-15 23:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -124,8 +124,34 @@ msgstr "Zurückgegeben"
 msgid "Overdue"
 msgstr "Überfällig"
 
+#, fuzzy
+#| msgid "Active rentals"
+msgid "Active Rentals"
+msgstr "Aktive Ausleihen"
+
 msgid "Error loading statistics:"
 msgstr "Fehler beim Laden der Statistiken:"
+
+#, fuzzy
+#| msgid "Active rentals"
+msgid "No active rentals"
+msgstr "Aktive Ausleihen"
+
+#, fuzzy
+#| msgid "Requested"
+msgid "Request"
+msgstr "Angefordert"
+
+#, fuzzy
+#| msgid "Time Period"
+msgid "Period"
+msgstr "Zeitraum"
+
+msgid "Items"
+msgstr "Artikel"
+
+msgid "Rooms"
+msgstr "Räume"
 
 msgid "No items to return selected"
 msgstr "Keine Artikel zur Rückgabe ausgewählt"
@@ -457,9 +483,6 @@ msgstr "k.A."
 msgid "Error rendering item"
 msgstr "Fehler beim Anzeigen des Artikels"
 
-msgid "Rooms"
-msgstr "Räume"
-
 msgid "rooms"
 msgstr "Räume"
 
@@ -707,6 +730,19 @@ msgstr "Netzwerkfehler beim Ausgeben aus der Freistellung"
 msgid "Save return"
 msgstr "Rückgabe speichern"
 
+#, fuzzy
+#| msgid "items not available"
+msgid "Confirm action is not available."
+msgstr "Artikel nicht verfügbar"
+
+msgid "Confirm this request?"
+msgstr ""
+
+#, fuzzy
+#| msgid "Error creating rental"
+msgid "Error confirming request: "
+msgstr "Fehler beim Erstellen der Ausleihe"
+
 msgid "Exit return mode"
 msgstr "Rückgabemodus verlassen"
 
@@ -730,9 +766,6 @@ msgstr "und"
 
 msgid "more"
 msgstr "mehr"
-
-msgid "Items"
-msgstr "Artikel"
 
 msgid "Type"
 msgstr "Typ"

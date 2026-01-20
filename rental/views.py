@@ -310,9 +310,9 @@ def api_search_users(request):
     ).distinct()[:10]
     
     result = []
-    from django.conf import settings
-    state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-    organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+    from registration import organization_config
+    state_institution = organization_config.get_state_media_institution()
+    organization_owner = organization_config.get_organization_owner()
     
     for user in users:
         profile = getattr(user, 'profile', None)
@@ -722,8 +722,9 @@ def api_get_filter_options(request):
     if user_id:
         try:
             user = OKUser.objects.get(id=user_id)
-            state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-            organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+            from registration import organization_config
+            state_institution = organization_config.get_state_media_institution()
+            organization_owner = organization_config.get_organization_owner()
             
             if user.is_staff:
                 # Staff can see all owners

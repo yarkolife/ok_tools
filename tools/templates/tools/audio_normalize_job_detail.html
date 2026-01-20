@@ -1,0 +1,101 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Audio Normalize Job' %} #{{ job.id }} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a>
+    &rsaquo; <a href="{% url 'tools:audio_normalize' %}">{% trans 'Audio Normalize Jobs' %}</a>
+    &rsaquo; #{% if job %}{{ job.id }}{% endif %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .job-detail-container { padding: 20px; }
+    .section { background: #fff; border: 1px solid #dee2e6; border-radius: 4px; padding: 20px; margin-bottom: 20px; }
+    .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+    .status-badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .status-pending { background: #6c757d; color: white; }
+    .status-analyzing { background: #0dcaf0; color: #000; }
+    .status-processing { background: #ffc107; color: #000; }
+    .status-completed { background: #28a745; color: white; }
+    .status-failed { background: #dc3545; color: white; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .info-item { padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    .info-label { font-weight: bold; color: #666; margin-bottom: 5px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="job-detail-container">
+    <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px;">
+        <h1 style="margin:0;">{% trans 'Audio Normalize Job' %} #{{ job.id }}</h1>
+        <div>
+            <a href="{% url 'tools:audio_normalize_new' %}?job={{ job.id }}" class="button default">{% trans 'Open Tool' %}</a>
+            {% if job.status == 'completed' and job.output_file %}
+                <a href="{% url 'tools:api_audio_download' job.id %}" class="button default">{% trans 'Download' %}</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">{% trans 'Status' %}</div>
+        <span class="status-badge status-{{ job.status }}">{{ job.get_status_display }}</span>
+        <span style="margin-left: 10px;">{% trans 'Progress' %}: <strong>{{ job.progress }}%</strong></span>
+        {% if job.error_message %}
+        <div style="margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 4px; color: #721c24;">
+            <strong>{% trans 'Error' %}:</strong> {{ job.error_message }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <div class="section-title">{% trans 'Job Information' %}</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{% trans 'Created' %}</div>
+                <div>{{ job.created_at|date:"Y-m-d H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Preset' %}</div>
+                <div class="mono">{{ job.preset_id }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Audio settings' %}</div>
+                <div class="mono">{{ job.audio_bitrate }} / {{ job.sample_rate }} Hz{% if job.force_stereo %} / 2ch{% endif %}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Files' %}</div>
+                <div class="mono">
+                    {% if job.input_file %}{% trans 'Input' %}: <a href="{{ job.input_file.url }}">{{ job.input_file.name }}</a>{% else %}-{% endif %}<br>
+                    {% if job.output_file %}{% trans 'Output' %}: <a href="{{ job.output_file.url }}">{{ job.output_file.name }}</a>{% else %}{% trans 'Output' %}: -{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">{% trans 'Report' %}</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{% trans 'Measured (before)' %}</div>
+                <pre class="mono" style="white-space: pre-wrap;">{{ job.analysis_before|default:"-"|safe }}</pre>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Measured (after)' %}</div>
+                <pre class="mono" style="white-space: pre-wrap;">{{ job.analysis_after|default:"-"|safe }}</pre>
+            </div>
+        </div>
+        <div style="margin-top: 14px;">
+            <div class="info-label">{% trans 'FFmpeg log (tail)' %}</div>
+            <pre class="mono" style="white-space: pre-wrap; max-height: 280px; overflow:auto; background:#111827; color:#e5e7eb; padding: 12px; border-radius: 6px;">{{ job.ffmpeg_log|default:"-"|truncatechars:6000 }}</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

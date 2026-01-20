@@ -1,0 +1,15 @@
+{% extends 'admin/change_form.html' %}
+
+{% load i18n %}
+
+{% block submit_buttons_bottom %}
+    {{ block.super }}
+    {% if original.pk %}
+    <div class="submit-row">
+        <a href="{% url 'admin:tools_videopreset_edit_preset' original.pk %}" class="button" style="background: #417690; color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; display: inline-block; margin-left: 5px;">
+            🎨 {% trans 'Edit in Visual Editor' %}
+        </a>
+    </div>
+    {% endif %}
+{% endblock %}
+

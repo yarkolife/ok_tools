@@ -10,6 +10,7 @@ from typing import Tuple, Optional, List
 from difflib import SequenceMatcher
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from licenses.models import License, Category
 from licenses.admin import get_profile_by_name, create_profile_by_name, get_category_by_id, get_category_by_name
@@ -423,7 +424,7 @@ class ImportService:
     
     def _get_or_create_license(self, profile: Profile) -> License:
         """
-        Get existing license or create new one for OK-Tools managed item.
+        Create a new internal license for OK-Tools managed item.
         
         Args:
             profile: Profile instance (already obtained)
@@ -432,69 +433,80 @@ class ImportService:
             License instance
         """
         contribution_id = self.exchange_item.contribution_id
-        
-        try:
-            # Try to get existing license
-            license = License.objects.get(number=contribution_id)
-            logger.info(f"Found existing license {license.id} for contribution_id {contribution_id}")
-            return license
-        except License.DoesNotExist:
-            # Create new license from exchange item metadata
-            logger.info(f"Creating new license for contribution_id {contribution_id}")
-            
-            # Get category from meta.json or use default
-            # Try to parse .meta.json if available
-            meta_data = {}
-            if self.exchange_item.file_path:
-                # Try to find and parse .meta.json file
-                try:
-                    base_name = '.'.join(self.exchange_item.filename.split('.')[:-1])
-                    folder_path = self.exchange_item.file_path.rsplit('/', 1)[0]
-                    meta_json_path = f"{folder_path}/{base_name}.meta.json"
-                    
-                    if self.service.check_file_exists(meta_json_path):
-                        meta_data = self.service.parse_meta_json(meta_json_path) or {}
-                except Exception as e:
-                    logger.warning(f"Could not parse meta.json for exchange item {self.exchange_item.id}: {e}")
-            
-            category = None
-            if meta_data.get('category_id'):
-                category = get_category_by_id(meta_data['category_id'])
-            
-            if not category:
-                # Use default category
-                try:
-                    category = Category.objects.first()
-                    if not category:
-                        # Create default category if none exists
-                        from django.utils.translation import gettext_lazy as _
-                        category = Category.objects.get_or_create(name=_('Gastbeitrag'))[0]
-                except Category.DoesNotExist:
+
+        # Always create a new internal license number, even if the exchange item has a numeric ID.
+        logger.info(f"Creating new internal license for contribution_id {contribution_id}")
+
+        # Get category from meta.json or use default
+        # Try to parse .meta.json if available
+        meta_data = {}
+        if self.exchange_item.file_path:
+            # Try to find and parse .meta.json file
+            try:
+                base_name = '.'.join(self.exchange_item.filename.split('.')[:-1])
+                folder_path = self.exchange_item.file_path.rsplit('/', 1)[0]
+                meta_json_path = f"{folder_path}/{base_name}.meta.json"
+
+                if self.service.check_file_exists(meta_json_path):
+                    meta_data = self.service.parse_meta_json(meta_json_path) or {}
+            except Exception as e:
+                logger.warning(f"Could not parse meta.json for exchange item {self.exchange_item.id}: {e}")
+
+        category = None
+        if meta_data.get('category_id'):
+            category = get_category_by_id(meta_data['category_id'])
+
+        if not category:
+            # Use default category
+            try:
+                category = Category.objects.first()
+                if not category:
+                    # Create default category if none exists
                     from django.utils.translation import gettext_lazy as _
                     category = Category.objects.get_or_create(name=_('Gastbeitrag'))[0]
-            
-            # Create license with metadata from exchange item (similar to import_json_view)
-            license = License.objects.create(
-                number=contribution_id,
-                title=self.exchange_item.title or f"Imported from Exchange - {contribution_id}",
-                description=self.exchange_item.description or "",
-                duration=self.exchange_item.duration or timezone.timedelta(seconds=0),
-                profile=profile,
-                category=category,
-                # Set exchange flags based on source
-                media_authority_exchange_allowed=meta_data.get('allow_exchange', True),
-                store_in_ok_media_library=meta_data.get('save_to_mediathek', False),
-                repetitions_allowed=False,
-                media_authority_exchange_allowed_other_states=False,
-                youth_protection_necessary=meta_data.get('youth_protection_necessary', False),
-                youth_protection_category=meta_data.get('youth_protection_category', 'none'),
-                is_screen_board=False,
-                infoblock=False,
-                confirmed=False,
-            )
-            
-            logger.info(f"Created new license {license.id} for contribution_id {contribution_id}")
-            return license
+            except Category.DoesNotExist:
+                from django.utils.translation import gettext_lazy as _
+                category = Category.objects.get_or_create(name=_('Gastbeitrag'))[0]
+
+        new_number = self._generate_next_license_number()
+
+        # Create license with metadata from exchange item (similar to import_json_view)
+        license = License.objects.create(
+            number=new_number,
+            title=self.exchange_item.title or f"Imported from Exchange - {contribution_id}",
+            description=self.exchange_item.description or "",
+            duration=self.exchange_item.duration or timezone.timedelta(seconds=0),
+            profile=profile,
+            category=category,
+            # Set exchange flags based on source
+            media_authority_exchange_allowed=meta_data.get('allow_exchange', True),
+            store_in_ok_media_library=meta_data.get('save_to_mediathek', False),
+            repetitions_allowed=False,
+            media_authority_exchange_allowed_other_states=False,
+            youth_protection_necessary=meta_data.get('youth_protection_necessary', False),
+            youth_protection_category=meta_data.get('youth_protection_category', 'none'),
+            is_screen_board=False,
+            infoblock=False,
+            confirmed=False,
+        )
+
+        logger.info(
+            f"Created new internal license {license.id} with number {new_number} "
+            f"for contribution_id {contribution_id}"
+        )
+        return license
+
+    def _generate_next_license_number(self) -> int:
+        """
+        Generate the next sequential license number (internal numbering).
+
+        This uses a database transaction + row lock to reduce race conditions during concurrent imports.
+        """
+        with transaction.atomic():
+            last_license = License.objects.select_for_update().order_by('-number').first()
+            if last_license and last_license.number:
+                return last_license.number + 1
+            return 1
     
     def _create_legacy_license(self, profile: Profile) -> License:
         """
@@ -532,13 +544,7 @@ class ImportService:
             from django.utils.translation import gettext_lazy as _
             category = Category.objects.get_or_create(name=_('Gastbeitrag'))[0]
         
-        # Generate a unique sequential number for legacy items
-        # Get the highest license number and increment by 1
-        last_license = License.objects.order_by('-number').first()
-        if last_license:
-            new_number = last_license.number + 1
-        else:
-            new_number = 1
+        new_number = self._generate_next_license_number()
         
         license = License.objects.create(
             number=new_number,

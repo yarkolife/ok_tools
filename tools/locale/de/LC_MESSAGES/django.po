@@ -1,0 +1,1129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-15 23:38+0100\n"
+"PO-Revision-Date: 2026-01-15 23:36+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You do not have permission to access this project."
+msgstr "Sie haben keine Berechtigung, auf dieses Projekt zuzugreifen."
+
+msgid "Tools module is disabled. Set TOOLS_ENABLED=true to enable."
+msgstr ""
+"Werkzeuge-Modul ist deaktiviert. Setzen Sie TOOLS_ENABLED=true zum "
+"Aktivieren."
+
+msgid "Untitled Slideshow"
+msgstr "Unbenannte Diashow"
+
+msgid "Cannot modify project while processing"
+msgstr "Projekt kann während der Verarbeitung nicht geändert werden"
+
+msgid "No files provided"
+msgstr "Keine Dateien bereitgestellt"
+
+msgid "No file provided"
+msgstr "Keine Datei bereitgestellt"
+
+#, python-brace-format
+msgid "Deleted {count} audio file(s)"
+msgstr "{count} Audio-Datei(en) gelöscht"
+
+msgid "Settings updated"
+msgstr "Einstellungen aktualisiert"
+
+msgid "Project is already being processed"
+msgstr "Projekt wird bereits verarbeitet"
+
+msgid "No media files in project"
+msgstr "Keine Mediendateien im Projekt"
+
+msgid "No audio file in project"
+msgstr "Keine Audio-Datei im Projekt"
+
+msgid "Generation started"
+msgstr "Generierung gestartet"
+
+msgid "Video not generated yet"
+msgstr "Video noch nicht generiert"
+
+msgid "Video file not found"
+msgstr "Video-Datei nicht gefunden"
+
+msgid "Cannot delete project while processing"
+msgstr "Projekt kann während der Verarbeitung nicht gelöscht werden"
+
+msgid "Project deleted"
+msgstr "Projekt gelöscht"
+
+msgid "Invalid order format"
+msgstr "Ungültiges Reihenfolge-Format"
+
+msgid "Order updated"
+msgstr "Reihenfolge aktualisiert"
+
+msgid "Media deleted"
+msgstr "Medien gelöscht"
+
+msgid "Only staff members can upload to library."
+msgstr "Nur Mitarbeiter können in die Bibliothek hochladen."
+
+msgid "No media IDs provided"
+msgstr "Keine Medien-IDs bereitgestellt"
+
+#, python-brace-format
+msgid "Media {media_id} not found in library"
+msgstr "Medien {media_id} nicht in Bibliothek gefunden"
+
+#, python-brace-format
+msgid "Media {media_id}: {error}"
+msgstr "Medien {media_id}: {error}"
+
+msgid "Only staff members can delete library files."
+msgstr "Nur Mitarbeiter können Bibliotheksdateien löschen."
+
+msgid "Library media deleted"
+msgstr "Bibliotheks-Medien gelöscht"
+
+msgid "No audio ID provided"
+msgstr "Keine Audio-ID bereitgestellt"
+
+#, python-brace-format
+msgid "Audio {audio_id} not found in library"
+msgstr "Audio {audio_id} nicht in Bibliothek gefunden"
+
+msgid "Tools"
+msgstr "Werkzeuge"
+
+msgid "Draft"
+msgstr "Entwurf"
+
+msgid "Processing"
+msgstr "Wird verarbeitet"
+
+msgid "Completed"
+msgstr "Abgeschlossen"
+
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+msgid "Fade"
+msgstr "Einblenden"
+
+msgid "Fade to Black"
+msgstr "Zu Schwarz ausblenden"
+
+msgid "Fade to White"
+msgstr "Zu Weiß ausblenden"
+
+msgid "Wipe Left"
+msgstr "Nach links wischen"
+
+msgid "Wipe Right"
+msgstr "Nach rechts wischen"
+
+msgid "Wipe Up"
+msgstr "Nach oben wischen"
+
+msgid "Wipe Down"
+msgstr "Nach unten wischen"
+
+msgid "Slide Left"
+msgstr "Nach links schieben"
+
+msgid "Slide Right"
+msgstr "Nach rechts schieben"
+
+msgid "Slide Up"
+msgstr "Nach oben schieben"
+
+msgid "Slide Down"
+msgstr "Nach unten schieben"
+
+msgid "Smooth Left"
+msgstr "Sanft nach links"
+
+msgid "Smooth Right"
+msgstr "Sanft nach rechts"
+
+msgid "Circle Open"
+msgstr "Kreis öffnen"
+
+msgid "Circle Close"
+msgstr "Kreis schließen"
+
+msgid "Radial"
+msgstr "Radial"
+
+msgid "Random"
+msgstr "Zufällig"
+
+msgid "Project Name"
+msgstr "Projektname"
+
+msgid "Name of the slideshow project"
+msgstr "Name des Diashow-Projekts"
+
+msgid "Created By"
+msgstr "Erstellt von"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Slide Duration (seconds)"
+msgstr "Folien-Dauer (Sekunden)"
+
+msgid "Duration of each slide in seconds"
+msgstr "Dauer jeder Folie in Sekunden"
+
+msgid "FPS"
+msgstr "FPS"
+
+msgid "Frames per second"
+msgstr "Bilder pro Sekunde"
+
+msgid "Width"
+msgstr "Breite"
+
+msgid "Video width in pixels"
+msgstr "Videobreite in Pixeln"
+
+msgid "Height"
+msgstr "Höhe"
+
+msgid "Video height in pixels"
+msgstr "Videohöhe in Pixeln"
+
+msgid "Use Transitions"
+msgstr "Übergänge verwenden"
+
+msgid "Enable transitions between slides"
+msgstr "Übergänge zwischen Folien aktivieren"
+
+msgid "Transition Type"
+msgstr "Übergangstyp"
+
+msgid "Transition Duration (seconds)"
+msgstr "Übergangs-Dauer (Sekunden)"
+
+msgid "Duration of transitions in seconds"
+msgstr "Dauer der Übergänge in Sekunden"
+
+msgid "Video Bitrate"
+msgstr "Video-Bitrate"
+
+msgid "Video bitrate (e.g., 5M, 10M)"
+msgstr "Video-Bitrate (z.B. 5M, 10M)"
+
+msgid "Audio Bitrate"
+msgstr "Audio-Bitrate"
+
+msgid "Audio bitrate (e.g., 128k, 256k)"
+msgstr "Audio-Bitrate (z.B. 128k, 256k)"
+
+msgid "Video Codec"
+msgstr "Video-Codec"
+
+msgid "Video codec (auto-detect if empty)"
+msgstr "Video-Codec (automatisch erkennen, wenn leer)"
+
+msgid "Output Video File"
+msgstr "Ausgabe-Videodatei"
+
+msgid "Error Message"
+msgstr "Fehlermeldung"
+
+msgid "Error message if generation failed"
+msgstr "Fehlermeldung bei fehlgeschlagener Generierung"
+
+msgid "Created At"
+msgstr "Erstellt am"
+
+msgid "Updated At"
+msgstr "Aktualisiert am"
+
+msgid "Completed At"
+msgstr "Abgeschlossen am"
+
+msgid "Slideshow Project"
+msgstr "Diashow-Projekt"
+
+msgid "Slideshow Projects"
+msgstr "Diashow-Projekte"
+
+msgid "Image"
+msgstr "Bild"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Project"
+msgstr "Projekt"
+
+msgid "Project this media belongs to (null for library files)"
+msgstr "Projekt, zu dem diese Medien gehören (null für Bibliotheksdateien)"
+
+msgid "Media File"
+msgstr "Mediendatei"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Name of the media file"
+msgstr "Name der Mediendatei"
+
+msgid "Media Type"
+msgstr "Medientyp"
+
+msgid "Order"
+msgstr "Reihenfolge"
+
+msgid "Order in slideshow sequence"
+msgstr "Reihenfolge in der Diashow-Sequenz"
+
+msgid "Duration Override (seconds)"
+msgstr "Dauer überschreiben (Sekunden)"
+
+msgid "Override default slide duration for this file"
+msgstr "Standard-Foliendauer für diese Datei überschreiben"
+
+msgid "Library File"
+msgstr "Bibliotheksdatei"
+
+msgid "Is this a library media file available to all projects?"
+msgstr ""
+"Ist dies eine Bibliotheks-Medien-Datei, die für alle Projekte verfügbar ist?"
+
+msgid "Uploaded At"
+msgstr "Hochgeladen am"
+
+msgid "Slideshow Media"
+msgstr "Diashow-Medien"
+
+msgid "Project this audio belongs to (null for library files)"
+msgstr "Projekt, zu dem diese Audio-Datei gehört (null für Bibliotheksdateien)"
+
+msgid "Audio File"
+msgstr "Audio-Datei"
+
+msgid "Name of the audio track"
+msgstr "Name des Audio-Tracks"
+
+msgid "Duration (seconds)"
+msgstr "Dauer (Sekunden)"
+
+msgid "Duration of audio in seconds"
+msgstr "Dauer des Audios in Sekunden"
+
+msgid "Is this a library audio file available to all projects?"
+msgstr ""
+"Ist dies eine Bibliotheks-Audio-Datei, die für alle Projekte verfügbar ist?"
+
+msgid "Slideshow Audio"
+msgstr "Diashow-Audio"
+
+msgid "Storage Path"
+msgstr "Speicherpfad"
+
+msgid "Base path for storing uploaded media files"
+msgstr "Basis-Pfad zum Speichern hochgeladener Mediendateien"
+
+msgid "Output Path"
+msgstr "Ausgabepfad"
+
+msgid "Base path for storing generated videos"
+msgstr "Basis-Pfad zum Speichern generierter Videos"
+
+msgid "Max Upload Size (MB)"
+msgstr "Maximale Upload-Größe (MB)"
+
+msgid "Maximum file upload size in megabytes"
+msgstr "Maximale Datei-Upload-Größe in Megabyte"
+
+msgid "Allowed Image Formats"
+msgstr "Erlaubte Bildformate"
+
+msgid "Comma-separated list of allowed image extensions"
+msgstr "Kommagetrennte Liste erlaubter Bild-Erweiterungen"
+
+msgid "Allowed Video Formats"
+msgstr "Erlaubte Videoformate"
+
+msgid "Comma-separated list of allowed video extensions"
+msgstr "Kommagetrennte Liste erlaubter Video-Erweiterungen"
+
+msgid "Allowed Audio Formats"
+msgstr "Erlaubte Audioformate"
+
+msgid "Comma-separated list of allowed audio extensions"
+msgstr "Kommagetrennte Liste erlaubter Audio-Erweiterungen"
+
+msgid "FFmpeg Path"
+msgstr "FFmpeg-Pfad"
+
+msgid "Path to ffmpeg executable"
+msgstr "Pfad zur ffmpeg-Executable"
+
+msgid "FFprobe Path"
+msgstr "FFprobe-Pfad"
+
+msgid "Path to ffprobe executable"
+msgstr "Pfad zur ffprobe-Executable"
+
+msgid "Tools Configuration"
+msgstr "Werkzeuge-Konfiguration"
+
+msgid "Home"
+msgstr "Startseite"
+
+msgid "Available tools and utilities for content creation"
+msgstr "Verfügbare Werkzeuge und Utilities zur Inhaltserstellung"
+
+msgid "Video Slideshow Generator"
+msgstr "Video-Diashow-Generator"
+
+msgid "Create professional video slideshows from images and videos with background music, customizable transitions, and quality settings"
+msgstr "Erstellen Sie professionelle Video-Diashows aus Bildern und Videos mit Hintergrundmusik, anpassbaren Übergängen und Qualitätseinstellungen"
+
+msgid "Create New Project"
+msgstr "Neues Projekt erstellen"
+
+msgid "My Projects"
+msgstr "Meine Projekte"
+
+msgid "Edit Slideshow"
+msgstr "Diashow bearbeiten"
+
+msgid "Create Slideshow"
+msgstr "Diashow erstellen"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "Create"
+msgstr "Erstellen"
+
+msgid "Create New Slideshow"
+msgstr "Neue Diashow erstellen"
+
+msgid "Enter project name"
+msgstr "Projektname eingeben"
+
+msgid "Media Files"
+msgstr "Mediendateien"
+
+msgid "Upload New"
+msgstr "Neu hochladen"
+
+msgid "Media Library"
+msgstr "Medienbibliothek"
+
+msgid "Drag & drop files here or click to select"
+msgstr "Dateien hierher ziehen oder klicken zum Auswählen"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Images"
+msgstr "Bilder"
+
+msgid "Videos"
+msgstr "Videos"
+
+msgid "Click to add"
+msgstr "Zum Hinzufügen klicken"
+
+msgid "No media in library yet"
+msgstr "Noch keine Medien in der Bibliothek"
+
+msgid "Project Media"
+msgstr "Projekt-Medien"
+
+msgid "Drag to reorder"
+msgstr "Zum Neuordnen ziehen"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "No media files yet. Upload or add from library."
+msgstr "Noch keine Mediendateien. Hochladen oder aus Bibliothek hinzufügen."
+
+msgid "Background Music"
+msgstr "Hintergrundmusik"
+
+msgid "Audio Library"
+msgstr "Audio-Bibliothek"
+
+msgid "No audio in library yet"
+msgstr "Noch kein Audio in der Bibliothek"
+
+msgid "Project Audio"
+msgstr "Projekt-Audio"
+
+msgid "No audio file yet. Upload or add from library."
+msgstr "Noch keine Audio-Datei. Hochladen oder aus Bibliothek hinzufügen."
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Video & Transition Settings"
+msgstr "Video- und Übergangseinstellungen"
+
+msgid "Slide Duration"
+msgstr "Folien-Dauer"
+
+msgid "Transition Duration"
+msgstr "Übergangs-Dauer"
+
+msgid "Resolution"
+msgstr "Auflösung"
+
+msgid "Save as Draft"
+msgstr "Als Entwurf speichern"
+
+msgid "Generate Video"
+msgstr "Video generieren"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Please save project first"
+msgstr "Bitte speichern Sie zuerst das Projekt"
+
+msgid "Invalid project ID"
+msgstr "Ungültige Projekt-ID"
+
+msgid "Upload failed"
+msgstr "Upload fehlgeschlagen"
+
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+msgid "Delete this media file?"
+msgstr "Diese Mediendatei löschen?"
+
+msgid "Delete this audio file?"
+msgstr "Diese Audio-Datei löschen?"
+
+msgid "Delete failed"
+msgstr "Löschen fehlgeschlagen"
+
+msgid "Please enter project name"
+msgstr "Bitte geben Sie einen Projektnamen ein"
+
+msgid "Settings saved"
+msgstr "Einstellungen gespeichert"
+
+msgid "Video generation started. Check status in project list."
+msgstr "Video-Generierung gestartet. Status in der Projektliste prüfen."
+
+msgid "Generation failed"
+msgstr "Generierung fehlgeschlagen"
+
+msgid "Media added to project"
+msgstr "Medien zum Projekt hinzugefügt"
+
+msgid "Failed to add media"
+msgstr "Medien konnten nicht hinzugefügt werden"
+
+msgid "Audio added to project"
+msgstr "Audio zum Projekt hinzugefügt"
+
+msgid "Failed to add audio"
+msgstr "Audio konnte nicht hinzugefügt werden"
+
+msgid "Download Video"
+msgstr "Video herunterladen"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Project Information"
+msgstr "Projektinformationen"
+
+msgid "Created"
+msgstr "Erstellt"
+
+msgid "Updated"
+msgstr "Aktualisiert"
+
+msgid "seconds"
+msgstr "Sekunden"
+
+msgid "Transitions"
+msgstr "Übergänge"
+
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+msgid "No media files"
+msgstr "Keine Mediendateien"
+
+msgid "Duration"
+msgstr "Dauer"
+
+msgid "Generated Video"
+msgstr "Generiertes Video"
+
+msgid "Your browser does not support video playback."
+msgstr "Ihr Browser unterstützt keine Videowiedergabe."
+
+msgid "Create video slideshows from images and videos with background music"
+msgstr ""
+"Erstellen Sie Video-Diashows aus Bildern und Videos mit Hintergrundmusik"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "View"
+msgstr "Ansehen"
+
+msgid "Download"
+msgstr "Herunterladen"
+
+msgid "No projects found"
+msgstr "Keine Projekte gefunden"
+
+msgid "Previous"
+msgstr "Zurück"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "of"
+msgstr "von"
+
+msgid "Next"
+msgstr "Weiter"
+
+msgid "Only staff members can access this tool."
+msgstr "Nur Mitarbeiter können dieses Tool verwenden."
+
+msgid "You do not have permission to access this job."
+msgstr "Sie haben keine Berechtigung, auf diesen Auftrag zuzugreifen."
+
+msgid "Job is already running"
+msgstr "Auftrag läuft bereits"
+
+msgid "Analysis started"
+msgstr "Analyse gestartet"
+
+msgid "Normalization started"
+msgstr "Normalisierung gestartet"
+
+msgid "Output file not generated yet"
+msgstr "Ausgabedatei wurde noch nicht erzeugt"
+
+msgid "Output file not found"
+msgstr "Ausgabedatei nicht gefunden"
+
+msgid "Cannot delete job while processing"
+msgstr "Auftrag kann während der Verarbeitung nicht gelöscht werden"
+
+msgid "Job deleted"
+msgstr "Auftrag gelöscht"
+
+msgid "Audio Normalize Input Path"
+msgstr "Eingabepfad für Audio-Normalisierung"
+
+msgid "Base path for audio normalize source files (optional)"
+msgstr "Basispfad für Quelldateien der Audio-Normalisierung (optional)"
+
+msgid "Audio Normalize Output Path"
+msgstr "Ausgabepfad für Audio-Normalisierung"
+
+msgid "Base path for audio normalize output files (optional)"
+msgstr "Basispfad für Ausgabedateien der Audio-Normalisierung (optional)"
+
+msgid "Audio Normalize Default Preset"
+msgstr "Standard-Preset für Audio-Normalisierung"
+
+msgid "Default audio normalize preset ID"
+msgstr "Standard-Preset-ID für die Audio-Normalisierung"
+
+msgid "Audio Normalize Default Bitrate"
+msgstr "Standard-Bitrate für Audio-Normalisierung"
+
+msgid "Default audio bitrate for normalized files (e.g., 192k)"
+msgstr "Standard-Audio-Bitrate für normalisierte Dateien (z. B. 192k)"
+
+msgid "Audio Normalize Job"
+msgstr "Audio-Normalisierungsauftrag"
+
+msgid "Audio Normalize Jobs"
+msgstr "Audio-Normalisierungsaufträge"
+
+msgid "Pending"
+msgstr "Ausstehend"
+
+msgid "Analyzing"
+msgstr "Analysiere"
+
+msgid "TV (R128)"
+msgstr "TV (R128)"
+
+msgid "Web"
+msgstr "Web"
+
+msgid "192 kbps"
+msgstr "192 kbps"
+
+msgid "256 kbps"
+msgstr "256 kbps"
+
+msgid "Preset"
+msgstr "Preset"
+
+msgid "Audio normalize preset ID"
+msgstr "Preset-ID für Audio-Normalisierung"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Target loudness profile"
+msgstr "Ziel-Lautheitsprofil"
+
+msgid "Input File"
+msgstr "Eingabedatei"
+
+msgid "Output File"
+msgstr "Ausgabedatei"
+
+msgid "Output Filename"
+msgstr "Ausgabe-Dateiname"
+
+msgid "If empty, will default to <input>_R128.mp4"
+msgstr "Wenn leer, wird standardmäßig <input>_R128.mp4 verwendet"
+
+msgid "Sample Rate"
+msgstr "Abtastrate"
+
+msgid "Force Stereo"
+msgstr "Stereo erzwingen"
+
+msgid "If enabled, audio will be forced to 2 channels"
+msgstr "Wenn aktiviert, wird Audio auf 2 Kanäle erzwungen"
+
+msgid "Input Metadata"
+msgstr "Eingabe-Metadaten"
+
+msgid "ffprobe JSON output"
+msgstr "ffprobe-JSON-Ausgabe"
+
+msgid "Analysis Before"
+msgstr "Analyse vorher"
+
+msgid "loudnorm analysis JSON from pass 1"
+msgstr "loudnorm-Analyse-JSON aus Durchlauf 1"
+
+msgid "Analysis After"
+msgstr "Analyse nachher"
+
+msgid "loudnorm analysis JSON from after-processing verification pass"
+msgstr "loudnorm-Analyse-JSON aus dem Verifikationsdurchlauf nach der Verarbeitung"
+
+msgid "Progress (%)"
+msgstr "Fortschritt (%)"
+
+msgid "Processing progress 0..100"
+msgstr "Verarbeitungsfortschritt 0..100"
+
+msgid "FFmpeg Log"
+msgstr "FFmpeg-Protokoll"
+
+msgid "Audio Broadcast Normalize (R128)"
+msgstr "Audio-Broadcast-Normalisierung (R128)"
+
+msgid "Normalize loudness to EBU R128 using ffprobe + ffmpeg loudnorm (2-pass), with before/after report and safe video passthrough"
+msgstr "Normalisiert die Lautheit nach EBU R128 mit ffprobe + ffmpeg loudnorm (2‑Pass), inklusive Vorher/Nachher‑Report und sicherem Video‑Passthrough"
+
+msgid "Open Tool"
+msgstr "Tool öffnen"
+
+msgid "New Job"
+msgstr "Neuer Auftrag"
+
+msgid "My Jobs"
+msgstr "Meine Aufträge"
+
+msgid "Queue and history of audio normalization jobs."
+msgstr "Warteschlange und Verlauf der Audio-Normalisierungsaufträge."
+
+msgid "Job"
+msgstr "Auftrag"
+
+msgid "No jobs found"
+msgstr "Keine Aufträge gefunden"
+
+msgid "Job Information"
+msgstr "Auftragsinformationen"
+
+msgid "Audio settings"
+msgstr "Audio-Einstellungen"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Input / Output"
+msgstr "Eingabe / Ausgabe"
+
+msgid "Source file"
+msgstr "Quelldatei"
+
+msgid "Select a local file to upload for processing."
+msgstr "Wählen Sie eine lokale Datei zum Hochladen für die Verarbeitung."
+
+msgid "Output filename"
+msgstr "Ausgabe-Dateiname"
+
+msgid "Leave empty for *_R128.mp4"
+msgstr "Leer lassen für *_R128.mp4"
+
+msgid "If empty, output will default to <input>_R128.mp4"
+msgstr "Wenn leer, wird die Ausgabe standardmäßig <input>_R128.mp4 verwendet"
+
+msgid "Processing profile"
+msgstr "Verarbeitungsprofil"
+
+msgid "Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic loudnorm."
+msgstr "Wählen Sie ein Preset. Natural/Strong nutzen 2-Pass loudnorm; Fast Auto nutzt dynamisches loudnorm."
+
+msgid "Output audio settings"
+msgstr "Audio-Ausgabe-Einstellungen"
+
+msgid "Audio codec"
+msgstr "Audio-Codec"
+
+msgid "AAC (fixed)"
+msgstr "AAC (fix)"
+
+msgid "Bitrate"
+msgstr "Bitrate"
+
+msgid "Sample rate"
+msgstr "Abtastrate"
+
+msgid "Channels"
+msgstr "Kanäle"
+
+msgid "Force stereo (2ch)"
+msgstr "Stereo erzwingen (2 Kanäle)"
+
+msgid "Force stereo (2 channels)"
+msgstr "Stereo erzwingen (2 Kanäle)"
+
+msgid "Default keeps original channels."
+msgstr "Standard behält die ursprünglichen Kanäle."
+
+msgid "Run"
+msgstr "Start"
+
+msgid "New job"
+msgstr "Neuer Auftrag"
+
+msgid "Analyze (no output)"
+msgstr "Analysieren (keine Ausgabe)"
+
+msgid "Generate (job)"
+msgstr "Erzeugen (Job)"
+
+msgid "Progress"
+msgstr "Fortschritt"
+
+msgid "Report"
+msgstr "Bericht"
+
+msgid "Input"
+msgstr "Eingabe"
+
+msgid "Measured (before)"
+msgstr "Gemessen (vorher)"
+
+msgid "Measured (after)"
+msgstr "Gemessen (nachher)"
+
+msgid "Result"
+msgstr "Ergebnis"
+
+msgid "FFmpeg log (tail)"
+msgstr "FFmpeg-Protokoll (Ende)"
+
+msgid "Please select an input file first."
+msgstr "Bitte wählen Sie zuerst eine Eingabedatei aus."
+
+msgid "Failed to create job."
+msgstr "Auftrag konnte nicht erstellt werden."
+
+msgid "Failed to start analysis."
+msgstr "Analyse konnte nicht gestartet werden."
+
+msgid "Failed to start normalization."
+msgstr "Normalisierung konnte nicht gestartet werden."
+
+msgid "Failed to fetch status."
+msgstr "Status konnte nicht abgerufen werden."
+
+msgid "Output"
+msgstr "Ausgabe"
+
+msgid "Recommendations"
+msgstr "Empfehlungen"
+
+msgid "Integrated LUFS"
+msgstr "Integrierte LUFS"
+
+msgid "True Peak"
+msgstr "True Peak"
+
+msgid "LRA"
+msgstr "LRA"
+
+msgid "Metric"
+msgstr "Kennwert"
+
+msgid "Before"
+msgstr "Vorher"
+
+msgid "After"
+msgstr "Nachher"
+
+msgid "Waveform (before / after)"
+msgstr "Wellenform (vorher / nachher)"
+
+msgid "Preview"
+msgstr "Vorschau"
+
+msgid "Original"
+msgstr "Original"
+
+msgid "Processed"
+msgstr "Verarbeitet"
+
+msgid "Waveform preview will appear here"
+msgstr "Die Wellenform-Vorschau erscheint hier"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Failed to fetch waveform."
+msgstr "Wellenform konnte nicht abgerufen werden."
+
+msgid "Media number"
+msgstr "Mediennummer"
+
+msgid "Search"
+msgstr "Suchen"
+
+msgid "Suche"
+msgstr "Suche"
+
+msgid "Find an existing video file by number (from Media Files)."
+msgstr "Bestehende Videodatei nach Nummer finden (aus Mediendateien)."
+
+msgid "Searching..."
+msgstr "Suche..."
+
+msgid "Enter a number to search."
+msgstr "Nummer eingeben, um zu suchen."
+
+msgid "Search failed."
+msgstr "Suche fehlgeschlagen."
+
+msgid "No matching files found under MEDIA_ROOT."
+msgstr "Keine passenden Dateien unter MEDIA_ROOT gefunden."
+
+msgid "Use"
+msgstr "Verwenden"
+
+msgid "Using existing file"
+msgstr "Verwende bestehende Datei"
+
+msgid "Sync playback"
+msgstr "Sync-Wiedergabe"
+
+msgid "When enabled, seeking and play/pause are mirrored to the other preview."
+msgstr "Wenn aktiviert, werden Spulen sowie Wiedergabe/Pause auf die andere Vorschau übertragen."
+
+msgid "Media files module is not available"
+msgstr "Modul Mediendateien ist nicht verfügbar"
+
+msgid "Invalid number"
+msgstr "Ungültige Nummer"
+
+msgid "Invalid kind"
+msgstr "Ungültiger Typ"
+
+msgid "Input file not found"
+msgstr "Eingabedatei nicht gefunden"
+
+msgid "Video Render"
+msgstr "Video-Rendering"
+
+msgid "Video Render (Overlays)"
+msgstr "Video-Rendering (Overlays)"
+
+msgid "Video Render with Overlays"
+msgstr "Video-Rendering mit Overlays"
+
+msgid "Render videos with overlay presets (title, subtitle, broadcast responsibility, media authority) and encoding presets"
+msgstr "Rendert Videos mit Overlay-Presets (Titel, Untertitel, Sendeverantwortung, Medienanstalt) und Encoding-Presets"
+
+msgid "Render a new video version with intro/outro overlays and encoding presets."
+msgstr "Rendert eine neue Video-Version mit Intro/Outro-Overlays und Encoding-Presets."
+
+msgid "Leave empty for automatic naming"
+msgstr "Leer lassen für automatische Benennung"
+
+msgid "Optional. If empty, a versioned name will be generated next to the source file."
+msgstr "Optional. Wenn leer, wird neben der Quelldatei ein Name mit Versionssuffix erzeugt."
+
+msgid "Video ID"
+msgstr "Video-ID"
+
+msgid "Open"
+msgstr "Öffnen"
+
+msgid "Open the tool for a specific VideoFile ID."
+msgstr "Öffnet das Tool für eine bestimmte VideoFile-ID."
+
+msgid "Selected Video"
+msgstr "Ausgewähltes Video"
+
+msgid "Filename"
+msgstr "Dateiname"
+
+msgid "Open in admin"
+msgstr "Im Admin öffnen"
+
+msgid "1. Select Elements and Styles"
+msgstr "1. Elemente und Stile auswählen"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Subtitle"
+msgstr "Untertitel"
+
+msgid "Broadcast Responsibility"
+msgstr "Sendeverantwortung"
+
+msgid "Media Authority"
+msgstr "Medienanstalt"
+
+msgid "Broadcast Info"
+msgstr "Sendeinfo"
+
+msgid "2. Quality Settings"
+msgstr "2. Qualitäts-Einstellungen"
+
+msgid "Encoding Quality"
+msgstr "Kodierungsqualität"
+
+msgid "Mode"
+msgstr "Modus"
+
+msgid "Add intro/outro clips and apply overlays to them"
+msgstr "Intro-/Outro-Clips hinzufügen und Overlays darauf anwenden"
+
+msgid "Invert overlay text color (white ↔ black)"
+msgstr "Textfarbe der Overlays invertieren (weiß ↔ schwarz)"
+
+msgid "If unchecked, overlays will be applied to the first and last segment of the main video."
+msgstr "Wenn deaktiviert, werden Overlays auf das erste und letzte Segment des Hauptvideos angewendet."
+
+msgid "3. Submit"
+msgstr "3. Start"
+
+msgid "Preview (10s)"
+msgstr "Vorschau (10s)"
+
+msgid "Render Full Video"
+msgstr "Komplettes Video rendern"
+
+msgid "This will create a new VideoFile + FileOperation and render asynchronously."
+msgstr "Erstellt eine neue VideoFile + Dateivorgang und rendert asynchron."
+
+msgid "Please enter a valid number."
+msgstr "Bitte eine gültige Nummer eingeben."
+
+msgid "No videos found."
+msgstr "Keine Videos gefunden."
+
+msgid "Select"
+msgstr "Auswählen"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Please select a file."
+msgstr "Bitte eine Datei auswählen."
+
+msgid "Please enter a valid media number (license number) first."
+msgstr "Bitte zuerst eine gültige Mediennummer (Lizenznummer) eingeben."
+
+msgid "Uploading..."
+msgstr "Hochladen..."
+
+msgid "Video rendering started. You can track progress in File Operations."
+msgstr "Video-Rendering gestartet. Den Fortschritt finden Sie unter Dateivorgänge."
+
+msgid "Video Render Jobs"
+msgstr "Video-Rendering-Aufträge"
+
+msgid "Queue and history of video render operations started from the Tools UI."
+msgstr "Warteschlange und Verlauf der Video-Rendering-Aufträge (gestartet über die Tools-Oberfläche)."
+
+msgid "New Render"
+msgstr "Neues Rendering"
+
+msgid "In Progress"
+msgstr "In Bearbeitung"
+
+msgid "Success"
+msgstr "Erfolgreich"
+
+msgid "Auto-refresh is enabled while jobs are running."
+msgstr "Auto-Aktualisierung ist aktiv, solange Aufträge laufen."
+
+msgid "Operation"
+msgstr "Vorgang"
+
+msgid "Config"
+msgstr "Konfiguration"
+
+msgid "Full"
+msgstr "Voll"
+
+msgid "Encode"
+msgstr "Encoding"
+
+msgid "Style"
+msgstr "Stil"
+
+msgid "Intro/Outro"
+msgstr "Intro/Outro"
+
+msgid "Invert text"
+msgstr "Text invertieren"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "File Operation"
+msgstr "Dateivorgang"

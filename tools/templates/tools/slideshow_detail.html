@@ -1,0 +1,200 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ project.name }} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a>
+    &rsaquo; <a href="{% url 'tools:slideshow_list' %}">{% trans 'Slideshow Projects' %}</a>
+    &rsaquo; {{ project.name }}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .slideshow-detail-container {
+        padding: 20px;
+    }
+    .section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+    }
+    .status-draft { background: #6c757d; color: white; }
+    .status-processing { background: #ffc107; color: #000; }
+    .status-completed { background: #28a745; color: white; }
+    .status-failed { background: #dc3545; color: white; }
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    .info-item {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    .info-label {
+        font-weight: bold;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    .media-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="slideshow-detail-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>{{ project.name }}</h1>
+        <div>
+            <a href="{% url 'tools:slideshow_edit' project.id %}" class="button">{% trans 'Edit' %}</a>
+            {% if project.status == 'completed' and project.output_file %}
+            <a href="{% url 'tools:api_download' project.id %}" class="button default">{% trans 'Download Video' %}</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Status -->
+    <div class="section">
+        <div class="section-title">{% trans 'Status' %}</div>
+        <span class="status-badge status-{{ project.status }}">
+            {{ project.get_status_display }}
+        </span>
+        {% if project.error_message %}
+        <div style="margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 4px; color: #721c24;">
+            <strong>{% trans 'Error' %}:</strong> {{ project.error_message }}
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Project Info -->
+    <div class="section">
+        <div class="section-title">{% trans 'Project Information' %}</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{% trans 'Created' %}</div>
+                <div>{{ project.created_at|date:"Y-m-d H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Updated' %}</div>
+                <div>{{ project.updated_at|date:"Y-m-d H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Media Files' %}</div>
+                <div>{{ project.media_count }}</div>
+            </div>
+            {% if project.completed_at %}
+            <div class="info-item">
+                <div class="info-label">{% trans 'Completed' %}</div>
+                <div>{{ project.completed_at|date:"Y-m-d H:i" }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Settings -->
+    <div class="section">
+        <div class="section-title">{% trans 'Settings' %}</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">{% trans 'Slide Duration' %}</div>
+                <div>{{ project.slide_duration }} {% trans 'seconds' %}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'FPS' %}</div>
+                <div>{{ project.fps }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Resolution' %}</div>
+                <div>{{ project.width }}x{{ project.height }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">{% trans 'Transitions' %}</div>
+                <div>{% if project.use_transitions %}{{ project.get_transition_type_display }}{% else %}{% trans 'Disabled' %}{% endif %}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Media Files -->
+    <div class="section">
+        <div class="section-title">{% trans 'Media Files' %}</div>
+        <div class="media-grid">
+            {% for media in media_files %}
+            <div class="media-item">
+                {% if media.media_type == 'image' %}
+                <img src="{{ media.file.url }}" alt="{{ media.file.name }}">
+                {% else %}
+                <div style="width: 100%; height: 150px; background: #000; display: flex; align-items: center; justify-content: center; color: white; border-radius: 4px;">
+                    🎥 {% trans 'Video' %}
+                </div>
+                {% endif %}
+                <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                    #{{ media.order }} - {{ media.media_type|title }}
+                </div>
+            </div>
+            {% empty %}
+            <p>{% trans 'No media files' %}</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Audio -->
+    {% if audio_files %}
+    <div class="section">
+        <div class="section-title">{% trans 'Background Music' %}</div>
+        {% for audio in audio_files %}
+        <div class="info-item">
+            <strong>{{ audio.name }}</strong>
+            {% if audio.duration %}
+            <div style="margin-top: 5px; color: #666;">
+                {% trans 'Duration' %}: {{ audio.duration|floatformat:1 }} {% trans 'seconds' %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Output Video -->
+    {% if project.status == 'completed' and project.output_file %}
+    <div class="section">
+        <div class="section-title">{% trans 'Generated Video' %}</div>
+        <video controls style="width: 100%; max-height: 500px;">
+            <source src="{{ project.output_file.url }}" type="video/mp4">
+            {% trans 'Your browser does not support video playback.' %}
+        </video>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

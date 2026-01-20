@@ -1,0 +1,26 @@
+{% load i18n %}
+{% blocktranslate with first_name=first_name %}Hello {{ first_name }},{% endblocktranslate %}
+
+{% blocktranslate with license_number=license_number title=license_title %}Your license #{{ license_number }} ({{ title }}) now has broadcast dates.{% endblocktranslate %}
+
+{% if premiere_datetime %}
+{% blocktranslate with premiere_datetime=premiere_datetime %}Premiere: {{ premiere_datetime }}{% endblocktranslate %}
+{% endif %}
+
+{% if repeats %}
+{% trans "Repeats:" %}
+{% for dt in repeats %}
+- {{ dt }}
+{% endfor %}
+{% endif %}
+
+{% if contributions_url %}
+{% blocktranslate %}View details in Contributions:{% endblocktranslate %} {{ contributions_url }}
+{% endif %}
+
+{% blocktranslate with ok_name=ok_name %}Best regards,
+The {{ ok_name }} team{% endblocktranslate %}
+
+{% if contact_email %}
+{% blocktranslate with contact_email=contact_email %}Contact: {{ contact_email }}{% endblocktranslate %}
+{% endif %}

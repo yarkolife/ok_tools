@@ -1,11 +1,8 @@
-from contributions.models import Contribution
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from licenses.models import License
 from registration.models import OKUser
 from registration.models import Profile
-from rental.models import RentalRequest
 from typing import Dict, Any, Optional
 
 
@@ -43,29 +40,27 @@ class UserJourney(models.Model):
         verbose_name=_('Achieved At')
     )
 
-    # Optional references to related objects
-    rental_request = models.ForeignKey(
-        RentalRequest,
-        on_delete=models.SET_NULL,
+    # Optional references to related objects (stored as IDs to avoid ForeignKey validation)
+    # This allows dashboard to work even when rental/licenses/contributions modules are disabled
+    rental_request_id = models.IntegerField(
         null=True,
         blank=True,
-        verbose_name=_('Rental Request')
+        verbose_name=_('Rental Request ID'),
+        help_text=_('ID of related RentalRequest if rental module is enabled')
     )
 
-    license = models.ForeignKey(
-        License,
-        on_delete=models.SET_NULL,
+    license_id = models.IntegerField(
         null=True,
         blank=True,
-        verbose_name=_('License')
+        verbose_name=_('License ID'),
+        help_text=_('ID of related License')
     )
 
-    contribution = models.ForeignKey(
-        Contribution,
-        on_delete=models.SET_NULL,
+    contribution_id = models.IntegerField(
         null=True,
         blank=True,
-        verbose_name=_('Contribution')
+        verbose_name=_('Contribution ID'),
+        help_text=_('ID of related Contribution')
     )
 
     # Additional metadata

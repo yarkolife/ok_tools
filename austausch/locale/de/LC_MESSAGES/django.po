@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-08 00:00+0100\n"
+"POT-Creation-Date: 2026-01-15 23:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,389 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "Actions"
-msgstr "Aktionen"
-
-msgid "All Channels"
-msgstr "Alle Kanäle"
-
-msgid "All Status"
-msgstr "Alle Status"
-
-msgid "App password or service account password"
-msgstr "App-Passwort oder Dienstkonto-Passwort"
-
-msgid "Author"
-msgstr "Autor"
-
-msgid "Austausch module is disabled. Set AUSTAUSCH_ENABLED=true to enable."
-msgstr "Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um es zu aktivieren."
-
-msgid "Auto-Import Enabled"
-msgstr "Auto-Import aktiviert"
-
-msgid "Base URL of Nextcloud server (e.g., https://cloud.example.com)"
-msgstr "Basis-URL des Nextcloud-Servers (z.B. https://cloud.example.com)"
-
-msgid "Browse and import content from exchange folders"
-msgstr "Durchsuchen und importieren von Inhalten aus Austausch-Ordnern"
-
-msgid "Channel"
-msgstr "Kanal"
-
-msgid "Channel Folder Pattern"
-msgstr "Kanal-Ordner-Muster"
-
-msgid "Channels List"
-msgstr "Kanalliste"
-
-msgid "Checksum"
-msgstr "Prüfsumme"
-
-msgid "Close"
-msgstr "Schließen"
-
-msgid "Completed"
-msgstr "Abgeschlossen"
-
-msgid "Comma-separated list of channel names to sync (optional, can be auto-discovered)"
-msgstr "Kommagetrennte Liste von Kanalnamen zum Synchronisieren (optional, kann automatisch erkannt werden)"
-
-msgid "Contribution ID"
-msgstr "Beitrags-ID"
-
-msgid "Description"
-msgstr "Beschreibung"
-
-msgid "Discovered At"
-msgstr "Entdeckt am"
-
-msgid "Download Storage Path"
-msgstr "Download-Speicherpfad"
-
-msgid "Downloading"
-msgstr "Wird heruntergeladen"
-
-msgid "Duration"
-msgstr "Dauer"
-
-msgid "Error importing {}: {}"
-msgstr "Fehler beim Importieren von {}: {}"
-
-msgid "Error Message"
-msgstr "Fehlermeldung"
-
-msgid "Exchange Configuration"
-msgstr "Austausch-Konfiguration"
-
-msgid "Exchange Feed"
-msgstr "Austausch-Feed"
-
-msgid "Exchange Feed UI"
-msgstr "Austausch-Feed-Benutzeroberfläche"
-
-msgid "Exchange Import"
-msgstr "Austausch-Import"
-
-msgid "Exchange Imports"
-msgstr "Austausch-Importe"
-
-msgid "Exchange Item"
-msgstr "Austausch-Element"
-
-msgid "Exchange Items"
-msgstr "Austausch-Elemente"
-
-msgid "Failed"
-msgstr "Fehlgeschlagen"
-
-msgid "File Path"
-msgstr "Dateipfad"
-
-msgid "File Size (bytes)"
-msgstr "Dateigröße (Bytes)"
-
-msgid "File Type"
-msgstr "Dateityp"
-
-msgid "Filename"
-msgstr "Dateiname"
-
-msgid "Filter"
-msgstr "Filter"
-
-msgid "From Date"
-msgstr "Ab Datum"
-
-msgid "Full Nextcloud path to PDF file (if part of package)"
-msgstr "Voller Nextcloud-Pfad zur PDF-Datei (wenn Teil des Pakets)"
-
-msgid "Full Nextcloud path to thumbnail image (jpg, png, etc.)"
-msgstr "Voller Nextcloud-Pfad zum Vorschaubild (jpg, png, etc.)"
-
-msgid "Full Nextcloud path to video file"
-msgstr "Voller Nextcloud-Pfad zur Video-Datei"
-
-msgid "Home"
-msgstr "Startseite"
-
-msgid "How many days back to check for new items (for file age filtering). Only files modified within this period will be processed."
-msgstr "Wie viele Tage zurück nach neuen Elementen gesucht werden soll (für Dateialtersfilterung). Nur Dateien, die in diesem Zeitraum geändert wurden, werden verarbeitet."
-
-msgid "How many recent date folders to scan (e.g., 2 = today and yesterday). Files are organized in date-named folders like \"2026_01_07\"."
-msgstr "Wie viele aktuelle Datums-Ordner gescannt werden sollen (z.B. 2 = heute und gestern). Dateien sind in datumsbenannten Ordnern wie \"2026_01_07\" organisiert."
-
-msgid "Import"
-msgstr "Importieren"
-
-msgid "Import Selected"
-msgstr "Ausgewählte importieren"
-
-msgid "Import Status"
-msgstr "Import-Status"
-
-msgid "Import this item?"
-msgstr "Dieses Element importieren?"
-
-msgid "Imported"
-msgstr "Importiert"
-
-msgid "Imported At"
-msgstr "Importiert am"
-
-msgid "Imported By"
-msgstr "Importiert von"
-
-msgid "Imported License"
-msgstr "Importierte Freistellung"
-
-msgid "Import selected items"
-msgstr "Ausgewählte Elemente importieren"
-
-msgid "Item has already been imported."
-msgstr "Element wurde bereits importiert."
-
-msgid "Item is managed by OK-Tools (has contribution_id)"
-msgstr "Element wird von OK-Tools verwaltet (hat contribution_id)"
-
-msgid "Item not found"
-msgstr "Element nicht gefunden"
-
-msgid "Item without numeric ID prefix"
-msgstr "Element ohne numerisches ID-Präfix"
-
-msgid "Items"
-msgstr "Elemente"
-
-msgid "Last Seen At"
-msgstr "Zuletzt gesehen am"
-
-msgid "Legacy"
-msgstr "Legacy"
-
-msgid "Legacy items only"
-msgstr "Nur Legacy-Elemente"
-
-msgid "License"
-msgstr "Freistellung"
-
-msgid "Local path for downloaded files before import"
-msgstr "Lokaler Pfad für heruntergeladene Dateien vor dem Import"
-
-msgid "New"
-msgstr "Neu"
-
-msgid "New Items"
-msgstr "Neue Elemente"
-
-msgid "Nextcloud Base URL"
-msgstr "Nextcloud-Basis-URL"
-
-msgid "Nextcloud Password"
-msgstr "Nextcloud-Passwort"
-
-msgid "Nextcloud Username"
-msgstr "Nextcloud-Benutzername"
-
-msgid "Nextcloud base URL not configured in ExchangeConfig"
-msgstr "Nextcloud-Basis-URL nicht in ExchangeConfig konfiguriert"
-
-msgid "No exchange items found"
-msgstr "Keine Austausch-Elemente gefunden"
-
-msgid "No title"
-msgstr "Kein Titel"
-
-msgid "Numeric ID from filename (if OK-Tools managed)"
-msgstr "Numerische ID aus Dateiname (wenn OK-Tools verwaltet)"
-
-msgid "OK-Tools"
-msgstr "OK-Tools"
-
-msgid "OK-Tools Managed"
-msgstr "OK-Tools verwaltet"
-
-msgid "OK-Tools Verified"
-msgstr "OK-Tools verifiziert"
-
-msgid "OK-Tools managed only"
-msgstr "Nur OK-Tools verwaltet"
-
 msgid "Open Exchange Feed"
 msgstr "Austausch-Feed öffnen"
 
-msgid "Page"
-msgstr "Seite"
-
-msgid "Pattern for channel folders: {channel} will be replaced"
-msgstr "Muster für Kanal-Ordner: {channel} wird ersetzt"
-
-msgid "Pattern for exchange folders: {channel} will be replaced"
-msgstr "Muster für Austausch-Ordner: {channel} wird ersetzt"
-
-msgid "PDF Path"
-msgstr "PDF-Pfad"
-
-msgid "Pending"
-msgstr "Ausstehend"
-
-msgid "Pending Download"
-msgstr "Download ausstehend"
-
-msgid "Please select items to import"
-msgstr "Bitte Elemente zum Importieren auswählen"
-
-msgid "Preview"
-msgstr "Vorschau"
-
-msgid "Processing"
-msgstr "Wird verarbeitet"
-
-msgid "Reset"
-msgstr "Zurücksetzen"
-
-msgid "Search"
-msgstr "Suchen"
-
-msgid "Selected items:"
-msgstr "Ausgewählte Elemente:"
-
-msgid "Sender Responsible"
-msgstr "Sendeverantwortung"
-
-msgid "Service account username for WebDAV access"
-msgstr "Dienstkonto-Benutzername für WebDAV-Zugriff"
-
-msgid "SHA256 checksum"
-msgstr "SHA256-Prüfsumme"
-
-msgid "Size"
-msgstr "Größe"
-
-msgid "Source channel name"
-msgstr "Quellkanal-Name"
-
-msgid "Status"
-msgstr "Status"
-
-msgid "Successfully imported {} items."
-msgstr "{} Elemente erfolgreich importiert."
-
-msgid "Sync Date Folders Days"
-msgstr "Sync-Datumsordner-Tage"
-
-msgid "Sync Exchange Folders"
-msgstr "Austausch-Ordner synchronisieren"
-
-msgid "Sync Lookback Days"
-msgstr "Sync-Rückblick-Tage"
-
-msgid "Thumbnail Path"
-msgstr "Vorschaubild-Pfad"
-
-msgid "Title"
-msgstr "Titel"
-
-msgid "Title, description, author..."
-msgstr "Titel, Beschreibung, Autor..."
-
-msgid "Total Items"
-msgstr "Gesamt-Elemente"
-
-msgid "Unknown"
-msgstr "Unbekannt"
-
-msgid "Video File"
-msgstr "Video-Datei"
-
-msgid "Video Preview"
-msgstr "Video-Vorschau"
-
-msgid "Video thumbnail"
-msgstr "Video-Vorschaubild"
-
-msgid "View License"
-msgstr "Freistellung anzeigen"
-
-msgid "'video' or 'pdf'"
-msgstr "'video' oder 'pdf'"
-
-msgid "of"
-msgstr "von"
-
-msgid "selected items?"
-msgstr "ausgewählte Elemente?"
-
-msgid "Note: Periodic sync schedule is managed via "
-msgstr "Hinweis: Der periodische Sync-Zeitplan wird verwaltet über "
-
-msgid "Periodic Tasks"
-msgstr "Periodische Aufgaben"
-
-msgid "(task name: \"sync_exchange_folders\"). You can enable/disable and change schedule there."
-msgstr "(Aufgabenname: \"sync_exchange_folders\"). Sie können es dort aktivieren/deaktivieren und den Zeitplan ändern."
-
-msgid "Automatically enqueue PeerTube upload after import"
-msgstr "PeerTube-Upload nach Import automatisch in die Warteschlange stellen"
-
-msgid "Clear Selection"
-msgstr "Auswahl löschen"
-
-msgid "Next"
-msgstr "Weiter"
-
-msgid "Previous"
-msgstr "Zurück"
-
-msgid "Your browser does not support video playback."
-msgstr "Ihr Browser unterstützt keine Video-Wiedergabe."
-
-msgid "Import started successfully!"
-msgstr "Import wurde erfolgreich gestartet!"
-
-msgid "Import failed: "
-msgstr "Import fehlgeschlagen: "
-
-msgid "Import failed. Please try again."
-msgstr "Import fehlgeschlagen. Bitte versuchen Sie es erneut."
-
-msgid "Import started for"
-msgstr "Import gestartet für"
-
-msgid "Error triggering sync: "
-msgstr "Fehler beim Starten der Synchronisation: "
-
-msgid "Syncing..."
-msgstr "Synchronisiere..."
-
-msgid "Sync started successfully! The sync is running in the background. Please refresh the page in a few moments to see new items."
-msgstr "Synchronisation wurde erfolgreich gestartet! Die Synchronisation läuft im Hintergrund. Bitte aktualisieren Sie die Seite in wenigen Momenten, um neue Elemente zu sehen."
-
-msgid "Sync failed: "
-msgstr "Synchronisation fehlgeschlagen: "
-
-msgid "Unknown error"
-msgstr "Unbekannter Fehler"
+msgid "Exchange Feed UI"
+msgstr "Austausch-Feed-Benutzeroberfläche"
 
 msgid "Quick Links"
 msgstr "Schnelllinks"
@@ -414,15 +36,476 @@ msgstr "Ordner-Muster"
 msgid "Sync Settings"
 msgstr "Synchronisierungs-Einstellungen"
 
+msgid ""
+"Note: Periodic sync schedule is managed via <a href=\"/admin/"
+"django_celery_beat/periodictask/\" target=\"_blank\">Periodic Tasks</a> "
+"(task name: \"sync_exchange_folders\"). You can enable/disable and change "
+"schedule there."
+msgstr ""
+
 msgid "Storage Settings"
 msgstr "Speicher-Einstellungen"
 
 msgid "Auto-Import Settings"
 msgstr "Auto-Import-Einstellungen"
 
+msgid "Filename"
+msgstr "Dateiname"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "OK-Tools"
+msgstr "OK-Tools"
+
+msgid "Legacy"
+msgstr "Legacy"
+
+#, fuzzy
+#| msgid "File Type"
+msgid "Type"
+msgstr "Dateityp"
+
+msgid "Imported License"
+msgstr "Importierte Freistellung"
+
+msgid "Import this item?"
+msgstr "Dieses Element importieren?"
+
+msgid "Import"
+msgstr "Importieren"
+
+msgid "View License"
+msgstr "Freistellung anzeigen"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "Error importing {}: {}"
+msgstr "Fehler beim Importieren von {}: {}"
+
+msgid "Successfully imported {} items."
+msgstr "{} Elemente erfolgreich importiert."
+
+msgid "Import selected items"
+msgstr "Ausgewählte Elemente importieren"
+
+msgid "Exchange Item"
+msgstr "Austausch-Element"
+
+msgid "License"
+msgstr "Freistellung"
+
+msgid "Video File"
+msgstr "Video-Datei"
+
+msgid "Error Message"
+msgstr "Fehlermeldung"
+
+msgid "Austausch"
+msgstr ""
+
+msgid "Contribution ID"
+msgstr "Beitrags-ID"
+
+msgid "Numeric ID from filename (if OK-Tools managed)"
+msgstr "Numerische ID aus Dateiname (wenn OK-Tools verwaltet)"
+
+msgid "File Path"
+msgstr "Dateipfad"
+
+msgid "Full Nextcloud path to video file"
+msgstr "Voller Nextcloud-Pfad zur Video-Datei"
+
+msgid "PDF Path"
+msgstr "PDF-Pfad"
+
+msgid "Full Nextcloud path to PDF file (if part of package)"
+msgstr "Voller Nextcloud-Pfad zur PDF-Datei (wenn Teil des Pakets)"
+
+msgid "Thumbnail Path"
+msgstr "Vorschaubild-Pfad"
+
+msgid "Full Nextcloud path to thumbnail image (jpg, png, etc.)"
+msgstr "Voller Nextcloud-Pfad zum Vorschaubild (jpg, png, etc.)"
+
+msgid "Channel"
+msgstr "Kanal"
+
+msgid "Source channel name"
+msgstr "Quellkanal-Name"
+
+msgid "File Size (bytes)"
+msgstr "Dateigröße (Bytes)"
+
+msgid "File Type"
+msgstr "Dateityp"
+
+msgid "'video' or 'pdf'"
+msgstr "'video' oder 'pdf'"
+
+msgid "Checksum"
+msgstr "Prüfsumme"
+
+msgid "SHA256 checksum"
+msgstr "SHA256-Prüfsumme"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Duration"
+msgstr "Dauer"
+
+msgid "Sender Responsible"
+msgstr "Sendeverantwortung"
+
+msgid "OK-Tools Managed"
+msgstr "OK-Tools verwaltet"
+
+msgid "Item is managed by OK-Tools (has contribution_id)"
+msgstr "Element wird von OK-Tools verwaltet (hat contribution_id)"
+
+msgid "Item without numeric ID prefix"
+msgstr "Element ohne numerisches ID-Präfix"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "Imported"
+msgstr "Importiert"
+
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+msgid "Import Status"
+msgstr "Import-Status"
+
+msgid "Discovered At"
+msgstr "Entdeckt am"
+
+msgid "Last Seen At"
+msgstr "Zuletzt gesehen am"
+
+msgid "Imported At"
+msgstr "Importiert am"
+
+msgid "Exchange Items"
+msgstr "Austausch-Elemente"
+
+msgid "Imported By"
+msgstr "Importiert von"
+
+msgid "Pending"
+msgstr "Ausstehend"
+
+msgid "Pending Download"
+msgstr "Download ausstehend"
+
+msgid "Downloading"
+msgstr "Wird heruntergeladen"
+
+msgid "Processing"
+msgstr "Wird verarbeitet"
+
+msgid "Completed"
+msgstr "Abgeschlossen"
+
+#, fuzzy
+#| msgid "Imported At"
+msgid "Created At"
+msgstr "Importiert am"
+
+#, fuzzy
+#| msgid "Completed"
+msgid "Completed At"
+msgstr "Abgeschlossen"
+
+msgid "Exchange Import"
+msgstr "Austausch-Import"
+
+msgid "Exchange Imports"
+msgstr "Austausch-Importe"
+
+msgid "Nextcloud Base URL"
+msgstr "Nextcloud-Basis-URL"
+
+msgid "Base URL of Nextcloud server (e.g., https://cloud.example.com)"
+msgstr "Basis-URL des Nextcloud-Servers (z.B. https://cloud.example.com)"
+
+msgid "Nextcloud Username"
+msgstr "Nextcloud-Benutzername"
+
+msgid "Service account username for WebDAV access"
+msgstr "Dienstkonto-Benutzername für WebDAV-Zugriff"
+
+msgid "Nextcloud Password"
+msgstr "Nextcloud-Passwort"
+
+msgid "App password or service account password"
+msgstr "App-Passwort oder Dienstkonto-Passwort"
+
+msgid "Channel Folder Pattern"
+msgstr "Kanal-Ordner-Muster"
+
+#, python-brace-format
+msgid "Pattern for channel folders: {channel} will be replaced"
+msgstr "Muster für Kanal-Ordner: {channel} wird ersetzt"
+
 msgid "Exchange Folder Pattern"
 msgstr "Austausch-Ordner-Muster"
+
+#, python-brace-format
+msgid "Pattern for exchange folders: {channel} will be replaced"
+msgstr "Muster für Austausch-Ordner: {channel} wird ersetzt"
+
+msgid "Sync Lookback Days"
+msgstr "Sync-Rückblick-Tage"
+
+msgid ""
+"How many days back to check for new items (for file age filtering). Only "
+"files modified within this period will be processed."
+msgstr ""
+"Wie viele Tage zurück nach neuen Elementen gesucht werden soll (für "
+"Dateialtersfilterung). Nur Dateien, die in diesem Zeitraum geändert wurden, "
+"werden verarbeitet."
+
+msgid "Sync Date Folders Days"
+msgstr "Sync-Datumsordner-Tage"
+
+msgid ""
+"How many recent date folders to scan (e.g., 2 = today and yesterday). Files "
+"are organized in date-named folders like \"2026_01_07\"."
+msgstr ""
+"Wie viele aktuelle Datums-Ordner gescannt werden sollen (z.B. 2 = heute und "
+"gestern). Dateien sind in datumsbenannten Ordnern wie \"2026_01_07\" "
+"organisiert."
+
+msgid "Download Storage Path"
+msgstr "Download-Speicherpfad"
+
+msgid "Local path for downloaded files before import"
+msgstr "Lokaler Pfad für heruntergeladene Dateien vor dem Import"
+
+msgid "Auto-Import Enabled"
+msgstr "Auto-Import aktiviert"
+
+msgid "Automatically enqueue PeerTube upload after import"
+msgstr "PeerTube-Upload nach Import automatisch in die Warteschlange stellen"
+
+msgid "Channels List"
+msgstr "Kanalliste"
+
+msgid ""
+"Comma-separated list of channel names to sync (optional, can be auto-"
+"discovered)"
+msgstr ""
+"Kommagetrennte Liste von Kanalnamen zum Synchronisieren (optional, kann "
+"automatisch erkannt werden)"
+
+msgid "Exchange Configuration"
+msgstr "Austausch-Konfiguration"
 
 msgid "Gastbeitrag"
 msgstr "Gastbeitrag"
 
+msgid "Nextcloud base URL not configured in ExchangeConfig"
+msgstr "Nextcloud-Basis-URL nicht in ExchangeConfig konfiguriert"
+
+msgid "Exchange Feed"
+msgstr "Austausch-Feed"
+
+msgid "Import Selected"
+msgstr "Ausgewählte importieren"
+
+msgid "Please select items to import"
+msgstr "Bitte Elemente zum Importieren auswählen"
+
+msgid "selected items?"
+msgstr "ausgewählte Elemente?"
+
+msgid "Import started for"
+msgstr "Import gestartet für"
+
+#, fuzzy
+#| msgid "Items"
+msgid "items"
+msgstr "Elemente"
+
+msgid "Import failed: "
+msgstr "Import fehlgeschlagen: "
+
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+msgid "Import failed. Please try again."
+msgstr "Import fehlgeschlagen. Bitte versuchen Sie es erneut."
+
+msgid "Browse and import content from exchange folders"
+msgstr "Durchsuchen und importieren von Inhalten aus Austausch-Ordnern"
+
+msgid "API"
+msgstr ""
+
+msgid "Total Items"
+msgstr "Gesamt-Elemente"
+
+msgid "New Items"
+msgstr "Neue Elemente"
+
+msgid "OK-Tools Verified"
+msgstr "OK-Tools verifiziert"
+
+msgid "All Channels"
+msgstr "Alle Kanäle"
+
+msgid "All Status"
+msgstr "Alle Status"
+
+msgid "From Date"
+msgstr "Ab Datum"
+
+msgid "Search"
+msgstr "Suchen"
+
+#, fuzzy
+#| msgid "Title, description, author..."
+msgid "Title, description, filename..."
+msgstr "Titel, Beschreibung, Autor..."
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "OK-Tools managed only"
+msgstr "Nur OK-Tools verwaltet"
+
+msgid "Legacy items only"
+msgstr "Nur Legacy-Elemente"
+
+msgid "ID"
+msgstr ""
+
+msgid "Size"
+msgstr "Größe"
+
+#, fuzzy
+#| msgid "Discovered At"
+msgid "Discovered"
+msgstr "Entdeckt am"
+
+msgid "No metadata"
+msgstr ""
+
+#, fuzzy
+#| msgid "Video File"
+msgid "Video"
+msgstr "Video-Datei"
+
+msgid "PDF"
+msgstr ""
+
+msgid "No exchange items found"
+msgstr "Keine Austausch-Elemente gefunden"
+
+msgid "Pagination"
+msgstr ""
+
+msgid "Previous"
+msgstr "Zurück"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "of"
+msgstr "von"
+
+msgid "Next"
+msgstr "Weiter"
+
+#, fuzzy
+#| msgid "Exchange Item"
+msgid "Import Exchange Item"
+msgstr "Austausch-Element"
+
+#, fuzzy
+#| msgid "Import"
+msgid "Importing"
+msgstr "Importieren"
+
+msgid "This may take a few minutes..."
+msgstr ""
+
+msgid "Import started successfully!"
+msgstr "Import wurde erfolgreich gestartet!"
+
+msgid "Item has already been imported."
+msgstr "Element wurde bereits importiert."
+
+msgid "Home"
+msgstr "Startseite"
+
+msgid "Sync Exchange Folders"
+msgstr "Austausch-Ordner synchronisieren"
+
+msgid "Selected items:"
+msgstr "Ausgewählte Elemente:"
+
+msgid "Clear Selection"
+msgstr "Auswahl löschen"
+
+msgid "Title, description, author..."
+msgstr "Titel, Beschreibung, Autor..."
+
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+msgid "Video thumbnail"
+msgstr "Video-Vorschaubild"
+
+msgid "No title"
+msgstr "Kein Titel"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "Preview"
+msgstr "Vorschau"
+
+msgid "Video Preview"
+msgstr "Video-Vorschau"
+
+msgid "Your browser does not support video playback."
+msgstr "Ihr Browser unterstützt keine Video-Wiedergabe."
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Item not found"
+msgstr "Element nicht gefunden"
+
+msgid "Unknown"
+msgstr "Unbekannt"
+
+msgid "Syncing..."
+msgstr "Synchronisiere..."
+
+msgid ""
+"Sync started successfully! The sync is running in the background. Please "
+"refresh the page in a few moments to see new items."
+msgstr ""
+"Synchronisation wurde erfolgreich gestartet! Die Synchronisation läuft im "
+"Hintergrund. Bitte aktualisieren Sie die Seite in wenigen Momenten, um neue "
+"Elemente zu sehen."
+
+msgid "Sync failed: "
+msgstr "Synchronisation fehlgeschlagen: "
+
+msgid "Error triggering sync: "
+msgstr "Fehler beim Starten der Synchronisation: "
+
+msgid "Austausch module is disabled. Set AUSTAUSCH_ENABLED=true to enable."
+msgstr ""
+"Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um es zu "
+"aktivieren."

@@ -49,8 +49,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("", views.home, name="home"),
     path("dashboard/", views.dashboard, name="dashboard"),
-    path("admin-dashboard/", include("dashboard.urls", namespace="dashboard")),
-    path("rental/", views.RentalDashboardView.as_view(), name="rental_dashboard"),
     path(
         "profile/reset/<uidb64>/<token>/",
         PasswordResetConfirmView.as_view(),
@@ -60,26 +58,12 @@ urlpatterns = [
     # This includes upstream passsword reset, login/out views.
     path("profile/", include("django.contrib.auth.urls")),
     path("admin/", admin.site.urls),
-    path("licenses/", include("licenses.urls")),
-    path("contributions/", include("contributions.urls")),
     path("profile/", include("registration.urls")),
     path(
         "privacy_policy/",
         TemplateView.as_view(template_name="privacy_policy.html"),
         name="privacy_policy",
     ),
-    path(
-        "planung/",
-        include("planung.urls"),
-    ),
-    path(
-        "api/",
-        include("planung.urls"),
-    ),
-    path('inventory/', include('inventory.urls', namespace='inventory')),
-
-    path('rental/', include('rental.urls', namespace='rental')),
-    path('media-files/', include('media_files.urls', namespace='media_files')),
     # JavaScript translations
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     # Accessibility URLs
@@ -94,10 +78,59 @@ urlpatterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
+# Dashboard (admin analytics) URLs
+if getattr(settings, 'DASHBOARD_ENABLED', False):
+    urlpatterns.append(
+        path("admin-dashboard/", include("dashboard.urls", namespace="dashboard")),
+    )
+
+# Licenses + Contributions URLs (contributions depends on licenses)
+if getattr(settings, 'LICENSES_ENABLED', True):
+    urlpatterns.append(
+        path("licenses/", include("licenses.urls")),
+    )
+    urlpatterns.append(
+        path("contributions/", include("contributions.urls")),
+    )
+
+# Rental + Inventory URLs
+if getattr(settings, 'INVENTORY_ENABLED', False):
+    urlpatterns.append(
+        path('inventory/', include('inventory.urls', namespace='inventory')),
+    )
+if getattr(settings, 'RENTAL_ENABLED', False):
+    urlpatterns.append(
+        path("rental/", views.RentalDashboardView.as_view(), name="rental_dashboard"),
+    )
+    urlpatterns.append(
+        path('rental/', include('rental.urls', namespace='rental')),
+    )
+
+# Planning URLs
+if getattr(settings, 'PLANUNG_ENABLED', False):
+    urlpatterns.append(
+        path("planung/", include("planung.urls")),
+    )
+    urlpatterns.append(
+        path("api/", include("planung.urls")),
+    )
+
+# Media Files URLs
+if getattr(settings, 'MEDIA_FILES_ENABLED', False):
+    urlpatterns.append(
+        path('media-files/', include('media_files.urls', namespace='media_files')),
+    )
+
 # Add Austausch URLs if module is enabled
 if getattr(settings, 'AUSTAUSCH_ENABLED', False):
     urlpatterns.append(
         path('austausch/', include('austausch.urls', namespace='austausch')),
+    )
+
+# Add Tools URLs if module is enabled
+if getattr(settings, 'TOOLS_ENABLED', False):
+    urlpatterns.append(
+        path('tools/', include('tools.urls', namespace='tools')),
     )
 
 # Serve static files in debug mode

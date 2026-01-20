@@ -46,25 +46,31 @@
                 </a>
             </li>
 
+            {% if LICENSES_ENABLED %}
             <li class="sidebar-item">
                 <a href="{% url 'licenses:licenses' %}" class="sidebar-link">
                     <i class="bi bi-file-earmark-text"></i>
                     <span>{% trans "Licenses" %}</span>
                 </a>
             </li>
+            {% endif %}
+            {% if CONTRIBUTIONS_ENABLED %}
             <li class="sidebar-item">
                 <a href="{% url 'contributions:contributions' %}" class="sidebar-link">
                     <i class="bi bi-hand-thumbs-up"></i>
                     <span>{% trans "Contributions" %}</span>
                 </a>
             </li>
+            {% endif %}
 
+            {% if RENTAL_ENABLED %}
             <li class="sidebar-item">
                 <a href="{% url 'rental_dashboard' %}" class="sidebar-link">
                     <i class="bi bi-calendar-check"></i>
                     <span>{% trans "Rental" %}</span>
                 </a>
             </li>
+            {% endif %}
 
             {% if OK_WEBSITE %}
             <li class="sidebar-item">

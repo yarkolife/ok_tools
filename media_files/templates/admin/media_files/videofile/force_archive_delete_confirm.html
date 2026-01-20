@@ -1,0 +1,69 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h1>{{ title }}</h1>
+
+  <div class="messagelist">
+    <div class="warning">
+      <p><strong>{% trans "Danger zone" %}</strong></p>
+      <p>
+        {% trans "This action can delete files from ARCHIVE storage even when archive protection is enabled." %}
+        {% trans "Proceed only if you are absolutely sure." %}
+      </p>
+      <p>
+        {% trans "Required phrase" %}: <code>{{ required_phrase }}</code>
+      </p>
+      <p>
+        {% trans "Planned deletions" %}: <strong>{{ planned_delete_count }}</strong>
+        {% trans "file(s)" %} / <strong>{{ planned_numbers_count }}</strong> {% trans "number(s)" %}
+      </p>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="{{ action_name }}">
+    <input type="hidden" name="force_apply" value="1">
+    {% for obj in queryset %}
+      <input type="hidden" name="_selected_action" value="{{ obj.pk }}">
+    {% endfor %}
+
+    <fieldset class="module aligned">
+      {{ form.as_p }}
+    </fieldset>
+
+    <div class="submit-row">
+      <input type="submit" class="default" value="{% trans 'Confirm and delete' %}">
+      <a class="button cancel-link" href="{{ cancel_url }}">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+
+  {% if sample_rows %}
+    <h2>{% trans "Preview (sample)" %}</h2>
+    <p class="help">{% trans "First items only; not all planned deletions are shown here." %}</p>
+    <table class="adminlist">
+      <thead>
+        <tr>
+          <th>{% trans "Number" %}</th>
+          <th>{% trans "Keep" %}</th>
+          <th>{% trans "Delete" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in sample_rows %}
+          <tr>
+            <td><strong>{{ row.number }}</strong></td>
+            <td>{{ row.keep }}</td>
+            <td>
+              {% for d in row.delete %}
+                <div>{{ d }}</div>
+              {% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}
+

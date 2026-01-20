@@ -35,13 +35,15 @@ class ApprovalLinks:
 
 
 def _get_site_base_url() -> str:
-    base_url = getattr(settings, "SITE_BASE_URL", "") or ""
+    from .config import get_rental_site_base_url
+    base_url = get_rental_site_base_url() or ""
     return base_url.rstrip("/")
 
 
 def _build_rental_request_urls(*, rental_request) -> dict[str, str]:
+    from .config import get_rental_request_url_template
     user_url = ""
-    url_template = getattr(settings, "RENTAL_REQUEST_URL_TEMPLATE", "") or ""
+    url_template = get_rental_request_url_template() or ""
     if url_template:
         try:
             user_url = url_template.format(rental_id=int(rental_request.id))
@@ -90,8 +92,8 @@ def _build_rental_summary_context(*, rental_request) -> dict[str, Any]:
 
 
 def _get_recipients() -> list[str]:
-    explicit = list(getattr(settings, "RENTAL_APPROVAL_RECIPIENT_EMAILS", []) or [])
-    explicit = [e.strip() for e in explicit if e and e.strip()]
+    from .config import get_rental_approval_recipient_emails
+    explicit = get_rental_approval_recipient_emails()
     if explicit:
         return explicit
 
@@ -110,8 +112,11 @@ def make_approval_token(*, rental_id: int, action: str) -> str:
     return signing.dumps(payload, salt=APPROVAL_SALT)
 
 
-def load_approval_token(token: str, *, max_age_seconds: int) -> dict[str, Any]:
+def load_approval_token(token: str, *, max_age_seconds: int = None) -> dict[str, Any]:
     """Validate and decode a signed token."""
+    if max_age_seconds is None:
+        from .config import get_rental_approval_token_max_age_seconds
+        max_age_seconds = get_rental_approval_token_max_age_seconds()
     return signing.loads(token, salt=APPROVAL_SALT, max_age=max_age_seconds)
 
 

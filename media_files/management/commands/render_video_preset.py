@@ -18,7 +18,7 @@ from media_files.rendering.ffmpeg import (
     render_with_overlays_on_main_edges,
     render_preview_overlays_on_main_edges,
 )
-from media_files.rendering.presets import (
+from tools.rendering.presets import (
     PresetError,
     load_encode_preset,
     load_style_preset,
@@ -168,10 +168,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+        from media_files.config import get_video_overlay_rendering_enabled
+        if not get_video_overlay_rendering_enabled():
             raise CommandError(
                 _(
-                    "Video overlay rendering is disabled. Set VIDEO_OVERLAY_RENDERING_ENABLED=true to enable it."
+                    "Video overlay rendering is disabled. Enable it in Media Files Configuration."
                 )
             )
 

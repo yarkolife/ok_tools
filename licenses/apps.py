@@ -8,3 +8,7 @@ class LicensesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'licenses'
     verbose_name = _('Licenses')
+
+    def ready(self) -> None:
+        """Connect signal handlers."""
+        from . import signals  # noqa: F401

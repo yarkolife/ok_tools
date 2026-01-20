@@ -1,0 +1,123 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Tools' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; {% trans 'Tools' %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .tools-container {
+        padding: 20px;
+    }
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .tool-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 30px;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+    .tool-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-color: #007cba;
+    }
+    .tool-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+    }
+    .tool-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    .tool-description {
+        color: #666;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    .tool-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tools-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">{% trans 'Tools' %}</h1>
+    </div>
+    <p class="help">{% trans 'Available tools and utilities for content creation' %}</p>
+    
+    <div class="tools-grid">
+        <div class="tool-card" onclick="window.location.href='{% url 'tools:slideshow_list' %}'">
+            <div class="tool-icon">🎬</div>
+            <div class="tool-title">{% trans 'Video Slideshow Generator' %}</div>
+            <div class="tool-description">
+                {% trans 'Create professional video slideshows from images and videos with background music, customizable transitions, and quality settings' %}
+            </div>
+            <div class="tool-actions">
+                <a href="{% url 'tools:slideshow_create' %}" class="button default" onclick="event.stopPropagation();">
+                    {% trans 'Create New Project' %}
+                </a>
+                <a href="{% url 'tools:slideshow_list' %}" class="button" onclick="event.stopPropagation();">
+                    {% trans 'My Projects' %}
+                </a>
+            </div>
+        </div>
+
+        <div class="tool-card" onclick="window.location.href='{% url 'tools:audio_normalize' %}'">
+            <div class="tool-icon">🔊</div>
+            <div class="tool-title">{% trans 'Audio Broadcast Normalize (R128)' %}</div>
+            <div class="tool-description">
+                {% trans 'Normalize loudness to EBU R128 using ffprobe + ffmpeg loudnorm (2-pass), with before/after report and safe video passthrough' %}
+            </div>
+            <div class="tool-actions">
+                <a href="{% url 'tools:audio_normalize_new' %}" class="button default" onclick="event.stopPropagation();">
+                    {% trans 'New Job' %}
+                </a>
+                <a href="{% url 'tools:audio_normalize' %}" class="button" onclick="event.stopPropagation();">
+                    {% trans 'My Jobs' %}
+                </a>
+            </div>
+        </div>
+
+        {% if media_files_enabled %}
+        <div class="tool-card" onclick="window.location.href='{% url 'tools:video_render_jobs' %}'">
+            <div class="tool-icon">🎞️</div>
+            <div class="tool-title">{% trans 'Video Render (Overlays)' %}</div>
+            <div class="tool-description">
+                {% trans 'Render videos with overlay presets (title, subtitle, broadcast responsibility, media authority) and encoding presets' %}
+            </div>
+            <div class="tool-actions">
+                <a href="{% url 'tools:video_render_jobs' %}" class="button default" onclick="event.stopPropagation();">
+                    {% trans 'My Jobs' %}
+                </a>
+                <a href="{% url 'tools:video_render_select' %}" class="button" onclick="event.stopPropagation();">
+                    {% trans 'New Render' %}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

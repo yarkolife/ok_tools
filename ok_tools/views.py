@@ -11,29 +11,30 @@ from django.views.generic import TemplateView
 
 
 # Import models from other apps
+# Use try/except to handle cases when modules are disabled
 try:
     from licenses.models import License
-except ImportError:
+except (ImportError, RuntimeError, ModuleNotFoundError):
     License = None
 
 try:
     from rental.models import RentalTransaction
-except ImportError:
+except (ImportError, RuntimeError, ModuleNotFoundError):
     RentalTransaction = None
 
 try:
     from contributions.models import Contribution
-except ImportError:
+except (ImportError, RuntimeError, ModuleNotFoundError):
     Contribution = None
 
 try:
     from projects.models import Project
-except ImportError:
+except (ImportError, RuntimeError, ModuleNotFoundError):
     Project = None
 
 try:
     from registration.models import Profile
-except ImportError:
+except (ImportError, RuntimeError, ModuleNotFoundError):
     Profile = None
 
 @login_required

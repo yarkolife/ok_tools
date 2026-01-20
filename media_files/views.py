@@ -2,6 +2,7 @@
 
 import json
 import logging
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -9,7 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import gettext_lazy as _
 
-from .models import VideoPreset, PresetOverlay, VideoFile, FileOperation
+from .models import VideoFile, FileOperation
 from licenses.models import License
 
 
@@ -35,35 +36,49 @@ def render_video_admin(request, video_id):
         messages.error(request, _('License not found for this video'))
         return redirect('admin:media_files_videofile_change', video_id)
     
+    # If Tools module is enabled, this page is now served from tools.
+    # Keep this view for backward compatibility.
+    if getattr(settings, "TOOLS_ENABLED", False) and "tools" in getattr(settings, "INSTALLED_APPS", []):
+        return redirect("tools:video_render", video_id=video_id)
+
     # Load available presets from database (templates and public) and JSON files
     from django.db.models import Q
-    from media_files.rendering.presets import load_style_preset_from_db, load_style_preset, list_style_presets
+    from tools.rendering.presets import load_style_preset_from_db, load_style_preset, list_style_presets
     
-    # Get presets from database
-    db_presets = VideoPreset.objects.filter(
-        Q(is_template=True) | Q(is_public=True) | Q(created_by=request.user)
-    ).distinct().order_by('display_name')
+    # Get presets from database (optional; presets model lives in tools now)
+    db_presets_qs = None
+    try:
+        from django.apps import apps
+        VideoPreset = apps.get_model("tools", "VideoPreset")
+        db_presets_qs = VideoPreset.objects.filter(
+            Q(is_template=True) | Q(is_public=True) | Q(created_by=request.user)
+        ).distinct().order_by("display_name")
+    except Exception:
+        db_presets_qs = None
     
     # Get presets from JSON files
     json_presets_list = list_style_presets()
     json_preset_names = {p['id'] for p in json_presets_list}
     
     # Combine: database presets + JSON presets (excluding those already in DB)
-    available_presets = list(db_presets)
+    available_presets = list(db_presets_qs) if db_presets_qs is not None else []
     for json_preset_data in json_presets_list:
-        # Skip if already in database
-        if not db_presets.filter(name=json_preset_data['id']).exists():
-            # Create a mock preset object for JSON presets
-            class MockPreset:
-                def __init__(self, data):
-                    self.name = data['id']
-                    self.display_name = data['name']
-                    self.description = data.get('description', '')
-                    self.id = None
-                    self.is_template = True
-                    self.is_public = True
-                    self.created_by = None
-            available_presets.append(MockPreset(json_preset_data))
+        # Skip JSON preset if already present in DB
+        if db_presets_qs is not None and db_presets_qs.filter(name=json_preset_data["id"]).exists():
+            continue
+
+        # Create a mock preset object for JSON presets
+        class MockPreset:
+            def __init__(self, data):
+                self.name = data["id"]
+                self.display_name = data["name"]
+                self.description = data.get("description", "")
+                self.id = None
+                self.is_template = True
+                self.is_public = True
+                self.created_by = None
+
+        available_presets.append(MockPreset(json_preset_data))
     
     def determine_preview_type(preset, style_preset):
         """Determine preview type for a preset based on its content and name."""
@@ -236,7 +251,7 @@ def render_video_admin(request, video_id):
     styles = all_styles
     
     # Encoding presets - load dynamically from encode directory
-    from media_files.rendering.presets import list_encode_presets
+    from tools.rendering.presets import list_encode_presets
     encodings = list_encode_presets()
     
     context = {

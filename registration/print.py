@@ -234,8 +234,9 @@ def generate_registration_form(user: User, profile: Profile) -> FileResponse:
     Returns:
         FileResponse: A response containing the filled-out PDF form.
     """
-    # Path to the PDF template - use setting from environment or default
-    pdf_filename = str(getattr(settings, 'REGISTRATION_FORM_PDF', 'Nutzerkartei.pdf'))
+    # Path to the PDF template - use config or fallback to env/default
+    from .config import get_registration_form_pdf
+    pdf_filename = str(get_registration_form_pdf())
     template_pdf = os.path.join(str(settings.BASE_DIR), 'files', pdf_filename)
     if not os.path.isfile(template_pdf):
         raise FileNotFoundError(f'PDF template not found: {template_pdf}')

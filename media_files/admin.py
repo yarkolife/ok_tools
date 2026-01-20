@@ -18,7 +18,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
 
-from .models import StorageLocation, VideoFile, FileOperation, VideoPreset, PresetOverlay, VideoEncodePreset, POSITION_PRESET_CHOICES
+from .models import StorageLocation, VideoFile, FileOperation, MediaFilesConfig, POSITION_PRESET_CHOICES
 from .utils import verify_file_integrity, extract_video_metadata, extract_video_metadata_fast, extract_number_from_filename, calculate_checksum, copy_file_with_progress, copy_video_to_playout
 from media_files.management.commands.render_video_preset import _apply_metadata
 from media_files.rendering.ffmpeg import (
@@ -27,12 +27,132 @@ from media_files.rendering.ffmpeg import (
     render_with_overlays_on_main_edges,
     render_preview_overlays_on_main_edges,
 )
-from media_files.rendering.presets import load_encode_preset, load_style_preset, resolve_preset_asset_path
+from tools.rendering.presets import load_encode_preset, load_style_preset, resolve_preset_asset_path
 from media_files.rendering.templates import build_template_context
 
 
 logger = logging.getLogger('django')
 
+def _is_archive_protected() -> bool:
+    """Return True if ARCHIVE deletion protection is enabled (DB config with env fallback)."""
+    try:
+        from media_files.config import get_video_archive_protected
+        return bool(get_video_archive_protected())
+    except Exception:
+        return bool(getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True))
+
+
+def _admin_archive_cleanup_preview_page(title: str, rows: list) -> HttpResponse:
+    """Render a simple HTML preview page for archive cleanup."""
+    # rows: list of dicts {number, keep, delete[]}
+    def esc(s):
+        return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+    html = [
+        "<html><head><meta charset='utf-8' />",
+        f"<title>{esc(title)}</title>",
+        "<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:16px}"
+        "table{border-collapse:collapse; width:100%}"
+        "th,td{border:1px solid #ddd; padding:8px; vertical-align:top}"
+        "th{background:#f6f6f6; text-align:left}"
+        ".keep{color:#17a2b8; font-weight:700}"
+        ".del{color:#dc3545}"
+        ".muted{color:#666}"
+        "</style></head><body>",
+        f"<h2>{esc(title)}</h2>",
+        "<p class='muted'>This is a preview only. No files were deleted.</p>",
+        "<table>",
+        "<tr><th>Number</th><th>Keep</th><th>Delete</th></tr>",
+    ]
+
+    for r in rows:
+        deletes = "<br/>".join([esc(x) for x in r.get("delete", [])]) or "—"
+        html.append(
+            "<tr>"
+            f"<td><strong>{esc(r['number'])}</strong></td>"
+            f"<td class='keep'>{esc(r['keep'])}</td>"
+            f"<td class='del'>{deletes}</td>"
+            "</tr>"
+        )
+
+    html.extend(["</table></body></html>"])
+    return HttpResponse("".join(html))
+
+
+def _archive_version_sort_key(v):
+    """Sort key for choosing which ARCHIVE version to keep."""
+    from datetime import datetime
+    created = v.created_at or v.last_scanned or v.updated_at
+    if created is None:
+        created = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    return (
+        bool(getattr(v, 'is_manual_primary', False)),
+        bool(getattr(v, 'is_available', True)),
+        v.total_bitrate or 0,
+        created,
+    )
+
+
+def _archive_newest_sort_key(v):
+    """Sort key for choosing newest ARCHIVE version to keep."""
+    from datetime import datetime
+    created = v.created_at or v.last_scanned or v.updated_at
+    if created is None:
+        created = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    return (
+        bool(getattr(v, 'is_manual_primary', False)),
+        bool(getattr(v, 'is_available', True)),
+        created,
+    )
+
+
+def _archive_largest_sort_key(v):
+    """Sort key for choosing largest ARCHIVE file to keep."""
+    from datetime import datetime
+    created = v.created_at or v.last_scanned or v.updated_at
+    if created is None:
+        created = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    return (
+        bool(getattr(v, 'is_manual_primary', False)),
+        bool(getattr(v, 'is_available', True)),
+        v.file_size or 0,
+        v.total_bitrate or 0,
+        created,
+    )
+
+
+class ForceArchiveDeleteConfirmForm(forms.Form):
+    """Confirmation form for destructive ARCHIVE operations."""
+
+    confirmation_phrase = forms.CharField(
+        label=_('Confirmation phrase'),
+        help_text=_('Type the exact confirmation phrase to proceed.'),
+        required=True,
+    )
+    password = forms.CharField(
+        label=_('Your password'),
+        widget=forms.PasswordInput(render_value=False),
+        required=True,
+    )
+
+    def __init__(self, *args, user=None, required_phrase=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._user = user
+        self._required_phrase = required_phrase or ''
+
+    def clean_confirmation_phrase(self):
+        phrase = (self.cleaned_data.get('confirmation_phrase') or '').strip()
+        if phrase != (self._required_phrase or ''):
+            raise forms.ValidationError(_('Confirmation phrase does not match.'))
+        return phrase
+
+    def clean_password(self):
+        pwd = self.cleaned_data.get('password') or ''
+        if not self._user or not hasattr(self._user, 'check_password'):
+            raise forms.ValidationError(_('Cannot validate password for current user.'))
+        if not self._user.check_password(pwd):
+            raise forms.ValidationError(_('Incorrect password.'))
+        return pwd
 
 class VideoFileAdminForm(forms.ModelForm):
     """Form for adding/editing video files with file upload support."""
@@ -601,19 +721,20 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
                     if v.storage_location and hasattr(v.storage_location, 'storage_type'):
                         storage_type = v.storage_location.storage_type or 'CUSTOM'
                     
-                    # Get priority
+                    # Prefer available files
+                    available = bool(getattr(v, 'is_available', True))
+                    
+                    # Prefer higher quality (bitrate + storage type)
                     priority = storage_priority_map.get(storage_type, 1)
-                    
-                    # Get bitrate (default to 0)
                     bitrate = v.total_bitrate if v.total_bitrate is not None else 0
+                    quality = (priority * 1_000_000_000) + bitrate
                     
-                    # Get date (use earliest possible date if all are None)
+                    # Use recency only as a tie-breaker
                     date = v.created_at or v.last_scanned or v.updated_at
                     if date is None:
-                        # Use a very old date as fallback
                         date = datetime(1970, 1, 1, tzinfo=timezone.utc)
                     
-                    return (date, bitrate, priority)
+                    return (available, quality, date)
                 
                 best_video = max(video_list, key=get_sort_key)
                 primary_ids.add(best_video.id)
@@ -637,6 +758,66 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
                 return queryset.none()
         
         return queryset
+
+
+class ArchiveCleanupFilter(admin.SimpleListFilter):
+    title = _('Archive Cleanup')
+    parameter_name = 'archive_cleanup'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('archive_primary', _('Archive primary (keep)')),
+            ('archive_duplicate', _('Archive duplicates')),
+        )
+
+    def queryset(self, request, queryset):
+        from django.db.models import Count
+        from django.utils import timezone
+        from datetime import datetime
+
+        if not self.value():
+            return queryset
+
+        archive_qs = queryset.filter(storage_location__storage_type='ARCHIVE')
+
+        duplicated_numbers = archive_qs.values('number').annotate(
+            count=Count('id')
+        ).filter(count__gt=1).values_list('number', flat=True)
+
+        if not duplicated_numbers:
+            return archive_qs.none()
+
+        videos_list = list(
+            archive_qs.filter(number__in=duplicated_numbers)
+            .select_related('storage_location')
+            .only(
+                'id', 'number', 'total_bitrate', 'created_at', 'last_scanned', 'updated_at',
+                'is_manual_primary', 'is_available', 'storage_location__storage_type'
+            )
+        )
+
+        by_number = {}
+        for v in videos_list:
+            by_number.setdefault(v.number, []).append(v)
+
+        keep_ids = set()
+        drop_ids = set()
+
+        def get_sort_key(v):
+            return _archive_version_sort_key(v)
+
+        for number, versions in by_number.items():
+            best = max(versions, key=get_sort_key)
+            keep_ids.add(best.id)
+            drop_ids.update(v.id for v in versions if v.id != best.id)
+
+        if self.value() == 'archive_primary':
+            return archive_qs.filter(id__in=keep_ids)
+
+        if self.value() == 'archive_duplicate':
+            return archive_qs.filter(id__in=drop_ids)
+
+        return archive_qs
 
 
 class FPSFilter(admin.SimpleListFilter):
@@ -678,7 +859,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         'storage_location', 'format', 'is_available',
         ('created_at', DateRangeFilter),
         'has_video', 'has_audio',
-        HasDuplicatesFilter, IsPrimaryVersionFilter, FPSFilter
+        ArchiveCleanupFilter, HasDuplicatesFilter, IsPrimaryVersionFilter, FPSFilter
     ]
     
     def get_rangefilter_created_at_title(self, request, field_path):
@@ -765,15 +946,60 @@ class VideoFileAdmin(admin.ModelAdmin):
     actions = ['copy_to_playout_action', 'update_metadata_action', 'verify_integrity_action', 
                'mark_as_primary_action', 'delete_duplicates_action', 'move_to_archive_action',
                'cleanup_missing_files_action', 'render_default_preset_action', 'render_preview_default_action',
-               'delete_records_without_video_action', 'render_with_intro_outro_full_overlays_action']
+               'delete_records_without_video_action', 'render_with_intro_outro_full_overlays_action',
+               'transcode_hevc_to_h264_action']
 
     def get_actions(self, request):
         """Hide rendering actions when the feature flag is disabled."""
         actions = super().get_actions(request)
-        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+        from media_files.config import get_video_overlay_rendering_enabled
+        if not get_video_overlay_rendering_enabled() or not getattr(settings, "TOOLS_ENABLED", False):
             actions.pop("render_default_preset_action", None)
             actions.pop("render_preview_default_action", None)
+            actions.pop("render_with_intro_outro_full_overlays_action", None)
         return actions
+
+    @admin.action(description=_('Transcode HEVC to H.264 (browser compatible)'))
+    def transcode_hevc_to_h264_action(self, request, queryset):
+        """
+        Transcode selected HEVC/H.265 videos to H.264 for browser compatibility.
+        
+        This creates a new H.264 version of the video while keeping the original.
+        Uses Celery for async processing.
+        """
+        from media_files.tasks import transcode_hevc_to_h264
+        
+        queued = 0
+        skipped = 0
+        
+        for video in queryset:
+            # Check if video needs transcoding
+            if video.is_browser_compatible:
+                skipped += 1
+                continue
+            
+            # Queue transcode task
+            transcode_hevc_to_h264.delay(
+                video_id=video.id,
+                user_id=request.user.id,
+            )
+            queued += 1
+        
+        if queued > 0:
+            self.message_user(
+                request,
+                _('Queued {count} video(s) for HEVC→H.264 transcoding. Check File Operations for progress.').format(
+                    count=queued
+                ),
+                level=messages.SUCCESS,
+            )
+        
+        if skipped > 0:
+            self.message_user(
+                request,
+                _('Skipped {count} video(s) - already browser compatible.').format(count=skipped),
+                level=messages.INFO,
+            )
 
     @admin.action(description=_('Render video (default presets)'))
     def render_default_preset_action(self, request, queryset):
@@ -783,7 +1009,8 @@ class VideoFileAdmin(admin.ModelAdmin):
         This is intentionally minimal. For full control, use the management command
         `python manage.py render_video_preset ...`.
         """
-        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+        from media_files.config import get_video_overlay_rendering_enabled
+        if not get_video_overlay_rendering_enabled():
             self.message_user(
                 request,
                 _(
@@ -957,7 +1184,8 @@ class VideoFileAdmin(admin.ModelAdmin):
 
         Intended for quick visual verification of overlays.
         """
-        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+        from media_files.config import get_video_overlay_rendering_enabled
+        if not get_video_overlay_rendering_enabled():
             self.message_user(
                 request,
                 _(
@@ -1194,7 +1422,8 @@ class VideoFileAdmin(admin.ModelAdmin):
         Uses intro.mp4 and outro.mp4 from docker-local/data/media/intro_outro/
         and applies all text overlays to them.
         """
-        if not getattr(settings, "VIDEO_OVERLAY_RENDERING_ENABLED", False):
+        from media_files.config import get_video_overlay_rendering_enabled
+        if not get_video_overlay_rendering_enabled():
             self.message_user(
                 request,
                 _(
@@ -1518,6 +1747,55 @@ class VideoFileAdmin(admin.ModelAdmin):
                 _('versions total')
             )
         else:
+            # ARCHIVE: if multiple versions exist in ARCHIVE, label non-best ones as "ARCHIVE DUPLICATE"
+            if obj.storage_location and obj.storage_location.storage_type == 'ARCHIVE':
+                archive_versions = [obj] + list(
+                    all_versions.filter(storage_location__storage_type='ARCHIVE')
+                )
+                if len(archive_versions) > 1:
+                    from django.utils import timezone
+                    from datetime import datetime
+
+                    def archive_key(v):
+                        created = v.created_at or v.last_scanned or v.updated_at
+                        if created is None:
+                            created = datetime(1970, 1, 1, tzinfo=timezone.utc)
+                        return (
+                            bool(getattr(v, 'is_manual_primary', False)),
+                            bool(getattr(v, 'is_available', True)),
+                            v.total_bitrate or 0,
+                            created,
+                        )
+
+                    best_archive = max(archive_versions, key=archive_key)
+                    if obj.id == best_archive.id:
+                        return format_html(
+                            '<span style="color: #17a2b8; font-weight: bold;" title="{}">📦 {}</span><br>'
+                            '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                            tooltip,
+                            _('ARCHIVE PRIMARY'),
+                            total_count + 1,
+                            _('versions total')
+                        )
+                    return format_html(
+                        '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ {}</span><br>'
+                        '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                        tooltip,
+                        _('ARCHIVE DUPLICATE'),
+                        total_count + 1,
+                        _('versions total')
+                    )
+
+                # Single archive copy among multiple storages: treat as canonical archive copy
+                return format_html(
+                    '<span style="color: #17a2b8; font-weight: bold;" title="{}">📦 {}</span><br>'
+                    '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                    tooltip,
+                    _('ARCHIVE VERSION'),
+                    total_count + 1,
+                    _('versions total')
+                )
+
             # Check if this is an old version (lower quality or older date)
             primary_versions = [v for v in obj.get_all_versions() if v.is_primary_version()]
             if primary_versions:
@@ -1536,11 +1814,12 @@ class VideoFileAdmin(admin.ModelAdmin):
                         total_count + 1,
                         _('versions total')
                     )
-            
+
             return format_html(
-                '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ DUPLICATE</span><br>'
+                '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ {}</span><br>'
                 '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                 tooltip,
+                _('DUPLICATE'),
                 total_count + 1,
                 _('versions total')
             )
@@ -1566,9 +1845,55 @@ class VideoFileAdmin(admin.ModelAdmin):
             )
         else:
             primary = [v for v in obj.get_all_versions() if v.is_primary_version()][0]
+            if obj.storage_location and obj.storage_location.storage_type == 'ARCHIVE':
+                archive_versions = list(
+                    VideoFile.objects.filter(
+                        number=obj.number,
+                        storage_location__storage_type='ARCHIVE'
+                    )
+                )
+                if len(archive_versions) > 1:
+                    from django.utils import timezone
+                    from datetime import datetime
+
+                    def archive_key(v):
+                        created = v.created_at or v.last_scanned or v.updated_at
+                        if created is None:
+                            created = datetime(1970, 1, 1, tzinfo=timezone.utc)
+                        return (
+                            bool(getattr(v, 'is_manual_primary', False)),
+                            bool(getattr(v, 'is_available', True)),
+                            v.total_bitrate or 0,
+                            created,
+                        )
+
+                    best_archive = max(archive_versions, key=archive_key)
+                    if obj.id != best_archive.id:
+                        return format_html(
+                            '<span style="color: #ffc107;">⚠️ {}</span><br>'
+                            '<span style="color: #666;">Keep: <a href="{}">{}</a></span>',
+                            _('ARCHIVE DUPLICATE'),
+                            reverse('admin:media_files_videofile_change', args=[best_archive.id]),
+                            best_archive.filename
+                        )
+                    return format_html(
+                        '<span style="color: #17a2b8;">📦 {}</span><br>'
+                        '<span style="color: #666;">Other archive versions exist: {}.</span>',
+                        _('ARCHIVE PRIMARY'),
+                        len(archive_versions) - 1
+                    )
+
+                return format_html(
+                    '<span style="color: #17a2b8;">📦 {}</span><br>'
+                    '<span style="color: #666;">Primary version is in: <a href="{}">{}</a></span>',
+                    _('ARCHIVE VERSION'),
+                    reverse('admin:media_files_videofile_change', args=[primary.id]),
+                    primary.storage_location.name
+                )
             return format_html(
-                '<span style="color: #ffc107;">⚠️ DUPLICATE VERSION</span><br>'
+                '<span style="color: #ffc107;">⚠️ {} </span><br>'
                 '<span style="color: #666;">Primary version is in: <a href="{}">{}</a></span>',
+                _('DUPLICATE VERSION'),
                 reverse('admin:media_files_videofile_change', args=[primary.id]),
                 primary.storage_location.name
             )
@@ -1588,10 +1913,30 @@ class VideoFileAdmin(admin.ModelAdmin):
         if all_versions.count() <= 1:
             return format_html('<span style="color: #6c757d;">{}</span>', _('No other versions'))
         
+        versions_list = list(all_versions.select_related('storage_location'))
         html_parts = []
         primary = None
+
+        archive_versions = [v for v in versions_list if v.storage_location and v.storage_location.storage_type == 'ARCHIVE']
+        best_archive = None
+        if len(archive_versions) > 1:
+            from django.utils import timezone
+            from datetime import datetime
+
+            def archive_key(v):
+                created = v.created_at or v.last_scanned or v.updated_at
+                if created is None:
+                    created = datetime(1970, 1, 1, tzinfo=timezone.utc)
+                return (
+                    bool(getattr(v, 'is_manual_primary', False)),
+                    bool(getattr(v, 'is_available', True)),
+                    v.total_bitrate or 0,
+                    created,
+                )
+
+            best_archive = max(archive_versions, key=archive_key)
         
-        for v in all_versions:
+        for v in versions_list:
             is_current = v.id == obj.id
             is_primary = v.is_primary_version()
             if is_primary:
@@ -1603,18 +1948,26 @@ class VideoFileAdmin(admin.ModelAdmin):
             elif is_current:
                 status = '<span style="color: #007bff; font-weight: bold;">📍 CURRENT</span>'
             else:
-                # Check if old version
-                is_old = False
-                if primary:
-                    is_old = (
-                        (v.total_bitrate and primary.total_bitrate and v.total_bitrate < primary.total_bitrate * 0.8)
-                        or (v.created_at and primary.created_at and v.created_at < primary.created_at - timedelta(days=30))
-                    )
-                
-                if is_old:
-                    status = '<span style="color: #dc3545;">⚠️ OLD</span>'
+                if v.storage_location and v.storage_location.storage_type == 'ARCHIVE':
+                    if best_archive and v.id == best_archive.id:
+                        status = f'<span style="color: #17a2b8;">📦 {_("ARCHIVE PRIMARY")}</span>'
+                    elif best_archive and v.id != best_archive.id:
+                        status = f'<span style="color: #ffc107;">⚠️ {_("ARCHIVE DUPLICATE")}</span>'
+                    else:
+                        status = f'<span style="color: #17a2b8;">📦 {_("ARCHIVE VERSION")}</span>'
                 else:
-                    status = '<span style="color: #ffc107;">⚠️ DUPLICATE</span>'
+                    # Check if old version
+                    is_old = False
+                    if primary:
+                        is_old = (
+                            (v.total_bitrate and primary.total_bitrate and v.total_bitrate < primary.total_bitrate * 0.8)
+                            or (v.created_at and primary.created_at and v.created_at < primary.created_at - timedelta(days=30))
+                        )
+                    
+                    if is_old:
+                        status = '<span style="color: #dc3545;">⚠️ OLD</span>'
+                    else:
+                        status = f'<span style="color: #ffc107;">⚠️ {_("DUPLICATE")}</span>'
             
             # Build version info
             format_info = v.format.upper() if v.format else '?'
@@ -1698,9 +2051,15 @@ class VideoFileAdmin(admin.ModelAdmin):
             file_path_linux = _("File path (Linux)")
             file_path_windows = _("File path (Windows UNC)")
             try:
-                render_url = reverse('media_files:render_video_admin', args=[obj.id])
+                if getattr(settings, "TOOLS_ENABLED", False) and "tools" in getattr(settings, "INSTALLED_APPS", []):
+                    render_url = reverse("tools:video_render", args=[obj.id])
+                else:
+                    render_url = reverse('media_files:render_video_admin', args=[obj.id])
             except Exception:
-                render_url = f'/media-files/render/video/{obj.id}/'
+                if getattr(settings, "TOOLS_ENABLED", False):
+                    render_url = f"/tools/video-render/{obj.id}/"
+                else:
+                    render_url = f'/media-files/render/video/{obj.id}/'
             
             render_label = _('Render Video with Overlays')
             
@@ -2102,12 +2461,12 @@ class VideoFileAdmin(admin.ModelAdmin):
             if manual_primary:
                 primary = manual_primary
             else:
-                # Find primary version by quality (date first, then bitrate, then storage)
+                # Find primary version by quality (availability > bitrate+storage > recency)
                 storage_priority = {'ARCHIVE': 3, 'PLAYOUT': 2, 'CUSTOM': 1}
                 primary = max(versions, key=lambda v: (
+                    bool(getattr(v, 'is_available', True)),
+                    (storage_priority.get(v.storage_location.storage_type, 0) * 1_000_000_000) + (v.total_bitrate or 0),
                     v.created_at,
-                    v.total_bitrate or 0,
-                    storage_priority.get(v.storage_location.storage_type, 0)
                 ))
             
             # Delete others
@@ -2125,6 +2484,451 @@ class VideoFileAdmin(admin.ModelAdmin):
             f'Deleted {deleted_count} duplicate(s), kept {kept_count} primary version(s)',
             level='success'
         )
+
+    @admin.action(description=_('Delete archive duplicate versions (keep best archive)'))
+    def delete_archive_duplicates_action(self, request, queryset):
+        """Delete duplicate versions inside ARCHIVE only, keeping the best ARCHIVE version per number."""
+        if _is_archive_protected():
+            self.message_user(
+                request,
+                _('Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion to prevent data loss.'),
+                level='error'
+            )
+            return
+
+        # Only operate on ARCHIVE selections (ignore others)
+        archive_selected = queryset.filter(storage_location__storage_type='ARCHIVE')
+        numbers = set(archive_selected.values_list('number', flat=True))
+
+        deleted_count = 0
+        kept_count = 0
+        skipped_count = 0
+
+        for number in numbers:
+            versions = VideoFile.objects.filter(
+                number=number,
+                storage_location__storage_type='ARCHIVE'
+            ).select_related('storage_location')
+
+            if versions.count() <= 1:
+                skipped_count += 1
+                continue
+
+            best = max(list(versions), key=_archive_version_sort_key)
+            duplicates = versions.exclude(id=best.id)
+
+            for dup in duplicates:
+                dup.delete()
+                deleted_count += 1
+
+            kept_count += 1
+
+        if deleted_count:
+            self.message_user(
+                request,
+                _('Deleted {} archive duplicate(s), kept {} archive primary version(s).').format(deleted_count, kept_count),
+                level='success'
+            )
+        if skipped_count:
+            self.message_user(
+                request,
+                _('Skipped {} number(s) with no archive duplicates.').format(skipped_count),
+                level='info'
+            )
+
+    @admin.action(description=_('Preview archive cleanup (keep best archive)'))
+    def preview_archive_duplicates_action(self, request, queryset):
+        """Preview deleting archive duplicates, keeping best ARCHIVE version per number."""
+        archive_selected = queryset.filter(storage_location__storage_type='ARCHIVE')
+        numbers = set(archive_selected.values_list('number', flat=True))
+
+        rows = []
+        for number in sorted(numbers):
+            versions = list(
+                VideoFile.objects.filter(
+                    number=number,
+                    storage_location__storage_type='ARCHIVE'
+                ).select_related('storage_location')
+            )
+            if len(versions) <= 1:
+                continue
+
+            keep = max(versions, key=_archive_version_sort_key)
+            delete = [v for v in versions if v.id != keep.id]
+
+            def fmt(v):
+                bitrate = f"{(v.total_bitrate or 0) / 1_000_000:.2f} Mbps" if v.total_bitrate else "?"
+                size = f"{(v.file_size or 0) / (1024 * 1024):.2f} MB" if v.file_size else "?"
+                created = v.created_at or v.last_scanned or v.updated_at
+                created_s = created.strftime('%Y-%m-%d %H:%M') if created else '?'
+                return f"#{v.id} {v.filename} • {bitrate} • {size} • {created_s}"
+
+            rows.append({
+                "number": number,
+                "keep": fmt(keep),
+                "delete": [fmt(v) for v in sorted(delete, key=_archive_version_sort_key, reverse=True)],
+            })
+
+        return _admin_archive_cleanup_preview_page("Preview: ARCHIVE cleanup (keep best archive)", rows)
+
+    @admin.action(description=_('Preview archive cleanup (keep newest archive)'))
+    def preview_archive_duplicates_keep_newest_action(self, request, queryset):
+        """Preview deleting archive duplicates, keeping newest ARCHIVE version per number."""
+        archive_selected = queryset.filter(storage_location__storage_type='ARCHIVE')
+        numbers = set(archive_selected.values_list('number', flat=True))
+
+        rows = []
+        for number in sorted(numbers):
+            versions = list(
+                VideoFile.objects.filter(
+                    number=number,
+                    storage_location__storage_type='ARCHIVE'
+                ).select_related('storage_location')
+            )
+            if len(versions) <= 1:
+                continue
+
+            keep = max(versions, key=_archive_newest_sort_key)
+            delete = [v for v in versions if v.id != keep.id]
+
+            def fmt(v):
+                bitrate = f"{(v.total_bitrate or 0) / 1_000_000:.2f} Mbps" if v.total_bitrate else "?"
+                size = f"{(v.file_size or 0) / (1024 * 1024):.2f} MB" if v.file_size else "?"
+                created = v.created_at or v.last_scanned or v.updated_at
+                created_s = created.strftime('%Y-%m-%d %H:%M') if created else '?'
+                return f"#{v.id} {v.filename} • {bitrate} • {size} • {created_s}"
+
+            rows.append({
+                "number": number,
+                "keep": fmt(keep),
+                "delete": [fmt(v) for v in sorted(delete, key=_archive_newest_sort_key, reverse=True)],
+            })
+
+        return _admin_archive_cleanup_preview_page("Preview: ARCHIVE cleanup (keep newest)", rows)
+
+    @admin.action(description=_('Preview archive cleanup (keep largest archive file)'))
+    def preview_archive_duplicates_keep_largest_action(self, request, queryset):
+        """Preview deleting archive duplicates, keeping largest ARCHIVE file per number."""
+        archive_selected = queryset.filter(storage_location__storage_type='ARCHIVE')
+        numbers = set(archive_selected.values_list('number', flat=True))
+
+        rows = []
+        for number in sorted(numbers):
+            versions = list(
+                VideoFile.objects.filter(
+                    number=number,
+                    storage_location__storage_type='ARCHIVE'
+                ).select_related('storage_location')
+            )
+            if len(versions) <= 1:
+                continue
+
+            keep = max(versions, key=_archive_largest_sort_key)
+            delete = [v for v in versions if v.id != keep.id]
+
+            def fmt(v):
+                bitrate = f"{(v.total_bitrate or 0) / 1_000_000:.2f} Mbps" if v.total_bitrate else "?"
+                size = f"{(v.file_size or 0) / (1024 * 1024):.2f} MB" if v.file_size else "?"
+                created = v.created_at or v.last_scanned or v.updated_at
+                created_s = created.strftime('%Y-%m-%d %H:%M') if created else '?'
+                return f"#{v.id} {v.filename} • {bitrate} • {size} • {created_s}"
+
+            rows.append({
+                "number": number,
+                "keep": fmt(keep),
+                "delete": [fmt(v) for v in sorted(delete, key=_archive_largest_sort_key, reverse=True)],
+            })
+
+        return _admin_archive_cleanup_preview_page("Preview: ARCHIVE cleanup (keep largest)", rows)
+
+    def _force_archive_cleanup_confirm_page(self, request, queryset, *, action_name: str, title: str, required_phrase: str):
+        """Render confirmation page for force archive cleanup actions."""
+        cancel_url = reverse('admin:media_files_videofile_changelist')
+        form = ForceArchiveDeleteConfirmForm(
+            request.POST or None,
+            user=request.user,
+            required_phrase=required_phrase,
+        )
+        context = {
+            **self.admin_site.each_context(request),
+            'title': title,
+            'action_name': action_name,
+            'required_phrase': required_phrase,
+            'form': form,
+            'queryset': queryset,
+            'cancel_url': cancel_url,
+        }
+        return form, render(request, 'admin/media_files/videofile/force_archive_delete_confirm.html', context)
+
+    def _force_delete_videofile_best_effort(self, video: VideoFile) -> tuple[bool, bool, str]:
+        """Delete physical file (best effort) and DB record for a VideoFile."""
+        file_deleted = False
+        try:
+            if getattr(video, 'is_available', False):
+                try:
+                    full_path = video.full_path
+                except Exception:
+                    full_path = None
+                if full_path and os.path.exists(full_path):
+                    try:
+                        os.remove(full_path)
+                        file_deleted = True
+                    except Exception as e:
+                        # Continue with DB deletion even if file deletion fails
+                        logger.warning(f"Could not delete physical file {full_path}: {e}")
+            video.delete()
+            return True, file_deleted, ""
+        except Exception as e:
+            return False, file_deleted, str(e)
+
+    def _force_archive_cleanup_delete_with_confirmation(
+        self,
+        request,
+        queryset,
+        *,
+        sort_key,
+        action_name: str,
+        title: str,
+        required_phrase: str = "DELETE ARCHIVE",
+    ):
+        """
+        Force delete duplicate versions inside ARCHIVE only, even if archive protection is enabled.
+        Requires confirmation phrase + current user's password.
+        """
+        if not admin.ModelAdmin.has_delete_permission(self, request):
+            self.message_user(request, _('You do not have permission to delete videos.'), level='error')
+            return
+
+        archive_selected = queryset.filter(storage_location__storage_type='ARCHIVE')
+        numbers = sorted(set(archive_selected.values_list('number', flat=True)))
+
+        planned_delete = 0
+        sample_rows = []
+        for number in numbers:
+            versions = list(VideoFile.objects.filter(number=number, storage_location__storage_type='ARCHIVE'))
+            if len(versions) <= 1:
+                continue
+            keep = max(versions, key=sort_key)
+            delete = [v for v in versions if v.id != keep.id]
+            planned_delete += len(delete)
+            if len(sample_rows) < 20:
+                sample_rows.append({
+                    'number': number,
+                    'keep': f"#{keep.id} {keep.filename}",
+                    'delete': [f"#{v.id} {v.filename}" for v in delete],
+                })
+
+        # Step 1: show confirmation page
+        if request.POST.get('force_apply') != '1':
+            return render(
+                request,
+                'admin/media_files/videofile/force_archive_delete_confirm.html',
+                {
+                    **self.admin_site.each_context(request),
+                    'title': title,
+                    'action_name': action_name,
+                    'required_phrase': required_phrase,
+                    'form': ForceArchiveDeleteConfirmForm(user=request.user, required_phrase=required_phrase),
+                    'queryset': archive_selected,
+                    'cancel_url': reverse('admin:media_files_videofile_changelist'),
+                    'planned_delete_count': planned_delete,
+                    'planned_numbers_count': len(numbers),
+                    'sample_rows': sample_rows,
+                }
+            )
+
+        # Step 2: validate confirmation
+        form = ForceArchiveDeleteConfirmForm(request.POST, user=request.user, required_phrase=required_phrase)
+        if not form.is_valid():
+            return render(
+                request,
+                'admin/media_files/videofile/force_archive_delete_confirm.html',
+                {
+                    **self.admin_site.each_context(request),
+                    'title': title,
+                    'action_name': action_name,
+                    'required_phrase': required_phrase,
+                    'form': form,
+                    'queryset': archive_selected,
+                    'cancel_url': reverse('admin:media_files_videofile_changelist'),
+                    'planned_delete_count': planned_delete,
+                    'planned_numbers_count': len(numbers),
+                    'sample_rows': sample_rows,
+                }
+            )
+
+        # Step 3: apply deletions
+        deleted_records = 0
+        deleted_files = 0
+        errors = 0
+        affected_numbers = 0
+
+        for number in numbers:
+            versions = list(
+                VideoFile.objects.filter(
+                    number=number,
+                    storage_location__storage_type='ARCHIVE'
+                ).select_related('storage_location')
+            )
+            if len(versions) <= 1:
+                continue
+            keep = max(versions, key=sort_key)
+            to_delete = [v for v in versions if v.id != keep.id]
+            if not to_delete:
+                continue
+            affected_numbers += 1
+            for v in to_delete:
+                ok, file_deleted, err = self._force_delete_videofile_best_effort(v)
+                if ok:
+                    deleted_records += 1
+                    if file_deleted:
+                        deleted_files += 1
+                else:
+                    errors += 1
+                    logger.error(f"Force delete failed for VideoFile {v.id}: {err}")
+
+        if deleted_records:
+            self.message_user(
+                request,
+                _('Force delete completed: deleted %(records)d record(s), deleted %(files)d file(s), affected %(numbers)d number(s).') % {
+                    'records': deleted_records,
+                    'files': deleted_files,
+                    'numbers': affected_numbers,
+                },
+                level='success'
+            )
+        if errors:
+            self.message_user(
+                request,
+                _('Force delete encountered %(count)d error(s). Check logs for details.') % {'count': errors},
+                level='warning'
+            )
+
+    @admin.action(description=_('Force delete archive duplicates (keep best archive) [requires confirmation]'))
+    def force_delete_archive_duplicates_keep_best_action(self, request, queryset):
+        return self._force_archive_cleanup_delete_with_confirmation(
+            request,
+            queryset,
+            sort_key=_archive_version_sort_key,
+            action_name='force_delete_archive_duplicates_keep_best_action',
+            title=_('Force delete ARCHIVE duplicates (keep best archive)'),
+        )
+
+    @admin.action(description=_('Force delete archive duplicates (keep newest archive) [requires confirmation]'))
+    def force_delete_archive_duplicates_keep_newest_action(self, request, queryset):
+        return self._force_archive_cleanup_delete_with_confirmation(
+            request,
+            queryset,
+            sort_key=_archive_newest_sort_key,
+            action_name='force_delete_archive_duplicates_keep_newest_action',
+            title=_('Force delete ARCHIVE duplicates (keep newest archive)'),
+        )
+
+    @admin.action(description=_('Force delete archive duplicates (keep largest archive file) [requires confirmation]'))
+    def force_delete_archive_duplicates_keep_largest_action(self, request, queryset):
+        return self._force_archive_cleanup_delete_with_confirmation(
+            request,
+            queryset,
+            sort_key=_archive_largest_sort_key,
+            action_name='force_delete_archive_duplicates_keep_largest_action',
+            title=_('Force delete ARCHIVE duplicates (keep largest archive file)'),
+        )
+
+    @admin.action(description=_('Delete archive duplicate versions (keep newest archive)'))
+    def delete_archive_duplicates_keep_newest_action(self, request, queryset):
+        """Delete duplicate versions inside ARCHIVE only, keeping the newest ARCHIVE version per number."""
+        if _is_archive_protected():
+            self.message_user(
+                request,
+                _('Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion to prevent data loss.'),
+                level='error'
+            )
+            return
+
+        archive_selected = queryset.filter(storage_location__storage_type='ARCHIVE')
+        numbers = set(archive_selected.values_list('number', flat=True))
+
+        deleted_count = 0
+        kept_count = 0
+        skipped_count = 0
+
+        for number in numbers:
+            versions = VideoFile.objects.filter(
+                number=number,
+                storage_location__storage_type='ARCHIVE'
+            ).select_related('storage_location')
+
+            if versions.count() <= 1:
+                skipped_count += 1
+                continue
+
+            best = max(list(versions), key=_archive_newest_sort_key)
+            duplicates = versions.exclude(id=best.id)
+            for dup in duplicates:
+                dup.delete()
+                deleted_count += 1
+            kept_count += 1
+
+        if deleted_count:
+            self.message_user(
+                request,
+                _('Deleted {} archive duplicate(s), kept {} newest archive version(s).').format(deleted_count, kept_count),
+                level='success'
+            )
+        if skipped_count:
+            self.message_user(
+                request,
+                _('Skipped {} number(s) with no archive duplicates.').format(skipped_count),
+                level='info'
+            )
+
+    @admin.action(description=_('Delete archive duplicate versions (keep largest archive file)'))
+    def delete_archive_duplicates_keep_largest_action(self, request, queryset):
+        """Delete duplicate versions inside ARCHIVE only, keeping the largest ARCHIVE file per number."""
+        if _is_archive_protected():
+            self.message_user(
+                request,
+                _('Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion to prevent data loss.'),
+                level='error'
+            )
+            return
+
+        archive_selected = queryset.filter(storage_location__storage_type='ARCHIVE')
+        numbers = set(archive_selected.values_list('number', flat=True))
+
+        deleted_count = 0
+        kept_count = 0
+        skipped_count = 0
+
+        for number in numbers:
+            versions = VideoFile.objects.filter(
+                number=number,
+                storage_location__storage_type='ARCHIVE'
+            ).select_related('storage_location')
+
+            if versions.count() <= 1:
+                skipped_count += 1
+                continue
+
+            best = max(list(versions), key=_archive_largest_sort_key)
+            duplicates = versions.exclude(id=best.id)
+            for dup in duplicates:
+                dup.delete()
+                deleted_count += 1
+            kept_count += 1
+
+        if deleted_count:
+            self.message_user(
+                request,
+                _('Deleted {} archive duplicate(s), kept {} largest archive file(s).').format(deleted_count, kept_count),
+                level='success'
+            )
+        if skipped_count:
+            self.message_user(
+                request,
+                _('Skipped {} number(s) with no archive duplicates.').format(skipped_count),
+                level='info'
+            )
     
     @admin.action(description=_('Move to archive storage'))
     def move_to_archive_action(self, request, queryset):
@@ -2278,10 +3082,8 @@ class VideoFileAdmin(admin.ModelAdmin):
         
         ARCHIVE storage protection can be configured via VIDEO_ARCHIVE_PROTECTED setting.
         """
-        from django.conf import settings
-        
         # Check if archive protection is enabled
-        archive_protected = getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True)
+        archive_protected = _is_archive_protected()
         
         if archive_protected:
             # PROTECTION: Prevent deletion from ARCHIVE storage
@@ -2328,10 +3130,11 @@ class VideoFileAdmin(admin.ModelAdmin):
             elif not hasattr(item, '_meta'):
                 filtered_protected.append(item)
         
-        # Build deleted_objects list (format: list of tuples (model, instances))
+        # Build deleted_objects list (format: list of readable strings)
         deleted_objects = []
         for model, instances in filtered_model_objs.items():
-            deleted_objects.append((model, instances))
+            for instance in instances:
+                deleted_objects.append(f'{model._meta.verbose_name}: {instance}')
         
         # Build model_count dict (format: {verbose_name_plural: count})
         model_count = {}
@@ -2356,15 +3159,13 @@ class VideoFileAdmin(admin.ModelAdmin):
         delete permission for FileOperation (which is intentionally disabled).
         Also deletes physical files from disk.
         """
-        from django.conf import settings
         import os
         import traceback
         
         # PROTECTION: Prevent deletion from ARCHIVE storage
-        archive_protected = getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True)
+        archive_protected = _is_archive_protected()
         if archive_protected and obj.storage_location.storage_type == 'ARCHIVE':
             from django.contrib import messages
-            from django.utils.translation import gettext_lazy as _
             self.message_user(
                 request,
                 _('Cannot delete videos from ARCHIVE storage. '
@@ -2501,12 +3302,11 @@ class VideoFileAdmin(admin.ModelAdmin):
         delete permission for FileOperation (which is intentionally disabled).
         Also deletes physical files from disk.
         """
-        from django.conf import settings
         import os
         import traceback
         
         # PROTECTION: Check if any video is in ARCHIVE storage
-        archive_protected = getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True)
+        archive_protected = _is_archive_protected()
         if archive_protected:
             archive_videos = queryset.filter(storage_location__storage_type='ARCHIVE')
             if archive_videos.exists():
@@ -2755,399 +3555,14 @@ class SystemManagementProxyAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(url)
 
 
-class PresetOverlayInline(admin.TabularInline):
-    """Inline admin for preset overlays."""
-
-    model = PresetOverlay
-    extra = 0
-    fields = [
-        'segment', 'order', 'overlay_type', 'text_template', 'image_path',
-        'position_preset', 'animation', 'start_time', 'end_time'
-    ]
-    ordering = ['segment', 'order']
-
-
-@admin.register(VideoPreset)
-class VideoPresetAdmin(admin.ModelAdmin):
-    """Admin interface for video presets."""
-
-    change_form_template = 'admin/media_files/videopreset/change_form.html'
-    change_list_template = 'admin/media_files/videopreset/change_list.html'
+@admin.register(MediaFilesConfig)
+class MediaFilesConfigAdmin(admin.ModelAdmin):
+    """Admin interface for MediaFilesConfig model."""
     
-    list_display = [
-        'display_name', 'name', 'is_template', 'is_public',
-        'created_by', 'overlay_count', 'updated_at', 'edit_in_ui'
-    ]
-    list_filter = ['is_template', 'is_public']
-    search_fields = ['name', 'display_name', 'description']
-    readonly_fields = ['created_at', 'updated_at', 'overlay_count']
-    inlines = [PresetOverlayInline]
+    def has_add_permission(self, request):
+        """Only one config instance allowed."""
+        return not MediaFilesConfig.objects.exists()
     
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'display_name', 'description')
-        }),
-        (_('Settings'), {
-            'fields': (
-                'segment_duration', 'intro_clip_path', 'outro_clip_path',
-                'is_template', 'is_public', 'based_on'
-            )
-        }),
-        (_('Ownership'), {
-            'fields': ('created_by',)
-        }),
-        (_('Information'), {
-            'fields': ('overlay_count', 'created_at', 'updated_at')
-        }),
-    )
-    
-    def get_urls(self):
-        """Add custom URLs for preset editor and import."""
-        urls = super().get_urls()
-        custom_urls = [
-            path(
-                '<int:object_id>/edit-preset/',
-                self.admin_site.admin_view(self.preset_editor_view),
-                name='media_files_videopreset_edit_preset',
-            ),
-            path(
-                '<int:object_id>/preset-load/',
-                self.admin_site.admin_view(self.preset_load_view),
-                name='media_files_videopreset_preset_load',
-            ),
-            path(
-                '<int:object_id>/preset-save/',
-                self.admin_site.admin_view(self.preset_save_view),
-                name='media_files_videopreset_preset_save',
-            ),
-            path(
-                'import-all/',
-                self.admin_site.admin_view(self.import_all_presets_view),
-                name='media_files_videopreset_import_all',
-            ),
-            path(
-                'import-single/<str:preset_name>/',
-                self.admin_site.admin_view(self.import_single_preset_view),
-                name='media_files_videopreset_import_single',
-            ),
-        ]
-        return custom_urls + urls
-    
-    def preset_editor_view(self, request, object_id):
-        """Visual preset editor view in admin."""
-        from django.shortcuts import get_object_or_404
-        from licenses.models import License
-        
-        preset = get_object_or_404(VideoPreset, id=object_id)
-        
-        # Check permissions
-        if not request.user.is_superuser and preset.created_by != request.user and not preset.is_public:
-            messages.error(request, _('You do not have permission to edit this preset.'))
-            return redirect('admin:media_files_videopreset_changelist')
-        
-        # Get a sample license for preview
-        sample_license = License.objects.filter(title__isnull=False).first()
-        
-        context = {
-            **self.admin_site.each_context(request),
-            'title': _('Edit Preset'),
-            'preset': preset,
-            'sample_license': sample_license,
-            'position_presets': POSITION_PRESET_CHOICES,
-            'animation_choices': PresetOverlay._meta.get_field('animation').choices,
-            'font_choices': [
-                ('fonts/Roboto-Regular.ttf', 'Roboto Regular'),
-                ('fonts/Roboto-Bold.ttf', 'Roboto Bold'),
-            ],
-            'opts': self.model._meta,
-            'has_view_permission': self.has_view_permission(request, preset),
-            'has_change_permission': self.has_change_permission(request, preset),
-        }
-        return render(request, 'admin/media_files/preset_editor.html', context)
-    
-    def preset_load_view(self, request, object_id):
-        """Load preset data via AJAX."""
-        from django.http import JsonResponse
-        from django.shortcuts import get_object_or_404
-        
-        preset = get_object_or_404(VideoPreset, id=object_id)
-        
-        overlays = []
-        for overlay in preset.overlays.all().order_by('segment', 'order'):
-            overlays.append({
-                'id': overlay.id,
-                'type': overlay.overlay_type,
-                'segment': overlay.segment,
-                'order': overlay.order,
-                'text_template': overlay.text_template,
-                'image_path': overlay.image_path,
-                'image_width': overlay.image_width,
-                'image_height': overlay.image_height,
-                'position_preset': overlay.position_preset,
-                'x_position': overlay.x_position,
-                'y_position': overlay.y_position,
-                'start_time': overlay.start_time,
-                'end_time': overlay.end_time,
-                'animation': overlay.animation,
-                'fade_in_duration': overlay.fade_in_duration,
-                'fade_out_duration': overlay.fade_out_duration,
-                'font_file': overlay.font_file,
-                'font_size': overlay.font_size,
-                'font_color': overlay.font_color,
-                'has_box': overlay.has_box,
-                'box_color': overlay.box_color,
-                'box_border_width': overlay.box_border_width,
-            })
-        
-        return JsonResponse({
-            'success': True,
-            'preset': {
-                'id': preset.id,
-                'name': preset.name,
-                'display_name': preset.display_name,
-                'description': preset.description,
-                'segment_duration': preset.segment_duration,
-                'intro_clip_path': preset.intro_clip_path,
-                'outro_clip_path': preset.outro_clip_path,
-                'is_public': preset.is_public,
-                'overlays': overlays,
-            }
-        })
-    
-    def preset_save_view(self, request, object_id):
-        """Save preset via AJAX."""
-        import json
-        import logging
-        from django.http import JsonResponse
-        from django.shortcuts import get_object_or_404
-        from django.views.decorators.http import require_http_methods
-        
-        logger = logging.getLogger('django')
-        
-        if request.method != 'POST':
-            return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
-        
-        try:
-            data = json.loads(request.body)
-            preset = get_object_or_404(VideoPreset, id=object_id)
-            
-            # Check permissions
-            if not request.user.is_superuser and preset.created_by != request.user:
-                return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
-            
-            # Update preset fields
-            preset.name = data.get('name', preset.name)
-            preset.display_name = data.get('display_name', preset.display_name)
-            preset.description = data.get('description', preset.description)
-            preset.segment_duration = float(data.get('segment_duration', preset.segment_duration))
-            preset.intro_clip_path = data.get('intro_clip_path', preset.intro_clip_path)
-            preset.outro_clip_path = data.get('outro_clip_path', preset.outro_clip_path)
-            preset.is_public = data.get('is_public', preset.is_public)
-            preset.save()
-            
-            # Delete existing overlays
-            preset.overlays.all().delete()
-            
-            # Create new overlays
-            for overlay_data in data.get('overlays', []):
-                overlay = PresetOverlay(
-                    preset=preset,
-                    overlay_type=overlay_data.get('type', 'text'),
-                    segment=overlay_data.get('segment', 'intro'),
-                    order=overlay_data.get('order', 0),
-                    text_template=overlay_data.get('text_template', ''),
-                    image_path=overlay_data.get('image_path', ''),
-                    image_width=overlay_data.get('image_width'),
-                    image_height=overlay_data.get('image_height'),
-                    position_preset=overlay_data.get('position_preset', 'custom'),
-                    x_position=overlay_data.get('x_position', '(w-text_w)/2'),
-                    y_position=overlay_data.get('y_position', '(h-text_h)/2'),
-                    start_time=float(overlay_data.get('start_time', 0.0)),
-                    end_time=float(overlay_data.get('end_time', 5.0)),
-                    animation=overlay_data.get('animation', 'fade'),
-                    fade_in_duration=float(overlay_data.get('fade_in_duration', 0.4)),
-                    fade_out_duration=float(overlay_data.get('fade_out_duration', 0.4)),
-                    font_file=overlay_data.get('font_file', 'fonts/Roboto-Regular.ttf'),
-                    font_size=int(overlay_data.get('font_size', 48)),
-                    font_color=overlay_data.get('font_color', 'white'),
-                    has_box=overlay_data.get('has_box', False),
-                    box_color=overlay_data.get('box_color', 'black@0.5'),
-                    box_border_width=int(overlay_data.get('box_border_width', 12)),
-                )
-                overlay.save()
-            
-            return JsonResponse({
-                'success': True,
-                'preset_id': preset.id,
-                'message': _('Preset saved successfully')
-            })
-            
-        except Exception as e:
-            logger.exception("Error saving preset")
-            return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    
-    def overlay_count(self, obj):
-        """Display count of overlays."""
-        if obj.pk:
-            return obj.overlays.count()
-        return 0
-    overlay_count.short_description = _('Overlays')
-    
-    def edit_in_ui(self, obj):
-        """Link to visual editor."""
-        if obj.pk:
-            url = reverse('admin:media_files_videopreset_edit_preset', args=[obj.id])
-            return format_html(
-                '<a href="{}" class="button">🎨 {}</a>',
-                url,
-                _('Visual Editor')
-            )
-        return '-'
-    edit_in_ui.short_description = _('Editor')
-    
-    def save_model(self, request, obj, form, change):
-        """Set created_by on new presets."""
-        if not change and not obj.created_by:
-            obj.created_by = request.user
-        super().save_model(request, obj, form, change)
-    
-    def changelist_view(self, request, extra_context=None):
-        """Add available JSON presets to changelist context."""
-        extra_context = extra_context or {}
-        from media_files.rendering.presets import list_style_presets
-        extra_context['available_json_presets'] = list_style_presets()
-        return super().changelist_view(request, extra_context=extra_context)
-    
-    def import_all_presets_view(self, request):
-        """Import all JSON presets from video_presets/style directory."""
-        from django.core.management import call_command
-        from django.contrib import messages
-        from django.shortcuts import redirect
-        
-        try:
-            call_command('import_json_presets')
-            messages.success(request, _('All presets imported successfully'))
-        except Exception as e:
-            messages.error(request, _('Error importing presets: %s') % str(e))
-        
-        return redirect('admin:media_files_videopreset_changelist')
-    
-    def import_single_preset_view(self, request, preset_name):
-        """Import a single JSON preset by name."""
-        from django.core.management import call_command
-        from django.contrib import messages
-        from django.shortcuts import redirect
-        
-        try:
-            call_command('import_json_presets', preset_name=preset_name)
-            messages.success(request, _('Preset "%s" imported successfully') % preset_name)
-        except Exception as e:
-            messages.error(request, _('Error importing preset "%s": %s') % (preset_name, str(e)))
-        
-        return redirect('admin:media_files_videopreset_changelist')
-
-
-@admin.register(VideoEncodePreset)
-class VideoEncodePresetAdmin(admin.ModelAdmin):
-    """Admin interface for video encode presets."""
-
-    list_display = [
-        'display_name', 'name', 'width', 'height', 'fps', 
-        'video_bitrate_k', 'audio_bitrate_k', 'updated_at'
-    ]
-    list_filter = ['vcodec', 'acodec', 'x264_preset', 'x264_profile']
-    search_fields = ['name', 'display_name', 'description']
-    readonly_fields = ['created_at', 'updated_at']
-    
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'display_name', 'description')
-        }),
-        (_('Video Settings'), {
-            'fields': (
-                'width', 'height', 'fps', 'vcodec', 'video_bitrate_k',
-                'pix_fmt', 'x264_preset', 'x264_profile'
-            )
-        }),
-        (_('Audio Settings'), {
-            'fields': (
-                'acodec', 'audio_bitrate_k', 'audio_sample_rate', 'audio_channels'
-            )
-        }),
-        (_('Information'), {
-            'fields': ('created_at', 'updated_at')
-        }),
-    )
-    
-    def save_model(self, request, obj, form, change):
-        """Auto-generate display_name if not provided and save to JSON file."""
-        if not obj.display_name:
-            obj.display_name = f"{obj.height}p ({obj.video_bitrate_k}k)"
-        super().save_model(request, obj, form, change)
-        
-        # Export to JSON file after saving
-        try:
-            import json
-            from pathlib import Path
-            from django.conf import settings
-            
-            encode_dir = Path(settings.BASE_DIR) / 'media_files' / 'video_presets' / 'encode'
-            encode_dir.mkdir(parents=True, exist_ok=True)
-            
-            json_file = encode_dir / f"{obj.name}.json"
-            with open(json_file, 'w', encoding='utf-8') as f:
-                json.dump(obj.to_json(), f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            logger.error(f"Failed to save encode preset to JSON: {e}")
-
-
-@admin.register(PresetOverlay)
-class PresetOverlayAdmin(admin.ModelAdmin):
-    """Admin interface for preset overlays."""
-
-    list_display = [
-        'preset', 'segment', 'order', 'overlay_type',
-        'preview_text', 'animation', 'timing'
-    ]
-    list_filter = ['preset', 'segment', 'overlay_type', 'animation']
-    search_fields = ['preset__name', 'text_template', 'image_path']
-    
-    fieldsets = (
-        (None, {
-            'fields': ('preset', 'segment', 'order', 'overlay_type')
-        }),
-        (_('Content'), {
-            'fields': ('text_template', 'image_path', 'image_width', 'image_height')
-        }),
-        (_('Position'), {
-            'fields': ('position_preset', 'x_position', 'y_position')
-        }),
-        (_('Timing & Animation'), {
-            'fields': (
-                'start_time', 'end_time', 'animation',
-                'fade_in_duration', 'fade_out_duration'
-            )
-        }),
-        (_('Text Styling'), {
-            'fields': (
-                'font_file', 'font_size', 'font_color',
-                'has_box', 'box_color', 'box_border_width'
-            )
-        }),
-    )
-    
-    def preview_text(self, obj):
-        """Show preview of text or image path."""
-        if obj.overlay_type == 'text':
-            text = obj.text_template[:50]
-            if len(obj.text_template) > 50:
-                text += '...'
-            return text
-        else:
-            return obj.image_path
-    preview_text.short_description = _('Content')
-    
-    def timing(self, obj):
-        """Show timing info."""
-        return f"{obj.start_time}s - {obj.end_time}s"
-    timing.short_description = _('Timing')
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of config."""
+        return False

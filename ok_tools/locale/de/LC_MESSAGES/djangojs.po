@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-28 21:47+0100\n"
+"POT-Creation-Date: 2026-01-15 23:36+0100\n"
 "PO-Revision-Date: JAHR-MO-TA HO:MI+ZONE\n"
 "Last-Translator: VOLLSTÄNDIGER NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, fuzzy
+#| msgid "Error creating rental: "
+msgid "No active rentals"
+msgstr "Fehler bei der Erstellung der Ausleihe: "
+
+#, fuzzy
+#| msgid "Requested"
+msgid "Request"
+msgstr "Angefragt"
+
+msgid "Status"
+msgstr "Status"
+
+#, fuzzy
+#| msgid "3. Time Period"
+msgid "Period"
+msgstr "3. Zeitraum"
+
+#, fuzzy
+#| msgid "Item"
+msgid "Items"
+msgstr "Artikel"
+
+msgid "Rooms"
+msgstr "Räume"
 
 msgid "Error loading data"
 msgstr "Fehler beim Laden der Daten"
@@ -74,9 +100,6 @@ msgstr "Offen"
 
 msgid "Unknown item"
 msgstr "Unbekannter Artikel"
-
-msgid "Rooms"
-msgstr "Räume"
 
 msgid "rooms"
 msgstr "Räume"
@@ -176,9 +199,6 @@ msgstr "Keine Beschreibung"
 
 msgid "Required"
 msgstr "Erforderlich"
-
-msgid "Status"
-msgstr "Status"
 
 msgid "Location"
 msgstr "Standort"

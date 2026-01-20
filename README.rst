@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 3.2.12
+**Current Version**: 4.0.0
 **Last Updated**: January 2026
 
 Features
@@ -77,6 +77,21 @@ Features
   - Configurable sync schedule via Celery Beat
   - Support for multiple exchange folders and channels
   - Optional module (enabled via AUSTAUSCH_ENABLED setting)
+
+- **Tools Module** - Utility tools for content creation and processing
+  - **Video Slideshow Generator**: Create video slideshows from images and videos
+    - Drag & drop interface for media upload
+    - Audio background music selection
+    - Configurable transitions (fade, wipe, slide, etc.)
+    - Adjustable duration and quality settings
+    - Preview and download capabilities
+    - Async generation via Celery
+  - **Media Library**: Reusable media files across projects
+    - Upload images and videos to shared library
+    - Browse library by media type
+    - Add library media to any project without re-uploading
+    - Staff-only library management
+  - Optional module (enabled via TOOLS_ENABLED setting)
 
 - **Inventory Management** - Track equipment and resources with serial numbers
   - Hierarchical location management (Room -> Cabinet structure)

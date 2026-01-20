@@ -1,6 +1,8 @@
 from __future__ import annotations
 from django.contrib import admin
 from django.contrib.admin.sites import site as default_site
+from django.template.response import TemplateResponse
+from django.urls import path
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -35,8 +37,43 @@ ADMIN_MODEL_ORDER: Dict[str, List[str]] = {
 }
 
 
+def configuration_index_view(request):
+    """Render a single entry point for configuration models."""
+    context = {
+        **default_site.each_context(request),
+        "title": _("Configuration"),
+        "config_links": [
+            {
+                "title": _("Organization Configuration"),
+                "url": reverse("admin:registration_organizationconfig_changelist"),
+            },
+            {
+                "title": _("Registration Configuration"),
+                "url": reverse("admin:registration_registrationconfig_changelist"),
+            },
+        ],
+    }
+    return TemplateResponse(request, "admin/configuration_index.html", context)
+
+
 def _reorder_app_list(app_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     for app in app_list:
+        if app.get("app_label") == "registration":
+            config_model = {
+                "name": _("Configuration"),
+                "object_name": "Configuration",
+                "admin_url": reverse("admin:configuration"),
+                "add_url": None,
+                "view_only": True,
+            }
+            app["models"] = [
+                model
+                for model in app.get("models", [])
+                if model.get("object_name")
+                not in ("OrganizationConfig", "RegistrationConfig")
+            ]
+            app["models"].insert(0, config_model)
+
         desired = ADMIN_MODEL_ORDER.get(app.get("app_label"))
         if not desired:
             continue
@@ -75,10 +112,11 @@ def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # typ
                 }
             ]
         }
-        app_list.insert(0, dashboard_app)
+        from django.conf import settings
+        if getattr(settings, 'DASHBOARD_ENABLED', False):
+            app_list.insert(0, dashboard_app)
         
         # Add Exchange Feed link to Austausch app if module is enabled
-        from django.conf import settings
         if getattr(settings, 'AUSTAUSCH_ENABLED', False):
             # Find Austausch app in the list
             for app in app_list:
@@ -93,8 +131,40 @@ def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # typ
                     }
                     app['models'].insert(0, feed_model)
                     break
+        
+        # Add Tools interface link to Tools app if module is enabled
+        if getattr(settings, 'TOOLS_ENABLED', False):
+            # Find Tools app in the list
+            for app in app_list:
+                if app.get('app_label') == 'tools':
+                    # Add Tools interface link as first model
+                    tools_model = {
+                        'name': _('All Tools'),
+                        'object_name': 'ToolsInterface',
+                        'admin_url': '/tools/',
+                        'add_url': None,
+                        'view_only': True,
+                    }
+                    app['models'].insert(0, tools_model)
+                    break
 
     return _reorder_app_list(app_list)
 
 
+_original_get_urls = default_site.get_urls
+
+
+def _custom_get_urls(self: admin.AdminSite):  # type: ignore[override]
+    urls = _original_get_urls()
+    custom_urls = [
+        path(
+            "configuration/",
+            self.admin_view(configuration_index_view),
+            name="configuration",
+        ),
+    ]
+    return custom_urls + urls
+
+
 default_site.get_app_list = _custom_get_app_list.__get__(default_site, admin.AdminSite)
+default_site.get_urls = _custom_get_urls.__get__(default_site, admin.AdminSite)

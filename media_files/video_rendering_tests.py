@@ -5,7 +5,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import override_settings
 
-from media_files.rendering.presets import load_encode_preset, load_style_preset
+from tools.rendering.presets import load_encode_preset, load_style_preset
 from media_files.rendering.templates import build_template_context, render_text_template
 
 

@@ -112,9 +112,9 @@ class RentalRequest(models.Model):
         user_profile = getattr(self.user, 'profile', None)
         owner_name = inventory_item.owner.name if getattr(inventory_item, 'owner', None) else ""
 
-        from django.conf import settings
-        state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-        organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+        from registration import organization_config
+        state_institution = organization_config.get_state_media_institution()
+        organization_owner = organization_config.get_organization_owner()
         
         if user_profile and getattr(user_profile, 'member', False):
             # Member can take equipment from state institution AND organization
@@ -812,3 +812,75 @@ class EquipmentTemplateItem(models.Model):
 
     def __str__(self) -> str:
         return f"{self.template.name} - {self.inventory_item.description} ({self.quantity})"
+
+
+class RentalConfig(models.Model):
+    """Configuration for rental module (singleton)."""
+    
+    # Enable email-based approval workflow for user-created rental requests
+    # When enabled, user requests are created as 'draft' and require admin approval
+    # Admins receive email with approve/deny links; users receive status notifications
+    user_request_requires_approval = models.BooleanField(
+        default=False,
+        verbose_name=_('User Request Requires Approval'),
+        help_text=_('Enable email-based approval workflow for user-created rental requests')
+    )
+    
+    # Base URL for approval links in emails (must match your production domain)
+    # Example: https://okmq.your-domain.com
+    site_base_url = models.URLField(
+        blank=True,
+        verbose_name=_('Site Base URL'),
+        help_text=_('Base URL for approval links in emails (must match your production domain)')
+    )
+    
+    # User-facing rental request URL used in emails
+    # Example: https://okmq-your-domain.com/rental/user/rental/{rental_id}/
+    request_url_template = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Rental Request URL Template'),
+        help_text=_('User-facing rental request URL template (use {rental_id} placeholder)')
+    )
+    
+    # Optional: Explicit list of admin email addresses to notify
+    # If not set, all active staff users with email addresses will be notified
+    # Format: comma-separated email addresses
+    approval_recipient_emails = models.TextField(
+        blank=True,
+        verbose_name=_('Approval Recipient Emails'),
+        help_text=_('Comma-separated list of admin email addresses to notify (optional, if empty all staff users will be notified)')
+    )
+    
+    # Optional: Token expiration time for approve/deny links (in seconds)
+    # Default: 7 days (604800 seconds)
+    approval_token_max_age_seconds = models.IntegerField(
+        default=604800,  # 7 days
+        verbose_name=_('Approval Token Max Age (seconds)'),
+        help_text=_('Token expiration time for approve/deny links in seconds')
+    )
+    
+    class Meta:
+        verbose_name = _('Rental Configuration')
+        verbose_name_plural = _('Rental Configuration')
+    
+    def __str__(self):
+        """Return string representation."""
+        return str(_("Rental Configuration"))
+    
+    def save(self, *args, **kwargs):
+        """Ensure only one config instance exists."""
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_config(cls):
+        """Get the singleton config instance, create if doesn't exist."""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+    
+    def get_approval_recipient_emails_list(self):
+        """Get approval recipient emails as a list."""
+        if not self.approval_recipient_emails:
+            return []
+        return [email.strip() for email in self.approval_recipient_emails.split(',') if email.strip()]

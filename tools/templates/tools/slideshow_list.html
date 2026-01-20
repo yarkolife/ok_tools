@@ -1,0 +1,132 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Slideshow Projects' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a> &rsaquo; {% trans 'Slideshow Projects' %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .slideshow-list-container {
+        padding: 20px;
+    }
+    .filter-section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .project-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .project-table th,
+    .project-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .project-table th {
+        background: #f8f9fa;
+        font-weight: bold;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .status-draft { background: #6c757d; color: white; }
+    .status-processing { background: #ffc107; color: #000; }
+    .status-completed { background: #28a745; color: white; }
+    .status-failed { background: #dc3545; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="slideshow-list-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">{% trans 'Video Slideshow Generator' %}</h1>
+        <a href="{% url 'tools:slideshow_create' %}" class="button default" style="padding: 10px 20px; font-size: 14px; white-space: nowrap;">
+            {% trans 'Create New Project' %}
+        </a>
+    </div>
+    <p class="help">{% trans 'Create video slideshows from images and videos with background music' %}</p>
+    
+    <div class="filter-section">
+        <form method="get" action="{% url 'tools:slideshow_list' %}">
+            <label for="status">{% trans 'Status' %}:</label>
+            <select name="status" id="status" onchange="this.form.submit()">
+                <option value="">{% trans 'All' %}</option>
+                <option value="draft" {% if current_status == 'draft' %}selected{% endif %}>{% trans 'Draft' %}</option>
+                <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>{% trans 'Processing' %}</option>
+                <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>{% trans 'Completed' %}</option>
+                <option value="failed" {% if current_status == 'failed' %}selected{% endif %}>{% trans 'Failed' %}</option>
+            </select>
+        </form>
+    </div>
+    
+    <table class="project-table">
+        <thead>
+            <tr>
+                <th>{% trans 'Name' %}</th>
+                <th>{% trans 'Status' %}</th>
+                <th>{% trans 'Created' %}</th>
+                <th>{% trans 'Media Files' %}</th>
+                <th>{% trans 'Actions' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>
+                    <a href="{% url 'tools:slideshow_detail' project.id %}">
+                        <strong>{{ project.name }}</strong>
+                    </a>
+                </td>
+                <td>
+                    <span class="status-badge status-{{ project.status }}">
+                        {{ project.get_status_display }}
+                    </span>
+                </td>
+                <td>{{ project.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ project.media_count }}</td>
+                <td>
+                    <a href="{% url 'tools:slideshow_detail' project.id %}" class="button">{% trans 'View' %}</a>
+                    <a href="{% url 'tools:slideshow_edit' project.id %}" class="button">{% trans 'Edit' %}</a>
+                    {% if project.status == 'completed' and project.output_file %}
+                    <a href="{% url 'tools:api_download' project.id %}" class="button default">{% trans 'Download' %}</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                    {% trans 'No projects found' %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if is_paginated %}
+    <div class="paginator" style="margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="{% url 'tools:slideshow_list' %}?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Previous' %}</a>
+        {% endif %}
+        <span class="this-page">{% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="{% url 'tools:slideshow_list' %}?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Next' %}</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

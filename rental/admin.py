@@ -7,6 +7,7 @@ from .models import RentalIssue
 from .models import RentalItem
 from .models import RentalProcessProxy
 from .models import RentalRequest
+from .models import RentalConfig
 from .models import RentalTransaction
 from .models import Room
 from .models import RoomRental
@@ -405,4 +406,17 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         """Disable delete permission."""
+        return False
+
+
+@admin.register(RentalConfig)
+class RentalConfigAdmin(admin.ModelAdmin):
+    """Admin interface for RentalConfig model."""
+    
+    def has_add_permission(self, request):
+        """Only one config instance allowed."""
+        return not RentalConfig.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of config."""
         return False

@@ -1,0 +1,29 @@
+{% load i18n %}
+<p>{% blocktranslate with first_name=first_name %}Hello {{ first_name }},{% endblocktranslate %}</p>
+
+<p>{% blocktranslate with license_number=license_number title=license_title %}Your license #{{ license_number }} ({{ title }}) now has broadcast dates.{% endblocktranslate %}</p>
+
+{% if premiere_datetime %}
+<p><strong>{% trans "Premiere:" %}</strong> {{ premiere_datetime }}</p>
+{% endif %}
+
+{% if repeats %}
+<p><strong>{% trans "Repeats:" %}</strong></p>
+<ul>
+  {% for dt in repeats %}
+  <li>{{ dt }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if contributions_url %}
+<p>{% blocktranslate %}View details in Contributions:{% endblocktranslate %} <a href="{{ contributions_url }}">{{ contributions_url }}</a></p>
+{% endif %}
+
+{% blocktranslate with ok_name=ok_name asvar closing %}Best regards,
+The {{ ok_name }} team{% endblocktranslate %}
+<p>{{ closing|linebreaksbr }}</p>
+
+{% if contact_email %}
+<p>{% blocktranslate with contact_email=contact_email %}Contact: {{ contact_email }}{% endblocktranslate %}</p>
+{% endif %}

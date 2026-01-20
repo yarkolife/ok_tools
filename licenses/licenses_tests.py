@@ -193,7 +193,7 @@ def test__licenses__views__UpdateLicensesView__4(browser, license):
     browser.getControl('Save').click()
 
     assert (License.objects.get(id=license.id).duration ==
-            datetime.timedelta(seconds=settings.SCREEN_BOARD_DURATION))
+            datetime.timedelta(seconds=settings.SCREEN_BOARD_DURATION))  # Using settings for backward compatibility in tests
 
 
 def test__licenses__views__CreateLicenseView__1(browser, user):

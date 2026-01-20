@@ -4,16 +4,16 @@ from django.db.models.signals import post_migrate
 
 
 def setup_organizations_handler(sender, **kwargs):
-    """Create MediaAuthority and Organization from settings after migrations."""
+    """Create MediaAuthority and Organization from OrganizationConfig after migrations."""
     try:
-        from django.conf import settings
-        from registration.models import MediaAuthority
+        from registration.models import MediaAuthority, OrganizationConfig
+        from registration import organization_config
         from inventory.models import Organization
         
-        # Get values from settings
-        state_media_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-        organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
-        ok_name = getattr(settings, 'OK_NAME', 'Offener Kanal Merseburg-Querfurt e.V.')
+        # Get values from OrganizationConfig (with fallback to settings/env)
+        state_media_institution = organization_config.get_state_media_institution()
+        organization_owner = organization_config.get_organization_owner()
+        ok_name = organization_config.get_organization_name()
         
         # Create MediaAuthority for the organization (used for user profiles)
         MediaAuthority.objects.get_or_create(name=organization_owner)
@@ -28,7 +28,7 @@ def setup_organizations_handler(sender, **kwargs):
             defaults={'description': ok_name}
         )
     except Exception:
-        # Silently ignore errors (e.g., when settings are not configured)
+        # Silently ignore errors (e.g., when DB is not ready or settings are not configured)
         pass
 
 

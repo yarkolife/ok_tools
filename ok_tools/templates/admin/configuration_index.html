@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="app-admin module">
+    <h1>{% trans "Configuration" %}</h1>
+    <div class="module">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{% trans "Configuration" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for link in config_links %}
+            <tr>
+              <th scope="row">
+                <a href="{{ link.url }}">{{ link.title }}</a>
+              </th>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

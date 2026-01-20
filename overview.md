@@ -39,6 +39,8 @@
 
 - **Rental emails**: HTML templates with booking details and user-facing links
 - **User rentals**: New user request detail page and improved request visibility
+- **Module configs**: Module-specific configuration models with DB-backed settings and env fallbacks
+- **Tools module**: Content-creation utilities (slideshow/video render/audio jobs) with Celery support
 
 ---
 
@@ -77,7 +79,7 @@ graph TB
     end
     
     subgraph "Application Layer"
-        Django["🎯 Django Monolith<br/>(Python 4.0+)"]
+        Django["🎯 Django Monolith<br/>(Python 3.12+, Django 5.2+)"]
         Celery["⚙️ Celery Workers<br/>(Async Tasks)"]
     end
     
@@ -407,9 +409,9 @@ def inventory_item_save_handler(sender, instance, created, **kwargs):
 ## Technology Stack
 
 ### Backend Framework
-- **Django 4.0+**: Web framework
+- **Django 5.2+**: Web framework
 - **Django REST Framework**: REST API development
-- **Python 3.9+**: Programming language
+- **Python 3.12+**: Programming language
 
 ### Database & Caching
 - **PostgreSQL 12+**: Primary relational database
@@ -743,7 +745,7 @@ For questions about the architecture or development setup, please refer to:
 - Deployment guides: `deployment/README.md`
 - Architecture reports: `architecture/` directory
 
-**Last Updated**: October 2025
+**Last Updated**: January 2026
 **Version**: 1.0
 
 ## API Documentation

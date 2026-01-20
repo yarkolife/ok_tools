@@ -1,0 +1,1 @@
+{% load i18n %}{% blocktrans with license_number=license_number %}Draft schedule created for license #{{ license_number }}{% endblocktrans %}

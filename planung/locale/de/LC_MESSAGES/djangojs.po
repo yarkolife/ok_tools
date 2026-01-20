@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-28 21:47+0100\n"
+"POT-Creation-Date: 2026-01-15 23:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,6 +26,9 @@ msgstr "Video startet in der zweiten Hälfte der Minute (30-59 Sekunden)"
 
 msgid "Outside broadcast block"
 msgstr "Außerhalb des Sendeblocks"
+
+msgid "day"
+msgstr "Tag"
 
 msgid "View Contributions"
 msgstr "Beiträge anzeigen"
@@ -60,6 +63,12 @@ msgstr "%(count)s Sendung(en) außerhalb des Blocks"
 msgid "License not found or not confirmed"
 msgstr "Freistellung nicht gefunden oder nicht genehmigt"
 
+msgid ""
+"Start time would cause overlap with another video. Adjusted to %(time)s."
+msgstr ""
+"Startzeit würde eine Überlappung mit einem anderen Video verursachen. "
+"Angepasst auf %(time)s."
+
 msgid "⚠️ Date is missing."
 msgstr "⚠️ Datum fehlt."
 
@@ -83,15 +92,3 @@ msgstr "Plan gelöscht!"
 
 msgid "Error deleting the plan."
 msgstr "Fehler beim Löschen des Plans."
-
-msgid "Start time cannot be earlier than the end time of the previous item. Adjusted to %(time)s."
-msgstr "Startzeit kann nicht früher als die Endzeit des vorherigen Elements sein. Angepasst auf %(time)s."
-
-msgid "Start time would cause overlap with the next item. Adjusted to %(time)s."
-msgstr "Startzeit würde eine Überlappung mit dem nächsten Element verursachen. Angepasst auf %(time)s."
-
-msgid "day"
-msgstr "Tag"
-
-msgid "Start time would cause overlap with another video. Adjusted to %(time)s."
-msgstr "Startzeit würde eine Überlappung mit einem anderen Video verursachen. Angepasst auf %(time)s."

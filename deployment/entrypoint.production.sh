@@ -45,6 +45,10 @@ fi
 echo "Setting up organizations..."
 python manage.py setup_organizations || true
 
+# Migrate module configs from env to database (one-time migration for empty/default values)
+echo "Migrating module configs from environment variables (if empty/default in DB)..."
+python manage.py migrate_module_configs || echo "Warning: Failed to migrate module configs, continuing anyway..."
+
 # Start gunicorn
 echo "Starting gunicorn..."
 exec gunicorn \

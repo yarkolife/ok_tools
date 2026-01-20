@@ -1,0 +1,22 @@
+{% load i18n %}
+<p>{% blocktranslate with first_name=first_name %}Hello {{ first_name }},{% endblocktranslate %}</p>
+
+<p>{% blocktranslate with license_number=license_number title=license_title %}We received your video upload for license #{{ license_number }} ({{ title }}).{% endblocktranslate %}</p>
+
+{% if filename %}
+<p>{% blocktranslate with filename=filename %}File: {{ filename }}{% endblocktranslate %}</p>
+{% endif %}
+
+<p>{% blocktranslate %}You will receive updates when your video is scheduled.{% endblocktranslate %}</p>
+
+{% if license_url %}
+<p>{% blocktranslate %}View license:{% endblocktranslate %} <a href="{{ license_url }}">{{ license_url }}</a></p>
+{% endif %}
+
+{% blocktranslate with ok_name=ok_name asvar closing %}Best regards,
+The {{ ok_name }} team{% endblocktranslate %}
+<p>{{ closing|linebreaksbr }}</p>
+
+{% if contact_email %}
+<p>{% blocktranslate with contact_email=contact_email %}Contact: {{ contact_email }}{% endblocktranslate %}</p>
+{% endif %}

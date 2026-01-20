@@ -1,14 +1,22 @@
 from .models import Gender
 from .models import MediaAuthority
 from .models import Notification
+from .models import OrganizationConfig
 from .models import Profile
+from .models import RegistrationConfig
 from .print import generate_registration_form
-from dashboard.cache_invalidation import invalidate_user_related_cache
+try:
+    from dashboard.cache_invalidation import invalidate_user_related_cache
+except Exception:
+    def invalidate_user_related_cache(*args, **kwargs):
+        """Fallback when dashboard module is disabled."""
+        return None
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
+from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from django_admin_listfilter_dropdown.filters import DropdownFilter
@@ -387,3 +395,98 @@ class NotificationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Notification, NotificationAdmin)
+
+
+class RegistrationConfigAdminForm(forms.ModelForm):
+    """Custom form for RegistrationConfig with PDF file selection."""
+    
+    class Meta:
+        model = RegistrationConfig
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Get available PDF files and create choices
+        pdf_files = RegistrationConfig.get_available_pdf_files()
+        choices = [(pdf, pdf) for pdf in pdf_files]
+        
+        # If current value is not in list, add it (for backward compatibility)
+        # Check both instance.form_pdf and initial data
+        current_value = None
+        if self.instance and hasattr(self.instance, 'form_pdf') and self.instance.form_pdf:
+            current_value = self.instance.form_pdf
+        elif 'form_pdf' in self.initial:
+            current_value = self.initial['form_pdf']
+        
+        if current_value and current_value not in pdf_files:
+            choices.insert(0, (current_value, f"{current_value} (not found)"))
+        
+        # Add empty choice at the beginning
+        choices.insert(0, ('', '---------'))
+        
+        # Replace CharField with Select widget
+        self.fields['form_pdf'].widget = forms.Select(choices=choices)
+        self.fields['form_pdf'].help_text = _(
+            'Select PDF template file from files/ directory. '
+            'Only .pdf files are shown.'
+        )
+
+
+class RegistrationConfigAdmin(admin.ModelAdmin):
+    """Admin interface for RegistrationConfig model."""
+
+    form = RegistrationConfigAdminForm
+
+    def get_model_perms(self, request):
+        """Hide model from the admin index."""
+        return {}
+
+    def has_add_permission(self, request):
+        """Only one config instance allowed."""
+        return not RegistrationConfig.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of config."""
+        return False
+
+
+class OrganizationConfigAdmin(admin.ModelAdmin):
+    """Admin for OrganizationConfig singleton."""
+    
+    fieldsets = (
+        (_('Basic Information'), {
+            'fields': ('name', 'short_name', 'description')
+        }),
+        (_('Contact Information'), {
+            'fields': ('website', 'email', 'phone', 'fax', 'address', 'opening_hours')
+        }),
+        (_('Regulatory & Ownership'), {
+            'fields': ('state_media_institution', 'organization_owner')
+        }),
+        (_('Broadcasting Schedule'), {
+            'fields': ('broadcast_start', 'broadcast_end')
+        }),
+        (_('Integration'), {
+            'fields': ('peertube_channel',)
+        }),
+        (_('Legal Texts (Optional)'), {
+            'fields': ('datenschutz', 'impressum', 'agb'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        """Only allow one config instance."""
+        return not OrganizationConfig.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of config."""
+        return False
+
+    def get_model_perms(self, request):
+        """Hide model from the admin index."""
+        return {}
+
+
+admin.site.register(RegistrationConfig, RegistrationConfigAdmin)
+admin.site.register(OrganizationConfig, OrganizationConfigAdmin)

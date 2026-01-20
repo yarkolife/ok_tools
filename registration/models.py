@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 from django_prometheus.models import ExportModelOperationsMixin
 
 
@@ -368,3 +368,231 @@ class Notification(models.Model):
         if self.end_date and now > self.end_date:
             return False
         return True
+
+
+class RegistrationConfig(models.Model):
+    """Configuration for registration module (singleton)."""
+    
+    # PDF template file for registration form (must be in files/ directory)
+    # Options: Nutzerkartei.pdf, Nutzerkartei_Anmeldung_2022_n.pdf
+    form_pdf = models.CharField(
+        max_length=255,
+        default='Nutzerkartei_Anmeldung_2022_n.pdf',
+        verbose_name=_('Registration Form PDF'),
+        help_text=_('PDF template file for registration form (must be in files/ directory)')
+    )
+    
+    @staticmethod
+    def get_available_pdf_files():
+        """
+        Get list of available PDF files from files/ directory.
+        
+        Returns:
+            List of PDF filenames (without path), sorted alphabetically.
+            Returns empty list if directory doesn't exist or is not accessible.
+        """
+        from django.conf import settings
+        from pathlib import Path
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        pdf_files = []
+        
+        try:
+            files_dir = Path(settings.BASE_DIR) / 'files'
+            
+            if not files_dir.exists():
+                logger.warning(f"Registration PDF files directory does not exist: {files_dir}")
+                return pdf_files
+            
+            if not files_dir.is_dir():
+                logger.warning(f"Registration PDF files path is not a directory: {files_dir}")
+                return pdf_files
+            
+            for file_path in files_dir.iterdir():
+                if file_path.is_file() and file_path.suffix.lower() == '.pdf':
+                    pdf_files.append(file_path.name)
+            
+            # Sort alphabetically
+            pdf_files.sort()
+            
+        except Exception as e:
+            logger.error(f"Error reading PDF files from files/ directory: {e}", exc_info=True)
+        
+        return pdf_files
+    
+    # Registration form type: PDF, HTML, or TEXT
+    # PDF - generates filled PDF form using pdftk
+    # HTML - generates HTML form (can be printed from browser)
+    # TEXT - generates plain text form
+    FORM_TYPE_CHOICES = [
+        ('PDF', _('PDF')),
+        ('HTML', _('HTML')),
+        ('TEXT', _('TEXT')),
+    ]
+    form_type = models.CharField(
+        max_length=10,
+        choices=FORM_TYPE_CHOICES,
+        default='PDF',
+        verbose_name=_('Registration Form Type'),
+        help_text=_('Type of registration form to generate')
+    )
+    
+    class Meta:
+        verbose_name = _('Registration Configuration')
+        verbose_name_plural = _('Registration Configuration')
+    
+    def __str__(self):
+        """Return string representation."""
+        return str(_("Registration Configuration"))
+    
+    def save(self, *args, **kwargs):
+        """Ensure only one config instance exists."""
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_config(cls):
+        """Get the singleton config instance, create if doesn't exist."""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class OrganizationConfig(models.Model):
+    """Configuration for main organization (singleton)."""
+    
+    # Basic organization info
+    name = models.CharField(
+        max_length=255,
+        default='Open Channel Merseburg-Querfurt e.V.',
+        verbose_name=_('Organization Name'),
+        help_text=_('Full name of the organization')
+    )
+    
+    short_name = models.CharField(
+        max_length=150,
+        default='OK Merseburg',
+        verbose_name=_('Short Name'),
+        help_text=_('Short name of the organization')
+    )
+    
+    # Contact information
+    website = models.URLField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Website'),
+        help_text=_('Organization website URL')
+    )
+    
+    email = models.EmailField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Email'),
+        help_text=_('Contact email address')
+    )
+    
+    phone = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Phone'),
+        help_text=_('Contact phone number')
+    )
+    
+    fax = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Fax'),
+        help_text=_('Fax number')
+    )
+    
+    address = models.TextField(
+        blank=True,
+        verbose_name=_('Address'),
+        help_text=_('Organization address (multiline)')
+    )
+    
+    description = models.TextField(
+        blank=True,
+        verbose_name=_('Description'),
+        help_text=_('Welcome message or organization description')
+    )
+    
+    opening_hours = models.TextField(
+        blank=True,
+        verbose_name=_('Opening Hours'),
+        help_text=_('Opening hours (multiline)')
+    )
+    
+    # Regulatory and ownership
+    state_media_institution = models.CharField(
+        max_length=50,
+        default='MSA',
+        verbose_name=_('State Media Institution'),
+        help_text=_('Regulatory institution code (MSA, LFK, BLM, etc.)')
+    )
+    
+    organization_owner = models.CharField(
+        max_length=150,
+        default='OKMQ',
+        verbose_name=_('Organization Owner'),
+        help_text=_('Owner/operator identifier (matches MediaAuthority name)')
+    )
+    
+    # Broadcasting schedule
+    broadcast_start = models.TimeField(
+        default='06:00',
+        verbose_name=_('Broadcast Start Time'),
+        help_text=_('Default broadcast start time')
+    )
+    
+    broadcast_end = models.TimeField(
+        default='23:00',
+        verbose_name=_('Broadcast End Time'),
+        help_text=_('Default broadcast end time')
+    )
+    
+    # Integration
+    peertube_channel = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('PeerTube Channel'),
+        help_text=_('PeerTube channel identifier')
+    )
+    
+    # Legal texts (for future use)
+    datenschutz = models.TextField(
+        blank=True,
+        verbose_name=_('Privacy Policy (Datenschutz)'),
+        help_text=_('Privacy policy text')
+    )
+    
+    impressum = models.TextField(
+        blank=True,
+        verbose_name=_('Imprint (Impressum)'),
+        help_text=_('Legal imprint text')
+    )
+    
+    agb = models.TextField(
+        blank=True,
+        verbose_name=_('Terms and Conditions (AGB)'),
+        help_text=_('Terms and conditions text')
+    )
+    
+    class Meta:
+        verbose_name = _('Organization Configuration')
+        verbose_name_plural = _('Organization Configuration')
+    
+    def __str__(self):
+        """Return string representation."""
+        return str(_("Organization Configuration"))
+    
+    def save(self, *args, **kwargs):
+        """Ensure only one config instance exists."""
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_config(cls):
+        """Get the singleton config instance, create if doesn't exist."""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj

@@ -3,6 +3,7 @@ from .forms import RangeNumericForm
 from .generate_file import generate_license_file
 from .models import Category
 from .models import License
+from .models import LicensesConfig
 from .models import NextcloudVideoFile
 from .widgets import TagsInputWidget
 from admin_auto_filters.filters import AutocompleteFilterFactory
@@ -470,6 +471,12 @@ class HasVideoFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Filter licenses by video file presence and availability."""
+        from django.conf import settings
+        
+        # Skip filtering if media_files module is disabled
+        if not getattr(settings, 'MEDIA_FILES_ENABLED', False):
+            return queryset
+        
         if self.value() == 'available':
             return queryset.filter(video_file__isnull=False, video_file__is_available=True)
         elif self.value() == 'not_available':
@@ -921,10 +928,18 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             'profile__okuser',
             'profile__media_authority',
             'category'
-        ).prefetch_related(
-            'video_file',  # OneToOneField from VideoFile to License
-            'video_file__storage_location'
-        )  # tags is JSONField, not ManyToMany - no prefetch needed
+        )
+        
+        # Prefetch video_file only if media_files module is enabled
+        if getattr(settings, 'MEDIA_FILES_ENABLED', False):
+            try:
+                queryset = queryset.prefetch_related(
+                    'video_file',  # OneToOneField from VideoFile to License
+                    'video_file__storage_location'
+                )
+            except (AttributeError, Exception):
+                # If video_file relation doesn't exist (module disabled), skip prefetch
+                pass
         
         # Prefetch Nextcloud videos if enabled
         if settings.NEXTCLOUD_ENABLED:
@@ -1583,6 +1598,7 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
         'uploaded_at',
         'is_deleted',
         'deleted_at',
+        'download_to_storage_button',
     )
     list_filter = (
         'is_deleted',
@@ -1599,6 +1615,8 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
         'deleted_at',
     )
     autocomplete_fields = ['license']
+
+    actions = ['download_selected_videos_to_storage']
     
     fieldsets = (
         (_('File Information'), {
@@ -1612,6 +1630,19 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimize queryset with select_related."""
         return super().get_queryset(request).select_related('license', 'license__profile')
+
+    def get_urls(self):
+        """Add custom URLs for Nextcloud video download."""
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:video_id>/download-to-storage/',
+                self.admin_site.admin_view(self.download_to_storage_view),
+                name='licenses_nextcloudvideofile_download',
+            ),
+        ]
+        return custom_urls + urls
     
     def license_number(self, obj):
         """Display license number."""
@@ -1637,8 +1668,96 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
     profile_display.short_description = _('Profile')
     profile_display.admin_order_field = 'license__profile'
 
+    def download_to_storage_button(self, obj):
+        """Button to enqueue download of this file to local storage."""
+        if obj.is_deleted:
+            return '-'
+        url = reverse('admin:licenses_nextcloudvideofile_download', args=[obj.pk])
+        return format_html('<a class="button" href="{}">{}</a>', url, _('Download'))
+    download_to_storage_button.short_description = _('Download')
+
+    def download_to_storage_view(self, request, video_id: int):
+        """Enqueue download of a single Nextcloud video to local storage."""
+        from django.contrib import messages
+        from .tasks import download_nextcloud_video_file_to_storage
+
+        video = get_object_or_404(NextcloudVideoFile, pk=video_id)
+        if video.is_deleted:
+            self.message_user(
+                request,
+                _('Cannot download: file is marked deleted.'),
+                messages.WARNING
+            )
+        else:
+            download_nextcloud_video_file_to_storage.delay(video.pk)
+            self.message_user(
+                request,
+                _('Download queued for "%(filename)s".') % {'filename': video.filename},
+                messages.SUCCESS
+            )
+
+        return HttpResponseRedirect(
+            request.META.get(
+                'HTTP_REFERER',
+                reverse('admin:licenses_nextcloudvideofile_changelist')
+            )
+        )
+
+    def download_selected_videos_to_storage(self, request, queryset):
+        """Enqueue download of selected Nextcloud videos to local storage."""
+        from django.contrib import messages
+        from .tasks import download_nextcloud_video_file_to_storage
+
+        queued = 0
+        skipped = 0
+        for video in queryset:
+            if video.is_deleted:
+                skipped += 1
+                continue
+            download_nextcloud_video_file_to_storage.delay(video.pk)
+            queued += 1
+
+        if queued:
+            self.message_user(
+                request,
+                _p('Queued download for %(count)d file.', 'Queued download for %(count)d files.', queued) % {'count': queued},
+                messages.SUCCESS
+            )
+        if skipped:
+            self.message_user(
+                request,
+                _p('Skipped %(count)d deleted file.', 'Skipped %(count)d deleted files.', skipped) % {'count': skipped},
+                messages.WARNING
+            )
+    download_selected_videos_to_storage.short_description = _('Download selected to storage')
+
 
 # Only register if Nextcloud is enabled
 from django.conf import settings
 if settings.NEXTCLOUD_ENABLED:
     admin.site.register(NextcloudVideoFile, NextcloudVideoFileAdmin)
+
+
+@admin.register(LicensesConfig)
+class LicensesConfigAdmin(admin.ModelAdmin):
+    """Admin interface for LicensesConfig model."""
+    
+    def has_add_permission(self, request):
+        """Only one config instance allowed."""
+        return not LicensesConfig.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of config."""
+        return False
+
+    fieldsets = (
+        (_('Email Notifications'), {
+            'fields': ('send_status_emails',),
+        }),
+        (_('Storage Settings'), {
+            'fields': ('download_storage_path',),
+        }),
+        (_('Screen Board Settings'), {
+            'fields': ('screen_board_duration',),
+        }),
+    )

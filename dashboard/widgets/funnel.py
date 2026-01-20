@@ -1,18 +1,37 @@
 from ..utils import AlertManager
 from ..utils import FunnelTracker
-from contributions.models import Contribution
 from datetime import timedelta
 from django.db.models import Count
 from django.db.models import Q
 from django.utils import timezone
-from licenses.models import License
 from registration.models import OKUser
 from registration.models import Profile
-from rental.models import RentalRequest
 from typing import Dict
 from typing import List
 from typing import Optional
 import logging
+
+# Import models only if modules are enabled
+try:
+    from contributions.models import Contribution
+    CONTRIBUTIONS_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    CONTRIBUTIONS_AVAILABLE = False
+    Contribution = None
+
+try:
+    from licenses.models import License
+    LICENSES_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    LICENSES_AVAILABLE = False
+    License = None
+
+try:
+    from rental.models import RentalRequest
+    RENTAL_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    RENTAL_AVAILABLE = False
+    RentalRequest = None
 
 
 logger = logging.getLogger(__name__)

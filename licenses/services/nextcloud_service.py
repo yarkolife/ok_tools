@@ -79,10 +79,8 @@ class NextcloudService:
             dict with keys: file_id, file_url, nextcloud_url
         """
         try:
-            # Generate unique filename
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            safe_filename = self._sanitize_filename(filename)
-            unique_filename = f"{license_number}_{timestamp}_{safe_filename}"
+            # Generate filename without timestamp; resolve collisions without dates.
+            unique_filename = self.generate_unique_filename(license_number, filename)
 
             # Construct full path in Nextcloud
             # Ensure proper path formatting
@@ -249,6 +247,73 @@ class NextcloudService:
 
         except Exception as e:
             logger.error(f'Error checking file existence in Nextcloud: {e}')
+            return False
+
+    def download_file(self, file_id: str, local_path: str, resume: bool = False) -> bool:
+        """
+        Download file from Nextcloud to local storage.
+        Supports resume download if file partially exists.
+
+        Args:
+            file_id: File path in Nextcloud (str)
+            local_path: Local file path to save to (str)
+            resume: If True, resume download from existing file position
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Construct full WebDAV URL with proper encoding
+            webdav_base = self.webdav_url.rstrip('/')
+            file_path = (file_id or '').lstrip('/')
+            encoded_path = '/'.join(quote(part, safe='') for part in file_path.split('/') if part != '')
+            full_url = f"{webdav_base}/{encoded_path}" if encoded_path else webdav_base
+
+            headers = {}
+            initial_pos = 0
+            if resume and os.path.exists(local_path):
+                initial_pos = os.path.getsize(local_path)
+                if initial_pos > 0:
+                    headers['Range'] = f'bytes={initial_pos}-'
+                    logger.info(f"Resuming download of {file_id} from byte {initial_pos}")
+
+            response = requests.get(
+                full_url,
+                auth=self._get_auth(),
+                headers=headers,
+                timeout=300,
+                stream=True,
+            )
+
+            # 200 = full content, 206 = partial content
+            if response.status_code in (200, 206):
+                mode = 'ab' if resume and initial_pos > 0 else 'wb'
+                with open(local_path, mode) as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+
+                if initial_pos > 0:
+                    logger.info(
+                        f"Resumed and completed download: {file_id} -> {local_path} "
+                        f"(resumed from {initial_pos} bytes)"
+                    )
+                else:
+                    logger.info(f"Downloaded file: {file_id} -> {local_path}")
+                return True
+
+            if response.status_code == 416:
+                # Range Not Satisfiable: file already fully downloaded
+                logger.info(f"File already fully downloaded: {local_path}")
+                return True
+
+            logger.error(
+                f"Failed to download file {file_id}: "
+                f"{response.status_code} - {response.text[:200]}"
+            )
+            return False
+        except Exception as e:
+            logger.error(f"Error downloading file {file_id}: {e}", exc_info=True)
             return False
 
     def get_file_url(self, file_id):
@@ -489,9 +554,23 @@ class NextcloudService:
         Returns:
             str: Unique sanitized filename
         """
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         safe_filename = self._sanitize_filename(original_filename)
-        return f"{license_number}_{timestamp}_{safe_filename}"
+        base_name = f"{license_number}_{safe_filename}"
+
+        # Check collisions in the upload folder and add suffix _2, _3, ...
+        # without any timestamps to keep names stable/readable.
+        candidate = base_name
+        i = 2
+        while self.check_file_exists(f"{self.upload_folder}/{candidate}"):
+            name, ext = os.path.splitext(base_name)
+            candidate = f"{name}_{i}{ext}"
+            i += 1
+
+            # Safety valve: avoid infinite loops if Nextcloud is misbehaving.
+            if i > 1000:
+                raise RuntimeError("Unable to generate unique filename (too many collisions)")
+
+        return candidate
 
     def _sanitize_filename(self, filename):
         """

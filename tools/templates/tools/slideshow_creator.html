@@ -1,0 +1,1049 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load i18n %}
+{% load number_filters %}
+
+{% block title %}{% if project %}{% trans 'Edit Slideshow' %}{% else %}{% trans 'Create Slideshow' %}{% endif %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a>
+    &rsaquo; <a href="{% url 'tools:slideshow_list' %}">{% trans 'Slideshow Projects' %}</a>
+    &rsaquo; {% if project %}{% trans 'Edit' %}{% else %}{% trans 'Create' %}{% endif %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .slideshow-creator-container {
+        padding: 20px;
+    }
+    .section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    .media-item {
+        position: relative;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .media-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+    .media-item .delete-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    .upload-zone {
+        border: 2px dashed #dee2e6;
+        border-radius: 4px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.3s;
+    }
+    .upload-zone:hover {
+        border-color: #007cba;
+    }
+    .upload-zone.dragover {
+        border-color: #007cba;
+        background: #f0f8ff;
+    }
+    .settings-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        margin-bottom: 20px;
+    }
+    .settings-row:last-child {
+        margin-bottom: 0;
+    }
+    .settings-field {
+        display: flex;
+        flex-direction: column;
+    }
+    .settings-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+    .settings-field input[type="number"],
+    .settings-field input[type="text"],
+    .settings-field select {
+        width: 100%;
+        height: 42px;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 15px;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+    .settings-field input[type="number"] {
+        max-width: 120px;
+    }
+    .settings-field select#fps,
+    .settings-field select#transitionType,
+    .settings-field select#resolution {
+        max-width: 300px;
+    }
+    .settings-field input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        cursor: pointer;
+    }
+    .settings-checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 42px;
+        margin-top: 25px;
+    }
+    .settings-checkbox-wrapper label {
+        margin-bottom: 0;
+        cursor: pointer;
+        user-select: none;
+    }
+    .audio-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    .audio-item .delete-btn {
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    .settings-subsection {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .settings-subsection:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    .settings-subsection h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #495057;
+    }
+    .settings-help-text {
+        color: #6c757d;
+        font-size: 13px;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+    .align-self-end {
+        align-self: flex-end;
+    }
+    #content .slideshow-creator-container .settings-section {
+        background: #ffffff;
+        border: 1px solid #e6e9ee;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
+        padding: 24px;
+        border-radius: 12px;
+    }
+    #content .slideshow-creator-container .settings-section .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eef2f7;
+        letter-spacing: 0.2px;
+    }
+    #content .slideshow-creator-container .settings-section .settings-subsection {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 16px;
+    }
+    #content .slideshow-creator-container .settings-section .settings-subsection h3 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 12px;
+    }
+    .settings-field input[type="number"]:focus,
+    .settings-field input[type="text"]:focus,
+    .settings-field select:focus {
+        outline: none;
+        border-color: #007cba;
+        box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
+    }
+    #content .slideshow-creator-container .settings-section .settings-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+    }
+    #content .slideshow-creator-container .settings-section .settings-field {
+        flex: 0 1 auto;
+        min-width: 200px;
+    }
+    #content .slideshow-creator-container .settings-section .settings-field input[type="number"],
+    #content .slideshow-creator-container .settings-section .settings-field input[type="text"],
+    #content .slideshow-creator-container .settings-section .settings-field select {
+        background: #ffffff;
+        border-color: #d1d5db;
+        border-radius: 8px;
+        height: 42px;
+        font-size: 15px;
+    }
+    #content .slideshow-creator-container .settings-section .settings-field input[type="number"]:focus,
+    #content .slideshow-creator-container .settings-section .settings-field input[type="text"]:focus,
+    #content .slideshow-creator-container .settings-section .settings-field select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    #content .slideshow-creator-container .settings-section .settings-help-text {
+        padding-top: 6px;
+        color: #6b7280;
+    }
+    .tab-btn {
+        font-size: 15px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .tab-btn:hover {
+        color: #007cba;
+    }
+    .library-item:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+    }
+    .media-item[draggable="true"] {
+        cursor: move;
+    }
+    .media-item.dragging {
+        opacity: 0.5;
+    }
+    .media-item.drag-over {
+        border: 2px dashed #007cba;
+    }
+    .drag-handle {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 8px;
+        border-radius: 3px;
+        cursor: move;
+        font-size: 12px;
+        user-select: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="slideshow-creator-container">
+    <h1>{% if project %}{% trans 'Edit Slideshow' %}: {{ project.name }}{% else %}{% trans 'Create New Slideshow' %}{% endif %}</h1>
+    
+    <form id="slideshowForm">
+        {% csrf_token %}
+        <input type="hidden" id="projectId" value="{% if project %}{{ project.id }}{% endif %}">
+        
+        <!-- Project Name -->
+        <div class="section">
+            <div class="section-title">{% trans 'Project Name' %}</div>
+            <input type="text" id="projectName" value="{% if project %}{{ project.name }}{% endif %}" placeholder="{% trans 'Enter project name' %}" style="width: 100%; padding: 10px;">
+        </div>
+        
+        <!-- Media Upload -->
+        <div class="section">
+            <div class="section-title">{% trans 'Media Files' %}</div>
+            
+            <!-- Tabs for Upload / Library -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #dee2e6;">
+                <button type="button" class="tab-btn active" onclick="switchTab('upload')" id="uploadTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid #007cba;">
+                    {% trans 'Upload New' %}
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('library')" id="libraryTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent;">
+                    {% trans 'Media Library' %}
+                </button>
+            </div>
+            
+            <!-- Upload Tab -->
+            <div id="uploadTabContent">
+                <div class="upload-zone" id="uploadZone">
+                    <p>{% trans 'Drag & drop files here or click to select' %}</p>
+                    <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Library Tab -->
+            <div id="libraryTabContent" style="display: none;">
+                <div style="margin-bottom: 15px;">
+                    <label>
+                        <input type="radio" name="libraryFilter" value="all" checked onchange="filterLibrary('all')"> {% trans 'All' %}
+                    </label>
+                    <label style="margin-left: 15px;">
+                        <input type="radio" name="libraryFilter" value="image" onchange="filterLibrary('image')"> {% trans 'Images' %}
+                    </label>
+                    <label style="margin-left: 15px;">
+                        <input type="radio" name="libraryFilter" value="video" onchange="filterLibrary('video')"> {% trans 'Videos' %}
+                    </label>
+                </div>
+                <div class="media-grid" id="libraryGrid">
+                    {% for media in library_media %}
+                    <div class="media-item library-item" data-media-type="{{ media.media_type }}" data-library-id="{{ media.id }}" style="cursor: pointer;" onclick="addFromLibrary({{ media.id }})">
+                        {% if media.media_type == 'image' %}
+                        <img src="{{ media.file.url }}" alt="{{ media.name }}">
+                        {% else %}
+                        <div style="width: 100%; height: 150px; background: #000; display: flex; align-items: center; justify-content: center; color: white;">
+                            🎥 {% trans 'Video' %}
+                        </div>
+                        {% endif %}
+                        <div style="padding: 8px; background: #f8f9fa; font-size: 12px; text-align: center;">
+                            {{ media.name|default:media.file.name|truncatechars:30 }}
+                        </div>
+                        <div style="position: absolute; top: 5px; left: 5px; background: rgba(0, 124, 186, 0.9); color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px;">
+                            {% trans 'Click to add' %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
+                        {% trans 'No media in library yet' %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Project Media -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #dee2e6;">
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">
+                    {% trans 'Project Media' %}
+                    <span style="font-size: 13px; font-weight: normal; color: #6c757d; margin-left: 10px;">{% trans 'Drag to reorder' %}</span>
+                </h3>
+                <div class="media-grid" id="mediaGrid">
+                    {% for media in media_files %}
+                    <div class="media-item" data-media-id="{{ media.id }}" data-order="{{ media.order }}" draggable="true">
+                        <div class="drag-handle">☰</div>
+                        {% if media.media_type == 'image' %}
+                        <img src="{{ media.file.url }}" alt="{{ media.file.name }}" style="pointer-events: none;">
+                        {% else %}
+                        <div style="width: 100%; height: 150px; background: #000; display: flex; align-items: center; justify-content: center; color: white; pointer-events: none;">
+                            🎥 {% trans 'Video' %}
+                        </div>
+                        {% endif %}
+                        <button type="button" class="delete-btn" onclick="event.stopPropagation(); deleteMedia({{ media.id }})">{% trans 'Delete' %}</button>
+                    </div>
+                    {% empty %}
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #6c757d;">
+                        {% trans 'No media files yet. Upload or add from library.' %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Audio Selection -->
+        <div class="section">
+            <div class="section-title">{% trans 'Background Music' %}</div>
+            
+            <!-- Tabs for Upload / Library -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #dee2e6;">
+                <button type="button" class="tab-btn active" onclick="switchAudioTab('upload')" id="audioUploadTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid #007cba;">
+                    {% trans 'Upload New' %}
+                </button>
+                <button type="button" class="tab-btn" onclick="switchAudioTab('library')" id="audioLibraryTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent;">
+                    {% trans 'Audio Library' %}
+                </button>
+            </div>
+            
+            <!-- Upload Tab -->
+            <div id="audioUploadTabContent">
+                <input type="file" id="audioInput" accept="audio/*" style="margin-bottom: 15px;">
+            </div>
+            
+            <!-- Library Tab -->
+            <div id="audioLibraryTabContent" style="display: none;">
+                <div style="margin-bottom: 15px;">
+                    {% for audio in library_audio %}
+                    <div class="audio-item" style="cursor: pointer; position: relative;" onclick="addAudioFromLibrary({{ audio.id }})">
+                        <span>🎵 {{ audio.name }} {% if audio.duration %}({{ audio.duration|floatformat:0 }}s){% endif %}</span>
+                        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0, 124, 186, 0.9); color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">
+                            {% trans 'Click to add' %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 20px; color: #6c757d;">
+                        {% trans 'No audio in library yet' %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Project Audio -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #dee2e6;">
+                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">{% trans 'Project Audio' %}</h3>
+                <div id="audioPreview">
+                    {% for audio in audio_files %}
+                    <div class="audio-item" data-audio-id="{{ audio.id }}">
+                        <span>🎵 {{ audio.name|default:audio.file.name }}</span>
+                        <button type="button" class="delete-btn" onclick="deleteAudio({{ audio.id }})">{% trans 'Delete' %}</button>
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 15px; color: #6c757d; font-size: 14px;">
+                        {% trans 'No audio file yet. Upload or add from library.' %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings -->
+        <div class="section settings-section">
+            <div class="section-title">{% trans 'Settings' %}</div>
+            
+            <!-- Video & Transition Settings -->
+            <div class="settings-subsection">
+                <h3>{% trans 'Video & Transition Settings' %}</h3>
+                <div class="settings-row">
+                    <div class="settings-field">
+                        <label for="slideDuration">{% trans 'Slide Duration' %}</label>
+                        <input type="number" id="slideDuration" value="{% if project %}{{ project.slide_duration|decimal_point:1 }}{% else %}20{% endif %}" min="1" max="60" step="0.5">
+                    </div>
+                    <div class="settings-field">
+                        <label for="transitionDuration">{% trans 'Transition Duration' %}</label>
+                        <input type="number" id="transitionDuration" value="{% if project %}{{ project.transition_duration|decimal_point:1 }}{% else %}2{% endif %}" min="0.5" max="5" step="0.1">
+                    </div>
+                    <div class="settings-field">
+                        <label for="fps">{% trans 'FPS' %}</label>
+                        <select id="fps">
+                            <option value="25" {% if project and project.fps == 25 %}selected{% endif %}>25</option>
+                            <option value="30" {% if project and project.fps == 30 %}selected{% endif %}>30</option>
+                            <option value="60" {% if project and project.fps == 60 %}selected{% endif %}>60</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-field">
+                        <label for="resolution">{% trans 'Resolution' %}</label>
+                        <select id="resolution">
+                            <option value="1920x1080" {% if not project or project.width == 1920 %}selected{% endif %}>1920x1080 (Full HD)</option>
+                            <option value="1280x720" {% if project and project.width == 1280 %}selected{% endif %}>1280x720 (HD)</option>
+                            <option value="3840x2160" {% if project and project.width == 3840 %}selected{% endif %}>3840x2160 (4K)</option>
+                        </select>
+                    </div>
+                    <div class="settings-field">
+                        <div class="settings-checkbox-wrapper">
+                            <input type="checkbox" id="useTransitions" {% if not project or project.use_transitions %}checked{% endif %}>
+                            <label for="useTransitions">{% trans 'Use Transitions' %}</label>
+                        </div>
+                    </div>
+                    <div class="settings-field">
+                        <label for="transitionType">{% trans 'Transition Type' %}</label>
+                        <select id="transitionType">
+                            {% for value, label in transition_choices %}
+                            <option value="{{ value }}" {% if project and project.transition_type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="section">
+            <button type="button" class="button default" onclick="saveProject()">{% trans 'Save as Draft' %}</button>
+            <button type="button" class="button default" onclick="generateVideo()">{% trans 'Generate Video' %}</button>
+            <a href="{% url 'tools:slideshow_list' %}" class="button">{% trans 'Cancel' %}</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const projectId = document.getElementById('projectId').value;
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+// Helper function to build API URLs
+function getApiUrl(endpoint, mediaId = null) {
+    const baseUrl = '/tools/api/slideshow/';
+    const currentProjectId = document.getElementById('projectId')?.value || projectId;
+    
+    if (endpoint === 'create') {
+        return baseUrl + 'create/';
+    }
+    
+    if (!currentProjectId || currentProjectId === '') {
+        console.error('Project ID is missing');
+        return null;
+    }
+    
+    if (endpoint === 'upload-media') {
+        return baseUrl + currentProjectId + '/upload-media/';
+    }
+    if (endpoint === 'delete-media') {
+        if (!mediaId) {
+            console.error('Media ID is required for delete-media');
+            return null;
+        }
+        return baseUrl + currentProjectId + '/media/' + mediaId + '/';
+    }
+    if (endpoint === 'settings') {
+        return baseUrl + currentProjectId + '/settings/';
+    }
+    if (endpoint === 'generate') {
+        return baseUrl + currentProjectId + '/generate/';
+    }
+    if (endpoint === 'upload-audio') {
+        return baseUrl + currentProjectId + '/upload-audio/';
+    }
+    if (endpoint === 'delete-audio') {
+        return baseUrl + currentProjectId + '/delete-audio/';
+    }
+    return null;
+}
+
+// Normalize number inputs - replace comma with dot for HTML5 number inputs
+document.addEventListener('DOMContentLoaded', function() {
+    const numberInputs = document.querySelectorAll('input[type="number"]');
+    numberInputs.forEach(input => {
+        if (input.value) {
+            // Remove any trailing .0 or ,0 and replace comma with dot
+            let val = input.value.replace(',', '.');
+            if (val.endsWith('.0')) val = val.substring(0, val.length - 2);
+            input.value = val;
+        }
+    });
+    
+    // Audio upload handler
+    const audioInput = document.getElementById('audioInput');
+    if (audioInput) {
+        audioInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                uploadAudio(e.target.files[0]);
+            }
+        });
+    }
+    
+    // Initialize drag & drop for media reordering
+    initMediaDragDrop();
+});
+
+// Drag & drop for media reordering
+function initMediaDragDrop() {
+    const mediaGrid = document.getElementById('mediaGrid');
+    if (!mediaGrid) return;
+    
+    const mediaItems = mediaGrid.querySelectorAll('.media-item[draggable="true"]');
+    
+    mediaItems.forEach(item => {
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragend', handleDragEnd);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragleave', handleDragLeave);
+    });
+}
+
+let draggedItem = null;
+
+function handleDragStart(e) {
+    draggedItem = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    
+    // Remove all drag-over classes
+    document.querySelectorAll('.media-item').forEach(item => {
+        item.classList.remove('drag-over');
+    });
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    
+    e.dataTransfer.dropEffect = 'move';
+    
+    if (this !== draggedItem) {
+        this.classList.add('drag-over');
+    }
+    
+    return false;
+}
+
+function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    
+    if (draggedItem !== this) {
+        // Swap the items in DOM
+        const draggedParent = draggedItem.parentNode;
+        const droppedParent = this.parentNode;
+        
+        const draggedIndex = Array.from(draggedParent.children).indexOf(draggedItem);
+        const droppedIndex = Array.from(droppedParent.children).indexOf(this);
+        
+        if (draggedIndex < droppedIndex) {
+            droppedParent.insertBefore(draggedItem, this.nextSibling);
+        } else {
+            droppedParent.insertBefore(draggedItem, this);
+        }
+        
+        // Update order on server
+        updateMediaOrder();
+    }
+    
+    this.classList.remove('drag-over');
+    
+    return false;
+}
+
+function updateMediaOrder() {
+    if (!projectId || projectId === '') {
+        return;
+    }
+    
+    const mediaGrid = document.getElementById('mediaGrid');
+    const mediaItems = mediaGrid.querySelectorAll('.media-item[data-media-id]');
+    
+    const orderMapping = {};
+    mediaItems.forEach((item, index) => {
+        const mediaId = item.dataset.mediaId;
+        orderMapping[mediaId] = index + 1;
+    });
+    
+    fetch(getApiUrl('order'), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ order: orderMapping })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log('Order updated');
+        } else {
+            console.error('Failed to update order:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Update order error:', error);
+    });
+}
+
+// File upload handling
+document.getElementById('uploadZone').addEventListener('click', () => {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+    uploadFiles(e.target.files);
+});
+
+// Drag & drop
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+});
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+});
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    uploadFiles(e.dataTransfer.files);
+});
+
+function uploadFiles(files) {
+    if (!projectId || projectId === '') {
+        alert('{% trans "Please save project first" %}');
+        return;
+    }
+    
+    const uploadUrl = getApiUrl('upload-media');
+    if (!uploadUrl) {
+        alert('{% trans "Invalid project ID" %}');
+        return;
+    }
+    
+    const formData = new FormData();
+    for (let file of files) {
+        formData.append('files', file);
+    }
+    
+    fetch(uploadUrl, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('{% trans "Upload failed" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        alert('{% trans "Upload failed" %}: ' + error.message);
+    });
+}
+
+function deleteMedia(mediaId) {
+    if (!confirm('{% trans "Delete this media file?" %}')) return;
+    
+    fetch(getApiUrl('delete-media', mediaId), {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    });
+}
+
+function uploadAudio(file) {
+    if (!projectId || projectId === '') {
+        alert('{% trans "Please save project first" %}');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    fetch(getApiUrl('upload-audio'), {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('{% trans "Upload failed" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Audio upload error:', error);
+        alert('{% trans "Upload failed" %}: ' + error.message);
+    });
+}
+
+function deleteAudio(audioId) {
+    if (!confirm('{% trans "Delete this audio file?" %}')) return;
+    
+    if (!projectId || projectId === '') {
+        alert('{% trans "Invalid project ID" %}');
+        return;
+    }
+    
+    fetch(getApiUrl('delete-audio'), {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('{% trans "Delete failed" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Delete audio error:', error);
+        alert('{% trans "Delete failed" %}: ' + error.message);
+    });
+}
+
+function saveProject() {
+    const name = document.getElementById('projectName').value;
+    if (!name) {
+        alert('{% trans "Please enter project name" %}');
+        return;
+    }
+    
+    if (projectId) {
+        // Update existing project
+        updateSettings();
+    } else {
+        // Create new project
+        fetch(getApiUrl('create'), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: name })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = `/tools/slideshow/${data.project_id}/edit/`;
+            }
+        });
+    }
+}
+
+function updateSettings() {
+    const resolution = document.getElementById('resolution').value.split('x');
+    const data = {
+        name: document.getElementById('projectName').value,
+        slide_duration: parseFloat(document.getElementById('slideDuration').value),
+        fps: parseInt(document.getElementById('fps').value),
+        width: parseInt(resolution[0]),
+        height: parseInt(resolution[1]),
+        use_transitions: document.getElementById('useTransitions').checked,
+        transition_type: document.getElementById('transitionType').value,
+        transition_duration: parseFloat(document.getElementById('transitionDuration').value)
+    };
+    
+    fetch(getApiUrl('settings'), {
+        method: 'PUT',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Settings saved" %}');
+        }
+    });
+}
+
+function generateVideo() {
+    if (!projectId) {
+        alert('{% trans "Please save project first" %}');
+        return;
+    }
+    
+    updateSettings();
+    
+    fetch(getApiUrl('generate'), {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Video generation started. Check status in project list." %}');
+            window.location.href = '{% url "tools:slideshow_list" %}';
+        } else {
+            alert('{% trans "Generation failed" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    });
+}
+
+// Tab switching
+function switchTab(tab) {
+    const uploadTab = document.getElementById('uploadTab');
+    const libraryTab = document.getElementById('libraryTab');
+    const uploadContent = document.getElementById('uploadTabContent');
+    const libraryContent = document.getElementById('libraryTabContent');
+    
+    if (tab === 'upload') {
+        uploadTab.classList.add('active');
+        libraryTab.classList.remove('active');
+        uploadTab.style.borderBottomColor = '#007cba';
+        libraryTab.style.borderBottomColor = 'transparent';
+        uploadContent.style.display = 'block';
+        libraryContent.style.display = 'none';
+    } else {
+        uploadTab.classList.remove('active');
+        libraryTab.classList.add('active');
+        uploadTab.style.borderBottomColor = 'transparent';
+        libraryTab.style.borderBottomColor = '#007cba';
+        uploadContent.style.display = 'none';
+        libraryContent.style.display = 'block';
+    }
+}
+
+// Filter library media
+function filterLibrary(type) {
+    const items = document.querySelectorAll('.library-item');
+    items.forEach(item => {
+        if (type === 'all' || item.dataset.mediaType === type) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Add media from library to project
+function addFromLibrary(libraryMediaId) {
+    if (!projectId || projectId === '') {
+        alert('{% trans "Please save project first" %}');
+        return;
+    }
+    
+    fetch(`/tools/api/slideshow/${projectId}/add-library-media/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ media_ids: [libraryMediaId] })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Media added to project" %}');
+            location.reload();
+        } else {
+            alert('{% trans "Failed to add media" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Add library media error:', error);
+        alert('{% trans "Failed to add media" %}: ' + error.message);
+    });
+}
+
+// Audio tab switching
+function switchAudioTab(tab) {
+    const uploadTab = document.getElementById('audioUploadTab');
+    const libraryTab = document.getElementById('audioLibraryTab');
+    const uploadContent = document.getElementById('audioUploadTabContent');
+    const libraryContent = document.getElementById('audioLibraryTabContent');
+    
+    if (tab === 'upload') {
+        uploadTab.classList.add('active');
+        libraryTab.classList.remove('active');
+        uploadTab.style.borderBottomColor = '#007cba';
+        libraryTab.style.borderBottomColor = 'transparent';
+        uploadContent.style.display = 'block';
+        libraryContent.style.display = 'none';
+    } else {
+        uploadTab.classList.remove('active');
+        libraryTab.classList.add('active');
+        uploadTab.style.borderBottomColor = 'transparent';
+        libraryTab.style.borderBottomColor = '#007cba';
+        uploadContent.style.display = 'none';
+        libraryContent.style.display = 'block';
+    }
+}
+
+// Add audio from library to project
+function addAudioFromLibrary(libraryAudioId) {
+    if (!projectId || projectId === '') {
+        alert('{% trans "Please save project first" %}');
+        return;
+    }
+    
+    fetch(`/tools/api/slideshow/${projectId}/add-library-audio/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ audio_id: libraryAudioId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Audio added to project" %}');
+            location.reload();
+        } else {
+            alert('{% trans "Failed to add audio" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Add library audio error:', error);
+        alert('{% trans "Failed to add audio" %}: ' + error.message);
+    });
+}
+</script>
+{% endblock %}

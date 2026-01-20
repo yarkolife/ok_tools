@@ -632,7 +632,7 @@ class NextcloudExchangeService:
             filename: Filename
             
         Returns:
-            'video', 'pdf', 'json', 'image', or 'other'
+            'video', 'pdf', 'json', 'image', or 'unknown'
         """
         filename_lower = filename.lower()
         video_extensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.mxf', '.mpeg', '.mpg']
@@ -656,5 +656,5 @@ class NextcloudExchangeService:
             if filename_lower.endswith(ext):
                 return 'image'
         
-        return 'other'
+        return 'unknown'
 

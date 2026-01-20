@@ -44,9 +44,12 @@ class TagesPlanAdmin(admin.ModelAdmin):
         Shows the status of each day with color coding and icons based
         on planned content.
         """
-        # Parse broadcast block from settings
-        broadcast_start_parts = settings.BROADCAST_START.split(":")
-        broadcast_end_parts = settings.BROADCAST_END.split(":")
+        # Parse broadcast block from organization config
+        from registration import organization_config
+        broadcast_start = organization_config.get_broadcast_start()
+        broadcast_end = organization_config.get_broadcast_end()
+        broadcast_start_parts = broadcast_start.split(":")
+        broadcast_end_parts = broadcast_end.split(":")
         block_start_seconds = int(broadcast_start_parts[0]) * 3600 + int(broadcast_start_parts[1]) * 60
         block_end_seconds = int(broadcast_end_parts[0]) * 3600 + int(broadcast_end_parts[1]) * 60
         max_block_seconds = block_end_seconds - block_start_seconds

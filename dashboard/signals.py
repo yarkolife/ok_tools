@@ -2,16 +2,35 @@ from .models import UserJourney
 from .models import UserJourneyStage
 from .utils import AlertManager
 from .utils import FunnelTracker
-from contributions.models import Contribution
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from licenses.models import License
 from registration.models import OKUser
 from registration.models import Profile
-from rental.models import RentalRequest
 import logging
+
+# Import models only if modules are enabled
+try:
+    from contributions.models import Contribution
+    CONTRIBUTIONS_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    CONTRIBUTIONS_AVAILABLE = False
+    Contribution = None
+
+try:
+    from licenses.models import License
+    LICENSES_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    LICENSES_AVAILABLE = False
+    License = None
+
+try:
+    from rental.models import RentalRequest
+    RENTAL_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    RENTAL_AVAILABLE = False
+    RentalRequest = None
 
 
 logger = logging.getLogger(__name__)
@@ -49,7 +68,7 @@ def track_user_verification(sender, instance, **kwargs):
             logger.error(f"Error tracking user verification: {e}")
 
 
-@receiver(post_save, sender=RentalRequest)
+# Rental signals - only register if rental module is available
 def track_rental_request(sender, instance, created, **kwargs):
     """Track when a user requests equipment rental."""
     if created:
@@ -58,7 +77,7 @@ def track_rental_request(sender, instance, created, **kwargs):
             tracker.track_user_stage(
                 instance.user,
                 UserJourneyStage.RENTAL_REQUESTED,
-                rental_request=instance,
+                rental_request_id=instance.id,
                 metadata={'source': 'rental_request'}
             )
             logger.info(f"Tracked rental request: {instance.user.email}")
@@ -66,7 +85,6 @@ def track_rental_request(sender, instance, created, **kwargs):
             logger.error(f"Error tracking rental request: {e}")
 
 
-@receiver(post_save, sender=RentalRequest)
 def track_rental_completion(sender, instance, **kwargs):
     """Track when a rental is completed."""
     if instance.status == 'returned' and instance.actual_end_date:
@@ -75,7 +93,7 @@ def track_rental_completion(sender, instance, **kwargs):
             tracker.track_user_stage(
                 instance.user,
                 UserJourneyStage.RENTAL_COMPLETED,
-                rental_request=instance,
+                rental_request_id=instance.id,
                 metadata={'source': 'rental_completion'}
             )
             logger.info(f"Tracked rental completion: {instance.user.email}")
@@ -83,7 +101,13 @@ def track_rental_completion(sender, instance, **kwargs):
             logger.error(f"Error tracking rental completion: {e}")
 
 
-@receiver(post_save, sender=License)
+# Register rental signals only if available
+if RENTAL_AVAILABLE and RentalRequest is not None:
+    post_save.connect(track_rental_request, sender=RentalRequest)
+    post_save.connect(track_rental_completion, sender=RentalRequest)
+
+
+# License signals - only register if licenses module is available
 def track_license_creation(sender, instance, created, **kwargs):
     """Track when a user creates a license."""
     if created and instance.profile and instance.profile.okuser:
@@ -92,7 +116,7 @@ def track_license_creation(sender, instance, created, **kwargs):
             tracker.track_user_stage(
                 instance.profile.okuser,
                 UserJourneyStage.LICENSE_CREATED,
-                license=instance,
+                license_id=instance.id,
                 metadata={'source': 'license_creation'}
             )
             logger.info(f"Tracked license creation: {instance.profile.okuser.email}")
@@ -100,7 +124,12 @@ def track_license_creation(sender, instance, created, **kwargs):
             logger.error(f"Error tracking license creation: {e}")
 
 
-@receiver(post_save, sender=Contribution)
+# Register license signals only if available
+if LICENSES_AVAILABLE and License is not None:
+    post_save.connect(track_license_creation, sender=License)
+
+
+# Contribution signals - only register if contributions module is available
 def track_contribution_creation(sender, instance, created, **kwargs):
     """Track when a contribution is created."""
     if created and instance.license and instance.license.profile and instance.license.profile.okuser:
@@ -109,7 +138,7 @@ def track_contribution_creation(sender, instance, created, **kwargs):
             tracker.track_user_stage(
                 instance.license.profile.okuser,
                 UserJourneyStage.CONTRIBUTION_CREATED,
-                contribution=instance,
+                contribution_id=instance.id,
                 metadata={'source': 'contribution_creation'}
             )
 
@@ -123,7 +152,7 @@ def track_contribution_creation(sender, instance, created, **kwargs):
                 tracker.track_user_stage(
                     instance.license.profile.okuser,
                     UserJourneyStage.FIRST_BROADCAST,
-                    contribution=instance,
+                    contribution_id=instance.id,
                     metadata={'source': 'first_broadcast'}
                 )
                 logger.info(f"Tracked first broadcast: {instance.license.profile.okuser.email}")
@@ -132,7 +161,7 @@ def track_contribution_creation(sender, instance, created, **kwargs):
                 tracker.track_user_stage(
                     instance.license.profile.okuser,
                     UserJourneyStage.MULTIPLE_BROADCASTS,
-                    contribution=instance,
+                    contribution_id=instance.id,
                     metadata={'source': 'multiple_broadcasts'}
                 )
                 logger.info(f"Tracked multiple broadcasts: {instance.license.profile.okuser.email}")
@@ -141,7 +170,6 @@ def track_contribution_creation(sender, instance, created, **kwargs):
             logger.error(f"Error tracking contribution creation: {e}")
 
 
-@receiver(post_save, sender=Contribution)
 def check_daily_alerts(sender, instance, **kwargs):
     """Check alerts after contribution creation."""
     try:
@@ -168,3 +196,9 @@ def check_daily_alerts(sender, instance, **kwargs):
 
     except Exception as e:
         logger.error(f"Error checking daily alerts: {e}")
+
+
+# Register contribution signals only if available
+if CONTRIBUTIONS_AVAILABLE and Contribution is not None:
+    post_save.connect(track_contribution_creation, sender=Contribution)
+    post_save.connect(check_daily_alerts, sender=Contribution)

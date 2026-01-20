@@ -49,6 +49,7 @@
                 </a>
             </li>
 
+            {% if LICENSES_ENABLED %}
             <!-- Licenses Section -->
             <li class="sidebar-item">
                 <a href="{% url 'dashboard:licenses' %}" class="sidebar-link {% if active_tab == 'licenses' %}active{% endif %}">
@@ -56,7 +57,9 @@
                     <span>{% trans "Licenses" %}</span>
                 </a>
             </li>
+            {% endif %}
 
+            {% if CONTRIBUTIONS_ENABLED %}
             <!-- Contributions Section -->
             <li class="sidebar-item">
                 <a href="{% url 'dashboard:contributions' %}" class="sidebar-link {% if active_tab == 'contributions' %}active{% endif %}">
@@ -64,7 +67,9 @@
                     <span>{% trans "Contributions" %}</span>
                 </a>
             </li>
+            {% endif %}
 
+            {% if PROJECTS_ENABLED %}
             <!-- Projects Section -->
             <li class="sidebar-item">
                 <a href="{% url 'dashboard:projects' %}" class="sidebar-link {% if active_tab == 'projects' %}active{% endif %}">
@@ -72,7 +77,9 @@
                     <span>{% trans "Projects" %}</span>
                 </a>
             </li>
+            {% endif %}
 
+            {% if INVENTORY_ENABLED or RENTAL_ENABLED %}
             <!-- Inventory Section -->
             <li class="sidebar-item">
                 <a href="{% url 'dashboard:inventory' %}" class="sidebar-link {% if active_tab == 'inventory' %}active{% endif %}">
@@ -80,6 +87,7 @@
                     <span>{% trans "Rental" %}</span>
                 </a>
             </li>
+            {% endif %}
 
             <!-- Notifications Section -->
             <li class="sidebar-item">
@@ -97,6 +105,7 @@
                 </a>
             </li>
 
+            {% if LICENSES_ENABLED and CONTRIBUTIONS_ENABLED %}
             <!-- Media Data Section -->
             <li class="sidebar-item">
                 <a href="{% url 'dashboard:media_data' %}" class="sidebar-link {% if active_tab == 'media_data' %}active{% endif %}">
@@ -104,6 +113,7 @@
                     <span>{% trans "Media Data" %}</span>
                 </a>
             </li>
+            {% endif %}
 
             <!-- Separator -->
             <li class="sidebar-divider"></li>
@@ -124,6 +134,7 @@
                 </a>
             </li>
 
+            {% if LICENSES_ENABLED %}
             <!-- License Management -->
             <li class="sidebar-item">
                 <a href="{% url 'admin:licenses_license_changelist' %}" class="sidebar-link" target="_blank">
@@ -131,7 +142,9 @@
                     <span>{% trans "License Management" %}</span>
                 </a>
             </li>
+            {% endif %}
 
+            {% if CONTRIBUTIONS_ENABLED %}
             <!-- Contribution Management -->
             <li class="sidebar-item">
                 <a href="{% url 'admin:contributions_contribution_changelist' %}" class="sidebar-link" target="_blank">
@@ -139,6 +152,7 @@
                     <span>{% trans "Contribution Management" %}</span>
                 </a>
             </li>
+            {% endif %}
 
             <!-- Separator -->
             <li class="sidebar-divider"></li>

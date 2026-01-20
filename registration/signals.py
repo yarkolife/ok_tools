@@ -1,4 +1,5 @@
 from .email import send_mail
+from . import organization_config
 from django.conf import settings
 from django.dispatch import Signal
 from django.dispatch import receiver
@@ -24,7 +25,7 @@ def send_verification_mail(sender, obj=None, request=None, **kwargs):
         subject_template_name='email/confirm_verification_subject.txt',
         context={
             "first_name": obj.first_name,
-            "ok_name": settings.OK_NAME,
+            "ok_name": organization_config.get_organization_name(),
             "domain": request.get_host(),
         },
         from_email=settings.EMAIL_HOST_USER,

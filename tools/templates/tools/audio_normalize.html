@@ -1,0 +1,991 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Audio Broadcast Normalize (R128)' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a>
+    &rsaquo; <a href="{% url 'tools:audio_normalize' %}">{% trans 'Audio Normalize Jobs' %}</a>
+    &rsaquo; {% trans 'New Job' %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .tool-container { padding: 20px; }
+    .section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
+    }
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #111827;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 18px; }
+    .field { display: flex; flex-direction: column; min-width: 240px; }
+    .field label { font-weight: 600; margin-bottom: 6px; color: #374151; }
+    .field input[type="text"], .field input[type="file"], .field select {
+        height: 42px;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    .field .hint { font-size: 12px; color: #6b7280; margin-top: 6px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    /* Normalize action row element heights (admin CSS can override without !important). */
+    .actions .button {
+        height: 32px !important;
+        padding: 0 12px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        line-height: 30px !important;
+        box-sizing: border-box !important;
+    }
+    .actions .status-pill {
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        box-sizing: border-box;
+    }
+    .actions .muted {
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+    }
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .report-card { border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 10px; padding: 14px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .metric-card { border: 1px solid #e5e7eb; background: #fff; border-radius: 10px; padding: 12px; }
+    .metric-label { font-weight: 700; font-size: 12px; text-transform: uppercase; color: #6b7280; letter-spacing: 0.03em; }
+    .metric-value { font-size: 20px; font-weight: 700; margin-top: 4px; color: #111827; }
+    .metric-delta { font-size: 12px; color: #6b7280; margin-top: 6px; }
+    .meter-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .meter {
+        position: relative;
+        height: 12px;
+        background: #e5e7eb;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .meter-fill {
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 0%;
+        background: linear-gradient(90deg, #6ee7b7, #10b981);
+    }
+    .meter-target {
+        position: absolute;
+        top: -4px;
+        width: 2px;
+        height: 20px;
+        background: #111827;
+    }
+    .meter-scale { font-size: 11px; color: #6b7280; display: flex; justify-content: space-between; }
+    .waveform {
+        width: 100%;
+        height: 110px;
+        background: #0f172a;
+        border: 1px solid #1f2937;
+        border-radius: 10px;
+    }
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+    .comparison-table th, .comparison-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+    }
+    .comparison-table th {
+        background: #f3f4f6;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #6b7280;
+        letter-spacing: 0.02em;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #dcfce7;
+        color: #166534;
+        font-weight: 700;
+        font-size: 11px;
+    }
+    .status-badge.warn {
+        background: #fef9c3;
+        color: #92400e;
+    }
+    .audio-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px;
+    }
+    .status-pill {
+        display: inline-flex; align-items: center;
+        padding: 2px 10px; border-radius: 999px;
+        border: 1px solid #e5e7eb; background: #fff;
+        font-weight: 600; font-size: 12px; color: #111827;
+        line-height: 1;
+    }
+    .status-pill.success { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
+    .status-pill.warn { background: #fef9c3; border-color: #fde68a; color: #92400e; }
+    .status-pill.danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+    .status-pill.info { background: #e0f2fe; border-color: #bae6fd; color: #075985; }
+    .muted { color: #6b7280; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tool-container">
+    <h1 style="margin: 0 0 8px 0;">{% trans 'Audio Broadcast Normalize (R128)' %}</h1>
+    <p class="help">{% trans 'Normalizes loudness using a broadcast-safe EBU R128 pipeline (2-pass loudnorm when applicable). Video is copied, only audio is re-encoded.' %}</p>
+
+    <form id="audioNormalizeForm">
+    {% csrf_token %}
+
+    <div class="section">
+        <div class="section-title">{% trans 'Input / Output' %}</div>
+        <input type="hidden" id="jobId" value="">
+        <input type="hidden" id="existingInputPath" value="">
+        <input type="hidden" id="initialJobId" value="{{ initial_job_id|default_if_none:'' }}">
+        <div class="row">
+            {% if media_files_enabled %}
+            <div class="field" style="min-width: 240px;">
+                <label for="mediaNumber">{% trans 'Media number' %}</label>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input id="mediaNumber" type="text" inputmode="numeric" placeholder="17150" style="width: 130px; flex: 0 0 130px;">
+                    <button type="button" class="button" onclick="searchMediaByNumber()">{% trans 'Suche' %}</button>
+                </div>
+                <div class="hint">{% trans 'Find an existing video file by number (from Media Files).' %}</div>
+                <div id="mediaSearchResults" style="margin-top:10px; display:none;"></div>
+            </div>
+            {% endif %}
+            <div class="field" style="min-width: 360px; flex: 1;">
+                <label for="inputFile">{% trans 'Source file' %}</label>
+                <input id="inputFile" type="file" accept="video/*,audio/*">
+                <div class="hint">{% trans 'Select a local file to upload for processing.' %}</div>
+                <div id="existingInputNote" class="hint" style="display:none;"></div>
+            </div>
+            <div class="field" style="min-width: 280px;">
+                <label for="outputFilename">{% trans 'Output filename' %}</label>
+                <input id="outputFilename" type="text" placeholder="{% trans 'Leave empty for *_R128.mp4' %}">
+                <div class="hint">{% trans 'If empty, output will default to <input>_R128.mp4' %}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">{% trans 'Preset' %}</div>
+        <div class="row">
+            <div class="field" style="min-width: 360px; flex: 1;">
+                <label for="presetId">{% trans 'Processing profile' %}</label>
+                <select id="presetId">
+                    {% for p in audio_presets %}
+                        <option value="{{ p.id }}" {% if p.id == 'tv_natural' %}selected{% endif %}>{{ p.title }}</option>
+                    {% endfor %}
+                </select>
+                <div class="hint">{% trans 'Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic loudnorm.' %}</div>
+            </div>
+            <div class="field" style="min-width: 160px;">
+                <label for="audioBitrate">{% trans 'Bitrate' %}</label>
+                <select id="audioBitrate">
+                    <option value="192k" selected>192k</option>
+                    <option value="256k">256k</option>
+                </select>
+            </div>
+            <div class="field" style="min-width: 320px;">
+                <label style="margin-bottom: 10px;">{% trans 'Channels' %}</label>
+                <label style="display:flex; align-items:center; gap:10px; font-weight: 600;">
+                    <input id="forceStereo" type="checkbox" style="width:18px; height:18px; margin:0;">
+                    {% trans 'Force stereo (2 channels)' %}
+                </label>
+                <div class="hint">{% trans 'Default keeps original channels.' %}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">{% trans 'Run' %}</div>
+        <div class="actions">
+            <button type="button" class="button" onclick="resetJob()">{% trans 'New job' %}</button>
+            <button type="button" class="button default" onclick="runAnalyze()">{% trans 'Analyze (no output)' %}</button>
+            <button type="button" class="button default" onclick="runNormalize()">{% trans 'Generate (job)' %}</button>
+            <span class="status-pill" id="statusPill">{% trans 'Status' %}: <span id="statusText" style="margin-left:6px;">-</span></span>
+            <span class="muted">{% trans 'Progress' %}: <span id="progressText">0%</span></span>
+        </div>
+        <div id="errorBox" class="help" style="display:none; margin-top: 12px; color:#b91c1c;"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">{% trans 'Report' %}</div>
+        <div class="report-grid">
+            <div class="report-card">
+                <div style="font-weight:700; margin-bottom: 8px;">{% trans 'Input' %}</div>
+                <div class="mono" id="inputInfo">-</div>
+            </div>
+            <div class="report-card">
+                <div style="font-weight:700; margin-bottom: 8px;">{% trans 'Measured (before)' %}</div>
+                <div class="mono" id="beforeInfo">-</div>
+            </div>
+            <div class="report-card">
+                <div style="font-weight:700; margin-bottom: 8px;">{% trans 'Measured (after)' %}</div>
+                <div class="mono" id="afterInfo">-</div>
+            </div>
+            <div class="report-card">
+                <div style="font-weight:700; margin-bottom: 8px;">{% trans 'Result' %}</div>
+                <div class="mono" id="resultInfo">-</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 14px;" class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-label">{% trans 'Integrated LUFS' %}</div>
+                <div class="metric-value" id="metricIntegrated">-</div>
+                <div class="metric-delta" id="metricIntegratedDelta">-</div>
+                <div class="meter-wrap" style="margin-top: 10px;">
+                    <div class="meter">
+                        <div class="meter-fill" id="meterIntegrated"></div>
+                        <div class="meter-target" id="meterIntegratedTarget"></div>
+                    </div>
+                    <div class="meter-scale">
+                        <span>-60</span>
+                        <span>-23</span>
+                        <span>-9</span>
+                        <span>0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">{% trans 'True Peak' %}</div>
+                <div class="metric-value" id="metricTruePeak">-</div>
+                <div class="metric-delta" id="metricTruePeakDelta">-</div>
+                <div class="meter-wrap" style="margin-top: 10px;">
+                    <div class="meter">
+                        <div class="meter-fill" id="meterTruePeak"></div>
+                        <div class="meter-target" id="meterTruePeakTarget"></div>
+                    </div>
+                    <div class="meter-scale">
+                        <span>-12</span>
+                        <span>-6</span>
+                        <span>-3</span>
+                        <span>0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">{% trans 'LRA' %}</div>
+                <div class="metric-value" id="metricLra">-</div>
+                <div class="metric-delta" id="metricLraDelta">-</div>
+                <div class="meter-wrap" style="margin-top: 10px;">
+                    <div class="meter">
+                        <div class="meter-fill" id="meterLra"></div>
+                        <div class="meter-target" id="meterLraTarget"></div>
+                    </div>
+                    <div class="meter-scale">
+                        <span>0</span>
+                        <span>11</span>
+                        <span>20</span>
+                        <span>30</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'Metric' %}</th>
+                        <th>{% trans 'Before' %}</th>
+                        <th>{% trans 'After' %}</th>
+                        <th>{% trans 'Target' %}</th>
+                        <th>{% trans 'Status' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{% trans 'Integrated LUFS' %}</td>
+                        <td id="rowIntegratedBefore">-</td>
+                        <td id="rowIntegratedAfter">-</td>
+                        <td id="rowIntegratedTarget">-23</td>
+                        <td id="rowIntegratedStatus"><span class="status-badge warn">-</span></td>
+                    </tr>
+                    <tr>
+                        <td>{% trans 'True Peak' %}</td>
+                        <td id="rowTruePeakBefore">-</td>
+                        <td id="rowTruePeakAfter">-</td>
+                        <td id="rowTruePeakTarget">-1.0</td>
+                        <td id="rowTruePeakStatus"><span class="status-badge warn">-</span></td>
+                    </tr>
+                    <tr>
+                        <td>{% trans 'LRA' %}</td>
+                        <td id="rowLraBefore">-</td>
+                        <td id="rowLraAfter">-</td>
+                        <td id="rowLraTarget">&le; 11</td>
+                        <td id="rowLraStatus"><span class="status-badge warn">-</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <div class="section-title" style="margin-bottom: 8px;">{% trans 'Waveform (before / after)' %}</div>
+            <div class="row">
+                <div style="flex: 1; min-width: 260px;">
+                    <div class="muted" style="margin-bottom: 6px;">{% trans 'Before' %}</div>
+                    <canvas id="beforeWaveform" class="waveform"></canvas>
+                </div>
+                <div style="flex: 1; min-width: 260px;">
+                    <div class="muted" style="margin-bottom: 6px;">{% trans 'After' %}</div>
+                    <canvas id="afterWaveform" class="waveform"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <div class="section-title" style="margin-bottom: 8px;">{% trans 'Preview' %}</div>
+            <div style="display:flex; align-items:center; gap:12px; margin: 0 0 10px 0;">
+                <label style="display:flex; align-items:center; gap:8px; font-weight: 600; color:#111827;">
+                    <input id="syncPlayback" type="checkbox" style="width:16px; height:16px; margin:0;">
+                    {% trans 'Sync playback' %}
+                </label>
+                <span class="hint" style="margin:0;">{% trans 'When enabled, seeking and play/pause are mirrored to the other preview.' %}</span>
+            </div>
+            <div class="audio-preview">
+                <div>
+                    <div class="muted" style="margin-bottom: 6px;">{% trans 'Original' %}</div>
+                    <video id="beforePlayer" controls preload="metadata" style="width: 100%; max-height: 180px; background: #000;"></video>
+                </div>
+                <div>
+                    <div class="muted" style="margin-bottom: 6px;">{% trans 'Processed' %}</div>
+                    <video id="afterPlayer" controls preload="metadata" style="width: 100%; max-height: 180px; background: #000;"></video>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+            <div style="font-weight:700; margin-bottom: 8px;">{% trans 'FFmpeg log (tail)' %}</div>
+            <pre class="mono" id="ffmpegLog" style="max-height: 240px; overflow:auto; background:#111827; color:#e5e7eb; padding: 12px; border-radius: 10px; border: 1px solid #1f2937;">-</pre>
+        </div>
+    </div>
+</form>
+</div>
+
+<script>
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+const okLabel = '{% trans "OK" %}';
+const initialJobId = (() => {
+    const v = (document.getElementById('initialJobId')?.value || '').trim();
+    if (!v) return null;
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : null;
+})();
+const statusLabels = {
+    pending: '{% trans "Pending" %}',
+    analyzing: '{% trans "Analyzing" %}',
+    processing: '{% trans "Processing" %}',
+    completed: '{% trans "Completed" %}',
+    failed: '{% trans "Failed" %}',
+};
+
+let pollTimer = null;
+let beforeObjectUrl = null;
+let beforeWaveformLoaded = false;
+let afterWaveformLoaded = false;
+let syncGuard = false;
+
+function syncEnabled() {
+    const el = document.getElementById('syncPlayback');
+    return !!(el && el.checked);
+}
+
+function mirrorSeek(fromEl, toEl) {
+    if (!syncEnabled() || syncGuard) return;
+    if (!fromEl || !toEl) return;
+    const t = fromEl.currentTime || 0;
+    syncGuard = true;
+    const apply = () => {
+        try { toEl.currentTime = t; } catch (e) {}
+        syncGuard = false;
+    };
+    if (toEl.readyState >= 1) apply();
+    else toEl.addEventListener('loadedmetadata', apply, { once: true });
+}
+
+function mirrorPlayPause(fromEl, toEl, action) {
+    if (!syncEnabled() || syncGuard) return;
+    if (!fromEl || !toEl) return;
+    syncGuard = true;
+    // Align time once on play/pause so A/B stays comparable.
+    try { toEl.currentTime = fromEl.currentTime || 0; } catch (e) {}
+    try {
+        if (action === 'play') {
+            const p = toEl.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+        } else {
+            toEl.pause();
+        }
+    } finally {
+        // Release guard on next tick (avoid feedback loops).
+        setTimeout(() => { syncGuard = false; }, 0);
+    }
+}
+
+function resetJob() {
+    document.getElementById('jobId').value = '';
+    document.getElementById('existingInputPath').value = '';
+    const note = document.getElementById('existingInputNote');
+    if (note) {
+        note.style.display = 'none';
+        note.textContent = '';
+    }
+    const results = document.getElementById('mediaSearchResults');
+    if (results) {
+        results.style.display = 'none';
+        results.innerHTML = '';
+    }
+    const mediaNum = document.getElementById('mediaNumber');
+    if (mediaNum) {
+        mediaNum.value = '';
+    }
+    const fileInput = document.getElementById('inputFile');
+    if (fileInput) {
+        fileInput.value = '';
+        fileInput.disabled = false;
+    }
+    setStatus('-', 0);
+    setError('');
+    document.getElementById('inputInfo').textContent = '-';
+    document.getElementById('beforeInfo').textContent = '-';
+    document.getElementById('afterInfo').textContent = '-';
+    document.getElementById('resultInfo').textContent = '-';
+    document.getElementById('ffmpegLog').textContent = '-';
+    document.getElementById('metricIntegrated').textContent = '-';
+    document.getElementById('metricTruePeak').textContent = '-';
+    document.getElementById('metricLra').textContent = '-';
+    document.getElementById('metricIntegratedDelta').textContent = '-';
+    document.getElementById('metricTruePeakDelta').textContent = '-';
+    document.getElementById('metricLraDelta').textContent = '-';
+    document.getElementById('rowIntegratedBefore').textContent = '-';
+    document.getElementById('rowIntegratedAfter').textContent = '-';
+    document.getElementById('rowTruePeakBefore').textContent = '-';
+    document.getElementById('rowTruePeakAfter').textContent = '-';
+    document.getElementById('rowLraBefore').textContent = '-';
+    document.getElementById('rowLraAfter').textContent = '-';
+    document.getElementById('rowIntegratedStatus').innerHTML = '<span class="status-badge warn">-</span>';
+    document.getElementById('rowTruePeakStatus').innerHTML = '<span class="status-badge warn">-</span>';
+    document.getElementById('rowLraStatus').innerHTML = '<span class="status-badge warn">-</span>';
+    setMeter('meterIntegrated', 'meterIntegratedTarget', null, -23, -60, 0);
+    setMeter('meterTruePeak', 'meterTruePeakTarget', null, -1, -12, 0);
+    setMeter('meterLra', 'meterLraTarget', null, 11, 0, 30);
+    clearWaveform('beforeWaveform');
+    clearWaveform('afterWaveform');
+    document.getElementById('beforePlayer').removeAttribute('src');
+    document.getElementById('afterPlayer').removeAttribute('src');
+    if (beforeObjectUrl) {
+        URL.revokeObjectURL(beforeObjectUrl);
+        beforeObjectUrl = null;
+    }
+    beforeWaveformLoaded = false;
+    afterWaveformLoaded = false;
+}
+
+function setError(msg) {
+    const box = document.getElementById('errorBox');
+    if (msg) {
+        box.style.display = 'block';
+        box.textContent = msg;
+    } else {
+        box.style.display = 'none';
+        box.textContent = '';
+    }
+}
+
+function setStatus(status, progress) {
+    const raw = (status || '-');
+    const label = statusLabels[raw] || raw;
+    document.getElementById('statusText').textContent = label;
+    document.getElementById('progressText').textContent = `${progress}%`;
+
+    const pill = document.getElementById('statusPill');
+    pill.classList.remove('success', 'warn', 'danger', 'info');
+    if (raw === 'completed') pill.classList.add('success');
+    else if (raw === 'failed') pill.classList.add('danger');
+    else if (raw === 'analyzing' || raw === 'processing') pill.classList.add('info');
+    else if (raw === 'pending') pill.classList.add('warn');
+}
+
+function getJobId() {
+    return document.getElementById('jobId').value;
+}
+
+function setJobId(id) {
+    document.getElementById('jobId').value = String(id);
+}
+
+async function createJobIfNeeded() {
+    const currentId = getJobId();
+    if (currentId) return parseInt(currentId, 10);
+
+    const fileInput = document.getElementById('inputFile');
+    const existingInputPath = (document.getElementById('existingInputPath').value || '').trim();
+    if ((!fileInput.files || fileInput.files.length === 0) && !existingInputPath) {
+        throw new Error('{% trans "Please select an input file first." %}');
+    }
+
+    const presetId = document.getElementById('presetId').value;
+    const audioBitrate = document.getElementById('audioBitrate').value;
+    const sampleRate = '48000';
+    const forceStereo = document.getElementById('forceStereo').checked;
+    const outputFilename = document.getElementById('outputFilename').value || '';
+
+    const formData = new FormData();
+    if (existingInputPath) {
+        formData.append('input_path', existingInputPath);
+    } else {
+        formData.append('file', fileInput.files[0]);
+    }
+    formData.append('preset_id', presetId);
+    formData.append('target', 'tv');
+    formData.append('audio_bitrate', audioBitrate);
+    formData.append('sample_rate', sampleRate);
+    formData.append('force_stereo', forceStereo ? 'true' : 'false');
+    formData.append('output_filename', outputFilename);
+
+    const resp = await fetch('/tools/api/audio-normalize/create/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+        body: formData
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || data.status !== 'success') {
+        throw new Error(data.error || '{% trans "Failed to create job." %}');
+    }
+
+    setJobId(data.job_id);
+    if (existingInputPath) {
+        document.getElementById('beforePlayer').src = toSeekableMediaUrl(existingInputPath);
+    } else {
+        ensureBeforePreview(fileInput.files[0]);
+    }
+    return data.job_id;
+}
+
+async function searchMediaByNumber() {
+    const el = document.getElementById('mediaNumber');
+    if (!el) return;
+    const num = (el.value || '').trim();
+    const wrap = document.getElementById('mediaSearchResults');
+    if (!wrap) return;
+    wrap.style.display = 'block';
+    wrap.innerHTML = '<div class="hint">{% trans "Searching..." %}</div>';
+    if (!num) {
+        wrap.innerHTML = '<div class="hint">{% trans "Enter a number to search." %}</div>';
+        return;
+    }
+    const resp = await fetch(`/tools/api/audio-normalize/media-files/?number=${encodeURIComponent(num)}`);
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+        wrap.innerHTML = `<div class="hint" style="color:#b91c1c;">${(data.error || '{% trans "Search failed." %}')}</div>`;
+        return;
+    }
+    const results = data.results || [];
+    if (!results.length) {
+        wrap.innerHTML = '<div class="hint">{% trans "No matching files found under MEDIA_ROOT." %}</div>';
+        return;
+    }
+    wrap.innerHTML = results.map((r) => {
+        const title = `${r.number} — ${r.filename}`;
+        const loc = r.storage_location ? ` (${r.storage_location})` : '';
+        const badge = r.is_primary ? ' <span class="status-badge">PRIMARY</span>' : '';
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; margin-top:8px;">
+                <div style="min-width: 0;">
+                    <div style="font-weight:700; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${title}${badge}</div>
+                    <div class="hint" style="margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">/media/${r.relpath}${loc}</div>
+                </div>
+                <button type="button" class="button default" onclick="useExistingInput('${r.relpath}')">{% trans 'Use' %}</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function useExistingInput(relpath) {
+    document.getElementById('existingInputPath').value = relpath;
+    const note = document.getElementById('existingInputNote');
+    if (note) {
+        note.style.display = 'block';
+        note.textContent = `{% trans "Using existing file" %}: /media/${relpath}`;
+    }
+    const fileInput = document.getElementById('inputFile');
+    fileInput.value = '';
+    fileInput.disabled = true;
+    document.getElementById('beforePlayer').src = toSeekableMediaUrl(relpath);
+}
+
+async function runAnalyze() {
+    setError('');
+    const jobId = await createJobIfNeeded();
+
+    const resp = await fetch(`/tools/api/audio-normalize/${jobId}/analyze/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || data.status !== 'success') {
+        throw new Error(data.error || '{% trans "Failed to start analysis." %}');
+    }
+    startPolling(jobId);
+}
+
+async function runNormalize() {
+    setError('');
+    const jobId = await createJobIfNeeded();
+
+    const resp = await fetch(`/tools/api/audio-normalize/${jobId}/start/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || data.status !== 'success') {
+        throw new Error(data.error || '{% trans "Failed to start normalization." %}');
+    }
+    startPolling(jobId);
+}
+
+function startPolling(jobId) {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(() => refreshStatus(jobId), 2000);
+    refreshStatus(jobId);
+}
+
+function formatInputMeta(meta) {
+    if (!meta) return '-';
+    const streams = meta.streams || [];
+    const a = streams.find(s => s.codec_type === 'audio') || {};
+    const v = streams.find(s => s.codec_type === 'video') || {};
+    const parts = [];
+    if (v.codec_name) parts.push(`video: ${v.codec_name}`);
+    if (a.codec_name) parts.push(`audio: ${a.codec_name}`);
+    if (a.sample_rate) parts.push(`sr: ${a.sample_rate}`);
+    if (a.channels) parts.push(`ch: ${a.channels}`);
+    return parts.join(' | ') || '-';
+}
+
+function formatLoudnorm(obj) {
+    if (!obj) return '-';
+    const pick = (k) => (obj[k] !== undefined && obj[k] !== null) ? obj[k] : '';
+    const items = [
+        `I: ${pick('input_i') || pick('measured_I')}`,
+        `LRA: ${pick('input_lra') || pick('measured_LRA')}`,
+        `TP: ${pick('input_tp') || pick('measured_TP')}`,
+        `thresh: ${pick('input_thresh') || pick('measured_thresh')}`,
+        `offset: ${pick('target_offset') || pick('offset')}`,
+    ].filter(s => !s.endsWith(': '));
+    return items.join(' | ') || '-';
+}
+
+function parseLoudnormValue(obj, keys) {
+    if (!obj) return null;
+    for (const k of keys) {
+        if (obj[k] !== undefined && obj[k] !== null && obj[k] !== '') {
+            const v = parseFloat(obj[k]);
+            if (!Number.isNaN(v)) return v;
+        }
+    }
+    return null;
+}
+
+function setMeter(fillId, targetId, value, target, min, max) {
+    const fill = document.getElementById(fillId);
+    const targetEl = document.getElementById(targetId);
+    const clamped = value === null ? null : Math.min(max, Math.max(min, value));
+    const percent = clamped === null ? 0 : ((clamped - min) / (max - min)) * 100;
+    const targetPercent = ((target - min) / (max - min)) * 100;
+    fill.style.width = `${percent}%`;
+    targetEl.style.left = `${targetPercent}%`;
+}
+
+function updateMetricCards(before, after) {
+    const bI = parseLoudnormValue(before, ['input_i', 'measured_I']);
+    const bTP = parseLoudnormValue(before, ['input_tp', 'measured_TP']);
+    const bLRA = parseLoudnormValue(before, ['input_lra', 'measured_LRA']);
+    const aI = parseLoudnormValue(after, ['input_i', 'measured_I']);
+    const aTP = parseLoudnormValue(after, ['input_tp', 'measured_TP']);
+    const aLRA = parseLoudnormValue(after, ['input_lra', 'measured_LRA']);
+
+    const fmt = (v, suffix) => (v === null ? '-' : `${v.toFixed(1)}${suffix}`);
+    const delta = (a, b, suffix) => (a === null || b === null) ? '-' : `${(a - b).toFixed(1)}${suffix}`;
+
+    document.getElementById('metricIntegrated').textContent = fmt(aI ?? bI, ' LUFS');
+    document.getElementById('metricTruePeak').textContent = fmt(aTP ?? bTP, ' dB');
+    document.getElementById('metricLra').textContent = fmt(aLRA ?? bLRA, ' LU');
+
+    document.getElementById('metricIntegratedDelta').textContent = delta(aI, bI, ' LU');
+    document.getElementById('metricTruePeakDelta').textContent = delta(aTP, bTP, ' dB');
+    document.getElementById('metricLraDelta').textContent = delta(aLRA, bLRA, ' LU');
+
+    setMeter('meterIntegrated', 'meterIntegratedTarget', aI ?? bI, -23, -60, 0);
+    setMeter('meterTruePeak', 'meterTruePeakTarget', aTP ?? bTP, -1, -12, 0);
+    setMeter('meterLra', 'meterLraTarget', aLRA ?? bLRA, 11, 0, 30);
+
+    document.getElementById('rowIntegratedBefore').textContent = fmt(bI, ' LUFS');
+    document.getElementById('rowIntegratedAfter').textContent = fmt(aI, ' LUFS');
+    document.getElementById('rowTruePeakBefore').textContent = fmt(bTP, ' dB');
+    document.getElementById('rowTruePeakAfter').textContent = fmt(aTP, ' dB');
+    document.getElementById('rowLraBefore').textContent = fmt(bLRA, ' LU');
+    document.getElementById('rowLraAfter').textContent = fmt(aLRA, ' LU');
+
+    document.getElementById('rowIntegratedStatus').innerHTML = statusBadge(aI, -23, 1.0, 'LUFS');
+    document.getElementById('rowTruePeakStatus').innerHTML = statusBadge(aTP, -1.0, 0.5, 'dB');
+    document.getElementById('rowLraStatus').innerHTML = statusBadge(aLRA, 11.0, 1.0, 'LU', true);
+}
+
+function statusBadge(value, target, tol, unit, isMax = false) {
+    if (value === null || value === undefined) {
+        return '<span class="status-badge warn">-</span>';
+    }
+    const ok = isMax ? value <= target : Math.abs(value - target) <= tol;
+    return ok
+        ? `<span class="status-badge">${okLabel}</span>`
+        : `<span class="status-badge warn">${unit}</span>`;
+}
+
+function drawWaveformPlaceholder(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    resizeCanvas(canvas);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height / 2);
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px ui-sans-serif';
+    ctx.fillText('{% trans "Waveform preview will appear here" %}', 12, 20);
+}
+
+function clearWaveform(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawWaveformPlaceholder(canvasId);
+}
+
+function resizeCanvas(canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(rect.width * ratio);
+    canvas.height = Math.floor(rect.height * ratio);
+}
+
+function drawWaveformFromPeaks(canvasId, peaks) {
+    if (!peaks || !peaks.length) {
+        clearWaveform(canvasId);
+        return;
+    }
+    // Auto-gain for visualization: normalize to max peak and apply gentle gamma
+    // so quiet material is still visible.
+    let maxPeak = 0.0;
+    for (let i = 0; i < peaks.length; i++) {
+        if (peaks[i] > maxPeak) maxPeak = peaks[i];
+    }
+    if (maxPeak <= 0) {
+        clearWaveform(canvasId);
+        return;
+    }
+
+    const canvas = document.getElementById(canvasId);
+    resizeCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const amp = canvas.height / 2;
+    const w = canvas.width;
+    const n = peaks.length;
+
+    // Midline
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = Math.max(1, (window.devicePixelRatio || 1) * 0.5);
+    ctx.beginPath();
+    ctx.moveTo(0, amp);
+    ctx.lineTo(w, amp);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = Math.max(1, window.devicePixelRatio || 1);
+    ctx.beginPath();
+    for (let i = 0; i < w; i++) {
+        // Map full peaks array across the full canvas width (works on HiDPI too).
+        const p0 = Math.floor((i / w) * n);
+        const p1 = Math.floor(((i + 1) / w) * n);
+        const start = Math.min(Math.max(p0, 0), n - 1);
+        const end = Math.min(Math.max(p1, start + 1), n);
+        let peak = 0.0;
+        for (let j = start; j < end; j++) {
+            const v = peaks[j];
+            if (v > peak) peak = v;
+        }
+        const norm = Math.min(1.0, Math.max(0.0, peak / maxPeak));
+        const vis = Math.pow(norm, 0.6); // gamma
+        const y = vis * amp * 0.95;
+        ctx.moveTo(i, amp - y);
+        ctx.lineTo(i, amp + y);
+    }
+    ctx.stroke();
+}
+
+function ensureBeforePreview(file) {
+    if (!file) return;
+    if (beforeObjectUrl) {
+        URL.revokeObjectURL(beforeObjectUrl);
+    }
+    beforeObjectUrl = URL.createObjectURL(file);
+    const player = document.getElementById('beforePlayer');
+    player.src = beforeObjectUrl;
+
+}
+
+function toSeekableMediaUrl(urlOrPath) {
+    if (!urlOrPath) return '';
+    let s = String(urlOrPath);
+    if (s.startsWith('/tools/media/')) return s;
+    if (s.startsWith('/media/')) s = s.slice('/media/'.length);
+    s = s.replace(/^\/+/, '');
+    return `/tools/media/${encodeURI(s)}/`;
+}
+
+async function loadWaveform(jobId, kind) {
+    const resp = await fetch(`/tools/api/audio-normalize/${jobId}/waveform/?kind=${kind}`);
+    if (!resp.ok) {
+        throw new Error('{% trans "Failed to fetch waveform." %}');
+    }
+    return resp.json();
+}
+
+async function ensureAfterPreview(url) {
+    if (!url) return;
+    const player = document.getElementById('afterPlayer');
+    player.src = toSeekableMediaUrl(url);
+}
+
+async function refreshStatus(jobId) {
+    const resp = await fetch(`/tools/api/audio-normalize/${jobId}/status/`);
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+        setError(data.error || '{% trans "Failed to fetch status." %}');
+        return;
+    }
+
+    setStatus(data.status || '-', data.progress || 0);
+    if (data.error_message) setError(data.error_message);
+
+    document.getElementById('inputInfo').textContent = formatInputMeta(data.input_metadata);
+    document.getElementById('beforeInfo').textContent = formatLoudnorm(data.analysis_before);
+    document.getElementById('afterInfo').textContent = formatLoudnorm(data.analysis_after);
+    updateMetricCards(data.analysis_before, data.analysis_after);
+
+    const resultParts = [];
+    if (data.output_file) resultParts.push(`{% trans "Output" %}: ${data.output_file}`);
+    if (data.recommendations && data.recommendations.length) {
+        const r = data.recommendations.map(x => `${x.preset_id}: ${x.reason}`).join(' / ');
+        resultParts.push(`{% trans "Recommendations" %}: ${r}`);
+    }
+    document.getElementById('resultInfo').textContent = resultParts.join('\n') || '-';
+
+    document.getElementById('ffmpegLog').textContent = data.ffmpeg_log_tail || '-';
+    if (data.input_file_url) {
+        document.getElementById('beforePlayer').src = toSeekableMediaUrl(data.input_file_url);
+    }
+    if (data.output_file) {
+        ensureAfterPreview(data.output_file);
+    }
+
+    if (!beforeWaveformLoaded && data.input_file_url) {
+        try {
+            const wf = await loadWaveform(jobId, 'before');
+            drawWaveformFromPeaks('beforeWaveform', wf.peaks || []);
+            beforeWaveformLoaded = true;
+        } catch (e) {
+            drawWaveformPlaceholder('beforeWaveform');
+        }
+    }
+    if (!afterWaveformLoaded && data.output_file) {
+        try {
+            const wf = await loadWaveform(jobId, 'after');
+            drawWaveformFromPeaks('afterWaveform', wf.peaks || []);
+            afterWaveformLoaded = true;
+        } catch (e) {
+            drawWaveformPlaceholder('afterWaveform');
+        }
+    }
+
+    if (data.status === 'completed' || data.status === 'failed') {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    resetJob();
+    drawWaveformPlaceholder('beforeWaveform');
+    drawWaveformPlaceholder('afterWaveform');
+    document.getElementById('inputFile').addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            document.getElementById('existingInputPath').value = '';
+            const note = document.getElementById('existingInputNote');
+            if (note) {
+                note.style.display = 'none';
+                note.textContent = '';
+            }
+            e.target.disabled = false;
+            ensureBeforePreview(e.target.files[0]);
+        }
+    });
+
+    // Optional A/B sync (seek + play/pause only)
+    const before = document.getElementById('beforePlayer');
+    const after = document.getElementById('afterPlayer');
+    if (before && after) {
+        before.addEventListener('seeking', () => mirrorSeek(before, after));
+        after.addEventListener('seeking', () => mirrorSeek(after, before));
+        before.addEventListener('play', () => mirrorPlayPause(before, after, 'play'));
+        after.addEventListener('play', () => mirrorPlayPause(after, before, 'play'));
+        before.addEventListener('pause', () => mirrorPlayPause(before, after, 'pause'));
+        after.addEventListener('pause', () => mirrorPlayPause(after, before, 'pause'));
+    }
+
+    if (initialJobId) {
+        setJobId(initialJobId);
+        startPolling(initialJobId);
+    }
+});
+</script>
+{% endblock %}
+

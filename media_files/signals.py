@@ -186,6 +186,73 @@ def auto_link_license_to_video(sender, instance, created, **kwargs):
         logger.error(f"Error in auto_link_license_to_video signal: {e}")
 
 
+@receiver(post_save, sender=VideoFile)
+def auto_transcode_hevc_video(sender, instance, created, **kwargs):
+    """
+    Automatically queue HEVC videos for transcoding to H.264 when auto_transcode_hevc is enabled.
+    
+    This runs after VideoFile is saved (created or updated with codec info).
+    Only triggers for HEVC/H.265 videos that don't already have an H.264 version.
+    """
+    try:
+        from media_files.config import get_auto_transcode_hevc
+        
+        # Check if auto-transcode is enabled
+        if not get_auto_transcode_hevc():
+            return
+        
+        # Only process if this video is not browser compatible (HEVC)
+        if instance.is_browser_compatible:
+            return
+        
+        # Skip if this is a transcoded version (filename contains _h264)
+        if instance.filename and '_h264' in instance.filename:
+            return
+        
+        # Skip videos that are not available
+        if not instance.is_available:
+            return
+        
+        # Check if H.264 version already exists for this number
+        h264_exists = VideoFile.objects.filter(
+            number=instance.number,
+            video_codec__in=['h264', 'avc1', 'avc'],
+            is_available=True,
+        ).exclude(id=instance.id).exists()
+        
+        if h264_exists:
+            logger.debug(
+                f"VideoFile {instance.id} (number {instance.number}) has HEVC codec but H.264 version already exists, skipping auto-transcode"
+            )
+            return
+        
+        # Check if transcode is already queued/in progress
+        from media_files.models import FileOperation
+        pending_transcode = FileOperation.objects.filter(
+            video_file__number=instance.number,
+            operation_type='RENDER',
+            status='IN_PROGRESS',
+            details__transcode_type='hevc_to_h264',
+        ).exists()
+        
+        if pending_transcode:
+            logger.debug(f"Transcode already in progress for number {instance.number}")
+            return
+        
+        # Queue transcode task
+        from media_files.tasks import transcode_hevc_to_h264
+        transcode_hevc_to_h264.delay(video_id=instance.id)
+        
+        logger.info(
+            f"Auto-queued HEVC→H.264 transcode for VideoFile {instance.id} "
+            f"(number {instance.number}, codec {instance.video_codec})"
+        )
+        
+    except Exception as e:
+        # Don't fail save if auto-transcode fails to queue
+        logger.error(f"Error in auto_transcode_hevc_video signal: {e}")
+
+
 @receiver(pre_delete, sender=VideoFile)
 def log_video_deletion(sender, instance, **kwargs):
     """

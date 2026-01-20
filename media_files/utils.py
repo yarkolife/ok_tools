@@ -48,8 +48,8 @@ def scan_directory(storage_location, supported_formats=None) -> list:
         List of tuples: (filename, relative_path, absolute_path)
     """
     if supported_formats is None:
-        from django.conf import settings
-        supported_formats = getattr(settings, 'VIDEO_SUPPORTED_FORMATS', ['mp4', 'mov', 'mpeg', 'mpg'])
+        from media_files.config import get_video_supported_formats
+        supported_formats = get_video_supported_formats()
     
     base_path = Path(storage_location.path)
     
@@ -356,6 +356,19 @@ def copy_file_with_progress(source: str, destination: str, verify_checksum=True,
         shutil.copystat(source, destination)
         
         logger.info(f"File copy completed")
+
+        # Always verify by size as a baseline integrity check.
+        # This protects against partial copies (e.g. timeouts, network hiccups) even when checksum
+        # verification is enabled/disabled or run in destination-only mode.
+        dest_size = os.path.getsize(destination)
+        if source_size != dest_size:
+            try:
+                os.remove(destination)
+            except Exception:
+                logger.exception(f"Failed to remove destination after size mismatch: {destination}")
+            error_msg = f"Size mismatch - source: {source_size} bytes, destination: {dest_size} bytes"
+            logger.error(error_msg)
+            return False, error_msg
         
         # Verify checksum
         if verify_checksum and source_checksum and dest_hasher:
@@ -684,9 +697,10 @@ def select_best_source_video(number, recent_days=None):
     from django.conf import settings
     from .models import VideoFile
     
-    # Get recent_days from settings if not provided
+    # Get recent_days from config if not provided
     if recent_days is None:
-        recent_days = getattr(settings, 'VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS', 7)
+        from media_files.config import get_video_source_preference_custom_days
+        recent_days = get_video_source_preference_custom_days()
     
     # Find all available versions (exclude PLAYOUT to avoid copying from playout)
     all_versions = VideoFile.objects.filter(

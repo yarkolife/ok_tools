@@ -6,10 +6,29 @@ This module provides signal handlers to invalidate cache when relevant data chan
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from contributions.models import Contribution
-from licenses.models import License
-from projects.models import Project
 from registration.models import Profile
+
+# Import models only if modules are enabled
+try:
+    from contributions.models import Contribution
+    CONTRIBUTIONS_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    CONTRIBUTIONS_AVAILABLE = False
+    Contribution = None
+
+try:
+    from licenses.models import License
+    LICENSES_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    LICENSES_AVAILABLE = False
+    License = None
+
+try:
+    from projects.models import Project
+    PROJECTS_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    PROJECTS_AVAILABLE = False
+    Project = None
 
 
 def invalidate_dashboard_cache():
@@ -82,40 +101,55 @@ def invalidate_dashboard_cache():
             logger.warning(f"Cache invalidation failed: {e}")
 
 
-@receiver(post_save, sender=License)
+# License cache invalidation signals
 def invalidate_license_cache(sender, instance, **kwargs):
     """Invalidate cache when a license is created or updated."""
     invalidate_dashboard_cache()
 
 
-@receiver(post_delete, sender=License)
 def invalidate_license_cache_on_delete(sender, instance, **kwargs):
     """Invalidate cache when a license is deleted."""
     invalidate_dashboard_cache()
 
 
-@receiver(post_save, sender=Contribution)
+# Register license signals only if available
+if LICENSES_AVAILABLE and License is not None:
+    post_save.connect(invalidate_license_cache, sender=License)
+    post_delete.connect(invalidate_license_cache_on_delete, sender=License)
+
+
+# Contribution cache invalidation signals
 def invalidate_contribution_cache(sender, instance, **kwargs):
     """Invalidate cache when a contribution is created or updated."""
     invalidate_dashboard_cache()
 
 
-@receiver(post_delete, sender=Contribution)
 def invalidate_contribution_cache_on_delete(sender, instance, **kwargs):
     """Invalidate cache when a contribution is deleted."""
     invalidate_dashboard_cache()
 
 
-@receiver(post_save, sender=Project)
+# Register contribution signals only if available
+if CONTRIBUTIONS_AVAILABLE and Contribution is not None:
+    post_save.connect(invalidate_contribution_cache, sender=Contribution)
+    post_delete.connect(invalidate_contribution_cache_on_delete, sender=Contribution)
+
+
+# Project cache invalidation signals
 def invalidate_project_cache(sender, instance, **kwargs):
     """Invalidate cache when a project is created or updated."""
     invalidate_dashboard_cache()
 
 
-@receiver(post_delete, sender=Project)
 def invalidate_project_cache_on_delete(sender, instance, **kwargs):
     """Invalidate cache when a project is deleted."""
     invalidate_dashboard_cache()
+
+
+# Register project signals only if available
+if PROJECTS_AVAILABLE and Project is not None:
+    post_save.connect(invalidate_project_cache, sender=Project)
+    post_delete.connect(invalidate_project_cache_on_delete, sender=Project)
 
 
 @receiver(post_save, sender=Profile)

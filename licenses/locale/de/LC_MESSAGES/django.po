@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-04 21:39+0100\n"
+"POT-Creation-Date: 2026-01-16 22:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -472,11 +472,14 @@ msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
 msgid "Media Authority exchange allowed in Saxony-Anhalt"
-msgstr "Austausch zwischen Offenen Kanälen/Bürgermedien in Sachsen-Anhalt erlaubt"
+msgstr ""
+"Austausch zwischen Offenen Kanälen/Bürgermedien in Sachsen-Anhalt erlaubt"
 
 msgid "Media Authority exchange allowed in other states than Saxony-Anhalt."
 msgstr ""
-"Austausch zwischen Offenen Kanälen/Bürgermedien außerhalb Sachsen-Anhalts erlaubt"
+"Medienanstalt-Austausch auch in anderen Bundesländern als Sachsen-Anhalt "
+"erlaubt.Austausch zwischen Offenen Kanälen/Bürgermedien außerhalb Sachsen-"
+"Anhalts erlaubt"
 
 msgid "Youth protection category"
 msgstr "Jugendschutzkategorie"
@@ -549,6 +552,15 @@ msgstr "Nextcloud-Videodatei"
 
 msgid "Nextcloud Video Files"
 msgstr "Nextcloud-Videodateien"
+
+msgid "Screen Board Duration (seconds)"
+msgstr "Bildschirm-Board-Dauer (Sekunden)"
+
+msgid "Fixed duration for screen board display in seconds"
+msgstr "Feste Dauer für Bildschirm-Board-Anzeige in Sekunden"
+
+msgid "Licenses Configuration"
+msgstr "Freistellungs-Konfiguration"
 
 msgid ""
 "Nextcloud integration is disabled. Set NEXTCLOUD_ENABLED=true to enable."
@@ -661,7 +673,8 @@ msgid ""
 "Media authority identifier. Used as fallback if senderResponsible profile is "
 "not found."
 msgstr ""
-"Kennung des Offenen Kanals/Bürgermediums. Wird als Fallback verwendet, wenn das senderResponsible-Profil nicht gefunden wird."
+"Kennung des Offenen Kanals/Bürgermediums. Wird als Fallback verwendet, wenn "
+"das senderResponsible-Profil nicht gefunden wird."
 
 msgid "Category mapping:"
 msgstr "Kategorie-Zuordnung:"
@@ -1042,3 +1055,141 @@ msgstr "Freistellung %(license)s erfolgreich gelöscht."
 
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr "Tags durch Kommas getrennt eingeben (z.B. tag1, tag2, tag3)"
+
+msgid "Storage Settings"
+msgstr "Speicher-Einstellungen"
+
+msgid "Download Storage Path"
+msgstr "Download-Speicherpfad"
+
+msgid "Local path for downloaded files"
+msgstr "Lokaler Pfad für heruntergeladene Dateien"
+
+msgid "Send status emails"
+msgstr "Status-E-Mails senden"
+
+msgid "Send email notifications about video status (upload, scheduling, broadcast dates)."
+msgstr "E-Mail-Benachrichtigungen zum Videostatus senden (Upload, Planung, Sendetermine)."
+
+msgid "Screen Board Settings"
+msgstr "Bildschirmtafel-Einstellungen"
+
+msgid "Download selected to storage"
+msgstr "Ausgewählte in den Speicher herunterladen"
+
+msgid "Cannot download: file is marked deleted."
+msgstr "Download nicht möglich: Datei ist als gelöscht markiert."
+
+# --- License notification events (models + email templates) ---
+
+msgid "License number"
+msgstr "Freistellungsnummer"
+
+msgid "Event type"
+msgstr "Ereignistyp"
+
+msgid "Payload"
+msgstr "Daten"
+
+msgid "License Notification Event"
+msgstr "Benachrichtigungsereignis zur Freistellung"
+
+msgid "License Notification Events"
+msgstr "Benachrichtigungsereignisse zur Freistellung"
+
+msgid "License number used for matching and deduplication."
+msgstr "Freistellungsnummer zur Zuordnung und Deduplizierung."
+
+msgid "Optional structured data about the event (e.g., schedule time, filenames)."
+msgstr "Optionale strukturierte Daten zum Ereignis (z.B. Sendezeit, Dateinamen)."
+
+msgid "Video uploaded"
+msgstr "Video hochgeladen"
+
+msgid "Draft scheduled"
+msgstr "Entwurf geplant"
+
+msgid "Planned scheduled"
+msgstr "Geplant"
+
+msgid "Contributions available"
+msgstr "Sendetermine verfügbar"
+
+msgid "Video uploaded for license #%(license_number)s"
+msgstr "Video hochgeladen für Freistellung #%(license_number)s"
+
+msgid "Draft schedule created for license #%(license_number)s"
+msgstr "Entwurf gespeichert für Freistellung #%(license_number)s"
+
+msgid "Scheduled broadcast for license #%(license_number)s"
+msgstr "Sendetermin geplant für Freistellung #%(license_number)s"
+
+msgid "Broadcast dates available for license #%(license_number)s"
+msgstr "Sendetermine verfügbar für Freistellung #%(license_number)s"
+
+msgid "Hello %(first_name)s,"
+msgstr "Hallo %(first_name)s,"
+
+msgid "We received your video upload for license #%(license_number)s (%(title)s)."
+msgstr "Wir haben Ihren Video-Upload für Freistellung #%(license_number)s (%(title)s) erhalten."
+
+msgid "File: %(filename)s"
+msgstr "Datei: %(filename)s"
+
+msgid "You will receive updates when your video is scheduled."
+msgstr "Sie erhalten Updates, sobald Ihr Video eingeplant wurde."
+
+msgid "View license:"
+msgstr "Freistellung ansehen:"
+
+msgid "Best regards,\nThe %(ok_name)s team"
+msgstr "Mit freundlichen Grüßen,\nIhr Team von %(ok_name)s"
+
+msgid "Contact: %(contact_email)s"
+msgstr "Kontakt: %(contact_email)s"
+
+msgid "Your video for license #%(license_number)s (%(title)s) has been tentatively scheduled."
+msgstr "Ihr Video für Freistellung #%(license_number)s (%(title)s) wurde vorläufig eingeplant."
+
+msgid "Draft schedule: %(plan_date)s at %(start_time)s (%(tz)s)."
+msgstr "Entwurf: %(plan_date)s um %(start_time)s (%(tz)s)."
+
+msgid "This is a draft and may still change."
+msgstr "Dies ist ein Entwurf und kann sich noch ändern."
+
+msgid "Your video for license #%(license_number)s (%(title)s) has been scheduled."
+msgstr "Ihr Video für Freistellung #%(license_number)s (%(title)s) wurde eingeplant."
+
+msgid "Planned broadcast: %(plan_date)s at %(start_time)s (%(tz)s)."
+msgstr "Geplante Ausstrahlung: %(plan_date)s um %(start_time)s (%(tz)s)."
+
+msgid "This schedule is considered final and is very likely to air as planned."
+msgstr "Dieser Plan gilt als final und wird sehr wahrscheinlich wie geplant ausgestrahlt."
+
+msgid "Your license #%(license_number)s (%(title)s) now has broadcast dates."
+msgstr "Ihre Freistellung #%(license_number)s (%(title)s) hat jetzt Sendetermine."
+
+msgid "Premiere: %(premiere_datetime)s"
+msgstr "Premiere: %(premiere_datetime)s"
+
+msgid "Repeats:"
+msgstr "Wiederholungen:"
+
+msgid "View details in Contributions:"
+msgstr "Details in Beiträgen ansehen:"
+
+#, python-format
+msgid "Download queued for \"%(filename)s\"."
+msgstr "Download für \"%(filename)s\" in Warteschlange."
+
+#, python-format
+msgid "Queued download for %(count)d file."
+msgid_plural "Queued download for %(count)d files."
+msgstr[0] "Download für %(count)d Datei in Warteschlange."
+msgstr[1] "Download für %(count)d Dateien in Warteschlange."
+
+#, python-format
+msgid "Skipped %(count)d deleted file."
+msgid_plural "Skipped %(count)d deleted files."
+msgstr[0] "%(count)d gelöschte Datei übersprungen."
+msgstr[1] "%(count)d gelöschte Dateien übersprungen."

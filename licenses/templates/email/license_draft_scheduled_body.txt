@@ -1,0 +1,21 @@
+{% load i18n %}
+{% blocktranslate with first_name=first_name %}Hello {{ first_name }},{% endblocktranslate %}
+
+{% blocktranslate with license_number=license_number title=license_title %}Your video for license #{{ license_number }} ({{ title }}) has been tentatively scheduled.{% endblocktranslate %}
+
+{% if plan_date and start_time %}
+{% blocktranslate with plan_date=plan_date start_time=start_time tz=tz %}Draft schedule: {{ plan_date }} at {{ start_time }} ({{ tz }}).{% endblocktranslate %}
+{% endif %}
+
+{% blocktranslate %}This is a draft and may still change.{% endblocktranslate %}
+
+{% if license_url %}
+{% blocktranslate %}View license:{% endblocktranslate %} {{ license_url }}
+{% endif %}
+
+{% blocktranslate with ok_name=ok_name %}Best regards,
+The {{ ok_name }} team{% endblocktranslate %}
+
+{% if contact_email %}
+{% blocktranslate with contact_email=contact_email %}Contact: {{ contact_email }}{% endblocktranslate %}
+{% endif %}

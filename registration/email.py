@@ -69,11 +69,13 @@ def send_auth_mail(
     else:
         protocol = "http"
 
+    from . import organization_config
+    
     context = {
         "first_name": profile.first_name,
         "email": email,
         "domain": domain,
-        "ok_name": settings.OK_NAME,
+        "ok_name": organization_config.get_organization_name(),
         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
         "user": user,
         "token": token_generator.make_token(user),

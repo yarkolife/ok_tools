@@ -264,8 +264,9 @@ class UpdateLicensesView(generic.edit.UpdateView):
     def form_valid(self, form):
         """Screen Boards always have a fixed duration."""
         if form.instance.is_screen_board:
+            from licenses.config import get_screen_board_duration
             form.instance.duration = datetime.timedelta(
-                seconds=settings.SCREEN_BOARD_DURATION)
+                seconds=get_screen_board_duration())
         
         response = super().form_valid(form)
         

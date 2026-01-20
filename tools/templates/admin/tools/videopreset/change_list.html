@@ -1,0 +1,135 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  <li>
+    <a href="{% url 'admin:tools_videopreset_import_all' %}" class="addlink" onclick="return confirm('{% trans 'Import all JSON presets from video_presets/style directory?' %}');">
+      📥 {% trans 'Import All Presets' %}
+    </a>
+  </li>
+  <li>
+    <a href="#" class="addlink" id="import-single-preset-link" onclick="showImportDialog(); return false;">
+      📥 {% trans 'Import Single Preset' %}
+    </a>
+  </li>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  #import-dialog {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+  }
+  #import-dialog-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 400px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  #import-dialog-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #import-dialog-close:hover {
+    color: #000;
+  }
+  #import-preset-select {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  #import-dialog-buttons {
+    text-align: right;
+    margin-top: 15px;
+  }
+  #import-dialog-buttons button {
+    margin-left: 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .button-primary {
+    background-color: #417690;
+    color: white;
+  }
+  .button-primary:hover {
+    background-color: #205067;
+  }
+  .button-secondary {
+    background-color: #ccc;
+    color: #000;
+  }
+  .button-secondary:hover {
+    background-color: #aaa;
+  }
+</style>
+<script>
+  function showImportDialog() {
+    document.getElementById('import-dialog').style.display = 'block';
+  }
+  
+  function closeImportDialog() {
+    document.getElementById('import-dialog').style.display = 'none';
+  }
+  
+  function importSelectedPreset() {
+    var select = document.getElementById('import-preset-select');
+    var presetName = select.value;
+    if (!presetName) {
+      alert('{% trans "Please select a preset" %}');
+      return;
+    }
+    var baseUrl = '{% url "admin:tools_videopreset_changelist" %}';
+    var url = baseUrl + 'import-single/' + encodeURIComponent(presetName) + '/';
+    window.location.href = url;
+  }
+  
+  // Close dialog when clicking outside
+  window.onclick = function(event) {
+    var dialog = document.getElementById('import-dialog');
+    if (event.target == dialog) {
+      closeImportDialog();
+    }
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+<div id="import-dialog">
+  <div id="import-dialog-content">
+    <span id="import-dialog-close" onclick="closeImportDialog()">&times;</span>
+    <h2>{% trans 'Import Single Preset' %}</h2>
+    <p>{% trans 'Select a preset to import from JSON files:' %}</p>
+    <select id="import-preset-select">
+      <option value="">{% trans '-- Select Preset --' %}</option>
+      {% for preset in available_json_presets %}
+      <option value="{{ preset.id }}">{{ preset.name }}</option>
+      {% endfor %}
+    </select>
+    <div id="import-dialog-buttons">
+      <button class="button-secondary" onclick="closeImportDialog()">{% trans 'Cancel' %}</button>
+      <button class="button-primary" onclick="importSelectedPreset()">{% trans 'Import' %}</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

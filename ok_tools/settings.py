@@ -122,107 +122,18 @@ if not SITE_BASE_URL:
     SITE_BASE_URL = f"{default_scheme}://{fallback_host}"
 
 # =============================================================================
-# Rental: user approval via email
+# Module-specific settings moved to module configs
 # =============================================================================
-RENTAL_USER_REQUEST_REQUIRES_APPROVAL = get_env(
-    'RENTAL_USER_REQUEST_REQUIRES_APPROVAL',
-    default=False,
-    cast=bool,
-)
-
-# =============================================================================
-# Media: optional video rendering features (ffmpeg presets)
-# =============================================================================
-VIDEO_OVERLAY_RENDERING_ENABLED = get_env(
-    'VIDEO_OVERLAY_RENDERING_ENABLED',
-    default=False,
-    cast=bool,
-)
-
-# =============================================================================
-# Media Files: Video Storage and Automation Configuration
-# =============================================================================
-
-# Auto-copy configuration for planning module
-VIDEO_AUTO_COPY_ON_SCHEDULE = get_env(
-    'VIDEO_AUTO_COPY_ON_SCHEDULE',
-    default=False,
-    cast=bool,
-)
-
-VIDEO_AUTO_COPY_TO_ARCHIVE = get_env(
-    'VIDEO_AUTO_COPY_TO_ARCHIVE',
-    default=False,
-    cast=bool,
-)
-
-VIDEO_AUTO_COPY_TO_PLAYOUT = get_env(
-    'VIDEO_AUTO_COPY_TO_PLAYOUT',
-    default=False,
-    cast=bool,
-)
-
-VIDEO_USE_WEEKLY_FOLDERS = get_env(
-    'VIDEO_USE_WEEKLY_FOLDERS',
-    default=True,
-    cast=bool,
-)
-
-# Archive protection
-VIDEO_ARCHIVE_PROTECTED = get_env(
-    'VIDEO_ARCHIVE_PROTECTED',
-    default=True,
-    cast=bool,
-)
-
-# Source selection preferences
-VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS = get_env(
-    'VIDEO_SOURCE_PREFERENCE_CUSTOM_DAYS',
-    default=7,
-    cast=int,
-)
-
-# Default playout storage selection
-VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME = get_env(
-    'VIDEO_DEFAULT_PLAYOUT_STORAGE_NAME',
-    default=None,
-    cast=str,
-)
-
-VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH = get_env(
-    'VIDEO_DEFAULT_PLAYOUT_STORAGE_PATH',
-    default=None,
-    cast=str,
-)
-
-# Auto-delete from CUSTOM storage after successful copy
-VIDEO_AUTO_DELETE_FROM_CUSTOM = get_env(
-    'VIDEO_AUTO_DELETE_FROM_CUSTOM',
-    default=True,
-    cast=bool,
-)
-
-# Checksum verification during copy
-VIDEO_COPY_VERIFY_CHECKSUM = get_env(
-    'VIDEO_COPY_VERIFY_CHECKSUM',
-    default=True,
-    cast=bool,
-)
-
-# Use faster MD5 checksum for ARCHIVE sources (instead of SHA256)
-VIDEO_COPY_USE_MD5_FOR_ARCHIVE = get_env(
-    'VIDEO_COPY_USE_MD5_FOR_ARCHIVE',
-    default=True,
-    cast=bool,
-)
-
-RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS = get_env(
-    'RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS',
-    default=60 * 60 * 24 * 7,  # 7 days
-    cast=int,
-)
-# Optional explicit list of admin recipients. If empty, fall back to all active staff users with email.
-RENTAL_APPROVAL_RECIPIENT_EMAILS = get_env_list('RENTAL_APPROVAL_RECIPIENT_EMAILS', default=[])
+# The following settings are now managed through module configuration models:
+# - Registration: registration.config (RegistrationConfig model)
+# - Rental: rental.config (RentalConfig model)
+# - Media Files: media_files.config (MediaFilesConfig model)
+# - Tools: tools.models (ToolsConfig model)
+# - Austausch: austausch.models (ExchangeConfig model)
+#
+# For backward compatibility, these settings are still available via helper functions
+# that fall back to environment variables if config models are not available.
+# See module config.py files for details.
 
 # Loglevel
 DJANGO_LOG_LEVEL = get_env('DJANGO_LOG_LEVEL', default='INFO')
@@ -233,14 +144,6 @@ INSTALLED_APPS = [
     "django_prometheus",
     "ok_tools",
     "registration",
-    "licenses",
-    "projects",
-    "contributions",
-    "planung",
-    "inventory",
-    "dashboard",
-    "rental",
-    "media_files",
     "django_celery_results",
     "django_celery_beat",
     "rest_framework",
@@ -261,6 +164,70 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
+
+# =============================================================================
+# Module flags
+# =============================================================================
+
+LICENSES_ENABLED = get_env('LICENSES_ENABLED', default=True, cast=bool)
+# Contributions depends on licenses - automatically enabled if licenses is enabled
+CONTRIBUTIONS_ENABLED = LICENSES_ENABLED
+
+RENTAL_ENABLED = get_env('RENTAL_ENABLED', default=False, cast=bool)
+if RENTAL_ENABLED:
+    INVENTORY_ENABLED = True
+else:
+    INVENTORY_ENABLED = get_env('INVENTORY_ENABLED', default=False, cast=bool)
+
+PROJECTS_ENABLED = get_env('PROJECTS_ENABLED', default=False, cast=bool)
+PLANUNG_ENABLED = get_env('PLANUNG_ENABLED', default=False, cast=bool)
+MEDIA_FILES_ENABLED = get_env('MEDIA_FILES_ENABLED', default=False, cast=bool)
+
+# Admin analytics dashboard (requires optional modules below)
+DASHBOARD_ENABLED = get_env('DASHBOARD_ENABLED', default=False, cast=bool)
+
+# Austausch and Tools modules (already optional)
+AUSTAUSCH_ENABLED = get_env('AUSTAUSCH_ENABLED', default=False, cast=bool)
+TOOLS_ENABLED = get_env('TOOLS_ENABLED', default=False, cast=bool)
+
+# Enforce dependencies for licenses-related modules
+if not LICENSES_ENABLED:
+    CONTRIBUTIONS_ENABLED = False
+    PLANUNG_ENABLED = False
+    MEDIA_FILES_ENABLED = False
+    AUSTAUSCH_ENABLED = False
+
+# Apply module flags
+if LICENSES_ENABLED:
+    INSTALLED_APPS.append("licenses")
+    INSTALLED_APPS.append("contributions")  # Contributions depends on licenses
+
+if INVENTORY_ENABLED:
+    INSTALLED_APPS.append("inventory")
+if RENTAL_ENABLED:
+    INSTALLED_APPS.append("rental")
+
+if PROJECTS_ENABLED:
+    INSTALLED_APPS.append("projects")
+if PLANUNG_ENABLED:
+    INSTALLED_APPS.append("planung")
+if MEDIA_FILES_ENABLED:
+    INSTALLED_APPS.append("media_files")
+
+# Admin analytics dashboard - works with any combination of enabled modules
+# Shows statistics only for modules that are enabled
+# Minimum requirement: LICENSES_ENABLED (core module for dashboard)
+if DASHBOARD_ENABLED and not LICENSES_ENABLED:
+    DASHBOARD_ENABLED = False
+
+if DASHBOARD_ENABLED:
+    INSTALLED_APPS.append("dashboard")
+
+if AUSTAUSCH_ENABLED:
+    INSTALLED_APPS.append("austausch")
+
+if TOOLS_ENABLED:
+    INSTALLED_APPS.append("tools")
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
@@ -299,6 +266,7 @@ TEMPLATES = [
                 "ok_tools.context_processors.user_display_name",
                 "ok_tools.context_processors.nextcloud_context",
                 "ok_tools.context_processors.dashboard_theme_context",
+                "ok_tools.context_processors.module_flags",
             ],
         },
     },
@@ -492,9 +460,9 @@ DEFAULT_FROM_EMAIL = get_env('DEFAULT_FROM_EMAIL', default='webmaster@localhost'
 # ORG_* takes precedence over OK_*
 # Use os.getenv directly to check if variable exists (returns None if not set)
 _org_name = os.getenv('ORG_NAME')
-OK_NAME = _org_name if _org_name is not None else get_env('OK_NAME', default=_("Open Channel Merseburg-Querfurt e.V."))
+OK_NAME = _org_name if _org_name is not None else get_env('OK_NAME', default="Open Channel Merseburg-Querfurt e.V.")
 _org_short_name = os.getenv('ORG_SHORT_NAME')
-OK_NAME_SHORT = _org_short_name if _org_short_name is not None else get_env('OK_NAME_SHORT', default=_("OK Merseburg"))
+OK_NAME_SHORT = _org_short_name if _org_short_name is not None else get_env('OK_NAME_SHORT', default="OK Merseburg")
 
 # Organization settings
 # Support both ORG_* and OK_* prefixes for backward compatibility
@@ -517,7 +485,9 @@ STATE_MEDIA_INSTITUTION = get_env('STATE_MEDIA_INSTITUTION', default='MSA')
 _org_owner = os.getenv('ORG_ORGANIZATION_OWNER')
 ORGANIZATION_OWNER = _org_owner if _org_owner is not None else get_env('ORGANIZATION_OWNER', default='OKMQ')
 
-# fixed duration of a screen board (Bildschirmtafel) in seconds
+# Screen board duration - now managed via LicensesConfig model
+# See licenses.config for helper function
+# Kept for backward compatibility
 SCREEN_BOARD_DURATION = get_env('SCREEN_BOARD_DURATION', default=20, cast=int)
 
 # Which site should be seen after log in and log out
@@ -577,17 +547,15 @@ else:
     NEXTCLOUD_UPLOAD_FOLDER = ''
     NEXTCLOUD_WEBDAV_PATH = '/remote.php/dav/files/{username}/'
 
-# Registration form PDF template - read from environment
-REGISTRATION_FORM_PDF = get_env('REGISTRATION_FORM_PDF', default='Nutzerkartei.pdf')
+# Registration form settings - now managed via RegistrationConfig model
+# See registration.config for helper functions
 
-# Registration form type - PDF, HTML, or TEXT
-REGISTRATION_FORM_TYPE = get_env('REGISTRATION_FORM_TYPE', default='PDF')
-
-# Austausch (content exchange) module settings
-AUSTAUSCH_ENABLED = get_env('AUSTAUSCH_ENABLED', default=False, cast=bool)
-
-if AUSTAUSCH_ENABLED:
-    INSTALLED_APPS.append("austausch")
+# Tools-specific settings
+TOOLS_STORAGE_PATH = get_env('TOOLS_STORAGE_PATH', default='tools/storage/')
+TOOLS_OUTPUT_PATH = get_env('TOOLS_OUTPUT_PATH', default='tools/output/')
+TOOLS_MAX_UPLOAD_SIZE = get_env('TOOLS_MAX_UPLOAD_SIZE', default=500, cast=int)  # MB
+TOOLS_FFMPEG_PATH = get_env('TOOLS_FFMPEG_PATH', default='ffmpeg')
+TOOLS_FFPROBE_PATH = get_env('TOOLS_FFPROBE_PATH', default='ffprobe')
 
 # Nextcloud Calendar integration settings (CalDAV)
 NEXTCLOUD_CALENDAR_ENABLED = get_env('NEXTCLOUD_CALENDAR_ENABLED', default=False, cast=bool)
@@ -864,5 +832,20 @@ CELERY_BEAT_SCHEDULE = {
     'sync_exchange_folders': {
         'task': 'austausch.tasks.sync_exchange_folders',
         'schedule': parse_crontab_env('CELERY_BEAT_SYNC_EXCHANGE', '0 2 * * *'),
+    },
+    'cleanup_old_tool_projects': {
+        'task': 'tools.tasks.cleanup_old_projects_task',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_TOOL_PROJECTS', '0 4 * * 0'),
+        'kwargs': {'older_than_days': 30},
+    },
+    'cleanup_old_audio_normalize_jobs': {
+        'task': 'tools.tasks.cleanup_old_audio_normalize_jobs_task',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_AUDIO_NORMALIZE_JOBS', '0 4 * * 0'),
+        'kwargs': {'older_than_days': 30, 'delete_if_missing_files': True},
+    },
+    'cleanup_old_video_render_operations': {
+        'task': 'tools.tasks.cleanup_old_video_render_operations_task',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_VIDEO_RENDER_OPERATIONS', '0 4 * * 0'),
+        'kwargs': {'older_than_days': 30, 'keep_failed': True},
     },
 }

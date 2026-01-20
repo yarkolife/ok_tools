@@ -19,7 +19,8 @@ from rental.models import RentalRequest
 
 @require_GET
 def email_approval_action(request: HttpRequest, rental_id: int, action: str, token: str) -> HttpResponse:
-    max_age = int(getattr(settings, "RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS", 60 * 60 * 24 * 7))
+    from rental.config import get_rental_approval_token_max_age_seconds
+    max_age = get_rental_approval_token_max_age_seconds()
 
     try:
         data = load_approval_token(token, max_age_seconds=max_age)

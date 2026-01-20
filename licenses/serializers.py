@@ -3,8 +3,17 @@ from django.utils import timezone
 from django.conf import settings
 from rest_framework import serializers
 from .models import License
-from contributions.models import Contribution
-from planung.models import TagesPlan
+
+# Optional imports for modules that may be disabled
+try:
+    from contributions.models import Contribution
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    Contribution = None
+
+try:
+    from planung.models import TagesPlan
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    TagesPlan = None
 
 
 class LicenseMetadataSerializer(serializers.Serializer):
@@ -73,44 +82,46 @@ class LicenseMetadataSerializer(serializers.Serializer):
         """
         # First, try to get the actual broadcast date from contributions (priority data)
         # Optimized query with only needed fields
-        first_contribution = Contribution.objects.filter(
-            license=obj
-        ).only('broadcast_date').order_by('broadcast_date').first()
-        
-        if first_contribution:
-            return first_contribution.broadcast_date.isoformat()
+        if Contribution is not None:
+            first_contribution = Contribution.objects.filter(
+                license=obj
+            ).only('broadcast_date').order_by('broadcast_date').first()
+            
+            if first_contribution:
+                return first_contribution.broadcast_date.isoformat()
         
         # If no contribution found, fall back to TagesPlan
         # Use only_fields to reduce data transfer
-        plans = TagesPlan.objects.only('datum', 'json_plan').all()
-        
-        for plan in plans:
-            items = plan.json_plan.get('items', [])
-            for item in items:
-                if item.get('number') == obj.number:
-                    # Found in planning, try to use the plan date + time
-                    plan_date = plan.datum
-                    
-                    # Get start time from item
-                    start_time_str = item.get('start')
-                    # Only use TagesPlan time if we have a valid, non-empty start time
-                    if start_time_str and start_time_str.strip():
-                        try:
-                            # Parse time string like "18:00" or "18:00:00"
-                            time_parts = start_time_str.strip().split(':')
-                            hour = int(time_parts[0])
-                            minute = int(time_parts[1]) if len(time_parts) > 1 else 0
-                            second = int(time_parts[2]) if len(time_parts) > 2 else 0
-                            plan_time = datetime.min.time().replace(hour=hour, minute=minute, second=second)
-                            
-                            # Combine date and time
-                            dt = datetime.combine(plan_date, plan_time)
-                            # Make it timezone-aware
-                            dt = timezone.make_aware(dt)
-                            return dt.isoformat()
-                        except (ValueError, AttributeError, IndexError):
-                            # If parsing fails, continue to next plan
-                            pass
+        if TagesPlan is not None:
+            plans = TagesPlan.objects.only('datum', 'json_plan').all()
+            
+            for plan in plans:
+                items = plan.json_plan.get('items', [])
+                for item in items:
+                    if item.get('number') == obj.number:
+                        # Found in planning, try to use the plan date + time
+                        plan_date = plan.datum
+                        
+                        # Get start time from item
+                        start_time_str = item.get('start')
+                        # Only use TagesPlan time if we have a valid, non-empty start time
+                        if start_time_str and start_time_str.strip():
+                            try:
+                                # Parse time string like "18:00" or "18:00:00"
+                                time_parts = start_time_str.strip().split(':')
+                                hour = int(time_parts[0])
+                                minute = int(time_parts[1]) if len(time_parts) > 1 else 0
+                                second = int(time_parts[2]) if len(time_parts) > 2 else 0
+                                plan_time = datetime.min.time().replace(hour=hour, minute=minute, second=second)
+                                
+                                # Combine date and time
+                                dt = datetime.combine(plan_date, plan_time)
+                                # Make it timezone-aware
+                                dt = timezone.make_aware(dt)
+                                return dt.isoformat()
+                            except (ValueError, AttributeError, IndexError):
+                                # If parsing fails, continue to next plan
+                                pass
         
         # No data found in either Contribution or TagesPlan
         return None

@@ -8,6 +8,7 @@
 {% block content %}
 <div class="row">
     <!-- Stats Cards -->
+    {% if LICENSES_ENABLED %}
     <div class="col-xl-4 col-md-4 mb-4">
         <div class="dashboard-card stats-card">
             <div class="stats-icon primary">
@@ -17,7 +18,9 @@
             <div class="stats-label">{% trans "Your Licenses" %}</div>
         </div>
     </div>
+    {% endif %}
 
+    {% if CONTRIBUTIONS_ENABLED %}
     <div class="col-xl-4 col-md-4 mb-4">
         <div class="dashboard-card stats-card">
             <div class="stats-icon secondary">
@@ -27,7 +30,9 @@
             <div class="stats-label">{% trans "Your Contributions" %}</div>
         </div>
     </div>
+    {% endif %}
 
+    {% if RENTAL_ENABLED %}
     <div class="col-xl-4 col-md-4 mb-4">
         <div class="dashboard-card stats-card">
             <div class="stats-icon info">
@@ -44,6 +49,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 
 
@@ -195,15 +201,21 @@
                 <p class="card-subtitle">{% trans "Your common tasks and shortcuts" %}</p>
             </div>
             <div class="d-grid gap-2">
+                {% if LICENSES_ENABLED %}
                 <a href="{% url 'licenses:create' %}" class="btn btn-primary">
                     <i class="bi bi-plus-circle me-2"></i>{% trans "Create License" %}
                 </a>
+                {% endif %}
+                {% if CONTRIBUTIONS_ENABLED %}
                 <a href="{% url 'contributions:contributions' %}" class="btn btn-outline-primary">
                     <i class="bi bi-hand-thumbs-up me-2"></i>{% trans "Contributions" %}
                 </a>
+                {% endif %}
+                {% if RENTAL_ENABLED %}
                 <a href="{% url 'rental_dashboard' %}" class="btn btn-outline-primary">
                     <i class="bi bi-calendar-plus me-2"></i>{% trans "Rental Dashboard" %}
                 </a>
+                {% endif %}
                 {% if OK_WEBSITE %}
                 <a href="{{ OK_WEBSITE }}" target="_blank" class="btn btn-outline-danger">
                     <i class="bi bi-box-arrow-up-right me-2"></i>{% trans "Organization Website" %}

@@ -7,11 +7,22 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from projects.models import MediaEducationSupervisor
-from projects.models import Project
-from projects.models import ProjectCategory
-from projects.models import ProjectLeader
-from projects.models import TargetGroup
+
+# Import projects models only if module is enabled
+try:
+    from projects.models import MediaEducationSupervisor
+    from projects.models import Project
+    from projects.models import ProjectCategory
+    from projects.models import ProjectLeader
+    from projects.models import TargetGroup
+    PROJECTS_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    PROJECTS_AVAILABLE = False
+    MediaEducationSupervisor = None
+    Project = None
+    ProjectCategory = None
+    ProjectLeader = None
+    TargetGroup = None
 
 
 class ProjectsWidget:
@@ -37,6 +48,14 @@ class ProjectsWidget:
 
     def get_basic_stats(self):
         """Get basic project statistics."""
+        # Return empty stats if projects module is not available
+        if not PROJECTS_AVAILABLE or Project is None:
+            return {
+                'total_projects': 0, 'external_venue_projects': 0,
+                'jugendmedienschutz_projects': 0, 'democracy_projects': 0,
+                'total_participants': 0, 'avg_participants_per_project': 0,
+            }
+        
         # Create cache key based on request parameters
         cache_key = f"projects_basic_stats_{hash(str(self.request.GET))}"
         cached_result = cache.get(cache_key)
@@ -288,6 +307,11 @@ class ProjectsWidget:
 
     def _get_filtered_projects(self):
         """Get projects filtered by request parameters."""
+        if not PROJECTS_AVAILABLE or Project is None:
+            # Return an empty queryset-like object
+            from registration.models import Profile
+            return Profile.objects.none()
+        
         projects = Project.objects.all()
 
         # Date range filter

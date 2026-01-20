@@ -13,17 +13,38 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from inventory.models import Category
-from inventory.models import InventoryItem
-from inventory.models import Location
-from inventory.models import Organization
 from registration.models import MediaAuthority
 from registration.models import Profile
-from rental.models import EquipmentSet
-from rental.models import RentalItem
-from rental.models import RentalRequest
-from rental.models import RentalTransaction
-from rental.models import RoomRental
+
+# Import inventory models only if module is enabled
+try:
+    from inventory.models import Category
+    from inventory.models import InventoryItem
+    from inventory.models import Location
+    from inventory.models import Organization
+    INVENTORY_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    INVENTORY_AVAILABLE = False
+    Category = None
+    InventoryItem = None
+    Location = None
+    Organization = None
+
+# Import rental models only if module is enabled
+try:
+    from rental.models import EquipmentSet
+    from rental.models import RentalItem
+    from rental.models import RentalRequest
+    from rental.models import RentalTransaction
+    from rental.models import RoomRental
+    RENTAL_AVAILABLE = True
+except (ImportError, RuntimeError, ModuleNotFoundError):
+    RENTAL_AVAILABLE = False
+    EquipmentSet = None
+    RentalItem = None
+    RentalRequest = None
+    RentalTransaction = None
+    RoomRental = None
 
 
 class InventoryWidget:
@@ -38,6 +59,14 @@ class InventoryWidget:
 
     def get_basic_stats(self):
         """Get basic inventory and rental statistics"""
+        # Return empty stats if modules are not available
+        if not INVENTORY_AVAILABLE and not RENTAL_AVAILABLE:
+            return {
+                'total_items': 0, 'in_stock_items': 0, 'rented_items': 0, 'reserved_items': 0,
+                'total_rentals': 0, 'active_rentals': 0, 'completed_rentals': 0,
+                'total_equipment_sets': 0, 'utilization_rate': 0, 'completion_rate': 0
+            }
+        
         cache_key = f"basic_stats_{hash(str(self.filters))}"
         if cache_key in self._cache:
             return self._cache[cache_key]
@@ -46,24 +75,26 @@ class InventoryWidget:
         date_filter = self._get_date_filter()
 
         # Basic inventory stats with extended filters
-        inventory_queryset = InventoryItem.objects.filter(available_for_rent=True)
-        inventory_queryset = self._apply_inventory_filters(inventory_queryset)
-
-        total_items = inventory_queryset.count()
-        in_stock_items = inventory_queryset.filter(status='in_stock').count()
-        rented_items = inventory_queryset.filter(rented_quantity__gt=0).count()
-        reserved_items = inventory_queryset.filter(reserved_quantity__gt=0).count()
+        total_items = in_stock_items = rented_items = reserved_items = 0
+        if INVENTORY_AVAILABLE and InventoryItem is not None:
+            inventory_queryset = InventoryItem.objects.filter(available_for_rent=True)
+            inventory_queryset = self._apply_inventory_filters(inventory_queryset)
+            total_items = inventory_queryset.count()
+            in_stock_items = inventory_queryset.filter(status='in_stock').count()
+            rented_items = inventory_queryset.filter(rented_quantity__gt=0).count()
+            reserved_items = inventory_queryset.filter(reserved_quantity__gt=0).count()
 
         # Rental stats with extended filters
-        rental_queryset = RentalRequest.objects.filter(**date_filter)
-        rental_queryset = self._apply_rental_filters(rental_queryset)
-
-        total_rentals = rental_queryset.count()
-        active_rentals = rental_queryset.filter(status__in=['reserved', 'issued']).count()
-        completed_rentals = rental_queryset.filter(status='returned').count()
-
-        # Equipment sets
-        total_equipment_sets = EquipmentSet.objects.filter(is_active=True).count()
+        total_rentals = active_rentals = completed_rentals = total_equipment_sets = 0
+        if RENTAL_AVAILABLE and RentalRequest is not None:
+            rental_queryset = RentalRequest.objects.filter(**date_filter)
+            rental_queryset = self._apply_rental_filters(rental_queryset)
+            total_rentals = rental_queryset.count()
+            active_rentals = rental_queryset.filter(status__in=['reserved', 'issued']).count()
+            completed_rentals = rental_queryset.filter(status='returned').count()
+            # Equipment sets
+            if EquipmentSet is not None:
+                total_equipment_sets = EquipmentSet.objects.filter(is_active=True).count()
 
         stats = {
             'total_items': total_items,
@@ -83,6 +114,9 @@ class InventoryWidget:
 
     def get_inventory_by_category(self):
         """Get inventory statistics by category"""
+        if not INVENTORY_AVAILABLE or Category is None:
+            return []
+        
         cache_key = f"inventory_by_category_{hash(str(self.filters))}"
         if cache_key in self._cache:
             return self._cache[cache_key]

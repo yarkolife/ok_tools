@@ -1,6 +1,47 @@
 CHANGELOG
 =========
 
+2026-01-20 (Version 4.0.0)
+==========================
+
+* **Major Release: Config & Tools Consolidation**
+  * **Module configuration models** for core apps (Registration, Rental, Media Files, Licenses, Tools)
+    * Centralized settings in the database (admin-managed), with environment fallbacks
+    * Migration helper command: `migrate_module_configs`
+  * **New/expanded background tasks** (Celery) for module automation and cleanup
+  * **Email notifications** for license workflow events (templates + tasks)
+  * **Tools module expansion**
+    * Video presets moved/organized under Tools presets infrastructure
+    * Additional admin/editor UIs for presets and jobs
+
+2026-01-15 (Version 3.3.1)
+===========================
+
+* **Tools Module: Media Library**
+  * **Media Library**: Reusable media files across multiple projects
+    * Upload images and videos to shared library
+    * Browse library by media type (images/videos)
+    * Add library media to any project without re-uploading
+    * Staff-only access to library management
+    * Separate API endpoints for library operations
+  * **Bug Fixes**
+    * Fixed black background for padded media (was green)
+
+2026-01-15 (Version 3.3.0)
+===========================
+
+* **New Module: Tools**
+  * **Video Slideshow Generator**: Create video slideshows from images and videos
+    * Drag & drop interface for media upload
+    * Audio background music selection
+    * Configurable transitions (fade, wipe, slide, etc.)
+    * Adjustable duration and quality settings
+    * Preview and download capabilities
+    * Async generation via Celery
+  * Module can be enabled/disabled via `TOOLS_ENABLED` environment variable
+  * Storage paths configurable via `TOOLS_STORAGE_PATH` and `TOOLS_OUTPUT_PATH`
+  * Automatic cleanup of old projects via Celery Beat
+
 2026-01-14 (Version 3.2.12)
 ===========================
 

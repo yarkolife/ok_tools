@@ -319,7 +319,11 @@ class PasswordResetView(auth_views.PasswordResetView):
 
     form_class = PasswordResetForm
 
-    extra_email_context = {'ok_name': settings.OK_NAME}
+    @property
+    def extra_email_context(self):
+        """Get extra email context with organization name."""
+        from . import organization_config
+        return {'ok_name': organization_config.get_organization_name()}
 
     def get_form_class(self):
         """Return PasswordResetForm explicitly."""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-31 01:04+0100\n"
+"POT-Creation-Date: 2026-01-16 22:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -158,8 +158,7 @@ msgid ""
 "Automatically expire room rentals and create corresponding transactions."
 msgstr ""
 "Raumausleihen automatisch ablaufen lassen und entsprechende Vorgänge "
-"erstellen.Raumausleihen automatisch ablaufen lassen und entsprechende "
-"Vorgänge erstellen."
+"erstellen."
 
 msgid "Show what would be done without applying changes"
 msgstr "Zeigt, was gemacht würde, ohne Änderungen zu übernehmen"
@@ -626,6 +625,49 @@ msgstr "Vorlagenartikel"
 msgid "Template Items"
 msgstr "Vorlagenartikel"
 
+msgid "User Request Requires Approval"
+msgstr "Nutzeranfrage erfordert Genehmigung"
+
+msgid "Enable email-based approval workflow for user-created rental requests"
+msgstr "E-Mail-basierter Genehmigungsworkflow für nutzererstellte Ausleihanfragen aktivieren"
+
+msgid "Site Base URL"
+msgstr "Basis-URL der Website"
+
+msgid ""
+"Base URL for approval links in emails (must match your production domain)"
+msgstr ""
+"Basis-URL für Genehmigungslinks in E-Mails (muss Ihrer Produktionsdomäne "
+"entsprechen)"
+
+msgid "Rental Request URL Template"
+msgstr "URL-Vorlage für Ausleihanfrage"
+
+#, python-brace-format
+msgid "User-facing rental request URL template (use {rental_id} placeholder)"
+msgstr ""
+"URL-Vorlage für nutzerorientierte Ausleihanfrage (Platzhalter {rental_id} "
+"verwenden)"
+
+msgid "Approval Recipient Emails"
+msgstr "E-Mail-Adressen für Genehmigungsbenachrichtigungen"
+
+msgid ""
+"Comma-separated list of admin email addresses to notify (optional, if empty "
+"all staff users will be notified)"
+msgstr ""
+"Kommagetrennte Liste von Admin-E-Mail-Adressen zum Benachrichtigen "
+"(optional, wenn leer werden alle Mitarbeiter benachrichtigt)"
+
+msgid "Approval Token Max Age (seconds)"
+msgstr "Maximales Alter des Genehmigungstokens (Sekunden)"
+
+msgid "Token expiration time for approve/deny links in seconds"
+msgstr "Ablaufzeit für Genehmigungs-/Ablehnungslinks in Sekunden"
+
+msgid "Rental Configuration"
+msgstr "Ausleihe-Konfiguration"
+
 msgid "Cannot reserve more than requested."
 msgstr "Es kann nicht mehr reserviert werden als angefordert."
 
@@ -800,6 +842,22 @@ msgstr ""
 "Deine Leihanfrage Nr. %(rental_id)s in %(ok_name)s wurde freigegeben und ist "
 "jetzt reserviert."
 
+#, fuzzy
+#| msgid "Rental request"
+msgid "Open your request:"
+msgstr "Ausleihanfrage"
+
+#, python-format
+msgid "Items (%(items_total)s total):"
+msgstr ""
+
+#, python-format
+msgid "Rooms (%(rooms_total)s total):"
+msgstr ""
+
+msgid "people"
+msgstr "Personen"
+
 msgid "Your rental is confirmed. You can proceed with your project."
 msgstr "Deine Ausleihe ist bestätigt. Du kannst mit deinem Projekt fortfahren."
 
@@ -946,6 +1004,27 @@ msgstr "Ausrüstungssets"
 
 msgid "User Statistics"
 msgstr "Nutzerstatistiken"
+
+#, fuzzy
+#| msgid "Active Rentals"
+msgid "Active requests"
+msgstr "Aktive Ausleihen"
+
+#, fuzzy
+#| msgid "Quantity requested"
+msgid "No active requests"
+msgstr "Angeforderte Menge"
+
+#, fuzzy
+#| msgid "Requested"
+msgid "Request"
+msgstr "Angefordert"
+
+msgid "Period"
+msgstr "Zeitraum"
+
+msgid "Items"
+msgstr "Artikel"
 
 msgid "Available Inventory"
 msgstr "Verfügbares Inventar"
@@ -1244,6 +1323,11 @@ msgstr "Zurück zum Ausleihprozess"
 msgid "Administration"
 msgstr "Verwaltung"
 
+#, fuzzy
+#| msgid "Confirmation Required"
+msgid "Confirm request"
+msgstr "Bestätigung erforderlich"
+
 msgid "Save return"
 msgstr "Rückgabe speichern"
 
@@ -1288,9 +1372,6 @@ msgstr "von"
 
 msgid "rooms"
 msgstr "Räume"
-
-msgid "people"
-msgstr "Personen"
 
 msgid "Booked"
 msgstr "Gebucht"
@@ -1358,9 +1439,6 @@ msgstr "Räume ablaufen lassen"
 msgid "Created"
 msgstr "Erstellt"
 
-msgid "Period"
-msgstr "Zeitraum"
-
 msgid "Items/Rooms"
 msgstr "Artikel/Räume"
 
@@ -1384,9 +1462,6 @@ msgstr "Kategorie"
 
 msgid "Create New Set"
 msgstr "Neues Set erstellen"
-
-msgid "Items"
-msgstr "Artikel"
 
 msgid "Set Details"
 msgstr "Set-Details"
@@ -1472,6 +1547,31 @@ msgstr "um fortzufahren"
 msgid "Confirm"
 msgstr "Bestätigen"
 
+#, fuzzy
+#| msgid "Rental request"
+msgid "Your rental request"
+msgstr "Ausleihanfrage"
+
+#, fuzzy
+#| msgid "Status: Pending approval"
+msgid "Pending approval"
+msgstr "Status: Freigabe ausstehend"
+
+#, fuzzy
+#| msgid "Equipment Items"
+msgid "No equipment items."
+msgstr "Geräteartikel"
+
+#, fuzzy
+#| msgid "people"
+msgid "People"
+msgstr "Personen"
+
+#, fuzzy
+#| msgid "No rooms"
+msgid "No rooms."
+msgstr "Keine Räume"
+
 msgid "You must log in to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zugreifen zu können."
 
@@ -1518,6 +1618,11 @@ msgstr " und {count} weitere"
 
 msgid "Rental ID is required"
 msgstr "Ausleih-ID ist erforderlich"
+
+#, fuzzy
+#| msgid "Only active rentals can be extended"
+msgid "Only draft requests can be confirmed"
+msgstr "Nur aktive Ausleihen können verlängert werden"
 
 msgid "Rental ID and items are required"
 msgstr "Ausleih-ID und Artikel sind erforderlich"

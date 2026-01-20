@@ -1,19 +1,20 @@
 from django.conf import settings
+from . import organization_config
 
 
 def context(request):
     """Make organization settings available in templates."""
     return {
-        'OK_NAME': getattr(settings, 'OK_NAME', ''),
-        'OK_NAME_SHORT': getattr(settings, 'OK_NAME_SHORT', ''),
-        'OK_WEBSITE': getattr(settings, 'OK_WEBSITE', ''),
-        'OK_EMAIL': getattr(settings, 'OK_EMAIL', ''),
-        'OK_ADDRESS': getattr(settings, 'OK_ADDRESS', ''),
-        'OK_PHONE': getattr(settings, 'OK_PHONE', ''),
-        'OK_FAX': getattr(settings, 'OK_FAX', ''),
-        'OK_DESCRIPTION': getattr(settings, 'OK_DESCRIPTION', ''),
-        'OK_OPENING_HOURS': getattr(settings, 'OK_OPENING_HOURS', ''),
-        'STATE_MEDIA_INSTITUTION': getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA'),
-        'ORGANIZATION_OWNER': getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ'),
+        'OK_NAME': organization_config.get_organization_name(),
+        'OK_NAME_SHORT': organization_config.get_organization_short_name(),
+        'OK_WEBSITE': organization_config.get_organization_website(),
+        'OK_EMAIL': organization_config.get_organization_email(),
+        'OK_ADDRESS': organization_config.get_organization_address(),
+        'OK_PHONE': organization_config.get_organization_phone(),
+        'OK_FAX': organization_config.get_organization_fax(),
+        'OK_DESCRIPTION': organization_config.get_organization_description(),
+        'OK_OPENING_HOURS': organization_config.get_organization_opening_hours(),
+        'STATE_MEDIA_INSTITUTION': organization_config.get_state_media_institution(),
+        'ORGANIZATION_OWNER': organization_config.get_organization_owner(),
         'EQUIPMENT_OWNERS': getattr(settings, 'EQUIPMENT_OWNERS', []),  # For backward compatibility
     }

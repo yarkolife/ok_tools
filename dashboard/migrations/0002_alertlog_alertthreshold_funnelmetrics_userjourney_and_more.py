@@ -10,10 +10,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contributions', '0002_initial'),
         ('dashboard', '0001_initial'),
-        ('licenses', '0004_license_infoblock'),
-        ('rental', '0008_past_time_validation'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -90,9 +87,9 @@ class Migration(migrations.Migration):
                 ('stage', models.CharField(choices=[('registered', 'Registered'), ('verified', 'Verified'), ('rental_requested', 'Rental Requested'), ('rental_completed', 'Rental Completed'), ('license_created', 'License Created'), ('contribution_created', 'Contribution Created'), ('first_broadcast', 'First Broadcast'), ('multiple_broadcasts', 'Multiple Broadcasts')], max_length=30, verbose_name='Stage')),
                 ('achieved_at', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Achieved At')),
                 ('metadata', models.JSONField(blank=True, default=dict, verbose_name='Metadata')),
-                ('contribution', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='contributions.contribution', verbose_name='Contribution')),
-                ('license', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='licenses.license', verbose_name='License')),
-                ('rental_request', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='rental.rentalrequest', verbose_name='Rental Request')),
+                ('contribution_id', models.IntegerField(blank=True, null=True, verbose_name='Contribution ID', help_text='ID of related Contribution')),
+                ('license_id', models.IntegerField(blank=True, null=True, verbose_name='License ID', help_text='ID of related License')),
+                ('rental_request_id', models.IntegerField(blank=True, null=True, verbose_name='Rental Request ID', help_text='ID of related RentalRequest if rental module is enabled')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='journey_stages', to=settings.AUTH_USER_MODEL, verbose_name='User')),
             ],
             options={

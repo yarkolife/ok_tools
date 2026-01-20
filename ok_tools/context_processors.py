@@ -43,3 +43,20 @@ def dashboard_theme_context(request):
         'DASHBOARD_THEME': settings.DASHBOARD_THEME,
         'DASHBOARD_THEME_FILE': f'css/themes/theme-{settings.DASHBOARD_THEME}.css',
     }
+
+
+def module_flags(request):
+    """Expose module flags to templates."""
+    licenses_enabled = getattr(settings, 'LICENSES_ENABLED', True)
+    return {
+        'LICENSES_ENABLED': licenses_enabled,
+        'CONTRIBUTIONS_ENABLED': licenses_enabled,  # Contributions depends on licenses
+        'INVENTORY_ENABLED': getattr(settings, 'INVENTORY_ENABLED', False),
+        'RENTAL_ENABLED': getattr(settings, 'RENTAL_ENABLED', False),
+        'PROJECTS_ENABLED': getattr(settings, 'PROJECTS_ENABLED', False),
+        'PLANUNG_ENABLED': getattr(settings, 'PLANUNG_ENABLED', False),
+        'MEDIA_FILES_ENABLED': getattr(settings, 'MEDIA_FILES_ENABLED', False),
+        'DASHBOARD_ENABLED': getattr(settings, 'DASHBOARD_ENABLED', False),
+        'AUSTAUSCH_ENABLED': getattr(settings, 'AUSTAUSCH_ENABLED', False),
+        'TOOLS_ENABLED': getattr(settings, 'TOOLS_ENABLED', False),
+    }

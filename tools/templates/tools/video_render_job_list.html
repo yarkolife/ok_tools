@@ -1,0 +1,150 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Video Render Jobs' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a>
+    &rsaquo; {% trans 'Video Render Jobs' %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .jobs-container { padding: 20px; }
+    .filter-section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .job-table { width: 100%; border-collapse: collapse; }
+    .job-table th, .job-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: top;
+    }
+    .job-table th { background: #f8f9fa; font-weight: bold; }
+    .status-badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .status-in_progress { background: #ffc107; color: #000; }
+    .status-success { background: #28a745; color: #fff; }
+    .status-failed { background: #dc3545; color: #fff; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
+    .row-highlight { background: #fff7e6; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="jobs-container">
+    <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px;">
+        <div>
+            <h1 style="margin:0;">{% trans 'Video Render Jobs' %}</h1>
+            <p class="help" style="margin-top:6px;">{% trans 'Queue and history of video render operations started from the Tools UI.' %}</p>
+        </div>
+        <a href="{% url 'tools:video_render_select' %}" class="button default" style="padding: 10px 20px; font-size: 14px; white-space: nowrap;">
+            {% trans 'New Render' %}
+        </a>
+    </div>
+
+    <div class="filter-section">
+        <form method="get" action="{% url 'tools:video_render_jobs' %}">
+            <label for="status">{% trans 'Status' %}:</label>
+            <select name="status" id="status" onchange="this.form.submit()">
+                <option value="">{% trans 'All' %}</option>
+                <option value="IN_PROGRESS" {% if current_status == 'IN_PROGRESS' %}selected{% endif %}>{% trans 'In Progress' %}</option>
+                <option value="SUCCESS" {% if current_status == 'SUCCESS' %}selected{% endif %}>{% trans 'Success' %}</option>
+                <option value="FAILED" {% if current_status == 'FAILED' %}selected{% endif %}>{% trans 'Failed' %}</option>
+            </select>
+        </form>
+        {% if any_in_progress %}
+            <div class="help" style="margin-top: 10px;">{% trans 'Auto-refresh is enabled while jobs are running.' %}</div>
+        {% endif %}
+    </div>
+
+    <table class="job-table">
+        <thead>
+            <tr>
+                <th>{% trans 'Operation' %}</th>
+                <th>{% trans 'Status' %}</th>
+                <th>{% trans 'Created' %}</th>
+                <th>{% trans 'Video' %}</th>
+                <th>{% trans 'Config' %}</th>
+                <th>{% trans 'Actions' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for op in operations %}
+            <tr {% if highlight_operation_id and op.id == highlight_operation_id %}class="row-highlight"{% endif %}>
+                <td>
+                    <strong>#{{ op.id }}</strong>
+                    <div class="mono" style="margin-top: 4px; color:#666;">
+                        {% if op.details %}
+                            {% if op.details.preview %}{% trans 'Preview' %}{% else %}{% trans 'Full' %}{% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
+                    <span class="status-badge status-{{ op.status|lower }}">{{ op.get_status_display }}</span>
+                    {% if op.error_message %}
+                        <div style="margin-top: 6px; color:#721c24; background:#f8d7da; padding: 8px; border-radius: 4px;">
+                            <strong>{% trans 'Error' %}:</strong> {{ op.error_message|truncatechars:220 }}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>{{ op.performed_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <div><strong>#{{ op.video_file.number }}</strong></div>
+                    <div class="mono" style="margin-top: 4px; color:#666;">{{ op.video_file.filename }}</div>
+                </td>
+                <td class="mono">
+                    {% if op.details %}
+                        <div>{% trans 'Encode' %}: {{ op.details.encode|default:"-" }}</div>
+                        <div>{% trans 'Style' %}: {{ op.details.style|default:"-" }}</div>
+                        <div>{% trans 'Intro/Outro' %}: {% if op.details.use_intro_outro %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}</div>
+                        <div>{% trans 'Invert text' %}: {% if op.details.invert_text_color %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}</div>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'tools:video_render' op.video_file.id %}" class="button">{% trans 'Open Tool' %}</a>
+                    <a href="{% url 'admin:media_files_videofile_change' op.video_file.id %}" class="button" target="_blank">{% trans 'Admin' %}</a>
+                    <a href="{% url 'admin:media_files_fileoperation_change' op.id %}" class="button" target="_blank">{% trans 'File Operation' %}</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                    {% trans 'No jobs found' %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div class="paginator" style="margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="{% url 'tools:video_render_jobs' %}?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Previous' %}</a>
+        {% endif %}
+        <span class="this-page">{% trans 'Page' %} {{ page_obj.number }} {% trans 'of' %} {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="{% url 'tools:video_render_jobs' %}?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="button">{% trans 'Next' %}</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if any_in_progress %}
+<script>
+  // Keep it simple: reload while any job is running.
+  setTimeout(function() { window.location.reload(); }, 5000);
+</script>
+{% endif %}
+{% endblock %}
+

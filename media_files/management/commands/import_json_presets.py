@@ -6,7 +6,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from media_files.models import VideoPreset, PresetOverlay
+from tools.models import VideoPreset, PresetOverlay
 
 
 class Command(BaseCommand):

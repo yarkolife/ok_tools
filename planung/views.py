@@ -103,11 +103,122 @@ def save_day_plan(request):
             datum=date, defaults={"json_plan": plan_data, "kommentar": kommentar}
         )
 
+        # ---------------------------------------------------------------------
+        # User notifications (license number is the primary key for matching)
+        # Only notify if a video is linked to the license.
+        # Deduplicate strictly: only first notification per stage.
+        # ---------------------------------------------------------------------
+        try:
+            from licenses.models import (
+                License,
+                LicenseNotificationEvent,
+                LicenseNotificationEventType,
+                NextcloudVideoFile,
+            )
+            from licenses.tasks import enqueue_license_notification_email
+            from licenses.config import get_send_status_emails
+
+            is_draft = bool(plan_data.get("draft"))
+            is_planned = bool(plan_data.get("planned"))
+
+            if not get_send_status_emails():
+                # Emails are disabled via LicensesConfig.
+                is_draft = False
+                is_planned = False
+
+            if is_draft or is_planned:
+                items = plan_data.get("items", []) or []
+
+                # Collect unique license numbers from items
+                numbers = []
+                number_to_start = {}
+                for item in items:
+                    n = item.get("number")
+                    if not n:
+                        continue
+                    try:
+                        n_int = int(n)
+                    except Exception:
+                        continue
+                    if n_int not in numbers:
+                        numbers.append(n_int)
+                    # Keep first start time for this number (we only notify once)
+                    if n_int not in number_to_start:
+                        number_to_start[n_int] = (item.get("start") or "")
+
+                if numbers:
+                    licenses = (
+                        License.objects.filter(number__in=numbers)
+                        .select_related("profile", "profile__okuser")
+                    )
+
+                    def has_linked_video(license_obj: License) -> bool:
+                        try:
+                            if license_obj.get_video_file():
+                                return True
+                        except Exception:
+                            pass
+                        try:
+                            return NextcloudVideoFile.objects.filter(
+                                license=license_obj,
+                                is_deleted=False,
+                            ).exists()
+                        except Exception:
+                            return False
+
+                    plan_date_str = date.isoformat() if date else ""
+
+                    for lic in licenses:
+                        if not has_linked_video(lic):
+                            continue
+
+                        start_raw = (number_to_start.get(int(lic.number), "") or "").strip()
+                        start_time = start_raw[:5] if len(start_raw) >= 5 else start_raw
+
+                        payload = {
+                            "plan_date": plan_date_str,
+                            "start_time": start_time,
+                        }
+
+                        if is_draft:
+                            ev, ev_created = LicenseNotificationEvent.objects.get_or_create(
+                                license_number=int(lic.number),
+                                event_type=LicenseNotificationEventType.DRAFT_SCHEDULED,
+                                defaults={"payload": payload},
+                            )
+                            if ev_created:
+                                enqueue_license_notification_email(
+                                    LicenseNotificationEventType.DRAFT_SCHEDULED,
+                                    int(lic.number),
+                                    payload=payload,
+                                )
+
+                        if is_planned:
+                            ev, ev_created = LicenseNotificationEvent.objects.get_or_create(
+                                license_number=int(lic.number),
+                                event_type=LicenseNotificationEventType.PLANNED_SCHEDULED,
+                                defaults={"payload": payload},
+                            )
+                            if ev_created:
+                                enqueue_license_notification_email(
+                                    LicenseNotificationEventType.PLANNED_SCHEDULED,
+                                    int(lic.number),
+                                    payload=payload,
+                                )
+        except Exception:
+            # Never block saving a plan due to email issues.
+            logger.exception("Failed to send plan-related license notifications")
+
         # Auto-copy videos to playout if plan is not draft and feature is enabled
         # Check all required settings before proceeding
-        auto_copy_enabled = getattr(settings, 'VIDEO_AUTO_COPY_ON_SCHEDULE', False)
-        copy_to_archive = getattr(settings, 'VIDEO_AUTO_COPY_TO_ARCHIVE', False)
-        copy_to_playout = getattr(settings, 'VIDEO_AUTO_COPY_TO_PLAYOUT', False)
+        from media_files.config import (
+            get_video_auto_copy_on_schedule,
+            get_video_auto_copy_to_archive,
+            get_video_auto_copy_to_playout,
+        )
+        auto_copy_enabled = get_video_auto_copy_on_schedule()
+        copy_to_archive = get_video_auto_copy_to_archive()
+        copy_to_playout = get_video_auto_copy_to_playout()
         
         if (not plan_data.get('draft') 
             and auto_copy_enabled 

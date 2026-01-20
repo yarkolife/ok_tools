@@ -1140,6 +1140,10 @@ sleep 10
 print_info "Running database migrations..."
 docker compose exec -T web python manage.py migrate --noinput
 
+# Migrate module configs from env to database (one-time migration for empty/default values)
+print_info "Migrating module configs from environment variables (if empty/default in DB)..."
+docker compose exec -T web python manage.py migrate_module_configs || print_warning "Failed to migrate module configs, continuing..."
+
 # Compile translation messages
 print_info "Compiling translation messages..."
 if ! docker compose exec -T web python manage.py compilemessages; then
