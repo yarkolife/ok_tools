@@ -640,26 +640,61 @@ class ImportService:
         """
         Get or create storage location for imported files.
         
+        Priority:
+        1. Use storage_location from config if set
+        2. Find existing storage by path (to avoid duplicates)
+        3. Fall back to searching by name
+        4. Create new storage if none found
+        
         Returns:
             StorageLocation instance
         """
-        # Try to find existing CUSTOM storage for imports
-        storage = StorageLocation.objects.filter(
-            storage_type='CUSTOM',
-            name__icontains='import'
-        ).first()
+        # First priority: use storage_location from config if explicitly set
+        if self.config.storage_location:
+            logger.debug(f"Using configured storage location: {self.config.storage_location.id} ({self.config.storage_location.name})")
+            return self.config.storage_location
         
-        if not storage:
-            # Create new storage location
-            storage_path = self.config.download_storage_path
-            storage = StorageLocation.objects.create(
-                name='Exchange Imports',
-                storage_type='CUSTOM',
-                path=storage_path,
-                is_active=True,
-                scan_enabled=False,
+        # Second priority: find existing storage by path (if download_storage_path is set)
+        storage_path = self.config.download_storage_path
+        
+        if storage_path:
+            # Normalize path for comparison (remove trailing slashes)
+            normalized_path = storage_path.rstrip('/')
+            
+            # Try to find existing storage by exact path match
+            # This prevents creating duplicate storage locations for the same path
+            storage = StorageLocation.objects.filter(
+                path__in=[storage_path, normalized_path, f"{storage_path}/", f"{normalized_path}/"]
+            ).first()
+            
+            if not storage:
+                # Fallback: try to find by name (for backward compatibility)
+                storage = StorageLocation.objects.filter(
+                    storage_type='CUSTOM',
+                    name__icontains='import'
+                ).first()
+            
+            if not storage:
+                # Create new storage location only if none exists for this path
+                # Use full_clean() to ensure validation runs (including duplicate path check)
+                storage = StorageLocation(
+                    name='Exchange Imports',
+                    storage_type='CUSTOM',
+                    path=normalized_path,
+                    is_active=True,
+                    scan_enabled=False,
+                )
+                storage.full_clean()  # Validate before saving
+                storage.save()
+                logger.info(f"Created new storage location for imports: {storage.id} at {normalized_path}")
+            else:
+                logger.debug(f"Using existing storage location: {storage.id} ({storage.name}) at {storage.path}")
+        else:
+            # No storage_path and no storage_location - this is an error
+            raise ValueError(
+                "Either 'storage_location' must be set in ExchangeConfig, "
+                "or 'download_storage_path' must be provided."
             )
-            logger.info(f"Created new storage location for imports: {storage.id}")
         
         return storage
     

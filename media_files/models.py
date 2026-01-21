@@ -111,6 +111,22 @@ class StorageLocation(models.Model):
         """Validate the model."""
         if not self.path:
             raise ValidationError({'path': _('Path cannot be empty')})
+        
+        # Normalize path for comparison (remove trailing slashes, lowercase)
+        normalized_path = self.path.rstrip('/').lower()
+        
+        # Check for duplicate paths (case-insensitive, ignoring trailing slashes)
+        # Compare normalized paths
+        existing = StorageLocation.objects.exclude(pk=self.pk if self.pk else None)
+        for existing_storage in existing:
+            existing_normalized = existing_storage.path.rstrip('/').lower()
+            if existing_normalized == normalized_path:
+                raise ValidationError({
+                    'path': _(
+                        'A storage location with this path already exists: "{name}" (ID {id}). '
+                        'Please use the existing storage location or choose a different path.'
+                    ).format(name=existing_storage.name, id=existing_storage.id)
+                })
 
     @property
     def video_count(self):

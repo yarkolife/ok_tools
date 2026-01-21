@@ -1,6 +1,7 @@
 """Models for the Austausch (content exchange) module."""
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -268,10 +269,19 @@ class ExchangeConfig(models.Model):
     )
     
     # Storage settings
+    storage_location = models.ForeignKey(
+        'media_files.StorageLocation',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_('Storage Location'),
+        help_text=_('Select existing storage location for imported files. If not set, a new storage will be created automatically.')
+    )
     download_storage_path = models.CharField(
         max_length=500,
+        blank=True,
         verbose_name=_('Download Storage Path'),
-        help_text=_('Local path for downloaded files before import')
+        help_text=_('Local path for downloaded files before import (used if storage location is not set)')
     )
     
     # Auto-import settings
@@ -296,8 +306,18 @@ class ExchangeConfig(models.Model):
         """Return string representation."""
         return f"Exchange Config - {self.nextcloud_base_url}"
     
+    def clean(self):
+        """Validate the model."""
+        # Either storage_location or download_storage_path must be set
+        if not self.storage_location and not self.download_storage_path:
+            raise ValidationError({
+                'storage_location': _('Either storage location or download storage path must be set.'),
+                'download_storage_path': _('Either storage location or download storage path must be set.'),
+            })
+    
     def save(self, *args, **kwargs):
         """Ensure only one config instance exists."""
+        self.full_clean()  # Run validation before saving
         self.pk = 1
         super().save(*args, **kwargs)
     

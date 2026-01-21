@@ -13,6 +13,8 @@ from .tasks import import_exchange_item_task
 class ExchangeConfigAdmin(admin.ModelAdmin):
     """Admin for ExchangeConfig (singleton)."""
     
+    autocomplete_fields = ['storage_location']
+    
     def has_add_permission(self, request):
         """Only allow one config instance."""
         return not ExchangeConfig.objects.exists()
@@ -53,7 +55,11 @@ class ExchangeConfigAdmin(admin.ModelAdmin):
             ),
         }),
         (_('Storage Settings'), {
-            'fields': ('download_storage_path',)
+            'fields': ('storage_location', 'download_storage_path'),
+            'description': _(
+                'Select an existing storage location to use for imports, or leave empty to create a new one automatically. '
+                'If storage location is set, download storage path is only used as fallback.'
+            ),
         }),
         (_('Auto-Import Settings'), {
             'fields': ('auto_import_enabled',)
