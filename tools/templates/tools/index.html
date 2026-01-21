@@ -40,6 +40,14 @@
     .tool-icon {
         font-size: 64px;
         margin-bottom: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .tool-icon svg {
+        width: 64px;
+        height: 64px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     }
     .tool-title {
         font-size: 24px;
@@ -70,7 +78,23 @@
     
     <div class="tools-grid">
         <div class="tool-card" onclick="window.location.href='{% url 'tools:slideshow_list' %}'">
-            <div class="tool-icon">🎬</div>
+            <div class="tool-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="slideshowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Modern slideshow icon: stacked images with play overlay -->
+                    <rect x="4" y="6" width="12" height="9" rx="1.5" fill="url(#slideshowGrad)" opacity="0.9"/>
+                    <rect x="5.5" y="4.5" width="12" height="9" rx="1.5" fill="url(#slideshowGrad)" opacity="0.7"/>
+                    <rect x="7" y="3" width="12" height="9" rx="1.5" fill="url(#slideshowGrad)"/>
+                    <!-- Play button overlay -->
+                    <circle cx="13" cy="7.5" r="2.5" fill="#fff" opacity="0.95"/>
+                    <path d="M11.5 6.5 L11.5 8.5 L13.5 7.5 Z" fill="url(#slideshowGrad)"/>
+                </svg>
+            </div>
             <div class="tool-title">{% trans 'Video Slideshow Generator' %}</div>
             <div class="tool-description">
                 {% trans 'Create professional video slideshows from images and videos with background music, customizable transitions, and quality settings' %}
@@ -86,7 +110,22 @@
         </div>
 
         <div class="tool-card" onclick="window.location.href='{% url 'tools:audio_normalize' %}'">
-            <div class="tool-icon">🔊</div>
+            <div class="tool-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="audioGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Modern speaker with smooth sound waves -->
+                    <path d="M4 9v6h3.5l4.5 4.5V4.5L7.5 9H4z" fill="url(#audioGrad)"/>
+                    <!-- Smooth sound waves -->
+                    <path d="M13 10 Q14.5 9, 16 10 T19 10" stroke="url(#audioGrad)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M13 12 Q15 11, 17 12 T21 12" stroke="url(#audioGrad)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+                    <path d="M13 14 Q15.5 13, 18 14 T22 14" stroke="url(#audioGrad)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+                </svg>
+            </div>
             <div class="tool-title">{% trans 'Audio Broadcast Normalize (R128)' %}</div>
             <div class="tool-description">
                 {% trans 'Normalize loudness to EBU R128 using ffprobe + ffmpeg loudnorm (2-pass), with before/after report and safe video passthrough' %}
@@ -103,7 +142,26 @@
 
         {% if media_files_enabled %}
         <div class="tool-card" onclick="window.location.href='{% url 'tools:video_render_jobs' %}'">
-            <div class="tool-icon">🎞️</div>
+            <div class="tool-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="renderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Modern video render with overlay layers -->
+                    <rect x="5" y="6" width="14" height="10" rx="1.5" fill="url(#renderGrad)" opacity="0.8"/>
+                    <!-- Overlay layer 1 -->
+                    <rect x="6.5" y="4.5" width="14" height="10" rx="1.5" fill="url(#renderGrad)" opacity="0.6"/>
+                    <!-- Overlay layer 2 (title/subtitle representation) -->
+                    <rect x="8" y="3" width="14" height="10" rx="1.5" fill="url(#renderGrad)"/>
+                    <!-- Text lines representing overlays -->
+                    <rect x="10" y="5.5" width="8" height="1" rx="0.5" fill="#fff" opacity="0.9"/>
+                    <rect x="10" y="7.5" width="6" height="1" rx="0.5" fill="#fff" opacity="0.7"/>
+                    <rect x="10" y="9.5" width="7" height="1" rx="0.5" fill="#fff" opacity="0.5"/>
+                </svg>
+            </div>
             <div class="tool-title">{% trans 'Video Render (Overlays)' %}</div>
             <div class="tool-description">
                 {% trans 'Render videos with overlay presets (title, subtitle, broadcast responsibility, media authority) and encoding presets' %}
