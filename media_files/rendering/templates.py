@@ -22,10 +22,29 @@ class TemplateContext:
     media_authority_full_name: str
     license_created_year: int
     labels: Dict[str, str]
+    # Optional custom overlay texts that override license values
+    custom_title: str | None = None
+    custom_subtitle: str | None = None
+    custom_broadcast: str | None = None
+    custom_authority: str | None = None
 
 
-def build_template_context(license_obj: License) -> TemplateContext:
-    """Build a template context from a License instance."""
+def build_template_context(
+    license_obj: License,
+    custom_title: str | None = None,
+    custom_subtitle: str | None = None,
+    custom_broadcast: str | None = None,
+    custom_authority: str | None = None,
+) -> TemplateContext:
+    """Build a template context from a License instance.
+    
+    Args:
+        license_obj: License instance
+        custom_title: Optional custom title text to override license.title
+        custom_subtitle: Optional custom subtitle text to override license.subtitle
+        custom_broadcast: Optional custom broadcast responsibility text
+        custom_authority: Optional custom media authority text
+    """
     from django.conf import settings
     
     profile = license_obj.profile
@@ -51,6 +70,10 @@ def build_template_context(license_obj: License) -> TemplateContext:
             # Keep msgids in English (project rule) and rely on locale .po for output language.
             "broadcast_responsibility": _("Sendeverantwortung"),
         },
+        custom_title=custom_title,
+        custom_subtitle=custom_subtitle,
+        custom_broadcast=custom_broadcast,
+        custom_authority=custom_authority,
     )
 
 
@@ -88,8 +111,9 @@ def render_text_template(template: str, ctx: TemplateContext) -> str:
     - {labels.broadcast_responsibility}
     """
     # Clean source text before processing
-    title = _clean_text_for_ffmpeg(ctx.license.title or "")
-    subtitle = _clean_text_for_ffmpeg(ctx.license.subtitle or "")
+    # Use custom texts if provided, otherwise fall back to license values
+    title = _clean_text_for_ffmpeg(ctx.custom_title or ctx.license.title or "")
+    subtitle = _clean_text_for_ffmpeg(ctx.custom_subtitle or ctx.license.subtitle or "")
     
     # DEBUG: Check for "und" in title to detect invisible characters
     if 'und' in title.lower() or 'un' in title.lower():
@@ -126,6 +150,18 @@ def render_text_template(template: str, ctx: TemplateContext) -> str:
     subtitle_conditional = subtitle if title_lines_count < 3 else ""
     subtitle_wrapped = _wrap_text(subtitle_conditional, width=32, max_lines=3) if subtitle_conditional else ""
 
+    # Check if template is for broadcast or authority, and if custom text is provided, use it directly
+    template_lower = template.lower()
+    if ctx.custom_broadcast and ("{labels.broadcast_responsibility" in template_lower or "{profile.display}" in template_lower):
+        # If custom broadcast text is provided and template contains broadcast-related placeholders,
+        # return the custom text directly (replacing the entire template result)
+        return _clean_text_for_ffmpeg(ctx.custom_broadcast)
+    
+    if ctx.custom_authority and "{profile.media_authority_full_name" in template_lower:
+        # If custom authority text is provided and template contains authority-related placeholders,
+        # return the custom text directly (replacing the entire template result)
+        return _clean_text_for_ffmpeg(ctx.custom_authority)
+    
     mapping: Dict[str, Any] = {
         "license": _DotDict(
             {

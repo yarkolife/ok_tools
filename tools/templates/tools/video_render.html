@@ -151,10 +151,13 @@
 
             <div class="row" style="flex-direction: column;">
                 <div class="checkbox-item" data-element="title">
-                    <label style="display:flex; gap:10px; align-items:center;">
-                        <input type="checkbox" id="show-title" name="show_title" value="true">
-                        <span class="checkbox-label">{% trans "Title" %}</span>
-                    </label>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                        <label style="display:flex; gap:10px; align-items:center; flex: 0 0 auto;">
+                            <input type="checkbox" id="show-title" name="show_title" value="true">
+                            <span class="checkbox-label">{% trans "Title" %}</span>
+                        </label>
+                        <input type="text" id="overlay-text-title" name="overlay_text_title" placeholder="{% trans 'Title text' %}" value="{% if license.title %}{{ license.title }}{% endif %}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    </div>
                     <div class="element-style-selection" style="display:none;">
                         <div class="style-preview">
                             {% for style in title_styles|default:styles %}
@@ -243,10 +246,13 @@
 
                 {% if license.subtitle %}
                 <div class="checkbox-item" data-element="subtitle">
-                    <label style="display:flex; gap:10px; align-items:center;">
-                        <input type="checkbox" id="show-subtitle" name="show_subtitle" value="true">
-                        <span class="checkbox-label">{% trans "Subtitle" %}</span>
-                    </label>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                        <label style="display:flex; gap:10px; align-items:center; flex: 0 0 auto;">
+                            <input type="checkbox" id="show-subtitle" name="show_subtitle" value="true">
+                            <span class="checkbox-label">{% trans "Subtitle" %}</span>
+                        </label>
+                        <input type="text" id="overlay-text-subtitle" name="overlay_text_subtitle" placeholder="{% trans 'Subtitle text' %}" value="{% if license.subtitle %}{{ license.subtitle }}{% endif %}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    </div>
                     <div class="element-style-selection" style="display:none;">
                         <div class="style-preview">
                             {% for style in subtitle_styles|default:styles %}
@@ -335,10 +341,13 @@
                 {% endif %}
 
                 <div class="checkbox-item" data-element="broadcast">
-                    <label style="display:flex; gap:10px; align-items:center;">
-                        <input type="checkbox" id="show-broadcast" name="show_broadcast_resp" value="true" checked>
-                        <span class="checkbox-label">{% trans "Broadcast Responsibility" %}</span>
-                    </label>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                        <label style="display:flex; gap:10px; align-items:center; flex: 0 0 auto;">
+                            <input type="checkbox" id="show-broadcast" name="show_broadcast_resp" value="true" checked>
+                            <span class="checkbox-label">{% trans "Broadcast Responsibility" %}</span>
+                        </label>
+                        <input type="text" id="overlay-text-broadcast" name="overlay_text_broadcast" placeholder="{% trans 'Broadcast responsibility text' %}" value="{{ default_broadcast_text|default:'' }}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    </div>
                     <div class="element-style-selection" style="display:block;">
                         <div class="style-preview">
                             {% for style in broadcast_styles|default:styles %}
@@ -396,10 +405,13 @@
                 </div>
 
                 <div class="checkbox-item" data-element="authority">
-                    <label style="display:flex; gap:10px; align-items:center;">
-                        <input type="checkbox" id="show-authority" name="show_media_authority" value="true" checked>
-                        <span class="checkbox-label">{% trans "Media Authority" %}</span>
-                    </label>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                        <label style="display:flex; gap:10px; align-items:center; flex: 0 0 auto;">
+                            <input type="checkbox" id="show-authority" name="show_media_authority" value="true" checked>
+                            <span class="checkbox-label">{% trans "Media Authority" %}</span>
+                        </label>
+                        <input type="text" id="overlay-text-authority" name="overlay_text_authority" placeholder="{% trans 'Media authority text' %}" value="{{ default_authority_text|default:'' }}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    </div>
                     <div class="element-style-selection" style="display:block;">
                         <div class="style-preview">
                             {% for style in authority_styles|default:styles %}
@@ -612,6 +624,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const cb = form.querySelector(`[name="${name}"]`);
             if (cb) fd.set(name, cb.checked ? 'true' : 'false');
         });
+        // Add overlay text fields
+        const overlayTextTitle = (document.getElementById('overlay-text-title')?.value || '').trim();
+        if (overlayTextTitle) fd.set('overlay_text_title', overlayTextTitle);
+        const overlayTextSubtitle = (document.getElementById('overlay-text-subtitle')?.value || '').trim();
+        if (overlayTextSubtitle) fd.set('overlay_text_subtitle', overlayTextSubtitle);
+        const overlayTextBroadcast = (document.getElementById('overlay-text-broadcast')?.value || '').trim();
+        if (overlayTextBroadcast) fd.set('overlay_text_broadcast', overlayTextBroadcast);
+        const overlayTextAuthority = (document.getElementById('overlay-text-authority')?.value || '').trim();
+        if (overlayTextAuthority) fd.set('overlay_text_authority', overlayTextAuthority);
         try {
             const resp = await fetch('/tools/api/video-render/submit/', { method: 'POST', body: fd, headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') }});
             const data = await resp.json();

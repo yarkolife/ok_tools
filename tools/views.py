@@ -315,6 +315,18 @@ class VideoRenderView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
         license_obj = video.get_license()
         if not license_obj:
             raise Http404(_("License not found for this video"))
+        
+        # Build default overlay texts (matching format used in render_text_template)
+        profile = license_obj.profile
+        media_authority = getattr(profile, "media_authority", None)
+        authority_name = getattr(media_authority, "name", "") or ""
+        authority_full_name = getattr(media_authority, "full_name", "") or ""
+        from django.conf import settings as django_settings
+        organization_name = getattr(django_settings, 'OK_NAME', 'Offener Kanal Merseburg-Querfurt e.V.')
+        final_full_name = authority_full_name or authority_name or organization_name
+        
+        default_broadcast_text = f"{_('Sendeverantwortung')}: {profile}" if profile else ""
+        default_authority_text = f"{final_full_name}, {license_obj.created_at.year}" if final_full_name and license_obj.created_at else ""
 
         # DB presets (templates/public/user-owned)
         db_presets = (
@@ -492,6 +504,8 @@ class VideoRenderView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
                 "video_mime_type": mime_type,
                 "video_admin_url": reverse("admin:media_files_videofile_change", args=[video.id]),
                 "initial_output_filename": (self.request.GET.get("output_filename") or "").strip(),
+                "default_broadcast_text": default_broadcast_text,
+                "default_authority_text": default_authority_text,
             }
         )
         return context

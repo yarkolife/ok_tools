@@ -252,6 +252,7 @@ def render_video_task(operation_id):
         overlay_type = details.get("overlay_type")
         elements = details.get("elements", {})
         styles = details.get("styles", {})
+        overlay_texts = details.get("overlay_texts", {})
         
         # Get source video
         source_video = VideoFile.objects.get(id=source_video_id)
@@ -705,7 +706,18 @@ def render_video_task(operation_id):
                 raise FileNotFoundError(error_msg)
         
         # Render video
-        ctx = build_template_context(license_obj)
+        # Extract custom overlay texts if provided
+        custom_title = overlay_texts.get("title")
+        custom_subtitle = overlay_texts.get("subtitle")
+        custom_broadcast = overlay_texts.get("broadcast")
+        custom_authority = overlay_texts.get("authority")
+        ctx = build_template_context(
+            license_obj,
+            custom_title=custom_title,
+            custom_subtitle=custom_subtitle,
+            custom_broadcast=custom_broadcast,
+            custom_authority=custom_authority,
+        )
         
         if is_preview:
             # Preview mode: always use overlay-only mode (no intro/outro clips)

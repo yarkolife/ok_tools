@@ -951,6 +951,11 @@ class VideoRenderSubmitView(APIView):
         style_broadcast = (request.data.get("style_broadcast") or "").strip() or None
         style_authority = (request.data.get("style_authority") or "").strip() or None
 
+        overlay_text_title = (request.data.get("overlay_text_title") or "").strip() or None
+        overlay_text_subtitle = (request.data.get("overlay_text_subtitle") or "").strip() or None
+        overlay_text_broadcast = (request.data.get("overlay_text_broadcast") or "").strip() or None
+        overlay_text_authority = (request.data.get("overlay_text_authority") or "").strip() or None
+
         if not (show_title or show_subtitle or show_broadcast_resp or show_media_authority):
             return Response({"success": False, "error": _("Please select at least one element to show")}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1095,6 +1100,12 @@ class VideoRenderSubmitView(APIView):
                     "subtitle": style_subtitle,
                     "broadcast": style_broadcast,
                     "authority": style_authority,
+                },
+                "overlay_texts": {
+                    "title": overlay_text_title,
+                    "subtitle": overlay_text_subtitle,
+                    "broadcast": overlay_text_broadcast,
+                    "authority": overlay_text_authority,
                 },
             },
         )
