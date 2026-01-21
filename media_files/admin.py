@@ -947,7 +947,17 @@ class VideoFileAdmin(admin.ModelAdmin):
                'mark_as_primary_action', 'delete_duplicates_action', 'move_to_archive_action',
                'cleanup_missing_files_action', 'render_default_preset_action', 'render_preview_default_action',
                'delete_records_without_video_action', 'render_with_intro_outro_full_overlays_action',
-               'transcode_hevc_to_h264_action']
+               'transcode_hevc_to_h264_action',
+               # Archive cleanup actions
+               'preview_archive_duplicates_action',
+               'preview_archive_duplicates_keep_newest_action',
+               'preview_archive_duplicates_keep_largest_action',
+               'delete_archive_duplicates_action',
+               'delete_archive_duplicates_keep_newest_action',
+               'delete_archive_duplicates_keep_largest_action',
+               'force_delete_archive_duplicates_keep_best_action',
+               'force_delete_archive_duplicates_keep_newest_action',
+               'force_delete_archive_duplicates_keep_largest_action']
 
     def get_actions(self, request):
         """Hide rendering actions when the feature flag is disabled."""
