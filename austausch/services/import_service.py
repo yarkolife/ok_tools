@@ -15,7 +15,7 @@ from django.db import transaction
 from licenses.models import License, Category
 from licenses.admin import get_profile_by_name, create_profile_by_name, get_category_by_id, get_category_by_name
 from media_files.models import VideoFile, StorageLocation
-from registration.models import Profile
+from registration.models import Profile, MediaAuthority
 from ..models import ExchangeItem, ExchangeImport, ExchangeConfig
 from .nextcloud_exchange_service import NextcloudExchangeService
 
@@ -55,6 +55,66 @@ def find_potential_duplicates(title, profile, threshold=0.8):
             potential_duplicates.append(license_obj.id)
     
     return License.objects.filter(id__in=potential_duplicates)
+
+
+def get_media_authority_by_channel(channel):
+    """
+    Get MediaAuthority by channel name from ExchangeItem.
+    
+    Tries to match channel (e.g., "ok_magdeburg", "OK Magdeburg") with MediaAuthority's 
+    target_channel (e.g., "@ok_magdeburg@lokalmedial.de") or name.
+    
+    Args:
+        channel: Channel name from ExchangeItem (e.g., "ok_magdeburg", "OK Magdeburg")
+    
+    Returns:
+        MediaAuthority instance or None if not found
+    """
+    if not channel:
+        return None
+    
+    # Normalize channel name: remove leading/trailing spaces, convert to lowercase,
+    # replace spaces and hyphens with underscores for better matching
+    channel_normalized = channel.strip().lower().replace(' ', '_').replace('-', '_')
+    
+    # Try to find MediaAuthority by target_channel containing the channel name
+    # Example: channel="ok_magdeburg" should match target_channel="@ok_magdeburg@lokalmedial.de"
+    # Also try with original channel (with spaces/hyphens) for flexibility
+    channel_variants = [
+        channel_normalized,  # "ok_magdeburg"
+        channel.strip().lower(),  # "ok magdeburg" (original with spaces)
+        channel.strip().lower().replace(' ', '').replace('-', ''),  # "okmagdeburg"
+    ]
+    
+    for variant in channel_variants:
+        media_authority = MediaAuthority.objects.filter(
+            target_channel__icontains=variant
+        ).first()
+        
+        if media_authority:
+            logger.info(f"Found MediaAuthority '{media_authority.name}' by target_channel for channel '{channel}' (variant: '{variant}')")
+            return media_authority
+    
+    # Try to find by name (case-insensitive, exact match)
+    media_authority = MediaAuthority.objects.filter(
+        name__iexact=channel.strip()
+    ).first()
+    
+    if media_authority:
+        logger.info(f"Found MediaAuthority '{media_authority.name}' by exact name match for channel '{channel}'")
+        return media_authority
+    
+    # Try partial match on name (normalized)
+    media_authority = MediaAuthority.objects.filter(
+        name__icontains=channel_normalized
+    ).first()
+    
+    if media_authority:
+        logger.info(f"Found MediaAuthority '{media_authority.name}' by partial name match for channel '{channel}'")
+        return media_authority
+    
+    logger.warning(f"Could not find MediaAuthority for channel '{channel}', will use default")
+    return None
 
 
 class ImportService:
@@ -217,15 +277,24 @@ class ImportService:
         """
         Get or create profile from sendeverantwortung.
         
+        Determines MediaAuthority based on exchange item's channel to ensure
+        correct affiliation with Offene Kanäle/Bürgermedien.
+        
         Returns:
             Profile instance
         """
+        # Determine MediaAuthority based on channel
+        media_authority = get_media_authority_by_channel(self.exchange_item.channel)
+        
         profile = None
         if self.exchange_item.sendeverantwortung:
             profile = get_profile_by_name(self.exchange_item.sendeverantwortung)
             if not profile:
-                # Create new profile if not found
-                profile = create_profile_by_name(self.exchange_item.sendeverantwortung)
+                # Create new profile if not found, with determined MediaAuthority
+                profile = create_profile_by_name(
+                    self.exchange_item.sendeverantwortung,
+                    media_authority=media_authority
+                )
         
         # Fallback: use user's profile or first available profile
         if not profile:
