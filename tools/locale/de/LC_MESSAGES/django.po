@@ -1127,3 +1127,58 @@ msgstr "Nein"
 
 msgid "File Operation"
 msgstr "Dateivorgang"
+
+# Storage and Output Path (Storage Location) - ToolsConfig
+msgid "Storage Path (Storage Location)"
+msgstr "Speicherpfad (Speicherort)"
+
+msgid "Optional. Storage location for uploads. Overrides the path below when set."
+msgstr "Optional. Speicherort für Uploads. Überschreibt den Pfad unten, wenn gesetzt."
+
+msgid "Required when no Storage Location is selected. Base path for storing uploaded media files."
+msgstr "Erforderlich, wenn kein Speicherort gewählt ist. Basis-Pfad zum Speichern hochgeladener Mediendateien."
+
+msgid "Output Path (Storage Location)"
+msgstr "Ausgabepfad (Speicherort)"
+
+msgid "Optional. Storage location for generated videos. Overrides the path below when set."
+msgstr "Optional. Speicherort für generierte Videos. Überschreibt den Pfad unten, wenn gesetzt."
+
+msgid "Required when no Storage Location is selected. Base path for storing generated videos."
+msgstr "Erforderlich, wenn kein Speicherort gewählt ist. Basis-Pfad zum Speichern generierter Videos."
+
+msgid "Storage Location (optional): when set, overrides the path below. Storage Path and Output Path are required when no Storage Location is selected."
+msgstr "Speicherort (optional): falls gesetzt, überschreibt den Pfad darunter. Speicherpfad und Ausgabepfad sind erforderlich, wenn kein Speicherort gewählt ist."
+
+# Audio normalize - Storage and paths
+msgid "Audio Normalize Input Storage"
+msgstr "Eingabe-Speicherort für Audio-Normalisierung"
+
+msgid "Optional. Storage location for input base path. Overrides the path below when set."
+msgstr "Optional. Speicherort für den Eingabe-Basis-Pfad. Überschreibt den Pfad unten, wenn gesetzt."
+
+msgid "Base path when no storage is selected. Used for upload dedup and similar. Can be empty."
+msgstr "Basis-Pfad, wenn kein Speicherort gewählt ist. Wird für Upload-Deduplizierung usw. verwendet. Kann leer sein."
+
+msgid "Audio Normalize Output Storage"
+msgstr "Ausgabe-Speicherort für Audio-Normalisierung"
+
+msgid "Optional. Storage location for output directory. Overrides the path below when set."
+msgstr "Optional. Speicherort für das Ausgabeverzeichnis. Überschreibt den Pfad unten, wenn gesetzt."
+
+msgid "Base path when no storage is selected. Empty = next to input. Can be left empty. If storage is set, output can be outside MEDIA_ROOT."
+msgstr "Basis-Pfad, wenn kein Speicherort gewählt ist. Leer = neben der Eingabe. Kann leer bleiben. Wenn ein Speicherort gesetzt ist, kann die Ausgabe außerhalb von MEDIA_ROOT liegen."
+
+msgid "Storage Location (optional): when set, overrides the path below; output can be outside MEDIA_ROOT. Path fields are used when no storage is selected. Output path can be empty (output next to input)."
+msgstr "Speicherort (optional): falls gesetzt, überschreibt den Pfad darunter; Ausgabe kann außerhalb von MEDIA_ROOT liegen. Die Pfadfelder werden verwendet, wenn kein Speicherort gewählt ist. Der Ausgabepfad kann leer sein (Ausgabe neben der Eingabe)."
+
+# AudioNormalizeJob - output_path_external
+msgid "Output Path (external)"
+msgstr "Ausgabepfad (extern)"
+
+msgid "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage location)."
+msgstr "Absoluter Pfad, wenn die Ausgabe außerhalb von MEDIA_ROOT geschrieben wurde (z. B. in einen Speicherort)."
+
+# Templates
+msgid "Output (on disk)"
+msgstr "Ausgabe (auf Datenträger)"
