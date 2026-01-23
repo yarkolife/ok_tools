@@ -364,10 +364,9 @@
             
             const { token, upload_url, session_id, license_number } = tokenData;
             
-            // Generate unique filename
-            const timestamp = new Date().toISOString().replace(/[-:T]/g, '').substring(0, 14);
+            // Filename: license_number + sanitized original (no timestamp)
             const safeName = sanitizeFilename(file.name);
-            const uniqueFilename = `${license_number}_${timestamp}_${safeName}`;
+            const uniqueFilename = `${license_number}_${safeName}`;
             
             console.log('Direct upload to Nextcloud:', {
                 upload_url: upload_url,

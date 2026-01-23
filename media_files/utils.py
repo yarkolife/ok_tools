@@ -111,7 +111,16 @@ def extract_video_metadata(file_path: str, fast_mode: bool = False) -> Dict:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         
         if result.returncode != 0:
-            logger.error(f"ffprobe failed for {file_path}: {result.stderr}")
+            err = (result.stderr or '').strip()
+            out = (result.stdout or '').strip()
+            details = [f"returncode={result.returncode}"]
+            if err:
+                details.append(f"stderr={err[:1500]}")
+            if out:
+                details.append(f"stdout={out[:800]}")
+            if not err and not out:
+                details.append("no stderr/stdout (incomplete file or ffprobe -v quiet)")
+            logger.error(f"ffprobe failed for {file_path}: {'; '.join(details)}")
             return metadata
         
         data = json.loads(result.stdout)
