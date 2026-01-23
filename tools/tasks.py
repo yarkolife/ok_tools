@@ -341,13 +341,13 @@ def cleanup_old_audio_normalize_jobs_task(older_than_days=30, delete_if_missing_
         if not delete_if_missing_files:
             return False
         input_missing = bool(job.input_file) and not _path_exists(getattr(job.input_file, "path", ""))
-        # For output: only consider it "missing" if the DB points to an output file name/path.
-        output_missing = bool(job.output_file) and not _path_exists(getattr(job.output_file, "path", ""))
+        output_missing = (
+            (bool(job.output_file) and not _path_exists(getattr(job.output_file, "path", "")))
+            or (bool(getattr(job, "output_path_external", "")) and not _path_exists(job.output_path_external))
+        )
 
-        # Always delete if input is missing (can't re-run, broken row)
         if input_missing:
             return True
-        # Especially delete completed jobs that point to output file but it's gone
         if job.status == "completed" and output_missing:
             return True
         return False
@@ -357,11 +357,13 @@ def cleanup_old_audio_normalize_jobs_task(older_than_days=30, delete_if_missing_
 
         input_path = getattr(job.input_file, "path", "") if job.input_file else ""
         output_path = getattr(job.output_file, "path", "") if job.output_file else ""
+        output_path_external = getattr(job, "output_path_external", "") or ""
 
         # Delete media files only if explicitly enabled.
         if delete_media_files:
-            # Delete output file first
             if output_path and _unlink(output_path):
+                files_deleted += 1
+            if output_path_external and _unlink(output_path_external):
                 files_deleted += 1
             # Delete input file
             if input_path and _unlink(input_path):
@@ -488,11 +490,16 @@ def normalize_audio_task(self, job_id):
         job.analysis_after = result.get('analysis_after')
         job.ffmpeg_log = result.get('ffmpeg_log', '') or ''
 
-        rel_name = result.get('output_relpath')
-        if not rel_name:
-            output_path = Path(result['output_path'])
-            rel_name = str(output_path.resolve().relative_to(_media_root_abs()))
-        job.output_file.name = rel_name.replace("\\", "/")
+        output_path_external = result.get('output_path_external')
+        if output_path_external:
+            job.output_path_external = output_path_external
+            job.output_file = None
+        else:
+            job.output_path_external = ''
+            rel_name = result.get('output_relpath')
+            if not rel_name:
+                rel_name = str(Path(result['output_path']).resolve().relative_to(_media_root_abs()))
+            job.output_file.name = rel_name.replace("\\", "/")
 
         job.progress = 100
         job.status = 'completed'
@@ -503,16 +510,27 @@ def normalize_audio_task(self, job_id):
             'analysis_after',
             'ffmpeg_log',
             'output_file',
+            'output_path_external',
             'progress',
             'status',
             'completed_at',
         ])
 
-        return {'status': 'success', 'job_id': job_id, 'output_file': job.output_file.url if job.output_file else None}
+        out_url = job.output_file.url if job.output_file else None
+        return {'status': 'success', 'job_id': job_id, 'output_file': out_url, 'output_path_external': job.output_path_external or None}
 
     except AudioNormalizerError as e:
         msg = str(e)
         logger.error("Audio normalize failed for job %s: %s", job_id, msg, exc_info=True)
+        job.status = 'failed'
+        job.error_message = msg
+        job.completed_at = timezone.now()
+        job.save(update_fields=['status', 'error_message', 'completed_at'])
+        return {'status': 'failed', 'job_id': job_id, 'error': msg}
+
+    except ValueError as e:
+        msg = str(e)
+        logger.error("Audio normalize failed for job %s (path error): %s", job_id, msg, exc_info=True)
         job.status = 'failed'
         job.error_message = msg
         job.completed_at = timezone.now()

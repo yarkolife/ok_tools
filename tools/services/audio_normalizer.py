@@ -343,18 +343,29 @@ class AudioNormalizerService:
         """
         Resolve output directory.
 
-        - If ToolsConfig.audio_normalize_output_path is set: use it (relative to MEDIA_ROOT if not absolute).
+        - If ToolsConfig.audio_normalize_output_storage is set: use storage.path (mounted disk, can be outside MEDIA_ROOT).
+        - Else if ToolsConfig.audio_normalize_output_path is set: use it (relative to MEDIA_ROOT if not absolute).
         - Otherwise: store output next to the input file.
+
+        When output is outside MEDIA_ROOT, run_full_pipeline returns output_path_external and the
+        task stores it on the job; output_file is left empty.
         """
+        storage = getattr(self.config, "audio_normalize_output_storage", None)
+        if storage and getattr(storage, "path", None):
+            p = Path(storage.path).resolve()
+            p.mkdir(parents=True, exist_ok=True)
+            return p
+
         configured = (self.config.audio_normalize_output_path or "").strip()
         if configured:
             p = Path(configured)
             if not p.is_absolute():
                 p = Path(settings.MEDIA_ROOT) / configured.lstrip("/\\")
+            p = p.resolve()
             p.mkdir(parents=True, exist_ok=True)
             return p
 
-        p = input_path.parent
+        p = input_path.parent.resolve()
         p.mkdir(parents=True, exist_ok=True)
         return p
 
@@ -542,12 +553,22 @@ class AudioNormalizerService:
 
         after = self.analyze_loudnorm(out_path)
 
+        media_root = self._media_root_abs()
+        resolved = out_path.resolve()
+        output_relpath = None
+        output_path_external = None
+        try:
+            output_relpath = str(resolved.relative_to(media_root)).replace("\\", "/")
+        except ValueError:
+            output_path_external = str(resolved)
+
         return {
             "input_metadata": meta,
             "analysis_before": before,
             "analysis_after": after,
             "output_path": str(out_path),
-            "output_relpath": str(out_path.resolve().relative_to(self._media_root_abs())).replace("\\", "/"),
+            "output_relpath": output_relpath,
+            "output_path_external": output_path_external,
             "ffmpeg_log": ffmpeg_log,
             "probe": {"duration_sec": probe_info.duration_sec, "has_video": probe_info.has_video, "has_audio": probe_info.has_audio},
             "recommendations": self.get_recommendations(before),

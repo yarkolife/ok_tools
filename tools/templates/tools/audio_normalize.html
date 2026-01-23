@@ -913,6 +913,7 @@ async function refreshStatus(jobId) {
 
     const resultParts = [];
     if (data.output_file) resultParts.push(`{% trans "Output" %}: ${data.output_file}`);
+    else if (data.output_path_external) resultParts.push(`{% trans "Output (on disk)" %}: ${data.output_path_external}`);
     if (data.recommendations && data.recommendations.length) {
         const r = data.recommendations.map(x => `${x.preset_id}: ${x.reason}`).join(' / ');
         resultParts.push(`{% trans "Recommendations" %}: ${r}`);

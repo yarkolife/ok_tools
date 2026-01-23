@@ -742,15 +742,33 @@ class ToolsConfig(models.Model):
     """Configuration for tools module (singleton)."""
     
     # Storage paths
+    storage_path_storage = models.ForeignKey(
+        'media_files.StorageLocation',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name=_('Storage Path (Storage Location)'),
+        help_text=_('Optional. Storage location for uploads. Overrides the path below when set.'),
+    )
     storage_path = models.CharField(
         max_length=500,
         verbose_name=_('Storage Path'),
-        help_text=_('Base path for storing uploaded media files')
+        help_text=_('Required when no Storage Location is selected. Base path for storing uploaded media files.')
+    )
+    output_path_storage = models.ForeignKey(
+        'media_files.StorageLocation',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name=_('Output Path (Storage Location)'),
+        help_text=_('Optional. Storage location for generated videos. Overrides the path below when set.'),
     )
     output_path = models.CharField(
         max_length=500,
         verbose_name=_('Output Path'),
-        help_text=_('Base path for storing generated videos')
+        help_text=_('Required when no Storage Location is selected. Base path for storing generated videos.')
     )
     
     # Upload limits
@@ -795,17 +813,40 @@ class ToolsConfig(models.Model):
     )
 
     # Audio normalize settings
+    audio_normalize_input_storage = models.ForeignKey(
+        'media_files.StorageLocation',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name=_('Audio Normalize Input Storage'),
+        help_text=_('Optional. Storage location for input base path. Overrides the path below when set.'),
+    )
     audio_normalize_input_path = models.CharField(
         max_length=500,
         default='',
+        blank=True,
         verbose_name=_('Audio Normalize Input Path'),
-        help_text=_('Base path for audio normalize source files (optional)')
+        help_text=_('Base path when no storage is selected. Used for upload dedup and similar. Can be empty.')
+    )
+    audio_normalize_output_storage = models.ForeignKey(
+        'media_files.StorageLocation',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name=_('Audio Normalize Output Storage'),
+        help_text=_('Optional. Storage location for output directory. Overrides the path below when set.'),
     )
     audio_normalize_output_path = models.CharField(
         max_length=500,
         default='',
+        blank=True,
         verbose_name=_('Audio Normalize Output Path'),
-        help_text=_('Base path for audio normalize output files (optional)')
+        help_text=_(
+            'Base path when no storage is selected. Empty = next to input. '
+            'Can be left empty. If storage is set, output can be outside MEDIA_ROOT.'
+        )
     )
     audio_normalize_default_preset = models.CharField(
         max_length=50,
@@ -838,6 +879,20 @@ class ToolsConfig(models.Model):
         """Get the singleton config instance, create if doesn't exist."""
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+    def get_effective_storage_path(self) -> str:
+        """Return storage_path_storage.path if set, else storage_path."""
+        s = getattr(self, 'storage_path_storage', None)
+        if s and getattr(s, 'path', None):
+            return (s.path or '').rstrip('/\\')
+        return (self.storage_path or '').strip().rstrip('/\\')
+
+    def get_effective_output_path(self) -> str:
+        """Return output_path_storage.path if set, else output_path."""
+        s = getattr(self, 'output_path_storage', None)
+        if s and getattr(s, 'path', None):
+            return (s.path or '').rstrip('/\\')
+        return (self.output_path or '').strip().rstrip('/\\')
 
 
 class AudioNormalizeJob(models.Model):
@@ -903,6 +958,12 @@ class AudioNormalizeJob(models.Model):
         null=True,
         blank=True,
         verbose_name=_('Output File'),
+    )
+    output_path_external = models.CharField(
+        max_length=1000,
+        blank=True,
+        verbose_name=_('Output Path (external)'),
+        help_text=_('Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage location).'),
     )
 
     output_filename = models.CharField(

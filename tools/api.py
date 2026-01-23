@@ -1278,17 +1278,21 @@ class CreateAudioNormalizeJobView(APIView):
             except Exception:
                 return Response({'error': _('Input file not found')}, status=status.HTTP_400_BAD_REQUEST)
         elif file:
-            # If the same file already exists under configured input path (or MEDIA_ROOT), reuse it to avoid duplicates.
-            base = (config.audio_normalize_input_path or "").strip()
+            # If the same file already exists under configured input storage/path (or MEDIA_ROOT), reuse it to avoid duplicates.
             media_root_abs = _media_root_abs()
-            if base:
-                base_path = Path(base)
-                if not base_path.is_absolute():
-                    base_path = (media_root_abs / base.lstrip("/\\")).resolve()
-                else:
-                    base_path = base_path.resolve()
+            storage = getattr(config, "audio_normalize_input_storage", None)
+            if storage and getattr(storage, "path", None):
+                base_path = Path(storage.path).resolve()
             else:
-                base_path = media_root_abs
+                base = (config.audio_normalize_input_path or "").strip()
+                if base:
+                    base_path = Path(base)
+                    if not base_path.is_absolute():
+                        base_path = (media_root_abs / base.lstrip("/\\")).resolve()
+                    else:
+                        base_path = base_path.resolve()
+                else:
+                    base_path = media_root_abs
 
             candidate = (base_path / Path(file.name).name).resolve()
             try:
@@ -1405,6 +1409,7 @@ class AudioJobStatusView(APIView):
             'input_file': Path(job.input_file.name).name if job.input_file else None,
             'input_file_url': job.input_file.url if job.input_file else None,
             'output_file': job.output_file.url if job.output_file else None,
+            'output_path_external': (job.output_path_external or '').strip() or None,
             'error_message': job.error_message,
             'ffmpeg_log_tail': (job.ffmpeg_log or '')[-5000:],
             'input_metadata': job.input_metadata,

@@ -73,7 +73,7 @@
                 <div class="info-label">{% trans 'Files' %}</div>
                 <div class="mono">
                     {% if job.input_file %}{% trans 'Input' %}: <a href="{{ job.input_file.url }}">{{ job.input_file.name }}</a>{% else %}-{% endif %}<br>
-                    {% if job.output_file %}{% trans 'Output' %}: <a href="{{ job.output_file.url }}">{{ job.output_file.name }}</a>{% else %}{% trans 'Output' %}: -{% endif %}
+                    {% if job.output_file %}{% trans 'Output' %}: <a href="{{ job.output_file.url }}">{{ job.output_file.name }}</a>{% elif job.output_path_external %}{% trans 'Output (on disk)' %}: {{ job.output_path_external }}{% else %}{% trans 'Output' %}: -{% endif %}
                 </div>
             </div>
         </div>

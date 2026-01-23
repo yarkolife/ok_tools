@@ -118,7 +118,58 @@ class SlideshowAudioAdmin(admin.ModelAdmin):
 @admin.register(ToolsConfig)
 class ToolsConfigAdmin(admin.ModelAdmin):
     """Admin interface for ToolsConfig."""
-    
+
+    fieldsets = (
+        (_('Storage'), {
+            'fields': (
+                'storage_path_storage',
+                'storage_path',
+                'output_path_storage',
+                'output_path',
+                'max_upload_size',
+            ),
+            'description': _(
+                'Storage Location (optional): when set, overrides the path below. '
+                'Storage Path and Output Path are required when no Storage Location is selected.'
+            ),
+        }),
+        (_('Allowed formats'), {
+            'fields': ('allowed_image_formats', 'allowed_video_formats', 'allowed_audio_formats'),
+        }),
+        (_('FFmpeg'), {
+            'fields': ('ffmpeg_path', 'ffprobe_path'),
+        }),
+        (_('Audio normalize'), {
+            'fields': (
+                'audio_normalize_input_storage',
+                'audio_normalize_input_path',
+                'audio_normalize_output_storage',
+                'audio_normalize_output_path',
+                'audio_normalize_default_preset',
+                'audio_normalize_default_bitrate',
+            ),
+            'description': _(
+                'Storage Location (optional): when set, overrides the path below; output can be outside MEDIA_ROOT. '
+                'Path fields are used when no storage is selected. Output path can be empty (output next to input).'
+            ),
+        }),
+    )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        storage_fields = (
+            'storage_path_storage',
+            'output_path_storage',
+            'audio_normalize_input_storage',
+            'audio_normalize_output_storage',
+        )
+        if db_field.name in storage_fields:
+            try:
+                from media_files.models import StorageLocation
+                kwargs.setdefault('queryset', StorageLocation.objects.filter(is_active=True).order_by('storage_type', 'name'))
+            except Exception:
+                pass
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def has_add_permission(self, request):
         """Only one config instance allowed."""
         try:
@@ -126,11 +177,11 @@ class ToolsConfigAdmin(admin.ModelAdmin):
         except Exception:
             # Table doesn't exist yet (migrations not applied)
             return True
-    
+
     def has_delete_permission(self, request, obj=None):
         """Prevent deletion of config."""
         return False
-    
+
     def has_module_permission(self, request):
         """Show config only to superusers."""
         return request.user.is_superuser
