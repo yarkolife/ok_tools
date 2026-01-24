@@ -779,7 +779,7 @@ class AudioPresetsView(APIView):
 
 
 class MediaFilesByNumberView(APIView):
-    """Search media_files.VideoFile by number and return usable paths under MEDIA_ROOT."""
+    """Search media_files.VideoFile by number; returns files under MEDIA_ROOT or in storage locations."""
 
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
@@ -814,24 +814,32 @@ class MediaFilesByNumberView(APIView):
         media_root_abs = _media_root_abs()
         results = []
         for v in versions:
-            try:
-                base = Path(v.storage_location.path)
-                rel = str(v.file_path or '').lstrip('/\\')
-                abs_path = (base / rel).resolve()
-                if not abs_path.exists():
-                    continue
-                # Only allow selecting files that are served from MEDIA_ROOT
-                relpath = abs_path.relative_to(media_root_abs)
-            except Exception:
+            if not v.storage_location or not getattr(v.storage_location, 'path', None):
+                continue
+            base = Path(v.storage_location.path)
+            rel = str(v.file_path or '').lstrip('/\\')
+            abs_path = (base / rel).resolve()
+            if not abs_path.exists() or not abs_path.is_file():
                 continue
 
+            try:
+                relpath = str(abs_path.relative_to(media_root_abs)).replace("\\", "/")
+                under_media = True
+            except ValueError:
+                relpath = None
+                under_media = False
+
+            stream_url = reverse("admin:media_files_videofile_stream", args=[v.id])
             results.append({
                 'id': v.id,
                 'number': v.number,
                 'filename': v.filename,
                 'storage_location': str(getattr(v.storage_location, 'name', '') or ''),
-                'relpath': str(relpath).replace("\\", "/"),
-                'url': f"/media/{str(relpath).replace('\\\\', '/')}",
+                'relpath': relpath,
+                'url': f"/media/{relpath}" if relpath else None,
+                'external': not under_media,
+                'video_file_id': v.id,
+                'stream_url': stream_url,
                 'is_primary': bool(getattr(v, 'is_primary_version', lambda: False)()),
                 'total_bitrate': getattr(v, 'total_bitrate', None),
             })
@@ -1258,9 +1266,14 @@ class CreateAudioNormalizeJobView(APIView):
             abs_path.relative_to(media_root_abs)
             return str(abs_path.relative_to(media_root_abs)).replace("\\", "/")
 
-        existing_input = request.data.get("input_path") or request.data.get("input_file_url") or ""
+        existing_input = (request.data.get("input_path") or request.data.get("input_file_url") or "").strip()
+        input_media_file_id_raw = request.data.get("input_media_file_id")
+        try:
+            input_media_file_id = int(input_media_file_id_raw) if input_media_file_id_raw not in (None, "") else None
+        except (TypeError, ValueError):
+            input_media_file_id = None
         file = request.FILES.get('file')
-        if not file and not existing_input:
+        if not file and not existing_input and not input_media_file_id:
             return Response({'error': _('No file provided')}, status=status.HTTP_400_BAD_REQUEST)
 
         preset_id = request.data.get('preset_id', 'tv_natural')
@@ -1270,9 +1283,28 @@ class CreateAudioNormalizeJobView(APIView):
         force_stereo = str(request.data.get('force_stereo', 'false')).lower() in ('1', 'true', 'yes', 'on')
         output_filename = (request.data.get('output_filename') or '').strip()
 
-        # Prefer referencing an existing file under MEDIA_ROOT if provided.
+        # Resolve input: (1) by media_files.VideoFile id (can be outside MEDIA_ROOT),
+        # (2) existing path under MEDIA_ROOT, (3) upload.
         input_file_value = None
-        if existing_input:
+        input_path_external = ""
+        input_media_file_id_save = None
+        input_stream_url = None
+
+        if input_media_file_id:
+            try:
+                from media_files.models import VideoFile  # type: ignore
+                v = VideoFile.objects.select_related('storage_location').get(id=input_media_file_id, is_available=True)
+            except Exception:
+                return Response({'error': _('Input file not found')}, status=status.HTTP_400_BAD_REQUEST)
+            if not v.storage_location or not getattr(v.storage_location, 'path', None):
+                return Response({'error': _('Input file not found')}, status=status.HTTP_400_BAD_REQUEST)
+            abs_path = (Path(v.storage_location.path) / (v.file_path or '').lstrip('/\\')).resolve()
+            if not abs_path.exists() or not abs_path.is_file():
+                return Response({'error': _('Input file not found')}, status=status.HTTP_400_BAD_REQUEST)
+            input_path_external = str(abs_path)
+            input_media_file_id_save = v.id
+            input_stream_url = reverse("admin:media_files_videofile_stream", args=[v.id])
+        elif existing_input:
             try:
                 input_file_value = _resolve_existing_input(existing_input)
             except Exception:
@@ -1314,12 +1346,15 @@ class CreateAudioNormalizeJobView(APIView):
             sample_rate=sample_rate,
             force_stereo=force_stereo,
             output_filename=output_filename,
-            input_file=input_file_value or file,
+            input_file=input_file_value or file or '',
+            input_path_external=input_path_external or '',
+            input_media_file_id=input_media_file_id_save,
         )
 
         return Response({
             'status': 'success',
             'job_id': job.id,
+            'input_stream_url': input_stream_url,
         }, status=status.HTTP_201_CREATED)
 
 
@@ -1396,6 +1431,15 @@ class AudioJobStatusView(APIView):
             except Exception:
                 recommendations = []
 
+        input_stream_url = None
+        if getattr(job, 'input_media_file_id', None):
+            try:
+                from media_files.models import VideoFile  # type: ignore
+                v = VideoFile.objects.get(id=job.input_media_file_id)
+                input_stream_url = reverse("admin:media_files_videofile_stream", args=[v.id])
+            except Exception:
+                pass
+
         return Response({
             'id': job.id,
             'status': job.status,
@@ -1408,6 +1452,7 @@ class AudioJobStatusView(APIView):
             'output_filename': job.output_filename,
             'input_file': Path(job.input_file.name).name if job.input_file else None,
             'input_file_url': job.input_file.url if job.input_file else None,
+            'input_stream_url': input_stream_url,
             'output_file': job.output_file.url if job.output_file else None,
             'output_path_external': (job.output_path_external or '').strip() or None,
             'error_message': job.error_message,
@@ -1441,9 +1486,13 @@ class AudioWaveformView(APIView):
             return Response({'error': _('Invalid kind')}, status=status.HTTP_400_BAD_REQUEST)
 
         if kind == 'before':
-            if not job.input_file:
+            ext = (getattr(job, 'input_path_external', '') or '').strip()
+            if ext:
+                input_path = Path(ext)
+            elif job.input_file and (job.input_file.name or '').strip():
+                input_path = Path(job.input_file.path)
+            else:
                 raise Http404(_("Input file not found"))
-            input_path = Path(job.input_file.path)
         else:
             if not job.output_file:
                 raise Http404(_("Output file not found"))

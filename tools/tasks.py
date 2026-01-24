@@ -340,7 +340,11 @@ def cleanup_old_audio_normalize_jobs_task(older_than_days=30, delete_if_missing_
     def _should_delete_missing(job: AudioNormalizeJob) -> bool:
         if not delete_if_missing_files:
             return False
-        input_missing = bool(job.input_file) and not _path_exists(getattr(job.input_file, "path", ""))
+        ext = (getattr(job, "input_path_external", "") or "").strip()
+        input_missing = (
+            (bool(job.input_file) and (job.input_file.name or "").strip() and not _path_exists(getattr(job.input_file, "path", "")))
+            or (bool(ext) and not _path_exists(ext))
+        )
         output_missing = (
             (bool(job.output_file) and not _path_exists(getattr(job.output_file, "path", "")))
             or (bool(getattr(job, "output_path_external", "")) and not _path_exists(job.output_path_external))
@@ -355,7 +359,8 @@ def cleanup_old_audio_normalize_jobs_task(older_than_days=30, delete_if_missing_
     def _delete_job(job: AudioNormalizeJob, missing_trigger: bool) -> None:
         nonlocal deleted_jobs, deleted_missing, files_deleted
 
-        input_path = getattr(job.input_file, "path", "") if job.input_file else ""
+        # Only our copy under MEDIA_ROOT is deleted; input_path_external references external storage and must not be unlinked.
+        input_path = getattr(job.input_file, "path", "") if (job.input_file and (job.input_file.name or "").strip()) else ""
         output_path = getattr(job.output_file, "path", "") if job.output_file else ""
         output_path_external = getattr(job, "output_path_external", "") or ""
 
@@ -438,7 +443,13 @@ def analyze_audio_normalize_job_task(self, job_id):
 
     try:
         service = AudioNormalizerService(job)
-        input_path = Path(job.input_file.path)
+        ext = (getattr(job, 'input_path_external', '') or '').strip()
+        if ext:
+            input_path = Path(ext)
+        elif job.input_file and (job.input_file.name or '').strip():
+            input_path = Path(job.input_file.path)
+        else:
+            raise AudioNormalizerError("Job has no input file.")
 
         meta, _probe = service.probe(input_path)
         before = service.analyze_loudnorm(input_path)

@@ -947,11 +947,24 @@ class AudioNormalizeJob(models.Model):
     input_file = models.FileField(
         upload_to=audio_normalize_input_upload_path,
         verbose_name=_('Input File'),
+        blank=True,
         validators=[
             FileExtensionValidator(
                 allowed_extensions=['mp4', 'mov', 'mkv', 'avi', 'webm', 'm4v', 'mp3', 'wav', 'm4a', 'flac', 'ogg']
             )
         ],
+    )
+    input_path_external = models.CharField(
+        max_length=1000,
+        blank=True,
+        verbose_name=_('Input path (external)'),
+        help_text=_('Absolute path when input is outside MEDIA_ROOT (e.g. from a storage location).'),
+    )
+    input_media_file_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_('Input media file ID'),
+        help_text=_('media_files.VideoFile ID when input was chosen by media number (for stream URL).'),
     )
     output_file = models.FileField(
         upload_to=audio_normalize_output_upload_path,

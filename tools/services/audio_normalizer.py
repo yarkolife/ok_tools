@@ -527,11 +527,16 @@ class AudioNormalizerService:
         """
         High-level helper for Celery: probe -> analyze -> process -> verify.
         Updates job fields but does not save files to FileField (done by task).
+        Input can be job.input_file (under MEDIA_ROOT) or job.input_path_external (e.g. storage).
         """
-        if not self.job.input_file:
+        ext = (getattr(self.job, 'input_path_external', '') or '').strip()
+        if ext:
+            input_path = Path(ext)
+        elif self.job.input_file:
+            input_path = Path(self.job.input_file.path)
+        else:
             raise AudioNormalizerError("Job has no input file.")
 
-        input_path = Path(self.job.input_file.path)
         if not input_path.exists():
             raise AudioNormalizerError(f"Input file not found: {input_path}")
 

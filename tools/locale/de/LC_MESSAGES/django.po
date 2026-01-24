@@ -945,6 +945,18 @@ msgstr "Suche fehlgeschlagen."
 msgid "No matching files found under MEDIA_ROOT."
 msgstr "Keine passenden Dateien unter MEDIA_ROOT gefunden."
 
+msgid "No matching files found."
+msgstr "Keine passenden Dateien gefunden."
+
+msgid "Storage"
+msgstr "Speicherort"
+
+msgid "External"
+msgstr "Extern"
+
+msgid "Using existing file (from storage)"
+msgstr "Verwende bestehende Datei (vom Speicherort)"
+
 msgid "Use"
 msgstr "Verwenden"
 
