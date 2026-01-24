@@ -623,6 +623,7 @@ async function searchMediaByNumber() {
         wrap.innerHTML = '<div class="hint">{% trans "No matching files found." %}</div>';
         return;
     }
+    const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
     wrap.innerHTML = results.map((r) => {
         const title = `${r.number} — ${r.filename}`;
         const loc = r.storage_location ? ` (${r.storage_location})` : '';
@@ -630,19 +631,28 @@ async function searchMediaByNumber() {
             ? (r.storage_location ? `{% trans "Storage" %}: ${r.storage_location}` : '{% trans "External" %}')
             : `/media/${r.relpath || ''}${loc}`;
         const badge = r.is_primary ? ' <span class="status-badge">PRIMARY</span>' : '';
-        const onclick = r.external
-            ? `useExistingInputExternal(${r.video_file_id}, ${JSON.stringify(r.stream_url || '')})`
-            : `useExistingInput(${JSON.stringify(r.relpath || '')})`;
+        const dataExternal = r.external ? 'true' : 'false';
+        const dataVideoFileId = r.external ? esc(String(r.video_file_id || '')) : '';
+        const dataStreamUrl = r.external ? esc(r.stream_url || '') : '';
+        const dataRelpath = !r.external ? esc(r.relpath || '') : '';
         return `
             <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; margin-top:8px;">
                 <div style="min-width: 0;">
                     <div style="font-weight:700; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${title}${badge}</div>
                     <div class="hint" style="margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sub}</div>
                 </div>
-                <button type="button" class="button default" onclick="${onclick}">{% trans 'Use' %}</button>
+                <button type="button" class="button default" data-external="${dataExternal}" data-video-file-id="${dataVideoFileId}" data-stream-url="${dataStreamUrl}" data-relpath="${dataRelpath}" onclick="useExistingInputFromButton(this)">{% trans 'Use' %}</button>
             </div>
         `;
     }).join('');
+}
+
+function useExistingInputFromButton(btn) {
+    if (btn.dataset.external === 'true') {
+        useExistingInputExternal(btn.dataset.videoFileId || '', btn.dataset.streamUrl || '');
+    } else {
+        useExistingInput(btn.dataset.relpath || '');
+    }
 }
 
 function useExistingInput(relpath) {
