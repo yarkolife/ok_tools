@@ -53,6 +53,7 @@ urlpatterns = [
     path('api/audio-normalize/<int:job_id>/start/', api.StartNormalizeView.as_view(), name='api_audio_start'),
     path('api/audio-normalize/<int:job_id>/status/', api.AudioJobStatusView.as_view(), name='api_audio_status'),
     path('api/audio-normalize/<int:job_id>/waveform/', api.AudioWaveformView.as_view(), name='api_audio_waveform'),
+    path('api/audio-normalize/<int:job_id>/stream-output/', api.StreamOutputView.as_view(), name='api_audio_stream_output'),
     path('api/audio-normalize/<int:job_id>/download/', api.DownloadNormalizedView.as_view(), name='api_audio_download'),
     path('api/audio-normalize/<int:job_id>/', api.DeleteAudioJobView.as_view(), name='api_audio_delete'),
 

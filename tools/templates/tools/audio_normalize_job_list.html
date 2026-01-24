@@ -105,7 +105,7 @@
                 <td>
                     <a href="{% url 'tools:audio_normalize_job_detail' job.id %}" class="button">{% trans 'View' %}</a>
                     <a href="{% url 'tools:audio_normalize_new' %}?job={{ job.id }}" class="button">{% trans 'Open Tool' %}</a>
-                    {% if job.status == 'completed' and job.output_file %}
+                    {% if job.status == 'completed' and (job.output_file or job.output_path_external) %}
                         <a href="{% url 'tools:api_audio_download' job.id %}" class="button default">{% trans 'Download' %}</a>
                     {% endif %}
                 </td>

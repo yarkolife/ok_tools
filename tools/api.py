@@ -1,13 +1,15 @@
 """API endpoints for Tools module."""
 
 import logging
+import mimetypes
+import re
 from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
 from django.db import models
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -1455,6 +1457,8 @@ class AudioJobStatusView(APIView):
             'input_stream_url': input_stream_url,
             'output_file': job.output_file.url if job.output_file else None,
             'output_path_external': (job.output_path_external or '').strip() or None,
+            'output_stream_url': reverse('tools:api_audio_stream_output', args=[job.id])
+            if (getattr(job, 'output_path_external', '') or '').strip() else None,
             'error_message': job.error_message,
             'ffmpeg_log_tail': (job.ffmpeg_log or '')[-5000:],
             'input_metadata': job.input_metadata,
@@ -1494,9 +1498,13 @@ class AudioWaveformView(APIView):
             else:
                 raise Http404(_("Input file not found"))
         else:
-            if not job.output_file:
+            ext_out = (getattr(job, 'output_path_external', '') or '').strip()
+            if ext_out:
+                input_path = Path(ext_out)
+            elif job.output_file and (job.output_file.name or '').strip():
+                input_path = Path(job.output_file.path)
+            else:
                 raise Http404(_("Output file not found"))
-            input_path = Path(job.output_file.path)
 
         service = AudioNormalizerService(job)
         try:
@@ -1522,6 +1530,89 @@ class AudioWaveformView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class StreamOutputView(APIView):
+    """Stream output file from output_path_external with HTTP Range support (for video preview)."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def dispatch(self, request, *args, **kwargs):
+        check_tools_enabled()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, job_id):
+        _require_staff(request)
+        job = get_audio_job_or_403(request, job_id)
+
+        ext = (getattr(job, 'output_path_external', '') or '').strip()
+        if not ext:
+            raise Http404(_("Output file not found"))
+        abs_path = Path(ext).resolve()
+        if not abs_path.exists() or not abs_path.is_file():
+            raise Http404(_("Output file not found"))
+
+        size = abs_path.stat().st_size
+        content_type = mimetypes.guess_type(str(abs_path))[0] or "video/mp4"
+
+        range_header = request.headers.get("Range") or request.META.get("HTTP_RANGE")
+        if not range_header:
+            resp = FileResponse(open(abs_path, "rb"), content_type=content_type)
+            resp["Accept-Ranges"] = "bytes"
+            resp["Content-Length"] = str(size)
+            return resp
+
+        m = re.match(r"^bytes=(\d*)-(\d*)$", range_header.strip())
+        if not m:
+            resp = HttpResponse(status=416)
+            resp["Content-Range"] = f"bytes */{size}"
+            return resp
+        start_s, end_s = m.groups()
+        if start_s == "" and end_s == "":
+            resp = HttpResponse(status=416)
+            resp["Content-Range"] = f"bytes */{size}"
+            return resp
+        if start_s == "":
+            suffix_len = int(end_s)
+            if suffix_len <= 0:
+                resp = HttpResponse(status=416)
+                resp["Content-Range"] = f"bytes */{size}"
+                return resp
+            start = max(0, size - suffix_len)
+            end = size - 1
+        else:
+            start = int(start_s)
+            end = int(end_s) if end_s else size - 1
+        if start < 0 or start >= size or end < start:
+            resp = HttpResponse(status=416)
+            resp["Content-Range"] = f"bytes */{size}"
+            return resp
+        end = min(end, size - 1)
+        length = end - start + 1
+
+        def iterator(path: Path, offset: int, count: int, chunk_size: int = 1024 * 512):
+            f = open(path, "rb")
+            try:
+                f.seek(offset)
+                remaining = count
+                while remaining > 0:
+                    data = f.read(min(chunk_size, remaining))
+                    if not data:
+                        break
+                    remaining -= len(data)
+                    yield data
+            finally:
+                try:
+                    f.close()
+                except Exception:
+                    pass
+
+        resp = StreamingHttpResponse(iterator(abs_path, start, length), status=206, content_type=content_type)
+        resp["Accept-Ranges"] = "bytes"
+        resp["Content-Range"] = f"bytes {start}-{end}/{size}"
+        resp["Content-Length"] = str(length)
+        return resp
+
+
 class DownloadNormalizedView(APIView):
     """Download normalized output file."""
 
@@ -1536,14 +1627,27 @@ class DownloadNormalizedView(APIView):
         _require_staff(request)
         job = get_audio_job_or_403(request, job_id)
 
+        ext = (getattr(job, 'output_path_external', '') or '').strip()
+        if ext:
+            abs_path = Path(ext).resolve()
+            if not abs_path.exists() or not abs_path.is_file():
+                raise Http404(_("Output file not found"))
+            fname = job.output_filename or abs_path.name
+            ct = mimetypes.guess_type(str(abs_path))[0] or 'video/mp4'
+            return FileResponse(
+                open(abs_path, 'rb'),
+                content_type=ct,
+                as_attachment=True,
+                filename=Path(fname).name
+            )
         if not job.output_file:
             raise Http404(_("Output file not generated yet"))
         if not job.output_file.path or not Path(job.output_file.path).exists():
             raise Http404(_("Output file not found"))
-
         return FileResponse(
             open(job.output_file.path, 'rb'),
             content_type='video/mp4',
+            as_attachment=True,
             filename=Path(job.output_file.name).name
         )
 

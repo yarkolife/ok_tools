@@ -337,7 +337,7 @@
                         <td>{% trans 'True Peak' %}</td>
                         <td id="rowTruePeakBefore">-</td>
                         <td id="rowTruePeakAfter">-</td>
-                        <td id="rowTruePeakTarget">-1.0</td>
+                        <td id="rowTruePeakTarget">≤ -1.0</td>
                         <td id="rowTruePeakStatus"><span class="status-badge warn">-</span></td>
                     </tr>
                     <tr>
@@ -797,7 +797,7 @@ function updateMetricCards(before, after) {
     document.getElementById('rowLraAfter').textContent = fmt(aLRA, ' LU');
 
     document.getElementById('rowIntegratedStatus').innerHTML = statusBadge(aI, -23, 1.0, 'LUFS');
-    document.getElementById('rowTruePeakStatus').innerHTML = statusBadge(aTP, -1.0, 0.5, 'dB');
+    document.getElementById('rowTruePeakStatus').innerHTML = statusBadge(aTP, -1.0, 0.5, 'dB', true);
     document.getElementById('rowLraStatus').innerHTML = statusBadge(aLRA, 11.0, 1.0, 'LU', true);
 }
 
@@ -930,7 +930,11 @@ async function loadWaveform(jobId, kind) {
 async function ensureAfterPreview(url) {
     if (!url) return;
     const player = document.getElementById('afterPlayer');
-    player.src = toSeekableMediaUrl(url);
+    if (url.startsWith('/tools/api/')) {
+        player.src = url;
+    } else {
+        player.src = toSeekableMediaUrl(url);
+    }
 }
 
 async function refreshStatus(jobId) {
@@ -966,9 +970,11 @@ async function refreshStatus(jobId) {
     }
     if (data.output_file) {
         ensureAfterPreview(data.output_file);
+    } else if (data.output_stream_url) {
+        ensureAfterPreview(data.output_stream_url);
     }
 
-    if (!beforeWaveformLoaded && data.input_file_url) {
+    if (!beforeWaveformLoaded && (data.input_file_url || data.input_stream_url)) {
         try {
             const wf = await loadWaveform(jobId, 'before');
             drawWaveformFromPeaks('beforeWaveform', wf.peaks || []);
@@ -977,7 +983,7 @@ async function refreshStatus(jobId) {
             drawWaveformPlaceholder('beforeWaveform');
         }
     }
-    if (!afterWaveformLoaded && data.output_file) {
+    if (!afterWaveformLoaded && (data.output_file || data.output_path_external)) {
         try {
             const wf = await loadWaveform(jobId, 'after');
             drawWaveformFromPeaks('afterWaveform', wf.peaks || []);
