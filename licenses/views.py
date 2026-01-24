@@ -374,13 +374,14 @@ class UploadVideoView(generic.View):
                 progress_callback=progress_callback
             )
             
-            # Create NextcloudVideoFile record
+            # Create NextcloudVideoFile record (user_uploaded=True: rightsholder initiated)
             NextcloudVideoFile.objects.create(
                 license=license,
                 nextcloud_file_id=upload_result['file_id'],
                 nextcloud_url=upload_result['nextcloud_url'],
                 filename=upload_result['filename'],
                 file_size=video_file.size,
+                user_uploaded=True,
             )
             
             logger.info(
@@ -612,13 +613,14 @@ class ConfirmUploadView(generic.View):
             # Use file size from verification or from client
             actual_size = file_info.get('size', 0) or file_size
             
-            # Create NextcloudVideoFile record
+            # Create NextcloudVideoFile record (user_uploaded=True: rightsholder confirmed upload)
             NextcloudVideoFile.objects.create(
                 license=license,
                 nextcloud_file_id=file_info['file_path'],
                 nextcloud_url=file_info['file_url'],
                 filename=filename,
                 file_size=actual_size,
+                user_uploaded=True,
             )
             
             logger.info(

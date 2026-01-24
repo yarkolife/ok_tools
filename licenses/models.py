@@ -370,6 +370,13 @@ class NextcloudVideoFile(models.Model):
         verbose_name=_('Is Deleted'),
         help_text=_('Flag if file was deleted from Nextcloud'),
     )
+    user_uploaded = models.BooleanField(
+        default=False,
+        verbose_name=_('User uploaded'),
+        help_text=_('True if the file was uploaded by the rightsholder via the portal; '
+                    'False if created by staff (e.g. in Admin). Used to decide whether to '
+                    'send draft_scheduled, planned_scheduled, contributions_available emails.'),
+    )
     deleted_at = models.DateTimeField(
         null=True,
         blank=True,
@@ -407,12 +414,34 @@ class LicensesConfig(models.Model):
         help_text=_('Local path for downloaded files')
     )
 
+    create_videofile_on_nextcloud_download = models.BooleanField(
+        default=False,
+        verbose_name=_('Create VideoFile on Nextcloud download'),
+        help_text=_(
+            'After downloading a Nextcloud video to disk, create a VideoFile in media_files '
+            'so it shows as Player in the license list immediately. Requires MEDIA_FILES_ENABLED '
+            'and the download path to be under a StorageLocation. If off, only the file is saved; '
+            'a storage scan can create the VideoFile later.'
+        ),
+    )
+
     send_status_emails = models.BooleanField(
         default=True,
         verbose_name=_('Send status emails'),
         help_text=_('Send email notifications about video status (upload, scheduling, broadcast dates).'),
     )
-    
+
+    notification_media_authority_names = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name=_('Send notifications to (Media Authorities)'),
+        help_text=_(
+            'Send status emails only to users whose profile belongs to one of these '
+            'Media Authorities (Offene Kanäle/Bürgermedien). Empty = send to all. '
+            'Use to restrict to "our" organisation(s) only.'
+        ),
+    )
+
     class Meta:
         verbose_name = _('Licenses Configuration')
         verbose_name_plural = _('Licenses Configuration')

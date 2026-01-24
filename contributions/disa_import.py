@@ -573,24 +573,17 @@ def disa_import(request, file, from_date: date_type = None):
             if imported_license_ids:
                 tz = ZoneInfo(settings.TIME_ZONE)
 
-                def has_linked_video(license_obj: License) -> bool:
-                    try:
-                        if license_obj.get_video_file():
-                            return True
-                    except Exception:
-                        pass
-                    try:
-                        return NextcloudVideoFile.objects.filter(
-                            license=license_obj,
-                            is_deleted=False,
-                        ).exists()
-                    except Exception:
-                        return False
+                def has_linked_user_uploaded_video(license_obj: License) -> bool:
+                    return NextcloudVideoFile.objects.filter(
+                        license=license_obj,
+                        is_deleted=False,
+                        user_uploaded=True,
+                    ).exists()
 
                 for lic in licenses_dict.values():
                     if int(getattr(lic, "id", 0) or 0) not in imported_license_ids:
                         continue
-                    if not has_linked_video(lic):
+                    if not has_linked_user_uploaded_video(lic):
                         continue
 
                     qs = models.Contribution.objects.filter(license=lic).order_by("broadcast_date")

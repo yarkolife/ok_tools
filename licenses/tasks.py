@@ -58,9 +58,80 @@ def download_nextcloud_video_file_to_storage(self, nextcloud_video_file_id: int,
         if not ok:
             raise RuntimeError("Download failed")
         logger.info(f"Downloaded Nextcloud video #{video.pk} to {local_path}")
+
+        # Optionally create VideoFile in media_files so it shows as Player immediately
+        if getattr(settings, "MEDIA_FILES_ENABLED", False) and getattr(
+            config, "create_videofile_on_nextcloud_download", False
+        ):
+            try:
+                _create_videofile_after_download(
+                    local_path=local_path,
+                    license_number=license_number,
+                    filename=video.filename or safe_filename,
+                )
+            except Exception as e:
+                logger.warning(
+                    "Could not create VideoFile after Nextcloud download (path=%s): %s",
+                    local_path,
+                    e,
+                    exc_info=True,
+                )
+
         return str(local_path)
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
+
+
+def _create_videofile_after_download(
+    *,
+    local_path: Path,
+    license_number: int | None,
+    filename: str,
+) -> None:
+    """
+    Create a VideoFile in media_files when local_path lies under a StorageLocation.
+
+    Used after Nextcloud download so the license list shows Player instead of
+    waiting for a storage scan. License linking is done by media_files signals.
+    """
+    if not license_number:
+        return
+
+    from media_files.models import StorageLocation, VideoFile
+
+    resolved = Path(local_path).resolve()
+    if not resolved.exists():
+        return
+
+    # Find StorageLocations whose path contains the file; pick the most specific
+    candidates = []
+    for s in StorageLocation.objects.filter(is_active=True):
+        if not s.path:
+            continue
+        try:
+            base = Path(s.path).resolve()
+            resolved.relative_to(base)
+            candidates.append((s, len(s.path)))
+        except (ValueError, OSError):
+            continue
+    if not candidates:
+        logger.debug(
+            "No StorageLocation contains %s, skipping VideoFile creation",
+            local_path,
+        )
+        return
+
+    storage = max(candidates, key=lambda x: x[1])[0]
+    base = Path(storage.path).resolve()
+    rel_path = str(resolved.relative_to(base)).replace("\\", "/")
+    fname = filename or resolved.name
+
+    VideoFile.objects.get_or_create(
+        number=license_number,
+        storage_location=storage,
+        file_path=rel_path,
+        defaults={"filename": fname, "is_available": True},
+    )
 
 
 def _safe_site_base_url() -> str:
@@ -137,10 +208,19 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
         pass
 
     try:
-        license_obj = License.objects.select_related("profile", "profile__okuser").get(number=int(license_number))
+        license_obj = License.objects.select_related(
+            "profile", "profile__okuser", "profile__media_authority"
+        ).get(number=int(license_number))
     except Exception:
         logger.exception("License not found for notification (number=%s, event=%s)", license_number, event_type)
         return
+
+    try:
+        from .config import should_send_notification_for_license
+        if not should_send_notification_for_license(license_obj):
+            return
+    except Exception:
+        pass
 
     profile = getattr(license_obj, "profile", None)
     user = getattr(profile, "okuser", None) if profile else None

@@ -1,6 +1,24 @@
 CHANGELOG
 =========
 
+2026-01-23 (Version 4.0.1)
+==========================
+
+* **Licenses: status email targeting and user-upload chain**
+  * **LicensesConfig**
+    * New `notification_media_authority_names`: send status emails only to users whose
+      Profile belongs to selected Media Authorities (Offene Kanäle/Bürgermedien).
+      Empty = send to all. Configure in Admin → Licenses → Licenses configuration.
+  * **NextcloudVideoFile**
+    * New `user_uploaded`: True when the rightsholder uploads via the portal; False
+      when staff creates the record (e.g. in Admin). Shown in Admin.
+  * **Email chain (draft_scheduled, planned_scheduled, contributions_available)**
+    * Sent only if the license has a **user-uploaded** Nextcloud video
+      (`user_uploaded=True`). Archive-only or staff-linked videos no longer trigger
+      these three emails.
+  * **video_uploaded** still sent for any new NextcloudVideoFile; all four types
+    are filtered by `notification_media_authority_names` when set.
+
 2026-01-20 (Version 4.0.0)
 ==========================
 

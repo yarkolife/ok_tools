@@ -1193,3 +1193,24 @@ msgid "Skipped %(count)d deleted file."
 msgid_plural "Skipped %(count)d deleted files."
 msgstr[0] "%(count)d gelöschte Datei übersprungen."
 msgstr[1] "%(count)d gelöschte Dateien übersprungen."
+
+msgid "User uploaded"
+msgstr "Vom Nutzer hochgeladen"
+
+msgid "True if the file was uploaded by the rightsholder via the portal; False if created by staff (e.g. in Admin). Used to decide whether to send draft_scheduled, planned_scheduled, contributions_available emails."
+msgstr "True, wenn die Datei vom Rechteinhaber über das Portal hochgeladen wurde; False, wenn von Mitarbeitenden angelegt (z.B. im Admin). Steuert, ob E-Mails zu draft_scheduled, planned_scheduled und contributions_available verschickt werden."
+
+msgid "Create VideoFile on Nextcloud download"
+msgstr "VideoFile bei Nextcloud-Download anlegen"
+
+msgid "After downloading a Nextcloud video to disk, create a VideoFile in media_files so it shows as Player in the license list immediately. Requires MEDIA_FILES_ENABLED and the download path to be under a StorageLocation. If off, only the file is saved; a storage scan can create the VideoFile later."
+msgstr "Nach dem Herunterladen eines Nextcloud-Videos auf die Festplatte einen VideoFile-Eintrag in media_files anlegen, damit in der Freistellungsliste sofort der Player angezeigt wird. Erfordert MEDIA_FILES_ENABLED und dass der Download-Pfad unter einem StorageLocation liegt. Wenn aus, wird nur die Datei gespeichert; ein Speicher-Scan kann den VideoFile später anlegen."
+
+msgid "Send notifications to (Media Authorities)"
+msgstr "Benachrichtigungen an (Medienanstalten)"
+
+msgid "Send status emails only to users whose profile belongs to one of these Media Authorities (Offene Kanäle/Bürgermedien). Empty = send to all. Use to restrict to \"our\" organisation(s) only."
+msgstr "Status-E-Mails nur an Nutzer senden, deren Profil zu einer dieser Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle. Dient dazu, nur \"eigene\" Einrichtungen zu benachrichtigen."
+
+msgid "Send status emails only to users whose profile belongs to one of these Media Authorities (Offene Kanäle/Bürgermedien). Empty = send to all."
+msgstr "Status-E-Mails nur an Nutzer senden, deren Profil zu einer dieser Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle."

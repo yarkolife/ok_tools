@@ -144,6 +144,10 @@ class Command(BaseCommand):
                 r = TaskResult.objects.get(pk=tid)
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"TaskResult id={tid} not found: {e}"))
+                self.stderr.write(
+                    "Tip: use --event-type and --license-number (and --payload), or find IDs in "
+                    "Admin: Django Celery Results → Task results, or via shell."
+                )
                 return None, None, None
             if r.task_name != "licenses.tasks.send_license_notification_email":
                 self.stderr.write(

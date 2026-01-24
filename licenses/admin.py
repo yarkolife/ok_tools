@@ -798,33 +798,20 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     video_file_info.short_description = _('Video File')
     
     def video_status(self, obj):
-        """Display video status with modal player link in list view."""
+        """Display video status with modal player link in list view.
+
+        Priority: 1) Local VideoFile (Player) if available — e.g. after Nextcloud
+        download; 2) NextcloudVideoFile (☁️) if no local; 3) No video. This avoids
+        showing the NC icon when the video is already in media_files and playable.
+        """
         from django.urls import reverse
         from django.utils.html import format_html
         from django.conf import settings
-        
+
         if not obj.pk:
             return '-'
-        
-        # Check for Nextcloud video first (if enabled)
-        if settings.NEXTCLOUD_ENABLED:
-            # Use prefetched data if available
-            if hasattr(obj, 'active_nextcloud_videos') and obj.active_nextcloud_videos:
-                nextcloud_video = obj.active_nextcloud_videos[0]
-            else:
-                nextcloud_video = NextcloudVideoFile.objects.filter(
-                    license=obj,
-                    is_deleted=False
-                ).first()
-            
-            if nextcloud_video:
-                # Show simple Nextcloud video status
-                return format_html(
-                    '<span style="color: #17a2b8;">☁️ {}</span>',
-                    _('Nextcloud Video')
-                )
-        
-        # Check for regular video file (old system)
+
+        # 1) Prefer local VideoFile (media_files): after NC download it exists and is playable
         try:
             video_file = obj.get_video_file()
             if video_file:
@@ -869,14 +856,29 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                         '<span style="color: #ffc107;">⚠️ {}</span>',
                         _('Not available')
                     )
-            else:
-                return format_html(
-                    '<span style="color: #999;">❌ {}</span>',
-                    _('No video')
-                )
-        except Exception as e:
+
+            # 2) No local VideoFile — show Nextcloud if present
+            if settings.NEXTCLOUD_ENABLED:
+                if hasattr(obj, 'active_nextcloud_videos') and obj.active_nextcloud_videos:
+                    nextcloud_video = obj.active_nextcloud_videos[0]
+                else:
+                    nextcloud_video = NextcloudVideoFile.objects.filter(
+                        license=obj,
+                        is_deleted=False
+                    ).first()
+                if nextcloud_video:
+                    return format_html(
+                        '<span style="color: #17a2b8;">☁️ {}</span>',
+                        _('Nextcloud Video')
+                    )
+
+            return format_html(
+                '<span style="color: #999;">❌ {}</span>',
+                _('No video')
+            )
+        except Exception:
             return format_html('<span style="color: #999;">-</span>')
-    
+
     video_status.short_description = _('Video')
     
     def has_signature(self, obj):
@@ -1596,12 +1598,14 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
         'filename',
         'file_size',
         'uploaded_at',
+        'user_uploaded',
         'is_deleted',
         'deleted_at',
         'download_to_storage_button',
     )
     list_filter = (
         'is_deleted',
+        'user_uploaded',
         'uploaded_at',
         'deleted_at',
     )
@@ -1623,7 +1627,7 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
             'fields': ('license', 'filename', 'file_size', 'nextcloud_file_id', 'nextcloud_url')
         }),
         (_('Status'), {
-            'fields': ('is_deleted', 'uploaded_at', 'deleted_at')
+            'fields': ('user_uploaded', 'is_deleted', 'uploaded_at', 'deleted_at')
         }),
     )
 
@@ -1738,24 +1742,58 @@ if settings.NEXTCLOUD_ENABLED:
     admin.site.register(NextcloudVideoFile, NextcloudVideoFileAdmin)
 
 
+class LicensesConfigForm(forms.ModelForm):
+    """Form for LicensesConfig with multi-select for Media Authorities."""
+
+    notification_media_authority_names = forms.MultipleChoiceField(
+        choices=[],
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label=_('Send notifications to (Media Authorities)'),
+        help_text=_(
+            'Send status emails only to users whose profile belongs to one of these '
+            'Media Authorities (Offene Kanäle/Bürgermedien). Empty = send to all.'
+        ),
+    )
+
+    class Meta:
+        model = LicensesConfig
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [(ma.name, ma.name) for ma in MediaAuthority.objects.order_by('name')]
+        self.fields['notification_media_authority_names'].choices = choices
+        self.fields['notification_media_authority_names'].initial = (
+            self.instance.notification_media_authority_names or []
+            if self.instance.pk else []
+        )
+
+    def clean_notification_media_authority_names(self):
+        value = self.cleaned_data.get('notification_media_authority_names') or []
+        return [str(v).strip() for v in value if v]
+
+
 @admin.register(LicensesConfig)
 class LicensesConfigAdmin(admin.ModelAdmin):
     """Admin interface for LicensesConfig model."""
-    
+
+    form = LicensesConfigForm
+
     def has_add_permission(self, request):
         """Only one config instance allowed."""
         return not LicensesConfig.objects.exists()
-    
+
     def has_delete_permission(self, request, obj=None):
         """Prevent deletion of config."""
         return False
 
     fieldsets = (
         (_('Email Notifications'), {
-            'fields': ('send_status_emails',),
+            'fields': ('send_status_emails', 'notification_media_authority_names'),
         }),
         (_('Storage Settings'), {
-            'fields': ('download_storage_path',),
+            'fields': ('download_storage_path', 'create_videofile_on_nextcloud_download'),
         }),
         (_('Screen Board Settings'), {
             'fields': ('screen_board_duration',),

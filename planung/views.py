@@ -105,7 +105,9 @@ def save_day_plan(request):
 
         # ---------------------------------------------------------------------
         # User notifications (license number is the primary key for matching)
-        # Only notify if a video is linked to the license.
+        # Only notify if the license has a user-uploaded Nextcloud video (chain
+        # runs only after user-initiated video_uploaded). Media authority filter
+        # is applied in the task.
         # Deduplicate strictly: only first notification per stage.
         # ---------------------------------------------------------------------
         try:
@@ -152,24 +154,17 @@ def save_day_plan(request):
                         .select_related("profile", "profile__okuser")
                     )
 
-                    def has_linked_video(license_obj: License) -> bool:
-                        try:
-                            if license_obj.get_video_file():
-                                return True
-                        except Exception:
-                            pass
-                        try:
-                            return NextcloudVideoFile.objects.filter(
-                                license=license_obj,
-                                is_deleted=False,
-                            ).exists()
-                        except Exception:
-                            return False
+                    def has_linked_user_uploaded_video(license_obj: License) -> bool:
+                        return NextcloudVideoFile.objects.filter(
+                            license=license_obj,
+                            is_deleted=False,
+                            user_uploaded=True,
+                        ).exists()
 
                     plan_date_str = date.isoformat() if date else ""
 
                     for lic in licenses:
-                        if not has_linked_video(lic):
+                        if not has_linked_user_uploaded_video(lic):
                             continue
 
                         start_raw = (number_to_start.get(int(lic.number), "") or "").strip()
