@@ -416,6 +416,8 @@ let beforeObjectUrl = null;
 let beforeWaveformLoaded = false;
 let afterWaveformLoaded = false;
 let syncGuard = false;
+let currentBeforePlayerSrc = null;
+let currentAfterPlayerSrc = null;
 
 function syncEnabled() {
     const el = document.getElementById('syncPlayback');
@@ -506,6 +508,8 @@ function resetJob() {
     clearWaveform('afterWaveform');
     document.getElementById('beforePlayer').removeAttribute('src');
     document.getElementById('afterPlayer').removeAttribute('src');
+    currentBeforePlayerSrc = null;
+    currentAfterPlayerSrc = null;
     if (beforeObjectUrl) {
         URL.revokeObjectURL(beforeObjectUrl);
         beforeObjectUrl = null;
@@ -590,10 +594,14 @@ async function createJobIfNeeded() {
     }
 
     setJobId(data.job_id);
+    const beforePlayer = document.getElementById('beforePlayer');
     if (data.input_stream_url) {
-        document.getElementById('beforePlayer').src = data.input_stream_url;
+        beforePlayer.src = data.input_stream_url;
+        currentBeforePlayerSrc = data.input_stream_url;
     } else if (existingInputPath) {
-        document.getElementById('beforePlayer').src = toSeekableMediaUrl(existingInputPath);
+        const newSrc = toSeekableMediaUrl(existingInputPath);
+        beforePlayer.src = newSrc;
+        currentBeforePlayerSrc = newSrc;
     } else {
         ensureBeforePreview(fileInput.files[0]);
     }
@@ -666,7 +674,9 @@ function useExistingInput(relpath) {
     const fileInput = document.getElementById('inputFile');
     fileInput.value = '';
     fileInput.disabled = true;
-    document.getElementById('beforePlayer').src = toSeekableMediaUrl(relpath);
+    const newSrc = toSeekableMediaUrl(relpath);
+    document.getElementById('beforePlayer').src = newSrc;
+    currentBeforePlayerSrc = newSrc;
 }
 
 function useExistingInputExternal(videoFileId, streamUrl) {
@@ -680,7 +690,9 @@ function useExistingInputExternal(videoFileId, streamUrl) {
     const fileInput = document.getElementById('inputFile');
     fileInput.value = '';
     fileInput.disabled = true;
-    document.getElementById('beforePlayer').src = streamUrl || '';
+    const newSrc = streamUrl || '';
+    document.getElementById('beforePlayer').src = newSrc;
+    currentBeforePlayerSrc = newSrc;
 }
 
 async function runAnalyze() {
@@ -907,7 +919,7 @@ function ensureBeforePreview(file) {
     beforeObjectUrl = URL.createObjectURL(file);
     const player = document.getElementById('beforePlayer');
     player.src = beforeObjectUrl;
-
+    currentBeforePlayerSrc = beforeObjectUrl;
 }
 
 function toSeekableMediaUrl(urlOrPath) {
@@ -930,10 +942,19 @@ async function loadWaveform(jobId, kind) {
 async function ensureAfterPreview(url) {
     if (!url) return;
     const player = document.getElementById('afterPlayer');
+    let newSrc;
     if (url.startsWith('/tools/api/')) {
-        player.src = url;
+        newSrc = url;
     } else {
-        player.src = toSeekableMediaUrl(url);
+        newSrc = toSeekableMediaUrl(url);
+    }
+    // Only update src if it changed to avoid reloading the video
+    // Normalize comparison: player.src may be full URL, extract pathname
+    const currentSrc = player.src ? new URL(player.src, window.location.origin).pathname : '';
+    const normalizedNewSrc = newSrc.startsWith('http') ? new URL(newSrc, window.location.origin).pathname : newSrc;
+    if (currentSrc !== normalizedNewSrc && currentAfterPlayerSrc !== newSrc) {
+        player.src = newSrc;
+        currentAfterPlayerSrc = newSrc;
     }
 }
 
@@ -963,11 +984,26 @@ async function refreshStatus(jobId) {
     document.getElementById('resultInfo').textContent = resultParts.join('\n') || '-';
 
     document.getElementById('ffmpegLog').textContent = data.ffmpeg_log_tail || '-';
+    
+    // Update before player only if URL changed
+    const beforePlayer = document.getElementById('beforePlayer');
+    let newBeforeSrc = null;
     if (data.input_stream_url) {
-        document.getElementById('beforePlayer').src = data.input_stream_url;
+        newBeforeSrc = data.input_stream_url;
     } else if (data.input_file_url) {
-        document.getElementById('beforePlayer').src = toSeekableMediaUrl(data.input_file_url);
+        newBeforeSrc = toSeekableMediaUrl(data.input_file_url);
     }
+    if (newBeforeSrc) {
+        // Normalize comparison: player.src may be full URL, extract pathname
+        const currentSrc = beforePlayer.src ? new URL(beforePlayer.src, window.location.origin).pathname : '';
+        const normalizedNewSrc = newBeforeSrc.startsWith('http') ? new URL(newBeforeSrc, window.location.origin).pathname : newBeforeSrc;
+        if (currentSrc !== normalizedNewSrc && currentBeforePlayerSrc !== newBeforeSrc) {
+            beforePlayer.src = newBeforeSrc;
+            currentBeforePlayerSrc = newBeforeSrc;
+        }
+    }
+    
+    // Update after player only if URL changed
     if (data.output_file) {
         ensureAfterPreview(data.output_file);
     } else if (data.output_stream_url) {

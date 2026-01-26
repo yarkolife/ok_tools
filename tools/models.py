@@ -329,6 +329,12 @@ class SlideshowMedia(models.Model):
             return f"{self.project.name} - {Path(self.file.name).name} ({self.order})"
         return f"{self.name or Path(self.file.name).name} (Library)"
     
+    def get_file_url(self):
+        """Get file URL, handling mounted storage paths."""
+        from django.urls import reverse
+        # Use tools_media_stream for files that might be in mounted storage
+        return reverse('tools:media_stream', args=[self.file.name])
+    
     def save(self, *args, **kwargs):
         """Auto-detect media type on save and set default name."""
         if not self.media_type:
@@ -400,6 +406,12 @@ class SlideshowAudio(models.Model):
         if self.project:
             return f"{self.project.name} - {self.name}"
         return f"{self.name} (Library)"
+    
+    def get_file_url(self):
+        """Get file URL, handling mounted storage paths."""
+        from django.urls import reverse
+        # Use tools_media_stream for files that might be in mounted storage
+        return reverse('tools:media_stream', args=[self.file.name])
 
 
 class VideoPreset(models.Model):

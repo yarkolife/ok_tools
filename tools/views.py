@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
-from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio
+from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
 from .services.audio_normalizer import load_audio_presets, PresetError
 
 
@@ -640,7 +640,7 @@ def _media_root_abs() -> Path:
 
 def tools_media_stream(request, relpath: str):
     """
-    Stream a file from MEDIA_ROOT with HTTP Range support.
+    Stream a file from MEDIA_ROOT or mounted storage with HTTP Range support.
 
     This is required for HTML5 video seeking, because Django's debug static view
     (used for /media/*) does not support byte-range requests.
@@ -654,12 +654,31 @@ def tools_media_stream(request, relpath: str):
     if not relpath or ".." in Path(relpath).parts:
         raise Http404("Not found")
 
-    media_root = _media_root_abs()
-    abs_path = (media_root / relpath).resolve()
-    try:
-        abs_path.relative_to(media_root)
-    except Exception:
-        raise Http404("Not found")
+    # First try mounted storage path
+    config = ToolsConfig.get_config()
+    storage_path = config.get_effective_storage_path()
+    
+    abs_path = None
+    if storage_path:
+        # Check if file exists in mounted storage
+        storage_base = Path(storage_path)
+        mounted_path = (storage_base / relpath).resolve()
+        try:
+            # Ensure path is within storage_base
+            mounted_path.relative_to(storage_base.resolve())
+            if mounted_path.exists() and mounted_path.is_file():
+                abs_path = mounted_path
+        except (ValueError, OSError):
+            pass
+    
+    # Fallback to MEDIA_ROOT if not found in mounted storage
+    if abs_path is None:
+        media_root = _media_root_abs()
+        abs_path = (media_root / relpath).resolve()
+        try:
+            abs_path.relative_to(media_root)
+        except Exception:
+            raise Http404("Not found")
 
     if not abs_path.exists() or not abs_path.is_file():
         raise Http404("Not found")

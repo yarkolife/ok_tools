@@ -504,7 +504,7 @@ class LibraryAudioListView(APIView):
                     'id': audio.id,
                     'name': audio.name,
                     'duration': audio.duration,
-                    'url': audio.file.url if audio.file else None
+                    'url': audio.get_file_url() if audio.file else None
                 }
                 for audio in audio_files
             ]
@@ -609,7 +609,7 @@ class LibraryMediaListView(APIView):
                     'id': media.id,
                     'name': media.name or Path(media.file.name).name,
                     'media_type': media.media_type,
-                    'url': media.file.url if media.file else None,
+                    'url': media.get_file_url() if media.file else None,
                     'uploaded_at': media.uploaded_at
                 }
                 for media in media_files
@@ -656,7 +656,7 @@ class UploadLibraryMediaView(APIView):
                     'id': media.id,
                     'name': media.name,
                     'media_type': media.media_type,
-                    'url': media.file.url
+                    'url': media.get_file_url()
                 })
             except Exception as e:
                 logger.error(f"Failed to upload library media: {e}", exc_info=True)
