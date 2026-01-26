@@ -208,7 +208,13 @@ class VideoGenerator:
     def prepare_inputs(self) -> tuple[List[Path], Path]:
         """Prepare media and audio file paths, sorted by order."""
         storage_path = self.config.get_effective_storage_path()
-        media_files = list(self.project.media_files.all().order_by('order'))
+        # Get media files ordered by order field (ascending)
+        media_files = list(self.project.media_files.all().order_by('order', 'id'))
+        
+        # Log order for debugging
+        import logging
+        logger = logging.getLogger('django')
+        logger.debug(f"Preparing inputs for project {self.project.id}: {len(media_files)} media files in order: {[f'{m.id}(order={m.order})' for m in media_files]}")
         
         # Resolve media file paths - check mounted storage first
         media_paths = []
@@ -305,6 +311,12 @@ class VideoGenerator:
         audio_input_index = len(seq_media)
         vargs = self.video_encoder_args(self.video_codec)
         
+        # Check if output is in mounted storage (network path)
+        # Don't use +faststart for network paths as it requires file rewrite at the end
+        # which can cause issues with NFS/CIFS
+        output_path_config = self.config.get_effective_output_path()
+        is_mounted_path = output_path_config and str(out_path).startswith(str(Path(output_path_config).resolve()))
+        
         cmd = [
             self.ffmpeg, "-y",
             *inputs,
@@ -314,11 +326,18 @@ class VideoGenerator:
             "-fps_mode", "cfr", "-r", str(self.fps),
             *vargs,
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", self.audio_bitrate,
-            "-movflags", "+faststart",
+        ]
+        
+        # Only use faststart for local paths (not mounted network storage)
+        if not is_mounted_path:
+            cmd.append("-movflags")
+            cmd.append("+faststart")
+        
+        cmd.extend([
             "-video_track_timescale", "25000",
             "-shortest",
             str(out_path)
-        ]
+        ])
         return cmd
     
     def build_simple_command(self, media: List[Path], audio: Path, out_path: Path, audio_len: float) -> List[str]:
@@ -361,6 +380,12 @@ class VideoGenerator:
         
         vargs = self.video_encoder_args(self.video_codec)
         
+        # Check if output is in mounted storage (network path)
+        # Don't use +faststart for network paths as it requires file rewrite at the end
+        # which can cause issues with NFS/CIFS
+        output_path_config = self.config.get_effective_output_path()
+        is_mounted_path = output_path_config and str(out_path).startswith(str(Path(output_path_config).resolve()))
+        
         cmd = [
             self.ffmpeg, "-y",
             "-f", "concat", "-safe", "0", "-i", str(concat_file),
@@ -370,11 +395,18 @@ class VideoGenerator:
             "-vf", vf,
             *vargs,
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", self.audio_bitrate,
-            "-movflags", "+faststart",
+        ]
+        
+        # Only use faststart for local paths (not mounted network storage)
+        if not is_mounted_path:
+            cmd.append("-movflags")
+            cmd.append("+faststart")
+        
+        cmd.extend([
             "-video_track_timescale", "25000",
             "-shortest",
             str(out_path)
-        ]
+        ])
         return cmd
     
     def generate(self, progress_callback: Optional[Callable[[str], None]] = None) -> Path:

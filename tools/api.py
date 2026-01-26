@@ -538,17 +538,28 @@ class UpdateMediaOrderView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Update order for each media file
-        for media_id, new_order in order_mapping.items():
+        updated_count = 0
+        for media_id_str, new_order in order_mapping.items():
             try:
+                # Convert media_id to int (may come as string from JavaScript)
+                media_id = int(media_id_str)
+                new_order = int(new_order)  # Ensure order is int
                 media = SlideshowMedia.objects.get(id=media_id, project=project)
+                old_order = media.order
                 media.order = new_order
                 media.save(update_fields=['order'])
-            except SlideshowMedia.DoesNotExist:
+                updated_count += 1
+                logger.debug(f"Updated media {media_id} order from {old_order} to {new_order} for project {project_id}")
+            except (ValueError, SlideshowMedia.DoesNotExist) as e:
+                logger.warning(f"Failed to update order for media_id={media_id_str}: {e}")
                 continue
+        
+        logger.info(f"Updated order for {updated_count} media files in project {project_id}")
         
         return Response({
             'status': 'success',
-            'message': _('Order updated')
+            'message': _('Order updated'),
+            'updated_count': updated_count
         }, status=status.HTTP_200_OK)
 
 

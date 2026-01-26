@@ -76,29 +76,29 @@ def generate_slideshow_task(self, project_id):
         config = ToolsConfig.get_config()
         output_path_config = config.get_effective_output_path()
         
-        from django.core.files import File
-        with open(output_path, 'rb') as f:
-            # Use relative path from output base if in mounted storage
-            if output_path_config:
-                output_base = Path(output_path_config).resolve()
-                try:
-                    # Check if output_path is under output_base
-                    rel_path = output_path.relative_to(output_base)
-                    # File is in mounted path, save with relative path
-                    project.output_file.save(
-                        Path(output_path.name).name,
-                        File(f),
-                        save=True
-                    )
-                except ValueError:
-                    # File is not under output_base, use default behavior
+        # If file is in mounted path, just set the path directly without saving through Django storage
+        if output_path_config:
+            output_base = Path(output_path_config).resolve()
+            try:
+                # Check if output_path is under output_base
+                rel_path = output_path.relative_to(output_base)
+                # File is in mounted path, set path directly
+                rel_path_str = str(rel_path).replace("\\", "/")
+                project.output_file.name = rel_path_str
+                project.save(update_fields=['output_file'])
+            except ValueError:
+                # File is not under output_base, use default behavior
+                from django.core.files import File
+                with open(output_path, 'rb') as f:
                     project.output_file.save(
                         output_path.name,
                         File(f),
                         save=True
                     )
-            else:
-                # No mounted path configured, use default behavior
+        else:
+            # No mounted path configured, use default behavior
+            from django.core.files import File
+            with open(output_path, 'rb') as f:
                 project.output_file.save(
                     output_path.name,
                     File(f),
