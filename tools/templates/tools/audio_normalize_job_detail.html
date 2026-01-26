@@ -37,8 +37,10 @@
         <h1 style="margin:0;">{% trans 'Audio Normalize Job' %} #{{ job.id }}</h1>
         <div>
             <a href="{% url 'tools:audio_normalize_new' %}?job={{ job.id }}" class="button default">{% trans 'Open Tool' %}</a>
-            {% if job.status == 'completed' and (job.output_file or job.output_path_external) %}
-                <a href="{% url 'tools:api_audio_download' job.id %}" class="button default">{% trans 'Download' %}</a>
+            {% if job.status == 'completed' %}
+                {% if job.output_file or job.output_path_external %}
+                    <a href="{% url 'tools:api_audio_download' job.id %}" class="button default">{% trans 'Download' %}</a>
+                {% endif %}
             {% endif %}
         </div>
     </div>

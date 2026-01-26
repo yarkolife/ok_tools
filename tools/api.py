@@ -124,6 +124,10 @@ class UploadMediaView(APIView):
                 'error': _('No files provided')
             }, status=status.HTTP_400_BAD_REQUEST)
         
+        # Get storage path from config
+        config = ToolsConfig.get_config()
+        storage_path = config.get_effective_storage_path()
+        
         uploaded = []
         errors = []
         
@@ -134,11 +138,45 @@ class UploadMediaView(APIView):
                     max_order=models.Max('order')
                 )['max_order'] or 0
                 
-                media = SlideshowMedia.objects.create(
-                    project=project,
-                    file=file,
-                    order=max_order + 1
-                )
+                # Save file to mounted storage path if configured
+                if storage_path:
+                    # Use mounted path
+                    storage_base = Path(storage_path)
+                    media_dir = storage_base / f"tools/slideshow/{project.id}/media"
+                    media_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # Save file directly to mounted path
+                    filename = Path(file.name).name
+                    # Ensure unique filename
+                    file_path = media_dir / filename
+                    counter = 1
+                    while file_path.exists():
+                        stem = Path(filename).stem
+                        ext = Path(filename).suffix
+                        file_path = media_dir / f"{stem}_{counter}{ext}"
+                        counter += 1
+                    
+                    # Write file to mounted path
+                    with open(file_path, 'wb') as dest:
+                        for chunk in file.chunks():
+                            dest.write(chunk)
+                    
+                    # Create SlideshowMedia with file stored in mounted path
+                    # Store relative path in FileField (will be resolved in video_generator)
+                    rel_path = f"tools/slideshow/{project.id}/media/{file_path.name}"
+                    # Create SlideshowMedia without saving file again (file already saved to mounted path)
+                    media = SlideshowMedia(project=project, order=max_order + 1)
+                    # Set file name directly to avoid Django trying to save it again
+                    media.file.name = rel_path
+                    media.save()
+                else:
+                    # Fallback to default MEDIA_ROOT behavior
+                    media = SlideshowMedia.objects.create(
+                        project=project,
+                        file=file,
+                        order=max_order + 1
+                    )
+                
                 uploaded.append({
                     'id': media.id,
                     'filename': Path(media.file.name).name,
@@ -187,11 +225,46 @@ class UploadAudioView(APIView):
         # Remove existing audio files for this project
         SlideshowAudio.objects.filter(project=project).delete()
         
-        audio = SlideshowAudio.objects.create(
-            project=project,
-            file=file,
-            name=name
-        )
+        # Get storage path from config
+        config = ToolsConfig.get_config()
+        storage_path = config.get_effective_storage_path()
+        
+        # Save file to mounted storage path if configured
+        if storage_path:
+            # Use mounted path
+            storage_base = Path(storage_path)
+            audio_dir = storage_base / f"tools/slideshow/{project.id}/audio"
+            audio_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save file directly to mounted path
+            filename = Path(file.name).name
+            # Ensure unique filename
+            file_path = audio_dir / filename
+            counter = 1
+            while file_path.exists():
+                stem = Path(filename).stem
+                ext = Path(filename).suffix
+                file_path = audio_dir / f"{stem}_{counter}{ext}"
+                counter += 1
+            
+            # Write file to mounted path
+            with open(file_path, 'wb') as dest:
+                for chunk in file.chunks():
+                    dest.write(chunk)
+            
+            # Create SlideshowAudio with file stored in mounted path
+            rel_path = f"tools/slideshow/{project.id}/audio/{file_path.name}"
+            audio = SlideshowAudio(project=project, name=name)
+            # Set file name directly to avoid Django trying to save it again
+            audio.file.name = rel_path
+            audio.save()
+        else:
+            # Fallback to default MEDIA_ROOT behavior
+            audio = SlideshowAudio.objects.create(
+                project=project,
+                file=file,
+                name=name
+            )
         
         # Try to get duration
         try:

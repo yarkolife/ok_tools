@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio
-from .services.audio_normalizer import load_audio_presets
+from .services.audio_normalizer import load_audio_presets, PresetError
 
 
 def check_tools_enabled():
@@ -239,9 +239,17 @@ class AudioNormalizeView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        presets_json = load_audio_presets()
-        context['audio_presets'] = presets_json.get('presets', [])
-        context['audio_defaults'] = presets_json.get('defaults', {})
+        try:
+            presets_json = load_audio_presets()
+            context['audio_presets'] = presets_json.get('presets', [])
+            context['audio_defaults'] = presets_json.get('defaults', {})
+        except PresetError as e:
+            # Log error but don't crash - show empty presets
+            import logging
+            logger = logging.getLogger('django')
+            logger.error(f"Failed to load audio presets: {e}")
+            context['audio_presets'] = []
+            context['audio_defaults'] = {}
         job_id = self.request.GET.get('job')
         context['initial_job_id'] = int(job_id) if job_id and str(job_id).isdigit() else None
         # Optional integration with media_files module (search by VideoFile.number).

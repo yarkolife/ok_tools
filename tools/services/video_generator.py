@@ -160,14 +160,41 @@ class VideoGenerator:
         if not audio_files:
             raise VideoGeneratorError("No audio file found in project")
         
-        # Check all files exist
+        # Check all files exist - handle mounted paths
+        storage_path = self.config.get_effective_storage_path()
         for media in media_files:
-            if not os.path.exists(media.file.path):
-                raise VideoGeneratorError(f"Media file not found: {media.file.path}")
+            # Try to resolve file path - check if it's in mounted storage
+            if storage_path:
+                # Check if file exists in mounted path
+                storage_base = Path(storage_path)
+                rel_path = media.file.name
+                mounted_path = storage_base / rel_path
+                if mounted_path.exists():
+                    continue
+            # Fallback to default path
+            try:
+                if os.path.exists(media.file.path):
+                    continue
+            except (ValueError, AttributeError):
+                pass
+            raise VideoGeneratorError(f"Media file not found: {media.file.name}")
         
         for audio in audio_files:
-            if not os.path.exists(audio.file.path):
-                raise VideoGeneratorError(f"Audio file not found: {audio.file.path}")
+            # Try to resolve file path - check if it's in mounted storage
+            if storage_path:
+                # Check if file exists in mounted path
+                storage_base = Path(storage_path)
+                rel_path = audio.file.name
+                mounted_path = storage_base / rel_path
+                if mounted_path.exists():
+                    continue
+            # Fallback to default path
+            try:
+                if os.path.exists(audio.file.path):
+                    continue
+            except (ValueError, AttributeError):
+                pass
+            raise VideoGeneratorError(f"Audio file not found: {audio.file.name}")
         
         # Check ffmpeg/ffprobe
         try:
@@ -180,13 +207,49 @@ class VideoGenerator:
     
     def prepare_inputs(self) -> tuple[List[Path], Path]:
         """Prepare media and audio file paths, sorted by order."""
+        storage_path = self.config.get_effective_storage_path()
         media_files = list(self.project.media_files.all().order_by('order'))
-        media_paths = [Path(m.file.path) for m in media_files]
+        
+        # Resolve media file paths - check mounted storage first
+        media_paths = []
+        for m in media_files:
+            if storage_path:
+                # Check if file exists in mounted path
+                storage_base = Path(storage_path)
+                rel_path = m.file.name
+                mounted_path = storage_base / rel_path
+                if mounted_path.exists():
+                    media_paths.append(mounted_path)
+                    continue
+            # Fallback to default path
+            try:
+                media_paths.append(Path(m.file.path))
+            except (ValueError, AttributeError):
+                raise VideoGeneratorError(f"Media file path not found: {m.file.name}")
         
         audio_files = list(self.project.audio_files.all())
         if not audio_files:
             raise VideoGeneratorError("No audio file found")
-        audio_path = Path(audio_files[0].file.path)
+        
+        # Resolve audio file path - check mounted storage first
+        audio = audio_files[0]
+        if storage_path:
+            # Check if file exists in mounted path
+            storage_base = Path(storage_path)
+            rel_path = audio.file.name
+            mounted_path = storage_base / rel_path
+            if mounted_path.exists():
+                audio_path = mounted_path
+            else:
+                try:
+                    audio_path = Path(audio.file.path)
+                except (ValueError, AttributeError):
+                    raise VideoGeneratorError(f"Audio file path not found: {audio.file.name}")
+        else:
+            try:
+                audio_path = Path(audio.file.path)
+            except (ValueError, AttributeError):
+                raise VideoGeneratorError(f"Audio file path not found: {audio.file.name}")
         
         return media_paths, audio_path
     
@@ -336,8 +399,16 @@ class VideoGenerator:
         # Get audio duration
         audio_len = self.get_audio_duration(audio_path)
         
-        # Determine output path
-        output_dir = Path(settings.MEDIA_ROOT) / f"tools/slideshow/{self.project.id}/output"
+        # Determine output path - use mounted path from config if available
+        output_path_config = self.config.get_effective_output_path()
+        if output_path_config:
+            # Use mounted output path
+            output_base = Path(output_path_config)
+            output_dir = output_base / f"tools/slideshow/{self.project.id}/output"
+        else:
+            # Fallback to MEDIA_ROOT
+            output_dir = Path(settings.MEDIA_ROOT) / f"tools/slideshow/{self.project.id}/output"
+        
         output_dir.mkdir(parents=True, exist_ok=True)
         output_filename = f"{self.project.name.replace(' ', '_')}_{self.project.id}.mp4"
         output_path = output_dir / output_filename

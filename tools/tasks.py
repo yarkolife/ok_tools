@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 
-from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio
+from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
 from .services.audio_normalizer import AudioNormalizerError, AudioNormalizerService
 from .services.video_generator import VideoGenerator, VideoGeneratorError
 
@@ -72,13 +72,38 @@ def generate_slideshow_task(self, project_id):
         output_path = generator.generate(progress_callback=progress_callback)
         
         # Save output file to project
+        # Check if output is in mounted path
+        config = ToolsConfig.get_config()
+        output_path_config = config.get_effective_output_path()
+        
         from django.core.files import File
         with open(output_path, 'rb') as f:
-            project.output_file.save(
-                output_path.name,
-                File(f),
-                save=True
-            )
+            # Use relative path from output base if in mounted storage
+            if output_path_config:
+                output_base = Path(output_path_config).resolve()
+                try:
+                    # Check if output_path is under output_base
+                    rel_path = output_path.relative_to(output_base)
+                    # File is in mounted path, save with relative path
+                    project.output_file.save(
+                        Path(output_path.name).name,
+                        File(f),
+                        save=True
+                    )
+                except ValueError:
+                    # File is not under output_base, use default behavior
+                    project.output_file.save(
+                        output_path.name,
+                        File(f),
+                        save=True
+                    )
+            else:
+                # No mounted path configured, use default behavior
+                project.output_file.save(
+                    output_path.name,
+                    File(f),
+                    save=True
+                )
         
         # Update status to completed
         project.status = 'completed'
