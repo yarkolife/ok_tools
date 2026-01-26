@@ -1173,6 +1173,22 @@ fi
 print_info "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
 
+# Download/update RNN models for audio denoising
+# This runs after git pull, so new models will be downloaded on first update
+print_info "Checking RNN models for audio denoising..."
+if docker compose exec -T web bash -c "cd /app && [ -f tools/rnn_models/download_models.sh ] && bash tools/rnn_models/download_models.sh"; then
+    print_success "RNN models checked/updated"
+    # Verify at least std.rnnn is present
+    if docker compose exec -T web bash -c "test -f /app/tools/rnn_models/std.rnnn"; then
+        print_success "Standard model (std.rnnn) is available"
+    else
+        print_warning "Standard model (std.rnnn) not found - AI presets will use FFT denoising"
+    fi
+else
+    print_warning "Failed to update RNN models automatically (non-critical)"
+    print_info "Models can be downloaded manually or will be retried on next update"
+fi
+
 # Verify static files are present and accessible
 print_info "Verifying static files..."
 STATIC_COUNT=$(docker compose exec -T web sh -c "find /app/staticfiles -type f 2>/dev/null | wc -l" | tr -d ' ' || echo "0")

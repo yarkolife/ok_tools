@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-31 01:04+0100\n"
+"POT-Creation-Date: 2026-01-26 23:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,14 +54,33 @@ msgstr "Stufe"
 msgid "Achieved At"
 msgstr "Erreicht am"
 
-msgid "Rental Request"
+#, fuzzy
+#| msgid "Rental Request"
+msgid "Rental Request ID"
 msgstr "Ausleihanfrage"
 
-msgid "License"
+msgid "ID of related RentalRequest if rental module is enabled"
+msgstr ""
+
+#, fuzzy
+#| msgid "License"
+msgid "License ID"
 msgstr "Freistellung"
 
-msgid "Contribution"
+#, fuzzy
+#| msgid "Confirmed Licenses"
+msgid "ID of related License"
+msgstr "Genehmigte Freistellungen"
+
+#, fuzzy
+#| msgid "Contribution"
+msgid "Contribution ID"
 msgstr "Beitrag"
+
+#, fuzzy
+#| msgid "Recorded Contributions"
+msgid "ID of related Contribution"
+msgstr "Aufgezeichnete Beiträge"
 
 msgid "Metadata"
 msgstr "Metadaten"

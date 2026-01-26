@@ -147,10 +147,12 @@ class ToolsConfigAdmin(admin.ModelAdmin):
                 'audio_normalize_output_path',
                 'audio_normalize_default_preset',
                 'audio_normalize_default_bitrate',
+                'arnndn_model_path',
             ),
             'description': _(
                 'Storage Location (optional): when set, overrides the path below; output can be outside MEDIA_ROOT. '
-                'Path fields are used when no storage is selected. Output path can be empty (output next to input).'
+                'Path fields are used when no storage is selected. Output path can be empty (output next to input). '
+                'ARNNDN Model Path: default path to RNN model (.rnnn) for AI-based denoising. System automatically detects and uses recommended models (std.rnnn, bd.rnnn, lq.rnnn) from tools/rnn_models/ directory. Leave empty to use FFT-based denoising.'
             ),
         }),
     )

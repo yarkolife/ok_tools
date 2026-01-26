@@ -1020,6 +1020,15 @@ print_info "Collecting static files..."
 docker compose exec -T web python manage.py collectstatic --noinput
 print_success "Static files collected"
 
+# Download RNN models for audio denoising
+print_info "Downloading RNN models for audio denoising..."
+if docker compose exec -T web bash -c "cd /app && [ -f tools/rnn_models/download_models.sh ] && bash tools/rnn_models/download_models.sh"; then
+    print_success "RNN models downloaded"
+else
+    print_warning "Failed to download RNN models automatically (non-critical)"
+    print_info "You can download them manually or configure ARNNDN_MODEL_PATH later"
+fi
+
 # Health check
 print_info "Checking web service availability on port 8010..."
 for i in {1..30}; do

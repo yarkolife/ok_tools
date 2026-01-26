@@ -27,6 +27,12 @@ python manage.py compilemessages || echo "Warning: Failed to compile translation
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+# Download RNN models for audio denoising (if script exists)
+if [ -f "tools/rnn_models/download_models.sh" ]; then
+    echo "Downloading RNN models for audio denoising..."
+    bash tools/rnn_models/download_models.sh || echo "Warning: Failed to download RNN models, continuing anyway..."
+fi
+
 # Create superuser if it doesn't exist
 if [ -n "$SUPERUSER_EMAIL" ] && [ -n "$SUPERUSER_PASSWORD" ]; then
     echo "Creating superuser if it doesn't exist..."

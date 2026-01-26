@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-16 22:22+0100\n"
+"POT-Creation-Date: 2026-01-26 23:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -195,11 +195,11 @@ msgstr "Video suchen"
 msgid "Video File"
 msgstr "Videodatei"
 
-msgid "Nextcloud Video"
-msgstr "Nextcloud-Video"
-
 msgid "Player"
 msgstr "Player"
+
+msgid "Nextcloud Video"
+msgstr "Nextcloud-Video"
 
 msgid "Video"
 msgstr "Video"
@@ -361,6 +361,52 @@ msgstr "Status"
 
 msgid "License Number"
 msgstr "Freistellungsnummer"
+
+msgid "Download"
+msgstr "Herunterladen"
+
+msgid "Cannot download: file is marked deleted."
+msgstr "Download nicht möglich: Datei ist als gelöscht markiert."
+
+#, python-format
+msgid "Download queued for \"%(filename)s\"."
+msgstr "Download für \"%(filename)s\" in Warteschlange."
+
+#, python-format
+msgid "Queued download for %(count)d file."
+msgid_plural "Queued download for %(count)d files."
+msgstr[0] "Download für %(count)d Datei in Warteschlange."
+msgstr[1] "Download für %(count)d Dateien in Warteschlange."
+
+#, python-format
+msgid "Skipped %(count)d deleted file."
+msgid_plural "Skipped %(count)d deleted files."
+msgstr[0] "%(count)d gelöschte Datei übersprungen."
+msgstr[1] "%(count)d gelöschte Dateien übersprungen."
+
+msgid "Download selected to storage"
+msgstr "Ausgewählte in den Speicher herunterladen"
+
+msgid "Send notifications to (Media Authorities)"
+msgstr "Benachrichtigungen an (Medienanstalten)"
+
+msgid ""
+"Send status emails only to users whose profile belongs to one of these Media "
+"Authorities (Offene Kanäle/Bürgermedien). Empty = send to all."
+msgstr ""
+"Status-E-Mails nur an Nutzer senden, deren Profil zu einer dieser "
+"Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle."
+
+#, fuzzy
+#| msgid "License Notification Events"
+msgid "Email Notifications"
+msgstr "Benachrichtigungsereignisse zur Freistellung"
+
+msgid "Storage Settings"
+msgstr "Speicher-Einstellungen"
+
+msgid "Screen Board Settings"
+msgstr "Bildschirmtafel-Einstellungen"
 
 msgid "Licenses"
 msgstr "Freistellungen"
@@ -541,6 +587,19 @@ msgstr "Ist gelöscht"
 msgid "Flag if file was deleted from Nextcloud"
 msgstr "Kennzeichnung, ob Datei aus Nextcloud gelöscht wurde"
 
+msgid "User uploaded"
+msgstr "Vom Nutzer hochgeladen"
+
+msgid ""
+"True if the file was uploaded by the rightsholder via the portal; False if "
+"created by staff (e.g. in Admin). Used to decide whether to send "
+"draft_scheduled, planned_scheduled, contributions_available emails."
+msgstr ""
+"True, wenn die Datei vom Rechteinhaber über das Portal hochgeladen wurde; "
+"False, wenn von Mitarbeitenden angelegt (z.B. im Admin). Steuert, ob E-Mails "
+"zu draft_scheduled, planned_scheduled und contributions_available verschickt "
+"werden."
+
 msgid "Deleted at"
 msgstr "Gelöscht am"
 
@@ -559,8 +618,84 @@ msgstr "Bildschirm-Board-Dauer (Sekunden)"
 msgid "Fixed duration for screen board display in seconds"
 msgstr "Feste Dauer für Bildschirm-Board-Anzeige in Sekunden"
 
+msgid "Download Storage Path"
+msgstr "Download-Speicherpfad"
+
+msgid "Local path for downloaded files"
+msgstr "Lokaler Pfad für heruntergeladene Dateien"
+
+msgid "Create VideoFile on Nextcloud download"
+msgstr "VideoFile bei Nextcloud-Download anlegen"
+
+msgid ""
+"After downloading a Nextcloud video to disk, create a VideoFile in "
+"media_files so it shows as Player in the license list immediately. Requires "
+"MEDIA_FILES_ENABLED and the download path to be under a StorageLocation. If "
+"off, only the file is saved; a storage scan can create the VideoFile later."
+msgstr ""
+"Nach dem Herunterladen eines Nextcloud-Videos auf die Festplatte einen "
+"VideoFile-Eintrag in media_files anlegen, damit in der Freistellungsliste "
+"sofort der Player angezeigt wird. Erfordert MEDIA_FILES_ENABLED und dass der "
+"Download-Pfad unter einem StorageLocation liegt. Wenn aus, wird nur die "
+"Datei gespeichert; ein Speicher-Scan kann den VideoFile später anlegen."
+
+msgid "Send status emails"
+msgstr "Status-E-Mails senden"
+
+msgid ""
+"Send email notifications about video status (upload, scheduling, broadcast "
+"dates)."
+msgstr ""
+"E-Mail-Benachrichtigungen zum Videostatus senden (Upload, Planung, "
+"Sendetermine)."
+
+msgid ""
+"Send status emails only to users whose profile belongs to one of these Media "
+"Authorities (Offene Kanäle/Bürgermedien). Empty = send to all. Use to "
+"restrict to \"our\" organisation(s) only."
+msgstr ""
+"Status-E-Mails nur an Nutzer senden, deren Profil zu einer dieser "
+"Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle. Dient "
+"dazu, nur \"eigene\" Einrichtungen zu benachrichtigen."
+
 msgid "Licenses Configuration"
 msgstr "Freistellungs-Konfiguration"
+
+msgid "Video uploaded"
+msgstr "Video hochgeladen"
+
+msgid "Draft scheduled"
+msgstr "Entwurf geplant"
+
+msgid "Planned scheduled"
+msgstr "Geplant"
+
+msgid "Contributions available"
+msgstr "Sendetermine verfügbar"
+
+# --- License notification events (models + email templates) ---
+msgid "License number"
+msgstr "Freistellungsnummer"
+
+msgid "License number used for matching and deduplication."
+msgstr "Freistellungsnummer zur Zuordnung und Deduplizierung."
+
+msgid "Event type"
+msgstr "Ereignistyp"
+
+msgid "Payload"
+msgstr "Daten"
+
+msgid ""
+"Optional structured data about the event (e.g., schedule time, filenames)."
+msgstr ""
+"Optionale strukturierte Daten zum Ereignis (z.B. Sendezeit, Dateinamen)."
+
+msgid "License Notification Event"
+msgstr "Benachrichtigungsereignis zur Freistellung"
+
+msgid "License Notification Events"
+msgstr "Benachrichtigungsereignisse zur Freistellung"
 
 msgid ""
 "Nextcloud integration is disabled. Set NEXTCLOUD_ENABLED=true to enable."
@@ -696,6 +831,103 @@ msgstr ""
 "\n"
 "            Genehmigte Freistellungen sind nicht bearbeitbar!\n"
 "        "
+
+#, python-format
+msgid "Hello %(first_name)s,"
+msgstr "Hallo %(first_name)s,"
+
+#, python-format
+msgid "Your license #%(license_number)s (%(title)s) now has broadcast dates."
+msgstr ""
+"Ihre Freistellung #%(license_number)s (%(title)s) hat jetzt Sendetermine."
+
+msgid "Premiere:"
+msgstr ""
+
+msgid "Repeats:"
+msgstr "Wiederholungen:"
+
+msgid "View details in Contributions:"
+msgstr "Details in Beiträgen ansehen:"
+
+#, python-format
+msgid ""
+"Best regards,\n"
+"The %(ok_name)s team"
+msgstr ""
+"Mit freundlichen Grüßen,\n"
+"Ihr Team von %(ok_name)s"
+
+#, python-format
+msgid "Contact: %(contact_email)s"
+msgstr "Kontakt: %(contact_email)s"
+
+#, python-format
+msgid "Premiere: %(premiere_datetime)s"
+msgstr "Premiere: %(premiere_datetime)s"
+
+#, python-format
+msgid "Broadcast dates available for license #%(license_number)s"
+msgstr "Sendetermine verfügbar für Freistellung #%(license_number)s"
+
+#, python-format
+msgid ""
+"Your video for license #%(license_number)s (%(title)s) has been tentatively "
+"scheduled."
+msgstr ""
+"Ihr Video für Freistellung #%(license_number)s (%(title)s) wurde vorläufig "
+"eingeplant."
+
+#, python-format
+msgid "Draft schedule: %(plan_date)s at %(start_time)s (%(tz)s)."
+msgstr "Entwurf: %(plan_date)s um %(start_time)s (%(tz)s)."
+
+msgid "This is a draft and may still change."
+msgstr "Dies ist ein Entwurf und kann sich noch ändern."
+
+msgid "View license:"
+msgstr "Freistellung ansehen:"
+
+#, python-format
+msgid "Draft schedule created for license #%(license_number)s"
+msgstr "Entwurf gespeichert für Freistellung #%(license_number)s"
+
+#, python-format
+msgid ""
+"Your video for license #%(license_number)s (%(title)s) has been scheduled."
+msgstr ""
+"Ihr Video für Freistellung #%(license_number)s (%(title)s) wurde eingeplant."
+
+#, python-format
+msgid "Planned broadcast: %(plan_date)s at %(start_time)s (%(tz)s)."
+msgstr "Geplante Ausstrahlung: %(plan_date)s um %(start_time)s (%(tz)s)."
+
+msgid "This schedule is considered final and is very likely to air as planned."
+msgstr ""
+"Dieser Plan gilt als final und wird sehr wahrscheinlich wie geplant "
+"ausgestrahlt."
+
+#, python-format
+msgid "Scheduled broadcast for license #%(license_number)s"
+msgstr "Sendetermin geplant für Freistellung #%(license_number)s"
+
+#, python-format
+msgid ""
+"We received your video upload for license #%(license_number)s (%(title)s)."
+msgstr ""
+"Wir haben Ihren Video-Upload für Freistellung #%(license_number)s "
+"(%(title)s) erhalten."
+
+#, python-format
+msgid "File: %(filename)s"
+msgstr "Datei: %(filename)s"
+
+msgid "You will receive updates when your video is scheduled."
+msgstr "Sie erhalten Updates, sobald Ihr Video eingeplant wurde."
+
+#, python-format
+msgid "Video uploaded for license #%(license_number)s"
+msgstr "Video hochgeladen für Freistellung #%(license_number)s"
 
 msgid "Create License"
 msgstr "Freistellung erstellen"
@@ -958,9 +1190,6 @@ msgstr "Videodatei nach Nextcloud hochladen (optional)"
 msgid "Current video:"
 msgstr "Aktuelles Video:"
 
-msgid "Download"
-msgstr "Herunterladen"
-
 msgid "Video already uploaded. Cannot upload second video."
 msgstr ""
 "Video bereits hochgeladen. Zweites Video kann nicht hochgeladen werden."
@@ -1055,162 +1284,3 @@ msgstr "Freistellung %(license)s erfolgreich gelöscht."
 
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr "Tags durch Kommas getrennt eingeben (z.B. tag1, tag2, tag3)"
-
-msgid "Storage Settings"
-msgstr "Speicher-Einstellungen"
-
-msgid "Download Storage Path"
-msgstr "Download-Speicherpfad"
-
-msgid "Local path for downloaded files"
-msgstr "Lokaler Pfad für heruntergeladene Dateien"
-
-msgid "Send status emails"
-msgstr "Status-E-Mails senden"
-
-msgid "Send email notifications about video status (upload, scheduling, broadcast dates)."
-msgstr "E-Mail-Benachrichtigungen zum Videostatus senden (Upload, Planung, Sendetermine)."
-
-msgid "Screen Board Settings"
-msgstr "Bildschirmtafel-Einstellungen"
-
-msgid "Download selected to storage"
-msgstr "Ausgewählte in den Speicher herunterladen"
-
-msgid "Cannot download: file is marked deleted."
-msgstr "Download nicht möglich: Datei ist als gelöscht markiert."
-
-# --- License notification events (models + email templates) ---
-
-msgid "License number"
-msgstr "Freistellungsnummer"
-
-msgid "Event type"
-msgstr "Ereignistyp"
-
-msgid "Payload"
-msgstr "Daten"
-
-msgid "License Notification Event"
-msgstr "Benachrichtigungsereignis zur Freistellung"
-
-msgid "License Notification Events"
-msgstr "Benachrichtigungsereignisse zur Freistellung"
-
-msgid "License number used for matching and deduplication."
-msgstr "Freistellungsnummer zur Zuordnung und Deduplizierung."
-
-msgid "Optional structured data about the event (e.g., schedule time, filenames)."
-msgstr "Optionale strukturierte Daten zum Ereignis (z.B. Sendezeit, Dateinamen)."
-
-msgid "Video uploaded"
-msgstr "Video hochgeladen"
-
-msgid "Draft scheduled"
-msgstr "Entwurf geplant"
-
-msgid "Planned scheduled"
-msgstr "Geplant"
-
-msgid "Contributions available"
-msgstr "Sendetermine verfügbar"
-
-msgid "Video uploaded for license #%(license_number)s"
-msgstr "Video hochgeladen für Freistellung #%(license_number)s"
-
-msgid "Draft schedule created for license #%(license_number)s"
-msgstr "Entwurf gespeichert für Freistellung #%(license_number)s"
-
-msgid "Scheduled broadcast for license #%(license_number)s"
-msgstr "Sendetermin geplant für Freistellung #%(license_number)s"
-
-msgid "Broadcast dates available for license #%(license_number)s"
-msgstr "Sendetermine verfügbar für Freistellung #%(license_number)s"
-
-msgid "Hello %(first_name)s,"
-msgstr "Hallo %(first_name)s,"
-
-msgid "We received your video upload for license #%(license_number)s (%(title)s)."
-msgstr "Wir haben Ihren Video-Upload für Freistellung #%(license_number)s (%(title)s) erhalten."
-
-msgid "File: %(filename)s"
-msgstr "Datei: %(filename)s"
-
-msgid "You will receive updates when your video is scheduled."
-msgstr "Sie erhalten Updates, sobald Ihr Video eingeplant wurde."
-
-msgid "View license:"
-msgstr "Freistellung ansehen:"
-
-msgid "Best regards,\nThe %(ok_name)s team"
-msgstr "Mit freundlichen Grüßen,\nIhr Team von %(ok_name)s"
-
-msgid "Contact: %(contact_email)s"
-msgstr "Kontakt: %(contact_email)s"
-
-msgid "Your video for license #%(license_number)s (%(title)s) has been tentatively scheduled."
-msgstr "Ihr Video für Freistellung #%(license_number)s (%(title)s) wurde vorläufig eingeplant."
-
-msgid "Draft schedule: %(plan_date)s at %(start_time)s (%(tz)s)."
-msgstr "Entwurf: %(plan_date)s um %(start_time)s (%(tz)s)."
-
-msgid "This is a draft and may still change."
-msgstr "Dies ist ein Entwurf und kann sich noch ändern."
-
-msgid "Your video for license #%(license_number)s (%(title)s) has been scheduled."
-msgstr "Ihr Video für Freistellung #%(license_number)s (%(title)s) wurde eingeplant."
-
-msgid "Planned broadcast: %(plan_date)s at %(start_time)s (%(tz)s)."
-msgstr "Geplante Ausstrahlung: %(plan_date)s um %(start_time)s (%(tz)s)."
-
-msgid "This schedule is considered final and is very likely to air as planned."
-msgstr "Dieser Plan gilt als final und wird sehr wahrscheinlich wie geplant ausgestrahlt."
-
-msgid "Your license #%(license_number)s (%(title)s) now has broadcast dates."
-msgstr "Ihre Freistellung #%(license_number)s (%(title)s) hat jetzt Sendetermine."
-
-msgid "Premiere: %(premiere_datetime)s"
-msgstr "Premiere: %(premiere_datetime)s"
-
-msgid "Repeats:"
-msgstr "Wiederholungen:"
-
-msgid "View details in Contributions:"
-msgstr "Details in Beiträgen ansehen:"
-
-#, python-format
-msgid "Download queued for \"%(filename)s\"."
-msgstr "Download für \"%(filename)s\" in Warteschlange."
-
-#, python-format
-msgid "Queued download for %(count)d file."
-msgid_plural "Queued download for %(count)d files."
-msgstr[0] "Download für %(count)d Datei in Warteschlange."
-msgstr[1] "Download für %(count)d Dateien in Warteschlange."
-
-#, python-format
-msgid "Skipped %(count)d deleted file."
-msgid_plural "Skipped %(count)d deleted files."
-msgstr[0] "%(count)d gelöschte Datei übersprungen."
-msgstr[1] "%(count)d gelöschte Dateien übersprungen."
-
-msgid "User uploaded"
-msgstr "Vom Nutzer hochgeladen"
-
-msgid "True if the file was uploaded by the rightsholder via the portal; False if created by staff (e.g. in Admin). Used to decide whether to send draft_scheduled, planned_scheduled, contributions_available emails."
-msgstr "True, wenn die Datei vom Rechteinhaber über das Portal hochgeladen wurde; False, wenn von Mitarbeitenden angelegt (z.B. im Admin). Steuert, ob E-Mails zu draft_scheduled, planned_scheduled und contributions_available verschickt werden."
-
-msgid "Create VideoFile on Nextcloud download"
-msgstr "VideoFile bei Nextcloud-Download anlegen"
-
-msgid "After downloading a Nextcloud video to disk, create a VideoFile in media_files so it shows as Player in the license list immediately. Requires MEDIA_FILES_ENABLED and the download path to be under a StorageLocation. If off, only the file is saved; a storage scan can create the VideoFile later."
-msgstr "Nach dem Herunterladen eines Nextcloud-Videos auf die Festplatte einen VideoFile-Eintrag in media_files anlegen, damit in der Freistellungsliste sofort der Player angezeigt wird. Erfordert MEDIA_FILES_ENABLED und dass der Download-Pfad unter einem StorageLocation liegt. Wenn aus, wird nur die Datei gespeichert; ein Speicher-Scan kann den VideoFile später anlegen."
-
-msgid "Send notifications to (Media Authorities)"
-msgstr "Benachrichtigungen an (Medienanstalten)"
-
-msgid "Send status emails only to users whose profile belongs to one of these Media Authorities (Offene Kanäle/Bürgermedien). Empty = send to all. Use to restrict to \"our\" organisation(s) only."
-msgstr "Status-E-Mails nur an Nutzer senden, deren Profil zu einer dieser Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle. Dient dazu, nur \"eigene\" Einrichtungen zu benachrichtigen."
-
-msgid "Send status emails only to users whose profile belongs to one of these Media Authorities (Offene Kanäle/Bürgermedien). Empty = send to all."
-msgstr "Status-E-Mails nur an Nutzer senden, deren Profil zu einer dieser Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-15 23:36+0100\n"
+"POT-Creation-Date: 2026-01-26 23:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,6 +45,12 @@ msgstr ""
 
 msgid "Storage Settings"
 msgstr "Speicher-Einstellungen"
+
+msgid ""
+"Select an existing storage location to use for imports, or leave empty to "
+"create a new one automatically. If storage location is set, download storage "
+"path is only used as fallback."
+msgstr ""
 
 msgid "Auto-Import Settings"
 msgstr "Auto-Import-Einstellungen"
@@ -283,10 +289,24 @@ msgstr ""
 "gestern). Dateien sind in datumsbenannten Ordnern wie \"2026_01_07\" "
 "organisiert."
 
+#, fuzzy
+#| msgid "Storage Settings"
+msgid "Storage Location"
+msgstr "Speicher-Einstellungen"
+
+msgid ""
+"Select existing storage location for imported files. If not set, a new "
+"storage will be created automatically."
+msgstr ""
+
 msgid "Download Storage Path"
 msgstr "Download-Speicherpfad"
 
-msgid "Local path for downloaded files before import"
+#, fuzzy
+#| msgid "Local path for downloaded files before import"
+msgid ""
+"Local path for downloaded files before import (used if storage location is "
+"not set)"
 msgstr "Lokaler Pfad für heruntergeladene Dateien vor dem Import"
 
 msgid "Auto-Import Enabled"
@@ -307,6 +327,9 @@ msgstr ""
 
 msgid "Exchange Configuration"
 msgstr "Austausch-Konfiguration"
+
+msgid "Either storage location or download storage path must be set."
+msgstr ""
 
 msgid "Gastbeitrag"
 msgstr "Gastbeitrag"

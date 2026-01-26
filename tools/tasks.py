@@ -478,11 +478,22 @@ def analyze_audio_normalize_job_task(self, job_id):
 
         meta, _probe = service.probe(input_path)
         before = service.analyze_loudnorm(input_path)
-        recs = service.get_recommendations(before)
+        
+        # Optional noise analysis for better recommendations
+        noise_analysis = None
+        try:
+            noise_analysis = service.analyze_noise(input_path)
+        except Exception as e:
+            logger.warning("Noise analysis failed (non-critical) for job %s: %s", job_id, e)
+        
+        recs = service.get_recommendations(before, noise_analysis)
 
         job.input_metadata = meta
         job.analysis_before = before
         job.analysis_after = None
+        # Store noise analysis in input_metadata for now (or add separate field later)
+        if noise_analysis and isinstance(job.input_metadata, dict):
+            job.input_metadata = {**(job.input_metadata or {}), "noise_analysis": noise_analysis}
         job.progress = 100
         job.status = 'completed'
         job.completed_at = timezone.now()

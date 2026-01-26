@@ -1368,6 +1368,9 @@ class CreateAudioNormalizeJobView(APIView):
         sample_rate = int(request.data.get('sample_rate', 48000))
         force_stereo = str(request.data.get('force_stereo', 'false')).lower() in ('1', 'true', 'yes', 'on')
         output_filename = (request.data.get('output_filename') or '').strip()
+        
+        # Log preset_id for debugging
+        logger.info("Creating audio normalize job with preset_id: %s (from request: %s)", preset_id, request.data.get('preset_id'))
 
         # Resolve input: (1) by media_files.VideoFile id (can be outside MEDIA_ROOT),
         # (2) existing path under MEDIA_ROOT, (3) upload.
@@ -1511,9 +1514,12 @@ class AudioJobStatusView(APIView):
         job = get_audio_job_or_403(request, job_id)
 
         recommendations = []
+        noise_analysis = None
+        if job.input_metadata and isinstance(job.input_metadata, dict):
+            noise_analysis = job.input_metadata.get("noise_analysis")
         if job.analysis_before:
             try:
-                recommendations = AudioNormalizerService(job).get_recommendations(job.analysis_before)
+                recommendations = AudioNormalizerService(job).get_recommendations(job.analysis_before, noise_analysis)
             except Exception:
                 recommendations = []
 
@@ -1548,6 +1554,7 @@ class AudioJobStatusView(APIView):
             'input_metadata': job.input_metadata,
             'analysis_before': job.analysis_before,
             'analysis_after': job.analysis_after,
+            'noise_analysis': noise_analysis,
             'recommendations': recommendations,
             'created_at': job.created_at,
             'started_at': job.started_at,

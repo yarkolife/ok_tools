@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-15 23:38+0100\n"
+"POT-Creation-Date: 2026-01-27 00:15+0100\n"
 "PO-Revision-Date: 2026-01-15 23:36+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,126 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "Storage"
+msgstr "Speicherort"
+
+msgid ""
+"Storage Location (optional): when set, overrides the path below. Storage "
+"Path and Output Path are required when no Storage Location is selected."
+msgstr ""
+"Speicherort (optional): falls gesetzt, überschreibt den Pfad darunter. "
+"Speicherpfad und Ausgabepfad sind erforderlich, wenn kein Speicherort "
+"gewählt ist."
+
+#, fuzzy
+#| msgid "Allowed Image Formats"
+msgid "Allowed formats"
+msgstr "Erlaubte Bildformate"
+
+#, fuzzy
+#| msgid "FFmpeg Log"
+msgid "FFmpeg"
+msgstr "FFmpeg-Protokoll"
+
+#, fuzzy
+#| msgid "Audio Normalize Job"
+msgid "Audio normalize"
+msgstr "Audio-Normalisierungsauftrag"
+
+msgid ""
+"Storage Location (optional): when set, overrides the path below; output can "
+"be outside MEDIA_ROOT. Path fields are used when no storage is selected. "
+"Output path can be empty (output next to input). ARNNDN Model Path: default "
+"path to RNN model (.rnnn) for AI-based denoising. System automatically "
+"detects and uses recommended models (std.rnnn, bd.rnnn, lq.rnnn) from tools/"
+"rnn_models/ directory. Leave empty to use FFT-based denoising."
+msgstr ""
+"Speicherort (optional): falls gesetzt, überschreibt den Pfad darunter; "
+"Ausgabe kann außerhalb von MEDIA_ROOT liegen. Die Pfadfelder werden "
+"verwendet, wenn kein Speicherort gewählt ist. Der Ausgabepfad kann leer sein "
+"(Ausgabe neben der Eingabe). ARNNDN-Modell-Pfad: Standard-Pfad zur RNN-"
+"Modell-Datei (.rnnn) für AI-basierte Entrauschung. Das System erkennt "
+"automatisch und verwendet empfohlene Modelle (std.rnnn, bd.rnnn, lq.rnnn) "
+"aus dem Verzeichnis tools/rnn_models/. Leer lassen, um FFT-basierte "
+"Entrauschung zu verwenden."
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Ownership"
+msgstr ""
+
+#, fuzzy
+#| msgid "Job Information"
+msgid "Information"
+msgstr "Auftragsinformationen"
+
+#, fuzzy
+#| msgid "You do not have permission to access this project."
+msgid "You do not have permission to edit this preset."
+msgstr "Sie haben keine Berechtigung, auf dieses Projekt zuzugreifen."
+
+#, fuzzy
+#| msgid "Preset"
+msgid "Edit Preset"
+msgstr "Preset"
+
+msgid "Preset saved successfully"
+msgstr ""
+
+msgid "Overlays"
+msgstr ""
+
+msgid "Visual Editor"
+msgstr ""
+
+#, fuzzy
+#| msgid "Edit"
+msgid "Editor"
+msgstr "Bearbeiten"
+
+msgid "All presets imported successfully"
+msgstr ""
+
+#, python-format
+msgid "Error importing presets: %s"
+msgstr ""
+
+#, python-format
+msgid "Preset \"%s\" imported successfully"
+msgstr ""
+
+#, python-format
+msgid "Error importing preset \"%s\": %s"
+msgstr ""
+
+#, fuzzy
+#| msgid "Settings"
+msgid "Video Settings"
+msgstr "Einstellungen"
+
+#, fuzzy
+#| msgid "Audio settings"
+msgid "Audio Settings"
+msgstr "Audio-Einstellungen"
+
+msgid "Content"
+msgstr ""
+
+#, fuzzy
+#| msgid "Transitions"
+msgid "Position"
+msgstr "Übergänge"
+
+msgid "Timing & Animation"
+msgstr ""
+
+msgid "Text Styling"
+msgstr ""
+
+msgid "Timing"
+msgstr ""
+
 msgid "You do not have permission to access this project."
 msgstr "Sie haben keine Berechtigung, auf dieses Projekt zuzugreifen."
 
@@ -25,6 +145,12 @@ msgid "Tools module is disabled. Set TOOLS_ENABLED=true to enable."
 msgstr ""
 "Werkzeuge-Modul ist deaktiviert. Setzen Sie TOOLS_ENABLED=true zum "
 "Aktivieren."
+
+msgid "Only staff members can access this tool."
+msgstr "Nur Mitarbeiter können dieses Tool verwenden."
+
+msgid "You do not have permission to access this job."
+msgstr "Sie haben keine Berechtigung, auf diesen Auftrag zuzugreifen."
 
 msgid "Untitled Slideshow"
 msgstr "Unbenannte Diashow"
@@ -105,8 +231,148 @@ msgstr "Keine Audio-ID bereitgestellt"
 msgid "Audio {audio_id} not found in library"
 msgstr "Audio {audio_id} nicht in Bibliothek gefunden"
 
+msgid "Media files module is not available"
+msgstr "Modul Mediendateien ist nicht verfügbar"
+
+msgid "Invalid number"
+msgstr "Ungültige Nummer"
+
+msgid "Missing required parameters: video_id"
+msgstr ""
+
+#, fuzzy
+#| msgid "Video file not found"
+msgid "Video not found"
+msgstr "Video-Datei nicht gefunden"
+
+msgid "License not found for this video"
+msgstr ""
+
+msgid "Please select at least one element to show"
+msgstr ""
+
+msgid "Please select styles for each selected element."
+msgstr ""
+
+msgid ""
+"Source video file not found. Please ensure there is an original (non-"
+"rendered) video file available."
+msgstr ""
+
+#, fuzzy
+#| msgid "Output filename"
+msgid "Invalid output filename"
+msgstr "Ausgabe-Dateiname"
+
+msgid "Could not find a free output filename (too many versions exist)."
+msgstr ""
+
+msgid "Video rendering started. You can track progress in File Operations."
+msgstr ""
+"Video-Rendering gestartet. Den Fortschritt finden Sie unter Dateivorgänge."
+
+#, fuzzy
+#| msgid "Video file not found"
+msgid "License not found"
+msgstr "Video-Datei nicht gefunden"
+
+msgid "Input file not found"
+msgstr "Eingabedatei nicht gefunden"
+
+msgid "Job is already running"
+msgstr "Auftrag läuft bereits"
+
+msgid "Analysis started"
+msgstr "Analyse gestartet"
+
+msgid "Normalization started"
+msgstr "Normalisierung gestartet"
+
+msgid "Invalid kind"
+msgstr "Ungültiger Typ"
+
+msgid "Output file not found"
+msgstr "Ausgabedatei nicht gefunden"
+
+msgid "Output file not generated yet"
+msgstr "Ausgabedatei wurde noch nicht erzeugt"
+
+msgid "Cannot delete job while processing"
+msgstr "Auftrag kann während der Verarbeitung nicht gelöscht werden"
+
+msgid "Job deleted"
+msgstr "Auftrag gelöscht"
+
 msgid "Tools"
 msgstr "Werkzeuge"
+
+msgid "None"
+msgstr ""
+
+msgid "Fade"
+msgstr "Einblenden"
+
+msgid "Slide Up"
+msgstr "Nach oben schieben"
+
+msgid "Slide Left"
+msgstr "Nach links schieben"
+
+msgid "Slide Right"
+msgstr "Nach rechts schieben"
+
+msgid "Slide Down"
+msgstr "Nach unten schieben"
+
+msgid "Zoom In"
+msgstr ""
+
+msgid "Zoom Out"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Image"
+msgstr "Bild"
+
+msgid "Custom"
+msgstr ""
+
+msgid "Center"
+msgstr ""
+
+#, fuzzy
+#| msgid "Wipe Left"
+msgid "Top Left"
+msgstr "Nach links wischen"
+
+msgid "Top Center"
+msgstr ""
+
+#, fuzzy
+#| msgid "Wipe Right"
+msgid "Top Right"
+msgstr "Nach rechts wischen"
+
+#, fuzzy
+#| msgid "Smooth Left"
+msgid "Bottom Left"
+msgstr "Sanft nach links"
+
+msgid "Bottom Center"
+msgstr ""
+
+#, fuzzy
+#| msgid "Smooth Right"
+msgid "Bottom Right"
+msgstr "Sanft nach rechts"
+
+msgid "Lower Third Left"
+msgstr ""
+
+msgid "Lower Third Right"
+msgstr ""
 
 msgid "Draft"
 msgstr "Entwurf"
@@ -119,9 +385,6 @@ msgstr "Abgeschlossen"
 
 msgid "Failed"
 msgstr "Fehlgeschlagen"
-
-msgid "Fade"
-msgstr "Einblenden"
 
 msgid "Fade to Black"
 msgstr "Zu Schwarz ausblenden"
@@ -140,18 +403,6 @@ msgstr "Nach oben wischen"
 
 msgid "Wipe Down"
 msgstr "Nach unten wischen"
-
-msgid "Slide Left"
-msgstr "Nach links schieben"
-
-msgid "Slide Right"
-msgstr "Nach rechts schieben"
-
-msgid "Slide Up"
-msgstr "Nach oben schieben"
-
-msgid "Slide Down"
-msgstr "Nach unten schieben"
 
 msgid "Smooth Left"
 msgstr "Sanft nach links"
@@ -264,9 +515,6 @@ msgstr "Diashow-Projekt"
 msgid "Slideshow Projects"
 msgstr "Diashow-Projekte"
 
-msgid "Image"
-msgstr "Bild"
-
 msgid "Video"
 msgstr "Video"
 
@@ -335,17 +583,338 @@ msgstr ""
 msgid "Slideshow Audio"
 msgstr "Diashow-Audio"
 
+#, fuzzy
+#| msgid "Project Name"
+msgid "Preset Name"
+msgstr "Projektname"
+
+msgid "Unique name for this preset (e.g., \"my_custom_lower_third\")"
+msgstr ""
+
+msgid "Display Name"
+msgstr ""
+
+msgid "Human-readable name shown in UI"
+msgstr ""
+
+#, fuzzy
+#| msgid "Duration"
+msgid "Description"
+msgstr "Dauer"
+
+msgid "Optional description of this preset"
+msgstr ""
+
+msgid "Is Template"
+msgstr ""
+
+msgid "If true, this preset serves as a starting template for new presets"
+msgstr ""
+
+msgid "Based On"
+msgstr ""
+
+msgid "Original preset this was copied from"
+msgstr ""
+
+#, fuzzy
+#| msgid "Slide Duration (seconds)"
+msgid "Segment Duration (seconds)"
+msgstr "Folien-Dauer (Sekunden)"
+
+msgid "Duration for intro/outro overlay segments"
+msgstr ""
+
+msgid "Intro Clip Path"
+msgstr ""
+
+msgid "Optional path to intro video clip"
+msgstr ""
+
+#, fuzzy
+#| msgid "Output Path"
+msgid "Outro Clip Path"
+msgstr "Ausgabepfad"
+
+msgid "Optional path to outro video clip"
+msgstr ""
+
+msgid "Public"
+msgstr ""
+
+#, fuzzy
+#| msgid "Is this a library media file available to all projects?"
+msgid "If true, this preset is available to all users"
+msgstr ""
+"Ist dies eine Bibliotheks-Medien-Datei, die für alle Projekte verfügbar ist?"
+
+#, fuzzy
+#| msgid "Preset"
+msgid "Video Preset"
+msgstr "Preset"
+
+#, fuzzy
+#| msgid "Video Render"
+msgid "Video Presets"
+msgstr "Video-Rendering"
+
+#, fuzzy
+#| msgid "Intro/Outro"
+msgid "Intro"
+msgstr "Intro/Outro"
+
+#, fuzzy
+#| msgid "Intro/Outro"
+msgid "Outro"
+msgstr "Intro/Outro"
+
+msgid "Preset"
+msgstr "Preset"
+
+msgid "Type"
+msgstr ""
+
+msgid "Segment"
+msgstr ""
+
+msgid "Apply this overlay to intro or outro segment"
+msgstr ""
+
+msgid "Rendering order (lower number = rendered first/bottom layer)"
+msgstr ""
+
+msgid "Text Template"
+msgstr ""
+
+#, python-brace-format
+msgid "Template with variables like {license.title}, {profile.display}"
+msgstr ""
+
+#, fuzzy
+#| msgid "Storage Path"
+msgid "Image Path"
+msgstr "Speicherpfad"
+
+msgid "Path to image file (relative to assets/ or absolute)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Width"
+msgid "Image Width"
+msgstr "Breite"
+
+#, fuzzy
+#| msgid "Height"
+msgid "Image Height"
+msgstr "Höhe"
+
+msgid "Position Preset"
+msgstr ""
+
+msgid "X Position"
+msgstr ""
+
+msgid "X coordinate or expression (e.g., \"(w-text_w)/2\", \"40\")"
+msgstr ""
+
+msgid "Y Position"
+msgstr ""
+
+msgid "Y coordinate or expression (e.g., \"h-140\", \"(h-text_h)/2\")"
+msgstr ""
+
+#, fuzzy
+#| msgid "Duration (seconds)"
+msgid "Start Time (seconds)"
+msgstr "Dauer (Sekunden)"
+
+msgid "When to show this overlay (relative to segment start)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Duration Override (seconds)"
+msgid "End Time (seconds)"
+msgstr "Dauer überschreiben (Sekunden)"
+
+msgid "When to hide this overlay (relative to segment start)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Actions"
+msgid "Animation"
+msgstr "Aktionen"
+
+#, fuzzy
+#| msgid "Slide Duration (seconds)"
+msgid "Fade In Duration (seconds)"
+msgstr "Folien-Dauer (Sekunden)"
+
+#, fuzzy
+#| msgid "Slide Duration (seconds)"
+msgid "Fade Out Duration (seconds)"
+msgstr "Folien-Dauer (Sekunden)"
+
+#, fuzzy
+#| msgid "Input File"
+msgid "Font File"
+msgstr "Eingabedatei"
+
+msgid "Path relative to assets/ (e.g., \"fonts/Roboto-Bold.ttf\")"
+msgstr ""
+
+msgid "Font Size"
+msgstr ""
+
+msgid "Font Color"
+msgstr ""
+
+msgid "Color name or hex (e.g., \"white\", \"#FFFFFF\")"
+msgstr ""
+
+#, fuzzy
+#| msgid "Background Music"
+msgid "Has Background Box"
+msgstr "Hintergrundmusik"
+
+msgid "Box Color"
+msgstr ""
+
+msgid "Color with opacity (e.g., \"black@0.5\")"
+msgstr ""
+
+msgid "Box Border Width"
+msgstr ""
+
+#, fuzzy
+#| msgid "Preset"
+msgid "Preset Overlay"
+msgstr "Preset"
+
+msgid "Preset Overlays"
+msgstr ""
+
+msgid "Unique name for this encoding preset (e.g., \"1080p25_9000k\")"
+msgstr ""
+
+msgid "Human-readable name shown in UI (auto-generated if empty)"
+msgstr ""
+
+msgid "Optional description of this encoding preset"
+msgstr ""
+
+msgid "Video codec (e.g., \"libx264\")"
+msgstr ""
+
+#, fuzzy
+#| msgid "Video Bitrate"
+msgid "Video Bitrate (kbps)"
+msgstr "Video-Bitrate"
+
+msgid "Video bitrate in kilobits per second"
+msgstr ""
+
+#, fuzzy
+#| msgid "Audio codec"
+msgid "Audio Codec"
+msgstr "Audio-Codec"
+
+#, fuzzy
+#| msgid "Audio codec"
+msgid "Audio codec (e.g., \"aac\")"
+msgstr "Audio-Codec"
+
+#, fuzzy
+#| msgid "Audio Bitrate"
+msgid "Audio Bitrate (kbps)"
+msgstr "Audio-Bitrate"
+
+msgid "Audio bitrate in kilobits per second"
+msgstr ""
+
+#, fuzzy
+#| msgid "Sample Rate"
+msgid "Audio Sample Rate (Hz)"
+msgstr "Abtastrate"
+
+msgid "Audio sample rate in Hz"
+msgstr ""
+
+#, fuzzy
+#| msgid "Channels"
+msgid "Audio Channels"
+msgstr "Kanäle"
+
+msgid "Number of audio channels"
+msgstr ""
+
+msgid "Pixel Format"
+msgstr ""
+
+msgid "Pixel format (e.g., \"yuv420p\")"
+msgstr ""
+
+#, fuzzy
+#| msgid "Preset"
+msgid "x264 Preset"
+msgstr "Preset"
+
+msgid "x264 encoding preset (e.g., \"veryfast\", \"medium\", \"slow\")"
+msgstr ""
+
+msgid "x264 Profile"
+msgstr ""
+
+msgid "x264 profile (e.g., \"baseline\", \"main\", \"high\")"
+msgstr ""
+
+#, fuzzy
+#| msgid "Video Render"
+msgid "Video Encode Preset"
+msgstr "Video-Rendering"
+
+#, fuzzy
+#| msgid "Video Render"
+msgid "Video Encode Presets"
+msgstr "Video-Rendering"
+
+# Storage and Output Path (Storage Location) - ToolsConfig
+msgid "Storage Path (Storage Location)"
+msgstr "Speicherpfad (Speicherort)"
+
+msgid ""
+"Optional. Storage location for uploads. Overrides the path below when set."
+msgstr ""
+"Optional. Speicherort für Uploads. Überschreibt den Pfad unten, wenn gesetzt."
+
 msgid "Storage Path"
 msgstr "Speicherpfad"
 
-msgid "Base path for storing uploaded media files"
-msgstr "Basis-Pfad zum Speichern hochgeladener Mediendateien"
+msgid ""
+"Required when no Storage Location is selected. Base path for storing "
+"uploaded media files."
+msgstr ""
+"Erforderlich, wenn kein Speicherort gewählt ist. Basis-Pfad zum Speichern "
+"hochgeladener Mediendateien."
+
+msgid "Output Path (Storage Location)"
+msgstr "Ausgabepfad (Speicherort)"
+
+msgid ""
+"Optional. Storage location for generated videos. Overrides the path below "
+"when set."
+msgstr ""
+"Optional. Speicherort für generierte Videos. Überschreibt den Pfad unten, "
+"wenn gesetzt."
 
 msgid "Output Path"
 msgstr "Ausgabepfad"
 
-msgid "Base path for storing generated videos"
-msgstr "Basis-Pfad zum Speichern generierter Videos"
+msgid ""
+"Required when no Storage Location is selected. Base path for storing "
+"generated videos."
+msgstr ""
+"Erforderlich, wenn kein Speicherort gewählt ist. Basis-Pfad zum Speichern "
+"generierter Videos."
 
 msgid "Max Upload Size (MB)"
 msgstr "Maximale Upload-Größe (MB)"
@@ -383,11 +952,854 @@ msgstr "FFprobe-Pfad"
 msgid "Path to ffprobe executable"
 msgstr "Pfad zur ffprobe-Executable"
 
+# Audio normalize - Storage and paths
+msgid "Audio Normalize Input Storage"
+msgstr "Eingabe-Speicherort für Audio-Normalisierung"
+
+msgid ""
+"Optional. Storage location for input base path. Overrides the path below "
+"when set."
+msgstr ""
+"Optional. Speicherort für den Eingabe-Basis-Pfad. Überschreibt den Pfad "
+"unten, wenn gesetzt."
+
+msgid "Audio Normalize Input Path"
+msgstr "Eingabepfad für Audio-Normalisierung"
+
+msgid ""
+"Base path when no storage is selected. Used for upload dedup and similar. "
+"Can be empty."
+msgstr ""
+"Basis-Pfad, wenn kein Speicherort gewählt ist. Wird für Upload-"
+"Deduplizierung usw. verwendet. Kann leer sein."
+
+msgid "Audio Normalize Output Storage"
+msgstr "Ausgabe-Speicherort für Audio-Normalisierung"
+
+msgid ""
+"Optional. Storage location for output directory. Overrides the path below "
+"when set."
+msgstr ""
+"Optional. Speicherort für das Ausgabeverzeichnis. Überschreibt den Pfad "
+"unten, wenn gesetzt."
+
+msgid "Audio Normalize Output Path"
+msgstr "Ausgabepfad für Audio-Normalisierung"
+
+msgid ""
+"Base path when no storage is selected. Empty = next to input. Can be left "
+"empty. If storage is set, output can be outside MEDIA_ROOT."
+msgstr ""
+"Basis-Pfad, wenn kein Speicherort gewählt ist. Leer = neben der Eingabe. "
+"Kann leer bleiben. Wenn ein Speicherort gesetzt ist, kann die Ausgabe "
+"außerhalb von MEDIA_ROOT liegen."
+
+msgid "Audio Normalize Default Preset"
+msgstr "Standard-Preset für Audio-Normalisierung"
+
+msgid "Default audio normalize preset ID"
+msgstr "Standard-Preset-ID für die Audio-Normalisierung"
+
+msgid "Audio Normalize Default Bitrate"
+msgstr "Standard-Bitrate für Audio-Normalisierung"
+
+msgid "Default audio bitrate for normalized files (e.g., 192k)"
+msgstr "Standard-Audio-Bitrate für normalisierte Dateien (z. B. 192k)"
+
+msgid "ARNNDN Model Path"
+msgstr "ARNNDN-Modell-Pfad"
+
+msgid ""
+"Default path to RNN model file (.rnnn) for neural network denoising (arnndn "
+"filter). System automatically detects and uses recommended models (std.rnnn, "
+"bd.rnnn, lq.rnnn) from tools/rnn_models/ directory. Leave empty to use FFT-"
+"based denoising (afftdn)."
+msgstr ""
+"Standard-Pfad zur RNN-Modell-Datei (.rnnn) für neuronale Netzwerk-"
+"Entrauschung (arnndn-Filter). Das System erkennt automatisch und verwendet "
+"empfohlene Modelle (std.rnnn, bd.rnnn, lq.rnnn) aus dem Verzeichnis tools/"
+"rnn_models/. Leer lassen, um FFT-basierte Entrauschung (afftdn) zu verwenden."
+
 msgid "Tools Configuration"
 msgstr "Werkzeuge-Konfiguration"
 
+msgid "Pending"
+msgstr "Ausstehend"
+
+msgid "Analyzing"
+msgstr "Analysiere"
+
+msgid "TV (R128)"
+msgstr "TV (R128)"
+
+msgid "Web"
+msgstr "Web"
+
+msgid "192 kbps"
+msgstr "192 kbps"
+
+msgid "256 kbps"
+msgstr "256 kbps"
+
+msgid "Audio normalize preset ID"
+msgstr "Preset-ID für Audio-Normalisierung"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Target loudness profile"
+msgstr "Ziel-Lautheitsprofil"
+
+msgid "Input File"
+msgstr "Eingabedatei"
+
+# AudioNormalizeJob - output_path_external
+#, fuzzy
+#| msgid "Output Path (external)"
+msgid "Input path (external)"
+msgstr "Ausgabepfad (extern)"
+
+#, fuzzy
+#| msgid ""
+#| "Absolute path when output was written outside MEDIA_ROOT (e.g. to a "
+#| "storage location)."
+msgid ""
+"Absolute path when input is outside MEDIA_ROOT (e.g. from a storage "
+"location)."
+msgstr ""
+"Absoluter Pfad, wenn die Ausgabe außerhalb von MEDIA_ROOT geschrieben wurde "
+"(z. B. in einen Speicherort)."
+
+#, fuzzy
+#| msgid "No media files"
+msgid "Input media file ID"
+msgstr "Keine Mediendateien"
+
+msgid ""
+"media_files.VideoFile ID when input was chosen by media number (for stream "
+"URL)."
+msgstr ""
+
+msgid "Output File"
+msgstr "Ausgabedatei"
+
+# AudioNormalizeJob - output_path_external
+msgid "Output Path (external)"
+msgstr "Ausgabepfad (extern)"
+
+msgid ""
+"Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage "
+"location)."
+msgstr ""
+"Absoluter Pfad, wenn die Ausgabe außerhalb von MEDIA_ROOT geschrieben wurde "
+"(z. B. in einen Speicherort)."
+
+msgid "Output Filename"
+msgstr "Ausgabe-Dateiname"
+
+msgid "If empty, will default to <input>_R128.mp4"
+msgstr "Wenn leer, wird standardmäßig <input>_R128.mp4 verwendet"
+
+msgid "Sample Rate"
+msgstr "Abtastrate"
+
+msgid "Force Stereo"
+msgstr "Stereo erzwingen"
+
+msgid "If enabled, audio will be forced to 2 channels"
+msgstr "Wenn aktiviert, wird Audio auf 2 Kanäle erzwungen"
+
+msgid "Input Metadata"
+msgstr "Eingabe-Metadaten"
+
+msgid "ffprobe JSON output"
+msgstr "ffprobe-JSON-Ausgabe"
+
+msgid "Analysis Before"
+msgstr "Analyse vorher"
+
+msgid "loudnorm analysis JSON from pass 1"
+msgstr "loudnorm-Analyse-JSON aus Durchlauf 1"
+
+msgid "Analysis After"
+msgstr "Analyse nachher"
+
+msgid "loudnorm analysis JSON from after-processing verification pass"
+msgstr ""
+"loudnorm-Analyse-JSON aus dem Verifikationsdurchlauf nach der Verarbeitung"
+
+msgid "Progress (%)"
+msgstr "Fortschritt (%)"
+
+msgid "Processing progress 0..100"
+msgstr "Verarbeitungsfortschritt 0..100"
+
+msgid "FFmpeg Log"
+msgstr "FFmpeg-Protokoll"
+
+#, fuzzy
+#| msgid "Created At"
+msgid "Started At"
+msgstr "Erstellt am"
+
+msgid "Audio Normalize Job"
+msgstr "Audio-Normalisierungsauftrag"
+
+msgid "Audio Normalize Jobs"
+msgstr "Audio-Normalisierungsaufträge"
+
+#, python-brace-format
+msgid "LUFS too high ({input_i:.1f} LUFS, target {target_i:.1f})"
+msgstr "LUFS zu hoch ({input_i:.1f} LUFS, Ziel {target_i:.1f})"
+
+#, python-brace-format
+msgid "high LRA ({input_lra:.1f} LU, target ≤{target_lra})"
+msgstr "hohe LRA ({input_lra:.1f} LU, Ziel ≤{target_lra})"
+
+msgid "high peak levels"
+msgstr "hohe Spitzenpegel"
+
+msgid "continuous background noise"
+msgstr "kontinuierliches Hintergrundrauschen"
+
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
+#| "denoising."
+msgid "high background noise ({noise_level:.1f} dB)"
+msgstr "hohes Hintergrundrauschen ({noise_level:.1f} dB)"
+
+msgid " and "
+msgstr " und "
+
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "High peak levels and continuous background noise detected. Recommended: "
+#| "{preset} combines aggressive peak control, AI denoising for noise "
+#| "removal, and speech optimization. For a softer option, use "
+#| "{speech_preset} and verify limiter is sufficient for peak control."
+msgid ""
+"Multiple issues detected: {issues}. Recommended: {preset} combines "
+"aggressive processing, AI denoising, and speech optimization to address all "
+"problems. For a softer option, use {speech_preset}."
+msgstr ""
+"Mehrere Probleme erkannt: {issues}. Empfohlen: {preset} kombiniert "
+"aggressive Verarbeitung, AI-Entrauschung und Sprachoptimierung, um alle "
+"Probleme zu lösen. Für eine weichere Option verwenden Sie {speech_preset}."
+
+#, python-brace-format
+msgid ""
+"High peak levels and continuous background noise detected. Recommended: "
+"{preset} combines aggressive peak control, AI denoising for noise removal, "
+"and speech optimization. For a softer option, use {speech_preset} and verify "
+"limiter is sufficient for peak control."
+msgstr ""
+"Hohe Spitzenpegel und kontinuierliches Hintergrundrauschen erkannt. "
+"Empfohlen: {preset} kombiniert aggressive Spitzenkontrolle, AI-Entrauschung "
+"zur Rauschreduzierung und Sprachoptimierung. Für eine weichere Option "
+"verwenden Sie {speech_preset} und überprüfen Sie, ob der Limiter für die "
+"Spitzenkontrolle ausreicht."
+
+#, python-brace-format
+msgid ""
+"High peak levels ({peak_level:.1f} dB) and high background noise "
+"({noise_level:.1f} dB) detected. Recommended: {preset} combines aggressive "
+"peak control with AI denoising for optimal results."
+msgstr ""
+"Hohe Spitzenpegel ({peak_level:.1f} dB) und hohes Hintergrundrauschen "
+"({noise_level:.1f} dB) erkannt. Empfohlen: {preset} kombiniert aggressive "
+"Spitzenkontrolle mit AI-Entrauschung für optimale Ergebnisse."
+
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
+#| "denoising."
+msgid ""
+"Continuous and very high background noise ({noise_level:.1f} dB) detected. "
+"Recommended: {preset} for aggressive AI denoising and speech clarity."
+msgstr ""
+"Kontinuierliches und sehr hohes Hintergrundrauschen ({noise_level:.1f} dB) "
+"erkannt. Empfohlen: {preset} für aggressive AI-Entrauschung und "
+"Sprachklarheit."
+
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "High background noise detected ({noise_level:.1f} dB). AI denoiser "
+#| "(arnndn) recommended for better speech clarity."
+msgid ""
+"Continuous background noise and high noise level ({noise_level:.1f} dB) "
+"detected. Recommended: {preset} with AI denoising for speech clarity."
+msgstr ""
+"Kontinuierliches Hintergrundrauschen und hohes Rauschniveau "
+"({noise_level:.1f} dB) erkannt. Empfohlen: {preset} mit AI-Entrauschung für "
+"Sprachklarheit."
+
+#, python-brace-format
+msgid ""
+"Multiple issues detected: {issues}. Recommended: {preset} with AI denoising "
+"to address these problems."
+msgstr ""
+"Mehrere Probleme erkannt: {issues}. Empfohlen: {preset} mit AI-Entrauschung "
+"zur Lösung dieser Probleme."
+
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "High background noise detected ({noise_level:.1f} dB). Strong denoising "
+#| "recommended. Consider installing RNN model for AI denoising."
+msgid ""
+"Multiple issues detected: {issues}. Strong preset recommended. Consider "
+"installing RNN model for AI denoising to get better results."
+msgstr ""
+"Hohes Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke "
+"Entrauschung empfohlen. Erwägen Sie die Installation eines RNN-Modells für "
+"AI-Entrauschung."
+
+#, python-brace-format
+msgid ""
+"LUFS too high ({input_i:.1f} LUFS, target {target_i:.1f}). Strong preset "
+"recommended to reduce loudness."
+msgstr ""
+"LUFS zu hoch ({input_i:.1f} LUFS, Ziel {target_i:.1f}). Starkes Preset "
+"empfohlen zur Lautstärkereduzierung."
+
+#, python-brace-format
+msgid ""
+"Very high dynamics (LRA {input_lra:.1f} LU, target ≤{target_lra}). Strong "
+"preset recommended."
+msgstr ""
+"Sehr hohe Dynamik (LRA {input_lra:.1f} LU, Ziel ≤{target_lra}). Starkes "
+"Preset empfohlen."
+
+#, python-brace-format
+msgid ""
+"High dynamics (LRA {input_lra:.1f} LU, target ≤{target_lra}). Strong preset "
+"recommended."
+msgstr ""
+"Hohe Dynamik (LRA {input_lra:.1f} LU, Ziel ≤{target_lra}). Starkes Preset "
+"empfohlen."
+
+msgid "standard (std.rnnn)"
+msgstr "Standard (std.rnnn)"
+
+msgid "balloon/directional (bd.rnnn) - optimized for wind noise"
+msgstr "Ballon/Richtung (bd.rnnn) - optimiert für Windgeräusche"
+
+msgid "low quality (lq.rnnn) - optimized for degraded audio"
+msgstr "Niedrige Qualität (lq.rnnn) - optimiert für degradiertes Audio"
+
+#, python-brace-format
+msgid ""
+"Wind noise detected. Recommended model: {model_name}. Configure ARNNDN Model "
+"Path in Tools Config to use this model."
+msgstr ""
+"Windgeräusche erkannt. Empfohlenes Modell: {model_name}. Konfigurieren Sie "
+"den ARNNDN-Modell-Pfad in der Tools-Konfiguration, um dieses Modell zu "
+"verwenden."
+
+#, fuzzy
+#| msgid ""
+#| "High background noise detected ({noise_level:.1f} dB). Strong denoising "
+#| "recommended. Consider installing RNN model for AI denoising."
+msgid ""
+"Wind noise detected. Strong denoising recommended. Consider installing RNN "
+"model for AI denoising."
+msgstr ""
+"Hohes Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke "
+"Entrauschung empfohlen. Erwägen Sie die Installation eines RNN-Modells für "
+"AI-Entrauschung."
+
+#, python-brace-format
+msgid ""
+"Low quality audio detected (compression artifacts, degradation). Recommended "
+"model: {model_name}. Configure ARNNDN Model Path in Tools Config to use this "
+"model."
+msgstr ""
+"Niedrige Audioqualität erkannt (Kompressionsartefakte, Degradation). "
+"Empfohlenes Modell: {model_name}. Konfigurieren Sie den ARNNDN-Modell-Pfad "
+"in der Tools-Konfiguration, um dieses Modell zu verwenden."
+
+#, fuzzy
+#| msgid ""
+#| "High background noise detected ({noise_level:.1f} dB). Strong denoising "
+#| "recommended. Consider installing RNN model for AI denoising."
+msgid ""
+"Low quality audio detected. Strong denoising recommended. Consider "
+"installing RNN model for AI denoising."
+msgstr ""
+"Hohes Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke "
+"Entrauschung empfohlen. Erwägen Sie die Installation eines RNN-Modells für "
+"AI-Entrauschung."
+
+#, python-brace-format
+msgid ""
+"Background noise detected ({noise_level:.1f} dB). Recommended model: "
+"{model_name} for best results."
+msgstr ""
+"Hintergrundrauschen erkannt ({noise_level:.1f} dB). Empfohlenes Modell: "
+"{model_name} für beste Ergebnisse."
+
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "High background noise detected ({noise_level:.1f} dB). Strong denoising "
+#| "recommended. Consider installing RNN model for AI denoising."
+msgid ""
+"Background noise detected ({noise_level:.1f} dB). Strong denoising "
+"recommended. Consider installing RNN model for AI denoising."
+msgstr ""
+"Hohes Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke "
+"Entrauschung empfohlen. Erwägen Sie die Installation eines RNN-Modells für "
+"AI-Entrauschung."
+
+msgid ""
+"Wind noise detected. Consider downloading bd.rnnn model for better wind "
+"noise reduction. Currently using std.rnnn."
+msgstr ""
+"Windgeräusche erkannt. Erwägen Sie das Herunterladen des bd.rnnn-Modells für "
+"bessere Windgeräuschreduzierung. Derzeit wird std.rnnn verwendet."
+
+msgid ""
+"Low quality audio detected. Consider downloading lq.rnnn model for better "
+"results with degraded audio. Currently using std.rnnn."
+msgstr ""
+"Niedrige Audioqualität erkannt. Erwägen Sie das Herunterladen des lq.rnnn-"
+"Modells für bessere Ergebnisse bei degradiertem Audio. Derzeit wird std.rnnn "
+"verwendet."
+
+#, python-brace-format
+msgid ""
+"Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
+"denoising."
+msgstr ""
+"Sehr hohes Hintergrundrauschen ({noise_level:.1f} dB). Aggressive AI-"
+"Entrauschung erwägen."
+
+#, python-brace-format
+msgid ""
+"High background noise detected ({noise_level:.1f} dB). AI denoiser (arnndn) "
+"recommended for better speech clarity."
+msgstr ""
+"Hohes Hintergrundrauschen erkannt ({noise_level:.1f} dB). AI-Entrauscher "
+"(arnndn) empfohlen für bessere Sprachklarheit."
+
+#, python-brace-format
+msgid ""
+"High background noise detected ({noise_level:.1f} dB). Strong denoising "
+"recommended. Consider installing RNN model for AI denoising."
+msgstr ""
+"Hohes Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke "
+"Entrauschung empfohlen. Erwägen Sie die Installation eines RNN-Modells für "
+"AI-Entrauschung."
+
+msgid ""
+"Continuous background noise detected. AI denoiser recommended for speech "
+"clarity."
+msgstr ""
+"Kontinuierliches Hintergrundrauschen erkannt. AI-Entrauscher empfohlen für "
+"Sprachklarheit."
+
+msgid "Continuous background noise detected. Denoising recommended."
+msgstr "Kontinuierliches Hintergrundrauschen erkannt. Entrauschung empfohlen."
+
+#, python-brace-format
+msgid ""
+"Very high peak levels ({peak_level:.1f} dB). Strong limiter recommended."
+msgstr ""
+"Sehr hohe Spitzenpegel ({peak_level:.1f} dB). Starker Limiter empfohlen."
+
+#, fuzzy
+#| msgid "Preset"
+msgid "New Preset"
+msgstr "Preset"
+
+msgid "Save"
+msgstr ""
+
+msgid "Preview"
+msgstr "Vorschau"
+
+msgid "Back"
+msgstr ""
+
+msgid "Add Text Overlay"
+msgstr ""
+
+msgid "Add Image Overlay"
+msgstr ""
+
+msgid "Select an overlay to edit properties"
+msgstr ""
+
+#, fuzzy
+#| msgid "Media Type"
+msgid "Overlay Type"
+msgstr "Medientyp"
+
+msgid "Text Content"
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "Quick Insert"
+msgstr ""
+
+#, fuzzy
+#| msgid "Style"
+msgid "Text Style"
+msgstr "Stil"
+
+#, fuzzy
+#| msgid "Background Music"
+msgid "Background Box"
+msgstr "Hintergrundmusik"
+
+msgid "Box Padding"
+msgstr ""
+
+msgid "Start Time (s)"
+msgstr ""
+
+msgid "End Time (s)"
+msgstr ""
+
+msgid "Fade In (s)"
+msgstr ""
+
+msgid "Fade Out (s)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Delete"
+msgid "Delete Overlay"
+msgstr "Löschen"
+
+#, fuzzy
+#| msgid "Delete this media file?"
+msgid "Delete this overlay?"
+msgstr "Diese Mediendatei löschen?"
+
+#, fuzzy
+#| msgid "Please enter project name"
+msgid "Please enter preset name and display name"
+msgstr "Bitte geben Sie einen Projektnamen ein"
+
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+msgid "Edit in Visual Editor"
+msgstr ""
+
+msgid "Import all JSON presets from video_presets/style directory?"
+msgstr ""
+
+msgid "Import All Presets"
+msgstr ""
+
+msgid "Import Single Preset"
+msgstr ""
+
+#, fuzzy
+#| msgid "Please select a file."
+msgid "Please select a preset"
+msgstr "Bitte eine Datei auswählen."
+
+msgid "Select a preset to import from JSON files:"
+msgstr ""
+
+msgid "-- Select Preset --"
+msgstr ""
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#, fuzzy
+#| msgid "Report"
+msgid "Import"
+msgstr "Bericht"
+
+msgid "Audio Broadcast Normalize (R128)"
+msgstr "Audio-Broadcast-Normalisierung (R128)"
+
 msgid "Home"
 msgstr "Startseite"
+
+msgid "New Job"
+msgstr "Neuer Auftrag"
+
+msgid ""
+"Normalizes loudness using a broadcast-safe EBU R128 pipeline (2-pass "
+"loudnorm when applicable). Video is copied, only audio is re-encoded."
+msgstr ""
+
+msgid "Input / Output"
+msgstr "Eingabe / Ausgabe"
+
+msgid "Media number"
+msgstr "Mediennummer"
+
+msgid "Suche"
+msgstr "Suche"
+
+msgid "Find an existing video file by number (from Media Files)."
+msgstr "Bestehende Videodatei nach Nummer finden (aus Mediendateien)."
+
+msgid "Source file"
+msgstr "Quelldatei"
+
+msgid "Select a local file to upload for processing."
+msgstr "Wählen Sie eine lokale Datei zum Hochladen für die Verarbeitung."
+
+msgid "Output filename"
+msgstr "Ausgabe-Dateiname"
+
+msgid "Leave empty for *_R128.mp4"
+msgstr "Leer lassen für *_R128.mp4"
+
+msgid "If empty, output will default to <input>_R128.mp4"
+msgstr "Wenn leer, wird die Ausgabe standardmäßig <input>_R128.mp4 verwendet"
+
+msgid "Processing profile"
+msgstr "Verarbeitungsprofil"
+
+msgid ""
+"Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic "
+"loudnorm. AI presets (tv_ai_speech, tv_ai_strong) use neural network "
+"denoising for better speech clarity."
+msgstr ""
+"Wählen Sie ein Preset. Natural/Strong nutzen 2-Pass loudnorm; Fast Auto "
+"nutzt dynamisches loudnorm. AI-Presets (tv_ai_speech, tv_ai_strong) nutzen "
+"neuronale Netzwerk-Entrauschung für bessere Sprachklarheit. Das System wählt "
+"automatisch das optimale Modell basierend auf der Rauschanalyse."
+
+msgid "Bitrate"
+msgstr "Bitrate"
+
+msgid "Channels"
+msgstr "Kanäle"
+
+msgid "Force stereo (2 channels)"
+msgstr "Stereo erzwingen (2 Kanäle)"
+
+msgid "Default keeps original channels."
+msgstr "Standard behält die ursprünglichen Kanäle."
+
+msgid "Run"
+msgstr "Start"
+
+msgid "New job"
+msgstr "Neuer Auftrag"
+
+msgid "Analyze (no output)"
+msgstr "Analysieren (keine Ausgabe)"
+
+msgid "Generate (job)"
+msgstr "Erzeugen (Job)"
+
+msgid "Progress"
+msgstr "Fortschritt"
+
+msgid "Report"
+msgstr "Bericht"
+
+msgid "Input"
+msgstr "Eingabe"
+
+msgid "Measured (before)"
+msgstr "Gemessen (vorher)"
+
+msgid "Measured (after)"
+msgstr "Gemessen (nachher)"
+
+# Audio normalization - noise analysis and model recommendations
+msgid "Noise Analysis"
+msgstr "Rauschanalyse"
+
+msgid "Result"
+msgstr "Ergebnis"
+
+msgid "Recommendations"
+msgstr "Empfehlungen"
+
+msgid "Click on a recommendation to apply it as the selected preset."
+msgstr ""
+"Klicken Sie auf eine Empfehlung, um sie als ausgewähltes Preset anzuwenden."
+
+msgid "Integrated LUFS"
+msgstr "Integrierte LUFS"
+
+msgid "True Peak"
+msgstr "True Peak"
+
+msgid "LRA"
+msgstr "LRA"
+
+msgid "Metric"
+msgstr "Kennwert"
+
+msgid "Before"
+msgstr "Vorher"
+
+msgid "After"
+msgstr "Nachher"
+
+msgid "Waveform (before / after)"
+msgstr "Wellenform (vorher / nachher)"
+
+msgid "Sync playback"
+msgstr "Sync-Wiedergabe"
+
+msgid "When enabled, seeking and play/pause are mirrored to the other preview."
+msgstr ""
+"Wenn aktiviert, werden Spulen sowie Wiedergabe/Pause auf die andere Vorschau "
+"übertragen."
+
+msgid "Original"
+msgstr "Original"
+
+msgid "Processed"
+msgstr "Verarbeitet"
+
+msgid "FFmpeg log (tail)"
+msgstr "FFmpeg-Protokoll (Ende)"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Please select an input file first."
+msgstr "Bitte wählen Sie zuerst eine Eingabedatei aus."
+
+msgid "Failed to create job."
+msgstr "Auftrag konnte nicht erstellt werden."
+
+msgid "Searching..."
+msgstr "Suche..."
+
+msgid "Enter a number to search."
+msgstr "Nummer eingeben, um zu suchen."
+
+msgid "Search failed."
+msgstr "Suche fehlgeschlagen."
+
+msgid "No matching files found."
+msgstr "Keine passenden Dateien gefunden."
+
+msgid "External"
+msgstr "Extern"
+
+msgid "Use"
+msgstr "Verwenden"
+
+msgid "Using existing file"
+msgstr "Verwende bestehende Datei"
+
+msgid "Using existing file (from storage)"
+msgstr "Verwende bestehende Datei (vom Speicherort)"
+
+msgid "Failed to start analysis."
+msgstr "Analyse konnte nicht gestartet werden."
+
+msgid "Failed to start normalization."
+msgstr "Normalisierung konnte nicht gestartet werden."
+
+msgid "Wind noise"
+msgstr "Windgeräusche"
+
+msgid "Low quality"
+msgstr "Niedrige Qualität"
+
+msgid "General noise"
+msgstr "Allgemeines Rauschen"
+
+msgid "Minimal noise"
+msgstr "Minimales Rauschen"
+
+msgid "standard"
+msgstr "Standard"
+
+msgid "wind noise"
+msgstr "Windgeräusche"
+
+msgid "low quality"
+msgstr "niedrige Qualität"
+
+msgid "Recommended model"
+msgstr "Empfohlenes Modell"
+
+msgid "Waveform preview will appear here"
+msgstr "Die Wellenform-Vorschau erscheint hier"
+
+msgid "Failed to fetch waveform."
+msgstr "Wellenform konnte nicht abgerufen werden."
+
+msgid "Failed to fetch status."
+msgstr "Status konnte nicht abgerufen werden."
+
+msgid "Output"
+msgstr "Ausgabe"
+
+# Templates
+msgid "Output (on disk)"
+msgstr "Ausgabe (auf Datenträger)"
+
+msgid "Preset changed to"
+msgstr "Preset geändert zu"
+
+msgid "not found in available presets"
+msgstr ""
+
+msgid "Model"
+msgstr "Modell"
+
+msgid "Open Tool"
+msgstr "Tool öffnen"
+
+msgid "Download"
+msgstr "Herunterladen"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Job Information"
+msgstr "Auftragsinformationen"
+
+msgid "Created"
+msgstr "Erstellt"
+
+msgid "Audio settings"
+msgstr "Audio-Einstellungen"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Queue and history of audio normalization jobs."
+msgstr "Warteschlange und Verlauf der Audio-Normalisierungsaufträge."
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Job"
+msgstr "Auftrag"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "View"
+msgstr "Ansehen"
+
+msgid "No jobs found"
+msgstr "Keine Aufträge gefunden"
+
+msgid "Previous"
+msgstr "Zurück"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "of"
+msgstr "von"
+
+msgid "Next"
+msgstr "Weiter"
 
 msgid "Available tools and utilities for content creation"
 msgstr "Verfügbare Werkzeuge und Utilities zur Inhaltserstellung"
@@ -395,14 +1807,41 @@ msgstr "Verfügbare Werkzeuge und Utilities zur Inhaltserstellung"
 msgid "Video Slideshow Generator"
 msgstr "Video-Diashow-Generator"
 
-msgid "Create professional video slideshows from images and videos with background music, customizable transitions, and quality settings"
-msgstr "Erstellen Sie professionelle Video-Diashows aus Bildern und Videos mit Hintergrundmusik, anpassbaren Übergängen und Qualitätseinstellungen"
+msgid ""
+"Create professional video slideshows from images and videos with background "
+"music, customizable transitions, and quality settings"
+msgstr ""
+"Erstellen Sie professionelle Video-Diashows aus Bildern und Videos mit "
+"Hintergrundmusik, anpassbaren Übergängen und Qualitätseinstellungen"
 
 msgid "Create New Project"
 msgstr "Neues Projekt erstellen"
 
 msgid "My Projects"
 msgstr "Meine Projekte"
+
+msgid ""
+"Normalize loudness to EBU R128 using ffprobe + ffmpeg loudnorm (2-pass), "
+"with before/after report and safe video passthrough"
+msgstr ""
+"Normalisiert die Lautheit nach EBU R128 mit ffprobe + ffmpeg loudnorm "
+"(2‑Pass), inklusive Vorher/Nachher‑Report und sicherem Video‑Passthrough"
+
+msgid "My Jobs"
+msgstr "Meine Aufträge"
+
+msgid "Video Render (Overlays)"
+msgstr "Video-Rendering (Overlays)"
+
+msgid ""
+"Render videos with overlay presets (title, subtitle, broadcast "
+"responsibility, media authority) and encoding presets"
+msgstr ""
+"Rendert Videos mit Overlay-Presets (Titel, Untertitel, Sendeverantwortung, "
+"Medienanstalt) und Encoding-Presets"
+
+msgid "New Render"
+msgstr "Neues Rendering"
 
 msgid "Edit Slideshow"
 msgstr "Diashow bearbeiten"
@@ -433,9 +1872,6 @@ msgstr "Medienbibliothek"
 
 msgid "Drag & drop files here or click to select"
 msgstr "Dateien hierher ziehen oder klicken zum Auswählen"
-
-msgid "All"
-msgstr "Alle"
 
 msgid "Images"
 msgstr "Bilder"
@@ -476,9 +1912,6 @@ msgstr "Projekt-Audio"
 msgid "No audio file yet. Upload or add from library."
 msgstr "Noch keine Audio-Datei. Hochladen oder aus Bibliothek hinzufügen."
 
-msgid "Settings"
-msgstr "Einstellungen"
-
 msgid "Video & Transition Settings"
 msgstr "Video- und Übergangseinstellungen"
 
@@ -497,9 +1930,6 @@ msgstr "Als Entwurf speichern"
 msgid "Generate Video"
 msgstr "Video generieren"
 
-msgid "Cancel"
-msgstr "Abbrechen"
-
 msgid "Please save project first"
 msgstr "Bitte speichern Sie zuerst das Projekt"
 
@@ -508,9 +1938,6 @@ msgstr "Ungültige Projekt-ID"
 
 msgid "Upload failed"
 msgstr "Upload fehlgeschlagen"
-
-msgid "Unknown error"
-msgstr "Unbekannter Fehler"
 
 msgid "Delete this media file?"
 msgstr "Diese Mediendatei löschen?"
@@ -548,14 +1975,8 @@ msgstr "Audio konnte nicht hinzugefügt werden"
 msgid "Download Video"
 msgstr "Video herunterladen"
 
-msgid "Error"
-msgstr "Fehler"
-
 msgid "Project Information"
 msgstr "Projektinformationen"
-
-msgid "Created"
-msgstr "Erstellt"
 
 msgid "Updated"
 msgstr "Aktualisiert"
@@ -585,422 +2006,43 @@ msgid "Create video slideshows from images and videos with background music"
 msgstr ""
 "Erstellen Sie Video-Diashows aus Bildern und Videos mit Hintergrundmusik"
 
-msgid "Actions"
-msgstr "Aktionen"
-
-msgid "View"
-msgstr "Ansehen"
-
-msgid "Download"
-msgstr "Herunterladen"
-
 msgid "No projects found"
 msgstr "Keine Projekte gefunden"
-
-msgid "Previous"
-msgstr "Zurück"
-
-msgid "Page"
-msgstr "Seite"
-
-msgid "of"
-msgstr "von"
-
-msgid "Next"
-msgstr "Weiter"
-
-msgid "Only staff members can access this tool."
-msgstr "Nur Mitarbeiter können dieses Tool verwenden."
-
-msgid "You do not have permission to access this job."
-msgstr "Sie haben keine Berechtigung, auf diesen Auftrag zuzugreifen."
-
-msgid "Job is already running"
-msgstr "Auftrag läuft bereits"
-
-msgid "Analysis started"
-msgstr "Analyse gestartet"
-
-msgid "Normalization started"
-msgstr "Normalisierung gestartet"
-
-msgid "Output file not generated yet"
-msgstr "Ausgabedatei wurde noch nicht erzeugt"
-
-msgid "Output file not found"
-msgstr "Ausgabedatei nicht gefunden"
-
-msgid "Cannot delete job while processing"
-msgstr "Auftrag kann während der Verarbeitung nicht gelöscht werden"
-
-msgid "Job deleted"
-msgstr "Auftrag gelöscht"
-
-msgid "Audio Normalize Input Path"
-msgstr "Eingabepfad für Audio-Normalisierung"
-
-msgid "Base path for audio normalize source files (optional)"
-msgstr "Basispfad für Quelldateien der Audio-Normalisierung (optional)"
-
-msgid "Audio Normalize Output Path"
-msgstr "Ausgabepfad für Audio-Normalisierung"
-
-msgid "Base path for audio normalize output files (optional)"
-msgstr "Basispfad für Ausgabedateien der Audio-Normalisierung (optional)"
-
-msgid "Audio Normalize Default Preset"
-msgstr "Standard-Preset für Audio-Normalisierung"
-
-msgid "Default audio normalize preset ID"
-msgstr "Standard-Preset-ID für die Audio-Normalisierung"
-
-msgid "Audio Normalize Default Bitrate"
-msgstr "Standard-Bitrate für Audio-Normalisierung"
-
-msgid "Default audio bitrate for normalized files (e.g., 192k)"
-msgstr "Standard-Audio-Bitrate für normalisierte Dateien (z. B. 192k)"
-
-msgid "Audio Normalize Job"
-msgstr "Audio-Normalisierungsauftrag"
-
-msgid "Audio Normalize Jobs"
-msgstr "Audio-Normalisierungsaufträge"
-
-msgid "Pending"
-msgstr "Ausstehend"
-
-msgid "Analyzing"
-msgstr "Analysiere"
-
-msgid "TV (R128)"
-msgstr "TV (R128)"
-
-msgid "Web"
-msgstr "Web"
-
-msgid "192 kbps"
-msgstr "192 kbps"
-
-msgid "256 kbps"
-msgstr "256 kbps"
-
-msgid "Preset"
-msgstr "Preset"
-
-msgid "Audio normalize preset ID"
-msgstr "Preset-ID für Audio-Normalisierung"
-
-msgid "Target"
-msgstr "Ziel"
-
-msgid "Target loudness profile"
-msgstr "Ziel-Lautheitsprofil"
-
-msgid "Input File"
-msgstr "Eingabedatei"
-
-msgid "Output File"
-msgstr "Ausgabedatei"
-
-msgid "Output Filename"
-msgstr "Ausgabe-Dateiname"
-
-msgid "If empty, will default to <input>_R128.mp4"
-msgstr "Wenn leer, wird standardmäßig <input>_R128.mp4 verwendet"
-
-msgid "Sample Rate"
-msgstr "Abtastrate"
-
-msgid "Force Stereo"
-msgstr "Stereo erzwingen"
-
-msgid "If enabled, audio will be forced to 2 channels"
-msgstr "Wenn aktiviert, wird Audio auf 2 Kanäle erzwungen"
-
-msgid "Input Metadata"
-msgstr "Eingabe-Metadaten"
-
-msgid "ffprobe JSON output"
-msgstr "ffprobe-JSON-Ausgabe"
-
-msgid "Analysis Before"
-msgstr "Analyse vorher"
-
-msgid "loudnorm analysis JSON from pass 1"
-msgstr "loudnorm-Analyse-JSON aus Durchlauf 1"
-
-msgid "Analysis After"
-msgstr "Analyse nachher"
-
-msgid "loudnorm analysis JSON from after-processing verification pass"
-msgstr "loudnorm-Analyse-JSON aus dem Verifikationsdurchlauf nach der Verarbeitung"
-
-msgid "Progress (%)"
-msgstr "Fortschritt (%)"
-
-msgid "Processing progress 0..100"
-msgstr "Verarbeitungsfortschritt 0..100"
-
-msgid "FFmpeg Log"
-msgstr "FFmpeg-Protokoll"
-
-msgid "Audio Broadcast Normalize (R128)"
-msgstr "Audio-Broadcast-Normalisierung (R128)"
-
-msgid "Normalize loudness to EBU R128 using ffprobe + ffmpeg loudnorm (2-pass), with before/after report and safe video passthrough"
-msgstr "Normalisiert die Lautheit nach EBU R128 mit ffprobe + ffmpeg loudnorm (2‑Pass), inklusive Vorher/Nachher‑Report und sicherem Video‑Passthrough"
-
-msgid "Open Tool"
-msgstr "Tool öffnen"
-
-msgid "New Job"
-msgstr "Neuer Auftrag"
-
-msgid "My Jobs"
-msgstr "Meine Aufträge"
-
-msgid "Queue and history of audio normalization jobs."
-msgstr "Warteschlange und Verlauf der Audio-Normalisierungsaufträge."
-
-msgid "Job"
-msgstr "Auftrag"
-
-msgid "No jobs found"
-msgstr "Keine Aufträge gefunden"
-
-msgid "Job Information"
-msgstr "Auftragsinformationen"
-
-msgid "Audio settings"
-msgstr "Audio-Einstellungen"
-
-msgid "Files"
-msgstr "Dateien"
-
-msgid "Input / Output"
-msgstr "Eingabe / Ausgabe"
-
-msgid "Source file"
-msgstr "Quelldatei"
-
-msgid "Select a local file to upload for processing."
-msgstr "Wählen Sie eine lokale Datei zum Hochladen für die Verarbeitung."
-
-msgid "Output filename"
-msgstr "Ausgabe-Dateiname"
-
-msgid "Leave empty for *_R128.mp4"
-msgstr "Leer lassen für *_R128.mp4"
-
-msgid "If empty, output will default to <input>_R128.mp4"
-msgstr "Wenn leer, wird die Ausgabe standardmäßig <input>_R128.mp4 verwendet"
-
-msgid "Processing profile"
-msgstr "Verarbeitungsprofil"
-
-msgid "Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic loudnorm."
-msgstr "Wählen Sie ein Preset. Natural/Strong nutzen 2-Pass loudnorm; Fast Auto nutzt dynamisches loudnorm."
-
-msgid "Output audio settings"
-msgstr "Audio-Ausgabe-Einstellungen"
-
-msgid "Audio codec"
-msgstr "Audio-Codec"
-
-msgid "AAC (fixed)"
-msgstr "AAC (fix)"
-
-msgid "Bitrate"
-msgstr "Bitrate"
-
-msgid "Sample rate"
-msgstr "Abtastrate"
-
-msgid "Channels"
-msgstr "Kanäle"
-
-msgid "Force stereo (2ch)"
-msgstr "Stereo erzwingen (2 Kanäle)"
-
-msgid "Force stereo (2 channels)"
-msgstr "Stereo erzwingen (2 Kanäle)"
-
-msgid "Default keeps original channels."
-msgstr "Standard behält die ursprünglichen Kanäle."
-
-msgid "Run"
-msgstr "Start"
-
-msgid "New job"
-msgstr "Neuer Auftrag"
-
-msgid "Analyze (no output)"
-msgstr "Analysieren (keine Ausgabe)"
-
-msgid "Generate (job)"
-msgstr "Erzeugen (Job)"
-
-msgid "Progress"
-msgstr "Fortschritt"
-
-msgid "Report"
-msgstr "Bericht"
-
-msgid "Input"
-msgstr "Eingabe"
-
-msgid "Measured (before)"
-msgstr "Gemessen (vorher)"
-
-msgid "Measured (after)"
-msgstr "Gemessen (nachher)"
-
-msgid "Result"
-msgstr "Ergebnis"
-
-msgid "FFmpeg log (tail)"
-msgstr "FFmpeg-Protokoll (Ende)"
-
-msgid "Please select an input file first."
-msgstr "Bitte wählen Sie zuerst eine Eingabedatei aus."
-
-msgid "Failed to create job."
-msgstr "Auftrag konnte nicht erstellt werden."
-
-msgid "Failed to start analysis."
-msgstr "Analyse konnte nicht gestartet werden."
-
-msgid "Failed to start normalization."
-msgstr "Normalisierung konnte nicht gestartet werden."
-
-msgid "Failed to fetch status."
-msgstr "Status konnte nicht abgerufen werden."
-
-msgid "Output"
-msgstr "Ausgabe"
-
-msgid "Recommendations"
-msgstr "Empfehlungen"
-
-msgid "Integrated LUFS"
-msgstr "Integrierte LUFS"
-
-msgid "True Peak"
-msgstr "True Peak"
-
-msgid "LRA"
-msgstr "LRA"
-
-msgid "Metric"
-msgstr "Kennwert"
-
-msgid "Before"
-msgstr "Vorher"
-
-msgid "After"
-msgstr "Nachher"
-
-msgid "Waveform (before / after)"
-msgstr "Wellenform (vorher / nachher)"
-
-msgid "Preview"
-msgstr "Vorschau"
-
-msgid "Original"
-msgstr "Original"
-
-msgid "Processed"
-msgstr "Verarbeitet"
-
-msgid "Waveform preview will appear here"
-msgstr "Die Wellenform-Vorschau erscheint hier"
-
-msgid "OK"
-msgstr "OK"
-
-msgid "Failed to fetch waveform."
-msgstr "Wellenform konnte nicht abgerufen werden."
-
-msgid "Media number"
-msgstr "Mediennummer"
-
-msgid "Search"
-msgstr "Suchen"
-
-msgid "Suche"
-msgstr "Suche"
-
-msgid "Find an existing video file by number (from Media Files)."
-msgstr "Bestehende Videodatei nach Nummer finden (aus Mediendateien)."
-
-msgid "Searching..."
-msgstr "Suche..."
-
-msgid "Enter a number to search."
-msgstr "Nummer eingeben, um zu suchen."
-
-msgid "Search failed."
-msgstr "Suche fehlgeschlagen."
-
-msgid "No matching files found under MEDIA_ROOT."
-msgstr "Keine passenden Dateien unter MEDIA_ROOT gefunden."
-
-msgid "No matching files found."
-msgstr "Keine passenden Dateien gefunden."
-
-msgid "Storage"
-msgstr "Speicherort"
-
-msgid "External"
-msgstr "Extern"
-
-msgid "Using existing file (from storage)"
-msgstr "Verwende bestehende Datei (vom Speicherort)"
-
-msgid "Use"
-msgstr "Verwenden"
-
-msgid "Using existing file"
-msgstr "Verwende bestehende Datei"
-
-msgid "Sync playback"
-msgstr "Sync-Wiedergabe"
-
-msgid "When enabled, seeking and play/pause are mirrored to the other preview."
-msgstr "Wenn aktiviert, werden Spulen sowie Wiedergabe/Pause auf die andere Vorschau übertragen."
-
-msgid "Media files module is not available"
-msgstr "Modul Mediendateien ist nicht verfügbar"
-
-msgid "Invalid number"
-msgstr "Ungültige Nummer"
-
-msgid "Invalid kind"
-msgstr "Ungültiger Typ"
-
-msgid "Input file not found"
-msgstr "Eingabedatei nicht gefunden"
 
 msgid "Video Render"
 msgstr "Video-Rendering"
 
-msgid "Video Render (Overlays)"
-msgstr "Video-Rendering (Overlays)"
-
 msgid "Video Render with Overlays"
 msgstr "Video-Rendering mit Overlays"
 
-msgid "Render videos with overlay presets (title, subtitle, broadcast responsibility, media authority) and encoding presets"
-msgstr "Rendert Videos mit Overlay-Presets (Titel, Untertitel, Sendeverantwortung, Medienanstalt) und Encoding-Presets"
+msgid ""
+"Render a new video version with intro/outro overlays and encoding presets."
+msgstr ""
+"Rendert eine neue Video-Version mit Intro/Outro-Overlays und Encoding-"
+"Presets."
 
-msgid "Render a new video version with intro/outro overlays and encoding presets."
-msgstr "Rendert eine neue Video-Version mit Intro/Outro-Overlays und Encoding-Presets."
+msgid "Search"
+msgstr "Suchen"
+
+#, fuzzy
+#| msgid "Select a local file to upload for processing."
+msgid "Select a local file to upload into Media Files and open it in the tool."
+msgstr "Wählen Sie eine lokale Datei zum Hochladen für die Verarbeitung."
+
+#, fuzzy
+#| msgid "Upload New"
+msgid "Upload & Open"
+msgstr "Neu hochladen"
 
 msgid "Leave empty for automatic naming"
 msgstr "Leer lassen für automatische Benennung"
 
-msgid "Optional. If empty, a versioned name will be generated next to the source file."
-msgstr "Optional. Wenn leer, wird neben der Quelldatei ein Name mit Versionssuffix erzeugt."
+msgid ""
+"Optional. If empty, a versioned name will be generated next to the source "
+"file."
+msgstr ""
+"Optional. Wenn leer, wird neben der Quelldatei ein Name mit Versionssuffix "
+"erzeugt."
 
 msgid "Video ID"
 msgstr "Video-ID"
@@ -1020,23 +2062,46 @@ msgstr "Dateiname"
 msgid "Open in admin"
 msgstr "Im Admin öffnen"
 
+msgid "License"
+msgstr ""
+
 msgid "1. Select Elements and Styles"
 msgstr "1. Elemente und Stile auswählen"
 
 msgid "Title"
 msgstr "Titel"
 
+#, fuzzy
+#| msgid "Title"
+msgid "Title text"
+msgstr "Titel"
+
+msgid "Broadcast Info"
+msgstr "Sendeinfo"
+
 msgid "Subtitle"
+msgstr "Untertitel"
+
+#, fuzzy
+#| msgid "Subtitle"
+msgid "Subtitle text"
 msgstr "Untertitel"
 
 msgid "Broadcast Responsibility"
 msgstr "Sendeverantwortung"
 
+#, fuzzy
+#| msgid "Broadcast Responsibility"
+msgid "Broadcast responsibility text"
+msgstr "Sendeverantwortung"
+
 msgid "Media Authority"
 msgstr "Medienanstalt"
 
-msgid "Broadcast Info"
-msgstr "Sendeinfo"
+#, fuzzy
+#| msgid "Media Authority"
+msgid "Media authority text"
+msgstr "Medienanstalt"
 
 msgid "2. Quality Settings"
 msgstr "2. Qualitäts-Einstellungen"
@@ -1053,8 +2118,12 @@ msgstr "Intro-/Outro-Clips hinzufügen und Overlays darauf anwenden"
 msgid "Invert overlay text color (white ↔ black)"
 msgstr "Textfarbe der Overlays invertieren (weiß ↔ schwarz)"
 
-msgid "If unchecked, overlays will be applied to the first and last segment of the main video."
-msgstr "Wenn deaktiviert, werden Overlays auf das erste und letzte Segment des Hauptvideos angewendet."
+msgid ""
+"If unchecked, overlays will be applied to the first and last segment of the "
+"main video."
+msgstr ""
+"Wenn deaktiviert, werden Overlays auf das erste und letzte Segment des "
+"Hauptvideos angewendet."
 
 msgid "3. Submit"
 msgstr "3. Start"
@@ -1065,7 +2134,8 @@ msgstr "Vorschau (10s)"
 msgid "Render Full Video"
 msgstr "Komplettes Video rendern"
 
-msgid "This will create a new VideoFile + FileOperation and render asynchronously."
+msgid ""
+"This will create a new VideoFile + FileOperation and render asynchronously."
 msgstr "Erstellt eine neue VideoFile + Dateivorgang und rendert asynchron."
 
 msgid "Please enter a valid number."
@@ -1080,6 +2150,11 @@ msgstr "Auswählen"
 msgid "Admin"
 msgstr "Admin"
 
+#, fuzzy
+#| msgid "Error"
+msgid "Error:"
+msgstr "Fehler"
+
 msgid "Please select a file."
 msgstr "Bitte eine Datei auswählen."
 
@@ -1089,17 +2164,13 @@ msgstr "Bitte zuerst eine gültige Mediennummer (Lizenznummer) eingeben."
 msgid "Uploading..."
 msgstr "Hochladen..."
 
-msgid "Video rendering started. You can track progress in File Operations."
-msgstr "Video-Rendering gestartet. Den Fortschritt finden Sie unter Dateivorgänge."
-
 msgid "Video Render Jobs"
 msgstr "Video-Rendering-Aufträge"
 
 msgid "Queue and history of video render operations started from the Tools UI."
-msgstr "Warteschlange und Verlauf der Video-Rendering-Aufträge (gestartet über die Tools-Oberfläche)."
-
-msgid "New Render"
-msgstr "Neues Rendering"
+msgstr ""
+"Warteschlange und Verlauf der Video-Rendering-Aufträge (gestartet über die "
+"Tools-Oberfläche)."
 
 msgid "In Progress"
 msgstr "In Bearbeitung"
@@ -1128,69 +2199,62 @@ msgstr "Stil"
 msgid "Intro/Outro"
 msgstr "Intro/Outro"
 
-msgid "Invert text"
-msgstr "Text invertieren"
-
 msgid "Yes"
 msgstr "Ja"
 
 msgid "No"
 msgstr "Nein"
 
+msgid "Invert text"
+msgstr "Text invertieren"
+
 msgid "File Operation"
 msgstr "Dateivorgang"
 
-# Storage and Output Path (Storage Location) - ToolsConfig
-msgid "Storage Path (Storage Location)"
-msgstr "Speicherpfad (Speicherort)"
+msgid "Sendeverantwortung"
+msgstr ""
 
-msgid "Optional. Storage location for uploads. Overrides the path below when set."
-msgstr "Optional. Speicherort für Uploads. Überschreibt den Pfad unten, wenn gesetzt."
+#~ msgid "high dynamics (LRA > 14)"
+#~ msgstr "hohe Dynamik (LRA > 14)"
 
-msgid "Required when no Storage Location is selected. Base path for storing uploaded media files."
-msgstr "Erforderlich, wenn kein Speicherort gewählt ist. Basis-Pfad zum Speichern hochgeladener Mediendateien."
+#, python-brace-format
+#~ msgid ""
+#~ "Very high peak levels ({peak_level:.1f} dB) and noise. Aggressive AI "
+#~ "denoising + limiter recommended."
+#~ msgstr ""
+#~ "Sehr hohe Spitzenpegel ({peak_level:.1f} dB) und Rauschen. Aggressive AI-"
+#~ "Entrauschung + Limiter empfohlen."
 
-msgid "Output Path (Storage Location)"
-msgstr "Ausgabepfad (Speicherort)"
+#~ msgid "Base path for storing uploaded media files"
+#~ msgstr "Basis-Pfad zum Speichern hochgeladener Mediendateien"
 
-msgid "Optional. Storage location for generated videos. Overrides the path below when set."
-msgstr "Optional. Speicherort für generierte Videos. Überschreibt den Pfad unten, wenn gesetzt."
+#~ msgid "Base path for storing generated videos"
+#~ msgstr "Basis-Pfad zum Speichern generierter Videos"
 
-msgid "Required when no Storage Location is selected. Base path for storing generated videos."
-msgstr "Erforderlich, wenn kein Speicherort gewählt ist. Basis-Pfad zum Speichern generierter Videos."
+#~ msgid "Base path for audio normalize source files (optional)"
+#~ msgstr "Basispfad für Quelldateien der Audio-Normalisierung (optional)"
 
-msgid "Storage Location (optional): when set, overrides the path below. Storage Path and Output Path are required when no Storage Location is selected."
-msgstr "Speicherort (optional): falls gesetzt, überschreibt den Pfad darunter. Speicherpfad und Ausgabepfad sind erforderlich, wenn kein Speicherort gewählt ist."
+#~ msgid "Base path for audio normalize output files (optional)"
+#~ msgstr "Basispfad für Ausgabedateien der Audio-Normalisierung (optional)"
 
-# Audio normalize - Storage and paths
-msgid "Audio Normalize Input Storage"
-msgstr "Eingabe-Speicherort für Audio-Normalisierung"
+#~ msgid ""
+#~ "Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses "
+#~ "dynamic loudnorm."
+#~ msgstr ""
+#~ "Wählen Sie ein Preset. Natural/Strong nutzen 2-Pass loudnorm; Fast Auto "
+#~ "nutzt dynamisches loudnorm."
 
-msgid "Optional. Storage location for input base path. Overrides the path below when set."
-msgstr "Optional. Speicherort für den Eingabe-Basis-Pfad. Überschreibt den Pfad unten, wenn gesetzt."
+#~ msgid "Output audio settings"
+#~ msgstr "Audio-Ausgabe-Einstellungen"
 
-msgid "Base path when no storage is selected. Used for upload dedup and similar. Can be empty."
-msgstr "Basis-Pfad, wenn kein Speicherort gewählt ist. Wird für Upload-Deduplizierung usw. verwendet. Kann leer sein."
+#~ msgid "AAC (fixed)"
+#~ msgstr "AAC (fix)"
 
-msgid "Audio Normalize Output Storage"
-msgstr "Ausgabe-Speicherort für Audio-Normalisierung"
+#~ msgid "Sample rate"
+#~ msgstr "Abtastrate"
 
-msgid "Optional. Storage location for output directory. Overrides the path below when set."
-msgstr "Optional. Speicherort für das Ausgabeverzeichnis. Überschreibt den Pfad unten, wenn gesetzt."
+#~ msgid "Force stereo (2ch)"
+#~ msgstr "Stereo erzwingen (2 Kanäle)"
 
-msgid "Base path when no storage is selected. Empty = next to input. Can be left empty. If storage is set, output can be outside MEDIA_ROOT."
-msgstr "Basis-Pfad, wenn kein Speicherort gewählt ist. Leer = neben der Eingabe. Kann leer bleiben. Wenn ein Speicherort gesetzt ist, kann die Ausgabe außerhalb von MEDIA_ROOT liegen."
-
-msgid "Storage Location (optional): when set, overrides the path below; output can be outside MEDIA_ROOT. Path fields are used when no storage is selected. Output path can be empty (output next to input)."
-msgstr "Speicherort (optional): falls gesetzt, überschreibt den Pfad darunter; Ausgabe kann außerhalb von MEDIA_ROOT liegen. Die Pfadfelder werden verwendet, wenn kein Speicherort gewählt ist. Der Ausgabepfad kann leer sein (Ausgabe neben der Eingabe)."
-
-# AudioNormalizeJob - output_path_external
-msgid "Output Path (external)"
-msgstr "Ausgabepfad (extern)"
-
-msgid "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage location)."
-msgstr "Absoluter Pfad, wenn die Ausgabe außerhalb von MEDIA_ROOT geschrieben wurde (z. B. in einen Speicherort)."
-
-# Templates
-msgid "Output (on disk)"
-msgstr "Ausgabe (auf Datenträger)"
+#~ msgid "No matching files found under MEDIA_ROOT."
+#~ msgstr "Keine passenden Dateien unter MEDIA_ROOT gefunden."

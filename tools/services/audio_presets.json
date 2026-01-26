@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "defaults": {
     "tv": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true },
     "web": { "I": -16, "TP": -1.0, "LRA": 11, "linear": true },
@@ -31,6 +31,32 @@
       }
     },
     {
+      "id": "tv_ai_speech",
+      "title": "TV AI Speech (R128 -23, neural denoiser)",
+      "tags": ["tv", "ai", "speech", "denoise"],
+      "filters": {
+        "highpass_hz": 80,
+        "arnndn_mix": 0.8,
+        "lowpass_hz": 12000,
+        "compressor": { "threshold_db": -22, "ratio": 2.5, "attack_ms": 20, "release_ms": 400 },
+        "limiter_db": -1.5,
+        "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true }
+      }
+    },
+    {
+      "id": "tv_ai_strong",
+      "title": "TV AI Strong (neural denoiser + aggressive)",
+      "tags": ["tv", "ai", "strong", "noise"],
+      "filters": {
+        "highpass_hz": 80,
+        "arnndn_mix": 0.9,
+        "lowpass_hz": 10000,
+        "compressor": { "threshold_db": -24, "ratio": 3.0, "attack_ms": 15, "release_ms": 350 },
+        "limiter_db": -2.0,
+        "loudnorm": { "I": -23, "TP": -1.0, "LRA": 9, "linear": true }
+      }
+    },
+    {
       "id": "fast_auto",
       "title": "Fast Auto (dynamic loudnorm)",
       "tags": ["fast"],
@@ -39,6 +65,19 @@
         "denoise_nf_db": -25,
         "limiter_db": -1.5,
         "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": false }
+      }
+    },
+    {
+      "id": "web_ai_speech",
+      "title": "Web AI Speech (R128 -16, neural denoiser)",
+      "tags": ["web", "ai", "speech"],
+      "filters": {
+        "highpass_hz": 70,
+        "arnndn_mix": 0.8,
+        "lowpass_hz": 14000,
+        "compressor": { "threshold_db": -18, "ratio": 2.0, "attack_ms": 20, "release_ms": 450 },
+        "limiter_db": -1.5,
+        "loudnorm": { "I": -16, "TP": -1.0, "LRA": 11, "linear": true }
       }
     }
   ]

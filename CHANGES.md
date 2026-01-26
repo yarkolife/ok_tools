@@ -1,6 +1,40 @@
 CHANGELOG
 =========
 
+2026-01-26 (Version 4.0.2)
+===========================
+
+* **Audio Normalization: AI-based denoising and enhanced analysis**
+  * **Neural Network Denoising (arnndn)**: Added support for AI-based audio denoising using RNN models
+    * New AI presets: `tv_ai_speech`, `tv_ai_strong`, `web_ai_speech` for better speech clarity
+    * Automatic RNN model download during installation/update from public repositories
+    * Models stored in `tools/rnn_models/` directory (std.rnnn, lq.rnnn)
+    * Fallback to FFT-based denoising (afftdn) if RNN models unavailable
+    * Configurable model path via `ToolsConfig.arnndn_model_path` or `TOOLS_ARNNDN_MODEL_PATH`
+  * **Enhanced Audio Filters**: Added support for additional FFmpeg filters
+    * `lowpass` filter for high-frequency noise removal (10-14 kHz)
+    * `dialoguenhance` filter for speech clarity improvement in stereo (FFmpeg 5+)
+    * Improved filter chain building with automatic model detection
+  * **Noise Analysis**: Automatic noise detection and analysis
+    * Uses `silencedetect` and `astats` filters to analyze audio characteristics
+    * Detects background noise level, silence ratio, peak levels
+    * Noise analysis data stored in job metadata for recommendations
+    * Displayed in UI with detailed metrics (silence ratio, noise level, peak/mean levels)
+  * **Intelligent Recommendations**: Enhanced recommendation system based on audio analysis
+    * AI presets recommended when high background noise detected (> -40 dB)
+    * Strong AI preset recommended for very high noise (> -35 dB) or continuous noise
+    * Recommendations adapt to target (TV vs Web) and model availability
+    * Suggestions include specific reasons (noise level, dynamics, peak levels)
+  * **Automatic Model Installation**: RNN models downloaded automatically
+    * Script `tools/rnn_models/download_models.sh` downloads models during install/update
+    * Integrated into `install.sh`, `update.sh`, and `entrypoint.production.sh`
+    * Models downloaded from GitHub repositories (GregorR/rnnoise-models)
+    * Non-critical: system continues if download fails (manual download possible)
+  * **Default Model Path**: Automatic detection of default model location
+    * System automatically uses `tools/rnn_models/std.rnnn` if available
+    * No manual configuration required if models are in default location
+    * Override via config or environment variable if needed
+
 2026-01-23 (Version 4.0.1)
 ==========================
 

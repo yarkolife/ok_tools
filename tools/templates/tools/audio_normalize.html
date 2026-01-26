@@ -207,7 +207,7 @@
                         <option value="{{ p.id }}" {% if p.id == 'tv_natural' %}selected{% endif %}>{{ p.title }}</option>
                     {% endfor %}
                 </select>
-                <div class="hint">{% trans 'Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic loudnorm.' %}</div>
+                <div class="hint">{% trans 'Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic loudnorm. AI presets (tv_ai_speech, tv_ai_strong) use neural network denoising for better speech clarity.' %}</div>
             </div>
             <div class="field" style="min-width: 160px;">
                 <label for="audioBitrate">{% trans 'Bitrate' %}</label>
@@ -255,9 +255,21 @@
                 <div class="mono" id="afterInfo">-</div>
             </div>
             <div class="report-card">
+                <div style="font-weight:700; margin-bottom: 8px;">{% trans 'Noise Analysis' %}</div>
+                <div class="mono" id="noiseInfo">-</div>
+            </div>
+            <div class="report-card">
                 <div style="font-weight:700; margin-bottom: 8px;">{% trans 'Result' %}</div>
                 <div class="mono" id="resultInfo">-</div>
             </div>
+        </div>
+        
+        <div style="margin-top: 14px;">
+            <div style="font-weight:700; margin-bottom: 8px;">{% trans 'Recommendations' %}</div>
+            <div id="recommendationsContainer" style="min-height: 40px;">
+                <div style="color: #6b7280; font-size: 12px;">-</div>
+            </div>
+            <div class="hint" style="margin-top: 8px; font-size: 11px;">{% trans 'Click on a recommendation to apply it as the selected preset.' %}</div>
         </div>
 
         <div style="margin-top: 14px;" class="metric-grid">
@@ -484,6 +496,7 @@ function resetJob() {
     document.getElementById('inputInfo').textContent = '-';
     document.getElementById('beforeInfo').textContent = '-';
     document.getElementById('afterInfo').textContent = '-';
+    document.getElementById('noiseInfo').textContent = '-';
     document.getElementById('resultInfo').textContent = '-';
     document.getElementById('ffmpegLog').textContent = '-';
     document.getElementById('metricIntegrated').textContent = '-';
@@ -757,6 +770,41 @@ function formatLoudnorm(obj) {
     return items.join(' | ') || '-';
 }
 
+function formatNoiseAnalysis(noise) {
+    if (!noise) return '-';
+    const items = [];
+    if (noise.silence_ratio !== undefined && noise.silence_ratio !== null) {
+        items.push(`Silence: ${(noise.silence_ratio * 100).toFixed(1)}%`);
+    }
+    if (noise.noise_level_db !== undefined && noise.noise_level_db !== null) {
+        items.push(`Noise: ${noise.noise_level_db.toFixed(1)} dB`);
+    }
+    if (noise.peak_level_db !== undefined && noise.peak_level_db !== null) {
+        items.push(`Peak: ${noise.peak_level_db.toFixed(1)} dB`);
+    }
+    if (noise.mean_level_db !== undefined && noise.mean_level_db !== null) {
+        items.push(`Mean: ${noise.mean_level_db.toFixed(1)} dB`);
+    }
+    if (noise.noise_type) {
+        const typeMap = {
+            'wind': '{% trans "Wind noise" %}',
+            'low_quality': '{% trans "Low quality" %}',
+            'general': '{% trans "General noise" %}',
+            'minimal': '{% trans "Minimal noise" %}'
+        };
+        items.push(`Type: ${typeMap[noise.noise_type] || noise.noise_type}`);
+    }
+    if (noise.recommended_model) {
+        const modelMap = {
+            'std': 'std.rnnn ({% trans "standard" %})',
+            'bd': 'bd.rnnn ({% trans "wind noise" %})',
+            'lq': 'lq.rnnn ({% trans "low quality" %})'
+        };
+        items.push(`{% trans "Recommended model" %}: ${modelMap[noise.recommended_model] || noise.recommended_model}`);
+    }
+    return items.length > 0 ? items.join(' | ') : '-';
+}
+
 function parseLoudnormValue(obj, keys) {
     if (!obj) return null;
     for (const k of keys) {
@@ -972,14 +1020,85 @@ async function refreshStatus(jobId) {
     document.getElementById('inputInfo').textContent = formatInputMeta(data.input_metadata);
     document.getElementById('beforeInfo').textContent = formatLoudnorm(data.analysis_before);
     document.getElementById('afterInfo').textContent = formatLoudnorm(data.analysis_after);
+    
+    // Display noise analysis
+    const noiseAnalysis = data.noise_analysis || (data.input_metadata && data.input_metadata.noise_analysis);
+    document.getElementById('noiseInfo').textContent = formatNoiseAnalysis(noiseAnalysis);
+    
     updateMetricCards(data.analysis_before, data.analysis_after);
 
     const resultParts = [];
     if (data.output_file) resultParts.push(`{% trans "Output" %}: ${data.output_file}`);
     else if (data.output_path_external) resultParts.push(`{% trans "Output (on disk)" %}: ${data.output_path_external}`);
     if (data.recommendations && data.recommendations.length) {
-        const r = data.recommendations.map(x => `${x.preset_id}: ${x.reason}`).join(' / ');
+        const recommendationsContainer = document.getElementById('recommendationsContainer');
+        if (recommendationsContainer) {
+            recommendationsContainer.innerHTML = '';
+            data.recommendations.forEach((x, idx) => {
+                const recDiv = document.createElement('div');
+                recDiv.style.cssText = 'margin: 8px 0; padding: 10px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; cursor: pointer; transition: background 0.2s;';
+                recDiv.onmouseover = function() { this.style.background = '#e0f2fe'; };
+                recDiv.onmouseout = function() { this.style.background = '#f0f9ff'; };
+                recDiv.onclick = function() {
+                    // Apply recommendation: set preset and show message
+                    const presetSelect = document.getElementById('presetId');
+                    if (presetSelect) {
+                        // Check if preset exists in options
+                        const optionExists = Array.from(presetSelect.options).some(opt => opt.value === x.preset_id);
+                        if (optionExists) {
+                            presetSelect.value = x.preset_id;
+                            presetSelect.dispatchEvent(new Event('change'));
+                            // Visual feedback
+                            this.style.border = '2px solid #10b981';
+                            setTimeout(() => {
+                                this.style.border = '1px solid #bae6fd';
+                            }, 1000);
+                            // Show notification instead of alert
+                            const notification = document.createElement('div');
+                            notification.textContent = `{% trans "Preset changed to" %}: ${x.preset_id}`;
+                            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-weight: 600;';
+                            document.body.appendChild(notification);
+                            setTimeout(() => {
+                                notification.style.transition = 'opacity 0.3s';
+                                notification.style.opacity = '0';
+                                setTimeout(() => notification.remove(), 300);
+                            }, 2000);
+                        } else {
+                            alert(`{% trans "Preset" %} ${x.preset_id} {% trans "not found in available presets" %}`);
+                        }
+                    }
+                };
+                const presetName = document.createElement('strong');
+                presetName.textContent = x.preset_id;
+                presetName.style.cssText = 'color: #0369a1; font-size: 14px;';
+                recDiv.appendChild(presetName);
+                const reason = document.createElement('div');
+                reason.textContent = x.reason;
+                reason.style.cssText = 'margin-top: 4px; font-size: 12px; color: #374151;';
+                recDiv.appendChild(reason);
+                if (x.recommended_model) {
+                    const model = document.createElement('div');
+                    model.textContent = `{% trans "Model" %}: ${x.recommended_model}`;
+                    model.style.cssText = 'margin-top: 4px; font-size: 11px; color: #6b7280; font-style: italic;';
+                    recDiv.appendChild(model);
+                }
+                recommendationsContainer.appendChild(recDiv);
+            });
+        }
+        // Also show in text format for compatibility
+        const r = data.recommendations.map(x => {
+            let rec = `${x.preset_id}: ${x.reason}`;
+            if (x.recommended_model) {
+                rec += ` ({% trans "Model" %}: ${x.recommended_model})`;
+            }
+            return rec;
+        }).join(' / ');
         resultParts.push(`{% trans "Recommendations" %}: ${r}`);
+    } else {
+        const recommendationsContainer = document.getElementById('recommendationsContainer');
+        if (recommendationsContainer) {
+            recommendationsContainer.innerHTML = '';
+        }
     }
     document.getElementById('resultInfo').textContent = resultParts.join('\n') || '-';
 

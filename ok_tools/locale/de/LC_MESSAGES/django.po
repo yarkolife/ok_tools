@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-16 22:28+0100\n"
+"POT-Creation-Date: 2026-01-26 23:45+0100\n"
 "PO-Revision-Date: JAHR-MO-TA HO:MI+ZONE\n"
 "Last-Translator: VOLLSTÄNDIGER NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SPRACHE <LL@li.org>\n"
@@ -119,117 +119,6 @@ msgstr "Information"
 
 msgid "Live"
 msgstr ""
-
-msgid "Organization Configuration"
-msgstr "Organisations-Konfiguration"
-
-msgid "Organization Name"
-msgstr "Organisationsname"
-
-msgid "Short Name"
-msgstr "Kurzname"
-
-msgid "Email"
-msgstr "E-Mail"
-
-msgid "Phone"
-msgstr "Telefon"
-
-msgid "Fax"
-msgstr "Fax"
-
-msgid "Address"
-msgstr "Adresse"
-
-msgid "Opening Hours"
-msgstr "Oeffnungszeiten"
-
-msgid "State Media Institution"
-msgstr "Landesmedienanstalt"
-
-msgid "Organization Owner"
-msgstr "Traeger"
-
-msgid "Broadcast Start Time"
-msgstr "Sendestart"
-
-msgid "Broadcast End Time"
-msgstr "Sendeende"
-
-msgid "PeerTube Channel"
-msgstr "PeerTube-Kanal"
-
-msgid "Privacy Policy (Datenschutz)"
-msgstr "Datenschutzerklaerung"
-
-msgid "Imprint (Impressum)"
-msgstr "Impressum"
-
-msgid "Terms and Conditions (AGB)"
-msgstr "AGB"
-
-msgid "Full name of the organization"
-msgstr "Vollstaendiger Name der Organisation"
-
-msgid "Short name of the organization"
-msgstr "Kurzname der Organisation"
-
-msgid "Organization website URL"
-msgstr "Website-URL der Organisation"
-
-msgid "Contact email address"
-msgstr "Kontakt-E-Mail-Adresse"
-
-msgid "Contact phone number"
-msgstr "Kontakttelefonnummer"
-
-msgid "Fax number"
-msgstr "Faxnummer"
-
-msgid "Organization address (multiline)"
-msgstr "Adresse der Organisation (mehrzeilig)"
-
-msgid "Welcome message or organization description"
-msgstr "Begruessungstext oder Beschreibung der Organisation"
-
-msgid "Opening hours (multiline)"
-msgstr "Oeffnungszeiten (mehrzeilig)"
-
-msgid "Regulatory institution code (MSA, LFK, BLM, etc.)"
-msgstr "Kuerzel der Landesmedienanstalt (MSA, LFK, BLM, etc.)"
-
-msgid "Owner/operator identifier (matches MediaAuthority name)"
-msgstr "Traeger/Betreiber-Kennung (entspricht MediaAuthority-Name)"
-
-msgid "Default broadcast start time"
-msgstr "Standard-Startzeit der Ausstrahlung"
-
-msgid "Default broadcast end time"
-msgstr "Standard-Endzeit der Ausstrahlung"
-
-msgid "PeerTube channel identifier"
-msgstr "PeerTube-Kanalkennung"
-
-msgid "Privacy policy text"
-msgstr "Text der Datenschutzerklaerung"
-
-msgid "Legal imprint text"
-msgstr "Impressumstext"
-
-msgid "Terms and conditions text"
-msgstr "AGB-Text"
-
-msgid "Regulatory & Ownership"
-msgstr "Regulierung und Traegerschaft"
-
-msgid "Broadcasting Schedule"
-msgstr "Sendezeiten"
-
-msgid "Integration"
-msgstr "Integration"
-
-msgid "Legal Texts (Optional)"
-msgstr "Rechtstexte (optional)"
 
 msgid "Data export"
 msgstr ""
@@ -502,6 +391,9 @@ msgstr ""
 
 msgid "Table view"
 msgstr ""
+
+msgid "Print registration form"
+msgstr "Registrierungsformular drucken"
 
 msgid "Inventory Number"
 msgstr ""
@@ -1410,6 +1302,18 @@ msgid ""
 "Select PDF template file from files/ directory. Only .pdf files are shown."
 msgstr ""
 
+msgid "Regulatory & Ownership"
+msgstr "Regulierung und Traegerschaft"
+
+msgid "Broadcasting Schedule"
+msgstr "Sendezeiten"
+
+msgid "Integration"
+msgstr "Integration"
+
+msgid "Legal Texts (Optional)"
+msgstr "Rechtstexte (optional)"
+
 msgid "Registration"
 msgstr "Registrierung"
 
@@ -1620,7 +1524,9 @@ msgid "Registration Form PDF"
 msgstr "Registrierungsformular-PDF"
 
 msgid "PDF template file for registration form (must be in files/ directory)"
-msgstr "PDF-Vorlagendatei für Registrierungsformular (muss im files/ Verzeichnis sein)"
+msgstr ""
+"PDF-Vorlagendatei für Registrierungsformular (muss im files/ Verzeichnis "
+"sein)"
 
 msgid "PDF"
 msgstr "PDF"
@@ -1639,6 +1545,114 @@ msgstr "Art des zu generierenden Registrierungsformulars"
 
 msgid "Registration Configuration"
 msgstr "Registrierungs-Konfiguration"
+
+msgid "Organization Name"
+msgstr "Organisationsname"
+
+msgid "Full name of the organization"
+msgstr "Vollstaendiger Name der Organisation"
+
+msgid "Short Name"
+msgstr "Kurzname"
+
+msgid "Short name of the organization"
+msgstr "Kurzname der Organisation"
+
+msgid "Website"
+msgstr ""
+
+msgid "Organization website URL"
+msgstr "Website-URL der Organisation"
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Contact email address"
+msgstr "Kontakt-E-Mail-Adresse"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Contact phone number"
+msgstr "Kontakttelefonnummer"
+
+msgid "Fax"
+msgstr "Fax"
+
+msgid "Fax number"
+msgstr "Faxnummer"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Organization address (multiline)"
+msgstr "Adresse der Organisation (mehrzeilig)"
+
+msgid "Welcome message or organization description"
+msgstr "Begruessungstext oder Beschreibung der Organisation"
+
+msgid "Opening Hours"
+msgstr "Oeffnungszeiten"
+
+msgid "Opening hours (multiline)"
+msgstr "Oeffnungszeiten (mehrzeilig)"
+
+msgid "State Media Institution"
+msgstr "Landesmedienanstalt"
+
+msgid "Regulatory institution code (MSA, LFK, BLM, etc.)"
+msgstr "Kuerzel der Landesmedienanstalt (MSA, LFK, BLM, etc.)"
+
+msgid "Organization Owner"
+msgstr "Traeger"
+
+msgid "Owner/operator identifier (matches MediaAuthority name)"
+msgstr "Traeger/Betreiber-Kennung (entspricht MediaAuthority-Name)"
+
+msgid "Broadcast Start Time"
+msgstr "Sendestart"
+
+msgid "Default broadcast start time"
+msgstr "Standard-Startzeit der Ausstrahlung"
+
+msgid "Broadcast End Time"
+msgstr "Sendeende"
+
+msgid "Default broadcast end time"
+msgstr "Standard-Endzeit der Ausstrahlung"
+
+msgid "PeerTube Channel"
+msgstr "PeerTube-Kanal"
+
+msgid "PeerTube channel identifier"
+msgstr "PeerTube-Kanalkennung"
+
+msgid "Privacy Policy (Datenschutz)"
+msgstr "Datenschutzerklaerung"
+
+msgid "Privacy policy text"
+msgstr "Text der Datenschutzerklaerung"
+
+msgid "Imprint (Impressum)"
+msgstr "Impressum"
+
+msgid "Legal imprint text"
+msgstr "Impressumstext"
+
+msgid "Terms and Conditions (AGB)"
+msgstr "AGB"
+
+msgid "Terms and conditions text"
+msgstr "AGB-Text"
+
+msgid "Organization Configuration"
+msgstr "Organisations-Konfiguration"
+
+msgid "Open Channel Merseburg-Querfurt e.V."
+msgstr ""
+
+msgid "OK Merseburg"
+msgstr ""
 
 msgid "registration_form.txt"
 msgstr "registrierungsformular.txt"
@@ -1850,9 +1864,6 @@ msgstr "Willkommen bei %(ok_name)s"
 
 msgid "User data for "
 msgstr "Nutzerdaten für "
-
-msgid "Print registration form"
-msgstr "Registrierungsformular drucken"
 
 msgid "Print template only"
 msgstr "Nur Vorlage drucken"
@@ -2867,6 +2878,11 @@ msgstr ""
 msgid "There was an error sending your message. Please try again later."
 msgstr ""
 
+#, fuzzy
+#| msgid "Contributions"
+msgid "Configuration"
+msgstr "Beiträge"
+
 msgid "Dashboard"
 msgstr ""
 
@@ -2959,6 +2975,11 @@ msgstr ""
 msgid "✓ Tools config migrated"
 msgstr ""
 
+#, fuzzy
+#| msgid "Registration"
+msgid "✓ Organization config migrated"
+msgstr "Registrierung"
+
 #, python-brace-format
 msgid ""
 "\n"
@@ -2969,12 +2990,6 @@ msgstr ""
 msgid ""
 "\n"
 "✓ Successfully migrated {count} config(s)"
-msgstr ""
-
-msgid "Open Channel Merseburg-Querfurt e.V."
-msgstr ""
-
-msgid "OK Merseburg"
 msgstr ""
 
 msgid "Administration interface"
@@ -3056,9 +3071,6 @@ msgid "OK Tools Dashboard"
 msgstr ""
 
 msgid "Rental"
-msgstr ""
-
-msgid "Website"
 msgstr ""
 
 msgid "Coming Soon!"

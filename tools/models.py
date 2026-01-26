@@ -872,6 +872,13 @@ class ToolsConfig(models.Model):
         verbose_name=_('Audio Normalize Default Bitrate'),
         help_text=_('Default audio bitrate for normalized files (e.g., 192k)')
     )
+    arnndn_model_path = models.CharField(
+        max_length=500,
+        default='',
+        blank=True,
+        verbose_name=_('ARNNDN Model Path'),
+        help_text=_('Default path to RNN model file (.rnnn) for neural network denoising (arnndn filter). System automatically detects and uses recommended models (std.rnnn, bd.rnnn, lq.rnnn) from tools/rnn_models/ directory. Leave empty to use FFT-based denoising (afftdn).')
+    )
     
     class Meta:
         verbose_name = _('Tools Configuration')

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-16 22:22+0100\n"
+"POT-Creation-Date: 2026-01-26 23:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, fuzzy
+#| msgid "Information"
+msgid "Confirmation phrase"
+msgstr "Information"
+
+msgid "Type the exact confirmation phrase to proceed."
+msgstr ""
+
+msgid "Your password"
+msgstr ""
+
+msgid "Confirmation phrase does not match."
+msgstr ""
+
+msgid "Cannot validate password for current user."
+msgstr ""
+
+msgid "Incorrect password."
+msgstr ""
 
 msgid "Upload Video File"
 msgstr "Video-Datei hochladen"
@@ -138,6 +158,19 @@ msgstr "Primäre Versionen"
 msgid "Duplicate versions"
 msgstr "Duplizierte Versionen"
 
+#, fuzzy
+#| msgid "Archive"
+msgid "Archive Cleanup"
+msgstr "Archiv"
+
+msgid "Archive primary (keep)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Find Duplicates"
+msgid "Archive duplicates"
+msgstr "Duplikate finden"
+
 msgid "FPS"
 msgstr "FPS"
 
@@ -188,6 +221,19 @@ msgstr ""
 "<strong>Pfad angeben</strong> - Ein vorhandene Datei auf dem Server "
 "referenzieren<br><br><strong>Wichtig:</strong> Der Dateiname muss mit einer "
 "Zahl beginnen (z.B. 12345_title.mp4)"
+
+msgid "Transcode HEVC to H.264 (browser compatible)"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Queued {count} video(s) for HEVC→H.264 transcoding. Check File Operations "
+"for progress."
+msgstr ""
+
+#, python-brace-format
+msgid "Skipped {count} video(s) - already browser compatible."
+msgstr ""
 
 msgid "Render video (default presets)"
 msgstr "Video rendern (Standard-Voreinstellungen)"
@@ -303,8 +349,23 @@ msgstr "{} Version(en) in anderen Speicherorten"
 msgid "versions total"
 msgstr "Versionen insgesamt"
 
+msgid "ARCHIVE PRIMARY"
+msgstr ""
+
+msgid "ARCHIVE DUPLICATE"
+msgstr ""
+
+msgid "ARCHIVE VERSION"
+msgstr ""
+
+msgid "DUPLICATE"
+msgstr ""
+
 msgid "Versions"
 msgstr "Versionen"
+
+msgid "DUPLICATE VERSION"
+msgstr ""
 
 msgid "Duplicate Status"
 msgstr "Duplikatstatus"
@@ -368,6 +429,88 @@ msgstr "{} Video(s) als Hauptversion markiert"
 
 msgid "Delete duplicate versions (keep best quality)"
 msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+
+#, fuzzy
+#| msgid "Delete duplicate versions (keep best quality)"
+msgid "Delete archive duplicate versions (keep best archive)"
+msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+
+msgid ""
+"Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion "
+"to prevent data loss."
+msgstr ""
+
+msgid "Deleted {} archive duplicate(s), kept {} archive primary version(s)."
+msgstr ""
+
+msgid "Skipped {} number(s) with no archive duplicates."
+msgstr ""
+
+msgid "Preview archive cleanup (keep best archive)"
+msgstr ""
+
+msgid "Preview archive cleanup (keep newest archive)"
+msgstr ""
+
+msgid "Preview archive cleanup (keep largest archive file)"
+msgstr ""
+
+#, fuzzy
+#| msgid "You do not have permission to edit this preset."
+msgid "You do not have permission to delete videos."
+msgstr "Sie haben keine Berechtigung, diese Voreinstellung zu bearbeiten."
+
+#, python-format
+msgid ""
+"Force delete completed: deleted %(records)d record(s), deleted %(files)d "
+"file(s), affected %(numbers)d number(s)."
+msgstr ""
+
+#, python-format
+msgid "Force delete encountered %(count)d error(s). Check logs for details."
+msgstr ""
+
+msgid ""
+"Force delete archive duplicates (keep best archive) [requires confirmation]"
+msgstr ""
+
+#, fuzzy
+#| msgid "Delete duplicate versions (keep best quality)"
+msgid "Force delete ARCHIVE duplicates (keep best archive)"
+msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+
+msgid ""
+"Force delete archive duplicates (keep newest archive) [requires confirmation]"
+msgstr ""
+
+#, fuzzy
+#| msgid "Delete duplicate versions (keep best quality)"
+msgid "Force delete ARCHIVE duplicates (keep newest archive)"
+msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+
+msgid ""
+"Force delete archive duplicates (keep largest archive file) [requires "
+"confirmation]"
+msgstr ""
+
+msgid "Force delete ARCHIVE duplicates (keep largest archive file)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Delete duplicate versions (keep best quality)"
+msgid "Delete archive duplicate versions (keep newest archive)"
+msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+
+msgid "Deleted {} archive duplicate(s), kept {} newest archive version(s)."
+msgstr ""
+
+#, fuzzy
+#| msgid "Delete duplicate versions (keep best quality)"
+msgid "Delete archive duplicate versions (keep largest archive file)"
+msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+
+msgid "Deleted {} archive duplicate(s), kept {} largest archive file(s)."
+msgstr ""
 
 msgid "Move to archive storage"
 msgstr "In Archivspeicher verschieben"
@@ -458,66 +601,6 @@ msgstr "Details"
 
 msgid "🎛️ System Management"
 msgstr "🎛️ Systemverwaltung"
-
-msgid "Settings"
-msgstr "Einstellungen"
-
-msgid "Ownership"
-msgstr "Besitz"
-
-msgid "You do not have permission to edit this preset."
-msgstr "Sie haben keine Berechtigung, diese Voreinstellung zu bearbeiten."
-
-msgid "Edit Preset"
-msgstr "Voreinstellung bearbeiten"
-
-msgid "Preset saved successfully"
-msgstr "Voreinstellung erfolgreich gespeichert"
-
-msgid "Overlays"
-msgstr "Overlays"
-
-msgid "Visual Editor"
-msgstr "Visueller Editor"
-
-msgid "Editor"
-msgstr "Editor"
-
-msgid "All presets imported successfully"
-msgstr "Alle Voreinstellungen erfolgreich importiert"
-
-#, python-format
-msgid "Error importing presets: %s"
-msgstr "Fehler beim Importieren der Voreinstellungen: %s"
-
-#, python-format
-msgid "Preset \"%s\" imported successfully"
-msgstr "Voreinstellung \"%s\" erfolgreich importiert"
-
-#, python-format
-msgid "Error importing preset \"%s\": %s"
-msgstr "Fehler beim Importieren der Voreinstellung \"%s\": %s"
-
-msgid "Video Settings"
-msgstr "Videoeinstellungen"
-
-msgid "Audio Settings"
-msgstr "Audioeinstellungen"
-
-msgid "Content"
-msgstr "Inhalt"
-
-msgid "Position"
-msgstr "Position"
-
-msgid "Timing & Animation"
-msgstr "Timing & Animation"
-
-msgid "Text Styling"
-msgstr "Textstil"
-
-msgid "Timing"
-msgstr "Timing"
 
 msgid "Permission denied"
 msgstr "Zugriff verweigert"
@@ -888,6 +971,12 @@ msgstr "Speicherorte"
 msgid "Path cannot be empty"
 msgstr "Pfad darf nicht leer sein"
 
+#, python-brace-format
+msgid ""
+"A storage location with this path already exists: \"{name}\" (ID {id}). "
+"Please use the existing storage location or choose a different path."
+msgstr ""
+
 msgid "Number"
 msgstr "Nummer"
 
@@ -1017,6 +1106,14 @@ msgstr "Videodatei"
 msgid "Video Files"
 msgstr "Videodateien"
 
+msgid ""
+"This video uses H.265/HEVC codec which is not supported by Chrome, Firefox, "
+"and Edge. Only audio will play. Use Safari, or transcode to H.264."
+msgstr ""
+
+msgid "Consider transcoding to H.264 for better compatibility."
+msgstr ""
+
 msgid "Scan"
 msgstr "Scannen"
 
@@ -1076,243 +1173,6 @@ msgstr "Dateioperation"
 
 msgid "File Operations"
 msgstr "Dateioperationen"
-
-msgid "Preset Name"
-msgstr "Name des Presets"
-
-msgid "Unique name for this preset (e.g., \"my_custom_lower_third\")"
-msgstr ""
-"Eindeutiger Name für dieses Preset (z. B. "
-"\"mein_benutzerdefinierter_untertitel\")"
-
-msgid "Display Name"
-msgstr "Anzeigename"
-
-msgid "Human-readable name shown in UI"
-msgstr "Für Nutzer lesbarer Name, der in der Nutzeroberfläche angezeigt wird"
-
-msgid "Description"
-msgstr "Beschreibung"
-
-msgid "Optional description of this preset"
-msgstr "Optionale Beschreibung dieses Presets"
-
-msgid "Is Template"
-msgstr "Ist Vorlage"
-
-msgid "If true, this preset serves as a starting template for new presets"
-msgstr "Wenn aktiviert, dient dieses Preset als Startvorlage für neue Presets"
-
-msgid "Based On"
-msgstr "Basiert auf"
-
-msgid "Original preset this was copied from"
-msgstr "Ursprüngliches Preset, von dem dieses kopiert wurde"
-
-msgid "Segment Duration (seconds)"
-msgstr "Segmentdauer (Sekunden)"
-
-msgid "Duration for intro/outro overlay segments"
-msgstr "Dauer der Intro-/Outro-Overlay-Segmente"
-
-msgid "Intro Clip Path"
-msgstr "Pfad zum Intro-Clip"
-
-msgid "Optional path to intro video clip"
-msgstr "Optionaler Pfad zu Intro-Video-Clip"
-
-msgid "Outro Clip Path"
-msgstr "Pfad zum Outro-Clip"
-
-msgid "Optional path to outro video clip"
-msgstr "Optionaler Pfad zu Outro-Video-Clip"
-
-msgid "Created By"
-msgstr "Erstellt von"
-
-msgid "Public"
-msgstr "Öffentlich"
-
-msgid "If true, this preset is available to all users"
-msgstr "Wenn aktiviert, ist dieses Preset für alle Nutzer verfügbar"
-
-msgid "Video Preset"
-msgstr "Video-Preset"
-
-msgid "Video Presets"
-msgstr "Video-Presets"
-
-msgid "Intro"
-msgstr "Intro"
-
-msgid "Outro"
-msgstr "Outro"
-
-msgid "Preset"
-msgstr "Preset"
-
-msgid "Type"
-msgstr "Typ"
-
-msgid "Segment"
-msgstr "Segment"
-
-msgid "Apply this overlay to intro or outro segment"
-msgstr "Dieses Overlay auf das Intro- oder Outro-Segment anwenden"
-
-msgid "Order"
-msgstr "Reihenfolge"
-
-msgid "Rendering order (lower number = rendered first/bottom layer)"
-msgstr ""
-"Reihenfolge beim Rendern (niedrigere Zahl = zuerst/unterste Ebene gerendert)"
-
-msgid "Text Template"
-msgstr "Textvorlage"
-
-#, python-brace-format
-msgid "Template with variables like {license.title}, {profile.display}"
-msgstr "Vorlage mit Variablen wie {license.title}, {profile.display}"
-
-msgid "Image Path"
-msgstr "Bildpfad"
-
-msgid "Path to image file (relative to assets/ or absolute)"
-msgstr "Pfad zur Bilddatei (relativ zu assets/ oder absolut)"
-
-msgid "Image Width"
-msgstr "Bildbreite"
-
-msgid "Image Height"
-msgstr "Bildhöhe"
-
-msgid "Position Preset"
-msgstr "Positionsvorlage"
-
-msgid "X Position"
-msgstr "X-Position"
-
-msgid "X coordinate or expression (e.g., \"(w-text_w)/2\", \"40\")"
-msgstr "X-Koordinate oder Ausdruck (z. B. \"(w-text_w)/2\", \"40\")"
-
-msgid "Y Position"
-msgstr "Y-Position"
-
-msgid "Y coordinate or expression (e.g., \"h-140\", \"(h-text_h)/2\")"
-msgstr "Y-Koordinate oder Ausdruck (z. B. \"h-140\", \"(h-text_h)/2\")"
-
-msgid "Start Time (seconds)"
-msgstr "Startzeit (Sekunden)"
-
-msgid "When to show this overlay (relative to segment start)"
-msgstr "Wann dieses Overlay angezeigt werden soll (relativ zum Segmentbeginn)"
-
-msgid "End Time (seconds)"
-msgstr "Endzeit (Sekunden)"
-
-msgid "When to hide this overlay (relative to segment start)"
-msgstr ""
-"Wann dieses Overlay ausgeblendet werden soll (relativ zum Segmentbeginn)"
-
-msgid "Animation"
-msgstr "Animation"
-
-msgid "Fade In Duration (seconds)"
-msgstr "Einblenddauer (Sekunden)"
-
-msgid "Fade Out Duration (seconds)"
-msgstr "Ausblenddauer (Sekunden)"
-
-msgid "Font File"
-msgstr "Schriftdatei"
-
-msgid "Path relative to assets/ (e.g., \"fonts/Roboto-Bold.ttf\")"
-msgstr "Pfad relativ zu assets/ (z. B. \"fonts/Roboto-Bold.ttf\")"
-
-msgid "Font Size"
-msgstr "Schriftgröße"
-
-msgid "Font Color"
-msgstr "Schriftfarbe"
-
-msgid "Color name or hex (e.g., \"white\", \"#FFFFFF\")"
-msgstr "Farbname oder Hexwert (z. B. \"white\", \"#FFFFFF\")"
-
-msgid "Has Background Box"
-msgstr "Mit Hintergrundbox"
-
-msgid "Box Color"
-msgstr "Box-Farbe"
-
-msgid "Color with opacity (e.g., \"black@0.5\")"
-msgstr "Farbe mit Transparenz (z. B. \"black@0.5\")"
-
-msgid "Box Border Width"
-msgstr "Box-Randbreite"
-
-msgid "Preset Overlay"
-msgstr "Overlay-Preset"
-
-msgid "Preset Overlays"
-msgstr "Overlay-Presets"
-
-msgid "Unique name for this encoding preset (e.g., \"1080p25_9000k\")"
-msgstr "Eindeutiger Name für dieses Encoding-Preset (z. B. \"1080p25_9000k\")"
-
-msgid "Human-readable name shown in UI (auto-generated if empty)"
-msgstr ""
-"Anzeigename für die Nutzeroberfläche (wird automatisch generiert, wenn leer)"
-
-msgid "Optional description of this encoding preset"
-msgstr "Optionale Beschreibung dieses Encoding-Presets"
-
-msgid "Video width in pixels"
-msgstr "Videobreite in Pixel"
-
-msgid "Video height in pixels"
-msgstr "Videohöhe in Pixel"
-
-msgid "Frames per second"
-msgstr "Bilder pro Sekunde"
-
-msgid "Video codec (e.g., \"libx264\")"
-msgstr "Video-Codec (z. B. \"libx264\")"
-
-msgid "Video bitrate in kilobits per second"
-msgstr "Videobitrate in Kilobit pro Sekunde"
-
-msgid "Audio codec (e.g., \"aac\")"
-msgstr "Audio-Codec (z. B. \"aac\")"
-
-msgid "Audio bitrate in kilobits per second"
-msgstr "Audio-Bitrate in Kilobit pro Sekunde"
-
-msgid "Audio sample rate in Hz"
-msgstr "Audio-Abtastrate in Hz"
-
-msgid "Number of audio channels"
-msgstr "Anzahl der Audiokanäle"
-
-msgid "Pixel format (e.g., \"yuv420p\")"
-msgstr "Pixelformat (z. B. \"yuv420p\")"
-
-msgid "x264 Preset"
-msgstr "x264-Preset"
-
-msgid "x264 encoding preset (e.g., \"veryfast\", \"medium\", \"slow\")"
-msgstr "x264-Encoding-Preset (z. B. \"veryfast\", \"medium\", \"slow\")"
-
-msgid "x264 Profile"
-msgstr "x264-Profil"
-
-msgid "x264 profile (e.g., \"baseline\", \"main\", \"high\")"
-msgstr "x264-Profil (z. B. \"baseline\", \"main\", \"high\")"
-
-msgid "Video Encode Preset"
-msgstr "Video-Encoding-Preset"
-
-msgid "Video Encode Presets"
-msgstr "Video-Encoding-Presets"
 
 msgid "Overlay Rendering Enabled"
 msgstr "Overlay-Rendering aktiviert"
@@ -1398,6 +1258,24 @@ msgstr ""
 "Kommagetrennte Liste unterstützter Video-Dateierweiterungen (z. B. "
 "mp4,mov,mpeg,mpg)"
 
+msgid "Auto Transcode HEVC"
+msgstr ""
+
+msgid ""
+"Automatically transcode HEVC/H.265 videos to H.264 for browser playback "
+"compatibility"
+msgstr ""
+
+#, fuzzy
+#| msgid "Video Encode Preset"
+msgid "Transcode Encoding Preset"
+msgstr "Video-Encoding-Preset"
+
+#, fuzzy
+#| msgid "Unique name for this encoding preset (e.g., \"1080p25_9000k\")"
+msgid "Default encoding preset for transcoding (e.g., \"1080p25_9000k\")"
+msgstr "Eindeutiger Name für dieses Encoding-Preset (z. B. \"1080p25_9000k\")"
+
 msgid "Media Files Configuration"
 msgstr "Mediendateien-Konfiguration"
 
@@ -1444,8 +1322,17 @@ msgstr "Videodauer für Vorschau-Rendering konnte nicht bestimmt werden."
 msgid "Sendeverantwortung"
 msgstr "Sendeverantwortung"
 
+msgid "Edit Preset"
+msgstr "Voreinstellung bearbeiten"
+
 msgid "New Preset"
 msgstr "Neues Preset"
+
+msgid "Preset Name"
+msgstr "Name des Presets"
+
+msgid "Display Name"
+msgstr "Anzeigename"
 
 msgid "Save"
 msgstr "Speichern"
@@ -1455,6 +1342,12 @@ msgstr "Vorschau"
 
 msgid "Back"
 msgstr "Zurück"
+
+msgid "Intro"
+msgstr "Intro"
+
+msgid "Outro"
+msgstr "Outro"
 
 msgid "Add Text Overlay"
 msgstr "Text-Overlay hinzufügen"
@@ -1468,6 +1361,9 @@ msgstr "Wählen Sie ein Overlay aus, um Eigenschaften zu bearbeiten"
 msgid "Overlay Type"
 msgstr "Overlay-Typ"
 
+msgid "Type"
+msgstr "Typ"
+
 msgid "Text Content"
 msgstr "Textinhalt"
 
@@ -1480,17 +1376,47 @@ msgstr "Schnelleinfügung"
 msgid "Text Style"
 msgstr "Textstil"
 
+msgid "Font Size"
+msgstr "Schriftgröße"
+
+msgid "Font Color"
+msgstr "Schriftfarbe"
+
 msgid "Background Box"
 msgstr "Hintergrundbox"
 
+msgid "Box Color"
+msgstr "Box-Farbe"
+
 msgid "Box Padding"
 msgstr "Box-Abstand"
+
+msgid "Image Path"
+msgstr "Bildpfad"
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Position Preset"
+msgstr "Positionsvorlage"
+
+msgid "X Position"
+msgstr "X-Position"
+
+msgid "Y Position"
+msgstr "Y-Position"
+
+msgid "Timing & Animation"
+msgstr "Timing & Animation"
 
 msgid "Start Time (s)"
 msgstr "Startzeit (s)"
 
 msgid "End Time (s)"
 msgstr "Endzeit (s)"
+
+msgid "Animation"
+msgstr "Animation"
 
 msgid "Fade In (s)"
 msgstr "Einblenden (s)"
@@ -1506,6 +1432,9 @@ msgstr "Dieses Overlay löschen?"
 
 msgid "Please enter preset name and display name"
 msgstr "Bitte geben Sie einen Preset-Namen und einen Anzeigenamen ein"
+
+msgid "Preset saved successfully"
+msgstr "Voreinstellung erfolgreich gespeichert"
 
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
@@ -1659,6 +1588,45 @@ msgstr "Ja, ich bin sicher"
 
 msgid "No, take me back"
 msgstr "Nein, zurück"
+
+msgid "Danger zone"
+msgstr ""
+
+msgid ""
+"This action can delete files from ARCHIVE storage even when archive "
+"protection is enabled."
+msgstr ""
+
+msgid "Proceed only if you are absolutely sure."
+msgstr ""
+
+msgid "Required phrase"
+msgstr ""
+
+msgid "Planned deletions"
+msgstr ""
+
+msgid "file(s)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Number"
+msgid "number(s)"
+msgstr "Nummer"
+
+msgid "Confirm and delete"
+msgstr ""
+
+#, fuzzy
+#| msgid "Preview (5s)"
+msgid "Preview (sample)"
+msgstr "Vorschau (5s)"
+
+msgid "First items only; not all planned deletions are shown here."
+msgstr ""
+
+msgid "Keep"
+msgstr ""
 
 msgid "Edit in Visual Editor"
 msgstr "Im visuellen Editor bearbeiten"
@@ -2086,6 +2054,40 @@ msgstr "SEHR EMPFOHLEN: Zeigt an, was gelöscht würde, ohne wirklich zu lösche
 msgid "Recommended! Uncheck only when you're sure."
 msgstr "Empfohlen! Nur abwählen, wenn Sie sicher sind."
 
+msgid "Browser Compatibility Issue"
+msgstr ""
+
+msgid ""
+"This video uses H.265/HEVC codec which is NOT supported by Chrome, Firefox, "
+"and Edge. Only audio will play."
+msgstr ""
+
+msgid ""
+"This video codec may not be supported by your browser. Only audio might play."
+msgstr ""
+
+#, fuzzy
+#| msgid "Resolution"
+msgid "Solutions"
+msgstr "Auflösung"
+
+msgid "Use Safari browser (native HEVC support)"
+msgstr ""
+
+msgid "Install HEVC Video Extension in Microsoft Edge"
+msgstr ""
+
+msgid "Transcode video to H.264 format"
+msgstr ""
+
+msgid "Transcode now"
+msgstr ""
+
+#, fuzzy
+#| msgid "Video Codec"
+msgid "Codec"
+msgstr "Video-Codec"
+
 msgid "File Path (Linux)"
 msgstr "Dateipfad (Linux)"
 
@@ -2207,3 +2209,245 @@ msgstr ""
 msgid "Video rendering started. You can track progress in File Operations."
 msgstr ""
 "Video-Rendering gestartet. Den Fortschritt finden Sie unter Dateivorgänge."
+
+#~ msgid "Settings"
+#~ msgstr "Einstellungen"
+
+#~ msgid "Ownership"
+#~ msgstr "Besitz"
+
+#~ msgid "Overlays"
+#~ msgstr "Overlays"
+
+#~ msgid "Visual Editor"
+#~ msgstr "Visueller Editor"
+
+#~ msgid "Editor"
+#~ msgstr "Editor"
+
+#~ msgid "All presets imported successfully"
+#~ msgstr "Alle Voreinstellungen erfolgreich importiert"
+
+#, python-format
+#~ msgid "Error importing presets: %s"
+#~ msgstr "Fehler beim Importieren der Voreinstellungen: %s"
+
+#, python-format
+#~ msgid "Preset \"%s\" imported successfully"
+#~ msgstr "Voreinstellung \"%s\" erfolgreich importiert"
+
+#, python-format
+#~ msgid "Error importing preset \"%s\": %s"
+#~ msgstr "Fehler beim Importieren der Voreinstellung \"%s\": %s"
+
+#~ msgid "Video Settings"
+#~ msgstr "Videoeinstellungen"
+
+#~ msgid "Audio Settings"
+#~ msgstr "Audioeinstellungen"
+
+#~ msgid "Content"
+#~ msgstr "Inhalt"
+
+#~ msgid "Text Styling"
+#~ msgstr "Textstil"
+
+#~ msgid "Timing"
+#~ msgstr "Timing"
+
+#~ msgid "Unique name for this preset (e.g., \"my_custom_lower_third\")"
+#~ msgstr ""
+#~ "Eindeutiger Name für dieses Preset (z. B. "
+#~ "\"mein_benutzerdefinierter_untertitel\")"
+
+#~ msgid "Human-readable name shown in UI"
+#~ msgstr ""
+#~ "Für Nutzer lesbarer Name, der in der Nutzeroberfläche angezeigt wird"
+
+#~ msgid "Description"
+#~ msgstr "Beschreibung"
+
+#~ msgid "Optional description of this preset"
+#~ msgstr "Optionale Beschreibung dieses Presets"
+
+#~ msgid "Is Template"
+#~ msgstr "Ist Vorlage"
+
+#~ msgid "If true, this preset serves as a starting template for new presets"
+#~ msgstr ""
+#~ "Wenn aktiviert, dient dieses Preset als Startvorlage für neue Presets"
+
+#~ msgid "Based On"
+#~ msgstr "Basiert auf"
+
+#~ msgid "Original preset this was copied from"
+#~ msgstr "Ursprüngliches Preset, von dem dieses kopiert wurde"
+
+#~ msgid "Segment Duration (seconds)"
+#~ msgstr "Segmentdauer (Sekunden)"
+
+#~ msgid "Duration for intro/outro overlay segments"
+#~ msgstr "Dauer der Intro-/Outro-Overlay-Segmente"
+
+#~ msgid "Intro Clip Path"
+#~ msgstr "Pfad zum Intro-Clip"
+
+#~ msgid "Optional path to intro video clip"
+#~ msgstr "Optionaler Pfad zu Intro-Video-Clip"
+
+#~ msgid "Outro Clip Path"
+#~ msgstr "Pfad zum Outro-Clip"
+
+#~ msgid "Optional path to outro video clip"
+#~ msgstr "Optionaler Pfad zu Outro-Video-Clip"
+
+#~ msgid "Created By"
+#~ msgstr "Erstellt von"
+
+#~ msgid "Public"
+#~ msgstr "Öffentlich"
+
+#~ msgid "If true, this preset is available to all users"
+#~ msgstr "Wenn aktiviert, ist dieses Preset für alle Nutzer verfügbar"
+
+#~ msgid "Video Preset"
+#~ msgstr "Video-Preset"
+
+#~ msgid "Video Presets"
+#~ msgstr "Video-Presets"
+
+#~ msgid "Preset"
+#~ msgstr "Preset"
+
+#~ msgid "Segment"
+#~ msgstr "Segment"
+
+#~ msgid "Apply this overlay to intro or outro segment"
+#~ msgstr "Dieses Overlay auf das Intro- oder Outro-Segment anwenden"
+
+#~ msgid "Order"
+#~ msgstr "Reihenfolge"
+
+#~ msgid "Rendering order (lower number = rendered first/bottom layer)"
+#~ msgstr ""
+#~ "Reihenfolge beim Rendern (niedrigere Zahl = zuerst/unterste Ebene "
+#~ "gerendert)"
+
+#~ msgid "Text Template"
+#~ msgstr "Textvorlage"
+
+#, python-brace-format
+#~ msgid "Template with variables like {license.title}, {profile.display}"
+#~ msgstr "Vorlage mit Variablen wie {license.title}, {profile.display}"
+
+#~ msgid "Path to image file (relative to assets/ or absolute)"
+#~ msgstr "Pfad zur Bilddatei (relativ zu assets/ oder absolut)"
+
+#~ msgid "Image Width"
+#~ msgstr "Bildbreite"
+
+#~ msgid "Image Height"
+#~ msgstr "Bildhöhe"
+
+#~ msgid "X coordinate or expression (e.g., \"(w-text_w)/2\", \"40\")"
+#~ msgstr "X-Koordinate oder Ausdruck (z. B. \"(w-text_w)/2\", \"40\")"
+
+#~ msgid "Y coordinate or expression (e.g., \"h-140\", \"(h-text_h)/2\")"
+#~ msgstr "Y-Koordinate oder Ausdruck (z. B. \"h-140\", \"(h-text_h)/2\")"
+
+#~ msgid "Start Time (seconds)"
+#~ msgstr "Startzeit (Sekunden)"
+
+#~ msgid "When to show this overlay (relative to segment start)"
+#~ msgstr ""
+#~ "Wann dieses Overlay angezeigt werden soll (relativ zum Segmentbeginn)"
+
+#~ msgid "End Time (seconds)"
+#~ msgstr "Endzeit (Sekunden)"
+
+#~ msgid "When to hide this overlay (relative to segment start)"
+#~ msgstr ""
+#~ "Wann dieses Overlay ausgeblendet werden soll (relativ zum Segmentbeginn)"
+
+#~ msgid "Fade In Duration (seconds)"
+#~ msgstr "Einblenddauer (Sekunden)"
+
+#~ msgid "Fade Out Duration (seconds)"
+#~ msgstr "Ausblenddauer (Sekunden)"
+
+#~ msgid "Font File"
+#~ msgstr "Schriftdatei"
+
+#~ msgid "Path relative to assets/ (e.g., \"fonts/Roboto-Bold.ttf\")"
+#~ msgstr "Pfad relativ zu assets/ (z. B. \"fonts/Roboto-Bold.ttf\")"
+
+#~ msgid "Color name or hex (e.g., \"white\", \"#FFFFFF\")"
+#~ msgstr "Farbname oder Hexwert (z. B. \"white\", \"#FFFFFF\")"
+
+#~ msgid "Has Background Box"
+#~ msgstr "Mit Hintergrundbox"
+
+#~ msgid "Color with opacity (e.g., \"black@0.5\")"
+#~ msgstr "Farbe mit Transparenz (z. B. \"black@0.5\")"
+
+#~ msgid "Box Border Width"
+#~ msgstr "Box-Randbreite"
+
+#~ msgid "Preset Overlay"
+#~ msgstr "Overlay-Preset"
+
+#~ msgid "Preset Overlays"
+#~ msgstr "Overlay-Presets"
+
+#~ msgid "Human-readable name shown in UI (auto-generated if empty)"
+#~ msgstr ""
+#~ "Anzeigename für die Nutzeroberfläche (wird automatisch generiert, wenn "
+#~ "leer)"
+
+#~ msgid "Optional description of this encoding preset"
+#~ msgstr "Optionale Beschreibung dieses Encoding-Presets"
+
+#~ msgid "Video width in pixels"
+#~ msgstr "Videobreite in Pixel"
+
+#~ msgid "Video height in pixels"
+#~ msgstr "Videohöhe in Pixel"
+
+#~ msgid "Frames per second"
+#~ msgstr "Bilder pro Sekunde"
+
+#~ msgid "Video codec (e.g., \"libx264\")"
+#~ msgstr "Video-Codec (z. B. \"libx264\")"
+
+#~ msgid "Video bitrate in kilobits per second"
+#~ msgstr "Videobitrate in Kilobit pro Sekunde"
+
+#~ msgid "Audio codec (e.g., \"aac\")"
+#~ msgstr "Audio-Codec (z. B. \"aac\")"
+
+#~ msgid "Audio bitrate in kilobits per second"
+#~ msgstr "Audio-Bitrate in Kilobit pro Sekunde"
+
+#~ msgid "Audio sample rate in Hz"
+#~ msgstr "Audio-Abtastrate in Hz"
+
+#~ msgid "Number of audio channels"
+#~ msgstr "Anzahl der Audiokanäle"
+
+#~ msgid "Pixel format (e.g., \"yuv420p\")"
+#~ msgstr "Pixelformat (z. B. \"yuv420p\")"
+
+#~ msgid "x264 Preset"
+#~ msgstr "x264-Preset"
+
+#~ msgid "x264 encoding preset (e.g., \"veryfast\", \"medium\", \"slow\")"
+#~ msgstr "x264-Encoding-Preset (z. B. \"veryfast\", \"medium\", \"slow\")"
+
+#~ msgid "x264 Profile"
+#~ msgstr "x264-Profil"
+
+#~ msgid "x264 profile (e.g., \"baseline\", \"main\", \"high\")"
+#~ msgstr "x264-Profil (z. B. \"baseline\", \"main\", \"high\")"
+
+#~ msgid "Video Encode Presets"
+#~ msgstr "Video-Encoding-Presets"
