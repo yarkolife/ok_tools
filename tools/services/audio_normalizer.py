@@ -382,6 +382,8 @@ class AudioNormalizerService:
         """
         Analyze noise characteristics using silencedetect and astats.
         Returns dict with noise_level, silence_ratio, peak_level, noise_type, recommended_model, etc.
+        
+        Optimized: combines multiple analyses into fewer passes to reduce processing time.
         """
         results: Dict[str, Any] = {
             "silence_ratio": 0.0,
@@ -392,50 +394,37 @@ class AudioNormalizerService:
             "recommended_model": None,  # "std", "bd", "lq", None
         }
 
-        # Analyze silence detection
-        cmd_silence = [
+        # Get duration first (needed for silence ratio calculation)
+        try:
+            meta, probe_info = self.probe(input_path)
+            duration = probe_info.duration_sec
+        except Exception:
+            duration = 0.0
+
+        # Combined pass 1: silencedetect + astats (most important metrics)
+        # This combines two analyses into one pass
+        cmd_combined = [
             self.ffmpeg,
             "-hide_banner",
             "-i",
             str(input_path),
             "-af",
-            "silencedetect=n=-35dB:d=0.3",
+            "silencedetect=n=-35dB:d=0.3,astats=metadata=1:reset=1",
             "-f",
             "null",
             "-",
         ]
-        p_silence = self._run(cmd_silence, timeout=60 * 5)
-        if p_silence.returncode == 0:
-            stderr = p_silence.stderr or ""
-            # Count silence detections
-            silence_count = len(re.findall(r"silence_start:", stderr))
+        p_combined = self._run(cmd_combined, timeout=60 * 5)
+        if p_combined.returncode == 0:
+            stderr = p_combined.stderr or ""
+            
+            # Extract silence information
             silence_duration = 0.0
             for match in re.finditer(r"silence_duration: ([\d.]+)", stderr):
                 silence_duration += float(match.group(1))
-            # Get duration from probe
-            try:
-                meta, probe_info = self.probe(input_path)
-                duration = probe_info.duration_sec
-                if duration > 0:
-                    results["silence_ratio"] = min(1.0, silence_duration / duration)
-            except Exception:
-                pass
-
-        # Analyze audio statistics
-        cmd_stats = [
-            self.ffmpeg,
-            "-hide_banner",
-            "-i",
-            str(input_path),
-            "-af",
-            "astats=metadata=1:reset=1",
-            "-f",
-            "null",
-            "-",
-        ]
-        p_stats = self._run(cmd_stats, timeout=60 * 5)
-        if p_stats.returncode == 0:
-            stderr = p_stats.stderr or ""
+            if duration > 0:
+                results["silence_ratio"] = min(1.0, silence_duration / duration)
+            
             # Extract peak and mean levels
             peak_match = re.search(r"Peak level: ([\d.-]+) dB", stderr)
             if peak_match:
@@ -447,30 +436,31 @@ class AudioNormalizerService:
                 if results["mean_level_db"] is not None:
                     results["noise_level_db"] = results["mean_level_db"] - 10.0
 
-        # Analyze frequency spectrum to detect noise type
-        # Use ahighpass filter to check low-frequency content (wind noise indicator)
-        cmd_freq = [
-            self.ffmpeg,
-            "-hide_banner",
-            "-i",
-            str(input_path),
-            "-af",
-            "highpass=f=100,astats=metadata=1:reset=1",
-            "-f",
-            "null",
-            "-",
-        ]
-        p_freq = self._run(cmd_freq, timeout=60 * 5)
+        # Pass 2: frequency analysis for wind noise detection (only if needed)
+        # Only run if we don't have enough info yet or if silence ratio suggests wind noise
+        silence_ratio = results.get("silence_ratio", 0.0)
         low_freq_level = None
-        if p_freq.returncode == 0:
-            stderr = p_freq.stderr or ""
-            mean_match = re.search(r"Mean level: ([\d.-]+) dB", stderr)
-            if mean_match:
-                low_freq_level = float(mean_match.group(1))
+        if silence_ratio < 0.2:  # Only check for wind noise if there's little silence
+            cmd_freq = [
+                self.ffmpeg,
+                "-hide_banner",
+                "-i",
+                str(input_path),
+                "-af",
+                "highpass=f=100,astats=metadata=1:reset=1",
+                "-f",
+                "null",
+                "-",
+            ]
+            p_freq = self._run(cmd_freq, timeout=60 * 5)
+            if p_freq.returncode == 0:
+                stderr = p_freq.stderr or ""
+                mean_match = re.search(r"Mean level: ([\d.-]+) dB", stderr)
+                if mean_match:
+                    low_freq_level = float(mean_match.group(1))
 
         # Determine noise type and recommend model
         noise_level = results.get("noise_level_db")
-        silence_ratio = results.get("silence_ratio", 0.0)
         mean_level = results.get("mean_level_db")
         peak_level = results.get("peak_level_db")
 

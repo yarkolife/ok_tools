@@ -1745,7 +1745,7 @@ msgid "Preset changed to"
 msgstr "Preset geändert zu"
 
 msgid "not found in available presets"
-msgstr ""
+msgstr "nicht in verfügbaren Presets gefunden"
 
 msgid "Model"
 msgstr "Modell"

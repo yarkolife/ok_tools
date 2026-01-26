@@ -757,16 +757,35 @@ function formatInputMeta(meta) {
     return parts.join(' | ') || '-';
 }
 
-function formatLoudnorm(obj) {
+function formatLoudnorm(obj, isAfter = false) {
     if (!obj) return '-';
     const pick = (k) => (obj[k] !== undefined && obj[k] !== null) ? obj[k] : '';
+    
+    // For "after" analysis, prefer output_* values, fallback to input_* if not available
+    // For "before" analysis, use input_* values
+    let i, lra, tp, thresh, offset;
+    if (isAfter) {
+        i = pick('output_i') || pick('input_i') || pick('measured_I');
+        lra = pick('output_lra') || pick('input_lra') || pick('measured_LRA');
+        tp = pick('output_tp') || pick('input_tp') || pick('measured_TP');
+        thresh = pick('output_thresh') || pick('input_thresh') || pick('measured_thresh');
+        offset = pick('target_offset') || pick('offset');
+    } else {
+        i = pick('input_i') || pick('measured_I');
+        lra = pick('input_lra') || pick('measured_LRA');
+        tp = pick('input_tp') || pick('measured_TP');
+        thresh = pick('input_thresh') || pick('measured_thresh');
+        offset = pick('target_offset') || pick('offset');
+    }
+    
     const items = [
-        `I: ${pick('input_i') || pick('measured_I')}`,
-        `LRA: ${pick('input_lra') || pick('measured_LRA')}`,
-        `TP: ${pick('input_tp') || pick('measured_TP')}`,
-        `thresh: ${pick('input_thresh') || pick('measured_thresh')}`,
-        `offset: ${pick('target_offset') || pick('offset')}`,
-    ].filter(s => !s.endsWith(': '));
+        i ? `I: ${i}` : '',
+        lra ? `LRA: ${lra}` : '',
+        tp ? `TP: ${tp}` : '',
+        thresh ? `thresh: ${thresh}` : '',
+        offset ? `offset: ${offset}` : '',
+        pick('normalization_type') ? `type: ${pick('normalization_type')}` : '',
+    ].filter(s => s);
     return items.join(' | ') || '-';
 }
 
@@ -830,9 +849,12 @@ function updateMetricCards(before, after) {
     const bI = parseLoudnormValue(before, ['input_i', 'measured_I']);
     const bTP = parseLoudnormValue(before, ['input_tp', 'measured_TP']);
     const bLRA = parseLoudnormValue(before, ['input_lra', 'measured_LRA']);
-    const aI = parseLoudnormValue(after, ['input_i', 'measured_I']);
-    const aTP = parseLoudnormValue(after, ['input_tp', 'measured_TP']);
-    const aLRA = parseLoudnormValue(after, ['input_lra', 'measured_LRA']);
+    // For "after" analysis: output_* values represent the processed file after loudnorm
+    // input_* values in "after" represent the processed file being analyzed
+    // Prefer output_* if available (result after processing), otherwise use input_* (the processed file itself)
+    const aI = parseLoudnormValue(after, ['output_i']) || parseLoudnormValue(after, ['input_i', 'measured_I']);
+    const aTP = parseLoudnormValue(after, ['output_tp']) || parseLoudnormValue(after, ['input_tp', 'measured_TP']);
+    const aLRA = parseLoudnormValue(after, ['output_lra']) || parseLoudnormValue(after, ['input_lra', 'measured_LRA']);
 
     const fmt = (v, suffix) => (v === null ? '-' : `${v.toFixed(1)}${suffix}`);
     const delta = (a, b, suffix) => (a === null || b === null) ? '-' : `${(a - b).toFixed(1)}${suffix}`;
@@ -849,16 +871,22 @@ function updateMetricCards(before, after) {
     setMeter('meterTruePeak', 'meterTruePeakTarget', aTP ?? bTP, -1, -12, 0);
     setMeter('meterLra', 'meterLraTarget', aLRA ?? bLRA, 11, 0, 30);
 
+    // For "after" analysis, use output_* values if available, otherwise input_* (which represents the processed file)
+    const aI_final = (data.analysis_after && (data.analysis_after.output_i || data.analysis_after.input_i)) || aI;
+    const aTP_final = (data.analysis_after && (data.analysis_after.output_tp || data.analysis_after.input_tp)) || aTP;
+    const aLRA_final = (data.analysis_after && (data.analysis_after.output_lra || data.analysis_after.input_lra)) || aLRA;
+    
     document.getElementById('rowIntegratedBefore').textContent = fmt(bI, ' LUFS');
-    document.getElementById('rowIntegratedAfter').textContent = fmt(aI, ' LUFS');
+    document.getElementById('rowIntegratedAfter').textContent = fmt(aI_final, ' LUFS');
     document.getElementById('rowTruePeakBefore').textContent = fmt(bTP, ' dB');
-    document.getElementById('rowTruePeakAfter').textContent = fmt(aTP, ' dB');
+    document.getElementById('rowTruePeakAfter').textContent = fmt(aTP_final, ' dB');
     document.getElementById('rowLraBefore').textContent = fmt(bLRA, ' LU');
-    document.getElementById('rowLraAfter').textContent = fmt(aLRA, ' LU');
+    document.getElementById('rowLraAfter').textContent = fmt(aLRA_final, ' LU');
 
-    document.getElementById('rowIntegratedStatus').innerHTML = statusBadge(aI, -23, 1.0, 'LUFS');
-    document.getElementById('rowTruePeakStatus').innerHTML = statusBadge(aTP, -1.0, 0.5, 'dB', true);
-    document.getElementById('rowLraStatus').innerHTML = statusBadge(aLRA, 11.0, 1.0, 'LU', true);
+    // Use final values for status badges
+    document.getElementById('rowIntegratedStatus').innerHTML = statusBadge(aI_final, -23, 1.0, 'LUFS');
+    document.getElementById('rowTruePeakStatus').innerHTML = statusBadge(aTP_final, -1.0, 0.5, 'dB', true);
+    document.getElementById('rowLraStatus').innerHTML = statusBadge(aLRA_final, 11.0, 1.0, 'LU', true);
 }
 
 function statusBadge(value, target, tol, unit, isMax = false) {
@@ -1018,8 +1046,8 @@ async function refreshStatus(jobId) {
     if (data.error_message) setError(data.error_message);
 
     document.getElementById('inputInfo').textContent = formatInputMeta(data.input_metadata);
-    document.getElementById('beforeInfo').textContent = formatLoudnorm(data.analysis_before);
-    document.getElementById('afterInfo').textContent = formatLoudnorm(data.analysis_after);
+    document.getElementById('beforeInfo').textContent = formatLoudnorm(data.analysis_before, false);
+    document.getElementById('afterInfo').textContent = formatLoudnorm(data.analysis_after, true);
     
     // Display noise analysis
     const noiseAnalysis = data.noise_analysis || (data.input_metadata && data.input_metadata.noise_analysis);
