@@ -537,6 +537,9 @@ function getApiUrl(endpoint, mediaId = null) {
     if (endpoint === 'delete-audio') {
         return baseUrl + currentProjectId + '/delete-audio/';
     }
+    if (endpoint === 'order') {
+        return baseUrl + currentProjectId + '/order/';
+    }
     return null;
 }
 
