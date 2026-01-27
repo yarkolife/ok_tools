@@ -872,9 +872,9 @@ function updateMetricCards(before, after) {
     setMeter('meterLra', 'meterLraTarget', aLRA ?? bLRA, 11, 0, 30);
 
     // For "after" analysis, use output_* values if available, otherwise input_* (which represents the processed file)
-    const aI_final = (data.analysis_after && (data.analysis_after.output_i || data.analysis_after.input_i)) || aI;
-    const aTP_final = (data.analysis_after && (data.analysis_after.output_tp || data.analysis_after.input_tp)) || aTP;
-    const aLRA_final = (data.analysis_after && (data.analysis_after.output_lra || data.analysis_after.input_lra)) || aLRA;
+    const aI_final = (after && (after.output_i || after.input_i)) || aI;
+    const aTP_final = (after && (after.output_tp || after.input_tp)) || aTP;
+    const aLRA_final = (after && (after.output_lra || after.input_lra)) || aLRA;
     
     document.getElementById('rowIntegratedBefore').textContent = fmt(bI, ' LUFS');
     document.getElementById('rowIntegratedAfter').textContent = fmt(aI_final, ' LUFS');

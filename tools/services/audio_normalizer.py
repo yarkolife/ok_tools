@@ -406,6 +406,9 @@ class AudioNormalizerService:
         cmd_combined = [
             self.ffmpeg,
             "-hide_banner",
+            "-vn",
+            "-sn",
+            "-dn",
             "-i",
             str(input_path),
             "-af",
@@ -444,6 +447,9 @@ class AudioNormalizerService:
             cmd_freq = [
                 self.ffmpeg,
                 "-hide_banner",
+                "-vn",
+                "-sn",
+                "-dn",
                 "-i",
                 str(input_path),
                 "-af",
@@ -460,33 +466,7 @@ class AudioNormalizerService:
                     low_freq_level = float(mean_match.group(1))
 
         # Determine noise type and recommend model
-        noise_level = results.get("noise_level_db")
-        mean_level = results.get("mean_level_db")
-        peak_level = results.get("peak_level_db")
-
-        # Check for low quality audio indicators
-        # Low quality: very low mean level, high peak-to-mean ratio, low silence ratio
-        if mean_level is not None and peak_level is not None:
-            peak_to_mean_ratio = peak_level - mean_level if mean_level < peak_level else 0
-            # Low quality audio often has high dynamic range (compression artifacts)
-            if mean_level < -50 and peak_to_mean_ratio > 25 and silence_ratio < 0.2:
-                results["noise_type"] = "low_quality"
-                results["recommended_model"] = "lq"
-            # Wind noise: low frequency content, continuous noise, low silence ratio
-            elif low_freq_level is not None and low_freq_level > -45 and silence_ratio < 0.15:
-                results["noise_type"] = "wind"
-                results["recommended_model"] = "bd"
-            # General noise: moderate levels, some silence
-            elif noise_level is not None and noise_level > -40:
-                results["noise_type"] = "general"
-                results["recommended_model"] = "std"
-            # Minimal noise: low noise level, high silence ratio
-            elif noise_level is not None and noise_level <= -40 and silence_ratio > 0.3:
-                results["noise_type"] = "minimal"
-                results["recommended_model"] = None  # No denoising needed
-            else:
-                results["noise_type"] = "general"
-                results["recommended_model"] = "std"
+        self._classify_noise_type(results, low_freq_level)
 
         return results
 
@@ -514,6 +494,172 @@ class AudioNormalizerService:
         if p.returncode != 0:
             raise AudioNormalizerError(f"ffmpeg analyze failed: {p.stderr.strip()[:2000]}")
         return parse_loudnorm_json_from_stderr(p.stderr or "")
+
+    def analyze_all(
+        self, input_path: Path, duration: float
+    ) -> tuple[Dict[str, Any], Dict[str, Any]]:
+        """
+        Single-pass analysis: loudnorm + noise analysis combined using filter_complex.
+        
+        Decodes audio only once and runs all analysis filters in parallel branches:
+        - loudnorm for R128 metrics
+        - silencedetect + astats for noise analysis
+        - highpass + astats for wind noise detection
+        
+        Args:
+            input_path: Path to input audio/video file
+            duration: Audio duration in seconds (for silence ratio calculation)
+        
+        Returns:
+            Tuple of (loudnorm_result, noise_analysis_result)
+        """
+        preset = get_preset(self.presets_json, self.job.preset_id)
+        ln = resolve_loudnorm_target(self.presets_json, preset, target=self.job.target)
+
+        loudnorm_params = (
+            f"I={_fmt_float(ln['I'])}:"
+            f"TP={_fmt_float(ln['TP'])}:"
+            f"LRA={_fmt_float(ln['LRA'])}:"
+            f"linear={'true' if ln['linear'] else 'false'}:"
+            "print_format=json"
+        )
+
+        # Build filter_complex with asplit to run all analyses in parallel
+        filter_complex = (
+            "[0:a]asplit=3[aL][aS][aH];"
+            f"[aL]loudnorm={loudnorm_params}[aLout];"
+            "[aS]silencedetect=n=-35dB:d=0.3,astats=metadata=1:reset=1[aSout];"
+            "[aH]highpass=f=100,astats=metadata=1:reset=1[aHout]"
+        )
+
+        cmd = [
+            self.ffmpeg,
+            "-hide_banner",
+            "-nostats",
+            "-vn",
+            "-sn",
+            "-dn",
+            "-i",
+            str(input_path),
+            "-filter_complex",
+            filter_complex,
+            "-map",
+            "[aLout]",
+            "-map",
+            "[aSout]",
+            "-map",
+            "[aHout]",
+            "-f",
+            "null",
+            "-",
+        ]
+
+        p = self._run(cmd, timeout=60 * 20)
+        if p.returncode != 0:
+            raise AudioNormalizerError(
+                f"Combined analysis failed: {p.stderr.strip()[:2000]}"
+            )
+
+        stderr = p.stderr or ""
+        loudnorm_result = parse_loudnorm_json_from_stderr(stderr)
+        noise_result = self._parse_noise_from_combined_stderr(stderr, duration)
+
+        return loudnorm_result, noise_result
+
+    def _classify_noise_type(
+        self, results: Dict[str, Any], low_freq_level: Optional[float]
+    ) -> None:
+        """
+        Classify noise type based on audio metrics and update results dict in place.
+        
+        Args:
+            results: Dict with noise_level_db, mean_level_db, peak_level_db, silence_ratio
+            low_freq_level: Mean level after highpass filter (for wind detection)
+        """
+        silence_ratio = results.get("silence_ratio", 0.0)
+        noise_level = results.get("noise_level_db")
+        mean_level = results.get("mean_level_db")
+        peak_level = results.get("peak_level_db")
+
+        if mean_level is not None and peak_level is not None:
+            peak_to_mean_ratio = peak_level - mean_level if mean_level < peak_level else 0
+            # Low quality audio often has high dynamic range (compression artifacts)
+            if mean_level < -50 and peak_to_mean_ratio > 25 and silence_ratio < 0.2:
+                results["noise_type"] = "low_quality"
+                results["recommended_model"] = "lq"
+            # Wind noise: low frequency content, continuous noise, low silence ratio
+            elif low_freq_level is not None and low_freq_level > -45 and silence_ratio < 0.15:
+                results["noise_type"] = "wind"
+                results["recommended_model"] = "bd"
+            # General noise: moderate levels, some silence
+            elif noise_level is not None and noise_level > -40:
+                results["noise_type"] = "general"
+                results["recommended_model"] = "std"
+            # Minimal noise: low noise level, high silence ratio
+            elif noise_level is not None and noise_level <= -40 and silence_ratio > 0.3:
+                results["noise_type"] = "minimal"
+                results["recommended_model"] = None  # No denoising needed
+            else:
+                results["noise_type"] = "general"
+                results["recommended_model"] = "std"
+
+    def _parse_noise_from_combined_stderr(
+        self, stderr: str, duration: float
+    ) -> Dict[str, Any]:
+        """
+        Parse noise analysis data from combined ffmpeg stderr (single-pass analysis).
+        
+        Extracts:
+        - silence_duration from silencedetect filter
+        - Peak/Mean levels from first astats (main audio)
+        - Mean level from second astats (highpass branch for wind detection)
+        
+        Args:
+            stderr: Combined ffmpeg stderr output
+            duration: Audio duration in seconds (for silence ratio calculation)
+        
+        Returns:
+            Dict with noise analysis results
+        """
+        results: Dict[str, Any] = {
+            "silence_ratio": 0.0,
+            "noise_level_db": None,
+            "peak_level_db": None,
+            "mean_level_db": None,
+            "noise_type": None,
+            "recommended_model": None,
+        }
+
+        # Extract silence information (from silencedetect branch)
+        silence_duration = 0.0
+        for match in re.finditer(r"silence_duration: ([\d.]+)", stderr):
+            silence_duration += float(match.group(1))
+        if duration > 0:
+            results["silence_ratio"] = min(1.0, silence_duration / duration)
+
+        # Extract astats metrics - find ALL occurrences
+        # First pair = silencedetect branch (main stats)
+        # Second pair = highpass branch (for wind detection)
+        peak_matches = list(re.finditer(r"Peak level: ([\d.-]+) dB", stderr))
+        mean_matches = list(re.finditer(r"Mean level: ([\d.-]+) dB", stderr))
+
+        # Main audio stats (first occurrence from silencedetect+astats branch)
+        if peak_matches:
+            results["peak_level_db"] = float(peak_matches[0].group(1))
+        if mean_matches:
+            results["mean_level_db"] = float(mean_matches[0].group(1))
+            # Estimate noise level (rough approximation)
+            results["noise_level_db"] = results["mean_level_db"] - 10.0
+
+        # Highpass stats for wind detection (second occurrence from highpass+astats branch)
+        low_freq_level = None
+        if len(mean_matches) >= 2:
+            low_freq_level = float(mean_matches[1].group(1))
+
+        # Classify noise type based on extracted metrics
+        self._classify_noise_type(results, low_freq_level)
+
+        return results
 
     def _build_output_filename(self, input_path: Path) -> str:
         if self.job.output_filename:

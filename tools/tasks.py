@@ -482,19 +482,10 @@ def analyze_audio_normalize_job_task(self, job_id):
         meta, _probe = service.probe(input_path)
         probe_time = time.time() - start_time
         
-        loudnorm_start = time.time()
-        before = service.analyze_loudnorm(input_path)
-        loudnorm_time = time.time() - loudnorm_start
-        
-        # Optional noise analysis for better recommendations
-        noise_analysis = None
-        noise_time = 0.0
-        try:
-            noise_start = time.time()
-            noise_analysis = service.analyze_noise(input_path)
-            noise_time = time.time() - noise_start
-        except Exception as e:
-            logger.warning("Noise analysis failed (non-critical) for job %s: %s", job_id, e)
+        # Single-pass analysis: loudnorm + noise analysis combined
+        analysis_start = time.time()
+        before, noise_analysis = service.analyze_all(input_path, _probe.duration_sec)
+        analysis_time = time.time() - analysis_start
         
         recs_start = time.time()
         recs = service.get_recommendations(before, noise_analysis)
@@ -502,8 +493,8 @@ def analyze_audio_normalize_job_task(self, job_id):
         
         total_time = time.time() - start_time
         logger.info(
-            "Audio analyze completed for job %s: total=%.2fs (probe=%.2fs, loudnorm=%.2fs, noise=%.2fs, recommendations=%.2fs)",
-            job_id, total_time, probe_time, loudnorm_time, noise_time, recs_time
+            "Audio analyze completed for job %s: total=%.2fs (probe=%.2fs, analysis=%.2fs, recommendations=%.2fs)",
+            job_id, total_time, probe_time, analysis_time, recs_time
         )
 
         job.input_metadata = meta
