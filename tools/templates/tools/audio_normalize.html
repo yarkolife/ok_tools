@@ -430,6 +430,7 @@ let afterWaveformLoaded = false;
 let syncGuard = false;
 let currentBeforePlayerSrc = null;
 let currentAfterPlayerSrc = null;
+let jobSettingsLoaded = false;
 
 function syncEnabled() {
     const el = document.getElementById('syncPlayback');
@@ -472,6 +473,7 @@ function resetJob() {
     document.getElementById('jobId').value = '';
     document.getElementById('existingInputPath').value = '';
     document.getElementById('existingInputMediaFileId').value = '';
+    jobSettingsLoaded = false;
     const note = document.getElementById('existingInputNote');
     if (note) {
         note.style.display = 'none';
@@ -1056,6 +1058,23 @@ async function refreshStatus(jobId) {
 
     setStatus(data.status || '-', data.progress || 0);
     if (data.error_message) setError(data.error_message);
+
+    // Sync UI settings with job data on first load
+    if (!jobSettingsLoaded && data.preset_id) {
+        const presetSelect = document.getElementById('presetId');
+        if (presetSelect && Array.from(presetSelect.options).some(o => o.value === data.preset_id)) {
+            presetSelect.value = data.preset_id;
+        }
+        if (data.audio_bitrate) {
+            const bitrateSelect = document.getElementById('audioBitrate');
+            if (bitrateSelect) bitrateSelect.value = data.audio_bitrate;
+        }
+        if (data.force_stereo !== undefined) {
+            const stereoCheck = document.getElementById('forceStereo');
+            if (stereoCheck) stereoCheck.checked = data.force_stereo;
+        }
+        jobSettingsLoaded = true;
+    }
 
     document.getElementById('inputInfo').textContent = formatInputMeta(data.input_metadata);
     document.getElementById('beforeInfo').textContent = formatLoudnorm(data.analysis_before, false);

@@ -810,70 +810,91 @@ class AudioNormalizerService:
                 issues_text = issues_list[0]
 
             # Determine best preset based on severity and AI availability
-            if has_ai_available:
+            # IMPORTANT: AI presets are optimized for SPEECH and may damage music content
+            # Only recommend AI when noise is explicitly detected
+            has_noise_issues = has_high_noise or has_continuous_noise
+            
+            if has_ai_available and has_noise_issues:
+                # AI warning for music content
+                ai_music_warning = _(" WARNING: AI denoising is optimized for speech and may damage music. For mixed content (speech + music), use tv_mixed instead.")
+                
                 if has_very_high_noise or (has_high_peaks and has_high_noise) or issue_count >= 3:
-                    # Multiple severe issues: recommend strong AI preset
+                    # Multiple severe issues with noise: recommend strong AI preset with warning
                     recs.append({
                         "preset_id": ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
-                        "reason": _("Multiple issues detected: {issues}. Recommended: {preset} combines aggressive processing, AI denoising, and speech optimization to address all problems. For a softer option, use {speech_preset}.").format(
+                        "reason": _("Multiple issues detected: {issues}. Recommended for SPEECH-ONLY content: {preset} combines aggressive processing with AI denoising.{warning}").format(
                             issues=issues_text,
                             preset=ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
-                            speech_preset=ai_preset_speech
+                            warning=ai_music_warning
                         ),
+                    })
+                    # Also recommend tv_mixed as alternative
+                    recs.append({
+                        "preset_id": "tv_mixed",
+                        "reason": _("Alternative for MIXED content (speech + music): tv_mixed preserves musical quality without AI processing."),
                     })
                 elif has_high_peaks and has_continuous_noise:
-                    # High peaks + continuous noise: recommend strong AI preset
+                    # High peaks + continuous noise: recommend AI with warning
                     recs.append({
                         "preset_id": ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
-                        "reason": _("High peak levels and continuous background noise detected. Recommended: {preset} combines aggressive peak control, AI denoising for noise removal, and speech optimization. For a softer option, use {speech_preset} and verify limiter is sufficient for peak control.").format(
+                        "reason": _("High peak levels and continuous background noise detected. For SPEECH-ONLY: {preset}.{warning}").format(
                             preset=ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
-                            speech_preset=ai_preset_speech
+                            warning=ai_music_warning
                         ),
                     })
-                elif has_high_peaks and has_high_noise:
-                    # High peaks + high noise: recommend strong AI preset
                     recs.append({
-                        "preset_id": ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
-                        "reason": _("High peak levels ({peak_level:.1f} dB) and high background noise ({noise_level:.1f} dB) detected. Recommended: {preset} combines aggressive peak control with AI denoising for optimal results.").format(
-                            peak_level=peak_level if peak_level is not None else input_tp,
-                            noise_level=noise_level,
-                            preset=ai_preset_strong if target_prefix == "tv" else "tv_ai_strong"
-                        ),
+                        "preset_id": "tv_mixed",
+                        "reason": _("For MIXED content (speech + music): tv_mixed with strong limiter."),
                     })
                 elif has_continuous_noise and has_high_noise:
-                    # Continuous noise + high noise: recommend AI preset (speech or strong based on noise level)
+                    # Continuous noise + high noise
                     if has_very_high_noise:
                         recs.append({
                             "preset_id": ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
-                            "reason": _("Continuous and very high background noise ({noise_level:.1f} dB) detected. Recommended: {preset} for aggressive AI denoising and speech clarity.").format(
+                            "reason": _("Very high background noise ({noise_level:.1f} dB). For SPEECH-ONLY: {preset}.{warning}").format(
                                 noise_level=noise_level,
-                                preset=ai_preset_strong if target_prefix == "tv" else "tv_ai_strong"
+                                preset=ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
+                                warning=ai_music_warning
                             ),
                         })
                     else:
                         recs.append({
                             "preset_id": ai_preset_speech,
-                            "reason": _("Continuous background noise and high noise level ({noise_level:.1f} dB) detected. Recommended: {preset} with AI denoising for speech clarity.").format(
+                            "reason": _("High noise ({noise_level:.1f} dB). For SPEECH-ONLY: {preset}.{warning}").format(
                                 noise_level=noise_level,
-                                preset=ai_preset_speech
+                                preset=ai_preset_speech,
+                                warning=ai_music_warning
                             ),
                         })
+                    recs.append({
+                        "preset_id": "tv_mixed",
+                        "reason": _("For MIXED content: tv_mixed preserves music quality."),
+                    })
                 else:
-                    # Other combinations: use AI speech preset
+                    # Other noise combinations: use AI speech preset with warning
                     recs.append({
                         "preset_id": ai_preset_speech,
-                        "reason": _("Multiple issues detected: {issues}. Recommended: {preset} with AI denoising to address these problems.").format(
-                            issues=issues_text,
-                            preset=ai_preset_speech
+                        "reason": _("Noise detected. For SPEECH-ONLY: {preset}.{warning}").format(
+                            preset=ai_preset_speech,
+                            warning=ai_music_warning
                         ),
                     })
+                    recs.append({
+                        "preset_id": "tv_mixed",
+                        "reason": _("For MIXED content: tv_mixed is safer for music."),
+                    })
             else:
-                # Multiple issues but AI not available: recommend strong preset
+                # No noise detected OR AI not available: recommend non-AI presets
+                # tv_strong for speech-heavy, tv_mixed for mixed content
                 recs.append({
                     "preset_id": "tv_strong",
-                    "reason": _("Multiple issues detected: {issues}. Strong preset recommended. Consider installing RNN model for AI denoising to get better results.").format(
+                    "reason": _("Multiple issues detected: {issues}. Strong preset recommended for speech content.").format(
                         issues=issues_text
                     ),
+                })
+                recs.append({
+                    "preset_id": "tv_mixed",
+                    "reason": _("For mixed content (speech + music): tv_mixed preserves musical dynamics."),
                 })
         else:
             # Individual recommendations for single issues or when AI not available
@@ -911,6 +932,9 @@ class AudioNormalizerService:
                 })
 
             # Noise-based recommendations with model-specific suggestions
+            # AI warning for music content
+            ai_music_warning = _(" WARNING: AI denoising may damage music. Use tv_mixed for mixed content.")
+            
             if noise_analysis:
                 # Model-specific recommendations based on noise type
                 if recommended_model:
@@ -928,34 +952,45 @@ class AudioNormalizerService:
                         if noise_type == "wind":
                             recs.append({
                                 "preset_id": ai_preset_speech if has_ai_available else "tv_strong",
-                                "reason": _("Wind noise detected. Recommended model: {model_name}. Configure ARNNDN Model Path in Tools Config to use this model.").format(model_name=model_name) if has_ai_available else _("Wind noise detected. Strong denoising recommended. Consider installing RNN model for AI denoising."),
+                                "reason": _("Wind noise detected. For SPEECH-ONLY: model {model_name}.{warning}").format(model_name=model_name, warning=ai_music_warning) if has_ai_available else _("Wind noise detected. Strong denoising recommended."),
                                 "recommended_model": recommended_model,
                             })
                         elif noise_type == "low_quality":
                             recs.append({
                                 "preset_id": ai_preset_speech if has_ai_available else "tv_strong",
-                                "reason": _("Low quality audio detected (compression artifacts, degradation). Recommended model: {model_name}. Configure ARNNDN Model Path in Tools Config to use this model.").format(model_name=model_name) if has_ai_available else _("Low quality audio detected. Strong denoising recommended. Consider installing RNN model for AI denoising."),
+                                "reason": _("Low quality audio detected. For SPEECH-ONLY: model {model_name}.{warning}").format(model_name=model_name, warning=ai_music_warning) if has_ai_available else _("Low quality audio detected. Strong denoising recommended."),
                                 "recommended_model": recommended_model,
                             })
                         elif noise_type == "general":
                             recs.append({
                                 "preset_id": ai_preset_speech if has_ai_available else "tv_strong",
-                                "reason": _("Background noise detected ({noise_level:.1f} dB). Recommended model: {model_name} for best results.").format(noise_level=noise_level, model_name=model_name) if has_ai_available else _("Background noise detected ({noise_level:.1f} dB). Strong denoising recommended. Consider installing RNN model for AI denoising.").format(noise_level=noise_level),
+                                "reason": _("Background noise ({noise_level:.1f} dB). For SPEECH-ONLY: model {model_name}.{warning}").format(noise_level=noise_level, model_name=model_name, warning=ai_music_warning) if has_ai_available else _("Background noise ({noise_level:.1f} dB). Strong denoising recommended.").format(noise_level=noise_level),
                                 "recommended_model": recommended_model,
+                            })
+                        # Add tv_mixed as alternative for all noise types
+                        if has_ai_available:
+                            recs.append({
+                                "preset_id": "tv_mixed",
+                                "reason": _("For MIXED content (speech + music): tv_mixed preserves music quality."),
                             })
                     else:
                         # Model not available, but recommend it
                         if recommended_model == "bd":
                             recs.append({
                                 "preset_id": ai_preset_speech if has_ai_available else "tv_strong",
-                                "reason": _("Wind noise detected. Consider downloading bd.rnnn model for better wind noise reduction. Currently using std.rnnn.") if has_ai_available else _("Wind noise detected. Strong denoising recommended. Consider installing RNN model for AI denoising."),
+                                "reason": _("Wind noise detected. For SPEECH-ONLY: consider bd.rnnn model.{warning}").format(warning=ai_music_warning) if has_ai_available else _("Wind noise detected. Strong denoising recommended."),
                                 "recommended_model": "bd",
                             })
                         elif recommended_model == "lq":
                             recs.append({
                                 "preset_id": ai_preset_speech if has_ai_available else "tv_strong",
-                                "reason": _("Low quality audio detected. Consider downloading lq.rnnn model for better results with degraded audio. Currently using std.rnnn.") if has_ai_available else _("Low quality audio detected. Strong denoising recommended. Consider installing RNN model for AI denoising."),
+                                "reason": _("Low quality audio. For SPEECH-ONLY: consider lq.rnnn model.{warning}").format(warning=ai_music_warning) if has_ai_available else _("Low quality audio. Strong denoising recommended."),
                                 "recommended_model": "lq",
+                            })
+                        if has_ai_available:
+                            recs.append({
+                                "preset_id": "tv_mixed",
+                                "reason": _("For MIXED content: tv_mixed is safer for music."),
                             })
 
                 # High background noise detected (single issue)
@@ -964,17 +999,21 @@ class AudioNormalizerService:
                         if has_very_high_noise:
                             recs.append({
                                 "preset_id": ai_preset_strong if target_prefix == "tv" else "tv_ai_strong",
-                                "reason": _("Very high background noise ({noise_level:.1f} dB). Consider aggressive AI denoising.").format(noise_level=noise_level),
+                                "reason": _("Very high noise ({noise_level:.1f} dB). For SPEECH-ONLY: aggressive AI denoising.{warning}").format(noise_level=noise_level, warning=ai_music_warning),
                             })
                         else:
                             recs.append({
                                 "preset_id": ai_preset_speech,
-                                "reason": _("High background noise detected ({noise_level:.1f} dB). AI denoiser (arnndn) recommended for better speech clarity.").format(noise_level=noise_level),
+                                "reason": _("High noise ({noise_level:.1f} dB). For SPEECH-ONLY: AI denoiser.{warning}").format(noise_level=noise_level, warning=ai_music_warning),
                             })
+                        recs.append({
+                            "preset_id": "tv_mixed",
+                            "reason": _("For MIXED content: tv_mixed preserves music."),
+                        })
                     else:
                         recs.append({
                             "preset_id": "tv_strong",
-                            "reason": _("High background noise detected ({noise_level:.1f} dB). Strong denoising recommended. Consider installing RNN model for AI denoising.").format(noise_level=noise_level),
+                            "reason": _("High noise ({noise_level:.1f} dB). Strong denoising recommended.").format(noise_level=noise_level),
                         })
 
                 # Low silence ratio suggests continuous noise (single issue)
@@ -982,12 +1021,16 @@ class AudioNormalizerService:
                     if has_ai_available:
                         recs.append({
                             "preset_id": ai_preset_speech,
-                            "reason": _("Continuous background noise detected. AI denoiser recommended for speech clarity."),
+                            "reason": _("Continuous noise detected. For SPEECH-ONLY: AI denoiser.{warning}").format(warning=ai_music_warning),
+                        })
+                        recs.append({
+                            "preset_id": "tv_mixed",
+                            "reason": _("For MIXED content: tv_mixed is music-safe."),
                         })
                     else:
                         recs.append({
                             "preset_id": "tv_strong",
-                            "reason": _("Continuous background noise detected. Denoising recommended."),
+                            "reason": _("Continuous noise detected. Denoising recommended."),
                         })
 
                 # Very high peak levels (single issue)
@@ -1158,8 +1201,11 @@ class AudioNormalizerService:
 
         out_path = self._pick_output_path(input_path)
 
+        # Progress stages: 0-90% encoding, 90-98% verification, 100% complete
         def on_progress(percent: int):
-            AudioNormalizeJob.objects.filter(id=self.job.id).update(progress=percent)
+            # Scale ffmpeg progress (0-100) to (0-90)
+            scaled = int(percent * 0.9)
+            AudioNormalizeJob.objects.filter(id=self.job.id).update(progress=scaled)
 
         ffmpeg_log = self.normalize(
             input_path=input_path,
@@ -1169,7 +1215,10 @@ class AudioNormalizerService:
             on_progress=on_progress,
         )
 
+        # Encoding complete, now verifying output
+        AudioNormalizeJob.objects.filter(id=self.job.id).update(progress=92)
         after = self.analyze_loudnorm(out_path)
+        AudioNormalizeJob.objects.filter(id=self.job.id).update(progress=98)
 
         media_root = self._media_root_abs()
         resolved = out_path.resolve()
