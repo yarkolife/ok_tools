@@ -572,6 +572,13 @@ def normalize_audio_task(self, job_id):
             'completed_at',
         ])
 
+        elapsed = (job.completed_at - job.started_at).total_seconds() if job.started_at else 0
+        output_path = job.output_path_external or (job.output_file.name if job.output_file else 'N/A')
+        logger.info(
+            "Audio normalize completed for job %s: elapsed=%.2fs, preset=%s, output=%s",
+            job_id, elapsed, job.preset_id, output_path
+        )
+
         out_url = job.output_file.url if job.output_file else None
         return {'status': 'success', 'job_id': job_id, 'output_file': out_url, 'output_path_external': job.output_path_external or None}
 
