@@ -720,6 +720,8 @@ async function runAnalyze() {
     if (!resp.ok || data.status !== 'success') {
         throw new Error(data.error || '{% trans "Failed to start analysis." %}');
     }
+    // Immediately update status to show analysis started
+    setStatus('analyzing', 0);
     startPolling(jobId);
 }
 
@@ -727,14 +729,24 @@ async function runNormalize() {
     setError('');
     const jobId = await createJobIfNeeded();
 
+    // Pass current settings so they can be updated before processing
+    const formData = new FormData();
+    formData.append('preset_id', document.getElementById('presetId').value);
+    formData.append('audio_bitrate', document.getElementById('audioBitrate').value);
+    formData.append('sample_rate', '48000');
+    formData.append('force_stereo', document.getElementById('forceStereo').checked ? 'true' : 'false');
+
     const resp = await fetch(`/tools/api/audio-normalize/${jobId}/start/`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken }
+        headers: { 'X-CSRFToken': csrfToken },
+        body: formData
     });
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok || data.status !== 'success') {
         throw new Error(data.error || '{% trans "Failed to start normalization." %}');
     }
+    // Immediately update status to show processing started
+    setStatus('processing', 0);
     startPolling(jobId);
 }
 

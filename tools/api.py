@@ -1490,6 +1490,25 @@ class StartNormalizeView(APIView):
         if job.status in ('analyzing', 'processing'):
             return Response({'error': _('Job is already running')}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Update job settings from request before starting (user may have changed preset after analysis)
+        updated_fields = []
+        if 'preset_id' in request.data:
+            job.preset_id = request.data['preset_id']
+            updated_fields.append('preset_id')
+        if 'audio_bitrate' in request.data:
+            job.audio_bitrate = request.data['audio_bitrate']
+            updated_fields.append('audio_bitrate')
+        if 'sample_rate' in request.data:
+            job.sample_rate = int(request.data['sample_rate'])
+            updated_fields.append('sample_rate')
+        if 'force_stereo' in request.data:
+            job.force_stereo = str(request.data['force_stereo']).lower() in ('1', 'true', 'yes', 'on')
+            updated_fields.append('force_stereo')
+        
+        if updated_fields:
+            job.save(update_fields=updated_fields)
+            logger.info("Updated job %s settings before normalize: %s", job_id, updated_fields)
+
         from .tasks import normalize_audio_task
         task = normalize_audio_task.delay(job.id)
         return Response({
