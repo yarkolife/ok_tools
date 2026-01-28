@@ -547,14 +547,14 @@ msgstr "Anzahl der Personen, die den Raum nutzen"
 msgid ""
 "Room rental start date. If not specified, uses rental request start date."
 msgstr ""
-"Startdatum der Raummiete. Falls nicht angegeben, wird das Startdatum der Ausleihanfrage verwendet."
+"Startdatum der Raumausleihe. Falls nicht angegeben, wird das Startdatum der Ausleihanfrage verwendet."
 
 msgid "Room rental end date. If not specified, uses rental request end date."
 msgstr ""
-"Enddatum der Raummiete. Falls nicht angegeben, wird das Enddatum der Ausleihanfrage verwendet."
+"Enddatum der Raumausleihe. Falls nicht angegeben, wird das Enddatum der Ausleihanfrage verwendet."
 
 msgid "Additional notes for room rental"
-msgstr "Zusätzliche Hinweise zur Raummiete"
+msgstr "Zusätzliche Hinweise zur Raumausleihe"
 
 msgid "Nextcloud Event URL"
 msgstr "Nextcloud-Ereignis-URL"
@@ -563,10 +563,10 @@ msgid "URL of the event in Nextcloud Calendar (for CalDAV sync)"
 msgstr "URL des Ereignisses im Nextcloud-Kalender (für CalDAV-Synchronisierung)"
 
 msgid "Room rental"
-msgstr "Raummiete"
+msgstr "Raumausleihe"
 
 msgid "Room rentals"
-msgstr "Raummieten"
+msgstr "Raumausleihen"
 
 msgid "Expired"
 msgstr "Abgelaufen"
