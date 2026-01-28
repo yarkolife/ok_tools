@@ -54,33 +54,23 @@ msgstr "Stufe"
 msgid "Achieved At"
 msgstr "Erreicht am"
 
-#, fuzzy
-#| msgid "Rental Request"
 msgid "Rental Request ID"
-msgstr "Ausleihanfrage"
+msgstr "Ausleihanfrage-ID"
 
 msgid "ID of related RentalRequest if rental module is enabled"
-msgstr ""
+msgstr "ID der zugehörigen Ausleihanfrage, falls das Ausleihmodul aktiviert ist"
 
-#, fuzzy
-#| msgid "License"
 msgid "License ID"
-msgstr "Freistellung"
+msgstr "Freistellung-ID"
 
-#, fuzzy
-#| msgid "Confirmed Licenses"
 msgid "ID of related License"
-msgstr "Genehmigte Freistellungen"
+msgstr "ID der zugehörigen Freistellung"
 
-#, fuzzy
-#| msgid "Contribution"
 msgid "Contribution ID"
-msgstr "Beitrag"
+msgstr "Beitrags-ID"
 
-#, fuzzy
-#| msgid "Recorded Contributions"
 msgid "ID of related Contribution"
-msgstr "Aufgezeichnete Beiträge"
+msgstr "ID des zugehörigen Beitrags"
 
 msgid "Metadata"
 msgstr "Metadaten"
@@ -303,7 +293,7 @@ msgid "Last year"
 msgstr "Letztes Jahr"
 
 msgid "Custom period"
-msgstr "Nutzerdefinierter Zeitraum"
+msgstr "Benutzerdefinierter Zeitraum"
 
 msgid "Start Date"
 msgstr "Startdatum"
@@ -372,10 +362,10 @@ msgid "Total Projects"
 msgstr "Projekte gesamt"
 
 msgid "Total Participants"
-msgstr "Teilnehmer gesamt"
+msgstr "Teilnehmende gesamt"
 
 msgid "Avg Participants"
-msgstr "Durchschnittliche Teilnehmer"
+msgstr "Durchschnittliche Teilnehmende"
 
 msgid "External Venue Rate"
 msgstr "Externe Veranstaltungsort-Rate"
@@ -384,7 +374,7 @@ msgid "Total Inventory Items"
 msgstr "Inventargegenstände gesamt"
 
 msgid "Rented Items"
-msgstr "Ausgeliehene Artikel"
+msgstr "Ausgeliehene Gegenstände"
 
 msgid "Total Rentals"
 msgstr "Ausleihen gesamt"
@@ -396,25 +386,25 @@ msgid "Quick Actions"
 msgstr "Schnellaktionen"
 
 msgid "Users Analytics"
-msgstr "Nutzer-Analytik"
+msgstr "Nutzer-Analyse"
 
 msgid "Licenses Analytics"
-msgstr "Freistellungs-Analytik"
+msgstr "Freistellungs-Analyse"
 
 msgid "Contributions Analytics"
-msgstr "Beiträge-Analytik"
+msgstr "Beitrags-Analyse"
 
 msgid "Projects Analytics"
-msgstr "Projekt-Analytik"
+msgstr "Projekt-Analyse"
 
 msgid "Inventory & Rental Analytics"
-msgstr "Inventar- & Ausleih-Analytik"
+msgstr "Inventar- & Ausleih-Analyse"
 
 msgid "System Notifications"
 msgstr "Systembenachrichtigungen"
 
 msgid "Funnel Analytics"
-msgstr "Trichter-Analytik"
+msgstr "Trichter-Analyse"
 
 msgid "Recent Users"
 msgstr "Neueste Nutzer"
@@ -423,16 +413,16 @@ msgid "View All"
 msgstr "Alle anzeigen"
 
 msgid "Loading..."
-msgstr "Lädt..."
+msgstr "Wird geladen..."
 
 msgid "Loading recent users..."
-msgstr "Lade neueste Nutzer..."
+msgstr "Neueste Nutzer werden geladen..."
 
 msgid "Recent Licenses"
 msgstr "Neueste Freistellungen"
 
 msgid "Loading recent licenses..."
-msgstr "Lade neueste Freistellungen..."
+msgstr "Neueste Freistellungen werden geladen..."
 
 msgid "System Status"
 msgstr "Systemstatus"
@@ -486,13 +476,13 @@ msgid "Filters reset"
 msgstr "Filter zurückgesetzt"
 
 msgid "Contributions Dashboard"
-msgstr "Beiträge-Dashboard"
+msgstr "Beitrags-Dashboard"
 
 msgid "All Time"
 msgstr "Gesamter Zeitraum"
 
 msgid "Custom Period"
-msgstr "Nutzerdefinierter Zeitraum"
+msgstr "Benutzerdefinierter Zeitraum"
 
 msgid "Live/Recorded"
 msgstr "Live/Aufgezeichnet"
@@ -510,7 +500,7 @@ msgid "Type"
 msgstr "Typ"
 
 msgid "Primary Only"
-msgstr "Nur Primär"
+msgstr "Nur primär"
 
 msgid "Repetitions Only"
 msgstr "Nur Wiederholungen"
@@ -555,7 +545,7 @@ msgid "CONVERSION RATE"
 msgstr "KONVERSIONSRATE"
 
 msgid "License to Contribution Conversion"
-msgstr "Freistellung-zu-Beitrag-Konversion"
+msgstr "Freistellung-zu-Beitrag-Umwandlung"
 
 msgid "of licenses result in contributions"
 msgstr "der Freistellungen führen zu Beiträgen"
@@ -564,10 +554,10 @@ msgid "With Contributions"
 msgstr "Mit Beiträgen"
 
 msgid "Avg. days from license to first contribution"
-msgstr "Durchschn. Tage von Freistellung zu erstem Beitrag"
+msgstr "Durchschn. Tage von Freistellung bis zum ersten Beitrag"
 
 msgid "Live vs Recorded Distribution"
-msgstr "Live vs. Aufgezeichnet Verteilung"
+msgstr "Verteilung Live vs. Aufgezeichnet"
 
 msgid "Contributions by Media Authority"
 msgstr "Beiträge nach Medienanstalt"
@@ -585,10 +575,10 @@ msgid "Primary vs Repetitions"
 msgstr "Primär vs. Wiederholungen"
 
 msgid "Contributions Trend"
-msgstr "Beiträge-Trend"
+msgstr "Beitrags-Trend"
 
 msgid "Number of Contributions"
-msgstr "Anzahl der Beiträge"
+msgstr "Anzahl Beiträge"
 
 msgid "Count"
 msgstr "Anzahl"
@@ -606,7 +596,7 @@ msgid "Repetitions"
 msgstr "Wiederholungen"
 
 msgid "Contribution Detail View"
-msgstr "Beitrags-Detailansicht"
+msgstr "Beitragsdetail-Ansicht"
 
 msgid "Close"
 msgstr "Schließen"
@@ -678,13 +668,13 @@ msgid "No contributions match the current filters"
 msgstr "Keine Beiträge entsprechen den aktuellen Filtern"
 
 msgid "No contributions of this type exist in the selected date range"
-msgstr "Keine Beiträge dieses Typs existieren im ausgewählten Datumsbereich"
+msgstr "Von diesem Typ gibt es im ausgewählten Zeitraum keine Beiträge"
 
 msgid "Database connection issues"
 msgstr "Datenbankverbindungsprobleme"
 
 msgid "Contributions pagination"
-msgstr "Beiträge-Paginierung"
+msgstr "Beitrags-Paginierung"
 
 msgid "Showing"
 msgstr "Zeige"
@@ -705,7 +695,7 @@ msgid "Next"
 msgstr "Nächste"
 
 msgid "User Participation Funnel"
-msgstr "Nutzer-Teilnahme-Trichter"
+msgstr "Nutzer-Teilnahmetrichter"
 
 msgid "Datumsbereich"
 msgstr "Datumsbereich"
@@ -741,8 +731,7 @@ msgid "Click to view detailed list of registrations"
 msgstr "Klicken Sie, um die detaillierte Liste der Registrierungen anzuzeigen"
 
 msgid "Click to view detailed list of verified users"
-msgstr ""
-"Klicken Sie, um die detaillierte Liste der verifizierten Nutzer anzuzeigen"
+msgstr "Klicken Sie, um die detaillierte Liste der verifizierten Nutzer anzuzeigen"
 
 msgid "Click to view detailed list of licenses"
 msgstr "Klicken Sie, um die detaillierte Liste der Freistellungen anzuzeigen"
@@ -751,7 +740,7 @@ msgid "Click to view detailed list of first broadcasts"
 msgstr "Klicken Sie, um die detaillierte Liste der ersten Sendungen anzuzeigen"
 
 msgid "Participation Funnel"
-msgstr "Teilnahme-Trichter"
+msgstr "Teilnahmetrichter"
 
 msgid "Conversion Rates"
 msgstr "Konversionsraten"
@@ -931,16 +920,16 @@ msgid "Maintenance"
 msgstr "Wartung"
 
 msgid "Total Items"
-msgstr "Gesamtanzahl Artikel"
+msgstr "Gesamtanzahl Gegenstände"
 
 msgid "Available Items"
-msgstr "Verfügbare Artikel"
+msgstr "Verfügbare Gegenstände"
 
 msgid "Rented"
 msgstr "Ausgeliehen"
 
 msgid "Utilization Rate"
-msgstr "Auslastungsgrad"
+msgstr "Auslastungsrate"
 
 msgid "Inventory by Category"
 msgstr "Inventar nach Kategorie"
@@ -958,10 +947,10 @@ msgid "Rentals by Gender"
 msgstr "Ausleihen nach Geschlecht"
 
 msgid "Rentals Trend"
-msgstr "Ausleih-Trend"
+msgstr "Ausleihtrend"
 
 msgid "Equipment Sets Statistics"
-msgstr "Ausrüstungsset-Statistiken"
+msgstr "Ausrüstungssets-Statistiken"
 
 msgid "Active Sets"
 msgstr "Aktive Sets"
@@ -973,13 +962,13 @@ msgid "Popular Equipment Sets"
 msgstr "Beliebte Ausrüstungssets"
 
 msgid "Popular Inventory Statistics"
-msgstr "Beliebte Inventar-Statistiken"
+msgstr "Beliebte Inventarstatistiken"
 
 msgid "Popular Inventory Items"
 msgstr "Beliebte Inventargegenstände"
 
 msgid "User Activity Analytics"
-msgstr "Nutzeraktivitäts-Analyse"
+msgstr "Nutzeraktivitätsanalyse"
 
 msgid "Anti-Rating"
 msgstr "Anti-Bewertung"
@@ -988,7 +977,7 @@ msgid "Users who rent but don't create licenses"
 msgstr "Nutzer, die ausleihen, aber keine Freistellungen erstellen"
 
 msgid "Content Creators"
-msgstr "Content-Ersteller"
+msgstr "Beitragsersteller"
 
 msgid "Rating"
 msgstr "Bewertung"
@@ -997,10 +986,10 @@ msgid "Users who create licenses but don't rent much"
 msgstr "Nutzer, die Freistellungen erstellen, aber wenig ausleihen"
 
 msgid "Room Rentals Statistics"
-msgstr "Raumvermietungs-Statistiken"
+msgstr "Raumvermietungsstatistiken"
 
 msgid "Room Usage Trend"
-msgstr "Raumnutzungs-Trend"
+msgstr "Raumnutzungstrend"
 
 msgid "Popular Rooms"
 msgstr "Beliebte Räume"
@@ -1090,7 +1079,7 @@ msgid "Exporting..."
 msgstr "Exportiere..."
 
 msgid "Room Rentals Trend"
-msgstr "Raumvermietungs-Trend"
+msgstr "Raumvermietungstrend"
 
 msgid "Chart Data"
 msgstr "Diagrammdaten"
@@ -1120,7 +1109,7 @@ msgid "New Licenses"
 msgstr "Neue Freistellungen"
 
 msgid "Avg Duration (min)"
-msgstr "Durchschn. Dauer (Min.)"
+msgstr "Durchschnittliche Dauer (Min.)"
 
 msgid "Youth Protection"
 msgstr "Jugendschutz"
@@ -1153,7 +1142,7 @@ msgid "Licenses by Age Group"
 msgstr "Freistellungen nach Altersgruppe"
 
 msgid "Licenses Trend"
-msgstr "Freistellungen-Trend"
+msgstr "Freistellungstrend"
 
 msgid "Confirmation Rate"
 msgstr "Genehmigungsrate"
@@ -1165,7 +1154,7 @@ msgid "License Status Distribution"
 msgstr "Freistellungsstatus-Verteilung"
 
 msgid "Duration Distribution"
-msgstr "Dauer-Verteilung"
+msgstr "Dauerverteilung"
 
 msgid "Youth Protection Categories"
 msgstr "Jugendschutz-Kategorien"
@@ -1210,7 +1199,7 @@ msgid "51-65"
 msgstr "51-65"
 
 msgid "Over 65"
-msgstr "Über 50"
+msgstr "Über 65"
 
 msgid "Member Status"
 msgstr "Mitgliedsstatus"
@@ -1261,7 +1250,7 @@ msgid "Number of Broadcasts"
 msgstr "Anzahl der Sendungen"
 
 msgid "Duration (minutes)"
-msgstr "Dauer (Min.)"
+msgstr "Dauer (Minuten)"
 
 msgid "Information"
 msgstr "Information"
@@ -1288,7 +1277,7 @@ msgid "High"
 msgstr "Hoch"
 
 msgid "Total Notifications"
-msgstr "Gesamte Benachrichtigungen"
+msgstr "Gesamtanzahl Benachrichtigungen"
 
 msgid "Click to view detailed list of all notifications"
 msgstr ""
@@ -1310,14 +1299,14 @@ msgstr ""
 "Benachrichtigungen anzuzeigen"
 
 msgid "Recent Notifications"
-msgstr "Aktuelle Benachrichtigungen"
+msgstr "Neueste Benachrichtigungen"
 
 msgid "Recent (7 days)"
-msgstr "Aktuell (7 Tage)"
+msgstr "Neu (7 Tage)"
 
 msgid "Click to view detailed list of recent notifications"
 msgstr ""
-"Klicken Sie, um eine detaillierte Liste aktueller Benachrichtigungen "
+"Klicken Sie, um eine detaillierte Liste der neuesten Benachrichtigungen "
 "anzuzeigen"
 
 msgid "Currently Active Notifications"
@@ -1357,7 +1346,7 @@ msgid "deactivate"
 msgstr "deaktivieren"
 
 msgid "this notification?"
-msgstr "diese Benachrichtigung möchten?"
+msgstr "diese Benachrichtigung ausführen möchten?"
 
 msgid "Notification status updated successfully"
 msgstr "Benachrichtigungsstatus erfolgreich aktualisiert"
@@ -1375,7 +1364,7 @@ msgid "Error loading data:"
 msgstr "Fehler beim Laden der Daten:"
 
 msgid "Total Records:"
-msgstr "Gesamte Datensätze:"
+msgstr "Gesamtanzahl Datensätze:"
 
 msgid "Displayed:"
 msgstr "Angezeigt:"
@@ -1390,7 +1379,7 @@ msgid "Notification pagination"
 msgstr "Benachrichtigungs-Paginierung"
 
 msgid "Projects Dashboard"
-msgstr "Projekte-Dashboard"
+msgstr "Projektübersicht"
 
 msgid "Project Category"
 msgstr "Projektkategorie"
@@ -1408,7 +1397,7 @@ msgid "All Leaders"
 msgstr "Alle Leiter"
 
 msgid "External Venue"
-msgstr "Externe Veranstaltungsstätte"
+msgstr "Externer Veranstaltungsort"
 
 msgid "External Only"
 msgstr "Nur extern"
@@ -1420,13 +1409,13 @@ msgid "Democracy Project"
 msgstr "Demokratieprojekt"
 
 msgid "TOTAL PROJECTS"
-msgstr "GESAMTE PROJEKTE"
+msgstr "GESAMTPROJEKTE"
 
 msgid "External Venue Projects"
-msgstr "Projekte mit externer Veranstaltungsstätte"
+msgstr "Projekte mit externem Veranstaltungsort"
 
 msgid "EXTERNAL VENUE"
-msgstr "EXTERNE VERANSTALTUNGSSTÄTTE"
+msgstr "EXTERNER VERANSTALTUNGSORT"
 
 msgid "Youth Protection Projects"
 msgstr "Jugendschutzprojekte"
@@ -1441,10 +1430,10 @@ msgid "DEMOCRACY PROJECTS"
 msgstr "DEMOKRATIEPROJEKTE"
 
 msgid "TOTAL PARTICIPANTS"
-msgstr "GESAMTE TEILNEHMER"
+msgstr "GESAMTTEILNEHMENDE"
 
 msgid "AVG PARTICIPANTS"
-msgstr "DURCHSCHN. TEILNEHMER"
+msgstr "DURCHSCHNITTL. TEILNEHMENDE"
 
 msgid "Projects by Category"
 msgstr "Projekte nach Kategorie"
@@ -1456,16 +1445,16 @@ msgid "Top Project Leaders"
 msgstr "Top-Projektleiter"
 
 msgid "Participants by Age Groups"
-msgstr "Teilnehmer nach Altersgruppen"
+msgstr "Teilnehmende nach Altersgruppen"
 
 msgid "Participants by Gender"
-msgstr "Teilnehmer nach Geschlecht"
+msgstr "Teilnehmende nach Geschlecht"
 
 msgid "Project Characteristics"
 msgstr "Projektmerkmale"
 
 msgid "Projects Trend"
-msgstr "Projekte-Trend"
+msgstr "Projekttrend"
 
 msgid "Number of Projects"
 msgstr "Anzahl der Projekte"
@@ -1474,10 +1463,10 @@ msgid "Not Given"
 msgstr "Nicht angegeben"
 
 msgid "Participants"
-msgstr "Teilnehmer"
+msgstr "Teilnehmende"
 
 msgid "Number of Participants"
-msgstr "Anzahl der Teilnehmer"
+msgstr "Anzahl der Teilnehmenden"
 
 msgid "Youth Media Protection"
 msgstr "Jugendmedienschutz"
@@ -1495,10 +1484,10 @@ msgid "All Projects"
 msgstr "Alle Projekte"
 
 msgid "Projects with Participants"
-msgstr "Projekte mit Teilnehmern"
+msgstr "Projekte mit Teilnehmenden"
 
 msgid "Projects by Average Participants"
-msgstr "Projekte nach durchschnittlichen Teilnehmern"
+msgstr "Projekte nach durchschnittlichen Teilnehmenden"
 
 msgid "Project Details"
 msgstr "Projektdetails"
@@ -1534,7 +1523,7 @@ msgid "Member vs Non-Member"
 msgstr "Mitglied vs. Nicht-Mitglied"
 
 msgid "Registration Trend"
-msgstr "Registrierungs-Trend"
+msgstr "Registrierungstrend"
 
 msgid "User Count"
 msgstr "Nutzeranzahl"
@@ -1555,7 +1544,7 @@ msgid "New Registrations"
 msgstr "Neue Registrierungen"
 
 msgid "Number of New Registrations"
-msgstr "Anzahl neuer Registrierungen"
+msgstr "Anzahl der neuen Registrierungen"
 
 msgid "users"
 msgstr "Nutzer"
@@ -1574,7 +1563,7 @@ msgstr ""
 "Daten oder basic_stats sind ungültig, Statistik-Update wird übersprungen"
 
 msgid "updateStatisticsCards END (early return)"
-msgstr "updateStatisticsCards END (vorzeitige Rückkehr)"
+msgstr "updateStatisticsCards END (vorzeitige Rückgabe)"
 
 msgid "Elements to update:"
 msgstr "Zu aktualisierende Elemente:"
@@ -1616,7 +1605,7 @@ msgid "Projects Statistics"
 msgstr "Projektstatistiken"
 
 msgid "Media Data Statistics"
-msgstr "Mediendaten-Statistik"
+msgstr "Mediendatenstatistik"
 
 msgid "User {}"
 msgstr "Nutzer {}"

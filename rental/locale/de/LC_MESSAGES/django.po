@@ -92,19 +92,19 @@ msgid "Invalid or expired link"
 msgstr "Ungültiger oder abgelaufener Link"
 
 msgid "This approval link is invalid or has expired."
-msgstr "Dieser Freigabelink ist ungültig oder abgelaufen."
+msgstr "Dieser Genehmigungslink ist ungültig oder abgelaufen."
 
 msgid "Invalid link"
 msgstr "Ungültiger Link"
 
 msgid "This approval link does not match the request."
-msgstr "Dieser Freigabelink stimmt nicht mit der Anfrage überein."
+msgstr "Dieser Genehmigungslink stimmt nicht mit der Anfrage überein."
 
 msgid "Invalid action"
 msgstr "Ungültige Aktion"
 
 msgid "Unsupported approval action."
-msgstr "Nicht unterstützte Freigabeaktion."
+msgstr "Nicht unterstützte Genehmigungsaktion."
 
 msgid "Nothing to do"
 msgstr "Nichts zu tun"
@@ -213,21 +213,17 @@ msgid ""
 "Automatic expiration of expired room rentals: processed {} rentals, auto-"
 "returned reservations: {}, returned rentals: {}"
 msgstr ""
-"Automatische Ablauffrist für abgelaufene Raumausleihen: {} Ausleihen "
-"verarbeitet, automatisch zurückgegebene Reservierungen: {}, zurückgegebene "
-"Ausleihen: {}"
+"Automatisches Ablaufen abgelaufener Raumausleihen: {} Ausleihen verarbeitet, automatisch zurückgegebene Reservierungen: {}, zurückgegebene Ausleihen: {}"
 
 msgid "Error during automatic expiration of expired room rentals: {}"
-msgstr ""
-"Fehler während der automatischen Ablauffrist für abgelaufene Raumausleihen: "
-"{}"
+msgstr "Fehler beim automatischen Ablaufen abgelaufener Raumausleihen: {}"
 
 msgid ""
 "\n"
 "🎉 Automatic expiration of expired room rentals completed!"
 msgstr ""
 "\n"
-"🎉 Automatische Verarbeitung abgelaufener Raumausleihen abgeschlossen!"
+"🎉 Automatisches Ablaufen abgelaufener Raumausleihen abgeschlossen!"
 
 msgid "Create missing issue transactions for rental items."
 msgstr "Fehlende Ausgabebuchungen für Ausleihartikel erstellen."
@@ -287,7 +283,7 @@ msgstr ""
 
 msgid "Fix quantity_issued for rental items based on transactions."
 msgstr ""
-"Ausgegebene Menge der Ausleihartikel basierend auf Buchungen korrigieren."
+"Ausgegebene Menge der Ausleihartikel anhand der Buchungen korrigieren."
 
 msgid "Fix all items, not just those with incorrect values"
 msgstr "Alle Artikel korrigieren, nicht nur jene mit falschen Werten"
@@ -320,14 +316,13 @@ msgstr ""
 "✅ Erfolgreich {} Ausleihartikel korrigiert"
 
 msgid "📊 Total correction: {} units"
-msgstr "📊 Gesamtkorrektur: {} Stück"
+msgstr "📊 Gesamtkorrektur: {} Einheiten"
 
 msgid ""
 "Fixed quantity_issued for rental items: fixed {} items, total correction: {} "
 "units"
 msgstr ""
-"Ausgegebene Menge bei Ausleihartikeln korrigiert: {} Artikel korrigiert, "
-"Gesamtkorrektur: {} Stück"
+"Ausgegebene Menge bei Ausleihartikeln korrigiert: {} Artikel korrigiert, Gesamtkorrektur: {} Einheiten"
 
 msgid "Error during fix of quantity_issued: {}"
 msgstr "Fehler bei der Korrektur der ausgegebenen Menge: {}"
@@ -385,7 +380,7 @@ msgid "No rooms"
 msgstr "Keine Räume"
 
 msgid "Inventory item"
-msgstr "Inventarartikel"
+msgstr "Inventargegenstand"
 
 msgid "Search by number, description, manufacturer"
 msgstr "Suche nach Nummer, Beschreibung, Hersteller"
@@ -403,8 +398,7 @@ msgid "Actual return date"
 msgstr "Tatsächliches Rückgabedatum"
 
 msgid "Date when the item was actually returned (auto-filled on return)"
-msgstr ""
-"Datum der tatsächlichen Rückgabe (wird bei Rückgabe automatisch ausgefüllt)"
+msgstr "Datum, an dem der Artikel tatsächlich zurückgegeben wurde (wird bei der Rückgabe automatisch ausgefüllt)"
 
 msgid "Rental item"
 msgstr "Ausleihartikel"
@@ -431,10 +425,10 @@ msgid "Is required"
 msgstr "Ist erforderlich"
 
 msgid "Equipment set item"
-msgstr "Gerätesatz-Artikel"
+msgstr "Gerätesatz-Beitrag"
 
 msgid "Equipment set items"
-msgstr "Gerätesatz-Artikel"
+msgstr "Gerätesatz-Beiträge"
 
 msgid "Reserve"
 msgstr "Reservieren"
@@ -553,23 +547,20 @@ msgstr "Anzahl der Personen, die den Raum nutzen"
 msgid ""
 "Room rental start date. If not specified, uses rental request start date."
 msgstr ""
-"Startdatum der Raummiete. Falls nicht angegeben, wird das Startdatum der "
-"Mietanfrage verwendet."
+"Startdatum der Raummiete. Falls nicht angegeben, wird das Startdatum der Ausleihanfrage verwendet."
 
 msgid "Room rental end date. If not specified, uses rental request end date."
 msgstr ""
-"Enddatum der Raummiete. Falls nicht angegeben, wird das Enddatum der "
-"Mietanfrage verwendet."
+"Enddatum der Raummiete. Falls nicht angegeben, wird das Enddatum der Ausleihanfrage verwendet."
 
 msgid "Additional notes for room rental"
 msgstr "Zusätzliche Hinweise zur Raummiete"
 
 msgid "Nextcloud Event URL"
-msgstr "Nextcloud Ereignis-URL"
+msgstr "Nextcloud-Ereignis-URL"
 
 msgid "URL of the event in Nextcloud Calendar (for CalDAV sync)"
-msgstr ""
-"URL des Ereignisses im Nextcloud-Kalender (für CalDAV-Synchronisierung)"
+msgstr "URL des Ereignisses im Nextcloud-Kalender (für CalDAV-Synchronisierung)"
 
 msgid "Room rental"
 msgstr "Raummiete"
@@ -593,7 +584,7 @@ msgid ""
 "Name of the equipment template (e.g., \"Concert Setup\", \"Workshop "
 "Equipment\")"
 msgstr ""
-"Name der Gerätev orlage (z. B. \"Konzertaufbau\", \"Workshop-Ausrüstung\")"
+"Name der Gerätevorlage (z. B. \"Konzertaufbau\", \"Workshop-Ausrüstung\")"
 
 msgid "Optional description of what this template is used for"
 msgstr "Optionale Beschreibung, wofür diese Vorlage verwendet wird"
@@ -614,7 +605,7 @@ msgid "Template"
 msgstr "Vorlage"
 
 msgid "Inventory Item"
-msgstr "Inventarartikel"
+msgstr "Inventargegenstand"
 
 msgid "Default quantity for this item in the template"
 msgstr "Standardmenge für diesen Artikel in der Vorlage"
@@ -637,16 +628,16 @@ msgstr "Basis-URL der Website"
 msgid ""
 "Base URL for approval links in emails (must match your production domain)"
 msgstr ""
-"Basis-URL für Genehmigungslinks in E-Mails (muss Ihrer Produktionsdomäne "
-"entsprechen)"
+"Basis-URL für Genehmigungslinks in E-Mails (muss mit Ihrer Produktionsdomäne "
+"übereinstimmen)"
 
 msgid "Rental Request URL Template"
-msgstr "URL-Vorlage für Ausleihanfrage"
+msgstr "URL-Vorlage für Ausleihanfragen"
 
 #, python-brace-format
 msgid "User-facing rental request URL template (use {rental_id} placeholder)"
 msgstr ""
-"URL-Vorlage für nutzerorientierte Ausleihanfrage (Platzhalter {rental_id} "
+"URL-Vorlage für benutzerorientierte Ausleihanfragen (Platzhalter {rental_id} "
 "verwenden)"
 
 msgid "Approval Recipient Emails"
@@ -656,30 +647,30 @@ msgid ""
 "Comma-separated list of admin email addresses to notify (optional, if empty "
 "all staff users will be notified)"
 msgstr ""
-"Kommagetrennte Liste von Admin-E-Mail-Adressen zum Benachrichtigen "
-"(optional, wenn leer werden alle Mitarbeiter benachrichtigt)"
+"Kommagetrennte Liste der Admin-E-Mail-Adressen zur Benachrichtigung "
+"(optional, wenn leer, werden alle Mitarbeitenden benachrichtigt)"
 
 msgid "Approval Token Max Age (seconds)"
-msgstr "Maximales Alter des Genehmigungstokens (Sekunden)"
+msgstr "Maximales Alter des Genehmigungs-Tokens (Sekunden)"
 
 msgid "Token expiration time for approve/deny links in seconds"
-msgstr "Ablaufzeit für Genehmigungs-/Ablehnungslinks in Sekunden"
+msgstr "Token-Ablaufzeit für Genehmigen-/Ablehnen-Links in Sekunden"
 
 msgid "Rental Configuration"
-msgstr "Ausleihe-Konfiguration"
+msgstr "Ausleih-Konfiguration"
 
 msgid "Cannot reserve more than requested."
 msgstr "Es kann nicht mehr reserviert werden als angefordert."
 
 msgid "Cannot return more than outstanding issued."
 msgstr ""
-"Es kann nicht mehr zurückgegeben werden als noch offen ausgegeben wurde."
+"Es kann nicht mehr zurückgegeben werden, als noch offen ausgegeben wurde."
 
 msgid ""
 "Nextcloud Calendar integration is disabled. Set "
 "NEXTCLOUD_CALENDAR_ENABLED=true to enable."
 msgstr ""
-"Die Integration des Nextcloud-Kalenders ist deaktiviert. Setze "
+"Die Integration des Nextcloud-Kalenders ist deaktiviert. Setzen Sie "
 "NEXTCLOUD_CALENDAR_ENABLED=true, um sie zu aktivieren."
 
 msgid ""
@@ -687,7 +678,7 @@ msgid ""
 "with: pip install caldav"
 msgstr ""
 "Die caldav-Bibliothek wird für die Integration des Nextcloud-Kalenders "
-"benötigt. Installiere sie mit: pip install caldav"
+"benötigt. Installieren Sie sie mit: pip install caldav"
 
 #, python-brace-format
 msgid ""
@@ -732,7 +723,7 @@ msgid "Notes:"
 msgstr "Notizen:"
 
 msgid "Request Notes:"
-msgstr "Bemerkungen zur Anfrage:"
+msgstr "Anmerkungen zur Anfrage:"
 
 msgid "Project name is required"
 msgstr "Projektname ist erforderlich"
@@ -750,18 +741,18 @@ msgid "End date must be after start date"
 msgstr "Enddatum muss nach dem Startdatum liegen"
 
 msgid "Please select at least one item or room"
-msgstr "Bitte wähle mindestens einen Artikel oder Raum aus"
+msgstr "Bitte wählen Sie mindestens einen Beitrag oder Raum aus"
 
 msgid "User does not have access to one or more selected items"
 msgstr ""
-"Der Nutzer hat keinen Zugriff auf einen oder mehrere ausgewählte Artikel"
+"Der Nutzer hat keinen Zugriff auf einen oder mehrere ausgewählte Beiträge"
 
 #, python-brace-format
 msgid ""
 "Item is not available for the selected period. Available: {available}, "
 "requested: {requested}"
 msgstr ""
-"Artikel ist im ausgewählten Zeitraum nicht verfügbar. Verfügbar: "
+"Beitrag ist im gewählten Zeitraum nicht verfügbar. Verfügbar: "
 "{available}, angefragt: {requested}"
 
 msgid "Room not found"
@@ -769,7 +760,7 @@ msgstr "Raum nicht gefunden"
 
 #, python-brace-format
 msgid "Room \"{room_name}\" is not available for the selected period"
-msgstr "Raum \"{room_name}\" ist im ausgewählten Zeitraum nicht verfügbar"
+msgstr "Raum \"{room_name}\" ist im gewählten Zeitraum nicht verfügbar"
 
 msgid "Only draft, reserved or issued rentals can be cancelled"
 msgstr ""
@@ -799,7 +790,7 @@ msgstr "Erstellen"
 #, python-format
 msgid "A new rental request needs approval in %(ok_name)s (ID: %(rental_id)s)."
 msgstr ""
-"Eine neue Leihanfrage benötigt Freigabe in %(ok_name)s (ID: %(rental_id)s)."
+"Eine neue Leihanfrage benötigt Genehmigung in %(ok_name)s (ID: %(rental_id)s)."
 
 #, python-format
 msgid "Name: %(first_name)s %(last_name)s"
@@ -822,59 +813,57 @@ msgid "Period: %(start)s – %(end)s"
 msgstr "Zeitraum: %(start)s – %(end)s"
 
 msgid "Approve:"
-msgstr "Freigeben:"
+msgstr "Genehmigen:"
 
 msgid "Decline:"
 msgstr "Ablehnen:"
 
 #, python-format
 msgid "Approval required: rental request #%(rental_id)s"
-msgstr "Freigabe erforderlich: Leihanfrage Nr. %(rental_id)s"
+msgstr "Genehmigung erforderlich: Leihanfrage Nr. %(rental_id)s"
 
 msgid "Status: Approved ✓"
-msgstr "Status: Freigegeben ✓"
+msgstr "Status: Genehmigt ✓"
 
 #, python-format
 msgid ""
 "Your rental request #%(rental_id)s in %(ok_name)s has been approved and is "
 "now reserved."
 msgstr ""
-"Deine Leihanfrage Nr. %(rental_id)s in %(ok_name)s wurde freigegeben und ist "
+"Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde genehmigt und ist "
 "jetzt reserviert."
 
-#, fuzzy
-#| msgid "Rental request"
 msgid "Open your request:"
-msgstr "Ausleihanfrage"
+msgstr "Öffne deine Anfrage:"
 
 #, python-format
 msgid "Items (%(items_total)s total):"
-msgstr ""
+msgstr "Beiträge (%(items_total)s insgesamt):"
 
 #, python-format
 msgid "Rooms (%(rooms_total)s total):"
-msgstr ""
+msgstr "Räume (%(rooms_total)s insgesamt):"
 
 msgid "people"
 msgstr "Personen"
 
 msgid "Your rental is confirmed. You can proceed with your project."
-msgstr "Deine Ausleihe ist bestätigt. Du kannst mit deinem Projekt fortfahren."
+msgstr "Deine Ausleihe ist genehmigt. Du kannst mit deinem Projekt fortfahren."
 
 #, python-format
 msgid "Please reference request #%(rental_id)s in any communication."
-msgstr "Bitte gib die Anfrage-Nummer %(rental_id)s in jeder Kommunikation an."
+msgstr "Bitte gib die Anfrage-Nr. %(rental_id)s bei jeder Kommunikation an."
 
 #, python-format
 msgid "Rental request #%(rental_id)s has been approved"
-msgstr "Leihanfrage Nr. %(rental_id)s wurde freigegeben"
+msgstr "Ausleihanfrage Nr. %(rental_id)s wurde genehmigt"
 
 msgid "Status: Declined ✗"
 msgstr "Status: Abgelehnt ✗"
 
 #, python-format
 msgid "Your rental request #%(rental_id)s in %(ok_name)s has been declined."
-msgstr "Deine Leihanfrage Nr. %(rental_id)s in %(ok_name)s wurde abgelehnt."
+msgstr "Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde abgelehnt."
 
 #, python-format
 msgid ""
@@ -882,25 +871,25 @@ msgid ""
 "contact the %(ok_name)s administration."
 msgstr ""
 "Wenn du Fragen hast oder eine überarbeitete Anfrage einreichen möchtest, "
-"wende dich bitte an die Administration von %(ok_name)s."
+"wende dich bitte an die Verwaltung von %(ok_name)s."
 
 msgid "Contact:"
 msgstr "Kontakt:"
 
 #, python-format
 msgid "Rental request #%(rental_id)s has been declined"
-msgstr "Leihanfrage Nr. %(rental_id)s wurde abgelehnt"
+msgstr "Ausleihanfrage Nr. %(rental_id)s wurde abgelehnt"
 
 msgid "Status: Pending approval"
-msgstr "Status: Freigabe ausstehend"
+msgstr "Status: Genehmigung ausstehend"
 
 #, python-format
 msgid ""
 "Your rental request #%(rental_id)s in %(ok_name)s has been submitted and is "
 "pending approval."
 msgstr ""
-"Deine Leihanfrage Nr. %(rental_id)s in %(ok_name)s wurde eingereicht und "
-"wartet auf Freistellung."
+"Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde eingereicht und "
+"wartet auf Genehmigung."
 
 msgid ""
 "You will receive an email notification once your request has been reviewed."
@@ -909,7 +898,7 @@ msgstr ""
 
 #, python-format
 msgid "Rental request #%(rental_id)s is pending approval"
-msgstr "Leihanfrage Nr. %(rental_id)s wartet auf Freistellung"
+msgstr "Ausleihanfrage Nr. %(rental_id)s wartet auf Genehmigung"
 
 msgid "Access Denied"
 msgstr "Zugriff verweigert"
@@ -966,7 +955,7 @@ msgid "Select Equipment"
 msgstr "Ausrüstung auswählen"
 
 msgid "No items selected"
-msgstr "Keine Artikel ausgewählt"
+msgstr "Keine Beiträge ausgewählt"
 
 msgid "Action"
 msgstr "Aktion"
@@ -1005,26 +994,20 @@ msgstr "Ausrüstungssets"
 msgid "User Statistics"
 msgstr "Nutzerstatistiken"
 
-#, fuzzy
-#| msgid "Active Rentals"
 msgid "Active requests"
-msgstr "Aktive Ausleihen"
+msgstr "Aktive Anfragen"
 
-#, fuzzy
-#| msgid "Quantity requested"
 msgid "No active requests"
-msgstr "Angeforderte Menge"
+msgstr "Keine aktiven Anfragen"
 
-#, fuzzy
-#| msgid "Requested"
 msgid "Request"
-msgstr "Angefordert"
+msgstr "Anfrage"
 
 msgid "Period"
 msgstr "Zeitraum"
 
 msgid "Items"
-msgstr "Artikel"
+msgstr "Beiträge"
 
 msgid "Available Inventory"
 msgstr "Verfügbares Inventar"
@@ -1057,7 +1040,7 @@ msgid "Returned Rentals"
 msgstr "Zurückgegebene Ausleihen"
 
 msgid "Loading returned rentals..."
-msgstr "Lade zurückgegebene Ausleihen..."
+msgstr "Zurückgegebene Ausleihen werden geladen..."
 
 msgid "Overdue Rentals"
 msgstr "Überfällige Ausleihen"
@@ -1066,7 +1049,7 @@ msgid "Loading overdue rentals..."
 msgstr "Überfällige Ausleihen werden geladen..."
 
 msgid "Return Items"
-msgstr "Artikel zurückgeben"
+msgstr "Beiträge zurückgeben"
 
 msgid "Process Return"
 msgstr "Rückgabe bearbeiten"
@@ -1093,13 +1076,13 @@ msgid "Available Sets"
 msgstr "Verfügbare Sets"
 
 msgid "Loading sets..."
-msgstr "Lade Sets..."
+msgstr "Sets werden geladen..."
 
 msgid "Set Contents"
 msgstr "Set-Inhalte"
 
 msgid "Select a set to see contents"
-msgstr "Wähle ein Set, um die Inhalte anzuzeigen"
+msgstr "Wählen Sie ein Set, um die Inhalte anzuzeigen"
 
 msgid "Add Set to Rental"
 msgstr "Set zur Ausleihe hinzufügen"
@@ -1123,7 +1106,7 @@ msgid "Scheduling"
 msgstr "Zeitplanung"
 
 msgid "Select a room to schedule time"
-msgstr "Wähle einen Raum für die Zeitplanung"
+msgstr "Wählen Sie einen Raum für die Zeitplanung"
 
 msgid "Select Room"
 msgstr "Raum auswählen"
@@ -1153,13 +1136,13 @@ msgid "Add Room to Rental"
 msgstr "Raum zur Ausleihe hinzufügen"
 
 msgid "Issue Equipment from Reservation"
-msgstr "Geräte aus Reservierung ausgeben"
+msgstr "Geräte aus Reservierung herausgeben"
 
 msgid "Rooms remain reserved and are not issued"
 msgstr "Räume bleiben reserviert und werden nicht ausgegeben"
 
 msgid "Equipment Items"
-msgstr "Geräteartikel"
+msgstr "Gerätegegenstände"
 
 msgid "Rooms (Reserved Only)"
 msgstr "Räume (nur reserviert)"
@@ -1196,10 +1179,10 @@ msgid "Optional notes"
 msgstr "Optionale Hinweise"
 
 msgid "Issue Equipment"
-msgstr "Geräte ausgeben"
+msgstr "Geräte herausgeben"
 
 msgid "Add Equipment to Issue"
-msgstr "Geräte zum Ausgeben hinzufügen"
+msgstr "Beitrag zum Herausgeben hinzufügen"
 
 msgid "Search by inventory number or description"
 msgstr "Suche nach Inventarnummer oder Beschreibung"
@@ -1208,12 +1191,12 @@ msgid "Search..."
 msgstr "Suchen..."
 
 msgid "Loading available items..."
-msgstr "Verfügbare Artikel werden geladen..."
+msgstr "Verfügbare Beiträge werden geladen..."
 
 msgid "Click '+' to add items. Modal stays open for multiple selections."
 msgstr ""
-"Klicken Sie auf '+', um Artikel hinzuzufügen. Das Fenster bleibt zum "
-"Auswählen mehrerer Artikel geöffnet."
+"Klicken Sie auf '+', um Beiträge hinzuzufügen. Das Fenster bleibt zum "
+"Auswählen mehrerer Beiträge geöffnet."
 
 msgid "You can close this page now."
 msgstr "Sie können diese Seite jetzt schließen."
@@ -1323,10 +1306,8 @@ msgstr "Zurück zum Ausleihprozess"
 msgid "Administration"
 msgstr "Verwaltung"
 
-#, fuzzy
-#| msgid "Confirmation Required"
 msgid "Confirm request"
-msgstr "Bestätigung erforderlich"
+msgstr "Anfrage bestätigen"
 
 msgid "Save return"
 msgstr "Rückgabe speichern"
@@ -1431,7 +1412,7 @@ msgid "Mixed"
 msgstr "Gemischt"
 
 msgid "Automatic expiration of room reservations and rentals"
-msgstr "Automatisches Ablaufen von Raumreservierungen und Ausleihen"
+msgstr "Automatisches Ablaufdatum für Raumreservierungen und Ausleihvorgänge"
 
 msgid "Expire Rooms"
 msgstr "Räume ablaufen lassen"
@@ -1449,7 +1430,7 @@ msgid "Search by number or description"
 msgstr "Suche nach Nummer oder Beschreibung"
 
 msgid "Rented"
-msgstr "Ausgeliehen"
+msgstr "Verliehen"
 
 msgid "Inventory No."
 msgstr "Inventarnummer"
@@ -1494,13 +1475,13 @@ msgid "Reset Inventory Quantities"
 msgstr "Inventarmengen zurücksetzen"
 
 msgid "Sets all reserved_quantity and rented_quantity to 0"
-msgstr "Setzt alle reservierten und ausgeliehenen Mengen auf 0"
+msgstr "Setzt alle reservierten und verliehenen Mengen auf 0"
 
 msgid "Cancel Active Rentals"
 msgstr "Aktive Ausleihen stornieren"
 
 msgid "Cancels all active rentals and resets inventory quantities"
-msgstr "Storniert alle aktiven Ausleihen und setzt die Inventarmengen zurück"
+msgstr "Bricht alle aktiven Ausleihvorgänge ab und setzt die Inventarmengen zurück"
 
 msgid "Delete All Data"
 msgstr "Alle Daten löschen"
@@ -1533,7 +1514,7 @@ msgid "No items added"
 msgstr "Keine Artikel hinzugefügt"
 
 msgid "Save Set"
-msgstr "Satz speichern"
+msgstr "Set speichern"
 
 msgid "Confirmation Required"
 msgstr "Bestätigung erforderlich"
@@ -1547,30 +1528,20 @@ msgstr "um fortzufahren"
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#, fuzzy
-#| msgid "Rental request"
 msgid "Your rental request"
-msgstr "Ausleihanfrage"
+msgstr "Ihre Ausleihanfrage"
 
-#, fuzzy
-#| msgid "Status: Pending approval"
 msgid "Pending approval"
-msgstr "Status: Freigabe ausstehend"
+msgstr "Genehmigung ausstehend"
 
-#, fuzzy
-#| msgid "Equipment Items"
 msgid "No equipment items."
-msgstr "Geräteartikel"
+msgstr "Keine Geräteartikel."
 
-#, fuzzy
-#| msgid "people"
 msgid "People"
 msgstr "Personen"
 
-#, fuzzy
-#| msgid "No rooms"
 msgid "No rooms."
-msgstr "Keine Räume"
+msgstr "Keine Räume."
 
 msgid "You must log in to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zugreifen zu können."
@@ -1619,19 +1590,17 @@ msgstr " und {count} weitere"
 msgid "Rental ID is required"
 msgstr "Ausleih-ID ist erforderlich"
 
-#, fuzzy
-#| msgid "Only active rentals can be extended"
 msgid "Only draft requests can be confirmed"
-msgstr "Nur aktive Ausleihen können verlängert werden"
+msgstr "Nur Entwurfsanfragen können bestätigt werden"
 
 msgid "Rental ID and items are required"
-msgstr "Ausleih-ID und Artikel sind erforderlich"
+msgstr "Ausleih-ID und Ausleihen sind erforderlich"
 
 msgid "Only active rentals can have returns"
 msgstr "Nur aktive Ausleihen können zurückgegeben werden"
 
 msgid "Items returned successfully"
-msgstr "Artikel erfolgreich zurückgegeben"
+msgstr "Ausleihen erfolgreich zurückgegeben"
 
 msgid "Rental ID and new end date are required"
 msgstr "Ausleih-ID und neues Enddatum sind erforderlich"
@@ -1641,8 +1610,7 @@ msgstr "Nur aktive Ausleihen können verlängert werden"
 
 msgid "Invalid date format. Please use YYYY-MM-DDTHH:MM or ISO format"
 msgstr ""
-"Ungültiges Datumsformat. Bitte verwenden Sie JJJJ-MM-TTSS:MM oder das ISO-"
-"Format"
+"Ungültiges Datumsformat. Bitte verwenden Sie JJJJ-MM-TTSS:MM oder das ISO-Format"
 
 msgid "New end date must be after current end date"
 msgstr "Neues Enddatum muss nach dem aktuellen Enddatum liegen"
@@ -1653,7 +1621,7 @@ msgstr "Ungültiges Datumsformat: {error}"
 
 #, python-brace-format
 msgid "Rental request {rental_id} has been extended until {end_date}"
-msgstr "Leihanfrage {rental_id} wurde bis {end_date} verlängert"
+msgstr "Ausleihanfrage {rental_id} wurde bis {end_date} verlängert"
 
 msgid "Invalid confirmation code"
 msgstr "Ungültiger Bestätigungscode"
@@ -1662,27 +1630,25 @@ msgid ""
 "All rental data has been reset (inventory quantities reset not supported "
 "through API)"
 msgstr ""
-"Alle Ausleihdaten wurden zurückgesetzt (Inventarmengen-Reset über API nicht "
-"unterstützt)"
+"Alle Ausleihdaten wurden zurückgesetzt (Rücksetzung der Ausleihmengen über die API nicht unterstützt)"
 
 msgid "Inventory quantities reset not supported through API"
-msgstr "Inventarmengen-Reset über API nicht unterstützt"
+msgstr "Ausleihmengen-Reset über API nicht unterstützt"
 
 #, python-brace-format
 msgid ""
 "{count} active rentals have been cancelled (inventory quantities reset not "
 "supported through API)"
 msgstr ""
-"{count} aktive Ausleihen wurden storniert (Inventarmengen-Reset über API "
-"nicht unterstützt)"
+"{count} aktive Ausleihen wurden storniert (Ausleihmengen-Reset über API nicht unterstützt)"
 
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully created."
-msgstr "Gerätesatz \"{name}\" wurde erfolgreich erstellt."
+msgstr "Ausrünstungsset \"{name}\" wurde erfolgreich erstellt."
 
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully deleted."
-msgstr "Gerätesatz \"{name}\" wurde erfolgreich gelöscht."
+msgstr "Ausrüstungsset \"{name}\" wurde erfolgreich gelöscht."
 
 #, python-brace-format
 msgid "Error loading rental: {error}"
@@ -1692,7 +1658,7 @@ msgid "Only POST method allowed"
 msgstr "Nur POST-Methode erlaubt"
 
 msgid "Automatic expiration of room rentals completed"
-msgstr "Automatisches Ablaufen der Raumausleihen abgeschlossen"
+msgstr "Automatisches Auslaufen der Raumausleihen abgeschlossen"
 
 #, python-brace-format
 msgid "Error executing command: {error}"
@@ -1711,22 +1677,22 @@ msgid "Invalid date/time format"
 msgstr "Ungültiges Datums-/Zeitformat"
 
 msgid "Room is available for the selected period."
-msgstr "Raum ist für den gewählten Zeitraum verfügbar."
+msgstr "Raum ist für den ausgewählten Zeitraum verfügbar."
 
 msgid "Room is not available for the selected period."
-msgstr "Raum ist für den gewählten Zeitraum nicht verfügbar."
+msgstr "Raum ist für den ausgewählten Zeitraum nicht verfügbar."
 
 msgid "Template name is required"
 msgstr "Vorlagenname ist erforderlich"
 
 msgid "At least one item is required"
-msgstr "Mindestens ein Artikel ist erforderlich"
+msgstr "Mindestens eine Ausleihe ist erforderlich"
 
 msgid "Template with this name already exists"
 msgstr "Eine Vorlage mit diesem Namen existiert bereits"
 
 msgid "Invalid inventory item ID"
-msgstr "Ungültige Inventarartikel-ID"
+msgstr "Ungültige Ausleihartikel-ID"
 
 msgid "Template saved successfully"
 msgstr "Vorlage erfolgreich gespeichert"
@@ -1738,14 +1704,13 @@ msgid "Template deleted successfully"
 msgstr "Vorlage erfolgreich gelöscht"
 
 msgid "Rental must be in draft or reserved status to issue"
-msgstr "Ausleihe muss im Status 'Entwurf' oder 'reserviert' zum Ausgeben sein"
+msgstr "Ausleihe muss im Status 'Entwurf' oder 'reserviert' zum Ausleihen sein"
 
 msgid ""
 "Cannot issue rental with only rooms. Equipment is required to change status "
 "from reserved to issued."
 msgstr ""
-"Ausleihen mit nur Räumen können nicht ausgegeben werden. Es wird Ausrüstung "
-"benötigt, um den Status von 'reserviert' auf 'ausgegeben' zu ändern."
+"Ausleihen mit nur Räumen können nicht ausgeliehen werden. Es wird Ausrüstung benötigt, um den Status von 'reserviert' auf 'ausgeliehen' zu ändern."
 
 msgid "Invalid user ID"
 msgstr "Ungültige Nutzer-ID"
@@ -1755,19 +1720,17 @@ msgid ""
 "Item \"{item_description}\" is not available in requested quantity. "
 "Available: {available}, requested: {requested}"
 msgstr ""
-"Artikel \"{item_description}\" ist in der angeforderten Menge nicht "
-"verfügbar. Verfügbar: {available}, angefordert: {requested}"
+"Ausleihe \"{item_description}\" ist in der angeforderten Menge nicht verfügbar. Verfügbar: {available}, angefordert: {requested}"
 
 msgid "Inventory item not found"
-msgstr "Inventarartikel nicht gefunden"
+msgstr "Ausleihartikel nicht gefunden"
 
 #, python-brace-format
 msgid ""
 "Item \"{item_description}\" is not available for the selected period. "
 "Available: {available}, requested: {requested}"
 msgstr ""
-"Artikel \"{item_description}\" ist für den ausgewählten Zeitraum nicht "
-"verfügbar. Verfügbar: {available}, angefordert: {requested}"
+"Ausleihe \"{item_description}\" ist für den ausgewählten Zeitraum nicht verfügbar. Verfügbar: {available}, angefordert: {requested}"
 
 msgid "Rental successfully issued from reservation"
-msgstr "Ausleihe erfolgreich aus der Freistellung ausgegeben"
+msgstr "Ausleihe erfolgreich aus der Reservierung ausgeliehen"

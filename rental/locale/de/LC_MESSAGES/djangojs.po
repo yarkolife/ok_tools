@@ -46,11 +46,10 @@ msgid "Select user"
 msgstr "Nutzer auswählen"
 
 msgid "Start typing in the search field above to find users"
-msgstr "Geben Sie oben im Suchfeld ein, um Nutzer zu finden"
+msgstr "Geben Sie oben im Suchfeld etwas ein, um Nutzer zu finden"
 
 msgid "Please select start and end dates to see accurate availability"
-msgstr ""
-"Bitte wählen Sie Start- und Enddatum, um die genaue Verfügbarkeit zu sehen"
+msgstr "Bitte wählen Sie Start- und Enddatum aus, um die genaue Verfügbarkeit anzuzeigen"
 
 msgid "All owners"
 msgstr "Alle Besitzer"
@@ -68,7 +67,7 @@ msgid "Group by Location"
 msgstr "Nach Standort gruppieren"
 
 msgid "No available inventory for this user"
-msgstr "Kein Inventar für diesen Nutzer verfügbar"
+msgstr "Kein verfügbares Inventar für diesen Nutzer"
 
 msgid "Unknown Location"
 msgstr "Unbekannter Standort"
@@ -110,7 +109,7 @@ msgid "No items or rooms selected"
 msgstr "Keine Artikel oder Räume ausgewählt"
 
 msgid "Rooms can only be reserved, not issued"
-msgstr "Räume können nur reserviert, aber nicht ausgegeben werden"
+msgstr "Räume können nur reserviert, nicht ausgegeben werden"
 
 msgid "Issue Immediately"
 msgstr "Sofort ausgeben"
@@ -124,26 +123,18 @@ msgstr "Zurückgegeben"
 msgid "Overdue"
 msgstr "Überfällig"
 
-#, fuzzy
-#| msgid "Active rentals"
 msgid "Active Rentals"
 msgstr "Aktive Ausleihen"
 
 msgid "Error loading statistics:"
-msgstr "Fehler beim Laden der Statistiken:"
+msgstr "Fehler beim Laden der Statistik:"
 
-#, fuzzy
-#| msgid "Active rentals"
 msgid "No active rentals"
-msgstr "Aktive Ausleihen"
+msgstr "Keine aktiven Ausleihen"
 
-#, fuzzy
-#| msgid "Requested"
 msgid "Request"
-msgstr "Angefordert"
+msgstr "Anfrage"
 
-#, fuzzy
-#| msgid "Time Period"
 msgid "Period"
 msgstr "Zeitraum"
 
@@ -172,9 +163,7 @@ msgid "Network error"
 msgstr "Netzwerkfehler"
 
 msgid "Please select at least one equipment item to save as template"
-msgstr ""
-"Bitte wählen Sie mindestens einen Ausrüstungsartikel zum Speichern als "
-"Vorlage aus"
+msgstr "Bitte wählen Sie mindestens einen Ausrüstungsartikel aus, um ihn als Vorlage zu speichern"
 
 msgid "Enter template name:"
 msgstr "Vorlagennamen eingeben:"
@@ -213,7 +202,7 @@ msgid "Template loaded successfully"
 msgstr "Vorlage erfolgreich geladen"
 
 msgid "No items from this template are currently available"
-msgstr "Keine Artikel aus dieser Vorlage sind derzeit verfügbar"
+msgstr "Keine Artikel aus dieser Vorlage sind momentan verfügbar"
 
 msgid "Error loading template"
 msgstr "Fehler beim Laden der Vorlage"
@@ -231,7 +220,7 @@ msgid "Error deleting template"
 msgstr "Fehler beim Löschen der Vorlage"
 
 msgid "Please select a user first"
-msgstr "Bitte wählen Sie zuerst einen Nutzer aus"
+msgstr "Bitte wählen Sie zuerst einen Benutzer aus"
 
 msgid "Please enter a project name"
 msgstr "Bitte geben Sie einen Projektnamen ein"
@@ -243,13 +232,13 @@ msgid "End date must be after start date"
 msgstr "Das Enddatum muss nach dem Startdatum liegen"
 
 msgid "Please select at least one item or room"
-msgstr "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
+msgstr "Bitte wählen Sie mindestens einen Artikel oder einen Raum aus"
 
 msgid ""
 "Rooms can only be reserved, not issued. They will automatically return after "
 "the scheduled time."
 msgstr ""
-"Räume können nur freigestellt, nicht ausgegeben werden. Sie werden nach der "
+"Räume können nur reserviert, nicht ausgegeben werden. Sie werden nach der "
 "geplanten Zeit automatisch zurückgegeben."
 
 msgid " Rooms will automatically return after the scheduled time."
@@ -262,10 +251,10 @@ msgid "Do you really want to reset the entire form?"
 msgstr "Möchten Sie wirklich das gesamte Formular zurücksetzen?"
 
 msgid "Error loading equipment sets"
-msgstr "Fehler beim Laden der Gerätesätze"
+msgstr "Fehler beim Laden der Gerätegruppen"
 
 msgid "No sets available"
-msgstr "Keine Sätze verfügbar"
+msgstr "Keine Gruppen verfügbar"
 
 msgid "No description"
 msgstr "Keine Beschreibung"
@@ -286,16 +275,16 @@ msgid "Missing"
 msgstr "Fehlt"
 
 msgid "items in set"
-msgstr "Artikel im Satz"
+msgstr "Artikel in der Gruppe"
 
 msgid "Detailed information is loading..."
 msgstr "Detaillierte Informationen werden geladen..."
 
 msgid "Please select a user and a set first"
-msgstr "Bitte wählen Sie zuerst einen Nutzer und einen Satz aus"
+msgstr "Bitte wählen Sie zuerst einen Benutzer und eine Gruppe aus"
 
 msgid "Error: Detailed information about the set is not available"
-msgstr "Fehler: Detaillierte Informationen zum Satz sind nicht verfügbar"
+msgstr "Fehler: Detaillierte Informationen zur Gruppe sind nicht verfügbar"
 
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
@@ -337,7 +326,7 @@ msgid "Click for details"
 msgstr "Für Details klicken"
 
 msgid "Unknown user"
-msgstr "Unbekannter Nutzer"
+msgstr "Unbekannter Benutzer"
 
 msgid "No project"
 msgstr "Kein Projekt"
@@ -403,7 +392,7 @@ msgid "(except for holidays)"
 msgstr "(außer an Feiertagen)"
 
 msgid "Please select a user and a room first"
-msgstr "Bitte wählen Sie zuerst einen Nutzer und einen Raum aus"
+msgstr "Bitte wählen Sie zuerst einen Benutzer und einen Raum aus"
 
 msgid "Please select start date and time"
 msgstr "Bitte wählen Sie Startdatum und Startzeit aus"
@@ -412,25 +401,24 @@ msgid "Please select end date"
 msgstr "Bitte wählen Sie das Enddatum aus"
 
 msgid "Please select time between 10:00 and 18:00"
-msgstr "Bitte wählen Sie eine Zeit zwischen 10:00 und 18:00 aus"
+msgstr "Bitte wählen Sie eine Zeit zwischen 10:00 und 18:00 Uhr aus"
 
 msgid "End time must be after start time"
 msgstr "Die Endzeit muss nach der Startzeit liegen"
 
 msgid "Warning: The selected time is in the past. Please select a future time."
 msgstr ""
-"Warnung: Die gewählte Zeit liegt in der Vergangenheit. Bitte wählen Sie eine "
-"zukünftige Zeit."
+"Warnung: Die ausgewählte Zeit liegt in der Vergangenheit. Bitte wählen Sie eine "
+"Zeit in der Zukunft."
 
 msgid "Error loading data"
 msgstr "Fehler beim Laden der Daten"
 
 msgid "Invalid data received"
-msgstr "Ungültige Daten empfangen"
+msgstr "Ungültige Daten erhalten"
 
 msgid "The server returned invalid data. Please try again."
-msgstr ""
-"Der Server hat ungültige Daten zurückgegeben. Bitte versuchen Sie es erneut."
+msgstr "Der Server hat ungültige Daten zurückgegeben. Bitte versuchen Sie es erneut."
 
 msgid "No"
 msgstr "Nein"
@@ -475,7 +463,7 @@ msgid "Issued"
 msgstr "Ausgegeben"
 
 msgid "Outstanding"
-msgstr "Offen"
+msgstr "Ausstehend"
 
 msgid "N/A"
 msgstr "k.A."
@@ -502,7 +490,7 @@ msgid "Error rendering room"
 msgstr "Fehler beim Anzeigen des Raums"
 
 msgid "Issue Equipment from Reservation"
-msgstr "Ausrüstung aus Freistellung ausgeben"
+msgstr "Ausrüstung aus Reservierung ausgeben"
 
 msgid "Print rental"
 msgstr "Ausleihe drucken"
@@ -559,7 +547,7 @@ msgid "Add problem"
 msgstr "Problem hinzufügen"
 
 msgid "Error loading return modal"
-msgstr "Fehler beim Laden des Rückgabe-Modals"
+msgstr "Fehler beim Laden des Rückgabe-Dialogs"
 
 msgid "Select problem"
 msgstr "Problem auswählen"
@@ -577,13 +565,13 @@ msgid "Minor"
 msgstr "Geringfügig"
 
 msgid "Major"
-msgstr "Gravierend"
+msgstr "Schwerwiegend"
 
 msgid "Critical"
 msgstr "Kritisch"
 
 msgid "Description of the problem"
-msgstr "Problembeschreibung"
+msgstr "Beschreibung des Problems"
 
 msgid "All items were returned. The rental is completed."
 msgstr "Alle Artikel wurden zurückgegeben. Die Ausleihe ist abgeschlossen."
@@ -592,10 +580,10 @@ msgid "Error returning items"
 msgstr "Fehler beim Zurückgeben der Artikel"
 
 msgid "Error loading extension modal"
-msgstr "Fehler beim Laden des Verlängerungs-Modals"
+msgstr "Fehler beim Laden des Verlängerungs-Dialogs"
 
 msgid "Please select a new end date"
-msgstr "Bitte wählen Sie ein neues Enddatum"
+msgstr "Bitte wählen Sie ein neues Enddatum aus"
 
 msgid "Invalid date format"
 msgstr "Ungültiges Datumsformat"
@@ -638,42 +626,40 @@ msgid "Draft"
 msgstr "Entwurf"
 
 msgid "Reserved"
-msgstr "Freistellung"
+msgstr "Reserviert"
 
 msgid "Cancelled"
 msgstr "Storniert"
 
 msgid "Reserved (Auto-return)"
-msgstr "Freistellung (automatische Rückgabe)"
+msgstr "Reserviert (automatische Rückgabe)"
 
 msgid "Returned (Auto)"
 msgstr "Zurückgegeben (automatisch)"
 
 msgid "Room is available for the selected period."
-msgstr "Raum ist für den gewählten Zeitraum verfügbar."
+msgstr "Der Raum ist für den gewählten Zeitraum verfügbar."
 
 msgid "Room is not available for the selected period."
-msgstr "Raum ist für den gewählten Zeitraum nicht verfügbar."
+msgstr "Der Raum ist für den gewählten Zeitraum nicht verfügbar."
 
 msgid "Conflicts:"
 msgstr "Konflikte:"
 
 msgid "Error checking room availability:"
-msgstr "Fehler beim Überprüfen der Raumverfügbarkeit:"
+msgstr "Fehler bei der Überprüfung der Raumverfügbarkeit:"
 
 msgid "Error checking room availability. Please try again."
-msgstr ""
-"Fehler beim Überprüfen der Raumverfügbarkeit. Bitte versuchen Sie es erneut."
+msgstr "Fehler bei der Überprüfung der Raumverfügbarkeit. Bitte versuchen Sie es erneut."
 
 msgid ""
 "This rental has no equipment items. Only equipment can be issued from "
 "reservation."
 msgstr ""
-"Diese Ausleihe enthält keine Ausrüstungsgegenstände. Nur Ausrüstung kann aus "
-"einer Freistellung ausgegeben werden."
+"Diese Ausleihe enthält keine Ausrüstungsgegenstände. Nur Ausrüstung kann aus einer Reservierung ausgegeben werden."
 
 msgid "Error loading rental details"
-msgstr "Fehler beim Laden der Ausleihdetails"
+msgstr "Fehler beim Laden der Ausleihe-Details"
 
 msgid "Select staff member"
 msgstr "Mitarbeiter auswählen"
@@ -688,8 +674,7 @@ msgid "Remove item"
 msgstr "Artikel entfernen"
 
 msgid "Are you sure you want to remove this item from the issue?"
-msgstr ""
-"Sind Sie sicher, dass Sie diesen Artikel aus der Ausgabe entfernen möchten?"
+msgstr "Sind Sie sicher, dass Sie diesen Artikel aus der Ausgabe entfernen möchten?"
 
 msgid "Error loading available items"
 msgstr "Fehler beim Laden der verfügbaren Artikel"
@@ -713,35 +698,31 @@ msgid "Auto-return"
 msgstr "Automatische Rückgabe"
 
 msgid "No rental selected for processing"
-msgstr "Keine Ausleihe zur Bearbeitung ausgewählt"
+msgstr "Keine Ausleihe zum Bearbeiten ausgewählt"
 
 msgid "Please fill in all required fields"
 msgstr "Bitte füllen Sie alle erforderlichen Felder aus"
 
 msgid "Rental successfully issued from reservation"
-msgstr "Ausleihe erfolgreich aus der Freistellung ausgegeben"
+msgstr "Ausleihe erfolgreich aus der Reservierung ausgegeben"
 
 msgid "Error issuing rental from reservation"
-msgstr "Fehler beim Ausgeben der Ausleihe aus der Freistellung"
+msgstr "Fehler beim Ausgeben der Ausleihe aus der Reservierung"
 
 msgid "Network error processing issue from reservation"
-msgstr "Netzwerkfehler beim Ausgeben aus der Freistellung"
+msgstr "Netzwerkfehler beim Bearbeiten der Ausgabe aus der Reservierung"
 
 msgid "Save return"
 msgstr "Rückgabe speichern"
 
-#, fuzzy
-#| msgid "items not available"
 msgid "Confirm action is not available."
-msgstr "Artikel nicht verfügbar"
+msgstr "Aktion bestätigen ist nicht verfügbar."
 
 msgid "Confirm this request?"
-msgstr ""
+msgstr "Diese Anfrage bestätigen?"
 
-#, fuzzy
-#| msgid "Error creating rental"
 msgid "Error confirming request: "
-msgstr "Fehler beim Erstellen der Ausleihe"
+msgstr "Fehler beim Bestätigen der Anfrage: "
 
 msgid "Exit return mode"
 msgstr "Rückgabemodus verlassen"
@@ -822,7 +803,7 @@ msgid "Loading sets..."
 msgstr "Lade Sätze..."
 
 msgid "No equipment sets found"
-msgstr "Keine Gerätesätze gefunden"
+msgstr "Keine Ausrüstungssets gefunden"
 
 msgid "Inactive"
 msgstr "Inaktiv"
@@ -831,19 +812,19 @@ msgid "Created"
 msgstr "Erstellt"
 
 msgid "Create Equipment Set"
-msgstr "Gerätesatz erstellen"
+msgstr "Ausrüstungsset erstellen"
 
 msgid "Enter a search term..."
 msgstr "Suchbegriff eingeben..."
 
 msgid "Enter at least 2 characters..."
-msgstr "Mindestens 2 Zeichen eingeben..."
+msgstr "Geben Sie mindestens 2 Zeichen ein..."
 
 msgid "Search error"
-msgstr "Suchfehler"
+msgstr "Fehler bei der Suche"
 
 msgid "This item is already in the set"
-msgstr "Dieser Artikel befindet sich bereits im Satz"
+msgstr "Dieser Artikel befindet sich bereits im Set"
 
 msgid "No items added"
 msgstr "Keine Artikel hinzugefügt"
@@ -858,10 +839,10 @@ msgid "Error saving"
 msgstr "Fehler beim Speichern"
 
 msgid "Are you sure you want to delete the set"
-msgstr "Sind Sie sicher, dass Sie den Satz löschen möchten"
+msgstr "Sind Sie sicher, dass Sie das Set löschen möchten"
 
 msgid "Select a set to see details"
-msgstr "Wählen Sie einen Satz aus, um Details zu sehen"
+msgstr "Wählen Sie ein Set aus, um Details anzuzeigen"
 
 msgid "Error deleting"
 msgstr "Fehler beim Löschen"
@@ -870,11 +851,11 @@ msgid ""
 "Are you sure you want to automatically expire all expired room reservations "
 "and rentals?"
 msgstr ""
-"Sind Sie sicher, dass Sie alle abgelaufenen Raumfreistellungen und Ausleihen "
+"Sind Sie sicher, dass Sie alle abgelaufenen Raumreservierungen und Ausleihen "
 "automatisch als abgelaufen markieren möchten?"
 
 msgid "Processing..."
-msgstr "Verarbeitung..."
+msgstr "Wird verarbeitet..."
 
 msgid "Successfully expired"
 msgstr "Erfolgreich abgelaufen"
@@ -883,7 +864,7 @@ msgid "Total"
 msgstr "Gesamt"
 
 msgid "Auto-returned reservations"
-msgstr "Automatisch zurückgegebene Freistellungen"
+msgstr "Automatisch zurückgegebene Reservierungen"
 
 msgid "Error"
 msgstr "Fehler"
@@ -895,19 +876,19 @@ msgid ""
 "All inventory quantities (reserved/rented) will be set to 0. This action "
 "cannot be undone."
 msgstr ""
-"Alle Bestandsmengen (reserviert/ausgeliehen) werden auf 0 gesetzt. Diese "
+"Alle Bestandsmengen (reserviert/ausgegeben) werden auf 0 gesetzt. Diese "
 "Aktion kann nicht rückgängig gemacht werden."
 
 msgid ""
 "All active rentals will be cancelled and inventory quantities reset. This "
 "action cannot be undone."
 msgstr ""
-"Alle aktiven Ausleihen werden storniert und die Bestandsmengen "
+"Alle aktiven Ausleihen werden storniert und die Bestandsmengen werden "
 "zurückgesetzt. Diese Aktion kann nicht rückgängig gemacht werden."
 
 msgid ""
 "ALL rental data will be deleted and inventory reset. This action CANNOT be "
 "undone!"
 msgstr ""
-"ALLE Ausleihdaten werden gelöscht und der Bestand zurückgesetzt. Diese "
+"ALLE Ausleihdaten werden gelöscht und der Bestand wird zurückgesetzt. Diese "
 "Aktion kann NICHT rückgängig gemacht werden!"

@@ -1,180 +1,145 @@
-# EINIGE BESCHREIBENDE INFORMATIONEN.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# Diese Datei wird unter derselben Lizenz wie das PACKAGE-Paket verteilt.
-# ERSTER AUTOR <EMAIL@ADDRESS>, JAHR.
+# German translations for OK Tools.
+# Copyright (C) 2026 OK Tools
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: OK Tools 4.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-26 23:45+0100\n"
-"PO-Revision-Date: JAHR-MO-TA HO:MI+ZONE\n"
-"Last-Translator: VOLLSTÄNDIGER NAME <EMAIL@ADDRESS>\n"
-"Language-Team: SPRACHE <LL@li.org>\n"
+"PO-Revision-Date: 2026-01-28 12:00+0100\n"
+"Last-Translator: OK Tools Team\n"
+"Language-Team: German\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Broadcast date"
-msgstr "Sendung"
+msgstr "Sendedatum"
 
 msgid "Date from"
-msgstr ""
+msgstr "Datum von"
 
 msgid "From"
-msgstr ""
+msgstr "Von"
 
 msgid "Time from"
-msgstr ""
+msgstr "Zeit von"
 
 msgid "Date to"
-msgstr ""
+msgstr "Datum bis"
 
 msgid "To"
-msgstr ""
+msgstr "Bis"
 
 msgid "Time to"
-msgstr ""
+msgstr "Zeit bis"
 
 msgid "Info block"
-msgstr ""
+msgstr "Infoblock"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Broadcast Date"
-msgstr "Sendung"
+msgstr "Sendedatum"
 
-#, fuzzy
-#| msgid "Start Date"
 msgid "Start Time"
-msgstr "Startdatum"
+msgstr "Startzeit"
 
-#, fuzzy
-#| msgid "End Date"
 msgid "End Time"
-msgstr "Enddatum"
+msgstr "Endzeit"
 
 msgid "Title"
 msgstr "Titel"
 
-#, fuzzy
-#| msgid "Title"
 msgid "Subtitle"
-msgstr "Titel"
+msgstr "Untertitel"
 
-#, fuzzy
-#| msgid "Registration"
 msgid "Description"
-msgstr "Registrierung"
+msgstr "Beschreibung"
 
 msgid "Credits"
-msgstr ""
+msgstr "Mitwirkende"
 
 msgid "Category"
 msgstr "Kategorie"
 
 msgid "Store in OK media library"
-msgstr ""
+msgstr "In OK-Mediathek speichern"
 
-#, fuzzy
-#| msgid "November"
 msgid "Number"
-msgstr "November"
+msgstr "Nummer"
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "A contribution by {}"
-msgstr "Beiträge"
+msgstr "Ein Beitrag von {}"
 
 msgid "Program"
-msgstr ""
+msgstr "Programm"
 
-#, fuzzy
-#| msgid "house number"
 msgid "License number"
-msgstr "Hausnummer"
+msgstr "Freistellungsnummer"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Broadcast Time"
-msgstr "Sendung"
+msgstr "Sendezeit"
 
 msgid "Profile"
 msgstr "Profil"
 
-#, fuzzy
-#| msgid "Profile"
 msgid "Profile ID"
-msgstr "Profil"
+msgstr "Profil-ID"
 
-#, fuzzy
-#| msgid "Information"
 msgid "Duration"
-msgstr "Information"
+msgstr "Dauer"
 
 msgid "Live"
-msgstr ""
+msgstr "Live"
 
 msgid "Data export"
-msgstr ""
+msgstr "Datenexport"
 
 msgid "Media Authority"
 msgstr "Offener Kanal/Bürgermedium"
 
 msgid "All"
-msgstr ""
+msgstr "Alle"
 
 msgid "Global Producer"
 msgstr "Globaler Produzent"
 
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 msgid "No"
-msgstr ""
+msgstr "Nein"
 
 msgid "Has video"
-msgstr ""
+msgstr "Hat Video"
 
 msgid "Broadcast date and time"
-msgstr ""
+msgstr "Sendedatum und -zeit"
 
 msgid "Video path (Windows)"
-msgstr ""
+msgstr "Videopfad (Windows)"
 
-#, fuzzy
-#| msgid "Media Authority"
 msgid "Mediathek import"
-msgstr "Offener Kanal/Bürgermedium"
+msgstr "Mediathek-Import"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Broadcast week"
-msgstr "Sendung"
+msgstr "Sendewoche"
 
 msgid "In this week"
-msgstr ""
+msgstr "In dieser Woche"
 
 msgid "Until next week"
-msgstr ""
+msgstr "Bis nächste Woche"
 
 msgid "Until week after next"
-msgstr ""
+msgstr "Bis übernächste Woche"
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "Primary Contribution"
-msgstr "Beiträge"
+msgstr "Hauptbeitrag"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Broadcast year"
-msgstr "Sendung"
+msgstr "Sendejahr"
 
 msgid "This year"
 msgstr "Dieses Jahr"
@@ -183,225 +148,197 @@ msgid "Last year"
 msgstr "Letztes Jahr"
 
 msgid "Date from and Date to are required for Mediathek export."
-msgstr ""
+msgstr "Datum von und Datum bis sind für den Mediathek-Export erforderlich."
 
 msgid "Title, Subtitle, Number"
-msgstr ""
+msgstr "Titel, Untertitel, Nummer"
 
-#, fuzzy
-#| msgid "Licenses"
 msgid "License"
-msgstr "Freistellungen"
+msgstr "Freistellung"
 
-#, fuzzy
-#| msgid "Contact Information"
 msgid "Broadcast Information"
-msgstr "Kontaktinformationen"
+msgstr "Sendeinformationen"
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "Contribution Status"
-msgstr "Beiträge"
+msgstr "Beitragsstatus"
 
 msgid "Automatically determined based on broadcast date."
-msgstr ""
+msgstr "Wird automatisch anhand des Sendedatums bestimmt."
 
 msgid "Is primary"
-msgstr ""
+msgstr "Ist Hauptbeitrag"
 
 msgid "User"
 msgstr "Nutzer"
 
 msgid "Import selected DISA exports."
-msgstr ""
+msgstr "Ausgewählte DISA-Exporte importieren."
 
-#, fuzzy, python-format
-#| msgid "Your profile was successfully updated."
+#, python-format
 msgid "%d file successfully imported."
 msgid_plural "%d files successfully imported."
-msgstr[0] "Ihr Profil wurde erfolgreich aktualisiert."
-msgstr[1] "Ihr Profil wurde erfolgreich aktualisiert."
+msgstr[0] "%d Datei erfolgreich importiert."
+msgstr[1] "%d Dateien erfolgreich importiert."
 
-#, fuzzy, python-format
-#| msgid "Your profile was successfully updated."
+#, python-format
 msgid "\"%(obj)s\" successfully imported."
-msgstr "Ihr Profil wurde erfolgreich aktualisiert."
+msgstr "\"%(obj)s\" erfolgreich importiert."
 
 msgid "Contributions"
 msgstr "Beiträge"
 
 #, python-format
 msgid "The worksheet needs to be named \"%(name)s\"."
-msgstr ""
+msgstr "Das Arbeitsblatt muss \"%(name)s\" heißen."
 
 #, python-format
 msgid "Column %(nr)s needs to be named %(name)s"
-msgstr ""
+msgstr "Spalte %(nr)s muss %(name)s heißen"
 
 #, python-format
 msgid "Invalid title in cell %(c)s%(r)s. Title needs the format <nr>_<title>."
-msgstr ""
+msgstr "Ungültiger Titel in Zelle %(c)s%(r)s. Titel muss das Format <Nr>_<Titel> haben."
 
 #, python-format
 msgid "No license with number %(n)s found."
-msgstr ""
+msgstr "Keine Freistellung mit Nummer %(n)s gefunden."
 
 #, python-format
 msgid ""
 "No repetitions for number %(n)s allowed and already found a primary "
 "contribution."
 msgstr ""
+"Keine Wiederholungen für Nummer %(n)s erlaubt und bereits einen "
+"Hauptbeitrag gefunden."
 
 msgid "No valid data found in file."
-msgstr ""
+msgstr "Keine gültigen Daten in der Datei gefunden."
 
 #, python-format
 msgid ""
 "Successfully processed %(total)d rows, created %(created)d contributions, "
 "%(errors)d errors."
 msgstr ""
+"%(total)d Zeilen erfolgreich verarbeitet, %(created)d Beiträge erstellt, "
+"%(errors)d Fehler."
 
 #, python-format
 msgid "Error during import: %(error)s"
-msgstr ""
+msgstr "Fehler beim Import: %(error)s"
 
 msgid "Is live"
-msgstr ""
+msgstr "Ist Live"
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "Contribution"
-msgstr "Beiträge"
+msgstr "Beitrag"
 
 msgid "DISA export file"
-msgstr ""
+msgstr "DISA-Exportdatei"
 
 msgid "Import from date"
-msgstr ""
+msgstr "Importieren ab Datum"
 
 msgid "Only import contributions from this date onwards."
-msgstr ""
+msgstr "Nur Beiträge ab diesem Datum importieren."
 
 msgid "Imported"
-msgstr ""
+msgstr "Importiert"
 
 msgid "Just marking the file as imported does not import the file!"
-msgstr ""
+msgstr "Das Markieren der Datei als importiert importiert die Datei nicht!"
 
 msgid "DISA-Import"
-msgstr ""
+msgstr "DISA-Import"
 
 msgid "DISA-Imports"
-msgstr ""
+msgstr "DISA-Importe"
 
 msgid "All dates"
-msgstr ""
+msgstr "Alle Daten"
 
 msgid "Loading dates..."
-msgstr ""
+msgstr "Daten werden geladen..."
 
 msgid "Save"
-msgstr ""
+msgstr "Speichern"
 
 msgid "Save and Import"
-msgstr ""
+msgstr "Speichern und Importieren"
 
 msgid "dates available"
-msgstr ""
+msgstr "Daten verfügbar"
 
 msgid "Error loading dates"
-msgstr ""
+msgstr "Fehler beim Laden der Daten"
 
 msgid "Export"
-msgstr ""
+msgstr "Export"
 
 msgid "The data export will only export primary contributions."
-msgstr ""
+msgstr "Der Datenexport exportiert nur Hauptbeiträge."
 
-#, fuzzy
-#| msgid "Submit changes"
 msgid "Submit"
-msgstr "Änderungen speichern"
+msgstr "Absenden"
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "Your Contributions"
-msgstr "Beiträge"
+msgstr "Ihre Beiträge"
 
 msgid "Manage your broadcast contributions and airings"
-msgstr ""
+msgstr "Verwalten Sie Ihre Sendebeiträge und Ausstrahlungen"
 
 msgid "Switch view"
-msgstr ""
+msgstr "Ansicht wechseln"
 
-#, fuzzy
-#| msgid "Licenses"
 msgid "New License"
-msgstr "Freistellungen"
+msgstr "Neue Freistellung"
 
-#, fuzzy
-#| msgid "Licenses"
 msgid "Active Licenses"
-msgstr "Freistellungen"
+msgstr "Aktive Freistellungen"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Total Broadcasts"
-msgstr "Sendung"
+msgstr "Ausstrahlungen gesamt"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Live Broadcasts"
-msgstr "Sendung"
+msgstr "Live-Sendungen"
 
 msgid "Recordings"
-msgstr ""
+msgstr "Aufzeichnungen"
 
-#, fuzzy
-#| msgid "Broadcast"
 msgid "Broadcasts"
-msgstr "Sendung"
+msgstr "Ausstrahlungen"
 
 msgid "Recording"
-msgstr ""
+msgstr "Aufzeichnung"
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "No contributions found"
-msgstr "Beiträge"
+msgstr "Keine Beiträge gefunden"
 
 msgid "You have no broadcast contributions yet. Create a license first."
-msgstr ""
+msgstr "Sie haben noch keine Sendebeiträge. Erstellen Sie zuerst eine Freistellung."
 
-#, fuzzy
-#| msgid "Create license"
 msgid "Create first license"
-msgstr "Freistellung erstellen"
+msgstr "Erste Freistellung erstellen"
 
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
-#, fuzzy
-#| msgid "Active"
 msgid "Actions"
-msgstr "Aktiv"
+msgstr "Aktionen"
 
 msgid "Card view"
-msgstr ""
+msgstr "Kartenansicht"
 
 msgid "Table view"
-msgstr ""
+msgstr "Tabellenansicht"
 
 msgid "Print registration form"
 msgstr "Registrierungsformular drucken"
 
 msgid "Inventory Number"
-msgstr ""
+msgstr "Inventarnummer"
 
-#, fuzzy
-#| msgid "mobile number"
 msgid "Serial Number"
-msgstr "Handynummer"
+msgstr "Seriennummer"
 
 msgid "Manufacturer"
 msgstr "Hersteller"
@@ -410,254 +347,236 @@ msgid "Location"
 msgstr "Standort"
 
 msgid "Quantity"
-msgstr ""
+msgstr "Menge"
 
 msgid "Owner"
-msgstr ""
+msgstr "Eigentümer"
 
 msgid "Inventory Number Owner"
-msgstr ""
+msgstr "Inventarnummer des Eigentümers"
 
 msgid "Purchase Date"
-msgstr ""
+msgstr "Kaufdatum"
 
-#, fuzzy
-#| msgid "Notification"
 msgid "Identification"
-msgstr "Benachrichtigung"
+msgstr "Identifikation"
 
-#, fuzzy
-#| msgid "Notification"
 msgid "Classification"
-msgstr "Benachrichtigung"
+msgstr "Klassifikation"
 
 msgid "Ownership & Inventory"
-msgstr ""
+msgstr "Eigentum & Inventar"
 
 msgid "Quantity & Availability"
-msgstr ""
+msgstr "Menge & Verfügbarkeit"
 
 msgid "Reserved and rented quantities are calculated automatically."
-msgstr ""
+msgstr "Reservierte und verliehene Mengen werden automatisch berechnet."
 
-#, fuzzy
-#| msgid "Basic Information"
 msgid "Purchase Information"
-msgstr "Grundinformationen"
+msgstr "Kaufinformationen"
 
-#, fuzzy
-#| msgid "Full Name"
 msgid "Model Name"
-msgstr "Vollständiger Name"
+msgstr "Modellname"
 
 msgid "Object ID"
-msgstr ""
+msgstr "Objekt-ID"
 
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Aktiv"
+msgstr "Aktion"
 
-#, fuzzy
-#| msgid "Change password"
 msgid "Changes"
-msgstr "Passwort ändern"
+msgstr "Änderungen"
 
 msgid "Timestamp"
-msgstr ""
+msgstr "Zeitstempel"
 
 msgid "-"
-msgstr ""
+msgstr "-"
 
 msgid "Download Error Log File"
-msgstr ""
+msgstr "Fehlerprotokoll-Datei herunterladen"
 
 msgid "Error Log"
-msgstr ""
+msgstr "Fehlerprotokoll"
 
-#, fuzzy
-#| msgid "Verify selected profiles"
 msgid "Import selected inventory files"
-msgstr "Ausgewählte Profile verifizieren"
+msgstr "Ausgewählte Inventardateien importieren"
 
 #, python-format
 msgid "Import task for %(file)s has been started. Task ID: %(task_id)s"
-msgstr ""
+msgstr "Importvorgang für %(file)s wurde gestartet. Vorgangs-ID: %(task_id)s"
 
 msgid "Import selected inventory files synchronously"
-msgstr ""
+msgstr "Ausgewählte Inventardateien synchron importieren"
 
 #, python-format
 msgid "Successfully imported %(created)s items. %(skipped)s items skipped."
-msgstr ""
+msgstr "%(created)s Elemente erfolgreich importiert. %(skipped)s Elemente übersprungen."
 
-#, fuzzy
-#| msgid "Verify selected profiles"
 msgid "Import selected inspection files"
-msgstr "Ausgewählte Profile verifizieren"
+msgstr "Ausgewählte Prüfungsdateien importieren"
 
 #, python-format
 msgid ""
 "Successfully imported %(created)s inspections. %(skipped)s items skipped."
-msgstr ""
+msgstr "%(created)s Prüfungen erfolgreich importiert. %(skipped)s Elemente übersprungen."
 
 msgid "Inventory"
-msgstr ""
+msgstr "Inventar"
 
-#, fuzzy
-#| msgid "phone number"
 msgid "Inspection Number"
-msgstr "Telefonnummer"
+msgstr "Prüfnummer"
 
 msgid "Enter existing number or a new one"
-msgstr ""
+msgstr "Vorhandene Nummer oder neue Nummer eingeben"
 
 msgid "Inspection number already attached to another item."
-msgstr ""
+msgstr "Prüfnummer ist bereits einem anderen Element zugeordnet."
 
 msgid "File must be CSV or XLSX format"
-msgstr ""
+msgstr "Datei muss das Format CSV oder XLSX haben"
 
 msgid "Could not read headers from file."
-msgstr ""
+msgstr "Konnte die Kopfzeilen der Datei nicht lesen."
 
 #, python-format
 msgid "File must contain columns: %(columns)s. Missing: %(missing)s"
-msgstr ""
+msgstr "Datei muss die Spalten enthalten: %(columns)s. Fehlend: %(missing)s"
 
 #, python-format
 msgid ""
 "Invalid date format for \"inspection_date\". Supported formats: YYYY-MM-DD, "
 "DD.MM.YYYY, DD/MM/YYYY, YYYY/MM/DD. Received: \"%(date_str)s\""
 msgstr ""
+"Ungültiges Datumsformat für \"inspection_date\". Unterstützte Formate: JJJJ-MM-TT, "
+"TT.MM.JJJJ, TT/MM/JJJJ, JJJJ/MM/TT. Erhalten: \"%(date_str)s\""
 
 msgid "No file provided for import."
-msgstr ""
+msgstr "Keine Datei für den Import angegeben."
 
 msgid "CSV file is empty or has no header row."
-msgstr ""
+msgstr "CSV-Datei ist leer oder enthält keine Kopfzeile."
 
 #, python-format
 msgid "Unsupported file format: %(ext)s"
-msgstr ""
+msgstr "Nicht unterstütztes Dateiformat: %(ext)s"
 
 msgid "Could not determine headers from the file."
-msgstr ""
+msgstr "Konnte die Kopfzeilen in der Datei nicht bestimmen."
 
 #, python-format
 msgid "Missing required field: %(field)s"
-msgstr ""
+msgstr "Erforderliches Feld fehlt: %(field)s"
 
 msgid "Field 'inspection_date' cannot be empty."
-msgstr ""
+msgstr "Feld 'inspection_date' darf nicht leer sein."
 
 msgid "Field 'inspection_number' cannot be empty."
-msgstr ""
+msgstr "Feld 'inspection_number' darf nicht leer sein."
 
 #, python-format
 msgid "Row %(row_num)s: %(error)s"
-msgstr ""
+msgstr "Zeile %(row_num)s: %(error)s"
 
 #, python-format
 msgid "Error processing row %(row_num)s: %(error)s"
-msgstr ""
+msgstr "Fehler beim Verarbeiten der Zeile %(row_num)s: %(error)s"
 
 msgid "Import Errors"
-msgstr ""
+msgstr "Importfehler"
 
 msgid "Row"
-msgstr ""
+msgstr "Zeile"
 
 msgid "Error"
-msgstr ""
+msgstr "Fehler"
 
 #, python-format
 msgid "import_errors_%(timestamp)s.xlsx"
-msgstr ""
+msgstr "import_fehler_%(timestamp)s.xlsx"
 
 #, python-format
 msgid "Import failed: %(error)s"
-msgstr ""
+msgstr "Import fehlgeschlagen: %(error)s"
 
 #, python-format
 msgid "Fatal Error: %(error)s"
-msgstr ""
+msgstr "Schwerwiegender Fehler: %(error)s"
 
 msgid "No errors during import."
-msgstr ""
+msgstr "Keine Fehler beim Import."
 
 msgid "Test"
-msgstr ""
+msgstr "Test"
 
 msgid "Sample"
-msgstr ""
+msgstr "Beispiel"
 
 #, python-format
 msgid "%(model)s \"%(value)s\" created automatically."
-msgstr ""
+msgstr "%(model)s \"%(value)s\" wurde automatisch erstellt."
 
 #, python-format
 msgid "%(model)s name is missing in row %(row)s. Skipping..."
-msgstr ""
+msgstr "Name von %(model)s fehlt in Zeile %(row)s. Überspringen..."
 
 #, python-format
 msgid "Column %(col)s should be named \"%(expected)s\", but got \"%(actual)s\""
-msgstr ""
+msgstr "Spalte %(col)s sollte \"%(expected)s\" heißen, hat aber \"%(actual)s\""
 
 #, python-format
 msgid "Location \"%(location)s\" not found in dictionary"
-msgstr ""
+msgstr "Standort \"%(location)s\" nicht im Wörterbuch gefunden"
 
 msgid "in Betrieb"
-msgstr ""
+msgstr "in Betrieb"
 
 msgid "defekt"
-msgstr ""
+msgstr "defekt"
 
 msgid "ausgemustert"
-msgstr ""
+msgstr "ausgemustert"
 
 msgid "verliehen"
-msgstr ""
+msgstr "verliehen"
 
 msgid "Ausleihe"
-msgstr ""
+msgstr "Ausleihe"
 
 #, python-format
 msgid "Row %(row)s: %(error)s"
-msgstr ""
+msgstr "Zeile %(row)s: %(error)s"
 
 msgid "No errors"
-msgstr ""
+msgstr "Keine Fehler"
 
 #, python-format
 msgid "Successfully created %(count)d inventory items in batch"
-msgstr ""
+msgstr "%(count)d Inventarartikel wurden im Stapel erfolgreich erstellt"
 
 #, python-format
 msgid "Bulk create failed: %(error)s. Falling back to individual creation."
-msgstr ""
+msgstr "Stapelweise Erstellung fehlgeschlagen: %(error)s. Es wird auf Einzelerstellung zurückgegriffen."
 
 #, python-format
 msgid "Failed to create item %(inventory_number)s: %(error)s"
-msgstr ""
+msgstr "Fehler beim Erstellen des Elements %(inventory_number)s: %(error)s"
 
 #, python-format
 msgid "Successfully updated %(count)d inventory items in batch"
-msgstr ""
+msgstr "%(count)d Inventarartikel wurden im Stapel erfolgreich aktualisiert"
 
 #, python-format
 msgid "Bulk update failed: %(error)s. Falling back to individual updates."
-msgstr ""
+msgstr "Stapelaktualisierung fehlgeschlagen: %(error)s. Es wird auf Einzelaktualisierung zurückgegriffen."
 
 #, python-format
 msgid "Failed to update item %(inventory_number)s: %(error)s"
-msgstr ""
+msgstr "Fehler beim Aktualisieren des Elements %(inventory_number)s: %(error)s"
 
-#, fuzzy
-#| msgid "Full Name"
 msgid "Name"
-msgstr "Vollständiger Name"
+msgstr "Name"
 
 msgid "Manufacturers"
 msgstr "Hersteller"
@@ -672,43 +591,43 @@ msgid "Categories"
 msgstr "Kategorien"
 
 msgid "Parent"
-msgstr ""
+msgstr "Übergeordnet"
 
 msgid "Locations"
 msgstr "Standorte"
 
 msgid "In stock"
-msgstr ""
+msgstr "Auf Lager"
 
 msgid "Rented"
-msgstr ""
+msgstr "Verliehen"
 
 msgid "Written off"
-msgstr ""
+msgstr "Ausgebucht"
 
 msgid "Defect"
-msgstr ""
+msgstr "Defekt"
 
 msgid "Enter the inventory number of the owner of the item."
-msgstr ""
+msgstr "Geben Sie die Inventarnummer des Eigentümers des Objekts ein."
 
 msgid "Purchase Cost"
-msgstr ""
+msgstr "Kaufpreis"
 
 msgid "Date Added"
-msgstr ""
+msgstr "Hinzugefügt am"
 
 msgid "Available for Rental"
-msgstr ""
+msgstr "Für Verleih verfügbar"
 
 msgid "Check if this item is available for rental."
-msgstr ""
+msgstr "Aktivieren Sie diese Option, wenn dieser Artikel für den Verleih verfügbar ist."
 
 msgid "Reserved Quantity"
-msgstr ""
+msgstr "Reservierte Menge"
 
 msgid "Rented Quantity"
-msgstr ""
+msgstr "Verliehene Menge"
 
 msgid "Inventory Item"
 msgstr "Inventarartikel"
@@ -717,138 +636,130 @@ msgid "Inventory Items"
 msgstr "Inventarartikel"
 
 msgid "Not specified"
-msgstr ""
+msgstr "Nicht angegeben"
 
 msgid "Pending"
-msgstr ""
+msgstr "Ausstehend"
 
 msgid "In Progress"
-msgstr ""
+msgstr "In Bearbeitung"
 
 msgid "Completed"
-msgstr ""
+msgstr "Abgeschlossen"
 
 msgid "Completed with Errors"
-msgstr ""
+msgstr "Abgeschlossen mit Fehlern"
 
 msgid "Failed"
-msgstr ""
+msgstr "Fehlgeschlagen"
 
 msgid "Inventory file"
-msgstr ""
+msgstr "Inventardatei"
 
 msgid "Import Status"
-msgstr ""
+msgstr "Importstatus"
 
-#, fuzzy
-#| msgid "Created At"
 msgid "Items Created"
-msgstr "Erstellt am"
+msgstr "Erstellte Elemente"
 
 msgid "Items Skipped"
-msgstr ""
+msgstr "Übersprungene Elemente"
 
 msgid "Items Updated"
-msgstr ""
+msgstr "Aktualisierte Elemente"
 
-#, fuzzy
-#| msgid "Start Date"
 msgid "Import Date"
-msgstr "Startdatum"
+msgstr "Importdatum"
 
 msgid "Completed Date"
-msgstr ""
+msgstr "Abschlussdatum"
 
 msgid "Error Log File"
-msgstr ""
+msgstr "Fehlerprotokolldatei"
 
 msgid "Task ID"
-msgstr ""
+msgstr "Aufgaben-ID"
 
 msgid "Celery task ID for asynchronous processing"
-msgstr ""
+msgstr "Celery-Aufgaben-ID für asynchrone Verarbeitung"
 
 msgid "Not Started"
-msgstr ""
+msgstr "Nicht gestartet"
 
 msgid "Retry"
-msgstr ""
+msgstr "Erneut versuchen"
 
 msgid "Revoked"
-msgstr ""
+msgstr "Widerrufen"
 
 msgid "Celery Status"
-msgstr ""
+msgstr "Celery-Status"
 
 msgid "Inventory Import"
-msgstr "Inventar-Import"
+msgstr "Inventarimport"
 
 msgid "Inventory Imports"
-msgstr "Inventar-Importe"
+msgstr "Inventarimporte"
 
 msgid "No file provided."
-msgstr ""
+msgstr "Keine Datei bereitgestellt."
 
-#, fuzzy
-#| msgid "Created At"
 msgid "Created"
-msgstr "Erstellt am"
+msgstr "Erstellt"
 
 msgid "Updated"
-msgstr ""
+msgstr "Aktualisiert"
 
 msgid "Deleted"
-msgstr ""
+msgstr "Gelöscht"
 
 msgid "Audit Log"
-msgstr "Audit-Protokoll"
+msgstr "Audit-Log"
 
 msgid "Audit Logs"
-msgstr "Audit-Protokolle"
+msgstr "Audit-Logs"
 
 #, python-format
 msgid "%(number)s %(action)s by %(user)s at %(timestamp)s"
-msgstr ""
+msgstr "%(number)s %(action)s von %(user)s am %(timestamp)s"
 
 #, python-format
 msgid "Deleted item (ID: %(id)s)"
-msgstr ""
+msgstr "Gelöschtes Objekt (ID: %(id)s)"
 
 msgid "No changes recorded."
-msgstr ""
+msgstr "Keine Änderungen protokolliert."
 
 #, python-format
 msgid "%(field)s: %(old)s → %(new)s"
-msgstr ""
+msgstr "%(field)s: %(old)s → %(new)s"
 
 msgid "Whole device"
-msgstr ""
+msgstr "Gesamtes Gerät"
 
 msgid "Power cable"
-msgstr ""
+msgstr "Netzkabel"
 
 msgid "Power supply unit"
-msgstr ""
+msgstr "Netzteil"
 
 msgid "Number assigned by the inspection company"
-msgstr ""
+msgstr "Nummer, die von der Prüfgesellschaft zugewiesen wurde"
 
 msgid "Device Type"
-msgstr ""
+msgstr "Gerätetyp"
 
 msgid "Room"
-msgstr ""
+msgstr "Raum"
 
-#, fuzzy
-#| msgid "Target Channel"
 msgid "Target Part"
-msgstr "Zielkanal"
+msgstr "Prüfteil"
 
 msgid "Inspection Date"
-msgstr ""
+msgstr "Prüfungsdatum"
 
 msgid "Result / Comment"
-msgstr ""
+msgstr "Ergebnis / Kommentar"
 
 msgid "Inspection"
 msgstr "Prüfung"
@@ -860,294 +771,283 @@ msgid "Inspection file"
 msgstr "Prüfungsdatei"
 
 msgid "Inspection Import"
-msgstr "Prüfungs-Import"
+msgstr "Prüfungsimport"
 
 msgid "Inspection Imports"
-msgstr "Prüfungs-Importe"
+msgstr "Prüfungsimporte"
 
 #, python-format
 msgid "Inventory item with number \"%(number)s\" already exists. Skipping..."
-msgstr ""
+msgstr "Inventargegenstand mit der Nummer \"%(number)s\" existiert bereits. Überspringen..."
 
 msgid "The data export will include all inventory items."
-msgstr ""
+msgstr "Der Datenexport wird alle Inventargegenstände enthalten."
 
 msgid "Import"
-msgstr ""
+msgstr "Importieren"
 
 msgid "Manage your equipment and inventory items"
-msgstr ""
+msgstr "Verwalten Sie Ihre Ausrüstung und Inventargegenstände"
 
 msgid "Add Item"
-msgstr ""
+msgstr "Gegenstand hinzufügen"
 
 msgid "Total Items"
-msgstr ""
+msgstr "Gesamtanzahl der Gegenstände"
 
 msgid "Available"
-msgstr ""
+msgstr "Verfügbar"
 
 msgid "Maintenance"
-msgstr ""
+msgstr "Wartung"
 
 msgid "All Categories"
 msgstr "Alle Kategorien"
 
 msgid "Camera"
-msgstr ""
+msgstr "Kamera"
 
 msgid "Audio"
-msgstr ""
+msgstr "Audio"
 
 msgid "Lighting"
-msgstr ""
+msgstr "Beleuchtung"
 
 msgid "Computer"
-msgstr ""
+msgstr "Computer"
 
 msgid "All Statuses"
-msgstr ""
+msgstr "Alle Status"
 
 msgid "Reserved"
-msgstr ""
+msgstr "Reserviert"
 
 msgid "All Locations"
 msgstr "Alle Standorte"
 
 msgid "Storage"
-msgstr ""
+msgstr "Lager"
 
 msgid "Studio"
-msgstr ""
+msgstr "Studio"
 
 msgid "Office"
-msgstr ""
+msgstr "Büro"
 
-#, fuzzy
-#| msgid "March"
 msgid "Search"
-msgstr "März"
+msgstr "Suche"
 
 msgid "Search items..."
-msgstr ""
+msgstr "Gegenstände suchen..."
 
 msgid "Clear Filters"
-msgstr ""
+msgstr "Filter löschen"
 
 msgid "View Details"
-msgstr ""
+msgstr "Details anzeigen"
 
 msgid "Edit"
-msgstr ""
+msgstr "Bearbeiten"
 
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 msgid "Unknown"
-msgstr ""
+msgstr "Unbekannt"
 
 msgid "Last Inspection"
-msgstr ""
+msgstr "Letzte Prüfung"
 
 msgid "Rent"
-msgstr ""
+msgstr "Verleihen"
 
 msgid "Not Available"
-msgstr ""
+msgstr "Nicht verfügbar"
 
 msgid "No inventory items found"
-msgstr ""
+msgstr "Keine Inventargegenstände gefunden"
 
 msgid "Add your first item"
-msgstr ""
+msgstr "Fügen Sie Ihren ersten Gegenstand hinzu"
 
 msgid "Inventory pagination"
-msgstr ""
+msgstr "Inventar-Seitenumbruch"
 
 msgid "First"
-msgstr ""
+msgstr "Erste"
 
 msgid "Previous"
-msgstr ""
+msgstr "Vorherige"
 
 msgid "Page"
-msgstr ""
+msgstr "Seite"
 
 msgid "of"
-msgstr ""
+msgstr "von"
 
 msgid "Next"
-msgstr ""
+msgstr "Nächste"
 
-#, fuzzy
-#| msgid "Last year"
 msgid "Last"
-msgstr "Letztes Jahr"
+msgstr "Letzte"
 
 msgid "Are you sure you want to delete this inventory item?"
-msgstr ""
+msgstr "Sind Sie sicher, dass Sie diesen Inventargegenstand löschen möchten?"
 
 msgid "Topic"
-msgstr ""
+msgstr "Thema"
 
-#, fuzzy
-#| msgid "End Date"
 msgid "Date"
-msgstr "Enddatum"
+msgstr "Datum"
 
 msgid "External venue"
-msgstr ""
+msgstr "Externer Veranstaltungsort"
 
 msgid "Jugendmedienschutz"
-msgstr ""
+msgstr "Jugendmedienschutz"
 
 msgid "Target group"
-msgstr ""
+msgstr "Zielgruppe"
 
 msgid "Project category"
-msgstr ""
+msgstr "Projektkategorie"
 
 msgid "Project leader"
-msgstr ""
+msgstr "Projektleiter"
 
 msgid "bis 6 Jahre"
-msgstr ""
+msgstr "bis 6 Jahre"
 
 msgid "7-10 Jahre"
-msgstr ""
+msgstr "7-10 Jahre"
 
 msgid "11-14 Jahre"
-msgstr ""
+msgstr "11-14 Jahre"
 
 msgid "15-18 Jahre"
-msgstr ""
+msgstr "15-18 Jahre"
 
 msgid "19-34 Jahre"
-msgstr ""
+msgstr "19-34 Jahre"
 
 msgid "35-50 Jahre"
-msgstr ""
+msgstr "35-50 Jahre"
 
 msgid "51-65 Jahre"
-msgstr ""
+msgstr "51-65 Jahre"
 
 msgid "über 65 Jahre"
-msgstr ""
+msgstr "über 65 Jahre"
 
 msgid "ohne Angabe"
-msgstr ""
+msgstr "ohne Angabe"
 
 msgid "weiblich"
-msgstr ""
+msgstr "weiblich"
 
 msgid "männlich"
-msgstr ""
+msgstr "männlich"
 
 msgid "diverse"
 msgstr "divers"
 
 msgid "Projects"
-msgstr ""
+msgstr "Projekte"
 
-#, fuzzy
-#| msgid "Last year"
 msgid "start year"
-msgstr "Letztes Jahr"
+msgstr "Startjahr"
 
 msgid "title, topic, description"
-msgstr ""
+msgstr "Titel, Thema, Beschreibung"
 
 msgid "Target Group"
-msgstr ""
+msgstr "Zielgruppe"
 
 msgid "Project Category"
-msgstr ""
+msgstr "Projektkategorie"
 
 msgid "Basic Information"
 msgstr "Grundinformationen"
 
 msgid "Schedule & Details"
-msgstr ""
+msgstr "Zeitplan & Details"
 
 msgid "Participants by Age"
-msgstr ""
+msgstr "Teilnehmer nach Alter"
 
 msgid ""
 "Enter the number of participants in each age group. Total must match gender "
 "totals."
-msgstr ""
+msgstr "Geben Sie die Anzahl der Teilnehmer in jeder Altersgruppe ein. Die Gesamtsumme muss mit der Summe nach Geschlecht übereinstimmen."
 
 msgid "Participants by Gender"
-msgstr ""
+msgstr "Teilnehmer nach Geschlecht"
 
 msgid ""
 "Enter the number of participants by gender. Total must match age group "
 "totals."
-msgstr ""
+msgstr "Geben Sie die Teilnehmerzahl nach Geschlecht ein. Die Gesamtsumme muss mit der Summe nach Altersgruppen übereinstimmen."
 
 msgid "Create a copy of selected projects"
-msgstr ""
+msgstr "Erstellen Sie eine Kopie der ausgewählten Projekte"
 
-#, fuzzy, python-format
-#| msgid "Your profile was successfully updated."
+#, python-format
 msgid "%(count)d project copy was successfully created."
-msgstr "Ihr Profil wurde erfolgreich aktualisiert."
+msgstr "%(count)d Projektkopie wurde erfolgreich erstellt."
 
-#, fuzzy, python-format
-#| msgid "Your profile was successfully updated."
+#, python-format
 msgid "%(count)d project copies were successfully created."
-msgstr "Ihr Profil wurde erfolgreich aktualisiert."
+msgstr "%(count)d Projektkopien wurden erfolgreich erstellt."
 
 #, python-format
 msgid "Dauer: %(duration)s"
-msgstr ""
+msgstr "Dauer: %(duration)s"
 
 msgid "projects.ics"
-msgstr ""
+msgstr "projekte.ics"
 
-#, fuzzy
-#| msgid "Full Name"
 msgid "Full name"
 msgstr "Vollständiger Name"
 
 msgid "Project leaders"
-msgstr ""
+msgstr "Projektleiter"
 
 msgid "Media education supervisor"
-msgstr ""
+msgstr "Medienpädagogische Leitung"
 
 msgid "Media education supervisors"
-msgstr ""
+msgstr "Medienpädagogische Leitungen"
 
 msgid "Project categories"
-msgstr ""
+msgstr "Projektkategorien"
 
 msgid "Target groups"
-msgstr ""
+msgstr "Zielgruppen"
 
 msgid "Not Selected"
-msgstr ""
+msgstr "Nicht ausgewählt"
 
 msgid "Project title"
-msgstr ""
+msgstr "Projekttitel"
 
 msgid "Format: hh:mm:ss or mm:ss"
-msgstr ""
+msgstr "Format: hh:mm:ss oder mm:ss"
 
 msgid "Democracy project"
-msgstr ""
+msgstr "Demokratieprojekt"
 
 #, python-format
 msgid ""
 "The sum of participants by age (%(age)s) does not match the sum of "
 "participants by gender (%(gender)s). Please correct your data."
 msgstr ""
+"Die Summe der Teilnehmer nach Alter (%(age)s) stimmt nicht mit der Summe der Teilnehmer nach Geschlecht (%(gender)s) überein. Bitte korrigieren Sie Ihre Angaben."
 
 msgid "Project"
-msgstr ""
+msgstr "Projekt"
 
 msgid "Export dates"
-msgstr ""
+msgstr "Daten exportieren"
 
 msgid "E-Mail address"
 msgstr "E-Mail-Adresse"
@@ -1264,7 +1164,7 @@ msgid "ID Document"
 msgstr "Ausweisdokument"
 
 msgid "Data Sharing Permissions"
-msgstr "Datenfreigabeberechtigung"
+msgstr "Datenfreigabeberechtigungen"
 
 msgid "Admin-only: Permissions for sharing data with third parties"
 msgstr "Nur für Admins: Berechtigungen zur Weitergabe von Daten an Dritte"
@@ -1273,24 +1173,22 @@ msgid "Additional Information"
 msgstr "Weitere Informationen"
 
 msgid "Verify selected profiles"
-msgstr "Ausgewählte Profile verifizieren"
+msgstr "Ausgewählte Profile genehmigen"
 
-#, fuzzy, python-format
-#| msgid "Your profile was successfully updated."
+#, python-format
 msgid "%d profile was successfully verified."
 msgid_plural "%d profiles were successfully verified."
-msgstr[0] "Ihr Profil wurde erfolgreich aktualisiert."
-msgstr[1] "Ihr Profil wurde erfolgreich aktualisiert."
+msgstr[0] "%d Profil wurde erfolgreich genehmigt."
+msgstr[1] "%d Profile wurden erfolgreich genehmigt."
 
 msgid "Unverify selected profiles"
-msgstr "Verifizierung der ausgewählten Profile aufheben"
+msgstr "Genehmigung der ausgewählten Profile aufheben"
 
-#, fuzzy, python-format
-#| msgid "Your profile was successfully updated."
+#, python-format
 msgid "%d profile was successfully unverified."
 msgid_plural "%d profiles were successfully unverified."
-msgstr[0] "Ihr Profil wurde erfolgreich aktualisiert."
-msgstr[1] "Ihr Profil wurde erfolgreich aktualisiert."
+msgstr[0] "Bei %d Profil wurde die Genehmigung aufgehoben."
+msgstr[1] "Bei %d Profilen wurde die Genehmigung aufgehoben."
 
 msgid "Display Settings"
 msgstr "Anzeigeeinstellungen"
@@ -1301,12 +1199,13 @@ msgstr "Metadaten"
 msgid ""
 "Select PDF template file from files/ directory. Only .pdf files are shown."
 msgstr ""
+"Wählen Sie eine PDF-Vorlagendatei aus dem Verzeichnis files/. Es werden nur .pdf-Dateien angezeigt."
 
 msgid "Regulatory & Ownership"
-msgstr "Regulierung und Traegerschaft"
+msgstr "Regulierung & Trägerschaft"
 
 msgid "Broadcasting Schedule"
-msgstr "Sendezeiten"
+msgstr "Sendeplan"
 
 msgid "Integration"
 msgstr "Integration"
@@ -1324,8 +1223,7 @@ msgid ""
 "Your profile is already verified. To change further data please contact an "
 "employee."
 msgstr ""
-"Ihr Profil ist bereits verifiziert. Um weitere Daten zu ändern, wenden Sie "
-"sich bitte an einen Mitarbeiter."
+"Ihr Profil ist bereits genehmigt. Um weitere Daten zu ändern, wenden Sie sich bitte an einen Mitarbeiter."
 
 msgid "Submit changes"
 msgstr "Änderungen speichern"
@@ -1367,13 +1265,13 @@ msgid "Full Name"
 msgstr "Vollständiger Name"
 
 msgid "Full name of the media authority (e.g., \"Offener Kanal Dessau\")"
-msgstr "Vollständiger Name der Medienanstalt (z. B. „Offener Kanal Dessau“) "
+msgstr "Vollständiger Name der Medienanstalt (z. B. \"Offener Kanal Dessau\")"
 
 msgid "Target Channel"
 msgstr "Zielkanal"
 
 msgid "Target channel identifier (e.g., \"@ok_dessau@lokalmedial.de\")"
-msgstr "Zielkanal-Kennung (z. B. „@ok_dessau@lokalmedial.de“)"
+msgstr "Zielkanal-Kennung (z. B. \"@ok_dessau@lokalmedial.de\")"
 
 msgid "Media Authorities"
 msgstr "Offene Kanäle/Bürgermedien"
@@ -1388,15 +1286,14 @@ msgid "female"
 msgstr "weiblich"
 
 msgid "ID document number (passport, ID card, etc.)"
-msgstr "Ausweisdokumentnummer (Reisepass, Personalausweis, etc.)"
+msgstr "Ausweisdokumentnummer (Reisepass, Personalausweis usw.)"
 
 msgid "verified"
-msgstr "verifiziert"
+msgstr "genehmigt"
 
 msgid "The profile data was verified by showing the ID to an employee."
 msgstr ""
-"Die Profildaten wurden durch Vorzeigen des Ausweises gegenüber einem "
-"Mitarbeitenden verifiziert."
+"Die Profildaten wurden durch Vorzeigen des Ausweises gegenüber einem Mitarbeitenden genehmigt."
 
 msgid "Global producer status for the profile."
 msgstr "Globaler Produzentenstatus für das Profil."
@@ -1432,13 +1329,13 @@ msgid "Info Circle"
 msgstr "Informationssymbol"
 
 msgid "Check Circle"
-msgstr "Prüfungszeichen"
+msgstr "Prüfsymbol"
 
 msgid "Exclamation Triangle"
-msgstr "Ausrufezeichensymbol"
+msgstr "Ausrufezeichendreieck"
 
 msgid "Exclamation Circle"
-msgstr "Ausrufezeichenkreis"
+msgstr "Ausrufezeichen-Kreis"
 
 msgid "Clock"
 msgstr "Uhr"
@@ -1465,13 +1362,13 @@ msgid "Message"
 msgstr "Nachricht"
 
 msgid "Main notification text"
-msgstr "Haupttext der Benachrichtigung"
+msgstr "Hauptbenachrichtigungstext"
 
 msgid "Type"
 msgstr "Typ"
 
 msgid "Notification type determines color and style"
-msgstr "Typ der Benachrichtigung bestimmt Farbe und Stil"
+msgstr "Der Benachrichtigungstyp bestimmt Farbe und Stil"
 
 msgid "Icon"
 msgstr "Icon"
@@ -1483,7 +1380,7 @@ msgid "Active"
 msgstr "Aktiv"
 
 msgid "Only active notifications are displayed to users"
-msgstr "Nur aktive Benachrichtigungen werden den Nutzern angezeigt"
+msgstr "Nur aktive Benachrichtigungen werden Nutzer:innen angezeigt"
 
 msgid "Priority"
 msgstr "Priorität"
@@ -1501,7 +1398,7 @@ msgid "End Date"
 msgstr "Enddatum"
 
 msgid "When to stop showing this notification (optional)"
-msgstr "Bis wann diese Benachrichtigung angezeigt wird (optional)"
+msgstr "Bis wann diese Benachrichtigung angezeigt werden soll (optional)"
 
 msgid "Created At"
 msgstr "Erstellt am"
@@ -1511,8 +1408,7 @@ msgstr "Erstellt von"
 
 msgid "Admin who created this notification (auto-filled)"
 msgstr ""
-"Administrator, der diese Benachrichtigung erstellt hat (wird automatisch "
-"ausgefüllt)"
+"Administrator, der diese Benachrichtigung erstellt hat (wird automatisch ausgefüllt)"
 
 msgid "Notification"
 msgstr "Benachrichtigung"
@@ -1524,9 +1420,7 @@ msgid "Registration Form PDF"
 msgstr "Registrierungsformular-PDF"
 
 msgid "PDF template file for registration form (must be in files/ directory)"
-msgstr ""
-"PDF-Vorlagendatei für Registrierungsformular (muss im files/ Verzeichnis "
-"sein)"
+msgstr "PDF-Vorlagendatei für das Registrierungsformular (muss im Verzeichnis files/ liegen)"
 
 msgid "PDF"
 msgstr "PDF"
@@ -1544,13 +1438,13 @@ msgid "Type of registration form to generate"
 msgstr "Art des zu generierenden Registrierungsformulars"
 
 msgid "Registration Configuration"
-msgstr "Registrierungs-Konfiguration"
+msgstr "Registrierungskonfiguration"
 
 msgid "Organization Name"
 msgstr "Organisationsname"
 
 msgid "Full name of the organization"
-msgstr "Vollstaendiger Name der Organisation"
+msgstr "Vollständiger Name der Organisation"
 
 msgid "Short Name"
 msgstr "Kurzname"
@@ -1559,10 +1453,10 @@ msgid "Short name of the organization"
 msgstr "Kurzname der Organisation"
 
 msgid "Website"
-msgstr ""
+msgstr "Webseite"
 
 msgid "Organization website URL"
-msgstr "Website-URL der Organisation"
+msgstr "URL der Organisationswebseite"
 
 msgid "Email"
 msgstr "E-Mail"
@@ -1574,7 +1468,7 @@ msgid "Phone"
 msgstr "Telefon"
 
 msgid "Contact phone number"
-msgstr "Kontakttelefonnummer"
+msgstr "Kontakt-Telefonnummer"
 
 msgid "Fax"
 msgstr "Fax"
@@ -1589,25 +1483,25 @@ msgid "Organization address (multiline)"
 msgstr "Adresse der Organisation (mehrzeilig)"
 
 msgid "Welcome message or organization description"
-msgstr "Begruessungstext oder Beschreibung der Organisation"
+msgstr "Begrüßungstext oder Beschreibung der Organisation"
 
 msgid "Opening Hours"
-msgstr "Oeffnungszeiten"
+msgstr "Öffnungszeiten"
 
 msgid "Opening hours (multiline)"
-msgstr "Oeffnungszeiten (mehrzeilig)"
+msgstr "Öffnungszeiten (mehrzeilig)"
 
 msgid "State Media Institution"
 msgstr "Landesmedienanstalt"
 
 msgid "Regulatory institution code (MSA, LFK, BLM, etc.)"
-msgstr "Kuerzel der Landesmedienanstalt (MSA, LFK, BLM, etc.)"
+msgstr "Kürzel der Landesmedienanstalt (MSA, LFK, BLM, etc.)"
 
 msgid "Organization Owner"
-msgstr "Traeger"
+msgstr "Träger"
 
 msgid "Owner/operator identifier (matches MediaAuthority name)"
-msgstr "Traeger/Betreiber-Kennung (entspricht MediaAuthority-Name)"
+msgstr "Träger/Betreiber-Kennung (entspricht MediaAuthority-Name)"
 
 msgid "Broadcast Start Time"
 msgstr "Sendestart"
@@ -1628,10 +1522,10 @@ msgid "PeerTube channel identifier"
 msgstr "PeerTube-Kanalkennung"
 
 msgid "Privacy Policy (Datenschutz)"
-msgstr "Datenschutzerklaerung"
+msgstr "Datenschutzerklärung"
 
 msgid "Privacy policy text"
-msgstr "Text der Datenschutzerklaerung"
+msgstr "Text der Datenschutzerklärung"
 
 msgid "Imprint (Impressum)"
 msgstr "Impressum"
@@ -1646,13 +1540,13 @@ msgid "Terms and conditions text"
 msgstr "AGB-Text"
 
 msgid "Organization Configuration"
-msgstr "Organisations-Konfiguration"
+msgstr "Organisationskonfiguration"
 
 msgid "Open Channel Merseburg-Querfurt e.V."
-msgstr ""
+msgstr "Offener Kanal Merseburg-Querfurt e.V."
 
 msgid "OK Merseburg"
-msgstr ""
+msgstr "OK Merseburg"
 
 msgid "registration_form.txt"
 msgstr "registrierungsformular.txt"
@@ -1677,8 +1571,7 @@ msgid ""
 "now fully activated.\n"
 msgstr ""
 "\n"
-"Wir haben Ihren Antrag erhalten und Ihre Daten geprüft. Ihr Konto ist nun "
-"vollständig aktiviert.\n"
+"Wir haben Ihren Antrag erhalten und Ihre Daten genehmigt. Ihr Konto ist nun vollständig aktiviert.\n"
 
 msgid ""
 "\n"
@@ -1705,7 +1598,7 @@ msgid ""
 "Your Account for %(ok_name)s has been verified\n"
 msgstr ""
 "\n"
-"Ihr Konto für %(ok_name)s wurde verifiziert\n"
+"Ihr Konto für %(ok_name)s wurde genehmigt\n"
 
 msgid "Edit user data"
 msgstr "Nutzerdaten bearbeiten"
@@ -1753,10 +1646,10 @@ msgid "Register here"
 msgstr "Hier registrieren"
 
 msgid "Password reset complete"
-msgstr "Zurücksetzen des Passworts abgeschlossen"
+msgstr "Passwort zurückgesetzt"
 
 msgid "Your new password has been set. You can log in now:"
-msgstr "Ihr neues Passwort wurde gesetzt. Sie können sich jetzt einloggen:"
+msgstr "Ihr neues Passwort wurde gesetzt. Sie können sich jetzt anmelden:"
 
 msgid "log in page"
 msgstr "Anmeldeseite"
@@ -1772,7 +1665,7 @@ msgid ""
 "used.  Please request a new password reset."
 msgstr ""
 "Der Link zum Zurücksetzen des Passworts war ungültig, möglicherweise wurde "
-"er bereits verwendet. Bitte fordern Sie einen neuen Link an."
+"er bereits benutzt. Bitte fordern Sie einen neuen Link zum Zurücksetzen des Passworts an."
 
 msgid "Email Sent"
 msgstr "E-Mail gesendet"
@@ -1784,12 +1677,11 @@ msgid ""
 "If your given email is registered, we've emailed you instructions for "
 "setting your password. You should receive the email shortly!"
 msgstr ""
-"Wenn Ihre angegebene E-Mail-Adresse registriert ist, haben wir Ihnen eine E-"
-"Mail mit Anweisungen zum Festlegen Ihres Passworts gesendet. Sie sollten die "
-"E-Mail in Kürze erhalten!"
+"Wenn Ihre angegebene E-Mail-Adresse registriert ist, haben wir Ihnen Anweisungen "
+"zum Festlegen Ihres Passworts per E-Mail gesendet. Sie sollten die E-Mail in Kürze erhalten!"
 
 msgid "Home"
-msgstr "Start"
+msgstr "Startseite"
 
 msgid "Log In"
 msgstr "Anmelden"
@@ -1829,7 +1721,7 @@ msgid ""
 "Enter your email address below, and we'll send you a link so you can set a "
 "new password."
 msgstr ""
-"Geben Sie unten Ihre E-Mail-Adresse ein, und wir senden Ihnen einen Link, "
+"Geben Sie unten Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, "
 "mit dem Sie ein neues Passwort festlegen können."
 
 msgid "Send email"
@@ -1837,7 +1729,7 @@ msgstr "E-Mail senden"
 
 #, python-format
 msgid "Password reset for %(ok_name)s"
-msgstr "Passwort-Reset für %(ok_name)s"
+msgstr "Passwortzurücksetzung für %(ok_name)s"
 
 #, python-format
 msgid ""
@@ -1872,7 +1764,7 @@ msgid "Create Your Account"
 msgstr "Erstellen Sie Ihr Konto"
 
 msgid "Join our community and start creating amazing content"
-msgstr "Treten Sie unserer Community bei und erstellen Sie tolle Inhalte"
+msgstr "Treten Sie unserer Community bei und beginnen Sie, großartige Inhalte zu erstellen"
 
 msgid "Already have an account?"
 msgstr "Sie haben bereits ein Konto?"
@@ -1892,8 +1784,8 @@ msgid ""
 msgstr ""
 "\n"
 "Sie haben sich erfolgreich bei %(OK_NAME)s registriert. In Kürze erhalten "
-"Sie eine E-Mail mit einem Link. Verwenden Sie diesen Link, um Ihr Passwort "
-"festzulegen. Danach können Sie sich anmelden.\n"
+"Sie eine E-Mail mit einem Link. Benutzen Sie diesen Link, um Ihr Passwort "
+"festzulegen. Danach sollten Sie sich anmelden können.\n"
 
 msgid "Back to the start page"
 msgstr "Zurück zur Startseite"
@@ -1907,102 +1799,100 @@ msgstr "Ihr Profil wurde erfolgreich aktualisiert."
 
 #, python-format
 msgid " By %(filter_title)s "
-msgstr ""
+msgstr " Nach %(filter_title)s "
 
-#, fuzzy
-#| msgid "Message"
 msgid "Messages"
-msgstr "Nachricht"
+msgstr "Nachrichten"
 
 msgid "Site Maps"
-msgstr ""
+msgstr "Sitemaps"
 
 msgid "Static Files"
-msgstr ""
+msgstr "Statische Dateien"
 
-#, fuzzy
-#| msgid "Notification"
 msgid "Syndication"
-msgstr "Benachrichtigung"
+msgstr "Syndikation"
 
 #. Translators: String used to replace omitted page numbers in elided page
 #. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
 msgid "…"
-msgstr ""
+msgstr "…"
 
 msgid "That page number is not an integer"
-msgstr ""
+msgstr "Diese Seitennummer ist keine ganze Zahl"
 
 msgid "That page number is less than 1"
-msgstr ""
+msgstr "Diese Seitennummer ist kleiner als 1"
 
 msgid "That page contains no results"
-msgstr ""
+msgstr "Diese Seite enthält keine Ergebnisse"
 
 msgid "Enter a valid value."
-msgstr ""
+msgstr "Geben Sie einen gültigen Wert ein."
 
 msgid "Enter a valid domain name."
-msgstr ""
+msgstr "Geben Sie einen gültigen Domainnamen ein."
 
 msgid "Enter a valid URL."
-msgstr ""
+msgstr "Geben Sie eine gültige URL ein."
 
 msgid "Enter a valid integer."
-msgstr ""
+msgstr "Geben Sie eine gültige Ganzzahl ein."
 
-#, fuzzy
-#| msgid "email address"
 msgid "Enter a valid email address."
-msgstr "E-Mail-Adresse"
+msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
 
 #. Translators: "letters" means latin letters: a-z and A-Z.
 msgid ""
 "Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
 msgstr ""
+"Geben Sie einen gültigen „Slug“ ein, bestehend aus Buchstaben, Zahlen, Unterstrichen oder Bindestrichen."
 
 msgid ""
 "Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
 "hyphens."
 msgstr ""
+"Geben Sie einen gültigen „Slug“ ein, bestehend aus Unicode-Buchstaben, Zahlen, Unterstrichen oder Bindestrichen."
 
 #, python-format
 msgid "Enter a valid %(protocol)s address."
-msgstr ""
+msgstr "Geben Sie eine gültige %(protocol)s-Adresse ein."
 
 msgid "IPv4"
-msgstr ""
+msgstr "IPv4"
 
 msgid "IPv6"
-msgstr ""
+msgstr "IPv6"
 
 msgid "IPv4 or IPv6"
-msgstr ""
+msgstr "IPv4 oder IPv6"
 
 msgid "Enter only digits separated by commas."
-msgstr ""
+msgstr "Geben Sie nur Ziffern ein, getrennt durch Kommas."
 
 #, python-format
 msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
-msgstr ""
+msgstr "Stellen Sie sicher, dass dieser Wert %(limit_value)s ist (es ist %(show_value)s)."
 
 #, python-format
 msgid "Ensure this value is less than or equal to %(limit_value)s."
-msgstr ""
+msgstr "Stellen Sie sicher, dass dieser Wert kleiner oder gleich %(limit_value)s ist."
 
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
+msgstr "Stellen Sie sicher, dass dieser Wert größer oder gleich %(limit_value)s ist."
 
 #, python-format
 msgid "Ensure this value is a multiple of step size %(limit_value)s."
-msgstr ""
+msgstr "Stellen Sie sicher, dass dieser Wert ein Vielfaches von %(limit_value)s ist."
 
 #, python-format
 msgid ""
 "Ensure this value is a multiple of step size %(limit_value)s, starting from "
 "%(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and so on."
 msgstr ""
+"Stellen Sie sicher, dass dieser Wert ein Vielfaches von %(limit_value)s ist, "
+"beginnend bei %(offset)s, z.B. %(offset)s, %(valid_value1)s, %(valid_value2)s usw."
 
 #, python-format
 msgid ""
@@ -2011,8 +1901,8 @@ msgid ""
 msgid_plural ""
 "Ensure this value has at least %(limit_value)d characters (it has "
 "%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Stellen Sie sicher, dass dieser Wert mindestens %(limit_value)d Zeichen hat (er hat %(show_value)d)."
+msgstr[1] "Stellen Sie sicher, dass dieser Wert mindestens %(limit_value)d Zeichen hat (er hat %(show_value)d)."
 
 #, python-format
 msgid ""
@@ -2021,722 +1911,678 @@ msgid ""
 msgid_plural ""
 "Ensure this value has at most %(limit_value)d characters (it has "
 "%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Stellen Sie sicher, dass dieser Wert höchstens %(limit_value)d Zeichen hat (er hat %(show_value)d)."
+msgstr[1] "Stellen Sie sicher, dass dieser Wert höchstens %(limit_value)d Zeichen hat (er hat %(show_value)d)."
 
-#, fuzzy
-#| msgid "phone number"
 msgid "Enter a number."
-msgstr "Telefonnummer"
+msgstr "Geben Sie eine Zahl ein."
 
 #, python-format
 msgid "Ensure that there are no more than %(max)s digit in total."
 msgid_plural "Ensure that there are no more than %(max)s digits in total."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Stellen Sie sicher, dass insgesamt nicht mehr als %(max)s Ziffer vorhanden ist."
+msgstr[1] "Stellen Sie sicher, dass insgesamt nicht mehr als %(max)s Ziffern vorhanden sind."
 
 #, python-format
 msgid "Ensure that there are no more than %(max)s decimal place."
 msgid_plural "Ensure that there are no more than %(max)s decimal places."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Stellen Sie sicher, dass nicht mehr als %(max)s Dezimalstelle vorhanden ist."
+msgstr[1] "Stellen Sie sicher, dass nicht mehr als %(max)s Dezimalstellen vorhanden sind."
 
 #, python-format
 msgid ""
 "Ensure that there are no more than %(max)s digit before the decimal point."
 msgid_plural ""
 "Ensure that there are no more than %(max)s digits before the decimal point."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Stellen Sie sicher, dass vor dem Dezimalpunkt nicht mehr als %(max)s Ziffer vorhanden ist."
+msgstr[1] "Stellen Sie sicher, dass vor dem Dezimalpunkt nicht mehr als %(max)s Ziffern vorhanden sind."
 
 #, python-format
 msgid ""
 "File extension “%(extension)s” is not allowed. Allowed extensions are: "
 "%(allowed_extensions)s."
 msgstr ""
+"Dateierweiterung „%(extension)s“ ist nicht erlaubt. Erlaubte Erweiterungen sind: %(allowed_extensions)s."
 
 msgid "Null characters are not allowed."
-msgstr ""
+msgstr "Nullzeichen sind nicht erlaubt."
 
 msgid "and"
-msgstr ""
+msgstr "und"
 
 #, python-format
 msgid "%(model_name)s with this %(field_labels)s already exists."
-msgstr ""
+msgstr "%(model_name)s mit diesen %(field_labels)s existiert bereits."
 
 #, python-format
 msgid "Constraint “%(name)s” is violated."
-msgstr ""
+msgstr "Einschränkung „%(name)s“ wurde verletzt."
 
 #, python-format
 msgid "Value %(value)r is not a valid choice."
-msgstr ""
+msgstr "Wert %(value)r ist keine gültige Auswahl."
 
 msgid "This field cannot be null."
-msgstr ""
+msgstr "Dieses Feld darf nicht Null sein."
 
 msgid "This field cannot be blank."
-msgstr ""
+msgstr "Dieses Feld darf nicht leer sein."
 
 #, python-format
 msgid "%(model_name)s with this %(field_label)s already exists."
-msgstr ""
+msgstr "%(model_name)s mit diesem %(field_label)s existiert bereits."
 
 #. Translators: The 'lookup_type' is one of 'date', 'year' or
 #. 'month'. Eg: "Title must be unique for pub_date year"
 #, python-format
 msgid ""
 "%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
-msgstr ""
+msgstr "%(field_label)s muss für %(date_field_label)s %(lookup_type)s eindeutig sein."
 
 #, python-format
 msgid "Field of type: %(field_type)s"
-msgstr ""
+msgstr "Feld vom Typ: %(field_type)s"
 
 #, python-format
 msgid "“%(value)s” value must be either True or False."
-msgstr ""
+msgstr "Der Wert „%(value)s“ muss entweder wahr oder falsch sein."
 
 #, python-format
 msgid "“%(value)s” value must be either True, False, or None."
-msgstr ""
+msgstr "Der Wert „%(value)s“ muss entweder wahr, falsch oder None sein."
 
 msgid "Boolean (Either True or False)"
-msgstr ""
+msgstr "Boolesch (entweder wahr oder falsch)"
 
 #, python-format
 msgid "String (up to %(max_length)s)"
-msgstr ""
+msgstr "Zeichenkette (bis zu %(max_length)s)"
 
 msgid "String (unlimited)"
-msgstr ""
+msgstr "Zeichenkette (unbegrenzt)"
 
 msgid "Comma-separated integers"
-msgstr ""
+msgstr "Kommagetrennte Ganzzahlen"
 
 #, python-format
 msgid ""
 "“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
 "format."
 msgstr ""
+"Der Wert „%(value)s“ hat ein ungültiges Datumsformat. Es muss im Format JJJJ-MM-TT sein."
 
 #, python-format
 msgid ""
 "“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
 "date."
 msgstr ""
+"Der Wert „%(value)s“ hat das korrekte Format (JJJJ-MM-TT), ist aber ein ungültiges Datum."
 
 msgid "Date (without time)"
-msgstr ""
+msgstr "Datum (ohne Uhrzeit)"
 
 #, python-format
 msgid ""
 "“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
 "HH:MM[:ss[.uuuuuu]][TZ] format."
 msgstr ""
+"Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format JJJJ-MM-TT HH:MM[:ss[.uuuuuu]][TZ] sein."
 
 #, python-format
 msgid ""
 "“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
 "[TZ]) but it is an invalid date/time."
 msgstr ""
+"Der Wert „%(value)s“ hat das korrekte Format (JJJJ-MM-TT HH:MM[:ss[.uuuuuu]][TZ]), ist aber ein ungültiges Datum/Uhrzeit."
 
 msgid "Date (with time)"
-msgstr ""
+msgstr "Datum (mit Uhrzeit)"
 
 #, python-format
 msgid "“%(value)s” value must be a decimal number."
-msgstr ""
+msgstr "Der Wert „%(value)s“ muss eine Dezimalzahl sein."
 
-#, fuzzy
-#| msgid "mobile number"
 msgid "Decimal number"
-msgstr "Handynummer"
+msgstr "Dezimalzahl"
 
 #, python-format
 msgid ""
 "“%(value)s” value has an invalid format. It must be in [DD] "
 "[[HH:]MM:]ss[.uuuuuu] format."
 msgstr ""
+"Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format [TT] [[HH:]MM:]ss[.uuuuuu] sein."
 
 msgid "File path"
-msgstr ""
+msgstr "Dateipfad"
 
 #, python-format
 msgid "“%(value)s” value must be a float."
-msgstr ""
+msgstr "Der Wert „%(value)s“ muss eine Gleitkommazahl sein."
 
-#, fuzzy
-#| msgid "phone number"
 msgid "Floating point number"
-msgstr "Telefonnummer"
+msgstr "Gleitkommazahl"
 
 #, python-format
 msgid "“%(value)s” value must be an integer."
-msgstr ""
+msgstr "Der Wert „%(value)s“ muss eine Ganzzahl sein."
 
 msgid "Integer"
-msgstr ""
+msgstr "Ganzzahl"
 
 msgid "Big (8 byte) integer"
-msgstr ""
+msgstr "Große Ganzzahl (8 Byte)"
 
 msgid "Small integer"
-msgstr ""
+msgstr "Kleine Ganzzahl"
 
-#, fuzzy
-#| msgid "email address"
 msgid "IPv4 address"
-msgstr "E-Mail-Adresse"
+msgstr "IPv4-Adresse"
 
-#, fuzzy
-#| msgid "email address"
 msgid "IP address"
-msgstr "E-Mail-Adresse"
+msgstr "IP-Adresse"
 
 #, python-format
 msgid "“%(value)s” value must be either None, True or False."
-msgstr ""
+msgstr "Der Wert „%(value)s“ muss entweder None, wahr oder falsch sein."
 
 msgid "Boolean (Either True, False or None)"
-msgstr ""
+msgstr "Boolesch (entweder wahr, falsch oder None)"
 
 msgid "Positive big integer"
-msgstr ""
+msgstr "Positive große Ganzzahl"
 
 msgid "Positive integer"
-msgstr ""
+msgstr "Positive Ganzzahl"
 
 msgid "Positive small integer"
-msgstr ""
+msgstr "Positive kleine Ganzzahl"
 
 #, python-format
 msgid "Slug (up to %(max_length)s)"
-msgstr ""
+msgstr "Slug (bis zu %(max_length)s)"
 
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 #, python-format
 msgid ""
 "“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
 "format."
 msgstr ""
+"Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format HH:MM[:ss[.uuuuuu]] sein."
 
 #, python-format
 msgid ""
 "“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
 "invalid time."
 msgstr ""
+"Der Wert „%(value)s“ hat das korrekte Format (HH:MM[:ss[.uuuuuu]]), ist aber eine ungültige Uhrzeit."
 
-#, fuzzy
-#| msgid "End Date"
 msgid "Time"
-msgstr "Enddatum"
+msgstr "Uhrzeit"
 
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 msgid "Raw binary data"
-msgstr ""
+msgstr "Roh-Binärdaten"
 
 #, python-format
 msgid "“%(value)s” is not a valid UUID."
-msgstr ""
+msgstr "„%(value)s“ ist keine gültige UUID."
 
 msgid "Universally unique identifier"
-msgstr ""
+msgstr "Universally Unique Identifier (UUID)"
 
 msgid "File"
-msgstr ""
+msgstr "Datei"
 
 msgid "Image"
-msgstr ""
+msgstr "Bild"
 
 msgid "A JSON object"
-msgstr ""
+msgstr "Ein JSON-Objekt"
 
 msgid "Value must be valid JSON."
-msgstr ""
+msgstr "Der Wert muss ein gültiges JSON sein."
 
 #, python-format
 msgid "%(model)s instance with %(field)s %(value)r is not a valid choice."
-msgstr ""
+msgstr "%(model)s-Instanz mit %(field)s %(value)r ist keine gültige Auswahl."
 
 msgid "Foreign Key (type determined by related field)"
-msgstr ""
+msgstr "Fremdschlüssel (Typ durch das zugehörige Feld bestimmt)"
 
 msgid "One-to-one relationship"
-msgstr ""
+msgstr "Eins-zu-eins-Beziehung"
 
 #, python-format
 msgid "%(from)s-%(to)s relationship"
-msgstr ""
+msgstr "%(from)s-%(to)s Beziehung"
 
 #, python-format
 msgid "%(from)s-%(to)s relationships"
-msgstr ""
+msgstr "%(from)s-%(to)s Beziehungen"
 
 msgid "Many-to-many relationship"
-msgstr ""
+msgstr "Viele-zu-viele-Beziehung"
 
 #. Translators: If found as last label character, these punctuation
 #. characters will prevent the default label_suffix to be appended to the label
 msgid ":?.!"
-msgstr ""
+msgstr ":?.!"
 
 msgid "This field is required."
-msgstr ""
+msgstr "Dieses Feld ist erforderlich."
 
-#, fuzzy
-#| msgid "phone number"
 msgid "Enter a whole number."
-msgstr "Telefonnummer"
+msgstr "Geben Sie eine ganze Zahl ein."
 
 msgid "Enter a valid date."
-msgstr ""
+msgstr "Geben Sie ein gültiges Datum ein."
 
 msgid "Enter a valid time."
-msgstr ""
+msgstr "Geben Sie eine gültige Uhrzeit ein."
 
 msgid "Enter a valid date/time."
-msgstr ""
+msgstr "Geben Sie ein gültiges Datum/Uhrzeit ein."
 
 msgid "Enter a valid duration."
-msgstr ""
+msgstr "Geben Sie eine gültige Dauer ein."
 
 #, python-brace-format
 msgid "The number of days must be between {min_days} and {max_days}."
-msgstr ""
+msgstr "Die Anzahl der Tage muss zwischen {min_days} und {max_days} liegen."
 
 msgid "No file was submitted. Check the encoding type on the form."
-msgstr ""
+msgstr "Es wurde keine Datei übermittelt. Prüfen Sie den Codierungstyp im Formular."
 
 msgid "No file was submitted."
-msgstr ""
+msgstr "Es wurde keine Datei übermittelt."
 
 msgid "The submitted file is empty."
-msgstr ""
+msgstr "Die übermittelte Datei ist leer."
 
 #, python-format
 msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
 msgid_plural ""
 "Ensure this filename has at most %(max)d characters (it has %(length)d)."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Stellen Sie sicher, dass der Dateiname höchstens %(max)d Zeichen hat (er hat %(length)d)."
+msgstr[1] "Stellen Sie sicher, dass der Dateiname höchstens %(max)d Zeichen hat (er hat %(length)d)."
 
 msgid "Please either submit a file or check the clear checkbox, not both."
-msgstr ""
+msgstr "Bitte reichen Sie entweder eine Datei ein oder wählen Sie das Feld zum Entfernen aus, aber nicht beides."
 
 msgid ""
 "Upload a valid image. The file you uploaded was either not an image or a "
 "corrupted image."
-msgstr ""
+msgstr "Laden Sie ein gültiges Bild hoch. Die hochgeladene Datei war entweder kein Bild oder ein beschädigtes Bild."
 
 #, python-format
 msgid "Select a valid choice. %(value)s is not one of the available choices."
-msgstr ""
+msgstr "Wählen Sie eine gültige Option. %(value)s ist keine der verfügbaren Auswahlmöglichkeiten."
 
 msgid "Enter a list of values."
-msgstr ""
+msgstr "Geben Sie eine Liste von Werten ein."
 
 msgid "Enter a complete value."
-msgstr ""
+msgstr "Geben Sie einen vollständigen Wert ein."
 
 msgid "Enter a valid UUID."
-msgstr ""
+msgstr "Geben Sie eine gültige UUID ein."
 
 msgid "Enter a valid JSON."
-msgstr ""
+msgstr "Geben Sie ein gültiges JSON ein."
 
 #. Translators: This is the default suffix added to form field labels
 msgid ":"
-msgstr ""
+msgstr ":"
 
 #, python-format
 msgid "(Hidden field %(name)s) %(error)s"
-msgstr ""
+msgstr "(Verstecktes Feld %(name)s) %(error)s"
 
 #, python-format
 msgid ""
 "ManagementForm data is missing or has been tampered with. Missing fields: "
 "%(field_names)s. You may need to file a bug report if the issue persists."
-msgstr ""
+msgstr "ManagementForm-Daten fehlen oder wurden verändert. Fehlende Felder: %(field_names)s. Falls das Problem weiterhin besteht, melden Sie bitte einen Fehler."
 
 #, python-format
 msgid "Please submit at most %(num)d form."
 msgid_plural "Please submit at most %(num)d forms."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Bitte übermitteln Sie höchstens %(num)d Formular."
+msgstr[1] "Bitte übermitteln Sie höchstens %(num)d Formulare."
 
 #, python-format
 msgid "Please submit at least %(num)d form."
 msgid_plural "Please submit at least %(num)d forms."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Bitte übermitteln Sie mindestens %(num)d Formular."
+msgstr[1] "Bitte übermitteln Sie mindestens %(num)d Formulare."
 
 msgid "Order"
-msgstr ""
+msgstr "Bestellung"
 
 #, python-format
 msgid "Please correct the duplicate data for %(field)s."
-msgstr ""
+msgstr "Bitte korrigieren Sie die doppelten Daten für %(field)s."
 
 #, python-format
 msgid "Please correct the duplicate data for %(field)s, which must be unique."
-msgstr ""
+msgstr "Bitte korrigieren Sie die doppelten Daten für %(field)s, die eindeutig sein müssen."
 
 #, python-format
 msgid ""
 "Please correct the duplicate data for %(field_name)s which must be unique "
 "for the %(lookup)s in %(date_field)s."
-msgstr ""
+msgstr "Bitte korrigieren Sie die doppelten Daten für %(field_name)s, die für %(lookup)s in %(date_field)s eindeutig sein müssen."
 
 msgid "Please correct the duplicate values below."
-msgstr ""
+msgstr "Bitte korrigieren Sie die unten stehenden doppelten Werte."
 
 msgid "The inline value did not match the parent instance."
-msgstr ""
+msgstr "Der Inline-Wert stimmt nicht mit der übergeordneten Instanz überein."
 
 msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
+msgstr "Wählen Sie eine gültige Option. Diese Auswahl ist nicht verfügbar."
 
 #, python-format
 msgid "“%(pk)s” is not a valid value."
-msgstr ""
+msgstr "„%(pk)s“ ist kein gültiger Wert."
 
 #, python-format
 msgid ""
 "%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
 "may be ambiguous or it may not exist."
-msgstr ""
+msgstr "%(datetime)s konnte in der Zeitzone %(current_timezone)s nicht interpretiert werden; sie ist möglicherweise nicht eindeutig oder existiert nicht."
 
 msgid "Clear"
-msgstr ""
+msgstr "Löschen"
 
 msgid "Currently"
-msgstr ""
+msgstr "Aktuell"
 
-#, fuzzy
-#| msgid "Danger"
 msgid "Change"
-msgstr "Gefahr"
+msgstr "Ändern"
 
 #. Translators: Please do not add spaces around commas.
 msgid "yes,no,maybe"
-msgstr ""
+msgstr "ja,nein,vielleicht"
 
 #, python-format
 msgid "%(size)d byte"
 msgid_plural "%(size)d bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(size)d Byte"
+msgstr[1] "%(size)d Bytes"
 
 #, python-format
 msgid "%s KB"
-msgstr ""
+msgstr "%s KB"
 
 #, python-format
 msgid "%s MB"
-msgstr ""
+msgstr "%s MB"
 
 #, python-format
 msgid "%s GB"
-msgstr ""
+msgstr "%s GB"
 
 #, python-format
 msgid "%s TB"
-msgstr ""
+msgstr "%s TB"
 
 #, python-format
 msgid "%s PB"
-msgstr ""
+msgstr "%s PB"
 
 msgid "p.m."
-msgstr ""
+msgstr "nachm."
 
 msgid "a.m."
-msgstr ""
+msgstr "vorm."
 
 msgid "PM"
-msgstr ""
+msgstr "NM"
 
 msgid "AM"
-msgstr ""
+msgstr "VM"
 
 msgid "midnight"
-msgstr ""
+msgstr "Mitternacht"
 
 msgid "noon"
-msgstr ""
+msgstr "Mittag"
 
 msgid "Monday"
-msgstr ""
+msgstr "Montag"
 
 msgid "Tuesday"
-msgstr ""
+msgstr "Dienstag"
 
 msgid "Wednesday"
-msgstr ""
+msgstr "Mittwoch"
 
 msgid "Thursday"
-msgstr ""
+msgstr "Donnerstag"
 
 msgid "Friday"
-msgstr ""
+msgstr "Freitag"
 
 msgid "Saturday"
-msgstr ""
+msgstr "Samstag"
 
 msgid "Sunday"
-msgstr ""
+msgstr "Sonntag"
 
 msgid "Mon"
-msgstr ""
+msgstr "Mo"
 
 msgid "Tue"
-msgstr ""
+msgstr "Di"
 
 msgid "Wed"
-msgstr ""
+msgstr "Mi"
 
 msgid "Thu"
-msgstr ""
+msgstr "Do"
 
 msgid "Fri"
-msgstr ""
+msgstr "Fr"
 
 msgid "Sat"
-msgstr ""
+msgstr "Sa"
 
 msgid "Sun"
-msgstr ""
+msgstr "So"
 
 msgid "jan"
-msgstr ""
+msgstr "Jan"
 
 msgid "feb"
-msgstr ""
+msgstr "Feb"
 
 msgid "mar"
-msgstr ""
+msgstr "Mär"
 
 msgid "apr"
-msgstr ""
+msgstr "Apr"
 
-#, fuzzy
-#| msgid "May"
 msgid "may"
 msgstr "Mai"
 
 msgid "jun"
-msgstr ""
+msgstr "Jun"
 
 msgid "jul"
-msgstr ""
+msgstr "Jul"
 
 msgid "aug"
-msgstr ""
+msgstr "Aug"
 
 msgid "sep"
-msgstr ""
+msgstr "Sep"
 
 msgid "oct"
-msgstr ""
+msgstr "Okt"
 
 msgid "nov"
-msgstr ""
+msgstr "Nov"
 
 msgid "dec"
-msgstr ""
+msgstr "Dez"
 
 msgctxt "abbrev. month"
 msgid "Jan."
-msgstr ""
+msgstr "Jan."
 
 msgctxt "abbrev. month"
 msgid "Feb."
-msgstr ""
+msgstr "Feb."
 
-#, fuzzy
-#| msgid "March"
 msgctxt "abbrev. month"
 msgid "March"
 msgstr "März"
 
-#, fuzzy
-#| msgid "April"
 msgctxt "abbrev. month"
 msgid "April"
 msgstr "April"
 
-#, fuzzy
-#| msgid "May"
 msgctxt "abbrev. month"
 msgid "May"
 msgstr "Mai"
 
-#, fuzzy
-#| msgid "June"
 msgctxt "abbrev. month"
 msgid "June"
 msgstr "Juni"
 
-#, fuzzy
-#| msgid "July"
 msgctxt "abbrev. month"
 msgid "July"
 msgstr "Juli"
 
 msgctxt "abbrev. month"
 msgid "Aug."
-msgstr ""
+msgstr "Aug."
 
 msgctxt "abbrev. month"
 msgid "Sept."
-msgstr ""
+msgstr "Sep."
 
 msgctxt "abbrev. month"
 msgid "Oct."
-msgstr ""
+msgstr "Okt."
 
 msgctxt "abbrev. month"
 msgid "Nov."
-msgstr ""
+msgstr "Nov."
 
 msgctxt "abbrev. month"
 msgid "Dec."
-msgstr ""
+msgstr "Dez."
 
-#, fuzzy
-#| msgid "January"
 msgctxt "alt. month"
 msgid "January"
 msgstr "Januar"
 
-#, fuzzy
-#| msgid "February"
 msgctxt "alt. month"
 msgid "February"
 msgstr "Februar"
 
-#, fuzzy
-#| msgid "March"
 msgctxt "alt. month"
 msgid "March"
 msgstr "März"
 
-#, fuzzy
-#| msgid "April"
 msgctxt "alt. month"
 msgid "April"
 msgstr "April"
 
-#, fuzzy
-#| msgid "May"
 msgctxt "alt. month"
 msgid "May"
 msgstr "Mai"
 
-#, fuzzy
-#| msgid "June"
 msgctxt "alt. month"
 msgid "June"
 msgstr "Juni"
 
-#, fuzzy
-#| msgid "July"
 msgctxt "alt. month"
 msgid "July"
 msgstr "Juli"
 
-#, fuzzy
-#| msgid "August"
 msgctxt "alt. month"
 msgid "August"
 msgstr "August"
 
-#, fuzzy
-#| msgid "September"
 msgctxt "alt. month"
 msgid "September"
 msgstr "September"
 
-#, fuzzy
-#| msgid "October"
 msgctxt "alt. month"
 msgid "October"
 msgstr "Oktober"
 
-#, fuzzy
-#| msgid "November"
 msgctxt "alt. month"
 msgid "November"
 msgstr "November"
 
-#, fuzzy
-#| msgid "December"
 msgctxt "alt. month"
 msgid "December"
 msgstr "Dezember"
 
 msgid "This is not a valid IPv6 address."
-msgstr ""
+msgstr "Dies ist keine gültige IPv6-Adresse."
 
 #, python-format
 msgctxt "String to return when truncating text"
 msgid "%(truncated_text)s…"
-msgstr ""
+msgstr "%(truncated_text)s…"
 
 msgid "or"
-msgstr ""
+msgstr "oder"
 
 #. Translators: This string is used as a separator between list elements
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #, python-format
 msgid "%(num)d year"
 msgid_plural "%(num)d years"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d Jahr"
+msgstr[1] "%(num)d Jahre"
 
 #, python-format
 msgid "%(num)d month"
 msgid_plural "%(num)d months"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d Monat"
+msgstr[1] "%(num)d Monate"
 
 #, python-format
 msgid "%(num)d week"
 msgid_plural "%(num)d weeks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d Woche"
+msgstr[1] "%(num)d Wochen"
 
 #, python-format
 msgid "%(num)d day"
 msgid_plural "%(num)d days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d Tag"
+msgstr[1] "%(num)d Tage"
 
 #, python-format
 msgid "%(num)d hour"
 msgid_plural "%(num)d hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d Stunde"
+msgstr[1] "%(num)d Stunden"
 
 #, python-format
 msgid "%(num)d minute"
 msgid_plural "%(num)d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d Minute"
+msgstr[1] "%(num)d Minuten"
 
 msgid "Forbidden"
-msgstr ""
+msgstr "Verboten"
 
 msgid "CSRF verification failed. Request aborted."
-msgstr ""
+msgstr "CSRF-Überprüfung fehlgeschlagen. Anfrage abgebrochen."
 
 msgid ""
 "You are seeing this message because this HTTPS site requires a “Referer "
@@ -2744,12 +2590,14 @@ msgid ""
 "required for security reasons, to ensure that your browser is not being "
 "hijacked by third parties."
 msgstr ""
+"Sie sehen diese Nachricht, weil diese HTTPS-Seite verlangt, dass Ihr Webbrowser einen \"Referer-Header\" sendet, aber keiner gesendet wurde. Dieser Header wird aus Sicherheitsgründen benötigt, um sicherzustellen, dass Ihr Browser nicht von Dritten übernommen wird."
 
 msgid ""
 "If you have configured your browser to disable “Referer” headers, please re-"
 "enable them, at least for this site, or for HTTPS connections, or for “same-"
 "origin” requests."
 msgstr ""
+"Wenn Sie Ihren Browser so konfiguriert haben, dass er \"Referer\"-Header deaktiviert, aktivieren Sie diese bitte erneut – zumindest für diese Seite, für HTTPS-Verbindungen oder für \"Same-Origin\"-Anfragen."
 
 msgid ""
 "If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
@@ -2758,84 +2606,89 @@ msgid ""
 "If you’re concerned about privacy, use alternatives like <a "
 "rel=\"noreferrer\" …> for links to third-party sites."
 msgstr ""
+"Falls Sie das <meta name=\"referrer\" content=\"no-referrer\">-Tag oder den Header \"Referrer-Policy: no-referrer\" verwenden, entfernen Sie diese bitte. Der CSRF-Schutz erfordert den \"Referer\"-Header zur strikten Überprüfung. Wenn Sie sich um Ihre Privatsphäre sorgen, verwenden Sie Alternativen wie <a rel=\"noreferrer\" …> bei Links zu Drittseiten."
 
 msgid ""
 "You are seeing this message because this site requires a CSRF cookie when "
 "submitting forms. This cookie is required for security reasons, to ensure "
 "that your browser is not being hijacked by third parties."
 msgstr ""
+"Sie sehen diese Nachricht, weil diese Seite beim Absenden von Formularen ein CSRF-Cookie benötigt. Dieses Cookie wird aus Sicherheitsgründen benötigt, um sicherzustellen, dass Ihr Browser nicht von Dritten übernommen wird."
 
 msgid ""
 "If you have configured your browser to disable cookies, please re-enable "
 "them, at least for this site, or for “same-origin” requests."
 msgstr ""
+"Wenn Sie Ihren Browser so konfiguriert haben, dass Cookies deaktiviert sind, aktivieren Sie diese bitte erneut, zumindest für diese Seite oder für \"Same-Origin\"-Anfragen."
 
 msgid "More information is available with DEBUG=True."
-msgstr ""
+msgstr "Mehr Informationen sind mit DEBUG=True verfügbar."
 
 msgid "No year specified"
-msgstr ""
+msgstr "Kein Jahr angegeben"
 
 msgid "Date out of range"
-msgstr ""
+msgstr "Datum außerhalb des gültigen Bereichs"
 
 msgid "No month specified"
-msgstr ""
+msgstr "Kein Monat angegeben"
 
 msgid "No day specified"
-msgstr ""
+msgstr "Kein Tag angegeben"
 
 msgid "No week specified"
-msgstr ""
+msgstr "Keine Woche angegeben"
 
 #, python-format
 msgid "No %(verbose_name_plural)s available"
-msgstr ""
+msgstr "Keine %(verbose_name_plural)s verfügbar"
 
 #, python-format
 msgid ""
 "Future %(verbose_name_plural)s not available because "
 "%(class_name)s.allow_future is False."
 msgstr ""
+"Zukünftige %(verbose_name_plural)s sind nicht verfügbar, da %(class_name)s.allow_future auf False gesetzt ist."
 
 #, python-format
 msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
-msgstr ""
+msgstr "Ungültiger Datumsstring „%(datestr)s“ im Format „%(format)s“"
 
 #, python-format
 msgid "No %(verbose_name)s found matching the query"
-msgstr ""
+msgstr "Kein %(verbose_name)s entsprechend der Abfrage gefunden"
 
 msgid "Page is not “last”, nor can it be converted to an int."
-msgstr ""
+msgstr "Seite ist weder „last“ noch kann sie in eine Zahl umgewandelt werden."
 
 #, python-format
 msgid "Invalid page (%(page_number)s): %(message)s"
-msgstr ""
+msgstr "Ungültige Seite (%(page_number)s): %(message)s"
 
 #, python-format
 msgid "Empty list and “%(class_name)s.allow_empty” is False."
-msgstr ""
+msgstr "Leere Liste und „%(class_name)s.allow_empty“ ist False."
 
 msgid "Directory indexes are not allowed here."
-msgstr ""
+msgstr "Verzeichnis-Indizes sind hier nicht erlaubt."
 
 #, python-format
 msgid "“%(path)s” does not exist"
-msgstr ""
+msgstr "„%(path)s“ existiert nicht"
 
 #, python-format
 msgid "Index of %(directory)s"
-msgstr ""
+msgstr "Index von %(directory)s"
 
 msgid "The install worked successfully! Congratulations!"
-msgstr ""
+msgstr "Die Installation war erfolgreich! Glückwunsch!"
 
 #, python-format
 msgid ""
 "View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
 "target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
 msgstr ""
+"Lesen Sie die <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" target=\"_blank\" rel=\"noopener\">Release Notes</a> für Django %(version)s"
 
 #, python-format
 msgid ""
@@ -2844,450 +2697,457 @@ msgid ""
 "rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
 "configured any URLs."
 msgstr ""
+"Sie sehen diese Seite, weil <a href=\"https://docs.djangoproject.com/en/%(version)s/ref/settings/#debug\" target=\"_blank\" rel=\"noopener\">DEBUG=True</a> in Ihrer Einstellungsdatei aktiviert ist und Sie keine URLs konfiguriert haben."
 
-#, fuzzy
-#| msgid "ID Document"
 msgid "Django Documentation"
-msgstr "Ausweisdokument"
+msgstr "Django-Dokumentation"
 
 msgid "Topics, references, &amp; how-to’s"
-msgstr ""
+msgstr "Themen, Referenzen &amp; How-tos"
 
 msgid "Tutorial: A Polling App"
-msgstr ""
+msgstr "Tutorial: Eine Umfrage-App"
 
 msgid "Get started with Django"
-msgstr ""
+msgstr "Starte mit Django"
 
 msgid "Django Community"
-msgstr ""
+msgstr "Django-Community"
 
 msgid "Connect, get help, or contribute"
-msgstr ""
+msgstr "Vernetzen, Hilfe erhalten oder beitragen"
 
 msgid "Please fill in all required fields."
-msgstr ""
+msgstr "Bitte füllen Sie alle Pflichtfelder aus."
 
 #, python-brace-format
 msgid "Accessibility barrier reported: {barrier_type}"
-msgstr ""
+msgstr "Barriere für Barrierefreiheit gemeldet: {barrier_type}"
 
 msgid "Thank you for your message. We will contact you within 2 weeks."
-msgstr ""
+msgstr "Vielen Dank für Ihre Nachricht. Wir werden Sie innerhalb von 2 Wochen kontaktieren."
 
 msgid "There was an error sending your message. Please try again later."
-msgstr ""
+msgstr "Beim Senden Ihrer Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut."
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "Configuration"
-msgstr "Beiträge"
+msgstr "Konfiguration"
 
 msgid "Dashboard"
-msgstr ""
+msgstr "Dashboard"
 
 msgid "Main Dashboard"
-msgstr ""
+msgstr "Haupt-Dashboard"
 
 msgid "Exchange Feed"
-msgstr ""
+msgstr "Austausch-Feed"
 
 msgid "All Tools"
 msgstr "Alle Werkzeuge"
 
 msgid "Run selected periodic tasks now"
-msgstr ""
+msgstr "Gewählte periodische Aufgaben jetzt ausführen"
 
 #, python-format
 msgid "Task \"%(task_name)s\" not found in Celery app."
-msgstr ""
+msgstr "Aufgabe \"%(task_name)s\" wurde in der Celery-App nicht gefunden."
 
 #, python-format
 msgid "Task \"%(task_name)s\" started. Task ID: %(task_id)s"
-msgstr ""
+msgstr "Aufgabe \"%(task_name)s\" gestartet. Aufgaben-ID: %(task_id)s"
 
 #, python-format
 msgid "Error running task \"%(task_name)s\": %(error)s"
-msgstr ""
+msgstr "Fehler beim Ausführen der Aufgabe \"%(task_name)s\": %(error)s"
 
 #, python-format
 msgid "%d task(s) started successfully."
-msgstr ""
+msgstr "%d Aufgabe(n) erfolgreich gestartet."
 
 #, python-format
 msgid "%d task(s) failed to start."
-msgstr ""
+msgstr "%d Aufgabe(n) konnten nicht gestartet werden."
 
 msgid "Total runs: {}"
-msgstr ""
+msgstr "Gesamtausführungen: {}"
 
 msgid "Never run"
-msgstr ""
+msgstr "Nie ausgeführt"
 
 msgid "Last Run"
-msgstr ""
+msgstr "Letzte Ausführung"
 
 msgid "No task specified"
-msgstr ""
+msgstr "Keine Aufgabe ausgewählt"
 
 msgid "No results yet"
-msgstr ""
+msgstr "Noch keine Ergebnisse"
 
 msgid "View Results"
-msgstr ""
+msgstr "Ergebnisse anzeigen"
 
 msgid "Last: {}"
-msgstr ""
+msgstr "Letzte: {}"
 
 msgid "N/A"
-msgstr ""
+msgstr "N/V"
 
 msgid "Task Results"
-msgstr ""
+msgstr "Aufgabenergebnisse"
 
 #, python-format
 msgid "Task \"%(task_name)s\" started successfully. Task ID: %(task_id)s"
-msgstr ""
+msgstr "Aufgabe \"%(task_name)s\" erfolgreich gestartet. Aufgaben-ID: %(task_id)s"
 
 msgid "Migrate module settings from environment variables to database configs"
-msgstr ""
+msgstr "Moduleinstellungen von Umgebungsvariablen zu Datenbank-Konfigurationen migrieren"
 
 msgid "Show what would be migrated without actually saving"
-msgstr ""
+msgstr "Anzeigen, was migriert werden würde, ohne zu speichern"
 
 msgid "DRY RUN MODE - No changes will be saved"
-msgstr ""
+msgstr "TESTMODUS – Es werden keine Änderungen gespeichert"
 
-#, fuzzy
-#| msgid "Registration"
 msgid "✓ Registration config migrated"
-msgstr "Registrierung"
+msgstr "✓ Registrierungskonfiguration migriert"
 
 msgid "✓ Rental config migrated"
-msgstr ""
+msgstr "✓ Mietkonfiguration migriert"
 
 msgid "✓ Media Files config migrated"
-msgstr ""
+msgstr "✓ Medien-Dateikonfiguration migriert"
 
 msgid "✓ Licenses config migrated"
-msgstr ""
+msgstr "✓ Freistellungskonfiguration migriert"
 
 msgid "✓ Tools config migrated"
-msgstr ""
+msgstr "✓ Werkzeugkonfiguration migriert"
 
-#, fuzzy
-#| msgid "Registration"
 msgid "✓ Organization config migrated"
-msgstr "Registrierung"
+msgstr "✓ Organisationskonfiguration migriert"
 
 #, python-brace-format
 msgid ""
 "\n"
 "Would migrate {count} config(s)"
 msgstr ""
+"\n"
+"Würde {count} Konfiguration(en) migrieren"
 
 #, python-brace-format
 msgid ""
 "\n"
 "✓ Successfully migrated {count} config(s)"
 msgstr ""
+"\n"
+"✓ Erfolgreich {count} Konfiguration(en) migriert"
 
 msgid "Administration interface"
-msgstr ""
+msgstr "Administrationsoberfläche"
 
 msgid "Run task now"
-msgstr ""
+msgstr "Aufgabe jetzt ausführen"
 
 msgid "Are you sure you want to run this task now?"
-msgstr ""
+msgstr "Sind Sie sicher, dass Sie diese Aufgabe jetzt ausführen möchten?"
 
 msgid ""
 "This will execute the task immediately asynchronously. Check task results to "
 "see the execution status."
 msgstr ""
+"Dies wird die Aufgabe sofort asynchron ausführen. Überprüfen Sie die Aufgabenergebnisse, um den Status der Ausführung zu sehen."
 
 #, python-format
 msgid "Models in the %(name)s application"
-msgstr ""
+msgstr "Modelle in der %(name)s-Anwendung"
 
-#, fuzzy
-#| msgid "last name"
 msgid "Model name"
-msgstr "Nachname"
+msgstr "Modellname"
 
 msgid "Add link"
-msgstr ""
+msgstr "Link hinzufügen"
 
 msgid "Change or view list link"
-msgstr ""
+msgstr "Linkliste ändern oder anzeigen"
 
 msgid "Add"
-msgstr ""
+msgstr "Hinzufügen"
 
 msgid "View"
-msgstr ""
+msgstr "Anzeigen"
 
 msgid "You don't have permission to view or edit anything."
-msgstr ""
+msgstr "Sie haben keine Berechtigung, etwas anzuzeigen oder zu bearbeiten."
 
-#, fuzzy
-#| msgid "Registration"
 msgid "Recent actions"
-msgstr "Registrierung"
+msgstr "Letzte Aktionen"
 
 msgid "My actions"
-msgstr ""
+msgstr "Meine Aktionen"
 
 msgid "None available"
-msgstr ""
+msgstr "Keine verfügbar"
 
 msgid "Added:"
-msgstr ""
+msgstr "Hinzugefügt:"
 
-#, fuzzy
-#| msgid "Change password"
 msgid "Changed:"
-msgstr "Passwort ändern"
+msgstr "Geändert:"
 
 msgid "Deleted:"
-msgstr ""
+msgstr "Gelöscht:"
 
 msgid "Unknown content"
-msgstr ""
+msgstr "Unbekannter Inhalt"
 
 msgid "Toggle navigation"
-msgstr ""
+msgstr "Navigation umschalten"
 
 msgid "Sidebar"
-msgstr ""
+msgstr "Seitenleiste"
 
 msgid "Start typing to filter…"
-msgstr ""
+msgstr "Tippen Sie, um zu filtern…"
 
 msgid "Filter navigation items"
-msgstr ""
+msgstr "Navigationseinträge filtern"
 
 msgid "OK Tools Dashboard"
-msgstr ""
+msgstr "OK Tools Dashboard"
 
 msgid "Rental"
-msgstr ""
+msgstr "Miete"
 
 msgid "Coming Soon!"
-msgstr ""
+msgstr "Demnächst verfügbar!"
 
 msgid "Rental Dashboard"
-msgstr ""
+msgstr "Miete Dashboard"
 
 msgid ""
 "We're working hard to bring you the rental dashboard feature. Soon you'll be "
 "able to book equipment and studio rooms with ease!"
 msgstr ""
+"Wir arbeiten fleißig daran, Ihnen das Miete-Dashboard bereitzustellen. Bald können Sie problemlos Geräte und Studioräume buchen!"
 
 msgid "Development Progress"
-msgstr ""
+msgstr "Entwicklungsfortschritt"
 
 msgid "Got it!"
-msgstr ""
+msgstr "Verstanden!"
 
 msgid "Dashboard - OK Tools"
-msgstr ""
+msgstr "Dashboard – OK Tools"
 
 msgid "My Dashboard"
-msgstr ""
+msgstr "Mein Dashboard"
 
-#, fuzzy
-#| msgid "Licenses"
 msgid "Your Licenses"
-msgstr "Freistellungen"
+msgstr "Ihre Freistellungen"
 
 msgid "Returned"
-msgstr ""
+msgstr "Zurückgegeben"
 
-#, fuzzy
-#| msgid "Overview"
 msgid "Overdue"
-msgstr "Übersicht"
+msgstr "Überfällig"
 
 msgid "Manage your profile and account settings"
-msgstr ""
+msgstr "Verwalten Sie Ihr Profil und Ihre Kontoeinstellungen"
 
-#, fuzzy
-#| msgid "verified"
 msgid "Verified"
-msgstr "verifiziert"
+msgstr "Genehmigt"
 
-#, fuzzy
-#| msgid "member"
 msgid "Member"
 msgstr "Mitglied"
 
 msgid "Quick Actions"
-msgstr ""
+msgstr "Schnellaktionen"
 
-#, fuzzy
-#| msgid "Profile"
 msgid "Edit Profile"
-msgstr "Profil"
+msgstr "Profil bearbeiten"
 
-#, fuzzy
-#| msgid "Print Registration Form"
 msgid "Print Registration"
-msgstr "Registrierungsformular drucken"
+msgstr "Registrierung drucken"
 
 msgid "Your important updates and alerts"
-msgstr ""
+msgstr "Ihre wichtigen Updates und Benachrichtigungen"
 
 msgid "All systems operational"
-msgstr ""
+msgstr "Alle Systeme betriebsbereit"
 
 msgid "Your common tasks and shortcuts"
-msgstr ""
+msgstr "Ihre häufigen Aktionen und Kurzbefehle"
 
-#, fuzzy
-#| msgid "Create license"
 msgid "Create License"
 msgstr "Freistellung erstellen"
 
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Website"
-msgstr "Organisation"
+msgstr "Organisationswebsite"
 
 msgid "Recent Activities"
-msgstr ""
+msgstr "Letzte Aktivitäten"
 
 msgid "Your latest updates and activities"
-msgstr ""
+msgstr "Ihre neuesten Updates und Aktivitäten"
 
-#, fuzzy
-#| msgid "Active"
 msgid "Activity"
-msgstr "Aktiv"
+msgstr "Aktivität"
 
 msgid "No recent activities"
-msgstr ""
+msgstr "Keine aktuellen Aktivitäten"
 
 msgid "Your activities will appear here when you use the system"
-msgstr ""
+msgstr "Ihre Aktivitäten werden hier angezeigt, wenn Sie das System nutzen"
 
-#, fuzzy
-#| msgid "Overview"
 msgid "Monthly Overview"
-msgstr "Übersicht"
+msgstr "Monatliche Übersicht"
 
 msgid "Your activity trends over the last 6 months"
-msgstr ""
+msgstr "Ihre Aktivitätstrends der letzten 6 Monate"
 
-#, fuzzy
-#| msgid "Welcome to the %(ok_name)s"
 msgid "Welcome to OK Tools"
-msgstr "Willkommen bei %(ok_name)s"
+msgstr "Willkommen bei OK Tools"
 
 msgid "OK Tools is the official platform for users of"
-msgstr ""
+msgstr "OK Tools ist die offizielle Plattform für Nutzer:innen von"
 
 msgid ""
 "Here you can register as a user, submit your videos for broadcasting, check "
 "the broadcast history, and book equipment or studio rooms for your "
 "productions."
 msgstr ""
+"Hier können Sie sich als Nutzer:in registrieren, Ihre Beiträge zur Ausstrahlung einreichen, die Ausstrahlungshistorie einsehen und Geräte oder Studioräume für Ihre Produktionen buchen."
 
 msgid "Available after registration:"
-msgstr ""
+msgstr "Nach der Anmeldung verfügbar:"
 
 msgid ""
 "All features below become accessible once you create an account and log in."
-msgstr ""
+msgstr "Alle folgenden Funktionen stehen Ihnen nach der Erstellung eines Kontos und dem Login zur Verfügung."
 
-#, fuzzy
-#| msgid "Registration"
 msgid "User Registration"
-msgstr "Registrierung"
+msgstr "Benutzerregistrierung"
 
 msgid ""
 "Create your personal account to get access to our media services, "
 "facilities, and broadcasting options."
 msgstr ""
+"Legen Sie ein persönliches Konto an, um auf unsere Mediendienste, Einrichtungen und Ausstrahlungsoptionen zuzugreifen."
 
-#, fuzzy
-#| msgid "first name"
 msgid "First Step"
-msgstr "Vorname"
+msgstr "Erster Schritt"
 
-#, fuzzy
-#| msgid "Contributions"
 msgid "Video Contribution"
-msgstr "Beiträge"
+msgstr "Videobeitrag"
 
 msgid ""
 "Submit your own productions for broadcasting on TV, in our livestream, and "
 "in the public Mediathek. Keep track of when your videos have been shown."
 msgstr ""
+"Reichen Sie Ihre eigenen Produktionen zur Ausstrahlung im TV, im Livestream und in der öffentlichen Mediathek ein. Behalten Sie im Überblick, wann Ihre Videos ausgestrahlt wurden."
 
-#, fuzzy
-#| msgid "Login"
 msgid "After Login"
-msgstr "Anmelden"
+msgstr "Nach dem Login"
 
 msgid "Studios & Editing Rooms"
-msgstr ""
+msgstr "Studios & Schnittplätze"
 
 msgid ""
 "Book professional editing suites or our TV studio to realize your projects "
 "with full technical support."
 msgstr ""
+"Buchen Sie professionelle Schnittplätze oder unser TV-Studio, um Ihre Projekte mit kompletter technischer Unterstützung zu realisieren."
 
 msgid "Equipment Rental"
-msgstr ""
+msgstr "Geräteverleih"
 
 msgid ""
 "Borrow professional video, audio, and lighting equipment for free as part of "
 "your membership."
 msgstr ""
+"Leihen Sie sich im Rahmen Ihrer Mitgliedschaft kostenlos professionelle Video-, Audio- und Lichttechnik aus."
 
-#, fuzzy
-#| msgid "Back to the start page"
 msgid "Ready to get started?"
-msgstr "Zurück zur Startseite"
+msgstr "Bereit loszulegen?"
+
+msgid "Loading returned rentals..."
+msgstr "Zurückgegebene Verleihvorgänge werden geladen..."
+
+msgid "EXPIRED RENTALS"
+msgstr "ABGELAUFENE VERLEIHVORGÄNGE"
+
+msgid "Loading expired rentals..."
+msgstr "Abgelaufene Verleihvorgänge werden geladen..."
+
+#, python-format
+msgid "License created: %(title)s"
+msgstr "Freistellung erstellt: %(title)s"
+
+#, python-format
+msgid "Rental %(type)s for %(item)s"
+msgstr "Verleih %(type)s für %(item)s"
+
+#, python-format
+msgid "Contribution broadcast: %(title)s"
+msgstr "Beitrag ausgestrahlt: %(title)s"
+
+msgid "Recorded"
+msgstr "Aufgezeichnet"
+
+#, python-format
+msgid "%(count)d of your license(s) pending approval"
+msgstr "%(count)d Ihrer Freistellungen warten auf Genehmigung"
+
+#, python-format
+msgid "You have %(count)d active rental(s)"
+msgstr "Sie haben %(count)d aktive Verleihvorgänge"
+
+#, python-format
+msgid "You have %(count)d contribution(s) this week"
+msgstr "Sie haben %(count)d Beiträge in dieser Woche"
+
+#, python-format
+msgid "Welcome back, %(name)s!"
+msgstr "Willkommen zurück, %(name)s!"
 
 msgid ""
 "Sign up now and become part of our community – create, broadcast, and share "
 "your own video productions."
 msgstr ""
+"Melden Sie sich jetzt an und werden Sie Teil unserer Community – erstellen, senden und teilen Sie Ihre eigenen Videoproduktionen."
 
 msgid "Choose one of the options above to begin"
-msgstr ""
+msgstr "Wählen Sie eine der obigen Optionen, um zu beginnen"
 
 msgid "About"
-msgstr ""
+msgstr "Über"
 
 msgid "Community Media Center"
-msgstr ""
+msgstr "Community Media Center"
 
 msgid "Phone:"
-msgstr ""
+msgstr "Telefon:"
 
 msgid "Fax:"
-msgstr ""
+msgstr "Fax:"
 
 msgid "E-mail:"
-msgstr ""
+msgstr "E-Mail:"
 
 msgid "Website:"
-msgstr ""
+msgstr "Webseite:"
 
 msgid "Opening hours:"
-msgstr ""
+msgstr "Öffnungszeiten:"
 
 msgid "Datenschutzerklärung"
-msgstr ""
+msgstr "Datenschutzerklärung"
 
 msgid "Impressum"
-msgstr ""
+msgstr "Impressum"
 
 msgid "All rights reserved."
-msgstr ""
+msgstr "Alle Rechte vorbehalten."
 
 msgid ""
 "\n"
@@ -3296,200 +3156,159 @@ msgid ""
 "verified.\n"
 "    "
 msgstr ""
+"\n"
+"    Dieses Konto ist nicht verifiziert. Bitte drucken Sie das Freistellungsformular aus, unterschreiben Sie es und bringen Sie es zusammen mit Ihrem Ausweis zu uns zurück. Das Konto wird dann genehmigt.\n"
+"    "
 
-#, fuzzy
-#| msgid "Print application"
 msgid "Application form"
-msgstr "Antrag drucken"
+msgstr "Freistellungsformular"
 
 msgid ""
 "\n"
 "    This account is verified.\n"
 "    "
 msgstr ""
+"\n"
+"    Dieses Konto ist genehmigt.\n"
+"    "
 
 msgid "Equipment and Studio Rooms Booking"
-msgstr ""
+msgstr "Buchung von Geräten und Studioräumen"
 
 msgid "Booking Process"
-msgstr ""
+msgstr "Buchungsprozess"
 
-#, fuzzy
-#| msgid "Information"
 msgid "1. Your Information"
-msgstr "Information"
+msgstr "1. Ihre Angaben"
 
 msgid "Statistics"
-msgstr ""
+msgstr "Statistiken"
 
 msgid "Your requests"
-msgstr ""
+msgstr "Ihre Anfragen"
 
 msgid "No active requests"
-msgstr ""
+msgstr "Keine aktiven Anfragen"
 
 msgid "Request"
-msgstr ""
+msgstr "Anfrage"
 
 msgid "Period"
-msgstr ""
+msgstr "Zeitraum"
 
 msgid "Items"
-msgstr ""
+msgstr "Elemente"
 
 msgid "Rooms"
-msgstr ""
+msgstr "Räume"
 
 msgid "Loading..."
-msgstr ""
+msgstr "Wird geladen..."
 
-#, fuzzy
-#| msgid "Contact Information"
 msgid "2. Project Information"
-msgstr "Kontaktinformationen"
+msgstr "2. Projektinformationen"
 
 msgid "Project Name"
-msgstr ""
+msgstr "Projektname"
 
 msgid "Purpose of Use"
-msgstr ""
+msgstr "Verwendungszweck"
 
 msgid "3. Time Period"
-msgstr ""
+msgstr "3. Zeitraum"
 
 msgid "From:"
-msgstr ""
+msgstr "Von:"
 
 msgid "To:"
-msgstr ""
+msgstr "Bis:"
 
 msgid "4. Selection"
-msgstr ""
+msgstr "4. Auswahl"
 
 msgid "Nothing selected"
-msgstr ""
+msgstr "Nichts ausgewählt"
 
 msgid "5. Action"
-msgstr ""
+msgstr "5. Aktion"
 
 msgid "Reserve"
-msgstr ""
+msgstr "Reservieren"
 
 msgid "Available Inventory"
-msgstr ""
+msgstr "Verfügbarer Bestand"
 
 msgid "Search inventory..."
-msgstr ""
+msgstr "Bestand durchsuchen..."
 
 msgid "All Owners"
-msgstr ""
+msgstr "Alle Besitzer"
 
 msgid "Reset"
-msgstr ""
+msgstr "Zurücksetzen"
 
 msgid "Show Sets"
-msgstr ""
+msgstr "Sets anzeigen"
 
 msgid "Equipment Sets"
-msgstr ""
+msgstr "Gerätesets"
 
 msgid "Available Sets"
-msgstr ""
+msgstr "Verfügbare Sets"
 
 msgid "Loading sets..."
-msgstr ""
+msgstr "Lade Sets..."
 
 msgid "Set Contents"
-msgstr ""
+msgstr "Set-Inhalt"
 
 msgid "Select a set to view contents"
-msgstr ""
+msgstr "Wählen Sie ein Set, um den Inhalt anzuzeigen"
 
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 msgid "Add Set"
-msgstr ""
+msgstr "Set hinzufügen"
 
 msgid "Available Rooms"
-msgstr ""
+msgstr "Verfügbare Räume"
 
 msgid "List"
-msgstr ""
+msgstr "Liste"
 
 msgid "Calendar"
-msgstr ""
+msgstr "Kalender"
 
 msgid "Loading rooms..."
-msgstr ""
+msgstr "Lade Räume..."
 
 msgid "Booking"
-msgstr ""
+msgstr "Buchung"
 
 msgid "Select a room to book time"
-msgstr ""
+msgstr "Wählen Sie einen Raum, um eine Zeit zu buchen"
 
 msgid "Select room:"
-msgstr ""
+msgstr "Raum auswählen:"
 
 msgid "All Rooms"
-msgstr ""
+msgstr "Alle Räume"
 
 msgid "Loading calendar..."
-msgstr ""
+msgstr "Kalender wird geladen..."
 
 msgid "Rooms are automatically returned after scheduled time"
-msgstr ""
+msgstr "Räume werden nach der geplanten Zeit automatisch zurückgegeben"
 
 msgid "Add Room"
-msgstr ""
+msgstr "Raum hinzufügen"
 
 msgid "CURRENT RENTALS"
-msgstr ""
+msgstr "AKTUELLE MIETEN"
 
 msgid "Loading current rentals..."
-msgstr ""
+msgstr "Lade aktuelle Mieten..."
 
 msgid "RETURNED RENTALS"
-msgstr ""
-
-msgid "Loading returned rentals..."
-msgstr ""
-
-msgid "EXPIRED RENTALS"
-msgstr ""
-
-msgid "Loading expired rentals..."
-msgstr ""
-
-#, python-format
-msgid "License created: %(title)s"
-msgstr ""
-
-#, python-format
-msgid "Rental %(type)s for %(item)s"
-msgstr ""
-
-#, python-format
-msgid "Contribution broadcast: %(title)s"
-msgstr ""
-
-msgid "Recorded"
-msgstr ""
-
-#, python-format
-msgid "%(count)d of your license(s) pending approval"
-msgstr ""
-
-#, python-format
-msgid "You have %(count)d active rental(s)"
-msgstr ""
-
-#, python-format
-msgid "You have %(count)d contribution(s) this week"
-msgstr ""
-
-#, fuzzy, python-format
-#| msgid "Welcome to the %(ok_name)s"
-msgid "Welcome back, %(name)s!"
-msgstr "Willkommen bei %(ok_name)s"
+msgstr "ZURÜCKGEGEBENE MIETEN"

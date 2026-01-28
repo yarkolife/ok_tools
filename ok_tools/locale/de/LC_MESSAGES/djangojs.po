@@ -3,7 +3,6 @@
 # Diese Datei wird unter derselben Lizenz wie das PACKAGE-Paket verteilt.
 # ERSTER AUTOR <EMAIL@ADDRESS>, JAHR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -18,28 +17,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#, fuzzy
-#| msgid "Error creating rental: "
 msgid "No active rentals"
-msgstr "Fehler bei der Erstellung der Ausleihe: "
+msgstr "Keine aktiven Ausleihen"
 
-#, fuzzy
-#| msgid "Requested"
 msgid "Request"
-msgstr "Angefragt"
+msgstr "Anfrage"
 
 msgid "Status"
 msgstr "Status"
 
-#, fuzzy
-#| msgid "3. Time Period"
 msgid "Period"
-msgstr "3. Zeitraum"
+msgstr "Zeitraum"
 
-#, fuzzy
-#| msgid "Item"
 msgid "Items"
-msgstr "Artikel"
+msgstr "Elemente"
 
 msgid "Rooms"
 msgstr "Räume"
@@ -69,7 +60,7 @@ msgid "days overdue"
 msgstr "Tage überfällig"
 
 msgid "Purpose"
-msgstr "Zweck"
+msgstr "Verwendungszweck"
 
 msgid "Planned from"
 msgstr "Geplant von"
@@ -81,13 +72,13 @@ msgid "Returned"
 msgstr "Zurückgegeben"
 
 msgid "Equipment"
-msgstr "Ausrüstung"
+msgstr "Gerät"
 
 msgid "items"
-msgstr "Artikel"
+msgstr "Elemente"
 
 msgid "Item"
-msgstr "Artikel"
+msgstr "Element"
 
 msgid "Requested"
 msgstr "Angefragt"
@@ -99,7 +90,7 @@ msgid "Outstanding"
 msgstr "Offen"
 
 msgid "Unknown item"
-msgstr "Unbekannter Artikel"
+msgstr "Unbekanntes Element"
 
 msgid "rooms"
 msgstr "Räume"
@@ -159,7 +150,7 @@ msgid "Select dates above to view availability"
 msgstr "Wählen Sie oben Daten aus, um die Verfügbarkeit anzuzeigen"
 
 msgid "No available inventory for selected period"
-msgstr "Kein verfügbarer Bestand für den ausgewählten Zeitraum"
+msgstr "Kein verfügbares Inventar für den ausgewählten Zeitraum"
 
 msgid "Unknown location"
 msgstr "Unbekannter Standort"
@@ -180,7 +171,7 @@ msgid "Nothing selected"
 msgstr "Nichts ausgewählt"
 
 msgid "items selected"
-msgstr "Artikel ausgewählt"
+msgstr "Elemente ausgewählt"
 
 msgid "rooms selected"
 msgstr "Räume ausgewählt"
@@ -207,7 +198,7 @@ msgid "Missing"
 msgstr "Fehlt"
 
 msgid "items in set"
-msgstr "Artikel im Set"
+msgstr "Elemente im Set"
 
 msgid "Please select a set"
 msgstr "Bitte wählen Sie ein Set aus"
@@ -317,19 +308,19 @@ msgstr ""
 "eine zukünftige Zeit aus."
 
 msgid "Please enter project name"
-msgstr "Bitte Projektnamen eingeben"
+msgstr "Bitte geben Sie den Projektnamen ein"
 
 msgid "Please enter purpose of use"
-msgstr "Bitte Verwendungszweck eingeben"
+msgstr "Bitte geben Sie den Verwendungszweck ein"
 
 msgid "Please select start and end dates"
 msgstr "Bitte wählen Sie Start- und Enddatum aus"
 
 msgid "Please select at least one item or room"
-msgstr "Bitte wählen Sie mindestens einen Artikel oder Raum aus"
+msgstr "Bitte wählen Sie mindestens einen Beitrag oder Raum aus"
 
 msgid "Request submitted for approval. ID: "
-msgstr "Antrag zur Genehmigung eingereicht. ID: "
+msgstr "Anfrage zur Genehmigung eingereicht. ID: "
 
 msgid "Rental successfully booked! ID: "
 msgstr "Ausleihe erfolgreich gebucht! ID: "

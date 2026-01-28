@@ -34,7 +34,7 @@ msgid "Folder Patterns"
 msgstr "Ordner-Muster"
 
 msgid "Sync Settings"
-msgstr "Synchronisierungs-Einstellungen"
+msgstr "Synchronisierungseinstellungen"
 
 msgid ""
 "Note: Periodic sync schedule is managed via <a href=\"/admin/"
@@ -42,15 +42,17 @@ msgid ""
 "(task name: \"sync_exchange_folders\"). You can enable/disable and change "
 "schedule there."
 msgstr ""
+"Hinweis: Der periodische Synchronisationszeitplan wird über <a href=\"/admin/django_celery_beat/periodictask/\" target=\"_blank\">Periodische Aufgaben</a> (Aufgabenname: \"sync_exchange_folders\") gesteuert. Sie können ihn dort aktivieren/deaktivieren und den Zeitplan ändern."
 
 msgid "Storage Settings"
-msgstr "Speicher-Einstellungen"
+msgstr "Speichereinstellungen"
 
 msgid ""
 "Select an existing storage location to use for imports, or leave empty to "
 "create a new one automatically. If storage location is set, download storage "
 "path is only used as fallback."
 msgstr ""
+"Wählen Sie einen vorhandenen Speicherort für Importe aus oder lassen Sie das Feld leer, um automatisch einen neuen zu erstellen. Wenn ein Speicherort festgelegt ist, wird der Download-Speicherpfad nur als Fallback verwendet."
 
 msgid "Auto-Import Settings"
 msgstr "Auto-Import-Einstellungen"
@@ -103,43 +105,43 @@ msgid "License"
 msgstr "Freistellung"
 
 msgid "Video File"
-msgstr "Video-Datei"
+msgstr "Videodatei"
 
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
 msgid "Austausch"
-msgstr ""
+msgstr "Austausch"
 
 msgid "Contribution ID"
 msgstr "Beitrags-ID"
 
 msgid "Numeric ID from filename (if OK-Tools managed)"
-msgstr "Numerische ID aus Dateiname (wenn OK-Tools verwaltet)"
+msgstr "Numerische ID aus Dateinamen (wenn OK-Tools verwaltet)"
 
 msgid "File Path"
 msgstr "Dateipfad"
 
 msgid "Full Nextcloud path to video file"
-msgstr "Voller Nextcloud-Pfad zur Video-Datei"
+msgstr "Vollständiger Nextcloud-Pfad zur Videodatei"
 
 msgid "PDF Path"
 msgstr "PDF-Pfad"
 
 msgid "Full Nextcloud path to PDF file (if part of package)"
-msgstr "Voller Nextcloud-Pfad zur PDF-Datei (wenn Teil des Pakets)"
+msgstr "Vollständiger Nextcloud-Pfad zur PDF-Datei (wenn Teil des Pakets)"
 
 msgid "Thumbnail Path"
 msgstr "Vorschaubild-Pfad"
 
 msgid "Full Nextcloud path to thumbnail image (jpg, png, etc.)"
-msgstr "Voller Nextcloud-Pfad zum Vorschaubild (jpg, png, etc.)"
+msgstr "Vollständiger Nextcloud-Pfad zum Vorschaubild (jpg, png, etc.)"
 
 msgid "Channel"
 msgstr "Kanal"
 
 msgid "Source channel name"
-msgstr "Quellkanal-Name"
+msgstr "Quellkanalname"
 
 msgid "File Size (bytes)"
 msgstr "Dateigröße (Bytes)"
@@ -166,13 +168,13 @@ msgid "Duration"
 msgstr "Dauer"
 
 msgid "Sender Responsible"
-msgstr "Sendeverantwortung"
+msgstr "Sendeverantwortlicher"
 
 msgid "OK-Tools Managed"
 msgstr "OK-Tools verwaltet"
 
 msgid "Item is managed by OK-Tools (has contribution_id)"
-msgstr "Element wird von OK-Tools verwaltet (hat contribution_id)"
+msgstr "Element wird von OK-Tools verwaltet (hat Beitrags-ID)"
 
 msgid "Item without numeric ID prefix"
 msgstr "Element ohne numerisches ID-Präfix"
@@ -187,7 +189,7 @@ msgid "Failed"
 msgstr "Fehlgeschlagen"
 
 msgid "Import Status"
-msgstr "Import-Status"
+msgstr "Importstatus"
 
 msgid "Discovered At"
 msgstr "Entdeckt am"
@@ -219,15 +221,11 @@ msgstr "Wird verarbeitet"
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#, fuzzy
-#| msgid "Imported At"
 msgid "Created At"
-msgstr "Importiert am"
+msgstr "Erstellt am"
 
-#, fuzzy
-#| msgid "Completed"
 msgid "Completed At"
-msgstr "Abgeschlossen"
+msgstr "Abgeschlossen am"
 
 msgid "Exchange Import"
 msgstr "Austausch-Import"
@@ -274,9 +272,7 @@ msgid ""
 "How many days back to check for new items (for file age filtering). Only "
 "files modified within this period will be processed."
 msgstr ""
-"Wie viele Tage zurück nach neuen Elementen gesucht werden soll (für "
-"Dateialtersfilterung). Nur Dateien, die in diesem Zeitraum geändert wurden, "
-"werden verarbeitet."
+"Wie viele Tage zurück nach neuen Elementen gesucht werden soll (für Dateialtersfilterung). Nur Dateien, die in diesem Zeitraum geändert wurden, werden verarbeitet."
 
 msgid "Sync Date Folders Days"
 msgstr "Sync-Datumsordner-Tage"
@@ -285,29 +281,23 @@ msgid ""
 "How many recent date folders to scan (e.g., 2 = today and yesterday). Files "
 "are organized in date-named folders like \"2026_01_07\"."
 msgstr ""
-"Wie viele aktuelle Datums-Ordner gescannt werden sollen (z.B. 2 = heute und "
-"gestern). Dateien sind in datumsbenannten Ordnern wie \"2026_01_07\" "
-"organisiert."
+"Wie viele aktuelle Datums-Ordner gescannt werden sollen (z.B. 2 = heute und gestern). Dateien sind in datumsbenannten Ordnern wie \"2026_01_07\" organisiert."
 
-#, fuzzy
-#| msgid "Storage Settings"
 msgid "Storage Location"
-msgstr "Speicher-Einstellungen"
+msgstr "Speicherort"
 
 msgid ""
 "Select existing storage location for imported files. If not set, a new "
 "storage will be created automatically."
-msgstr ""
+msgstr "Wählen Sie einen vorhandenen Speicherort für importierte Dateien aus. Falls nicht gesetzt, wird automatisch ein neuer Speicherort erstellt."
 
 msgid "Download Storage Path"
 msgstr "Download-Speicherpfad"
 
-#, fuzzy
-#| msgid "Local path for downloaded files before import"
 msgid ""
 "Local path for downloaded files before import (used if storage location is "
 "not set)"
-msgstr "Lokaler Pfad für heruntergeladene Dateien vor dem Import"
+msgstr "Lokaler Pfad für heruntergeladene Dateien vor dem Import (wird verwendet, wenn kein Speicherort gesetzt ist)"
 
 msgid "Auto-Import Enabled"
 msgstr "Auto-Import aktiviert"
@@ -322,14 +312,13 @@ msgid ""
 "Comma-separated list of channel names to sync (optional, can be auto-"
 "discovered)"
 msgstr ""
-"Kommagetrennte Liste von Kanalnamen zum Synchronisieren (optional, kann "
-"automatisch erkannt werden)"
+"Kommagetrennte Liste von Kanalnamen zum Synchronisieren (optional, kann automatisch erkannt werden)"
 
 msgid "Exchange Configuration"
 msgstr "Austausch-Konfiguration"
 
 msgid "Either storage location or download storage path must be set."
-msgstr ""
+msgstr "Entweder Speicherort oder Download-Speicherpfad muss festgelegt sein."
 
 msgid "Gastbeitrag"
 msgstr "Gastbeitrag"
@@ -352,8 +341,6 @@ msgstr "ausgewählte Elemente?"
 msgid "Import started for"
 msgstr "Import gestartet für"
 
-#, fuzzy
-#| msgid "Items"
 msgid "items"
 msgstr "Elemente"
 
@@ -367,13 +354,13 @@ msgid "Import failed. Please try again."
 msgstr "Import fehlgeschlagen. Bitte versuchen Sie es erneut."
 
 msgid "Browse and import content from exchange folders"
-msgstr "Durchsuchen und importieren von Inhalten aus Austausch-Ordnern"
+msgstr "Durchsuchen und Importieren von Inhalten aus Austausch-Ordnern"
 
 msgid "API"
-msgstr ""
+msgstr "API"
 
 msgid "Total Items"
-msgstr "Gesamt-Elemente"
+msgstr "Gesamte Elemente"
 
 msgid "New Items"
 msgstr "Neue Elemente"
@@ -393,47 +380,41 @@ msgstr "Ab Datum"
 msgid "Search"
 msgstr "Suchen"
 
-#, fuzzy
-#| msgid "Title, description, author..."
 msgid "Title, description, filename..."
-msgstr "Titel, Beschreibung, Autor..."
+msgstr "Titel, Beschreibung, Dateiname..."
 
 msgid "Filter"
 msgstr "Filter"
 
 msgid "OK-Tools managed only"
-msgstr "Nur OK-Tools verwaltet"
+msgstr "Nur von OK-Tools verwaltete"
 
 msgid "Legacy items only"
-msgstr "Nur Legacy-Elemente"
+msgstr "Nur Altelelemente"
 
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgid "Size"
 msgstr "Größe"
 
-#, fuzzy
-#| msgid "Discovered At"
 msgid "Discovered"
-msgstr "Entdeckt am"
+msgstr "Entdeckt"
 
 msgid "No metadata"
-msgstr ""
+msgstr "Keine Metadaten"
 
-#, fuzzy
-#| msgid "Video File"
 msgid "Video"
-msgstr "Video-Datei"
+msgstr "Video"
 
 msgid "PDF"
-msgstr ""
+msgstr "PDF"
 
 msgid "No exchange items found"
 msgstr "Keine Austausch-Elemente gefunden"
 
 msgid "Pagination"
-msgstr ""
+msgstr "Seitennummerierung"
 
 msgid "Previous"
 msgstr "Zurück"
@@ -447,24 +428,20 @@ msgstr "von"
 msgid "Next"
 msgstr "Weiter"
 
-#, fuzzy
-#| msgid "Exchange Item"
 msgid "Import Exchange Item"
-msgstr "Austausch-Element"
+msgstr "Austausch-Beitrag importieren"
 
-#, fuzzy
-#| msgid "Import"
 msgid "Importing"
-msgstr "Importieren"
+msgstr "Importiere"
 
 msgid "This may take a few minutes..."
-msgstr ""
+msgstr "Dies kann einige Minuten dauern..."
 
 msgid "Import started successfully!"
 msgstr "Import wurde erfolgreich gestartet!"
 
 msgid "Item has already been imported."
-msgstr "Element wurde bereits importiert."
+msgstr "Beitrag wurde bereits importiert."
 
 msgid "Home"
 msgstr "Startseite"
@@ -473,7 +450,7 @@ msgid "Sync Exchange Folders"
 msgstr "Austausch-Ordner synchronisieren"
 
 msgid "Selected items:"
-msgstr "Ausgewählte Elemente:"
+msgstr "Ausgewählte Beiträge:"
 
 msgid "Clear Selection"
 msgstr "Auswahl löschen"
@@ -500,13 +477,13 @@ msgid "Video Preview"
 msgstr "Video-Vorschau"
 
 msgid "Your browser does not support video playback."
-msgstr "Ihr Browser unterstützt keine Video-Wiedergabe."
+msgstr "Ihr Browser unterstützt keine Videowiedergabe."
 
 msgid "Close"
 msgstr "Schließen"
 
 msgid "Item not found"
-msgstr "Element nicht gefunden"
+msgstr "Beitrag nicht gefunden"
 
 msgid "Unknown"
 msgstr "Unbekannt"
@@ -520,7 +497,7 @@ msgid ""
 msgstr ""
 "Synchronisation wurde erfolgreich gestartet! Die Synchronisation läuft im "
 "Hintergrund. Bitte aktualisieren Sie die Seite in wenigen Momenten, um neue "
-"Elemente zu sehen."
+"Beiträge zu sehen."
 
 msgid "Sync failed: "
 msgstr "Synchronisation fehlgeschlagen: "

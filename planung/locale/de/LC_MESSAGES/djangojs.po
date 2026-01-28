@@ -46,10 +46,10 @@ msgid "Large gap"
 msgstr "Große Lücke"
 
 msgid "free (can add video)"
-msgstr "frei (Video kann hinzugefügt werden)"
+msgstr "frei (Beitrag kann hinzugefügt werden)"
 
 msgid "Block filled (video extends beyond)"
-msgstr "Block gefüllt (Video überschreitet die Dauer)"
+msgstr "Block gefüllt (Beitrag überschreitet die Dauer)"
 
 msgid "Overplanned by %(time)s!"
 msgstr "Überplant um %(time)s!"
@@ -66,7 +66,7 @@ msgstr "Freistellung nicht gefunden oder nicht genehmigt"
 msgid ""
 "Start time would cause overlap with another video. Adjusted to %(time)s."
 msgstr ""
-"Startzeit würde eine Überlappung mit einem anderen Video verursachen. "
+"Startzeit würde eine Überlappung mit einem anderen Beitrag verursachen. "
 "Angepasst auf %(time)s."
 
 msgid "⚠️ Date is missing."

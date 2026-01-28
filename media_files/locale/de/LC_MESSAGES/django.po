@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# VIDEODATEIEN UND FREISTELLUNG – DEUTSCHE ÜBERSETZUNG
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
@@ -11,41 +11,39 @@ msgstr ""
 "POT-Creation-Date: 2026-01-26 23:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language-Team: Deutsch <de@li.org>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#, fuzzy
-#| msgid "Information"
 msgid "Confirmation phrase"
-msgstr "Information"
+msgstr "Bestätigungsphrase"
 
 msgid "Type the exact confirmation phrase to proceed."
-msgstr ""
+msgstr "Geben Sie die exakte Bestätigungsphrase ein, um fortzufahren."
 
 msgid "Your password"
-msgstr ""
+msgstr "Ihr Passwort"
 
 msgid "Confirmation phrase does not match."
-msgstr ""
+msgstr "Die Bestätigungsphrase stimmt nicht überein."
 
 msgid "Cannot validate password for current user."
-msgstr ""
+msgstr "Das Passwort für den aktuellen Nutzer kann nicht überprüft werden."
 
 msgid "Incorrect password."
-msgstr ""
+msgstr "Falsches Passwort."
 
 msgid "Upload Video File"
-msgstr "Video-Datei hochladen"
+msgstr "Videodatei hochladen"
 
 msgid ""
 "Upload a video file (mp4, mov, mpeg, mpg). The file will be saved to the "
 "selected storage location."
 msgstr ""
-"Laden Sie eine Video-Datei hoch (mp4, mov, mpeg, mpg). Die Datei wird im "
+"Laden Sie eine Videodatei hoch (mp4, mov, mpeg, mpg). Die Datei wird im "
 "ausgewählten Speicherort gespeichert."
 
 msgid "Or specify file path"
@@ -56,16 +54,14 @@ msgstr "Vollständiger Pfad zu einer vorhandenen Videodatei auf dem Server"
 
 msgid "Please either upload a file or specify an existing file path."
 msgstr ""
-"Bitte laden Sie entweder eine Datei hoch oder geben Sie einen vorhandenen "
-"Dateipfad an."
+"Bitte laden Sie eine Datei hoch oder geben Sie einen vorhandenen Dateipfad an."
 
 msgid "Please provide only one: either upload a file OR specify a path."
 msgstr ""
-"Bitte geben Sie nur eines an: Entweder eine Datei hochladen ODER einen Pfad "
-"angeben."
+"Bitte geben Sie nur eine Option an: Entweder eine Datei hochladen ODER einen Pfad angeben."
 
 msgid "Storage location is required."
-msgstr "Speicherort ist erforderlich."
+msgstr "Ein Speicherort ist erforderlich."
 
 msgid "Filename must start with a number (e.g., 12345_title.mp4)"
 msgstr "Dateiname muss mit einer Zahl beginnen (z. B. 12345_titel.mp4)"
@@ -80,7 +76,7 @@ msgid "Path is not a file: {}"
 msgstr "Pfad ist keine Datei: {}"
 
 msgid "File must be within storage location: {}"
-msgstr "Datei muss sich im Speicherort befinden: {}"
+msgstr "Datei muss sich im vorgegebenen Speicherort befinden: {}"
 
 msgid "Scanning"
 msgstr "Scannen"
@@ -94,45 +90,36 @@ msgstr "Anzahl Videos"
 msgid "Videos"
 msgstr "Videos"
 
-#, fuzzy
-#| msgid "Command executed successfully"
 msgid "Scan task queued successfully"
-msgstr "Befehl erfolgreich ausgeführt"
+msgstr "Scan-Aufgabe erfolgreich in die Warteschlange gestellt"
 
 msgid "Task ID"
 msgstr "Aufgaben-ID"
 
 msgid "The scan is running in the background. Check task results for progress."
 msgstr ""
-"Der Scan läuft im Hintergrund. Überprüfen Sie die Aufgaben-Ergebnisse für "
-"den Fortschritt."
+"Der Scan läuft im Hintergrund. Überprüfen Sie die Aufgabenergebnisse für den Fortschritt."
 
 msgid "View Task Results"
-msgstr "Aufgaben-Ergebnisse anzeigen"
+msgstr "Aufgabenergebnisse anzeigen"
 
 msgid "Storage location #{} not found"
 msgstr "Speicherort #{} nicht gefunden"
 
-#, fuzzy
-#| msgid "Error scanning storage: {}"
 msgid "Error queueing scan task: {}"
-msgstr "Fehler beim Scannen des Speichers: {}"
+msgstr "Fehler beim Einreihen der Scan-Aufgabe: {}"
 
 msgid "Scan Options - {}"
 msgstr "Scan-Optionen - {}"
 
-#, fuzzy
-#| msgid "Error deleting video {}: {}"
 msgid "Error queueing scan task for {}: {}"
-msgstr "Fehler beim Löschen des Videos {}: {}"
+msgstr "Fehler beim Einreihen der Scan-Aufgabe für {}: {}"
 
 msgid "Scan tasks queued for"
-msgstr "Scan-Aufgaben in Warteschlange für"
+msgstr "Scan-Aufgaben in die Warteschlange gestellt für"
 
-#, fuzzy
-#| msgid "Storage Locations"
 msgid "storage location(s)"
-msgstr "Speicherorte"
+msgstr "Speicherort(e)"
 
 msgid "Scan selected storage locations"
 msgstr "Ausgewählte Speicherorte scannen"
@@ -144,38 +131,34 @@ msgid "Has Duplicates"
 msgstr "Hat Duplikate"
 
 msgid "Yes - has duplicates"
-msgstr "Ja - hat Duplikate"
+msgstr "Ja – hat Duplikate"
 
 msgid "No - unique"
-msgstr "Nein - eindeutig"
+msgstr "Nein – eindeutig"
 
 msgid "Version Type"
 msgstr "Versionstyp"
 
 msgid "Primary versions"
-msgstr "Primäre Versionen"
+msgstr "Primärversionen"
 
 msgid "Duplicate versions"
 msgstr "Duplizierte Versionen"
 
-#, fuzzy
-#| msgid "Archive"
 msgid "Archive Cleanup"
-msgstr "Archiv"
+msgstr "Archivbereinigung"
 
 msgid "Archive primary (keep)"
-msgstr ""
+msgstr "Primäre archivieren (behalten)"
 
-#, fuzzy
-#| msgid "Find Duplicates"
 msgid "Archive duplicates"
-msgstr "Duplikate finden"
+msgstr "Duplikate archivieren"
 
 msgid "FPS"
 msgstr "FPS"
 
 msgid "25 fps (Broadcast Standard)"
-msgstr "25 fps (Broadcast-Standard)"
+msgstr "25 fps (Sende-Standard)"
 
 msgid "Not 25 fps (⚠ Warning)"
 msgstr "Nicht 25 fps (⚠ Warnung)"
@@ -216,24 +199,21 @@ msgid ""
 "strong> - Reference an existing file on the server<br><br><strong>Important:"
 "</strong> Filename must start with a number (e.g., 12345_title.mp4)"
 msgstr ""
-"Wählen Sie einen Speicherort und dann entweder:<br>• <strong>Datei "
-"hochladen</strong> - Die Datei wird im Speicherort gespeichert<br>• "
-"<strong>Pfad angeben</strong> - Ein vorhandene Datei auf dem Server "
-"referenzieren<br><br><strong>Wichtig:</strong> Der Dateiname muss mit einer "
-"Zahl beginnen (z.B. 12345_title.mp4)"
+"Wählen Sie einen Speicherort und danach entweder:<br>• <strong>Datei hochladen</strong> – Die Datei wird im Speicherort gespeichert<br>• <strong>Pfad angeben</strong> – Eine vorhandene Datei auf dem Server referenzieren<br><br><strong>Wichtig:</strong> Der Dateiname muss mit einer Zahl beginnen (z.B. 12345_title.mp4)"
 
 msgid "Transcode HEVC to H.264 (browser compatible)"
-msgstr ""
+msgstr "HEVC zu H.264 transkodieren (browserkompatibel)"
 
 #, python-brace-format
 msgid ""
 "Queued {count} video(s) for HEVC→H.264 transcoding. Check File Operations "
 "for progress."
 msgstr ""
+"{count} Video(s) für die HEVC→H.264-Transkodierung in die Warteschlange gestellt. Überprüfen Sie den Fortschritt unter Dateivorgänge."
 
 #, python-brace-format
 msgid "Skipped {count} video(s) - already browser compatible."
-msgstr ""
+msgstr "{count} Video(s) übersprungen – bereits browserkompatibel."
 
 msgid "Render video (default presets)"
 msgstr "Video rendern (Standard-Voreinstellungen)"
@@ -259,11 +239,11 @@ msgstr "Outro-Clip nicht gefunden: {p}"
 
 #, python-brace-format
 msgid "Rendered successfully: {n}"
-msgstr "Erfolgreich gerendert: {n}"
+msgstr "{n} erfolgreich gerendert"
 
 #, python-brace-format
 msgid "Failed: {n}"
-msgstr "Fehlgeschlagen: {n}"
+msgstr "{n} fehlgeschlagen"
 
 msgid "Render preview (10s)"
 msgstr "Vorschau rendern (10s)"
@@ -306,14 +286,21 @@ msgid ""
 "\n"
 "Files will be accessible at /app/media/intro_outro/ inside the container."
 msgstr ""
+"Intro/Outro-Dateien nicht gefunden: {files}.\n"
+"\n"
+"Bitte legen Sie die Dateien an einem der folgenden Orte ab:\n"
+"- Produktion: <deployment_dir>/data/media/intro_outro/\n"
+"- Lokale Entwicklung: docker-local/data/media/intro_outro/\n"
+"- Oder: {media_root}/intro_outro/\n"
+"\n"
+"Dateien sind dann im Container unter /app/media/intro_outro/ verfügbar."
 
 #, python-brace-format
 msgid ""
 "Started rendering with intro/outro and full overlays: {n} video(s). You can "
 "track progress in File Operations."
 msgstr ""
-"Rendern mit Intro/Outro und vollständigen Overlays für {n} Video(s) "
-"gestartet. Den Fortschritt können Sie unter Dateivorgänge verfolgen."
+"Rendern mit Intro/Outro und vollständigen Overlays für {n} Video(s) gestartet. Den Fortschritt können Sie unter Dateivorgänge verfolgen."
 
 #, python-brace-format
 msgid "Failed to start rendering: {n}"
@@ -326,7 +313,7 @@ msgid "Duration"
 msgstr "Dauer"
 
 msgid "FPS is not 25 - not suitable for broadcast"
-msgstr "FPS ist nicht 25 - nicht für die Ausstrahlung geeignet"
+msgstr "FPS ist nicht 25 – nicht für die Ausstrahlung geeignet"
 
 msgid "Video Bitrate (kbps)"
 msgstr "Video-Bitrate (kbps)"
@@ -350,22 +337,22 @@ msgid "versions total"
 msgstr "Versionen insgesamt"
 
 msgid "ARCHIVE PRIMARY"
-msgstr ""
+msgstr "ARCHIV HAUPTVERSION"
 
 msgid "ARCHIVE DUPLICATE"
-msgstr ""
+msgstr "ARCHIV DUPLIKAT"
 
 msgid "ARCHIVE VERSION"
-msgstr ""
+msgstr "ARCHIV VERSION"
 
 msgid "DUPLICATE"
-msgstr ""
+msgstr "DUPLIKAT"
 
 msgid "Versions"
 msgstr "Versionen"
 
 msgid "DUPLICATE VERSION"
-msgstr ""
+msgstr "DUPLIKATVERSION"
 
 msgid "Duplicate Status"
 msgstr "Duplikatstatus"
@@ -421,8 +408,7 @@ msgstr "Ausgewählte als Hauptversion markieren"
 msgid ""
 "Multiple videos selected for number {}. Please select only one per number."
 msgstr ""
-"Mehrere Videos für Nummer {} ausgewählt. Bitte wählen Sie nur eines pro "
-"Nummer aus."
+"Mehrere Videos für Nummer {} ausgewählt. Bitte wählen Sie nur eines pro Nummer aus."
 
 msgid "Marked {} video(s) as primary version"
 msgstr "{} Video(s) als Hauptversion markiert"
@@ -433,105 +419,100 @@ msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
 #, fuzzy
 #| msgid "Delete duplicate versions (keep best quality)"
 msgid "Delete archive duplicate versions (keep best archive)"
-msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+msgstr "Archiv-Duplikatversionen löschen (bestes Archiv behalten)"
 
 msgid ""
 "Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion "
 "to prevent data loss."
 msgstr ""
+"Löschen von Videos aus dem ARCHIV-Speicher ist nicht möglich. Archiv ist für das Löschen schreibgeschützt, um Datenverlust zu verhindern."
 
 msgid "Deleted {} archive duplicate(s), kept {} archive primary version(s)."
-msgstr ""
+msgstr "{} Archiv-Duplikat(e) gelöscht, {} Archiv-Hauptversion(en) behalten."
 
 msgid "Skipped {} number(s) with no archive duplicates."
-msgstr ""
+msgstr "{} Nummer(n) übersprungen, keine Archiv-Duplikate vorhanden."
 
 msgid "Preview archive cleanup (keep best archive)"
-msgstr ""
+msgstr "Vorschau Archivbereinigung (bestes Archiv behalten)"
 
 msgid "Preview archive cleanup (keep newest archive)"
-msgstr ""
+msgstr "Vorschau Archivbereinigung (neueste Archivversion behalten)"
 
 msgid "Preview archive cleanup (keep largest archive file)"
-msgstr ""
+msgstr "Vorschau Archivbereinigung (größte Archivdatei behalten)"
 
-#, fuzzy
-#| msgid "You do not have permission to edit this preset."
 msgid "You do not have permission to delete videos."
-msgstr "Sie haben keine Berechtigung, diese Voreinstellung zu bearbeiten."
+msgstr "Sie haben keine Berechtigung, Videos zu löschen."
 
 #, python-format
 msgid ""
 "Force delete completed: deleted %(records)d record(s), deleted %(files)d "
 "file(s), affected %(numbers)d number(s)."
 msgstr ""
+"Erzwingtes Löschen abgeschlossen: %(records)d Datensatz/Datensätze gelöscht, %(files)d Datei(en) gelöscht, %(numbers)d Nummer(n) betroffen."
 
 #, python-format
 msgid "Force delete encountered %(count)d error(s). Check logs for details."
-msgstr ""
+msgstr "Beim Erzwingen des Löschens sind %(count)d Fehler aufgetreten. Details finden Sie in den Protokollen."
 
 msgid ""
 "Force delete archive duplicates (keep best archive) [requires confirmation]"
 msgstr ""
+"Archiv-Duplikate erzwingen löschen (bestes Archiv behalten) [benötigt Bestätigung]"
 
-#, fuzzy
-#| msgid "Delete duplicate versions (keep best quality)"
 msgid "Force delete ARCHIVE duplicates (keep best archive)"
-msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (bestes Archiv behalten)"
 
 msgid ""
 "Force delete archive duplicates (keep newest archive) [requires confirmation]"
 msgstr ""
+"Archiv-Duplikate erzwingen löschen (neueste Archivversion behalten) [benötigt Bestätigung]"
 
-#, fuzzy
-#| msgid "Delete duplicate versions (keep best quality)"
 msgid "Force delete ARCHIVE duplicates (keep newest archive)"
-msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (neueste Archivversion behalten)"
 
 msgid ""
 "Force delete archive duplicates (keep largest archive file) [requires "
 "confirmation]"
 msgstr ""
+"Archiv-Duplikate erzwingen löschen (größte Archivdatei behalten) [benötigt Bestätigung]"
 
 msgid "Force delete ARCHIVE duplicates (keep largest archive file)"
-msgstr ""
+msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (größte Archivdatei behalten)"
 
-#, fuzzy
-#| msgid "Delete duplicate versions (keep best quality)"
 msgid "Delete archive duplicate versions (keep newest archive)"
-msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+msgstr "Archiv-Duplikatversionen löschen (neueste Archivversion behalten)"
 
 msgid "Deleted {} archive duplicate(s), kept {} newest archive version(s)."
-msgstr ""
+msgstr "{} Archiv-Duplikat(e) gelöscht, {} neueste(r) Archivversion(en) behalten."
 
-#, fuzzy
-#| msgid "Delete duplicate versions (keep best quality)"
 msgid "Delete archive duplicate versions (keep largest archive file)"
-msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
+msgstr "Archiv-Duplikatversionen löschen (größte Archivdatei behalten)"
 
 msgid "Deleted {} archive duplicate(s), kept {} largest archive file(s)."
-msgstr ""
+msgstr "{} Archiv-Duplikat(e) gelöscht, {} größte Archivdatei(en) behalten."
 
 msgid "Move to archive storage"
 msgstr "In Archivspeicher verschieben"
 
 msgid "Cleanup records for files missing from disk"
-msgstr "Datenbankeinträge für fehlende Dateien bereinigen"
+msgstr "Datensätze für auf dem Datenträger fehlende Dateien bereinigen"
 
 msgid "Deleted {} record(s) for files missing from disk"
-msgstr "{} Eintrag/Einträge für auf dem Datenträger fehlende Dateien gelöscht"
+msgstr "{} Datensatz/Datensätze für auf dem Datenträger fehlende Dateien gelöscht"
 
 msgid ""
 "No files to check (all selected files are already marked as unavailable)"
 msgstr ""
-"Keine Dateien zu überprüfen (alle ausgewählten Dateien sind bereits als "
-"nicht verfügbar markiert)"
+"Keine Dateien zu überprüfen (alle ausgewählten Dateien sind bereits als nicht verfügbar markiert)"
 
 msgid ""
 "Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion "
 "to prevent data loss. You can read and copy videos from archive, but "
 "deletion is disabled."
 msgstr ""
+"Videos können nicht aus dem ARCHIV-Speicher gelöscht werden. Das Archiv ist für das Löschen schreibgeschützt, um Datenverlust zu verhindern. Sie können Videos aus dem Archiv lesen und kopieren, aber das Löschen ist deaktiviert."
 
 #, python-brace-format
 msgid "Video record deleted. Could not delete physical file: {error}"
@@ -541,8 +522,7 @@ msgstr ""
 msgid ""
 "Video record deleted. Could not check file status (storage may be read-only)."
 msgstr ""
-"Videoeintrag gelöscht. Dateistatus konnte nicht geprüft werden (Speicher ist "
-"möglicherweise schreibgeschützt)."
+"Videoeintrag gelöscht. Dateistatus konnte nicht geprüft werden (Speicher ist möglicherweise schreibgeschützt)."
 
 msgid "Video record and physical file deleted successfully."
 msgstr "Videoeintrag und physische Datei erfolgreich gelöscht."
@@ -559,6 +539,7 @@ msgid ""
 "for deletion to prevent data loss. You can read and copy videos from "
 "archive, but deletion is disabled."
 msgstr ""
+"%(count)d Video(s) können nicht aus dem ARCHIV-Speicher gelöscht werden. Das Archiv ist für das Löschen schreibgeschützt, um Datenverlust zu verhindern. Sie können Videos aus dem Archiv lesen und kopieren, aber das Löschen ist deaktiviert."
 
 msgid "Error deleting video {}: {}"
 msgstr "Fehler beim Löschen des Videos {}: {}"
@@ -570,21 +551,17 @@ msgid ""
 "{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could "
 "not be deleted from disk."
 msgstr ""
-"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} "
-"Datei(en) konnten nicht vom Datenträger gelöscht werden."
+"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} Datei(en) konnten nicht vom Datenträger gelöscht werden."
 
 msgid ""
 "{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could "
 "not be checked (storage may be read-only)."
 msgstr ""
-"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} "
-"Datei(en) konnten nicht überprüft werden (Speicher ist möglicherweise "
-"schreibgeschützt)."
+"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} Datei(en) konnten nicht überprüft werden (Speicher ist möglicherweise schreibgeschützt)."
 
 msgid "{} video record(s) deleted (files were already removed from disk)"
 msgstr ""
-"{} Videoeintrag/Einträge gelöscht (Dateien waren bereits vom Datenträger "
-"entfernt)"
+"{} Videoeintrag/Einträge gelöscht (Dateien waren bereits vom Datenträger entfernt)"
 
 msgid "{} video record(s) and {} physical file(s) deleted successfully."
 msgstr ""
@@ -605,21 +582,16 @@ msgstr "🎛️ Systemverwaltung"
 msgid "Permission denied"
 msgstr "Zugriff verweigert"
 
-#, fuzzy
-#| msgid "Unknown error"
 msgid "Unknown command"
-msgstr "Unbekannter Fehler"
+msgstr "Unbekannter Befehl"
 
-#, fuzzy
-#| msgid "Command executed successfully"
 msgid "Task queued successfully"
-msgstr "Befehl erfolgreich ausgeführt"
+msgstr "Aufgabe erfolgreich in die Warteschlange gestellt"
 
 msgid ""
 "The command is running in the background. Check task results for progress."
 msgstr ""
-"Der Befehl läuft im Hintergrund. Überprüfen Sie die Aufgaben-Ergebnisse für "
-"den Fortschritt."
+"Der Befehl läuft im Hintergrund. Überprüfen Sie die Aufgabenergebnisse für den Fortschritt."
 
 msgid "Error queueing task"
 msgstr "Fehler beim Einreihen der Aufgabe"
@@ -633,8 +605,7 @@ msgstr "Mediendateien"
 msgid ""
 "Delete rendered/preview VideoFile records (optionally delete physical files)."
 msgstr ""
-"Gerenderte/Vorschau-VideoFile-Einträge löschen (optional auch physische "
-"Dateien löschen)."
+"Gerenderte/Vorschau-VideoFile-Datensätze löschen (optional auch physische Dateien löschen)."
 
 msgid "Only delete rendered records for this video number."
 msgstr "Nur gerenderte Einträge für diese Videonummer löschen."
@@ -649,21 +620,17 @@ msgid "Only delete preview outputs (file_path contains '__preview__')."
 msgstr "Nur Vorschau-Ausgaben löschen (file_path enthält '__preview__')."
 
 msgid "Only delete records under rendered/<style>/... (matches substring)."
-msgstr ""
-"Nur Einträge unter rendered/<style>/... löschen (Teilstring-Vergleich)."
+msgstr "Nur Einträge unter rendered/<style>/... löschen (Teilstring-Vergleich)."
 
 msgid ""
 "Only delete records under rendered/.../<encode>/... (matches substring)."
-msgstr ""
-"Nur Einträge unter rendered/.../<encode>/... löschen (Teilstring-Vergleich)."
+msgstr "Nur Einträge unter rendered/.../<encode>/... löschen (Teilstring-Vergleich)."
 
 msgid "Also delete physical files from disk when they exist."
 msgstr "Vorhandene physische Dateien vom Datenträger ebenfalls löschen."
 
 msgid "How many records to print in dry-run preview (default: 25)."
-msgstr ""
-"Wie viele Einträge in der Vorschau im Testlauf angezeigt werden (Standard: "
-"25)."
+msgstr "Wie viele Einträge in der Vorschau im Testlauf angezeigt werden (Standard: 25)."
 
 msgid "Actually delete records. Without this flag, runs in dry-run mode."
 msgstr ""
@@ -674,10 +641,10 @@ msgid "No storage locations match the provided filter(s)."
 msgstr "Keine Speicherorte entsprechen den angegebenen Filtern."
 
 msgid "Rendered VideoFile deletion summary"
-msgstr "Zusammenfassung Löschung gerenderter VideoFiles"
+msgstr "Zusammenfassung der Löschung gerenderter VideoFiles"
 
 msgid "Matched rendered VideoFile records: {}"
-msgstr "Gefundene gerenderte VideoFile-Einträge: {}"
+msgstr "Gefundene gerenderte VideoFile-Beiträge: {}"
 
 msgid "Mode: preview only"
 msgstr "Modus: Nur Vorschau"
@@ -702,7 +669,7 @@ msgstr "Löschen physischer Dateien: aktiviert"
 
 msgid "DRY RUN - no changes will be made (pass --yes to apply)."
 msgstr ""
-"TESTLAUF – Es werden keine Änderungen vorgenommen (mit --yes bestätigen)."
+"TESTLAUF – Es werden keine Änderungen vorgenommen (mit --yes genehmigen)."
 
 msgid "Preview (newest first):"
 msgstr "Vorschau (neueste zuerst):"
@@ -711,7 +678,7 @@ msgid "Nothing to delete."
 msgstr "Nichts zu löschen."
 
 msgid "Deleted VideoFile records: {}"
-msgstr "Gelöschte VideoFile-Einträge: {}"
+msgstr "Gelöschte VideoFile-Beiträge: {}"
 
 msgid "Deleted files from disk: {}"
 msgstr "Gelöschte Dateien vom Datenträger: {}"
@@ -722,32 +689,32 @@ msgstr "Fehler beim Löschen der Dateien: {}"
 msgid ""
 "Purge VideoFile database records without deleting any physical video files."
 msgstr ""
-"VideoFile-Datenbankeinträge bereinigen, ohne physische Videodateien zu "
+"VideoFile-Datenbankbeiträge bereinigen, ohne physische Videodateien zu "
 "löschen."
 
 msgid "Only purge records from this storage location ID."
-msgstr "Nur Einträge in dieser StorageLocation-ID bereinigen."
+msgstr "Nur Beiträge mit dieser StorageLocation-ID bereinigen."
 
 msgid "Only purge records from storage locations with this exact name."
-msgstr "Nur Einträge aus StorageLocations mit genau diesem Namen bereinigen."
+msgstr "Nur Beiträge aus StorageLocations mit genau diesem Namen bereinigen."
 
 msgid "Only purge records from storages of this type."
-msgstr "Nur Einträge aus Speichern dieses Typs bereinigen."
+msgstr "Nur Beiträge aus Speicher dieses Typs bereinigen."
 
 msgid "Only purge records currently marked as available."
-msgstr "Nur Einträge bereinigen, die aktuell als verfügbar markiert sind."
+msgstr "Nur Beiträge bereinigen, die aktuell als verfügbar markiert sind."
 
 msgid "Only purge records currently marked as unavailable."
 msgstr ""
-"Nur Einträge bereinigen, die aktuell als nicht verfügbar markiert sind."
+"Nur Beiträge bereinigen, die aktuell als nicht verfügbar markiert sind."
 
 msgid "How many records to print in dry-run preview (default: 20)."
 msgstr ""
-"Wie viele Einträge in der Vorschau im Testlauf angezeigt werden (Standard: "
+"Wie viele Beiträge in der Vorschau im Testlauf angezeigt werden (Standard: "
 "20)."
 
 msgid "Delete in chunks of N rows (default: 2000)."
-msgstr "In Blöcken zu N Zeilen löschen (Standard: 2000)."
+msgstr "In Blöcken zu N Beiträgen löschen (Standard: 2000)."
 
 msgid ""
 "Keep the pre_delete logging signal enabled (slower). By default, deletion "
@@ -776,7 +743,7 @@ msgid "Availability filter: unavailable only"
 msgstr "Verfügbarkeits-Filter: nur nicht verfügbar"
 
 msgid "Matched VideoFile records: {}"
-msgstr "Gefundene VideoFile-Einträge: {}"
+msgstr "Gefundene VideoFile-Beiträge: {}"
 
 msgid "Could not find a free output filename (too many collisions)."
 msgstr "Konnte keinen freien Ausgabedateinamen finden (zu viele Kollisionen)."
@@ -786,7 +753,7 @@ msgstr "Quell-VideoFile-ID für das Rendern"
 
 msgid "License number (will pick the best available VideoFile by that number)"
 msgstr ""
-"Freistellungsnummer (es wird die beste verfügbare VideoFile mit dieser "
+"Freistellungsnummer (es wird der beste verfügbare VideoFile-Beitrag mit dieser "
 "Nummer ausgewählt)"
 
 msgid "Style preset name"
@@ -817,12 +784,13 @@ msgstr "Pfad zum Outro-Clip (überschreibt das outro_clip Preset)"
 msgid ""
 "Video overlay rendering is disabled. Enable it in Media Files Configuration."
 msgstr ""
+"Video-Overlay-Rendering ist deaktiviert. Aktivieren Sie dies in der Mediendateien-Konfiguration."
 
 msgid "Specify --video-id or --license-number."
-msgstr "Bitte --video-id oder --license-number angeben."
+msgstr "Bitte --video-id oder --freistellungsnummer angeben."
 
 msgid "Provide only one: --video-id OR --license-number."
-msgstr "Bitte nur eines angeben: --video-id ODER --license-number."
+msgstr "Bitte nur eines angeben: --video-id ODER --freistellungsnummer."
 
 #, python-brace-format
 msgid "VideoFile with id {id} not found."
@@ -830,7 +798,7 @@ msgstr "VideoFile mit der ID {id} wurde nicht gefunden."
 
 #, python-brace-format
 msgid "No available VideoFile found for license number {n}."
-msgstr "Keine verfügbare VideoFile für Freistellungsnummer {n} gefunden."
+msgstr "Kein verfügbarer VideoFile-Beitrag für Freistellungsnummer {n} gefunden."
 
 #, python-brace-format
 msgid "No License found for video number {n}."
@@ -885,7 +853,7 @@ msgid "Image"
 msgstr "Bild"
 
 msgid "Custom"
-msgstr "Nutzerdefiniert"
+msgstr "Benutzerdefiniert"
 
 msgid "Center"
 msgstr "Zentriert"
@@ -909,10 +877,10 @@ msgid "Bottom Right"
 msgstr "Unten rechts"
 
 msgid "Lower Third Left"
-msgstr "Links unteres Drittel"
+msgstr "Links im unteren Drittel"
 
 msgid "Lower Third Right"
-msgstr "Rechts unteres Drittel"
+msgstr "Rechts im unteren Drittel"
 
 msgid "Archive"
 msgstr "Archiv"
@@ -976,6 +944,8 @@ msgid ""
 "A storage location with this path already exists: \"{name}\" (ID {id}). "
 "Please use the existing storage location or choose a different path."
 msgstr ""
+"Ein Speicherort mit diesem Pfad existiert bereits: \"{name}\" (ID {id}). "
+"Bitte benutzen Sie den bestehenden Speicherort oder wählen Sie einen anderen Pfad."
 
 msgid "Number"
 msgstr "Nummer"
@@ -983,8 +953,7 @@ msgstr "Nummer"
 msgid ""
 "Identification number matching License number (unique per storage location)"
 msgstr ""
-"Identifikationsnummer entsprechend der Freistellungsnummer (einzigartig pro "
-"Speicherort)"
+"Identifikationsnummer entsprechend der Freistellungsnummer (einzigartig pro Speicherort)"
 
 msgid "Filename"
 msgstr "Dateiname"
@@ -1110,9 +1079,10 @@ msgid ""
 "This video uses H.265/HEVC codec which is not supported by Chrome, Firefox, "
 "and Edge. Only audio will play. Use Safari, or transcode to H.264."
 msgstr ""
+"Dieses Video verwendet den H.265/HEVC-Codec, der von Chrome, Firefox und Edge nicht unterstützt wird. Es wird nur der Ton abgespielt. Benutzen Sie Safari oder transkodieren Sie auf H.264."
 
 msgid "Consider transcoding to H.264 for better compatibility."
-msgstr ""
+msgstr "Transkodieren Sie auf H.264 für bessere Kompatibilität."
 
 msgid "Scan"
 msgstr "Scannen"
@@ -1184,19 +1154,19 @@ msgid "Auto Copy on Schedule"
 msgstr "Automatisch kopieren bei Planung"
 
 msgid "Automatically copy videos when saving broadcast plans"
-msgstr "Videos automatisch kopieren beim Speichern von Sendungsplänen"
+msgstr "Videos automatisch kopieren beim Speichern von Sendeplänen"
 
 msgid "Auto Copy to Archive"
-msgstr "Automatisch in Archiv kopieren"
+msgstr "Automatisch ins Archiv kopieren"
 
 msgid "Automatically copy videos to archive storage when planning"
-msgstr "Videos automatisch in Archivspeicher kopieren beim Planen"
+msgstr "Videos beim Planen automatisch in den Archivspeicher kopieren"
 
 msgid "Auto Copy to Playout"
-msgstr "Automatisch in Playout kopieren"
+msgstr "Automatisch ins Playout kopieren"
 
 msgid "Automatically copy videos to playout storage when planning"
-msgstr "Videos automatisch in Playout-Speicher kopieren beim Planen"
+msgstr "Videos beim Planen automatisch in den Playout-Speicher kopieren"
 
 msgid "Use Weekly Folders"
 msgstr "Wöchentliche Ordner verwenden"
@@ -1208,13 +1178,13 @@ msgid "Archive Protected"
 msgstr "Archiv geschützt"
 
 msgid "Protect ARCHIVE storage from deletion (read-only access)"
-msgstr "ARCHIVE-Speicher vor Löschung schützen (schreibgeschützt)"
+msgstr "ARCHIVE-Speicher vor Löschung schützen (nur Lesezugriff)"
 
 msgid "Source Preference Custom Days"
 msgstr "Benutzerdefinierte Tage für Quellpräferenz"
 
 msgid "Number of days to consider CUSTOM storage files as \"recent\""
-msgstr "Anzahl der Tage, die CUSTOM-Speicherdateien als \"aktuell\" gelten"
+msgstr "Anzahl der Tage, für die CUSTOM-Speicherdateien als \"aktuell\" gelten"
 
 msgid "Default Playout Storage Name"
 msgstr "Standard-Playout-Speichername"
@@ -1232,8 +1202,7 @@ msgid "Auto Delete from Custom"
 msgstr "Automatisches Löschen aus Custom"
 
 msgid "Auto-delete videos from CUSTOM storage after successful copy"
-msgstr ""
-"Videos automatisch aus CUSTOM-Speicher nach erfolgreichem Kopieren löschen"
+msgstr "Videos nach erfolgreichem Kopieren automatisch aus dem CUSTOM-Speicher löschen"
 
 msgid "Copy Verify Checksum"
 msgstr "Prüfsumme beim Kopieren verifizieren"
@@ -1245,8 +1214,7 @@ msgid "Copy Use MD5 for Archive"
 msgstr "MD5 für Archiv beim Kopieren verwenden"
 
 msgid "Use faster MD5 checksum for ARCHIVE sources instead of SHA256"
-msgstr ""
-"Schnellere MD5-Prüfsumme für ARCHIVE-Quellen anstelle von SHA256 verwenden"
+msgstr "Schnellere MD5-Prüfsumme für ARCHIVE-Quellen anstelle von SHA256 verwenden"
 
 msgid "Supported Video Formats"
 msgstr "Unterstützte Videoformate"
@@ -1255,26 +1223,25 @@ msgid ""
 "Comma-separated list of supported video file extensions (e.g., "
 "mp4,mov,mpeg,mpg)"
 msgstr ""
-"Kommagetrennte Liste unterstützter Video-Dateierweiterungen (z. B. "
-"mp4,mov,mpeg,mpg)"
+"Kommagetrennte Liste der unterstützten Video-Dateierweiterungen (z. B. mp4, mov, mpeg, mpg)"
 
 msgid "Auto Transcode HEVC"
-msgstr ""
+msgstr "HEVC automatisch transkodieren"
 
 msgid ""
 "Automatically transcode HEVC/H.265 videos to H.264 for browser playback "
 "compatibility"
-msgstr ""
+msgstr "HEVC/H.265-Videos automatisch in H.264 für Browserkompatibilität transkodieren"
 
 #, fuzzy
 #| msgid "Video Encode Preset"
 msgid "Transcode Encoding Preset"
-msgstr "Video-Encoding-Preset"
+msgstr "Transkodierungs-Preset"
 
 #, fuzzy
 #| msgid "Unique name for this encoding preset (e.g., \"1080p25_9000k\")"
 msgid "Default encoding preset for transcoding (e.g., \"1080p25_9000k\")"
-msgstr "Eindeutiger Name für dieses Encoding-Preset (z. B. \"1080p25_9000k\")"
+msgstr "Standard-Encoding-Preset für Transkodierung (z. B. \"1080p25_9000k\")"
 
 msgid "Media Files Configuration"
 msgstr "Mediendateien-Konfiguration"
@@ -1306,8 +1273,7 @@ msgid ""
 "Failed to load font for PNG text rendering. Tried '{primary}' and fallbacks. "
 "Error: {err}"
 msgstr ""
-"Fehler beim Laden der Schriftart für PNG-Textrendering. Versucht '{primary}' "
-"und Fallbacks. Fehler: {err}"
+"Fehler beim Laden der Schriftart für PNG-Textrendering. Versucht '{primary}' und Fallbacks. Fehler: {err}"
 
 #, python-brace-format
 msgid "Font file not found: {path}"
@@ -1443,10 +1409,10 @@ msgid "Scanning..."
 msgstr "Wird gescannt..."
 
 msgid "Check task results for progress"
-msgstr ""
+msgstr "Überprüfen Sie die Aufgabenresultate für den Fortschritt"
 
 msgid "Open task results page?"
-msgstr ""
+msgstr "Aufgabenresultate-Seite öffnen?"
 
 msgid "Error"
 msgstr "Fehler"
@@ -1457,7 +1423,7 @@ msgstr ""
 "erneut."
 
 msgid "Storage Scan Options"
-msgstr "Speicher-Scan-Optionen"
+msgstr "Optionen für Speicherscan"
 
 msgid "Storage Information"
 msgstr "Speicherinformationen"
@@ -1466,30 +1432,29 @@ msgid "Current Videos"
 msgstr "Aktuelle Videos"
 
 msgid "Force rescan"
-msgstr "Erneut scannen erzwingen"
+msgstr "Erneuten Scan erzwingen"
 
 msgid "Rescan all files even if recently scanned"
-msgstr "Alle Dateien erneut scannen, auch wenn kürzlich gescannt"
+msgstr "Alle Dateien erneut scannen, auch wenn sie kürzlich gescannt wurden"
 
 msgid "Strict checksum check"
 msgstr "Strenge Prüfsummenprüfung"
 
 msgid "Use checksum comparison for reliable change detection (slower)"
 msgstr ""
-"Prüfsummenvergleich zur zuverlässigen Änderungs-Erkennung verwenden "
-"(langsamer)"
+"Prüfsummenvergleich für zuverlässige Änderungserkennung verwenden (langsamer)"
 
 msgid "Calculate checksums"
 msgstr "Prüfsummen berechnen"
 
 msgid "Calculate and store file checksums for integrity verification"
-msgstr "Datei-Prüfsummen berechnen und speichern zur Integritätsprüfung"
+msgstr "Datei-Prüfsummen zur Integritätsprüfung berechnen und speichern"
 
 msgid "Skip metadata extraction"
 msgstr "Metadatenextraktion überspringen"
 
 msgid "Faster scan, skip metadata extraction for video files"
-msgstr "Schneller Scan, Metadatenextraktion für Videodateien überspringen"
+msgstr "Schnellerer Scan, Metadatenextraktion für Videodateien überspringen"
 
 msgid "Scan Options Explained"
 msgstr "Scan-Optionen erklärt"
@@ -1499,20 +1464,18 @@ msgstr "Normaler Scan"
 
 msgid "Fast scan using file modification time and size to detect changes"
 msgstr ""
-"Schneller Scan, bei dem Dateigröße und -änderungszeit zur Erkennung von "
-"Änderungen verwendet werden"
+"Schneller Scan, der Dateigröße und -änderungszeit zur Änderungserkennung nutzt"
 
 msgid "Ignores change detection and rescans all files"
-msgstr "Änderungserkennung ignorieren und alle Dateien erneut scannen"
+msgstr "Ignoriert Änderungserkennung und scannt alle Dateien erneut"
 
 #, python-format
 msgid "Uses file checksums for 100%% reliable change detection (slower)"
 msgstr ""
-"Verwendet Dateiprüfsummen für 100%% zuverlässige Änderungserkennung "
-"(langsamer)"
+"Verwendet Dateiprüfsummen für 100%% zuverlässige Änderungserkennung (langsamer)"
 
 msgid "Stores file checksums for future integrity verification"
-msgstr "Speichert Dateiprüfsummen zur späteren Integritätsprüfung"
+msgstr "Dateiprüfsummen für spätere Integritätsprüfung speichern"
 
 msgid "Fastest option, only updates file paths and availability"
 msgstr "Schnellste Option, aktualisiert nur Dateipfade und Verfügbarkeit"
@@ -1557,7 +1520,7 @@ msgid ""
 "types of objects:"
 msgstr ""
 "Das Löschen der ausgewählten %(objects_name)s würde zum Löschen verknüpfter "
-"Objekte führen, aber Ihr Nutzerkonto hat keine Berechtigung zum Löschen der "
+"Objekte führen, aber Ihr Konto hat keine Genehmigung zum Löschen der "
 "folgenden Objekttypen:"
 
 #, python-format
@@ -1574,8 +1537,7 @@ msgid ""
 "following objects and their related items will be deleted:"
 msgstr ""
 "Sind Sie sicher, dass Sie die ausgewählten %(objects_name)s löschen möchten? "
-"Alle unten aufgeführten Objekte und deren verknüpfte Elemente werden "
-"gelöscht:"
+"Alle unten aufgeführten Objekte und dazugehörigen Einträge werden gelöscht:"
 
 msgid "Summary"
 msgstr "Übersicht"
@@ -1590,43 +1552,44 @@ msgid "No, take me back"
 msgstr "Nein, zurück"
 
 msgid "Danger zone"
-msgstr ""
+msgstr "Gefahrenzone"
 
 msgid ""
 "This action can delete files from ARCHIVE storage even when archive "
 "protection is enabled."
 msgstr ""
+"Diese Aktion kann Dateien aus dem ARCHIVE-Speicher löschen, selbst wenn der Archivschutz aktiviert ist."
 
 msgid "Proceed only if you are absolutely sure."
-msgstr ""
+msgstr "Fahren Sie nur fort, wenn Sie sich absolut sicher sind."
 
 msgid "Required phrase"
-msgstr ""
+msgstr "Erforderlicher Ausdruck"
 
 msgid "Planned deletions"
-msgstr ""
+msgstr "Geplante Löschungen"
 
 msgid "file(s)"
-msgstr ""
+msgstr "Datei(en)"
 
 #, fuzzy
 #| msgid "Number"
 msgid "number(s)"
-msgstr "Nummer"
+msgstr "Nummer(n)"
 
 msgid "Confirm and delete"
-msgstr ""
+msgstr "Genehmigen und löschen"
 
 #, fuzzy
 #| msgid "Preview (5s)"
 msgid "Preview (sample)"
-msgstr "Vorschau (5s)"
+msgstr "Vorschau (Beispiel)"
 
 msgid "First items only; not all planned deletions are shown here."
-msgstr ""
+msgstr "Nur die ersten Einträge; nicht alle geplanten Löschungen werden hier angezeigt."
 
 msgid "Keep"
-msgstr ""
+msgstr "Behalten"
 
 msgid "Edit in Visual Editor"
 msgstr "Im visuellen Editor bearbeiten"
@@ -1644,7 +1607,7 @@ msgid "Please select a preset"
 msgstr "Bitte wählen Sie ein Preset aus"
 
 msgid "Select a preset to import from JSON files:"
-msgstr "Wählen Sie ein Preset zum Importieren aus den JSON-Dateien aus:"
+msgstr "Wählen Sie ein Preset aus den JSON-Dateien zum Importieren:"
 
 msgid "-- Select Preset --"
 msgstr "-- Preset auswählen --"
@@ -1671,59 +1634,50 @@ msgid ""
 "Rescans all files even if they were recently scanned. Use this when you have "
 "made changes to files outside the system."
 msgstr ""
-"Scannt alle Dateien erneut, auch wenn sie kürzlich bereits gescannt wurden. "
-"Verwenden Sie diese Option, wenn Sie Änderungen an Dateien außerhalb des "
-"Systems vorgenommen haben."
+"Alle Dateien erneut scannen, auch wenn sie vor Kurzem gescannt wurden. Nutzen Sie dies, wenn Sie Änderungen an Dateien außerhalb des Systems vorgenommen haben."
 
 msgid "Help for Force rescan option"
-msgstr "Hilfe zur Option 'Erneut scannen erzwingen'"
+msgstr "Hilfe zur Option 'Erneuten Scan erzwingen'"
 
 msgid "Rescans all files even if they were recently scanned"
-msgstr "Scannt alle Dateien erneut, auch wenn sie kürzlich gescannt wurden"
+msgstr "Scannt alle Dateien erneut, selbst wenn sie bereits kürzlich gescannt wurden"
 
 msgid ""
 "Compares file checksums to detect changes reliably. This is slower but "
 "ensures accurate change detection, especially for large files."
 msgstr ""
 "Vergleicht Dateiprüfsummen, um Änderungen zuverlässig zu erkennen. Dies ist "
-"langsamer, stellt aber insbesondere bei großen Dateien eine genaue Erkennung "
-"sicher."
+"langsamer, gewährleistet aber eine genaue Änderungserkennung, besonders bei großen Dateien."
 
 msgid "Help for Strict checksum check option"
 msgstr "Hilfe zur Option 'Strenge Prüfsummenprüfung'"
 
 msgid "Compares file checksums to detect changes reliably"
-msgstr "Vergleicht Dateiprüfsummen, um Änderungen zuverlässig zu erkennen"
+msgstr "Vergleicht Dateiprüfsummen zur zuverlässigen Änderungserkennung"
 
 msgid ""
 "Generates and stores file checksums for integrity verification. This slows "
 "down scanning but enables reliable duplicate detection and corruption checks."
 msgstr ""
-"Erzeugt und speichert Dateiprüfsummen zur Integritätsüberprüfung. Dies "
-"verlangsamt den Scanvorgang, ermöglicht aber eine zuverlässige "
-"Duplikaterkennung und Prüfsummenprüfung."
+"Erstellt und speichert Dateiprüfsummen zur Integritätsüberprüfung. Das verlangsamt den Scan, ermöglicht jedoch zuverlässige Duplikat- und Integritätsprüfungen."
 
 msgid "Help for Calculate checksums option"
 msgstr "Hilfe zur Option 'Prüfsummen berechnen'"
 
 msgid "Generates and stores file checksums for integrity verification"
-msgstr "Erzeugt und speichert Dateiprüfsummen zur Integritätsüberprüfung"
+msgstr "Erstellt und speichert Dateiprüfsummen zur Integritätsüberprüfung"
 
 msgid ""
 "Speeds up scanning by not extracting video properties (duration, codec, "
 "resolution). Use this for quick file inventory without detailed information."
 msgstr ""
-"Beschleunigt den Scanvorgang, indem Videoeigenschaften (Dauer, Codec, "
-"Auflösung) nicht extrahiert werden. Verwenden Sie diese Option für eine "
-"schnelle Übersicht ohne Detailinformationen."
+"Beschleunigt das Scannen, indem Videoeigenschaften (Dauer, Codec, Auflösung) nicht extrahiert werden. Benutzen Sie dies für eine schnelle Übersicht ohne Details."
 
 msgid "Help for Skip metadata extraction option"
 msgstr "Hilfe zur Option 'Metadatenextraktion überspringen'"
 
 msgid "Speeds up scanning by not extracting video properties"
-msgstr ""
-"Beschleunigt den Scanvorgang, indem Videoeigenschaften nicht extrahiert "
-"werden"
+msgstr "Beschleunigt das Scannen, da Videoeigenschaften nicht extrahiert werden"
 
 msgid "optional"
 msgstr "optional"
@@ -1732,8 +1686,7 @@ msgid ""
 "Filter scan by storage type. ARCHIVE stores master files, PLAYOUT contains "
 "broadcast-ready files, CUSTOM is for other uses."
 msgstr ""
-"Scan nach Speichertyp filtern. ARCHIVE speichert Master-Dateien, PLAYOUT "
-"enthält sendebereite Dateien, CUSTOM ist für andere Verwendungszwecke."
+"Scan nach Speichertyp filtern. ARCHIVE speichert Masterdateien, PLAYOUT enthält sendefertige Dateien, CUSTOM für andere Verwendungszwecke."
 
 msgid "Help for Storage Type option"
 msgstr "Hilfe zur Option 'Speichertyp'"
@@ -1754,14 +1707,13 @@ msgid ""
 "Select a specific storage location to scan. Leave empty to scan all "
 "locations."
 msgstr ""
-"Wählen Sie einen bestimmten Speicherort zum Scannen aus. Lassen Sie das Feld "
-"leer, um alle Speicherorte zu scannen."
+"Wählen Sie einen bestimmten Speicherort zum Scannen. Feld leer lassen, um alle Speicherorte zu scannen."
 
 msgid "Help for Storage Location option"
 msgstr "Hilfe zur Option 'Speicherort'"
 
 msgid "Select a specific storage location to scan"
-msgstr "Wählen Sie einen bestimmten Speicherort zum Scannen aus"
+msgstr "Einen bestimmten Speicherort zum Scannen auswählen"
 
 msgid "All storages"
 msgstr "Alle Speicherorte"
@@ -1788,17 +1740,16 @@ msgstr "Freistellungsnummer"
 msgid ""
 "Specify a specific license number to sync. Leave empty to sync all licenses."
 msgstr ""
-"Geben Sie eine bestimmte Freistellungsnummer an, die synchronisiert werden "
-"soll. Lassen Sie das Feld leer, um alle Freistellungen zu synchronisieren."
+"Geben Sie eine bestimmte Freistellungsnummer zum Synchronisieren an. Feld leer lassen, um alle Freistellungen zu synchronisieren."
 
 msgid "Help for License Number option"
 msgstr "Hilfe zur Option 'Freistellungsnummer'"
 
 msgid "Specify a specific license number to sync"
-msgstr "Geben Sie eine bestimmte Freistellungsnummer zum Synchronisieren an"
+msgstr "Bestimmte Freistellungsnummer angeben, die synchronisiert werden soll"
 
 msgid "Leave empty for all"
-msgstr "Für alle leer lassen"
+msgstr "Feld leer lassen für alle"
 
 msgid "Dry run"
 msgstr "Testlauf"
@@ -1807,31 +1758,29 @@ msgid ""
 "Simulates the operation without making changes. Review what would happen "
 "before actually executing."
 msgstr ""
-"Simuliert den Vorgang, ohne Änderungen vorzunehmen. Überprüfen Sie, was "
-"passieren würde, bevor Sie tatsächlich ausführen."
+"Simuliert den Vorgang, ohne Änderungen vorzunehmen. Überprüfen Sie das Ergebnis, bevor Sie tatsächlich ausführen."
 
 msgid "Help for Dry run option"
 msgstr "Hilfe zur Option 'Testlauf'"
 
 msgid "Simulates the operation without making changes"
-msgstr "Simuliert den Vorgang, ohne Änderungen vorzunehmen"
+msgstr "Vorgang wird simuliert, ohne Änderungen vorzunehmen"
 
 msgid "Force sync duration"
-msgstr "Synchronisationsdauer erzwingen"
+msgstr "Freistellungsdauer erzwingen"
 
 msgid ""
 "Updates license duration even if it already has a value. Use when video "
 "duration has changed."
 msgstr ""
-"Aktualisiert die Freistellungsdauer, auch wenn bereits ein Wert vorhanden "
-"ist. Verwenden Sie dies, wenn sich die Videodauer geändert hat."
+"Aktualisiert die Freistellungsdauer, auch wenn bereits ein Wert vorhanden ist. Verwenden Sie dies, wenn sich die Videodauer geändert hat."
 
 msgid "Help for Force sync duration option"
-msgstr "Hilfe zur Option 'Synchronisationsdauer erzwingen'"
+msgstr "Hilfe zur Option 'Freistellungsdauer erzwingen'"
 
 msgid "Updates license duration even if it already has a value"
 msgstr ""
-"Aktualisiert die Freistellungsdauer, auch wenn bereits ein Wert vorhanden ist"
+"Aktualisiert die Freistellungsdauer, selbst wenn bereits ein Wert vorhanden ist"
 
 msgid "Sync Licenses"
 msgstr "Freistellungen synchronisieren"
@@ -1843,27 +1792,25 @@ msgid ""
 "Specify a specific license number to link. Leave empty to link all orphan "
 "licenses."
 msgstr ""
-"Geben Sie eine bestimmte Freistellungsnummer an, die verknüpft werden soll. "
-"Lassen Sie das Feld leer, um alle verwaisten Freistellungen zu verknüpfen."
+"Geben Sie eine bestimmte Freistellungsnummer zum Verknüpfen an. Feld leer lassen, um alle verwaisten Freistellungen zu verknüpfen."
 
 msgid "Specify a specific license number to link"
-msgstr "Geben Sie eine bestimmte Freistellungsnummer zum Verknüpfen an"
+msgstr "Bestimmte Freistellungsnummer zum Verknüpfen angeben"
 
 msgid "Scan storages first"
-msgstr "Speicher zuerst scannen"
+msgstr "Zuerst Speicher scannen"
 
 msgid ""
 "Performs a storage scan before linking licenses. Recommended when you have "
 "added new video files."
 msgstr ""
-"Führt einen Speicherscan aus, bevor Freistellungen verknüpft werden. "
-"Empfohlen, wenn Sie neue Videodateien hinzugefügt haben."
+"Führt einen Speicherscan durch, bevor Freistellungen verknüpft werden. Empfohlen, wenn Sie neue Videodateien hinzugefügt haben."
 
 msgid "Help for Scan storages first option"
-msgstr "Hilfe zur Option 'Speicher zuerst scannen'"
+msgstr "Hilfe zur Option 'Zuerst Speicher scannen'"
 
 msgid "Performs a storage scan before linking licenses"
-msgstr "Führt einen Speicherscan aus, bevor Freistellungen verknüpft werden"
+msgstr "Scannt den Speicher, bevor Freistellungen verknüpft werden"
 
 msgid "Scan Options"
 msgstr "Scan-Optionen"
@@ -1873,7 +1820,7 @@ msgid ""
 "ensures accurate change detection."
 msgstr ""
 "Vergleicht Dateiprüfsummen, um Änderungen zuverlässig zu erkennen. Dies ist "
-"langsamer, gewährleistet aber eine genaue Erkennung von Änderungen."
+"langsamer, gewährleistet aber eine genaue Änderungserkennung."
 
 msgid "Link Orphans"
 msgstr "Verwaiste verknüpfen"
@@ -1897,14 +1844,13 @@ msgid ""
 "Select a specific playout storage to clean up. Leave empty to clean up all "
 "playout storages."
 msgstr ""
-"Wählen Sie einen bestimmten Playout-Speicher zur Bereinigung aus. Lassen Sie "
-"das Feld leer, um alle Playout-Speicher zu bereinigen."
+"Wählen Sie einen bestimmten Playout-Speicher zur Bereinigung aus. Feld leer lassen, um alle Playout-Speicher zu bereinigen."
 
 msgid "Help for Playout Storage option"
 msgstr "Hilfe zur Option 'Playout-Speicher'"
 
 msgid "Select a specific playout storage to clean up"
-msgstr "Wählen Sie einen bestimmten Playout-Speicher zur Bereinigung aus"
+msgstr "Bestimmten Playout-Speicher zur Bereinigung auswählen"
 
 msgid "All playout storages"
 msgstr "Alle Playout-Speicher"
@@ -1916,9 +1862,7 @@ msgid ""
 "Only moves videos that are older than this number of days. Default is 7 days "
 "to ensure recently used files are not moved."
 msgstr ""
-"Verschiebt nur Videos, die älter als diese Anzahl von Tagen sind. "
-"Standardmäßig 7 Tage, um sicherzustellen, dass kürzlich verwendete Dateien "
-"nicht verschoben werden."
+"Es werden nur Videos verschoben, die älter als diese Anzahl von Tagen sind. Standard ist 7 Tage, damit kürzlich genutzte Dateien nicht verschoben werden."
 
 msgid "Help for Older than option"
 msgstr "Hilfe zur Option 'Älter als (Tage)'"
@@ -1927,7 +1871,7 @@ msgid "Only moves videos that are older than this number of days"
 msgstr "Verschiebt nur Videos, die älter als diese Anzahl von Tagen sind"
 
 msgid "Move videos older than N days"
-msgstr "Verschiebe Videos, die älter als N Tage sind"
+msgstr "Videos, die älter als N Tage sind, verschieben"
 
 msgid "Check file attributes"
 msgstr "Dateiattribute prüfen"
@@ -1936,15 +1880,13 @@ msgid ""
 "Verifies if files have Windows system/hidden attributes indicating they are "
 "in use by broadcast automation. Prevents moving active files."
 msgstr ""
-"Prüft, ob Dateien Windows-System- oder versteckte Attribute haben, was "
-"darauf hinweist, dass sie durch Rundfunkautomatisierung verwendet werden. "
-"Verhindert das Verschieben aktiver Dateien."
+"Prüft, ob Dateien Windows-System- oder versteckte Attribute besitzen, was auf aktive Nutzung durch Sendeautomation hindeutet. Dadurch wird das Verschieben aktiver Dateien verhindert."
 
 msgid "Warning for Check file attributes option"
 msgstr "Warnung zur Option 'Dateiattribute prüfen'"
 
 msgid "Verifies if files have Windows system/hidden attributes"
-msgstr "Prüft, ob Dateien Windows-System- oder versteckte Attribute besitzen"
+msgstr "Prüft, ob Dateien Windows-System- oder versteckte Attribute haben"
 
 msgid "Check file locks"
 msgstr "Dateisperren prüfen"
@@ -1953,17 +1895,16 @@ msgid ""
 "Checks if files are currently locked by other processes. Essential to avoid "
 "corrupting files during active use."
 msgstr ""
-"Prüft, ob Dateien derzeit von anderen Prozessen gesperrt sind. Wichtig, um "
-"eine Beschädigung während der Nutzung zu vermeiden."
+"Prüft, ob Dateien aktuell von anderen Prozessen gesperrt sind. Wesentlich, um Beschädigungen während aktiver Nutzung zu vermeiden."
 
 msgid "Warning for Check file locks option"
 msgstr "Warnung zur Option 'Dateisperren prüfen'"
 
 msgid "Checks if files are currently locked by other processes"
-msgstr "Prüft, ob Dateien aktuell von anderen Prozessen gesperrt sind"
+msgstr "Prüft, ob Dateien gerade durch andere Prozesse gesperrt sind"
 
 msgid "Run Cleanup"
-msgstr "Bereinigung ausführen"
+msgstr "Bereinigung starten"
 
 msgid "Last duplicate check: 1 day ago"
 msgstr "Letzte Duplikatprüfung: vor 1 Tag"
@@ -1980,8 +1921,7 @@ msgstr "Ausgabeformat"
 msgid ""
 "Console format is human-readable, JSON format is for programmatic processing."
 msgstr ""
-"Konsolenformat ist für Menschen lesbar, JSON-Format für die automatische "
-"Weiterverarbeitung."
+"Konsolenformat ist für Menschen lesbar, JSON-Format für automatische Weiterverarbeitung."
 
 msgid "Help for Output Format option"
 msgstr "Hilfe zur Option 'Ausgabeformat'"
@@ -1989,8 +1929,7 @@ msgstr "Hilfe zur Option 'Ausgabeformat'"
 msgid ""
 "Console format is human-readable, JSON format is for programmatic processing"
 msgstr ""
-"Konsolenformat ist für Menschen lesbar, JSON-Format für die automatische "
-"Weiterverarbeitung"
+"Konsolenformat ist für Menschen lesbar, JSON-Format für automatische Weiterverarbeitung"
 
 msgid "Console (readable)"
 msgstr "Konsole (lesbar)"
@@ -1999,8 +1938,7 @@ msgid ""
 "Filter duplicate search by storage type. ARCHIVE stores master files, "
 "PLAYOUT contains broadcast-ready files, CUSTOM is for other uses."
 msgstr ""
-"Duplikatsuche nach Speichertyp filtern. ARCHIVE speichert Masterdateien, "
-"PLAYOUT enthält sendebereite Dateien, CUSTOM ist für andere Zwecke."
+"Duplikatsuche nach Speichertyp filtern. ARCHIVE speichert Masterdateien, PLAYOUT enthält sendefertige Dateien, CUSTOM ist für andere Zwecke."
 
 msgid "Filter duplicate search by storage type"
 msgstr "Duplikatsuche nach Speichertyp filtern"
@@ -2012,81 +1950,80 @@ msgid ""
 "Filter duplicate cleanup by storage type. Be careful when selecting specific "
 "types as this permanently deletes files."
 msgstr ""
-"Bereinigung von Duplikaten nach Speichertyp filtern. Seien Sie vorsichtig "
-"beim Auswählen bestimmter Typen, da dies Dateien dauerhaft löscht."
+"Bereinigung von Duplikaten nach Speichertyp filtern. Seien Sie vorsichtig beim Auswählen bestimmter Typen – dies löscht Dateien dauerhaft."
 
 msgid "Warning for Storage Type option"
 msgstr "Warnung zur Option 'Speichertyp'"
 
 msgid "Filter duplicate cleanup by storage type"
-msgstr "Duplikatbereinigung nach Speichertyp filtern"
+msgstr "Duplikat-Bereinigung nach Speichertyp filtern"
 
 msgid "Video Number"
-msgstr "Videonummer"
+msgstr "Beitragsnummer"
 
 msgid ""
 "Specify a specific video number to clean up duplicates for. Leave empty to "
 "clean up all duplicates."
 msgstr ""
-"Geben Sie eine bestimmte Videonummer für die Duplikatbereinigung an. Lassen "
-"Sie das Feld leer, um alle Duplikate zu bereinigen."
+"Geben Sie eine bestimmte Beitragsnummer an, für die Duplikate bereinigt werden sollen. "
+"Lassen Sie das Feld leer, um alle Duplikate zu bereinigen."
 
 msgid "Warning for Video Number option"
-msgstr "Warnung zur Option 'Videonummer'"
+msgstr "Warnung zur Option 'Beitragsnummer'"
 
 msgid "Specify a specific video number to clean up duplicates for"
-msgstr "Geben Sie eine bestimmte Videonummer für die Duplikatbereinigung an"
+msgstr "Geben Sie eine bestimmte Beitragsnummer für die Duplikatbereinigung an"
 
 msgid ""
 "STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting. "
 "Review carefully before proceeding!"
 msgstr ""
-"SEHR EMPFOHLEN: Zeigt an, was gelöscht würde, ohne wirklich zu löschen. "
-"Bitte vor dem Fortfahren sorgfältig prüfen!"
+"SEHR EMPFOHLEN: Zeigt an, was gelöscht werden würde, ohne tatsächlich zu löschen. "
+"Bitte prüfen Sie sorgfältig vor dem Fortfahren!"
 
 msgid "Warning for Dry run option"
 msgstr "Warnung zur Option 'Testlauf'"
 
 msgid ""
 "STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting"
-msgstr "SEHR EMPFOHLEN: Zeigt an, was gelöscht würde, ohne wirklich zu löschen"
+msgstr "SEHR EMPFOHLEN: Zeigt an, was gelöscht werden würde, ohne tatsächlich zu löschen"
 
 msgid "Recommended! Uncheck only when you're sure."
-msgstr "Empfohlen! Nur abwählen, wenn Sie sicher sind."
+msgstr "Empfohlen! Nur abwählen, wenn Sie sich sicher sind."
 
 msgid "Browser Compatibility Issue"
-msgstr ""
+msgstr "Kompatibilitätsproblem mit Browser"
 
 msgid ""
 "This video uses H.265/HEVC codec which is NOT supported by Chrome, Firefox, "
 "and Edge. Only audio will play."
 msgstr ""
+"Dieses Video verwendet den H.265/HEVC-Codec, der von Chrome, Firefox und Edge NICHT unterstützt wird. "
+"Es wird nur der Ton abgespielt."
 
 msgid ""
 "This video codec may not be supported by your browser. Only audio might play."
 msgstr ""
+"Dieser Video-Codec wird möglicherweise von Ihrem Browser nicht unterstützt. "
+"Es könnte nur der Ton abgespielt werden."
 
-#, fuzzy
-#| msgid "Resolution"
 msgid "Solutions"
-msgstr "Auflösung"
+msgstr "Lösungen"
 
 msgid "Use Safari browser (native HEVC support)"
-msgstr ""
+msgstr "Verwenden Sie den Safari-Browser (native HEVC-Unterstützung)"
 
 msgid "Install HEVC Video Extension in Microsoft Edge"
-msgstr ""
+msgstr "HEVC-Videoerweiterung in Microsoft Edge installieren"
 
 msgid "Transcode video to H.264 format"
-msgstr ""
+msgstr "Video in das H.264-Format umwandeln"
 
 msgid "Transcode now"
-msgstr ""
+msgstr "Jetzt umwandeln"
 
-#, fuzzy
-#| msgid "Video Codec"
 msgid "Codec"
-msgstr "Video-Codec"
+msgstr "Codec"
 
 msgid "File Path (Linux)"
 msgstr "Dateipfad (Linux)"
@@ -2101,7 +2038,7 @@ msgid "Render with Overlays"
 msgstr "Mit Overlays rendern"
 
 msgid "Video Information"
-msgstr "Videoinformationen"
+msgstr "Beitragsinformationen"
 
 msgid "Resolution"
 msgstr "Auflösung"
@@ -2137,7 +2074,7 @@ msgid "Choose Style for Media Authority:"
 msgstr "Stil für Bürgermedium wählen:"
 
 msgid "2. Quality Settings"
-msgstr "2. Qualitäts-Einstellungen"
+msgstr "2. Qualitätseinstellungen"
 
 msgid "Encoding Quality"
 msgstr "Kodierungsqualität"
@@ -2146,22 +2083,24 @@ msgid "3. Rendering Mode"
 msgstr "3. Rendering-Modus"
 
 msgid "Add intro/outro clips and apply overlays to them"
-msgstr "Intro/Outro-Clips hinzufügen und Overlays darauf anwenden"
+msgstr "Intro-/Outro-Clips hinzufügen und Overlays darauf anwenden"
 
 msgid ""
 "If checked: intro and outro clips will be added to the main video, and "
 "overlays will be applied to these clips. If unchecked: overlays will be "
 "applied to the first and last 5 seconds of the main video."
 msgstr ""
+"Wenn aktiviert: Intro- und Outro-Clips werden zum Hauptvideo hinzugefügt und Overlays auf diese Clips angewendet. "
+"Wenn deaktiviert: Overlays werden auf die ersten und letzten 5 Sekunden des Hauptvideos angewendet."
 
 msgid "Preview (5s)"
-msgstr "Vorschau (5s)"
+msgstr "Vorschau (5 Sekunden)"
 
 msgid "Render Full Video"
-msgstr "Komplettes Video rendern"
+msgstr "Vollständiges Video rendern"
 
 msgid "Rendering video... This may take a few minutes."
-msgstr "Video wird gerendert ... Dies kann einige Minuten dauern."
+msgstr "Video wird gerendert ... dies kann einige Minuten dauern."
 
 msgid "Success!"
 msgstr "Erfolg!"
@@ -2173,13 +2112,13 @@ msgid "View all active operations"
 msgstr "Alle aktiven Vorgänge anzeigen"
 
 msgid "View video file"
-msgstr "Videodatei anzeigen"
+msgstr "Beitragsdatei anzeigen"
 
 msgid "License not found for this video"
-msgstr "Freistellung für dieses Video nicht gefunden"
+msgstr "Freistellung für diesen Beitrag nicht gefunden"
 
 msgid "Missing required parameters: license_number"
-msgstr "Erforderliche Parameter fehlen: license_number"
+msgstr "Erforderliche Parameter fehlen: freistellungsnummer"
 
 msgid "Please select at least one element to show"
 msgstr "Bitte wählen Sie mindestens ein Element zum Anzeigen aus"
@@ -2191,24 +2130,21 @@ msgid ""
 "Source video file not found. Please ensure there is an original (non-"
 "rendered) video file available."
 msgstr ""
-"Quelldatei für Video nicht gefunden. Stellen Sie sicher, dass eine "
-"Originaldatei (nicht gerendert) verfügbar ist."
+"Quelldatei des Beitrags nicht gefunden. Bitte stellen Sie sicher, dass eine Originaldatei (nicht gerendert) verfügbar ist."
 
 msgid ""
 "No valid presets found for selected elements. Please select styles for each "
 "element."
 msgstr ""
-"Keine gültigen Presets für die ausgewählten Elemente gefunden. Bitte wählen "
-"Sie für jedes Element einen Stil aus."
+"Keine gültigen Voreinstellungen für die ausgewählten Elemente gefunden. Bitte wählen Sie für jedes Element einen Stil aus."
 
 msgid "Could not find a free output filename (too many versions exist)."
 msgstr ""
-"Konnte keinen freien Ausgabedateinamen finden (zu viele Versionen "
-"existieren)."
+"Konnte keinen freien Ausgabedateinamen finden (zu viele Versionen existieren)."
 
 msgid "Video rendering started. You can track progress in File Operations."
 msgstr ""
-"Video-Rendering gestartet. Den Fortschritt finden Sie unter Dateivorgänge."
+"Video-Rendering gestartet. Sie können den Fortschritt unter Dateioperationen verfolgen."
 
 #~ msgid "Settings"
 #~ msgstr "Einstellungen"
@@ -2257,31 +2193,30 @@ msgstr ""
 
 #~ msgid "Unique name for this preset (e.g., \"my_custom_lower_third\")"
 #~ msgstr ""
-#~ "Eindeutiger Name für dieses Preset (z. B. "
-#~ "\"mein_benutzerdefinierter_untertitel\")"
+#~ "Eindeutiger Name für diese Voreinstellung (z. B. \"mein_benutzerdefinierter_untertitel\")"
 
 #~ msgid "Human-readable name shown in UI"
 #~ msgstr ""
-#~ "Für Nutzer lesbarer Name, der in der Nutzeroberfläche angezeigt wird"
+#~ "Für Nutzer lesbarer Name, der in der Benutzeroberfläche angezeigt wird"
 
 #~ msgid "Description"
 #~ msgstr "Beschreibung"
 
 #~ msgid "Optional description of this preset"
-#~ msgstr "Optionale Beschreibung dieses Presets"
+#~ msgstr "Optionale Beschreibung dieser Voreinstellung"
 
 #~ msgid "Is Template"
 #~ msgstr "Ist Vorlage"
 
 #~ msgid "If true, this preset serves as a starting template for new presets"
 #~ msgstr ""
-#~ "Wenn aktiviert, dient dieses Preset als Startvorlage für neue Presets"
+#~ "Wenn aktiviert, dient diese Voreinstellung als Startvorlage für neue Voreinstellungen"
 
 #~ msgid "Based On"
 #~ msgstr "Basiert auf"
 
 #~ msgid "Original preset this was copied from"
-#~ msgstr "Ursprüngliches Preset, von dem dieses kopiert wurde"
+#~ msgstr "Ursprüngliche Voreinstellung, von der diese kopiert wurde"
 
 #~ msgid "Segment Duration (seconds)"
 #~ msgstr "Segmentdauer (Sekunden)"
@@ -2293,13 +2228,13 @@ msgstr ""
 #~ msgstr "Pfad zum Intro-Clip"
 
 #~ msgid "Optional path to intro video clip"
-#~ msgstr "Optionaler Pfad zu Intro-Video-Clip"
+#~ msgstr "Optionaler Pfad zum Intro-Video-Clip"
 
 #~ msgid "Outro Clip Path"
 #~ msgstr "Pfad zum Outro-Clip"
 
 #~ msgid "Optional path to outro video clip"
-#~ msgstr "Optionaler Pfad zu Outro-Video-Clip"
+#~ msgstr "Optionaler Pfad zum Outro-Video-Clip"
 
 #~ msgid "Created By"
 #~ msgstr "Erstellt von"
@@ -2308,16 +2243,16 @@ msgstr ""
 #~ msgstr "Öffentlich"
 
 #~ msgid "If true, this preset is available to all users"
-#~ msgstr "Wenn aktiviert, ist dieses Preset für alle Nutzer verfügbar"
+#~ msgstr "Wenn aktiviert, ist diese Voreinstellung für alle Nutzer verfügbar"
 
 #~ msgid "Video Preset"
-#~ msgstr "Video-Preset"
+#~ msgstr "Video-Voreinstellung"
 
 #~ msgid "Video Presets"
-#~ msgstr "Video-Presets"
+#~ msgstr "Video-Voreinstellungen"
 
 #~ msgid "Preset"
-#~ msgstr "Preset"
+#~ msgstr "Voreinstellung"
 
 #~ msgid "Segment"
 #~ msgstr "Segment"
@@ -2330,15 +2265,14 @@ msgstr ""
 
 #~ msgid "Rendering order (lower number = rendered first/bottom layer)"
 #~ msgstr ""
-#~ "Reihenfolge beim Rendern (niedrigere Zahl = zuerst/unterste Ebene "
-#~ "gerendert)"
+#~ "Reihenfolge beim Rendern (niedrigere Zahl = zuerst/unterste Ebene gerendert)"
 
 #~ msgid "Text Template"
 #~ msgstr "Textvorlage"
 
 #, python-brace-format
 #~ msgid "Template with variables like {license.title}, {profile.display}"
-#~ msgstr "Vorlage mit Variablen wie {license.title}, {profile.display}"
+#~ msgstr "Vorlage mit Variablen wie {freistellung.titel}, {profil.anzeigename}"
 
 #~ msgid "Path to image file (relative to assets/ or absolute)"
 #~ msgstr "Pfad zur Bilddatei (relativ zu assets/ oder absolut)"
@@ -2379,33 +2313,32 @@ msgstr ""
 #~ msgstr "Schriftdatei"
 
 #~ msgid "Path relative to assets/ (e.g., \"fonts/Roboto-Bold.ttf\")"
-#~ msgstr "Pfad relativ zu assets/ (z. B. \"fonts/Roboto-Bold.ttf\")"
+#~ msgstr "Pfad relativ zu assets/ (z. B. \"fonts/Roboto-Bold.ttf\")"
 
 #~ msgid "Color name or hex (e.g., \"white\", \"#FFFFFF\")"
-#~ msgstr "Farbname oder Hexwert (z. B. \"white\", \"#FFFFFF\")"
+#~ msgstr "Farbname oder Hexwert (z. B. \"white\", \"#FFFFFF\")"
 
 #~ msgid "Has Background Box"
 #~ msgstr "Mit Hintergrundbox"
 
 #~ msgid "Color with opacity (e.g., \"black@0.5\")"
-#~ msgstr "Farbe mit Transparenz (z. B. \"black@0.5\")"
+#~ msgstr "Farbe mit Transparenz (z. B. \"black@0.5\")"
 
 #~ msgid "Box Border Width"
 #~ msgstr "Box-Randbreite"
 
 #~ msgid "Preset Overlay"
-#~ msgstr "Overlay-Preset"
+#~ msgstr "Overlay-Voreinstellung"
 
 #~ msgid "Preset Overlays"
-#~ msgstr "Overlay-Presets"
+#~ msgstr "Overlay-Voreinstellungen"
 
 #~ msgid "Human-readable name shown in UI (auto-generated if empty)"
 #~ msgstr ""
-#~ "Anzeigename für die Nutzeroberfläche (wird automatisch generiert, wenn "
-#~ "leer)"
+#~ "Für Benutzer lesbarer Name in der Benutzeroberfläche (wird automatisch generiert, wenn leer)"
 
 #~ msgid "Optional description of this encoding preset"
-#~ msgstr "Optionale Beschreibung dieses Encoding-Presets"
+#~ msgstr "Optionale Beschreibung dieser Kodierungsvoreinstellung"
 
 #~ msgid "Video width in pixels"
 #~ msgstr "Videobreite in Pixel"
@@ -2417,13 +2350,13 @@ msgstr ""
 #~ msgstr "Bilder pro Sekunde"
 
 #~ msgid "Video codec (e.g., \"libx264\")"
-#~ msgstr "Video-Codec (z. B. \"libx264\")"
+#~ msgstr "Video-Codec (z. B. \"libx264\")"
 
 #~ msgid "Video bitrate in kilobits per second"
 #~ msgstr "Videobitrate in Kilobit pro Sekunde"
 
 #~ msgid "Audio codec (e.g., \"aac\")"
-#~ msgstr "Audio-Codec (z. B. \"aac\")"
+#~ msgstr "Audio-Codec (z. B. \"aac\")"
 
 #~ msgid "Audio bitrate in kilobits per second"
 #~ msgstr "Audio-Bitrate in Kilobit pro Sekunde"
@@ -2435,19 +2368,19 @@ msgstr ""
 #~ msgstr "Anzahl der Audiokanäle"
 
 #~ msgid "Pixel format (e.g., \"yuv420p\")"
-#~ msgstr "Pixelformat (z. B. \"yuv420p\")"
+#~ msgstr "Pixelformat (z. B. \"yuv420p\")"
 
 #~ msgid "x264 Preset"
-#~ msgstr "x264-Preset"
+#~ msgstr "x264-Voreinstellung"
 
 #~ msgid "x264 encoding preset (e.g., \"veryfast\", \"medium\", \"slow\")"
-#~ msgstr "x264-Encoding-Preset (z. B. \"veryfast\", \"medium\", \"slow\")"
+#~ msgstr "x264-Kodierungsvoreinstellung (z. B. \"veryfast\", \"medium\", \"slow\")"
 
 #~ msgid "x264 Profile"
 #~ msgstr "x264-Profil"
 
 #~ msgid "x264 profile (e.g., \"baseline\", \"main\", \"high\")"
-#~ msgstr "x264-Profil (z. B. \"baseline\", \"main\", \"high\")"
+#~ msgstr "x264-Profil (z. B. \"baseline\", \"main\", \"high\")"
 
 #~ msgid "Video Encode Presets"
-#~ msgstr "Video-Encoding-Presets"
+#~ msgstr "Video-Kodierungsvoreinstellungen"
