@@ -623,7 +623,7 @@ msgstr "Textvorlage"
 
 #, python-brace-format
 msgid "Template with variables like {license.title}, {profile.display}"
-msgstr "Vorlage mit Variablen wie {Freistellung.title}, {profile.display}"
+msgstr "Vorlage mit Variablen wie {license.title}, {profile.display}"
 
 msgid "Image Path"
 msgstr "Bildpfad"

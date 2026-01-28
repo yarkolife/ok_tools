@@ -2916,19 +2916,19 @@ msgid "OK Tools Dashboard"
 msgstr "OK Tools Dashboard"
 
 msgid "Rental"
-msgstr "Miete"
+msgstr "Ausleihe"
 
 msgid "Coming Soon!"
 msgstr "Demnächst verfügbar!"
 
 msgid "Rental Dashboard"
-msgstr "Miete Dashboard"
+msgstr "Ausleihe Dashboard"
 
 msgid ""
 "We're working hard to bring you the rental dashboard feature. Soon you'll be "
 "able to book equipment and studio rooms with ease!"
 msgstr ""
-"Wir arbeiten fleißig daran, Ihnen das Miete-Dashboard bereitzustellen. Bald können Sie problemlos Geräte und Studioräume buchen!"
+"Wir arbeiten fleißig daran, Ihnen das Ausleihe-Dashboard bereitzustellen. Bald können Sie problemlos Geräte und Studioräume buchen!"
 
 msgid "Development Progress"
 msgstr "Entwicklungsfortschritt"
@@ -3305,10 +3305,10 @@ msgid "Add Room"
 msgstr "Raum hinzufügen"
 
 msgid "CURRENT RENTALS"
-msgstr "AKTUELLE MIETEN"
+msgstr "AKTUELLE AUSLEIHEN"
 
 msgid "Loading current rentals..."
-msgstr "Lade aktuelle Mieten..."
+msgstr "Lade aktuelle Ausleihen..."
 
 msgid "RETURNED RENTALS"
-msgstr "ZURÜCKGEGEBENE MIETEN"
+msgstr "ZURÜCKGEGEBENE AUSLEIHEN"
