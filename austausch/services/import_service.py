@@ -744,6 +744,16 @@ class ImportService:
         # Get duration (prefer metadata, then exchange_item, then None)
         duration = metadata.get('duration') or self.exchange_item.duration
         
+        # OneToOneField: one License can have only one VideoFile. Unlink existing
+        # so we can create the new one (e.g. re-import or replace).
+        existing = getattr(license, 'video_file', None)
+        if existing:
+            VideoFile.objects.filter(pk=existing.pk).update(license=None)
+            logger.info(
+                f"Unlinked existing VideoFile {existing.id} from License {license.number} "
+                "before creating new one for import"
+            )
+        
         # Create VideoFile record with all metadata
         video_file = VideoFile.objects.create(
             number=license.number,

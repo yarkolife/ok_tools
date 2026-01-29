@@ -655,6 +655,17 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     
     actions = ['search_videos_for_licenses']
     
+    def delete_queryset(self, request, queryset):
+        """Clear dashboard UserJourney references before delete to satisfy FK constraint."""
+        try:
+            from dashboard.models import UserJourney
+            license_ids = list(queryset.values_list('id', flat=True))
+            if license_ids:
+                UserJourney.objects.filter(license_id__in=license_ids).update(license_id=None)
+        except Exception:
+            pass
+        super().delete_queryset(request, queryset)
+
     def changelist_view(self, request, extra_context=None):
         """Add import JSON URL to changelist context."""
         extra_context = extra_context or {}
