@@ -308,9 +308,14 @@
 <div class="exchange-feed-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h1 style="margin: 0;">{% trans 'Exchange Feed' %}</h1>
-        <button type="button" id="sync-button" class="button default" onclick="triggerSync()" style="padding: 10px 20px; font-size: 14px; white-space: nowrap;">
-            {% trans "Sync Exchange Folders" %}
-        </button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'austausch:export_to_server_step1' %}" class="button" style="padding: 10px 20px; font-size: 14px; white-space: nowrap;">
+                {% trans "Export to server" %}
+            </a>
+            <button type="button" id="sync-button" class="button default" onclick="triggerSync()" style="padding: 10px 20px; font-size: 14px; white-space: nowrap;">
+                {% trans "Sync Exchange Folders" %}
+            </button>
+        </div>
     </div>
     <p class="help">{% trans 'Browse and import content from exchange folders' %}</p>
     

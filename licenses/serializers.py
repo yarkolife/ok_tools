@@ -32,6 +32,20 @@ class LicenseMetadataSerializer(serializers.Serializer):
     videoNumber = serializers.IntegerField(source='number')
     saveToMediathek = serializers.BooleanField(source='store_in_ok_media_library')
     allowExchange = serializers.BooleanField(source='media_authority_exchange_allowed')
+    allowExchangeOtherStates = serializers.BooleanField(
+        source='media_authority_exchange_allowed_other_states',
+        allow_null=True
+    )
+    furtherInvolvedPersons = serializers.CharField(
+        source='further_persons',
+        allow_blank=True,
+        allow_null=True
+    )
+    duration = serializers.SerializerMethodField()
+    repetitionsAllowed = serializers.BooleanField(
+        source='repetitions_allowed',
+        allow_null=True
+    )
     youthProtectionNecessary = serializers.BooleanField(
         source='youth_protection_necessary',
         allow_null=True
@@ -46,6 +60,22 @@ class LicenseMetadataSerializer(serializers.Serializer):
     def get_category(self, obj):
         """Get category name."""
         return obj.category.name if obj.category else None
+
+    def get_duration(self, obj):
+        """
+        Get duration as HH:MM:SS string (or MM:SS when hours are 0).
+        """
+        if not obj.duration:
+            return None
+        total = int(obj.duration.total_seconds())
+        if total < 0:
+            return None
+        hours = total // 3600
+        minutes = (total % 3600) // 60
+        seconds = total % 60
+        if hours > 0:
+            return f"{hours:d}:{minutes:02d}:{seconds:02d}"
+        return f"{minutes:d}:{seconds:02d}"
     
     def get_tags(self, obj):
         """

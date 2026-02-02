@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:austausch_exchangeitem_changelist' %}">{% translate "Austausch" %}</a>
+  &rsaquo; {% translate "Export to server" %} &rsaquo; {% translate "Last result" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{% translate "Export to server – last result" %}</h1>
+
+{% if not run %}
+  <p>{% translate "No export run yet." %}</p>
+  <p><a href="{% url 'austausch:export_to_server_step1' %}">{% translate "Start export" %}</a></p>
+{% else %}
+
+<p>
+  <strong>{% translate "Started at" %}:</strong> {{ run.started_at|date:"Y-m-d H:i:s" }}
+  {% if run.completed_at %}
+    &nbsp;|&nbsp; <strong>{% translate "Completed at" %}:</strong> {{ run.completed_at|date:"Y-m-d H:i:s" }}
+  {% else %}
+    &nbsp;|&nbsp; <em>{% translate "Still running…" %}</em>
+  {% endif %}
+</p>
+<p><strong>{% translate "Mode" %}:</strong> {{ run.get_mode_display }}</p>
+<p><strong>{% translate "Total selected" %}:</strong> {{ run.total_count }}</p>
+
+<table class="module">
+  <tr>
+    <th>{% translate "Uploaded" %}</th>
+    <td>{{ run.success_count }}</td>
+  </tr>
+  <tr>
+    <th>{% translate "Skipped (no PDF)" %}</th>
+    <td>{{ run.skipped_no_pdf_count }}</td>
+  </tr>
+  <tr>
+    <th>{% translate "Failed" %}</th>
+    <td>{{ run.failure_count }}</td>
+  </tr>
+</table>
+
+{% if run.details %}
+  {% if run.details.success_ids %}
+    <h2>{% translate "Uploaded (IDs)" %}</h2>
+    <p>{{ run.details.success_ids|join:", " }}</p>
+  {% endif %}
+  {% if run.details.skipped_no_pdf %}
+    <h2>{% translate "Skipped – no PDF (IDs)" %}</h2>
+    <p>{% translate "These items were not uploaded because no PDF was found (no signature and no file in fallback paths)." %}</p>
+    <p>{{ run.details.skipped_no_pdf|join:", " }}</p>
+  {% endif %}
+  {% if run.details.failed %}
+    <h2>{% translate "Failed (ID – reason)" %}</h2>
+    <ul>
+      {% for item in run.details.failed %}
+        <li>{{ item.id }} – {{ item.reason }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if run.details.error %}
+    <p class="errornote">{% translate "Error" %}: {{ run.details.error }}</p>
+  {% endif %}
+{% endif %}
+
+<p><a href="{% url 'austausch:export_to_server_step1' %}">{% translate "Start new export" %}</a></p>
+{% endif %}
+{% endblock %}

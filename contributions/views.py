@@ -5,7 +5,10 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 from licenses.models import License
@@ -141,3 +144,5 @@ def extract_dates_from_saved_file(request, pk):
     except Exception as e:
         logger.error(f'Error extracting dates from saved file: {e}')
         return JsonResponse({'error': str(e)}, status=500)
+
+

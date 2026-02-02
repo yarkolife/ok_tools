@@ -11,6 +11,7 @@ import logging
 from .models import ExchangeItem, ExchangeConfig, ExchangeImport
 from .services.nextcloud_exchange_service import NextcloudExchangeService
 from .services.import_service import ImportService
+from .services.export_to_server_service import ExportToServerService
 from licenses.models import License
 
 logger = logging.getLogger('django')
@@ -445,3 +446,52 @@ def import_exchange_item_task(self, item_id, user_id):
         # Retry with exponential backoff
         raise self.retry(exc=e, countdown=60 * (2 ** self.request.retries))
 
+
+@shared_task(name='austausch.tasks.export_to_server', bind=True)
+def export_to_server_task(self, selected_ids, mode, user_id=None):
+    """
+    Export selected contributions or licenses to Nextcloud (video, PDF, JSON, optional thumbnail).
+    Saves result to ExportToServerRun for user-visible report.
+
+    Args:
+        selected_ids: List of contribution IDs (mode='contributions') or license numbers (mode='licenses').
+        mode: 'contributions' or 'licenses'.
+        user_id: Optional user ID for logging and report.
+
+    Returns:
+        dict: success_count, failure_count, skipped_no_pdf_count, details, run_id.
+    """
+    from .models import ExportToServerRun
+
+    User = get_user_model()
+    user = User.objects.filter(pk=user_id).first() if user_id else None
+    run = ExportToServerRun.objects.create(
+        user=user,
+        mode=mode,
+        total_count=len(selected_ids),
+    )
+    try:
+        service = ExportToServerService(user=user)
+        report = service.run(selected_ids=selected_ids, mode=mode)
+        run.success_count = report['success_count']
+        run.failure_count = report['failure_count']
+        run.skipped_no_pdf_count = report['skipped_no_pdf_count']
+        run.details = {
+            'success_ids': report['success_ids'],
+            'failed': report['failed'],
+            'skipped_no_pdf': report['skipped_no_pdf'],
+        }
+        run.completed_at = timezone.now()
+        run.save()
+        return {
+            'success_count': report['success_count'],
+            'failure_count': report['failure_count'],
+            'skipped_no_pdf_count': report['skipped_no_pdf_count'],
+            'details': run.details,
+            'run_id': run.pk,
+        }
+    except Exception as e:
+        run.completed_at = timezone.now()
+        run.details = {'error': str(e)}
+        run.save()
+        raise

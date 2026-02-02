@@ -1,0 +1,85 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:austausch_exchangeitem_changelist' %}">{% translate "Austausch" %}</a>
+  &rsaquo; {% translate "Export to server" %} &rsaquo; {% translate "Confirm" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+.export-step2-table .bool-icon { display: inline-flex; align-items: center; justify-content: center; width: 1.25em; height: 1.25em; border-radius: 50%; font-size: 0.85em; font-weight: bold; line-height: 1; }
+.export-step2-table .bool-icon.bool-true { background: #d4edda; color: #155724; }
+.export-step2-table .bool-icon.bool-false { background: #f8d7da; color: #721c24; }
+</style>
+<h1>{% translate "Export to server – confirm selection" %}</h1>
+<p class="help">{% translate "Uncheck items you do not want to export. Then start upload now or schedule for later." %}</p>
+<p class="help">{% translate "Exported per item: video, PDF (required), JSON metadata, optional thumbnail. Only items with video are listed; items without PDF are skipped during upload." %}</p>
+
+<form method="post" action="">
+  {% csrf_token %}
+  <fieldset class="module aligned">
+    <div class="form-row">
+      <table class="export-step2-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select_all" checked></th>
+            <th>{% translate "License number" %}</th>
+            <th>{% translate "Broadcast date (premiere)" %}</th>
+            <th>{% translate "Title" %}</th>
+            <th>{% translate "Profile" %}</th>
+            <th>{% translate "Duration" %}</th>
+            <th>{% translate "Exchange between Open Channels/Citizen Media in Saxony-Anhalt allowed" %}</th>
+            <th>{% translate "Exchange between Open Channels/Citizen Media outside Saxony-Anhalt allowed" %}</th>
+            <th>{% translate "Store in OK media library" %}</th>
+            <th>{% translate "Has PDF" %}</th>
+            <th>{% translate "Video" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td><input type="checkbox" name="selected_ids" value="{{ item.item_id }}" class="item-cb" checked></td>
+            <td>{{ item.license_number }}</td>
+            <td>{{ item.broadcast_date_display|default:"—" }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.profile_display }}</td>
+            <td>{{ item.duration_display }}</td>
+            <td>{% if item.exchange_saxony_anhalt %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}">✓</span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}">✗</span>{% endif %}</td>
+            <td>{% if item.exchange_outside_saxony_anhalt %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}">✓</span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}">✗</span>{% endif %}</td>
+            <td>{% if item.store_in_ok_media_library %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}">✓</span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}">✗</span>{% endif %}</td>
+            <td>{% if item.has_pdf %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}">✓</span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}">✗</span>{% endif %}</td>
+            <td>{% if item.video_url %}<a href="{{ item.video_url }}" target="_blank" rel="noopener">{% translate "Video" %}</a>{% else %}—{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="11">{% translate "No items." %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="form-row">
+      <label for="id_schedule_at">{% translate "Schedule for (optional)" %}:</label>
+      <input type="datetime-local" name="schedule_at" id="id_schedule_at" step="60">
+      <p class="help">{% translate "Leave empty to start upload immediately." %}</p>
+    </div>
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" class="default" value="{% translate "Start upload" %}">
+  </div>
+</form>
+
+<script>
+(function() {
+  const selectAll = document.getElementById('select_all');
+  const checkboxes = document.querySelectorAll('.item-cb');
+  if (selectAll && checkboxes.length) {
+    selectAll.addEventListener('change', function() {
+      checkboxes.forEach(function(cb) { cb.checked = selectAll.checked; });
+    });
+  }
+})();
+</script>
+{% endblock %}

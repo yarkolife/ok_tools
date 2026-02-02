@@ -97,14 +97,17 @@ def normalize_filename(title):
     return text
 
 
-def generate_license_file(lr: License, filename=None, as_attachment=False) -> FileResponse:
-    """Generate a License as pdf file.
+def generate_license_pdf_bytes(lr: License) -> bytes:
+    """Generate license PDF as bytes (no HTTP response).
 
-    As template the '2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf' from
-    https://www.okmq.de/images/Formulare/2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf
-    is used.
-    The function assumes that the License has a user with profile.
+    Reuses the same logic as generate_license_file. Use for uploads or
+    programmatic access. Assumes the license has a profile.
     """
+    return _build_license_pdf_bytes(lr)
+
+
+def _build_license_pdf_bytes(lr: License) -> bytes:
+    """Build license PDF bytes. Used by generate_license_file and generate_license_pdf_bytes."""
     user = lr.profile.okuser
     profile = lr.profile
 
@@ -296,11 +299,19 @@ def generate_license_file(lr: License, filename=None, as_attachment=False) -> Fi
         with open(os.path.join(tmpdirname, "output.pdf"), "rb") as output:
             result = output.read()
 
-    apl_stream = io.BytesIO()
-    apl_stream.write(result)
-    apl_stream.seek(0)
+    return result
 
-    # Use provided filename or default
+
+def generate_license_file(lr: License, filename=None, as_attachment=False) -> FileResponse:
+    """Generate a License as pdf file.
+
+    As template the '2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf' from
+    https://www.okmq.de/images/Formulare/2017_Antrag_Einzelgenehmigung_ausfuellbar.pdf
+    is used. The function assumes that the License has a user with profile.
+    """
+    result = _build_license_pdf_bytes(lr)
+    apl_stream = io.BytesIO(result)
+    apl_stream.seek(0)
     if filename:
         return FileResponse(apl_stream, filename=filename, as_attachment=as_attachment)
     return FileResponse(apl_stream, filename=_('license.pdf'), as_attachment=as_attachment)

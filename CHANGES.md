@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+2026-01-28 (Version 4.0.3)
+===========================
+
+* **Austausch: Export to server**
+  * **Export to server workflow**: Upload video, PDF, JSON (and optional thumbnails) to Nextcloud WebDAV
+    * Step 1: Choose mode (by contributions or by license numbers)
+    * Step 2: Select contributions/licenses and start export
+    * Result page: success/failure/skipped counts and details
+  * **ExchangeConfig**: New export settings
+    * `upload_server_path`: WebDAV path for upload (distinct from download/sync paths)
+    * `default_media_authority`: Optional preselected "Offener Kanal" for export
+    * `local_pdf_fallback_path`, `local_pdf_fallback_path_2`: Local directories for unsigned license PDFs ({number}_*.pdf)
+    * `upload_thumbnail_enabled`, `thumbnail_storage_path`: Optional cover/thumbnail upload
+  * **ExportToServerRun**: Model for export run results (read-only in Admin)
+  * **Celery task**: `export_to_server_task` runs upload in background; Nextcloud service extended for upload
+  * **Contributions/Licenses**: Admin actions and serializers extended for export selection
+
 2026-01-26 (Version 4.0.2)
 ===========================
 

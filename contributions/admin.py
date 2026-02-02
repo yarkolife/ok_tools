@@ -479,6 +479,40 @@ class MediathekExportForm(forms.Form):
     )
 
 
+def get_export_to_server_contribution_ids(params):
+    """
+    Return list of primary contribution IDs for Export to server (mode=contributions).
+
+    Applies same filters as MediathekResource plus: license must have at least one of
+    store_in_ok_media_library, media_authority_exchange_allowed,
+    media_authority_exchange_allowed_other_states True.
+    """
+    from django.db.models import Min, Q
+
+    queryset = Contribution.objects.all()
+    resource = MediathekResource()
+    queryset = resource._apply_filters(queryset, params)
+    queryset = queryset.filter(
+        Q(license__store_in_ok_media_library=True)
+        | Q(license__media_authority_exchange_allowed=True)
+        | Q(license__media_authority_exchange_allowed_other_states=True)
+    )
+    license_ids = queryset.values_list('license_id', flat=True).distinct()
+    if not license_ids:
+        return []
+    primary_dates = (
+        Contribution.objects.filter(license_id__in=license_ids)
+        .values('license_id')
+        .annotate(min_date=Min('broadcast_date'))
+    )
+    license_primary_dates = {p['license_id']: p['min_date'] for p in primary_dates}
+    return [
+        c.id
+        for c in queryset
+        if license_primary_dates.get(c.license_id) == c.broadcast_date
+    ]
+
+
 class MediathekResource(resources.ModelResource):
     """Define the export for Mediathek import - only primary contributions."""
 
@@ -516,6 +550,18 @@ class MediathekResource(resources.ModelResource):
                 queryset = queryset.filter(license__store_in_ok_media_library=True)
             elif params['store_in_mediathek'] == '0':
                 queryset = queryset.filter(license__store_in_ok_media_library=False)
+        
+        if 'exchange_saxony_anhalt' in params and params['exchange_saxony_anhalt']:
+            if params['exchange_saxony_anhalt'] == '1':
+                queryset = queryset.filter(license__media_authority_exchange_allowed=True)
+            elif params['exchange_saxony_anhalt'] == '0':
+                queryset = queryset.filter(license__media_authority_exchange_allowed=False)
+        
+        if 'exchange_outside_saxony_anhalt' in params and params['exchange_outside_saxony_anhalt']:
+            if params['exchange_outside_saxony_anhalt'] == '1':
+                queryset = queryset.filter(license__media_authority_exchange_allowed_other_states=True)
+            elif params['exchange_outside_saxony_anhalt'] == '0':
+                queryset = queryset.filter(license__media_authority_exchange_allowed_other_states=False)
         
         if 'has_video' in params and params['has_video']:
             if params['has_video'] == '1':
@@ -799,7 +845,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
         return super().export_action(request, *args, **kwargs)
     
     def get_export_context_data(self, **kwargs):
-        """Add media authorities to export context."""
+        """Add media authorities to export context (CSV/Mediathek export form)."""
         context = super().get_export_context_data(**kwargs)
         from registration.models import MediaAuthority
         context['media_authorities'] = MediaAuthority.objects.all().order_by('name')

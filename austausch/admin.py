@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from django.urls import reverse
 
-from .models import ExchangeItem, ExchangeImport, ExchangeConfig
+from .models import ExchangeItem, ExchangeImport, ExchangeConfig, ExportToServerRun
 from .tasks import import_exchange_item_task
 
 
@@ -13,7 +13,7 @@ from .tasks import import_exchange_item_task
 class ExchangeConfigAdmin(admin.ModelAdmin):
     """Admin for ExchangeConfig (singleton)."""
     
-    autocomplete_fields = ['storage_location']
+    autocomplete_fields = ['storage_location', 'default_media_authority']
     
     def has_add_permission(self, request):
         """Only allow one config instance."""
@@ -64,9 +64,38 @@ class ExchangeConfigAdmin(admin.ModelAdmin):
         (_('Auto-Import Settings'), {
             'fields': ('auto_import_enabled',)
         }),
+        (_('Export to server'), {
+            'fields': (
+                'upload_server_path',
+                'default_media_authority',
+                'local_pdf_fallback_path',
+                'local_pdf_fallback_path_2',
+                'upload_thumbnail_enabled',
+                'thumbnail_storage_path',
+            ),
+            'description': _(
+                'Settings for uploading video, PDF, JSON and optional thumbnails to Nextcloud. '
+                'Thumbnail storage path is used only when "Upload Thumbnail Enabled" is checked.'
+            ),
+        }),
     )
     
     readonly_fields = ['exchange_feed_link']
+
+
+@admin.register(ExportToServerRun)
+class ExportToServerRunAdmin(admin.ModelAdmin):
+    """Admin for export-to-server run results (read-only list)."""
+    list_display = ['started_at', 'completed_at', 'user', 'mode', 'total_count', 'success_count', 'failure_count', 'skipped_no_pdf_count']
+    list_filter = ['mode']
+    readonly_fields = ['started_at', 'completed_at', 'user', 'mode', 'total_count', 'success_count', 'failure_count', 'skipped_no_pdf_count', 'details']
+    ordering = ['-started_at']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(ExchangeItem)

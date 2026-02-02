@@ -1,0 +1,117 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:austausch_exchangeitem_changelist' %}">{% translate "Austausch" %}</a>
+  &rsaquo; {% translate "Export to server" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{% translate "Export to server" %}</h1>
+<p class="help">{% translate "Upload video, PDF, JSON metadata and optional thumbnail to Nextcloud. Step 1: choose mode and filters." %}</p>
+<p><a href="{% url 'austausch:export_to_server_result' %}">{% translate "View last export result" %}</a></p>
+
+{% if error %}
+<ul class="errorlist"><li>{{ error }}</li></ul>
+{% endif %}
+
+<form method="post" action="">
+  {% csrf_token %}
+  <fieldset class="module aligned">
+    <div class="form-row">
+      <label>{% translate "Mode" %}:</label>
+      <div>
+        <label><input type="checkbox" name="mode_contributions" value="1" id="mode_contributions" checked> {% translate "Contributions" %}</label><br>
+        <label><input type="checkbox" name="mode_planung" value="1" id="mode_planung"> {% translate "Planung" %}</label><br>
+        <label><input type="checkbox" name="mode_license" value="1" id="mode_license"> {% translate "License" %}</label>
+      </div>
+    </div>
+
+    {% if default_media_authority_name %}
+    <div class="form-row">
+      <p class="help">{% translate "Media Authority (from settings)" %}: <strong>{{ default_media_authority_name }}</strong></p>
+    </div>
+    {% endif %}
+
+    <div id="contributions-fields">
+      <div class="form-row">
+        <label for="id_date_from">{% translate "Date from" %}:</label>
+        <input type="date" name="date_from" id="id_date_from">
+        <input type="time" name="time_from" id="id_time_from" value="00:00">
+      </div>
+      <div class="form-row">
+        <label for="id_date_to">{% translate "Date to" %}:</label>
+        <input type="date" name="date_to" id="id_date_to">
+        <input type="time" name="time_to" id="id_time_to" value="23:59">
+      </div>
+      <div class="form-row">
+        <label for="id_global_producer">{% translate "Global Producer" %}:</label>
+        <select name="global_producer" id="id_global_producer">
+          <option value="">{% translate "All" %}</option>
+          <option value="1">{% translate "Yes" %}</option>
+          <option value="0">{% translate "No" %}</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <p class="help">{% translate "Only primary (first broadcast / premiere) contributions are included, as in Mediathek export." %}</p>
+      </div>
+    </div>
+
+    <div id="planung-fields" style="display: none;">
+      <div class="form-row">
+        <label for="id_planung_date_from">{% translate "Date from" %}:</label>
+        <input type="date" name="planung_date_from" id="id_planung_date_from">
+      </div>
+      <div class="form-row">
+        <label for="id_planung_date_to">{% translate "Date to" %}:</label>
+        <input type="date" name="planung_date_to" id="id_planung_date_to">
+      </div>
+    </div>
+
+    <div id="licenses-fields" style="display: none;">
+      <div class="form-row">
+        <label for="id_license_numbers">{% translate "License numbers" %}:</label>
+        <textarea name="license_numbers" id="id_license_numbers" rows="6" cols="40" placeholder="12345, 12346&#10;12347"></textarea>
+        <p class="help">{% translate "Comma or newline separated." %}</p>
+      </div>
+    </div>
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" class="default" value="{% translate "Next" %}">
+  </div>
+</form>
+
+<script>
+(function() {
+  const modeContributions = document.getElementById('mode_contributions');
+  const modePlanung = document.getElementById('mode_planung');
+  const modeLicense = document.getElementById('mode_license');
+  const contributionsFields = document.getElementById('contributions-fields');
+  const planungFields = document.getElementById('planung-fields');
+  const licensesFields = document.getElementById('licenses-fields');
+  function toggle() {
+    const showContributions = modeContributions && modeContributions.checked;
+    const showPlanung = modePlanung && modePlanung.checked;
+    const showLicense = modeLicense && modeLicense.checked;
+    if (contributionsFields) contributionsFields.style.display = showContributions ? 'block' : 'none';
+    if (planungFields) planungFields.style.display = showPlanung ? 'block' : 'none';
+    if (licensesFields) licensesFields.style.display = showLicense ? 'block' : 'none';
+  }
+  function ensureSingleMode(clicked) {
+    if (clicked.checked) {
+      if (modeContributions && modeContributions !== clicked) modeContributions.checked = false;
+      if (modePlanung && modePlanung !== clicked) modePlanung.checked = false;
+      if (modeLicense && modeLicense !== clicked) modeLicense.checked = false;
+    }
+    toggle();
+  }
+  if (modeContributions) modeContributions.addEventListener('change', function() { ensureSingleMode(modeContributions); });
+  if (modePlanung) modePlanung.addEventListener('change', function() { ensureSingleMode(modePlanung); });
+  if (modeLicense) modeLicense.addEventListener('change', function() { ensureSingleMode(modeLicense); });
+  toggle();
+})();
+</script>
+{% endblock %}

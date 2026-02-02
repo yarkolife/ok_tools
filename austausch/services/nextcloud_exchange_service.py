@@ -495,16 +495,108 @@ class NextcloudExchangeService:
     def check_file_exists(self, file_path: str) -> bool:
         """
         Check if file exists in Nextcloud.
-        
+
         Args:
             file_path: Relative path in Nextcloud
-            
+
         Returns:
             True if file exists, False otherwise
         """
         metadata = self.get_file_metadata(file_path)
         return metadata is not None
-    
+
+    def ensure_directory(self, remote_path: str) -> bool:
+        """
+        Create remote directory and all parent directories (MKCOL).
+        Skips 409 Conflict if collection already exists.
+
+        Args:
+            remote_path: Relative path in Nextcloud (e.g. GroupFolders/Upload/2026_01_31)
+
+        Returns:
+            True if directory exists or was created, False on error
+        """
+        from urllib.parse import quote
+        path_clean = remote_path.strip('/')
+        if not path_clean:
+            return True
+        parts = [p for p in path_clean.split('/') if p]
+        base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
+        for i in range(1, len(parts) + 1):
+            segment_path = '/'.join(parts[:i])
+            encoded_path = '/'.join(quote(p, safe='') for p in parts[:i])
+            full_url = f"{base_url}/{encoded_path}"
+            try:
+                response = requests.request(
+                    'MKCOL',
+                    full_url,
+                    auth=self._get_auth(),
+                    timeout=30
+                )
+                if response.status_code in (201, 405):
+                    # 201 Created or 405 Method Not Allowed (already exists)
+                    continue
+                if response.status_code == 409:
+                    # Conflict - parent may not exist; try creating parents
+                    continue
+                logger.warning(
+                    f"MKCOL {segment_path} returned {response.status_code}: {response.text[:200]}"
+                )
+                return False
+            except Exception as e:
+                logger.error(f"Error creating directory {segment_path}: {e}", exc_info=True)
+                return False
+        return True
+
+    def upload_file(self, local_path: str, remote_path: str) -> bool:
+        """
+        Upload a local file to Nextcloud via WebDAV PUT.
+        Creates parent collection if needed.
+
+        Args:
+            local_path: Local file path to read from
+            remote_path: Relative path in Nextcloud (e.g. GroupFolders/Upload/2026_01_31/file.mp4)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        import os
+        from urllib.parse import quote
+        if not os.path.isfile(local_path):
+            logger.error(f"Upload failed: local file not found: {local_path}")
+            return False
+        path_clean = remote_path.strip('/')
+        parts = [p for p in path_clean.split('/') if p]
+        if not parts:
+            logger.error("Upload failed: remote_path is empty")
+            return False
+        # Ensure parent directory exists
+        parent_path = '/'.join(parts[:-1])
+        if parent_path and not self.ensure_directory(parent_path):
+            return False
+        base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
+        encoded_path = '/'.join(quote(p, safe='') for p in parts)
+        full_url = f"{base_url}/{encoded_path}"
+        try:
+            with open(local_path, 'rb') as f:
+                response = requests.put(
+                    full_url,
+                    data=f,
+                    auth=self._get_auth(),
+                    timeout=600,
+                    headers={'Content-Type': 'application/octet-stream'}
+                )
+            if response.status_code in (200, 201, 204):
+                logger.info(f"Uploaded file: {local_path} -> {remote_path}")
+                return True
+            logger.error(
+                f"Upload failed {remote_path}: {response.status_code} - {response.text[:200]}"
+            )
+            return False
+        except Exception as e:
+            logger.error(f"Error uploading {local_path} to {remote_path}: {e}", exc_info=True)
+            return False
+
     @staticmethod
     def parse_contribution_id(filename: str) -> Optional[int]:
         """

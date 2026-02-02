@@ -298,6 +298,45 @@ class ExchangeConfig(models.Model):
         help_text=_('Comma-separated list of channel names to sync (optional, can be auto-discovered)')
     )
     
+    # Export to server settings
+    upload_server_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Upload Server Path'),
+        help_text=_('WebDAV path on Nextcloud for upload (e.g. GroupFolders/Mediathek-Upload/OK_MQ). Distinct from download/sync paths.')
+    )
+    default_media_authority = models.ForeignKey(
+        'registration.MediaAuthority',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_('Default Media Authority'),
+        help_text=_('Optional "Offener Kanal" preselected for export.')
+    )
+    local_pdf_fallback_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Local PDF Fallback Path'),
+        help_text=_('First local directory for unsigned licenses; PDFs searched by pattern {number}_*.pdf.')
+    )
+    local_pdf_fallback_path_2 = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Local PDF Fallback Path (2)'),
+        help_text=_('Second local directory for unsigned licenses; searched if not found in first path.')
+    )
+    upload_thumbnail_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Upload Thumbnail Enabled'),
+        help_text=_('If enabled, upload video cover/thumbnail images from a local directory when exporting to server.')
+    )
+    thumbnail_storage_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Thumbnail Storage Path'),
+        help_text=_('Local directory where cover images are stored. Used when "Upload Thumbnail Enabled" is on. Matching by number at start of filename (e.g. 12345_cover.jpg). Supported: .jpg, .jpeg, .png, .webp.')
+    )
+    
     class Meta:
         verbose_name = _('Exchange Configuration')
         verbose_name_plural = _('Exchange Configuration')
@@ -326,4 +365,52 @@ class ExchangeConfig(models.Model):
         """Get the singleton config instance, create if doesn't exist."""
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+
+class ExportToServerRun(models.Model):
+    """Result of an export-to-server (Celery) run for user-visible report."""
+
+    started_at = models.DateTimeField(
+        verbose_name=_('Started at'),
+        auto_now_add=True,
+        db_index=True,
+    )
+    completed_at = models.DateTimeField(
+        verbose_name=_('Completed at'),
+        null=True,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('User'),
+    )
+    mode = models.CharField(
+        max_length=20,
+        choices=[('contributions', _('By contributions')), ('licenses', _('By license numbers'))],
+        verbose_name=_('Mode'),
+    )
+    total_count = models.PositiveIntegerField(verbose_name=_('Total selected'), default=0)
+    success_count = models.PositiveIntegerField(verbose_name=_('Uploaded'), default=0)
+    failure_count = models.PositiveIntegerField(verbose_name=_('Failed'), default=0)
+    skipped_no_pdf_count = models.PositiveIntegerField(
+        verbose_name=_('Skipped (no PDF)'),
+        default=0,
+    )
+    details = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name=_('Details'),
+        help_text=_('success_ids, failed (id, reason), skipped_no_pdf'),
+    )
+
+    class Meta:
+        ordering = ['-started_at']
+        verbose_name = _('Export to server run')
+        verbose_name_plural = _('Export to server runs')
+
+    def __str__(self):
+        return f"Export {self.started_at} ({self.success_count}/{self.total_count})"
 

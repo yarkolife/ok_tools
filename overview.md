@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Austausch export to server**: Upload video, PDF, JSON (and optional thumbnails) to Nextcloud WebDAV; step-by-step UI and Celery task
 - **Rental emails**: HTML templates with booking details and user-facing links
 - **User rentals**: New user request detail page and improved request visibility
 - **Module configs**: Module-specific configuration models with DB-backed settings and env fallbacks
