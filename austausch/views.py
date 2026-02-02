@@ -249,6 +249,29 @@ def _filter_planung_by_premiere_date(license_numbers, date_from_str, date_to_str
     )
 
 
+def _filter_license_numbers_by_authority_and_flags(license_numbers, config):
+    """
+    Keep only license numbers that:
+    - belong to default_media_authority when it is set;
+    - have at least one of: store_in_ok_media_library, media_authority_exchange_allowed,
+      media_authority_exchange_allowed_other_states True.
+    """
+    from django.db.models import Q
+    from licenses.models import License
+
+    if not license_numbers:
+        return []
+    qs = License.objects.filter(number__in=license_numbers).filter(
+        Q(store_in_ok_media_library=True)
+        | Q(media_authority_exchange_allowed=True)
+        | Q(media_authority_exchange_allowed_other_states=True)
+    )
+    default_ma_id = getattr(config, 'default_media_authority_id', None)
+    if default_ma_id:
+        qs = qs.filter(profile__media_authority_id=default_ma_id)
+    return sorted(qs.values_list('number', flat=True).distinct())
+
+
 def _get_already_exported_success_ids(mode):
     """
     Return set of IDs that were already successfully uploaded in any past export run.
@@ -302,6 +325,13 @@ def export_to_server_step1(request):
             if not ids:
                 ctx['error'] = _('Enter at least one license number.')
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
+            ids = _filter_license_numbers_by_authority_and_flags(ids, config)
+            if not ids:
+                ctx['error'] = _(
+                    'No licenses match: Default Media Authority (when set) and at least one of '
+                    'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
+                )
+                return render(request, 'austausch/export_to_server_step1.html', ctx)
             already = _get_already_exported_success_ids('licenses')
             ids = [i for i in ids if i not in already]
             if not ids:
@@ -324,6 +354,13 @@ def export_to_server_step1(request):
                 ctx['error'] = _(
                     'No items with premiere in the selected date range. '
                     'Only licenses whose first broadcast is within the range are included; repeats are excluded.'
+                )
+                return render(request, 'austausch/export_to_server_step1.html', ctx)
+            ids = _filter_license_numbers_by_authority_and_flags(ids, config)
+            if not ids:
+                ctx['error'] = _(
+                    'No licenses match: Default Media Authority (when set) and at least one of '
+                    'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
                 )
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
             already = _get_already_exported_success_ids('licenses')
