@@ -577,6 +577,11 @@ class NextcloudExchangeService:
         base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
         encoded_path = '/'.join(quote(p, safe='') for p in parts)
         full_url = f"{base_url}/{encoded_path}"
+        file_size = os.path.getsize(local_path)
+        headers = {
+            'Content-Type': 'application/octet-stream',
+            'Content-Length': str(file_size),
+        }
         try:
             with open(local_path, 'rb') as f:
                 response = requests.put(
@@ -584,7 +589,7 @@ class NextcloudExchangeService:
                     data=f,
                     auth=self._get_auth(),
                     timeout=600,
-                    headers={'Content-Type': 'application/octet-stream'}
+                    headers=headers,
                 )
             if response.status_code in (200, 201, 204):
                 logger.info(f"Uploaded file: {local_path} -> {remote_path}")
