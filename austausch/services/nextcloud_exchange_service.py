@@ -116,34 +116,117 @@ class NextcloudExchangeService:
 
     def _upload_via_public_share(self, local_path: str, filename: str, share_token: str) -> bool:
         """
-        Upload file via public share WebDAV endpoint (like browser does).
-        This bypasses proxy/PHP body limits that block direct WebDAV PUT.
+        Upload file via public share WebDAV endpoint using curl.
+        
+        Uses curl subprocess instead of Python requests because:
+        - curl handles large file uploads more reliably
+        - Avoids potential issues with Python requests' Expect: 100-continue handling
+        - curl is battle-tested for WebDAV uploads
         """
+        import subprocess
+        
+        upload_url = f"{self.base_url}/public.php/webdav/{quote(filename, safe='')}"
+        file_size = os.path.getsize(local_path)
+        
+        logger.info(
+            "Starting curl upload: %s (%s bytes) -> %s",
+            local_path, file_size, upload_url
+        )
+        
+        try:
+            # Use curl for reliable large file upload
+            # -T: upload file
+            # -u: authentication (token:empty_password)
+            # -H: disable Expect header
+            # --connect-timeout: connection timeout
+            # --max-time: maximum total time (1 hour per GB, minimum 10 min)
+            max_time = max(600, int(file_size / (1024 * 1024) * 60))  # ~1 min per MB, min 10 min
+            
+            cmd = [
+                'curl',
+                '-X', 'PUT',
+                '-T', local_path,
+                '-u', f'{share_token}:',
+                '-H', 'Expect:',  # Disable Expect: 100-continue
+                '-H', 'Content-Type: application/octet-stream',
+                '--connect-timeout', '30',
+                '--max-time', str(max_time),
+                '-s',  # Silent (no progress)
+                '-w', '%{http_code}',  # Output status code
+                '-o', '/dev/null',  # Discard response body
+                upload_url,
+            ]
+            
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=max_time + 60,  # subprocess timeout slightly longer
+            )
+            
+            status_code = result.stdout.strip()
+            
+            if status_code in ('200', '201', '204'):
+                logger.info("Curl upload success: %s (%s bytes)", filename, file_size)
+                return True
+            
+            # If curl failed, get more details
+            cmd_verbose = cmd.copy()
+            cmd_verbose.remove('-s')
+            cmd_verbose.remove('-o')
+            cmd_verbose.remove('/dev/null')
+            idx = cmd_verbose.index('-w')
+            cmd_verbose.pop(idx)  # remove -w
+            cmd_verbose.pop(idx)  # remove %{http_code}
+            cmd_verbose.extend(['-v', '-o', '/dev/null'])
+            
+            result_verbose = subprocess.run(
+                cmd_verbose,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            
+            logger.error(
+                "Curl upload failed %s: status=%s stderr=%s",
+                filename, status_code, result_verbose.stderr[:1000] if result_verbose.stderr else 'none',
+            )
+            return False
+            
+        except subprocess.TimeoutExpired:
+            logger.error("Curl upload timeout for %s after %s seconds", filename, max_time)
+            return False
+        except FileNotFoundError:
+            logger.error("curl not found, falling back to requests")
+            return self._upload_via_requests(local_path, filename, share_token)
+        except Exception as e:
+            logger.error("Curl upload error %s: %s", filename, e, exc_info=True)
+            return False
+    
+    def _upload_via_requests(self, local_path: str, filename: str, share_token: str) -> bool:
+        """Fallback upload using Python requests (if curl not available)."""
         upload_url = f"{self.base_url}/public.php/webdav/{quote(filename, safe='')}"
         file_size = os.path.getsize(local_path)
         headers = {
             'Content-Type': 'application/octet-stream',
             'Content-Length': str(file_size),
+            'Expect': '',
         }
         try:
             with open(local_path, 'rb') as f:
                 r = requests.put(
                     upload_url,
                     data=f,
-                    auth=(share_token, ''),  # Basic auth: token with empty password
+                    auth=(share_token, ''),
                     headers=headers,
-                    timeout=1800,  # 30 min for large files
+                    timeout=3600,
                 )
             if r.status_code in (200, 201, 204):
-                logger.info("Uploaded via public share: %s -> %s", local_path, filename)
                 return True
-            logger.error(
-                "Public share upload failed %s: %s - %s",
-                filename, r.status_code, r.text[:500] if r.text else r.reason,
-            )
+            logger.error("Requests upload failed %s: %s", filename, r.status_code)
             return False
         except Exception as e:
-            logger.error("Error uploading via public share: %s", e, exc_info=True)
+            logger.error("Requests upload error: %s", e)
             return False
 
     def get_webdav_url_for_path(self, file_path: str) -> str:
