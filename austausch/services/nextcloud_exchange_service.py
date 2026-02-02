@@ -1,11 +1,13 @@
 """Service for WebDAV operations on Nextcloud exchange folders."""
 
 import logging
+import os
 import re
+import uuid
 import requests
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-from urllib.parse import urljoin
+from urllib.parse import quote, urljoin
 from xml.etree import ElementTree as ET
 
 from django.core.exceptions import ImproperlyConfigured
@@ -548,20 +550,109 @@ class NextcloudExchangeService:
                 return False
         return True
 
+    # Use Nextcloud chunked upload for files larger than this (avoids proxy/PHP body limits).
+    CHUNKED_UPLOAD_THRESHOLD = 50 * 1024 * 1024  # 50 MB
+    CHUNK_SIZE = 10 * 1024 * 1024  # 10 MB (Nextcloud: 5 MB–5 GB per chunk)
+
+    def _upload_file_chunked(self, local_path: str, remote_path: str, file_size: int) -> bool:
+        """
+        Upload file via Nextcloud chunked upload v2 (MKCOL, PUT chunks, MOVE).
+        Use for large files so proxy/PHP does not drop the body (0 bytes received).
+        """
+        path_clean = remote_path.strip('/')
+        parts = [p for p in path_clean.split('/') if p]
+        if not parts:
+            return False
+        parent_path = '/'.join(parts[:-1])
+        if parent_path and not self.ensure_directory(parent_path):
+            return False
+        base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
+        encoded_path = '/'.join(quote(p, safe='') for p in parts)
+        destination_url = f"{base_url}/{encoded_path}"
+        uploads_base = urljoin(
+            self.base_url + '/',
+            f"remote.php/dav/uploads/{quote(self.username, safe='')}/"
+        ).rstrip('/')
+        upload_id = f"oktools-{uuid.uuid4()}"
+        upload_folder_url = f"{uploads_base}/{upload_id}"
+        try:
+            # 1. MKCOL with Destination
+            r = requests.request(
+                'MKCOL',
+                upload_folder_url,
+                auth=self._get_auth(),
+                headers={'Destination': destination_url},
+                timeout=30,
+            )
+            if r.status_code not in (201, 405):
+                logger.error("Chunked upload MKCOL failed: %s - %s", r.status_code, r.text[:200])
+                return False
+            # 2. PUT chunks (names 1..N, 5+ MB each except last)
+            total_len = str(file_size)
+            chunk_num = 1
+            with open(local_path, 'rb') as f:
+                while True:
+                    chunk = f.read(self.CHUNK_SIZE)
+                    if not chunk:
+                        break
+                    chunk_name = f"{chunk_num:05d}"
+                    chunk_url = f"{upload_folder_url}/{chunk_name}"
+                    headers = {
+                        'Content-Type': 'application/octet-stream',
+                        'Content-Length': str(len(chunk)),
+                        'Destination': destination_url,
+                        'OC-Total-Length': total_len,
+                    }
+                    r = requests.put(
+                        chunk_url,
+                        data=chunk,
+                        auth=self._get_auth(),
+                        headers=headers,
+                        timeout=600,
+                    )
+                    if r.status_code not in (200, 201, 204):
+                        logger.error(
+                            "Chunked upload PUT %s failed: %s - %s",
+                            chunk_name, r.status_code, r.text[:200],
+                        )
+                        return False
+                    chunk_num += 1
+                    if chunk_num > 10000:
+                        logger.error("Chunked upload: too many chunks")
+                        return False
+            # 3. MOVE .file to assemble
+            move_source = f"{upload_folder_url}/.file"
+            r = requests.request(
+                'MOVE',
+                move_source,
+                auth=self._get_auth(),
+                headers={
+                    'Destination': destination_url,
+                    'OC-Total-Length': total_len,
+                },
+                timeout=120,
+            )
+            if r.status_code not in (200, 201, 204):
+                logger.error("Chunked upload MOVE failed: %s - %s", r.status_code, r.text[:500])
+                return False
+            logger.info("Uploaded file (chunked): %s -> %s", local_path, remote_path)
+            return True
+        except Exception as e:
+            logger.error("Chunked upload failed %s -> %s: %s", local_path, remote_path, e, exc_info=True)
+            return False
+
     def upload_file(self, local_path: str, remote_path: str) -> bool:
         """
         Upload a local file to Nextcloud via WebDAV PUT.
-        Creates parent collection if needed.
+        Uses chunked upload for large files so server/proxy receives the body.
 
         Args:
             local_path: Local file path to read from
-            remote_path: Relative path in Nextcloud (e.g. GroupFolders/Upload/2026_01_31/file.mp4)
+            remote_path: Relative path in Nextcloud (e.g. OKMQ/INBOX/file.mp4)
 
         Returns:
             True if successful, False otherwise
         """
-        import os
-        from urllib.parse import quote
         if not os.path.isfile(local_path):
             logger.error(f"Upload failed: local file not found: {local_path}")
             return False
@@ -570,17 +661,16 @@ class NextcloudExchangeService:
         if not parts:
             logger.error("Upload failed: remote_path is empty")
             return False
-        # Ensure parent directory exists
         parent_path = '/'.join(parts[:-1])
         if parent_path and not self.ensure_directory(parent_path):
             return False
+        file_size = os.path.getsize(local_path)
+        if file_size > self.CHUNKED_UPLOAD_THRESHOLD:
+            return self._upload_file_chunked(local_path, remote_path, file_size)
         base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
         encoded_path = '/'.join(quote(p, safe='') for p in parts)
         full_url = f"{base_url}/{encoded_path}"
         try:
-            # Send body as bytes so server gets exact Content-Length (no chunked encoding).
-            # SabreDAV "Expected filesize" often means server/proxy cut the connection
-            # (check PHP upload_max_filesize, post_max_size, nginx client_max_body_size, timeouts).
             with open(local_path, 'rb') as f:
                 body = f.read()
             body_len = len(body)
@@ -598,7 +688,6 @@ class NextcloudExchangeService:
             if response.status_code in (200, 201, 204):
                 logger.info(f"Uploaded file: {local_path} -> {remote_path}")
                 return True
-            # Log full response; "Expected filesize" usually means server/proxy cut the stream
             logger.error(
                 "Upload failed %s: %s (sent %s bytes) - %s",
                 remote_path,
