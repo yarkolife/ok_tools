@@ -58,7 +58,94 @@ class NextcloudExchangeService:
     def _get_auth(self):
         """Get authentication tuple for requests."""
         return (self.username, self.password)
-    
+
+    # --- Public share upload (same mechanism as UI upload) ---
+
+    def _create_upload_share(self, folder_path: str, expire_hours: int = 2) -> Optional[Dict]:
+        """
+        Create temporary upload-only public share on a folder.
+        Returns dict with share_id, token, upload_url or None on error.
+        """
+        from datetime import datetime, timedelta
+        expire_date = (datetime.now() + timedelta(hours=expire_hours)).strftime('%Y-%m-%d')
+        share_path = f'/{folder_path.strip("/")}'
+        try:
+            r = requests.post(
+                f"{self.base_url}/ocs/v2.php/apps/files_sharing/api/v1/shares",
+                auth=self._get_auth(),
+                headers={'OCS-APIRequest': 'true', 'Accept': 'application/json'},
+                data={
+                    'path': share_path,
+                    'shareType': 3,      # Public link
+                    'permissions': 4,    # Upload only (create)
+                    'expireDate': expire_date,
+                },
+                timeout=30,
+            )
+            if r.status_code not in (200, 201):
+                logger.error("Create upload share failed: %s - %s", r.status_code, r.text[:300])
+                return None
+            data = r.json()
+            share_data = data.get('ocs', {}).get('data', {})
+            token = share_data.get('token')
+            share_id = share_data.get('id')
+            if not token:
+                logger.error("No token in share response")
+                return None
+            return {
+                'share_id': share_id,
+                'token': token,
+                'upload_url': f"{self.base_url}/public.php/webdav/",
+            }
+        except Exception as e:
+            logger.error("Error creating upload share: %s", e, exc_info=True)
+            return None
+
+    def _delete_share(self, share_id) -> bool:
+        """Delete a public share by ID."""
+        try:
+            r = requests.delete(
+                f"{self.base_url}/ocs/v2.php/apps/files_sharing/api/v1/shares/{share_id}",
+                auth=self._get_auth(),
+                headers={'OCS-APIRequest': 'true'},
+                timeout=30,
+            )
+            return r.status_code in (200, 204, 404)
+        except Exception:
+            return False
+
+    def _upload_via_public_share(self, local_path: str, filename: str, share_token: str) -> bool:
+        """
+        Upload file via public share WebDAV endpoint (like browser does).
+        This bypasses proxy/PHP body limits that block direct WebDAV PUT.
+        """
+        upload_url = f"{self.base_url}/public.php/webdav/{quote(filename, safe='')}"
+        file_size = os.path.getsize(local_path)
+        headers = {
+            'Content-Type': 'application/octet-stream',
+            'Content-Length': str(file_size),
+        }
+        try:
+            with open(local_path, 'rb') as f:
+                r = requests.put(
+                    upload_url,
+                    data=f,
+                    auth=(share_token, ''),  # Basic auth: token with empty password
+                    headers=headers,
+                    timeout=1800,  # 30 min for large files
+                )
+            if r.status_code in (200, 201, 204):
+                logger.info("Uploaded via public share: %s -> %s", local_path, filename)
+                return True
+            logger.error(
+                "Public share upload failed %s: %s - %s",
+                filename, r.status_code, r.text[:500] if r.text else r.reason,
+            )
+            return False
+        except Exception as e:
+            logger.error("Error uploading via public share: %s", e, exc_info=True)
+            return False
+
     def get_webdav_url_for_path(self, file_path: str) -> str:
         """
         Get the correct WebDAV base URL for a given file path.
@@ -611,10 +698,16 @@ class NextcloudExchangeService:
                         timeout=600,
                     )
                     if r.status_code not in (200, 201, 204):
+                        err_snippet = (r.text or r.reason or '')[:500]
                         logger.error(
-                            "Chunked upload PUT %s failed: %s - %s",
-                            chunk_name, r.status_code, r.text[:200],
+                            "Chunked upload PUT %s failed: %s (chunk size %s) - %s",
+                            chunk_name, r.status_code, len(chunk), err_snippet,
                         )
+                        if 'Expected filesize' in (r.text or '') and '0 bytes' in (r.text or ''):
+                            logger.error(
+                                "Nextcloud received 0 bytes: fix server/proxy (nginx client_max_body_size, "
+                                "proxy_request_buffering, PHP upload_max_filesize). Or use in-app Upload Video."
+                            )
                         return False
                     chunk_num += 1
                     if chunk_num > 10000:
@@ -643,8 +736,10 @@ class NextcloudExchangeService:
 
     def upload_file(self, local_path: str, remote_path: str) -> bool:
         """
-        Upload a local file to Nextcloud via WebDAV PUT.
-        Uses chunked upload for large files so server/proxy receives the body.
+        Upload a local file to Nextcloud via public share WebDAV.
+
+        Uses the same mechanism as UI video upload (public.php/webdav with share token).
+        This bypasses proxy/PHP body limits that block direct WebDAV PUT to remote.php/dav.
 
         Args:
             local_path: Local file path to read from
@@ -654,51 +749,31 @@ class NextcloudExchangeService:
             True if successful, False otherwise
         """
         if not os.path.isfile(local_path):
-            logger.error(f"Upload failed: local file not found: {local_path}")
+            logger.error("Upload failed: local file not found: %s", local_path)
             return False
         path_clean = remote_path.strip('/')
         parts = [p for p in path_clean.split('/') if p]
         if not parts:
             logger.error("Upload failed: remote_path is empty")
             return False
+        # Ensure parent directory exists
         parent_path = '/'.join(parts[:-1])
         if parent_path and not self.ensure_directory(parent_path):
             return False
-        file_size = os.path.getsize(local_path)
-        if file_size > self.CHUNKED_UPLOAD_THRESHOLD:
-            return self._upload_file_chunked(local_path, remote_path, file_size)
-        base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
-        encoded_path = '/'.join(quote(p, safe='') for p in parts)
-        full_url = f"{base_url}/{encoded_path}"
+        filename = parts[-1]
+        # Create temporary upload share on parent folder
+        share_data = self._create_upload_share(parent_path, expire_hours=2)
+        if not share_data:
+            logger.error("Upload failed: could not create upload share for %s", parent_path)
+            return False
+        share_id = share_data['share_id']
+        token = share_data['token']
         try:
-            with open(local_path, 'rb') as f:
-                body = f.read()
-            body_len = len(body)
-            headers = {
-                'Content-Type': 'application/octet-stream',
-                'Content-Length': str(body_len),
-            }
-            response = requests.put(
-                full_url,
-                data=body,
-                auth=self._get_auth(),
-                timeout=600,
-                headers=headers,
-            )
-            if response.status_code in (200, 201, 204):
-                logger.info(f"Uploaded file: {local_path} -> {remote_path}")
-                return True
-            logger.error(
-                "Upload failed %s: %s (sent %s bytes) - %s",
-                remote_path,
-                response.status_code,
-                body_len,
-                response.text[:500] if response.text else response.reason,
-            )
-            return False
-        except Exception as e:
-            logger.error(f"Error uploading {local_path} to {remote_path}: {e}", exc_info=True)
-            return False
+            success = self._upload_via_public_share(local_path, filename, token)
+            return success
+        finally:
+            # Always clean up the share
+            self._delete_share(share_id)
 
     @staticmethod
     def parse_contribution_id(filename: str) -> Optional[int]:
