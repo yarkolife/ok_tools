@@ -552,7 +552,7 @@ class NextcloudExchangeService:
 
     # Use Nextcloud chunked upload for files larger than this (avoids proxy/PHP body limits).
     CHUNKED_UPLOAD_THRESHOLD = 50 * 1024 * 1024  # 50 MB
-    CHUNK_SIZE = 10 * 1024 * 1024  # 10 MB (Nextcloud: 5 MB–5 GB per chunk)
+    CHUNK_SIZE = 5 * 1024 * 1024  # 5 MB (Nextcloud minimum per chunk; smaller may pass proxy limits)
 
     def _upload_file_chunked(self, local_path: str, remote_path: str, file_size: int) -> bool:
         """
