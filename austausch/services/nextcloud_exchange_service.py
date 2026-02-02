@@ -583,14 +583,17 @@ class NextcloudExchangeService:
             'Content-Length': str(file_size),
         }
         try:
+            # Send body as bytes so server gets exact Content-Length (no chunked encoding).
+            # SabreDAV/Nextcloud can reject chunked uploads with "Expected filesize" errors.
             with open(local_path, 'rb') as f:
-                response = requests.put(
-                    full_url,
-                    data=f,
-                    auth=self._get_auth(),
-                    timeout=600,
-                    headers=headers,
-                )
+                body = f.read()
+            response = requests.put(
+                full_url,
+                data=body,
+                auth=self._get_auth(),
+                timeout=600,
+                headers=headers,
+            )
             if response.status_code in (200, 201, 204):
                 logger.info(f"Uploaded file: {local_path} -> {remote_path}")
                 return True

@@ -176,19 +176,9 @@ class ExportToServerService:
             logger.warning('License %s video has no storage_location', license_obj.number)
             return ('failure', item_id, 'Video has no storage location')
 
-        # Channel and date folder
-        media_authority = (
-            getattr(license_obj.profile, 'media_authority', None)
-            or self.config.default_media_authority
-        )
-        channel = _safe_channel_name(media_authority.name if media_authority else 'unknown')
-        if mode == 'licenses':
-            date_folder = timezone.now().strftime('%Y_%m_%d')
-        else:
-            date_folder = broadcast_date.strftime('%Y_%m_%d')
-
+        # Upload directly into configured path (no channel/date subfolders)
         base = self.config.upload_server_path.strip('/')
-        remote_base_path = f'{base}/{channel}/{date_folder}/'
+        remote_base_path = f'{base}/'
         number = license_obj.number
 
         # PDF is required: resolve before uploading anything (no PDF -> skip entire item)
@@ -223,7 +213,7 @@ class ExportToServerService:
             logger.error('Video file not found: %s', video_local)
             return ('failure', item_id, 'Video file not found')
 
-        video_remote_name = f'{number}_{_safe_filename(video_file.filename)}'
+        video_remote_name = _safe_filename(video_file.filename)
         video_remote_path = f'{remote_base_path}{video_remote_name}'
         if not self.service.upload_file(video_local, video_remote_path):
             return ('failure', item_id, 'Video upload failed')
@@ -231,7 +221,7 @@ class ExportToServerService:
         # JSON metadata
         meta_data = LicenseMetadataSerializer(license_obj).data
         base_video_name = Path(video_file.filename).stem
-        json_remote_name = f'{number}_{base_video_name}.meta.json'
+        json_remote_name = f'{_safe_filename(base_video_name)}.meta.json'
         json_remote_path = f'{remote_base_path}{json_remote_name}'
         with tempfile.NamedTemporaryFile(mode='w', suffix='.meta.json', delete=False) as f:
             json.dump(meta_data, f, ensure_ascii=False, indent=2)
