@@ -577,16 +577,17 @@ class NextcloudExchangeService:
         base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
         encoded_path = '/'.join(quote(p, safe='') for p in parts)
         full_url = f"{base_url}/{encoded_path}"
-        file_size = os.path.getsize(local_path)
-        headers = {
-            'Content-Type': 'application/octet-stream',
-            'Content-Length': str(file_size),
-        }
         try:
             # Send body as bytes so server gets exact Content-Length (no chunked encoding).
-            # SabreDAV/Nextcloud can reject chunked uploads with "Expected filesize" errors.
+            # SabreDAV "Expected filesize" often means server/proxy cut the connection
+            # (check PHP upload_max_filesize, post_max_size, nginx client_max_body_size, timeouts).
             with open(local_path, 'rb') as f:
                 body = f.read()
+            body_len = len(body)
+            headers = {
+                'Content-Type': 'application/octet-stream',
+                'Content-Length': str(body_len),
+            }
             response = requests.put(
                 full_url,
                 data=body,
@@ -597,8 +598,13 @@ class NextcloudExchangeService:
             if response.status_code in (200, 201, 204):
                 logger.info(f"Uploaded file: {local_path} -> {remote_path}")
                 return True
+            # Log full response; "Expected filesize" usually means server/proxy cut the stream
             logger.error(
-                f"Upload failed {remote_path}: {response.status_code} - {response.text[:200]}"
+                "Upload failed %s: %s (sent %s bytes) - %s",
+                remote_path,
+                response.status_code,
+                body_len,
+                response.text[:500] if response.text else response.reason,
             )
             return False
         except Exception as e:
