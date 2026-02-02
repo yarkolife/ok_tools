@@ -205,6 +205,50 @@ def _get_planung_license_numbers(date_from_str, date_to_str):
     return sorted(numbers)
 
 
+def _filter_planung_by_premiere_date(license_numbers, date_from_str, date_to_str):
+    """
+    Keep only license numbers whose premiere (earliest broadcast_date) falls within
+    the given date range. Excludes licenses that had their first broadcast before
+    the range (e.g. repeats in plan).
+    license_numbers: list of int; date_from_str, date_to_str: YYYY-MM-DD. Returns list of ints.
+    """
+    from datetime import datetime
+    from django.db.models import Min
+    from django.utils import timezone
+    from contributions.models import Contribution
+    from licenses.models import License
+
+    if not license_numbers or not date_from_str or not date_to_str:
+        return list(license_numbers)
+    try:
+        date_from = datetime.strptime(date_from_str, '%Y-%m-%d').date()
+        date_to = datetime.strptime(date_to_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return list(license_numbers)
+    date_from_dt = timezone.make_aware(datetime.combine(date_from, datetime.min.time()))
+    date_to_dt = timezone.make_aware(
+        datetime.combine(date_to, datetime.max.time().replace(microsecond=999999))
+    )
+    licenses = License.objects.filter(number__in=license_numbers).values_list('id', 'number')
+    license_id_by_number = {num: lid for lid, num in licenses}
+    license_ids = list(license_id_by_number.values())
+    if not license_ids:
+        return []
+    primary_dates = (
+        Contribution.objects.filter(license_id__in=license_ids)
+        .values('license_id')
+        .annotate(min_date=Min('broadcast_date'))
+    )
+    premiere_in_range = {
+        row['license_id'] for row in primary_dates
+        if row['min_date'] is not None and date_from_dt <= row['min_date'] <= date_to_dt
+    }
+    license_id_to_number = {lid: num for num, lid in license_id_by_number.items()}
+    return sorted(
+        license_id_to_number[lid] for lid in premiere_in_range if lid in license_id_to_number
+    )
+
+
 def _get_already_exported_success_ids(mode):
     """
     Return set of IDs that were already successfully uploaded in any past export run.
@@ -274,6 +318,13 @@ def export_to_server_step1(request):
             ids = _get_planung_license_numbers(date_from, date_to)
             if not ids:
                 ctx['error'] = _('No license numbers found in Planung for the selected date range.')
+                return render(request, 'austausch/export_to_server_step1.html', ctx)
+            ids = _filter_planung_by_premiere_date(ids, date_from, date_to)
+            if not ids:
+                ctx['error'] = _(
+                    'No items with premiere in the selected date range. '
+                    'Only licenses whose first broadcast is within the range are included; repeats are excluded.'
+                )
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
             already = _get_already_exported_success_ids('licenses')
             ids = [i for i in ids if i not in already]
