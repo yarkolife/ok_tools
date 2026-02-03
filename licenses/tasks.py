@@ -283,9 +283,10 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
         subject_tpl, body_tpl, html_tpl = templates[event_type]
 
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "") or getattr(settings, "EMAIL_HOST_USER", "") or ""
-        language = getattr(settings, "LANGUAGE_CODE", "de") or "de"
-
-        with translation.override(language):
+        
+        # Activate German language for email (emails should always be in German)
+        translation.activate('de')
+        try:
             send_mail(
                 subject_template_name=subject_tpl,
                 email_template_name=body_tpl,
@@ -294,6 +295,8 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
                 from_email=from_email,
                 to_email=to_email,
             )
+        finally:
+            translation.deactivate()
     except Exception:
         logger.exception("Failed to send license notification email (number=%s, event=%s)", license_number, event_type)
 

@@ -769,13 +769,17 @@ def render_video_task(operation_id):
         
         # Update metadata
         with transaction.atomic():
-            # Before saving, handle OneToOne license constraint:
-            # If license already has a linked VideoFile, unlink it first
-            # The signal will then link the new VideoFile automatically
-            if license_obj.video_file and license_obj.video_file.id != new_video.id:
-                old_video = license_obj.video_file
-                VideoFile.objects.filter(pk=old_video.pk).update(license=None)
-                logger.info(f"Unlinked old VideoFile {old_video.id} from License {license_obj.number} before saving new VideoFile {new_video.id}")
+            # Preview clips are not linked to license; only full renders may replace license link
+            if is_preview:
+                new_video.is_preview = True
+            else:
+                # Before saving, handle OneToOne license constraint:
+                # If license already has a linked VideoFile, unlink it first
+                # The signal will then link the new VideoFile automatically
+                if license_obj.video_file and license_obj.video_file.id != new_video.id:
+                    old_video = license_obj.video_file
+                    VideoFile.objects.filter(pk=old_video.pk).update(license=None)
+                    logger.info(f"Unlinked old VideoFile {old_video.id} from License {license_obj.number} before saving new VideoFile {new_video.id}")
             
             metadata = extract_video_metadata_fast(str(abs_out))
             new_video.format = metadata.get('format', '')

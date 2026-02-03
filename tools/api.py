@@ -1165,6 +1165,7 @@ class VideoRenderSubmitView(APIView):
             file_path=str(rel_out).replace("\\", "/"),
             storage_location=source_video.storage_location,
             is_available=False,
+            is_preview=is_preview,
         )
 
         operation = FileOperation.objects.create(

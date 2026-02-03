@@ -410,6 +410,7 @@ def render_video(request):
             file_path=str(rel_out).replace("\\", "/"),
             storage_location=source_video.storage_location,
             is_available=False,  # Will be set to True after rendering completes
+            is_preview=is_preview,
         )
         
         # Create operation record

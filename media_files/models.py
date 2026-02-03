@@ -183,6 +183,11 @@ class VideoFile(models.Model):
         verbose_name=_('Manual Primary'),
         help_text=_('Manually marked as primary version (overrides automatic selection)'),
     )
+    is_preview = models.BooleanField(
+        default=False,
+        verbose_name=_('Preview version'),
+        help_text=_('Short preview clip (e.g. 10s); not a full version, not linked to license'),
+    )
 
     # Relationship with License
     license = models.OneToOneField(
@@ -409,19 +414,23 @@ class VideoFile(models.Model):
         except License.DoesNotExist:
             return None
 
+    def _versions_queryset(self):
+        """Base queryset for versioning: same number, exclude preview clips."""
+        return VideoFile.objects.filter(number=self.number).exclude(is_preview=True)
+
     @property
     def has_duplicates(self):
-        """Check if there are other versions with same number."""
-        return VideoFile.objects.filter(number=self.number).exclude(id=self.id).exists()
+        """Check if there are other (non-preview) versions with same number."""
+        return self._versions_queryset().exclude(id=self.id).exists()
 
     @property
     def duplicate_count(self):
-        """Count of other versions."""
-        return VideoFile.objects.filter(number=self.number).exclude(id=self.id).count()
+        """Count of other (non-preview) versions."""
+        return self._versions_queryset().exclude(id=self.id).count()
 
     def get_all_versions(self):
-        """Get all versions of this video (including self)."""
-        return VideoFile.objects.filter(number=self.number).order_by('-total_bitrate', '-created_at')
+        """Get all full versions of this video (including self); excludes preview clips."""
+        return self._versions_queryset().order_by('-total_bitrate', '-created_at')
 
     def is_primary_version(self):
         """Check if this is the primary (best quality) version."""
@@ -435,12 +444,34 @@ class VideoFile(models.Model):
             return manual_primary.id == self.id
         
         # Priority: availability > quality (bitrate + storage) > recency
-        # Never prefer a newer but lower-quality / partially-copied file as primary.
+        # For CUSTOM storage: prefer newer versions if bitrate is not significantly lower
+        # (re-rendered versions should become primary)
         def get_sort_key(v):
             created = v.created_at or v.last_scanned or v.updated_at
+            quality_score = int(v.get_quality_score() or 0)
+            
+            # Check if all versions are in CUSTOM storage
+            all_custom = all(
+                v.storage_location and v.storage_location.storage_type == 'CUSTOM'
+                for v in versions
+            )
+            
+            if all_custom:
+                # For CUSTOM: prefer newer if bitrate is >= 80% of max bitrate
+                max_bitrate = max((v.total_bitrate or 0 for v in versions), default=0)
+                v_bitrate = v.total_bitrate or 0
+                if max_bitrate > 0 and v_bitrate >= max_bitrate * 0.8:
+                    # Newer version with acceptable quality becomes primary
+                    return (
+                        bool(v.is_available),
+                        created,  # Recency first for CUSTOM
+                        quality_score,  # Then quality as tie-breaker
+                    )
+            
+            # Default: quality first, then recency
             return (
                 bool(v.is_available),
-                int(v.get_quality_score() or 0),
+                quality_score,
                 created,
             )
 

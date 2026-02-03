@@ -663,8 +663,10 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         if not self.value():
             return queryset
         
-        # Find numbers that have duplicates
-        duplicated_numbers = VideoFile.objects.values('number').annotate(
+        # Find numbers that have more than one full version (preview clips do not count)
+        duplicated_numbers = VideoFile.objects.exclude(
+            is_preview=True
+        ).values('number').annotate(
             count=Count('number')
         ).filter(count__gt=1).values_list('number', flat=True)
         
@@ -685,7 +687,7 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
             # Load videos without any complex annotations to avoid integer overflow
             videos_list = list(queryset.select_related('storage_location').only(
                 'id', 'number', 'total_bitrate', 'created_at', 'last_scanned', 'updated_at',
-                'storage_location__storage_type', 'is_manual_primary'
+                'storage_location__storage_type', 'is_manual_primary', 'is_preview'
             ))
         except Exception as e:
             logger.error(f'Error loading videos for IsPrimaryVersionFilter: {e}')
@@ -707,6 +709,10 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
         
         for number, video_list in by_number.items():
             try:
+                # Only full versions participate in primary/duplicate; exclude preview clips
+                video_list = [v for v in video_list if not getattr(v, 'is_preview', False)]
+                if not video_list:
+                    continue
                 # Check if any version is manually marked as primary
                 manual_primary = next((v for v in video_list if getattr(v, 'is_manual_primary', False)), None)
                 if manual_primary:
@@ -729,11 +735,24 @@ class IsPrimaryVersionFilter(admin.SimpleListFilter):
                     bitrate = v.total_bitrate if v.total_bitrate is not None else 0
                     quality = (priority * 1_000_000_000) + bitrate
                     
-                    # Use recency only as a tie-breaker
                     date = v.created_at or v.last_scanned or v.updated_at
                     if date is None:
                         date = datetime(1970, 1, 1, tzinfo=timezone.utc)
                     
+                    # For CUSTOM storage: prefer newer versions if bitrate is acceptable
+                    all_custom = all(
+                        (vid.storage_location and 
+                         getattr(vid.storage_location, 'storage_type', None) == 'CUSTOM')
+                        for vid in video_list
+                    )
+                    
+                    if all_custom:
+                        max_bitrate = max((vid.total_bitrate or 0 for vid in video_list), default=0)
+                        if max_bitrate > 0 and bitrate >= max_bitrate * 0.8:
+                            # Newer version with acceptable quality becomes primary
+                            return (available, date, quality)
+                    
+                    # Default: quality first, then recency
                     return (available, quality, date)
                 
                 best_video = max(video_list, key=get_sort_key)
@@ -856,7 +875,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         'is_available', 'player_link'
     ]
     list_filter = [
-        'storage_location', 'format', 'is_available',
+        'storage_location', 'format', 'is_available', 'is_preview',
         ('created_at', DateRangeFilter),
         'has_video', 'has_audio',
         ArchiveCleanupFilter, HasDuplicatesFilter, IsPrimaryVersionFilter, FPSFilter
@@ -881,7 +900,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 'audio_codec', 'audio_codec_long', 'audio_bitrate', 'audio_bitrate_display',
                 'audio_sample_rate', 'audio_channels', 'audio_channel_layout',
                 'has_video', 'has_audio', 'total_bitrate', 'bitrate_mbps',
-                'license_link', 'video_player', 'duplicate_status_display', 'all_versions_display', 'created_at', 'updated_at'
+                'license_link', 'is_preview', 'video_player', 'duplicate_status_display', 'all_versions_display', 'created_at', 'updated_at'
             ]
         else:  # Adding new object
             return []
@@ -893,7 +912,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 (_('Basic Information'), {
                     'fields': (
                         'number', 'filename', 'storage_location', 'file_path',
-                        'license_link', 'is_available'
+                        'license_link', 'is_available', 'is_preview'
                     )
                 }),
                 (_('Video Player'), {
@@ -1276,6 +1295,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 file_path=str(rel_out).replace("\\", "/"),
                 storage_location=source.storage_location,
                 is_available=True,
+                is_preview=True,
             )
 
             operation = FileOperation.objects.create(
@@ -1727,9 +1747,13 @@ class VideoFileAdmin(admin.ModelAdmin):
         """Show duplicate status indicator with version info."""
         if not obj.pk:
             return '—'
-        
-        # Check for duplicates (same number, any storage)
-        all_versions = VideoFile.objects.filter(number=obj.number).exclude(id=obj.id)
+        if getattr(obj, 'is_preview', False):
+            return format_html(
+                '<span style="color: #6c757d;">🎬 {}</span>',
+                _('Preview clip (not a version)'),
+            )
+        # Check for duplicates (same number, any storage; previews excluded by get_all_versions)
+        all_versions = obj.get_all_versions().exclude(id=obj.id)
         same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
         
         if not all_versions.exists():
@@ -1737,6 +1761,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         
         is_primary = obj.is_primary_version()
         total_count = all_versions.count()
+        same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
         same_storage_count = same_storage_versions.count()
         
         # Build tooltip with version details
@@ -1840,7 +1865,13 @@ class VideoFileAdmin(admin.ModelAdmin):
         """Show detailed duplicate status."""
         if not obj.pk:
             return '-'
-        
+        if getattr(obj, 'is_preview', False):
+            return format_html(
+                '<span style="color: #6c757d;">🎬 {}</span><br>'
+                '<span style="color: #666;">{}</span>',
+                _('Preview clip'),
+                _('Not linked to license; not counted as a version.'),
+            )
         if not obj.has_duplicates:
             return format_html('<span style="color: #28a745;">✓ Unique (no duplicates)</span>')
         
@@ -1915,13 +1946,21 @@ class VideoFileAdmin(admin.ModelAdmin):
         if not obj.pk:
             return '-'
         
-        # Get all versions (including current)
-        all_versions = VideoFile.objects.filter(number=obj.number).order_by(
-            '-total_bitrate', '-created_at', '-storage_location__storage_type'
-        )
-        
-        if all_versions.count() <= 1:
+        # Get full versions only (preview clips are not listed as versions)
+        all_versions = obj.get_all_versions()
+        if getattr(obj, 'is_preview', False):
+            # This record is a preview clip; show note and list full versions only
+            intro = format_html(
+                '<div style="padding: 8px; background: #f0f0f0; border-left: 3px solid #6c757d; margin: 5px 0;">'
+                '🎬 <strong>{}</strong></div>',
+                _('This record is a preview clip (not linked to license). Full versions:'),
+            )
+        else:
+            intro = format_html('')
+        if all_versions.count() <= 1 and not getattr(obj, 'is_preview', False):
             return format_html('<span style="color: #6c757d;">{}</span>', _('No other versions'))
+        if all_versions.count() == 0 and getattr(obj, 'is_preview', False):
+            return format_html('{}<span style="color: #6c757d;">{}</span>', intro, _('No full versions for this number.'))
         
         versions_list = list(all_versions.select_related('storage_location'))
         html_parts = []
@@ -2001,7 +2040,10 @@ class VideoFileAdmin(admin.ModelAdmin):
                     f'{status}<br><a href="{url}">{info}</a></div>'
                 )
         
-        return format_html(''.join(html_parts))
+        body = format_html(''.join(html_parts))
+        if getattr(obj, 'is_preview', False) and intro:
+            return format_html('{} {}', intro, body)
+        return body
 
     all_versions_display.short_description = _('All Versions')
 

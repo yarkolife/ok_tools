@@ -267,6 +267,7 @@ class Command(BaseCommand):
                 file_path=str(rel_out).replace("\\", "/"),
                 storage_location=source.storage_location,
                 is_available=True,
+                is_preview=preview,
                 # Do NOT set `license` here: VideoFile.license is OneToOneField.
             )
 

@@ -711,12 +711,14 @@ def select_best_source_video(number, recent_days=None):
         from media_files.config import get_video_source_preference_custom_days
         recent_days = get_video_source_preference_custom_days()
     
-    # Find all available versions (exclude PLAYOUT to avoid copying from playout)
+    # Find all available full versions (exclude PLAYOUT and preview clips)
     all_versions = VideoFile.objects.filter(
         number=number,
         is_available=True
     ).exclude(
         storage_location__storage_type='PLAYOUT'
+    ).exclude(
+        is_preview=True
     ).select_related('storage_location')
     
     if not all_versions.exists():

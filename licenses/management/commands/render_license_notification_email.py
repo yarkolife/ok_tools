@@ -118,13 +118,16 @@ class Command(BaseCommand):
         }
 
         subject_tpl, body_tpl, html_tpl = TEMPLATES[event_type]
-        lang = getattr(settings, "LANGUAGE_CODE", "de") or "de"
-
-        with translation.override(lang):
+        
+        # Activate German language for email rendering
+        translation.activate('de')
+        try:
             subject = loader.render_to_string(subject_tpl, context)
             subject = "".join(subject.splitlines())
             body = loader.render_to_string(body_tpl, context)
             html = loader.render_to_string(html_tpl, context)
+        finally:
+            translation.deactivate()
 
         self.stdout.write("--- To")
         self.stdout.write(to_email)

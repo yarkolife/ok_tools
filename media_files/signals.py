@@ -31,21 +31,34 @@ def auto_link_to_license(sender, instance, created, **kwargs):
             logger.debug(f"No License found for VideoFile number {instance.number}")
             return
         
-        # Find all VideoFiles with the same number
-        # Find the newest VideoFile by updated_at (or created_at if updated_at is None)
-        # Priority: updated_at > created_at
-        newest_video = (
-            VideoFile.objects
-            .filter(number=instance.number)
-            .order_by('-updated_at', '-created_at', '-id')
-            .first()
-        )
+        # Find best VideoFile to link (use is_primary_version for stability, not just "newest")
+        # This avoids "ping-pong" when updated_at changes during scans
+        all_videos = VideoFile.objects.filter(
+            number=instance.number,
+            is_available=True
+        ).exclude(is_preview=True).select_related('storage_location')
         
-        if not newest_video:
+        if not all_videos.exists():
             logger.debug(f"No VideoFile found for number {instance.number}")
             return
         
-        # Check if license is already linked to a different VideoFile
+        # Use is_primary_version() to determine best video (stable criteria: quality + storage type)
+        # This is more stable than just "newest by updated_at" which changes on every scan
+        best_video = None
+        for video in all_videos:
+            if video.is_primary_version():
+                best_video = video
+                break
+        
+        # Fallback: if no primary found, use newest by created_at (stable, doesn't change)
+        if not best_video:
+            best_video = all_videos.order_by('-created_at', '-id').first()
+        
+        if not best_video:
+            logger.debug(f"No suitable VideoFile found for number {instance.number}")
+            return
+        
+        # Check if license is already linked to the best VideoFile
         # Use safe access to avoid RelatedObjectDoesNotExist exception
         try:
             current_video = license.video_file
@@ -54,21 +67,29 @@ def auto_link_to_license(sender, instance, created, **kwargs):
             current_video = None
             has_video_file = False
         
-        if has_video_file and current_video.id != newest_video.id:
-            # newest_video is already the newest by order_by, so we should link it
-            # Unlink old one and link new one
+        # Only re-link if current video is different AND not primary (avoid ping-pong)
+        if has_video_file and current_video.id != best_video.id:
+            # Check if current video is still primary - if yes, don't re-link (avoid ping-pong)
+            if current_video.is_primary_version():
+                logger.debug(
+                    f"License #{license.number} already linked to primary VideoFile {current_video.id}, "
+                    f"skipping re-link to {best_video.id} (avoid ping-pong)"
+                )
+                return
+            
+            # Re-link only if best_video is actually better (primary) or current is not primary
             with transaction.atomic():
                 VideoFile.objects.filter(pk=current_video.pk).update(license=None)
-                VideoFile.objects.filter(pk=newest_video.pk).update(license=license)
-            logger.info(f"Re-linked License #{license.number} from VideoFile {current_video.id} to newer VideoFile {newest_video.id}")
+                VideoFile.objects.filter(pk=best_video.pk).update(license=license)
+            logger.info(f"Re-linked License #{license.number} from VideoFile {current_video.id} to primary VideoFile {best_video.id}")
         elif not has_video_file:
-            # License is not linked, link to newest video
+            # License is not linked, link to best video
             with transaction.atomic():
-                VideoFile.objects.filter(pk=newest_video.pk).update(license=license)
-            logger.info(f"Auto-linked VideoFile {newest_video.id} (number {instance.number}) to License #{license.number}")
+                VideoFile.objects.filter(pk=best_video.pk).update(license=license)
+            logger.info(f"Auto-linked VideoFile {best_video.id} (number {instance.number}) to License #{license.number}")
         else:
-            # License is already linked to the newest video, nothing to do
-            logger.debug(f"License #{license.number} already linked to newest VideoFile {newest_video.id}")
+            # License is already linked to the best video, nothing to do
+            logger.debug(f"License #{license.number} already linked to primary VideoFile {best_video.id}")
         
         # Reload license from DB to get updated video_file relationship
         # (after update() the in-memory object may be stale)
@@ -88,11 +109,11 @@ def auto_link_to_license(sender, instance, created, **kwargs):
             )
             return
         
-        # Sync duration from newest video to license if video has duration
-        if newest_video.duration:
+        # Sync duration from best video to license if video has duration
+        if best_video.duration:
             # Round to seconds (hh:mm:ss format)
             from datetime import timedelta
-            video_duration = newest_video.duration
+            video_duration = best_video.duration
             # Round to nearest second
             rounded_duration = timedelta(seconds=int(video_duration.total_seconds()))
             
@@ -142,42 +163,60 @@ def auto_link_license_to_video(sender, instance, created, **kwargs):
             return
             
         if instance.number:
-            # Find all videos with same number
-            # Find the newest VideoFile by updated_at (or created_at if updated_at is None)
-            # Priority: updated_at > created_at
-            newest_video = (
-                VideoFile.objects
-                .filter(number=instance.number)
-                .order_by('-updated_at', '-created_at', '-id')
-                .first()
-            )
+            # Find best VideoFile to link (use is_primary_version for stability)
+            all_videos = VideoFile.objects.filter(
+                number=instance.number,
+                is_available=True
+            ).exclude(is_preview=True).select_related('storage_location')
             
-            if not newest_video:
+            if not all_videos.exists():
                 logger.debug(f"No VideoFile found for License number {instance.number}")
                 return
             
-            # Check if license is already linked to a different VideoFile
-            if instance.video_file and instance.video_file.id != newest_video.id:
-                # newest_video is already the newest by order_by, so we should link it
-                # Unlink old one and link new one
+            # Use is_primary_version() to determine best video (stable criteria)
+            best_video = None
+            for video in all_videos:
+                if video.is_primary_version():
+                    best_video = video
+                    break
+            
+            # Fallback: if no primary found, use newest by created_at (stable)
+            if not best_video:
+                best_video = all_videos.order_by('-created_at', '-id').first()
+            
+            if not best_video:
+                logger.debug(f"No suitable VideoFile found for License number {instance.number}")
+                return
+            
+            # Check if license is already linked to the best VideoFile
+            if instance.video_file and instance.video_file.id != best_video.id:
+                # Check if current video is still primary - if yes, don't re-link (avoid ping-pong)
+                if instance.video_file.is_primary_version():
+                    logger.debug(
+                        f"License #{instance.number} already linked to primary VideoFile {instance.video_file.id}, "
+                        f"skipping re-link to {best_video.id} (avoid ping-pong)"
+                    )
+                    return
+                
+                # Re-link only if best_video is actually better (primary) or current is not primary
                 current_video = instance.video_file
                 with transaction.atomic():
                     VideoFile.objects.filter(pk=current_video.pk).update(license=None)
-                    VideoFile.objects.filter(pk=newest_video.pk).update(license=instance)
-                logger.info(f"Re-linked License #{instance.number} from VideoFile {current_video.id} to newer VideoFile {newest_video.id}")
+                    VideoFile.objects.filter(pk=best_video.pk).update(license=instance)
+                logger.info(f"Re-linked License #{instance.number} from VideoFile {current_video.id} to primary VideoFile {best_video.id}")
             elif not instance.video_file:
-                # License is not linked, link to newest video
+                # License is not linked, link to best video
                 with transaction.atomic():
-                    VideoFile.objects.filter(pk=newest_video.pk).update(license=instance)
-                logger.info(f"Auto-linked License {instance.number} to VideoFile {newest_video.id}")
+                    VideoFile.objects.filter(pk=best_video.pk).update(license=instance)
+                logger.info(f"Auto-linked License {instance.number} to VideoFile {best_video.id}")
             else:
-                # License is already linked to the newest video, nothing to do
-                logger.debug(f"License #{instance.number} already linked to newest VideoFile {newest_video.id}")
+                # License is already linked to the best video, nothing to do
+                logger.debug(f"License #{instance.number} already linked to primary VideoFile {best_video.id}")
             
-            # Sync duration from newest video to license if license has no duration
-            if newest_video.duration and not instance.duration:
+            # Sync duration from best video to license if license has no duration
+            if best_video.duration and not instance.duration:
                 from datetime import timedelta
-                rounded_duration = timedelta(seconds=int(newest_video.duration.total_seconds()))
+                rounded_duration = timedelta(seconds=int(best_video.duration.total_seconds()))
                 instance.duration = rounded_duration
                 instance.save(update_fields=['duration'])
                 logger.info(f"Synced duration from VideoFile to License #{instance.number}: {rounded_duration}")
