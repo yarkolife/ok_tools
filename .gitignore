@@ -94,6 +94,7 @@ gunicorn.conf.py
 # Project specific folders that should not be committed
 architecture/
 backups/
+plans/
 
 # Configuration files that might contain sensitive data
 *.cfg

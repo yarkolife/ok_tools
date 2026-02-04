@@ -9,6 +9,7 @@ urlpatterns = [
     # UI views
     path('', views.ToolsIndexView.as_view(), name='index'),
     path('media/<path:relpath>/', views.tools_media_stream, name='media_stream'),
+    path('slideshow/<int:project_id>/output/stream/', views.slideshow_output_stream, name='slideshow_output_stream'),
     path('slideshow/', views.SlideshowListView.as_view(), name='slideshow_list'),
     path('slideshow/create/', views.SlideshowCreatorView.as_view(), name='slideshow_create'),
     path('slideshow/<int:project_id>/', views.SlideshowDetailView.as_view(), name='slideshow_detail'),

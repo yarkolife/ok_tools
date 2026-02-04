@@ -695,14 +695,20 @@ class DeleteLicenseView(generic.DeleteView):
     def delete(self, request, *args, **kwargs):
         """Only allow deleting unconfirmed licenses."""
         self.object = self.get_object()
-        
+
         if self.object.confirmed:
             messages.error(
                 self.request,
                 _('Cannot delete confirmed license %(license)s') % {'license': str(self.object)}
             )
             return http.HttpResponseRedirect(reverse('licenses:licenses'))
-        
+
+        try:
+            from dashboard.models import UserJourney
+            UserJourney.objects.filter(license_id=self.object.id).update(license_id=None)
+        except Exception:
+            pass
+
         messages.success(
             self.request,
             _('License %(license)s successfully deleted.') % {'license': str(self.object)}

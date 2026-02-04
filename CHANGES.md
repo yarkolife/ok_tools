@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+2026-02-04 (Version 4.0.4)
+===========================
+
+* **Tools: slideshow output & storage path handling**
+  * Stream generated slideshows with HTTP Range support for reliable playback.
+  * Resolve media/audio/output paths using ToolsConfig storage/output paths with safe fallbacks.
+  * Cleanup task now deletes media/audio/output files using resolved paths.
+* **Austausch: export & WebDAV fixes**
+  * Export result timestamps render in local time.
+  * Expiring upload shares use local date with safer minimum validity.
+  * WebDAV URL resolution uses storage-aware base path.
+  * License export skips numbers already successfully exported across runs.
+* **Licenses: deletion safety**
+  * Clear UserJourney links before deleting confirmed licenses.
+* **Project hygiene**
+  * Ignore local plans/ folder in Git.
+
 2026-01-28 (Version 4.0.3)
 ===========================
 

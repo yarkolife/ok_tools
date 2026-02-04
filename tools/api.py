@@ -21,6 +21,7 @@ from rest_framework.views import APIView
 from rest_framework.throttling import UserRateThrottle
 
 from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
+from .utils import resolve_tools_file_path, resolve_tools_output_path
 from .services.audio_normalizer import AudioNormalizerService, load_audio_presets
 from .services.audio_waveform import WaveformError, load_or_generate_waveform
 from .services.video_generator import VideoGenerator, VideoGeneratorError
@@ -269,7 +270,8 @@ class UploadAudioView(APIView):
         # Try to get duration
         try:
             generator = VideoGenerator(project)
-            duration = generator.get_audio_duration(Path(audio.file.path))
+            audio_path = resolve_tools_file_path(audio.file, config)
+            duration = generator.get_audio_duration(audio_path)
             audio.duration = duration
             audio.save(update_fields=['duration'])
         except Exception as e:
@@ -417,6 +419,8 @@ class ProjectStatusView(APIView):
             'status': project.status,
             'error_message': project.error_message,
             'output_file': project.output_file.url if project.output_file else None,
+            'output_stream_url': reverse('tools:slideshow_output_stream', args=[project.id])
+            if project.output_file else None,
             'created_at': project.created_at,
             'updated_at': project.updated_at,
             'completed_at': project.completed_at
@@ -441,11 +445,15 @@ class DownloadSlideshowView(APIView):
         if not project.output_file:
             raise Http404(_("Video not generated yet"))
         
-        if not project.output_file.path or not Path(project.output_file.path).exists():
+        try:
+            output_path = resolve_tools_output_path(project.output_file)
+        except Exception:
+            raise Http404(_("Video file not found"))
+        if not output_path.exists():
             raise Http404(_("Video file not found"))
         
         return FileResponse(
-            open(project.output_file.path, 'rb'),
+            open(output_path, 'rb'),
             content_type='video/mp4',
             filename=Path(project.output_file.name).name
         )

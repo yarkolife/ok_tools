@@ -191,7 +191,7 @@
     <div class="section">
         <div class="section-title">{% trans 'Generated Video' %}</div>
         <video controls style="width: 100%; max-height: 500px;">
-            <source src="{{ project.output_file.url }}" type="video/mp4">
+            <source src="{% url 'tools:slideshow_output_stream' project.id %}" type="video/mp4">
             {% trans 'Your browser does not support video playback.' %}
         </video>
     </div>

@@ -12,6 +12,7 @@ from django.utils import timezone
 from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
 from .services.audio_normalizer import AudioNormalizerError, AudioNormalizerService
 from .services.video_generator import VideoGenerator, VideoGeneratorError
+from .utils import resolve_tools_file_path, resolve_tools_output_path
 
 logger = logging.getLogger('django')
 
@@ -189,7 +190,15 @@ def cleanup_old_projects_task(older_than_days=30, keep_failed=False):
         try:
             # Delete media files (only if not used by library or other projects)
             for media in project.media_files.all():
-                if media.file and Path(media.file.path).exists():
+                if media.file:
+                    try:
+                        media_path = resolve_tools_file_path(media.file)
+                    except Exception:
+                        media_path = None
+                else:
+                    media_path = None
+
+                if media_path and media_path.exists():
                     # Check if file is used by library or other projects
                     other_uses = SlideshowMedia.objects.filter(
                         file=media.file
@@ -197,16 +206,24 @@ def cleanup_old_projects_task(older_than_days=30, keep_failed=False):
                     
                     if not other_uses:
                         try:
-                            Path(media.file.path).unlink()
+                            media_path.unlink()
                             files_deleted += 1
                         except Exception as e:
-                            logger.warning(f"Failed to delete media file {media.file.path}: {e}")
+                            logger.warning(f"Failed to delete media file {media_path}: {e}")
                     else:
-                        logger.debug(f"Skipping media file {media.file.path} - used by library or other projects")
+                        logger.debug(f"Skipping media file {media_path} - used by library or other projects")
             
             # Delete audio files (only if not used by library or other projects)
             for audio in project.audio_files.all():
-                if audio.file and Path(audio.file.path).exists():
+                if audio.file:
+                    try:
+                        audio_path = resolve_tools_file_path(audio.file)
+                    except Exception:
+                        audio_path = None
+                else:
+                    audio_path = None
+
+                if audio_path and audio_path.exists():
                     # Check if file is used by library or other projects
                     other_uses = SlideshowAudio.objects.filter(
                         file=audio.file
@@ -214,20 +231,25 @@ def cleanup_old_projects_task(older_than_days=30, keep_failed=False):
                     
                     if not other_uses:
                         try:
-                            Path(audio.file.path).unlink()
+                            audio_path.unlink()
                             files_deleted += 1
                         except Exception as e:
-                            logger.warning(f"Failed to delete audio file {audio.file.path}: {e}")
+                            logger.warning(f"Failed to delete audio file {audio_path}: {e}")
                     else:
-                        logger.debug(f"Skipping audio file {audio.file.path} - used by library or other projects")
+                        logger.debug(f"Skipping audio file {audio_path} - used by library or other projects")
             
             # Delete output file
-            if project.output_file and Path(project.output_file.path).exists():
+            if project.output_file:
                 try:
-                    Path(project.output_file.path).unlink()
-                    files_deleted += 1
-                except Exception as e:
-                    logger.warning(f"Failed to delete output file {project.output_file.path}: {e}")
+                    output_path = resolve_tools_output_path(project.output_file)
+                except Exception:
+                    output_path = None
+                if output_path and output_path.exists():
+                    try:
+                        output_path.unlink()
+                        files_deleted += 1
+                    except Exception as e:
+                        logger.warning(f"Failed to delete output file {output_path}: {e}")
             
             # Delete project (cascades to related objects)
             project_id = project.id

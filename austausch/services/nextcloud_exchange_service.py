@@ -66,8 +66,13 @@ class NextcloudExchangeService:
         Create temporary upload-only public share on a folder.
         Returns dict with share_id, token, upload_url or None on error.
         """
-        from datetime import datetime, timedelta
-        expire_date = (datetime.now() + timedelta(hours=expire_hours)).strftime('%Y-%m-%d')
+        from datetime import timedelta
+        from django.utils import timezone
+        local_today = timezone.localdate()
+        expire_date_value = local_today + timedelta(days=max(1, int(expire_hours // 24) or 1))
+        if expire_date_value <= local_today:
+            expire_date_value = local_today + timedelta(days=1)
+        expire_date = expire_date_value.strftime('%Y-%m-%d')
         share_path = f'/{folder_path.strip("/")}'
         try:
             r = requests.post(
@@ -631,7 +636,7 @@ class NextcloudExchangeService:
         """
         try:
             from urllib.parse import quote
-            webdav_base = self.webdav_url.rstrip('/')
+            webdav_base = self.get_webdav_url_for_path(file_path).rstrip('/')
             file_path_clean = file_path.lstrip('/')
             # URL encode each path segment
             encoded_path = '/'.join(quote(part, safe='') for part in file_path_clean.split('/'))
@@ -1010,4 +1015,3 @@ class NextcloudExchangeService:
                 return 'image'
         
         return 'unknown'
-

@@ -286,6 +286,20 @@ def _get_already_exported_success_ids(mode):
     return already
 
 
+def _get_already_exported_success_ids_for_licenses():
+    """Return set of license numbers successfully uploaded in any past export run."""
+    from .models import ExportToServerRun
+    already = set()
+    for run in ExportToServerRun.objects.values_list('details', flat=True):
+        if isinstance(run, dict):
+            for sid in run.get('success_ids', []) or []:
+                try:
+                    already.add(int(sid))
+                except (TypeError, ValueError):
+                    continue
+    return already
+
+
 def _export_step1_context(config):
     """Build context for step1 template: media authority from settings only."""
     default_media_authority_name = ''
@@ -329,7 +343,7 @@ def export_to_server_step1(request):
                     'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
                 )
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
-            already = _get_already_exported_success_ids('licenses')
+            already = _get_already_exported_success_ids_for_licenses()
             ids = [i for i in ids if i not in already]
             if not ids:
                 ctx['error'] = _('All entered license numbers were already successfully exported.')
@@ -360,7 +374,7 @@ def export_to_server_step1(request):
                     'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
                 )
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
-            already = _get_already_exported_success_ids('licenses')
+            already = _get_already_exported_success_ids_for_licenses()
             ids = [i for i in ids if i not in already]
             if not ids:
                 ctx['error'] = _('All license numbers from Planung were already successfully exported.')
@@ -434,7 +448,8 @@ def export_to_server_step2(request):
             if schedule_at:
                 try:
                     from datetime import datetime
-                    dt = timezone.make_aware(datetime.fromisoformat(schedule_at.replace('Z', '+00:00')))
+                    raw_dt = datetime.fromisoformat(schedule_at.replace('Z', '+00:00'))
+                    dt = raw_dt if timezone.is_aware(raw_dt) else timezone.make_aware(raw_dt)
                     if dt <= timezone.now():
                         dt = None
                 except Exception:
@@ -468,7 +483,11 @@ def export_to_server_step2(request):
     from contributions.models import ContributionManager
 
     config = ExchangeConfig.get_config()
-    already_exported = _get_already_exported_success_ids(mode)
+    already_exported = (
+        _get_already_exported_success_ids(mode)
+        if mode == 'contributions'
+        else _get_already_exported_success_ids_for_licenses()
+    )
     items = []
     if mode == 'contributions':
         qs = (
@@ -556,4 +575,3 @@ def export_to_server_result(request):
     if not run:
         return render(request, 'austausch/export_to_server_result.html', {'run': None})
     return render(request, 'austausch/export_to_server_result.html', {'run': run})
-

@@ -18,9 +18,9 @@
 {% else %}
 
 <p>
-  <strong>{% translate "Started at" %}:</strong> {{ run.started_at|date:"Y-m-d H:i:s" }}
+  <strong>{% translate "Started at" %}:</strong> {{ run.started_at|localtime|date:"Y-m-d H:i:s" }}
   {% if run.completed_at %}
-    &nbsp;|&nbsp; <strong>{% translate "Completed at" %}:</strong> {{ run.completed_at|date:"Y-m-d H:i:s" }}
+    &nbsp;|&nbsp; <strong>{% translate "Completed at" %}:</strong> {{ run.completed_at|localtime|date:"Y-m-d H:i:s" }}
   {% else %}
     &nbsp;|&nbsp; <em>{% translate "Still running…" %}</em>
   {% endif %}

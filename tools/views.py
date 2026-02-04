@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
+from .utils import resolve_tools_output_path
 from .services.audio_normalizer import load_audio_presets, PresetError
 
 
@@ -708,6 +709,92 @@ def tools_media_stream(request, relpath: str):
 
     if start_s == "":
         # Suffix range: bytes=-N
+        suffix_len = int(end_s)
+        if suffix_len <= 0:
+            resp = HttpResponse(status=416)
+            resp["Content-Range"] = f"bytes */{size}"
+            return resp
+        start = max(0, size - suffix_len)
+        end = size - 1
+    else:
+        start = int(start_s)
+        end = int(end_s) if end_s else size - 1
+
+    if start < 0 or start >= size or end < start:
+        resp = HttpResponse(status=416)
+        resp["Content-Range"] = f"bytes */{size}"
+        return resp
+
+    end = min(end, size - 1)
+    length = end - start + 1
+
+    def iterator(path: Path, offset: int, count: int, chunk_size: int = 1024 * 512):
+        f = open(path, "rb")
+        try:
+            f.seek(offset)
+            remaining = count
+            while remaining > 0:
+                data = f.read(min(chunk_size, remaining))
+                if not data:
+                    break
+                remaining -= len(data)
+                yield data
+        finally:
+            try:
+                f.close()
+            except Exception:
+                pass
+
+    resp = StreamingHttpResponse(iterator(abs_path, start, length), status=206, content_type=content_type)
+    resp["Accept-Ranges"] = "bytes"
+    resp["Content-Range"] = f"bytes {start}-{end}/{size}"
+    resp["Content-Length"] = str(length)
+    return resp
+
+
+def slideshow_output_stream(request, project_id: int):
+    """Stream slideshow output video with Range support."""
+    check_tools_enabled()
+
+    if not request.user.is_authenticated or not request.user.is_staff:
+        raise Http404("Not found")
+
+    project = get_object_or_404(SlideshowProject, id=project_id)
+    if not project.output_file:
+        raise Http404("Not found")
+
+    try:
+        abs_path = resolve_tools_output_path(project.output_file)
+    except Exception:
+        raise Http404("Not found")
+
+    if not abs_path.exists() or not abs_path.is_file():
+        raise Http404("Not found")
+
+    size = abs_path.stat().st_size
+    content_type, _enc = mimetypes.guess_type(str(abs_path))
+    content_type = content_type or "video/mp4"
+
+    range_header = request.headers.get("Range") or request.META.get("HTTP_RANGE")
+    if not range_header:
+        resp = FileResponse(open(abs_path, "rb"), content_type=content_type)
+        resp["Accept-Ranges"] = "bytes"
+        resp["Content-Length"] = str(size)
+        return resp
+
+    m = re.match(r"^bytes=(\d*)-(\d*)$", range_header.strip())
+    if not m:
+        resp = HttpResponse(status=416)
+        resp["Content-Range"] = f"bytes */{size}"
+        return resp
+
+    start_s, end_s = m.groups()
+    if start_s == "" and end_s == "":
+        resp = HttpResponse(status=416)
+        resp["Content-Range"] = f"bytes */{size}"
+        return resp
+
+    if start_s == "":
         suffix_len = int(end_s)
         if suffix_len <= 0:
             resp = HttpResponse(status=416)
