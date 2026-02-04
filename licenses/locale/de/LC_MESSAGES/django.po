@@ -1254,3 +1254,75 @@ msgstr "Freistellung %(license)s erfolgreich gelöscht."
 
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr "Tags durch Kommas getrennt eingeben (z.B. beitrag1, beitrag2, beitrag3)"
+
+# Help texts for license form fields
+
+msgid ""
+"After the premiere, your contribution will be repeated at various times "
+"during the week according to the broadcast schedule. Additional repeats "
+"are also possible after a year and later."
+msgstr ""
+"Nach der Premiere wird Ihr Beitrag innerhalb einer Woche zu verschiedenen "
+"Zeiten laut Sendeplan wiederholt. Zusätzlich sind Wiederholungen auch nach "
+"einem Jahr und später möglich."
+
+msgid ""
+"Your video will be stored in the media library and will be available "
+"for viewers to watch at any time."
+msgstr ""
+"Ihr Video wird in der Mediathek gespeichert und ist dort jederzeit "
+"für Zuschauer abrufbar."
+
+msgid ""
+"Your video can be used by other Open Channels and community media "
+"in Saxony-Anhalt for their broadcasts."
+msgstr ""
+"Ihr Video kann von anderen Offenen Kanälen und Bürgermedien in "
+"Sachsen-Anhalt für ihre Sendungen verwendet werden."
+
+msgid ""
+"Your video can be used by Open Channels and community media "
+"in other German federal states for their broadcasts."
+msgstr ""
+"Ihr Video kann von Offenen Kanälen und Bürgermedien in anderen "
+"deutschen Bundesländern für ihre Sendungen verwendet werden."
+
+msgid ""
+"Select \"Yes\" if your video contains content that may be unsuitable "
+"for children (e.g., violence, shocking images, offensive language)."
+msgstr ""
+"Waehlen Sie Ja, wenn Ihr Video Inhalte enthaelt, die fuer Kinder "
+"ungeeignet sein koennten (z.B. Gewalt, Schockbilder, anstoessige Sprache)."
+
+# License created modal messages
+
+msgid "License successfully created"
+msgstr "Freistellung erfolgreich erstellt"
+
+msgid "License was successfully created and digitally signed."
+msgstr "Freistellung wurde erfolgreich erstellt und digital signiert."
+
+msgid "License was successfully created."
+msgstr "Freistellung wurde erfolgreich erstellt."
+
+msgid "Open PDF"
+msgstr "PDF öffnen"
+
+msgid ""
+"Please print the document, sign it, and send it to our email address."
+msgstr ""
+"Bitte drucken Sie das Dokument aus, unterschreiben Sie es und "
+"senden Sie es an unsere E-Mail-Adresse."
+
+msgid ""
+"You can now upload a video for this license or do this later from "
+"the license list."
+msgstr ""
+"Sie können jetzt ein Video für diese Freistellung hochladen oder "
+"dies später aus der Freistellungsliste erledigen."
+
+msgid "Go to Overview"
+msgstr "Zur Übersicht"
+
+msgid "Upload Video Later"
+msgstr "Video später hochladen"

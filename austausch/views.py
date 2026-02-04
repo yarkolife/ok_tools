@@ -510,7 +510,11 @@ def export_to_server_step2(request):
             profile = getattr(lic, 'profile', None)
             profile_display = str(profile).strip() if profile else ''
             video_url = reverse('admin:media_files_videofile_change', args=[video.id])
-            broadcast_date_display = c.broadcast_date.strftime('%d.%m.%Y %H:%M') if c.broadcast_date else ''
+            broadcast_date_display = (
+                timezone.localtime(c.broadcast_date).strftime('%d.%m.%Y %H:%M')
+                if c.broadcast_date
+                else ''
+            )
             items.append({
                 'item_id': c.pk,
                 'license_number': lic.number,

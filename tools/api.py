@@ -600,6 +600,55 @@ class DeleteMediaView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class MakeProjectMediaLibraryView(APIView):
+    """Make a project media file available in the library."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def dispatch(self, request, *args, **kwargs):
+        """Check if module is enabled."""
+        check_tools_enabled()
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, project_id, media_id):
+        """Create a library entry from a project media file."""
+        project = get_project_or_403(request, project_id)
+
+        if project.status == 'processing':
+            return Response({
+                'error': _('Cannot modify project while processing')
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        media = get_object_or_404(SlideshowMedia, id=media_id, project=project)
+
+        existing = SlideshowMedia.objects.filter(
+            is_library=True,
+            file=media.file
+        ).first()
+        if existing:
+            return Response({
+                'status': 'success',
+                'library_media_id': existing.id,
+                'message': _('Media already in library')
+            }, status=status.HTTP_200_OK)
+
+        library_media = SlideshowMedia.objects.create(
+            project=None,
+            file=media.file,
+            name=media.name,
+            media_type=media.media_type,
+            order=0,
+            is_library=True
+        )
+
+        return Response({
+            'status': 'success',
+            'library_media_id': library_media.id,
+            'message': _('Media added to library')
+        }, status=status.HTTP_200_OK)
+
+
 class LibraryMediaListView(APIView):
     """List library media files."""
     
@@ -842,6 +891,54 @@ class AddLibraryAudioToProjectView(APIView):
             return Response({
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class MakeProjectAudioLibraryView(APIView):
+    """Make a project audio file available in the library."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def dispatch(self, request, *args, **kwargs):
+        """Check if module is enabled."""
+        check_tools_enabled()
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, project_id, audio_id):
+        """Create a library entry from a project audio file."""
+        project = get_project_or_403(request, project_id)
+
+        if project.status == 'processing':
+            return Response({
+                'error': _('Cannot modify project while processing')
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        audio = get_object_or_404(SlideshowAudio, id=audio_id, project=project)
+
+        existing = SlideshowAudio.objects.filter(
+            is_library=True,
+            file=audio.file
+        ).first()
+        if existing:
+            return Response({
+                'status': 'success',
+                'library_audio_id': existing.id,
+                'message': _('Audio already in library')
+            }, status=status.HTTP_200_OK)
+
+        library_audio = SlideshowAudio.objects.create(
+            project=None,
+            file=audio.file,
+            name=audio.name,
+            duration=audio.duration,
+            is_library=True
+        )
+
+        return Response({
+            'status': 'success',
+            'library_audio_id': library_audio.id,
+            'message': _('Audio added to library')
+        }, status=status.HTTP_200_OK)
 
 
 class AudioPresetsView(APIView):

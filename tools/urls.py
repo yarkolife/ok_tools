@@ -36,9 +36,11 @@ urlpatterns = [
     path('api/slideshow/<int:project_id>/download/', api.DownloadSlideshowView.as_view(), name='api_download'),
     path('api/slideshow/<int:project_id>/', api.DeleteProjectView.as_view(), name='api_delete'),
     path('api/slideshow/<int:project_id>/media/<int:media_id>/', api.DeleteMediaView.as_view(), name='api_delete_media'),
+    path('api/slideshow/<int:project_id>/media/<int:media_id>/make-library/', api.MakeProjectMediaLibraryView.as_view(), name='api_make_library_media'),
     path('api/slideshow/<int:project_id>/order/', api.UpdateMediaOrderView.as_view(), name='api_update_order'),
     path('api/slideshow/<int:project_id>/add-library-media/', api.AddLibraryMediaToProjectView.as_view(), name='api_add_library_media'),
     path('api/slideshow/<int:project_id>/add-library-audio/', api.AddLibraryAudioToProjectView.as_view(), name='api_add_library_audio'),
+    path('api/slideshow/<int:project_id>/audio/<int:audio_id>/make-library/', api.MakeProjectAudioLibraryView.as_view(), name='api_make_library_audio'),
     
     # Library endpoints
     path('api/library/audio/', api.LibraryAudioListView.as_view(), name='api_library_audio'),

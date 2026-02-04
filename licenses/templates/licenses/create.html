@@ -165,6 +165,9 @@
                         {% for error in form.repetitions_allowed.errors %}{{ error }}{% endfor %}
                     </div>
                     {% endif %}
+                    <div class="form-text">
+                        {% trans "After the premiere, your contribution will be repeated at various times during the week according to the broadcast schedule. Additional repeats are also possible after a year and later." %}
+                    </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="{{ form.store_in_ok_media_library.id_for_label }}" class="form-label">
@@ -177,6 +180,9 @@
                         {% for error in form.store_in_ok_media_library.errors %}{{ error }}{% endfor %}
                     </div>
                     {% endif %}
+                    <div class="form-text">
+                        {% trans "Your video will be stored in the media library and will be available for viewers to watch at any time." %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -204,7 +210,9 @@
                         {% for error in form.media_authority_exchange_allowed.errors %}{{ error }}{% endfor %}
                     </div>
                     {% endif %}
-                    <div class="form-text">{% trans 'Saxony-Anhalt' %}</div>
+                    <div class="form-text">
+                        {% trans "Your video can be used by other Open Channels and community media in Saxony-Anhalt for their broadcasts." %}
+                    </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="{{ form.media_authority_exchange_allowed_other_states.id_for_label }}"
@@ -215,13 +223,14 @@
                     {{ form.media_authority_exchange_allowed_other_states }}
                     {% if form.media_authority_exchange_allowed_other_states.errors %}
                     <div class="invalid-feedback d-block">
-                        <!-- FIXED BY AGENT -->
                         {% for error in form.media_authority_exchange_allowed_other_states.errors %}
                         {{ error }}
                         {% endfor %}
                     </div>
                     {% endif %}
-                    <div class="form-text">{% trans 'Other Federal States' %}</div>
+                    <div class="form-text">
+                        {% trans "Your video can be used by Open Channels and community media in other German federal states for their broadcasts." %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -286,6 +295,9 @@
                         {% for error in form.youth_protection_necessary.errors %}{{ error }}{% endfor %}
                     </div>
                     {% endif %}
+                    <div class="form-text">
+                        {% trans 'Select "Yes" if your video contains content that may be unsuitable for children (e.g., violence, shocking images, offensive language).' %}
+                    </div>
                 </div>
             </div>
 
@@ -385,6 +397,71 @@
         </div>
     </div>
 </form>
+
+<!-- License Created Success Modal -->
+{% if NEXTCLOUD_ENABLED %}
+<div class="modal fade" id="licenseCreatedModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {% trans 'License successfully created' %}
+                </h5>
+            </div>
+            <div class="modal-body">
+                <!-- Signature Status Section -->
+                <div id="signature-status-section" class="mb-4">
+                    <!-- Dynamically filled -->
+                </div>
+
+                <hr>
+
+                <!-- Video Upload Section -->
+                <div id="video-upload-section">
+                    <h6 class="mb-3">
+                        <i class="bi bi-cloud-upload me-2"></i>
+                        {% trans 'Video Upload' %}
+                    </h6>
+                    <p class="text-muted mb-3">
+                        {% trans 'You can now upload a video for this license or do this later from the license list.' %}
+                    </p>
+                    <div class="mb-3">
+                        <label for="modal-video-file" class="form-label">
+                            <i class="bi bi-file-earmark-play me-1"></i>
+                            {% trans 'Video File' %}
+                        </label>
+                        <input type="file" class="form-control" id="modal-video-file" accept="video/*">
+                        <div class="form-text">
+                            {% trans 'Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}
+                        </div>
+                    </div>
+                    <div id="upload-progress" class="mb-3" style="display: none;">
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-center mt-2">
+                            <small id="progress-text" class="text-muted fw-bold">0%</small>
+                        </div>
+                    </div>
+                    <div id="upload-status" class="alert" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'licenses:licenses' %}" class="btn btn-secondary">
+                    <i class="bi bi-list me-2"></i>
+                    {% trans 'Go to Overview' %}
+                </a>
+                <button type="button" class="btn btn-primary" id="modal-upload-button" onclick="uploadVideo()">
+                    <i class="bi bi-cloud-upload me-2"></i>
+                    {% trans 'Upload' %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block extra_css %}
@@ -526,6 +603,9 @@
 {% block extra_js %}
 <script src="{% static 'licenses/js/tags_input.js' %}"></script>
 <script>
+    let currentLicenseId = null;
+    let currentLicenseNumber = null;
+
     document.addEventListener('DOMContentLoaded', function () {
         const canvas = document.getElementById('signature-pad');
         const signatureInput = document.getElementById('id_signature');
@@ -800,13 +880,11 @@
             });
         }
 
-        // Handle form submission to open print page in new window
+        // Handle form submission with AJAX and show success modal
         const licenseForm = document.getElementById('license-form');
         const createButton = document.getElementById('create-license-button');
-        
         if (licenseForm && createButton) {
-            licenseForm.addEventListener('submit', function(e) {
-                // Prevent default form submission
+            licenseForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 // Disable submit button to prevent double submission
@@ -814,42 +892,272 @@
                 const originalText = createButton.innerHTML;
                 createButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>{% trans "Creating..." %}';
                 
-                // Submit form via fetch
                 const formData = new FormData(licenseForm);
                 
-                fetch(licenseForm.action || window.location.href, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    },
-                    redirect: 'follow'
-                })
-                .then(response => {
-                    // Check if response is a redirect to print page
-                    if (response.redirected) {
-                        // Open print page in new window
+                try {
+                    const response = await fetch(licenseForm.action || window.location.href, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        redirect: 'follow'
+                    });
+                    
+                    // Check if response is JSON (AJAX success)
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            // Store license data for video upload
+                            currentLicenseId = data.license_id;
+                            currentLicenseNumber = data.license_number;
+                            
+                            // Update modal content based on signature
+                            const signatureSection = document.getElementById('signature-status-section');
+                            
+                            if (data.has_signature) {
+                                signatureSection.innerHTML = `
+                                    <div class="alert alert-success mb-0">
+                                        <i class="bi bi-patch-check me-2"></i>
+                                        <strong>{% trans 'License was successfully created and digitally signed.' %}</strong>
+                                    </div>
+                                `;
+                            } else {
+                                signatureSection.innerHTML = `
+                                    <div class="alert alert-info mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <strong>{% trans 'License was successfully created.' %}</strong>
+                                        <div class="mt-2">
+                                            <a href="${data.pdf_url}" class="btn btn-primary btn-sm" target="_blank">
+                                                <i class="bi bi-file-earmark-pdf me-1"></i>
+                                                {% trans 'Open PDF' %}
+                                            </a>
+                                        </div>
+                                        <p class="mb-0 mt-2 text-muted">
+                                            <small>{% trans 'Please print the document, sign it, and send it to our email address.' %}</small>
+                                        </p>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Show success modal
+                            const modal = new bootstrap.Modal(document.getElementById('licenseCreatedModal'));
+                            modal.show();
+                        } else {
+                            // Show error
+                            alert(data.error || 'Error creating license');
+                            createButton.disabled = false;
+                            createButton.innerHTML = originalText;
+                        }
+                    } else if (response.redirected) {
+                        // Fallback: normal redirect behavior
                         window.open(response.url, '_blank');
-                        // Redirect current window to licenses list
                         window.location.href = '{% url "licenses:licenses" %}';
                     } else {
-                        // If not redirected, try to follow the response
-                        return response.text().then(() => {
-                            // If successful, redirect to licenses list
-                            window.location.href = '{% url "licenses:licenses" %}';
-                        });
+                        // HTML response - redirect normally
+                        window.location.reload();
                     }
-                })
-                .catch(error => {
+                } catch (error) {
                     console.error('Error:', error);
                     // On error, allow normal form submission
                     createButton.disabled = false;
                     createButton.innerHTML = originalText;
                     licenseForm.submit();
-                });
+                }
             });
         }
     });
-
 </script>
+
+<!-- Video Upload Functions for License Created Modal -->
+{% if NEXTCLOUD_ENABLED %}
+<script>
+    // Format bytes to human readable format
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Format seconds to human readable time
+    function formatTime(seconds) {
+        if (!isFinite(seconds) || seconds < 0) return '{% trans "calculating..." %}';
+        if (seconds < 60) return Math.round(seconds) + ' {% trans "sec" %}';
+        if (seconds < 3600) return Math.round(seconds / 60) + ' {% trans "min" %}';
+        return Math.round(seconds / 3600) + ' {% trans "h" %}';
+    }
+    
+    // Sanitize filename for Nextcloud upload
+    function sanitizeFilename(filename) {
+        filename = filename.split('/').pop().split('\\').pop();
+        filename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+        if (filename.length > 200) {
+            const ext = filename.substring(filename.lastIndexOf('.'));
+            filename = filename.substring(0, 200 - ext.length) + ext;
+        }
+        return filename;
+    }
+    
+    async function uploadVideo() {
+        const fileInput = document.getElementById('modal-video-file');
+        const uploadButton = document.getElementById('modal-upload-button');
+        const progressBar = document.getElementById('upload-progress');
+        const progressBarInner = progressBar.querySelector('.progress-bar');
+        const statusDiv = document.getElementById('upload-status');
+        const progressText = document.getElementById('progress-text');
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+            statusDiv.className = 'alert alert-warning';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>{% trans "Please select a video file first." %}';
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        const maxSize = 20 * 1024 * 1024 * 1024;
+        if (file.size > maxSize) {
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "File is too large. Maximum size is 20GB." %}';
+            return;
+        }
+        
+        const allowedExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(fileExtension)) {
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm." %}';
+            return;
+        }
+        
+        uploadButton.disabled = true;
+        progressBar.style.display = 'block';
+        progressBarInner.style.width = '0%';
+        progressBarInner.setAttribute('aria-valuenow', '0');
+        if (progressText) progressText.textContent = '{% trans "Getting upload token..." %}';
+        statusDiv.style.display = 'none';
+        
+        try {
+            const tokenUrl = '/licenses/' + currentLicenseId + '/get-upload-token/';
+            const tokenResponse = await fetch(tokenUrl, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+            });
+            
+            if (!tokenResponse.ok) {
+                const errorData = await tokenResponse.json();
+                throw new Error(errorData.error || '{% trans "Failed to get upload token" %}');
+            }
+            
+            const tokenData = await tokenResponse.json();
+            if (!tokenData.success) {
+                throw new Error(tokenData.error || '{% trans "Failed to get upload token" %}');
+            }
+            
+            const { token, upload_url, session_id } = tokenData;
+            const safeName = sanitizeFilename(file.name);
+            const uniqueFilename = `${currentLicenseNumber}_${safeName}`;
+            
+            if (progressText) progressText.textContent = '0%';
+            
+            const xhr = new XMLHttpRequest();
+            let startTime = Date.now();
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable && e.total > 0) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const speed = e.loaded / elapsed;
+                    const remaining = (e.total - e.loaded) / speed;
+                    
+                    progressBarInner.style.width = percent + '%';
+                    progressBarInner.setAttribute('aria-valuenow', percent);
+                    
+                    if (progressText) {
+                        progressText.textContent = `${percent}% (${formatBytes(e.loaded)} / ${formatBytes(e.total)}) - ${formatBytes(speed)}/s - ~${formatTime(remaining)}`;
+                    }
+                }
+            });
+            
+            const uploadPromise = new Promise((resolve, reject) => {
+                xhr.addEventListener('load', function() {
+                    if (xhr.status === 201 || xhr.status === 204) {
+                        resolve();
+                    } else {
+                        reject(new Error(`{% trans "Upload failed with status" %}: ${xhr.status}`));
+                    }
+                });
+                
+                xhr.addEventListener('error', function() {
+                    reject(new Error('{% trans "Network error during upload" %}'));
+                });
+                
+                xhr.addEventListener('abort', function() {
+                    reject(new Error('{% trans "Upload was cancelled" %}'));
+                });
+            });
+            
+            xhr.open('PUT', upload_url + encodeURIComponent(uniqueFilename));
+            xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
+            xhr.send(file);
+            
+            await uploadPromise;
+            
+            if (progressText) progressText.textContent = '{% trans "Confirming upload..." %}';
+            
+            const confirmUrl = '/licenses/' + currentLicenseId + '/confirm-upload/';
+            const confirmResponse = await fetch(confirmUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify({
+                    filename: uniqueFilename,
+                    session_id: session_id,
+                    file_size: file.size,
+                }),
+            });
+            
+            if (!confirmResponse.ok) {
+                const errorData = await confirmResponse.json();
+                throw new Error(errorData.error || '{% trans "Failed to confirm upload" %}');
+            }
+            
+            const confirmData = await confirmResponse.json();
+            
+            progressBarInner.style.width = '100%';
+            progressBarInner.setAttribute('aria-valuenow', '100');
+            if (progressText) progressText.textContent = '100%';
+            
+            statusDiv.className = 'alert alert-success';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + 
+                (confirmData.message || '{% trans "Video uploaded successfully!" %}');
+            
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = '<i class="bi bi-check me-2"></i>{% trans "Uploaded" %}';
+            
+        } catch (error) {
+            console.error('Upload error:', error);
+            
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + error.message;
+            
+            uploadButton.disabled = false;
+            progressBar.style.display = 'none';
+        }
+    }
+</script>
+{% endif %}
+
 {% endblock %}

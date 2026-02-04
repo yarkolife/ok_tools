@@ -61,6 +61,18 @@
         padding: 5px 10px;
         cursor: pointer;
     }
+    .media-item .library-btn {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background: rgba(0, 124, 186, 0.9);
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 12px;
+    }
     .upload-zone {
         border: 2px dashed #dee2e6;
         border-radius: 4px;
@@ -151,6 +163,16 @@
         border-radius: 3px;
         padding: 5px 10px;
         cursor: pointer;
+    }
+    .audio-item .library-btn {
+        background: rgba(0, 124, 186, 0.9);
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 10px;
     }
     .settings-subsection {
         margin-bottom: 25px;
@@ -370,6 +392,7 @@
                         </div>
                         {% endif %}
                         <button type="button" class="delete-btn" onclick="event.stopPropagation(); deleteMedia({{ media.id }})">{% trans 'Delete' %}</button>
+                        <button type="button" class="library-btn" onclick="event.stopPropagation(); makeMediaLibrary({{ media.id }})">{% trans 'Make library' %}</button>
                     </div>
                     {% empty %}
                     <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #6c757d;">
@@ -424,7 +447,10 @@
                     {% for audio in audio_files %}
                     <div class="audio-item" data-audio-id="{{ audio.id }}">
                         <span>🎵 {{ audio.name|default:audio.file.name }}</span>
-                        <button type="button" class="delete-btn" onclick="deleteAudio({{ audio.id }})">{% trans 'Delete' %}</button>
+                        <div>
+                            <button type="button" class="library-btn" onclick="makeAudioLibrary({{ audio.id }})">{% trans 'Make library' %}</button>
+                            <button type="button" class="delete-btn" onclick="deleteAudio({{ audio.id }})">{% trans 'Delete' %}</button>
+                        </div>
                     </div>
                     {% empty %}
                     <div style="text-align: center; padding: 15px; color: #6c757d; font-size: 14px;">
@@ -766,6 +792,40 @@ function deleteMedia(mediaId) {
     });
 }
 
+function makeMediaLibrary(mediaId) {
+    if (!confirm('{% trans "Add this media file to the library?" %}')) return;
+
+    if (!projectId || projectId === '') {
+        alert('{% trans "Invalid project ID" %}');
+        return;
+    }
+
+    fetch(`/tools/api/slideshow/${projectId}/media/${mediaId}/make-library/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Media added to library" %}');
+            location.reload();
+        } else {
+            alert('{% trans "Failed to add media to library" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Make library media error:', error);
+        alert('{% trans "Failed to add media to library" %}: ' + error.message);
+    });
+}
+
 function uploadAudio(file) {
     if (!projectId || projectId === '') {
         alert('{% trans "Please save project first" %}');
@@ -831,6 +891,40 @@ function deleteAudio(audioId) {
     .catch(error => {
         console.error('Delete audio error:', error);
         alert('{% trans "Delete failed" %}: ' + error.message);
+    });
+}
+
+function makeAudioLibrary(audioId) {
+    if (!confirm('{% trans "Add this audio file to the library?" %}')) return;
+
+    if (!projectId || projectId === '') {
+        alert('{% trans "Invalid project ID" %}');
+        return;
+    }
+
+    fetch(`/tools/api/slideshow/${projectId}/audio/${audioId}/make-library/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().catch(() => {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Audio added to library" %}');
+            location.reload();
+        } else {
+            alert('{% trans "Failed to add audio to library" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Make library audio error:', error);
+        alert('{% trans "Failed to add audio to library" %}: ' + error.message);
     });
 }
 

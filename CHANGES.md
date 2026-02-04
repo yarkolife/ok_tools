@@ -1,6 +1,22 @@
 CHANGELOG
 =========
 
+2026-02-04 (Version 4.0.5)
+===========================
+
+* **Licenses: form UX and upload flow**
+  * AJAX form submission returns JSON payload for post-create UI handling.
+  * Added translated help texts and modal messages for license creation.
+  * Extended create form UI and upload progress handling.
+* **Tools: media library additions**
+  * Add project media/audio to the library from the slideshow editor.
+  * New API endpoints for library conversion with UI actions.
+* **Austausch: export timezone polish**
+  * Export-to-server selection uses local time for broadcast dates.
+  * Export result page loads timezone template filters.
+* **Database**
+  * Add migration to remove UserJourney.license FK.
+
 2026-02-04 (Version 4.0.4)
 ===========================
 
@@ -10,6 +26,8 @@ CHANGELOG
   * Cleanup task now deletes media/audio/output files using resolved paths.
 * **Austausch: export & WebDAV fixes**
   * Export result timestamps render in local time.
+  * Export-to-server selection list uses local time for broadcast dates.
+  * Export result page loads with timezone template filters enabled.
   * Expiring upload shares use local date with safer minimum validity.
   * WebDAV URL resolution uses storage-aware base path.
   * License export skips numbers already successfully exported across runs.

@@ -86,11 +86,27 @@ class CreateLicenseView(generic.CreateView):
     success_url = reverse_lazy('licenses:licenses')
 
     def form_valid(self, form):
-        """Handle form submission and video upload if enabled."""
+        """Handle form submission and return JSON response for AJAX."""
         response = super().form_valid(form)
         
-        # Video upload is now handled separately after license creation
-        # No need to handle it here
+        # Check if this is an AJAX request
+        is_ajax = self.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if is_ajax:
+            # Return JSON response for AJAX requests
+            import json
+            from django.http import JsonResponse
+            
+            has_signature = bool(self.object.signature)
+            
+            return JsonResponse({
+                'success': True,
+                'license_id': self.object.id,
+                'license_number': self.object.number,
+                'title': self.object.title,
+                'has_signature': has_signature,
+                'pdf_url': reverse('licenses:print', kwargs={'pk': self.object.pk}),
+            })
         
         return response
 
@@ -705,6 +721,8 @@ class DeleteLicenseView(generic.DeleteView):
 
         try:
             from dashboard.models import UserJourney
+
+            # Clear the license_id reference in UserJourney records
             UserJourney.objects.filter(license_id=self.object.id).update(license_id=None)
         except Exception:
             pass
