@@ -3312,3 +3312,57 @@ msgstr "Lade aktuelle Ausleihen..."
 
 msgid "RETURNED RENTALS"
 msgstr "ZURÜCKGEGEBENE AUSLEIHEN"
+
+msgid "Edit License"
+msgstr "Freistellung bearbeiten"
+
+msgid "License Information"
+msgstr "Freistellungsinformationen"
+
+msgid "Update the license details"
+msgstr "Freistellungsdetails aktualisieren"
+
+msgid "Video file"
+msgstr "Videodatei"
+
+msgid "Manage your personal data"
+msgstr "Verwalten Sie Ihre persönlichen Daten"
+
+msgid "Your profile is already verified. For changes to additional data, please contact an employee."
+msgstr "Ihr Profil ist bereits verifiziert. Für Änderungen an zusätzlichen Daten wenden Sie sich bitte an eine Mitarbeiterin oder einen Mitarbeiter."
+
+msgid "Personal Information"
+msgstr "Persönliche Informationen"
+
+msgid "Basic information about you"
+msgstr "Grundlegende Informationen über Sie"
+
+msgid "Phone numbers for contact"
+msgstr "Telefonnummern für die Kontaktaufnahme"
+
+msgid "Your residential address"
+msgstr "Ihre Wohnadresse"
+
+msgid "Confirm Changes"
+msgstr "Änderungen bestätigen"
+
+msgid "Back to Dashboard"
+msgstr "Zurück zum Dashboard"
+
+msgid "Landline number"
+msgstr "Festnetznummer"
+
+msgid "Mobile number"
+msgstr "Mobilnummer"
+
+msgid "Large logo"
+msgstr "Großes Logo"
+
+msgid "Large logo displayed in the expanded sidebar"
+msgstr "Großes Logo für die ausgeklappte Seitenleiste"
+
+msgid "Small logo"
+msgstr "Kleines Logo"
+
+msgid "Square logo or SVG displayed in the collapsed sidebar"
+msgstr "Quadratisches Logo oder SVG für die eingeklappte Seitenleiste"

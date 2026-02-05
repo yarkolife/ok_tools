@@ -2,6 +2,8 @@
 // Note: Mobile sidebar functionality is now handled in base.html
 // This file focuses on dashboard-specific features like charts, tooltips, and animations
 
+const dashboardGettext = window.gettext || function (str) { return str; };
+
 document.addEventListener('DOMContentLoaded', function() {
     // Sidebar functionality is now handled in base.html
     // This file focuses on dashboard-specific functionality
@@ -127,19 +129,19 @@ function initializeCharts() {
                 data: {
                     labels: window.monthlyStats.labels || [],
                     datasets: [{
-                        label: 'Licenses',
+                        label: dashboardGettext('Licenses'),
                         data: window.monthlyStats.licenses || [],
                         borderColor: '#5e72e4',
                         backgroundColor: isDarkTheme ? 'rgba(94, 114, 228, 0.2)' : 'rgba(94, 114, 228, 0.1)',
                         tension: 0.4
                     }, {
-                        label: 'Rentals',
+                        label: dashboardGettext('Rentals'),
                         data: window.monthlyStats.rentals || [],
                         borderColor: '#2dce89',
                         backgroundColor: isDarkTheme ? 'rgba(45, 206, 137, 0.2)' : 'rgba(45, 206, 137, 0.1)',
                         tension: 0.4
                     }, {
-                        label: 'Contributions',
+                        label: dashboardGettext('Contributions'),
                         data: window.monthlyStats.contributions || [],
                         borderColor: '#f5365c',
                         backgroundColor: isDarkTheme ? 'rgba(245, 54, 92, 0.2)' : 'rgba(245, 54, 92, 0.1)',
@@ -174,8 +176,8 @@ function showChartPlaceholder() {
         chartContainer.innerHTML = `
             <div class="text-center py-5">
                 <i class="bi bi-bar-chart text-muted" style="font-size: 3rem;"></i>
-                <p class="mt-3 text-muted">' + gettext('No chart data available') + '</p>
-                <small class="text-muted">' + gettext('Monthly statistics will appear here when data is available') + '</small>
+                <p class="mt-3 text-muted">${dashboardGettext('No chart data available')}</p>
+                <small class="text-muted">${dashboardGettext('Monthly statistics will appear here when data is available')}</small>
             </div>
         `;
     }
@@ -239,9 +241,9 @@ function showNotification(message, type = 'info') {
 // Utility function to format numbers
 function formatNumber(num) {
     if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + 'M';
+        return (num / 1000000).toFixed(1) + dashboardGettext('M');
     } else if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
+        return (num / 1000).toFixed(1) + dashboardGettext('K');
     }
     return num.toString();
 }

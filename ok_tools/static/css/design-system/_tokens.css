@@ -1,0 +1,219 @@
+/* 
+ * Design tokens for OK Tools
+ * Based on Bootstrap 5 with brand colors
+ */
+
+:root {
+  /* ===== BRAND COLORS (preserved) ===== */
+  
+  /* Primary brand - teal (light theme) */
+  --ok-brand-teal: #004354;
+  --ok-brand-teal-light: #e6f2f5;
+  --ok-brand-teal-dark: #002833;
+  
+  /* Accent brand - orange (dark theme) */
+  --ok-brand-orange: #ff6600;
+  --ok-brand-orange-light: #fff3e6;
+  --ok-brand-orange-dark: #cc5200;
+  
+  /* ===== BOOTSTRAP 5 OVERRIDES ===== */
+  
+  /* Primary = Brand Teal */
+  --bs-primary: var(--ok-brand-teal);
+  --bs-primary-rgb: 0, 67, 84;
+  
+  /* Primary Color Palette */
+  --color-primary-50: #e6f2f5;
+  --color-primary-100: #b3d9e1;
+  --color-primary-200: #80c0cd;
+  --color-primary-300: #4da7b9;
+  --color-primary-400: #267f93;
+  --color-primary-500: #004354;  /* Main brand teal */
+  --color-primary-600: #003a49;
+  --color-primary-700: #00313e;
+  --color-primary-800: #002833;
+  --color-primary-900: #001f28;
+  
+  /* Orange palette (for dark theme accent) */
+  --color-accent-50: #fff3e6;
+  --color-accent-100: #ffe0c2;
+  --color-accent-200: #ffcc99;
+  --color-accent-300: #ffb366;
+  --color-accent-400: #ff9933;
+  --color-accent-500: #ff6600;  /* Main brand orange */
+  --color-accent-600: #e65c00;
+  --color-accent-700: #cc5200;
+  --color-accent-800: #b34700;
+  --color-accent-900: #993d00;
+  
+  /* ===== SEMANTIC COLORS ===== */
+  
+  /* Background colors */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-bg-tertiary: #e9ecef;
+  --color-bg-card: #ffffff;
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* Text colors */
+  --color-text-primary: #212529;
+  --color-text-secondary: #6c757d;
+  --color-text-muted: #868e96;
+  --color-text-white: #ffffff;
+  
+  /* Border colors */
+  --color-border: #dee2e6;
+  --color-border-light: #e9ecef;
+  --color-border-dark: #adb5bd;
+  
+  /* State colors */
+  --color-success: #2dce89;
+  --color-success-light: #d4edda;
+  --color-warning: #fb6340;
+  --color-warning-light: #fff3cd;
+  --color-danger: #f5365c;
+  --color-danger-light: #f8d7da;
+  --color-info: #11cdef;
+  --color-info-light: #d1ecf1;
+  
+  /* ===== TYPOGRAPHY ===== */
+  
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  
+  /* Font sizes (fluid) */
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8rem);
+  --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 0.95rem);
+  --font-size-base: clamp(1rem, 0.9rem + 0.5vw, 1.1rem);
+  --font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+  --font-size-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 2.5rem);
+  --font-size-4xl: clamp(2.25rem, 1.75rem + 2.5vw, 3rem);
+  
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line heights */
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* ===== SPACING ===== */
+  
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-20: 5rem;    /* 80px */
+  
+  /* ===== BORDERS ===== */
+  
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+  
+  --border-width: 1px;
+  --border-width-thick: 2px;
+  
+  /* ===== SHADOWS ===== */
+  
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* ===== Z-INDEX ===== */
+  
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  
+  /* ===== TRANSITIONS ===== */
+  
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+  
+  /* ===== LAYOUT ===== */
+  
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 70px;
+  --topbar-height: 64px;
+  --container-max-width: 1440px;
+}
+
+/* Dark theme - orange accent */
+[data-theme="dark"] {
+  /* Bootstrap 5 overrides */
+  --bs-primary: #ff6600;
+  --bs-primary-rgb: 255, 102, 0;
+  --bs-link-color: #ff6600;
+  --bs-link-hover-color: #ff9933;
+  --bs-body-bg: #1a1a2e;
+  --bs-body-color: #e9ecef;
+  --bs-gray-100: #2d2d42;
+  --bs-gray-200: #3a3a50;
+  --bs-gray-300: #47475d;
+  --bs-gray-400: #5a5a6d;
+  --bs-gray-500: #7a7a8c;
+  --bs-gray-600: #9a9aa8;
+  --bs-gray-700: #babac4;
+  --bs-gray-800: #d5d5df;
+  --bs-gray-900: #f0f0f4;
+  
+  /* Semantic colors */
+  --color-bg-primary: #1a1a2e;
+  --color-bg-secondary: #252538;
+  --color-bg-tertiary: #2f2f45;
+  --color-bg-card: #252538;
+  --color-bg-overlay: rgba(0, 0, 0, 0.7);
+  
+  --color-text-primary: #f8f9fa;
+  --color-text-secondary: #adb5bd;
+  --color-text-muted: #868e96;
+  --color-text-white: #ffffff;
+  
+  --color-border: #3f3f55;
+  --color-border-light: #34344a;
+  --color-border-dark: #54546a;
+  
+  --color-success: #2dce89;
+  --color-warning: #fb6340;
+  --color-danger: #f5365c;
+  --color-info: #11cdef;
+  
+  /* Component tokens */
+  --card-bg: var(--color-bg-secondary);
+  --card-border: var(--color-bg-tertiary);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --input-border: #3f3f55;
+  --input-focus-border: #ff6600;
+  --input-focus-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
+  
+  /* Sidebar */
+  --sidebar-bg: #252538;
+  --sidebar-text: #f8f9fa;
+  --sidebar-hover: rgba(255, 102, 0, 0.1);
+  --sidebar-active: rgba(255, 102, 0, 0.2);
+}

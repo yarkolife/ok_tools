@@ -1,0 +1,384 @@
+/*
+ * Table styles for OK Tools
+ * Uses CSS variables from _tokens.css
+ */
+
+/* Base table styles */
+.table {
+  --bs-table-color: var(--color-text-primary);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--color-border);
+  --bs-table-accent-bg: transparent;
+  --bs-table-striped-color: var(--color-text-primary);
+  --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
+  --bs-table-active-color: var(--color-text-primary);
+  --bs-table-active-bg: rgba(0, 0, 0, 0.1);
+  --bs-table-hover-color: var(--color-text-primary);
+  --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
+  
+  width: 100%;
+  margin-bottom: var(--space-6);
+  color: var(--bs-table-color);
+  vertical-align: top;
+  border-color: var(--bs-table-border-color);
+}
+
+/* Table header styles */
+.table th {
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  border-bottom: 2px solid var(--bs-table-border-color);
+  text-align: left;
+  vertical-align: bottom;
+}
+
+/* Table cell styles */
+.table td {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: top;
+  border-top: 1px solid var(--bs-table-border-color);
+  color: var(--color-text-secondary);
+}
+
+/* Horizontal borders */
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid var(--bs-table-border-color);
+}
+
+.table tfoot th {
+  border-top: 2px solid var(--bs-table-border-color);
+}
+
+/* Zebra striping for rows */
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-accent-bg: var(--bs-table-striped-bg);
+  color: var(--bs-table-striped-color);
+}
+
+/* Hover state */
+.table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: var(--bs-table-hover-bg);
+  color: var(--bs-table-hover-color);
+}
+
+/* Compact table styles */
+.table-sm > :not(caption) > * > * {
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Table with borders for all cells */
+.table-bordered {
+  border: 1px solid var(--bs-table-border-color);
+}
+
+.table-bordered > :not(caption) > * {
+  border-width: 1px 0;
+}
+
+.table-bordered > :not(caption) > * > * {
+  border-width: 0 1px;
+}
+
+/* Borderless table */
+.table-borderless > :not(caption) > * > * {
+  border-bottom-width: 0;
+}
+
+.table-borderless > :not(:first-child) {
+  border-top-width: 0;
+}
+
+/* Dark table style */
+.table-dark {
+  --bs-table-color: #fff;
+  --bs-table-bg: #212529;
+  --bs-table-border-color: #373b3e;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-striped-color: #fff;
+  --bs-table-active-bg: rgba(255, 255, 255, 0.1);
+  --bs-table-active-color: #fff;
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.075);
+  --bs-table-hover-color: #fff;
+  color: var(--bs-table-color);
+  border-color: var(--bs-table-border-color);
+}
+
+/* Table with reduced padding */
+.table-condensed th,
+.table-condensed td {
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Responsive table container */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsiveness for different screen sizes */
+.table-responsive-sm {
+  @media (max-width: 575.98px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.table-responsive-md {
+  @media (max-width: 767.98px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.table-responsive-lg {
+  @media (max-width: 991.98px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.table-responsive-xl {
+  @media (max-width: 1199.98px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.table-responsive-xxl {
+  @media (max-width: 1399.98px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Styles for special row classes */
+.table-primary {
+  --bs-table-color: #000;
+  --bs-table-bg: #cce7ec;
+  --bs-table-border-color: #bacccf;
+  --bs-table-striped-bg: #c2dbdf;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #bac0c3;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #bfc6c9;
+  --bs-table-hover-color: #000;
+}
+
+.table-secondary {
+  --bs-table-color: #000;
+  --bs-table-bg: #e2e3e5;
+  --bs-table-border-color: #d0d1d3;
+  --bs-table-striped-bg: #d6d7d9;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #cbccce;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #d1d2d4;
+  --bs-table-hover-color: #000;
+}
+
+.table-success {
+  --bs-table-color: #000;
+  --bs-table-bg: #d4edda;
+  --bs-table-border-color: #c3dace;
+  --bs-table-striped-bg: #c9e1cf;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #bfd5c4;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #c5dbca;
+  --bs-table-hover-color: #000;
+}
+
+.table-danger {
+  --bs-table-color: #000;
+  --bs-table-bg: #f8d7da;
+  --bs-table-border-color: #e9c3c6;
+  --bs-table-striped-bg: #ecc7ca;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #dfbbbe;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #e5c1c4;
+  --bs-table-hover-color: #000;
+}
+
+.table-warning {
+  --bs-table-color: #000;
+  --bs-table-bg: #ffeaa7;
+  --bs-table-border-color: #e6d496;
+  --bs-table-striped-bg: #f0dcb6;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #e0cfa9;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #e7d5af;
+  --bs-table-hover-color: #000;
+}
+
+.table-info {
+  --bs-table-color: #000;
+  --bs-table-bg: #d1ecf1;
+  --bs-table-border-color: #bedae0;
+  --bs-table-striped-bg: #c6e0e5;
+  --bs-table-striped-color: #000;
+  --bs-table-active-bg: #bbd4d9;
+  --bs-table-active-color: #000;
+  --bs-table-hover-bg: #c0dadf;
+  --bs-table-hover-color: #000;
+}
+
+/* Column sorting */
+.table-sortable th.sortable {
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  padding-right: var(--space-6);
+}
+
+.table-sortable th.sortable::after {
+  content: "↕️";
+  position: absolute;
+  right: var(--space-2);
+  opacity: 0.5;
+}
+
+.table-sortable th.sortable.asc::after {
+  content: "↑";
+  opacity: 1;
+}
+
+.table-sortable th.sortable.desc::after {
+  content: "↓";
+  opacity: 1;
+}
+
+/* Table styles inside cards */
+.card .table {
+  margin-bottom: 0;
+}
+
+.card .table:first-child {
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+.card .table:last-child {
+  border-bottom-right-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+}
+
+/* Dark theme states */
+[data-theme="dark"] .table {
+  --bs-table-color: var(--color-text-primary);
+  --bs-table-bg: var(--card-bg);
+  --bs-table-border-color: var(--color-border);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-striped-color: var(--color-text-primary);
+  --bs-table-active-bg: rgba(255, 255, 255, 0.1);
+  --bs-table-active-color: var(--color-text-primary);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.075);
+  --bs-table-hover-color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .table th {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-white);
+}
+
+[data-theme="dark"] .table td {
+  color: var(--color-text-secondary);
+}
+
+/* Light theme states */
+[data-theme="light"] .table {
+  --bs-table-color: var(--color-text-primary);
+  --bs-table-bg: var(--color-bg-primary);
+  --bs-table-border-color: var(--color-border);
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 767.98px) {
+  .table,
+  .table thead,
+  .table tbody,
+  .table th,
+  .table td,
+  .table tr {
+    display: block;
+  }
+
+  .table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .table tr {
+    border: 1px solid var(--color-border);
+    margin-bottom: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+  }
+
+  .table td {
+    border: none;
+    position: relative;
+    padding-left: calc(var(--space-4) * 2.5);
+    padding-top: var(--space-2);
+  }
+
+  .table td::before {
+    content: attr(data-label) ": ";
+    position: absolute;
+    left: var(--space-3);
+    width: calc(var(--space-4) * 2);
+    text-align: left;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Accessibility styles */
+.table th:focus,
+.table td:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -1px;
+}
+
+.table th:focus:not(:focus-visible),
+.table td:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.table th:focus-visible,
+.table td:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -1px;
+}
+
+/* Data loading animation */
+.table-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.table-loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

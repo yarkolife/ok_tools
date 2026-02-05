@@ -7,46 +7,74 @@
 {% block page_title %}{% trans 'License Details' %}{% endblock %}
 
 {% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                <div>
+                    <h1 class="h3 mb-1">{% trans 'License Details' %}</h1>
+                    <p class="text-muted mb-0">{% trans 'Details for' %} {{ object }}</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    {% if not object.confirmed %}
+                    <a class="btn btn-primary" id="id_edit_LR" href="{% url 'licenses:update' object.id %}">
+                        {% trans 'Edit' %}
+                    </a>
+                    {% endif %}
+                    <a class="btn btn-outline-primary" id="id_print_LR" href="{% url 'licenses:print' object.id %}" target="_blank">
+                        {% trans 'Print' %}
+                    </a>
+                </div>
+            </div>
 
-<h1>{% trans 'Details for' %} {{ object }}</h1>
-
-<form method="post">
-{% csrf_token %}
-<table class="table">
-    <tbody>
-        {% for field in form %}
-        <tr>
-        {% trans 'Category' as category %}
-        {% trans 'Youth protection category' as youthprotection %}
-        <td>{{ field.label }}:</td>
-        <td>{% if field.value == None %}
-                ----
-            {% elif field.label == category %}
-                {{ object.category }}
-            {% elif field.label == youthprotection %}
-                {{ ypc_title }}
-            {% elif field.value == True %}
-                <img src="{% static 'admin/img/icon-yes.svg' %}"
-                        alt="{% trans 'Yes' %}">
-            {% elif field.value == False %}
-                <img src="{% static 'admin/img/icon-no.svg' %}"
-                        alt="{% trans 'No' %}">
-            {% else %}
-                {{ field.value }}
-            {% endif %}
-        </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<div>
-{% if not object.confirmed %}
-<a class="btn btn-primary" id="id_edit_LR" href="{% url 'licenses:update' object.id %}">
-    {% trans 'Edit' %}
-</a>
-{% endif %}
-<a class="btn btn-primary" id="id_print_LR" href="{% url 'licenses:print' object.id %}" target="_blank">
-    {% trans 'Print' %}
-</a>
+            <form method="post" class="card shadow-sm border-0">
+                {% csrf_token %}
+                <div class="card-header bg-transparent border-bottom">
+                    <h2 class="h6 mb-0">{% trans 'Overview' %}</h2>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <tbody>
+                                {% for field in form %}
+                                <tr>
+                                    {% trans 'Category' as category %}
+                                    {% trans 'Youth protection category' as youthprotection %}
+                                    <td class="fw-semibold text-nowrap text-muted">{{ field.label }}</td>
+                                    <td>
+                                        {% if field.name == 'signature' %}
+                                            {% if field.value %}
+                                                <img
+                                                    src="{{ field.value }}"
+                                                    class="img-fluid border rounded bg-light p-2"
+                                                    alt="{% trans 'Digital signature' %}"
+                                                    style="max-height: 120px;"
+                                                >
+                                            {% else %}
+                                                <span class="badge bg-secondary-subtle text-secondary-emphasis">{% trans 'Not digitally signed' %}</span>
+                                            {% endif %}
+                                        {% elif field.value == None %}
+                                            <span class="text-muted">—</span>
+                                        {% elif field.label == category %}
+                                            {{ object.category }}
+                                        {% elif field.label == youthprotection %}
+                                            {{ ypc_title }}
+                                        {% elif field.value == True %}
+                                            <span class="badge bg-success-subtle text-success-emphasis">{% trans 'Yes' %}</span>
+                                        {% elif field.value == False %}
+                                            <span class="badge bg-danger-subtle text-danger-emphasis">{% trans 'No' %}</span>
+                                        {% else %}
+                                            {{ field.value }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock content %}

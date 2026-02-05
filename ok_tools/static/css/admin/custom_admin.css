@@ -1,5 +1,5 @@
 .model-videofile .field-filename {
     word-wrap: break-word;
     word-break: break-all;
-    max-width: 60ch; /* Ограничиваем ширину примерно 60 символами */
+    max-width: 60ch; /* Limit the width to roughly 60 characters */
 }

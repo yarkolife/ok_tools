@@ -2,24 +2,24 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Profil bearbeiten - OK Tools{% endblock %}
-{% block page_title %}Profil bearbeiten{% endblock %}
+{% block title %}{% trans "Edit Profile" %} - OK Tools{% endblock %}
+{% block page_title %}{% trans "Edit Profile" %}{% endblock %}
 
 {% block content %}
 <!-- Header -->
 <div class="row mb-4">
     <div class="col-md-8">
-        <h4 class="text-muted">Verwalten Sie Ihre persönlichen Daten</h4>
+        <h4 class="text-muted">{% trans "Manage your personal data" %}</h4>
         {% if user.profile.verified %}
         <div class="alert alert-info">
             <i class="bi bi-shield-check me-2"></i>
-            Ihr Profil ist bereits verifiziert. Zur Änderung weiterer Daten wenden Sie sich bitte an einen Mitarbeiter.
+            {% trans "Your profile is already verified. For changes to additional data, please contact an employee." %}
         </div>
         {% endif %}
     </div>
     <div class="col-md-4 text-end">
         <a href="{% url 'registration:print_registration' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-printer me-2"></i>Registrierungsformular drucken
+            <i class="bi bi-printer me-2"></i>{% trans "Print Registration Form" %}
         </a>
     </div>
 </div>
@@ -29,13 +29,13 @@
     {% csrf_token %}
 
     <!-- Personal Information Card -->
-    <div class="dashboard-card mb-4">
+    <div class="card mb-4">
         <div class="card-header">
             <h5 class="card-title">
                 <i class="bi bi-person text-primary me-2"></i>
-                Persönliche Informationen
+                {% trans "Personal Information" %}
             </h5>
-            <p class="card-subtitle">Grundlegende Informationen über Sie</p>
+            <p class="card-subtitle">{% trans "Basic information about you" %}</p>
         </div>
         <div class="card-body">
             <div class="row">
@@ -108,13 +108,13 @@
     </div>
 
     <!-- Contact Information Card -->
-    <div class="dashboard-card mb-4">
+    <div class="card mb-4">
         <div class="card-header">
             <h5 class="card-title">
                 <i class="bi bi-telephone text-success me-2"></i>
-                Kontaktinformationen
+                {% trans "Contact Information" %}
             </h5>
-            <p class="card-subtitle">Telefonnummern für die Kontaktaufnahme</p>
+            <p class="card-subtitle">{% trans "Phone numbers for contact" %}</p>
         </div>
         <div class="card-body">
             <div class="row">
@@ -129,7 +129,7 @@
                             {% for error in form.phone_number.errors %}{{ error }}{% endfor %}
                         </div>
                     {% endif %}
-                    <div class="form-text">Festnetznummer</div>
+                    <div class="form-text">{% trans "Landline number" %}</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="{{ form.mobile_number.id_for_label }}" class="form-label">
@@ -142,20 +142,20 @@
                             {% for error in form.mobile_number.errors %}{{ error }}{% endfor %}
                         </div>
                     {% endif %}
-                    <div class="form-text">Handynummer</div>
+                    <div class="form-text">{% trans "Mobile number" %}</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Address Information Card -->
-    <div class="dashboard-card mb-4">
+    <div class="card mb-4">
         <div class="card-header">
             <h5 class="card-title">
                 <i class="bi bi-geo-alt text-info me-2"></i>
-                Adressinformationen
+                {% trans "Address Information" %}
             </h5>
-            <p class="card-subtitle">Ihre Wohnadresse</p>
+            <p class="card-subtitle">{% trans "Your residential address" %}</p>
         </div>
         <div class="card-body">
             <div class="row">
@@ -218,14 +218,14 @@
         <div class="col-12">
             <div class="d-flex justify-content-between">
                 <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Zurück zum Dashboard
+                    <i class="bi bi-arrow-left me-2"></i>{% trans "Back to Dashboard" %}
                 </a>
                 <div>
                     <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
-                        <i class="bi bi-arrow-clockwise me-2"></i>Zurücksetzen
+                        <i class="bi bi-arrow-clockwise me-2"></i>{% trans "Reset" %}
                     </button>
                     <button type="submit" name="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg me-2"></i>Änderungen bestätigen
+                        <i class="bi bi-check-lg me-2"></i>{% trans "Confirm Changes" %}
                     </button>
                 </div>
             </div>
@@ -234,78 +234,10 @@
 </form>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-.form-control:disabled {
-    background-color: #f8f9fa;
-    border-color: #e9ecef;
-    color: #6c757d;
-}
-
-.form-control:disabled:focus {
-    box-shadow: none;
-    border-color: #e9ecef;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
-
-.form-label .text-danger {
-    font-size: 1.1em;
-}
-
-.card-subtitle {
-    font-size: 0.875rem;
-    color: #6c757d;
-    margin-bottom: 0;
-}
-
-.form-text {
-    font-size: 0.8rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-}
-
-.alert-info {
-    border-left: 4px solid #0dcaf0;
-    background-color: #cff4fc;
-    border-color: #b8daff;
-}
-
-#profile-form .form-control {
-    border-radius: 8px;
-    border: 1px solid #e3e6f0;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-
-#profile-form .form-control:focus {
-    border-color: #5e72e4;
-    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
-}
-
-#profile-form .form-select {
-    border-radius: 8px;
-    border: 1px solid #e3e6f0;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-}
-
-#profile-form .form-select:focus {
-    border-color: #5e72e4;
-    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
-}
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script>
 function resetForm() {
-    if (confirm('Sind Sie sicher, dass Sie alle Änderungen zurücksetzen möchten?')) {
+    if (confirm('{% trans "Are you sure you want to reset all changes?" %}')) {
         document.getElementById('profile-form').reset();
     }
 }

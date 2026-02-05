@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+2026-02-05 (Version 4.0.6)
+===========================
+
+* **UI refresh and accessibility**
+  * Updated dashboard design system (tokens, layouts, components) and theme styling.
+  * Added theme manager with toggle and dark theme updates.
+  * Improved dashboard, rental, and accessibility JavaScript with i18n-safe strings.
+* **Licenses: UX polish**
+  * Refined license detail and edit layouts with improved status rendering.
+* **Registration: branding and templates**
+  * Added organization logo fields with sidebar branding support.
+  * Refreshed login, registration, and profile templates.
+
 2026-02-04 (Version 4.0.5)
 ===========================
 

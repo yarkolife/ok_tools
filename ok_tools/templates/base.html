@@ -1,7 +1,7 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:'de' }}">
+<html lang="{{ LANGUAGE_CODE|default:'de' }}" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +14,13 @@
     <link href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="{{ BOOTSTRAP_ICONS_URL }}/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
+    <!-- Main CSS with design system -->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <!-- Legacy dashboard CSS (will be gradually replaced) -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
     <!-- Dashboard Theme CSS -->
     <link href="{% static DASHBOARD_THEME_FILE %}" rel="stylesheet">
+    <link href="{% static 'css/themes/theme-dark.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body class="dashboard-body">
@@ -25,7 +28,16 @@
     <nav id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-brand">
-                <img src="{% static 'img/logo.png' %}" alt="OK Tools" class="sidebar-logo">
+                <img
+                    src="{% if OK_LOGO_LARGE_URL %}{{ OK_LOGO_LARGE_URL }}{% else %}{% static 'img/logo.png' %}{% endif %}"
+                    alt="OK Tools"
+                    class="sidebar-logo sidebar-logo-large"
+                >
+                <img
+                    src="{% if OK_LOGO_SMALL_URL %}{{ OK_LOGO_SMALL_URL }}{% elif OK_LOGO_LARGE_URL %}{{ OK_LOGO_LARGE_URL }}{% else %}{% static 'img/logo.png' %}{% endif %}"
+                    alt="OK Tools"
+                    class="sidebar-logo sidebar-logo-small"
+                >
             </div>
             <button class="btn btn-link sidebar-toggle d-lg-none" id="sidebarToggle">
                 <i class="bi bi-list"></i>
@@ -36,13 +48,13 @@
             <li class="sidebar-item">
                 <a href="{% url 'home' %}" class="sidebar-link">
                     <i class="bi bi-house-door"></i>
-                    <span>{% trans "Dashboard" %}</span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Dashboard' %}">{% trans "Dashboard" %}</span>
                 </a>
             </li>
             <li class="sidebar-item">
                 <a href="{% url 'registration:user_data' %}" class="sidebar-link">
                     <i class="bi bi-person-circle"></i>
-                    <span>{% trans "Profile" %}</span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Profile' %}">{% trans "Profile" %}</span>
                 </a>
             </li>
 
@@ -50,7 +62,7 @@
             <li class="sidebar-item">
                 <a href="{% url 'licenses:licenses' %}" class="sidebar-link">
                     <i class="bi bi-file-earmark-text"></i>
-                    <span>{% trans "Licenses" %}</span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Licenses' %}">{% trans "Licenses" %}</span>
                 </a>
             </li>
             {% endif %}
@@ -58,7 +70,7 @@
             <li class="sidebar-item">
                 <a href="{% url 'contributions:contributions' %}" class="sidebar-link">
                     <i class="bi bi-hand-thumbs-up"></i>
-                    <span>{% trans "Contributions" %}</span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Contributions' %}">{% trans "Contributions" %}</span>
                 </a>
             </li>
             {% endif %}
@@ -67,7 +79,7 @@
             <li class="sidebar-item">
                 <a href="{% url 'rental_dashboard' %}" class="sidebar-link">
                     <i class="bi bi-calendar-check"></i>
-                    <span>{% trans "Rental" %}</span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Rental' %}">{% trans "Rental" %}</span>
                 </a>
             </li>
             {% endif %}
@@ -76,7 +88,7 @@
             <li class="sidebar-item">
                 <a href="{{ OK_WEBSITE }}" target="_blank" class="sidebar-link">
                     <i class="bi bi-globe"></i>
-                    <span>{% trans "Website" %}</span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Website' %}">{% trans "Website" %}</span>
                 </a>
             </li>
             {% endif %}
@@ -85,7 +97,7 @@
                     {% csrf_token %}
                     <button type="submit" class="sidebar-link btn btn-link" style="text-decoration: none; border: none; background: none; width: 100%; text-align: left; padding: 0.5rem 1rem;">
                         <i class="bi bi-box-arrow-right"></i>
-                        <span>{% trans "Logout" %}</span>
+                        <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Logout' %}">{% trans "Logout" %}</span>
                     </button>
                 </form>
             </li>
@@ -109,6 +121,11 @@
                     </div>
 
                     <div class="d-flex align-items-center">
+                        <!-- Theme Toggle Button -->
+                        <button class="theme-toggle-btn me-3" id="theme-toggle" aria-label="{% trans 'Toggle theme' %}">
+                            <i class="bi bi-moon" aria-hidden="true"></i>
+                        </button>
+                        
                         {% if user.is_authenticated %}
                             <div class="dropdown">
                                 <button class="btn btn-link dropdown-toggle text-decoration-none" type="button" id="userDropdown" data-bs-toggle="dropdown">
@@ -198,6 +215,8 @@
 
     <!-- Bootstrap JS -->
     <script src="{{ BOOTSTRAP_CDN_URL }}/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Theme Manager JS -->
+    <script src="{% static 'js/theme-manager.js' %}"></script>
     <!-- Custom JS -->
     <script src="{% static 'js/dashboard.js' %}"></script>
 
@@ -266,6 +285,29 @@
                     closeSidebar();
                 }
             });
+            
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover'
+                });
+            });
+            
+            // Initialize sidebar collapse functionality
+            const sidebarCollapseBtn = document.createElement('button');
+            sidebarCollapseBtn.className = 'sidebar-collapse-btn btn btn-link';
+            sidebarCollapseBtn.innerHTML = '<i class="bi bi-chevron-double-left"></i>';
+            sidebarCollapseBtn.title = '{% trans "Collapse sidebar" %}';
+            sidebarCollapseBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+            });
+            
+            // Add collapse button to sidebar header
+            const sidebarHeader = document.querySelector('.sidebar-header');
+            if (sidebarHeader && window.innerWidth >= 992) {
+                sidebarHeader.appendChild(sidebarCollapseBtn);
+            }
         });
     </script>
     <!-- COMING_SOON_SCRIPT_END -->

@@ -6,25 +6,25 @@
 {% block title %}{% trans "Login" %}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
     <div class="col-lg-6 col-xl-5">
-        <div class="dashboard-card">
-            <div class="card-header text-center">
+        <div class="card shadow-lg border-0">
+            <div class="card-header text-center bg-primary text-white py-4 rounded-top">
                 <div class="welcome-icon mb-3">
-                    <i class="bi bi-box-arrow-in-right text-primary" style="font-size: 3rem;"></i>
+                    <i class="bi bi-box-arrow-in-right" style="font-size: 3rem;"></i>
                 </div>
-                <h1 class="h2 text-primary mb-2">{% trans "Welcome Back" %}</h1>
-                <p class="text-muted mb-0">{% trans "Sign in to your account" %}</p>
+                <h1 class="h2 mb-2">{% trans "Welcome Back" %}</h1>
+                <p class="mb-0 opacity-75">{% trans "Sign in to your account" %}</p>
             </div>
             <div class="card-body p-4">
                 <form method="post">
                     {% csrf_token %}
                     {{ form|crispy }}
                     <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill">
                             <i class="bi bi-box-arrow-in-right me-2"></i>{% trans "Sign In" %}
                         </button>
-                        <a class="btn btn-outline-secondary" href="{% url 'password_reset' %}">
+                        <a class="btn btn-outline-secondary btn-lg rounded-pill" href="{% url 'password_reset' %}">
                             <i class="bi bi-question-circle me-2"></i>{% trans "Forgot Password?" %}
                         </a>
                     </div>
@@ -32,7 +32,7 @@
                 <div class="text-center mt-4">
                     <p class="text-muted mb-0">
                         {% trans "Don't have an account?" %}
-                        <a href="{% url 'registration:register' %}" class="text-decoration-none">{% trans "Register here" %}</a>
+                        <a href="{% url 'registration:register' %}" class="text-decoration-none fw-medium">{% trans "Register here" %}</a>
                     </p>
                 </div>
             </div>

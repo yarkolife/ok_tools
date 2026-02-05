@@ -1,3 +1,5 @@
+const accessibilityGettext = window.gettext || function (str) { return str; };
+
 class AccessibilityMenu {
     constructor() {
         this.isOpen = false;
@@ -34,7 +36,7 @@ class AccessibilityMenu {
                 <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7.5V9H21ZM3 9V7L9 7.5V9H3ZM8 10V22H10V10H8ZM14 10V22H16V10H14Z"/>
             </svg>
         `;
-        toggle.setAttribute('aria-label', 'Barrierefreiheit öffnen');
+        toggle.setAttribute('aria-label', accessibilityGettext('Open accessibility menu'));
         toggle.setAttribute('aria-expanded', 'false');
         toggle.setAttribute('aria-controls', 'accessibility-menu');
         toggle.id = 'accessibility-toggle';
@@ -44,95 +46,95 @@ class AccessibilityMenu {
         menu.className = 'accessibility-menu';
         menu.id = 'accessibility-menu';
         menu.setAttribute('role', 'dialog');
-        menu.setAttribute('aria-label', 'Barrierefreiheit Einstellungen');
+        menu.setAttribute('aria-label', accessibilityGettext('Accessibility Settings'));
         menu.setAttribute('aria-hidden', 'true');
         menu.innerHTML = `
             <div class="menu-header">
-                <h2>Barrierefreiheit</h2>
-                <div class="wheelchair-icon" aria-hidden="true">
+                <h2>${accessibilityGettext('Accessibility')}</h2>
+                <div class="wheelChair-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24">
                         <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7.5V9H21ZM3 9V7L9 7.5V9H3ZM8 10V22H10V10H8ZM14 10V22H16V10H14Z"/>
                     </svg>
                 </div>
             </div>
-            <div class="menu-content" role="group" aria-label="Barrierefreiheit Optionen">
+            <div class="menu-content" role="group" aria-label="${accessibilityGettext('Accessibility Options')}">
                 <div class="menu-item" data-action="large-text" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                     </svg>
-                    <span>Vergrößern</span>
+                    <span>${accessibilityGettext('Increase Size')}</span>
                 </div>
                 <div class="menu-item" data-action="small-text" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M9 11H15L12 8L9 11ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16 13H8V11H16V13Z"/>
                     </svg>
-                    <span>Verkleinern</span>
+                    <span>${accessibilityGettext('Decrease Size')}</span>
                 </div>
                 <div class="menu-item" data-action="grayscale" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M3 3L21 21L19.59 22.41L1.18 4L2.59 2.59L3 3ZM12 2C6.48 2 2 6.48 2 12C2 14.09 2.66 16.01 3.74 17.58L6.17 15.15C6.06 14.78 6 14.4 6 14C6 10.69 8.69 8 12 8C12.4 8 12.78 8.06 13.15 8.17L15.58 5.74C14.01 4.66 12.09 4 12 4V2ZM18.26 6.42L15.83 8.85C15.94 9.22 16 9.6 16 10C16 13.31 13.31 16 10 16C9.6 16 9.22 15.94 8.85 15.83L6.42 18.26C7.99 19.34 9.91 20 12 20C17.52 20 22 15.52 22 10C22 7.91 21.34 5.99 20.26 4.42L18.26 6.42Z"/>
                     </svg>
-                    <span>Graustufen</span>
+                    <span>${accessibilityGettext('Grayscale')}</span>
                 </div>
                 <div class="menu-item" data-action="high-contrast" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20V4C16.41 4 20 7.59 20 12S16.41 20 12 20Z"/>
                     </svg>
-                    <span>Hohe Kontraste</span>
+                    <span>${accessibilityGettext('High Contrast')}</span>
                 </div>
                 <div class="menu-item" data-action="negative" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM4 12C4 16.41 7.59 20 12 20V4C7.59 4 4 7.59 4 12Z"/>
                     </svg>
-                    <span>Negativ</span>
+                    <span>${accessibilityGettext('Negative')}</span>
                 </div>
                 <div class="menu-item" data-action="no-colors" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5S21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12S9.24 7 12 7 17 9.24 17 12 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12S10.34 15 12 15 15 13.66 15 12 13.66 9 12 9Z"/>
                     </svg>
-                    <span>ohne Farben</span>
+                    <span>${accessibilityGettext('No Colors')}</span>
                 </div>
                 <div class="menu-item" data-action="underline-links" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M10.24 17.73L8.82 19.15L2 12.33L8.82 5.51L10.24 6.93L4.91 12.33L10.24 17.73ZM14.27 6.93L15.69 5.51L22.51 12.33L15.69 19.15L14.27 17.73L19.6 12.33L14.27 6.93Z"/>
                     </svg>
-                    <span>Unterstrichene Links</span>
+                    <span>${accessibilityGettext('Underlined Links')}</span>
                 </div>
                 <div class="menu-item" data-action="readable-font" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M5 4V7H10.5V19H13.5V7H19V4H5Z"/>
                     </svg>
-                    <span>Lesbarkeit</span>
+                    <span>${accessibilityGettext('Readability')}</span>
                 </div>
                 <div class="menu-item" data-action="focus-highlight" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20ZM12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12S9.79 8 12 8 16 9.79 16 12 14.21 16 12 16Z"/>
                     </svg>
-                    <span>Fokus hervorheben</span>
+                    <span>${accessibilityGettext('Highlight Focus')}</span>
                 </div>
                 <div class="menu-item" data-action="reduce-motion" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM8 17.5L6.5 16L10.5 12L6.5 8L8 6.5L13.5 12L8 17.5ZM16 6V18H14V6H16Z"/>
                     </svg>
-                    <span>Bewegung reduzieren</span>
+                    <span>${accessibilityGettext('Reduce Motion')}</span>
                 </div>
                 <div class="menu-item" data-action="cursor-highlight" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M13.64 21.97C13.14 22.21 12.54 22 12.31 21.5L10.13 16.76L7.62 18.78C7.45 18.92 7.24 19 7.02 19C6.56 19 6.2 18.64 6.2 18.18V5.3C6.2 4.61 6.87 4.19 7.5 4.54L18.5 11C19.15 11.36 19.09 12.35 18.4 12.62L13.64 21.97Z"/>
                     </svg>
-                    <span>Cursor hervorheben</span>
+                    <span>${accessibilityGettext('Highlight Cursor')}</span>
                 </div>
                 <div class="menu-item" data-action="line-spacing" role="button" tabindex="0" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M6 7H18V9H6V7ZM6 11H18V13H6V11ZM6 15H18V17H6V15ZM4 3V5H2V3H4ZM4 7V9H2V7H4ZM4 11V13H2V11H4ZM4 15V17H2V15H4ZM4 19V21H2V19H4Z"/>
                     </svg>
-                    <span>Zeilenabstand erhöhen</span>
+                    <span>${accessibilityGettext('Increase Line Spacing')}</span>
                 </div>
                 <div class="menu-item reset-item" data-action="reset" role="button" tabindex="0">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12S7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12S8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"/>
                     </svg>
-                    <span>Reset</span>
+                    <span>${accessibilityGettext('Reset')}</span>
                 </div>
             </div>
         `;
@@ -145,7 +147,7 @@ class AccessibilityMenu {
         // Skip to main content link
         const skipLink = document.createElement('a');
         skipLink.href = '#main-content';
-        skipLink.textContent = 'Zum Hauptinhalt springen';
+        skipLink.textContent = accessibilityGettext('Skip to main content');
         skipLink.className = 'skip-link';
         skipLink.style.cssText = `
             position: absolute;
@@ -199,9 +201,9 @@ class AccessibilityMenu {
             });
         });
 
-        // Menü beim Klicken außerhalb schließen - Eingabefelder ausschließen
+        // Close menu when clicking outside - exclude input fields
         document.addEventListener('click', (e) => {
-            // Menü nicht schließen beim Klick auf Eingabefelder
+            // Don't close menu when clicking on input fields
             if (e.target.matches('input, textarea, select') ||
                 e.target.closest('input, textarea, select')) {
                 return;
@@ -374,7 +376,7 @@ class AccessibilityMenu {
     }
 
     addCursorTracker() {
-        // Element für Cursor-Tracking erstellen
+        // Create element for cursor tracking
         const cursorElement = document.createElement('div');
         cursorElement.id = 'cursor-tracker';
         cursorElement.style.cssText = `
@@ -391,21 +393,21 @@ class AccessibilityMenu {
         `;
         document.body.appendChild(cursorElement);
 
-        // Mausbewegung verfolgen
+        // Track mouse movement
         this.cursorTrackHandler = (e) => {
             cursorElement.style.left = e.clientX + 'px';
             cursorElement.style.top = e.clientY + 'px';
             cursorElement.style.display = 'block';
         };
 
-        // Tracker beim Klick auf Eingabefelder ausblenden
+        // Hide tracker when clicking on input fields
         this.cursorHideHandler = (e) => {
             if (e.target.matches('input, textarea, select')) {
                 cursorElement.style.display = 'none';
             }
         };
 
-        // Tracker bei Mausbewegung außerhalb von Eingabefeldern anzeigen
+        // Show tracker when mouse moves outside input fields
         this.cursorShowHandler = (e) => {
             if (!e.target.matches('input, textarea, select')) {
                 cursorElement.style.display = 'block';

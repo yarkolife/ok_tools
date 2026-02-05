@@ -455,7 +455,7 @@ class OrganizationConfigAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('name', 'short_name', 'description')
+            'fields': ('name', 'short_name', 'description', 'logo_large', 'logo_small')
         }),
         (_('Contact Information'), {
             'fields': ('website', 'email', 'phone', 'fax', 'address', 'opening_hours')

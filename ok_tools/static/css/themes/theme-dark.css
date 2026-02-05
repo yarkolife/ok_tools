@@ -1,878 +1,373 @@
-/* Dark Theme - Based on screenshot with dark background and orange accents */
-:root {
-    --primary-color: #ff6600;
-    --secondary-color: #2a2a2a;
-    --success-color: #2dce89;
-    --info-color: #11cdef;
-    --warning-color: #fb6340;
-    --danger-color: #f5365c;
-    --dark-color: #0f0f0f;
-    --light-color: #2a2a2a;
-}
-
-/* Dark theme specific overrides */
-body,
-.dashboard-body {
-    background-color: #1a1a1a;
-    color: #cccccc;
-}
-
-/* Sidebar gradient for dark theme */
-.sidebar {
-    background: linear-gradient(135deg, #1a1a1a 100%, #2d2d2d 100%);
-}
-
-/* Top navbar dark theme */
-.top-navbar {
-    background: #1a1a1a;
-    border-bottom-color: #333333;
-}
-
-.top-navbar h4 {
-    color: #ffffff;
-}
-
-/* Dashboard cards dark theme */
-.dashboard-card {
-    background: #2a2a2a !important;
-    border-color: #333333;
-    color: #cccccc;
-}
-
-.dashboard-card .card-header {
-    background: #333333 !important;
-    background-image: none !important;
-    border-bottom-color: #444444 !important;
-}
-
-.dashboard-card .card-body {
-    background: #2a2a2a;
-    color: #cccccc;
-}
-
-.card-title,
-.widget-title,
-.dashboard-card h1,
-.dashboard-card h2,
-.dashboard-card h3,
-.dashboard-card h4,
-.dashboard-card h5,
-.dashboard-card h6 {
-    color: #ffffff !important;
-}
-
-.card-subtitle,
-.dashboard-card p,
-.dashboard-card .text-muted {
-    color: #cccccc !important;
-}
-
-.dashboard-card small {
-    color: #cccccc !important;
-}
-
-/* Stats cards dark theme */
-.stats-number {
-    color: #ffffff;
-}
-
-.stats-label {
-    color: #cccccc;
-}
-
-/* Form controls dark theme */
-.form-control,
-.form-select,
-select,
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="date"],
-input[type="tel"],
-input[type="number"] {
-    background-color: #2a2a2a;
-    border-color: #333333;
-    color: #ffffff;
-}
-
-.form-control:focus,
-.form-select:focus,
-select:focus,
-input:focus {
-    background-color: #2a2a2a;
-    border-color: #ff6600;
-    color: #ffffff;
-}
-
-.form-label,
-label {
-    color: #ffffff !important;
-}
-
-/* Form labels in license create page - override inline styles */
-#license-form .form-label,
-#license-form label {
-    color: #ffffff !important;
-}
-
-/* Table dark theme */
-.table-card {
-    background: #2a2a2a;
-}
-
-.table-card .table {
-    color: #cccccc;
-}
-
-.table-card .table th {
-    background-color: #333333;
-    color: #ffffff;
-    border-color: #444444;
-}
-
-.table-card .table td {
-    border-color: #333333;
-    color: #cccccc;
-}
-
-/* Buttons dark theme - primary buttons use orange accent */
-.btn-primary {
-    background-color: #ff6600;
-    border-color: #ff6600;
-    color: #ffffff;
-}
-
-.btn-primary:hover {
-    background-color: #ff8833;
-    border-color: #ff8833;
-}
-
-.btn-outline-primary {
-    color: #ff6600;
-    border-color: #ff6600;
-    background-color: transparent;
-}
-
-.btn-outline-primary:hover {
-    background-color: #ff6600;
-    border-color: #ff6600;
-    color: #ffffff;
-}
-
-.btn-outline-secondary {
-    color: #cccccc;
-    border-color: #666666;
-    background-color: transparent;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #666666;
-    border-color: #666666;
-    color: #ffffff;
-}
-
-/* All buttons inside dashboard cards dark theme */
-.dashboard-card .btn {
-    color: inherit;
-}
-
-.dashboard-card .btn-outline-primary {
-    color: #ff6600;
-    border-color: #ff6600;
-    background-color: transparent;
-}
-
-.dashboard-card .btn-outline-primary:hover {
-    background-color: #ff6600;
-    color: #ffffff;
-}
-
-.dashboard-card .btn-outline-secondary {
-    color: #cccccc;
-    border-color: #666666;
-    background-color: transparent;
-}
-
-.dashboard-card .btn-outline-secondary:hover {
-    background-color: #666666;
-    color: #ffffff;
-}
-
-.dashboard-card .btn-outline-danger {
-    color: #f5365c;
-    border-color: #f5365c;
-    background-color: transparent;
-}
-
-.dashboard-card .btn-outline-danger:hover {
-    background-color: #f5365c;
-    color: #ffffff;
-}
-
-.dashboard-card .btn-outline-warning {
-    color: #fb6340;
-    border-color: #fb6340;
-    background-color: transparent;
-}
-
-.dashboard-card .btn-outline-warning:hover {
-    background-color: #fb6340;
-    color: #ffffff;
-}
-
-.dashboard-card .btn-outline-success {
-    color: #2dce89;
-    border-color: #2dce89;
-    background-color: transparent;
-}
-
-.dashboard-card .btn-outline-success:hover {
-    background-color: #2dce89;
-    color: #ffffff;
-}
-
-.dashboard-card .btn-outline-info {
-    color: #11cdef;
-    border-color: #11cdef;
-    background-color: transparent;
-}
-
-.dashboard-card .btn-outline-info:hover {
-    background-color: #11cdef;
-    color: #ffffff;
-}
-
-/* Regular buttons in dashboard cards */
-.dashboard-card .btn-secondary {
-    background-color: #666666;
-    border-color: #666666;
-    color: #ffffff;
-}
-
-.dashboard-card .btn-secondary:hover {
-    background-color: #777777;
-    border-color: #777777;
-}
-
-/* Links dark theme */
-a {
-    color: #ff6600;
-}
-
-a:hover {
-    color: #ff8833;
-}
-
-/* Alerts dark theme */
-.alert-success {
-    background-color: rgba(45, 206, 137, 0.2);
-    border-color: #2dce89;
-    color: #2dce89;
-}
-
-.alert-info {
-    background-color: rgba(17, 205, 239, 0.2);
-    border-color: #11cdef;
-    color: #11cdef;
-}
-
-.alert-warning {
-    background-color: rgba(251, 99, 64, 0.2);
-    border-color: #fb6340;
-    color: #fb6340;
-}
-
-.alert-danger {
-    background-color: rgba(245, 54, 92, 0.2);
-    border-color: #f5365c;
-    color: #f5365c;
-}
-
-/* Text colors dark theme */
-.text-primary {
-    color: #ff6600 !important;
-}
-
-.text-muted {
-    color: #999999 !important;
-}
-
-/* Profile section dark theme */
-.profile-name {
-    color: #ffffff;
-}
-
-.profile-email {
-    color: #cccccc;
-}
-
-.profile-meta-item {
-    background-color: #333333;
-    color: #cccccc;
-}
-
-/* Dropdown dark theme */
-.dropdown-menu {
-    background-color: #2a2a2a;
-    border-color: #333333;
-}
-
-.dropdown-item {
-    color: #cccccc;
-}
-
-.dropdown-item:hover {
-    background-color: #333333;
-    color: #ffffff;
-}
-
-.dropdown-header {
-    background-color: #333333;
-    color: #ffffff;
-}
-
-/* Stats icon dark theme */
-.stats-icon.primary {
-    background-color: #ff6600;
-}
-
-/* Page content dark theme */
-.page-content {
-    background-color: #1a1a1a;
-}
-
-/* Call to action card dark theme */
-.dashboard-card.call-to-action-card {
-    background: #333333 !important;
-    border-color: #444444 !important;
-}
-
-.dashboard-card.call-to-action-card .card-body {
-    background: #333333 !important;
-    color: #cccccc !important;
-}
-
-.call-to-action-text {
-    color: #cccccc !important;
-}
-
-/* Rental details dark theme */
-.rental-details-header {
-    background: #333333 !important;
-    border-color: #444444 !important;
-}
-
-.rental-details-header h5 {
-    color: #ffffff !important;
-}
-
-.rental-details-content {
-    background: #2a2a2a !important;
-    border-color: #333333 !important;
-}
-
-.rental-details-content .rental-card {
-    background: #333333 !important;
-    border-color: #444444 !important;
-}
-
-.rental-details-content .rental-card-header {
-    background: #2a2a2a !important;
-    border-color: #444444 !important;
-}
-
-.rental-details-content .rental-info-label {
-    color: #ffffff !important;
-}
-
-.rental-details-content .rental-info-value {
-    color: #cccccc !important;
-}
-
-/* List group items dark theme */
-.list-group-item {
-    background-color: #2a2a2a;
-    border-color: #333333;
-    color: #cccccc;
-}
-
-.list-group-item:hover {
-    background-color: #333333;
-}
-
-/* Contact info dark theme */
-.contact-info .fw-bold {
-    color: #ff6600 !important;
-}
-
-.contact-info .address p,
-.contact-info .contact-details p {
-    color: #cccccc !important;
-}
-
-.contact-info .opening-hours {
-    background-color: #333333 !important;
-    border-left-color: #ff6600 !important;
-}
-
-/* Profile actions dark theme */
-.profile-actions {
-    background-color: #333333 !important;
-}
-
-.profile-actions h6 {
-    color: #ffffff !important;
-}
-
-/* Badge dark theme */
-.badge {
-    background-color: #333333;
-    color: #ffffff;
-}
-
-.badge.bg-primary {
-    background-color: #ff6600 !important;
-}
-
-.badge.bg-success {
-    background-color: #2dce89 !important;
-}
-
-.badge.bg-danger {
-    background-color: #f5365c !important;
-}
-
-.badge.bg-secondary {
-    background-color: #666666 !important;
-}
-
-/* Additional elements dark theme */
-.dashboard-card .bi,
-.dashboard-card i {
-    color: inherit;
-}
-
-.dashboard-card .text-primary {
-    color: #ff6600 !important;
-}
-
-.dashboard-card .text-success {
-    color: #2dce89 !important;
-}
-
-.dashboard-card .text-warning {
-    color: #fb6340 !important;
-}
-
-.dashboard-card .text-danger {
-    color: #f5365c !important;
-}
+/*
+ * Dark theme for OK Tools
+ * Uses CSS variables from _tokens.css
+ * Activated via [data-theme="dark"]
+ */
+
+/* Dark styles apply when data-theme="dark" is set on the html element */
+[data-theme="dark"] {
+  /* Bootstrap 5 overrides */
+  --bs-primary: #ff6600;
+  --bs-primary-rgb: 255, 102, 0;
+  --bs-link-color: #ff6600;
+  --bs-link-hover-color: #ff9933;
+  --bs-body-bg: #1a1a2e;
+  --bs-body-color: #e9ecef;
+  --bs-gray-100: #2d2d42;
+  --bs-gray-200: #3a3a50;
+  --bs-gray-300: #47475d;
+  --bs-gray-400: #5a5a6d;
+  --bs-gray-500: #7a7a8c;
+  --bs-gray-600: #9a9aa8;
+  --bs-gray-700: #babac4;
+  --bs-gray-800: #d5d5df;
+  --bs-gray-900: #f0f0f4;
+
+  /* Semantic colors */
+  --color-bg-primary: #1a1a2e;
+  --color-bg-secondary: #252538;
+  --color-bg-tertiary: #2f2f45;
+  --color-bg-card: #252538;
+  --color-bg-overlay: rgba(0, 0, 0, 0.7);
 
-.dashboard-card .text-info {
-    color: #11cdef !important;
-}
-
-.dashboard-card hr {
-    border-color: #444444;
-}
-
-.dashboard-card .border-bottom,
-.dashboard-card .border-top,
-.dashboard-card .border {
-    border-color: #444444 !important;
-}
-
-/* Notification cards if they exist */
-.notification-success {
-    background-color: rgba(45, 206, 137, 0.2) !important;
-    color: #2dce89 !important;
-}
-
-.notification-info {
-    background-color: rgba(17, 205, 239, 0.2) !important;
-    color: #11cdef !important;
-}
-
-.notification-warning {
-    background-color: rgba(251, 99, 64, 0.2) !important;
-    color: #fb6340 !important;
-}
-
-.notification-danger {
-    background-color: rgba(245, 54, 92, 0.2) !important;
-    color: #f5365c !important;
-}
-
-/* Workflow steps dark theme */
-.workflow-step {
-    background-color: #2a2a2a;
-    border-color: #444444;
-}
-
-.workflow-step.active {
-    border-color: #ff6600;
-    background-color: #333333;
-}
-
-/* Item cards dark theme */
-.item-card {
-    background-color: #2a2a2a;
-    border-color: #444444;
-}
-
-.item-card:hover {
-    border-color: #ff6600;
-}
-
-.item-card.selected {
-    background-color: #333333;
-    border-color: #ff6600;
-}
-
-/* Calendar dark theme */
-.calendar-cell {
-    background-color: #2a2a2a;
-    border-color: #444444;
-    color: #cccccc;
-}
-
-.calendar-cell.header {
-    background-color: #333333;
-    color: #ffffff;
-}
-
-.calendar-cell.available {
-    background-color: rgba(45, 206, 137, 0.2);
-    border-color: #2dce89;
-}
+  --color-text-primary: #f8f9fa;
+  --color-text-secondary: #adb5bd;
+  --color-text-muted: #868e96;
+  --color-text-white: #ffffff;
+
+  --color-border: #3f3f55;
+  --color-border-light: #34344a;
+  --color-border-dark: #54546a;
+
+  --color-success: #2dce89;
+  --color-warning: #fb6340;
+  --color-danger: #f5365c;
+  --color-info: #11cdef;
+
+  /* Component tokens */
+  --card-bg: var(--color-bg-secondary);
+  --card-border: var(--color-bg-tertiary);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --input-border: #3f3f55;
+  --input-focus-border: #ff6600;
+  --input-focus-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
+
+  /* Sidebar */
+  --sidebar-bg: #252538;
+  --sidebar-text: #f8f9fa;
+  --sidebar-hover: rgba(255, 102, 0, 0.1);
+  --sidebar-active: rgba(255, 102, 0, 0.2);
+}
+
+/* Additional component styles for the dark theme */
+[data-theme="dark"] body,
+[data-theme="dark"] .dashboard-body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+/* Sidebar styles for the dark theme */
+[data-theme="dark"] .sidebar {
+  background: linear-gradient(135deg, var(--sidebar-bg) 100%, #2d2d42 100%);
+}
+
+/* Top navbar styles for the dark theme */
+[data-theme="dark"] .top-navbar {
+  background: var(--sidebar-bg);
+  border-bottom-color: var(--color-border);
+}
 
-.calendar-cell.occupied {
-    background-color: rgba(245, 54, 92, 0.2);
-    border-color: #f5365c;
+[data-theme="dark"] .top-navbar h4 {
+  color: var(--color-text-white);
 }
 
-/* Modal dark theme */
-.modal-content {
-    background-color: #2a2a2a;
-    color: #cccccc;
+/* Dashboard card styles for the dark theme */
+[data-theme="dark"] .dashboard-card {
+  background: var(--card-bg) !important;
+  border-color: var(--card-border);
+  color: var(--color-text-primary);
 }
 
-.modal-header {
-    border-bottom-color: #444444;
-    background-color: #333333 !important;
+[data-theme="dark"] .dashboard-card .card-header {
+  background: var(--color-bg-tertiary) !important;
+  border-bottom-color: var(--color-border-dark) !important;
 }
 
-.modal-header .modal-title {
-    color: #ffffff;
+[data-theme="dark"] .dashboard-card .card-body {
+  background: var(--card-bg);
+  color: var(--color-text-primary);
 }
 
-.modal-footer {
-    border-top-color: #444444;
-    background-color: #333333 !important;
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .widget-title,
+[data-theme="dark"] .dashboard-card h1,
+[data-theme="dark"] .dashboard-card h2,
+[data-theme="dark"] .dashboard-card h3,
+[data-theme="dark"] .dashboard-card h4,
+[data-theme="dark"] .dashboard-card h5,
+[data-theme="dark"] .dashboard-card h6 {
+  color: var(--color-text-white) !important;
 }
 
-.modal-body {
-    color: #cccccc;
+[data-theme="dark"] .card-subtitle,
+[data-theme="dark"] .dashboard-card p,
+[data-theme="dark"] .dashboard-card .text-muted {
+  color: var(--color-text-secondary) !important;
 }
 
-/* Rental details modal - improve text contrast */
-.rental-details-header {
-    background-color: #333333 !important;
-    border-color: #444444 !important;
+[data-theme="dark"] .dashboard-card small {
+  color: var(--color-text-secondary) !important;
 }
 
-.rental-details-header h5 {
-    color: #ffffff !important;
+/* Stats card styles for the dark theme */
+[data-theme="dark"] .stats-number {
+  color: var(--color-text-white);
 }
 
-.rental-details-header .user-info {
-    color: #cccccc !important;
+[data-theme="dark"] .stats-label {
+  color: var(--color-text-secondary);
 }
 
-.rental-details-header .user-info strong {
-    color: #ffffff !important;
+/* Form control styles for the dark theme */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] select,
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="tel"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="file"] {
+  background-color: var(--card-bg);
+  border-color: var(--input-border);
+  color: var(--color-text-white);
 }
 
-/* Rental card in modal */
-.rental-details-content .rental-card {
-    background-color: #2a2a2a !important;
-    border-color: #444444 !important;
+[data-theme="dark"] input[type="file"]::file-selector-button {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--input-border);
+  color: var(--color-text-white);
 }
 
-.rental-details-content .rental-card-header {
-    background-color: #333333 !important;
-    border-bottom-color: #444444 !important;
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] input:focus {
+  background-color: var(--card-bg);
+  border-color: var(--input-focus-border);
+  color: var(--color-text-white);
+  box-shadow: var(--input-focus-shadow);
 }
 
-.rental-details-content .rental-card-header h6 {
-    color: #ffffff !important;
+[data-theme="dark"] .form-label,
+[data-theme="dark"] label {
+  color: var(--color-text-white) !important;
 }
 
-.rental-details-content .rental-card-header .text-muted {
-    color: #b3b3b3 !important;
+/* Form labels in the license create page - override inline styles */
+[data-theme="dark"] #license-form .form-label,
+[data-theme="dark"] #license-form label {
+  color: var(--color-text-white) !important;
 }
 
-.rental-details-content .rental-card-body {
-    background-color: #2a2a2a !important;
-    color: #cccccc !important;
+/* Table styles for the dark theme */
+[data-theme="dark"] .table-card {
+  background: var(--card-bg);
 }
 
-/* Rental info labels - improve contrast */
-.rental-details-content .rental-info-label {
-    color: #b3b3b3 !important;
+[data-theme="dark"] .table-card .table {
+  color: var(--color-text-secondary);
 }
 
-.rental-details-content .rental-info-value {
-    color: #ffffff !important;
+[data-theme="dark"] .table-card .table th {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-white);
+  border-color: var(--color-border);
 }
 
-/* Rental section titles */
-.rental-details-content .rental-section-title {
-    color: #ffffff !important;
+[data-theme="dark"] .table-card .table td {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
-.rental-details-content .rental-section-title i {
-    color: #ff6600 !important;
+/* Button styles for the dark theme */
+[data-theme="dark"] .btn-primary {
+  background-color: var(--color-accent-500);
+  border-color: var(--color-accent-500);
+  color: var(--color-text-white);
 }
 
-/* Table headers in rental modal */
-.rental-details-content .table th {
-    background-color: #333333 !important;
-    color: #ffffff !important;
-    border-color: #444444 !important;
+[data-theme="dark"] .btn-primary:hover {
+  background-color: var(--color-accent-400);
+  border-color: var(--color-accent-400);
 }
 
-.rental-details-content .table td {
-    color: #ffffff !important;
-    border-color: #444444 !important;
-    background-color: #2a2a2a !important;
+[data-theme="dark"] .btn-outline-primary {
+  color: var(--color-accent-500);
+  border-color: var(--color-accent-500);
+  background-color: transparent;
 }
 
-.rental-details-content .table tbody tr {
-    background-color: #2a2a2a !important;
+[data-theme="dark"] .btn-outline-primary:hover {
+  background-color: var(--color-accent-500);
+  border-color: var(--color-accent-500);
+  color: var(--color-text-white);
 }
 
-.rental-details-content .table tbody tr:nth-child(even) {
-    background-color: #2a2a2a !important;
+/* Link styles for the dark theme */
+[data-theme="dark"] a {
+  color: var(--color-accent-500);
 }
 
-.rental-details-content .table tbody tr:hover {
-    background-color: #333333 !important;
+[data-theme="dark"] a:hover {
+  color: var(--color-accent-400);
 }
 
-.rental-details-content .table tbody tr:hover td {
-    background-color: #333333 !important;
+/* Alert styles for the dark theme */
+[data-theme="dark"] .alert-success {
+  background-color: rgba(45, 206, 137, 0.2);
+  border-color: var(--color-success);
+  color: var(--color-success);
 }
 
-/* Strong text in table cells */
-.rental-details-content .table td strong {
-    color: #ffffff !important;
+[data-theme="dark"] .alert-info {
+  background-color: rgba(17, 205, 239, 0.2);
+  border-color: var(--color-info);
+  color: var(--color-info);
 }
 
-/* Table responsive wrapper */
-.rental-details-content .table-responsive {
-    background-color: transparent !important;
+[data-theme="dark"] .alert-warning {
+  background-color: rgba(251, 99, 64, 0.2);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
 }
 
-.rental-details-content .table-responsive .table {
-    background-color: transparent !important;
+[data-theme="dark"] .alert-danger {
+  background-color: rgba(245, 54, 92, 0.2);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
-/* Table sm variant in rental modal */
-.rental-details-content .table-sm th,
-.rental-details-content .table-sm td {
-    background-color: inherit !important;
+/* Text color styles for the dark theme */
+[data-theme="dark"] .text-primary {
+  color: var(--color-accent-500) !important;
 }
 
-.rental-details-content .table-sm tbody tr {
-    background-color: #2a2a2a !important;
+/* Tooltip styles for the dark theme */
+[data-theme="dark"] .tooltip,
+[data-theme="dark"] .tooltip .tooltip-inner {
+  color: var(--color-text-white);
 }
 
-.rental-details-content .table-sm tbody tr td {
-    background-color: #2a2a2a !important;
-    color: #ffffff !important;
+[data-theme="dark"] .tooltip .tooltip-inner {
+  background-color: #11111c;
+  border: 1px solid var(--color-border);
 }
 
-.rental-details-content .table-sm tbody tr:nth-child(even) {
-    background-color: #2a2a2a !important;
+[data-theme="dark"] .tooltip .tooltip-arrow::before {
+  border-top-color: #11111c;
+  border-bottom-color: #11111c;
 }
 
-.rental-details-content .table-sm tbody tr:nth-child(even) td {
-    background-color: #2a2a2a !important;
+/* Profile section styles for the dark theme */
+[data-theme="dark"] .profile-name {
+  color: var(--color-text-white);
 }
 
-.rental-details-content .table-sm tbody tr:hover {
-    background-color: #333333 !important;
+[data-theme="dark"] .profile-email {
+  color: var(--color-text-secondary);
 }
 
-.rental-details-content .table-sm tbody tr:hover td {
-    background-color: #333333 !important;
+[data-theme="dark"] .profile-meta-item {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
 }
 
-/* All table elements in rental modal - ensure dark background */
-.rental-details-content table.table tbody tr td {
-    background-color: #2a2a2a !important;
-    color: #ffffff !important;
+/* Dropdown styles for the dark theme */
+[data-theme="dark"] .dropdown-menu {
+  background-color: var(--card-bg);
+  border-color: var(--color-border);
 }
 
-.rental-details-content table.table tbody tr:nth-child(even) td {
-    background-color: #2a2a2a !important;
+[data-theme="dark"] .dropdown-item {
+  color: var(--color-text-secondary);
 }
 
-.rental-details-content table.table tbody tr:hover td {
-    background-color: #333333 !important;
+[data-theme="dark"] .dropdown-item:hover {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-white);
 }
 
-/* Text muted in rental modal */
-.rental-details-content .text-muted {
-    color: #b3b3b3 !important;
+[data-theme="dark"] .dropdown-header {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-white);
 }
 
-.rental-details-content small.text-muted {
-    color: #b3b3b3 !important;
+/* Modal styles for the dark theme */
+[data-theme="dark"] .modal-content {
+  background-color: var(--card-bg);
+  color: var(--color-text-secondary);
 }
 
-/* Close button dark theme */
-.btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
+[data-theme="dark"] .modal-header {
+  border-bottom-color: var(--color-border);
+  background-color: var(--color-bg-tertiary) !important;
 }
 
-/* Select dropdown dark theme */
-select option {
-    background-color: #2a2a2a;
-    color: #ffffff;
+[data-theme="dark"] .modal-header .modal-title {
+  color: var(--color-text-white);
 }
 
-/* Chart container dark theme */
-.chart-container {
-    background-color: #1f1f1f;
-    border-radius: 8px;
-    padding: 1rem;
+[data-theme="dark"] .modal-footer {
+  border-top-color: var(--color-border);
+  background-color: var(--color-bg-tertiary) !important;
 }
 
-.chart-container canvas {
-    background-color: #1f1f1f;
+[data-theme="dark"] .modal-body {
+  color: var(--color-text-secondary);
 }
 
-/* License create page - improve text contrast */
-#license-form .card-subtitle {
-    color: #cccccc !important;
+/* Close button styles for the dark theme */
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-#license-form .form-text {
-    color: #b3b3b3 !important;
+/* Select dropdown styles for the dark theme */
+[data-theme="dark"] select option {
+  background-color: var(--card-bg);
+  color: var(--color-text-white);
 }
 
-/* Page header text in dark theme */
-h4.text-muted,
-.text-muted {
-    color: #cccccc !important;
+/* Input group text styles for the dark theme */
+[data-theme="dark"] .input-group-text {
+  background-color: var(--color-bg-tertiary) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-white) !important;
 }
 
-/* Form check labels in dark theme */
-.form-check-label {
-    color: #ffffff !important;
+/* Calendar picker icon styles for the dark theme */
+[data-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+  cursor: pointer;
+  opacity: 0.9;
 }
 
-/* Signature wrapper in dark theme */
-.signature-wrapper {
-    background-color: #333333 !important;
+[data-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
-.signature-canvas {
-    /* Keep signature legible: black ink on white canvas */
-    background-color: #ffffff !important;
+/* Placeholder text styles for the dark theme */
+[data-theme="dark"] .form-control::placeholder,
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--color-text-muted) !important;
+  opacity: 1 !important;
 }
 
-/* Invalid feedback text in dark theme */
-.invalid-feedback {
-    color: #f5365c !important;
+/* Page content styles for the dark theme */
+[data-theme="dark"] .page-content {
+  background-color: var(--color-bg-primary);
 }
-
-/* Placeholder text contrast in dark theme */
-.form-control::placeholder,
-input::placeholder,
-textarea::placeholder {
-    color: #b3b3b3 !important;
-    opacity: 1 !important;
-}
-
-.form-control::-webkit-input-placeholder,
-input::-webkit-input-placeholder,
-textarea::-webkit-input-placeholder {
-    color: #b3b3b3 !important;
-    opacity: 1 !important;
-}
-
-.form-control::-moz-placeholder,
-input::-moz-placeholder,
-textarea::-moz-placeholder {
-    color: #b3b3b3 !important;
-    opacity: 1 !important;
-}
-
-.form-control:-ms-input-placeholder,
-input:-ms-input-placeholder,
-textarea:-ms-input-placeholder {
-    color: #b3b3b3 !important;
-    opacity: 1 !important;
-}
-
-/* Input group text in dark theme */
-.input-group-text {
-    background-color: #333333 !important;
-    border-color: #444444 !important;
-    color: #ffffff !important;
-}
-
-/* Workflow step text in dark theme */
-.workflow-step {
-    background-color: #2a2a2a !important;
-    border-color: #444444 !important;
-}
-
-.workflow-step strong {
-    color: #ffffff !important;
-}
-
-.workflow-step .text-muted {
-    color: #b3b3b3 !important;
-}
-
-/* Form control small in dark theme */
-.form-control-sm {
-    background-color: #2a2a2a !important;
-    border-color: #444444 !important;
-    color: #ffffff !important;
-}
-
-.form-control-sm::placeholder {
-    color: #b3b3b3 !important;
-    opacity: 1 !important;
-}
-
-/* Date time input in dark theme */
-input[type="datetime-local"] {
-    background-color: #2a2a2a !important;
-    border-color: #444444 !important;
-    color: #ffffff !important;
-}
-
-input[type="datetime-local"]::placeholder {
-    color: #b3b3b3 !important;
-    opacity: 1 !important;
-}
-
-/* Calendar picker icon in dark theme - make it white/visible */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1) brightness(2);
-    cursor: pointer;
-    opacity: 0.9;
-}
-
-input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
-}
-

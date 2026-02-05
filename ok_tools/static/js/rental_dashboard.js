@@ -1,8 +1,13 @@
 // ok_tools/static/js/rental_dashboard.js
 
 // Django i18n support
-const gettext = window.gettext || function(str) { return str; };
-const ngettext = window.ngettext || function(singular, plural, count) { return count === 1 ? singular : plural; };
+const gettext = window.gettext || function (str) { return str; };
+const ngettext = window.ngettext || function (singular, plural, count) { return count === 1 ? singular : plural; };
+const interpolate = window.interpolate || function (format, obj) {
+    return format.replace(/%\((\w+)\)s/g, (match, key) => (
+        Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : match
+    ));
+};
 
 // Rental Dashboard JavaScript - English Translation
 document.addEventListener('DOMContentLoaded', function() {
@@ -183,12 +188,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const data = await resp.json();
+
                 if (!data.success) {
-                    throw new Error(data.error || 'Unknown error');
+                    throw new Error(data.error || gettext('Unknown error'));
                 }
 
                 const rentals = (data.rentals || []).filter(rental => {
-                    const status = (rental.status || '').toLowerCase();
+const status = (rental.status || '').toLowerCase();
                     return status === 'draft' || status === 'reserved';
                 });
                 if (!rentals.length) {
@@ -204,8 +210,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const rows = rentals.map(rental => {
                     const status = rental.status_display || rental.status || '';
-                    const start = rental.requested_start_date ? new Date(rental.requested_start_date).toLocaleString() : '-';
-                    const end = rental.requested_end_date ? new Date(rental.requested_end_date).toLocaleString() : '-';
+                    const start = rental.requested_start_date ? new Date(rental.requested_start_date).toLocaleString() : gettext('-');
+                    const end = rental.requested_end_date ? new Date(rental.requested_end_date).toLocaleString() : gettext('-');
                     const itemsCount = (rental.items || []).length;
                     const roomsCount = (rental.room_rentals || []).length;
                     return `
@@ -264,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     this.renderRentalDetails(contentId, data);
                 } else {
-                    throw new Error(data.error || 'Unknown error');
+                    throw new Error(data.error || gettext('Unknown error'));
                 }
 
             } catch (error) {
@@ -289,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         `;
                     }
                 } else {
-                    alert(gettext('Error loading data: ') + error.message);
+                    alert(interpolate(gettext('Error loading data: %(message)s'), { message: error.message }, true));
                 }
             }
         }
@@ -340,30 +346,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="rental-details-content">`;
 
             rentals.forEach(rental => {
-                const startDate = rental.requested_start_date ?
-                    new Date(rental.requested_start_date).toLocaleString('de-DE', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit'
-                    }) : 'N/A';
+                    const startDate = rental.requested_start_date ?
+                        new Date(rental.requested_start_date).toLocaleString('de-DE', {
+                            year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                        }) : gettext('N/A');
 
-                const endDate = rental.requested_end_date ?
-                    new Date(rental.requested_end_date).toLocaleString('de-DE', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit'
-                    }) : 'N/A';
+                    const endDate = rental.requested_end_date ?
+                        new Date(rental.requested_end_date).toLocaleString('de-DE', {
+                            year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                        }) : gettext('N/A');
 
-                const actualEndDate = rental.actual_end_date ?
-                    new Date(rental.actual_end_date).toLocaleString('de-DE', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit'
-                    }) : 'N/A';
+                    const actualEndDate = rental.actual_end_date ?
+                        new Date(rental.actual_end_date).toLocaleString('de-DE', {
+                            year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                        }) : gettext('N/A');
 
                 html += `
                     <div class="rental-card">
                         <div class="rental-card-header d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-0">${rental.project_name}</h6>
-                                <small class="text-muted">ID: ${rental.id}</small>
+                                <small class="text-muted">${gettext('ID')}: ${rental.id}</small>
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge ${this.getStatusBadgeClass(rental.status)}">${this.getStatusLabel(rental.status)}</span>
@@ -375,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="rental-info-row">
                                 <div class="rental-info-item">
                                     <div class="rental-info-label">${gettext('Purpose')}</div>
-                                    <div class="rental-info-value">${rental.purpose || rental.project_name || 'N/A'}</div>
+                                    <div class="rental-info-value">${rental.purpose || rental.project_name || gettext('N/A')}</div>
                                 </div>
                                 <div class="rental-info-item">
                                     <div class="rental-info-label">${gettext('Planned from')}</div>
@@ -416,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     rental.items.forEach(item => {
                         const itemInfo = item.inventory_item || item;
                         const description = itemInfo.description || itemInfo.inventory_number || gettext('Unknown item');
-                        const inventoryNumber = itemInfo.inventory_number || 'N/A';
+                    const inventoryNumber = itemInfo.inventory_number || gettext('N/A');
 
                         html += `
                             <tr>
@@ -468,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </td>
                                 <td>${roomRental.room.capacity} ${gettext('people')}</td>
                                 <td>${roomRental.people_count} ${gettext('people')}</td>
-                                <td>${roomRental.notes || '-'}</td>
+                                <td>${roomRental.notes || gettext('-')}</td>
                             </tr>`;
                     });
 
@@ -952,15 +958,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const html = `
                 <div class="item-card p-3 w-100 h-100 d-flex flex-column border rounded bg-white" data-item-id="${item.id}" style="min-height: 150px; border: 1px solid #dee2e6 !important;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="mb-1">${this.escapeHtml(item.description || item.inventory_number || 'Unknown')}</h6>
+                        <h6 class="mb-1">${this.escapeHtml(item.description || item.inventory_number || gettext('Unknown'))}</h6>
                         <span class="badge bg-success status-badge">${gettext('Available')}</span>
                     </div>
                     <div class="d-flex align-items-center text-muted small mb-1">
-                        <span class="me-3"><i class="bi bi-barcode me-1"></i>${this.escapeHtml(item.inventory_number || 'N/A')}</span>
+                        <span class="me-3"><i class="bi bi-barcode me-1"></i>${this.escapeHtml(item.inventory_number || gettext('N/A'))}</span>
                         <span><i class="bi bi-tag me-1"></i>${this.escapeHtml(item.category || gettext('No category'))}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-auto">
-                        <small class="text-muted">${gettext('Owner')}: ${this.escapeHtml(item.owner || '-')}</small>
+                        <small class="text-muted">${gettext('Owner')}: ${this.escapeHtml(item.owner || gettext('-'))}</small>
                         <div class="quantity-controls">
                             <div class="input-group input-group-sm">
                                 <button class="btn btn-outline-secondary qty-minus" type="button">-</button>
@@ -1281,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>${item.quantity_available}</td>
                             <td>
                                 <span class="badge ${isAvailable ? 'bg-success' : 'bg-warning'}">
-                                    ${isAvailable ? 'OK' : gettext('Missing')}
+                                    ${isAvailable ? gettext('OK') : gettext('Missing')}
                                 </span>
                             </td>
                             <td>
@@ -1342,7 +1348,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('equipmentSetsModal'));
                 if (modal) modal.hide();
 
-                alert(gettext('Set "' + this.selectedSet.name + '" added to rental'));
+                alert(interpolate(gettext('Set "%(setName)s" added to rental'), { setName: this.selectedSet.name }, true));
             }
         }
 
@@ -1679,7 +1685,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (slot.info) {
             const userName = slot.info.user_name || gettext('Unknown user');
             const project = slot.info.project || gettext('No project');
-            const status = slot.info.status || 'unknown';
+            const status = slot.info.status || gettext('Unknown');
             const peopleCount = slot.info.people_count || 1;
             const startTime = slot.info.start_time || '';
             const endTime = slot.info.end_time || '';
@@ -2154,7 +2160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     statusElement.innerHTML = `
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle me-2"></i>
-                            ${gettext('Error checking room availability:')} ${data.error}
+                            ${interpolate(gettext('Error checking room availability: %(message)s'), { message: data.error }, true)}
                         </div>
                     `;
                     // Disable Add Room button on error
@@ -2169,7 +2175,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusElement.innerHTML = `
                     <div class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle me-2"></i>
-                        ${gettext('Error checking room availability:')} ${error.message}
+                        ${interpolate(gettext('Error checking room availability: %(message)s'), { message: error.message }, true)}
                     </div>
                 `;
                 // Disable Add Room button on error
@@ -2234,12 +2240,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
 
             if (startDateTime < now) {
-                alert(gettext(`Start time cannot be in the past. Selected time: ${startDateTime.toLocaleString('en-US')}, Current time: ${now.toLocaleString('en-US')}`));
+                alert(interpolate(gettext('Start time cannot be in the past. Selected time: %(selected)s, Current time: %(current)s'), {
+                    selected: startDateTime.toLocaleString('en-US'),
+                    current: now.toLocaleString('en-US')
+                }, true));
                 return;
             }
 
             if (endDateTime < now) {
-                alert(gettext(`End time cannot be in the past. Selected time: ${endDateTime.toLocaleString('en-US')}, Current time: ${now.toLocaleString('en-US')}`));
+                alert(interpolate(gettext('End time cannot be in the past. Selected time: %(selected)s, Current time: %(current)s'), {
+                    selected: endDateTime.toLocaleString('en-US'),
+                    current: now.toLocaleString('en-US')
+                }, true));
                 return;
             }
 
@@ -2266,7 +2278,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
 
-                // Auto-fill Zeitraum fields on main page
+                // Auto-fill time period fields on main page
                 this.autoFillZeitraum(startDate, startTime, finalEndDate, endTime);
 
                 // Update UI
@@ -2280,7 +2292,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('roomsModal'));
                 if (modal) modal.hide();
 
-                alert(gettext(`Room "${this.selectedRoom.name}" was added to the rental. Note: Rooms are automatically reserved and will return after the scheduled time.`));
+                alert(interpolate(gettext('Room "%(roomName)s" was added to the rental. Note: Rooms are automatically reserved and will return after the scheduled time.'), {
+                    roomName: this.selectedRoom.name
+                }, true));
             });
         }
 
@@ -2382,20 +2396,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (result.success) {
                     if (action === 'draft') {
-                        alert(gettext('Request submitted for approval. ID: ') + result.rental_id);
+                        alert(interpolate(gettext('Request submitted for approval. ID: %(rentalId)s'), { rentalId: result.rental_id }, true));
                     } else {
-                        alert(gettext('Rental successfully booked! ID: ') + result.rental_id);
+                        alert(interpolate(gettext('Rental successfully booked! ID: %(rentalId)s'), { rentalId: result.rental_id }, true));
                     }
                     this.clearForm();
                 } else {
                     const errorMessage = result.error || gettext('Unknown error occurred');
                     console.error('Rental creation error:', errorMessage);
-                    alert(gettext('Error: ') + errorMessage);
+                    alert(interpolate(gettext('Error: %(message)s'), { message: errorMessage }, true));
                 }
             } catch (error) {
                 console.error('Error creating rental:', error);
                 console.error('Request data was:', rentalData);
-                alert(gettext('Error creating rental: ') + error.message);
+                alert(interpolate(gettext('Error creating rental: %(message)s'), { message: error.message }, true));
             }
         }
 
@@ -2480,7 +2494,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert(conflictMessage);
                     }
                 } else {
-                    alert(gettext('Error checking room availability: ') + (data.error || gettext('Unknown error')));
+                    alert(interpolate(gettext('Error checking room availability: %(message)s'), {
+                        message: data.error || gettext('Unknown error')
+                    }, true));
                 }
             } catch (error) {
                 console.error('Error checking room availability:', error);

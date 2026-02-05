@@ -516,6 +516,22 @@ class OrganizationConfig(models.Model):
         verbose_name=_('Description'),
         help_text=_('Welcome message or organization description')
     )
+
+    logo_large = models.FileField(
+        blank=True,
+        null=True,
+        upload_to='organization/logos/',
+        verbose_name=_('Large logo'),
+        help_text=_('Large logo displayed in the expanded sidebar')
+    )
+
+    logo_small = models.FileField(
+        blank=True,
+        null=True,
+        upload_to='organization/logos/',
+        verbose_name=_('Small logo'),
+        help_text=_('Square logo or SVG displayed in the collapsed sidebar')
+    )
     
     opening_hours = models.TextField(
         blank=True,

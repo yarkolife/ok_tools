@@ -95,6 +95,30 @@ def get_organization_description():
         return os.getenv('ORG_DESCRIPTION') or getattr(settings, 'OK_DESCRIPTION', '')
 
 
+def get_organization_logo_large_url():
+    """Get large logo URL."""
+    try:
+        from .models import OrganizationConfig
+        config = OrganizationConfig.get_config()
+        if config.logo_large and hasattr(config.logo_large, 'url'):
+            return config.logo_large.url
+    except Exception:
+        return ''
+    return ''
+
+
+def get_organization_logo_small_url():
+    """Get small logo URL."""
+    try:
+        from .models import OrganizationConfig
+        config = OrganizationConfig.get_config()
+        if config.logo_small and hasattr(config.logo_small, 'url'):
+            return config.logo_small.url
+    except Exception:
+        return ''
+    return ''
+
+
 def get_organization_opening_hours():
     """Get organization opening hours."""
     try:

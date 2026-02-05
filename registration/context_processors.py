@@ -7,6 +7,8 @@ def context(request):
     return {
         'OK_NAME': organization_config.get_organization_name(),
         'OK_NAME_SHORT': organization_config.get_organization_short_name(),
+        'OK_LOGO_LARGE_URL': organization_config.get_organization_logo_large_url(),
+        'OK_LOGO_SMALL_URL': organization_config.get_organization_logo_small_url(),
         'OK_WEBSITE': organization_config.get_organization_website(),
         'OK_EMAIL': organization_config.get_organization_email(),
         'OK_ADDRESS': organization_config.get_organization_address(),

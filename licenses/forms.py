@@ -35,13 +35,16 @@ class BooleanSelectOnly(forms.Select):
             return False
         return None
     
-    def format_value(self, value):
-        """Convert boolean value to string for display."""
+    def get_context(self, name, value, attrs):
+        """Override to properly convert boolean values for display."""
+        # Convert True/False to '1'/'0' for proper selection in the widget
         if value is True:
-            return '1'
+            value = '1'
         elif value is False:
-            return '0'
-        return ''
+            value = '0'
+        elif value is None:
+            value = ''
+        return super().get_context(name, value, attrs)
 
 
 logger = logging.getLogger('django')
