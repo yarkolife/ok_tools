@@ -45,14 +45,19 @@
         </div>
 
         <ul class="sidebar-nav">
+            {% url 'home' as home_url %}
+            {% url 'registration:user_data' as profile_url %}
+            {% url 'licenses:licenses' as licenses_url %}
+            {% url 'contributions:contributions' as contributions_url %}
+            {% url 'rental_dashboard' as rental_url %}
             <li class="sidebar-item">
-                <a href="{% url 'home' %}" class="sidebar-link">
+                <a href="{{ home_url }}" class="sidebar-link{% if request.path == home_url %} active{% endif %}">
                     <i class="bi bi-house-door"></i>
                     <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Dashboard' %}">{% trans "Dashboard" %}</span>
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="{% url 'registration:user_data' %}" class="sidebar-link">
+                <a href="{{ profile_url }}" class="sidebar-link{% if request.path == profile_url %} active{% endif %}">
                     <i class="bi bi-person-circle"></i>
                     <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Profile' %}">{% trans "Profile" %}</span>
                 </a>
@@ -60,7 +65,7 @@
 
             {% if LICENSES_ENABLED %}
             <li class="sidebar-item">
-                <a href="{% url 'licenses:licenses' %}" class="sidebar-link">
+                <a href="{{ licenses_url }}" class="sidebar-link{% if request.path == licenses_url %} active{% endif %}">
                     <i class="bi bi-file-earmark-text"></i>
                     <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Licenses' %}">{% trans "Licenses" %}</span>
                 </a>
@@ -68,7 +73,7 @@
             {% endif %}
             {% if CONTRIBUTIONS_ENABLED %}
             <li class="sidebar-item">
-                <a href="{% url 'contributions:contributions' %}" class="sidebar-link">
+                <a href="{{ contributions_url }}" class="sidebar-link{% if request.path == contributions_url %} active{% endif %}">
                     <i class="bi bi-hand-thumbs-up"></i>
                     <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Contributions' %}">{% trans "Contributions" %}</span>
                 </a>
@@ -77,7 +82,7 @@
 
             {% if RENTAL_ENABLED %}
             <li class="sidebar-item">
-                <a href="{% url 'rental_dashboard' %}" class="sidebar-link">
+                <a href="{{ rental_url }}" class="sidebar-link{% if request.path == rental_url %} active{% endif %}">
                     <i class="bi bi-calendar-check"></i>
                     <span data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Rental' %}">{% trans "Rental" %}</span>
                 </a>
@@ -218,7 +223,6 @@
     <!-- Theme Manager JS -->
     <script src="{% static 'js/theme-manager.js' %}"></script>
     <!-- Custom JS -->
-    <script src="{% static 'js/dashboard.js' %}"></script>
 
     <!-- COMING_SOON_SCRIPT_START: Coming Soon functionality -->
     <script>
@@ -301,12 +305,24 @@
             sidebarCollapseBtn.title = '{% trans "Collapse sidebar" %}';
             sidebarCollapseBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
+                const icon = sidebarCollapseBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('bi-chevron-double-left', !sidebar.classList.contains('collapsed'));
+                    icon.classList.toggle('bi-chevron-double-right', sidebar.classList.contains('collapsed'));
+                }
             });
             
             // Add collapse button to sidebar header
             const sidebarHeader = document.querySelector('.sidebar-header');
             if (sidebarHeader && window.innerWidth >= 992) {
                 sidebarHeader.appendChild(sidebarCollapseBtn);
+                if (sidebar.classList.contains('collapsed')) {
+                    const icon = sidebarCollapseBtn.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('bi-chevron-double-left');
+                        icon.classList.add('bi-chevron-double-right');
+                    }
+                }
             }
         });
     </script>
