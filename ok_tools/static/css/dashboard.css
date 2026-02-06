@@ -485,6 +485,18 @@ body {
         transform: translateX(0);
     }
 
+    [data-theme="light"] .sidebar.show {
+        background-color: transparent !important;
+        background-image: none !important;
+        backdrop-filter: none !important;
+    }
+
+    [data-theme="dark"] .sidebar.show {
+        background-color: transparent !important;
+        background-image: none !important;
+        backdrop-filter: none !important;
+    }
+
     .main-content {
         margin-left: 0;
     }
@@ -1183,6 +1195,20 @@ body {
     animation: fadeInUp 0.8s ease-out;
 }
 
+.welcome-title {
+    font-size: 2.5rem !important;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.welcome-lead {
+    font-size: 1.1rem !important;
+    line-height: 1.6;
+    max-width: 46rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .feature-icon {
     transition: transform 0.3s ease;
 }
@@ -1234,12 +1260,31 @@ body {
 
 /* Responsive adjustments for guest welcome */
 @media (max-width: 768px) {
+    .auth-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .auth-actions .btn {
+        width: 100%;
+    }
+
     .display-4 {
-        font-size: 2rem;
+        font-size: 1.75rem;
+    }
+
+    .welcome-title {
+        font-size: 2.2rem !important;
+        line-height: 1.25;
+    }
+
+    .welcome-lead {
+        font-size: 1.12rem !important;
+        line-height: 1.55;
     }
 
     .lead {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .welcome-icon i {
@@ -1285,6 +1330,25 @@ body {
 }
 
 @media (max-width: 576px) {
+    .auth-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .auth-actions .btn {
+        width: 100%;
+    }
+
+    .welcome-title {
+        font-size: 1.9rem !important;
+        line-height: 1.2;
+    }
+
+    .welcome-lead {
+        font-size: 1.05rem !important;
+        line-height: 1.5;
+    }
+
     .dashboard-card.call-to-action-card .card-body {
         padding: 1rem 0.75rem !important;
     }

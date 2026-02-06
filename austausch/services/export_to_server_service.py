@@ -1,10 +1,12 @@
-"""Service for exporting video, PDF, JSON and optional thumbnails to Nextcloud."""
+"""Service for exporting video, PDF, JSON and optional thumbnails to configured destination."""
 
+import fcntl
 import glob
 import json
 import logging
 import os
 import re
+import shutil
 import tempfile
 import unicodedata
 from pathlib import Path
@@ -78,12 +80,183 @@ def _find_thumbnail(number: int, directory: str) -> Optional[str]:
 
 
 class ExportToServerService:
-    """Upload video, PDF, JSON and optional thumbnail for selected contributions or licenses to Nextcloud."""
+    """Export video, PDF, JSON and optional thumbnail for selected contributions or licenses."""
 
     def __init__(self, user=None):
         self.config = ExchangeConfig.get_config()
         self.user = user
-        self.service = NextcloudExchangeService(self.config)
+        self.destination = getattr(self.config, 'export_destination', 'nextcloud')
+        self.service = NextcloudExchangeService(self.config) if self.destination == 'nextcloud' else None
+
+    def _network_share_export_dir(self) -> str:
+        """Return absolute export directory for network share destination."""
+        base_path = (getattr(self.config, 'network_share_base_path', '') or '').strip()
+        subfolder = (getattr(self.config, 'network_share_subfolder', '') or '').strip().strip('/\\')
+        if subfolder:
+            return os.path.join(base_path, subfolder)
+        return base_path
+
+    def _validate_destination(self, selected_ids: List[int], report: Dict[str, Any]) -> bool:
+        """Validate export destination settings and return False if invalid."""
+        if self.destination == 'nextcloud':
+            if not self.config.upload_server_path:
+                logger.error('Export to server: upload_server_path not configured')
+                report['failure_count'] = len(selected_ids)
+                report['failed'] = [{'id': i, 'reason': 'upload_server_path not configured'} for i in selected_ids]
+                return False
+            return True
+
+        if self.destination == 'network_share':
+            export_dir = self._network_share_export_dir()
+            if not export_dir:
+                logger.error('Export to server: network_share_base_path not configured')
+                report['failure_count'] = len(selected_ids)
+                report['failed'] = [{'id': i, 'reason': 'network_share_base_path not configured'} for i in selected_ids]
+                return False
+            if not os.path.isdir(export_dir):
+                logger.error('Export to server: network share export path does not exist: %s', export_dir)
+                report['failure_count'] = len(selected_ids)
+                report['failed'] = [{'id': i, 'reason': f'Network share path not found: {export_dir}'} for i in selected_ids]
+                return False
+            return True
+
+        logger.error('Export to server: unknown destination: %s', self.destination)
+        report['failure_count'] = len(selected_ids)
+        report['failed'] = [{'id': i, 'reason': f'Unknown export destination: {self.destination}'} for i in selected_ids]
+        return False
+
+    @staticmethod
+    def _write_bytes_atomic(file_path: str, data: bytes) -> bool:
+        """Write bytes atomically using temporary file and replace."""
+        tmp_path = None
+        target_dir = os.path.dirname(file_path)
+        try:
+            os.makedirs(target_dir, exist_ok=True)
+            with tempfile.NamedTemporaryFile(dir=target_dir, prefix='.tmp_', delete=False) as tmp:
+                tmp.write(data)
+                tmp.flush()
+                os.fsync(tmp.fileno())
+                tmp_path = tmp.name
+            os.replace(tmp_path, file_path)
+            return True
+        except Exception:
+            logger.exception('Failed to atomically write file: %s', file_path)
+            if tmp_path and os.path.exists(tmp_path):
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
+            return False
+
+    @staticmethod
+    def _copy_file_atomic(source_path: str, target_path: str) -> bool:
+        """Copy file atomically using temporary file and replace."""
+        tmp_path = None
+        target_dir = os.path.dirname(target_path)
+        try:
+            os.makedirs(target_dir, exist_ok=True)
+            with tempfile.NamedTemporaryFile(dir=target_dir, prefix='.tmp_', delete=False) as tmp:
+                tmp_path = tmp.name
+            shutil.copy2(source_path, tmp_path)
+            os.replace(tmp_path, target_path)
+            return True
+        except Exception:
+            logger.exception('Failed to atomically copy file %s -> %s', source_path, target_path)
+            if tmp_path and os.path.exists(tmp_path):
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
+            return False
+
+    def _build_windows_files_txt_entry(self, filename: str) -> str:
+        """Build files.txt line using configured windows root path."""
+        windows_root = (getattr(self.config, 'network_share_windows_root', '') or '').strip()
+        if windows_root:
+            windows_root = windows_root.rstrip('\\/')
+            full_path = f'{windows_root}\\{filename}'
+        else:
+            full_path = filename
+        return f'"{full_path}"'
+
+    def _append_to_files_txt(self, export_dir: str, filename: str) -> bool:
+        """Append one line to files.txt with locking to avoid mixed writes between workers."""
+        files_txt_path = os.path.join(export_dir, 'files.txt')
+        line = self._build_windows_files_txt_entry(filename)
+        try:
+            os.makedirs(export_dir, exist_ok=True)
+            with open(files_txt_path, 'a+', encoding='utf-8') as f:
+                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                try:
+                    f.seek(0, os.SEEK_END)
+                    f.write(f'{line}\n')
+                    f.flush()
+                    os.fsync(f.fileno())
+                finally:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            return True
+        except Exception:
+            logger.exception('Failed to append files.txt entry for %s', filename)
+            return False
+
+    def _upload_or_copy_file(self, local_path: str, remote_base_path: str, file_name: str) -> bool:
+        """Upload to Nextcloud or copy to network share based on destination."""
+        if self.destination == 'nextcloud':
+            remote_path = f'{remote_base_path}{file_name}'
+            return self.service.upload_file(local_path, remote_path)
+
+        export_dir = remote_base_path
+        target_path = os.path.join(export_dir, file_name)
+        if not self._copy_file_atomic(local_path, target_path):
+            return False
+        return self._append_to_files_txt(export_dir, file_name)
+
+    def _write_json_to_destination(self, meta_data: Dict[str, Any], remote_base_path: str, json_file_name: str) -> bool:
+        """Write JSON metadata to destination."""
+        if self.destination == 'nextcloud':
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.meta.json', delete=False) as f:
+                json.dump(meta_data, f, ensure_ascii=False, indent=2)
+                tmp_json = f.name
+            try:
+                return self._upload_or_copy_file(tmp_json, remote_base_path, json_file_name)
+            finally:
+                try:
+                    os.unlink(tmp_json)
+                except OSError:
+                    pass
+
+        payload = json.dumps(meta_data, ensure_ascii=False, indent=2).encode('utf-8')
+        target_path = os.path.join(remote_base_path, json_file_name)
+        if not self._write_bytes_atomic(target_path, payload):
+            return False
+        return self._append_to_files_txt(remote_base_path, json_file_name)
+
+    def _write_pdf_to_destination(
+        self,
+        pdf_source: Union[bytes, str],
+        remote_base_path: str,
+        pdf_remote_name: str,
+    ) -> bool:
+        """Write PDF to destination."""
+        if isinstance(pdf_source, bytes):
+            if self.destination == 'nextcloud':
+                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
+                    f.write(pdf_source)
+                    tmp_pdf = f.name
+                try:
+                    return self._upload_or_copy_file(tmp_pdf, remote_base_path, pdf_remote_name)
+                finally:
+                    try:
+                        os.unlink(tmp_pdf)
+                    except OSError:
+                        pass
+
+            target_path = os.path.join(remote_base_path, pdf_remote_name)
+            if not self._write_bytes_atomic(target_path, pdf_source):
+                return False
+            return self._append_to_files_txt(remote_base_path, pdf_remote_name)
+
+        return self._upload_or_copy_file(pdf_source, remote_base_path, pdf_remote_name)
 
     def run(
         self,
@@ -109,10 +282,7 @@ class ExportToServerService:
             'failed': [],
             'skipped_no_pdf': [],
         }
-        if not self.config.upload_server_path:
-            logger.error('Export to server: upload_server_path not configured')
-            report['failure_count'] = len(selected_ids)
-            report['failed'] = [{'id': i, 'reason': 'upload_server_path not configured'} for i in selected_ids]
+        if not self._validate_destination(selected_ids, report):
             return report
 
         for item_id in selected_ids:
@@ -177,8 +347,12 @@ class ExportToServerService:
             return ('failure', item_id, 'Video has no storage location')
 
         # Upload directly into configured path (no channel/date subfolders)
-        base = self.config.upload_server_path.strip('/')
-        remote_base_path = f'{base}/'
+        if self.destination == 'nextcloud':
+            base = self.config.upload_server_path.strip('/')
+            remote_base_path = f'{base}/'
+        else:
+            remote_base_path = self._network_share_export_dir()
+
         number = license_obj.number
 
         # PDF is required: resolve before uploading anything (no PDF -> skip entire item)
@@ -204,9 +378,16 @@ class ExportToServerService:
             )
             return ('skipped_no_pdf', item_id, 'No PDF (no signature and no file in fallback paths)')
 
-        if not self.service.ensure_directory(remote_base_path):
-            logger.error('Failed to ensure directory %s', remote_base_path)
-            return ('failure', item_id, 'Failed to create remote directory')
+        if self.destination == 'nextcloud':
+            if not self.service.ensure_directory(remote_base_path):
+                logger.error('Failed to ensure directory %s', remote_base_path)
+                return ('failure', item_id, 'Failed to create remote directory')
+        else:
+            try:
+                os.makedirs(remote_base_path, exist_ok=True)
+            except Exception:
+                logger.exception('Failed to create network share directory %s', remote_base_path)
+                return ('failure', item_id, 'Failed to create network share directory')
 
         video_local = video_file.full_path
         if not os.path.isfile(video_local):
@@ -214,51 +395,26 @@ class ExportToServerService:
             return ('failure', item_id, 'Video file not found')
 
         video_remote_name = _safe_filename(video_file.filename)
-        video_remote_path = f'{remote_base_path}{video_remote_name}'
-        if not self.service.upload_file(video_local, video_remote_path):
+        if not self._upload_or_copy_file(video_local, remote_base_path, video_remote_name):
             return ('failure', item_id, 'Video upload failed')
 
         # JSON metadata
         meta_data = LicenseMetadataSerializer(license_obj).data
         base_video_name = Path(video_file.filename).stem
         json_remote_name = f'{_safe_filename(base_video_name)}.meta.json'
-        json_remote_path = f'{remote_base_path}{json_remote_name}'
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.meta.json', delete=False) as f:
-            json.dump(meta_data, f, ensure_ascii=False, indent=2)
-            tmp_json = f.name
-        try:
-            if not self.service.upload_file(tmp_json, json_remote_path):
-                return ('failure', item_id, 'JSON upload failed')
-        finally:
-            try:
-                os.unlink(tmp_json)
-            except OSError:
-                pass
+        if not self._write_json_to_destination(meta_data, remote_base_path, json_remote_name):
+            return ('failure', item_id, 'JSON upload failed')
 
         # PDF (already resolved above)
-        if isinstance(pdf_source, bytes):
-            pdf_remote_path = f'{remote_base_path}{pdf_remote_name}'
-            with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
-                f.write(pdf_source)
-                tmp_pdf = f.name
-            try:
-                if not self.service.upload_file(tmp_pdf, pdf_remote_path):
-                    return ('failure', item_id, 'PDF upload failed')
-            finally:
-                try:
-                    os.unlink(tmp_pdf)
-                except OSError:
-                    pass
-        else:
-            if not self.service.upload_file(pdf_source, f'{remote_base_path}{pdf_remote_name}'):
-                return ('failure', item_id, 'PDF upload failed')
+        if not self._write_pdf_to_destination(pdf_source, remote_base_path, pdf_remote_name):
+            return ('failure', item_id, 'PDF upload failed')
 
         # Thumbnail
         if self.config.upload_thumbnail_enabled and self.config.thumbnail_storage_path:
             thumb_local = _find_thumbnail(number, self.config.thumbnail_storage_path)
             if thumb_local and os.path.isfile(thumb_local):
                 thumb_remote_name = os.path.basename(thumb_local)
-                self.service.upload_file(thumb_local, f'{remote_base_path}{thumb_remote_name}')
+                self._upload_or_copy_file(thumb_local, remote_base_path, thumb_remote_name)
 
         logger.info('Exported license %s to %s', number, remote_base_path)
         return ('success', item_id, None)

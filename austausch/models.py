@@ -225,6 +225,11 @@ class ExchangeImport(models.Model):
 
 class ExchangeConfig(models.Model):
     """Configuration for exchange module (singleton)."""
+
+    EXPORT_DESTINATION_CHOICES = [
+        ('nextcloud', _('Nextcloud')),
+        ('network_share', _('Network Share')),
+    ]
     
     # Nextcloud settings
     nextcloud_base_url = models.URLField(
@@ -299,11 +304,37 @@ class ExchangeConfig(models.Model):
     )
     
     # Export to server settings
+    export_destination = models.CharField(
+        max_length=20,
+        choices=EXPORT_DESTINATION_CHOICES,
+        default='nextcloud',
+        verbose_name=_('Export Destination'),
+        help_text=_('Select where export files should be written: Nextcloud or Network Share.')
+    )
     upload_server_path = models.CharField(
         max_length=500,
         blank=True,
         verbose_name=_('Upload Server Path'),
         help_text=_('WebDAV path on Nextcloud for upload (e.g. GroupFolders/Mediathek-Upload/OK_MQ). Distinct from download/sync paths.')
+    )
+    network_share_base_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Network Share Base Path'),
+        help_text=_('Local mounted path inside container for network share export (e.g. /mnt/austausch_export/Vorschau/2025).')
+    )
+    network_share_subfolder = models.CharField(
+        max_length=255,
+        blank=True,
+        default='austausch',
+        verbose_name=_('Network Share Subfolder'),
+        help_text=_('Optional subfolder under base path. Leave empty to write directly into base path.')
+    )
+    network_share_windows_root = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Network Share Windows Root'),
+        help_text=_('Windows path root used for files.txt entries (e.g. Z:\\Vorschau\\2025).')
     )
     default_media_authority = models.ForeignKey(
         'registration.MediaAuthority',
@@ -353,6 +384,16 @@ class ExchangeConfig(models.Model):
                 'storage_location': _('Either storage location or download storage path must be set.'),
                 'download_storage_path': _('Either storage location or download storage path must be set.'),
             })
+
+        if self.export_destination == 'nextcloud' and not self.upload_server_path:
+            raise ValidationError({
+                'upload_server_path': _('Upload server path is required for Nextcloud export destination.'),
+            })
+
+        if self.export_destination == 'network_share' and not self.network_share_base_path:
+            raise ValidationError({
+                'network_share_base_path': _('Network share base path is required for Network Share export destination.'),
+            })
     
     def save(self, *args, **kwargs):
         """Ensure only one config instance exists."""
@@ -363,8 +404,21 @@ class ExchangeConfig(models.Model):
     @classmethod
     def get_config(cls):
         """Get the singleton config instance, create if doesn't exist."""
-        obj, created = cls.objects.get_or_create(pk=1)
-        return obj
+        obj = cls.objects.filter(pk=1).first()
+        if obj:
+            return obj
+
+        # Create minimal singleton without triggering clean/save validation.
+        # This allows admin to open configuration page and fill required values.
+        obj = cls(
+            pk=1,
+            nextcloud_base_url='',
+            nextcloud_username='',
+            nextcloud_password='',
+            download_storage_path='',
+        )
+        cls.objects.bulk_create([obj])
+        return cls.objects.get(pk=1)
 
 
 class ExportToServerRun(models.Model):
@@ -413,4 +467,3 @@ class ExportToServerRun(models.Model):
 
     def __str__(self):
         return f"Export {self.started_at} ({self.success_count}/{self.total_count})"
-

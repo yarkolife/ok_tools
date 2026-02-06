@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+2026-02-06 (Version 4.0.7)
+===========================
+
+* **Austausch: network share export destination**
+  * Added export destination switch: Nextcloud or Network Share.
+  * Added network share path settings, optional subfolder, and Windows root mapping for `files.txt` entries.
+  * Implemented atomic copy/write helpers and locked append for stable concurrent export writes.
+  * Extended export service and admin UI for network share workflow.
+  * Added migration `0013_add_export_destination_network_share`.
+  * Added tests for network share export helpers.
+* **UI and translations**
+  * Minor sidebar/theme/welcome template polish.
+  * Updated German translation catalogs across modules.
+
 2026-02-05 (Version 4.0.6)
 ===========================
 

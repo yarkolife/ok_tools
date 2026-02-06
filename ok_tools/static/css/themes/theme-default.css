@@ -65,6 +65,14 @@ body,
   background: linear-gradient(135deg, var(--sidebar-bg) 100%, #003a49 100%);
 }
 
+@media (max-width: 991.98px) {
+  [data-theme="light"] .sidebar.show {
+    background-color: transparent !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 /* Top navbar styles for the light theme */
 .top-navbar {
   background: var(--color-bg-primary);

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-26 23:45+0100\n"
+"POT-Creation-Date: 2026-02-06 22:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -18,27 +18,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: media_files/admin.py:128
 msgid "Confirmation phrase"
 msgstr "Bestätigungsphrase"
 
+#: media_files/admin.py:129
 msgid "Type the exact confirmation phrase to proceed."
 msgstr "Geben Sie die exakte Bestätigungsphrase ein, um fortzufahren."
 
+#: media_files/admin.py:133
 msgid "Your password"
 msgstr "Ihr Passwort"
 
+#: media_files/admin.py:146
 msgid "Confirmation phrase does not match."
 msgstr "Die Bestätigungsphrase stimmt nicht überein."
 
+#: media_files/admin.py:152
 msgid "Cannot validate password for current user."
 msgstr "Das Passwort für den aktuellen Nutzer kann nicht überprüft werden."
 
+#: media_files/admin.py:154
 msgid "Incorrect password."
 msgstr "Falsches Passwort."
 
+#: media_files/admin.py:162
 msgid "Upload Video File"
 msgstr "Videodatei hochladen"
 
+#: media_files/admin.py:163
 msgid ""
 "Upload a video file (mp4, mov, mpeg, mpg). The file will be saved to the "
 "selected storage location."
@@ -46,178 +54,247 @@ msgstr ""
 "Laden Sie eine Videodatei hoch (mp4, mov, mpeg, mpg). Die Datei wird im "
 "ausgewählten Speicherort gespeichert."
 
+#: media_files/admin.py:168
 msgid "Or specify file path"
 msgstr "Oder Dateipfad angeben"
 
+#: media_files/admin.py:169
 msgid "Full path to existing video file on the server"
 msgstr "Vollständiger Pfad zu einer vorhandenen Videodatei auf dem Server"
 
+#: media_files/admin.py:197
 msgid "Please either upload a file or specify an existing file path."
 msgstr ""
-"Bitte laden Sie eine Datei hoch oder geben Sie einen vorhandenen Dateipfad an."
+"Bitte laden Sie eine Datei hoch oder geben Sie einen vorhandenen Dateipfad "
+"an."
 
+#: media_files/admin.py:202
 msgid "Please provide only one: either upload a file OR specify a path."
 msgstr ""
-"Bitte geben Sie nur eine Option an: Entweder eine Datei hochladen ODER einen Pfad angeben."
+"Bitte geben Sie nur eine Option an: Entweder eine Datei hochladen ODER einen "
+"Pfad angeben."
 
+#: media_files/admin.py:206
 msgid "Storage location is required."
 msgstr "Ein Speicherort ist erforderlich."
 
+#: media_files/admin.py:229 media_files/admin.py:301
 msgid "Filename must start with a number (e.g., 12345_title.mp4)"
 msgstr "Dateiname muss mit einer Zahl beginnen (z. B. 12345_titel.mp4)"
 
+#: media_files/admin.py:238
 msgid "File already exists at: {}"
 msgstr "Datei existiert bereits unter: {}"
 
+#: media_files/admin.py:287
 msgid "File does not exist: {}"
 msgstr "Datei existiert nicht: {}"
 
+#: media_files/admin.py:292
 msgid "Path is not a file: {}"
 msgstr "Pfad ist keine Datei: {}"
 
+#: media_files/admin.py:308
 msgid "File must be within storage location: {}"
 msgstr "Datei muss sich im vorgegebenen Speicherort befinden: {}"
 
+#: media_files/admin.py:390
 msgid "Scanning"
 msgstr "Scannen"
 
+#: media_files/admin.py:393
 msgid "Information"
 msgstr "Information"
 
+#: media_files/admin.py:421
 msgid "Video count"
 msgstr "Anzahl Videos"
 
+#: media_files/admin.py:438
 msgid "Videos"
 msgstr "Videos"
 
+#: media_files/admin.py:481
 msgid "Scan task queued successfully"
 msgstr "Scan-Aufgabe erfolgreich in die Warteschlange gestellt"
 
+#: media_files/admin.py:483 media_files/admin_commands.py:180
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:103
 msgid "Task ID"
 msgstr "Aufgaben-ID"
 
+#: media_files/admin.py:485
 msgid "The scan is running in the background. Check task results for progress."
 msgstr ""
-"Der Scan läuft im Hintergrund. Überprüfen Sie die Aufgabenergebnisse für den Fortschritt."
+"Der Scan läuft im Hintergrund. Überprüfen Sie die Aufgabenergebnisse für den "
+"Fortschritt."
 
+#: media_files/admin.py:487 media_files/admin_commands.py:184
 msgid "View Task Results"
 msgstr "Aufgabenergebnisse anzeigen"
 
+#: media_files/admin.py:503 media_files/admin.py:523
 msgid "Storage location #{} not found"
 msgstr "Speicherort #{} nicht gefunden"
 
+#: media_files/admin.py:508
 msgid "Error queueing scan task: {}"
 msgstr "Fehler beim Einreihen der Scan-Aufgabe: {}"
 
+#: media_files/admin.py:550
 msgid "Scan Options - {}"
 msgstr "Scan-Optionen - {}"
 
+#: media_files/admin.py:571
 msgid "Error queueing scan task for {}: {}"
 msgstr "Fehler beim Einreihen der Scan-Aufgabe für {}: {}"
 
+#: media_files/admin.py:596
 msgid "Scan tasks queued for"
 msgstr "Scan-Aufgaben in die Warteschlange gestellt für"
 
+#: media_files/admin.py:598
 msgid "storage location(s)"
 msgstr "Speicherort(e)"
 
+#: media_files/admin.py:602
 msgid "Scan selected storage locations"
 msgstr "Ausgewählte Speicherorte scannen"
 
+#: media_files/admin.py:617
 msgid "Test connection to storage"
 msgstr "Verbindung zum Speicher testen"
 
+#: media_files/admin.py:621
 msgid "Has Duplicates"
 msgstr "Hat Duplikate"
 
+#: media_files/admin.py:626
 msgid "Yes - has duplicates"
 msgstr "Ja – hat Duplikate"
 
+#: media_files/admin.py:627
 msgid "No - unique"
 msgstr "Nein – eindeutig"
 
+#: media_files/admin.py:649
 msgid "Version Type"
 msgstr "Versionstyp"
 
+#: media_files/admin.py:654
 msgid "Primary versions"
 msgstr "Primärversionen"
 
+#: media_files/admin.py:655
 msgid "Duplicate versions"
 msgstr "Duplizierte Versionen"
 
+#: media_files/admin.py:783
 msgid "Archive Cleanup"
 msgstr "Archivbereinigung"
 
+#: media_files/admin.py:788
 msgid "Archive primary (keep)"
 msgstr "Primäre archivieren (behalten)"
 
+#: media_files/admin.py:789
 msgid "Archive duplicates"
 msgstr "Duplikate archivieren"
 
+#: media_files/admin.py:843 media_files/admin.py:1719 media_files/models.py:248
 msgid "FPS"
 msgstr "FPS"
 
+#: media_files/admin.py:848
 msgid "25 fps (Broadcast Standard)"
 msgstr "25 fps (Sende-Standard)"
 
+#: media_files/admin.py:849
 msgid "Not 25 fps (⚠ Warning)"
 msgstr "Nicht 25 fps (⚠ Warnung)"
 
+#: media_files/admin.py:850
 msgid "FPS not set"
 msgstr "FPS nicht gesetzt"
 
+#: media_files/admin.py:886 media_files/models.py:92 media_files/models.py:346
 msgid "Created at"
 msgstr "Erstellt am"
 
+#: media_files/admin.py:912
 msgid "Basic Information"
 msgstr "Grundlegende Informationen"
 
+#: media_files/admin.py:918 media_files/admin.py:2234
+#: media_files/templates/admin/media_files/videofile/change_form.html:67
+#: media_files/templates/admin/media_files/videofile/change_list.html:70
+#: media_files/templates/admin/video_player.html:5
+#: media_files/templates/admin/video_player.html:136
 msgid "Video Player"
 msgstr "Videoplayer"
 
+#: media_files/admin.py:921
 msgid "File Properties"
 msgstr "Dateieigenschaften"
 
+#: media_files/admin.py:927
 msgid "Video Properties"
 msgstr "Videoeigenschaften"
 
+#: media_files/admin.py:936
 msgid "Audio Properties"
 msgstr "Audioeigenschaften"
 
+#: media_files/admin.py:942
+#: media_files/templates/admin/system_management.html:886
 msgid "Duplicate Management"
 msgstr "Duplikateverwaltung"
 
+#: media_files/admin.py:946
 msgid "Timestamps"
 msgstr "Zeitstempel"
 
+#: media_files/admin.py:953
 msgid "Add Video File"
 msgstr "Videodatei hinzufügen"
 
+#: media_files/admin.py:956
 msgid ""
 "Choose a storage location, then either:<br>• <strong>Upload a file</strong> "
 "- File will be saved to the storage location<br>• <strong>Specify a path</"
 "strong> - Reference an existing file on the server<br><br><strong>Important:"
 "</strong> Filename must start with a number (e.g., 12345_title.mp4)"
 msgstr ""
-"Wählen Sie einen Speicherort und danach entweder:<br>• <strong>Datei hochladen</strong> – Die Datei wird im Speicherort gespeichert<br>• <strong>Pfad angeben</strong> – Eine vorhandene Datei auf dem Server referenzieren<br><br><strong>Wichtig:</strong> Der Dateiname muss mit einer Zahl beginnen (z.B. 12345_title.mp4)"
+"Wählen Sie einen Speicherort und danach entweder:<br>• <strong>Datei "
+"hochladen</strong> – Die Datei wird im Speicherort gespeichert<br>• "
+"<strong>Pfad angeben</strong> – Eine vorhandene Datei auf dem Server "
+"referenzieren<br><br><strong>Wichtig:</strong> Der Dateiname muss mit einer "
+"Zahl beginnen (z.B. 12345_title.mp4)"
 
+#: media_files/admin.py:991
 msgid "Transcode HEVC to H.264 (browser compatible)"
 msgstr "HEVC zu H.264 transkodieren (browserkompatibel)"
 
+#: media_files/admin.py:1020
 #, python-brace-format
 msgid ""
 "Queued {count} video(s) for HEVC→H.264 transcoding. Check File Operations "
 "for progress."
 msgstr ""
-"{count} Video(s) für die HEVC→H.264-Transkodierung in die Warteschlange gestellt. Überprüfen Sie den Fortschritt unter Dateivorgänge."
+"{count} Video(s) für die HEVC→H.264-Transkodierung in die Warteschlange "
+"gestellt. Überprüfen Sie den Fortschritt unter Dateivorgänge."
 
+#: media_files/admin.py:1029
 #, python-brace-format
 msgid "Skipped {count} video(s) - already browser compatible."
 msgstr "{count} Video(s) übersprungen – bereits browserkompatibel."
 
+#: media_files/admin.py:1033
 msgid "Render video (default presets)"
 msgstr "Video rendern (Standard-Voreinstellungen)"
 
+#: media_files/admin.py:1046 media_files/admin.py:1221
+#: media_files/admin.py:1460
 msgid ""
 "Video overlay rendering is disabled. Set "
 "VIDEO_OVERLAY_RENDERING_ENABLED=true to enable it."
@@ -225,56 +302,73 @@ msgstr ""
 "Video-Overlay-Rendering ist deaktiviert. Setzen Sie "
 "VIDEO_OVERLAY_RENDERING_ENABLED=true, um es zu aktivieren."
 
+#: media_files/admin.py:1061 media_files/admin.py:1237
 #, python-brace-format
 msgid "Failed to load presets: {err}"
 msgstr "Laden der Voreinstellungen fehlgeschlagen: {err}"
 
+#: media_files/admin.py:1070
+#: media_files/management/commands/render_video_preset.py:231
 #, python-brace-format
 msgid "Intro clip not found: {p}"
 msgstr "Intro-Clip nicht gefunden: {p}"
 
+#: media_files/admin.py:1073
+#: media_files/management/commands/render_video_preset.py:233
 #, python-brace-format
 msgid "Outro clip not found: {p}"
 msgstr "Outro-Clip nicht gefunden: {p}"
 
+#: media_files/admin.py:1199 media_files/admin.py:1352
 #, python-brace-format
 msgid "Rendered successfully: {n}"
 msgstr "{n} erfolgreich gerendert"
 
+#: media_files/admin.py:1205 media_files/admin.py:1358
 #, python-brace-format
 msgid "Failed: {n}"
 msgstr "{n} fehlgeschlagen"
 
+#: media_files/admin.py:1209
 msgid "Render preview (10s)"
 msgstr "Vorschau rendern (10s)"
 
+#: media_files/admin.py:1362
 msgid "Delete selected records without video"
 msgstr "Ausgewählte Einträge ohne Video löschen"
 
+#: media_files/admin.py:1418
 msgid "Deleted {} record(s) without video files"
 msgstr "{} Eintrag/Einträge ohne Videodateien gelöscht"
 
+#: media_files/admin.py:1424 media_files/admin.py:3109
 msgid "{} file(s) could not be checked (storage may be read-only)"
 msgstr ""
 "{} Datei(en) konnten nicht geprüft werden (Speicher ist möglicherweise "
 "schreibgeschützt)"
 
+#: media_files/admin.py:1430
 msgid "No files could be checked"
 msgstr "Keine Datei konnte geprüft werden"
 
+#: media_files/admin.py:1436 media_files/admin.py:3121
 msgid "All checked files exist on disk"
 msgstr "Alle geprüften Dateien sind auf dem Datenträger vorhanden"
 
+#: media_files/admin.py:1442 media_files/admin.py:3127
 msgid "{} error(s) occurred"
 msgstr "{} Fehler aufgetreten"
 
+#: media_files/admin.py:1446
 msgid "Render with intro/outro and full overlays"
 msgstr "Mit Intro/Outro und vollständigen Overlays rendern"
 
+#: media_files/admin.py:1473
 #, python-brace-format
 msgid "Failed to load encode preset: {err}"
 msgstr "Laden des Kodierungsvoreinstellungsprofils fehlgeschlagen: {err}"
 
+#: media_files/admin.py:1541
 #, python-brace-format
 msgid ""
 "Intro/outro files not found: {files}.\n"
@@ -295,427 +389,625 @@ msgstr ""
 "\n"
 "Dateien sind dann im Container unter /app/media/intro_outro/ verfügbar."
 
+#: media_files/admin.py:1651
 #, python-brace-format
 msgid ""
 "Started rendering with intro/outro and full overlays: {n} video(s). You can "
 "track progress in File Operations."
 msgstr ""
-"Rendern mit Intro/Outro und vollständigen Overlays für {n} Video(s) gestartet. Den Fortschritt können Sie unter Dateivorgänge verfolgen."
+"Rendern mit Intro/Outro und vollständigen Overlays für {n} Video(s) "
+"gestartet. Den Fortschritt können Sie unter Dateivorgänge verfolgen."
 
+#: media_files/admin.py:1657
 #, python-brace-format
 msgid "Failed to start rendering: {n}"
 msgstr "Starten des Renderings fehlgeschlagen: {n}"
 
+#: media_files/admin.py:1688
+#: media_files/templates/admin/media_files/videofile/change_form.html:74
+#: media_files/templates/admin/media_files/videofile/change_list.html:80
+#: media_files/templates/admin/video_player.html:27
 msgid "Size"
 msgstr "Größe"
 
+#: media_files/admin.py:1700 media_files/models.py:168
+#: media_files/templates/admin/media_files/videofile/change_form.html:73
+#: media_files/templates/admin/media_files/videofile/change_list.html:79
+#: media_files/templates/admin/video_player.html:26
+#: media_files/templates/media_files/render_video_admin.html:414
 msgid "Duration"
 msgstr "Dauer"
 
+#: media_files/admin.py:1713
 msgid "FPS is not 25 - not suitable for broadcast"
 msgstr "FPS ist nicht 25 – nicht für die Ausstrahlung geeignet"
 
+#: media_files/admin.py:1727
 msgid "Video Bitrate (kbps)"
 msgstr "Video-Bitrate (kbps)"
 
+#: media_files/admin.py:1735
 msgid "Audio Bitrate (kbps)"
 msgstr "Audio-Bitrate (kbps)"
 
+#: media_files/admin.py:1744 media_files/models.py:199
+#: media_files/templates/media_files/render_video_admin.html:412
 msgid "License"
 msgstr "Freistellung"
 
+#: media_files/admin.py:1753
+msgid "Preview clip (not a version)"
+msgstr ""
+
+#: media_files/admin.py:1760
 msgid "Unique - no duplicates"
 msgstr "Einzigartig – keine Duplikate"
 
+#: media_files/admin.py:1770
 msgid "{} version(s) in same storage"
 msgstr "{} Version(en) im selben Speicherort"
 
+#: media_files/admin.py:1772
 msgid "{} version(s) in other storages"
 msgstr "{} Version(en) in anderen Speicherorten"
 
+#: media_files/admin.py:1782 media_files/admin.py:1813
+#: media_files/admin.py:1821 media_files/admin.py:1831
+#: media_files/admin.py:1850 media_files/admin.py:1859
 msgid "versions total"
 msgstr "Versionen insgesamt"
 
+#: media_files/admin.py:1811 media_files/admin.py:1923
+#: media_files/admin.py:2002
 msgid "ARCHIVE PRIMARY"
 msgstr "ARCHIV HAUPTVERSION"
 
+#: media_files/admin.py:1819 media_files/admin.py:1916
+#: media_files/admin.py:2004
 msgid "ARCHIVE DUPLICATE"
 msgstr "ARCHIV DUPLIKAT"
 
+#: media_files/admin.py:1829 media_files/admin.py:1930
+#: media_files/admin.py:2006
 msgid "ARCHIVE VERSION"
 msgstr "ARCHIV VERSION"
 
+#: media_files/admin.py:1857 media_files/admin.py:2019
 msgid "DUPLICATE"
 msgstr "DUPLIKAT"
 
+#: media_files/admin.py:1862
 msgid "Versions"
 msgstr "Versionen"
 
+#: media_files/admin.py:1872
+#, fuzzy
+#| msgid "Preview"
+msgid "Preview clip"
+msgstr "Vorschau"
+
+#: media_files/admin.py:1873
+msgid "Not linked to license; not counted as a version."
+msgstr ""
+
+#: media_files/admin.py:1937
 msgid "DUPLICATE VERSION"
 msgstr "DUPLIKATVERSION"
 
+#: media_files/admin.py:1942
 msgid "Duplicate Status"
 msgstr "Duplikatstatus"
 
+#: media_files/admin.py:1956
+msgid "This record is a preview clip (not linked to license). Full versions:"
+msgstr ""
+
+#: media_files/admin.py:1961
 msgid "No other versions"
 msgstr "Keine weiteren Versionen"
 
+#: media_files/admin.py:1963
+msgid "No full versions for this number."
+msgstr ""
+
+#: media_files/admin.py:2031
 msgid "Created"
 msgstr "Erstellt"
 
+#: media_files/admin.py:2048
 msgid "All Versions"
 msgstr "Alle Versionen"
 
+#: media_files/admin.py:2064 media_files/admin.py:2078
 msgid "Player"
 msgstr "Player"
 
+#: media_files/admin.py:2103
 msgid "File path (Linux)"
 msgstr "Dateipfad (Linux)"
 
+#: media_files/admin.py:2104
 msgid "File path (Windows UNC)"
 msgstr "Dateipfad (Windows UNC)"
 
+#: media_files/admin.py:2116
+#: media_files/templates/admin/media_files/videofile/change_form.html:92
+#: media_files/templates/media_files/render_video_admin.html:406
 msgid "Render Video with Overlays"
 msgstr "Video mit Overlays rendern"
 
+#: media_files/admin.py:2232 media_files/admin.py:2254
 msgid "Video not available"
 msgstr "Video nicht verfügbar"
 
+#: media_files/admin.py:2242 media_files/admin.py:2322
 msgid "Video not found"
 msgstr "Video nicht gefunden"
 
+#: media_files/admin.py:2245 media_files/admin.py:2325
 msgid "Error: {}"
 msgstr "Fehler: {}"
 
+#: media_files/admin.py:2263
 msgid "Video file not found"
 msgstr "Videodatei nicht gefunden"
 
+#: media_files/admin.py:2341
 msgid "No PLAYOUT storage configured"
 msgstr "Kein PLAYOUT-Speicher konfiguriert"
 
+#: media_files/admin.py:2373
 msgid "Copy to playout storage"
 msgstr "In das Playout-Speicher verschieben"
 
+#: media_files/admin.py:2422
 msgid "Update metadata"
 msgstr "Metadaten aktualisieren"
 
+#: media_files/admin.py:2453
 msgid "Verify file integrity"
 msgstr "Dateiintegrität überprüfen"
 
+#: media_files/admin.py:2455
 msgid "Mark selected as primary version"
 msgstr "Ausgewählte als Hauptversion markieren"
 
+#: media_files/admin.py:2471
 msgid ""
 "Multiple videos selected for number {}. Please select only one per number."
 msgstr ""
-"Mehrere Videos für Nummer {} ausgewählt. Bitte wählen Sie nur eines pro Nummer aus."
+"Mehrere Videos für Nummer {} ausgewählt. Bitte wählen Sie nur eines pro "
+"Nummer aus."
 
+#: media_files/admin.py:2493
 msgid "Marked {} video(s) as primary version"
 msgstr "{} Video(s) als Hauptversion markiert"
 
+#: media_files/admin.py:2497
 msgid "Delete duplicate versions (keep best quality)"
 msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
 
+#: media_files/admin.py:2540
 #, fuzzy
 #| msgid "Delete duplicate versions (keep best quality)"
 msgid "Delete archive duplicate versions (keep best archive)"
 msgstr "Archiv-Duplikatversionen löschen (bestes Archiv behalten)"
 
+#: media_files/admin.py:2546 media_files/admin.py:2895
+#: media_files/admin.py:2943
 msgid ""
 "Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion "
 "to prevent data loss."
 msgstr ""
-"Löschen von Videos aus dem ARCHIV-Speicher ist nicht möglich. Archiv ist für das Löschen schreibgeschützt, um Datenverlust zu verhindern."
+"Löschen von Videos aus dem ARCHIV-Speicher ist nicht möglich. Archiv ist für "
+"das Löschen schreibgeschützt, um Datenverlust zu verhindern."
 
+#: media_files/admin.py:2581
 msgid "Deleted {} archive duplicate(s), kept {} archive primary version(s)."
 msgstr "{} Archiv-Duplikat(e) gelöscht, {} Archiv-Hauptversion(en) behalten."
 
+#: media_files/admin.py:2587 media_files/admin.py:2933
+#: media_files/admin.py:2981
 msgid "Skipped {} number(s) with no archive duplicates."
 msgstr "{} Nummer(n) übersprungen, keine Archiv-Duplikate vorhanden."
 
+#: media_files/admin.py:2591
 msgid "Preview archive cleanup (keep best archive)"
 msgstr "Vorschau Archivbereinigung (bestes Archiv behalten)"
 
+#: media_files/admin.py:2626
 msgid "Preview archive cleanup (keep newest archive)"
 msgstr "Vorschau Archivbereinigung (neueste Archivversion behalten)"
 
+#: media_files/admin.py:2661
 msgid "Preview archive cleanup (keep largest archive file)"
 msgstr "Vorschau Archivbereinigung (größte Archivdatei behalten)"
 
+#: media_files/admin.py:2751
 msgid "You do not have permission to delete videos."
 msgstr "Sie haben keine Berechtigung, Videos zu löschen."
 
+#: media_files/admin.py:2845
 #, python-format
 msgid ""
 "Force delete completed: deleted %(records)d record(s), deleted %(files)d "
 "file(s), affected %(numbers)d number(s)."
 msgstr ""
-"Erzwingtes Löschen abgeschlossen: %(records)d Datensatz/Datensätze gelöscht, %(files)d Datei(en) gelöscht, %(numbers)d Nummer(n) betroffen."
+"Erzwingtes Löschen abgeschlossen: %(records)d Datensatz/Datensätze gelöscht, "
+"%(files)d Datei(en) gelöscht, %(numbers)d Nummer(n) betroffen."
 
+#: media_files/admin.py:2855
 #, python-format
 msgid "Force delete encountered %(count)d error(s). Check logs for details."
-msgstr "Beim Erzwingen des Löschens sind %(count)d Fehler aufgetreten. Details finden Sie in den Protokollen."
+msgstr ""
+"Beim Erzwingen des Löschens sind %(count)d Fehler aufgetreten. Details "
+"finden Sie in den Protokollen."
 
+#: media_files/admin.py:2859
 msgid ""
 "Force delete archive duplicates (keep best archive) [requires confirmation]"
 msgstr ""
-"Archiv-Duplikate erzwingen löschen (bestes Archiv behalten) [benötigt Bestätigung]"
+"Archiv-Duplikate erzwingen löschen (bestes Archiv behalten) [benötigt "
+"Bestätigung]"
 
+#: media_files/admin.py:2866
 msgid "Force delete ARCHIVE duplicates (keep best archive)"
 msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (bestes Archiv behalten)"
 
+#: media_files/admin.py:2869
 msgid ""
 "Force delete archive duplicates (keep newest archive) [requires confirmation]"
 msgstr ""
-"Archiv-Duplikate erzwingen löschen (neueste Archivversion behalten) [benötigt Bestätigung]"
+"Archiv-Duplikate erzwingen löschen (neueste Archivversion behalten) "
+"[benötigt Bestätigung]"
 
+#: media_files/admin.py:2876
 msgid "Force delete ARCHIVE duplicates (keep newest archive)"
-msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (neueste Archivversion behalten)"
+msgstr ""
+"Erzwingtes Löschen von ARCHIV-Duplikaten (neueste Archivversion behalten)"
 
+#: media_files/admin.py:2879
 msgid ""
 "Force delete archive duplicates (keep largest archive file) [requires "
 "confirmation]"
 msgstr ""
-"Archiv-Duplikate erzwingen löschen (größte Archivdatei behalten) [benötigt Bestätigung]"
+"Archiv-Duplikate erzwingen löschen (größte Archivdatei behalten) [benötigt "
+"Bestätigung]"
 
+#: media_files/admin.py:2886
 msgid "Force delete ARCHIVE duplicates (keep largest archive file)"
 msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (größte Archivdatei behalten)"
 
+#: media_files/admin.py:2889
 msgid "Delete archive duplicate versions (keep newest archive)"
 msgstr "Archiv-Duplikatversionen löschen (neueste Archivversion behalten)"
 
+#: media_files/admin.py:2927
 msgid "Deleted {} archive duplicate(s), kept {} newest archive version(s)."
-msgstr "{} Archiv-Duplikat(e) gelöscht, {} neueste(r) Archivversion(en) behalten."
+msgstr ""
+"{} Archiv-Duplikat(e) gelöscht, {} neueste(r) Archivversion(en) behalten."
 
+#: media_files/admin.py:2937
 msgid "Delete archive duplicate versions (keep largest archive file)"
 msgstr "Archiv-Duplikatversionen löschen (größte Archivdatei behalten)"
 
+#: media_files/admin.py:2975
 msgid "Deleted {} archive duplicate(s), kept {} largest archive file(s)."
 msgstr "{} Archiv-Duplikat(e) gelöscht, {} größte Archivdatei(en) behalten."
 
+#: media_files/admin.py:2985
 msgid "Move to archive storage"
 msgstr "In Archivspeicher verschieben"
 
+#: media_files/admin.py:3038
 msgid "Cleanup records for files missing from disk"
 msgstr "Datensätze für auf dem Datenträger fehlende Dateien bereinigen"
 
+#: media_files/admin.py:3103
 msgid "Deleted {} record(s) for files missing from disk"
-msgstr "{} Datensatz/Datensätze für auf dem Datenträger fehlende Dateien gelöscht"
+msgstr ""
+"{} Datensatz/Datensätze für auf dem Datenträger fehlende Dateien gelöscht"
 
+#: media_files/admin.py:3115
 msgid ""
 "No files to check (all selected files are already marked as unavailable)"
 msgstr ""
-"Keine Dateien zu überprüfen (alle ausgewählten Dateien sind bereits als nicht verfügbar markiert)"
+"Keine Dateien zu überprüfen (alle ausgewählten Dateien sind bereits als "
+"nicht verfügbar markiert)"
 
+#: media_files/admin.py:3223
 msgid ""
 "Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion "
 "to prevent data loss. You can read and copy videos from archive, but "
 "deletion is disabled."
 msgstr ""
-"Videos können nicht aus dem ARCHIV-Speicher gelöscht werden. Das Archiv ist für das Löschen schreibgeschützt, um Datenverlust zu verhindern. Sie können Videos aus dem Archiv lesen und kopieren, aber das Löschen ist deaktiviert."
+"Videos können nicht aus dem ARCHIV-Speicher gelöscht werden. Das Archiv ist "
+"für das Löschen schreibgeschützt, um Datenverlust zu verhindern. Sie können "
+"Videos aus dem Archiv lesen und kopieren, aber das Löschen ist deaktiviert."
 
+#: media_files/admin.py:3316
 #, python-brace-format
 msgid "Video record deleted. Could not delete physical file: {error}"
 msgstr ""
 "Videoeintrag gelöscht. Physische Datei konnte nicht entfernt werden: {error}"
 
+#: media_files/admin.py:3322
 msgid ""
 "Video record deleted. Could not check file status (storage may be read-only)."
 msgstr ""
-"Videoeintrag gelöscht. Dateistatus konnte nicht geprüft werden (Speicher ist möglicherweise schreibgeschützt)."
+"Videoeintrag gelöscht. Dateistatus konnte nicht geprüft werden (Speicher ist "
+"möglicherweise schreibgeschützt)."
 
+#: media_files/admin.py:3328
 msgid "Video record and physical file deleted successfully."
 msgstr "Videoeintrag und physische Datei erfolgreich gelöscht."
 
+#: media_files/admin.py:3334
 msgid "Video record deleted (file was already removed from disk)"
 msgstr "Videoeintrag gelöscht (Datei war bereits vom Datenträger entfernt)"
 
+#: media_files/admin.py:3340
 msgid "Video record deleted."
 msgstr "Videoeintrag gelöscht."
 
+#: media_files/admin.py:3368
 #, python-format
 msgid ""
 "Cannot delete %(count)d video(s) from ARCHIVE storage. Archive is read-only "
 "for deletion to prevent data loss. You can read and copy videos from "
 "archive, but deletion is disabled."
 msgstr ""
-"%(count)d Video(s) können nicht aus dem ARCHIV-Speicher gelöscht werden. Das Archiv ist für das Löschen schreibgeschützt, um Datenverlust zu verhindern. Sie können Videos aus dem Archiv lesen und kopieren, aber das Löschen ist deaktiviert."
+"%(count)d Video(s) können nicht aus dem ARCHIV-Speicher gelöscht werden. Das "
+"Archiv ist für das Löschen schreibgeschützt, um Datenverlust zu verhindern. "
+"Sie können Videos aus dem Archiv lesen und kopieren, aber das Löschen ist "
+"deaktiviert."
 
+#: media_files/admin.py:3467
 msgid "Error deleting video {}: {}"
 msgstr "Fehler beim Löschen des Videos {}: {}"
 
+#: media_files/admin.py:3478
 msgid "Unexpected error during deletion: {}"
 msgstr "Unerwarteter Fehler beim Löschen: {}"
 
+#: media_files/admin.py:3486
 msgid ""
 "{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could "
 "not be deleted from disk."
 msgstr ""
-"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} Datei(en) konnten nicht vom Datenträger gelöscht werden."
+"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} "
+"Datei(en) konnten nicht vom Datenträger gelöscht werden."
 
+#: media_files/admin.py:3494
 msgid ""
 "{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could "
 "not be checked (storage may be read-only)."
 msgstr ""
-"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} Datei(en) konnten nicht überprüft werden (Speicher ist möglicherweise schreibgeschützt)."
+"{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} "
+"Datei(en) konnten nicht überprüft werden (Speicher ist möglicherweise "
+"schreibgeschützt)."
 
+#: media_files/admin.py:3502
 msgid "{} video record(s) deleted (files were already removed from disk)"
 msgstr ""
-"{} Videoeintrag/Einträge gelöscht (Dateien waren bereits vom Datenträger entfernt)"
+"{} Videoeintrag/Einträge gelöscht (Dateien waren bereits vom Datenträger "
+"entfernt)"
 
+#: media_files/admin.py:3508
 msgid "{} video record(s) and {} physical file(s) deleted successfully."
 msgstr ""
 "{} Videoeintrag/Einträge und {} physische Datei(en) erfolgreich gelöscht."
 
+#: media_files/admin.py:3514
 msgid "{} video record(s) deleted."
 msgstr "{} Videoeintrag/Einträge gelöscht."
 
+#: media_files/admin.py:3558
 msgid "Execution"
 msgstr "Ausführung"
 
+#: media_files/admin.py:3561 media_files/models.py:613
 msgid "Details"
 msgstr "Details"
 
+#: media_files/admin.py:3586 media_files/admin.py:3587
 msgid "🎛️ System Management"
 msgstr "🎛️ Systemverwaltung"
 
+#: media_files/admin_commands.py:51
 msgid "Permission denied"
 msgstr "Zugriff verweigert"
 
+#: media_files/admin_commands.py:167
 msgid "Unknown command"
 msgstr "Unbekannter Befehl"
 
+#: media_files/admin_commands.py:179
 msgid "Task queued successfully"
 msgstr "Aufgabe erfolgreich in die Warteschlange gestellt"
 
+#: media_files/admin_commands.py:182
 msgid ""
 "The command is running in the background. Check task results for progress."
 msgstr ""
-"Der Befehl läuft im Hintergrund. Überprüfen Sie die Aufgabenergebnisse für den Fortschritt."
+"Der Befehl läuft im Hintergrund. Überprüfen Sie die Aufgabenergebnisse für "
+"den Fortschritt."
 
+#: media_files/admin_commands.py:194
 msgid "Error queueing task"
 msgstr "Fehler beim Einreihen der Aufgabe"
 
+#: media_files/admin_commands.py:203
+#: media_files/templates/admin/system_management.html:419
 msgid "System Management"
 msgstr "Systemverwaltung"
 
+#: media_files/apps.py:12
 msgid "Media Files"
 msgstr "Mediendateien"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:21
 msgid ""
 "Delete rendered/preview VideoFile records (optionally delete physical files)."
 msgstr ""
-"Gerenderte/Vorschau-VideoFile-Datensätze löschen (optional auch physische Dateien löschen)."
+"Gerenderte/Vorschau-VideoFile-Datensätze löschen (optional auch physische "
+"Dateien löschen)."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:27
 msgid "Only delete rendered records for this video number."
 msgstr "Nur gerenderte Einträge für diese Videonummer löschen."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:32
 msgid "Only delete records in this StorageLocation ID."
 msgstr "Nur Einträge mit dieser StorageLocation-ID löschen."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:37
 msgid "Only delete records in StorageLocation with this exact name."
 msgstr "Nur Einträge in StorageLocation mit genau diesem Namen löschen."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:42
 msgid "Only delete preview outputs (file_path contains '__preview__')."
 msgstr "Nur Vorschau-Ausgaben löschen (file_path enthält '__preview__')."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:47
 msgid "Only delete records under rendered/<style>/... (matches substring)."
-msgstr "Nur Einträge unter rendered/<style>/... löschen (Teilstring-Vergleich)."
+msgstr ""
+"Nur Einträge unter rendered/<style>/... löschen (Teilstring-Vergleich)."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:52
 msgid ""
 "Only delete records under rendered/.../<encode>/... (matches substring)."
-msgstr "Nur Einträge unter rendered/.../<encode>/... löschen (Teilstring-Vergleich)."
+msgstr ""
+"Nur Einträge unter rendered/.../<encode>/... löschen (Teilstring-Vergleich)."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:57
 msgid "Also delete physical files from disk when they exist."
 msgstr "Vorhandene physische Dateien vom Datenträger ebenfalls löschen."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:63
 msgid "How many records to print in dry-run preview (default: 25)."
-msgstr "Wie viele Einträge in der Vorschau im Testlauf angezeigt werden (Standard: 25)."
+msgstr ""
+"Wie viele Einträge in der Vorschau im Testlauf angezeigt werden (Standard: "
+"25)."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:68
+#: media_files/management/commands/purge_videofile_records.py:89
 msgid "Actually delete records. Without this flag, runs in dry-run mode."
 msgstr ""
 "Einträge tatsächlich löschen. Ohne diese Option wird ein Testlauf "
 "durchgeführt."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:88
+#: media_files/management/commands/purge_videofile_records.py:117
 msgid "No storage locations match the provided filter(s)."
 msgstr "Keine Speicherorte entsprechen den angegebenen Filtern."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:103
 msgid "Rendered VideoFile deletion summary"
 msgstr "Zusammenfassung der Löschung gerenderter VideoFiles"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:104
 msgid "Matched rendered VideoFile records: {}"
 msgstr "Gefundene gerenderte VideoFile-Beiträge: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:106
 msgid "Mode: preview only"
 msgstr "Modus: Nur Vorschau"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:108
 msgid "Number filter: {}"
 msgstr "Nummernfilter: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:110
+#: media_files/management/commands/purge_videofile_records.py:130
 msgid "Storage id filter: {}"
 msgstr "Speicher-ID-Filter: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:112
+#: media_files/management/commands/purge_videofile_records.py:132
 msgid "Storage name filter: {}"
 msgstr "Speicher-Namen-Filter: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:114
 msgid "Style filter: {}"
 msgstr "Stilfilter: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:116
 msgid "Encode filter: {}"
 msgstr "Encode-Filter: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:118
 msgid "Physical file deletion: enabled"
 msgstr "Löschen physischer Dateien: aktiviert"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:121
+#: media_files/management/commands/purge_videofile_records.py:142
 msgid "DRY RUN - no changes will be made (pass --yes to apply)."
 msgstr ""
 "TESTLAUF – Es werden keine Änderungen vorgenommen (mit --yes genehmigen)."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:123
+#: media_files/management/commands/purge_videofile_records.py:144
 msgid "Preview (newest first):"
 msgstr "Vorschau (neueste zuerst):"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:136
+#: media_files/management/commands/purge_videofile_records.py:160
 msgid "Nothing to delete."
 msgstr "Nichts zu löschen."
 
+#: media_files/management/commands/delete_rendered_videofiles.py:162
+#: media_files/management/commands/purge_videofile_records.py:178
 msgid "Deleted VideoFile records: {}"
 msgstr "Gelöschte VideoFile-Beiträge: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:164
 msgid "Deleted files from disk: {}"
 msgstr "Gelöschte Dateien vom Datenträger: {}"
 
+#: media_files/management/commands/delete_rendered_videofiles.py:166
 msgid "Failed to delete files: {}"
 msgstr "Fehler beim Löschen der Dateien: {}"
 
+#: media_files/management/commands/purge_videofile_records.py:37
 msgid ""
 "Purge VideoFile database records without deleting any physical video files."
 msgstr ""
 "VideoFile-Datenbankbeiträge bereinigen, ohne physische Videodateien zu "
 "löschen."
 
+#: media_files/management/commands/purge_videofile_records.py:44
 msgid "Only purge records from this storage location ID."
 msgstr "Nur Beiträge mit dieser StorageLocation-ID bereinigen."
 
+#: media_files/management/commands/purge_videofile_records.py:49
 msgid "Only purge records from storage locations with this exact name."
 msgstr "Nur Beiträge aus StorageLocations mit genau diesem Namen bereinigen."
 
+#: media_files/management/commands/purge_videofile_records.py:54
 msgid "Only purge records from storages of this type."
 msgstr "Nur Beiträge aus Speicher dieses Typs bereinigen."
 
+#: media_files/management/commands/purge_videofile_records.py:59
 msgid "Only purge records currently marked as available."
 msgstr "Nur Beiträge bereinigen, die aktuell als verfügbar markiert sind."
 
+#: media_files/management/commands/purge_videofile_records.py:64
 msgid "Only purge records currently marked as unavailable."
 msgstr ""
 "Nur Beiträge bereinigen, die aktuell als nicht verfügbar markiert sind."
 
+#: media_files/management/commands/purge_videofile_records.py:70
 msgid "How many records to print in dry-run preview (default: 20)."
 msgstr ""
 "Wie viele Beiträge in der Vorschau im Testlauf angezeigt werden (Standard: "
 "20)."
 
+#: media_files/management/commands/purge_videofile_records.py:76
 msgid "Delete in chunks of N rows (default: 2000)."
 msgstr "In Blöcken zu N Beiträgen löschen (Standard: 2000)."
 
+#: media_files/management/commands/purge_videofile_records.py:82
 msgid ""
 "Keep the pre_delete logging signal enabled (slower). By default, deletion "
 "logging is disabled during purge."
@@ -723,45 +1015,59 @@ msgstr ""
 "Das pre_delete-Logging-Signal aktiviert lassen (langsamer). Standardmäßig "
 "ist das Lösch-Logging beim Bereinigen deaktiviert."
 
+#: media_files/management/commands/purge_videofile_records.py:104
 msgid "Use only one of --only-available / --only-unavailable."
 msgstr ""
 "Nur eine der Optionen --only-available oder --only-unavailable verwenden."
 
+#: media_files/management/commands/purge_videofile_records.py:106
 msgid "--chunk-size must be a positive integer."
 msgstr "--chunk-size muss eine positive ganze Zahl sein."
 
+#: media_files/management/commands/purge_videofile_records.py:128
 msgid "VideoFile purge summary"
 msgstr "Zusammenfassung der VideoFile-Bereinigung"
 
+#: media_files/management/commands/purge_videofile_records.py:134
 msgid "Storage type filter: {}"
 msgstr "Speichertyp-Filter: {}"
 
+#: media_files/management/commands/purge_videofile_records.py:136
 msgid "Availability filter: available only"
 msgstr "Verfügbarkeits-Filter: nur verfügbar"
 
+#: media_files/management/commands/purge_videofile_records.py:138
 msgid "Availability filter: unavailable only"
 msgstr "Verfügbarkeits-Filter: nur nicht verfügbar"
 
+#: media_files/management/commands/purge_videofile_records.py:139
 msgid "Matched VideoFile records: {}"
 msgstr "Gefundene VideoFile-Beiträge: {}"
 
+#: media_files/management/commands/render_video_preset.py:113
+#: media_files/management/commands/render_video_preset.py:126
 msgid "Could not find a free output filename (too many collisions)."
 msgstr "Konnte keinen freien Ausgabedateinamen finden (zu viele Kollisionen)."
 
+#: media_files/management/commands/render_video_preset.py:135
 msgid "Source VideoFile ID to render"
 msgstr "Quell-VideoFile-ID für das Rendern"
 
+#: media_files/management/commands/render_video_preset.py:139
 msgid "License number (will pick the best available VideoFile by that number)"
 msgstr ""
-"Freistellungsnummer (es wird der beste verfügbare VideoFile-Beitrag mit dieser "
-"Nummer ausgewählt)"
+"Freistellungsnummer (es wird der beste verfügbare VideoFile-Beitrag mit "
+"dieser Nummer ausgewählt)"
 
+#: media_files/management/commands/render_video_preset.py:141
 msgid "Style preset name"
 msgstr "Name des Stil-Presets"
 
+#: media_files/management/commands/render_video_preset.py:142
 msgid "Encoding preset name"
 msgstr "Name des Encoding-Presets"
 
+#: media_files/management/commands/render_video_preset.py:146
 msgid ""
 "Render a fast preview: first N seconds + last N seconds only (no full-length "
 "transcode)"
@@ -769,483 +1075,693 @@ msgstr ""
 "Schnelle Vorschau rendern: nur die ersten N Sekunden + die letzten N "
 "Sekunden (kein vollständiges Transkodieren)"
 
+#: media_files/management/commands/render_video_preset.py:152
 msgid "Preview seconds for start and end (default: 5.0)"
 msgstr "Vorschau-Sekunden für Anfang und Ende (Standard: 5.0)"
 
+#: media_files/management/commands/render_video_preset.py:157
 msgid "Print what would be done without rendering or writing anything"
 msgstr "Anzeigen, was gemacht würde, ohne zu rendern oder etwas zu schreiben"
 
+#: media_files/management/commands/render_video_preset.py:162
 msgid "Path to intro clip (overrides preset intro_clip)"
 msgstr "Pfad zum Intro-Clip (überschreibt das intro_clip Preset)"
 
+#: media_files/management/commands/render_video_preset.py:167
 msgid "Path to outro clip (overrides preset outro_clip)"
 msgstr "Pfad zum Outro-Clip (überschreibt das outro_clip Preset)"
 
+#: media_files/management/commands/render_video_preset.py:175
 msgid ""
 "Video overlay rendering is disabled. Enable it in Media Files Configuration."
 msgstr ""
-"Video-Overlay-Rendering ist deaktiviert. Aktivieren Sie dies in der Mediendateien-Konfiguration."
+"Video-Overlay-Rendering ist deaktiviert. Aktivieren Sie dies in der "
+"Mediendateien-Konfiguration."
 
+#: media_files/management/commands/render_video_preset.py:188
 msgid "Specify --video-id or --license-number."
 msgstr "Bitte --video-id oder --freistellungsnummer angeben."
 
+#: media_files/management/commands/render_video_preset.py:190
 msgid "Provide only one: --video-id OR --license-number."
 msgstr "Bitte nur eines angeben: --video-id ODER --freistellungsnummer."
 
+#: media_files/management/commands/render_video_preset.py:196
 #, python-brace-format
 msgid "VideoFile with id {id} not found."
 msgstr "VideoFile mit der ID {id} wurde nicht gefunden."
 
+#: media_files/management/commands/render_video_preset.py:201
 #, python-brace-format
 msgid "No available VideoFile found for license number {n}."
-msgstr "Kein verfügbarer VideoFile-Beitrag für Freistellungsnummer {n} gefunden."
+msgstr ""
+"Kein verfügbarer VideoFile-Beitrag für Freistellungsnummer {n} gefunden."
 
+#: media_files/management/commands/render_video_preset.py:207
 #, python-brace-format
 msgid "No License found for video number {n}."
 msgstr "Keine Freistellung für Videonummer {n} gefunden."
 
+#: media_files/management/commands/render_video_preset.py:249
 #, python-brace-format
 msgid "Source: {src}"
 msgstr "Quelle: {src}"
 
+#: media_files/management/commands/render_video_preset.py:252
 #, python-brace-format
 msgid "Output: {dst}"
 msgstr "Ausgabe: {dst}"
 
+#: media_files/management/commands/render_video_preset.py:256
 msgid "Dry-run: nothing was rendered."
 msgstr "Testlauf: Es wurde nichts gerendert."
 
+#: media_files/management/commands/render_video_preset.py:327
 msgid "Rendered successfully."
 msgstr "Erfolgreich gerendert."
 
+#: media_files/management/commands/render_video_preset.py:328
 #, python-brace-format
 msgid "New VideoFile id: {id}"
 msgstr "Neue VideoFile-ID: {id}"
 
+#: media_files/models.py:14
+#: media_files/templates/admin/media_files/preset_editor.html:872
 msgid "None"
 msgstr "Keine"
 
+#: media_files/models.py:15
+#: media_files/templates/admin/media_files/preset_editor.html:873
 msgid "Fade"
 msgstr "Einblenden"
 
+#: media_files/models.py:16
+#: media_files/templates/admin/media_files/preset_editor.html:874
 msgid "Slide Up"
 msgstr "Nach oben schieben"
 
+#: media_files/models.py:17
+#: media_files/templates/admin/media_files/preset_editor.html:875
 msgid "Slide Left"
 msgstr "Nach links schieben"
 
+#: media_files/models.py:18
+#: media_files/templates/admin/media_files/preset_editor.html:876
 msgid "Slide Right"
 msgstr "Nach rechts schieben"
 
+#: media_files/models.py:19
+#: media_files/templates/admin/media_files/preset_editor.html:877
 msgid "Slide Down"
 msgstr "Nach unten schieben"
 
+#: media_files/models.py:20
 msgid "Zoom In"
 msgstr "Hineinzoomen"
 
+#: media_files/models.py:21
 msgid "Zoom Out"
 msgstr "Herauszoomen"
 
+#: media_files/models.py:25
+#: media_files/templates/admin/media_files/preset_editor.html:761
 msgid "Text"
 msgstr "Text"
 
+#: media_files/models.py:26
+#: media_files/templates/admin/media_files/preset_editor.html:762
+#: media_files/templates/admin/media_files/preset_editor.html:814
 msgid "Image"
 msgstr "Bild"
 
+#: media_files/models.py:30 media_files/models.py:49
+#: media_files/templates/admin/media_files/preset_editor.html:837
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
+#: media_files/models.py:31
+#: media_files/templates/admin/media_files/preset_editor.html:838
 msgid "Center"
 msgstr "Zentriert"
 
+#: media_files/models.py:32
+#: media_files/templates/admin/media_files/preset_editor.html:839
 msgid "Top Left"
 msgstr "Oben links"
 
+#: media_files/models.py:33
+#: media_files/templates/admin/media_files/preset_editor.html:840
 msgid "Top Center"
 msgstr "Oben mittig"
 
+#: media_files/models.py:34
+#: media_files/templates/admin/media_files/preset_editor.html:841
 msgid "Top Right"
 msgstr "Oben rechts"
 
+#: media_files/models.py:35
+#: media_files/templates/admin/media_files/preset_editor.html:842
 msgid "Bottom Left"
 msgstr "Unten links"
 
+#: media_files/models.py:36
+#: media_files/templates/admin/media_files/preset_editor.html:843
 msgid "Bottom Center"
 msgstr "Unten mittig"
 
+#: media_files/models.py:37
+#: media_files/templates/admin/media_files/preset_editor.html:844
 msgid "Bottom Right"
 msgstr "Unten rechts"
 
+#: media_files/models.py:38
+#: media_files/templates/admin/media_files/preset_editor.html:845
 msgid "Lower Third Left"
 msgstr "Links im unteren Drittel"
 
+#: media_files/models.py:39
+#: media_files/templates/admin/media_files/preset_editor.html:846
 msgid "Lower Third Right"
 msgstr "Rechts im unteren Drittel"
 
+#: media_files/models.py:47
 msgid "Archive"
 msgstr "Archiv"
 
+#: media_files/models.py:48
 msgid "Playout"
 msgstr "Playout"
 
+#: media_files/models.py:54
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:178
 msgid "Name"
 msgstr "Name"
 
+#: media_files/models.py:55
 msgid "Display name for this storage location"
 msgstr "Anzeigename für diesen Speicherort"
 
+#: media_files/models.py:61
+#: media_files/templates/admin/system_management.html:499
+#: media_files/templates/admin/system_management.html:915
+#: media_files/templates/admin/system_management.html:947
 msgid "Storage Type"
 msgstr "Speichertyp"
 
+#: media_files/models.py:65
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:179
 msgid "Path"
 msgstr "Pfad"
 
+#: media_files/models.py:66
 msgid "Absolute path to the storage directory (e.g., /mnt/archive/)"
 msgstr "Absoluter Pfad zum Speicherverzeichnis (z. B. /mnt/archive/)"
 
+#: media_files/models.py:71
+#: media_files/templates/admin/media_files/videofile/change_form.html:107
 msgid "UNC Path"
 msgstr "UNC-Pfad"
 
+#: media_files/models.py:72
 msgid "Windows UNC path (e.g., \\\\192.168.88.2\\Share) - optional"
 msgstr "Windows-UNC-Pfad (z. B. \\\\192.168.88.2\\Share) – optional"
 
+#: media_files/models.py:76
 msgid "Active"
 msgstr "Aktiv"
 
+#: media_files/models.py:77
 msgid "Whether this storage location is currently active"
 msgstr "Gibt an, ob dieser Speicherort aktuell aktiv ist"
 
+#: media_files/models.py:81
 msgid "Scan Enabled"
 msgstr "Scan aktiviert"
 
+#: media_files/models.py:82
 msgid "Enable automatic scanning of this location"
 msgstr "Automatisches Scannen dieses Speicherorts aktivieren"
 
+#: media_files/models.py:87
 msgid "Scan Schedule"
 msgstr "Scan-Zeitplan"
 
+#: media_files/models.py:88
 msgid "Cron-style schedule for automatic scanning (optional)"
 msgstr "Zeitplan im Cron-Stil für automatisches Scannen (optional)"
 
+#: media_files/models.py:96
 msgid "Updated at"
 msgstr "Aktualisiert am"
 
+#: media_files/models.py:102 media_files/models.py:153
+#: media_files/templates/admin/system_management.html:531
 msgid "Storage Location"
 msgstr "Speicherort"
 
+#: media_files/models.py:103
 msgid "Storage Locations"
 msgstr "Speicherorte"
 
+#: media_files/models.py:113
 msgid "Path cannot be empty"
 msgstr "Pfad darf nicht leer sein"
 
+#: media_files/models.py:126
 #, python-brace-format
 msgid ""
 "A storage location with this path already exists: \"{name}\" (ID {id}). "
 "Please use the existing storage location or choose a different path."
 msgstr ""
 "Ein Speicherort mit diesem Pfad existiert bereits: \"{name}\" (ID {id}). "
-"Bitte benutzen Sie den bestehenden Speicherort oder wählen Sie einen anderen Pfad."
+"Bitte benutzen Sie den bestehenden Speicherort oder wählen Sie einen anderen "
+"Pfad."
 
+#: media_files/models.py:142
+#: media_files/templates/admin/media_files/videofile/change_form.html:71
+#: media_files/templates/admin/media_files/videofile/change_list.html:77
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:48
+#: media_files/templates/admin/video_player.html:24
 msgid "Number"
 msgstr "Nummer"
 
+#: media_files/models.py:144
 msgid ""
 "Identification number matching License number (unique per storage location)"
 msgstr ""
-"Identifikationsnummer entsprechend der Freistellungsnummer (einzigartig pro Speicherort)"
+"Identifikationsnummer entsprechend der Freistellungsnummer (einzigartig pro "
+"Speicherort)"
 
+#: media_files/models.py:148
 msgid "Filename"
 msgstr "Dateiname"
 
+#: media_files/models.py:157
+#: media_files/templates/admin/media_files/videofile/change_form.html:102
 msgid "File Path"
 msgstr "Dateipfad"
 
+#: media_files/models.py:158
 msgid "Relative path within the storage location"
 msgstr "Relativer Pfad innerhalb des Speicherorts"
 
+#: media_files/models.py:163
 msgid "File Size (bytes)"
 msgstr "Dateigröße (Bytes)"
 
+#: media_files/models.py:173
 msgid "Format"
 msgstr "Format"
 
+#: media_files/models.py:174
 msgid "Container format (mp4, mov, mxf, etc.)"
 msgstr "Containerformat (mp4, mov, mxf usw.)"
 
+#: media_files/models.py:178
 msgid "Available"
 msgstr "Verfügbar"
 
+#: media_files/models.py:179
 msgid "Whether the file is physically accessible"
 msgstr "Ob die Datei physisch zugänglich ist"
 
+#: media_files/models.py:183
 msgid "Manual Primary"
 msgstr "Manuell als Hauptversion"
 
+#: media_files/models.py:184
 msgid "Manually marked as primary version (overrides automatic selection)"
 msgstr "Manuell als Hauptversion markiert (überschreibt automatische Auswahl)"
 
+#: media_files/models.py:188
+#, fuzzy
+#| msgid "Primary versions"
+msgid "Preview version"
+msgstr "Primärversionen"
+
+#: media_files/models.py:189
+msgid ""
+"Short preview clip (e.g. 10s); not a full version, not linked to license"
+msgstr ""
+
+#: media_files/models.py:206
 msgid "Last Scanned"
 msgstr "Zuletzt gescannt"
 
+#: media_files/models.py:211
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
+#: media_files/models.py:216
 msgid "Checksum (SHA256)"
 msgstr "Prüfsumme (SHA256)"
 
+#: media_files/models.py:223
 msgid "Video Codec"
 msgstr "Video-Codec"
 
+#: media_files/models.py:228
 msgid "Video Codec (Long)"
 msgstr "Video-Codec (Langform)"
 
+#: media_files/models.py:233
 msgid "Video Profile"
 msgstr "Video-Profil"
 
+#: media_files/models.py:238
 msgid "Video Bitrate (bps)"
 msgstr "Video-Bitrate (bps)"
 
+#: media_files/models.py:243
 msgid "Bitrate Mode"
 msgstr "Bitratenmodus"
 
+#: media_files/models.py:253
+#: media_files/templates/admin/media_files/preset_editor.html:820
 msgid "Width"
 msgstr "Breite"
 
+#: media_files/models.py:258
+#: media_files/templates/admin/media_files/preset_editor.html:824
 msgid "Height"
 msgstr "Höhe"
 
+#: media_files/models.py:263
 msgid "Aspect Ratio"
 msgstr "Seitenverhältnis"
 
+#: media_files/models.py:268
 msgid "Pixel Format"
 msgstr "Pixelformat"
 
+#: media_files/models.py:273
 msgid "Color Space"
 msgstr "Farbraum"
 
+#: media_files/models.py:278
 msgid "Color Range"
 msgstr "Farbbereich"
 
+#: media_files/models.py:283
 msgid "Chroma Subsampling"
 msgstr "Chroma-Sampling"
 
+#: media_files/models.py:290
 msgid "Audio Codec"
 msgstr "Audio-Codec"
 
+#: media_files/models.py:295
 msgid "Audio Codec (Long)"
 msgstr "Audio-Codec (Langform)"
 
+#: media_files/models.py:300
 msgid "Audio Bitrate (bps)"
 msgstr "Audio-Bitrate (bps)"
 
+#: media_files/models.py:305
 msgid "Audio Sample Rate (Hz)"
 msgstr "Audio-Abtastrate (Hz)"
 
+#: media_files/models.py:310
 msgid "Audio Channels"
 msgstr "Audiokanäle"
 
+#: media_files/models.py:315
 msgid "Audio Channel Layout"
 msgstr "Audiokanal-Anordnung"
 
+#: media_files/models.py:321
 msgid "Has Video"
 msgstr "Hat Video"
 
+#: media_files/models.py:325
 msgid "Has Audio"
 msgstr "Hat Audio"
 
+#: media_files/models.py:330
 msgid "Total Bitrate (bps)"
 msgstr "Gesamte Bitrate (bps)"
 
+#: media_files/models.py:335
 msgid "Full Metadata (JSON)"
 msgstr "Vollständige Metadaten (JSON)"
 
+#: media_files/models.py:336
 msgid "Complete ffprobe output for extensibility"
 msgstr "Vollständige ffprobe-Ausgabe für Erweiterbarkeit"
 
+#: media_files/models.py:341
 msgid "Thumbnail Path"
 msgstr "Pfad zum Vorschaubild"
 
+#: media_files/models.py:342
 msgid "Path to preview image"
 msgstr "Pfad zum Vorschaubild"
 
+#: media_files/models.py:354 media_files/models.py:566
 msgid "Video File"
 msgstr "Videodatei"
 
+#: media_files/models.py:355
+#: media_files/templates/media_files/render_video_admin.html:398
 msgid "Video Files"
 msgstr "Videodateien"
 
+#: media_files/models.py:533
 msgid ""
 "This video uses H.265/HEVC codec which is not supported by Chrome, Firefox, "
 "and Edge. Only audio will play. Use Safari, or transcode to H.264."
 msgstr ""
-"Dieses Video verwendet den H.265/HEVC-Codec, der von Chrome, Firefox und Edge nicht unterstützt wird. Es wird nur der Ton abgespielt. Benutzen Sie Safari oder transkodieren Sie auf H.264."
+"Dieses Video verwendet den H.265/HEVC-Codec, der von Chrome, Firefox und "
+"Edge nicht unterstützt wird. Es wird nur der Ton abgespielt. Benutzen Sie "
+"Safari oder transkodieren Sie auf H.264."
 
+#: media_files/models.py:539
 msgid "Consider transcoding to H.264 for better compatibility."
 msgstr "Transkodieren Sie auf H.264 für bessere Kompatibilität."
 
+#: media_files/models.py:547
 msgid "Scan"
 msgstr "Scannen"
 
+#: media_files/models.py:548
 msgid "Copy"
 msgstr "Kopieren"
 
+#: media_files/models.py:549
 msgid "Move"
 msgstr "Verschieben"
 
+#: media_files/models.py:550
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:50
 msgid "Delete"
 msgstr "Löschen"
 
+#: media_files/models.py:551
 msgid "Metadata Update"
 msgstr "Metadatenaktualisierung"
 
+#: media_files/models.py:552
 msgid "Verify Integrity"
 msgstr "Integrität überprüfen"
 
+#: media_files/models.py:553
 msgid "Render"
 msgstr "Rendern"
 
+#: media_files/models.py:557
 msgid "Success"
 msgstr "Erfolgreich"
 
+#: media_files/models.py:558
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
+#: media_files/models.py:559
 msgid "In Progress"
 msgstr "In Bearbeitung"
 
+#: media_files/models.py:571
 msgid "Operation Type"
 msgstr "Operationstyp"
 
+#: media_files/models.py:579
 msgid "Source Location"
 msgstr "Quellort"
 
+#: media_files/models.py:587
 msgid "Destination Location"
 msgstr "Zielort"
 
+#: media_files/models.py:594
 msgid "Performed By"
 msgstr "Durchgeführt von"
 
+#: media_files/models.py:598
 msgid "Performed At"
 msgstr "Durchgeführt am"
 
+#: media_files/models.py:604
 msgid "Status"
 msgstr "Status"
 
+#: media_files/models.py:608
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
+#: media_files/models.py:614
 msgid "Additional operation details"
 msgstr "Zusätzliche Operationsdetails"
 
+#: media_files/models.py:620
 msgid "File Operation"
 msgstr "Dateioperation"
 
+#: media_files/models.py:621
 msgid "File Operations"
 msgstr "Dateioperationen"
 
+#: media_files/models.py:637
 msgid "Overlay Rendering Enabled"
 msgstr "Overlay-Rendering aktiviert"
 
+#: media_files/models.py:638
 msgid "Enable video overlay rendering features (text overlays)"
 msgstr "Video-Overlay-Rendering-Funktionen aktivieren (Text-Overlays)"
 
+#: media_files/models.py:644
 msgid "Auto Copy on Schedule"
 msgstr "Automatisch kopieren bei Planung"
 
+#: media_files/models.py:645
 msgid "Automatically copy videos when saving broadcast plans"
 msgstr "Videos automatisch kopieren beim Speichern von Sendeplänen"
 
+#: media_files/models.py:650
 msgid "Auto Copy to Archive"
 msgstr "Automatisch ins Archiv kopieren"
 
+#: media_files/models.py:651
 msgid "Automatically copy videos to archive storage when planning"
 msgstr "Videos beim Planen automatisch in den Archivspeicher kopieren"
 
+#: media_files/models.py:656
 msgid "Auto Copy to Playout"
 msgstr "Automatisch ins Playout kopieren"
 
+#: media_files/models.py:657
 msgid "Automatically copy videos to playout storage when planning"
 msgstr "Videos beim Planen automatisch in den Playout-Speicher kopieren"
 
+#: media_files/models.py:663
 msgid "Use Weekly Folders"
 msgstr "Wöchentliche Ordner verwenden"
 
+#: media_files/models.py:664
 msgid "Use weekly folders (YYYY_KW_WW format) in playout storage"
 msgstr "Wöchentliche Ordner (Format YYYY_KW_WW) im Playout-Speicher verwenden"
 
+#: media_files/models.py:670
 msgid "Archive Protected"
 msgstr "Archiv geschützt"
 
+#: media_files/models.py:671
 msgid "Protect ARCHIVE storage from deletion (read-only access)"
 msgstr "ARCHIVE-Speicher vor Löschung schützen (nur Lesezugriff)"
 
+#: media_files/models.py:678
 msgid "Source Preference Custom Days"
 msgstr "Benutzerdefinierte Tage für Quellpräferenz"
 
+#: media_files/models.py:679
 msgid "Number of days to consider CUSTOM storage files as \"recent\""
 msgstr "Anzahl der Tage, für die CUSTOM-Speicherdateien als \"aktuell\" gelten"
 
+#: media_files/models.py:687
 msgid "Default Playout Storage Name"
 msgstr "Standard-Playout-Speichername"
 
+#: media_files/models.py:688
 msgid "Default playout storage name (auto-detected if empty)"
 msgstr "Standard-Playout-Speichername (automatisch erkannt, wenn leer)"
 
+#: media_files/models.py:694
 msgid "Default Playout Storage Path"
 msgstr "Standard-Playout-Speicherpfad"
 
+#: media_files/models.py:695
 msgid "Default playout storage path (auto-detected if empty)"
 msgstr "Standard-Playout-Speicherpfad (automatisch erkannt, wenn leer)"
 
+#: media_files/models.py:701
 msgid "Auto Delete from Custom"
 msgstr "Automatisches Löschen aus Custom"
 
+#: media_files/models.py:702
 msgid "Auto-delete videos from CUSTOM storage after successful copy"
-msgstr "Videos nach erfolgreichem Kopieren automatisch aus dem CUSTOM-Speicher löschen"
+msgstr ""
+"Videos nach erfolgreichem Kopieren automatisch aus dem CUSTOM-Speicher "
+"löschen"
 
+#: media_files/models.py:708
 msgid "Copy Verify Checksum"
 msgstr "Prüfsumme beim Kopieren verifizieren"
 
+#: media_files/models.py:709
 msgid "Verify checksum during video copy operations (SHA256)"
 msgstr "Prüfsumme während Videokopiervorgängen verifizieren (SHA256)"
 
+#: media_files/models.py:715
 msgid "Copy Use MD5 for Archive"
 msgstr "MD5 für Archiv beim Kopieren verwenden"
 
+#: media_files/models.py:716
 msgid "Use faster MD5 checksum for ARCHIVE sources instead of SHA256"
-msgstr "Schnellere MD5-Prüfsumme für ARCHIVE-Quellen anstelle von SHA256 verwenden"
+msgstr ""
+"Schnellere MD5-Prüfsumme für ARCHIVE-Quellen anstelle von SHA256 verwenden"
 
+#: media_files/models.py:723
 msgid "Supported Video Formats"
 msgstr "Unterstützte Videoformate"
 
+#: media_files/models.py:724
 msgid ""
 "Comma-separated list of supported video file extensions (e.g., "
 "mp4,mov,mpeg,mpg)"
 msgstr ""
-"Kommagetrennte Liste der unterstützten Video-Dateierweiterungen (z. B. mp4, mov, mpeg, mpg)"
+"Kommagetrennte Liste der unterstützten Video-Dateierweiterungen (z. B. mp4, "
+"mov, mpeg, mpg)"
 
+#: media_files/models.py:730
 msgid "Auto Transcode HEVC"
 msgstr "HEVC automatisch transkodieren"
 
+#: media_files/models.py:731
 msgid ""
 "Automatically transcode HEVC/H.265 videos to H.264 for browser playback "
 "compatibility"
-msgstr "HEVC/H.265-Videos automatisch in H.264 für Browserkompatibilität transkodieren"
+msgstr ""
+"HEVC/H.265-Videos automatisch in H.264 für Browserkompatibilität "
+"transkodieren"
 
+#: media_files/models.py:739
 #, fuzzy
 #| msgid "Video Encode Preset"
 msgid "Transcode Encoding Preset"
 msgstr "Transkodierungs-Preset"
 
+#: media_files/models.py:740
 #, fuzzy
 #| msgid "Unique name for this encoding preset (e.g., \"1080p25_9000k\")"
 msgid "Default encoding preset for transcoding (e.g., \"1080p25_9000k\")"
 msgstr "Standard-Encoding-Preset für Transkodierung (z. B. \"1080p25_9000k\")"
 
+#: media_files/models.py:744 media_files/models.py:745
+#: media_files/models.py:749
 msgid "Media Files Configuration"
 msgstr "Mediendateien-Konfiguration"
 
+#: media_files/rendering/ffmpeg.py:41
 #, python-brace-format
 msgid ""
 "ffmpeg failed (exit {code}). Command: {cmd}\n"
@@ -1258,261 +1774,381 @@ msgstr ""
 "stderr:\n"
 "{stderr}"
 
+#: media_files/rendering/ffmpeg.py:222
 msgid "Image overlay layer missing 'path'."
 msgstr "Bei der Bild-Overlay-Ebene fehlt der 'Pfad'."
 
+#: media_files/rendering/ffmpeg.py:227
 #, python-brace-format
 msgid "Image asset file not found: {path}"
 msgstr "Bilddatei nicht gefunden: {path}"
 
+#: media_files/rendering/ffmpeg.py:298
 msgid "Text overlay layer missing 'template'."
 msgstr "Bei der Text-Overlay-Ebene fehlt 'Vorlage'."
 
+#: media_files/rendering/ffmpeg.py:535
 #, python-brace-format
 msgid ""
 "Failed to load font for PNG text rendering. Tried '{primary}' and fallbacks. "
 "Error: {err}"
 msgstr ""
-"Fehler beim Laden der Schriftart für PNG-Textrendering. Versucht '{primary}' und Fallbacks. Fehler: {err}"
+"Fehler beim Laden der Schriftart für PNG-Textrendering. Versucht '{primary}' "
+"und Fallbacks. Fehler: {err}"
 
+#: media_files/rendering/ffmpeg.py:655
 #, python-brace-format
 msgid "Font file not found: {path}"
 msgstr "Schriftdatei nicht gefunden: {path}"
 
+#: media_files/rendering/ffmpeg.py:1213
 msgid "Could not determine video duration for edge overlays."
 msgstr "Videodauer für Edge-Overlays konnte nicht bestimmt werden."
 
+#: media_files/rendering/ffmpeg.py:1299
 msgid "Could not determine video duration for preview rendering."
 msgstr "Videodauer für Vorschau-Rendering konnte nicht bestimmt werden."
 
+#: media_files/rendering/templates.py:71
+#: media_files/templates/media_files/render_video_admin.html:611
 msgid "Sendeverantwortung"
 msgstr "Sendeverantwortung"
 
+#: media_files/templates/admin/media_files/preset_editor.html:4
 msgid "Edit Preset"
 msgstr "Voreinstellung bearbeiten"
 
+#: media_files/templates/admin/media_files/preset_editor.html:4
 msgid "New Preset"
 msgstr "Neues Preset"
 
+#: media_files/templates/admin/media_files/preset_editor.html:335
 msgid "Preset Name"
 msgstr "Name des Presets"
 
+#: media_files/templates/admin/media_files/preset_editor.html:336
 msgid "Display Name"
 msgstr "Anzeigename"
 
+#: media_files/templates/admin/media_files/preset_editor.html:338
 msgid "Save"
 msgstr "Speichern"
 
+#: media_files/templates/admin/media_files/preset_editor.html:341
 msgid "Preview"
 msgstr "Vorschau"
 
+#: media_files/templates/admin/media_files/preset_editor.html:344
 msgid "Back"
 msgstr "Zurück"
 
+#: media_files/templates/admin/media_files/preset_editor.html:355
 msgid "Intro"
 msgstr "Intro"
 
+#: media_files/templates/admin/media_files/preset_editor.html:358
 msgid "Outro"
 msgstr "Outro"
 
+#: media_files/templates/admin/media_files/preset_editor.html:375
 msgid "Add Text Overlay"
 msgstr "Text-Overlay hinzufügen"
 
+#: media_files/templates/admin/media_files/preset_editor.html:378
 msgid "Add Image Overlay"
 msgstr "Bild-Overlay hinzufügen"
 
+#: media_files/templates/admin/media_files/preset_editor.html:386
+#: media_files/templates/admin/media_files/preset_editor.html:750
 msgid "Select an overlay to edit properties"
 msgstr "Wählen Sie ein Overlay aus, um Eigenschaften zu bearbeiten"
 
+#: media_files/templates/admin/media_files/preset_editor.html:757
 msgid "Overlay Type"
 msgstr "Overlay-Typ"
 
+#: media_files/templates/admin/media_files/preset_editor.html:759
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:180
 msgid "Type"
 msgstr "Typ"
 
+#: media_files/templates/admin/media_files/preset_editor.html:771
 msgid "Text Content"
 msgstr "Textinhalt"
 
+#: media_files/templates/admin/media_files/preset_editor.html:773
 msgid "Template"
 msgstr "Vorlage"
 
+#: media_files/templates/admin/media_files/preset_editor.html:777
 msgid "Quick Insert"
 msgstr "Schnelleinfügung"
 
+#: media_files/templates/admin/media_files/preset_editor.html:783
 msgid "Text Style"
 msgstr "Textstil"
 
+#: media_files/templates/admin/media_files/preset_editor.html:785
 msgid "Font Size"
 msgstr "Schriftgröße"
 
+#: media_files/templates/admin/media_files/preset_editor.html:789
 msgid "Font Color"
 msgstr "Schriftfarbe"
 
+#: media_files/templates/admin/media_files/preset_editor.html:798
 msgid "Background Box"
 msgstr "Hintergrundbox"
 
+#: media_files/templates/admin/media_files/preset_editor.html:802
 msgid "Box Color"
 msgstr "Box-Farbe"
 
+#: media_files/templates/admin/media_files/preset_editor.html:806
 msgid "Box Padding"
 msgstr "Box-Abstand"
 
+#: media_files/templates/admin/media_files/preset_editor.html:816
 msgid "Image Path"
 msgstr "Bildpfad"
 
+#: media_files/templates/admin/media_files/preset_editor.html:833
 msgid "Position"
 msgstr "Position"
 
+#: media_files/templates/admin/media_files/preset_editor.html:835
 msgid "Position Preset"
 msgstr "Positionsvorlage"
 
+#: media_files/templates/admin/media_files/preset_editor.html:850
 msgid "X Position"
 msgstr "X-Position"
 
+#: media_files/templates/admin/media_files/preset_editor.html:854
 msgid "Y Position"
 msgstr "Y-Position"
 
+#: media_files/templates/admin/media_files/preset_editor.html:860
 msgid "Timing & Animation"
 msgstr "Timing & Animation"
 
+#: media_files/templates/admin/media_files/preset_editor.html:862
 msgid "Start Time (s)"
 msgstr "Startzeit (s)"
 
+#: media_files/templates/admin/media_files/preset_editor.html:866
 msgid "End Time (s)"
 msgstr "Endzeit (s)"
 
+#: media_files/templates/admin/media_files/preset_editor.html:870
 msgid "Animation"
 msgstr "Animation"
 
+#: media_files/templates/admin/media_files/preset_editor.html:881
 msgid "Fade In (s)"
 msgstr "Einblenden (s)"
 
+#: media_files/templates/admin/media_files/preset_editor.html:885
 msgid "Fade Out (s)"
 msgstr "Ausblenden (s)"
 
+#: media_files/templates/admin/media_files/preset_editor.html:892
 msgid "Delete Overlay"
 msgstr "Overlay löschen"
 
+#: media_files/templates/admin/media_files/preset_editor.html:1005
 msgid "Delete this overlay?"
 msgstr "Dieses Overlay löschen?"
 
+#: media_files/templates/admin/media_files/preset_editor.html:1039
 msgid "Please enter preset name and display name"
 msgstr "Bitte geben Sie einen Preset-Namen und einen Anzeigenamen ein"
 
+#: media_files/templates/admin/media_files/preset_editor.html:1065
 msgid "Preset saved successfully"
 msgstr "Voreinstellung erfolgreich gespeichert"
 
+#: media_files/templates/admin/media_files/preset_editor.html:1067
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:120
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:82
 msgid "Scanning..."
 msgstr "Wird gescannt..."
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:106
 msgid "Check task results for progress"
 msgstr "Überprüfen Sie die Aufgabenresultate für den Fortschritt"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:111
 msgid "Open task results page?"
 msgstr "Aufgabenresultate-Seite öffnen?"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:120
+#: media_files/templates/media_files/render_video_admin.html:935
+#: media_files/templates/media_files/render_video_admin.html:946
 msgid "Error"
 msgstr "Fehler"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:127
 msgid "Error occurred during scanning. Please try again."
 msgstr ""
 "Während des Scanvorgangs ist ein Fehler aufgetreten. Bitte versuchen Sie es "
 "erneut."
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:172
 msgid "Storage Scan Options"
 msgstr "Optionen für Speicherscan"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:177
 msgid "Storage Information"
 msgstr "Speicherinformationen"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:181
 msgid "Current Videos"
 msgstr "Aktuelle Videos"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:188
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:207
+#: media_files/templates/admin/system_management.html:441
+#: media_files/templates/admin/system_management.html:552
+#: media_files/templates/admin/system_management.html:721
 msgid "Force rescan"
 msgstr "Erneuten Scan erzwingen"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:189
 msgid "Rescan all files even if recently scanned"
 msgstr "Alle Dateien erneut scannen, auch wenn sie kürzlich gescannt wurden"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:192
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:208
+#: media_files/templates/admin/system_management.html:456
+#: media_files/templates/admin/system_management.html:567
+#: media_files/templates/admin/system_management.html:736
 msgid "Strict checksum check"
 msgstr "Strenge Prüfsummenprüfung"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:193
 msgid "Use checksum comparison for reliable change detection (slower)"
 msgstr ""
 "Prüfsummenvergleich für zuverlässige Änderungserkennung verwenden (langsamer)"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:196
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:209
+#: media_files/templates/admin/system_management.html:471
+#: media_files/templates/admin/system_management.html:582
 msgid "Calculate checksums"
 msgstr "Prüfsummen berechnen"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:197
 msgid "Calculate and store file checksums for integrity verification"
 msgstr "Datei-Prüfsummen zur Integritätsprüfung berechnen und speichern"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:200
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:210
+#: media_files/templates/admin/system_management.html:486
+#: media_files/templates/admin/system_management.html:597
+#: media_files/templates/admin/system_management.html:751
 msgid "Skip metadata extraction"
 msgstr "Metadatenextraktion überspringen"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:201
 msgid "Faster scan, skip metadata extraction for video files"
 msgstr "Schnellerer Scan, Metadatenextraktion für Videodateien überspringen"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:204
 msgid "Scan Options Explained"
 msgstr "Scan-Optionen erklärt"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:206
 msgid "Normal scan"
 msgstr "Normaler Scan"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:206
 msgid "Fast scan using file modification time and size to detect changes"
 msgstr ""
-"Schneller Scan, der Dateigröße und -änderungszeit zur Änderungserkennung nutzt"
+"Schneller Scan, der Dateigröße und -änderungszeit zur Änderungserkennung "
+"nutzt"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:207
 msgid "Ignores change detection and rescans all files"
 msgstr "Ignoriert Änderungserkennung und scannt alle Dateien erneut"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:208
 #, python-format
 msgid "Uses file checksums for 100%% reliable change detection (slower)"
 msgstr ""
-"Verwendet Dateiprüfsummen für 100%% zuverlässige Änderungserkennung (langsamer)"
+"Verwendet Dateiprüfsummen für 100%% zuverlässige Änderungserkennung "
+"(langsamer)"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:209
 msgid "Stores file checksums for future integrity verification"
 msgstr "Dateiprüfsummen für spätere Integritätsprüfung speichern"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:210
 msgid "Fastest option, only updates file paths and availability"
 msgstr "Schnellste Option, aktualisiert nur Dateipfade und Verfügbarkeit"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:216
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:38
+#: media_files/templates/admin/media_files/videopreset/change_list.html:129
+#: media_files/templates/media_files/render_video_admin.html:827
 msgid "Cancel"
 msgstr "Abbrechen"
 
+#: media_files/templates/admin/media_files/storagelocation/change_list.html:217
 msgid "Start Scan"
 msgstr "Scan starten"
 
+#: media_files/templates/admin/media_files/videofile/change_form.html:72
+#: media_files/templates/admin/media_files/videofile/change_list.html:78
+#: media_files/templates/admin/video_player.html:25
 msgid "Storage"
 msgstr "Speicher"
 
+#: media_files/templates/admin/media_files/videofile/change_form.html:75
+#: media_files/templates/admin/media_files/videofile/change_list.html:81
+#: media_files/templates/admin/video_player.html:28
 msgid "Bitrate"
 msgstr "Bitrate"
 
+#: media_files/templates/admin/media_files/videofile/change_form.html:83
+#: media_files/templates/admin/media_files/videofile/change_list.html:90
+#: media_files/templates/admin/video_player.html:72
+#: media_files/templates/admin/video_player.html:145
 msgid "Your browser does not support the video tag."
 msgstr "Ihr Browser unterstützt das Video-Tag nicht."
 
+#: media_files/templates/admin/media_files/videofile/change_form.html:89
 msgid "Download Video"
 msgstr "Video herunterladen"
 
+#: media_files/templates/admin/media_files/videofile/change_form.html:97
 msgid "Loading video..."
 msgstr "Video wird geladen ..."
 
+#: media_files/templates/admin/media_files/videofile/change_form.html:114
+#: media_files/templates/admin/video_player.html:90
 msgid "Video file unavailable. Check path:"
 msgstr "Videodatei nicht verfügbar. Pfad prüfen:"
 
+#: media_files/templates/admin/media_files/videofile/change_list.html:76
+#: media_files/templates/media_files/render_video_admin.html:411
 msgid "File"
 msgstr "Datei"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:6
+#: media_files/templates/media_files/render_video_admin.html:397
 msgid "Home"
 msgstr "Start"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:9
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:14
 msgid "Delete multiple objects"
 msgstr "Mehrere Objekte löschen"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:17
 #, python-format
 msgid ""
 "Deleting the selected %(objects_name)s would result in deleting related "
@@ -1523,6 +2159,7 @@ msgstr ""
 "Objekte führen, aber Ihr Konto hat keine Genehmigung zum Löschen der "
 "folgenden Objekttypen:"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:24
 #, python-format
 msgid ""
 "Deleting the selected %(objects_name)s would require deleting the following "
@@ -1531,6 +2168,7 @@ msgstr ""
 "Das Löschen der ausgewählten %(objects_name)s erfordert das Löschen der "
 "folgenden geschützten verknüpften Objekte:"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:31
 #, python-format
 msgid ""
 "Are you sure you want to delete the selected %(objects_name)s? All of the "
@@ -1539,282 +2177,424 @@ msgstr ""
 "Sind Sie sicher, dass Sie die ausgewählten %(objects_name)s löschen möchten? "
 "Alle unten aufgeführten Objekte und dazugehörigen Einträge werden gelöscht:"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:33
 msgid "Summary"
 msgstr "Übersicht"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:40
 msgid "Objects"
 msgstr "Objekte"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:55
 msgid "Yes, I'm sure"
 msgstr "Ja, ich bin sicher"
 
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:56
 msgid "No, take me back"
 msgstr "Nein, zurück"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:9
 msgid "Danger zone"
 msgstr "Gefahrenzone"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:11
 msgid ""
 "This action can delete files from ARCHIVE storage even when archive "
 "protection is enabled."
 msgstr ""
-"Diese Aktion kann Dateien aus dem ARCHIVE-Speicher löschen, selbst wenn der Archivschutz aktiviert ist."
+"Diese Aktion kann Dateien aus dem ARCHIVE-Speicher löschen, selbst wenn der "
+"Archivschutz aktiviert ist."
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:12
 msgid "Proceed only if you are absolutely sure."
 msgstr "Fahren Sie nur fort, wenn Sie sich absolut sicher sind."
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:15
 msgid "Required phrase"
 msgstr "Erforderlicher Ausdruck"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:18
 msgid "Planned deletions"
 msgstr "Geplante Löschungen"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:19
 msgid "file(s)"
 msgstr "Datei(en)"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:19
 #, fuzzy
 #| msgid "Number"
 msgid "number(s)"
 msgstr "Nummer(n)"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:37
 msgid "Confirm and delete"
 msgstr "Genehmigen und löschen"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:43
 #, fuzzy
 #| msgid "Preview (5s)"
 msgid "Preview (sample)"
 msgstr "Vorschau (Beispiel)"
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:44
 msgid "First items only; not all planned deletions are shown here."
-msgstr "Nur die ersten Einträge; nicht alle geplanten Löschungen werden hier angezeigt."
+msgstr ""
+"Nur die ersten Einträge; nicht alle geplanten Löschungen werden hier "
+"angezeigt."
 
+#: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:49
 msgid "Keep"
 msgstr "Behalten"
 
+#: media_files/templates/admin/media_files/videopreset/change_form.html:10
 msgid "Edit in Visual Editor"
 msgstr "Im visuellen Editor bearbeiten"
 
+#: media_files/templates/admin/media_files/videopreset/change_list.html:7
 msgid "Import all JSON presets from video_presets/style directory?"
 msgstr "Alle JSON-Presets aus dem Verzeichnis video_presets/style importieren?"
 
+#: media_files/templates/admin/media_files/videopreset/change_list.html:8
 msgid "Import All Presets"
 msgstr "Alle Presets importieren"
 
+#: media_files/templates/admin/media_files/videopreset/change_list.html:13
+#: media_files/templates/admin/media_files/videopreset/change_list.html:120
 msgid "Import Single Preset"
 msgstr "Einzelnes Preset importieren"
 
+#: media_files/templates/admin/media_files/videopreset/change_list.html:97
 msgid "Please select a preset"
 msgstr "Bitte wählen Sie ein Preset aus"
 
+#: media_files/templates/admin/media_files/videopreset/change_list.html:121
 msgid "Select a preset to import from JSON files:"
 msgstr "Wählen Sie ein Preset aus den JSON-Dateien zum Importieren:"
 
+#: media_files/templates/admin/media_files/videopreset/change_list.html:123
 msgid "-- Select Preset --"
 msgstr "-- Preset auswählen --"
 
+#: media_files/templates/admin/media_files/videopreset/change_list.html:130
 msgid "Import"
 msgstr "Importieren"
 
+#: media_files/templates/admin/system_management.html:421
 msgid "Run management commands directly from the admin interface."
 msgstr "Management-Befehle direkt aus der Admin-Oberfläche ausführen."
 
+#: media_files/templates/admin/system_management.html:427
 msgid "Storage Scanning"
 msgstr "Speicherscan"
 
+#: media_files/templates/admin/system_management.html:428
 msgid "Last scan: 2 hours ago"
 msgstr "Letzter Scan: vor 2 Stunden"
 
+#: media_files/templates/admin/system_management.html:430
 msgid "Scan storage locations to find and index video files."
 msgstr "Speicherorte scannen, um Videodateien zu finden und zu indexieren."
 
+#: media_files/templates/admin/system_management.html:436
 msgid "Auto Scan All Storages"
 msgstr "Alle Speicher automatisch scannen"
 
+#: media_files/templates/admin/system_management.html:443
+#: media_files/templates/admin/system_management.html:554
+#: media_files/templates/admin/system_management.html:723
 msgid ""
 "Rescans all files even if they were recently scanned. Use this when you have "
 "made changes to files outside the system."
 msgstr ""
-"Alle Dateien erneut scannen, auch wenn sie vor Kurzem gescannt wurden. Nutzen Sie dies, wenn Sie Änderungen an Dateien außerhalb des Systems vorgenommen haben."
+"Alle Dateien erneut scannen, auch wenn sie vor Kurzem gescannt wurden. "
+"Nutzen Sie dies, wenn Sie Änderungen an Dateien außerhalb des Systems "
+"vorgenommen haben."
 
+#: media_files/templates/admin/system_management.html:445
+#: media_files/templates/admin/system_management.html:556
+#: media_files/templates/admin/system_management.html:725
 msgid "Help for Force rescan option"
 msgstr "Hilfe zur Option 'Erneuten Scan erzwingen'"
 
+#: media_files/templates/admin/system_management.html:449
+#: media_files/templates/admin/system_management.html:560
+#: media_files/templates/admin/system_management.html:729
 msgid "Rescans all files even if they were recently scanned"
-msgstr "Scannt alle Dateien erneut, selbst wenn sie bereits kürzlich gescannt wurden"
+msgstr ""
+"Scannt alle Dateien erneut, selbst wenn sie bereits kürzlich gescannt wurden"
 
+#: media_files/templates/admin/system_management.html:458
+#: media_files/templates/admin/system_management.html:569
 msgid ""
 "Compares file checksums to detect changes reliably. This is slower but "
 "ensures accurate change detection, especially for large files."
 msgstr ""
 "Vergleicht Dateiprüfsummen, um Änderungen zuverlässig zu erkennen. Dies ist "
-"langsamer, gewährleistet aber eine genaue Änderungserkennung, besonders bei großen Dateien."
+"langsamer, gewährleistet aber eine genaue Änderungserkennung, besonders bei "
+"großen Dateien."
 
+#: media_files/templates/admin/system_management.html:460
+#: media_files/templates/admin/system_management.html:571
+#: media_files/templates/admin/system_management.html:740
 msgid "Help for Strict checksum check option"
 msgstr "Hilfe zur Option 'Strenge Prüfsummenprüfung'"
 
+#: media_files/templates/admin/system_management.html:464
+#: media_files/templates/admin/system_management.html:575
+#: media_files/templates/admin/system_management.html:744
 msgid "Compares file checksums to detect changes reliably"
 msgstr "Vergleicht Dateiprüfsummen zur zuverlässigen Änderungserkennung"
 
+#: media_files/templates/admin/system_management.html:473
+#: media_files/templates/admin/system_management.html:584
 msgid ""
 "Generates and stores file checksums for integrity verification. This slows "
 "down scanning but enables reliable duplicate detection and corruption checks."
 msgstr ""
-"Erstellt und speichert Dateiprüfsummen zur Integritätsüberprüfung. Das verlangsamt den Scan, ermöglicht jedoch zuverlässige Duplikat- und Integritätsprüfungen."
+"Erstellt und speichert Dateiprüfsummen zur Integritätsüberprüfung. Das "
+"verlangsamt den Scan, ermöglicht jedoch zuverlässige Duplikat- und "
+"Integritätsprüfungen."
 
+#: media_files/templates/admin/system_management.html:475
+#: media_files/templates/admin/system_management.html:586
 msgid "Help for Calculate checksums option"
 msgstr "Hilfe zur Option 'Prüfsummen berechnen'"
 
+#: media_files/templates/admin/system_management.html:479
+#: media_files/templates/admin/system_management.html:590
 msgid "Generates and stores file checksums for integrity verification"
 msgstr "Erstellt und speichert Dateiprüfsummen zur Integritätsüberprüfung"
 
+#: media_files/templates/admin/system_management.html:488
+#: media_files/templates/admin/system_management.html:599
+#: media_files/templates/admin/system_management.html:753
 msgid ""
 "Speeds up scanning by not extracting video properties (duration, codec, "
 "resolution). Use this for quick file inventory without detailed information."
 msgstr ""
-"Beschleunigt das Scannen, indem Videoeigenschaften (Dauer, Codec, Auflösung) nicht extrahiert werden. Benutzen Sie dies für eine schnelle Übersicht ohne Details."
+"Beschleunigt das Scannen, indem Videoeigenschaften (Dauer, Codec, Auflösung) "
+"nicht extrahiert werden. Benutzen Sie dies für eine schnelle Übersicht ohne "
+"Details."
 
+#: media_files/templates/admin/system_management.html:490
+#: media_files/templates/admin/system_management.html:601
+#: media_files/templates/admin/system_management.html:755
 msgid "Help for Skip metadata extraction option"
 msgstr "Hilfe zur Option 'Metadatenextraktion überspringen'"
 
+#: media_files/templates/admin/system_management.html:494
+#: media_files/templates/admin/system_management.html:605
+#: media_files/templates/admin/system_management.html:759
 msgid "Speeds up scanning by not extracting video properties"
-msgstr "Beschleunigt das Scannen, da Videoeigenschaften nicht extrahiert werden"
+msgstr ""
+"Beschleunigt das Scannen, da Videoeigenschaften nicht extrahiert werden"
 
+#: media_files/templates/admin/system_management.html:499
+#: media_files/templates/admin/system_management.html:630
+#: media_files/templates/admin/system_management.html:687
+#: media_files/templates/admin/system_management.html:799
+#: media_files/templates/admin/system_management.html:915
+#: media_files/templates/admin/system_management.html:947
+#: media_files/templates/admin/system_management.html:966
 msgid "optional"
 msgstr "optional"
 
+#: media_files/templates/admin/system_management.html:501
 msgid ""
 "Filter scan by storage type. ARCHIVE stores master files, PLAYOUT contains "
 "broadcast-ready files, CUSTOM is for other uses."
 msgstr ""
-"Scan nach Speichertyp filtern. ARCHIVE speichert Masterdateien, PLAYOUT enthält sendefertige Dateien, CUSTOM für andere Verwendungszwecke."
+"Scan nach Speichertyp filtern. ARCHIVE speichert Masterdateien, PLAYOUT "
+"enthält sendefertige Dateien, CUSTOM für andere Verwendungszwecke."
 
+#: media_files/templates/admin/system_management.html:503
+#: media_files/templates/admin/system_management.html:919
 msgid "Help for Storage Type option"
 msgstr "Hilfe zur Option 'Speichertyp'"
 
+#: media_files/templates/admin/system_management.html:507
 msgid "Filter scan by storage type"
 msgstr "Scan nach Speichertyp filtern"
 
+#: media_files/templates/admin/system_management.html:510
+#: media_files/templates/admin/system_management.html:926
+#: media_files/templates/admin/system_management.html:958
 msgid "All types"
 msgstr "Alle Typen"
 
+#: media_files/templates/admin/system_management.html:518
 msgid "Run Auto Scan"
 msgstr "Automatischen Scan starten"
 
+#: media_files/templates/admin/system_management.html:528
 msgid "Scan Specific Storage"
 msgstr "Bestimmten Speicher scannen"
 
+#: media_files/templates/admin/system_management.html:533
 msgid ""
 "Select a specific storage location to scan. Leave empty to scan all "
 "locations."
 msgstr ""
-"Wählen Sie einen bestimmten Speicherort zum Scannen. Feld leer lassen, um alle Speicherorte zu scannen."
+"Wählen Sie einen bestimmten Speicherort zum Scannen. Feld leer lassen, um "
+"alle Speicherorte zu scannen."
 
+#: media_files/templates/admin/system_management.html:535
 msgid "Help for Storage Location option"
 msgstr "Hilfe zur Option 'Speicherort'"
 
+#: media_files/templates/admin/system_management.html:539
 msgid "Select a specific storage location to scan"
 msgstr "Einen bestimmten Speicherort zum Scannen auswählen"
 
+#: media_files/templates/admin/system_management.html:542
 msgid "All storages"
 msgstr "Alle Speicherorte"
 
+#: media_files/templates/admin/system_management.html:610
 msgid "Run Scan"
 msgstr "Scan starten"
 
+#: media_files/templates/admin/system_management.html:618
 msgid "Synchronization"
 msgstr "Synchronisierung"
 
+#: media_files/templates/admin/system_management.html:619
 msgid "Last sync: 1 hour ago"
 msgstr "Letzte Synchronisierung: vor 1 Stunde"
 
+#: media_files/templates/admin/system_management.html:621
 msgid "Sync licenses with videos and link orphan files."
 msgstr ""
 "Freistellungen mit Videos synchronisieren und verwaiste Dateien verknüpfen."
 
+#: media_files/templates/admin/system_management.html:627
 msgid "Sync Licenses and Videos"
 msgstr "Freistellungen und Videos synchronisieren"
 
+#: media_files/templates/admin/system_management.html:630
+#: media_files/templates/admin/system_management.html:687
 msgid "License Number"
 msgstr "Freistellungsnummer"
 
+#: media_files/templates/admin/system_management.html:632
 msgid ""
 "Specify a specific license number to sync. Leave empty to sync all licenses."
 msgstr ""
-"Geben Sie eine bestimmte Freistellungsnummer zum Synchronisieren an. Feld leer lassen, um alle Freistellungen zu synchronisieren."
+"Geben Sie eine bestimmte Freistellungsnummer zum Synchronisieren an. Feld "
+"leer lassen, um alle Freistellungen zu synchronisieren."
 
+#: media_files/templates/admin/system_management.html:634
+#: media_files/templates/admin/system_management.html:691
 msgid "Help for License Number option"
 msgstr "Hilfe zur Option 'Freistellungsnummer'"
 
+#: media_files/templates/admin/system_management.html:638
 msgid "Specify a specific license number to sync"
 msgstr "Bestimmte Freistellungsnummer angeben, die synchronisiert werden soll"
 
+#: media_files/templates/admin/system_management.html:640
+#: media_files/templates/admin/system_management.html:697
+#: media_files/templates/admin/system_management.html:976
 msgid "Leave empty for all"
 msgstr "Feld leer lassen für alle"
 
+#: media_files/templates/admin/system_management.html:646
+#: media_files/templates/admin/system_management.html:767
+#: media_files/templates/admin/system_management.html:865
+#: media_files/templates/admin/system_management.html:982
 msgid "Dry run"
 msgstr "Testlauf"
 
+#: media_files/templates/admin/system_management.html:648
+#: media_files/templates/admin/system_management.html:769
+#: media_files/templates/admin/system_management.html:867
 msgid ""
 "Simulates the operation without making changes. Review what would happen "
 "before actually executing."
 msgstr ""
-"Simuliert den Vorgang, ohne Änderungen vorzunehmen. Überprüfen Sie das Ergebnis, bevor Sie tatsächlich ausführen."
+"Simuliert den Vorgang, ohne Änderungen vorzunehmen. Überprüfen Sie das "
+"Ergebnis, bevor Sie tatsächlich ausführen."
 
+#: media_files/templates/admin/system_management.html:650
+#: media_files/templates/admin/system_management.html:771
+#: media_files/templates/admin/system_management.html:869
 msgid "Help for Dry run option"
 msgstr "Hilfe zur Option 'Testlauf'"
 
+#: media_files/templates/admin/system_management.html:654
+#: media_files/templates/admin/system_management.html:775
+#: media_files/templates/admin/system_management.html:873
 msgid "Simulates the operation without making changes"
 msgstr "Vorgang wird simuliert, ohne Änderungen vorzunehmen"
 
+#: media_files/templates/admin/system_management.html:661
 msgid "Force sync duration"
 msgstr "Freistellungsdauer erzwingen"
 
+#: media_files/templates/admin/system_management.html:663
 msgid ""
 "Updates license duration even if it already has a value. Use when video "
 "duration has changed."
 msgstr ""
-"Aktualisiert die Freistellungsdauer, auch wenn bereits ein Wert vorhanden ist. Verwenden Sie dies, wenn sich die Videodauer geändert hat."
+"Aktualisiert die Freistellungsdauer, auch wenn bereits ein Wert vorhanden "
+"ist. Verwenden Sie dies, wenn sich die Videodauer geändert hat."
 
+#: media_files/templates/admin/system_management.html:665
 msgid "Help for Force sync duration option"
 msgstr "Hilfe zur Option 'Freistellungsdauer erzwingen'"
 
+#: media_files/templates/admin/system_management.html:669
 msgid "Updates license duration even if it already has a value"
 msgstr ""
-"Aktualisiert die Freistellungsdauer, selbst wenn bereits ein Wert vorhanden ist"
+"Aktualisiert die Freistellungsdauer, selbst wenn bereits ein Wert vorhanden "
+"ist"
 
+#: media_files/templates/admin/system_management.html:674
 msgid "Sync Licenses"
 msgstr "Freistellungen synchronisieren"
 
+#: media_files/templates/admin/system_management.html:684
 msgid "Link Orphan Licenses"
 msgstr "Verwaiste Freistellungen verknüpfen"
 
+#: media_files/templates/admin/system_management.html:689
 msgid ""
 "Specify a specific license number to link. Leave empty to link all orphan "
 "licenses."
 msgstr ""
-"Geben Sie eine bestimmte Freistellungsnummer zum Verknüpfen an. Feld leer lassen, um alle verwaisten Freistellungen zu verknüpfen."
+"Geben Sie eine bestimmte Freistellungsnummer zum Verknüpfen an. Feld leer "
+"lassen, um alle verwaisten Freistellungen zu verknüpfen."
 
+#: media_files/templates/admin/system_management.html:695
 msgid "Specify a specific license number to link"
 msgstr "Bestimmte Freistellungsnummer zum Verknüpfen angeben"
 
+#: media_files/templates/admin/system_management.html:703
 msgid "Scan storages first"
 msgstr "Zuerst Speicher scannen"
 
+#: media_files/templates/admin/system_management.html:705
 msgid ""
 "Performs a storage scan before linking licenses. Recommended when you have "
 "added new video files."
 msgstr ""
-"Führt einen Speicherscan durch, bevor Freistellungen verknüpft werden. Empfohlen, wenn Sie neue Videodateien hinzugefügt haben."
+"Führt einen Speicherscan durch, bevor Freistellungen verknüpft werden. "
+"Empfohlen, wenn Sie neue Videodateien hinzugefügt haben."
 
+#: media_files/templates/admin/system_management.html:707
 msgid "Help for Scan storages first option"
 msgstr "Hilfe zur Option 'Zuerst Speicher scannen'"
 
+#: media_files/templates/admin/system_management.html:711
 msgid "Performs a storage scan before linking licenses"
 msgstr "Scannt den Speicher, bevor Freistellungen verknüpft werden"
 
+#: media_files/templates/admin/system_management.html:716
 msgid "Scan Options"
 msgstr "Scan-Optionen"
 
+#: media_files/templates/admin/system_management.html:738
 msgid ""
 "Compares file checksums to detect changes reliably. This is slower but "
 "ensures accurate change detection."
@@ -1822,329 +2602,445 @@ msgstr ""
 "Vergleicht Dateiprüfsummen, um Änderungen zuverlässig zu erkennen. Dies ist "
 "langsamer, gewährleistet aber eine genaue Änderungserkennung."
 
+#: media_files/templates/admin/system_management.html:780
 msgid "Link Orphans"
 msgstr "Verwaiste verknüpfen"
 
+#: media_files/templates/admin/system_management.html:788
 msgid "Cleanup & Maintenance"
 msgstr "Bereinigung & Wartung"
 
+#: media_files/templates/admin/system_management.html:789
 msgid "Last cleanup: 3 days ago"
 msgstr "Letzte Bereinigung: vor 3 Tagen"
 
+#: media_files/templates/admin/system_management.html:791
 msgid "Clean up playout storage and move videos to archive."
 msgstr "Playout-Speicher bereinigen und Videos ins Archiv verschieben."
 
+#: media_files/templates/admin/system_management.html:796
 msgid "Cleanup Playout Storage"
 msgstr "Playout-Speicher bereinigen"
 
+#: media_files/templates/admin/system_management.html:799
 msgid "Playout Storage"
 msgstr "Playout-Speicher"
 
+#: media_files/templates/admin/system_management.html:801
 msgid ""
 "Select a specific playout storage to clean up. Leave empty to clean up all "
 "playout storages."
 msgstr ""
-"Wählen Sie einen bestimmten Playout-Speicher zur Bereinigung aus. Feld leer lassen, um alle Playout-Speicher zu bereinigen."
+"Wählen Sie einen bestimmten Playout-Speicher zur Bereinigung aus. Feld leer "
+"lassen, um alle Playout-Speicher zu bereinigen."
 
+#: media_files/templates/admin/system_management.html:803
 msgid "Help for Playout Storage option"
 msgstr "Hilfe zur Option 'Playout-Speicher'"
 
+#: media_files/templates/admin/system_management.html:807
 msgid "Select a specific playout storage to clean up"
 msgstr "Bestimmten Playout-Speicher zur Bereinigung auswählen"
 
+#: media_files/templates/admin/system_management.html:810
 msgid "All playout storages"
 msgstr "Alle Playout-Speicher"
 
+#: media_files/templates/admin/system_management.html:818
 msgid "Older than (days)"
 msgstr "Älter als (Tage)"
 
+#: media_files/templates/admin/system_management.html:820
 msgid ""
 "Only moves videos that are older than this number of days. Default is 7 days "
 "to ensure recently used files are not moved."
 msgstr ""
-"Es werden nur Videos verschoben, die älter als diese Anzahl von Tagen sind. Standard ist 7 Tage, damit kürzlich genutzte Dateien nicht verschoben werden."
+"Es werden nur Videos verschoben, die älter als diese Anzahl von Tagen sind. "
+"Standard ist 7 Tage, damit kürzlich genutzte Dateien nicht verschoben werden."
 
+#: media_files/templates/admin/system_management.html:822
 msgid "Help for Older than option"
 msgstr "Hilfe zur Option 'Älter als (Tage)'"
 
+#: media_files/templates/admin/system_management.html:826
 msgid "Only moves videos that are older than this number of days"
 msgstr "Verschiebt nur Videos, die älter als diese Anzahl von Tagen sind"
 
+#: media_files/templates/admin/system_management.html:829
 msgid "Move videos older than N days"
 msgstr "Videos, die älter als N Tage sind, verschieben"
 
+#: media_files/templates/admin/system_management.html:835
 msgid "Check file attributes"
 msgstr "Dateiattribute prüfen"
 
+#: media_files/templates/admin/system_management.html:837
 msgid ""
 "Verifies if files have Windows system/hidden attributes indicating they are "
 "in use by broadcast automation. Prevents moving active files."
 msgstr ""
-"Prüft, ob Dateien Windows-System- oder versteckte Attribute besitzen, was auf aktive Nutzung durch Sendeautomation hindeutet. Dadurch wird das Verschieben aktiver Dateien verhindert."
+"Prüft, ob Dateien Windows-System- oder versteckte Attribute besitzen, was "
+"auf aktive Nutzung durch Sendeautomation hindeutet. Dadurch wird das "
+"Verschieben aktiver Dateien verhindert."
 
+#: media_files/templates/admin/system_management.html:839
 msgid "Warning for Check file attributes option"
 msgstr "Warnung zur Option 'Dateiattribute prüfen'"
 
+#: media_files/templates/admin/system_management.html:843
 msgid "Verifies if files have Windows system/hidden attributes"
 msgstr "Prüft, ob Dateien Windows-System- oder versteckte Attribute haben"
 
+#: media_files/templates/admin/system_management.html:850
 msgid "Check file locks"
 msgstr "Dateisperren prüfen"
 
+#: media_files/templates/admin/system_management.html:852
 msgid ""
 "Checks if files are currently locked by other processes. Essential to avoid "
 "corrupting files during active use."
 msgstr ""
-"Prüft, ob Dateien aktuell von anderen Prozessen gesperrt sind. Wesentlich, um Beschädigungen während aktiver Nutzung zu vermeiden."
+"Prüft, ob Dateien aktuell von anderen Prozessen gesperrt sind. Wesentlich, "
+"um Beschädigungen während aktiver Nutzung zu vermeiden."
 
+#: media_files/templates/admin/system_management.html:854
 msgid "Warning for Check file locks option"
 msgstr "Warnung zur Option 'Dateisperren prüfen'"
 
+#: media_files/templates/admin/system_management.html:858
 msgid "Checks if files are currently locked by other processes"
 msgstr "Prüft, ob Dateien gerade durch andere Prozesse gesperrt sind"
 
+#: media_files/templates/admin/system_management.html:878
 msgid "Run Cleanup"
 msgstr "Bereinigung starten"
 
+#: media_files/templates/admin/system_management.html:887
 msgid "Last duplicate check: 1 day ago"
 msgstr "Letzte Duplikatprüfung: vor 1 Tag"
 
+#: media_files/templates/admin/system_management.html:889
 msgid "Find and manage duplicate video files."
 msgstr "Duplizierte Videodateien finden und verwalten."
 
+#: media_files/templates/admin/system_management.html:895
+#: media_files/templates/admin/system_management.html:934
 msgid "Find Duplicates"
 msgstr "Duplikate finden"
 
+#: media_files/templates/admin/system_management.html:898
 msgid "Output Format"
 msgstr "Ausgabeformat"
 
+#: media_files/templates/admin/system_management.html:900
 msgid ""
 "Console format is human-readable, JSON format is for programmatic processing."
 msgstr ""
-"Konsolenformat ist für Menschen lesbar, JSON-Format für automatische Weiterverarbeitung."
+"Konsolenformat ist für Menschen lesbar, JSON-Format für automatische "
+"Weiterverarbeitung."
 
+#: media_files/templates/admin/system_management.html:902
 msgid "Help for Output Format option"
 msgstr "Hilfe zur Option 'Ausgabeformat'"
 
+#: media_files/templates/admin/system_management.html:906
 msgid ""
 "Console format is human-readable, JSON format is for programmatic processing"
 msgstr ""
-"Konsolenformat ist für Menschen lesbar, JSON-Format für automatische Weiterverarbeitung"
+"Konsolenformat ist für Menschen lesbar, JSON-Format für automatische "
+"Weiterverarbeitung"
 
+#: media_files/templates/admin/system_management.html:909
 msgid "Console (readable)"
 msgstr "Konsole (lesbar)"
 
+#: media_files/templates/admin/system_management.html:917
 msgid ""
 "Filter duplicate search by storage type. ARCHIVE stores master files, "
 "PLAYOUT contains broadcast-ready files, CUSTOM is for other uses."
 msgstr ""
-"Duplikatsuche nach Speichertyp filtern. ARCHIVE speichert Masterdateien, PLAYOUT enthält sendefertige Dateien, CUSTOM ist für andere Zwecke."
+"Duplikatsuche nach Speichertyp filtern. ARCHIVE speichert Masterdateien, "
+"PLAYOUT enthält sendefertige Dateien, CUSTOM ist für andere Zwecke."
 
+#: media_files/templates/admin/system_management.html:923
 msgid "Filter duplicate search by storage type"
 msgstr "Duplikatsuche nach Speichertyp filtern"
 
+#: media_files/templates/admin/system_management.html:944
+#: media_files/templates/admin/system_management.html:996
 msgid "Cleanup Duplicates"
 msgstr "Duplikate bereinigen"
 
+#: media_files/templates/admin/system_management.html:949
 msgid ""
 "Filter duplicate cleanup by storage type. Be careful when selecting specific "
 "types as this permanently deletes files."
 msgstr ""
-"Bereinigung von Duplikaten nach Speichertyp filtern. Seien Sie vorsichtig beim Auswählen bestimmter Typen – dies löscht Dateien dauerhaft."
+"Bereinigung von Duplikaten nach Speichertyp filtern. Seien Sie vorsichtig "
+"beim Auswählen bestimmter Typen – dies löscht Dateien dauerhaft."
 
+#: media_files/templates/admin/system_management.html:951
 msgid "Warning for Storage Type option"
 msgstr "Warnung zur Option 'Speichertyp'"
 
+#: media_files/templates/admin/system_management.html:955
 msgid "Filter duplicate cleanup by storage type"
 msgstr "Duplikat-Bereinigung nach Speichertyp filtern"
 
+#: media_files/templates/admin/system_management.html:966
 msgid "Video Number"
 msgstr "Beitragsnummer"
 
+#: media_files/templates/admin/system_management.html:968
 msgid ""
 "Specify a specific video number to clean up duplicates for. Leave empty to "
 "clean up all duplicates."
 msgstr ""
-"Geben Sie eine bestimmte Beitragsnummer an, für die Duplikate bereinigt werden sollen. "
-"Lassen Sie das Feld leer, um alle Duplikate zu bereinigen."
+"Geben Sie eine bestimmte Beitragsnummer an, für die Duplikate bereinigt "
+"werden sollen. Lassen Sie das Feld leer, um alle Duplikate zu bereinigen."
 
+#: media_files/templates/admin/system_management.html:970
 msgid "Warning for Video Number option"
 msgstr "Warnung zur Option 'Beitragsnummer'"
 
+#: media_files/templates/admin/system_management.html:974
 msgid "Specify a specific video number to clean up duplicates for"
 msgstr "Geben Sie eine bestimmte Beitragsnummer für die Duplikatbereinigung an"
 
+#: media_files/templates/admin/system_management.html:984
 msgid ""
 "STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting. "
 "Review carefully before proceeding!"
 msgstr ""
-"SEHR EMPFOHLEN: Zeigt an, was gelöscht werden würde, ohne tatsächlich zu löschen. "
-"Bitte prüfen Sie sorgfältig vor dem Fortfahren!"
+"SEHR EMPFOHLEN: Zeigt an, was gelöscht werden würde, ohne tatsächlich zu "
+"löschen. Bitte prüfen Sie sorgfältig vor dem Fortfahren!"
 
+#: media_files/templates/admin/system_management.html:986
 msgid "Warning for Dry run option"
 msgstr "Warnung zur Option 'Testlauf'"
 
+#: media_files/templates/admin/system_management.html:990
 msgid ""
 "STRONGLY RECOMMENDED: Shows what would be deleted without actually deleting"
-msgstr "SEHR EMPFOHLEN: Zeigt an, was gelöscht werden würde, ohne tatsächlich zu löschen"
+msgstr ""
+"SEHR EMPFOHLEN: Zeigt an, was gelöscht werden würde, ohne tatsächlich zu "
+"löschen"
 
+#: media_files/templates/admin/system_management.html:992
 msgid "Recommended! Uncheck only when you're sure."
 msgstr "Empfohlen! Nur abwählen, wenn Sie sich sicher sind."
 
+#: media_files/templates/admin/video_player.html:38
 msgid "Browser Compatibility Issue"
 msgstr "Kompatibilitätsproblem mit Browser"
 
+#: media_files/templates/admin/video_player.html:41
 msgid ""
 "This video uses H.265/HEVC codec which is NOT supported by Chrome, Firefox, "
 "and Edge. Only audio will play."
 msgstr ""
-"Dieses Video verwendet den H.265/HEVC-Codec, der von Chrome, Firefox und Edge NICHT unterstützt wird. "
-"Es wird nur der Ton abgespielt."
+"Dieses Video verwendet den H.265/HEVC-Codec, der von Chrome, Firefox und "
+"Edge NICHT unterstützt wird. Es wird nur der Ton abgespielt."
 
+#: media_files/templates/admin/video_player.html:43
 msgid ""
 "This video codec may not be supported by your browser. Only audio might play."
 msgstr ""
 "Dieser Video-Codec wird möglicherweise von Ihrem Browser nicht unterstützt. "
 "Es könnte nur der Ton abgespielt werden."
 
+#: media_files/templates/admin/video_player.html:47
 msgid "Solutions"
 msgstr "Lösungen"
 
+#: media_files/templates/admin/video_player.html:48
 msgid "Use Safari browser (native HEVC support)"
 msgstr "Verwenden Sie den Safari-Browser (native HEVC-Unterstützung)"
 
+#: media_files/templates/admin/video_player.html:49
 msgid "Install HEVC Video Extension in Microsoft Edge"
 msgstr "HEVC-Videoerweiterung in Microsoft Edge installieren"
 
+#: media_files/templates/admin/video_player.html:50
 msgid "Transcode video to H.264 format"
 msgstr "Video in das H.264-Format umwandeln"
 
+#: media_files/templates/admin/video_player.html:53
 msgid "Transcode now"
 msgstr "Jetzt umwandeln"
 
+#: media_files/templates/admin/video_player.html:57
 msgid "Codec"
 msgstr "Codec"
 
+#: media_files/templates/admin/video_player.html:77
 msgid "File Path (Linux)"
 msgstr "Dateipfad (Linux)"
 
+#: media_files/templates/admin/video_player.html:83
 msgid "File Path (Windows UNC)"
 msgstr "Dateipfad (Windows UNC)"
 
+#: media_files/templates/media_files/render_video_admin.html:4
 msgid "Render Video"
 msgstr "Video rendern"
 
+#: media_files/templates/media_files/render_video_admin.html:400
 msgid "Render with Overlays"
 msgstr "Mit Overlays rendern"
 
+#: media_files/templates/media_files/render_video_admin.html:410
 msgid "Video Information"
 msgstr "Beitragsinformationen"
 
+#: media_files/templates/media_files/render_video_admin.html:413
 msgid "Resolution"
 msgstr "Auflösung"
 
+#: media_files/templates/media_files/render_video_admin.html:425
 msgid "1. Select Elements to Show"
 msgstr "1. Elemente zum Anzeigen auswählen"
 
+#: media_files/templates/media_files/render_video_admin.html:430
 msgid "Titel"
 msgstr "Titel"
 
+#: media_files/templates/media_files/render_video_admin.html:434
 msgid "Choose Style for Title:"
 msgstr "Stil für Titel wählen:"
 
+#: media_files/templates/media_files/render_video_admin.html:468
+#: media_files/templates/media_files/render_video_admin.html:475
+#: media_files/templates/media_files/render_video_admin.html:560
+#: media_files/templates/media_files/render_video_admin.html:567
+#: media_files/templates/media_files/render_video_admin.html:648
+#: media_files/templates/media_files/render_video_admin.html:655
+#: media_files/templates/media_files/render_video_admin.html:739
+#: media_files/templates/media_files/render_video_admin.html:746
 msgid "Broadcast Info"
 msgstr "Sendeinformationen"
 
+#: media_files/templates/media_files/render_video_admin.html:518
 msgid "Untertitel"
 msgstr "Untertitel"
 
+#: media_files/templates/media_files/render_video_admin.html:522
 msgid "Choose Style for Subtitle:"
 msgstr "Stil für Untertitel wählen:"
 
+#: media_files/templates/media_files/render_video_admin.html:610
 msgid "Broadcast Responsibility"
 msgstr "Sendeverantwortung"
 
+#: media_files/templates/media_files/render_video_admin.html:614
 msgid "Choose Style for Broadcast Responsibility:"
 msgstr "Stil für Sendeverantwortung wählen:"
 
+#: media_files/templates/media_files/render_video_admin.html:697
 msgid "Bürgermedium"
 msgstr "Bürgermedium"
 
+#: media_files/templates/media_files/render_video_admin.html:701
 msgid "Choose Style for Media Authority:"
 msgstr "Stil für Bürgermedium wählen:"
 
+#: media_files/templates/media_files/render_video_admin.html:789
 msgid "2. Quality Settings"
 msgstr "2. Qualitätseinstellungen"
 
+#: media_files/templates/media_files/render_video_admin.html:791
 msgid "Encoding Quality"
 msgstr "Kodierungsqualität"
 
+#: media_files/templates/media_files/render_video_admin.html:802
 msgid "3. Rendering Mode"
 msgstr "3. Rendering-Modus"
 
+#: media_files/templates/media_files/render_video_admin.html:808
 msgid "Add intro/outro clips and apply overlays to them"
 msgstr "Intro-/Outro-Clips hinzufügen und Overlays darauf anwenden"
 
+#: media_files/templates/media_files/render_video_admin.html:811
 msgid ""
 "If checked: intro and outro clips will be added to the main video, and "
 "overlays will be applied to these clips. If unchecked: overlays will be "
 "applied to the first and last 5 seconds of the main video."
 msgstr ""
-"Wenn aktiviert: Intro- und Outro-Clips werden zum Hauptvideo hinzugefügt und Overlays auf diese Clips angewendet. "
-"Wenn deaktiviert: Overlays werden auf die ersten und letzten 5 Sekunden des Hauptvideos angewendet."
+"Wenn aktiviert: Intro- und Outro-Clips werden zum Hauptvideo hinzugefügt und "
+"Overlays auf diese Clips angewendet. Wenn deaktiviert: Overlays werden auf "
+"die ersten und letzten 5 Sekunden des Hauptvideos angewendet."
 
+#: media_files/templates/media_files/render_video_admin.html:821
 msgid "Preview (5s)"
 msgstr "Vorschau (5 Sekunden)"
 
+#: media_files/templates/media_files/render_video_admin.html:824
 msgid "Render Full Video"
 msgstr "Vollständiges Video rendern"
 
+#: media_files/templates/media_files/render_video_admin.html:834
 msgid "Rendering video... This may take a few minutes."
 msgstr "Video wird gerendert ... dies kann einige Minuten dauern."
 
+#: media_files/templates/media_files/render_video_admin.html:925
 msgid "Success!"
 msgstr "Erfolg!"
 
+#: media_files/templates/media_files/render_video_admin.html:926
 msgid "Track progress"
 msgstr "Fortschritt verfolgen"
 
+#: media_files/templates/media_files/render_video_admin.html:927
 msgid "View all active operations"
 msgstr "Alle aktiven Vorgänge anzeigen"
 
+#: media_files/templates/media_files/render_video_admin.html:928
 msgid "View video file"
 msgstr "Beitragsdatei anzeigen"
 
+#: media_files/views.py:36
 msgid "License not found for this video"
 msgstr "Freistellung für diesen Beitrag nicht gefunden"
 
+#: media_files/views.py:295
 msgid "Missing required parameters: license_number"
 msgstr "Erforderliche Parameter fehlen: freistellungsnummer"
 
+#: media_files/views.py:299
 msgid "Please select at least one element to show"
 msgstr "Bitte wählen Sie mindestens ein Element zum Anzeigen aus"
 
+#: media_files/views.py:305
 msgid "License not found"
 msgstr "Freistellung nicht gefunden"
 
+#: media_files/views.py:332
 msgid ""
 "Source video file not found. Please ensure there is an original (non-"
 "rendered) video file available."
 msgstr ""
-"Quelldatei des Beitrags nicht gefunden. Bitte stellen Sie sicher, dass eine Originaldatei (nicht gerendert) verfügbar ist."
+"Quelldatei des Beitrags nicht gefunden. Bitte stellen Sie sicher, dass eine "
+"Originaldatei (nicht gerendert) verfügbar ist."
 
+#: media_files/views.py:344
 msgid ""
 "No valid presets found for selected elements. Please select styles for each "
 "element."
 msgstr ""
-"Keine gültigen Voreinstellungen für die ausgewählten Elemente gefunden. Bitte wählen Sie für jedes Element einen Stil aus."
+"Keine gültigen Voreinstellungen für die ausgewählten Elemente gefunden. "
+"Bitte wählen Sie für jedes Element einen Stil aus."
 
+#: media_files/views.py:400
 msgid "Could not find a free output filename (too many versions exist)."
 msgstr ""
-"Konnte keinen freien Ausgabedateinamen finden (zu viele Versionen existieren)."
+"Konnte keinen freien Ausgabedateinamen finden (zu viele Versionen "
+"existieren)."
 
+#: media_files/views.py:454
 msgid "Video rendering started. You can track progress in File Operations."
 msgstr ""
-"Video-Rendering gestartet. Sie können den Fortschritt unter Dateioperationen verfolgen."
+"Video-Rendering gestartet. Sie können den Fortschritt unter Dateioperationen "
+"verfolgen."
 
 #~ msgid "Settings"
 #~ msgstr "Einstellungen"
@@ -2193,7 +3089,8 @@ msgstr ""
 
 #~ msgid "Unique name for this preset (e.g., \"my_custom_lower_third\")"
 #~ msgstr ""
-#~ "Eindeutiger Name für diese Voreinstellung (z. B. \"mein_benutzerdefinierter_untertitel\")"
+#~ "Eindeutiger Name für diese Voreinstellung (z. B. "
+#~ "\"mein_benutzerdefinierter_untertitel\")"
 
 #~ msgid "Human-readable name shown in UI"
 #~ msgstr ""
@@ -2210,7 +3107,8 @@ msgstr ""
 
 #~ msgid "If true, this preset serves as a starting template for new presets"
 #~ msgstr ""
-#~ "Wenn aktiviert, dient diese Voreinstellung als Startvorlage für neue Voreinstellungen"
+#~ "Wenn aktiviert, dient diese Voreinstellung als Startvorlage für neue "
+#~ "Voreinstellungen"
 
 #~ msgid "Based On"
 #~ msgstr "Basiert auf"
@@ -2265,14 +3163,16 @@ msgstr ""
 
 #~ msgid "Rendering order (lower number = rendered first/bottom layer)"
 #~ msgstr ""
-#~ "Reihenfolge beim Rendern (niedrigere Zahl = zuerst/unterste Ebene gerendert)"
+#~ "Reihenfolge beim Rendern (niedrigere Zahl = zuerst/unterste Ebene "
+#~ "gerendert)"
 
 #~ msgid "Text Template"
 #~ msgstr "Textvorlage"
 
 #, python-brace-format
 #~ msgid "Template with variables like {license.title}, {profile.display}"
-#~ msgstr "Vorlage mit Variablen wie {freistellung.titel}, {profil.anzeigename}"
+#~ msgstr ""
+#~ "Vorlage mit Variablen wie {freistellung.titel}, {profil.anzeigename}"
 
 #~ msgid "Path to image file (relative to assets/ or absolute)"
 #~ msgstr "Pfad zur Bilddatei (relativ zu assets/ oder absolut)"
@@ -2335,7 +3235,8 @@ msgstr ""
 
 #~ msgid "Human-readable name shown in UI (auto-generated if empty)"
 #~ msgstr ""
-#~ "Für Benutzer lesbarer Name in der Benutzeroberfläche (wird automatisch generiert, wenn leer)"
+#~ "Für Benutzer lesbarer Name in der Benutzeroberfläche (wird automatisch "
+#~ "generiert, wenn leer)"
 
 #~ msgid "Optional description of this encoding preset"
 #~ msgstr "Optionale Beschreibung dieser Kodierungsvoreinstellung"
@@ -2374,7 +3275,8 @@ msgstr ""
 #~ msgstr "x264-Voreinstellung"
 
 #~ msgid "x264 encoding preset (e.g., \"veryfast\", \"medium\", \"slow\")"
-#~ msgstr "x264-Kodierungsvoreinstellung (z. B. \"veryfast\", \"medium\", \"slow\")"
+#~ msgstr ""
+#~ "x264-Kodierungsvoreinstellung (z. B. \"veryfast\", \"medium\", \"slow\")"
 
 #~ msgid "x264 Profile"
 #~ msgstr "x264-Profil"

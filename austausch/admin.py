@@ -66,7 +66,11 @@ class ExchangeConfigAdmin(admin.ModelAdmin):
         }),
         (_('Export to server'), {
             'fields': (
+                'export_destination',
                 'upload_server_path',
+                'network_share_base_path',
+                'network_share_subfolder',
+                'network_share_windows_root',
                 'default_media_authority',
                 'local_pdf_fallback_path',
                 'local_pdf_fallback_path_2',
@@ -74,7 +78,8 @@ class ExchangeConfigAdmin(admin.ModelAdmin):
                 'thumbnail_storage_path',
             ),
             'description': _(
-                'Settings for uploading video, PDF, JSON and optional thumbnails to Nextcloud. '
+                'Settings for exporting video, PDF, JSON and optional thumbnails. '
+                'Choose export destination (Nextcloud or Network Share). '
                 'Thumbnail storage path is used only when "Upload Thumbnail Enabled" is checked.'
             ),
         }),
@@ -312,4 +317,3 @@ class ExchangeImportAdmin(admin.ModelAdmin):
             return format_html('<span style="color: red;">{}</span>', obj.error_message)
         return '-'
     error_message_short.short_description = _('Error Message')
-
