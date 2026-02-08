@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+2026-02-08 (Version 4.0.9)
+==========================
+
+* **Deployment configurations update**
+  * Updated docker-compose production files with improved service configurations
+  * Enhanced environment variable documentation
+  * Updated deployment scripts for better reliability
+  * Added new configuration templates
+* **Media files module improvements**
+  * Updated FFmpeg rendering utilities for video processing
+  * Enhanced background task processing for media operations
+
 2026-02-08 (Version 4.0.8)
 ===========================
 
