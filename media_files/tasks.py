@@ -223,7 +223,7 @@ def run_cleanup_missing_files_task(**kwargs):
     logger.info("Finished cleanup_missing_files task.")
 
 
-@shared_task(name="media_files.tasks.render_video_task")
+@shared_task(name="media_files.tasks.render_video_task", queue="render")
 def render_video_task(operation_id):
     """
     Render video with overlays asynchronously via Celery.

@@ -446,6 +446,56 @@ elif ! validate_env_file "$ENV_FILE"; then
     fi
 fi
 
+# Create .env backup with timestamp before update
+print_info "Creating .env backup with timestamp..."
+ENV_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+cp "$PRODUCTION_DIR/.env" "$PRODUCTION_DIR/.env.backup.$ENV_TIMESTAMP" 2>/dev/null || true
+if [ -f "$PRODUCTION_DIR/.env.backup.$ENV_TIMESTAMP" ]; then
+    print_success "Created .env backup: .env.backup.$ENV_TIMESTAMP"
+else
+    print_warning "Could not create .env backup"
+fi
+
+# Function to rotate .env backups - keep only last 7
+rotate_env_backups() {
+    local env_backup_dir="$PRODUCTION_DIR"
+    local env_backup_pattern="$env_backup_dir/.env.backup."
+    
+    print_info "Rotating .env backups (keeping last 7)..."
+    
+    # Find all .env backup files with timestamp format
+    local all_env_backups=()
+    while IFS= read -r -d '' file; do
+        all_env_backups+=("$file")
+    done < <(find "$env_backup_dir" -maxdepth 1 -name ".env.backup.*" -print0 2>/dev/null | sort -rz)
+    
+    local backup_count=${#all_env_backups[@]}
+    
+    if [ "$backup_count" -gt 7 ]; then
+        # Calculate how many backups to remove (keep last 7)
+        local remove_count=$((backup_count - 7))
+        print_info "Found $backup_count .env backups, removing oldest $remove_count"
+        
+        # Remove the oldest backups
+        for ((i = 0; i < remove_count; i++)); do
+            local backup_to_remove="${all_env_backups[$i]}"
+            if [ -f "$backup_to_remove" ]; then
+                rm -f "$backup_to_remove"
+                print_info "Removed old .env backup: $(basename "$backup_to_remove")"
+            fi
+        done
+        
+        print_success ".env backup rotation completed (kept 7 most recent)"
+    elif [ "$backup_count" -gt 0 ]; then
+        print_success ".env backup rotation completed (found $backup_count, keeping all)"
+    else
+        print_info "No .env backup files found for rotation"
+    fi
+}
+
+# Run .env backup rotation immediately after creating the new backup
+rotate_env_backups
+
 # Create backup before update
 print_header "Creating Backup Before Update"
 BACKUP_DIR="$PRODUCTION_DIR/backups/backup-$(date +%Y%m%d-%H%M%S)"
@@ -513,8 +563,8 @@ cp "$PRODUCTION_DIR/.env" "$BACKUP_DIR/.env.backup" 2>/dev/null || true
 cp "$PRODUCTION_DIR/docker-compose.yml" "$BACKUP_DIR/docker-compose.yml.backup" 2>/dev/null || true
 print_success "Configuration backup created"
 
-# Backup rotation - keep only last 5
-print_info "Rotating backups (keeping last 5)..."
+# Backup rotation for general backup directories - keep only last 5
+print_info "Rotating general backups (keeping last 5)..."
 BACKUP_COUNT=$(ls -1d "$PRODUCTION_DIR/backups/backup-"* 2>/dev/null | wc -l | tr -d ' ')
 if [ "$BACKUP_COUNT" -gt 5 ]; then
     OLD_BACKUPS=$(ls -1td "$PRODUCTION_DIR/backups/backup-"* | tail -n +6)
@@ -523,7 +573,7 @@ if [ "$BACKUP_COUNT" -gt 5 ]; then
         print_info "Removed old backup: $(basename "$old_backup")"
     done
 fi
-print_success "Backup rotation completed (kept 5 most recent)"
+print_success "General backup rotation completed (kept 5 most recent)"
 
 # Function to create local update.sh script in production directory
 create_local_update_script() {

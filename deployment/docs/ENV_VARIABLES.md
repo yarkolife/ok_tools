@@ -751,6 +751,27 @@ This document provides comprehensive reference for all environment variables use
 - **Example:** `CELERY_RESULT_BACKEND=redis://redis:6379/0`
 - **Notes:** Use `redis:6379/0` when using Docker Compose
 
+### OKTOOLS_RENDER_TIMEOUT_SECONDS
+- **Description:** Base timeout for FFmpeg render subprocesses (seconds)
+- **Type:** Integer
+- **Required:** No
+- **Default:** `21600`
+- **Example:** `OKTOOLS_RENDER_TIMEOUT_SECONDS=21600`
+- **Notes:**
+  - Used by render pipeline in [`media_files/rendering/ffmpeg.py`](media_files/rendering/ffmpeg.py:35)
+  - Independent from [`GUNICORN_TIMEOUT`](deployment/docs/ENV_VARIABLES.md:860)
+  - Effective timeout is dynamic: `max(OKTOOLS_RENDER_TIMEOUT_SECONDS, segment_duration * OKTOOLS_RENDER_TIMEOUT_FACTOR)`
+
+### OKTOOLS_RENDER_TIMEOUT_FACTOR
+- **Description:** Multiplier for dynamic FFmpeg render timeout by segment duration
+- **Type:** Float
+- **Required:** No
+- **Default:** `3.0`
+- **Example:** `OKTOOLS_RENDER_TIMEOUT_FACTOR=3.0`
+- **Notes:**
+  - Helps long renders avoid premature `TimeoutExpired`
+  - Increase when render speed is below realtime due to CPU/NAS load
+
 ---
 
 ## Celery Beat Schedules

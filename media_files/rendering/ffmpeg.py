@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import logging
+import math
 import os
 import shlex
 import subprocess
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -20,6 +22,9 @@ from .templates import TemplateContext, render_text_template
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_RENDER_TIMEOUT_SECONDS = 21600
+_DEFAULT_RENDER_TIMEOUT_FACTOR = 3.0
+
 
 class FfmpegError(RuntimeError):
     """Raised when ffmpeg execution fails."""
@@ -32,9 +37,57 @@ class RenderArtifacts:
     output_mp4: str
 
 
-def _run(cmd: List[str], timeout: int = 3600) -> None:
+def _get_env_int(name: str, default: int) -> int:
+    """Read integer value from environment with safe fallback."""
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        value = int(raw)
+        return value if value > 0 else default
+    except (TypeError, ValueError):
+        logger.warning("Invalid env %s=%r, using default %s", name, raw, default)
+        return default
+
+
+def _get_env_float(name: str, default: float) -> float:
+    """Read float value from environment with safe fallback."""
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        value = float(raw)
+        return value if value > 0 else default
+    except (TypeError, ValueError):
+        logger.warning("Invalid env %s=%r, using default %s", name, raw, default)
+        return default
+
+
+def _render_timeout(duration_seconds: Optional[float] = None) -> int:
+    """Calculate render timeout from env and optional segment duration."""
+    base_timeout = _get_env_int("OKTOOLS_RENDER_TIMEOUT_SECONDS", _DEFAULT_RENDER_TIMEOUT_SECONDS)
+    factor = _get_env_float("OKTOOLS_RENDER_TIMEOUT_FACTOR", _DEFAULT_RENDER_TIMEOUT_FACTOR)
+
+    if duration_seconds is None or duration_seconds <= 0:
+        return base_timeout
+
+    dynamic_timeout = int(math.ceil(duration_seconds * factor))
+    return max(base_timeout, dynamic_timeout)
+
+
+def _run(cmd: List[str], timeout: Optional[int] = None) -> None:
     """Run a subprocess and raise a detailed error on failure."""
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    effective_timeout = int(timeout) if timeout is not None else _render_timeout()
+    started_at = time.monotonic()
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=effective_timeout)
+    elapsed = time.monotonic() - started_at
+    logger.info(
+        "Command finished: executable=%s timeout=%ss elapsed=%.1fs returncode=%s",
+        cmd[0] if cmd else "unknown",
+        effective_timeout,
+        elapsed,
+        result.returncode,
+    )
     if result.returncode != 0:
         joined = " ".join(shlex.quote(c) for c in cmd)
         raise FfmpegError(
@@ -1110,7 +1163,8 @@ def _render_segment_to_ts(
 
     cmd.extend(_encode_args(encode))
     cmd.extend(["-shortest", "-f", "mpegts", output_ts])
-    _run(cmd)
+    segment_duration = float(t) if t is not None and t > 0 else _duration_seconds(input_video)
+    _run(cmd, timeout=_render_timeout(segment_duration))
 
 
 def _final_video_label(filter_complex: str) -> str:
@@ -1146,7 +1200,7 @@ def _render_main_to_ts(input_video: str, output_ts: str, encode: EncodePreset) -
 
     cmd.extend(_encode_args(encode))
     cmd.extend(["-shortest", "-f", "mpegts", output_ts])
-    _run(cmd)
+    _run(cmd, timeout=_render_timeout(_duration_seconds(input_video)))
 
 
 def render_with_intro_outro(
@@ -1244,7 +1298,7 @@ def render_with_overlays_on_main_edges(
                 cmd.extend(["-map", "1:a"])
             cmd.extend(_encode_args(encode))
             cmd.extend(["-shortest", "-f", "mpegts", main_ts])
-            _run(cmd)
+            _run(cmd, timeout=_render_timeout(mid))
         else:
             # If the video is very short, just skip the middle.
             Path(main_ts).write_bytes(b"")
@@ -1331,5 +1385,4 @@ def render_preview_overlays_on_main_edges(
         _run(cmd)
 
         return RenderArtifacts(output_mp4=str(out_path))
-
 
