@@ -458,61 +458,67 @@
             });
         }
 
-        // Handle form submission to open print page in new window
-        const licenseForm = document.getElementById('license-form');
-        const saveButton = document.getElementById('save-button');
-        
-        if (licenseForm && saveButton) {
-            licenseForm.addEventListener('submit', function(e) {
-                // Get license ID from current URL
-                const currentUrl = window.location.href;
-                const match = currentUrl.match(/\/licenses\/(\d+)\/update\//);
-                
-                if (match) {
-                    const licenseId = match[1];
-                    // Store print URL to open after successful save
-                    const printUrl = '{% url "licenses:print" pk=0 %}'.replace('0', licenseId);
-                    
-                    // Prevent default form submission
-                    e.preventDefault();
-                    
-                    // Disable submit button to prevent double submission
-                    saveButton.disabled = true;
-                    const originalText = saveButton.textContent;
-                    saveButton.textContent = '{% trans "Saving..." %}';
-                    
-                    // Submit form via fetch
-                    const formData = new FormData(licenseForm);
-                    
-                    fetch(licenseForm.action || window.location.href, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        },
-                        redirect: 'follow'
-                    })
-                    .then(response => {
-                        // Open print page in new window
-                        window.open(printUrl, '_blank');
-                        
-                        // Follow redirect or go to licenses list
-                        if (response.redirected) {
-                            window.location.href = response.url;
-                        } else {
-                            window.location.href = '{% url "licenses:licenses" %}';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        // On error, allow normal form submission
-                        saveButton.disabled = false;
-                        saveButton.textContent = originalText;
-                        licenseForm.submit();
-                    });
-                }
-            });
-        }
+         // Handle form submission to open print page in new window
+         const licenseForm = document.getElementById('license-form');
+         const saveButton = document.getElementById('save-button');
+         
+         if (licenseForm && saveButton) {
+             licenseForm.addEventListener('submit', function(e) {
+                 // Get license ID from current URL
+                 const currentUrl = window.location.href;
+                 const match = currentUrl.match(/\/licenses\/(\d+)\/update\//);
+                 
+                 if (match) {
+                     const licenseId = match[1];
+                     // Store print URL to open after successful save
+                     const printUrl = '{% url "licenses:print" pk=0 %}'.replace('0', licenseId);
+                     
+                     // Check if there's already a digital signature
+                     const signatureInput = document.getElementById('id_signature');
+                     const hasDigitalSignature = signatureInput && signatureInput.value.trim() !== '';
+                     
+                     // Prevent default form submission
+                     e.preventDefault();
+                     
+                     // Disable submit button to prevent double submission
+                     saveButton.disabled = true;
+                     const originalText = saveButton.textContent;
+                     saveButton.textContent = '{% trans "Saving..." %}';
+                     
+                     // Submit form via fetch
+                     const formData = new FormData(licenseForm);
+                     
+                     fetch(licenseForm.action || window.location.href, {
+                         method: 'POST',
+                         body: formData,
+                         headers: {
+                             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                         },
+                         redirect: 'follow'
+                     })
+                     .then(response => {
+                         // Only open print page if there's no digital signature yet
+                         if (!hasDigitalSignature) {
+                             window.open(printUrl, '_blank');
+                         }
+                         
+                         // Follow redirect or go to licenses list
+                         if (response.redirected) {
+                             window.location.href = response.url;
+                         } else {
+                             window.location.href = '{% url "licenses:licenses" %}';
+                         }
+                     })
+                     .catch(error => {
+                         console.error('Error:', error);
+                         // On error, allow normal form submission
+                         saveButton.disabled = false;
+                         saveButton.textContent = originalText;
+                         licenseForm.submit();
+                     });
+                 }
+             });
+         }
 
         // Video file upload - Direct upload to Nextcloud
         const videoFileInput = document.getElementById('id_video_file');

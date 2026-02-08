@@ -2,6 +2,101 @@
   $(function () {
     var $modal = $('#dayPlanModal');
     var plannedItems = [];
+    var calendarStartDate = INITIAL_CALENDAR_START ? new Date(INITIAL_CALENDAR_START + 'T00:00:00Z') : null;
+
+    function announce(message) {
+      $('#planningA11yLive').text(message || '');
+    }
+
+    function showToast(message, type) {
+      var cssClass = 'planning-toast';
+      if (type === 'error') cssClass += ' planning-toast--error';
+      if (type === 'success') cssClass += ' planning-toast--success';
+
+      var $toast = $('<div class="' + cssClass + '"></div>').text(message || '');
+      $('#planningToastRegion').append($toast);
+      setTimeout(function () {
+        $toast.fadeOut(250, function () { $(this).remove(); });
+      }, 3200);
+    }
+
+    function notify(message, type) {
+      showToast(message, type || 'info');
+      announce(message);
+    }
+
+    function showInlineNotice(message) {
+      var $notice = $('#planningInlineNotice');
+      $notice.text(message || '').prop('hidden', !message);
+    }
+
+    function clearInlineNotice() {
+      $('#planningInlineNotice').text('').prop('hidden', true);
+    }
+
+    function debounce(fn, wait) {
+      var timeoutId = null;
+      return function () {
+        var args = arguments;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(function () {
+          fn.apply(null, args);
+        }, wait || 150);
+      };
+    }
+
+    function openActionModal(options) {
+      return new Promise(function (resolve) {
+        var modalEl = document.getElementById('planningActionModal');
+        if (!modalEl || !window.bootstrap || !bootstrap.Modal) {
+          resolve(null);
+          return;
+        }
+
+        var opts = options || {};
+        var $message = $('#planningActionMessage');
+        var $input = $('#planningActionInput');
+        var $inputLabel = $('#planningActionInputLabel');
+        var $confirmBtn = $('#planningActionConfirmBtn');
+
+        $('#planningActionLabel').text(opts.title || gettext('Confirm action'));
+        $message.text(opts.message || '');
+
+        if (opts.withInput) {
+          $input.prop('hidden', false).val(opts.initialValue || '').attr('placeholder', opts.placeholder || '');
+          $inputLabel.prop('hidden', false).text(opts.inputLabel || gettext('Enter value'));
+        } else {
+          $input.prop('hidden', true).val('');
+          $inputLabel.prop('hidden', true);
+        }
+
+        $confirmBtn.text(opts.confirmText || gettext('Confirm'));
+
+        var actionModal = new bootstrap.Modal(modalEl);
+        var settled = false;
+
+        function finish(value) {
+          if (settled) return;
+          settled = true;
+          resolve(value);
+        }
+
+        $confirmBtn.off('click.planningAction').on('click.planningAction', function () {
+          var value = opts.withInput ? ($input.val() || '').trim() : true;
+          finish(value);
+          actionModal.hide();
+        });
+
+        $(modalEl).off('hidden.bs.modal.planningAction').on('hidden.bs.modal.planningAction', function () {
+          if (!settled) {
+            finish(null);
+          }
+          $confirmBtn.off('click.planningAction');
+        });
+
+        actionModal.show();
+      });
+    }
     
     // Parse broadcast block from settings
     const [startH, startM] = BROADCAST_START.split(':').map(Number);
@@ -315,11 +410,38 @@
     // Display block duration on page load
     $('#blockDurationDisplay').text(formatTime(maxBlockSeconds));
 
+    function renderValidationErrors(xhr, fallbackMessage) {
+      var payload = xhr && xhr.responseJSON ? xhr.responseJSON : null;
+      if (payload && payload.errors && Array.isArray(payload.errors) && payload.errors.length > 0) {
+        var details = payload.errors.map(function (item) {
+          return '- ' + (item.field || 'unknown') + ': ' + item.message;
+        }).join('\n');
+        showInlineNotice((payload.error || gettext('Validation failed')) + ' • ' + details.replace(/\n/g, ' '));
+        notify(payload.error || gettext('Validation failed'), 'error');
+        return;
+      }
+      showInlineNotice(fallbackMessage);
+      notify(fallbackMessage, 'error');
+    }
+
+    function loadTemplates() {
+      $.get('/api/planning/templates/', function (data) {
+        var $select = $('#templateSelect');
+        $select.find('option:not(:first)').remove();
+        (data.templates || []).forEach(function (tpl) {
+          $select.append('<option value="' + tpl.id + '">' + tpl.name + '</option>');
+        });
+      });
+    }
+
     // Load weekly statistics on page load
     // (function will be called after it's defined below)
 
-    $('.date-cell').on('click', function () {
-          const iso = $(this).data('date');
+    function openDayModal($trigger) {
+          clearInlineNotice();
+          $('.date-cell').removeClass('selected-day').attr('aria-selected', 'false');
+          $trigger.addClass('selected-day').attr('aria-selected', 'true');
+          const iso = $trigger.data('date');
           // Creating date from ISO format with UTC parsing to prevent timezone issues
           const jsDate = new Date(iso + 'T00:00:00Z');
 
@@ -406,7 +528,11 @@
 
           const modal = new bootstrap.Modal(document.getElementById('dayPlanModal'));
           modal.show();
-      });
+      }
+
+    $(document).on('click', '.date-cell', function () {
+      openDayModal($(this));
+    });
 
     function updateRemainingTime() {
       var videoItems = [];
@@ -458,6 +584,7 @@
         const remaining = maxBlockSeconds;
         $('#remainingTime').removeClass('text-danger').addClass('text-success')
           .text(gettext('Full available'));
+        updateModalSummary();
         return;
       }
 
@@ -583,6 +710,47 @@
       
       $remaining.removeClass('text-danger text-success').addClass(statusClass)
         .text(statusText);
+
+      updateModalSummary();
+    }
+
+    function updateModalSummary() {
+      var rows = $('#licenseTable tbody tr:not(.gap-row)');
+      var outsideBlock = 0;
+      var overlaps = 0;
+
+      var ranges = [];
+      rows.each(function () {
+        var $row = $(this);
+        var $input = $row.find('.start-time-input');
+        var startSec = timeToSeconds(getInternalTime($input));
+        var durationText = $row.find('td').eq(5).text();
+        var parts = durationText.split(':').map(Number);
+        var duration = (parts[0] || 0) * 60 + (parts[1] || 0);
+        var endSec = startSec + duration;
+
+        if (startSec < blockStart || startSec >= blockEnd) {
+          outsideBlock += 1;
+        }
+        ranges.push({ start: startSec, end: endSec });
+      });
+
+      ranges.sort(function (a, b) { return a.start - b.start; });
+      for (var i = 1; i < ranges.length; i++) {
+        if (ranges[i].start < ranges[i - 1].end) {
+          overlaps += 1;
+        }
+      }
+
+      var largeGaps = $('#licenseTable tbody tr.gap-row-large').length;
+
+      $('#summaryItems').text(gettext('Items') + ': ' + rows.length);
+      $('#summaryOutside').text(gettext('Outside block') + ': ' + outsideBlock)
+        .toggleClass('summary-chip--warning', outsideBlock > 0);
+      $('#summaryLargeGaps').text(gettext('Large gaps') + ': ' + largeGaps)
+        .toggleClass('summary-chip--warning', largeGaps > 0);
+      $('#summaryOverlaps').text(gettext('Overlaps') + ': ' + overlaps)
+        .toggleClass('summary-chip--danger', overlaps > 0);
     }
 
     // Check if position is free (no overlaps with existing videos)
@@ -761,7 +929,7 @@
         updateRemainingTime();
         $('#licenseNumberInput').val('');
       }).fail(function () {
-        alert(gettext('License not found or not confirmed'));
+        notify(gettext('License not found or not confirmed'), 'error');
       });
     });
 
@@ -934,7 +1102,9 @@
         $input.data('manual-time', true);
         
         const adjustmentReason = gettext('Start time would cause overlap with another video. Adjusted to %(time)s.').replace('%(time)s', adjustedDisplay);
-        alert(adjustmentReason);
+        $input.addClass('planning-input-error');
+        showInlineNotice(adjustmentReason);
+        notify(adjustmentReason, 'error');
         
         // Recalculate after alert to ensure everything is updated
         recalculateSchedule();
@@ -947,6 +1117,8 @@
         // Mark as manual time when user edits
         $input.data('manual-time', true);
         setDesiredTime($input, $input.val());
+        $input.removeClass('planning-input-error');
+        clearInlineNotice();
         recalculateSchedule();
       }
     });
@@ -1111,7 +1283,7 @@
     function collectPlanData () {
       const isoDate = $('#dayPlanModal').data('isoDate');   // yyyy‑MM‑dd
       if (!isoDate) {
-          alert(gettext("⚠️ Date is missing."));
+          notify(gettext('Date is missing.'), 'error');
           return null;
       }
 
@@ -1172,11 +1344,11 @@
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function (response) {
-          alert(gettext("Draft saved successfully."));
+          notify(gettext('Draft saved successfully.'), 'success');
           location.reload(); // refresh calendar
         },
-        error: function (xhr, status, error) {
-          alert(gettext("Error saving the draft."));
+        error: function (xhr) {
+          renderValidationErrors(xhr, gettext("Error saving the draft."));
         }
       });
     });
@@ -1193,13 +1365,80 @@
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function () {
-          alert(gettext("Plan saved successfully!"));
+          notify(gettext('Plan saved successfully!'), 'success');
           const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
           modal.hide();
           location.reload(); // refresh calendar
         },
-        error: function () {
-          alert(gettext("Error saving the plan. Please try again."));
+        error: function (xhr) {
+          renderValidationErrors(xhr, gettext("Error saving the plan. Please try again."));
+        }
+      });
+    });
+
+    $('#exportPlanBtn').on('click', function () {
+      const isoDate = $('#dayPlanModal').data('isoDate');
+      if (!isoDate) {
+        notify(gettext('Date is missing.'), 'error');
+        return;
+      }
+      window.open('/api/day-plan/' + isoDate + '/export/', '_blank');
+    });
+
+    $('#copyFromDateBtn').on('click', function () {
+      const targetDate = $('#dayPlanModal').data('isoDate');
+      if (!targetDate) {
+        notify(gettext('Date is missing.'), 'error');
+        return;
+      }
+      openActionModal({
+        title: gettext('Copy plan'),
+        message: gettext('Enter source date (YYYY-MM-DD)'),
+        withInput: true,
+        inputLabel: gettext('Source date (YYYY-MM-DD)'),
+        placeholder: 'YYYY-MM-DD',
+        confirmText: gettext('Copy from date')
+      }).then(function (sourceDate) {
+        if (!sourceDate) return;
+
+        $.ajax({
+          url: '/api/planning/copy/',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ source_date: sourceDate, target_date: targetDate, overwrite: true }),
+          success: function () {
+            notify(gettext('Plan copied successfully.'), 'success');
+            location.reload();
+          },
+          error: function (xhr) {
+            renderValidationErrors(xhr, gettext('Error copying plan.'));
+          }
+        });
+      });
+    });
+
+    $('#applyTemplateBtn').on('click', function () {
+      const targetDate = $('#dayPlanModal').data('isoDate');
+      const templateId = $('#templateSelect').val();
+      if (!targetDate) {
+        notify(gettext('Date is missing.'), 'error');
+        return;
+      }
+      if (!templateId) {
+        notify(gettext('Please select a template.'), 'error');
+        return;
+      }
+      $.ajax({
+        url: '/api/planning/templates/apply/',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ date: targetDate, template_id: templateId, overwrite: true }),
+        success: function () {
+          notify(gettext('Template applied successfully.'), 'success');
+          location.reload();
+        },
+        error: function (xhr) {
+          renderValidationErrors(xhr, gettext('Error applying template.'));
         }
       });
     });
@@ -1220,29 +1459,36 @@
     }
     const csrftoken = getCookie('csrftoken');
 
-    $('#dayPlanModal .btn-danger').on('click', function () {
+    $('#deletePlanBtn').on('click', function () {
       const isoDate = $('#dayPlanModal').data('isoDate');
       if (!isoDate) {
-          alert(gettext("⚠️ Date is missing."));
+          notify(gettext('Date is missing.'), 'error');
           return;
       }
-      if (!confirm(gettext("Delete plan for this day?"))) return;
+      openActionModal({
+        title: gettext('Delete plan'),
+        message: gettext('Delete plan for this day?'),
+        withInput: false,
+        confirmText: gettext('Delete')
+      }).then(function (confirmed) {
+        if (!confirmed) return;
 
-      $.ajax({
-        url: '/api/day-plan/' + isoDate + '/',
-        method: 'DELETE',
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('X-CSRFToken', csrftoken);
-        },
-        success: function () {
-          alert(gettext("Plan deleted!"));
-          const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
-          modal.hide();
-          location.reload(); // refresh calendar
-        },
-        error: function () {
-          alert(gettext("Error deleting the plan."));
-        }
+        $.ajax({
+          url: '/api/day-plan/' + isoDate + '/',
+          method: 'DELETE',
+          beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+          },
+          success: function () {
+            notify(gettext('Plan deleted!'), 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
+            modal.hide();
+            location.reload(); // refresh calendar
+          },
+          error: function () {
+            notify(gettext('Error deleting the plan.'), 'error');
+          }
+        });
       });
     });
 
@@ -1365,90 +1611,18 @@
 
     // Function to load and display weekly statistics
     var loadWeeklyStatistics = function() {
-      var currentWeek = parseInt(CURRENT_WEEK, 10);
-      var weeks = [currentWeek, currentWeek + 1, currentWeek + 2, currentWeek + 3];
-
-      weeks.forEach(function(weekNum, weekIndex) {
-        var weekData = {
-          planned: 0,
-          totalTime: 0,
-          freistellungen: new Set() // Уникальные номера лицензий
-        };
-
-        // Get all dates for this week
-        var weekStart = getWeekStartDate(weekNum);
-
-        // Create unique counter for this week
-        var weekCounter = {
-          daysProcessed: 0,
-          totalDays: 7
-        };
-
-        // Load data for each day in the week
-        for (var i = 0; i < 7; i++) {
-          var date = new Date(weekStart);
-          date.setDate(date.getDate() + i + 1);  // +1 день для сдвига
-          var isoDate = date.toISOString().split('T')[0];
-
-          // Use IIFE to create proper closure for weekIndex and counters
-          (function(currentWeekIndex, currentWeekData, currentWeekCounter) {
-            var apiUrl = '/api/day-plan/' + isoDate + '/';
-
-            $.get(apiUrl)
-              .done(function (data) {
-
-                if (data.items && data.items.length > 0) {
-                  currentWeekData.planned++;
-                  data.items.forEach(function(item) {
-                    currentWeekData.totalTime += item.duration || 0;
-                    // Добавляем номер лицензии в Set для уникальности
-                    if (item.number) {
-                      currentWeekData.freistellungen.add(item.number);
-                    }
-                  });
-                }
-
-                currentWeekCounter.daysProcessed++;
-
-                // Update statistics only when all days are processed
-                if (currentWeekCounter.daysProcessed === currentWeekCounter.totalDays) {
-                  updateWeekStatistics(currentWeekIndex, currentWeekData);
-                }
-              })
-              .fail(function (xhr, status, error) {
-                currentWeekCounter.daysProcessed++;
-
-                // Update statistics even if some days failed
-                if (currentWeekCounter.daysProcessed === currentWeekCounter.totalDays) {
-                  updateWeekStatistics(currentWeekIndex, currentWeekData);
-                }
-              });
-          })(weekIndex, weekData, weekCounter);
-        }
-      });
-    };
-
-    // Helper functions for date calculations
-    var getWeekStartDate = function(weekNum) {
-      // Calculate start date for given week number
-      var currentYear = new Date().getFullYear();
-      var jan1 = new Date(currentYear, 0, 1);
-      var days = (weekNum - 1) * 7;
-      var weekStart = new Date(jan1.getTime() + days * 24 * 60 * 60 * 1000);
-
-      // Adjust to Monday
-      var dayOfWeek = weekStart.getDay();
-      var mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      weekStart.setDate(weekStart.getDate() - mondayOffset);
-
-      return weekStart;
-    };
-
-    var getWeekEndDate = function(weekNum) {
-      var weekStart = getWeekStartDate(weekNum);
-      var weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
-      return weekEnd;
+      var startDate = INITIAL_CALENDAR_START || new Date().toISOString().split('T')[0];
+      $.get('/api/planning/week-stats/?start=' + startDate + '&weeks=4')
+        .done(function (response) {
+          (response.weeks || []).forEach(function (weekData, idx) {
+            updateWeekStatistics(idx, {
+              planned: weekData.planned_days,
+              totalTime: weekData.total_seconds,
+              licensesCount: weekData.licenses_count,
+              maxSeconds: weekData.max_seconds,
+            });
+          });
+        });
     };
 
     // Update statistics display for specific week
@@ -1457,7 +1631,7 @@
       var weekId = weekIds[weekIndex];
 
       if (weekId) {
-        var maxWeeklyTime = maxBlockSeconds * 7; // Total seconds per week
+        var maxWeeklyTime = data.maxSeconds || (maxBlockSeconds * 7);
         var fillRate = Math.round((data.totalTime / maxWeeklyTime) * 100);
         
         var totalMins = Math.floor(data.totalTime / 60);
@@ -1470,7 +1644,7 @@
         $('#' + weekId + 'Planned').text(data.planned);
         $('#' + weekId + 'Time').text(timeText);
         $('#' + weekId + 'Fill').text(fillRate + '%');
-        $('#' + weekId + 'Freistellungen').text(data.freistellungen.size);
+        $('#' + weekId + 'TimeOff').text(data.licensesCount || 0);
 
         // Color coding for fill rate
         var fillElement = $('#' + weekId + 'Fill');
@@ -1486,7 +1660,74 @@
       }
     };
 
+    function normalizeSearchText(value) {
+      return (value || '')
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    }
+
+    function getDateCellText($cell) {
+      var text = normalizeSearchText($cell.text());
+      var searchData = normalizeSearchText($cell.data('search') || '');
+      return (text + ' ' + searchData).trim();
+    }
+
+    function applyCalendarFilters() {
+      var query = normalizeSearchText($('#calendarSearchInput').val() || '');
+      var status = $('#calendarStatusFilter').val();
+
+      $('.date-cell').each(function () {
+        var $btn = $(this);
+        var $td = $btn.closest('td');
+        var cellText = getDateCellText($btn);
+        var hasComment = $btn.find('.icon').text().indexOf('🗨️') >= 0;
+        var tdStatus = $td.data('status');
+        var isPlanned = tdStatus === 'planned';
+        var isDraft = tdStatus === 'draft';
+        var isEmpty = tdStatus === 'empty';
+
+        var statusOk = true;
+        if (status === 'planned') statusOk = isPlanned;
+        if (status === 'draft') statusOk = isDraft;
+        if (status === 'comment') statusOk = hasComment;
+        if (status === 'empty') statusOk = isEmpty;
+
+        var queryOk = !query || cellText.indexOf(query) >= 0;
+        var visible = statusOk && queryOk;
+
+        $td.toggle(visible);
+      });
+    }
+
+    var debouncedApplyCalendarFilters = debounce(applyCalendarFilters, 160);
+    $('#calendarSearchInput').on('input', debouncedApplyCalendarFilters);
+    $('#calendarStatusFilter').on('change', applyCalendarFilters);
+
+    function shiftCalendarWeeks(deltaWeeks) {
+      if (!calendarStartDate || isNaN(calendarStartDate.getTime())) {
+        calendarStartDate = new Date();
+      }
+      calendarStartDate.setDate(calendarStartDate.getDate() + (deltaWeeks * 7));
+      var iso = calendarStartDate.toISOString().split('T')[0];
+      window.location.href = '/admin/planung/tagesplan/calendar-weeks/?start=' + iso + '&weeks=' + (CALENDAR_WEEKS || 18);
+    }
+
+    $('#navPrevWeeksBtn').on('click', function () { shiftCalendarWeeks(-4); });
+    $('#navNextWeeksBtn').on('click', function () { shiftCalendarWeeks(4); });
+    $('#navTodayBtn').on('click', function () {
+      var now = new Date();
+      var day = now.getDay();
+      var mondayOffset = day === 0 ? 6 : day - 1;
+      now.setDate(now.getDate() - mondayOffset);
+      var iso = now.toISOString().split('T')[0];
+      window.location.href = '/admin/planung/tagesplan/calendar-weeks/?start=' + iso + '&weeks=' + (CALENDAR_WEEKS || 18);
+    });
+
     // Load weekly statistics after all functions are defined
+    loadTemplates();
     loadWeeklyStatistics();
 
   });

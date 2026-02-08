@@ -108,6 +108,16 @@
   font-size: var(--font-size-lg);
 }
 
+/* Theme toggle button adjustments for mobile */
+@media (max-width: 767.98px) {
+  .theme-toggle-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+  }
+}
+
 /* Sidebar collapse button */
 .sidebar-collapse-btn {
   color: var(--color-text-white);

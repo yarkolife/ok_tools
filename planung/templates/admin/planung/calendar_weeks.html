@@ -9,135 +9,128 @@
 {% endblock %}
 
 {% block content %}
+<div class="planning-calendar-page">
+  <div id="planningA11yLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-<!-- Weekly Statistics -->
-<div class="stats-container">
-  <div class="card border-primary">
-    <div class="card-header bg-primary text-white">
-      <h6 class="mb-0">{% trans "Current Week" %} ({% trans "CW" %} {{ current_week }})</h6>
+  <div class="planning-toolbar">
+    <div class="planning-toolbar__group">
+      <button id="navPrevWeeksBtn" class="button" type="button">← {% trans "Previous 4 weeks" %}</button>
+      <button id="navTodayBtn" class="button default" type="button">{% trans "Today" %}</button>
+      <button id="navNextWeeksBtn" class="button" type="button">{% trans "Next 4 weeks" %} →</button>
     </div>
-    <div class="card-body">
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Planned days" %}:</span>
-        <strong id="currentWeekPlanned">0</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Total time" %}:</span>
-        <strong id="currentWeekTime">0/735 min</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Fill rate" %}:</span>
-        <strong id="currentWeekFill">0%</strong>
-      </div>
-      <div class="d-flex justify-content-between">
-        <span>{% trans "Licenses" %}:</span>
-        <strong id="currentWeekTimeOff">0</strong>
-      </div>
+    <div class="planning-toolbar__group planning-toolbar__group--filters">
+      <label for="calendarSearchInput" class="sr-only">{% trans "Search calendar" %}</label>
+      <input type="text" id="calendarSearchInput" class="vTextField" placeholder="{% trans 'Search comment/license/date' %}" aria-label="{% trans 'Search comment/license/date' %}">
+      <label for="calendarStatusFilter" class="sr-only">{% trans "Filter by status" %}</label>
+      <select id="calendarStatusFilter" class="vTextField">
+        <option value="all">{% trans "All statuses" %}</option>
+        <option value="planned">{% trans "Planned" %}</option>
+        <option value="draft">{% trans "Draft" %}</option>
+        <option value="comment">{% trans "Comment only" %}</option>
+        <option value="empty">{% trans "Empty" %}</option>
+      </select>
     </div>
   </div>
 
-  <div class="card border-info">
-    <div class="card-header bg-info text-white">
-      <h6 class="mb-0">{% trans "Next Week" %} ({% trans "CW" %} {{ current_week|add:1 }})</h6>
-    </div>
-    <div class="card-body">
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Planned days" %}:</span>
-        <strong id="nextWeekPlanned">0</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Total time" %}:</span>
-        <strong id="nextWeekTime">0/735 min</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Fill rate" %}:</span>
-        <strong id="nextWeekFill">0%</strong>
-      </div>
-      <div class="d-flex justify-content-between">
-        <span>{% trans "Time Off" %}:</span>
-        <strong id="nextWeekTimeOff">0</strong>
-      </div>
-    </div>
+  <div class="planning-stats-grid">
+    <article class="planning-stat-card planning-stat-card--current">
+      <h3>{% trans "Current Week" %} ({% trans "CW" %} {{ current_week }})</h3>
+      <dl>
+        <div><dt>{% trans "Planned days" %}:</dt><dd id="currentWeekPlanned">0</dd></div>
+        <div><dt>{% trans "Total time" %}:</dt><dd id="currentWeekTime">0/735 min</dd></div>
+        <div><dt>{% trans "Fill rate" %}:</dt><dd id="currentWeekFill">0%</dd></div>
+        <div><dt>{% trans "Licenses" %}:</dt><dd id="currentWeekTimeOff">0</dd></div>
+      </dl>
+    </article>
+
+    <article class="planning-stat-card planning-stat-card--next">
+      <h3>{% trans "Next Week" %} ({% trans "CW" %} {{ current_week|add:1 }})</h3>
+      <dl>
+        <div><dt>{% trans "Planned days" %}:</dt><dd id="nextWeekPlanned">0</dd></div>
+        <div><dt>{% trans "Total time" %}:</dt><dd id="nextWeekTime">0/735 min</dd></div>
+        <div><dt>{% trans "Fill rate" %}:</dt><dd id="nextWeekFill">0%</dd></div>
+        <div><dt>{% trans "Time Off" %}:</dt><dd id="nextWeekTimeOff">0</dd></div>
+      </dl>
+    </article>
+
+    <article class="planning-stat-card planning-stat-card--after-next">
+      <h3>{% trans "Week After Next" %} ({% trans "CW" %} {{ current_week|add:2 }})</h3>
+      <dl>
+        <div><dt>{% trans "Planned days" %}:</dt><dd id="afterNextWeekPlanned">0</dd></div>
+        <div><dt>{% trans "Total time" %}:</dt><dd id="afterNextWeekTime">0/735 min</dd></div>
+        <div><dt>{% trans "Fill rate" %}:</dt><dd id="afterNextWeekFill">0%</dd></div>
+        <div><dt>{% trans "Time Off" %}:</dt><dd id="afterNextWeekTimeOff">0</dd></div>
+      </dl>
+    </article>
+
+    <article class="planning-stat-card planning-stat-card--ahead">
+      <h3>{% trans "3 Weeks Ahead" %} ({% trans "CW" %} {{ current_week|add:3 }})</h3>
+      <dl>
+        <div><dt>{% trans "Planned days" %}:</dt><dd id="threeWeeksAheadPlanned">0</dd></div>
+        <div><dt>{% trans "Total time" %}:</dt><dd id="threeWeeksAheadTime">0/735 min</dd></div>
+        <div><dt>{% trans "Fill rate" %}:</dt><dd id="threeWeeksAheadFill">0%</dd></div>
+        <div><dt>{% trans "Time Off" %}:</dt><dd id="threeWeeksAheadTimeOff">0</dd></div>
+      </dl>
+    </article>
   </div>
 
-  <div class="card border-warning">
-    <div class="card-header bg-warning text-white">
-      <h6 class="mb-0">{% trans "Week After Next" %} ({% trans "CW" %} {{ current_week|add:2 }})</h6>
-    </div>
-    <div class="card-body">
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Planned days" %}:</span>
-        <strong id="afterNextWeekPlanned">0</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Total time" %}:</span>
-        <strong id="afterNextWeekTime">0/735 min</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Fill rate" %}:</span>
-        <strong id="afterNextWeekFill">0%</strong>
-      </div>
-      <div class="d-flex justify-content-between">
-        <span>{% trans "Time Off" %}:</span>
-        <strong id="afterNextWeekTimeOff">0</strong>
-      </div>
-    </div>
-  </div>
+  <section class="planning-status-legend" aria-label="{% trans 'Calendar status legend' %}">
+    <strong>{% trans "Legend" %}:</strong>
+    <span class="status-badge status-badge--planned">{% trans "Planned" %}</span>
+    <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
+    <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
+    <span class="status-badge status-badge--empty">{% trans "Empty" %}</span>
+  </section>
 
-  <div class="card border-secondary">
-    <div class="card-header bg-secondary text-white">
-      <h6 class="mb-0">{% trans "3 Weeks Ahead" %} ({% trans "CW" %} {{ current_week|add:3 }})</h6>
-    </div>
-    <div class="card-body">
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Planned days" %}:</span>
-        <strong id="threeWeeksAheadPlanned">0</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Total time" %}:</span>
-        <strong id="threeWeeksAheadTime">0/735 min</strong>
-      </div>
-      <div class="d-flex justify-content-between mb-2">
-        <span>{% trans "Fill rate" %}:</span>
-        <strong id="threeWeeksAheadFill">0%</strong>
-      </div>
-      <div class="d-flex justify-content-between">
-        <span>{% trans "Time Off" %}:</span>
-        <strong id="threeWeeksAheadTimeOff">0</strong>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="table-responsive">
-  <table class="table table-bordered text-center">
+  <div class="planning-calendar-table table-responsive">
+    <table class="table table-bordered text-center" role="grid" aria-label="{% trans 'Planning calendar weeks' %}">
+    <caption class="sr-only">{% trans "Calendar with planning status by day" %}</caption>
     <thead>
       <tr>
-        <th></th>
+        <th scope="col">{% trans "Week" %}</th>
         {% for name in weekday_names %}
-          <th style="font-size:16px;">{{ name }}</th>
+          <th scope="col" class="planning-day-header">{{ name }}</th>
         {% endfor %}
       </tr>
     </thead>
 
-    <tbody>
-      {% for week in weeks %}
-      <tr class="{% if week.num == current_week %}current-week{% endif %}">
-          <td class="kw-cell">{% trans "CW" %} {{ week.num }}</td>
+      <tbody>
+        {% for week in weeks %}
+        <tr class="{% if week.num == current_week %}current-week{% endif %}">
+          <th scope="row" class="kw-cell">{% trans "CW" %} {{ week.num }}</th>
 
           {% for cell in week.days %}
-            <td class="{{ cell.cls }}">
+            <td class="{{ cell.cls }}"
+                data-status="{% if 'bg-success' in cell.cls %}planned{% elif 'bg-warning' in cell.cls %}draft{% elif 'bg-info' in cell.cls and cell.icon == '🗨️' %}comment{% elif 'bg-info' in cell.cls %}draft{% elif cell.icon %}comment{% else %}empty{% endif %}">
               <button class="btn btn-sm btn-outline-primary date-cell"
-                      data-date="{{ cell.iso }}">
+                      data-date="{{ cell.iso }}"
+                      data-search="{{ cell.search|default:'' }}"
+                      aria-label="{{ cell.date|date:'d.m.Y' }} {% if 'bg-success' in cell.cls %}{% trans 'Planned' %}{% elif 'bg-warning' in cell.cls %}{% trans 'Draft' %}{% elif 'bg-info' in cell.cls and cell.icon == '🗨️' %}{% trans 'Comment' %}{% elif 'bg-info' in cell.cls %}{% trans 'Draft' %}{% elif cell.icon %}{% trans 'Comment' %}{% else %}{% trans 'Empty' %}{% endif %}">
                 {{ cell.date|date:"d.m" }}
-                {% if cell.icon %}<span class="icon">{{ cell.icon }}</span>{% endif %}
+                <span class="date-cell-meta">
+                  {% if cell.icon %}<span class="icon">{{ cell.icon }}</span>{% endif %}
+                  {% if 'bg-success' in cell.cls %}
+                    <span class="status-badge status-badge--planned">{% trans "Planned" %}</span>
+                  {% elif 'bg-warning' in cell.cls %}
+                    <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
+                  {% elif 'bg-info' in cell.cls and cell.icon == '🗨️' %}
+                    <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
+                  {% elif 'bg-info' in cell.cls %}
+                    <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
+                  {% elif cell.icon %}
+                    <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
+                  {% else %}
+                    <span class="status-badge status-badge--empty">{% trans "Empty" %}</span>
+                  {% endif %}
+                </span>
               </button>
             </td>
           {% endfor %}
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Bootstrap 3 compatible modal window -->
@@ -155,15 +148,30 @@
       <div class="modal-body">
         <div class="time-status text-success" id="timeStatus">
           <strong>{% trans "Broadcast block" %}:</strong> {{ broadcast_start }} – {{ broadcast_end }} (<span id="blockDurationDisplay"></span>) •
-          <span id="remainingTime">{% trans "Full available" %}</span>
+          <span id="remainingTime" aria-live="polite">{% trans "Full available" %}</span>
           <br><small>{% trans "Large gaps (≥5 min) can be filled with videos" %}</small>
           <br><small>{% trans "You can manually set any time (including 00:00 and times outside the block) by editing the start time field" %}</small>
         </div>
 
+        <div class="planning-modal-summary" id="planModalSummary" aria-live="polite">
+          <span class="summary-chip" id="summaryItems">{% trans "Items" %}: 0</span>
+          <span class="summary-chip" id="summaryOutside">{% trans "Outside block" %}: 0</span>
+          <span class="summary-chip" id="summaryLargeGaps">{% trans "Large gaps" %}: 0</span>
+          <span class="summary-chip" id="summaryOverlaps">{% trans "Overlaps" %}: 0</span>
+        </div>
+
+        <div id="planningInlineNotice" class="planning-inline-notice" hidden></div>
+
         <div class="d-flex gap-2 mb-3 flex-wrap">
           <input type="number" id="licenseNumberInput" class="form-control" placeholder="{% trans 'Enter license number...' %}" style="width: 270px;">
-          <button id="addLicenseBtn" class="btn btn-primary">{% trans "Add" %}</button>
-          <button id="alignToFiveMinutesBtn" class="btn btn-secondary" title="{% trans 'Align all start times to 0 or 5 minutes' %}" style="white-space: nowrap;">⏱️ {% trans "Align to 5 min" %}</button>
+          <button id="addLicenseBtn" class="button default" type="button">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2a.75.75 0 0 1 .75.75V7.25h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z" fill="currentColor"/></svg>
+            {% trans "Add" %}
+          </button>
+          <button id="alignToFiveMinutesBtn" class="button" type="button" title="{% trans 'Align all start times to 0 or 5 minutes' %}" style="white-space: nowrap;">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 8 1.5Zm0 1.3A5.2 5.2 0 1 1 2.8 8 5.2 5.2 0 0 1 8 2.8Zm-.65 1.9a.65.65 0 0 1 1.3 0v3.01l2.22 1.28a.65.65 0 1 1-.65 1.13L7.68 8.66a.65.65 0 0 1-.33-.56V4.7Z" fill="currentColor"/></svg>
+            {% trans "Align to 5 min" %}
+          </button>
         </div>
 
         <table class="table table-bordered table-condensed" id="licenseTable">
@@ -189,17 +197,80 @@
         </div>
       </div>
 
-      <div class="modal-footer d-flex flex-wrap gap-2">
-        <button id="sortByTimeBtn" class="btn btn-secondary" type="button" title="{% trans 'Sort by time' %}">⏱️ {% trans 'Sort by time' %}</button>
-        <button class="btn btn-danger">{% trans "Delete" %}</button>
-        <button class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
-        <button id="savePlanBtn" class="btn btn-primary">{% trans "Save" %}</button>
-        <button id="planPlanBtn" class="btn btn-success">{% trans "Plan!" %}</button>
+      <div class="modal-footer planning-footer">
+        <div class="planning-footer__group" aria-label="{% trans 'Preparation actions' %}">
+          <select id="templateSelect" class="form-select" style="max-width:260px;">
+            <option value="">{% trans "Select template" %}</option>
+          </select>
+          <button id="applyTemplateBtn" class="button" type="button">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 1.75 4.2v3.92C1.75 11.2 4.4 14.1 8 14.9c3.6-.8 6.25-3.7 6.25-6.78V4.2L8 1.5Zm0 1.43 4.95 2.14v3.05c0 2.31-1.93 4.65-4.95 5.4-3.02-.75-4.95-3.09-4.95-5.4V5.07L8 2.93Zm-1.12 3.3a.65.65 0 0 0-.92.92L7.54 8.7a.65.65 0 0 0 .95-.03l2.62-2.96a.65.65 0 1 0-.98-.86L8 7.37 6.88 6.23Z" fill="currentColor"/></svg>
+            {% trans "Apply template" %}
+          </button>
+          <button id="copyFromDateBtn" class="button" type="button">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 1.75a.75.75 0 0 1 1.5 0v.5h1A1.75 1.75 0 0 1 14.75 4v8A1.75 1.75 0 0 1 13 13.75H3A1.75 1.75 0 0 1 1.25 12V4A1.75 1.75 0 0 1 3 2.25h1v-.5a.75.75 0 0 1 1.5 0v.5h5v-.5ZM2.75 6v6A.25.25 0 0 0 3 12.25h10a.25.25 0 0 0 .25-.25V6h-10Zm5.5 1.5a.75.75 0 0 1 .75.75v1.94l.97-.97a.75.75 0 1 1 1.06 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0L5.47 10.28a.75.75 0 0 1 1.06-1.06l.97.97V8.25a.75.75 0 0 1 .75-.75Z" fill="currentColor"/></svg>
+            {% trans "Copy from date" %}
+          </button>
+          <button id="sortByTimeBtn" class="button" type="button" title="{% trans 'Sort by time' %}">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 8 1.5Zm0 1.3A5.2 5.2 0 1 1 2.8 8 5.2 5.2 0 0 1 8 2.8Zm-.65 1.9a.65.65 0 0 1 1.3 0v3.01l2.22 1.28a.65.65 0 1 1-.65 1.13L7.68 8.66a.65.65 0 0 1-.33-.56V4.7Z" fill="currentColor"/></svg>
+            {% trans 'Sort by time' %}
+          </button>
+        </div>
+
+        <div class="planning-footer__group" aria-label="{% trans 'Export action' %}">
+          <button id="exportPlanBtn" class="button" type="button">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.75a.75.75 0 0 1 .75.75v5.69l1.47-1.47a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L4.72 7.78a.75.75 0 0 1 1.06-1.06l1.47 1.47V2.5A.75.75 0 0 1 8 1.75ZM2.5 10.25A.75.75 0 0 1 3.25 11v1.75h9.5V11a.75.75 0 0 1 1.5 0v2A1.25 1.25 0 0 1 13 14.25H3A1.25 1.25 0 0 1 1.75 13v-2a.75.75 0 0 1 .75-.75Z" fill="currentColor"/></svg>
+            {% trans "Export JSON" %}
+          </button>
+        </div>
+
+        <div class="planning-footer__group" aria-label="{% trans 'Danger actions' %}">
+          <button id="deletePlanBtn" class="button btn-danger" type="button">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 2a1 1 0 0 0-1 1v.5H3.75a.75.75 0 0 0 0 1.5h.36l.67 7.33A1.75 1.75 0 0 0 6.52 14h2.96a1.75 1.75 0 0 0 1.74-1.67l.67-7.33h.36a.75.75 0 0 0 0-1.5H10.5V3a1 1 0 0 0-1-1h-3ZM7 3.5h2V3h-2v.5Zm-.31 2.2a.65.65 0 0 1 .65.65v4a.65.65 0 1 1-1.3 0v-4a.65.65 0 0 1 .65-.65Zm2.62 0a.65.65 0 0 1 .65.65v4a.65.65 0 1 1-1.3 0v-4a.65.65 0 0 1 .65-.65Z" fill="currentColor"/></svg>
+            {% trans "Delete" %}
+          </button>
+        </div>
+
+        <div class="planning-footer__group planning-footer__group--primary" aria-label="{% trans 'Primary actions' %}">
+          <button class="button" type="button" data-bs-dismiss="modal">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 1 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" fill="currentColor"/></svg>
+            {% trans "Close" %}
+          </button>
+          <button id="savePlanBtn" class="button" type="button">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.75A1.25 1.25 0 0 0 1.75 3v10A1.25 1.25 0 0 0 3 14.25h10A1.25 1.25 0 0 0 14.25 13V4.56a1.25 1.25 0 0 0-.37-.89l-1.55-1.55a1.25 1.25 0 0 0-.89-.37H3ZM4.25 3.5h6v2h-6v-2Zm0 4h7.5v5h-7.5v-5Z" fill="currentColor"/></svg>
+            {% trans "Save" %}
+          </button>
+          <button id="planPlanBtn" class="button default" type="button">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 8 1.5Zm2.97 5.53-3.25 3.25a.75.75 0 0 1-1.06 0L5.03 8.66a.75.75 0 1 1 1.06-1.06l1.1 1.1 2.72-2.72a.75.75 0 1 1 1.06 1.06Z" fill="currentColor"/></svg>
+            {% trans "Plan!" %}
+          </button>
+        </div>
       </div>
 
     </div>
   </div>
 </div>
+
+<div id="planningActionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="planningActionLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="planningActionLabel">{% trans "Confirm action" %}</h5>
+        <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="planningActionMessage" class="mb-2"></p>
+        <label for="planningActionInput" id="planningActionInputLabel" class="form-label" hidden>{% trans "Enter value" %}</label>
+        <input id="planningActionInput" type="text" class="form-control" hidden>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="button" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+        <button type="button" id="planningActionConfirmBtn" class="button default">{% trans "Confirm" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="planningToastRegion" class="planning-toast-region" aria-live="polite" aria-atomic="true"></div>
 
 {% endblock %}
 
@@ -218,6 +289,8 @@
     const CURRENT_WEEK = parseInt('{{ current_week }}', 10);
     const BROADCAST_START = "{{ broadcast_start }}";
     const BROADCAST_END = "{{ broadcast_end }}";
+    const INITIAL_CALENDAR_START = '{{ calendar_start|default:"" }}';
+    const CALENDAR_WEEKS = parseInt('{{ calendar_weeks|default:"18" }}', 10);
   </script>
   <script src="{% static 'planung/js/calendar_weeks.js' %}"></script>
 

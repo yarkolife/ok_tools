@@ -3,3 +3,65 @@
     word-break: break-all;
     max-width: 60ch; /* Limit the width to roughly 60 characters */
 }
+
+/* Mobile table text wrapping overrides for admin */
+@media (max-width: 767.98px) {
+    /* Force text wrapping in admin result list tables */
+    #result_list td,
+    #result_list th {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+    }
+
+    /* Override Bootstrap's text-nowrap class in admin */
+    .text-nowrap {
+        white-space: normal !important;
+    }
+
+    /* Fix for long permission/license text in admin tables */
+    .field-permissions,
+    .field-restrictions,
+    .field-description,
+    .field-terms,
+    .field-name,
+    .field-title,
+    .field-license_name,
+    .field-license_restriction {
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.4;
+    }
+
+    /* Admin result list cell styling */
+    #result_list td {
+        padding: 0.5rem 0.75rem;
+        vertical-align: top;
+    }
+
+    /* Ensure badges wrap properly */
+    .badge {
+        white-space: normal;
+        word-break: break-word;
+        max-width: 100%;
+    }
+
+    /* Admin table action links */
+    .action-links {
+        white-space: normal;
+    }
+}
+
+/* General text wrapping improvements */
+.field-permissions,
+.field-restrictions,
+.field-description,
+.field-terms,
+.field-name,
+.field-title,
+.field-license_name,
+.field-license_restriction {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}

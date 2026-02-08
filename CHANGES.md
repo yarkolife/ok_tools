@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+2026-02-08 (Version 4.0.8)
+===========================
+
+* **Planning module (Planung): service-layer refactor and calendar UX update**
+  * Introduced dedicated planning services (`plan_service`, `validation_service`, `notification_service`, `auto_copy_service`) and wired them into views/admin flows.
+  * Added planning domain models and migration `0002_plantemplate_planchangelog` for reusable templates and schedule change history.
+  * Reworked calendar week admin UI (template, CSS, JavaScript) with improved layout, interactions, and readability.
+  * Extended planning routes/views and added tests for services and views.
+  * Updated German translation catalogs for planning module and dashboard/admin texts.
+* **Licenses and shared UI polish**
+  * Improved license update template/view behavior and aligned shared dashboard/page/table styling.
+
 2026-02-06 (Version 4.0.7)
 ===========================
 

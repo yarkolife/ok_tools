@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -92,3 +91,54 @@ msgstr "Plan gelöscht!"
 
 msgid "Error deleting the plan."
 msgstr "Fehler beim Löschen des Plans."
+
+msgid "Validation failed"
+msgstr "Validierung fehlgeschlagen"
+
+msgid "Enter source date (YYYY-MM-DD)"
+msgstr "Quelldatum eingeben (JJJJ-MM-TT)"
+
+msgid "Plan copied successfully."
+msgstr "Plan erfolgreich kopiert."
+
+msgid "Error copying plan."
+msgstr "Fehler beim Kopieren des Plans."
+
+msgid "Please select a template."
+msgstr "Bitte wählen Sie eine Vorlage aus."
+
+msgid "Template applied successfully."
+msgstr "Vorlage erfolgreich angewendet."
+
+msgid "Error applying template."
+msgstr "Fehler beim Anwenden der Vorlage."
+
+msgid "Items"
+msgstr "Elemente"
+
+msgid "Outside block"
+msgstr "Außerhalb des Blocks"
+
+msgid "Large gaps"
+msgstr "Große Lücken"
+
+msgid "Overlaps"
+msgstr "Überlappungen"
+
+msgid "Date is missing."
+msgstr "Datum fehlt."
+
+msgid "Confirm action"
+msgstr "Aktion bestätigen"
+
+msgid "Enter value"
+msgstr "Wert eingeben"
+
+msgid "Confirm"
+msgstr "Bestätigen"
+
+msgid "Copy plan"
+msgstr "Plan kopieren"
+
+msgid "Source date (YYYY-MM-DD)"
+msgstr "Quelldatum (JJJJ-MM-TT)"

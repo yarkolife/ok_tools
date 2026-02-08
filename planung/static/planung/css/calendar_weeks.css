@@ -1,385 +1,514 @@
-/* =========================
-   ПАЛИТРА (пастельные полутона)
-   ========================= */
-   :root {
-    --adm-bg: #f6f7f9;
-    --adm-muted: #6b7280;          /* серый (подписи) */
-    --adm-border: #e5e7eb;         /* светлая рамка */
-    --adm-ring: rgba(15, 23, 42, .15);
+:root {
+  --plan-border: #d7dbe0;
+  --plan-soft: #f6f8fb;
+  --plan-text: #1f2937;
+  --plan-muted: #6b7280;
+  --plan-primary: #0c4b33;
+  --plan-info: #1f4a8a;
+  --plan-warning: #8a4b10;
+  --plan-current: #1986b4;
+  --plan-ring: rgba(20, 132, 185, 0.28);
+}
 
-    /* Django-green в мягком виде + родственные */
-    --adm-primary: #0c4b33;
-    --adm-primary-50: #edf6f2;
-    --adm-primary-100: #d9eee6;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
 
-    --adm-info: #2563eb;
-    --adm-info-50: #eef3ff;
-    --adm-info-100: #dfe8ff;
+.planning-calendar-page {
+  display: grid;
+  gap: 1rem;
+}
 
-    --adm-warn: #c08400;
-    --adm-warn-50: #fff7e6;
-    --adm-warn-100: #fdebc4;
+.planning-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.9rem;
+  border: 1px solid var(--plan-border);
+  border-radius: 6px;
+  background: #fff;
+}
 
-    --adm-success: #0f766e;
-    --adm-danger: #b91c1c;
+.planning-toolbar__group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.planning-toolbar .vTextField {
+  min-height: 34px;
+}
+
+.planning-toolbar__group--filters .vTextField {
+  min-width: 220px;
+}
+
+.planning-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 0.9rem;
+}
+
+.planning-status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--plan-border);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  line-height: 1.25;
+}
+
+.status-badge--planned {
+  background: #d9eee3;
+  border-color: #1f8a5b;
+  color: #12472f;
+}
+
+.status-badge--draft {
+  background: #f9e8c7;
+  border-color: #d2a240;
+  color: #7d4a13;
+}
+
+.status-badge--comment {
+  background: #ddebfb;
+  border-color: #2f78c5;
+  color: #1f4a8a;
+}
+
+.status-badge--empty {
+  background: #f3f4f6;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.planning-stat-card {
+  border: 1px solid var(--plan-border);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.06);
+  padding: 0.95rem;
+}
+
+.planning-stat-card h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1.03rem;
+  font-weight: 700;
+}
+
+.planning-stat-card dl {
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.planning-stat-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.planning-stat-card dt,
+.planning-stat-card dd {
+  margin: 0;
+}
+
+.planning-stat-card dd {
+  font-weight: 700;
+}
+
+.planning-stat-card--current h3 {
+  color: var(--plan-primary);
+}
+
+.planning-stat-card--next h3 {
+  color: var(--plan-info);
+}
+
+.planning-stat-card--after-next h3 {
+  color: var(--plan-warning);
+}
+
+.planning-stat-card--ahead h3 {
+  color: #334155;
+}
+
+.planning-calendar-table {
+  border: 1px solid var(--plan-border);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0.25rem;
+}
+
+.planning-calendar-table table {
+  margin-bottom: 0;
+  border-color: var(--plan-border);
+  width: 100%;
+  table-layout: fixed;
+}
+
+.planning-calendar-table th,
+.planning-calendar-table td {
+  border-color: var(--plan-border);
+  vertical-align: middle;
+  padding: 0.08rem;
+}
+
+.planning-calendar-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f3f6f9;
+  color: var(--plan-text);
+  font-weight: 700;
+}
+
+.planning-calendar-table .kw-cell {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  width: 88px;
+  min-width: 88px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--plan-text);
+  background: #f9fbfd;
+}
+
+.planning-day-header {
+  font-size: 16px;
+}
+
+.planning-calendar-table .date-cell {
+  border: 1px solid var(--plan-border);
+  border-radius: 6px;
+  background: #fff;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  font-size: 1.06rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--plan-text) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.22rem 0.16rem;
+}
+
+.planning-calendar-table .date-cell .date-cell-meta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  min-height: 1.05rem;
+  line-height: 1;
+}
+
+.planning-calendar-table .date-cell:hover {
+  border-color: #9fb4c9;
+  background: #f7fbff;
+  color: var(--plan-text) !important;
+}
+
+.planning-calendar-table .date-cell .icon {
+  color: inherit !important;
+  display: inline-block;
+  font-size: 0.94rem;
+  line-height: 1;
+  max-width: 100%;
+}
+
+.planning-calendar-table .date-cell:focus,
+.planning-calendar-table .date-cell:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--plan-ring);
+}
+
+.planning-calendar-table td.bg-success {
+  background: #d9eee3;
+  color: #12472f;
+  box-shadow: inset 0 0 0 3px #1f8a5b;
+}
+
+.planning-calendar-table td.bg-warning {
+  background: #f9e8c7;
+  color: #7d4a13;
+  box-shadow: inset 0 0 0 3px #f2b705;
+}
+
+.planning-calendar-table td.bg-info {
+  background: #ddebfb;
+  color: #1f4a8a;
+  box-shadow: inset 0 0 0 3px #2f78c5;
+}
+
+.planning-calendar-table td.bg-success .date-cell,
+.planning-calendar-table td.bg-warning .date-cell,
+.planning-calendar-table td.bg-info .date-cell {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.planning-calendar-table .current-week td {
+  box-shadow: inset 0 3px 0 0 var(--plan-current), inset 0 -3px 0 0 var(--plan-current);
+}
+
+.planning-calendar-table .selected-day {
+  border-color: #2f89bd;
+  box-shadow: 0 0 0 3px rgba(47, 137, 189, 0.2);
+}
+
+.planning-modal-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.65rem 0 0.35rem;
+}
+
+.summary-chip {
+  border: 1px solid var(--plan-border);
+  background: #f8fafc;
+  color: #1f2937;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.summary-chip--warning {
+  border-color: #eab308;
+  background: #fef9c3;
+  color: #713f12;
+}
+
+.summary-chip--danger {
+  border-color: #ef4444;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.planning-inline-notice {
+  border: 1px solid #f59e0b;
+  background: #fff7ed;
+  color: #7c2d12;
+  border-radius: 6px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.88rem;
+  margin-bottom: 0.6rem;
+}
+
+.planning-input-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.planning-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.planning-footer__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.planning-footer__group--primary {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.planning-footer .button {
+  min-height: 30px;
+  font-size: 0.9rem;
+  padding: 0.34rem 0.62rem;
+}
+
+.planning-footer .btn-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 0.9rem;
+}
+
+.planning-toast-region {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2000;
+  display: grid;
+  gap: 0.4rem;
+  max-width: min(420px, 92vw);
+}
+
+.planning-toast {
+  background: #0f172a;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.25);
+  font-size: 0.88rem;
+}
+
+.planning-toast--error {
+  background: #991b1b;
+}
+
+.planning-toast--success {
+  background: #166534;
+}
+
+.modal-content {
+  border: 1px solid var(--plan-border);
+  border-radius: 8px;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--plan-border);
+  background: #f7fafc;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--plan-border);
+}
+
+.modal .button {
+  min-height: 32px;
+}
+
+.modal .button,
+.planning-toolbar .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.btn-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  vertical-align: middle;
+}
+
+.modal .btn-danger {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: #fff;
+}
+
+.modal .btn-danger:hover {
+  background: #991b1b;
+  border-color: #991b1b;
+}
+
+#timeStatus {
+  color: #0b6b4a;
+}
+
+#licenseTable {
+  border-color: var(--plan-border);
+}
+
+#licenseTable td,
+#licenseTable th {
+  border-color: var(--plan-border);
+  font-size: 13px;
+}
+
+#licenseTable .end-time {
+  font-weight: 700;
+  background: #f8fbfd;
+}
+
+#licenseTable th:nth-child(5),
+#licenseTable td:nth-child(5) {
+  width: 145px;
+  max-width: 145px;
+}
+
+#licenseTable tbody .gap-row-small {
+  background: #deeff7;
+  border-left: 4px solid #3389b2;
+}
+
+#licenseTable tbody .gap-row-small td {
+  background: #deeff7;
+}
+
+#licenseTable tbody .gap-row-large {
+  background: #fef0d3;
+  border-left: 4px solid #d2a240;
+}
+
+#licenseTable tbody .gap-row-large td {
+  background: #fef0d3;
+}
+
+@media (max-width: 900px) {
+  .planning-toolbar__group--filters {
+    width: 100%;
   }
 
-  /* Общий фон страницы */
-  body {
-    background-color: #f8f9fa !important;
+  .planning-toolbar__group--filters .vTextField {
+    min-width: 0;
+    width: 100%;
   }
 
-  /* Фон сетки календаря */
-  .table-responsive {
-    background: #e9ecef !important;
-    border-radius: .5rem;
-    padding: .25rem;
+  .planning-calendar-table .kw-cell {
+    min-width: 64px;
+    width: 64px;
+    font-size: 0.82rem;
   }
 
-  /* Фон самой таблицы календаря */
-  .table-responsive table {
-    background: #f1f3f4 !important;
+  .planning-calendar-table .date-cell {
+    min-height: 50px;
+    font-size: 0.95rem;
+    padding: 0.18rem 0.08rem;
   }
 
-  /* Фон заголовков дней недели */
-  .table-responsive th {
-    background: #e9ecef !important;
+  .planning-calendar-table .date-cell .date-cell-meta {
+    gap: 0.15rem;
   }
 
-  /* Фон номеров недель */
-  .table-responsive .kw-cell {
-    background: #e9ecef !important;
+  .status-badge {
+    font-size: 0.64rem;
+    padding: 0.06rem 0.4rem;
   }
 
-  /* Основной контейнер страницы */
-  .content {
-    background-color: #f8f9fa;
-    min-height: 100vh;
-    padding: 20px;
+  .planning-footer__group--primary {
+    margin-left: 0;
+    justify-content: flex-start;
   }
 
-  /* =========================
-     КАРТОЧКИ СТАТИСТИКИ
-     ========================= */
-  .card {
-    border: 1px solid var(--adm-border) !important;
-    border-radius: .5rem;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(2, 6, 23, .04);
-    transition: transform .15s ease, box-shadow .15s ease;
-    width: 300px;
-    height: 180px;
-    display: inline-block;
-    margin: 0 10px;
-    vertical-align: top;
+  .planning-footer__group--primary .button {
+    flex: 0 1 auto;
   }
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(2, 6, 23, .08);
-  }
-
-  /* заголовки с мягким градиентом */
-  .border-primary > .card-header {
-    background: linear-gradient(180deg, var(--adm-primary-50), #ffffff) !important;
-    color: var(--adm-primary) !important;
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .border-info > .card-header {
-    background: linear-gradient(180deg, var(--adm-info-50), #ffffff) !important;
-    color: #1e3a8a !important;
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .border-warning > .card-header {
-    background: linear-gradient(180deg, var(--adm-warn-50), #ffffff) !important;
-    color: #92400e !important;
-    border-bottom: 1px solid var(--adm-border);
-  }
-
-  /* Контейнер для центрирования карточек */
-  .stats-container {
-    text-align: center;
-    margin: 20px 0;
-  }
-
-  .card-header h6 {
-    font-size: .95rem;
-    font-weight: 700;
-    letter-spacing: .2px;
-    margin: 0;
-  }
-  .card-body {
-    padding: .9rem .95rem;
-    font-size: .9rem;
-  }
-
-  /* =========================
-     ТАБЛИЦА КАЛЕНДАРЯ
-     ========================= */
-  table.table {
-    border-color: var(--adm-border) !important;
-  }
-  table.table thead th {
-    position: sticky; top: 0; z-index: 1;
-    background: #fff;
-    border-bottom: 1px solid var(--adm-border) !important;
-    font-size: 15px;
-    font-weight: 700;
-    color: #111827;
-  }
-
-  /* ячейки: воздух и контраст */
-  table.table td, table.table th {
-    border-color: var(--adm-border) !important;
-    padding: .5rem .4rem;
-    vertical-align: middle;
-    line-height: 1.2;
-  }
-
-  /* Фон незапланированных ячеек - газетная бумага */
-  table.table td {
-    background-color: #f8f6f0 !important;
-  }
-
-  /* номер недели */
-  .kw-cell {
-    font-size: 16px;
-    font-weight: 700;
-    color: #111827;
-    white-space: nowrap;
-    background: #fff;
-    border-right: 1px solid var(--adm-border);
-  }
-
-  /* =========================
-     КНОПКИ ДАТ (ячейки)
-     ========================= */
-  .date-cell {
-    font-size: 15px;
-    letter-spacing: .2px;
-    border-radius: .6rem;
-    border: 1px solid var(--adm-border);
-    background: linear-gradient(180deg, #fefefe, #f8f6f0);
-    box-shadow: 0 1px 0 rgba(2, 6, 23, .03);
-    padding: .35rem .55rem;
-    color: inherit; /* не менять цвет текста внутри цветных строк */
-  }
-  .date-cell .icon {
-    margin-left: 4px;
-    font-size: 14px;
-    line-height: 1;
-  }
-
-  /* безопасный hover (не выбеляет текст) */
-  .date-cell:hover {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: #cbd5e1;
-    color: inherit; /* сохраняем исходный цвет текста */
-  }
-
-  /* Hover для незапланированных ячеек (белых) */
-  .date-cell:not(.bg-success):not(.bg-warning):not(.bg-info):hover {
-    background: #e0f2fe !important; /* светло-бирюзовый */
-    border-color: #7dd3fc;
-  }
-  .date-cell:focus,
-  .date-cell:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 4px var(--adm-ring);
-  }
-
-  /* =========================
-     МЯГКИЕ ФОНА СОСТОЯНИЙ СТРОК
-     (перекрывают «яркие» bg-* фоны)
-     ========================= */
-
-  /* завершено (зелёный) */
-  .bg-success,
-  .table .bg-success {
-    background: #cfe9dc !important;  /* пастельная мята */
-    color: #0c4b33 !important;        /* контрастный тёмно-зелёный текст */
-  }
-  .bg-success .date-cell {
-    background: rgba(255, 255, 255, .88);
-    border-color: rgba(12, 75, 51, .22);
-  }
-
-  /* план/заявка (жёлтый) */
-  .bg-warning,
-  .table .bg-warning {
-    background: #fde6b5 !important;  /* мягкий песочный */
-    color: #7a3b0a !important;
-  }
-  .bg-warning .date-cell {
-    background: rgba(255, 255, 255, .88);
-    border-color: rgba(122, 59, 10, .22);
-  }
-
-  /* особые/обсуждение (синий/циан) */
-  .bg-info,
-  .table .bg-info {
-    background: #d9eafc !important;  /* нежно-голубой */
-    color: #1e3a8a !important;
-  }
-  .bg-info .date-cell {
-    background: rgba(255, 255, 255, .88);
-    border-color: rgba(37, 99, 235, .22);
-  }
-
-  /* лёгкое затемнение при hover у цветных строк */
-  .bg-success:hover,
-  .bg-warning:hover,
-  .bg-info:hover {
-    filter: brightness(.98);
-  }
-
-  /* =========================
-     ТЕКУЩАЯ НЕДЕЛЯ
-     ========================= */
-  .current-week td {
-    border-top: 4px solid #14b8a6 !important;
-    border-bottom: 4px solid #14b8a6 !important;
-    position: relative;
-  }
-  .current-week td::before {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #14b8a6, #0891b2, #14b8a6);
-    box-shadow: 0 2px 4px rgba(20, 184, 166, 0.3);
-  }
-  .current-week td::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #14b8a6, #0891b2, #14b8a6);
-    box-shadow: 0 -2px 4px rgba(20, 184, 166, 0.3);
-  }
-
-  /* =========================
-     МОДАЛЬНОЕ ОКНО
-     ========================= */
-  .modal-content {
-    border-radius: .8rem;
-    border: 1px solid var(--adm-border);
-    box-shadow: 0 20px 40px rgba(2, 6, 23, .18);
-  }
-  .modal-header {
-    background: linear-gradient(180deg, var(--adm-primary-100), #fff);
-    border-bottom: 1px solid var(--adm-border);
-  }
-  .modal .btn-close-custom {
-    background: none;
-    border: none;
-    font-size: 1.6rem;
-    line-height: 1;
-    color: #111827;
-    opacity: .45;
-  }
-  .modal .btn-close-custom:hover { opacity: .75; }
-
-  /* =========================
-     ТАБЛИЦА ЛИЦЕНЗИЙ (в модалке)
-     ========================= */
-  #licenseTable td, #licenseTable th {
-    font-size: 14px;
-    vertical-align: middle;
-    border-color: var(--adm-border);
-  }
-  #licenseTable td input[type="time"] {
-    font-size: 14px;
-    height: 32px;
-  }
-  #licenseTable .time-with-seconds {
-    display: block;
-    font-size: 11px;
-    color: #6c757d;
-    font-weight: normal;
-    margin-top: 2px;
-    line-height: 1.2;
-  }
-  #licenseTable .end-time {
-    font-weight: 600;
-    color: #495057;
-    background-color: #f8f9fa;
-  }
-
-  /* строка времени и статуса */
-  #timeStatus { color: var(--adm-success); }
-
-  /* =========================
-     КНОПКИ (гармонизировать с Django)
-     ========================= */
-  .btn { border-radius: .6rem; }
-  .btn-primary {
-    background-color: var(--adm-primary);
-    border-color: var(--adm-primary);
-  }
-  .btn-primary:hover { filter: brightness(1.05); }
-  .btn-secondary {
-    background-color: #6b7280;
-    border-color: #6b7280;
-  }
-  .btn-secondary:hover {
-    background-color: #4b5563;
-    border-color: #4b5563;
-  }
-  .btn-danger {
-    background-color: #dc2626;
-    border-color: #dc2626;
-  }
-  .btn-danger:hover {
-    background-color: #b91c1c;
-    border-color: #b91c1c;
-  }
-  .btn-success {
-    background-color: #059669;
-    border-color: #059669;
-  }
-  .btn-success:hover {
-    background-color: #047857;
-    border-color: #047857;
-  }
-
-  /* компактная форма ввода номера лицензии */
-  #licenseNumberInput { width: 270px !important; min-width: 270px; }
-
-  /* Sendeverantwortung column - narrower width */
-  #licenseTable th:nth-child(5),
-  #licenseTable td:nth-child(5) {
-    width: 140px;
-    max-width: 140px;
-    min-width: 140px;
-  }
-
-  /* Gap rows styling */
-  #licenseTable tbody .gap-row-small,
-  #licenseTable .gap-row-small {
-    background-color: #d1ecf1 !important;
-    border-left: 5px solid #17a2b8 !important;
-  }
-  
-  #licenseTable tbody .gap-row-small td,
-  #licenseTable .gap-row-small td {
-    background-color: #d1ecf1 !important;
-    color: #212529 !important;
-    border: 1px solid #bee5eb !important;
-  }
-  
-  #licenseTable tbody .gap-row-large,
-  #licenseTable .gap-row-large {
-    background-color: #fff3cd !important;
-    border-left: 5px solid #ffc107 !important;
-  }
-  
-  #licenseTable tbody .gap-row-large td,
-  #licenseTable .gap-row-large td {
-    background-color: #fff3cd !important;
-    color: #212529 !important;
-    border: 1px solid #ffeaa7 !important;
-  }
+}

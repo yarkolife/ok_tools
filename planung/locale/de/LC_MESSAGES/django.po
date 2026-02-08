@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -245,3 +244,123 @@ msgstr "Kein Plan für diesen Tag"
 #: planung/views.py:346
 msgid "Method not allowed"
 msgstr "Methode nicht erlaubt"
+
+#: planung/templates/admin/planung/calendar_weeks.html:17
+msgid "Previous 4 weeks"
+msgstr "Vorherige 4 Wochen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:18
+msgid "Today"
+msgstr "Heute"
+
+#: planung/templates/admin/planung/calendar_weeks.html:19
+msgid "Next 4 weeks"
+msgstr "Nächste 4 Wochen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:22
+msgid "Search comment/license/date"
+msgstr "Kommentar/Freistellung/Datum suchen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:24
+msgid "All statuses"
+msgstr "Alle Status"
+
+#: planung/templates/admin/planung/calendar_weeks.html:25
+msgid "Planned"
+msgstr "Geplant"
+
+#: planung/templates/admin/planung/calendar_weeks.html:26
+msgid "Draft"
+msgstr "Entwurf"
+
+#: planung/templates/admin/planung/calendar_weeks.html:27
+msgid "Comment only"
+msgstr "Nur Kommentar"
+
+#: planung/templates/admin/planung/calendar_weeks.html:28
+msgid "Empty"
+msgstr "Leer"
+
+#: planung/templates/admin/planung/calendar_weeks.html:212
+msgid "Select template"
+msgstr "Vorlage auswählen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:214
+msgid "Apply template"
+msgstr "Vorlage anwenden"
+
+#: planung/templates/admin/planung/calendar_weeks.html:215
+msgid "Copy from date"
+msgstr "Von Datum kopieren"
+
+#: planung/templates/admin/planung/calendar_weeks.html:216
+msgid "Export JSON"
+msgstr "JSON exportieren"
+
+
+msgid "m"
+msgstr "Min"
+
+#: planung/admin.py:118
+msgid "min"
+msgstr "Min"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Search calendar"
+msgstr "Kalender durchsuchen"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Filter by status"
+msgstr "Nach Status filtern"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Legend"
+msgstr "Legende"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Calendar status legend"
+msgstr "Legende der Kalenderstatus"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Planning calendar weeks"
+msgstr "Planungs-Kalenderwochen"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Calendar with planning status by day"
+msgstr "Kalender mit Planungsstatus pro Tag"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Week"
+msgstr "Woche"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Preparation actions"
+msgstr "Vorbereitungsaktionen"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Export action"
+msgstr "Exportaktion"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Danger actions"
+msgstr "Gefährliche Aktionen"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Primary actions"
+msgstr "Primäre Aktionen"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Confirm action"
+msgstr "Aktion bestätigen"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Enter value"
+msgstr "Wert eingeben"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: planung/templates/admin/planung/calendar_weeks.html
+msgid "Confirm"
+msgstr "Bestätigen"

@@ -1,14 +1,17 @@
 # planung/admin.py
 from .models import CalendarWeeksProxy
+from .models import PlanChangeLog
+from .models import PlanTemplate
 from .models import TagesPlan
 from datetime import date
 from datetime import timedelta
-from django.conf import settings
+from django.core.cache import cache
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
@@ -44,6 +47,14 @@ class TagesPlanAdmin(admin.ModelAdmin):
         Shows the status of each day with color coding and icons based
         on planned content.
         """
+        version = cache.get("planung_cache_version", 1)
+        start_param = request.GET.get("start")
+        weeks = request.GET.get("weeks", "18")
+        cache_key = f"planung_calendar_weeks_context:{version}:{start_param or 'default'}:{weeks}"
+        cached = cache.get(cache_key)
+        if cached:
+            return TemplateResponse(request, "admin/planung/calendar_weeks.html", cached)
+
         # Parse broadcast block from organization config
         from registration import organization_config
         broadcast_start = organization_config.get_broadcast_start()
@@ -55,27 +66,72 @@ class TagesPlanAdmin(admin.ModelAdmin):
         max_block_seconds = block_end_seconds - block_start_seconds
         
         today = date.today()
-        start = today - timedelta(weeks=3, days=today.weekday())
+        start = parse_date(start_param) if start_param else None
+        if not start:
+            start = today - timedelta(weeks=3, days=today.weekday())
+
+        try:
+            weeks_count = max(1, min(int(weeks), 52))
+        except (TypeError, ValueError):
+            weeks_count = 18
         days = [
             start + timedelta(days=i)
-            for i in range(18 * 7)
-        ]  # 18 weeks
+            for i in range(weeks_count * 7)
+        ]
 
         # 1. status-dictionary
         plans = {}
         # range is 83 days (0-based → 12*7 - 1)
         end_date = start + timedelta(days=len(days) - 1)
+        author_cache = {}
+
         for plan in TagesPlan.objects.filter(
             datum__range=(start, end_date)
         ):
+            items = plan.json_plan.get("items", [])
             total = sum(
-                item.get("duration", 0) for item in plan.json_plan.get("items", [])
+                item.get("duration", 0) for item in items
             )
+
+            search_tokens = []
+            for item in items:
+                if item.get("number"):
+                    search_tokens.append(str(item.get("number")))
+                if item.get("title"):
+                    search_tokens.append(str(item.get("title")))
+                if item.get("subtitle"):
+                    search_tokens.append(str(item.get("subtitle")))
+                if item.get("sender_responsible"):
+                    search_tokens.append(str(item.get("sender_responsible")))
+                if item.get("author"):
+                    search_tokens.append(str(item.get("author")))
+
+                # Fallback: resolve author from License profile when day-plan item
+                # does not carry sender_responsible/author fields.
+                if not item.get("sender_responsible") and not item.get("author"):
+                    number = item.get("number")
+                    if number:
+                        if number not in author_cache:
+                            author_name = ""
+                            try:
+                                lic = License.objects.filter(number=number).select_related("profile").first()
+                                if lic and lic.profile:
+                                    author_name = f"{lic.profile.first_name or ''} {lic.profile.last_name or ''}".strip()
+                            except Exception:
+                                author_name = ""
+                            author_cache[number] = author_name
+
+                        if author_cache.get(number):
+                            search_tokens.append(author_cache[number])
+            if plan.kommentar:
+                search_tokens.append(str(plan.kommentar))
+
             plans[str(plan.datum)] = {
                 "seconds": total,
                 "draft": plan.json_plan.get("draft", False),
                 "planned": plan.json_plan.get("planned", False),
                 "comment": plan.kommentar or "",
+                "search_text": " ".join(search_tokens).lower(),
             }
 
         # 2. forming weeks
@@ -91,8 +147,13 @@ class TagesPlanAdmin(admin.ModelAdmin):
                         "draft": False,
                         "planned": False,
                         "comment": "",
+                        "search_text": "",
                     },
                 )
+
+                remaining_seconds = max(max_block_seconds - info["seconds"], 0)
+                remaining_minutes = (remaining_seconds + 59) // 60
+                underplanned_icon = f"🕒{remaining_minutes}{_('min')}"
 
                 if info.get("planned") and info.get("comment"):
                     cell_cls, icon = "bg-success text-white", "✔🗨️"
@@ -107,9 +168,9 @@ class TagesPlanAdmin(admin.ModelAdmin):
                 elif info["seconds"] >= max_block_seconds:
                     cell_cls, icon = "bg-info text-white", "📝"
                 elif info["seconds"] > 0 and info.get("comment"):
-                    cell_cls, icon = "bg-warning", "🕒🗨️"
+                    cell_cls, icon = "bg-warning", f"{underplanned_icon}🗨️"
                 elif info["seconds"] > 0:
-                    cell_cls, icon = "bg-warning", "🕒"
+                    cell_cls, icon = "bg-warning", underplanned_icon
                 elif info.get("comment"):
                     cell_cls, icon = "bg-info", "🗨️"
                 else:
@@ -121,6 +182,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                         "iso": iso,
                         "cls": cell_cls,
                         "icon": icon,
+                        "search": info.get("search_text", ""),
                     }
                 )
 
@@ -146,9 +208,12 @@ class TagesPlanAdmin(admin.ModelAdmin):
             "weeks": weeks,
             "weekday_names": weekday_names,
             "current_week": today.isocalendar()[1],
-            "broadcast_start": settings.BROADCAST_START,
-            "broadcast_end": settings.BROADCAST_END,
+            "broadcast_start": broadcast_start,
+            "broadcast_end": broadcast_end,
+            "calendar_start": start.isoformat(),
+            "calendar_weeks": weeks_count,
         }
+        cache.set(cache_key, context, timeout=300)
         return TemplateResponse(request, "admin/planung/calendar_weeks.html", context)
 
     def is_draft(self, obj):
@@ -253,3 +318,32 @@ class CalendarWeeksAdmin(admin.ModelAdmin):
         """
         url = reverse("admin:calendar_weeks_view")
         return HttpResponseRedirect(url)
+
+
+@admin.register(PlanTemplate)
+class PlanTemplateAdmin(admin.ModelAdmin):
+    """Admin for reusable day plan templates."""
+
+    list_display = ("name", "is_active", "updated_at")
+    list_filter = ("is_active",)
+    search_fields = ("name", "description")
+    readonly_fields = ("created_at", "updated_at")
+    fields = ("name", "description", "json_plan", "is_active", "created_at", "updated_at")
+
+
+@admin.register(PlanChangeLog)
+class PlanChangeLogAdmin(admin.ModelAdmin):
+    """Read-only audit entries for day plan changes."""
+
+    list_display = ("created_at", "plan_date", "action", "changed_by")
+    list_filter = ("action", "created_at")
+    search_fields = ("plan_date",)
+    readonly_fields = ("plan_date", "action", "old_payload", "new_payload", "changed_by", "created_at")
+
+    def has_add_permission(self, request):
+        """Disable manual creation of log records."""
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Disable deleting audit records from admin."""
+        return False

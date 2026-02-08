@@ -133,18 +133,27 @@
                         
                         {% if user.is_authenticated %}
                             <div class="dropdown">
-                                <button class="btn btn-link dropdown-toggle text-decoration-none" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle me-2"></i>
-                                    {% if user_display_name %}
-                                        {{ user_display_name }}
-                                    {% elif user.get_full_name %}
-                                        {{ user.get_full_name }}
-                                    {% else %}
-                                        {{ user.username }}
-                                    {% endif %}
+                                <button class="btn btn-link dropdown-toggle text-decoration-none p-0" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="user-initials-circle">
+                                        {% if user_display_name %}
+                                            {{ user_display_name|first|upper }}
+                                        {% elif user.get_full_name %}
+                                            {{ user.get_full_name|first|upper }}
+                                        {% else %}
+                                            {{ user.username|first|upper }}
+                                        {% endif %}
+                                    </div>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{% url 'registration:user_data' %}">{% trans "Profile" %}</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'registration:user_data' %}">
+                                        {% if user_display_name %}
+                                            {{ user_display_name }}
+                                        {% elif user.get_full_name %}
+                                            {{ user.get_full_name }}
+                                        {% else %}
+                                            {{ user.username }}
+                                        {% endif %}
+                                    </a></li>
                                     <li>
                                         <form method="post" action="{% url 'logout' %}" style="display: inline;">
                                             {% csrf_token %}

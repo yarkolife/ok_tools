@@ -37,6 +37,8 @@
 
 ### Recent Updates
 
+- **Planning module refactor**: Introduced dedicated planning services, reusable templates, and schedule change tracking with expanded tests
+- **Planning calendar UI**: Reworked calendar week admin UX (template, CSS, JavaScript) for better readability and interactions
 - **Austausch export to server**: Upload video, PDF, JSON (and optional thumbnails) to Nextcloud WebDAV; step-by-step UI and Celery task
 - **Rental emails**: HTML templates with booking details and user-facing links
 - **User rentals**: New user request detail page and improved request visibility

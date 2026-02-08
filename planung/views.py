@@ -1,6 +1,6 @@
+from .models import PlanTemplate
 from .models import TagesPlan
 from datetime import timedelta
-from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -9,8 +9,14 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from licenses.models import License
+from planung.services.plan_service import delete_day_plan
+from planung.services.plan_service import enrich_plan_items
+from planung.services.plan_service import save_day_plan as save_day_plan_service
+from planung.services.validation_service import PlanningValidationError
+from planung.services.validation_service import validate_day_plan_payload
 import json
 import logging
 
@@ -69,176 +75,26 @@ def save_day_plan(request):
     """Save a day plan with the provided data."""
     try:
         data = json.loads(request.body)
-        # This explicitly parses ISO date as server timezone, timezone-naive
-        date = parse_date(data.get("date"))
-        if not date:
-            return JsonResponse({"error": _("Invalid date")}, status=400)
-
-
-
-        plan_data = {
-            "items": data.get("items", []),
-            "draft": data.get("draft", False),
-            "planned": data.get("planned", False),
-        }
-
-        kommentar = data.get("comment", "")
-
-        plan = TagesPlan.objects.filter(datum=date).first()
-        if plan:
-            old_items = plan.json_plan.get("items", [])
-            old_draft = plan.json_plan.get("draft", False)
-            old_comment = plan.kommentar or ""
-            # If this is a draft plan and only the comment has changed
-            if (
-                old_draft
-                and old_items == plan_data["items"]
-                and old_draft == plan_data["draft"]
-                and kommentar != old_comment
-            ):
-                plan.kommentar = kommentar
-                plan.save(update_fields=["kommentar"])
-                return JsonResponse({"status": "comment_updated", "created": False})
-        plan, created = TagesPlan.objects.update_or_create(
-            datum=date, defaults={"json_plan": plan_data, "kommentar": kommentar}
+        validated = validate_day_plan_payload(data)
+        result = save_day_plan_service(validated=validated, user=request.user)
+        return JsonResponse(
+            {
+                "status": result.status,
+                "created": result.created,
+                "warnings": result.warnings,
+            }
         )
-
-        # ---------------------------------------------------------------------
-        # User notifications (license number is the primary key for matching)
-        # Only notify if the license has a user-uploaded Nextcloud video (chain
-        # runs only after user-initiated video_uploaded). Media authority filter
-        # is applied in the task.
-        # Deduplicate strictly: only first notification per stage.
-        # ---------------------------------------------------------------------
-        try:
-            from licenses.models import (
-                License,
-                LicenseNotificationEvent,
-                LicenseNotificationEventType,
-                NextcloudVideoFile,
-            )
-            from licenses.tasks import enqueue_license_notification_email
-            from licenses.config import get_send_status_emails
-
-            is_draft = bool(plan_data.get("draft"))
-            is_planned = bool(plan_data.get("planned"))
-
-            if not get_send_status_emails():
-                # Emails are disabled via LicensesConfig.
-                is_draft = False
-                is_planned = False
-
-            if is_draft or is_planned:
-                items = plan_data.get("items", []) or []
-
-                # Collect unique license numbers from items
-                numbers = []
-                number_to_start = {}
-                for item in items:
-                    n = item.get("number")
-                    if not n:
-                        continue
-                    try:
-                        n_int = int(n)
-                    except Exception:
-                        continue
-                    if n_int not in numbers:
-                        numbers.append(n_int)
-                    # Keep first start time for this number (we only notify once)
-                    if n_int not in number_to_start:
-                        number_to_start[n_int] = (item.get("start") or "")
-
-                if numbers:
-                    licenses = (
-                        License.objects.filter(number__in=numbers)
-                        .select_related("profile", "profile__okuser")
-                    )
-
-                    def has_linked_user_uploaded_video(license_obj: License) -> bool:
-                        return NextcloudVideoFile.objects.filter(
-                            license=license_obj,
-                            is_deleted=False,
-                            user_uploaded=True,
-                        ).exists()
-
-                    plan_date_str = date.isoformat() if date else ""
-
-                    for lic in licenses:
-                        if not has_linked_user_uploaded_video(lic):
-                            continue
-
-                        start_raw = (number_to_start.get(int(lic.number), "") or "").strip()
-                        start_time = start_raw[:5] if len(start_raw) >= 5 else start_raw
-
-                        payload = {
-                            "plan_date": plan_date_str,
-                            "start_time": start_time,
-                        }
-
-                        if is_draft:
-                            ev, ev_created = LicenseNotificationEvent.objects.get_or_create(
-                                license_number=int(lic.number),
-                                event_type=LicenseNotificationEventType.DRAFT_SCHEDULED,
-                                defaults={"payload": payload},
-                            )
-                            if ev_created:
-                                enqueue_license_notification_email(
-                                    LicenseNotificationEventType.DRAFT_SCHEDULED,
-                                    int(lic.number),
-                                    payload=payload,
-                                )
-
-                        if is_planned:
-                            ev, ev_created = LicenseNotificationEvent.objects.get_or_create(
-                                license_number=int(lic.number),
-                                event_type=LicenseNotificationEventType.PLANNED_SCHEDULED,
-                                defaults={"payload": payload},
-                            )
-                            if ev_created:
-                                enqueue_license_notification_email(
-                                    LicenseNotificationEventType.PLANNED_SCHEDULED,
-                                    int(lic.number),
-                                    payload=payload,
-                                )
-        except Exception:
-            # Never block saving a plan due to email issues.
-            logger.exception("Failed to send plan-related license notifications")
-
-        # Auto-copy videos to playout if plan is not draft and feature is enabled
-        # Check all required settings before proceeding
-        from media_files.config import (
-            get_video_auto_copy_on_schedule,
-            get_video_auto_copy_to_archive,
-            get_video_auto_copy_to_playout,
+    except PlanningValidationError as exc:
+        return JsonResponse(
+            {
+                "error": _("Validation failed"),
+                "errors": exc.errors,
+                "warnings": exc.warnings,
+            },
+            status=400,
         )
-        auto_copy_enabled = get_video_auto_copy_on_schedule()
-        copy_to_archive = get_video_auto_copy_to_archive()
-        copy_to_playout = get_video_auto_copy_to_playout()
-        
-        if (not plan_data.get('draft') 
-            and auto_copy_enabled 
-            and (copy_to_archive or copy_to_playout)):
-            try:
-                from media_files.tasks import copy_videos_for_plan
-                numbers = [item.get('number') for item in plan_data.get('items', []) if item.get('number')]
-                if numbers:
-                    logger.info(
-                        f"Triggering auto-copy for {len(numbers)} videos for plan {date} "
-                        f"(archive={copy_to_archive}, playout={copy_to_playout})"
-                    )
-                    # Run asynchronously via Celery if available, otherwise sync
-                    try:
-                        copy_videos_for_plan.delay(numbers, date, user_id=request.user.id)
-                    except AttributeError:
-                        # Celery not available, run synchronously
-                        copy_videos_for_plan(numbers, date, user_id=request.user.id)
-            except ImportError:
-                logger.warning("media_files module not available, skipping auto-copy")
-            except Exception as e:
-                logger.error(f"Error in auto-copy videos: {str(e)}", exc_info=True)
-
-        return JsonResponse({"status": "ok", "created": created})
     except Exception as e:
+        logger.exception("Failed to save day plan")
         return JsonResponse({"error": str(e)}, status=400)
 
 
@@ -269,62 +125,7 @@ def day_plan_detail(request, iso_date):
                 }
             )
 
-        # Enrich items with current data from License (dynamic data)
-        items = plan.json_plan.get("items", [])
-
-        # Optimize: get all license numbers and fetch licenses in one query
-        license_numbers = [item.get("number") for item in items if item.get("number")]
-        licenses_dict = {}
-        video_files_dict = {}
-        
-        if license_numbers:
-            # Fetch all licenses with their profiles and video_files in one query
-            licenses = License.objects.filter(number__in=license_numbers).select_related('profile', 'video_file')
-            licenses_dict = {lic.number: lic for lic in licenses}
-            
-            # Fetch all VideoFiles for these numbers in one query (for cases where license.video_file is None)
-            try:
-                from media_files.models import VideoFile
-                video_files = VideoFile.objects.filter(number__in=license_numbers).select_related('license')
-                video_files_dict = {vf.number: vf for vf in video_files if vf.duration}
-            except ImportError:
-                pass  # media_files app not available
-        
-        enriched_items = []
-        for item in items:
-            license_number = item.get("number")
-            enriched_item = item.copy()  # Start with saved data as fallback
-            
-            if license_number and license_number in licenses_dict:
-                license = licenses_dict[license_number]
-                # Update with current data from License
-                enriched_item["title"] = license.title or item.get("title", "")
-                enriched_item["subtitle"] = license.subtitle or item.get("subtitle", "")
-                
-                # Get real duration from VideoFile if available, otherwise use License duration
-                duration_seconds = int(license.duration.total_seconds())
-                if hasattr(license, 'video_file') and license.video_file and license.video_file.duration:
-                    # Use real video file duration if available via relationship
-                    duration_seconds = int(license.video_file.duration.total_seconds())
-                elif license_number in video_files_dict:
-                    # Use VideoFile found by number if license.video_file is None
-                    video_file = video_files_dict[license_number]
-                    duration_seconds = int(video_file.duration.total_seconds())
-                
-                enriched_item["duration"] = duration_seconds
-                enriched_item["license_id"] = license.id
-                
-                # Get author and sender_responsible from profile
-                if license.profile:
-                    author_name = f"{license.profile.first_name or ''} {license.profile.last_name or ''}".strip()
-                    enriched_item["author"] = author_name
-                    enriched_item["sender_responsible"] = author_name
-                else:
-                    enriched_item["author"] = item.get("author", "")
-                    enriched_item["sender_responsible"] = item.get("sender_responsible", item.get("author", ""))
-            # If license not found, use saved data (fallback)
-            
-            enriched_items.append(enriched_item)
+        enriched_items = enrich_plan_items(plan.json_plan.get("items", []))
         
         return JsonResponse(
             {
@@ -337,13 +138,219 @@ def day_plan_detail(request, iso_date):
         )
     elif request.method == "DELETE":
         try:
-            plan = TagesPlan.objects.get(datum=date_obj)
-            plan.delete()
+            delete_day_plan(iso_date=iso_date, user=getattr(request, "user", None))
             return JsonResponse({"status": "deleted"}, status=204)
-        except TagesPlan.DoesNotExist:
+        except Http404:
             return JsonResponse({"error": _("No plan for this day")}, status=404)
+        except ValueError:
+            return JsonResponse({"error": _("Bad date format")}, status=400)
     else:
         return JsonResponse({"error": _("Method not allowed")}, status=405)
+
+
+@require_GET
+@staff_member_required
+def week_stats(request):
+    """Return aggregated statistics for 4 consecutive weeks."""
+    from datetime import date as dt_date
+    from registration import organization_config
+
+    start_param = request.GET.get("start")
+    if start_param:
+        start_date = parse_date(start_param)
+    else:
+        today = dt_date.today()
+        start_date = today - timedelta(days=today.weekday())
+    if not start_date:
+        return JsonResponse({"error": _("Invalid start date")}, status=400)
+
+    weeks = int(request.GET.get("weeks", 4))
+    if weeks < 1:
+        weeks = 1
+    if weeks > 12:
+        weeks = 12
+
+    broadcast_start = organization_config.get_broadcast_start()
+    broadcast_end = organization_config.get_broadcast_end()
+    start_h, start_m = [int(x) for x in broadcast_start.split(":")]
+    end_h, end_m = [int(x) for x in broadcast_end.split(":")]
+    max_block_seconds = (end_h * 3600 + end_m * 60) - (start_h * 3600 + start_m * 60)
+
+    end_date = start_date + timedelta(days=(weeks * 7) - 1)
+    plans = TagesPlan.objects.filter(datum__range=(start_date, end_date))
+    by_date = {plan.datum: plan for plan in plans}
+
+    rows = []
+    for week_idx in range(weeks):
+        week_start = start_date + timedelta(days=week_idx * 7)
+        week_end = week_start + timedelta(days=6)
+        planned_days = 0
+        total_seconds = 0
+        unique_numbers = set()
+
+        for day_offset in range(7):
+            day = week_start + timedelta(days=day_offset)
+            plan = by_date.get(day)
+            if not plan:
+                continue
+            items = plan.json_plan.get("items", [])
+            if items:
+                planned_days += 1
+            for item in items:
+                duration = item.get("duration") or 0
+                try:
+                    total_seconds += int(duration)
+                except Exception:
+                    continue
+                number = item.get("number")
+                if number:
+                    unique_numbers.add(str(number))
+
+        max_seconds = max_block_seconds * 7
+        fill_rate = round((total_seconds / max_seconds) * 100) if max_seconds > 0 else 0
+        rows.append(
+            {
+                "week_start": week_start.isoformat(),
+                "week_end": week_end.isoformat(),
+                "planned_days": planned_days,
+                "total_seconds": total_seconds,
+                "max_seconds": max_seconds,
+                "fill_rate": fill_rate,
+                "licenses_count": len(unique_numbers),
+            }
+        )
+
+    return JsonResponse({"weeks": rows})
+
+
+@require_GET
+@staff_member_required
+def list_templates(request):
+    """Return active plan templates for UI selection."""
+    templates = PlanTemplate.objects.filter(is_active=True).order_by("name")
+    return JsonResponse(
+        {
+            "templates": [
+                {
+                    "id": tpl.id,
+                    "name": tpl.name,
+                    "description": tpl.description,
+                }
+                for tpl in templates
+            ]
+        }
+    )
+
+
+@require_POST
+@staff_member_required
+@csrf_exempt
+def apply_template(request):
+    """Apply a stored plan template to one target date."""
+    payload = json.loads(request.body or "{}")
+    target_date = parse_date(payload.get("date") or "")
+    template_id = payload.get("template_id")
+    overwrite = bool(payload.get("overwrite", False))
+
+    if not target_date:
+        return JsonResponse({"error": _("Invalid date")}, status=400)
+    if not template_id:
+        return JsonResponse({"error": _("Template id is required")}, status=400)
+
+    try:
+        template = PlanTemplate.objects.get(pk=int(template_id), is_active=True)
+    except (PlanTemplate.DoesNotExist, ValueError):
+        return JsonResponse({"error": _("Template not found")}, status=404)
+
+    exists = TagesPlan.objects.filter(datum=target_date).exists()
+    if exists and not overwrite:
+        return JsonResponse({"error": _("Plan already exists"), "code": "already_exists"}, status=409)
+
+    plan_data = template.json_plan or {}
+    data = {
+        "date": target_date.isoformat(),
+        "items": plan_data.get("items", []),
+        "draft": bool(plan_data.get("draft", True)),
+        "planned": bool(plan_data.get("planned", False)),
+        "comment": payload.get("comment", ""),
+    }
+
+    try:
+        validated = validate_day_plan_payload(data)
+        result = save_day_plan_service(validated=validated, user=request.user)
+    except PlanningValidationError as exc:
+        return JsonResponse(
+            {"error": _("Validation failed"), "errors": exc.errors, "warnings": exc.warnings},
+            status=400,
+        )
+
+    return JsonResponse({"status": result.status, "created": result.created, "warnings": result.warnings})
+
+
+@require_POST
+@staff_member_required
+@csrf_exempt
+def copy_plan(request):
+    """Copy plan from source date to target date."""
+    payload = json.loads(request.body or "{}")
+    source_date = parse_date(payload.get("source_date") or "")
+    target_date = parse_date(payload.get("target_date") or "")
+    overwrite = bool(payload.get("overwrite", False))
+
+    if not source_date or not target_date:
+        return JsonResponse({"error": _("Both source and target dates are required")}, status=400)
+    if source_date == target_date:
+        return JsonResponse({"error": _("Source and target dates must differ")}, status=400)
+
+    try:
+        source = TagesPlan.objects.get(datum=source_date)
+    except TagesPlan.DoesNotExist:
+        return JsonResponse({"error": _("Source plan not found")}, status=404)
+
+    exists = TagesPlan.objects.filter(datum=target_date).exists()
+    if exists and not overwrite:
+        return JsonResponse({"error": _("Plan already exists"), "code": "already_exists"}, status=409)
+
+    data = {
+        "date": target_date.isoformat(),
+        "items": source.json_plan.get("items", []),
+        "draft": source.json_plan.get("draft", True),
+        "planned": source.json_plan.get("planned", False),
+        "comment": source.kommentar or "",
+    }
+
+    try:
+        validated = validate_day_plan_payload(data)
+        result = save_day_plan_service(validated=validated, user=request.user)
+    except PlanningValidationError as exc:
+        return JsonResponse(
+            {"error": _("Validation failed"), "errors": exc.errors, "warnings": exc.warnings},
+            status=400,
+        )
+
+    return JsonResponse({"status": result.status, "created": result.created, "warnings": result.warnings})
+
+
+@require_GET
+@staff_member_required
+def export_day_plan(request, iso_date):
+    """Export plan payload in JSON format for one date."""
+    date_obj = parse_date(iso_date)
+    if not date_obj:
+        return JsonResponse({"error": _("Bad date format")}, status=400)
+
+    try:
+        plan = TagesPlan.objects.get(datum=date_obj)
+    except TagesPlan.DoesNotExist:
+        return JsonResponse({"error": _("No plan for this day")}, status=404)
+
+    return JsonResponse(
+        {
+            "date": str(plan.datum),
+            "comment": plan.kommentar or "",
+            "plan": plan.json_plan,
+        }
+    )
 
 
 def calendar_weeks_view(request):
