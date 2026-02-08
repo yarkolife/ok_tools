@@ -1,9 +1,14 @@
 {% load i18n %} {% load static %}
 <style>
+  .navbar {
+    padding-inline: clamp(0.5rem, 2.5vw, 1rem);
+  }
+
   .navbar-brand {
     display: flex;
     align-items: center;
     margin-right: 2rem;
+    min-width: 0;
   }
 
   .navbar-brand img {
@@ -28,15 +33,55 @@
     color: #212529;
     text-decoration: none;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   @media (max-width: 768px) {
+    .navbar {
+      padding-inline: 0.5rem;
+    }
+
     .navbar-brand {
-      margin-right: 1rem;
+      margin-right: 0.5rem;
+      max-width: calc(100% - 3.5rem);
+    }
+
+    .navbar-brand img {
+      height: 40px;
+      max-width: 120px;
+      margin-right: 0.5rem;
     }
 
     .site-title {
-      font-size: 1rem;
+      font-size: 0.95rem;
+      max-width: 10rem;
+    }
+
+    .navbar-toggler {
+      padding: 0.2rem 0.45rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .navbar-brand {
+      max-width: calc(100% - 3rem);
+    }
+
+    .navbar-brand img {
+      height: 34px;
+      max-width: 90px;
+      margin-right: 0.35rem;
+    }
+
+    .site-title {
+      font-size: 0.85rem;
+      max-width: 7rem;
+    }
+
+    .navbar-toggler {
+      padding: 0.15rem 0.4rem;
     }
   }
 </style>

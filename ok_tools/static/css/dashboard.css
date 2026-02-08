@@ -2220,37 +2220,71 @@ input:disabled {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
     }
-    
+
     .top-navbar .d-flex {
         flex-wrap: nowrap;
     }
-    
+
     .top-navbar h4 {
         font-size: 1rem;
-        max-width: 40vw;
+        max-width: 32vw;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    
+
     .top-navbar .d-flex.align-items-center > div:last-child {
         min-width: auto;
         flex-shrink: 0;
     }
-    
+
+    /* Keep guest auth buttons compact and adaptive in mobile header */
+    .top-navbar .auth-actions {
+        width: auto;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 0.375rem !important;
+    }
+
+    .top-navbar .auth-actions .btn {
+        width: auto;
+        min-height: 36px;
+        min-width: 0;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.92rem;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    /* On very narrow screens, stack auth buttons vertically */
+    @media (max-width: 480px) {
+        .top-navbar .auth-actions {
+            flex-direction: column !important;
+            align-items: flex-end !important;
+            gap: 0.25rem !important;
+        }
+
+        .top-navbar .auth-actions .btn {
+            width: 100%;
+            margin-left: auto;
+            padding: 0.35rem 0.5rem;
+            font-size: 0.88rem;
+        }
+    }
+
     /* Ensure no horizontal overflow in header */
     .top-navbar {
         overflow: visible;
         max-width: 100%;
     }
-    
+
     /* Adjustments for the user initials circle */
     .user-initials-circle {
         width: 32px;
         height: 32px;
         font-size: 12px;
     }
-    
+
     /* Theme toggle button adjustments */
     .theme-toggle-btn {
         flex-shrink: 0;

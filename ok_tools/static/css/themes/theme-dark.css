@@ -375,6 +375,14 @@
   opacity: 1 !important;
 }
 
+/* Keep signature preview readable in dark theme on license details page */
+[data-theme="dark"] .table img.img-fluid.border.rounded.bg-light.p-2,
+[data-theme="dark"] img[alt="Digital signature"],
+[data-theme="dark"] img[alt="Digitale Unterschrift"] {
+  background-color: #f8f9fa !important;
+  border-color: #dee2e6 !important;
+}
+
 /* Page content styles for the dark theme */
 [data-theme="dark"] .page-content {
   background-color: var(--color-bg-primary);
