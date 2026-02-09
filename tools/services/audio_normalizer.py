@@ -104,10 +104,17 @@ def build_loudnorm_analyze_chain(
     presets_json: Dict[str, Any],
     preset: Dict[str, Any],
     target: str = "tv",
+    include_pre_filters: bool = False,
+    rnn_model_path: Optional[str] = None,
 ) -> str:
-    """Build -af chain for loudnorm analysis pass (raw input analysis)."""
+    """Build -af chain for loudnorm analysis pass."""
+    parts: list[str] = []
+
+    if include_pre_filters:
+        parts.extend(build_pre_filters_chain(preset, rnn_model_path=rnn_model_path))
+
     ln = resolve_loudnorm_target(presets_json, preset, target=target)
-    return (
+    parts.append(
         "loudnorm="
         f"I={_fmt_float(ln['I'])}:"
         f"TP={_fmt_float(ln['TP'])}:"
@@ -115,22 +122,14 @@ def build_loudnorm_analyze_chain(
         f"linear={'true' if ln['linear'] else 'false'}:"
         "print_format=json"
     )
+    return ",".join(parts)
 
 
-def build_process_chain(
-    presets_json: Dict[str, Any],
+def build_pre_filters_chain(
     preset: Dict[str, Any],
-    target: str = "tv",
-    measured: Optional[Dict[str, Any]] = None,
-    print_format: str = "summary",
     rnn_model_path: Optional[str] = None,
-) -> str:
-    """Build -af chain for processing pass."""
-    if target not in ("tv", "web"):
-        raise PresetError(f"Unknown target: {target}")
-    if print_format not in ("summary", "json"):
-        raise PresetError("print_format must be 'summary' or 'json'")
-
+) -> list[str]:
+    """Build pre-loudnorm processing filters."""
     parts: list[str] = []
 
     hp = _get(preset, "filters.highpass_hz", None)
@@ -171,17 +170,40 @@ def build_process_chain(
         ratio = _require({"c": comp}, "c.ratio")
         attack = _require({"c": comp}, "c.attack_ms")
         release = _require({"c": comp}, "c.release_ms")
+        link = str(comp.get("link", "average")).strip().lower() or "average"
+        if link not in ("average", "maximum"):
+            raise PresetError("compressor.link must be 'average' or 'maximum'")
         parts.append(
             "acompressor="
             f"threshold={_fmt_float(thr)}dB:"
             f"ratio={_fmt_float(ratio)}:"
             f"attack={_fmt_float(attack)}:"
-            f"release={_fmt_float(release)}"
+            f"release={_fmt_float(release)}:"
+            f"link={link}"
         )
 
     lim = _get(preset, "filters.limiter_db", None)
     if lim is not None:
         parts.append(f"alimiter=limit={_fmt_float(lim)}dB")
+
+    return parts
+
+
+def build_process_chain(
+    presets_json: Dict[str, Any],
+    preset: Dict[str, Any],
+    target: str = "tv",
+    measured: Optional[Dict[str, Any]] = None,
+    print_format: str = "summary",
+    rnn_model_path: Optional[str] = None,
+) -> str:
+    """Build -af chain for processing pass."""
+    if target not in ("tv", "web"):
+        raise PresetError(f"Unknown target: {target}")
+    if print_format not in ("summary", "json"):
+        raise PresetError("print_format must be 'summary' or 'json'")
+
+    parts = build_pre_filters_chain(preset, rnn_model_path=rnn_model_path)
 
     ln = resolve_loudnorm_target(presets_json, preset, target=target)
     ln_args = (
@@ -217,6 +239,19 @@ def build_process_chain(
             f":offset={_fmt_float(off)}"
         )
 
+        # FFmpeg loudnorm falls back to Dynamic if target LRA is lower than measured LRA in linear mode.
+        # To keep pass2 deterministic and avoid pumping artifacts, clamp target LRA up to measured LRA.
+        try:
+            if ln["linear"] and float(mLRA) > float(ln["LRA"]):
+                ln_args = ln_args.replace(
+                    f"LRA={_fmt_float(ln['LRA'])}",
+                    f"LRA={_fmt_float(mLRA)}",
+                    1,
+                )
+        except Exception:
+            # Keep original args if values are not parseable; validation will happen in ffmpeg.
+            pass
+
     parts.append(f"loudnorm={ln_args}")
     return ",".join(parts)
 
@@ -250,6 +285,17 @@ def parse_loudnorm_json_from_stderr(stderr_text: str) -> Dict[str, Any]:
             pass
 
     raise AudioNormalizerError("Could not find loudnorm JSON in FFmpeg stderr.")
+
+
+def parse_loudnorm_normalization_type(stderr_text: str) -> Optional[str]:
+    """Extract loudnorm normalization mode from FFmpeg summary output."""
+    m = re.search(r"Normalization Type:\s*([A-Za-z]+)", stderr_text or "", flags=re.IGNORECASE)
+    if not m:
+        return None
+    value = (m.group(1) or "").strip().lower()
+    if value in ("dynamic", "linear"):
+        return value
+    return value or None
 
 
 @dataclass(frozen=True)
@@ -470,9 +516,21 @@ class AudioNormalizerService:
 
         return results
 
-    def analyze_loudnorm(self, input_path: Path) -> Dict[str, Any]:
+    def analyze_loudnorm(
+        self,
+        input_path: Path,
+        *,
+        include_pre_filters: bool = False,
+        rnn_model_path: Optional[str] = None,
+    ) -> Dict[str, Any]:
         preset = get_preset(self.presets_json, self.job.preset_id)
-        af = build_loudnorm_analyze_chain(self.presets_json, preset, target=self.job.target)
+        af = build_loudnorm_analyze_chain(
+            self.presets_json,
+            preset,
+            target=self.job.target,
+            include_pre_filters=include_pre_filters,
+            rnn_model_path=rnn_model_path,
+        )
 
         cmd = [
             self.ffmpeg,
@@ -1190,7 +1248,19 @@ class AudioNormalizerService:
             raise AudioNormalizerError(f"Input file not found: {input_path}")
 
         meta, probe_info = self.probe(input_path)
-        before = self.analyze_loudnorm(input_path)
+        # Determine which RNN model to use for pre-filter-equivalent analysis and processing.
+        model_to_use = self.rnn_model_path
+        preset = get_preset(self.presets_json, self.job.preset_id)
+        preset_model = _get(preset, "filters.arnndn_model", None)
+        if preset_model:
+            model_to_use = preset_model
+
+        # Analyze with the same pre-filters as processing pass to keep measured_* compatible with pass2.
+        before = self.analyze_loudnorm(
+            input_path,
+            include_pre_filters=True,
+            rnn_model_path=model_to_use,
+        )
         
         # Optional noise analysis for better recommendations
         noise_analysis = None
@@ -1215,6 +1285,15 @@ class AudioNormalizerService:
             on_progress=on_progress,
         )
 
+        normalization_type = parse_loudnorm_normalization_type(ffmpeg_log)
+        normalization_warning = None
+        if normalization_type == "dynamic":
+            normalization_warning = (
+                "loudnorm switched to dynamic mode. "
+                "This may introduce pumping/stereo artifacts. "
+                "Try a linear preset and gentler dynamics."
+            )
+
         # Encoding complete, now verifying output
         AudioNormalizeJob.objects.filter(id=self.job.id).update(progress=92)
         after = self.analyze_loudnorm(out_path)
@@ -1238,7 +1317,8 @@ class AudioNormalizerService:
             "output_relpath": output_relpath,
             "output_path_external": output_path_external,
             "ffmpeg_log": ffmpeg_log,
+            "normalization_type": normalization_type,
+            "normalization_warning": normalization_warning,
             "probe": {"duration_sec": probe_info.duration_sec, "has_video": probe_info.has_video, "has_audio": probe_info.has_audio},
             "recommendations": self.get_recommendations(before, noise_analysis),
         }
-

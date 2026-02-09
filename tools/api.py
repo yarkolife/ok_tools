@@ -1640,8 +1640,12 @@ class AudioJobStatusView(APIView):
 
         recommendations = []
         noise_analysis = None
+        normalization_type = None
+        normalization_warning = None
         if job.input_metadata and isinstance(job.input_metadata, dict):
             noise_analysis = job.input_metadata.get("noise_analysis")
+            normalization_type = job.input_metadata.get("normalization_type")
+            normalization_warning = job.input_metadata.get("normalization_warning")
         if job.analysis_before:
             try:
                 recommendations = AudioNormalizerService(job).get_recommendations(job.analysis_before, noise_analysis)
@@ -1680,6 +1684,8 @@ class AudioJobStatusView(APIView):
             'analysis_before': job.analysis_before,
             'analysis_after': job.analysis_after,
             'noise_analysis': noise_analysis,
+            'normalization_type': normalization_type,
+            'normalization_warning': normalization_warning,
             'recommendations': recommendations,
             'created_at': job.created_at,
             'started_at': job.started_at,

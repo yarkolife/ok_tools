@@ -153,6 +153,16 @@
     .status-pill.warn { background: #fef9c3; border-color: #fde68a; color: #92400e; }
     .status-pill.danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
     .status-pill.info { background: #e0f2fe; border-color: #bae6fd; color: #075985; }
+    .warn-box {
+        display: none;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #fde68a;
+        background: #fef9c3;
+        color: #92400e;
+        font-size: 13px;
+    }
     .muted { color: #6b7280; }
 </style>
 {% endblock %}
@@ -236,6 +246,7 @@
             <span class="status-pill" id="statusPill">{% trans 'Status' %}: <span id="statusText" style="margin-left:6px;">-</span></span>
             <span class="muted">{% trans 'Progress' %}: <span id="progressText">0%</span></span>
         </div>
+        <div id="normalizationWarn" class="warn-box"></div>
         <div id="errorBox" class="help" style="display:none; margin-top: 12px; color:#b91c1c;"></div>
     </div>
 
@@ -501,6 +512,11 @@ function resetJob() {
     document.getElementById('noiseInfo').textContent = '-';
     document.getElementById('resultInfo').textContent = '-';
     document.getElementById('ffmpegLog').textContent = '-';
+    const nWarn = document.getElementById('normalizationWarn');
+    if (nWarn) {
+        nWarn.style.display = 'none';
+        nWarn.textContent = '';
+    }
     document.getElementById('metricIntegrated').textContent = '-';
     document.getElementById('metricTruePeak').textContent = '-';
     document.getElementById('metricLra').textContent = '-';
@@ -1087,6 +1103,19 @@ async function refreshStatus(jobId) {
     updateMetricCards(data.analysis_before, data.analysis_after);
 
     const resultParts = [];
+    if (data.normalization_type) {
+        resultParts.push(`{% trans "Loudnorm mode" %}: ${data.normalization_type}`);
+    }
+    const normalizationWarn = document.getElementById('normalizationWarn');
+    if (normalizationWarn) {
+        if (data.normalization_warning) {
+            normalizationWarn.style.display = 'block';
+            normalizationWarn.textContent = data.normalization_warning;
+        } else {
+            normalizationWarn.style.display = 'none';
+            normalizationWarn.textContent = '';
+        }
+    }
     if (data.output_file) resultParts.push(`{% trans "Output" %}: ${data.output_file}`);
     else if (data.output_path_external) resultParts.push(`{% trans "Output (on disk)" %}: ${data.output_path_external}`);
     if (data.recommendations && data.recommendations.length) {
@@ -1250,4 +1279,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 {% endblock %}
-

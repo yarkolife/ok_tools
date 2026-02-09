@@ -446,38 +446,61 @@ class VideoFile(models.Model):
         # Priority: availability > quality (bitrate + storage) > recency
         # For CUSTOM storage: prefer newer versions if bitrate is not significantly lower
         # (re-rendered versions should become primary)
+        
+        # Pre-compute values needed for all versions to avoid redundant queries
+        all_versions_list = list(versions)
+        all_custom = all(
+            v.storage_location and v.storage_location.storage_type == 'CUSTOM'
+            for v in all_versions_list
+        )
+        max_bitrate = max((v.total_bitrate or 0 for v in all_versions_list), default=0)
+        
         def get_sort_key(v):
-            created = v.created_at or v.last_scanned or v.updated_at
-            quality_score = int(v.get_quality_score() or 0)
+            # Always return a tuple of the same structure with comparable types
+            # Structure: (is_available: bool, primary_metric_1: int, primary_metric_2: int, created_ts: float)
             
-            # Check if all versions are in CUSTOM storage
-            all_custom = all(
-                v.storage_location and v.storage_location.storage_type == 'CUSTOM'
-                for v in versions
-            )
+            is_available = bool(v.is_available)
             
+            # Determine which metric to use based on storage types
             if all_custom:
-                # For CUSTOM: prefer newer if bitrate is >= 80% of max bitrate
-                max_bitrate = max((v.total_bitrate or 0 for v in versions), default=0)
                 v_bitrate = v.total_bitrate or 0
                 if max_bitrate > 0 and v_bitrate >= max_bitrate * 0.8:
-                    # Newer version with acceptable quality becomes primary
+                    # For CUSTOM: prefer newer if bitrate is >= 80% of max
+                    # primary_metric_1 = recency (higher is newer)
+                    # primary_metric_2 = quality as tie-breaker
+                    created_ts = self._get_created_timestamp(v)
                     return (
-                        bool(v.is_available),
-                        created,  # Recency first for CUSTOM
-                        quality_score,  # Then quality as tie-breaker
+                        is_available,
+                        created_ts,  # Recency first for CUSTOM with acceptable quality
+                        v_bitrate,   # Quality as tie-breaker
                     )
             
             # Default: quality first, then recency
+            # primary_metric_1 = quality score (higher is better)
+            # primary_metric_2 = recency (higher is newer)
+            quality_score = int(v.get_quality_score() or 0)
+            created_ts = self._get_created_timestamp(v)
             return (
-                bool(v.is_available),
+                is_available,
                 quality_score,
-                created,
+                created_ts,
             )
-
-        best = max(versions, key=get_sort_key)
+        
+        best = max(all_versions_list, key=get_sort_key)
         
         return best.id == self.id
+    
+    def _get_created_timestamp(self, v):
+        """Get creation timestamp as float for safe comparison."""
+        from datetime import datetime, timezone
+        created = v.created_at or v.last_scanned or v.updated_at
+        if created is None:
+            # Use epoch timestamp for null dates
+            return 0.0
+        # Convert to epoch seconds (timezone-aware datetime assumed)
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=timezone.utc)
+        return created.timestamp()
 
     def get_quality_score(self):
         """Calculate quality score for comparison."""

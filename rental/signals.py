@@ -176,26 +176,17 @@ def sync_room_rental_to_nextcloud(sender, instance: RoomRental, created, **kwarg
     try:
         from .services.nextcloud_calendar_service import NextcloudCalendarService
         service = NextcloudCalendarService()
+        # Sync the entire rental request (which handles all rooms in one event)
         event_href = service.sync_room_rental_to_calendar(instance)
         
+        # The sync_room_rental_to_calendar method now handles updating all room rentals in the request
         # #region agent log
         try:
             with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"E","location":"rental/signals.py:160","message":"sync_room_rental_to_calendar result","data":{"event_href":event_href,"current_href":instance.nextcloud_event_href if hasattr(instance, 'nextcloud_event_href') else None,"will_update":event_href and instance.nextcloud_event_href != event_href},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"E","location":"rental/signals.py:160","message":"sync_room_rental_to_calendar result","data":{"event_href":event_href,"rental_request_id":instance.rental_request.id if hasattr(instance, 'rental_request') else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
         except: pass
         # #endregion
         
-        if event_href and instance.nextcloud_event_href != event_href:
-            # Update the href in the database
-            instance.nextcloud_event_href = event_href
-            # Use update_fields to avoid triggering the signal again
-            RoomRental.objects.filter(pk=instance.pk).update(nextcloud_event_href=event_href)
-            # #region agent log
-            try:
-                with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"E","location":"rental/signals.py:167","message":"Updated nextcloud_event_href in DB","data":{"room_rental_id":instance.pk,"event_href":event_href},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            except: pass
-            # #endregion
     except Exception as e:
         # Log error but don't fail the save operation
         logger.error(f'Error syncing room rental {instance.id} to Nextcloud: {e}', exc_info=True)
@@ -363,13 +354,27 @@ def delete_room_rental_from_nextcloud(sender, instance: RoomRental, **kwargs):
     if not getattr(settings, 'NEXTCLOUD_CALENDAR_ENABLED', False):
         return
     
-    if not instance.nextcloud_event_href:
-        return
+    # Check if there are other room rentals in the same request
+    # If this is the last room rental in the request, delete the shared event
+    remaining_room_rentals = instance.rental_request.room_rentals.exclude(id=instance.id).count()
     
-    try:
-        from .services.nextcloud_calendar_service import NextcloudCalendarService
-        service = NextcloudCalendarService()
-        service.delete_room_rental_event(instance)
-    except Exception as e:
-        # Log error but don't fail the delete operation
-        logger.error(f'Error deleting room rental {instance.id} from Nextcloud: {e}', exc_info=True)
+    if remaining_room_rentals == 0:
+        # This is the last room rental in the request, so delete the shared event
+        try:
+            from .services.nextcloud_calendar_service import NextcloudCalendarService
+            service = NextcloudCalendarService()
+            service.delete_room_rental_event(instance)
+        except Exception as e:
+            # Log error but don't fail the delete operation
+            logger.error(f'Error deleting room rental {instance.id} from Nextcloud: {e}', exc_info=True)
+    else:
+        # There are other room rentals in this request, so we need to resync to update the event without this room
+        try:
+            from .services.nextcloud_calendar_service import NextcloudCalendarService
+            service = NextcloudCalendarService()
+            # Resync the rental request to update the event without the deleted room
+            if instance.rental_request.status in ['reserved', 'issued']:
+                service._sync_rental_request_to_calendar(instance.rental_request)
+        except Exception as e:
+            # Log error but don't fail the delete operation
+            logger.error(f'Error resyncing rental request {instance.rental_request.id} after room rental deletion: {e}', exc_info=True)

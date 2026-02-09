@@ -32,7 +32,7 @@ def check_tools_enabled():
         )
 
 
-@shared_task(name='tools.tasks.generate_slideshow', bind=True, max_retries=2)
+@shared_task(name='tools.tasks.generate_slideshow', queue='render', bind=True, max_retries=2)
 def generate_slideshow_task(self, project_id):
     """
     Generate slideshow video asynchronously.
@@ -158,7 +158,7 @@ def generate_slideshow_task(self, project_id):
         raise self.retry(exc=e, countdown=60 * (2 ** self.request.retries))
 
 
-@shared_task(name='tools.tasks.cleanup_old_projects_task')
+@shared_task(name='tools.tasks.cleanup_old_projects_task', queue='render')
 def cleanup_old_projects_task(older_than_days=30, keep_failed=False):
     """
     Clean up old slideshow projects and their files.
@@ -275,7 +275,7 @@ def cleanup_old_projects_task(older_than_days=30, keep_failed=False):
     return result
 
 
-@shared_task(name='tools.tasks.cleanup_old_video_render_operations_task')
+@shared_task(name='tools.tasks.cleanup_old_video_render_operations_task', queue='render')
 def cleanup_old_video_render_operations_task(older_than_days=30, keep_failed=True):
     """
     Clean up old FileOperation records created by the Tools video-render UI.
@@ -315,7 +315,7 @@ def cleanup_old_video_render_operations_task(older_than_days=30, keep_failed=Tru
     }
 
 
-@shared_task(name='tools.tasks.cleanup_old_audio_normalize_jobs_task')
+@shared_task(name='tools.tasks.cleanup_old_audio_normalize_jobs_task', queue='render')
 def cleanup_old_audio_normalize_jobs_task(older_than_days=30, delete_if_missing_files=True, delete_media_files=False):
     """
     Clean up old audio normalize jobs and related files.
@@ -475,7 +475,7 @@ def cleanup_old_audio_normalize_jobs_task(older_than_days=30, delete_if_missing_
     return result
 
 
-@shared_task(name='tools.tasks.analyze_audio_normalize_job', bind=True, max_retries=1)
+@shared_task(name='tools.tasks.analyze_audio_normalize_job', queue='render', bind=True, max_retries=1)
 def analyze_audio_normalize_job_task(self, job_id):
     """Run analysis-only (ffprobe + loudnorm analyze) for AudioNormalizeJob."""
     check_tools_enabled()
@@ -546,7 +546,7 @@ def analyze_audio_normalize_job_task(self, job_id):
         raise self.retry(exc=e, countdown=30)
 
 
-@shared_task(name='tools.tasks.normalize_audio', bind=True, max_retries=1)
+@shared_task(name='tools.tasks.normalize_audio', queue='render', bind=True, max_retries=1)
 def normalize_audio_task(self, job_id):
     """Run full R128 normalization pipeline for AudioNormalizeJob."""
     check_tools_enabled()
@@ -563,7 +563,17 @@ def normalize_audio_task(self, job_id):
         service = AudioNormalizerService(job)
         result = service.run_full_pipeline()
 
-        job.input_metadata = result.get('input_metadata')
+        input_metadata = result.get('input_metadata')
+        if input_metadata is None or not isinstance(input_metadata, dict):
+            input_metadata = {}
+        # Persist loudnorm mode diagnostics for UI/API guardrails.
+        input_metadata = {
+            **input_metadata,
+            'normalization_type': result.get('normalization_type'),
+            'normalization_warning': result.get('normalization_warning'),
+        }
+
+        job.input_metadata = input_metadata
         job.analysis_before = result.get('analysis_before')
         job.analysis_after = result.get('analysis_after')
         job.ffmpeg_log = result.get('ffmpeg_log', '') or ''

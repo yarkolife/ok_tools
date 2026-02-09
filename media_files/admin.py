@@ -1747,79 +1747,82 @@ class VideoFileAdmin(admin.ModelAdmin):
         """Show duplicate status indicator with version info."""
         if not obj.pk:
             return '—'
-        if getattr(obj, 'is_preview', False):
-            return format_html(
-                '<span style="color: #6c757d;">🎬 {}</span>',
-                _('Preview clip (not a version)'),
-            )
-        # Check for duplicates (same number, any storage; previews excluded by get_all_versions)
-        all_versions = obj.get_all_versions().exclude(id=obj.id)
-        same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
         
-        if not all_versions.exists():
-            return format_html('<span style="color: #6c757d;" title="{}">—</span>', _('Unique - no duplicates'))
-        
-        is_primary = obj.is_primary_version()
-        total_count = all_versions.count()
-        same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
-        same_storage_count = same_storage_versions.count()
-        
-        # Build tooltip with version details
-        tooltip_parts = []
-        if same_storage_count > 0:
-            tooltip_parts.append(_('{} version(s) in same storage').format(same_storage_count + 1))
-        if total_count > same_storage_count:
-            tooltip_parts.append(_('{} version(s) in other storages').format(total_count - same_storage_count))
-        
-        tooltip = ' | '.join(tooltip_parts)
-        
-        if is_primary:
-            return format_html(
-                '<span style="color: #28a745; font-weight: bold;" title="{}">✓ PRIMARY</span><br>'
-                '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
-                tooltip,
-                total_count + 1,
-                _('versions total')
-            )
-        else:
-            # ARCHIVE: if multiple versions exist in ARCHIVE, label non-best ones as "ARCHIVE DUPLICATE"
-            if obj.storage_location and obj.storage_location.storage_type == 'ARCHIVE':
-                archive_versions = [obj] + list(
-                    all_versions.filter(storage_location__storage_type='ARCHIVE')
+        # Wrap main logic in try/except to prevent admin 500 errors
+        try:
+            if getattr(obj, 'is_preview', False):
+                return format_html(
+                    '<span style="color: #6c757d;">🎬 {}</span>',
+                    _('Preview clip (not a version)'),
                 )
-                if len(archive_versions) > 1:
-                    from django.utils import timezone
-                    from datetime import datetime
+            # Check for duplicates (same number, any storage; previews excluded by get_all_versions)
+            all_versions = obj.get_all_versions().exclude(id=obj.id)
+            same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
+            
+            if not all_versions.exists():
+                return format_html('<span style="color: #6c757d;" title="{}">—</span>', _('Unique - no duplicates'))
+            
+            is_primary = obj.is_primary_version()
+            total_count = all_versions.count()
+            same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
+            same_storage_count = same_storage_versions.count()
+            
+            # Build tooltip with version details
+            tooltip_parts = []
+            if same_storage_count > 0:
+                tooltip_parts.append(_('{} version(s) in same storage').format(same_storage_count + 1))
+            if total_count > same_storage_count:
+                tooltip_parts.append(_('{} version(s) in other storages').format(total_count - same_storage_count))
+            
+            tooltip = ' | '.join(tooltip_parts)
+            
+            if is_primary:
+                return format_html(
+                    '<span style="color: #28a745; font-weight: bold;" title="{}">✓ PRIMARY</span><br>'
+                    '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                    tooltip,
+                    total_count + 1,
+                    _('versions total')
+                )
+            else:
+                # ARCHIVE: if multiple versions exist in ARCHIVE, label non-best ones as "ARCHIVE DUPLICATE"
+                if obj.storage_location and obj.storage_location.storage_type == 'ARCHIVE':
+                    archive_versions = [obj] + list(
+                        all_versions.filter(storage_location__storage_type='ARCHIVE')
+                    )
+                    if len(archive_versions) > 1:
+                        from django.utils import timezone
+                        from datetime import datetime
 
-                    def archive_key(v):
-                        created = v.created_at or v.last_scanned or v.updated_at
-                        if created is None:
-                            created = datetime(1970, 1, 1, tzinfo=timezone.utc)
-                        return (
-                            bool(getattr(v, 'is_manual_primary', False)),
-                            bool(getattr(v, 'is_available', True)),
-                            v.total_bitrate or 0,
-                            created,
-                        )
+                        def archive_key(v):
+                            created = v.created_at or v.last_scanned or v.updated_at
+                            if created is None:
+                                created = datetime(1970, 1, 1, tzinfo=timezone.utc)
+                            return (
+                                bool(getattr(v, 'is_manual_primary', False)),
+                                bool(getattr(v, 'is_available', True)),
+                                v.total_bitrate or 0,
+                                created,
+                            )
 
-                    best_archive = max(archive_versions, key=archive_key)
-                    if obj.id == best_archive.id:
+                        best_archive = max(archive_versions, key=archive_key)
+                        if obj.id == best_archive.id:
+                            return format_html(
+                                '<span style="color: #17a2b8; font-weight: bold;" title="{}">📦 {}</span><br>'
+                                '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                                tooltip,
+                                _('ARCHIVE PRIMARY'),
+                                total_count + 1,
+                                _('versions total')
+                            )
                         return format_html(
-                            '<span style="color: #17a2b8; font-weight: bold;" title="{}">📦 {}</span><br>'
+                            '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ {}</span><br>'
                             '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                             tooltip,
-                            _('ARCHIVE PRIMARY'),
+                            _('ARCHIVE DUPLICATE'),
                             total_count + 1,
                             _('versions total')
                         )
-                    return format_html(
-                        '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ {}</span><br>'
-                        '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
-                        tooltip,
-                        _('ARCHIVE DUPLICATE'),
-                        total_count + 1,
-                        _('versions total')
-                    )
 
                 # Single archive copy among multiple storages: treat as canonical archive copy
                 return format_html(
@@ -1858,6 +1861,10 @@ class VideoFileAdmin(admin.ModelAdmin):
                 total_count + 1,
                 _('versions total')
             )
+        except Exception as e:
+            # Log the error and return neutral indicator to prevent 500
+            logger.error(f'Error in duplicates_indicator for VideoFile {obj.id}: {e}', exc_info=True)
+            return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
 
     duplicates_indicator.short_description = _('Versions')
     
@@ -1874,8 +1881,12 @@ class VideoFileAdmin(admin.ModelAdmin):
             )
         if not obj.has_duplicates:
             return format_html('<span style="color: #28a745;">✓ Unique (no duplicates)</span>')
-        
-        is_primary = obj.is_primary_version()
+
+        try:
+            is_primary = obj.is_primary_version()
+        except Exception as e:
+            logger.error(f'Error in duplicate_status_display for VideoFile {obj.id}: {e}', exc_info=True)
+            return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
         count = obj.duplicate_count
         
         if is_primary:
@@ -1885,7 +1896,14 @@ class VideoFileAdmin(admin.ModelAdmin):
                 count
             )
         else:
-            primary = [v for v in obj.get_all_versions() if v.is_primary_version()][0]
+            try:
+                primary_versions = [v for v in obj.get_all_versions() if v.is_primary_version()]
+                if not primary_versions:
+                    return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
+                primary = primary_versions[0]
+            except Exception as e:
+                logger.error(f'Error selecting primary in duplicate_status_display for VideoFile {obj.id}: {e}', exc_info=True)
+                return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
             if obj.storage_location and obj.storage_location.storage_type == 'ARCHIVE':
                 archive_versions = list(
                     VideoFile.objects.filter(
@@ -1987,7 +2005,11 @@ class VideoFileAdmin(admin.ModelAdmin):
         
         for v in versions_list:
             is_current = v.id == obj.id
-            is_primary = v.is_primary_version()
+            try:
+                is_primary = v.is_primary_version()
+            except Exception as e:
+                logger.error(f'Error in all_versions_display for VideoFile {v.id}: {e}', exc_info=True)
+                is_primary = False
             if is_primary:
                 primary = v
             

@@ -1609,17 +1609,35 @@
       recalculateSchedule();
     }
 
+    function toIsoDateLocal(dateObj) {
+      var y = dateObj.getFullYear();
+      var m = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+      var d = dateObj.getDate().toString().padStart(2, '0');
+      return y + '-' + m + '-' + d;
+    }
+
+    function getCurrentWeekMondayIso() {
+      var now = new Date();
+      var day = now.getDay();
+      var mondayOffset = day === 0 ? 6 : day - 1;
+      now.setHours(0, 0, 0, 0);
+      now.setDate(now.getDate() - mondayOffset);
+      return toIsoDateLocal(now);
+    }
+
     // Function to load and display weekly statistics
     var loadWeeklyStatistics = function() {
-      var startDate = INITIAL_CALENDAR_START || new Date().toISOString().split('T')[0];
+      // Stats cards always represent current week and next weeks,
+      // independent from the visible calendar range in the table.
+      var startDate = getCurrentWeekMondayIso();
       $.get('/api/planning/week-stats/?start=' + startDate + '&weeks=4')
         .done(function (response) {
           (response.weeks || []).forEach(function (weekData, idx) {
             updateWeekStatistics(idx, {
-              planned: weekData.planned_days,
-              totalTime: weekData.total_seconds,
-              licensesCount: weekData.licenses_count,
-              maxSeconds: weekData.max_seconds,
+              planned: Number(weekData.planned_days || 0),
+              totalTime: Number(weekData.total_seconds || 0),
+              licensesCount: Number(weekData.licenses_count || 0),
+              maxSeconds: Number(weekData.max_seconds || 0),
             });
           });
         });
@@ -1632,7 +1650,7 @@
 
       if (weekId) {
         var maxWeeklyTime = data.maxSeconds || (maxBlockSeconds * 7);
-        var fillRate = Math.round((data.totalTime / maxWeeklyTime) * 100);
+        var fillRate = maxWeeklyTime > 0 ? Math.round((data.totalTime / maxWeeklyTime) * 100) : 0;
         
         var totalMins = Math.floor(data.totalTime / 60);
         var maxMins = Math.floor(maxWeeklyTime / 60);

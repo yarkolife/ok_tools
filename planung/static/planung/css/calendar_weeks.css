@@ -197,6 +197,25 @@
   background: #f9fbfd;
 }
 
+.planning-calendar-table .kw-cell--current {
+  background: #eaf6fb;
+  color: #0f4d67;
+  border-left: 4px solid var(--plan-current);
+}
+
+.kw-current-indicator {
+  display: inline-flex;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.25;
+  background: #d5edf7;
+  color: #0f4d67;
+  border: 1px solid #6fbcd9;
+}
+
 .planning-day-header {
   font-size: 16px;
 }
@@ -276,6 +295,16 @@
 
 .planning-calendar-table .current-week td {
   box-shadow: inset 0 3px 0 0 var(--plan-current), inset 0 -3px 0 0 var(--plan-current);
+}
+
+.planning-calendar-table .current-week .kw-cell {
+  box-shadow: inset 0 3px 0 0 var(--plan-current), inset 0 -3px 0 0 var(--plan-current);
+}
+
+.planning-calendar-table tbody tr.current-week td,
+.planning-calendar-table tbody tr.current-week .kw-cell {
+  border-top-width: 2px;
+  border-bottom-width: 2px;
 }
 
 .planning-calendar-table .selected-day {

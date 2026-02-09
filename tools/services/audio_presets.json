@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "defaults": {
     "tv": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true },
     "web": { "I": -16, "TP": -1.0, "LRA": 11, "linear": true },
@@ -13,7 +13,7 @@
       "filters": {
         "highpass_hz": 70,
         "denoise_nf_db": -25,
-        "compressor": { "threshold_db": -22, "ratio": 2.0, "attack_ms": 20, "release_ms": 450 },
+        "compressor": { "threshold_db": -22, "ratio": 2.0, "attack_ms": 20, "release_ms": 450, "link": "average" },
         "limiter_db": -1.0,
         "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true }
       }
@@ -25,9 +25,9 @@
       "filters": {
         "highpass_hz": 80,
         "denoise_nf_db": -28,
-        "compressor": { "threshold_db": -23, "ratio": 3.0, "attack_ms": 15, "release_ms": 350 },
+        "compressor": { "threshold_db": -23, "ratio": 3.0, "attack_ms": 20, "release_ms": 500, "link": "average" },
         "limiter_db": -1.0,
-        "loudnorm": { "I": -23, "TP": -1.0, "LRA": 10, "linear": true }
+        "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true }
       }
     },
     {
@@ -38,7 +38,7 @@
         "highpass_hz": 80,
         "arnndn_mix": 0.8,
         "lowpass_hz": 16000,
-        "compressor": { "threshold_db": -22, "ratio": 2.5, "attack_ms": 20, "release_ms": 400 },
+        "compressor": { "threshold_db": -22, "ratio": 2.5, "attack_ms": 20, "release_ms": 450, "link": "average" },
         "limiter_db": -1.0,
         "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true }
       }
@@ -51,9 +51,9 @@
         "highpass_hz": 80,
         "arnndn_mix": 0.85,
         "lowpass_hz": 16000,
-        "compressor": { "threshold_db": -24, "ratio": 3.0, "attack_ms": 15, "release_ms": 350 },
+        "compressor": { "threshold_db": -24, "ratio": 3.0, "attack_ms": 20, "release_ms": 500, "link": "average" },
         "limiter_db": -1.0,
-        "loudnorm": { "I": -23, "TP": -1.0, "LRA": 9, "linear": true }
+        "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true }
       }
     },
     {
@@ -63,7 +63,7 @@
       "filters": {
         "highpass_hz": 60,
         "denoise_nf_db": -18,
-        "compressor": { "threshold_db": -19, "ratio": 1.8, "attack_ms": 25, "release_ms": 500 },
+        "compressor": { "threshold_db": -19, "ratio": 1.8, "attack_ms": 25, "release_ms": 550, "link": "average" },
         "limiter_db": -1.0,
         "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": true }
       }
@@ -75,7 +75,7 @@
       "filters": {
         "highpass_hz": 70,
         "denoise_nf_db": -22,
-        "compressor": { "threshold_db": -20, "ratio": 1.6, "attack_ms": 15, "release_ms": 300 },
+        "compressor": { "threshold_db": -20, "ratio": 1.6, "attack_ms": 20, "release_ms": 400, "link": "average" },
         "limiter_db": -1.0,
         "loudnorm": { "I": -23, "TP": -1.0, "LRA": 11, "linear": false }
       }
@@ -88,7 +88,7 @@
         "highpass_hz": 70,
         "arnndn_mix": 0.8,
         "lowpass_hz": 16000,
-        "compressor": { "threshold_db": -18, "ratio": 2.0, "attack_ms": 20, "release_ms": 450 },
+        "compressor": { "threshold_db": -18, "ratio": 2.0, "attack_ms": 20, "release_ms": 450, "link": "average" },
         "limiter_db": -1.0,
         "loudnorm": { "I": -16, "TP": -1.0, "LRA": 11, "linear": true }
       }

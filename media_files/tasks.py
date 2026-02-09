@@ -1503,10 +1503,14 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                 f"({source_video.storage_location.storage_type}) - {selection_reason}"
             )
             
+            # Preserve initially selected source for all copy targets.
+            # This keeps CUSTOM -> PLAYOUT direct when CUSTOM was selected,
+            # while still supporting ARCHIVE-only flows.
+            initial_source_video = source_video
+
             # Save original source info for potential deletion from CUSTOM
             original_source_type = source_video.storage_location.storage_type
             original_source_id = source_video.id
-            should_delete_from_custom = False
             
             # Step 1: Copy to archive if needed
             archive_copy_success = False
@@ -1520,19 +1524,13 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                 if not archive_exists:
                     # Copy to archive
                     success, msg = _copy_video_to_storage(
-                        source_video, archive_storage, user, 
+                        initial_source_video, archive_storage, user,
                         destination_subfolder=None
                     )
                     if success:
                         copied_to_archive += 1
                         archive_copy_success = True
                         logger.info(f"Video {number}: ✓ Copied to archive")
-                        # Update source_video to use archive version for next copy
-                        source_video = VideoFile.objects.get(
-                            number=number,
-                            storage_location=archive_storage,
-                            is_available=True
-                        )
                     else:
                         logger.error(f"Video {number}: ✗ Failed to copy to archive: {msg}")
                         errors += 1
@@ -1566,7 +1564,7 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                 
                 if not playout_exists:
                     success, msg = _copy_video_to_storage(
-                        source_video, playout_storage, user,
+                        initial_source_video, playout_storage, user,
                         destination_subfolder=week_folder
                     )
                     if success:

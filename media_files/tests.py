@@ -145,6 +145,69 @@ class VideoFileModelTests(TestCase):
         expected = "12345 - 12345_test_video.mp4"
         self.assertEqual(str(self.video), expected)
 
+    def test_is_primary_version_custom_only_no_type_error(self):
+        """Ensure is_primary_version works for CUSTOM-only versions without TypeError."""
+        custom_storage = StorageLocation.objects.create(
+            name="Custom Storage",
+            storage_type="CUSTOM",
+            path="/tmp/custom/",
+            is_active=True,
+        )
+
+        older_high = VideoFile.objects.create(
+            number=77777,
+            filename="77777_old_high.mp4",
+            storage_location=custom_storage,
+            file_path="77777_old_high.mp4",
+            is_available=True,
+            total_bitrate=10_000_000,
+            last_scanned=timezone.now() - timedelta(days=2),
+        )
+        newer_acceptable = VideoFile.objects.create(
+            number=77777,
+            filename="77777_new_ok.mp4",
+            storage_location=custom_storage,
+            file_path="77777_new_ok.mp4",
+            is_available=True,
+            total_bitrate=8_100_000,  # >= 80% of max bitrate
+            last_scanned=timezone.now(),
+        )
+
+        # Must not raise TypeError, and newer acceptable CUSTOM version should win.
+        self.assertFalse(older_high.is_primary_version())
+        self.assertTrue(newer_acceptable.is_primary_version())
+
+    def test_is_primary_version_custom_only_prefers_quality_below_80_percent(self):
+        """For CUSTOM-only versions, very low bitrate should not override quality with recency."""
+        custom_storage = StorageLocation.objects.create(
+            name="Custom Storage 2",
+            storage_type="CUSTOM",
+            path="/tmp/custom2/",
+            is_active=True,
+        )
+
+        older_high = VideoFile.objects.create(
+            number=88888,
+            filename="88888_old_high.mp4",
+            storage_location=custom_storage,
+            file_path="88888_old_high.mp4",
+            is_available=True,
+            total_bitrate=10_000_000,
+            last_scanned=timezone.now() - timedelta(days=2),
+        )
+        newer_low = VideoFile.objects.create(
+            number=88888,
+            filename="88888_new_low.mp4",
+            storage_location=custom_storage,
+            file_path="88888_new_low.mp4",
+            is_available=True,
+            total_bitrate=7_000_000,  # < 80% of max bitrate
+            last_scanned=timezone.now(),
+        )
+
+        self.assertTrue(older_high.is_primary_version())
+        self.assertFalse(newer_low.is_primary_version())
+
 
 class FileOperationModelTests(TestCase):
     """Tests for FileOperation model."""
@@ -331,4 +394,3 @@ class IntegrationTests(TestCase):
         
         self.assertEqual(operation.video_file, video)
         self.assertEqual(operation.status, 'SUCCESS')
-

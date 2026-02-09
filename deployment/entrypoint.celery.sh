@@ -15,6 +15,10 @@ else
     echo "No valid legacy config file found, continuing with environment variables."
 fi
 
+# Compile translation messages so Celery email rendering uses current locale catalogs
+echo "Compiling translation messages..."
+python manage.py compilemessages || echo "Warning: Failed to compile translation messages, continuing anyway..."
+
 # Ensure backup directory exists and has correct permissions
 BACKUP_DIR="${BACKUP_DIR:-/app/backups}"
 echo "Ensuring backup directory exists: $BACKUP_DIR"
@@ -59,4 +63,3 @@ fi
 # Execute the command passed to the entrypoint (celery worker or beat)
 echo "Executing: $@"
 exec "$@"
-

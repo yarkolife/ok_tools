@@ -1,6 +1,7 @@
 from .admin import LicenseAdmin
 from .admin import WithoutContributionFilter
 from .admin import YearFilter
+from .tasks import send_license_notification_email
 from .models import License
 from .models import YouthProtectionCategory
 from .models import default_category
@@ -21,6 +22,8 @@ from registration.models import Profile
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from unittest.mock import patch
+from django.test import override_settings
+from django.utils import translation
 from urllib.error import HTTPError
 import datetime
 import pytest
@@ -1332,3 +1335,25 @@ def test__licenses__admin__tags_validation__invalid_json():
     # Should have error in tags field
     assert 'tags' in form.errors
     assert 'long_license' not in browser.contents
+
+
+@pytest.mark.django_db
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', LANGUAGE_CODE='de')
+def test__licenses__tasks__send_license_notification_email__subject_translated_to_german(
+        user_dict, license_dict, mail_outbox):
+    """License notification email subject is rendered in German for organization language."""
+    user = create_user(user_dict, verified=True)
+    license_obj = create_license(user.profile, license_dict)
+
+    with translation.override('en'):
+        send_license_notification_email(
+            event_type='contributions_available',
+            license_number=license_obj.number,
+            payload={
+                'premiere_datetime': '2026-02-01 20:15',
+                'repeats_text': '2026-02-02 10:00',
+            },
+        )
+
+    assert len(mail_outbox) == 1
+    assert f'Sendetermine verfügbar für Freistellung #{license_obj.number}' in mail_outbox[0].subject

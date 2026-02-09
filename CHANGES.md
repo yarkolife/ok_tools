@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-02-09 (Version 4.0.10)
+===========================
+
+* **Tools tasks: dedicated render queue routing**
+  * Routed all Celery tasks from the Tools module to the `render` queue.
+  * Ensures slideshow generation, audio normalization, and tools cleanup jobs run on `celery_render_worker`.
+  * Keeps `celery_worker` focused on the default `celery` queue while heavy Tools workloads are isolated in the render worker.
+
 2026-02-08 (Version 4.0.9)
 ==========================
 

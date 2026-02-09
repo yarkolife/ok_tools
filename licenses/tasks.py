@@ -283,10 +283,10 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
         subject_tpl, body_tpl, html_tpl = templates[event_type]
 
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "") or getattr(settings, "EMAIL_HOST_USER", "") or ""
-        
-        # Activate German language for email (emails should always be in German)
-        translation.activate('de')
-        try:
+
+        # Use organization default language for isolated rendering in worker processes
+        language = (getattr(settings, "LANGUAGE_CODE", "de") or "de").split("-")[0]
+        with translation.override(language):
             send_mail(
                 subject_template_name=subject_tpl,
                 email_template_name=body_tpl,
@@ -295,8 +295,6 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
                 from_email=from_email,
                 to_email=to_email,
             )
-        finally:
-            translation.deactivate()
     except Exception:
         logger.exception("Failed to send license notification email (number=%s, event=%s)", license_number, event_type)
 
@@ -304,4 +302,3 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
 def enqueue_license_notification_email(event_type: str, license_number: int, payload: dict | None = None) -> None:
     """Public helper for other modules to queue a notification email."""
     _enqueue(send_license_notification_email, event_type, int(license_number), payload or None)
-

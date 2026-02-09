@@ -49,7 +49,7 @@
         <div><dt>{% trans "Planned days" %}:</dt><dd id="nextWeekPlanned">0</dd></div>
         <div><dt>{% trans "Total time" %}:</dt><dd id="nextWeekTime">0/735 min</dd></div>
         <div><dt>{% trans "Fill rate" %}:</dt><dd id="nextWeekFill">0%</dd></div>
-        <div><dt>{% trans "Time Off" %}:</dt><dd id="nextWeekTimeOff">0</dd></div>
+        <div><dt>{% trans "Licenses" %}:</dt><dd id="nextWeekTimeOff">0</dd></div>
       </dl>
     </article>
 
@@ -59,7 +59,7 @@
         <div><dt>{% trans "Planned days" %}:</dt><dd id="afterNextWeekPlanned">0</dd></div>
         <div><dt>{% trans "Total time" %}:</dt><dd id="afterNextWeekTime">0/735 min</dd></div>
         <div><dt>{% trans "Fill rate" %}:</dt><dd id="afterNextWeekFill">0%</dd></div>
-        <div><dt>{% trans "Time Off" %}:</dt><dd id="afterNextWeekTimeOff">0</dd></div>
+        <div><dt>{% trans "Licenses" %}:</dt><dd id="afterNextWeekTimeOff">0</dd></div>
       </dl>
     </article>
 
@@ -69,7 +69,7 @@
         <div><dt>{% trans "Planned days" %}:</dt><dd id="threeWeeksAheadPlanned">0</dd></div>
         <div><dt>{% trans "Total time" %}:</dt><dd id="threeWeeksAheadTime">0/735 min</dd></div>
         <div><dt>{% trans "Fill rate" %}:</dt><dd id="threeWeeksAheadFill">0%</dd></div>
-        <div><dt>{% trans "Time Off" %}:</dt><dd id="threeWeeksAheadTimeOff">0</dd></div>
+        <div><dt>{% trans "Licenses" %}:</dt><dd id="threeWeeksAheadTimeOff">0</dd></div>
       </dl>
     </article>
   </div>
@@ -97,7 +97,12 @@
       <tbody>
         {% for week in weeks %}
         <tr class="{% if week.num == current_week %}current-week{% endif %}">
-          <th scope="row" class="kw-cell">{% trans "CW" %} {{ week.num }}</th>
+          <th scope="row" class="kw-cell {% if week.num == current_week %}kw-cell--current{% endif %}">
+            {% trans "CW" %} {{ week.num }}
+            {% if week.num == current_week %}
+              <span class="kw-current-indicator">{% trans "Current" %}</span>
+            {% endif %}
+          </th>
 
           {% for cell in week.days %}
             <td class="{{ cell.cls }}"
