@@ -4,10 +4,32 @@ CHANGELOG
 2026-02-09 (Version 4.0.10)
 ===========================
 
-* **Tools tasks: dedicated render queue routing**
-  * Routed all Celery tasks from the Tools module to the `render` queue.
-  * Ensures slideshow generation, audio normalization, and tools cleanup jobs run on `celery_render_worker`.
-  * Keeps `celery_worker` focused on the default `celery` queue while heavy Tools workloads are isolated in the render worker.
+* **Tools module enhancements**
+  * **Dedicated render queue routing**: Routed all Celery tasks from the Tools module to the `render` queue to isolate heavy workloads
+  * **Audio normalization improvements**: Added AI-based denoising with neural networks (arnndn), enhanced analysis, and intelligent recommendations
+  * **Loudness normalization**: Added support for dynamic/linear mode detection and compressor linking options
+  * **RNN model integration**: Automatic download and integration of RNN models for AI-based audio processing
+  * **Analysis improvements**: Enhanced noise analysis with silence detection and audio characteristic analysis
+
+* **Calendar and rental system fixes**
+  * **Nextcloud calendar integration**: Fixed multiple room booking issue where separate calendar entries were created for same rental request
+  * **Single event creation**: Multiple rooms booked in same time period now create single calendar event with all rooms listed
+  * **Event management**: Improved handling of shared events when rooms are added/removed from rental requests
+
+* **Translation and internationalization**
+  * **Celery translation compilation**: Added translation compilation in Celery worker startup to ensure consistent language in email notifications
+  * **Email localization**: Fixed issue where license notification emails fell back to English in worker processes
+  * **Language consistency**: Ensured email templates render in organization's default language in Celery tasks
+
+* **Media files and video processing**
+  * **Video duplication management**: Enhanced duplicate detection and management with quality-based prioritization
+  * **Storage optimization**: Improved auto-copy mechanisms and archive protection features
+  * **Metadata extraction**: Enhanced video metadata extraction and processing capabilities
+
+* **System stability and performance**
+  * **Queue management**: Improved Celery task routing and worker distribution
+  * **Error handling**: Enhanced error logging and debugging capabilities
+  * **Process isolation**: Better separation of email rendering from web request cycle
 
 2026-02-08 (Version 4.0.9)
 ==========================
