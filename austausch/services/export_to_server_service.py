@@ -12,9 +12,10 @@ import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from django.db import models
 from django.utils import timezone
 
-from ..models import ExchangeConfig
+from ..models import ExchangeConfig, ExportedLicense
 from .nextcloud_exchange_service import NextcloudExchangeService
 
 logger = logging.getLogger('django')
@@ -87,6 +88,22 @@ class ExportToServerService:
         self.user = user
         self.destination = getattr(self.config, 'export_destination', 'nextcloud')
         self.service = NextcloudExchangeService(self.config) if self.destination == 'nextcloud' else None
+
+    def _record_exported_license(self, license_number: int) -> None:
+        """Record successful export in ExportedLicense table."""
+        try:
+            obj, created = ExportedLicense.objects.get_or_create(
+                license_number=license_number,
+                defaults={'export_count': 1}
+            )
+            if not created:
+                # Increment export_count
+                ExportedLicense.objects.filter(license_number=license_number).update(
+                    export_count=models.F('export_count') + 1
+                )
+        except Exception:
+            # Don't fail export if recording fails
+            logger.exception('Failed to record exported license %s', license_number)
 
     def _network_share_export_dir(self) -> str:
         """Return absolute export directory for network share destination."""
@@ -291,6 +308,16 @@ class ExportToServerService:
                 if status == 'success':
                     report['success_count'] += 1
                     report['success_ids'].append(out_id)
+                    # Record the license number for duplicate prevention
+                    if mode == 'contributions':
+                        # Get license number from contribution
+                        from contributions.models import Contribution
+                        contribution = Contribution.objects.filter(pk=item_id).first()
+                        if contribution and contribution.license:
+                            self._record_exported_license(contribution.license.number)
+                    else:
+                        # mode == 'licenses', item_id is already the license number
+                        self._record_exported_license(out_id)
                 elif status == 'skipped_no_pdf':
                     report['skipped_no_pdf_count'] += 1
                     report['skipped_no_pdf'].append(out_id)

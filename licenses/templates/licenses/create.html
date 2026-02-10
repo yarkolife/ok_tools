@@ -25,12 +25,12 @@
 
     <!-- Basic Information Card -->
     <div class="dashboard-card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">
+        <div class="card-header" style="padding: 1.5rem;">
+            <h5 class="card-title" style="margin-bottom: 0.75rem;">
                 <i class="bi bi-file-earmark-text text-primary me-2"></i>
                 {% trans 'Basic Information' %}
             </h5>
-            <p class="card-subtitle">{% trans 'Title, description and category of the license' %}</p>
+            <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Title, description and category of the license' %}</p>
         </div>
         <div class="card-body">
             <div class="row">
@@ -119,12 +119,12 @@
 
     <!-- Media Settings Card -->
     <div class="dashboard-card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">
+        <div class="card-header" style="padding: 1.5rem;">
+            <h5 class="card-title" style="margin-bottom: 0.75rem;">
                 <i class="bi bi-broadcast text-success me-2"></i>
                 {% trans 'Media Settings' %}
             </h5>
-            <p class="card-subtitle">{% trans 'Duration, broadcast date and repetitions' %}</p>
+            <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Duration, broadcast date and repetitions' %}</p>
         </div>
         <div class="card-body">
             <div class="row">
@@ -190,12 +190,12 @@
 
     <!-- Exchange Settings Card -->
     <div class="dashboard-card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">
+        <div class="card-header" style="padding: 1.5rem;">
+            <h5 class="card-title" style="margin-bottom: 0.75rem;">
                 <i class="bi bi-share text-info me-2"></i>
                 {% trans 'Exchange Settings' %}
             </h5>
-            <p class="card-subtitle">{% trans 'Permissions for exchange between citizen media' %}</p>
+            <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Permissions for exchange between citizen media' %}</p>
         </div>
         <div class="card-body">
             <div class="row">
@@ -238,12 +238,12 @@
 
     <!-- Special Settings Card -->
     <div class="dashboard-card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">
+        <div class="card-header" style="padding: 1.5rem;">
+            <h5 class="card-title" style="margin-bottom: 0.75rem;">
                 <i class="bi bi-gear text-warning me-2"></i>
                 {% trans 'Special Settings' %}
             </h5>
-            <p class="card-subtitle">{% trans 'Special settings and youth protection' %}</p>
+            <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Special settings and youth protection' %}</p>
         </div>
         <div class="card-body">
             <div class="row">
@@ -338,13 +338,13 @@
 
     <!-- Signature Section -->
     <div class="dashboard-card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">
+        <div class="card-header" style="padding: 1.5rem;">
+            <h5 class="card-title" style="margin-bottom: 0.75rem;">
                 <i class="bi bi-pen text-dark me-2"></i>
                 {% trans 'Signature' %}
             </h5>
-            <p class="card-subtitle">{% trans 'Please sign here' %}</p>
-            <p class="card-subtitle mt-2 small">
+            <p class="card-subtitle" style="margin-bottom: 1rem;">{% trans 'Please sign here' %}</p>
+            <p class="card-subtitle mt-3 small" style="margin-bottom: 0;">
                 {% blocktranslate with email=OK_EMAIL %}
                 You can sign here and the form will be completely filled out, or click the "Create License" button to print the filled form, sign it, and send us a signed photo or scan copy by email to {{ email }}.
                 {% endblocktranslate %}
@@ -381,16 +381,16 @@
     <!-- Action Buttons -->
     <div class="row mb-5">
         <div class="col-12">
-            <div class="d-flex justify-content-between">
-                <a href="{% url 'licenses:licenses' %}" class="btn btn-outline-secondary">
+            <div class="action-buttons">
+                <a href="{% url 'licenses:licenses' %}" class="btn btn-outline-secondary action-btn action-btn-cancel">
                     <i class="bi bi-arrow-left me-2"></i>{% trans 'Cancel' %}
                 </a>
-                <div>
-                    <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
-                        <i class="bi bi-arrow-clockwise me-2"></i>{% trans 'Reset' %}
-                    </button>
-                    <button type="submit" name="save" class="btn btn-primary" id="create-license-button">
+                <div class="action-buttons-primary">
+                    <button type="submit" name="save" class="btn btn-primary action-btn action-btn-submit" id="create-license-button">
                         <i class="bi bi-check-lg me-2"></i>{% trans 'Create License' %}
+                    </button>
+                    <button type="button" class="btn btn-outline-warning action-btn action-btn-reset" onclick="resetForm()">
+                        <i class="bi bi-arrow-clockwise me-2"></i>{% trans 'Reset' %}
                     </button>
                 </div>
             </div>
@@ -448,7 +448,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="{% url 'licenses:licenses' %}" class="btn btn-secondary">
+                <a href="{% url 'licenses:licenses' %}" class="btn btn-outline-secondary">
                     <i class="bi bi-list me-2"></i>
                     {% trans 'Go to Overview' %}
                 </a>
@@ -488,6 +488,18 @@
     .card-subtitle {
         font-size: 0.875rem;
         color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-header .card-subtitle + .card-subtitle {
+        margin-top: 1rem;
+    }
+
+    .card-header p {
+        margin-bottom: 0.75rem;
+    }
+
+    .card-header p:last-child {
         margin-bottom: 0;
     }
 
@@ -559,9 +571,119 @@
         box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
     }
 
-    textarea.form-control {
-        min-height: 100px;
-        resize: vertical;
+    #license-form .card-body {
+        padding: 1.5rem;
+    }
+
+    #license-form .col-md-12,
+    #license-form .col-md-6,
+    #license-form .col-md-4 {
+        margin-bottom: 1.25rem;
+    }
+
+    #license-form .col-md-12:last-of-type,
+    #license-form .col-md-6:last-of-type,
+    #license-form .col-md-4:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .dashboard-card .card-header {
+        display: block !important;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .dashboard-card .card-header .card-title {
+        display: block;
+        margin-bottom: 0.85rem !important;
+        line-height: 1.35;
+    }
+
+    .dashboard-card .card-header .card-subtitle {
+        display: block;
+        margin-bottom: 0.85rem !important;
+        line-height: 1.5;
+    }
+
+    .dashboard-card .card-header .card-subtitle:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    @media (max-width: 767.98px) {
+        .dashboard-card .card-header {
+            padding: 1.1rem;
+        }
+
+        .dashboard-card .card-header .card-title {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.45rem;
+            margin-bottom: 0.75rem !important;
+        }
+
+        .dashboard-card .card-header .card-title i {
+            margin-right: 0 !important;
+        }
+
+        .dashboard-card .card-header .card-subtitle {
+            margin-bottom: 0.75rem !important;
+        }
+    }
+
+    #license-form .row:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons .action-btn {
+        min-height: 52px;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .action-buttons-primary {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        align-items: stretch;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+
+    @media (max-width: 767.98px) {
+        .action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .action-buttons .action-btn,
+        .action-buttons-primary .action-btn {
+            width: 100%;
+            white-space: normal;
+        }
+
+        .action-buttons-primary {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            width: 100%;
+            flex: none;
+        }
     }
 
     /* Signature canvas styling */

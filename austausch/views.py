@@ -269,35 +269,15 @@ def _filter_license_numbers_by_authority_and_flags(license_numbers, config):
     return sorted(qs.values_list('number', flat=True).distinct())
 
 
-def _get_already_exported_success_ids(mode):
+def _get_already_exported_license_numbers() -> set[int]:
     """
-    Return set of IDs that were already successfully uploaded in any past export run.
-    mode: 'contributions' -> contribution IDs; 'licenses' -> license numbers.
+    Return set of license numbers that were already successfully exported.
+    Uses ExportedLicense table for unified tracking across all export modes.
     """
-    from .models import ExportToServerRun
-    already = set()
-    for run in ExportToServerRun.objects.filter(mode=mode).values_list('details', flat=True):
-        if isinstance(run, dict):
-            for sid in run.get('success_ids', []) or []:
-                try:
-                    already.add(int(sid))
-                except (TypeError, ValueError):
-                    continue
-    return already
-
-
-def _get_already_exported_success_ids_for_licenses():
-    """Return set of license numbers successfully uploaded in any past export run."""
-    from .models import ExportToServerRun
-    already = set()
-    for run in ExportToServerRun.objects.values_list('details', flat=True):
-        if isinstance(run, dict):
-            for sid in run.get('success_ids', []) or []:
-                try:
-                    already.add(int(sid))
-                except (TypeError, ValueError):
-                    continue
-    return already
+    from .models import ExportedLicense
+    return set(
+        ExportedLicense.objects.values_list('license_number', flat=True)
+    )
 
 
 def _export_step1_context(config):
@@ -343,7 +323,7 @@ def export_to_server_step1(request):
                     'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
                 )
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
-            already = _get_already_exported_success_ids_for_licenses()
+            already = _get_already_exported_license_numbers()
             ids = [i for i in ids if i not in already]
             if not ids:
                 ctx['error'] = _('All entered license numbers were already successfully exported.')
@@ -374,7 +354,7 @@ def export_to_server_step1(request):
                     'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
                 )
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
-            already = _get_already_exported_success_ids_for_licenses()
+            already = _get_already_exported_license_numbers()
             ids = [i for i in ids if i not in already]
             if not ids:
                 ctx['error'] = _('All license numbers from Planung were already successfully exported.')
@@ -400,8 +380,16 @@ def export_to_server_step1(request):
         if not ids:
             ctx['error'] = _('No contributions match the selected filters.')
             return render(request, 'austausch/export_to_server_step1.html', ctx)
-        already = _get_already_exported_success_ids('contributions')
-        ids = [i for i in ids if i not in already]
+        
+        # Filter out contributions whose licenses were already exported
+        already = _get_already_exported_license_numbers()
+        if already:
+            from contributions.models import Contribution
+            # Get license numbers for these contributions
+            contribs = Contribution.objects.filter(pk__in=ids).select_related('license')
+            # Filter to only contributions with non-exported licenses
+            ids = [c.pk for c in contribs if c.license and c.license.number not in already]
+        
         if not ids:
             ctx['error'] = _('All matching contributions were already successfully exported.')
             return render(request, 'austausch/export_to_server_step1.html', ctx)
@@ -483,11 +471,7 @@ def export_to_server_step2(request):
     from contributions.models import ContributionManager
 
     config = ExchangeConfig.get_config()
-    already_exported = (
-        _get_already_exported_success_ids(mode)
-        if mode == 'contributions'
-        else _get_already_exported_success_ids_for_licenses()
-    )
+    already_exported = _get_already_exported_license_numbers()
     items = []
     if mode == 'contributions':
         qs = (
@@ -501,7 +485,7 @@ def export_to_server_step2(request):
         primary_ids_set = set(primary_ids)
         qs = [c for c in qs if c.pk in primary_ids_set]
         for c in qs:
-            if c.pk in already_exported:
+            if c.license and c.license.number in already_exported:
                 continue  # Skip already successfully exported
             lic = c.license
             video = lic.get_video_file() if hasattr(lic, 'get_video_file') else None

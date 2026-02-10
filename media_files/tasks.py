@@ -1482,7 +1482,8 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
     copied_to_playout = 0
     skipped = 0
     errors = 0
-    operation_details = {'errors': []}
+    warnings = 0  # Non-critical errors (e.g., video not found)
+    operation_details = {'errors': [], 'warnings': []}
     
     for number in video_numbers:
         try:
@@ -1490,9 +1491,10 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
             source_video, selection_reason = select_best_source_video(number)
             
             if not source_video:
+                # Video not found is a NON-CRITICAL error - it may not be uploaded yet
                 logger.warning(f"Video {number}: Not found in source storages (CUSTOM/ARCHIVE)")
-                errors += 1
-                operation_details['errors'].append({
+                warnings += 1
+                operation_details['warnings'].append({
                     'number': number,
                     'message': 'Not found in CUSTOM or ARCHIVE storage'
                 })
@@ -1622,19 +1624,22 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
     
     logger.info(
         f"[AUTO-COPY] Completed: archive={copied_to_archive}, "
-        f"playout={copied_to_playout}, skipped={skipped}, errors={errors}"
+        f"playout={copied_to_playout}, skipped={skipped}, warnings={warnings}, errors={errors}"
     )
     
     result = {
         'copied_to_archive': copied_to_archive,
         'copied_to_playout': copied_to_playout,
         'skipped': skipped,
+        'warnings': warnings,
         'errors': errors,
         'details': operation_details
     }
     
-    # IMPORTANT: do not silently report SUCCESS when there were copy errors.
-    # Operators rely on the task state in admin; partial copies must be visible.
+    # CRITICAL errors (storage access issues, copy failures) should fail the task.
+    # NON-CRITICAL errors (video not found) are treated as warnings and don't fail the task.
+    # This allows partial success to be visible while not failing when some videos
+    # simply haven't been uploaded yet.
     if errors > 0:
         import json
         raise RuntimeError(json.dumps(result, ensure_ascii=False))

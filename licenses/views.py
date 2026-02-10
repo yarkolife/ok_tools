@@ -749,19 +749,6 @@ class FilledLicenseFile(generic.View):
                 license.profile.okuser != request.user):
             return _license_does_not_exist(request)
 
-        # Check if license already has a digital signature
-        # In this case, don't generate a PDF with an empty signature field
-        if license.signature:
-            from django.contrib import messages
-            from django.shortcuts import redirect
-            from django.urls import reverse
-            
-            messages.warning(
-                request, 
-                _('PDF not generated because the license already has a digital signature.')
-            )
-            
-            # Redirect back to the license update page
-            return redirect(reverse('licenses:update', kwargs={'pk': pk}))
-
+        # Generate PDF - if signature exists, it will be embedded in the PDF
+        # This allows users to download their signed document
         return generate_license_file(license)

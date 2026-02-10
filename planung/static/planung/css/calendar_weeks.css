@@ -458,6 +458,23 @@
   border-color: #991b1b;
 }
 
+/* Date picker styles for planning modal */
+#planningActionInput[type="date"] {
+  min-height: 38px;
+  font-size: 1rem;
+  padding: 0.375rem 0.75rem;
+}
+
+#planningActionInput[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+#planningActionInput[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 #timeStatus {
   color: #0b6b4a;
 }

@@ -467,3 +467,35 @@ class ExportToServerRun(models.Model):
 
     def __str__(self):
         return f"Export {self.started_at} ({self.success_count}/{self.total_count})"
+
+
+class ExportedLicense(models.Model):
+    """Track successfully exported licenses to prevent duplicate exports."""
+
+    license_number = models.PositiveIntegerField(
+        unique=True,
+        db_index=True,
+        verbose_name=_('License Number'),
+        help_text=_('License number that was successfully exported to server')
+    )
+    first_exported_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('First Exported At')
+    )
+    last_exported_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Last Exported At')
+    )
+    export_count = models.PositiveIntegerField(
+        default=1,
+        verbose_name=_('Export Count'),
+        help_text=_('Number of times this license was exported')
+    )
+
+    class Meta:
+        verbose_name = _('Exported License')
+        verbose_name_plural = _('Exported Licenses')
+        ordering = ['-last_exported_at']
+
+    def __str__(self):
+        return f"License {self.license_number} (exported {self.export_count}x)"

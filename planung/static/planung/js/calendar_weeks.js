@@ -63,7 +63,16 @@
         $message.text(opts.message || '');
 
         if (opts.withInput) {
-          $input.prop('hidden', false).val(opts.initialValue || '').attr('placeholder', opts.placeholder || '');
+          // Set input type (text or date)
+          var inputType = opts.inputType || 'text';
+          $input.attr('type', inputType);
+          
+          if (inputType === 'date') {
+            // For date inputs, don't use placeholder (not supported in all browsers)
+            $input.prop('hidden', false).val(opts.initialValue || '');
+          } else {
+            $input.prop('hidden', false).val(opts.initialValue || '').attr('placeholder', opts.placeholder || '');
+          }
           $inputLabel.prop('hidden', false).text(opts.inputLabel || gettext('Enter value'));
         } else {
           $input.prop('hidden', true).val('');
@@ -1393,10 +1402,10 @@
       }
       openActionModal({
         title: gettext('Copy plan'),
-        message: gettext('Enter source date (YYYY-MM-DD)'),
+        message: gettext('Select source date'),
         withInput: true,
-        inputLabel: gettext('Source date (YYYY-MM-DD)'),
-        placeholder: 'YYYY-MM-DD',
+        inputType: 'date',
+        inputLabel: gettext('Source date'),
         confirmText: gettext('Copy from date')
       }).then(function (sourceDate) {
         if (!sourceDate) return;
