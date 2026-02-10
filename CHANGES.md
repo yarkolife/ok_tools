@@ -1,6 +1,29 @@
 CHANGELOG
 =========
 
+2026-02-10 (Version 4.0.11)
+==========================
+
+* **Austausch: exported license tracking**
+  * **ExportedLicense model**: New model to track exported licenses and prevent duplicate exports
+  * **Migration support**: Added migration 0014_exportedlicense.py for ExportedLicense model
+  * **Data migration**: Added migration 0015_migrate_exported_licenses.py to migrate existing exported licenses
+  * **Export service updates**: Updated export_to_server_service to track exported licenses
+  * **Views updates**: Updated views to handle exported license tracking
+
+* **Planning module: calendar weeks UI improvements**
+  * **Enhanced calendar weeks admin UI**: Improved layout, interactions, and readability
+  * **CSS updates**: Better styling for calendar weeks interface
+  * **JavaScript improvements**: Enhanced functionality and user interactions
+  * **Template updates**: Improved calendar weeks HTML template
+
+* **Licenses module updates**
+  * **License creation template**: Updated create.html with improvements
+  * **Views updates**: Enhanced license views functionality
+
+* **Media files tasks updates**
+  * **Task improvements**: Updated media_files/tasks.py with enhancements
+
 2026-02-09 (Version 4.0.10)
 ===========================
 
