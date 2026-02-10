@@ -783,6 +783,13 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
 
     resource_classes = [ProgramResource, ContributionResource, MediathekResource]
     export_template_name = 'admin/export.html'
+    change_list_template = 'admin/contributions/contribution/change_list.html'
+    
+    def changelist_view(self, request, extra_context=None):
+        """Add API documentation to the changelist view."""
+        extra_context = extra_context or {}
+        extra_context['show_api_docs'] = True
+        return super().changelist_view(request, extra_context=extra_context)
     
     def export_action(self, request, *args, **kwargs):
         """Override export action to handle Mediathek parameters."""

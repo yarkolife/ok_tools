@@ -1,6 +1,30 @@
 CHANGELOG
 =========
 
+2026-02-10 (Version 4.0.12)
+==========================
+
+* **Contributions: Program Schedule API**
+  * **New API endpoint**: Added `/contributions/api/program/` for retrieving program schedules via API
+    * Token-based authentication required (similar to license metadata API)
+    * Supports single date queries (`date` parameter: YYYY-MM-DD)
+    * Supports date range queries (`date_from` and `date_to` parameters)
+    * Optional time filtering (`start_time` and `end_time` parameters)
+    * Returns formatted program data with automatic info block generation for gaps
+  * **Admin integration**: Added API documentation modal in Contributions admin
+    * API Documentation button in admin change list
+    * Query parameters table with examples
+    * cURL and JavaScript code examples
+    * Copy-to-clipboard functionality for tokens and examples
+    * German translations for all API documentation strings
+  * **Smart info blocks**: Automatic generation and merging of info blocks
+    * Info blocks automatically inserted for gaps > 1 minute between programs
+    * Consecutive info blocks are merged to optimize program schedule
+    * Configurable tolerance for gap detection
+  * **German translations**: Added complete German translations for API documentation
+    * Translations added to `ok_tools/locale/de/LC_MESSAGES/django.po`
+    * Covers all UI strings, parameter descriptions, and help texts
+
 2026-02-10 (Version 4.0.11)
 ==========================
 

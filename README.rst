@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.0.10
+**Current Version**: 4.0.12
 **Last Updated**: February 2026
 
 Features
@@ -62,6 +62,11 @@ Features
   - Date extraction from DISA export files (AJAX)
   - Export functionality for contributions
   - Custom date/time range filtering in admin
+  - **Program Schedule API** - Token-based API for retrieving program schedules
+    - Single date and date range queries (YYYY-MM-DD format)
+    - Optional time filtering (start_time, end_time)
+    - Automatic info block generation for schedule gaps
+    - Consecutive info block merging for optimized schedules
 
 - **Project Management** - Organize and track various projects
   - Project creation with categories and target groups
@@ -669,6 +674,7 @@ Technical Details
 - Authentication requirements and security
 - PeerTube integration with ActivityPub/Fediverse format
 - License metadata export with planning system integration
+- **Program Schedule API** - Retrieve broadcast schedules with automatic info blocks
 - Custom widget development and integration
 - Admin interface enhancements and customization
 

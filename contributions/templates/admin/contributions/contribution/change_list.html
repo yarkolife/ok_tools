@@ -1,0 +1,402 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.contributions-api-docs {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.contributions-api-docs h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.contributions-api-docs code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+.contributions-api-docs pre {
+    background: #282c34;
+    color: #abb2bf;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 10px 0;
+}
+
+.contributions-api-docs pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+.contributions-api-docs .copy-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 12px;
+}
+
+.contributions-api-docs .copy-btn:hover {
+    background: #0056b3;
+}
+
+.contributions-api-docs .endpoint-section {
+    margin: 15px 0;
+    padding: 15px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+}
+
+.contributions-api-docs .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.contributions-api-docs .param-table th,
+.contributions-api-docs .param-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.contributions-api-docs .param-table th {
+    background: #e9ecef;
+    font-weight: 600;
+}
+
+.contributions-api-docs .param-table code {
+    background: #f1f3f5;
+}
+</style>
+<script>
+function showContributionsApiModal() {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('contributions-api-modal');
+    if (!modal) {
+        createContributionsApiModal();
+        modal = document.getElementById('contributions-api-modal');
+    }
+    
+    // Show modal
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function createContributionsApiModal() {
+    const modal = document.createElement('div');
+    modal.id = 'contributions-api-modal';
+    modal.className = 'contributions-api-modal';
+    modal.style.cssText = `
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    `;
+    
+    modal.innerHTML = `
+        <div style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 900px; border-radius: 8px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px;">
+                <h2 style="margin: 0;">📡 Program Schedule API</h2>
+                <button onclick="closeContributionsApiModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <p><strong>Endpoint:</strong> <code>GET /contributions/api/program/</code></p>
+                <p><strong>Authentication:</strong> Token-based (include token in Authorization header)</p>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>📋 Query Parameters</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>date</code></td>
+                            <td>string (YYYY-MM-DD)</td>
+                            <td>Specific date</td>
+                            <td><code>2022-07-08</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>date_from</code></td>
+                            <td>string (YYYY-MM-DD)</td>
+                            <td>Start date of period</td>
+                            <td><code>2022-07-08</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>date_to</code></td>
+                            <td>string (YYYY-MM-DD)</td>
+                            <td>End date of period</td>
+                            <td><code>2022-07-09</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>start_time</code></td>
+                            <td>string (HH:MM)</td>
+                            <td>Start time (optional)</td>
+                            <td><code>18:00</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>end_time</code></td>
+                            <td>string (HH:MM)</td>
+                            <td>End time (optional)</td>
+                            <td><code>19:00</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>🔐 Authentication</h3>
+                <p>Include your token in the Authorization header:</p>
+                <pre><code>Authorization: Token YOUR_TOKEN_HERE</code></pre>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>📝 Example Requests</h3>
+                
+                <p><strong>Get program for a specific date:</strong></p>
+                <pre><code>curl -H "Authorization: Token YOUR_TOKEN" \\
+  "http://localhost:8010/contributions/api/program/?date=2022-07-08"</code></pre>
+                <button class="copy-btn" onclick="copyContributionsCurl1()">Copy</button>
+                
+                <p><strong>Get program for a date range:</strong></p>
+                <pre><code>curl -H "Authorization: Token YOUR_TOKEN" \\
+  "http://localhost:8010/contributions/api/program/?date_from=2022-07-08&date_to=2022-07-09"</code></pre>
+                <button class="copy-btn" onclick="copyContributionsCurl2()">Copy</button>
+                
+                <p><strong>Get program with time filter:</strong></p>
+                <pre><code>curl -H "Authorization: Token YOUR_TOKEN" \\
+  "http://localhost:8010/contributions/api/program/?date=2022-07-08&start_time=18:00&end_time=19:00"</code></pre>
+                <button class="copy-btn" onclick="copyContributionsCurl3()">Copy</button>
+                
+                <p><strong>JavaScript Example:</strong></p>
+                <pre><code>fetch('http://localhost:8010/contributions/api/program/?date=2022-07-08', {
+  headers: {
+    'Authorization': 'Token YOUR_TOKEN'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));</code></pre>
+                <button class="copy-btn" onclick="copyContributionsJs()">Copy</button>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>📤 Response Format</h3>
+                <p>Returns an array of program entries:</p>
+                <pre><code>[
+  {
+    "broadcast_date": "2022-07-08",
+    "broadcast_start_time": "18:00:00",
+    "broadcast_end_time": "18:28:53",
+    "title": "Sardinien 2022",
+    "subtitle": "Eine Reise durch Nordsardinien",
+    "description": "Ein Sommer voller Farben...",
+    "credits": "A contribution by Jochen Spieß",
+    "contribution": true,
+    "category": "Kulturelles und soziales Engagement",
+    "store_in_ok_media_library": "",
+    "number": "14755"
+  },
+  {
+    "broadcast_date": "2022-07-08",
+    "broadcast_start_time": "18:28:53",
+    "broadcast_end_time": "19:00:00",
+    "title": "Info block",
+    "subtitle": "",
+    "description": "",
+    "credits": "",
+    "contribution": false,
+    "category": "",
+    "store_in_ok_media_library": "",
+    "number": ""
+  }
+]</code></pre>
+                <button class="copy-btn" onclick="copyContributionsResponse()">Copy</button>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+                <p style="margin: 0;"><strong>⚠️ Note:</strong> Screen boards (Info blocks) are automatically added for gaps between programs. Consecutive info blocks are merged.</p>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeContributionsApiModal();
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeContributionsApiModal();
+        }
+    });
+}
+
+function closeContributionsApiModal() {
+    const modal = document.getElementById('contributions-api-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function copyContributionsCurl1() {
+    const text = `curl -H "Authorization: Token YOUR_TOKEN" \\
+  "http://localhost:8010/contributions/api/program/?date=2022-07-08"`;
+    copyContributionsToClipboard(text, 'cURL command copied!');
+}
+
+function copyContributionsCurl2() {
+    const text = `curl -H "Authorization: Token YOUR_TOKEN" \\
+  "http://localhost:8010/contributions/api/program/?date_from=2022-07-08&date_to=2022-07-09"`;
+    copyContributionsToClipboard(text, 'cURL command copied!');
+}
+
+function copyContributionsCurl3() {
+    const text = `curl -H "Authorization: Token YOUR_TOKEN" \\
+  "http://localhost:8010/contributions/api/program/?date=2022-07-08&start_time=18:00&end_time=19:00"`;
+    copyContributionsToClipboard(text, 'cURL command copied!');
+}
+
+function copyContributionsJs() {
+    const text = `fetch('http://localhost:8010/contributions/api/program/?date=2022-07-08', {
+  headers: {
+    'Authorization': 'Token YOUR_TOKEN'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));`;
+    copyContributionsToClipboard(text, 'JavaScript code copied!');
+}
+
+function copyContributionsResponse() {
+    const text = `[
+  {
+    "broadcast_date": "2022-07-08",
+    "broadcast_start_time": "18:00:00",
+    "broadcast_end_time": "18:28:53",
+    "title": "Sardinien 2022",
+    "subtitle": "Eine Reise durch Nordsardinien",
+    "description": "Ein Sommer voller Farben...",
+    "credits": "A contribution by Jochen Spieß",
+    "contribution": true,
+    "category": "Kulturelles und soziales Engagement",
+    "store_in_ok_media_library": "",
+    "number": "14755"
+  }
+]`;
+    copyContributionsToClipboard(text, 'Response example copied!');
+}
+
+function copyContributionsToClipboard(text, message) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showContributionsNotification(message);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            fallbackContributionsCopy(text, message);
+        });
+    } else {
+        fallbackContributionsCopy(text, message);
+    }
+}
+
+function fallbackContributionsCopy(text, message) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showContributionsNotification(message);
+    } catch (err) {
+        console.error('Fallback: Could not copy text: ', err);
+        showContributionsNotification('Failed to copy to clipboard');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function showContributionsNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 10001;
+        font-size: 14px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '1';
+    }, 10);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+</script>
+{% endblock %}
+
+{% block object-tools-items %}
+{{ block.super }}
+{% if show_api_docs %}
+<li>
+    <a href="#" onclick="showContributionsApiModal(); return false;" class="button" style="background: #007bff; color: white;">
+        📡 API Documentation
+    </a>
+</li>
+{% endif %}
+{% endblock %}

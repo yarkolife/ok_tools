@@ -3103,6 +3103,115 @@ msgstr "%(model)s-Instanz mit %(field)s %(value)r ist keine gültige Auswahl."
 msgid "Foreign Key (type determined by related field)"
 msgstr "Fremdschlüssel (Typ durch das zugehörige Feld bestimmt)"
 
+# API Documentation translations
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "API Documentation"
+msgstr "API-Dokumentation"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Program Schedule API"
+msgstr "Programmplan-API"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Query Parameters"
+msgstr "Abfrageparameter"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Parameter"
+msgstr "Parameter"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Type"
+msgstr "Typ"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Required"
+msgstr "Erforderlich"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Description"
+msgstr "Beschreibung"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Example"
+msgstr "Beispiel"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Single date (YYYY-MM-DD)"
+msgstr "Einzelnes Datum (JJJJ-MM-TT)"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Yes - if date_to not provided"
+msgstr "Ja - wenn date_to nicht angegeben"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Start of period (YYYY-MM-DD)"
+msgstr "Anfang des Zeitraums (JJJJ-MM-TT)"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "No"
+msgstr "Nein"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "End of period (YYYY-MM-DD)"
+msgstr "Ende des Zeitraums (JJJJ-MM-TT)"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Yes - if date provided"
+msgstr "Ja - wenn date angegeben"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Start time (HH:MM:SS)"
+msgstr "Startzeit (HH:MM:SS)"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "End time (HH:MM:SS)"
+msgstr "Endzeit (HH:MM:SS)"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Authentication"
+msgstr "Authentifizierung"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "This API requires authentication using a Token. Include the token in the Authorization header."
+msgstr "Diese API erfordert Authentifizierung mit einem Token. Fügen Sie das Token im Authorization-Header ein."
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Example Requests"
+msgstr "Beispielanfragen"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "cURL Example"
+msgstr "cURL-Beispiel"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "JavaScript Example"
+msgstr "JavaScript-Beispiel"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Response Format"
+msgstr "Antwortformat"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Close"
+msgstr "Schließen"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Copied!"
+msgstr "Kopiert!"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "API Endpoint"
+msgstr "API-Endpunkt"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Copy"
+msgstr "Kopieren"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html
+msgid "Security Note: Keep your token secure and never share it publicly. Use HTTPS in production."
+msgstr "Sicherheitshinweis: Bewahren Sie Ihr Token sicher auf und geben Sie es niemals öffentlich weiter. Verwenden Sie HTTPS in der Produktion."
+
 #: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1276
 msgid "One-to-one relationship"
 msgstr "Eins-zu-eins-Beziehung"

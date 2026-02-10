@@ -1,4 +1,5 @@
 from . import views
+from . import api
 from django.urls import path
 
 
@@ -8,6 +9,11 @@ urlpatterns = [
         '',
         views.ListContributionsView.as_view(),
         name='contributions'
+    ),
+    path(
+        'api/program/',
+        api.ProgramScheduleView.as_view(),
+        name='api-program-schedule'
     ),
     path(
         'api/extract-dates/',
