@@ -1161,8 +1161,6 @@ msgstr "Fehler beim Starten der Synchronisation: "
 #: austausch/views.py:17
 msgid "Austausch module is disabled. Set AUSTAUSCH_ENABLED=true to enable."
 msgstr "Das Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um es zu aktivieren."
-"Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um es zu "
-"aktivieren."
 
 #: austausch/views.py:337
 msgid "Enter at least one license number."

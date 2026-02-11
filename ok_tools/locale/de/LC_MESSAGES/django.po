@@ -3121,16 +3121,8 @@ msgid "Parameter"
 msgstr "Parameter"
 
 #: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Type"
-msgstr "Typ"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
 msgid "Required"
 msgstr "Erforderlich"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Description"
-msgstr "Beschreibung"
 
 #: contributions/templates/admin/contributions/contribution/change_list.html
 msgid "Example"
@@ -3147,10 +3139,6 @@ msgstr "Ja - wenn date_to nicht angegeben"
 #: contributions/templates/admin/contributions/contribution/change_list.html
 msgid "Start of period (YYYY-MM-DD)"
 msgstr "Anfang des Zeitraums (JJJJ-MM-TT)"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "No"
-msgstr "Nein"
 
 #: contributions/templates/admin/contributions/contribution/change_list.html
 msgid "End of period (YYYY-MM-DD)"
@@ -4668,14 +4656,6 @@ msgid "Select a set to view contents"
 msgstr "Wählen Sie ein Set, um den Inhalt anzuzeigen"
 
 #: ok_tools/templates/rental_dashboard.html:260
-#: ok_tools/templates/rental_dashboard.html:348
-#: ok_tools/templates/rental_dashboard.html:374
-#: ok_tools/templates/rental_dashboard.html:399
-#: ok_tools/templates/rental_dashboard.html:424
-msgid "Close"
-msgstr "Schließen"
-
-#: ok_tools/templates/rental_dashboard.html:261
 msgid "Add Set"
 msgstr "Set hinzufügen"
 
