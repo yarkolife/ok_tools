@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 22:25+0100\n"
+"POT-Creation-Date: 2026-02-11 09:15+0100\n"
 "PO-Revision-Date: 2026-01-15 23:36+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: tools/admin.py:123 tools/templates/tools/audio_normalize.html:654
+#: tools/admin.py:123 tools/templates/tools/audio_normalize.html:670
 msgid "Storage"
 msgstr "Speicherort"
 
@@ -349,7 +349,7 @@ msgid "License not found"
 msgstr "Freistellung nicht gefunden"
 
 #: tools/api.py:1493 tools/api.py:1495 tools/api.py:1498 tools/api.py:1506
-#: tools/api.py:1715
+#: tools/api.py:1721
 msgid "Input file not found"
 msgstr "Eingabedatei nicht gefunden"
 
@@ -365,24 +365,24 @@ msgstr "Analyse gestartet"
 msgid "Normalization started"
 msgstr "Normalisierung gestartet"
 
-#: tools/api.py:1706
+#: tools/api.py:1712
 msgid "Invalid kind"
 msgstr "Ungültiger Typ"
 
-#: tools/api.py:1723 tools/api.py:1765 tools/api.py:1768 tools/api.py:1850
-#: tools/api.py:1862
+#: tools/api.py:1729 tools/api.py:1771 tools/api.py:1774 tools/api.py:1856
+#: tools/api.py:1868
 msgid "Output file not found"
 msgstr "Ausgabedatei nicht gefunden"
 
-#: tools/api.py:1860
+#: tools/api.py:1866
 msgid "Output file not generated yet"
 msgstr "Ausgabedatei wurde noch nicht erzeugt"
 
-#: tools/api.py:1886
+#: tools/api.py:1892
 msgid "Cannot delete job while processing"
 msgstr "Auftrag kann während der Verarbeitung nicht gelöscht werden"
 
-#: tools/api.py:1902
+#: tools/api.py:1908
 msgid "Job deleted"
 msgstr "Auftrag gelöscht"
 
@@ -491,14 +491,14 @@ msgid "Draft"
 msgstr "Entwurf"
 
 #: tools/models.py:101 tools/models.py:923
-#: tools/templates/tools/audio_normalize.html:421
+#: tools/templates/tools/audio_normalize.html:432
 #: tools/templates/tools/audio_normalize_job_list.html:62
 #: tools/templates/tools/slideshow_list.html:70
 msgid "Processing"
 msgstr "Wird verarbeitet"
 
 #: tools/models.py:102 tools/models.py:924
-#: tools/templates/tools/audio_normalize.html:422
+#: tools/templates/tools/audio_normalize.html:433
 #: tools/templates/tools/audio_normalize_job_list.html:63
 #: tools/templates/tools/slideshow_detail.html:119
 #: tools/templates/tools/slideshow_list.html:71
@@ -506,7 +506,7 @@ msgid "Completed"
 msgstr "Abgeschlossen"
 
 #: tools/models.py:103 tools/models.py:925
-#: tools/templates/tools/audio_normalize.html:423
+#: tools/templates/tools/audio_normalize.html:434
 #: tools/templates/tools/audio_normalize_job_list.html:64
 #: tools/templates/tools/slideshow_list.html:72
 #: tools/templates/tools/video_render_job_list.html:61
@@ -574,8 +574,8 @@ msgid "Created By"
 msgstr "Erstellt von"
 
 #: tools/models.py:143 tools/models.py:949
-#: tools/templates/tools/audio_normalize.html:236
-#: tools/templates/tools/audio_normalize.html:337
+#: tools/templates/tools/audio_normalize.html:246
+#: tools/templates/tools/audio_normalize.html:348
 #: tools/templates/tools/audio_normalize_job_detail.html:49
 #: tools/templates/tools/audio_normalize_job_list.html:57
 #: tools/templates/tools/audio_normalize_job_list.html:73
@@ -890,8 +890,8 @@ msgid "Outro"
 msgstr "Outro"
 
 #: tools/models.py:518 tools/models.py:955
-#: tools/templates/tools/audio_normalize.html:201
-#: tools/templates/tools/audio_normalize.html:1126
+#: tools/templates/tools/audio_normalize.html:211
+#: tools/templates/tools/audio_normalize.html:1155
 #: tools/templates/tools/audio_normalize_job_detail.html:67
 #: tools/templates/tools/audio_normalize_job_list.html:75
 msgid "Preset"
@@ -1300,12 +1300,12 @@ msgstr ""
 msgid "Tools Configuration"
 msgstr "Werkzeuge-Konfiguration"
 
-#: tools/models.py:921 tools/templates/tools/audio_normalize.html:419
+#: tools/models.py:921 tools/templates/tools/audio_normalize.html:430
 #: tools/templates/tools/audio_normalize_job_list.html:60
 msgid "Pending"
 msgstr "Ausstehend"
 
-#: tools/models.py:922 tools/templates/tools/audio_normalize.html:420
+#: tools/models.py:922 tools/templates/tools/audio_normalize.html:431
 #: tools/templates/tools/audio_normalize_job_list.html:61
 msgid "Analyzing"
 msgstr "Analysiere"
@@ -1330,7 +1330,7 @@ msgstr "256 kbps"
 msgid "Audio normalize preset ID"
 msgstr "Preset-ID für Audio-Normalisierung"
 
-#: tools/models.py:962 tools/templates/tools/audio_normalize.html:336
+#: tools/models.py:962 tools/templates/tools/audio_normalize.html:347
 msgid "Target"
 msgstr "Ziel"
 
@@ -1467,40 +1467,40 @@ msgstr "Audio-Normalisierungsauftrag"
 msgid "Audio Normalize Jobs"
 msgstr "Audio-Normalisierungsaufträge"
 
-#: tools/services/audio_normalizer.py:797
+#: tools/services/audio_normalizer.py:855
 #, python-brace-format
 msgid "LUFS too high ({input_i:.1f} LUFS, target {target_i:.1f})"
 msgstr "LUFS zu hoch ({input_i:.1f} LUFS, Ziel {target_i:.1f})"
 
-#: tools/services/audio_normalizer.py:799
+#: tools/services/audio_normalizer.py:857
 #, python-brace-format
 msgid "high LRA ({input_lra:.1f} LU, target ≤{target_lra})"
 msgstr "hohe LRA ({input_lra:.1f} LU, Ziel ≤{target_lra})"
 
-#: tools/services/audio_normalizer.py:801
+#: tools/services/audio_normalizer.py:859
 msgid "high peak levels"
 msgstr "hohe Spitzenpegel"
 
-#: tools/services/audio_normalizer.py:803
+#: tools/services/audio_normalizer.py:861
 msgid "continuous background noise"
 msgstr "kontinuierliches Hintergrundrauschen"
 
-#: tools/services/audio_normalizer.py:805
+#: tools/services/audio_normalizer.py:863
 #, python-brace-format
 msgid "high background noise ({noise_level:.1f} dB)"
 msgstr "hohes Hintergrundrauschen ({noise_level:.1f} dB)"
 
-#: tools/services/audio_normalizer.py:808
+#: tools/services/audio_normalizer.py:866
 msgid " and "
 msgstr " und "
 
-#: tools/services/audio_normalizer.py:819
+#: tools/services/audio_normalizer.py:877
 msgid ""
 " WARNING: AI denoising is optimized for speech and may damage music. For "
 "mixed content (speech + music), use tv_mixed instead."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:825
+#: tools/services/audio_normalizer.py:883
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Multiple issues detected: {issues}. Recommended: {preset} combines "
@@ -1515,24 +1515,24 @@ msgstr ""
 "Probleme zu beseitigen. Für eine sanftere Option verwenden Sie "
 "{speech_preset}."
 
-#: tools/services/audio_normalizer.py:834
+#: tools/services/audio_normalizer.py:892
 msgid ""
 "Alternative for MIXED content (speech + music): tv_mixed preserves musical "
 "quality without AI processing."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:840
+#: tools/services/audio_normalizer.py:898
 #, python-brace-format
 msgid ""
 "High peak levels and continuous background noise detected. For SPEECH-ONLY: "
 "{preset}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:847
+#: tools/services/audio_normalizer.py:905
 msgid "For MIXED content (speech + music): tv_mixed with strong limiter."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:854
+#: tools/services/audio_normalizer.py:912
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
@@ -1544,26 +1544,26 @@ msgstr ""
 "Sehr starkes Hintergrundrauschen ({noise_level:.1f} dB). Aggressive KI-"
 "Entrauschung in Betracht ziehen."
 
-#: tools/services/audio_normalizer.py:863
+#: tools/services/audio_normalizer.py:921
 #, python-brace-format
 msgid "High noise ({noise_level:.1f} dB). For SPEECH-ONLY: {preset}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:871
+#: tools/services/audio_normalizer.py:929
 msgid "For MIXED content: tv_mixed preserves music quality."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:877
+#: tools/services/audio_normalizer.py:935
 #, python-brace-format
 msgid "Noise detected. For SPEECH-ONLY: {preset}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:884
-#: tools/services/audio_normalizer.py:993
+#: tools/services/audio_normalizer.py:942
+#: tools/services/audio_normalizer.py:1051
 msgid "For MIXED content: tv_mixed is safer for music."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:891
+#: tools/services/audio_normalizer.py:949
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Multiple issues detected: {issues}. Strong preset recommended. Consider "
@@ -1576,12 +1576,12 @@ msgstr ""
 "das RNN-Modell für KI-Entrauschung zu installieren, um bessere Ergebnisse zu "
 "erzielen."
 
-#: tools/services/audio_normalizer.py:897
+#: tools/services/audio_normalizer.py:955
 msgid ""
 "For mixed content (speech + music): tv_mixed preserves musical dynamics."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:905
+#: tools/services/audio_normalizer.py:963
 #, python-brace-format
 msgid ""
 "LUFS too high ({input_i:.1f} LUFS, target {target_i:.1f}). Strong preset "
@@ -1590,7 +1590,7 @@ msgstr ""
 "LUFS zu hoch ({input_i:.1f} LUFS, Ziel {target_i:.1f}). Starkes Preset "
 "empfohlen zur Lautstärkereduzierung."
 
-#: tools/services/audio_normalizer.py:915
+#: tools/services/audio_normalizer.py:973
 #, python-brace-format
 msgid ""
 "Very high dynamics (LRA {input_lra:.1f} LU, target ≤{target_lra}). Strong "
@@ -1599,7 +1599,7 @@ msgstr ""
 "Sehr hohe Dynamik (LRA {input_lra:.1f} LU, Ziel ≤{target_lra}). Starkes "
 "Preset empfohlen."
 
-#: tools/services/audio_normalizer.py:922
+#: tools/services/audio_normalizer.py:980
 #, python-brace-format
 msgid ""
 "High dynamics (LRA {input_lra:.1f} LU, target ≤{target_lra}). Strong preset "
@@ -1608,42 +1608,42 @@ msgstr ""
 "Hohe Dynamik (LRA {input_lra:.1f} LU, Ziel ≤{target_lra}). Starkes Preset "
 "empfohlen."
 
-#: tools/services/audio_normalizer.py:936
+#: tools/services/audio_normalizer.py:994
 msgid ""
 " WARNING: AI denoising may damage music. Use tv_mixed for mixed content."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:946
+#: tools/services/audio_normalizer.py:1004
 msgid "standard (std.rnnn)"
 msgstr "Standard (std.rnnn)"
 
-#: tools/services/audio_normalizer.py:947
+#: tools/services/audio_normalizer.py:1005
 msgid "balloon/directional (bd.rnnn) - optimized for wind noise"
 msgstr "Ballon/Richtungsbezogen (bd.rnnn) – optimiert für Windgeräusche"
 
-#: tools/services/audio_normalizer.py:948
+#: tools/services/audio_normalizer.py:1006
 msgid "low quality (lq.rnnn) - optimized for degraded audio"
 msgstr "Niedrige Qualität (lq.rnnn) – optimiert für verschlechterte Audios"
 
-#: tools/services/audio_normalizer.py:955
+#: tools/services/audio_normalizer.py:1013
 #, python-brace-format
 msgid "Wind noise detected. For SPEECH-ONLY: model {model_name}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:955
-#: tools/services/audio_normalizer.py:981
+#: tools/services/audio_normalizer.py:1013
+#: tools/services/audio_normalizer.py:1039
 #, fuzzy
 #| msgid "Continuous background noise detected. Denoising recommended."
 msgid "Wind noise detected. Strong denoising recommended."
 msgstr "Ständiges Hintergrundrauschen erkannt. Entrauschung empfohlen."
 
-#: tools/services/audio_normalizer.py:961
+#: tools/services/audio_normalizer.py:1019
 #, python-brace-format
 msgid ""
 "Low quality audio detected. For SPEECH-ONLY: model {model_name}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:961
+#: tools/services/audio_normalizer.py:1019
 #, fuzzy
 #| msgid ""
 #| "Low quality audio detected. Strong denoising recommended. Consider "
@@ -1653,7 +1653,7 @@ msgstr ""
 "Niedrige Audioqualität erkannt. Starke Entrauschung empfohlen. Erwägen Sie, "
 "das RNN-Modell für KI-Entrauschung zu installieren."
 
-#: tools/services/audio_normalizer.py:967
+#: tools/services/audio_normalizer.py:1025
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Background noise detected ({noise_level:.1f} dB). Recommended model: "
@@ -1665,7 +1665,7 @@ msgstr ""
 "Hintergrundrauschen erkannt ({noise_level:.1f} dB). Empfohlenes Modell: "
 "{model_name} für beste Ergebnisse."
 
-#: tools/services/audio_normalizer.py:967
+#: tools/services/audio_normalizer.py:1025
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Background noise detected ({noise_level:.1f} dB). Strong denoising "
@@ -1675,21 +1675,21 @@ msgstr ""
 "Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke Entrauschung "
 "empfohlen. Erwägen Sie, das RNN-Modell für KI-Entrauschung zu installieren."
 
-#: tools/services/audio_normalizer.py:974
+#: tools/services/audio_normalizer.py:1032
 msgid "For MIXED content (speech + music): tv_mixed preserves music quality."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:981
+#: tools/services/audio_normalizer.py:1039
 #, python-brace-format
 msgid "Wind noise detected. For SPEECH-ONLY: consider bd.rnnn model.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:987
+#: tools/services/audio_normalizer.py:1045
 #, python-brace-format
 msgid "Low quality audio. For SPEECH-ONLY: consider lq.rnnn model.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:987
+#: tools/services/audio_normalizer.py:1045
 #, fuzzy
 #| msgid ""
 #| "Low quality audio detected. Strong denoising recommended. Consider "
@@ -1699,7 +1699,7 @@ msgstr ""
 "Niedrige Audioqualität erkannt. Starke Entrauschung empfohlen. Erwägen Sie, "
 "das RNN-Modell für KI-Entrauschung zu installieren."
 
-#: tools/services/audio_normalizer.py:1002
+#: tools/services/audio_normalizer.py:1060
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
@@ -1711,7 +1711,7 @@ msgstr ""
 "Sehr starkes Hintergrundrauschen ({noise_level:.1f} dB). Aggressive KI-"
 "Entrauschung in Betracht ziehen."
 
-#: tools/services/audio_normalizer.py:1007
+#: tools/services/audio_normalizer.py:1065
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
@@ -1722,11 +1722,11 @@ msgstr ""
 "Sehr starkes Hintergrundrauschen ({noise_level:.1f} dB). Aggressive KI-"
 "Entrauschung in Betracht ziehen."
 
-#: tools/services/audio_normalizer.py:1011
+#: tools/services/audio_normalizer.py:1069
 msgid "For MIXED content: tv_mixed preserves music."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1016
+#: tools/services/audio_normalizer.py:1074
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high peak levels ({peak_level:.1f} dB). Strong limiter recommended."
@@ -1734,22 +1734,22 @@ msgid "High noise ({noise_level:.1f} dB). Strong denoising recommended."
 msgstr ""
 "Sehr hohe Spitzenpegel ({peak_level:.1f} dB). Starker Limiter empfohlen."
 
-#: tools/services/audio_normalizer.py:1024
+#: tools/services/audio_normalizer.py:1082
 #, python-brace-format
 msgid "Continuous noise detected. For SPEECH-ONLY: AI denoiser.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1028
+#: tools/services/audio_normalizer.py:1086
 msgid "For MIXED content: tv_mixed is music-safe."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1033
+#: tools/services/audio_normalizer.py:1091
 #, fuzzy
 #| msgid "Continuous background noise detected. Denoising recommended."
 msgid "Continuous noise detected. Denoising recommended."
 msgstr "Ständiges Hintergrundrauschen erkannt. Entrauschung empfohlen."
 
-#: tools/services/audio_normalizer.py:1040
+#: tools/services/audio_normalizer.py:1098
 #, python-brace-format
 msgid ""
 "Very high peak levels ({peak_level:.1f} dB). Strong limiter recommended."
@@ -1765,7 +1765,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #: tools/templates/admin/tools/preset_editor.html:341
-#: tools/templates/tools/audio_normalize.html:381
+#: tools/templates/tools/audio_normalize.html:392
 #: tools/templates/tools/video_render.html:231
 #: tools/templates/tools/video_render.html:326
 #: tools/templates/tools/video_render.html:391
@@ -1898,7 +1898,7 @@ msgid "Import"
 msgstr "Importieren"
 
 #: tools/templates/tools/audio_normalize.html:4
-#: tools/templates/tools/audio_normalize.html:162
+#: tools/templates/tools/audio_normalize.html:172
 #: tools/templates/tools/audio_normalize_job_list.html:47
 #: tools/templates/tools/index.html:129
 msgid "Audio Broadcast Normalize (R128)"
@@ -1922,7 +1922,7 @@ msgstr "Startseite"
 msgid "New Job"
 msgstr "Neuer Auftrag"
 
-#: tools/templates/tools/audio_normalize.html:163
+#: tools/templates/tools/audio_normalize.html:173
 msgid ""
 "Normalizes loudness using a broadcast-safe EBU R128 pipeline (2-pass "
 "loudnorm when applicable). Video is copied, only audio is re-encoded."
@@ -1931,52 +1931,52 @@ msgstr ""
 "(zweifacher loudnorm, falls zutreffend). Video wird kopiert, nur das Audio "
 "wird neu kodiert."
 
-#: tools/templates/tools/audio_normalize.html:169
+#: tools/templates/tools/audio_normalize.html:179
 #: tools/templates/tools/video_render.html:83
 msgid "Input / Output"
 msgstr "Eingabe / Ausgabe"
 
-#: tools/templates/tools/audio_normalize.html:177
+#: tools/templates/tools/audio_normalize.html:187
 #: tools/templates/tools/video_render.html:86
 msgid "Media number"
 msgstr "Mediennummer"
 
-#: tools/templates/tools/audio_normalize.html:180
+#: tools/templates/tools/audio_normalize.html:190
 msgid "Suche"
 msgstr "Suche"
 
-#: tools/templates/tools/audio_normalize.html:182
+#: tools/templates/tools/audio_normalize.html:192
 #: tools/templates/tools/video_render.html:91
 msgid "Find an existing video file by number (from Media Files)."
 msgstr "Vorhandene Videodatei nach Nummer suchen (aus Mediendateien)."
 
-#: tools/templates/tools/audio_normalize.html:187
+#: tools/templates/tools/audio_normalize.html:197
 #: tools/templates/tools/video_render.html:96
 msgid "Source file"
 msgstr "Quelldatei"
 
-#: tools/templates/tools/audio_normalize.html:189
+#: tools/templates/tools/audio_normalize.html:199
 msgid "Select a local file to upload for processing."
 msgstr "Wählen Sie eine lokale Datei zum Hochladen für die Verarbeitung aus."
 
-#: tools/templates/tools/audio_normalize.html:193
+#: tools/templates/tools/audio_normalize.html:203
 #: tools/templates/tools/video_render.html:106
 msgid "Output filename"
 msgstr "Ausgabedateiname"
 
-#: tools/templates/tools/audio_normalize.html:194
+#: tools/templates/tools/audio_normalize.html:204
 msgid "Leave empty for *_R128.mp4"
 msgstr "Leer lassen für *_R128.mp4"
 
-#: tools/templates/tools/audio_normalize.html:195
+#: tools/templates/tools/audio_normalize.html:205
 msgid "If empty, output will default to <input>_R128.mp4"
 msgstr "Wenn leer, wird die Ausgabe standardmäßig <input>_R128.mp4 verwendet"
 
-#: tools/templates/tools/audio_normalize.html:204
+#: tools/templates/tools/audio_normalize.html:214
 msgid "Processing profile"
 msgstr "Verarbeitungsprofil"
 
-#: tools/templates/tools/audio_normalize.html:210
+#: tools/templates/tools/audio_normalize.html:220
 msgid ""
 "Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic "
 "loudnorm. AI presets (tv_ai_speech, tv_ai_strong) use neural network "
@@ -1987,257 +1987,261 @@ msgstr ""
 "verwenden neuronales Netz zur Entrauschung für bessere Sprachklarheit. Das "
 "System wählt automatisch das optimale Modell basierend auf der Rauschanalyse."
 
-#: tools/templates/tools/audio_normalize.html:213
+#: tools/templates/tools/audio_normalize.html:223
 msgid "Bitrate"
 msgstr "Bitrate"
 
-#: tools/templates/tools/audio_normalize.html:220
+#: tools/templates/tools/audio_normalize.html:230
 msgid "Channels"
 msgstr "Kanäle"
 
-#: tools/templates/tools/audio_normalize.html:223
+#: tools/templates/tools/audio_normalize.html:233
 msgid "Force stereo (2 channels)"
 msgstr "Stereo erzwingen (2 Kanäle)"
 
-#: tools/templates/tools/audio_normalize.html:225
+#: tools/templates/tools/audio_normalize.html:235
 msgid "Default keeps original channels."
 msgstr "Standard behält die ursprünglichen Kanäle bei."
 
-#: tools/templates/tools/audio_normalize.html:231
+#: tools/templates/tools/audio_normalize.html:241
 msgid "Run"
 msgstr "Start"
 
-#: tools/templates/tools/audio_normalize.html:233
+#: tools/templates/tools/audio_normalize.html:243
 msgid "New job"
 msgstr "Neuer Auftrag"
 
-#: tools/templates/tools/audio_normalize.html:234
+#: tools/templates/tools/audio_normalize.html:244
 msgid "Analyze (no output)"
 msgstr "Analysieren (keine Ausgabe)"
 
-#: tools/templates/tools/audio_normalize.html:235
+#: tools/templates/tools/audio_normalize.html:245
 msgid "Generate (job)"
 msgstr "Erzeugen (Auftrag)"
 
-#: tools/templates/tools/audio_normalize.html:237
+#: tools/templates/tools/audio_normalize.html:247
 #: tools/templates/tools/audio_normalize_job_detail.html:51
 #: tools/templates/tools/audio_normalize_job_list.html:76
 msgid "Progress"
 msgstr "Fortschritt"
 
-#: tools/templates/tools/audio_normalize.html:243
+#: tools/templates/tools/audio_normalize.html:254
 #: tools/templates/tools/audio_normalize_job_detail.html:85
 msgid "Report"
 msgstr "Bericht"
 
-#: tools/templates/tools/audio_normalize.html:246
+#: tools/templates/tools/audio_normalize.html:257
 #: tools/templates/tools/audio_normalize_job_detail.html:77
 msgid "Input"
 msgstr "Eingabe"
 
-#: tools/templates/tools/audio_normalize.html:250
+#: tools/templates/tools/audio_normalize.html:261
 #: tools/templates/tools/audio_normalize_job_detail.html:88
 msgid "Measured (before)"
 msgstr "Gemessen (vorher)"
 
-#: tools/templates/tools/audio_normalize.html:254
+#: tools/templates/tools/audio_normalize.html:265
 #: tools/templates/tools/audio_normalize_job_detail.html:92
 msgid "Measured (after)"
 msgstr "Gemessen (nachher)"
 
 # Audio normalization - noise analysis and model recommendations
-#: tools/templates/tools/audio_normalize.html:258
+#: tools/templates/tools/audio_normalize.html:269
 msgid "Noise Analysis"
 msgstr "Rauschanalyse"
 
-#: tools/templates/tools/audio_normalize.html:262
+#: tools/templates/tools/audio_normalize.html:273
 msgid "Result"
 msgstr "Ergebnis"
 
-#: tools/templates/tools/audio_normalize.html:268
-#: tools/templates/tools/audio_normalize.html:1155
+#: tools/templates/tools/audio_normalize.html:279
+#: tools/templates/tools/audio_normalize.html:1184
 msgid "Recommendations"
 msgstr "Empfehlungen"
 
-#: tools/templates/tools/audio_normalize.html:272
+#: tools/templates/tools/audio_normalize.html:283
 msgid "Click on a recommendation to apply it as the selected preset."
 msgstr ""
 "Klicken Sie auf eine Empfehlung, um sie als ausgewähltes Preset anzuwenden."
 
-#: tools/templates/tools/audio_normalize.html:277
-#: tools/templates/tools/audio_normalize.html:342
+#: tools/templates/tools/audio_normalize.html:288
+#: tools/templates/tools/audio_normalize.html:353
 msgid "Integrated LUFS"
 msgstr "Integrierte LUFS"
 
-#: tools/templates/tools/audio_normalize.html:294
-#: tools/templates/tools/audio_normalize.html:349
+#: tools/templates/tools/audio_normalize.html:305
+#: tools/templates/tools/audio_normalize.html:360
 msgid "True Peak"
 msgstr "True Peak"
 
-#: tools/templates/tools/audio_normalize.html:311
-#: tools/templates/tools/audio_normalize.html:356
+#: tools/templates/tools/audio_normalize.html:322
+#: tools/templates/tools/audio_normalize.html:367
 msgid "LRA"
 msgstr "LRA"
 
-#: tools/templates/tools/audio_normalize.html:333
+#: tools/templates/tools/audio_normalize.html:344
 msgid "Metric"
 msgstr "Messwert"
 
-#: tools/templates/tools/audio_normalize.html:334
-#: tools/templates/tools/audio_normalize.html:370
+#: tools/templates/tools/audio_normalize.html:345
+#: tools/templates/tools/audio_normalize.html:381
 msgid "Before"
 msgstr "Vorher"
 
-#: tools/templates/tools/audio_normalize.html:335
-#: tools/templates/tools/audio_normalize.html:374
+#: tools/templates/tools/audio_normalize.html:346
+#: tools/templates/tools/audio_normalize.html:385
 msgid "After"
 msgstr "Nachher"
 
-#: tools/templates/tools/audio_normalize.html:367
+#: tools/templates/tools/audio_normalize.html:378
 msgid "Waveform (before / after)"
 msgstr "Wellenform (vorher / nachher)"
 
-#: tools/templates/tools/audio_normalize.html:385
+#: tools/templates/tools/audio_normalize.html:396
 msgid "Sync playback"
 msgstr "Synchronisierte Wiedergabe"
 
-#: tools/templates/tools/audio_normalize.html:387
+#: tools/templates/tools/audio_normalize.html:398
 msgid "When enabled, seeking and play/pause are mirrored to the other preview."
 msgstr ""
 "Wenn aktiviert, werden Spulen sowie Wiedergabe/Pause auf die andere Vorschau "
 "übertragen."
 
-#: tools/templates/tools/audio_normalize.html:391
+#: tools/templates/tools/audio_normalize.html:402
 msgid "Original"
 msgstr "Original"
 
-#: tools/templates/tools/audio_normalize.html:395
+#: tools/templates/tools/audio_normalize.html:406
 msgid "Processed"
 msgstr "Verarbeitet"
 
-#: tools/templates/tools/audio_normalize.html:402
+#: tools/templates/tools/audio_normalize.html:413
 #: tools/templates/tools/audio_normalize_job_detail.html:97
 msgid "FFmpeg log (tail)"
 msgstr "FFmpeg-Protokoll (Ende)"
 
-#: tools/templates/tools/audio_normalize.html:411
+#: tools/templates/tools/audio_normalize.html:422
 msgid "OK"
 msgstr "OK"
 
-#: tools/templates/tools/audio_normalize.html:577
+#: tools/templates/tools/audio_normalize.html:593
 msgid "Please select an input file first."
 msgstr "Bitte wählen Sie zuerst eine Eingabedatei aus."
 
-#: tools/templates/tools/audio_normalize.html:608
+#: tools/templates/tools/audio_normalize.html:624
 msgid "Failed to create job."
 msgstr "Auftrag konnte nicht erstellt werden."
 
-#: tools/templates/tools/audio_normalize.html:633
+#: tools/templates/tools/audio_normalize.html:649
 #: tools/templates/tools/video_render.html:526
 msgid "Searching..."
 msgstr "Suche..."
 
-#: tools/templates/tools/audio_normalize.html:635
+#: tools/templates/tools/audio_normalize.html:651
 msgid "Enter a number to search."
 msgstr "Geben Sie eine Nummer ein, um zu suchen."
 
-#: tools/templates/tools/audio_normalize.html:641
+#: tools/templates/tools/audio_normalize.html:657
 msgid "Search failed."
 msgstr "Suche fehlgeschlagen."
 
-#: tools/templates/tools/audio_normalize.html:646
+#: tools/templates/tools/audio_normalize.html:662
 msgid "No matching files found."
 msgstr "Keine passenden Dateien gefunden."
 
-#: tools/templates/tools/audio_normalize.html:654
+#: tools/templates/tools/audio_normalize.html:670
 msgid "External"
 msgstr "Extern"
 
-#: tools/templates/tools/audio_normalize.html:667
+#: tools/templates/tools/audio_normalize.html:683
 msgid "Use"
 msgstr "Verwenden"
 
-#: tools/templates/tools/audio_normalize.html:687
+#: tools/templates/tools/audio_normalize.html:703
 msgid "Using existing file"
 msgstr "Vorhandene Datei wird verwendet"
 
-#: tools/templates/tools/audio_normalize.html:703
+#: tools/templates/tools/audio_normalize.html:719
 msgid "Using existing file (from storage)"
 msgstr "Vorhandene Datei (vom Speicherort) wird verwendet"
 
-#: tools/templates/tools/audio_normalize.html:723
+#: tools/templates/tools/audio_normalize.html:739
 msgid "Failed to start analysis."
 msgstr "Analyse konnte nicht gestartet werden."
 
-#: tools/templates/tools/audio_normalize.html:748
+#: tools/templates/tools/audio_normalize.html:764
 msgid "Failed to start normalization."
 msgstr "Normalisierung konnte nicht gestartet werden."
 
-#: tools/templates/tools/audio_normalize.html:823
+#: tools/templates/tools/audio_normalize.html:839
 msgid "Wind noise"
 msgstr "Windgeräusche"
 
-#: tools/templates/tools/audio_normalize.html:824
+#: tools/templates/tools/audio_normalize.html:840
 msgid "Low quality"
 msgstr "Niedrige Qualität"
 
-#: tools/templates/tools/audio_normalize.html:825
+#: tools/templates/tools/audio_normalize.html:841
 msgid "General noise"
 msgstr "Allgemeines Rauschen"
 
-#: tools/templates/tools/audio_normalize.html:826
+#: tools/templates/tools/audio_normalize.html:842
 msgid "Minimal noise"
 msgstr "Minimales Rauschen"
 
-#: tools/templates/tools/audio_normalize.html:832
+#: tools/templates/tools/audio_normalize.html:848
 msgid "standard"
 msgstr "Standard"
 
-#: tools/templates/tools/audio_normalize.html:833
+#: tools/templates/tools/audio_normalize.html:849
 msgid "wind noise"
 msgstr "Windgeräusche"
 
-#: tools/templates/tools/audio_normalize.html:834
+#: tools/templates/tools/audio_normalize.html:850
 msgid "low quality"
 msgstr "niedrige Qualität"
 
-#: tools/templates/tools/audio_normalize.html:836
+#: tools/templates/tools/audio_normalize.html:852
 msgid "Recommended model"
 msgstr "Empfohlenes Modell"
 
-#: tools/templates/tools/audio_normalize.html:930
+#: tools/templates/tools/audio_normalize.html:946
 msgid "Waveform preview will appear here"
 msgstr "Die Wellenform-Vorschau erscheint hier"
 
-#: tools/templates/tools/audio_normalize.html:1027
+#: tools/templates/tools/audio_normalize.html:1043
 msgid "Failed to fetch waveform."
 msgstr "Wellenform konnte nicht abgerufen werden."
 
-#: tools/templates/tools/audio_normalize.html:1055
+#: tools/templates/tools/audio_normalize.html:1071
 msgid "Failed to fetch status."
 msgstr "Status konnte nicht abgerufen werden."
 
-#: tools/templates/tools/audio_normalize.html:1090
+#: tools/templates/tools/audio_normalize.html:1107
+msgid "Loudnorm mode"
+msgstr ""
+
+#: tools/templates/tools/audio_normalize.html:1119
 #: tools/templates/tools/audio_normalize_job_detail.html:78
 msgid "Output"
 msgstr "Ausgabe"
 
 # Templates
-#: tools/templates/tools/audio_normalize.html:1091
+#: tools/templates/tools/audio_normalize.html:1120
 #: tools/templates/tools/audio_normalize_job_detail.html:78
 msgid "Output (on disk)"
 msgstr "Ausgabe (auf Datenträger)"
 
-#: tools/templates/tools/audio_normalize.html:1117
+#: tools/templates/tools/audio_normalize.html:1146
 msgid "Preset changed to"
 msgstr "Preset geändert zu"
 
-#: tools/templates/tools/audio_normalize.html:1126
+#: tools/templates/tools/audio_normalize.html:1155
 msgid "not found in available presets"
 msgstr "nicht in den verfügbaren Presets gefunden"
 
-#: tools/templates/tools/audio_normalize.html:1140
-#: tools/templates/tools/audio_normalize.html:1151
+#: tools/templates/tools/audio_normalize.html:1169
+#: tools/templates/tools/audio_normalize.html:1180
 msgid "Model"
 msgstr "Modell"
 

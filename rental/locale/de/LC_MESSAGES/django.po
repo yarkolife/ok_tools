@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 22:25+0100\n"
+"POT-Creation-Date: 2026-02-11 09:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -968,36 +968,31 @@ msgstr ""
 msgid "Failed to connect to Nextcloud CalDAV server: {error}"
 msgstr "Verbindung zum Nextcloud-CalDAV-Server fehlgeschlagen: {error}"
 
-#: rental/services/nextcloud_calendar_service.py:315
+#: rental/services/nextcloud_calendar_service.py:358
 #, python-brace-format
 msgid "OK-Tools Booking #{booking_id}"
 msgstr "OK-Tools Buchung Nr. {booking_id}"
 
-#: rental/services/nextcloud_calendar_service.py:316
+#: rental/services/nextcloud_calendar_service.py:359
 #, python-brace-format
 msgid "User: {user_name} ({email})"
 msgstr "Nutzer: {user_name} ({email})"
 
-#: rental/services/nextcloud_calendar_service.py:317
+#: rental/services/nextcloud_calendar_service.py:360
 #, python-brace-format
 msgid "Project: {project}"
 msgstr "Projekt: {project}"
 
-#: rental/services/nextcloud_calendar_service.py:318
+#: rental/services/nextcloud_calendar_service.py:361
 #, python-brace-format
 msgid "Purpose: {purpose}"
 msgstr "Zweck: {purpose}"
 
-#: rental/services/nextcloud_calendar_service.py:319
-#, python-brace-format
-msgid "People: {count}"
-msgstr "Personen: {count}"
+#: rental/services/nextcloud_calendar_service.py:369
+msgid "Rooms and People:"
+msgstr ""
 
-#: rental/services/nextcloud_calendar_service.py:323
-msgid "Notes:"
-msgstr "Notizen:"
-
-#: rental/services/nextcloud_calendar_service.py:326
+#: rental/services/nextcloud_calendar_service.py:372
 msgid "Request Notes:"
 msgstr "Anmerkungen zur Anfrage:"
 
@@ -2484,3 +2479,10 @@ msgstr ""
 #: rental/views.py:3974
 msgid "Rental successfully issued from reservation"
 msgstr "Ausleihe erfolgreich aus der Reservierung ausgeliehen"
+
+#, python-brace-format
+#~ msgid "People: {count}"
+#~ msgstr "Personen: {count}"
+
+#~ msgid "Notes:"
+#~ msgstr "Notizen:"

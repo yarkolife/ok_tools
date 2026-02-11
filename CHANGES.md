@@ -1,6 +1,26 @@
 CHANGELOG
 =========
 
+2026-02-11 (Version 4.0.13)
+==========================
+
+* **Internationalization (i18n) improvements**
+  * **Program Schedule API i18n**: Added localization support for API responses
+    * Info block title now translatable via `_('Info block')`
+    * Credits text translatable: `_('A contribution by {}').format(profile)`
+    * Dynamic endpoint URL in API documentation modal
+  * **API Documentation Modal i18n**: Full translation support for JavaScript UI
+    * All modal strings extracted to `contributionsI18n` object
+    * Uses Django template `{% trans %}` tags for translation
+    * Copy button messages, labels, and descriptions translatable
+  * **Middleware language detection improvement**: Enhanced `ForceDefaultLanguageMiddleware`
+    * Now respects Django standard language detection (URL/cookie/Accept-Language)
+    * Falls back to `LANGUAGE_CODE` only when no language detected
+    * Better multi-language support for users with different browser settings
+  * **New test**: Added `test_program_api_i18n.py` for i18n API testing
+  * **Updated translations**: Refreshed German translations across all modules
+    * ok_tools, austausch, licenses, media_files, planung, rental, tools
+
 2026-02-10 (Version 4.0.12)
 ==========================
 

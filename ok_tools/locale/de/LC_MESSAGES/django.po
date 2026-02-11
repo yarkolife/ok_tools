@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OK Tools 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 22:25+0100\n"
+"POT-Creation-Date: 2026-02-11 09:15+0100\n"
 "PO-Revision-Date: 2026-01-28 12:00+0100\n"
 "Last-Translator: OK Tools Team\n"
 "Language-Team: German\n"
@@ -47,7 +47,7 @@ msgstr "Bis"
 msgid "Time to"
 msgstr "Zeit bis"
 
-#: contributions/admin.py:137
+#: contributions/admin.py:137 contributions/api.py:43
 msgid "Info block"
 msgstr "Infoblock"
 
@@ -66,20 +66,22 @@ msgid "End Time"
 msgstr "Endzeit"
 
 #: contributions/admin.py:226 contributions/admin.py:415
-#: contributions/admin.py:642 contributions/admin.py:930
+#: contributions/admin.py:642 contributions/admin.py:937
 #: contributions/templates/contributions/list.html:154 projects/admin.py:171
 #: registration/models.py:285
 msgid "Title"
 msgstr "Titel"
 
 #: contributions/admin.py:227 contributions/admin.py:416
-#: contributions/admin.py:643 contributions/admin.py:935
+#: contributions/admin.py:643 contributions/admin.py:942
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: contributions/admin.py:228 inventory/admin.py:29 inventory/models.py:31
-#: inventory/models.py:48 inventory/models.py:64 inventory/models.py:191
-#: projects/admin.py:173 projects/models.py:143 registration/models.py:516
+#: contributions/admin.py:228
+#: contributions/templates/admin/contributions/contribution/change_list.html:100
+#: inventory/admin.py:29 inventory/models.py:31 inventory/models.py:48
+#: inventory/models.py:64 inventory/models.py:191 projects/admin.py:173
+#: projects/models.py:143 registration/models.py:516
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -99,11 +101,11 @@ msgstr "Kategorie"
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: contributions/admin.py:233 contributions/admin.py:946
+#: contributions/admin.py:233 contributions/admin.py:953
 msgid "Number"
 msgstr "Nummer"
 
-#: contributions/admin.py:292
+#: contributions/admin.py:292 contributions/api.py:259
 msgid "A contribution by {}"
 msgstr "Ein Beitrag von {}"
 
@@ -120,9 +122,9 @@ msgid "Broadcast Time"
 msgstr "Sendezeit"
 
 #: contributions/admin.py:419 contributions/admin.py:644
-#: contributions/admin.py:872 registration/models.py:253
-#: registration/templates/navbar.html:74 ok_tools/templates/base.html:62
-#: ok_tools/templates/base.html:147 ok_tools/templates/dashboard.html:64
+#: contributions/admin.py:879 registration/models.py:253
+#: registration/templates/navbar.html:119 ok_tools/templates/base.html:62
+#: ok_tools/templates/dashboard.html:64
 msgid "Profile"
 msgstr "Profil"
 
@@ -147,7 +149,7 @@ msgstr "Live"
 msgid "Data export"
 msgstr "Datenexport"
 
-#: contributions/admin.py:460 contributions/admin.py:879
+#: contributions/admin.py:460 contributions/admin.py:886
 #: contributions/templates/admin/export.html:42 registration/admin.py:101
 #: registration/models.py:80 registration/models.py:108
 #: registration/models.py:209
@@ -236,57 +238,57 @@ msgstr "Dieses Jahr"
 msgid "Last year"
 msgstr "Letztes Jahr"
 
-#: contributions/admin.py:821
+#: contributions/admin.py:828
 msgid "Date from and Date to are required for Mediathek export."
 msgstr "Datum von und Datum bis sind für den Mediathek-Export erforderlich."
 
-#: contributions/admin.py:869
+#: contributions/admin.py:876
 msgid "Title, Subtitle, Number"
 msgstr "Titel, Untertitel, Nummer"
 
-#: contributions/admin.py:873 contributions/models.py:84
+#: contributions/admin.py:880 contributions/models.py:84
 msgid "License"
 msgstr "Freistellung"
 
-#: contributions/admin.py:883
+#: contributions/admin.py:890
 msgid "Broadcast Information"
 msgstr "Sendeinformationen"
 
-#: contributions/admin.py:886
+#: contributions/admin.py:893
 msgid "Contribution Status"
 msgstr "Beitragsstatus"
 
-#: contributions/admin.py:889
+#: contributions/admin.py:896
 msgid "Automatically determined based on broadcast date."
 msgstr "Wird automatisch anhand des Sendedatums bestimmt."
 
-#: contributions/admin.py:924
+#: contributions/admin.py:931
 msgid "Is primary"
 msgstr "Ist Hauptbeitrag"
 
-#: contributions/admin.py:940 inventory/models.py:527 registration/models.py:67
+#: contributions/admin.py:947 inventory/models.py:527 registration/models.py:67
 #: registration/models.py:149 ok_tools/templates/rental_dashboard.html:43
 msgid "User"
 msgstr "Nutzer"
 
-#: contributions/admin.py:970
+#: contributions/admin.py:977
 msgid "Import selected DISA exports."
 msgstr "Ausgewählte DISA-Exporte importieren."
 
-#: contributions/admin.py:981
+#: contributions/admin.py:988
 #, python-format
 msgid "%d file successfully imported."
 msgid_plural "%d files successfully imported."
 msgstr[0] "%d Datei erfolgreich importiert."
 msgstr[1] "%d Dateien erfolgreich importiert."
 
-#: contributions/admin.py:1000
+#: contributions/admin.py:1007
 #, python-format
 msgid "\"%(obj)s\" successfully imported."
 msgstr "\"%(obj)s\" erfolgreich importiert."
 
 #: contributions/apps.py:10 contributions/models.py:118
-#: registration/templates/navbar.html:118 ok_tools/templates/base.html:78
+#: registration/templates/navbar.html:163 ok_tools/templates/base.html:78
 #: ok_tools/templates/dashboard.html:211
 msgid "Contributions"
 msgstr "Beiträge"
@@ -378,6 +380,137 @@ msgstr "DISA-Import"
 #: contributions/models.py:174
 msgid "DISA-Imports"
 msgstr "DISA-Importe"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:93
+msgid "Program Schedule API"
+msgstr "Programmplan-API"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:94
+#, fuzzy
+#| msgid "API Endpoint"
+msgid "Endpoint"
+msgstr "API-Endpunkt"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:95
+#: contributions/templates/admin/contributions/contribution/change_list.html:107
+msgid "Authentication"
+msgstr "Authentifizierung"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:96
+msgid "Token-based (include token in Authorization header)"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:97
+msgid "Query Parameters"
+msgstr "Abfrageparameter"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:98
+msgid "Parameter"
+msgstr "Parameter"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:99
+#: registration/models.py:296
+msgid "Type"
+msgstr "Typ"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:101
+msgid "Example"
+msgstr "Beispiel"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:102
+msgid "Specific date"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:103
+#, fuzzy
+#| msgid "Start of period (YYYY-MM-DD)"
+msgid "Start date of period"
+msgstr "Anfang des Zeitraums (JJJJ-MM-TT)"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:104
+msgid "End date of period"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:105
+#, fuzzy
+#| msgid "Start time (HH:MM:SS)"
+msgid "Start time (optional)"
+msgstr "Startzeit (HH:MM:SS)"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:106
+msgid "End time (optional)"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:108
+msgid "Include your token in the Authorization header:"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:109
+msgid "Example Requests"
+msgstr "Beispielanfragen"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:110
+msgid "Get program for a specific date:"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:111
+msgid "Get program for a date range:"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:112
+msgid "Get program with time filter:"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:113
+#, fuzzy
+#| msgid "JavaScript Example"
+msgid "JavaScript Example:"
+msgstr "JavaScript-Beispiel"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:114
+msgid "Response Format"
+msgstr "Antwortformat"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:115
+msgid "Returns an array of program entries:"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:116
+msgid "Note:"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:117
+msgid ""
+"Screen boards (Info blocks) are automatically added for gaps between "
+"programs. Consecutive info blocks are merged."
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:118
+msgid "Copy"
+msgstr "Kopieren"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:119
+msgid "cURL command copied!"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:120
+#, fuzzy
+#| msgid "JavaScript Example"
+msgid "JavaScript code copied!"
+msgstr "JavaScript-Beispiel"
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:121
+msgid "Response example copied!"
+msgstr ""
+
+#: contributions/templates/admin/contributions/contribution/change_list.html:122
+msgid "Failed to copy to clipboard"
+msgstr ""
+
+# API Documentation translations
+#: contributions/templates/admin/contributions/contribution/change_list.html:434
+msgid "API Documentation"
+msgstr "API-Dokumentation"
 
 #: contributions/templates/admin/disa_import_change_form.html:79
 #: contributions/templates/admin/disa_import_change_form.html:137
@@ -1788,8 +1921,8 @@ msgstr "Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie."
 msgid "Birthday"
 msgstr "Geburtstag"
 
-#: registration/forms.py:135 registration/templates/navbar.html:135
-#: ok_tools/templates/base.html:160 ok_tools/templates/guest_welcome.html:85
+#: registration/forms.py:135 registration/templates/navbar.html:180
+#: ok_tools/templates/base.html:169 ok_tools/templates/guest_welcome.html:85
 msgid "Register"
 msgstr "Registrieren"
 
@@ -1958,10 +2091,6 @@ msgstr "Nachricht"
 #: registration/models.py:292
 msgid "Main notification text"
 msgstr "Hauptbenachrichtigungstext"
-
-#: registration/models.py:296
-msgid "Type"
-msgstr "Typ"
 
 #: registration/models.py:300
 msgid "Notification type determines color and style"
@@ -2288,45 +2417,45 @@ msgstr ""
 "\n"
 "Ihr Konto für %(ok_name)s wurde genehmigt\n"
 
-#: registration/templates/navbar.html:78
+#: registration/templates/navbar.html:123
 #: registration/templates/registration/print_registration.html:32
 msgid "Edit user data"
 msgstr "Nutzerdaten bearbeiten"
 
-#: registration/templates/navbar.html:81
+#: registration/templates/navbar.html:126
 #: registration/templates/registration/password_reset_confirm.html:16
 msgid "Change password"
 msgstr "Passwort ändern"
 
-#: registration/templates/navbar.html:86
+#: registration/templates/navbar.html:131
 #: registration/templates/registration/edit_profile.html:22
 msgid "Print Registration Form"
 msgstr "Registrierungsformular drucken"
 
-#: registration/templates/navbar.html:91 ok_tools/templates/dashboard.html:151
+#: registration/templates/navbar.html:136 ok_tools/templates/dashboard.html:151
 msgid "Privacy Policy"
 msgstr "Datenschutzerklärung"
 
-#: registration/templates/navbar.html:105 ok_tools/templates/base.html:70
+#: registration/templates/navbar.html:150 ok_tools/templates/base.html:70
 msgid "Licenses"
 msgstr "Freistellungen"
 
-#: registration/templates/navbar.html:109
+#: registration/templates/navbar.html:154
 msgid "Overview"
 msgstr "Übersicht"
 
-#: registration/templates/navbar.html:112
+#: registration/templates/navbar.html:157
 msgid "Create license"
 msgstr "Freistellung erstellen"
 
-#: registration/templates/navbar.html:129 ok_tools/templates/base.html:105
-#: ok_tools/templates/base.html:152 ok_tools/templates/dashboard.html:156
+#: registration/templates/navbar.html:174 ok_tools/templates/base.html:105
+#: ok_tools/templates/base.html:161 ok_tools/templates/dashboard.html:156
 msgid "Logout"
 msgstr "Abmelden"
 
-#: registration/templates/navbar.html:141
+#: registration/templates/navbar.html:186
 #: registration/templates/registration/login.html:6
-#: ok_tools/templates/base.html:161 ok_tools/templates/guest_welcome.html:82
+#: ok_tools/templates/base.html:170 ok_tools/templates/guest_welcome.html:82
 msgid "Login"
 msgstr "Anmelden"
 
@@ -3102,103 +3231,6 @@ msgstr "%(model)s-Instanz mit %(field)s %(value)r ist keine gültige Auswahl."
 #: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:982
 msgid "Foreign Key (type determined by related field)"
 msgstr "Fremdschlüssel (Typ durch das zugehörige Feld bestimmt)"
-
-# API Documentation translations
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "API Documentation"
-msgstr "API-Dokumentation"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Program Schedule API"
-msgstr "Programmplan-API"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Query Parameters"
-msgstr "Abfrageparameter"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Parameter"
-msgstr "Parameter"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Required"
-msgstr "Erforderlich"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Example"
-msgstr "Beispiel"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Single date (YYYY-MM-DD)"
-msgstr "Einzelnes Datum (JJJJ-MM-TT)"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Yes - if date_to not provided"
-msgstr "Ja - wenn date_to nicht angegeben"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Start of period (YYYY-MM-DD)"
-msgstr "Anfang des Zeitraums (JJJJ-MM-TT)"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "End of period (YYYY-MM-DD)"
-msgstr "Ende des Zeitraums (JJJJ-MM-TT)"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Yes - if date provided"
-msgstr "Ja - wenn date angegeben"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Start time (HH:MM:SS)"
-msgstr "Startzeit (HH:MM:SS)"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "End time (HH:MM:SS)"
-msgstr "Endzeit (HH:MM:SS)"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Authentication"
-msgstr "Authentifizierung"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "This API requires authentication using a Token. Include the token in the Authorization header."
-msgstr "Diese API erfordert Authentifizierung mit einem Token. Fügen Sie das Token im Authorization-Header ein."
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Example Requests"
-msgstr "Beispielanfragen"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "cURL Example"
-msgstr "cURL-Beispiel"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "JavaScript Example"
-msgstr "JavaScript-Beispiel"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Response Format"
-msgstr "Antwortformat"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Close"
-msgstr "Schließen"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Copied!"
-msgstr "Kopiert!"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "API Endpoint"
-msgstr "API-Endpunkt"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Copy"
-msgstr "Kopieren"
-
-#: contributions/templates/admin/contributions/contribution/change_list.html
-msgid "Security Note: Keep your token secure and never share it publicly. Use HTTPS in production."
-msgstr "Sicherheitshinweis: Bewahren Sie Ihr Token sicher auf und geben Sie es niemals öffentlich weiter. Verwenden Sie HTTPS in der Produktion."
 
 #: venv/lib/python3.13/site-packages/django/db/models/fields/related.py:1276
 msgid "One-to-one relationship"
@@ -4244,15 +4276,15 @@ msgstr "Ausleihe"
 msgid "Toggle theme"
 msgstr ""
 
-#: ok_tools/templates/base.html:194
+#: ok_tools/templates/base.html:203
 msgid "Coming Soon!"
 msgstr "Demnächst verfügbar!"
 
-#: ok_tools/templates/base.html:202 ok_tools/templates/dashboard.html:216
+#: ok_tools/templates/base.html:211 ok_tools/templates/dashboard.html:216
 msgid "Rental Dashboard"
 msgstr "Ausleihe Dashboard"
 
-#: ok_tools/templates/base.html:204
+#: ok_tools/templates/base.html:213
 msgid ""
 "We're working hard to bring you the rental dashboard feature. Soon you'll be "
 "able to book equipment and studio rooms with ease!"
@@ -4260,15 +4292,15 @@ msgstr ""
 "Wir arbeiten fleißig daran, Ihnen das Ausleihe-Dashboard bereitzustellen. "
 "Bald können Sie problemlos Geräte und Studioräume buchen!"
 
-#: ok_tools/templates/base.html:209
+#: ok_tools/templates/base.html:218
 msgid "Development Progress"
 msgstr "Entwicklungsfortschritt"
 
-#: ok_tools/templates/base.html:213
+#: ok_tools/templates/base.html:222
 msgid "Got it!"
 msgstr "Verstanden!"
 
-#: ok_tools/templates/base.html:305
+#: ok_tools/templates/base.html:314
 msgid "Collapse sidebar"
 msgstr ""
 
@@ -4656,6 +4688,14 @@ msgid "Select a set to view contents"
 msgstr "Wählen Sie ein Set, um den Inhalt anzuzeigen"
 
 #: ok_tools/templates/rental_dashboard.html:260
+#: ok_tools/templates/rental_dashboard.html:348
+#: ok_tools/templates/rental_dashboard.html:374
+#: ok_tools/templates/rental_dashboard.html:399
+#: ok_tools/templates/rental_dashboard.html:424
+msgid "Close"
+msgstr "Schließen"
+
+#: ok_tools/templates/rental_dashboard.html:261
 msgid "Add Set"
 msgstr "Set hinzufügen"
 
@@ -4766,6 +4806,44 @@ msgstr "Sie haben %(count)d Beiträge in dieser Woche"
 #, python-format
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
+
+#~ msgid "Required"
+#~ msgstr "Erforderlich"
+
+#~ msgid "Single date (YYYY-MM-DD)"
+#~ msgstr "Einzelnes Datum (JJJJ-MM-TT)"
+
+#~ msgid "Yes - if date_to not provided"
+#~ msgstr "Ja - wenn date_to nicht angegeben"
+
+#~ msgid "End of period (YYYY-MM-DD)"
+#~ msgstr "Ende des Zeitraums (JJJJ-MM-TT)"
+
+#~ msgid "Yes - if date provided"
+#~ msgstr "Ja - wenn date angegeben"
+
+#~ msgid "End time (HH:MM:SS)"
+#~ msgstr "Endzeit (HH:MM:SS)"
+
+#~ msgid ""
+#~ "This API requires authentication using a Token. Include the token in the "
+#~ "Authorization header."
+#~ msgstr ""
+#~ "Diese API erfordert Authentifizierung mit einem Token. Fügen Sie das "
+#~ "Token im Authorization-Header ein."
+
+#~ msgid "cURL Example"
+#~ msgstr "cURL-Beispiel"
+
+#~ msgid "Copied!"
+#~ msgstr "Kopiert!"
+
+#~ msgid ""
+#~ "Security Note: Keep your token secure and never share it publicly. Use "
+#~ "HTTPS in production."
+#~ msgstr ""
+#~ "Sicherheitshinweis: Bewahren Sie Ihr Token sicher auf und geben Sie es "
+#~ "niemals öffentlich weiter. Verwenden Sie HTTPS in der Produktion."
 
 #~ msgid "Edit License"
 #~ msgstr "Freistellung bearbeiten"

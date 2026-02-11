@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 22:25+0100\n"
+"POT-Creation-Date: 2026-02-11 09:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,233 +17,162 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: planung/admin.py:135
+#: planung/admin.py:156
+msgid "min"
+msgstr "Min"
+
+#: planung/admin.py:197
 msgid "Mon"
 msgstr "Mo"
 
-#: planung/admin.py:136
+#: planung/admin.py:198
 msgid "Tue"
 msgstr "Di"
 
-#: planung/admin.py:137
+#: planung/admin.py:199
 msgid "Wed"
 msgstr "Mi"
 
-#: planung/admin.py:138
+#: planung/admin.py:200
 msgid "Thu"
 msgstr "Do"
 
-#: planung/admin.py:139
+#: planung/admin.py:201
 msgid "Fri"
 msgstr "Fr"
 
-#: planung/admin.py:140
+#: planung/admin.py:202
 msgid "Sat"
 msgstr "Sa"
 
-#: planung/admin.py:141
+#: planung/admin.py:203
 msgid "Sun"
 msgstr "So"
 
-#: planung/admin.py:145
+#: planung/admin.py:207
 msgid "Calendar Weeks – Broadcast Planning"
 msgstr "Kalenderwochen – Sendeplanung"
 
-#: planung/admin.py:163
+#: planung/admin.py:228
 msgid "Draft?"
 msgstr "Entwurf?"
 
-#: planung/admin.py:172
+#: planung/admin.py:237
 msgid "Planned items"
 msgstr "Geplante Beiträge"
 
-#: planung/admin.py:181
+#: planung/admin.py:246 planung/templates/admin/planung/calendar_weeks.html:81
+#: planung/templates/admin/planung/calendar_weeks.html:113
+#: planung/templates/admin/planung/calendar_weeks.html:122
+#: planung/templates/admin/planung/calendar_weeks.html:126
 msgid "Comment"
 msgstr "Kommentar"
 
-#: planung/admin.py:207
+#: planung/admin.py:272
 msgid "not found"
 msgstr "nicht gefunden"
 
-#: planung/admin.py:226 planung/templates/admin/planung/calendar_weeks.html:172
+#: planung/admin.py:291 planung/templates/admin/planung/calendar_weeks.html:185
 msgid "Start"
 msgstr "Start"
 
-#: planung/admin.py:227
+#: planung/admin.py:292
 msgid "License"
 msgstr "Freistellung"
 
-#: planung/admin.py:228
+#: planung/admin.py:293
 msgid "Author"
 msgstr "Sendeverantwortung"
 
-#: planung/admin.py:229 planung/templates/admin/planung/calendar_weeks.html:177
+#: planung/admin.py:294 planung/templates/admin/planung/calendar_weeks.html:190
 msgid "Duration"
 msgstr "Dauer"
 
-#: planung/admin.py:235
+#: planung/admin.py:300
 msgid "Planned items (preview)"
 msgstr "Geplante Beiträge (Vorschau)"
 
-#: planung/models.py:27 planung/models.py:28
+#: planung/models.py:28 planung/models.py:29
 msgid "Calendar weeks"
 msgstr "Kalenderwochen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:17
-msgid "Current Week"
-msgstr "Aktuelle Woche"
+#: planung/models.py:44
+#, fuzzy
+#| msgid "Apply template"
+msgid "Plan template"
+msgstr "Vorlage anwenden"
 
-#: planung/templates/admin/planung/calendar_weeks.html:17
-#: planung/templates/admin/planung/calendar_weeks.html:41
-#: planung/templates/admin/planung/calendar_weeks.html:65
-#: planung/templates/admin/planung/calendar_weeks.html:89
-#: planung/templates/admin/planung/calendar_weeks.html:126
-msgid "CW"
-msgstr "KW"
+#: planung/models.py:45
+#, fuzzy
+#| msgid "Apply template"
+msgid "Plan templates"
+msgstr "Vorlage anwenden"
 
-#: planung/templates/admin/planung/calendar_weeks.html:21
-#: planung/templates/admin/planung/calendar_weeks.html:45
-#: planung/templates/admin/planung/calendar_weeks.html:69
-#: planung/templates/admin/planung/calendar_weeks.html:93
-msgid "Planned days"
-msgstr "Geplante Tage"
-
-#: planung/templates/admin/planung/calendar_weeks.html:25
-#: planung/templates/admin/planung/calendar_weeks.html:49
-#: planung/templates/admin/planung/calendar_weeks.html:73
-#: planung/templates/admin/planung/calendar_weeks.html:97
-msgid "Total time"
-msgstr "Gesamtzeit"
-
-#: planung/templates/admin/planung/calendar_weeks.html:29
-#: planung/templates/admin/planung/calendar_weeks.html:53
-#: planung/templates/admin/planung/calendar_weeks.html:77
-#: planung/templates/admin/planung/calendar_weeks.html:101
-msgid "Fill rate"
-msgstr "Füllrate"
-
-#: planung/templates/admin/planung/calendar_weeks.html:33
-msgid "Licenses"
-msgstr "Freistellungen"
-
-#: planung/templates/admin/planung/calendar_weeks.html:41
-msgid "Next Week"
-msgstr "Nächste Woche"
-
-#: planung/templates/admin/planung/calendar_weeks.html:57
-#: planung/templates/admin/planung/calendar_weeks.html:81
-#: planung/templates/admin/planung/calendar_weeks.html:105
-msgid "Time Off"
-msgstr "Freizeit"
-
-#: planung/templates/admin/planung/calendar_weeks.html:65
-msgid "Week After Next"
-msgstr "Übernächste Woche"
-
-#: planung/templates/admin/planung/calendar_weeks.html:89
-msgid "3 Weeks Ahead"
-msgstr "3 Wochen voraus"
-
-#: planung/templates/admin/planung/calendar_weeks.html:152
-#: planung/templates/admin/planung/calendar_weeks.html:195
-msgid "Close"
-msgstr "Schließen"
-
-#: planung/templates/admin/planung/calendar_weeks.html:157
-msgid "Broadcast block"
-msgstr "Sendeblock"
-
-#: planung/templates/admin/planung/calendar_weeks.html:158
-msgid "Full available"
-msgstr "Voll verfügbar"
-
-#: planung/templates/admin/planung/calendar_weeks.html:159
-msgid "Large gaps (≥5 min) can be filled with videos"
-msgstr "Große Lücken (≥5 Min.) können mit Videos gefüllt werden"
-
-#: planung/templates/admin/planung/calendar_weeks.html:160
-msgid ""
-"You can manually set any time (including 00:00 and times outside the block) "
-"by editing the start time field"
+#: planung/models.py:61
+msgid "Create"
 msgstr ""
-"Sie können jede Zeit manuell einstellen (einschließlich 00:00 und Zeiten "
-"außerhalb des Blocks), indem Sie das Startzeitfeld bearbeiten."
 
-#: planung/templates/admin/planung/calendar_weeks.html:164
-msgid "Enter license number..."
-msgstr "Freistellungsnummer eingeben..."
+#: planung/models.py:62
+msgid "Update"
+msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:165
-msgid "Add"
-msgstr "Hinzufügen"
-
-#: planung/templates/admin/planung/calendar_weeks.html:166
-msgid "Align all start times to 0 or 5 minutes"
-msgstr "Alle Startzeiten auf 0 oder 5 Minuten ausrichten"
-
-#: planung/templates/admin/planung/calendar_weeks.html:166
-msgid "Align to 5 min"
-msgstr "Auf 5 Min. ausrichten"
-
-#: planung/templates/admin/planung/calendar_weeks.html:173
-msgid "End"
-msgstr "Ende"
-
-#: planung/templates/admin/planung/calendar_weeks.html:174
-msgid "Number"
-msgstr "Nummer"
-
-#: planung/templates/admin/planung/calendar_weeks.html:175
-msgid "Title"
-msgstr "Titel"
-
-#: planung/templates/admin/planung/calendar_weeks.html:176
-msgid "Sendeverantwortung"
-msgstr "Sendeverantwortung"
-
-#: planung/templates/admin/planung/calendar_weeks.html:178
-msgid "Actions"
-msgstr "Aktionen"
-
-#: planung/templates/admin/planung/calendar_weeks.html:187
-msgid "Comment or notes:"
-msgstr "Kommentar oder Notizen:"
-
-#: planung/templates/admin/planung/calendar_weeks.html:193
-msgid "Sort by time"
-msgstr "Nach Zeit sortieren"
-
-#: planung/templates/admin/planung/calendar_weeks.html:194
+#: planung/models.py:63 planung/templates/admin/planung/calendar_weeks.html:234
 msgid "Delete"
 msgstr "Löschen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:196
-msgid "Save"
-msgstr "Speichern"
+#: planung/models.py:80
+msgid "Plan change log"
+msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:197
-msgid "Plan!"
-msgstr "Planen!"
+#: planung/models.py:81
+msgid "Plan change logs"
+msgstr ""
 
-#: planung/views.py:28
-msgid "License not found or not confirmed."
-msgstr "Freistellung nicht gefunden oder nicht genehmigt."
-
-#: planung/views.py:75
-msgid "Invalid date"
-msgstr "Ungültiges Datum"
-
-#: planung/views.py:255 planung/views.py:256
+#: planung/services/plan_service.py:113 planung/views.py:111
+#: planung/views.py:112 planung/views.py:146 planung/views.py:340
 msgid "Bad date format"
 msgstr "Ungültiges Datumsformat"
 
-#: planung/views.py:344
+#: planung/services/plan_service.py:118 planung/views.py:144
+#: planung/views.py:345
 msgid "No plan for this day"
 msgstr "Kein Plan für diesen Tag"
 
-#: planung/views.py:346
-msgid "Method not allowed"
-msgstr "Methode nicht erlaubt"
+#: planung/services/validation_service.py:56 planung/views.py:256
+msgid "Invalid date"
+msgstr "Ungültiges Datum"
+
+#: planung/services/validation_service.py:60
+msgid "Items must be a list"
+msgstr ""
+
+#: planung/services/validation_service.py:69
+msgid "Item must be an object"
+msgstr ""
+
+#: planung/services/validation_service.py:79
+msgid "License number must be an integer"
+msgstr ""
+
+#: planung/services/validation_service.py:85
+msgid "Duration must be an integer in seconds"
+msgstr ""
+
+#: planung/services/validation_service.py:89
+msgid "Duration must be greater than zero"
+msgstr ""
+
+#: planung/services/validation_service.py:95
+msgid "Start time must be HH:MM or HH:MM:SS"
+msgstr ""
+
+#: planung/services/validation_service.py:101
+msgid "Duplicate license number in one day plan"
+msgstr ""
+
+#: planung/services/validation_service.py:125
+msgid "Time overlap detected with another item"
+msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:17
 msgid "Previous 4 weeks"
@@ -258,109 +187,318 @@ msgid "Next 4 weeks"
 msgstr "Nächste 4 Wochen"
 
 #: planung/templates/admin/planung/calendar_weeks.html:22
+msgid "Search calendar"
+msgstr "Kalender durchsuchen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:23
 msgid "Search comment/license/date"
 msgstr "Kommentar/Freistellung/Datum suchen"
 
 #: planung/templates/admin/planung/calendar_weeks.html:24
-msgid "All statuses"
-msgstr "Alle Status"
-
-#: planung/templates/admin/planung/calendar_weeks.html:25
-msgid "Planned"
-msgstr "Geplant"
-
-#: planung/templates/admin/planung/calendar_weeks.html:26
-msgid "Draft"
-msgstr "Entwurf"
-
-#: planung/templates/admin/planung/calendar_weeks.html:27
-msgid "Comment only"
-msgstr "Nur Kommentar"
-
-#: planung/templates/admin/planung/calendar_weeks.html:28
-msgid "Empty"
-msgstr "Leer"
-
-#: planung/templates/admin/planung/calendar_weeks.html:212
-msgid "Select template"
-msgstr "Vorlage auswählen"
-
-#: planung/templates/admin/planung/calendar_weeks.html:214
-msgid "Apply template"
-msgstr "Vorlage anwenden"
-
-#: planung/templates/admin/planung/calendar_weeks.html:215
-msgid "Copy from date"
-msgstr "Von Datum kopieren"
-
-#: planung/templates/admin/planung/calendar_weeks.html:216
-msgid "Export JSON"
-msgstr "JSON exportieren"
-
-
-msgid "m"
-msgstr "Min"
-
-#: planung/admin.py:118
-msgid "min"
-msgstr "Min"
-
-#: planung/templates/admin/planung/calendar_weeks.html
-msgid "Search calendar"
-msgstr "Kalender durchsuchen"
-
-#: planung/templates/admin/planung/calendar_weeks.html
 msgid "Filter by status"
 msgstr "Nach Status filtern"
 
-#: planung/templates/admin/planung/calendar_weeks.html
-msgid "Legend"
-msgstr "Legende"
+#: planung/templates/admin/planung/calendar_weeks.html:26
+msgid "All statuses"
+msgstr "Alle Status"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:27
+#: planung/templates/admin/planung/calendar_weeks.html:79
+#: planung/templates/admin/planung/calendar_weeks.html:113
+#: planung/templates/admin/planung/calendar_weeks.html:118
+msgid "Planned"
+msgstr "Geplant"
+
+#: planung/templates/admin/planung/calendar_weeks.html:28
+#: planung/templates/admin/planung/calendar_weeks.html:80
+#: planung/templates/admin/planung/calendar_weeks.html:113
+#: planung/templates/admin/planung/calendar_weeks.html:120
+#: planung/templates/admin/planung/calendar_weeks.html:124
+msgid "Draft"
+msgstr "Entwurf"
+
+#: planung/templates/admin/planung/calendar_weeks.html:29
+msgid "Comment only"
+msgstr "Nur Kommentar"
+
+#: planung/templates/admin/planung/calendar_weeks.html:30
+#: planung/templates/admin/planung/calendar_weeks.html:82
+#: planung/templates/admin/planung/calendar_weeks.html:113
+#: planung/templates/admin/planung/calendar_weeks.html:128
+msgid "Empty"
+msgstr "Leer"
+
+#: planung/templates/admin/planung/calendar_weeks.html:37
+msgid "Current Week"
+msgstr "Aktuelle Woche"
+
+#: planung/templates/admin/planung/calendar_weeks.html:37
+#: planung/templates/admin/planung/calendar_weeks.html:47
+#: planung/templates/admin/planung/calendar_weeks.html:57
+#: planung/templates/admin/planung/calendar_weeks.html:67
+#: planung/templates/admin/planung/calendar_weeks.html:101
+msgid "CW"
+msgstr "KW"
+
+#: planung/templates/admin/planung/calendar_weeks.html:39
+#: planung/templates/admin/planung/calendar_weeks.html:49
+#: planung/templates/admin/planung/calendar_weeks.html:59
+#: planung/templates/admin/planung/calendar_weeks.html:69
+msgid "Planned days"
+msgstr "Geplante Tage"
+
+#: planung/templates/admin/planung/calendar_weeks.html:40
+#: planung/templates/admin/planung/calendar_weeks.html:50
+#: planung/templates/admin/planung/calendar_weeks.html:60
+#: planung/templates/admin/planung/calendar_weeks.html:70
+msgid "Total time"
+msgstr "Gesamtzeit"
+
+#: planung/templates/admin/planung/calendar_weeks.html:41
+#: planung/templates/admin/planung/calendar_weeks.html:51
+#: planung/templates/admin/planung/calendar_weeks.html:61
+#: planung/templates/admin/planung/calendar_weeks.html:71
+msgid "Fill rate"
+msgstr "Füllrate"
+
+#: planung/templates/admin/planung/calendar_weeks.html:42
+#: planung/templates/admin/planung/calendar_weeks.html:52
+#: planung/templates/admin/planung/calendar_weeks.html:62
+#: planung/templates/admin/planung/calendar_weeks.html:72
+msgid "Licenses"
+msgstr "Freistellungen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:47
+msgid "Next Week"
+msgstr "Nächste Woche"
+
+#: planung/templates/admin/planung/calendar_weeks.html:57
+msgid "Week After Next"
+msgstr "Übernächste Woche"
+
+#: planung/templates/admin/planung/calendar_weeks.html:67
+msgid "3 Weeks Ahead"
+msgstr "3 Wochen voraus"
+
+#: planung/templates/admin/planung/calendar_weeks.html:77
 msgid "Calendar status legend"
 msgstr "Legende der Kalenderstatus"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:78
+msgid "Legend"
+msgstr "Legende"
+
+#: planung/templates/admin/planung/calendar_weeks.html:86
 msgid "Planning calendar weeks"
 msgstr "Planungs-Kalenderwochen"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:87
 msgid "Calendar with planning status by day"
 msgstr "Kalender mit Planungsstatus pro Tag"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:90
 msgid "Week"
 msgstr "Woche"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:103
+#, fuzzy
+#| msgid "Current Week"
+msgid "Current"
+msgstr "Aktuelle Woche"
+
+#: planung/templates/admin/planung/calendar_weeks.html:150
+#: planung/templates/admin/planung/calendar_weeks.html:241
+#: planung/templates/admin/planung/calendar_weeks.html:263
+msgid "Close"
+msgstr "Schließen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:155
+msgid "Broadcast block"
+msgstr "Sendeblock"
+
+#: planung/templates/admin/planung/calendar_weeks.html:156
+msgid "Full available"
+msgstr "Voll verfügbar"
+
+#: planung/templates/admin/planung/calendar_weeks.html:157
+msgid "Large gaps (≥5 min) can be filled with videos"
+msgstr "Große Lücken (≥5 Min.) können mit Videos gefüllt werden"
+
+#: planung/templates/admin/planung/calendar_weeks.html:158
+msgid ""
+"You can manually set any time (including 00:00 and times outside the block) "
+"by editing the start time field"
+msgstr ""
+"Sie können jede Zeit manuell einstellen (einschließlich 00:00 und Zeiten "
+"außerhalb des Blocks), indem Sie das Startzeitfeld bearbeiten."
+
+#: planung/templates/admin/planung/calendar_weeks.html:162
+msgid "Items"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:163
+msgid "Outside block"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:164
+msgid "Large gaps"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:165
+msgid "Overlaps"
+msgstr ""
+
+#: planung/templates/admin/planung/calendar_weeks.html:171
+msgid "Enter license number..."
+msgstr "Freistellungsnummer eingeben..."
+
+#: planung/templates/admin/planung/calendar_weeks.html:174
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:176
+msgid "Align all start times to 0 or 5 minutes"
+msgstr "Alle Startzeiten auf 0 oder 5 Minuten ausrichten"
+
+#: planung/templates/admin/planung/calendar_weeks.html:178
+msgid "Align to 5 min"
+msgstr "Auf 5 Min. ausrichten"
+
+#: planung/templates/admin/planung/calendar_weeks.html:186
+msgid "End"
+msgstr "Ende"
+
+#: planung/templates/admin/planung/calendar_weeks.html:187
+msgid "Number"
+msgstr "Nummer"
+
+#: planung/templates/admin/planung/calendar_weeks.html:188
+msgid "Title"
+msgstr "Titel"
+
+#: planung/templates/admin/planung/calendar_weeks.html:189
+msgid "Sendeverantwortung"
+msgstr "Sendeverantwortung"
+
+#: planung/templates/admin/planung/calendar_weeks.html:191
+msgid "Actions"
+msgstr "Aktionen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:200
+msgid "Comment or notes:"
+msgstr "Kommentar oder Notizen:"
+
+#: planung/templates/admin/planung/calendar_weeks.html:206
 msgid "Preparation actions"
 msgstr "Vorbereitungsaktionen"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:208
+msgid "Select template"
+msgstr "Vorlage auswählen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:212
+msgid "Apply template"
+msgstr "Vorlage anwenden"
+
+#: planung/templates/admin/planung/calendar_weeks.html:216
+msgid "Copy from date"
+msgstr "Von Datum kopieren"
+
+#: planung/templates/admin/planung/calendar_weeks.html:218
+#: planung/templates/admin/planung/calendar_weeks.html:220
+msgid "Sort by time"
+msgstr "Nach Zeit sortieren"
+
+#: planung/templates/admin/planung/calendar_weeks.html:224
 msgid "Export action"
 msgstr "Exportaktion"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:227
+msgid "Export JSON"
+msgstr "JSON exportieren"
+
+#: planung/templates/admin/planung/calendar_weeks.html:231
 msgid "Danger actions"
 msgstr "Gefährliche Aktionen"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:238
 msgid "Primary actions"
 msgstr "Primäre Aktionen"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:245
+msgid "Save"
+msgstr "Speichern"
+
+#: planung/templates/admin/planung/calendar_weeks.html:249
+msgid "Plan!"
+msgstr "Planen!"
+
+#: planung/templates/admin/planung/calendar_weeks.html:262
 msgid "Confirm action"
 msgstr "Aktion bestätigen"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:267
 msgid "Enter value"
 msgstr "Wert eingeben"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:271
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: planung/templates/admin/planung/calendar_weeks.html
+#: planung/templates/admin/planung/calendar_weeks.html:272
 msgid "Confirm"
 msgstr "Bestätigen"
+
+#: planung/views.py:34
+msgid "License not found or not confirmed."
+msgstr "Freistellung nicht gefunden oder nicht genehmigt."
+
+#: planung/views.py:90 planung/views.py:283 planung/views.py:327
+msgid "Validation failed"
+msgstr ""
+
+#: planung/views.py:148
+msgid "Method not allowed"
+msgstr "Methode nicht erlaubt"
+
+#: planung/views.py:165
+#, fuzzy
+#| msgid "Invalid date"
+msgid "Invalid start date"
+msgstr "Ungültiges Datum"
+
+#: planung/views.py:258
+msgid "Template id is required"
+msgstr ""
+
+#: planung/views.py:263
+#, fuzzy
+#| msgid "not found"
+msgid "Template not found"
+msgstr "nicht gefunden"
+
+#: planung/views.py:267 planung/views.py:312
+#, fuzzy
+#| msgid "Planned items"
+msgid "Plan already exists"
+msgstr "Geplante Beiträge"
+
+#: planung/views.py:301
+msgid "Both source and target dates are required"
+msgstr ""
+
+#: planung/views.py:303
+msgid "Source and target dates must differ"
+msgstr ""
+
+#: planung/views.py:308
+#, fuzzy
+#| msgid "not found"
+msgid "Source plan not found"
+msgstr "nicht gefunden"
+
+#~ msgid "Time Off"
+#~ msgstr "Freizeit"
+
+#~ msgid "m"
+#~ msgstr "Min"

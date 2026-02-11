@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 22:25+0100\n"
+"POT-Creation-Date: 2026-02-11 09:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,7 +86,11 @@ msgid ""
 "Settings for exporting video, PDF, JSON and optional thumbnails. Choose "
 "export destination (Nextcloud or Network Share). Thumbnail storage path is "
 "used only when \"Upload Thumbnail Enabled\" is checked."
-msgstr "Einstellungen für den Export von Video, PDF, JSON und optionalen Vorschaubildern. Wählen Sie das Exportziel (Nextcloud oder Netzwerkfreigabe). Der Vorschaubild-Speicherpfad wird nur verwendet, wenn \"Thumbnail-Upload aktiviert\" aktiviert ist."
+msgstr ""
+"Einstellungen für den Export von Video, PDF, JSON und optionalen "
+"Vorschaubildern. Wählen Sie das Exportziel (Nextcloud oder "
+"Netzwerkfreigabe). Der Vorschaubild-Speicherpfad wird nur verwendet, wenn "
+"\"Thumbnail-Upload aktiviert\" aktiviert ist."
 
 #: austausch/admin.py:163 austausch/models.py:22
 #: austausch/templates/austausch/feed.html:127
@@ -500,7 +504,9 @@ msgstr "Upload-Serverpfad"
 msgid ""
 "WebDAV path on Nextcloud for upload (e.g. GroupFolders/Mediathek-Upload/"
 "OK_MQ). Distinct from download/sync paths."
-msgstr "WebDAV-Pfad auf Nextcloud für den Upload (z. B. GroupFolders/Mediathek-Upload/OK_MQ). Unabhängig von Download-/Synchronisierungspfaden."
+msgstr ""
+"WebDAV-Pfad auf Nextcloud für den Upload (z. B. GroupFolders/Mediathek-"
+"Upload/OK_MQ). Unabhängig von Download-/Synchronisierungspfaden."
 
 #: austausch/models.py:323
 msgid "Network Share Base Path"
@@ -580,7 +586,11 @@ msgid ""
 "Local directory where cover images are stored. Used when \"Upload Thumbnail "
 "Enabled\" is on. Matching by number at start of filename (e.g. "
 "12345_cover.jpg). Supported: .jpg, .jpeg, .png, .webp."
-msgstr "Lokales Verzeichnis, in dem Coverbilder gespeichert sind. Wird verwendet, wenn \"Thumbnail-Upload aktiviert\" eingeschaltet ist. Zuordnung über die Nummer am Dateianfang (z. B. 12345_cover.jpg). Unterstützt: .jpg, .jpeg, .png, .webp."
+msgstr ""
+"Lokales Verzeichnis, in dem Coverbilder gespeichert sind. Wird verwendet, "
+"wenn \"Thumbnail-Upload aktiviert\" eingeschaltet ist. Zuordnung über die "
+"Nummer am Dateianfang (z. B. 12345_cover.jpg). "
+"Unterstützt: .jpg, .jpeg, .png, .webp."
 
 #: austausch/models.py:372 austausch/models.py:373
 msgid "Exchange Configuration"
@@ -665,6 +675,53 @@ msgstr "Server-Exportlauf"
 #: austausch/models.py:466
 msgid "Export to server runs"
 msgstr "Server-Exportläufe"
+
+#: austausch/models.py:478
+#, fuzzy
+#| msgid "License"
+msgid "License Number"
+msgstr "Freistellung"
+
+#: austausch/models.py:479
+#, fuzzy
+#| msgid "All license numbers from Planung were already successfully exported."
+msgid "License number that was successfully exported to server"
+msgstr ""
+"Alle Lizenznummern aus der Planung wurden bereits erfolgreich exportiert."
+
+#: austausch/models.py:483
+#, fuzzy
+#| msgid "Imported At"
+msgid "First Exported At"
+msgstr "Importiert am"
+
+#: austausch/models.py:487
+#, fuzzy
+#| msgid "Imported At"
+msgid "Last Exported At"
+msgstr "Importiert am"
+
+#: austausch/models.py:491
+#, fuzzy
+#| msgid "Export to server run"
+msgid "Export Count"
+msgstr "Server-Exportlauf"
+
+#: austausch/models.py:492
+msgid "Number of times this license was exported"
+msgstr ""
+
+#: austausch/models.py:496
+#, fuzzy
+#| msgid "Imported License"
+msgid "Exported License"
+msgstr "Importierte Freistellung"
+
+#: austausch/models.py:497
+#, fuzzy
+#| msgid "Imported License"
+msgid "Exported Licenses"
+msgstr "Importierte Freistellung"
 
 #: austausch/services/import_service.py:535
 #: austausch/services/import_service.py:538
@@ -795,7 +852,7 @@ msgid ""
 msgstr ""
 
 #: austausch/templates/austausch/export_to_server_step1.html:15
-#: austausch/views.py:477
+#: austausch/views.py:465
 msgid "View last export result"
 msgstr "Letztes Exportergebnis anzeigen"
 
@@ -906,7 +963,8 @@ msgstr "Profil"
 
 #: austausch/templates/austausch/export_to_server_step2.html:35
 msgid "Exchange between Open Channels/Citizen Media in Saxony-Anhalt allowed"
-msgstr "Austausch zwischen Offenen Kanälen/Bürgermedien in Sachsen-Anhalt erlaubt"
+msgstr ""
+"Austausch zwischen Offenen Kanälen/Bürgermedien in Sachsen-Anhalt erlaubt"
 
 #: austausch/templates/austausch/export_to_server_step2.html:36
 msgid ""
@@ -1160,71 +1218,76 @@ msgstr "Fehler beim Starten der Synchronisation: "
 
 #: austausch/views.py:17
 msgid "Austausch module is disabled. Set AUSTAUSCH_ENABLED=true to enable."
-msgstr "Das Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um es zu aktivieren."
+msgstr ""
+"Das Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um "
+"es zu aktivieren."
 
-#: austausch/views.py:337
+#: austausch/views.py:317
 msgid "Enter at least one license number."
 msgstr "Geben Sie mindestens eine Lizenznummer ein."
 
-#: austausch/views.py:342 austausch/views.py:373
+#: austausch/views.py:322 austausch/views.py:353
 msgid ""
 "No licenses match: Default Media Authority (when set) and at least one of "
 "Exchange SA, Exchange outside SA, or In OK-Mediathek required."
 msgstr ""
 
-#: austausch/views.py:349
+#: austausch/views.py:329
 msgid "All entered license numbers were already successfully exported."
 msgstr "Alle eingegebenen Lizenznummern wurden bereits erfolgreich exportiert."
 
-#: austausch/views.py:357
+#: austausch/views.py:337
 msgid "Date from and Date to are required for Planung mode."
 msgstr "Für den Planung-Modus sind „Datum von“ und „Datum bis“ erforderlich."
 
-#: austausch/views.py:361
+#: austausch/views.py:341
 msgid "No license numbers found in Planung for the selected date range."
-msgstr "Für den ausgewählten Datumsbereich wurden in der Planung keine Lizenznummern gefunden."
+msgstr ""
+"Für den ausgewählten Datumsbereich wurden in der Planung keine Lizenznummern "
+"gefunden."
 
-#: austausch/views.py:366
+#: austausch/views.py:346
 msgid ""
 "No items to export: all licenses in Planung for this range are repeats "
 "(premiere was before the selected date range)."
 msgstr ""
 
-#: austausch/views.py:380
+#: austausch/views.py:360
 msgid "All license numbers from Planung were already successfully exported."
-msgstr "Alle Lizenznummern aus der Planung wurden bereits erfolgreich exportiert."
+msgstr ""
+"Alle Lizenznummern aus der Planung wurden bereits erfolgreich exportiert."
 
-#: austausch/views.py:397
+#: austausch/views.py:377
 msgid "Date from and Date to are required for contributions mode."
 msgstr "Für den Beitragsmodus sind „Datum von“ und „Datum bis“ erforderlich."
 
-#: austausch/views.py:401
+#: austausch/views.py:381
 msgid "No contributions match the selected filters."
 msgstr "Keine Beiträge entsprechen den ausgewählten Filtern."
 
-#: austausch/views.py:406
+#: austausch/views.py:394
 msgid "All matching contributions were already successfully exported."
 msgstr "Alle passenden Beiträge wurden bereits erfolgreich exportiert."
 
-#: austausch/views.py:445
+#: austausch/views.py:433
 #, fuzzy
 #| msgid "Please select items to import"
 msgid "Select at least one item to export."
 msgstr "Bitte Elemente zum Importieren auswählen"
 
-#: austausch/views.py:466
+#: austausch/views.py:454
 msgid "Export to server has been scheduled."
 msgstr "Der Server-Export wurde eingeplant."
 
-#: austausch/views.py:474
+#: austausch/views.py:462
 msgid "Export to server has been started in the background. "
 msgstr "Der Server-Export wurde im Hintergrund gestartet. "
 
-#: austausch/views.py:475
+#: austausch/views.py:463
 msgid "You can view the result when ready: "
 msgstr "Sie können das Ergebnis anzeigen, sobald es bereit ist: "
 
-#: austausch/views.py:561
+#: austausch/views.py:545
 msgid ""
 "No items to export: all selected were already successfully exported or have "
 "no video/PDF."

@@ -2,6 +2,7 @@
 
 from datetime import datetime, time, timedelta
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.db.models import Min
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -34,9 +35,13 @@ class ProgramScheduleView(APIView):
     Returns JSON array with program schedule including screen boards.
     """
     
-    INFO_BLOCK_TITLE = 'Info block'
     TOLERANCE = timedelta(minutes=1)
     
+    @property
+    def info_block_title(self):
+        """Return localized title for info blocks."""
+        return _('Info block')
+
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
     
@@ -234,7 +239,7 @@ class ProgramScheduleView(APIView):
                 'broadcast_date': str(contribution.broadcast_date.astimezone(tz=TZ).date()),
                 'broadcast_start_time': str(self._get_start_time(contribution)),
                 'broadcast_end_time': str(self._get_end_time(contribution)),
-                'title': self.INFO_BLOCK_TITLE,
+                'title': self.info_block_title,
                 'subtitle': '',
                 'description': '',
                 'credits': '',
@@ -251,7 +256,7 @@ class ProgramScheduleView(APIView):
             'title': str(license_obj.title) if license_obj.title else '',
             'subtitle': str(license_obj.subtitle) if license_obj.subtitle else '',
             'description': str(license_obj.description) if license_obj.description else '',
-            'credits': f'A contribution by {license_obj.profile}' if license_obj.profile else '',
+            'credits': _('A contribution by {}').format(license_obj.profile) if license_obj.profile else '',
             'contribution': True,
             'category': str(license_obj.category) if license_obj.category else '',
             'store_in_ok_media_library': str(license_obj.store_in_ok_media_library) if license_obj.store_in_ok_media_library else '',
@@ -274,7 +279,7 @@ class ProgramScheduleView(APIView):
             'broadcast_date': str(date),
             'broadcast_start_time': str(start_time),
             'broadcast_end_time': str(end_time),
-            'title': self.INFO_BLOCK_TITLE,
+            'title': self.info_block_title,
             'subtitle': '',
             'description': '',
             'credits': '',
@@ -301,7 +306,7 @@ class ProgramScheduleView(APIView):
         
         def is_info_row(row):
             return (
-                row.get('title') == self.INFO_BLOCK_TITLE
+                row.get('title') == self.info_block_title
                 and row.get('contribution') is False
             )
         

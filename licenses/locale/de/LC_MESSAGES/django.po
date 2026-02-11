@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 22:25+0100\n"
+"POT-Creation-Date: 2026-02-11 09:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Deutsch <LL@li.org>\n"
@@ -930,7 +930,7 @@ msgstr "Suchen"
 
 #: licenses/templates/admin/filter_datetime_range.html:79
 #: licenses/templates/admin/filter_numeric_range.html:84
-#: licenses/templates/licenses/create.html:390
+#: licenses/templates/licenses/create.html:393
 msgid "Reset"
 msgstr "Zurücksetzen"
 
@@ -1258,7 +1258,7 @@ msgstr "Video hochgeladen für Freistellung #%(license_number)s"
 
 #: licenses/templates/licenses/create.html:5
 #: licenses/templates/licenses/create.html:6
-#: licenses/templates/licenses/create.html:393
+#: licenses/templates/licenses/create.html:390
 #: licenses/templates/licenses/list.html:19
 msgid "Create License"
 msgstr "Freistellung erstellen"
@@ -1445,127 +1445,127 @@ msgstr "Zur Übersicht"
 msgid "Upload"
 msgstr "Hochladen"
 
-#: licenses/templates/licenses/create.html:772
+#: licenses/templates/licenses/create.html:894
 msgid "Are you sure you want to reset all inputs?"
 msgstr "Sind Sie sicher, dass Sie alle Eingaben zurücksetzen möchten?"
 
-#: licenses/templates/licenses/create.html:893
+#: licenses/templates/licenses/create.html:1015
 msgid "Creating..."
 msgstr "Erstelle..."
 
-#: licenses/templates/licenses/create.html:925
+#: licenses/templates/licenses/create.html:1047
 msgid "License was successfully created and digitally signed."
 msgstr "Freistellung wurde erfolgreich erstellt und digital signiert."
 
-#: licenses/templates/licenses/create.html:932
+#: licenses/templates/licenses/create.html:1054
 msgid "License was successfully created."
 msgstr "Freistellung wurde erfolgreich erstellt."
 
-#: licenses/templates/licenses/create.html:936
+#: licenses/templates/licenses/create.html:1058
 msgid "Open PDF"
 msgstr "PDF öffnen"
 
-#: licenses/templates/licenses/create.html:940
+#: licenses/templates/licenses/create.html:1062
 msgid "Please print the document, sign it, and send it to our email address."
 msgstr ""
 "Bitte drucken Sie das Dokument aus, unterschreiben Sie es und senden Sie es "
 "an unsere E-Mail-Adresse."
 
-#: licenses/templates/licenses/create.html:989
+#: licenses/templates/licenses/create.html:1111
 #: licenses/templates/licenses/list.html:281
-#: licenses/templates/licenses/update.html:533
+#: licenses/templates/licenses/update.html:539
 msgid "calculating..."
 msgstr "berechnen..."
 
-#: licenses/templates/licenses/create.html:990
+#: licenses/templates/licenses/create.html:1112
 #: licenses/templates/licenses/list.html:282
-#: licenses/templates/licenses/update.html:534
+#: licenses/templates/licenses/update.html:540
 msgid "sec"
 msgstr "Sek"
 
-#: licenses/templates/licenses/create.html:991
+#: licenses/templates/licenses/create.html:1113
 #: licenses/templates/licenses/list.html:283
-#: licenses/templates/licenses/update.html:535
+#: licenses/templates/licenses/update.html:541
 msgid "min"
 msgstr "Min"
 
-#: licenses/templates/licenses/create.html:992
+#: licenses/templates/licenses/create.html:1114
 #: licenses/templates/licenses/list.html:284
-#: licenses/templates/licenses/update.html:536
+#: licenses/templates/licenses/update.html:542
 msgid "h"
 msgstr "h"
 
-#: licenses/templates/licenses/create.html:1017
+#: licenses/templates/licenses/create.html:1139
 #: licenses/templates/licenses/list.html:312
 msgid "Please select a video file first."
 msgstr "Bitte wählen Sie zuerst eine Videodatei aus."
 
-#: licenses/templates/licenses/create.html:1026
+#: licenses/templates/licenses/create.html:1148
 #: licenses/templates/licenses/list.html:323
-#: licenses/templates/licenses/update.html:557
+#: licenses/templates/licenses/update.html:563
 msgid "File is too large. Maximum size is 20GB."
 msgstr "Datei ist zu groß. Maximale Größe ist 20GB."
 
-#: licenses/templates/licenses/create.html:1035
+#: licenses/templates/licenses/create.html:1157
 #: licenses/templates/licenses/list.html:333
-#: licenses/templates/licenses/update.html:567 licenses/views.py:358
+#: licenses/templates/licenses/update.html:573 licenses/views.py:358
 msgid "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm."
 msgstr ""
 "Ungültiges Dateiformat. Unterstützte Formate: mp4, mov, avi, mkv, webm."
 
-#: licenses/templates/licenses/create.html:1043
+#: licenses/templates/licenses/create.html:1165
 #: licenses/templates/licenses/list.html:342
-#: licenses/templates/licenses/update.html:594
+#: licenses/templates/licenses/update.html:600
 msgid "Getting upload token..."
 msgstr "Upload-Token wird abgerufen..."
 
-#: licenses/templates/licenses/create.html:1057
-#: licenses/templates/licenses/create.html:1062
+#: licenses/templates/licenses/create.html:1179
+#: licenses/templates/licenses/create.html:1184
 #: licenses/templates/licenses/list.html:357
 #: licenses/templates/licenses/list.html:362
-#: licenses/templates/licenses/update.html:620
-#: licenses/templates/licenses/update.html:625
+#: licenses/templates/licenses/update.html:626
+#: licenses/templates/licenses/update.html:631
 msgid "Failed to get upload token"
 msgstr "Fehler beim Abrufen des Upload-Tokens"
 
-#: licenses/templates/licenses/create.html:1095
+#: licenses/templates/licenses/create.html:1217
 #: licenses/templates/licenses/list.html:411
-#: licenses/templates/licenses/update.html:661
+#: licenses/templates/licenses/update.html:667
 msgid "Upload failed with status"
 msgstr "Upload fehlgeschlagen mit Status"
 
-#: licenses/templates/licenses/create.html:1100
+#: licenses/templates/licenses/create.html:1222
 #: licenses/templates/licenses/list.html:416
-#: licenses/templates/licenses/update.html:666
+#: licenses/templates/licenses/update.html:672
 msgid "Network error during upload"
 msgstr "Netzwerkfehler beim Upload"
 
-#: licenses/templates/licenses/create.html:1104
+#: licenses/templates/licenses/create.html:1226
 #: licenses/templates/licenses/list.html:420
 msgid "Upload was cancelled"
 msgstr "Upload wurde abgebrochen"
 
-#: licenses/templates/licenses/create.html:1114
+#: licenses/templates/licenses/create.html:1236
 #: licenses/templates/licenses/list.html:433
-#: licenses/templates/licenses/update.html:679
+#: licenses/templates/licenses/update.html:685
 msgid "Confirming upload..."
 msgstr "Upload wird bestätigt..."
 
-#: licenses/templates/licenses/create.html:1132
+#: licenses/templates/licenses/create.html:1254
 #: licenses/templates/licenses/list.html:451
 #: licenses/templates/licenses/list.html:456
-#: licenses/templates/licenses/update.html:697
-#: licenses/templates/licenses/update.html:702
+#: licenses/templates/licenses/update.html:703
+#: licenses/templates/licenses/update.html:708
 msgid "Failed to confirm upload"
 msgstr "Fehler beim Bestätigen des Uploads"
 
-#: licenses/templates/licenses/create.html:1144
+#: licenses/templates/licenses/create.html:1266
 #: licenses/templates/licenses/list.html:467
-#: licenses/templates/licenses/update.html:706
+#: licenses/templates/licenses/update.html:712
 msgid "Video uploaded successfully!"
 msgstr "Video erfolgreich hochgeladen!"
 
-#: licenses/templates/licenses/create.html:1147
+#: licenses/templates/licenses/create.html:1269
 #, fuzzy
 #| msgid "Upload"
 msgid "Uploaded"
@@ -1776,15 +1776,15 @@ msgstr ""
 msgid "Video file"
 msgstr "Videodatei"
 
-#: licenses/templates/licenses/update.html:482
+#: licenses/templates/licenses/update.html:486
 msgid "Saving..."
 msgstr "Speichern..."
 
-#: licenses/templates/licenses/update.html:593
+#: licenses/templates/licenses/update.html:599
 msgid "Uploading..."
 msgstr "Hochladen..."
 
-#: licenses/templates/licenses/update.html:600
+#: licenses/templates/licenses/update.html:606
 msgid "Error: Could not determine license ID."
 msgstr "Fehler: Freistellungs-ID konnte nicht ermittelt werden."
 

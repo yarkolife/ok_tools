@@ -86,6 +86,42 @@
 }
 </style>
 <script>
+const contributionsApiPath = '{% url "contributions:api-program-schedule" %}';
+const contributionsApiEndpointUrl = `${window.location.origin}${contributionsApiPath}`;
+
+const contributionsI18n = {
+    modalTitle: "{% trans 'Program Schedule API' %}",
+    endpointLabel: "{% trans 'Endpoint' %}",
+    authenticationLabel: "{% trans 'Authentication' %}",
+    authenticationDesc: "{% trans 'Token-based (include token in Authorization header)' %}",
+    queryParametersTitle: "{% trans 'Query Parameters' %}",
+    parameter: "{% trans 'Parameter' %}",
+    type: "{% trans 'Type' %}",
+    description: "{% trans 'Description' %}",
+    example: "{% trans 'Example' %}",
+    specificDate: "{% trans 'Specific date' %}",
+    startDateOfPeriod: "{% trans 'Start date of period' %}",
+    endDateOfPeriod: "{% trans 'End date of period' %}",
+    startTimeOptional: "{% trans 'Start time (optional)' %}",
+    endTimeOptional: "{% trans 'End time (optional)' %}",
+    authenticationTitle: "{% trans 'Authentication' %}",
+    includeTokenHeader: "{% trans 'Include your token in the Authorization header:' %}",
+    exampleRequestsTitle: "{% trans 'Example Requests' %}",
+    getProgramSpecificDate: "{% trans 'Get program for a specific date:' %}",
+    getProgramDateRange: "{% trans 'Get program for a date range:' %}",
+    getProgramTimeFilter: "{% trans 'Get program with time filter:' %}",
+    javascriptExample: "{% trans 'JavaScript Example:' %}",
+    responseFormatTitle: "{% trans 'Response Format' %}",
+    returnsArray: "{% trans 'Returns an array of program entries:' %}",
+    note: "{% trans 'Note:' %}",
+    noteText: "{% trans 'Screen boards (Info blocks) are automatically added for gaps between programs. Consecutive info blocks are merged.' %}",
+    copy: "{% trans 'Copy' %}",
+    copyCurlCopied: "{% trans 'cURL command copied!' %}",
+    copyJsCopied: "{% trans 'JavaScript code copied!' %}",
+    copyResponseCopied: "{% trans 'Response example copied!' %}",
+    copyFailed: "{% trans 'Failed to copy to clipboard' %}",
+};
+
 function showContributionsApiModal() {
     // Create modal if it doesn't exist
     let modal = document.getElementById('contributions-api-modal');
@@ -117,55 +153,55 @@ function createContributionsApiModal() {
     modal.innerHTML = `
         <div style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 900px; border-radius: 8px; max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px;">
-                <h2 style="margin: 0;">📡 Program Schedule API</h2>
+                <h2 style="margin: 0;">📡 ${contributionsI18n.modalTitle}</h2>
                 <button onclick="closeContributionsApiModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
             </div>
             
             <div style="margin-bottom: 20px;">
-                <p><strong>Endpoint:</strong> <code>GET /contributions/api/program/</code></p>
-                <p><strong>Authentication:</strong> Token-based (include token in Authorization header)</p>
+                <p><strong>${contributionsI18n.endpointLabel}:</strong> <code>GET ${contributionsApiEndpointUrl}</code></p>
+                <p><strong>${contributionsI18n.authenticationLabel}:</strong> ${contributionsI18n.authenticationDesc}</p>
             </div>
             
             <div class="endpoint-section">
-                <h3>📋 Query Parameters</h3>
+                <h3>📋 ${contributionsI18n.queryParametersTitle}</h3>
                 <table class="param-table">
                     <thead>
                         <tr>
-                            <th>Parameter</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Example</th>
+                            <th>${contributionsI18n.parameter}</th>
+                            <th>${contributionsI18n.type}</th>
+                            <th>${contributionsI18n.description}</th>
+                            <th>${contributionsI18n.example}</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><code>date</code></td>
                             <td>string (YYYY-MM-DD)</td>
-                            <td>Specific date</td>
+                            <td>${contributionsI18n.specificDate}</td>
                             <td><code>2022-07-08</code></td>
                         </tr>
                         <tr>
                             <td><code>date_from</code></td>
                             <td>string (YYYY-MM-DD)</td>
-                            <td>Start date of period</td>
+                            <td>${contributionsI18n.startDateOfPeriod}</td>
                             <td><code>2022-07-08</code></td>
                         </tr>
                         <tr>
                             <td><code>date_to</code></td>
                             <td>string (YYYY-MM-DD)</td>
-                            <td>End date of period</td>
+                            <td>${contributionsI18n.endDateOfPeriod}</td>
                             <td><code>2022-07-09</code></td>
                         </tr>
                         <tr>
                             <td><code>start_time</code></td>
                             <td>string (HH:MM)</td>
-                            <td>Start time (optional)</td>
+                            <td>${contributionsI18n.startTimeOptional}</td>
                             <td><code>18:00</code></td>
                         </tr>
                         <tr>
                             <td><code>end_time</code></td>
                             <td>string (HH:MM)</td>
-                            <td>End time (optional)</td>
+                            <td>${contributionsI18n.endTimeOptional}</td>
                             <td><code>19:00</code></td>
                         </tr>
                     </tbody>
@@ -173,43 +209,43 @@ function createContributionsApiModal() {
             </div>
             
             <div class="endpoint-section">
-                <h3>🔐 Authentication</h3>
-                <p>Include your token in the Authorization header:</p>
+                <h3>🔐 ${contributionsI18n.authenticationTitle}</h3>
+                <p>${contributionsI18n.includeTokenHeader}</p>
                 <pre><code>Authorization: Token YOUR_TOKEN_HERE</code></pre>
             </div>
             
             <div class="endpoint-section">
-                <h3>📝 Example Requests</h3>
+                <h3>📝 ${contributionsI18n.exampleRequestsTitle}</h3>
                 
-                <p><strong>Get program for a specific date:</strong></p>
+                <p><strong>${contributionsI18n.getProgramSpecificDate}</strong></p>
                 <pre><code>curl -H "Authorization: Token YOUR_TOKEN" \\
-  "http://localhost:8010/contributions/api/program/?date=2022-07-08"</code></pre>
-                <button class="copy-btn" onclick="copyContributionsCurl1()">Copy</button>
+  "${contributionsApiEndpointUrl}?date=2022-07-08"</code></pre>
+                <button class="copy-btn" onclick="copyContributionsCurl1()">${contributionsI18n.copy}</button>
                 
-                <p><strong>Get program for a date range:</strong></p>
+                <p><strong>${contributionsI18n.getProgramDateRange}</strong></p>
                 <pre><code>curl -H "Authorization: Token YOUR_TOKEN" \\
-  "http://localhost:8010/contributions/api/program/?date_from=2022-07-08&date_to=2022-07-09"</code></pre>
-                <button class="copy-btn" onclick="copyContributionsCurl2()">Copy</button>
+  "${contributionsApiEndpointUrl}?date_from=2022-07-08&date_to=2022-07-09"</code></pre>
+                <button class="copy-btn" onclick="copyContributionsCurl2()">${contributionsI18n.copy}</button>
                 
-                <p><strong>Get program with time filter:</strong></p>
+                <p><strong>${contributionsI18n.getProgramTimeFilter}</strong></p>
                 <pre><code>curl -H "Authorization: Token YOUR_TOKEN" \\
-  "http://localhost:8010/contributions/api/program/?date=2022-07-08&start_time=18:00&end_time=19:00"</code></pre>
-                <button class="copy-btn" onclick="copyContributionsCurl3()">Copy</button>
+  "${contributionsApiEndpointUrl}?date=2022-07-08&start_time=18:00&end_time=19:00"</code></pre>
+                <button class="copy-btn" onclick="copyContributionsCurl3()">${contributionsI18n.copy}</button>
                 
-                <p><strong>JavaScript Example:</strong></p>
-                <pre><code>fetch('http://localhost:8010/contributions/api/program/?date=2022-07-08', {
+                <p><strong>${contributionsI18n.javascriptExample}</strong></p>
+                <pre><code>fetch('${contributionsApiEndpointUrl}?date=2022-07-08', {
   headers: {
     'Authorization': 'Token YOUR_TOKEN'
   }
 })
 .then(response => response.json())
 .then(data => console.log(data));</code></pre>
-                <button class="copy-btn" onclick="copyContributionsJs()">Copy</button>
+                <button class="copy-btn" onclick="copyContributionsJs()">${contributionsI18n.copy}</button>
             </div>
             
             <div class="endpoint-section">
-                <h3>📤 Response Format</h3>
-                <p>Returns an array of program entries:</p>
+                <h3>📤 ${contributionsI18n.responseFormatTitle}</h3>
+                <p>${contributionsI18n.returnsArray}</p>
                 <pre><code>[
   {
     "broadcast_date": "2022-07-08",
@@ -238,11 +274,11 @@ function createContributionsApiModal() {
     "number": ""
   }
 ]</code></pre>
-                <button class="copy-btn" onclick="copyContributionsResponse()">Copy</button>
+                <button class="copy-btn" onclick="copyContributionsResponse()">${contributionsI18n.copy}</button>
             </div>
             
             <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
-                <p style="margin: 0;"><strong>⚠️ Note:</strong> Screen boards (Info blocks) are automatically added for gaps between programs. Consecutive info blocks are merged.</p>
+                <p style="margin: 0;"><strong>⚠️ ${contributionsI18n.note}</strong> ${contributionsI18n.noteText}</p>
             </div>
         </div>
     `;
@@ -274,31 +310,31 @@ function closeContributionsApiModal() {
 
 function copyContributionsCurl1() {
     const text = `curl -H "Authorization: Token YOUR_TOKEN" \\
-  "http://localhost:8010/contributions/api/program/?date=2022-07-08"`;
-    copyContributionsToClipboard(text, 'cURL command copied!');
+  "${contributionsApiEndpointUrl}?date=2022-07-08"`;
+    copyContributionsToClipboard(text, contributionsI18n.copyCurlCopied);
 }
 
 function copyContributionsCurl2() {
     const text = `curl -H "Authorization: Token YOUR_TOKEN" \\
-  "http://localhost:8010/contributions/api/program/?date_from=2022-07-08&date_to=2022-07-09"`;
-    copyContributionsToClipboard(text, 'cURL command copied!');
+  "${contributionsApiEndpointUrl}?date_from=2022-07-08&date_to=2022-07-09"`;
+    copyContributionsToClipboard(text, contributionsI18n.copyCurlCopied);
 }
 
 function copyContributionsCurl3() {
     const text = `curl -H "Authorization: Token YOUR_TOKEN" \\
-  "http://localhost:8010/contributions/api/program/?date=2022-07-08&start_time=18:00&end_time=19:00"`;
-    copyContributionsToClipboard(text, 'cURL command copied!');
+  "${contributionsApiEndpointUrl}?date=2022-07-08&start_time=18:00&end_time=19:00"`;
+    copyContributionsToClipboard(text, contributionsI18n.copyCurlCopied);
 }
 
 function copyContributionsJs() {
-    const text = `fetch('http://localhost:8010/contributions/api/program/?date=2022-07-08', {
+    const text = `fetch('${contributionsApiEndpointUrl}?date=2022-07-08', {
   headers: {
     'Authorization': 'Token YOUR_TOKEN'
   }
 })
 .then(response => response.json())
 .then(data => console.log(data));`;
-    copyContributionsToClipboard(text, 'JavaScript code copied!');
+    copyContributionsToClipboard(text, contributionsI18n.copyJsCopied);
 }
 
 function copyContributionsResponse() {
@@ -317,7 +353,7 @@ function copyContributionsResponse() {
     "number": "14755"
   }
 ]`;
-    copyContributionsToClipboard(text, 'Response example copied!');
+    copyContributionsToClipboard(text, contributionsI18n.copyResponseCopied);
 }
 
 function copyContributionsToClipboard(text, message) {
@@ -348,7 +384,7 @@ function fallbackContributionsCopy(text, message) {
         showContributionsNotification(message);
     } catch (err) {
         console.error('Fallback: Could not copy text: ', err);
-        showContributionsNotification('Failed to copy to clipboard');
+        showContributionsNotification(contributionsI18n.copyFailed);
     }
     
     document.body.removeChild(textArea);
@@ -395,7 +431,7 @@ function showContributionsNotification(message) {
 {% if show_api_docs %}
 <li>
     <a href="#" onclick="showContributionsApiModal(); return false;" class="button" style="background: #007bff; color: white;">
-        📡 API Documentation
+        📡 {% trans "API Documentation" %}
     </a>
 </li>
 {% endif %}
