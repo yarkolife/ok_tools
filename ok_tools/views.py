@@ -139,7 +139,7 @@ def dashboard(request):
         else:
             context['user_display_name'] = request.user.username
     else:
-        context['user_display_name'] = request.user.username
+        context['user_display_name'] = request.user.username or request.user.email or "User"
 
     return render(request, 'dashboard.html', context)
 
@@ -373,12 +373,12 @@ class RentalDashboardView(LoginRequiredMixin, TemplateView):
                 context['user_display_name'] = profile.last_name
             else:
                 # Fallback to user's email or username
-                context['user_display_name'] = self.request.user.email or self.request.user.username
+                context['user_display_name'] = self.request.user.email or self.request.user.username or "User"
 
         except Profile.DoesNotExist:
             context['profile'] = None
             # Fallback to user's email or username
-            context['user_display_name'] = self.request.user.email or self.request.user.username
+            context['user_display_name'] = self.request.user.email or self.request.user.username or "User"
 
         # Add user ID for JavaScript API calls
         context['user_id'] = self.request.user.id

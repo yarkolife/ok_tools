@@ -136,11 +136,11 @@
                                 <button class="btn btn-link dropdown-toggle text-decoration-none p-0" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-initials-circle">
                                         {% if user_display_name %}
-                                            {{ user_display_name|first|upper }}
+                                            {{ user_display_name|default:""|first|upper }}
                                         {% elif user.get_full_name %}
-                                            {{ user.get_full_name|first|upper }}
+                                            {{ user.get_full_name|default:""|first|upper }}
                                         {% else %}
-                                            {{ user.username|first|upper }}
+                                            {{ user.username|default:"?"|first|upper }}
                                         {% endif %}
                                     </div>
                                 </button>

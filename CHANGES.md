@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+2026-02-12 (Version 4.0.14)
+==========================
+
+* **Bug Fix: Dashboard 500 Error - NoneType in Template Filter**
+  * Fixed `TypeError: 'NoneType' object is not subscriptable` in dashboard template rendering
+    * Error occurred when `user_display_name` was `None` and filter `first` was applied
+    * Added `default` filter protection in `base.html` template (lines 139, 141, 143)
+    * Fixed `views.py` to ensure `user_display_name` is never `None` (dashboard view and RentalDashboardView)
+    * Fallback chain: username → email → "User" for guaranteed string value
+  * **Files modified:**
+    * `ok_tools/templates/base.html` - Added `|default:""` filter before `|first|upper`
+    * `ok_tools/views.py` - Added fallback to "User" when username/email are None
+
 2026-02-11 (Version 4.0.13)
 ==========================
 
