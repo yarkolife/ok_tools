@@ -749,7 +749,7 @@ For questions about the architecture or development setup, please refer to:
 - Architecture reports: `architecture/` directory
 
 **Last Updated**: February 2026
-**Version**: 1.2
+**Version**: 1.3
 
 ## API Documentation
 

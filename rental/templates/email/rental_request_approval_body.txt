@@ -9,7 +9,7 @@
 {% blocktrans with purpose=purpose %}Purpose: {{ purpose }}{% endblocktrans %}
 {% blocktrans with start=start end=end %}Period: {{ start }} – {{ end }}{% endblocktrans %}
 
+{% trans "View:" %} {{ staff_rental_url }}
 {% trans "Approve:" %} {{ approve_url }}
 {% trans "Decline:" %} {{ deny_url }}
-
 

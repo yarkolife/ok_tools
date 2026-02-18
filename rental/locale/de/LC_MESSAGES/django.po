@@ -1134,11 +1134,16 @@ msgstr "Zeitraum: %(start)s – %(end)s"
 
 #: rental/templates/email/rental_request_approval_body.html:15
 #: rental/templates/email/rental_request_approval_body.txt:12
-msgid "Approve:"
-msgstr "Genehmigen:"
+msgid "View:"
+msgstr "Ansehen:"
 
 #: rental/templates/email/rental_request_approval_body.html:16
 #: rental/templates/email/rental_request_approval_body.txt:13
+msgid "Approve:"
+msgstr "Genehmigen:"
+
+#: rental/templates/email/rental_request_approval_body.html:17
+#: rental/templates/email/rental_request_approval_body.txt:14
 msgid "Decline:"
 msgstr "Ablehnen:"
 

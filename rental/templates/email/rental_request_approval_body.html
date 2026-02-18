@@ -12,5 +12,6 @@
   {% blocktrans with start=start end=end %}Period: {{ start }} – {{ end }}{% endblocktrans %}
 </p>
 
+<p>{% trans "View:" %} <a href="{{ staff_rental_url }}">{{ staff_rental_url }}</a></p>
 <p>{% trans "Approve:" %} <a href="{{ approve_url }}">{{ approve_url }}</a></p>
 <p>{% trans "Decline:" %} <a href="{{ deny_url }}">{{ deny_url }}</a></p>

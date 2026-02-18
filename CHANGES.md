@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+2026-02-18 (Version 4.0.15)
+==========================
+
+* **Rental: dashboard date/time defaults and period handling**
+  * Improved date input synchronization in rental dashboard JavaScript.
+  * Added automatic default times for period selection and safer end-date correction logic.
+  * Updated hint fields to date-only UX while preserving datetime values for backend submission.
+
+* **Rental: admin approval emails now include direct staff view link**
+  * Added "View" URL to both HTML and plain-text approval email templates.
+  * Extended email context generation and updated German translations.
+  * Added test coverage to verify staff detail link in outbound admin emails.
+
+* **Austausch: robust status consistency after successful import retry**
+  * Ensured `ExchangeItem` status fields are corrected to imported state after successful completion.
+  * Prevented stale failed-state metadata from previous retries.
+
 2026-02-12 (Version 4.0.14)
 ==========================
 

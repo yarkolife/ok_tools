@@ -2,10 +2,12 @@
 
 import pytest
 from django.core import signing
+from django.core import mail
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from rental.email_approval import send_admin_approval_email
 from rental.models import RentalRequest
 
 
@@ -91,4 +93,43 @@ def test__rental__email_approval__token_mismatch_returns_400(django_user_model):
     resp = c.get(url)
     assert resp.status_code == 400
 
+
+@pytest.mark.django_db
+def test__rental__email_approval__admin_email_contains_staff_view_link(settings, django_user_model):
+    """Admin approval email contains a staff detail link for simple view."""
+    settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    settings.SITE_BASE_URL = "https://portal.okmq.de"
+
+    requester = django_user_model.objects.create_user(email="requester@example.com", password="pwd")
+    django_user_model.objects.create_user(
+        email="staff@example.com",
+        password="pwd",
+        is_staff=True,
+        is_active=True,
+    )
+
+    start = timezone.now()
+    end = start + timezone.timedelta(days=1)
+    rr = RentalRequest.objects.create(
+        user=requester,
+        created_by=requester,
+        project_name="Project",
+        purpose="Purpose",
+        requested_start_date=start,
+        requested_end_date=end,
+        rental_type="equipment",
+        notes="",
+        status="draft",
+    )
+
+    send_admin_approval_email(rental_request=rr)
+
+    assert len(mail.outbox) == 1
+    email = mail.outbox[0]
+    expected_staff_url = f"https://portal.okmq.de/rental/rental/{rr.id}/"
+    assert expected_staff_url in email.body
+
+    assert email.alternatives
+    html_body = email.alternatives[0][0]
+    assert expected_staff_url in html_body
 

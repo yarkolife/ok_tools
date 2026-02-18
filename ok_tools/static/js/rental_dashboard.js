@@ -44,13 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         bindEvents() {
-            // Date field event listeners
             const startDateField = document.querySelector('input[name="start_date"]');
+            const endDateField = document.querySelector('input[name="end_date"]');
+
             if (startDateField) {
                 this.setupDateFieldConstraints(startDateField, null);
                 startDateField.addEventListener('change', this.debounce(() => {
-                    // Update end_date min when start_date changes
-                    const endDateField = document.querySelector('input[name="end_date"]');
+                    this.ensureDateTimeDefaults();
                     if (endDateField && startDateField.value) {
                         this.setupDateFieldConstraints(endDateField, startDateField.value);
                     }
@@ -58,15 +58,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 300));
             }
 
-            const endDateField = document.querySelector('input[name="end_date"]');
             if (endDateField) {
-                // Initial setup will be done after start_date is set
-                const startDate = startDateField?.value;
-                this.setupDateFieldConstraints(endDateField, startDate);
+                this.setupDateFieldConstraints(endDateField, startDateField?.value || null);
                 endDateField.addEventListener('change', this.debounce(() => {
+                    this.ensureDateTimeDefaults();
                     this.loadInventoryIfPeriodSelected();
                 }, 300));
             }
+
+            this.ensureDateTimeDefaults();
 
             // Filter event listeners
             const inventorySearch = document.getElementById('inventorySearch');
@@ -125,7 +125,91 @@ document.addEventListener('DOMContentLoaded', function() {
             if (addRoomToRentalBtn) addRoomToRentalBtn.addEventListener('click', this.addRoomToRental.bind(this));
         }
 
-        // Setup date field constraints (min date only, default time behavior)
+        addDaysToDateString(dateString, days) {
+            if (!dateString) return '';
+            const date = new Date(`${dateString}T00:00:00`);
+            if (Number.isNaN(date.getTime())) return '';
+            date.setDate(date.getDate() + days);
+            return date.toISOString().slice(0, 10);
+        }
+
+        getCurrentTimeHHMM() {
+            const now = new Date();
+            return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        }
+
+        buildDateTimeValue(datePart, defaultTime) {
+            if (!datePart) return '';
+            return `${datePart}T${defaultTime}`;
+        }
+
+        ensureDateTimeDefaults() {
+            const startDateField = document.querySelector('input[name="start_date"]');
+            const endDateField = document.querySelector('input[name="end_date"]');
+            if (!startDateField || !endDateField) return;
+
+            const startRaw = startDateField.value || '';
+            const endRaw = endDateField.value || '';
+
+            if (!startRaw && !endRaw) {
+                return;
+            }
+
+            const currentTime = this.getCurrentTimeHHMM();
+
+            if (startRaw && !startRaw.includes('T')) {
+                startDateField.value = this.buildDateTimeValue(startRaw, currentTime);
+            }
+
+            if (endRaw && !endRaw.includes('T')) {
+                endDateField.value = this.buildDateTimeValue(endRaw, '18:00');
+            }
+
+            const startValue = startDateField.value;
+            let endValue = endDateField.value;
+
+            const computeDefaultEndFromStart = (startDateTimeValue, allowSameDayDefault = true) => {
+                const startDate = new Date(startDateTimeValue);
+                if (Number.isNaN(startDate.getTime())) return '';
+                const startDatePart = startDateTimeValue.slice(0, 10);
+                const afterWorkday = (startDate.getHours() > 18) || (startDate.getHours() === 18 && startDate.getMinutes() > 0);
+                if (afterWorkday && !allowSameDayDefault) {
+                    return '';
+                }
+                const targetDate = afterWorkday ? this.addDaysToDateString(startDatePart, 1) : startDatePart;
+                return this.buildDateTimeValue(targetDate, '18:00');
+            };
+
+            if (startValue && !endValue) {
+                endValue = computeDefaultEndFromStart(startValue, false);
+                if (endValue) {
+                    endDateField.value = endValue;
+                }
+            }
+
+            if (!startValue || !endDateField.value) {
+                return;
+            }
+
+            const startDateTime = new Date(startDateField.value);
+            const endDateTime = new Date(endDateField.value);
+            if (Number.isNaN(startDateTime.getTime()) || Number.isNaN(endDateTime.getTime())) {
+                return;
+            }
+
+            if (endDateTime <= startDateTime) {
+                endDateField.value = computeDefaultEndFromStart(startDateField.value);
+
+                // Safety fallback: if start is already after 18:00, force next day end.
+                const correctedEnd = new Date(endDateField.value);
+                if (!Number.isNaN(correctedEnd.getTime()) && correctedEnd <= startDateTime) {
+                    const nextDay = this.addDaysToDateString(startDateField.value.slice(0, 10), 1);
+                    endDateField.value = this.buildDateTimeValue(nextDay, '18:00');
+                }
+            }
+        }
+
+        // Setup date field constraints (min date only)
         setupDateFieldConstraints(field, minStartDate) {
             if (!field) return;
             
@@ -142,10 +226,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 minDate = new Date(today);
             }
             
-            // Format as datetime-local string (YYYY-MM-DDTHH:MM)
-            // Use default time (00:00) to allow any time selection
+            // Format as input-compatible string
             minDate.setHours(0, 0, 0, 0);
-            const minDateString = minDate.toISOString().slice(0, 16);
+            const minDateString = field.type === 'date'
+                ? minDate.toISOString().slice(0, 10)
+                : minDate.toISOString().slice(0, 16);
             field.min = minDateString;
             
             // Clear max to allow any time selection (no time restrictions)
@@ -154,14 +239,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Check if period is selected
         isPeriodSelected() {
-            const startDate = document.querySelector('[name="start_date"]')?.value;
-            const endDate = document.querySelector('[name="end_date"]')?.value;
+            const startDate = document.querySelector('input[name="start_date"]')?.value;
+            const endDate = document.querySelector('input[name="end_date"]')?.value;
             return Boolean(startDate && endDate);
         }
 
         // Load inventory only if period is selected
         loadInventoryIfPeriodSelected() {
             if (this.isPeriodSelected()) {
+                this.ensureDateTimeDefaults();
                 this.loadInventory();
             }
         }
@@ -672,11 +758,11 @@ const status = (rental.status || '').toLowerCase();
                             </div>
                             <div class="mb-2">
                                 <label class="form-label form-label-sm">${gettext('From:')}</label>
-                                <input name="start_date_hint" type="datetime-local" class="form-control form-control-sm" required>
+                                <input name="start_date_hint" type="date" class="form-control form-control-sm" required>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label form-label-sm">${gettext('To:')}</label>
-                                <input name="end_date_hint" type="datetime-local" class="form-control form-control-sm" required>
+                                <input name="end_date_hint" type="date" class="form-control form-control-sm" required>
                             </div>
                         </div>
                         <p class="mt-3 text-muted">${gettext('Select dates above to view availability')}</p>
@@ -684,53 +770,53 @@ const status = (rental.status || '').toLowerCase();
                 </div>
             `;
             
-            // Sync hint fields with main fields
             const startHintField = grid.querySelector('input[name="start_date_hint"]');
             const endHintField = grid.querySelector('input[name="end_date_hint"]');
             const startMainField = document.querySelector('input[name="start_date"]');
             const endMainField = document.querySelector('input[name="end_date"]');
+            const currentTime = this.getCurrentTimeHHMM();
             
             if (startHintField && startMainField) {
-                startHintField.value = startMainField.value || '';
-                // Setup constraints for hint field
+                startHintField.value = (startMainField.value || '').slice(0, 10);
                 this.setupDateFieldConstraints(startHintField, null);
                 startHintField.addEventListener('change', (e) => {
                     if (startMainField) {
-                        startMainField.value = e.target.value;
-                        // Update end_date min when start_date changes
+                        if (e.target.value) {
+                            startMainField.value = `${e.target.value}T${currentTime}`;
+                        }
                         if (endMainField && e.target.value) {
                             this.setupDateFieldConstraints(endMainField, e.target.value);
                         }
-                        // Also update hint end_date
                         if (endHintField && e.target.value) {
                             this.setupDateFieldConstraints(endHintField, e.target.value);
                         }
-                        startMainField.dispatchEvent(new Event('change'));
+                        this.ensureDateTimeDefaults();
+                        startMainField.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 });
             }
             
             if (endHintField && endMainField) {
-                endHintField.value = endMainField.value || '';
-                const startDate = startMainField?.value || startHintField?.value;
-                // Setup constraints for hint field
+                endHintField.value = (endMainField.value || '').slice(0, 10);
+                const startDate = (startMainField?.value || '').slice(0, 10) || startHintField?.value;
                 this.setupDateFieldConstraints(endHintField, startDate);
                 endHintField.addEventListener('change', (e) => {
                     if (endMainField) {
-                        endMainField.value = e.target.value;
-                        endMainField.dispatchEvent(new Event('change'));
+                        if (e.target.value) {
+                            endMainField.value = `${e.target.value}T18:00`;
+                        }
+                        this.ensureDateTimeDefaults();
+                        endMainField.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 });
             }
             
-            // Also sync main fields changes to hint fields
             if (startMainField && startHintField) {
                 const syncStartHandler = () => {
-                    if (startHintField && startMainField.value) {
-                        startHintField.value = startMainField.value;
-                        // Update hint end_date constraints when main start_date changes
+                    if (startHintField) {
+                        startHintField.value = (startMainField.value || '').slice(0, 10);
                         if (endHintField) {
-                            this.setupDateFieldConstraints(endHintField, startMainField.value);
+                            this.setupDateFieldConstraints(endHintField, (startMainField.value || '').slice(0, 10));
                         }
                     }
                 };
@@ -739,8 +825,8 @@ const status = (rental.status || '').toLowerCase();
             
             if (endMainField && endHintField) {
                 const syncEndHandler = () => {
-                    if (endHintField && endMainField.value) {
-                        endHintField.value = endMainField.value;
+                    if (endHintField) {
+                        endHintField.value = (endMainField.value || '').slice(0, 10);
                     }
                 };
                 endMainField.addEventListener('change', syncEndHandler);
@@ -2309,19 +2395,16 @@ const status = (rental.status || '').toLowerCase();
                 return;
             }
 
-            // Fill start date and time
             const startDateField = document.querySelector('[name="start_date"]');
-            if (startDateField) {
-                const startDateTime = `${startDate}T${startTime}`;
-                startDateField.value = startDateTime;
+            const endDateField = document.querySelector('[name="end_date"]');
+
+            if (startDateField) startDateField.value = `${startDate}T${startTime}`;
+            if (endDateField) {
+                this.setupDateFieldConstraints(endDateField, `${startDate}T${startTime}`);
+                endDateField.value = `${endDate}T${endTime}`;
             }
 
-            // Fill end date and time
-            const endDateField = document.querySelector('[name="end_date"]');
-            if (endDateField) {
-                const endDateTime = `${endDate}T${endTime}`;
-                endDateField.value = endDateTime;
-            }
+            this.ensureDateTimeDefaults();
 
             // Enable the fields
             if (startDateField) startDateField.disabled = false;
@@ -2330,6 +2413,8 @@ const status = (rental.status || '').toLowerCase();
 
         async createRental(action = 'reserved') {
             try {
+                this.ensureDateTimeDefaults();
+
                 // Validate project info
                 const projectName = document.querySelector('[name="project_name"]').value.trim();
                 if (!projectName) {

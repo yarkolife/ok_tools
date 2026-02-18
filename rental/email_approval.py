@@ -173,6 +173,7 @@ def send_admin_approval_email(*, rental_request) -> None:
         "approve_url": links.approve_url,
         "deny_url": links.deny_url,
     }
+    context.update(_build_rental_request_urls(rental_request=rental_request))
 
     from_email = getattr(settings, "EMAIL_HOST_USER", "")
 
@@ -339,5 +340,4 @@ def send_user_declined_email(*, rental_request) -> None:
         )
     finally:
         translation.deactivate()
-
 

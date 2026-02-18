@@ -370,6 +370,15 @@ def download_exchange_files_task(self, import_record_id):
         import_record.video_file = video_file
         import_record.completed_at = timezone.now()
         import_record.save()
+
+        # Ensure exchange item status is consistent with completed import.
+        # This covers cases where a previous retry attempt marked it as failed.
+        exchange_item.import_status = 'imported'
+        if not exchange_item.imported_at:
+            exchange_item.imported_at = timezone.now()
+        if not exchange_item.imported_license:
+            exchange_item.imported_license = license
+        exchange_item.save(update_fields=['import_status', 'imported_at', 'imported_license', 'last_seen_at'])
         
         # Optionally: enqueue PeerTube upload
         config = ExchangeConfig.get_config()
