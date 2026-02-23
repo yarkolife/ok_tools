@@ -111,6 +111,78 @@ def _duration_seconds(path: str) -> float:
     return float(dur.total_seconds())
 
 
+def _source_fps(path: str) -> Optional[float]:
+    """Return the source video framerate as a float, or None if undetectable."""
+    md = extract_video_metadata(path, fast_mode=False)
+    fps = md.get("fps")
+    if fps is None:
+        return None
+    try:
+        return float(fps)
+    except (TypeError, ValueError):
+        return None
+
+
+def _source_is_vfr(path: str) -> bool:
+    """
+    Return True when the source video has variable frame rate (VFR).
+
+    VFR is detected by comparing r_frame_rate (peak/nominal) with avg_frame_rate
+    (actual average measured over the file).  When they differ by more than 5 %
+    the stream is considered variable and the fps filter must be kept.
+    """
+    cmd = [
+        "ffprobe",
+        "-v", "error",
+        "-select_streams", "v:0",
+        "-show_entries", "stream=r_frame_rate,avg_frame_rate",
+        "-of", "default=nw=1",
+        path,
+    ]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        if result.returncode != 0:
+            # On failure assume VFR to stay safe
+            logger.warning("ffprobe VFR check failed for %s, assuming VFR", path)
+            return True
+
+        def _parse_rate(line: str) -> Optional[float]:
+            line = line.strip()
+            if "=" in line:
+                line = line.split("=", 1)[1]
+            if "/" in line:
+                parts = line.split("/")
+                try:
+                    num, den = float(parts[0]), float(parts[1])
+                    return num / den if den != 0 else None
+                except (ValueError, IndexError):
+                    return None
+            try:
+                return float(line)
+            except ValueError:
+                return None
+
+        r_rate: Optional[float] = None
+        avg_rate: Optional[float] = None
+        for raw_line in result.stdout.splitlines():
+            if raw_line.startswith("r_frame_rate="):
+                r_rate = _parse_rate(raw_line)
+            elif raw_line.startswith("avg_frame_rate="):
+                avg_rate = _parse_rate(raw_line)
+
+        if r_rate is None or avg_rate is None:
+            return False
+
+        return not math.isclose(r_rate, avg_rate, rel_tol=0.01, abs_tol=0.01)
+
+    except subprocess.TimeoutExpired:
+        logger.warning("ffprobe VFR check timed out for %s, assuming VFR", path)
+        return True
+    except Exception as exc:
+        logger.warning("ffprobe VFR check error for %s: %s, assuming VFR", path, exc)
+        return True
+
+
 def _is_still_image(path: str) -> bool:
     """
     Return True for still image files that should be looped as a video stream.
@@ -131,13 +203,39 @@ def _is_still_image(path: str) -> bool:
     }
 
 
-def _base_video_filters(p: EncodePreset) -> str:
-    # Normalize to target size and fps. Use letterboxing to preserve aspect ratio.
+def _base_video_filters(
+    p: EncodePreset,
+    source_fps: Optional[float] = None,
+    is_vfr: bool = False,
+) -> str:
+    """
+    Build the base video filter chain for scale + letterbox + fps + pixel format.
+
+    The fps filter is skipped when the source already matches the target framerate
+    AND the stream is not variable frame rate (VFR).  This avoids expensive frame
+    interpolation/dropping when it is not needed, reducing CPU load significantly.
+    The output fps is still enforced via ``-r`` in the encode arguments.
+    """
+    skip_fps = (
+        source_fps is not None
+        and not is_vfr
+        and abs(source_fps - p.fps) < 0.1
+    )
+    if skip_fps:
+        logger.info(
+            "Skipping fps filter: source fps %.2f matches target %d",
+            source_fps,
+            p.fps,
+        )
+        fps_filter = ""
+    else:
+        fps_filter = f"fps={p.fps},"
+
     return (
         "setpts=PTS-STARTPTS,"
         f"scale={p.width}:{p.height}:force_original_aspect_ratio=decrease,"
         f"pad={p.width}:{p.height}:(ow-iw)/2:(oh-ih)/2,"
-        f"fps={p.fps},format={p.pix_fmt}"
+        f"{fps_filter}format={p.pix_fmt}"
     )
 
 
@@ -260,6 +358,8 @@ def _segment_filter_complex(
     layers: List[OverlayLayer],
     ctx: TemplateContext,
     work_dir: Path,
+    source_fps: Optional[float] = None,
+    is_vfr: bool = False,
 ) -> Tuple[str, List[str]]:
     """
     Build filter_complex and return (filter_complex, extra_inputs).
@@ -283,7 +383,7 @@ def _segment_filter_complex(
             img_inputs.append((len(extra_inputs), layer))  # 1-based relative to extra_inputs
 
     steps: List[str] = []
-    steps.append(f"[0:v]{_base_video_filters(encode)}[base]")
+    steps.append(f"[0:v]{_base_video_filters(encode, source_fps=source_fps, is_vfr=is_vfr)}[base]")
 
     current = "base"
     # Add image overlays first.
@@ -1120,10 +1220,14 @@ def _render_segment_to_ts(
     *,
     ss: Optional[float] = None,
     t: Optional[float] = None,
+    source_fps: Optional[float] = None,
+    is_vfr: bool = False,
 ) -> None:
     work_dir = Path(output_ts).parent
     work_dir.mkdir(parents=True, exist_ok=True)
-    filter_complex, extra_inputs = _segment_filter_complex(encode, layers, ctx, work_dir)
+    filter_complex, extra_inputs = _segment_filter_complex(
+        encode, layers, ctx, work_dir, source_fps=source_fps, is_vfr=is_vfr
+    )
 
     cmd: List[str] = ["ffmpeg", "-y"]
     # IMPORTANT: -ss/-t must be input options here so filter time (t) starts from 0.
@@ -1176,8 +1280,21 @@ def _final_video_label(filter_complex: str) -> str:
     return tail.split("[")[-1].split("]")[0]
 
 
-def _render_main_to_ts(input_video: str, output_ts: str, encode: EncodePreset) -> None:
-    vf = _base_video_filters(encode)
+def _render_main_to_ts(
+    input_video: str,
+    output_ts: str,
+    encode: EncodePreset,
+    source_fps: Optional[float] = None,
+    is_vfr: bool = False,
+) -> None:
+    if source_fps is None:
+        source_fps = _source_fps(input_video)
+    if not is_vfr:
+        is_vfr = _source_is_vfr(input_video)
+        if is_vfr:
+            logger.info("VFR detected for %s, keeping fps filter", input_video)
+
+    vf = _base_video_filters(encode, source_fps=source_fps, is_vfr=is_vfr)
     cmd: List[str] = ["ffmpeg", "-y", "-i", input_video]
 
     has_audio = _has_audio(input_video)
@@ -1225,9 +1342,33 @@ def render_with_intro_outro(
         main_ts = str(Path(tmp) / "main.ts")
         outro_ts = str(Path(tmp) / "outro.ts")
 
-        _render_segment_to_ts(intro_video, intro_ts, encode, intro_layers, ctx)
-        _render_main_to_ts(main_video, main_ts, encode)
-        _render_segment_to_ts(outro_video, outro_ts, encode, outro_layers, ctx)
+        # Compute source fps once per input file to skip the fps filter when
+        # the source already matches the target.  VFR streams always keep the filter.
+        intro_fps = _source_fps(intro_video)
+        intro_vfr = _source_is_vfr(intro_video)
+        if intro_vfr:
+            logger.info("VFR detected for %s, keeping fps filter", intro_video)
+        main_fps = _source_fps(main_video)
+        main_vfr = _source_is_vfr(main_video)
+        if main_vfr:
+            logger.info("VFR detected for %s, keeping fps filter", main_video)
+        outro_fps = _source_fps(outro_video)
+        outro_vfr = _source_is_vfr(outro_video)
+        if outro_vfr:
+            logger.info("VFR detected for %s, keeping fps filter", outro_video)
+
+        _render_segment_to_ts(
+            intro_video, intro_ts, encode, intro_layers, ctx,
+            source_fps=intro_fps, is_vfr=intro_vfr,
+        )
+        _render_main_to_ts(
+            main_video, main_ts, encode,
+            source_fps=main_fps, is_vfr=main_vfr,
+        )
+        _render_segment_to_ts(
+            outro_video, outro_ts, encode, outro_layers, ctx,
+            source_fps=outro_fps, is_vfr=outro_vfr,
+        )
 
         concat_input = f"concat:{intro_ts}|{main_ts}|{outro_ts}"
         cmd = [
@@ -1275,7 +1416,17 @@ def render_with_overlays_on_main_edges(
         main_ts = str(Path(tmp) / "main.ts")
         outro_ts = str(Path(tmp) / "outro.ts")
 
-        _render_segment_to_ts(main_video, intro_ts, encode, intro_layers, ctx, ss=0.0, t=seg)
+        # Compute source fps once; all segments come from the same main_video.
+        main_fps = _source_fps(main_video)
+        main_vfr = _source_is_vfr(main_video)
+        if main_vfr:
+            logger.info("VFR detected for %s, keeping fps filter", main_video)
+
+        _render_segment_to_ts(
+            main_video, intro_ts, encode, intro_layers, ctx,
+            ss=0.0, t=seg,
+            source_fps=main_fps, is_vfr=main_vfr,
+        )
         if mid > 0.01:
             # Middle part: no overlay.
             # We render it as a segment with ss/t so concat timings align.
@@ -1290,7 +1441,7 @@ def render_with_overlays_on_main_edges(
                         f"anullsrc=channel_layout=stereo:sample_rate={encode.audio_sample_rate}",
                     ]
                 )
-            cmd.extend(["-vf", _base_video_filters(encode)])
+            cmd.extend(["-vf", _base_video_filters(encode, source_fps=main_fps, is_vfr=main_vfr)])
             cmd.extend(["-map", "0:v:0"])
             if has_audio:
                 cmd.extend(["-map", "0:a?"])
@@ -1311,6 +1462,8 @@ def render_with_overlays_on_main_edges(
             ctx,
             ss=max(dur - seg, 0.0),
             t=seg,
+            source_fps=main_fps,
+            is_vfr=main_vfr,
         )
 
         concat_input = f"concat:{intro_ts}|{main_ts}|{outro_ts}" if mid > 0.01 else f"concat:{intro_ts}|{outro_ts}"
@@ -1359,7 +1512,17 @@ def render_preview_overlays_on_main_edges(
         intro_ts = str(Path(tmp) / "intro.ts")
         outro_ts = str(Path(tmp) / "outro.ts")
 
-        _render_segment_to_ts(main_video, intro_ts, encode, intro_layers, ctx, ss=0.0, t=seg)
+        # Compute source fps once; both segments come from the same main_video.
+        main_fps = _source_fps(main_video)
+        main_vfr = _source_is_vfr(main_video)
+        if main_vfr:
+            logger.info("VFR detected for %s, keeping fps filter", main_video)
+
+        _render_segment_to_ts(
+            main_video, intro_ts, encode, intro_layers, ctx,
+            ss=0.0, t=seg,
+            source_fps=main_fps, is_vfr=main_vfr,
+        )
         _render_segment_to_ts(
             main_video,
             outro_ts,
@@ -1368,6 +1531,8 @@ def render_preview_overlays_on_main_edges(
             ctx,
             ss=max(dur - seg, 0.0),
             t=seg,
+            source_fps=main_fps,
+            is_vfr=main_vfr,
         )
 
         concat_input = f"concat:{intro_ts}|{outro_ts}"
@@ -1385,4 +1550,3 @@ def render_preview_overlays_on_main_edges(
         _run(cmd)
 
         return RenderArtifacts(output_mp4=str(out_path))
-

@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-02-23 (Version 4.0.16)
+==========================
+
+* **media_files: VFR detection and source FPS helpers for FFmpeg pipeline**
+  * Added `_source_fps()` helper to extract source video framerate via metadata.
+  * Added `_source_is_vfr()` to detect variable frame rate streams using ffprobe r_frame_rate vs avg_frame_rate comparison.
+  * Updated rendering tests to match revised preset API (`segment_duration`, `intro_overlays`, `outro_overlays`).
+
+* **chore: gitignore .claude/ and AGENTS.md**
+  * Excluded AI tooling directories and knowledge base files from version control.
+
 2026-02-18 (Version 4.0.15)
 ==========================
 

@@ -23,8 +23,9 @@ def test_load_presets_smoke():
     encode = load_encode_preset("1080p25_9000k")
 
     assert style.name == "lower_third_v1"
-    assert style.intro_clip
-    assert style.outro_clip
+    assert style.segment_duration > 0
+    assert isinstance(style.intro_overlays, list)
+    assert isinstance(style.outro_overlays, list)
     assert encode.width == 1920
     assert encode.height == 1080
     assert encode.fps == 25
@@ -48,5 +49,3 @@ def test_management_command_refuses_when_disabled():
             "1080p25_9000k",
             "--dry-run",
         )
-
-

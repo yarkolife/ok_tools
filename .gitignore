@@ -133,6 +133,8 @@ coverage.xml
 nosetests.xml
 .cursor/
 .kilocode/
+.claude/
+AGENTS.md
 .github/
 playout/
 
