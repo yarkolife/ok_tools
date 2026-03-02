@@ -248,6 +248,7 @@ def sync_exchange_folders_task(self):
                 final_title = meta_data.get('title') or oktools_metadata.get('title', '')
                 final_description = meta_data.get('description') or oktools_metadata.get('description', '')
                 final_sender = meta_data.get('sender_responsible') or oktools_metadata.get('sendeverantwortung', '')
+                final_duration = meta_data.get('duration') or oktools_metadata.get('duration')
                 
                 # Create or update ExchangeItem (one per package)
                 # Use video file path as unique identifier, or PDF if no video
@@ -265,7 +266,7 @@ def sync_exchange_folders_task(self):
                         'is_legacy': contribution_id is None,
                         'title': final_title,
                         'description': final_description,
-                        'duration': oktools_metadata.get('duration'),
+                        'duration': final_duration,
                         'sendeverantwortung': final_sender,
                     }
                 )

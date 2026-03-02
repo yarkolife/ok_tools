@@ -911,6 +911,7 @@ class NextcloudExchangeService:
         import json
         import tempfile
         import os
+        from django.utils.dateparse import parse_duration
         
         try:
             with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
@@ -948,6 +949,11 @@ class NextcloudExchangeService:
                 # Category is a string (like "Kurzfilm"), keep it for reference
                 pass
             
+            duration_val = None
+            duration_str = data.get('duration')
+            if duration_str:
+                duration_val = parse_duration(str(duration_str))
+                
             result = {
                 'title': str(data.get('name', '')).strip(),
                 'description': str(data.get('description', '')).strip(),
@@ -963,6 +969,7 @@ class NextcloudExchangeService:
                 'youth_protection_necessary': bool(data.get('youthProtectionNecessary', False)),
                 'youth_protection_category': str(data.get('youthProtectionCategory', '')).strip(),
                 'video_number': video_number,  # Store videoNumber if present
+                'duration': duration_val,
             }
             
             logger.debug(

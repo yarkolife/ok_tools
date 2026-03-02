@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-03-02 (Version 4.0.17)
+==========================
+
+* **austausch: Fix duration extraction from Nextcloud meta.json**
+  * Added duration parsing from .meta.json files when syncing Nextcloud exchange folders.
+  * Ensures that durations are correctly populated for ExchangeItems in the database.
+
 2026-02-23 (Version 4.0.16)
 ==========================
 
