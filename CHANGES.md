@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-03-02 (Version 4.0.19)
+==========================
+
+* **admin: Replace emoji icons with Feather Icons (Outline) SVGs**
+  * Replaced all emoji characters (🎬⚠️✅❌🕒📝🗨️▶️🔍⏳📦📡📁📥💾🔢⏱️📊🎛️📋🔐📤📖🔄✓✗☁️📍) with professional inline Feather Icons SVGs across 22 files in 8 apps.
+  * Affected: `planung`, `licenses`, `media_files`, `inventory`, `contributions`, `austausch`, `tools`, `ok_tools`.
+  * Added CSS styles for SVG icon sizing and layout in `planung/static/planung/css/calendar_weeks.css`.
+  * Changed `calendar_weeks.js` comment detection from emoji text matching to `data-has-comment` attribute.
+  * Console/management commands and `.po` translation files are unchanged.
+
 2026-03-02 (Version 4.0.18)
 ==========================
 
