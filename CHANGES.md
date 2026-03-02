@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-03-02 (Version 4.0.18)
+==========================
+
+* **austausch: Fix sync ignoring videos with old modification dates**
+  * Updated Nextcloud sync logic to group files first and check `lookback_date` against the latest modification date in the file group.
+  * Ensures that older video files (e.g. from 2024) are imported if their associated `.meta.json` was recently generated.
+
 2026-03-02 (Version 4.0.17)
 ==========================
 

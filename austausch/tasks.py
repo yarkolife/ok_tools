@@ -139,16 +139,10 @@ def sync_exchange_folders_task(self):
             for item_data in items:
                 total_items += 1
                 
-                # Skip files older than lookback period
-                if item_data.get('modified'):
-                    modified_date = item_data['modified']
-                    # Ensure both datetimes are timezone-aware for comparison
-                    if timezone.is_naive(modified_date):
-                        # Make naive datetime timezone-aware using Django's default timezone
-                        modified_date = timezone.make_aware(modified_date)
-                    if modified_date < lookback_date:
-                        logger.debug(f"Skipping old file: {item_data['filename']} (modified: {modified_date})")
-                        continue
+                # We do not skip individual files by modified_date here because 
+                # a video file might have an old modified_date from when it was created,
+                # but its .meta.json was created recently when added to exchange.
+                # We will check the package's latest modified date after grouping.
                 
                 # Detect file type
                 file_type = NextcloudExchangeService.detect_file_type(
@@ -211,6 +205,20 @@ def sync_exchange_folders_task(self):
             
             # Process grouped files (one ExchangeItem per package)
             for package_key, file_group in files_by_base.items():
+                # Check if package is new enough
+                latest_modified = None
+                for file_key, file_data in file_group.items():
+                    modified_date = file_data.get('modified')
+                    if modified_date:
+                        if timezone.is_naive(modified_date):
+                            modified_date = timezone.make_aware(modified_date)
+                        if latest_modified is None or modified_date > latest_modified:
+                            latest_modified = modified_date
+                            
+                if latest_modified and latest_modified < lookback_date:
+                    logger.debug(f"Skipping old package: {package_key} (latest modified: {latest_modified})")
+                    continue
+                
                 # Get main file (prefer video, then PDF)
                 # PDF is part of package, not a separate item
                 main_file = file_group.get('video') or file_group.get('pdf')
