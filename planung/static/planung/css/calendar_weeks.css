@@ -558,3 +558,29 @@
     flex: 0 1 auto;
   }
 }
+
+.planning-calendar-table .icon-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  font-size: 0.94rem;
+  line-height: 1;
+  color: inherit !important;
+}
+
+.planning-calendar-table .icon-svg {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.planning-calendar-table .clock-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.planning-calendar-table .clock-text {
+  font-size: 0.85em;
+  font-weight: 500;
+}

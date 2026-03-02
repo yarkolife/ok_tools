@@ -5,12 +5,12 @@
   {{ block.super }}
   <li>
     <a href="{% url 'admin:tools_videopreset_import_all' %}" class="addlink" onclick="return confirm('{% trans 'Import all JSON presets from video_presets/style directory?' %}');">
-      📥 {% trans 'Import All Presets' %}
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> {% trans 'Import All Presets' %}
     </a>
   </li>
   <li>
     <a href="#" class="addlink" id="import-single-preset-link" onclick="showImportDialog(); return false;">
-      📥 {% trans 'Import Single Preset' %}
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> {% trans 'Import Single Preset' %}
     </a>
   </li>
 {% endblock %}

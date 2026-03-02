@@ -29,7 +29,7 @@ function createApiModal() {
     modal.innerHTML = `
         <div class="token-api-modal-content">
             <div class="token-api-modal-header">
-                <h2>🔐 API Authentication Token</h2>
+                <h2><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> API Authentication Token</h2>
                 <button class="token-api-modal-close" onclick="closeApiModal()">&times;</button>
             </div>
             
@@ -44,7 +44,7 @@ function createApiModal() {
             </div>
             
             <div class="token-api-endpoints">
-                <h3>📡 API Endpoints</h3>
+                <h3><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg> API Endpoints</h3>
                 
                 <div class="token-api-endpoint">
                     <strong>GET License Metadata:</strong><br>

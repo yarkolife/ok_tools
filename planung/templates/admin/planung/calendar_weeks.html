@@ -105,24 +105,38 @@
           </th>
 
           {% for cell in week.days %}
-            <td class="{{ cell.cls }}"
-                data-status="{% if 'bg-success' in cell.cls %}planned{% elif 'bg-warning' in cell.cls %}draft{% elif 'bg-info' in cell.cls and cell.icon == '🗨️' %}comment{% elif 'bg-info' in cell.cls %}draft{% elif cell.icon %}comment{% else %}empty{% endif %}">
+            <td class="{{ cell.cls }}" data-status="{{ cell.data_status }}">
               <button class="btn btn-sm btn-outline-primary date-cell"
                       data-date="{{ cell.iso }}"
                       data-search="{{ cell.search|default:'' }}"
-                      aria-label="{{ cell.date|date:'d.m.Y' }} {% if 'bg-success' in cell.cls %}{% trans 'Planned' %}{% elif 'bg-warning' in cell.cls %}{% trans 'Draft' %}{% elif 'bg-info' in cell.cls and cell.icon == '🗨️' %}{% trans 'Comment' %}{% elif 'bg-info' in cell.cls %}{% trans 'Draft' %}{% elif cell.icon %}{% trans 'Comment' %}{% else %}{% trans 'Empty' %}{% endif %}">
+                      data-has-comment="{{ cell.has_comment|yesno:'true,false' }}"
+                      aria-label="{{ cell.date|date:'d.m.Y' }} {% if cell.data_status == 'planned' %}{% trans 'Planned' %}{% elif cell.data_status == 'draft' %}{% trans 'Draft' %}{% elif cell.data_status == 'comment' %}{% trans 'Comment' %}{% else %}{% trans 'Empty' %}{% endif %}">
                 {{ cell.date|date:"d.m" }}
                 <span class="date-cell-meta">
-                  {% if cell.icon %}<span class="icon">{{ cell.icon }}</span>{% endif %}
-                  {% if 'bg-success' in cell.cls %}
+                  {% if cell.show_check or cell.show_pencil or cell.show_clock or cell.has_comment %}
+                    <span class="icon-group">
+                      {% if cell.show_check %}
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      {% endif %}
+                      {% if cell.show_pencil %}
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      {% endif %}
+                      {% if cell.show_clock %}
+                        <span class="clock-wrap">
+                          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                          <span class="clock-text">{{ cell.remaining_minutes }} {% trans 'min' %}</span>
+                        </span>
+                      {% endif %}
+                      {% if cell.has_comment %}
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                      {% endif %}
+                    </span>
+                  {% endif %}
+                  {% if cell.data_status == 'planned' %}
                     <span class="status-badge status-badge--planned">{% trans "Planned" %}</span>
-                  {% elif 'bg-warning' in cell.cls %}
+                  {% elif cell.data_status == 'draft' %}
                     <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
-                  {% elif 'bg-info' in cell.cls and cell.icon == '🗨️' %}
-                    <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
-                  {% elif 'bg-info' in cell.cls %}
-                    <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
-                  {% elif cell.icon %}
+                  {% elif cell.data_status == 'comment' %}
                     <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
                   {% else %}
                     <span class="status-badge status-badge--empty">{% trans "Empty" %}</span>

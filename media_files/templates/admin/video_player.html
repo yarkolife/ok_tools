@@ -33,7 +33,7 @@
             <!-- Browser compatibility warning -->
             <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin-bottom: 15px;">
                 <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="font-size: 24px;">⚠️</span>
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>
                     <div>
                         <strong style="color: #856404;">{% trans "Browser Compatibility Issue" %}</strong>
                         <p style="margin: 5px 0 0 0; color: #856404;">
@@ -74,20 +74,20 @@
             
             <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                 <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
-                    <strong>📁 {% trans "File Path (Linux)" %}:</strong>
+                    <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> {% trans "File Path (Linux)" %}:</strong>
                 </div>
                 <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.full_path }}</code>
                 
                 {% if video.unc_path %}
                 <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
-                    <strong>💾 {% trans "File Path (Windows UNC)" %}:</strong>
+                    <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {% trans "File Path (Windows UNC)" %}:</strong>
                 </div>
                 <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.unc_path }}</code>
                 {% endif %}
             </div>
         {% else %}
             <div class="error">
-                ❌ {% trans "Video file unavailable. Check path:" %} {{ video.file_path }}
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {% trans "Video file unavailable. Check path:" %} {{ video.file_path }}
             </div>
         {% endif %}
     </div>

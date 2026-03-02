@@ -78,8 +78,8 @@ function submitScan() {
     form.addEventListener('submit', (e) => { e.preventDefault(); e.stopPropagation(); return false; }, { once: true });
 
     const submitBtn = document.querySelector('#scanModal .btn-primary');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = '⏳ {% trans "Scanning..." %}';
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> {% trans "Scanning..." %}';
     submitBtn.disabled = true;
 
     // Build URL robustly (replace storagelocation/<id>/)
@@ -118,14 +118,14 @@ function submitScan() {
             setTimeout(() => location.reload(), 2000);
         } else {
             alert('{% trans "Error" %}: ' + (data.message || '{% trans "Unknown error" %}'));
-            submitBtn.textContent = originalText;
+            submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     })
     .catch(err => {
         console.error('Error:', err);
         alert('{% trans "Error occurred during scanning. Please try again." %}');
-        submitBtn.textContent = originalText;
+        submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     });
 }
@@ -169,7 +169,7 @@ window.addEventListener('DOMContentLoaded', function() {
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header" style="background:#417690;color:#fff;">
-        <h5 class="modal-title">🔍 {% trans "Storage Scan Options" %}</h5>
+        <h5 class="modal-title"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> {% trans "Storage Scan Options" %}</h5>
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeModal()"></button>
       </div>
       <div class="modal-body">
@@ -214,7 +214,7 @@ window.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">{% trans "Cancel" %}</button>
-        <button type="button" class="btn btn-primary" onclick="submitScan()" id="start-scan-btn">▶️ {% trans "Start Scan" %}</button>
+        <button type="button" class="btn btn-primary" onclick="submitScan()" id="start-scan-btn"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> {% trans "Start Scan" %}</button>
       </div>
     </div>
   </div>

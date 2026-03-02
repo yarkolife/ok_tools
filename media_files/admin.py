@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
 
@@ -428,11 +429,11 @@ class StorageLocationAdmin(admin.ModelAdmin):
         if count > 0:
             list_url = reverse('admin:media_files_videofile_changelist') + f'?storage_location__id__exact={obj.id}'
             return format_html(
-                '<a href="{}">{}</a> | <button type="button" onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
+                '<a href="{}">{}</a> | <button type="button" onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Scan</button>',
                 list_url, count, obj.id, obj.name, obj.path, obj.storage_type, obj.video_count
             )
         return format_html(
-            '{} | <button type="button" onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;">🔍 Scan</button>',
+            '{} | <button type="button" onclick="openScanModal({}, \'{}\', \'{}\', \'{}\', {})" class="button" style="padding: 3px 10px; margin-left: 5px;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Scan</button>',
             count, obj.id, obj.name, obj.path, obj.storage_type, obj.video_count
         )
     video_count_display.short_description = _('Videos')
@@ -476,7 +477,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
             task_results_url += f'?task_id__exact={task.id}'
             
             success_message = format_html(
-                '✓ {}: {}<br>{}: <strong>{}</strong><br>'
+                '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}: {}<br>{}: <strong>{}</strong><br>'
                 '<a href="{}" target="_blank">{} →</a>',
                 _("Scan task queued successfully"),
                 storage.name,
@@ -592,7 +593,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
             links_combined = format_html(links_template, *links_html_parts)
             
             message = format_html(
-                '✓ {} {} {}<br>{}',
+                '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {} {} {}<br>{}',
                 _("Scan tasks queued for"),
                 len(task_ids),
                 _("storage location(s)"),
@@ -607,11 +608,11 @@ class StorageLocationAdmin(admin.ModelAdmin):
         
         for storage in queryset:
             if os.path.exists(storage.path) and os.path.isdir(storage.path):
-                self.message_user(request, f'✓ {storage.name}: Connection OK')
+                self.message_user(request, f'<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {storage.name}: Connection OK')
             else:
                 self.message_user(
                     request,
-                    f'✗ {storage.name}: Cannot access path',
+                    f'<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {storage.name}: Cannot access path',
                     level='error'
                 )
     test_connection.short_description = _('Test connection to storage')
@@ -846,7 +847,7 @@ class FPSFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             ('25', _('25 fps (Broadcast Standard)')),
-            ('not_25', _('Not 25 fps (⚠ Warning)')),
+            ('not_25', _('Not 25 fps (Warning)')),
             ('missing', _('FPS not set')),
         )
     
@@ -1712,7 +1713,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         else:
             warning_text = _('FPS is not 25 - not suitable for broadcast')
             return format_html(
-                '<span style="color: #dc3545; font-weight: bold;" title="{}">⚠️ {}</span>',
+                '<span style="color: #dc3545; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span>',
                 warning_text,
                 fps_formatted
             )
@@ -1752,7 +1753,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         try:
             if getattr(obj, 'is_preview', False):
                 return format_html(
-                    '<span style="color: #6c757d;">🎬 {}</span>',
+                    '<span style="color: #6c757d;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</span>',
                     _('Preview clip (not a version)'),
                 )
             # Check for duplicates (same number, any storage; previews excluded by get_all_versions)
@@ -1778,7 +1779,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             
             if is_primary:
                 return format_html(
-                    '<span style="color: #28a745; font-weight: bold;" title="{}">✓ PRIMARY</span><br>'
+                    '<span style="color: #28a745; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> PRIMARY</span><br>'
                     '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                     tooltip,
                     total_count + 1,
@@ -1808,7 +1809,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                         best_archive = max(archive_versions, key=archive_key)
                         if obj.id == best_archive.id:
                             return format_html(
-                                '<span style="color: #17a2b8; font-weight: bold;" title="{}">📦 {}</span><br>'
+                                '<span style="color: #17a2b8; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
                                 '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                                 tooltip,
                                 _('ARCHIVE PRIMARY'),
@@ -1816,7 +1817,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                                 _('versions total')
                             )
                         return format_html(
-                            '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ {}</span><br>'
+                            '<span style="color: #ffc107; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span><br>'
                             '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                             tooltip,
                             _('ARCHIVE DUPLICATE'),
@@ -1826,7 +1827,7 @@ class VideoFileAdmin(admin.ModelAdmin):
 
                 # Single archive copy among multiple storages: treat as canonical archive copy
                 return format_html(
-                    '<span style="color: #17a2b8; font-weight: bold;" title="{}">📦 {}</span><br>'
+                    '<span style="color: #17a2b8; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
                     '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                     tooltip,
                     _('ARCHIVE VERSION'),
@@ -1846,7 +1847,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 
                 if is_old:
                     return format_html(
-                        '<span style="color: #dc3545; font-weight: bold;" title="{}">⚠️ OLD VERSION</span><br>'
+                        '<span style="color: #dc3545; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> OLD VERSION</span><br>'
                         '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                         tooltip,
                         total_count + 1,
@@ -1854,7 +1855,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                     )
 
             return format_html(
-                '<span style="color: #ffc107; font-weight: bold;" title="{}">⚠️ {}</span><br>'
+                '<span style="color: #ffc107; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span><br>'
                 '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
                 tooltip,
                 _('DUPLICATE'),
@@ -1864,7 +1865,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         except Exception as e:
             # Log the error and return neutral indicator to prevent 500
             logger.error(f'Error in duplicates_indicator for VideoFile {obj.id}: {e}', exc_info=True)
-            return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
+            return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
 
     duplicates_indicator.short_description = _('Versions')
     
@@ -1874,24 +1875,24 @@ class VideoFileAdmin(admin.ModelAdmin):
             return '-'
         if getattr(obj, 'is_preview', False):
             return format_html(
-                '<span style="color: #6c757d;">🎬 {}</span><br>'
+                '<span style="color: #6c757d;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</span><br>'
                 '<span style="color: #666;">{}</span>',
                 _('Preview clip'),
                 _('Not linked to license; not counted as a version.'),
             )
         if not obj.has_duplicates:
-            return format_html('<span style="color: #28a745;">✓ Unique (no duplicates)</span>')
+            return format_html('<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> Unique (no duplicates)</span>')
 
         try:
             is_primary = obj.is_primary_version()
         except Exception as e:
             logger.error(f'Error in duplicate_status_display for VideoFile {obj.id}: {e}', exc_info=True)
-            return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
+            return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
         count = obj.duplicate_count
         
         if is_primary:
             return format_html(
-                '<span style="color: #28a745;">✓ PRIMARY VERSION</span><br>'
+                '<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> PRIMARY VERSION</span><br>'
                 '<span style="color: #666;">This is the best quality version. {} duplicate(s) exist.</span>',
                 count
             )
@@ -1899,11 +1900,11 @@ class VideoFileAdmin(admin.ModelAdmin):
             try:
                 primary_versions = [v for v in obj.get_all_versions() if v.is_primary_version()]
                 if not primary_versions:
-                    return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
+                    return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
                 primary = primary_versions[0]
             except Exception as e:
                 logger.error(f'Error selecting primary in duplicate_status_display for VideoFile {obj.id}: {e}', exc_info=True)
-                return format_html('<span style="color: #6c757d;" title="{}">⚠️</span>', _('Error determining status'))
+                return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
             if obj.storage_location and obj.storage_location.storage_type == 'ARCHIVE':
                 archive_versions = list(
                     VideoFile.objects.filter(
@@ -1929,28 +1930,28 @@ class VideoFileAdmin(admin.ModelAdmin):
                     best_archive = max(archive_versions, key=archive_key)
                     if obj.id != best_archive.id:
                         return format_html(
-                            '<span style="color: #ffc107;">⚠️ {}</span><br>'
+                            '<span style="color: #ffc107;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span><br>'
                             '<span style="color: #666;">Keep: <a href="{}">{}</a></span>',
                             _('ARCHIVE DUPLICATE'),
                             reverse('admin:media_files_videofile_change', args=[best_archive.id]),
                             best_archive.filename
                         )
                     return format_html(
-                        '<span style="color: #17a2b8;">📦 {}</span><br>'
+                        '<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
                         '<span style="color: #666;">Other archive versions exist: {}.</span>',
                         _('ARCHIVE PRIMARY'),
                         len(archive_versions) - 1
                     )
 
                 return format_html(
-                    '<span style="color: #17a2b8;">📦 {}</span><br>'
+                    '<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
                     '<span style="color: #666;">Primary version is in: <a href="{}">{}</a></span>',
                     _('ARCHIVE VERSION'),
                     reverse('admin:media_files_videofile_change', args=[primary.id]),
                     primary.storage_location.name
                 )
             return format_html(
-                '<span style="color: #ffc107;">⚠️ {} </span><br>'
+                '<span style="color: #ffc107;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {} </span><br>'
                 '<span style="color: #666;">Primary version is in: <a href="{}">{}</a></span>',
                 _('DUPLICATE VERSION'),
                 reverse('admin:media_files_videofile_change', args=[primary.id]),
@@ -1969,8 +1970,8 @@ class VideoFileAdmin(admin.ModelAdmin):
         if getattr(obj, 'is_preview', False):
             # This record is a preview clip; show note and list full versions only
             intro = format_html(
-                '<div style="padding: 8px; background: #f0f0f0; border-left: 3px solid #6c757d; margin: 5px 0;">'
-                '🎬 <strong>{}</strong></div>',
+                mark_safe('<div style="padding: 8px; background: #f0f0f0; border-left: 3px solid #6c757d; margin: 5px 0;">'
+                '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> <strong>{}</strong></div>'),
                 _('This record is a preview clip (not linked to license). Full versions:'),
             )
         else:
@@ -2015,17 +2016,17 @@ class VideoFileAdmin(admin.ModelAdmin):
             
             # Determine version status
             if is_primary:
-                status = '<span style="color: #28a745; font-weight: bold;">✓ PRIMARY</span>'
+                status = mark_safe('<span style="color: #28a745; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> PRIMARY</span>')
             elif is_current:
-                status = '<span style="color: #007bff; font-weight: bold;">📍 CURRENT</span>'
+                status = mark_safe('<span style="color: #007bff; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> CURRENT</span>')
             else:
                 if v.storage_location and v.storage_location.storage_type == 'ARCHIVE':
                     if best_archive and v.id == best_archive.id:
-                        status = f'<span style="color: #17a2b8;">📦 {_("ARCHIVE PRIMARY")}</span>'
+                        status = mark_safe(f'<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {_("ARCHIVE PRIMARY")}</span>')
                     elif best_archive and v.id != best_archive.id:
-                        status = f'<span style="color: #ffc107;">⚠️ {_("ARCHIVE DUPLICATE")}</span>'
+                        status = mark_safe(f'<span style="color: #ffc107;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {_("ARCHIVE DUPLICATE")}</span>')
                     else:
-                        status = f'<span style="color: #17a2b8;">📦 {_("ARCHIVE VERSION")}</span>'
+                        status = mark_safe(f'<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {_("ARCHIVE VERSION")}</span>')
                 else:
                     # Check if old version
                     is_old = False
@@ -2036,9 +2037,9 @@ class VideoFileAdmin(admin.ModelAdmin):
                         )
                     
                     if is_old:
-                        status = '<span style="color: #dc3545;">⚠️ OLD</span>'
+                        status = mark_safe('<span style="color: #dc3545;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> OLD</span>')
                     else:
-                        status = f'<span style="color: #ffc107;">⚠️ {_("DUPLICATE")}</span>'
+                        status = mark_safe(f'<span style="color: #ffc107;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {_("DUPLICATE")}</span>')
             
             # Build version info
             format_info = v.format.upper() if v.format else '?'
@@ -2086,7 +2087,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             player_text = _("Player")  # Get translated text beforehand
 
             return format_html(
-                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: #417690; text-decoration: none;">🎬 {}</a>',
+                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: #417690; text-decoration: none;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</a>',
                 stream_url,
                 obj.filename or '',
                 number,
@@ -2163,14 +2164,14 @@ class VideoFileAdmin(admin.ModelAdmin):
                     <!-- Render Button -->
                     <div style="margin-top: 15px; text-align: center;">
                         <a href="{}" class="button" style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
-                            🎬 {}
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}
                         </a>
                     </div>
                     
                     <!-- Video Info -->
                     <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
                         <div style="font-size: 12px; color: #333; margin-bottom: 5px;">
-                            <strong>📁 {}:</strong>
+                            <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> {}:</strong>
                         </div>
                         <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{}</code>
                         {}
@@ -2245,7 +2246,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 obj.full_path,
                 f'''
                     <div style="font-size: 12px; color: #333; margin-top: 10px; margin-bottom: 5px;">
-                        <strong>💾 {file_path_windows}:</strong>
+                        <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {file_path_windows}:</strong>
                     </div>
                     <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{obj.unc_path}</code>
                 ''' if obj.unc_path else '',
@@ -3605,8 +3606,8 @@ class SystemManagementProxy(VideoFile):
     """Proxy model to show System Management in admin menu."""
     
     class Meta:
-        verbose_name = _('🎛️ System Management')
-        verbose_name_plural = _('🎛️ System Management')
+        verbose_name = _('System Management')
+        verbose_name_plural = _('System Management')
         proxy = True
 
 

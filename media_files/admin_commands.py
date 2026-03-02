@@ -174,7 +174,7 @@ def system_management_view(request):
                 task_results_url += f'?task_id__exact={task.id}'
                 
                 message = format_html(
-                    '✓ {}! {}: <strong>{}</strong>. {}<br>'
+                    '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}! {}: <strong>{}</strong>. {}<br>'
                     '<a href="{}" target="_blank">{} →</a>',
                     _("Task queued successfully"),
                     _("Task ID"),

@@ -153,36 +153,53 @@ class TagesPlanAdmin(admin.ModelAdmin):
 
                 remaining_seconds = max(max_block_seconds - info["seconds"], 0)
                 remaining_minutes = (remaining_seconds + 59) // 60
-                underplanned_icon = f"🕒{remaining_minutes}{_('min')}"
 
-                if info.get("planned") and info.get("comment"):
-                    cell_cls, icon = "bg-success text-white", "✔🗨️"
-                elif info.get("planned"):
-                    cell_cls, icon = "bg-success text-white", "✔"
-                elif info["seconds"] >= max_block_seconds and not info["draft"] and info.get("comment"):
-                    cell_cls, icon = "bg-success text-white", "✔🗨️"
-                elif info["seconds"] >= max_block_seconds and not info["draft"]:
-                    cell_cls, icon = "bg-success text-white", "✔"
-                elif info["seconds"] >= max_block_seconds and info.get("comment"):
-                    cell_cls, icon = "bg-info text-white", "📝🗨️"
-                elif info["seconds"] >= max_block_seconds:
-                    cell_cls, icon = "bg-info text-white", "📝"
-                elif info["seconds"] > 0 and info.get("comment"):
-                    cell_cls, icon = "bg-warning", f"{underplanned_icon}🗨️"
-                elif info["seconds"] > 0:
-                    cell_cls, icon = "bg-warning", underplanned_icon
-                elif info.get("comment"):
-                    cell_cls, icon = "bg-info", "🗨️"
+                has_comment = bool(info.get("comment"))
+                is_planned = bool(info.get("planned"))
+                is_draft = bool(info["draft"])
+                seconds = info["seconds"]
+                is_full = seconds >= max_block_seconds
+                is_partial = 0 < seconds < max_block_seconds
+
+                # Determine background colors
+                if is_planned or (is_full and not is_draft):
+                    cell_cls = "bg-success text-white"
+                elif is_full:
+                    cell_cls = "bg-info text-white"
+                elif is_partial:
+                    cell_cls = "bg-warning"
+                elif has_comment:
+                    cell_cls = "bg-info"
                 else:
-                    cell_cls, icon = "", ""
+                    cell_cls = ""
+
+                # Determine icon flags
+                show_check = is_planned or (is_full and not is_draft)
+                show_pencil = is_full and is_draft and not is_planned
+                show_clock = is_partial and not is_planned
+
+                # Strict status mapping for frontend filtering
+                if show_check:
+                    data_status = "planned"
+                elif show_pencil or show_clock:
+                    data_status = "draft"
+                elif has_comment:
+                    data_status = "comment"
+                else:
+                    data_status = "empty"
 
                 week_days.append(
                     {
                         "date": day,
                         "iso": iso,
                         "cls": cell_cls,
-                        "icon": icon,
+                        "data_status": data_status,
                         "search": info.get("search_text", ""),
+                        "has_comment": has_comment,
+                        "show_check": show_check,
+                        "show_pencil": show_pencil,
+                        "show_clock": show_clock,
+                        "remaining_minutes": remaining_minutes if show_clock else 0,
                     }
                 )
 
@@ -222,9 +239,9 @@ class TagesPlanAdmin(admin.ModelAdmin):
         Used as a status column in the admin list view.
         """
         if obj.json_plan.get("draft", False):
-            return format_html('<span style="color:#888;font-size:18px;">🕒</span>')
+            return format_html('<svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" width="18" height="18" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>')
         else:
-            return format_html('<span style="color:#0074D9;font-size:18px;">✅</span>')
+            return format_html('<svg viewBox="0 0 24 24" fill="none" stroke="#0074D9" stroke-width="2.5" width="18" height="18" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>')
     is_draft.short_description = _("Draft?")
 
     def show_items(self, obj):

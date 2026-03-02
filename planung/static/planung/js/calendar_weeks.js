@@ -1710,7 +1710,7 @@
         var $btn = $(this);
         var $td = $btn.closest('td');
         var cellText = getDateCellText($btn);
-        var hasComment = $btn.find('.icon').text().indexOf('🗨️') >= 0;
+        var hasComment = String($btn.data('has-comment')).toLowerCase() === 'true';
         var tdStatus = $td.data('status');
         var isPlanned = tdStatus === 'planned';
         var isDraft = tdStatus === 'draft';

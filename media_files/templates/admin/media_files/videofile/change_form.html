@@ -64,15 +64,15 @@
 
 {% if original and original.id %}
 <div class="video-player-section">
-    <h2>🎬 {% trans "Video Player" %}</h2>
+    <h2><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {% trans "Video Player" %}</h2>
     
     {% if original.is_available %}
         <div class="video-info">
-            <p><strong>🔢 {% trans "Number" %}:</strong> {{ original.number }}</p>
-            <p><strong>💾 {% trans "Storage" %}:</strong> {{ original.storage_location.name }}</p>
-            {% if original.duration %}<p><strong>⏱️ {% trans "Duration" %}:</strong> {{ original.duration }}</p>{% endif %}
-            {% if original.file_size %}<p><strong>📊 {% trans "Size" %}:</strong> {{ original.file_size|filesizeformat }}</p>{% endif %}
-            {% if original.total_bitrate %}<p><strong>📡 {% trans "Bitrate" %}:</strong> {{ original.total_bitrate }} bps</p>{% endif %}
+            <p><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg> {% trans "Number" %}:</strong> {{ original.number }}</p>
+            <p><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {% trans "Storage" %}:</strong> {{ original.storage_location.name }}</p>
+            {% if original.duration %}<p><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> {% trans "Duration" %}:</strong> {{ original.duration }}</p>{% endif %}
+            {% if original.file_size %}<p><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> {% trans "Size" %}:</strong> {{ original.file_size|filesizeformat }}</p>{% endif %}
+            {% if original.total_bitrate %}<p><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg> {% trans "Bitrate" %}:</strong> {{ original.total_bitrate }} bps</p>{% endif %}
         </div>
 
         <div class="video-player-container">
@@ -86,10 +86,10 @@
         
         <div style="margin-top: 10px; text-align: center;">
             <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download class="button" style="padding: 8px 16px; background: #417690; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">
-                📥 {% trans "Download Video" %}
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> {% trans "Download Video" %}
             </a>
             <a href="{% url 'media_files:render_video_admin' original.id %}" class="button" style="padding: 8px 16px; background: #28a745; color: white; text-decoration: none; border-radius: 4px;">
-                🎬 {% trans "Render Video with Overlays" %}
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {% trans "Render Video with Overlays" %}
             </a>
         </div>
         
@@ -99,19 +99,19 @@
         
         <div style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 4px; border-left: 4px solid #2196F3;">
             <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
-                <strong>📁 {% trans "File Path" %}:</strong>
+                <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> {% trans "File Path" %}:</strong>
             </div>
             <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.full_path }}</code>
             {% if original.unc_path %}
             <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
-                <strong>💾 {% trans "UNC Path" %}:</strong>
+                <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {% trans "UNC Path" %}:</strong>
             </div>
             <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.unc_path }}</code>
             {% endif %}
         </div>
     {% else %}
         <div class="video-unavailable">
-            ❌ {% trans "Video file unavailable. Check path:" %} {{ original.file_path }}
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {% trans "Video file unavailable. Check path:" %} {{ original.file_path }}
         </div>
     {% endif %}
 </div>

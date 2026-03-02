@@ -15,6 +15,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from import_export import resources
@@ -724,9 +725,34 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             if video_file:
                 
                 url = reverse('admin:media_files_videofile_change', args=[video_file.id])
-                
-                # Icon based on availability
-                icon = '🎬' if video_file.is_available else '⚠️'
+                # Icon based on availability (film icon / warning triangle)
+                _film_svg = (
+                    '<svg class="icon-svg" viewBox="0 0 24 24" fill="none"'
+                    ' stroke="currentColor" stroke-width="2" width="16" height="16"'
+                    ' stroke-linecap="round" stroke-linejoin="round"'
+                    ' style="vertical-align: text-bottom;">'
+                    '<rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>'
+                    '<line x1="7" y1="2" x2="7" y2="22"></line>'
+                    '<line x1="17" y1="2" x2="17" y2="22"></line>'
+                    '<line x1="2" y1="12" x2="22" y2="12"></line>'
+                    '<line x1="2" y1="7" x2="7" y2="7"></line>'
+                    '<line x1="2" y1="17" x2="7" y2="17"></line>'
+                    '<line x1="17" y1="17" x2="22" y2="17"></line>'
+                    '<line x1="17" y1="7" x2="22" y2="7"></line>'
+                    '</svg>'
+                )
+                _warn_svg = (
+                    '<svg class="icon-svg" viewBox="0 0 24 24" fill="none"'
+                    ' stroke="currentColor" stroke-width="2.5" width="16" height="16"'
+                    ' stroke-linecap="round" stroke-linejoin="round"'
+                    ' style="vertical-align: text-bottom;">'
+                    '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94'
+                    'a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>'
+                    '<line x1="12" y1="9" x2="12" y2="13"></line>'
+                    '<line x1="12" y1="17" x2="12.01" y2="17"></line>'
+                    '</svg>'
+                )
+                icon = mark_safe(_film_svg if video_file.is_available else _warn_svg)
                 
                 # Build info string
                 info_parts = []
@@ -754,11 +780,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     # Only show warning if difference is 1 second or more
                     if duration_diff >= 1:
                         duration_warning = format_html(
-                            '<br><span style="color: #ff9800; font-weight: bold;">⚠️ {}: {} ({})</span>'
+                            '<br><span style="color: #ff9800; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}: {} ({})</span>'
                             '<br><button type="submit" name="_sync_duration_from_video" '
                             'style="margin-top: 5px; padding: 5px 10px; background: #417690; color: white; '
                             'border: none; border-radius: 4px; cursor: pointer;">'
-                            '🔄 {}</button>',
+                            '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> {}</button>',
                             _('Duration mismatch'),
                             _('License'),
                             obj.duration,
@@ -772,7 +798,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     render_button = format_html(
                         '<br><a href="{}" class="button" style="padding: 8px 16px; background: #28a745; color: white; '
                         'text-decoration: none; border-radius: 4px; margin-top: 5px; display: inline-block;">'
-                        '🎬 {}</a>',
+                        '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</a>',
                         render_url,
                         _('Render Video with Overlays')
                     )
@@ -795,10 +821,10 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             else:
                 search_url = reverse('admin:licenses_license_search_video', args=[obj.id])
                 return format_html(
-                    '<span style="color: #999;">❌ {}</span><br>'
+                    '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span><br>'
                     '<a href="{}" class="button" style="padding: 5px 10px; background: #417690; color: white; '
                     'text-decoration: none; border-radius: 4px; margin-top: 5px; display: inline-block;">'
-                    '🔍 {}</a>',
+                    '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> {}</a>',
                     _('No video file found'),
                     search_url,
                     _('Search for Video')
@@ -839,7 +865,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     
                     # Return clickable link with modal attributes (Bootstrap 5)
                     return format_html(
-                        '<span style="color: #28a745;">🎬 {}</span><br>'
+                        '<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</span><br>'
                         '<a href="javascript:void(0);" '
                         'data-bs-toggle="modal" '
                         'data-bs-target="#videoPlayerModal" '
@@ -851,7 +877,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                         'data-size="{}" '
                         'data-bitrate="{}" '
                         'style="color: #007bff; text-decoration: none; cursor: pointer;">'
-                        '▶️ {}</a>',
+                        '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> {}</a>',
                         _('Available'),
                         stream_url,
                         video_file.filename or '',
@@ -864,7 +890,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     )
                 else:
                     return format_html(
-                        '<span style="color: #ffc107;">⚠️ {}</span>',
+                        '<span style="color: #ffc107;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span>',
                         _('Not available')
                     )
 
@@ -879,12 +905,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     ).first()
                 if nextcloud_video:
                     return format_html(
-                        '<span style="color: #17a2b8;">☁️ {}</span>',
+                        '<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> {}</span>',
                         _('Nextcloud Video')
                     )
 
             return format_html(
-                '<span style="color: #999;">❌ {}</span>',
+                '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
                 _('No video')
             )
         except Exception:
@@ -899,12 +925,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         
         if obj.signature:
             return format_html(
-                '<span style="color: #28a745;">✓ {}</span>',
+                '<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}</span>',
                 _('Yes')
             )
         else:
             return format_html(
-                '<span style="color: #999;">✗ {}</span>',
+                '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
                 _('No')
             )
     
@@ -918,12 +944,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         
         if obj.signature:
             return format_html(
-                '<span style="color: #28a745; font-weight: bold;">✓ {}</span>',
+                '<span style="color: #28a745; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}</span>',
                 _('Digital signature is present')
             )
         else:
             return format_html(
-                '<span style="color: #999;">✗ {}</span>',
+                '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
                 _('No digital signature')
             )
     
@@ -1207,7 +1233,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             if video_linked:
                 messages.success(
                     request,
-                    f'✓ {_("Video found and linked to license")} #{license_obj.number}!'
+                    _('Video found and linked to license') + f' #{license_obj.number}!'
                 )
             elif 'No video found' in output or 'not found' in output.lower():
                 messages.warning(
@@ -1262,7 +1288,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if found_count > 0:
             self.message_user(
                 request,
-                f'✓ {_("Videos found and linked for")} {found_count} {_("licenses") if found_count != 1 else _("license")}',
+                _('Videos found and linked for') + f' {found_count} ' + (_('licenses') if found_count != 1 else _('license')),
                 messages.SUCCESS
             )
         if not_found_count > 0:

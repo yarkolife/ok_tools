@@ -922,7 +922,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const operationId = data.operation_id || '';
                 alertContainer.innerHTML = `
                     <div class="alert alert-success">
-                        <strong>✓ {% trans "Success!" %}</strong> ${data.message}<br>
+                        <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {% trans "Success!" %}</strong> ${data.message}<br>
                         <a href="/admin/media_files/fileoperation/${operationId}/change/" target="_blank">{% trans "Track progress" %}</a> | 
                         <a href="/admin/media_files/fileoperation/?status__exact=IN_PROGRESS" target="_blank">{% trans "View all active operations" %}</a> | 
                         <a href="/admin/media_files/videofile/${data.video_id}/change/" target="_blank">{% trans "View video file" %}</a>
@@ -932,7 +932,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 alertContainer.innerHTML = `
                     <div class="alert alert-error">
-                        <strong>✗ {% trans "Error" %}</strong> ${data.error}
+                        <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {% trans "Error" %}</strong> ${data.error}
                     </div>
                 `;
                 window.scrollTo(0, 0);
@@ -943,7 +943,7 @@ document.addEventListener('DOMContentLoaded', function() {
             form.style.display = 'block';
             alertContainer.innerHTML = `
                 <div class="alert alert-error">
-                    <strong>✗ {% trans "Error" %}</strong> ${error.message}
+                    <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {% trans "Error" %}</strong> ${error.message}
                 </div>
             `;
             window.scrollTo(0, 0);
