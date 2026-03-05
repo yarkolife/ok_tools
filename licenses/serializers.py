@@ -24,8 +24,10 @@ class LicenseMetadataSerializer(serializers.Serializer):
     """
     
     name = serializers.CharField(source='title')
+    subtitle = serializers.CharField(allow_blank=True, allow_null=True)
     description = serializers.CharField()
     category = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     originallyPublishedAt = serializers.SerializerMethodField()
     senderResponsible = serializers.SerializerMethodField()
@@ -37,6 +39,11 @@ class LicenseMetadataSerializer(serializers.Serializer):
         allow_null=True
     )
     furtherInvolvedPersons = serializers.CharField(
+        source='further_persons',
+        allow_blank=True,
+        allow_null=True
+    )
+    furtherPersons = serializers.CharField(
         source='further_persons',
         allow_blank=True,
         allow_null=True
@@ -76,6 +83,10 @@ class LicenseMetadataSerializer(serializers.Serializer):
         if hours > 0:
             return f"{hours:d}:{minutes:02d}:{seconds:02d}"
         return f"{minutes:d}:{seconds:02d}"
+
+    def get_profile(self, obj):
+        """Get profile display name from profile."""
+        return self.get_senderResponsible(obj)
     
     def get_tags(self, obj):
         """
@@ -174,4 +185,3 @@ class LicenseMetadataSerializer(serializers.Serializer):
         
         # Fallback to settings
         return getattr(settings, 'PEERTUBE_CHANNEL', '')
-

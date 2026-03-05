@@ -169,6 +169,45 @@ class ImportService:
 
         return None
 
+    @staticmethod
+    def _parse_bool(value: Any, default: Optional[bool] = None) -> Optional[bool]:
+        """Parse bool-like values from API payloads."""
+        if value is None:
+            return default
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {'1', 'true', 'yes', 'y', 'on'}:
+                return True
+            if normalized in {'0', 'false', 'no', 'n', 'off'}:
+                return False
+        return default
+
+    def _resolve_profile_from_remote_metadata(self, fallback_profile: Profile, remote_metadata: Dict[str, Any]) -> Profile:
+        """Resolve profile from remote metadata, fallback to detected profile."""
+        profile_name = (
+            remote_metadata.get('profile')
+            or remote_metadata.get('senderResponsible')
+            or remote_metadata.get('sender_responsible')
+        )
+        if not profile_name:
+            return fallback_profile
+
+        profile_name = str(profile_name).strip()
+        if not profile_name:
+            return fallback_profile
+
+        profile = get_profile_by_name(profile_name)
+        if profile:
+            return profile
+
+        media_authority = get_media_authority_by_channel(self.exchange_item.channel)
+        profile = create_profile_by_name(profile_name, media_authority=media_authority)
+        return profile or fallback_profile
+
     def _fetch_remote_metadata(
         self,
         channel_auth: ExchangeChannelAuth,
@@ -231,7 +270,8 @@ class ImportService:
             )
             return mapping.local_license
 
-        license_obj = self._get_or_create_license(profile, remote_metadata=remote_metadata)
+        resolved_profile = self._resolve_profile_from_remote_metadata(profile, remote_metadata)
+        license_obj = self._get_or_create_license(resolved_profile, remote_metadata=remote_metadata)
         ImportedLicenseMapping.objects.create(
             source_channel=source_channel,
             remote_license_number=contribution_id,
@@ -671,25 +711,75 @@ class ImportService:
         new_number = self._generate_next_license_number()
 
         remote_metadata = remote_metadata or {}
-        remote_title = remote_metadata.get('title')
+        remote_title = remote_metadata.get('title') or remote_metadata.get('name')
+        remote_subtitle = remote_metadata.get('subtitle')
         remote_description = remote_metadata.get('description')
+        remote_further_persons = (
+            remote_metadata.get('further_persons')
+            or remote_metadata.get('furtherInvolvedPersons')
+            or remote_metadata.get('furtherPersons')
+        )
         remote_duration = self._parse_duration(remote_metadata.get('duration'))
+
+        remote_tags = remote_metadata.get('tags')
+        if not isinstance(remote_tags, list):
+            remote_tags = None
+        if isinstance(remote_tags, list):
+            remote_tags = [str(tag).strip() for tag in remote_tags if str(tag).strip()][:4]
+
+        remote_category = remote_metadata.get('category')
+        if isinstance(remote_category, dict):
+            remote_category = remote_category.get('name')
+        if remote_category:
+            remote_category_obj = get_category_by_name(str(remote_category).strip())
+            if remote_category_obj:
+                category = remote_category_obj
+
+        repetitions_allowed = self._parse_bool(
+            remote_metadata.get('repetitionsAllowed', remote_metadata.get('repetitions_allowed')),
+            default=False,
+        )
+        allow_exchange = self._parse_bool(
+            remote_metadata.get('allowExchange', remote_metadata.get('media_authority_exchange_allowed')),
+            default=meta_data.get('allow_exchange', True),
+        )
+        allow_exchange_other_states = self._parse_bool(
+            remote_metadata.get('allowExchangeOtherStates', remote_metadata.get('media_authority_exchange_allowed_other_states')),
+            default=False,
+        )
+        youth_protection_necessary = self._parse_bool(
+            remote_metadata.get('youthProtectionNecessary', remote_metadata.get('youth_protection_necessary')),
+            default=meta_data.get('youth_protection_necessary', False),
+        )
+        youth_protection_category = (
+            remote_metadata.get('youthProtectionCategory')
+            or remote_metadata.get('youth_protection_category')
+            or meta_data.get('youth_protection_category')
+            or 'none'
+        )
+        save_to_mediathek = self._parse_bool(
+            remote_metadata.get('saveToMediathek', remote_metadata.get('store_in_ok_media_library')),
+            default=meta_data.get('save_to_mediathek', False),
+        )
 
         # Create license with metadata from exchange item (similar to import_json_view)
         license = License.objects.create(
             number=new_number,
             title=remote_title or self.exchange_item.title or f"Imported from Exchange - {contribution_id}",
+            subtitle=remote_subtitle,
             description=remote_description or self.exchange_item.description or "",
+            further_persons=remote_further_persons,
             duration=remote_duration or self.exchange_item.duration or timezone.timedelta(seconds=0),
             profile=profile,
             category=category,
+            tags=remote_tags,
             # Set exchange flags based on source
-            media_authority_exchange_allowed=meta_data.get('allow_exchange', True),
-            store_in_ok_media_library=meta_data.get('save_to_mediathek', False),
-            repetitions_allowed=False,
-            media_authority_exchange_allowed_other_states=False,
-            youth_protection_necessary=meta_data.get('youth_protection_necessary', False),
-            youth_protection_category=meta_data.get('youth_protection_category', 'none'),
+            media_authority_exchange_allowed=allow_exchange,
+            store_in_ok_media_library=save_to_mediathek,
+            repetitions_allowed=repetitions_allowed,
+            media_authority_exchange_allowed_other_states=allow_exchange_other_states,
+            youth_protection_necessary=youth_protection_necessary,
+            youth_protection_category=youth_protection_category,
             is_screen_board=False,
             infoblock=False,
             confirmed=False,

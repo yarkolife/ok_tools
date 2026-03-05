@@ -41,6 +41,7 @@
 - **Planning calendar UI**: Reworked calendar week admin UX (template, CSS, JavaScript) for better readability and interactions
 - **Austausch export to server**: Upload video, PDF, JSON (and optional thumbnails) to Nextcloud WebDAV; step-by-step UI and Celery task
 - **Austausch API channel mapping**: Per-channel remote OK-Tools API credentials and deterministic license mapping by source channel + contribution ID
+- **Metadata API compatibility**: Kept `name` in license metadata API while extending payload fields and import mapping for subtitle, profile, tags, permissions, and youth-protection flags
 - **Rental emails**: HTML templates with booking details and user-facing links
 - **User rentals**: New user request detail page and improved request visibility
 - **Module configs**: Module-specific configuration models with DB-backed settings and env fallbacks

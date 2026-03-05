@@ -129,3 +129,66 @@ class TestImportServiceIdentity:
         assert ExchangeImport.objects.filter(status='pending_download').count() == 2
         assert mocked_metadata.call_count == 2
         assert mocked_delay.call_count == 2
+
+    @patch('austausch.tasks.download_exchange_files_task.delay')
+    @patch.object(ImportService, '_fetch_remote_metadata')
+    def test_api_channel_maps_extended_remote_metadata_fields(self, mocked_metadata, mocked_delay):
+        self._ensure_exchange_config()
+        user, _profile = self._create_user_with_profile()
+
+        remote_category = Category.objects.create(name='Remote Category')
+        mocked_metadata.return_value = {
+            'name': 'Remote API Title',
+            'subtitle': 'Remote API Subtitle',
+            'description': 'Remote API Description',
+            'furtherPersons': 'Alice, Bob',
+            'tags': ['alpha', 'beta', 'gamma'],
+            'category': remote_category.name,
+            'profile': 'Remote Author',
+            'duration': '00:21:10',
+            'repetitionsAllowed': True,
+            'allowExchange': True,
+            'allowExchangeOtherStates': True,
+            'youthProtectionNecessary': True,
+            'youthProtectionCategory': 'from_16',
+            'saveToMediathek': True,
+        }
+
+        ExchangeChannelAuth.objects.create(
+            channel_name='ok magdeburg',
+            supports_oktools_api=True,
+            metadata_api_base_url='https://portal.ok-magdeburg.de',
+            metadata_api_token='secret-token',
+            is_active=True,
+        )
+
+        item = ExchangeItem.objects.create(
+            contribution_id=3740,
+            filename='3740_video.mp4',
+            file_path='/exchange/3740_video.mp4',
+            channel='OK Magdeburg',
+            title='Fallback Title',
+            file_type='video',
+            is_oktools_managed=True,
+        )
+
+        import_record, _ = ImportService(item, user).import_item()
+        assert import_record.license is not None
+
+        license_obj = import_record.license
+        assert license_obj.title == 'Remote API Title'
+        assert license_obj.subtitle == 'Remote API Subtitle'
+        assert license_obj.description == 'Remote API Description'
+        assert license_obj.further_persons == 'Alice, Bob'
+        assert license_obj.tags == ['alpha', 'beta', 'gamma']
+        assert license_obj.category.name == 'Remote Category'
+        assert license_obj.duration.total_seconds() == 1270
+        assert license_obj.repetitions_allowed is True
+        assert license_obj.media_authority_exchange_allowed is True
+        assert license_obj.media_authority_exchange_allowed_other_states is True
+        assert license_obj.youth_protection_necessary is True
+        assert license_obj.youth_protection_category == 'from_16'
+        assert license_obj.store_in_ok_media_library is True
+        assert license_obj.profile.first_name == 'Remote'
+        assert license_obj.profile.last_name == 'Author'
+        assert mocked_delay.call_count == 1

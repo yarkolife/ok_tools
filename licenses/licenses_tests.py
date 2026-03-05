@@ -792,7 +792,12 @@ def test__licenses__api__LicenseMetadataView__unauthorized(api_client, license):
 def test__licenses__api__LicenseMetadataView__authorized(
         api_client, api_token, license):
     """API endpoint returns license metadata when valid token is provided."""
+    license.subtitle = 'Untertitel'
+    license.further_persons = 'Person A, Person B'
     license.tags = ['tag1', 'tag2']
+    license.repetitions_allowed = True
+    license.media_authority_exchange_allowed_other_states = True
+    license.store_in_ok_media_library = True
     license.youth_protection_necessary = True
     license.youth_protection_category = YouthProtectionCategory.FROM_16
     license.save()
@@ -805,8 +810,12 @@ def test__licenses__api__LicenseMetadataView__authorized(
     data = response.json()
     
     assert data['name'] == license.title
+    assert data['subtitle'] == 'Untertitel'
     assert data['description'] == license.description
     assert data['category'] == license.category.name
+    assert data['profile'] == f"{license.profile.first_name} {license.profile.last_name}".strip()
+    assert data['furtherInvolvedPersons'] == 'Person A, Person B'
+    assert data['furtherPersons'] == 'Person A, Person B'
     assert data['tags'] == ['tag1', 'tag2']
     assert data['senderResponsible'] == (
         f"{license.profile.first_name} {license.profile.last_name}"
@@ -814,6 +823,8 @@ def test__licenses__api__LicenseMetadataView__authorized(
     assert data['videoNumber'] == license.number
     assert data['saveToMediathek'] == license.store_in_ok_media_library
     assert data['allowExchange'] == license.media_authority_exchange_allowed
+    assert data['allowExchangeOtherStates'] is True
+    assert data['repetitionsAllowed'] is True
     assert data['youthProtectionNecessary'] is True
     assert data['youthProtectionCategory'] == YouthProtectionCategory.FROM_16
 

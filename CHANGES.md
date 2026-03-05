@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-03-05 (Version 4.2.0)
+==========================
+
+* **licenses/austausch: Expand metadata API fields and import mapping**
+  * Kept `name` for backward compatibility and added metadata fields (`subtitle`, `furtherPersons`, `profile`, `duration`, exchange/repetition/youth flags).
+  * Extended Austausch remote metadata mapping to import subtitle, participants, tags, category, profile, and permission flags into local licenses.
+  * Added test coverage for extended metadata payload and end-to-end API-based field mapping in Austausch imports.
+
 2026-03-05 (Version 4.1.0)
 ==========================
 
