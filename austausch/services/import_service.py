@@ -5,8 +5,14 @@ import hashlib
 import logging
 import re
 import unicodedata
+import requests
 from pathlib import Path
-from typing import Tuple, Optional, List
+from datetime import timedelta
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 from difflib import SequenceMatcher
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -16,7 +22,11 @@ from licenses.models import License, Category
 from licenses.admin import get_profile_by_name, create_profile_by_name, get_category_by_id, get_category_by_name
 from media_files.models import VideoFile, StorageLocation
 from registration.models import Profile, MediaAuthority
-from ..models import ExchangeItem, ExchangeImport, ExchangeConfig
+from ..models import ExchangeChannelAuth
+from ..models import ExchangeConfig
+from ..models import ExchangeImport
+from ..models import ExchangeItem
+from ..models import ImportedLicenseMapping
 from .nextcloud_exchange_service import NextcloudExchangeService
 
 logger = logging.getLogger('django')
@@ -132,6 +142,102 @@ class ImportService:
         self.user = user
         self.config = ExchangeConfig.get_config()
         self.service = NextcloudExchangeService(self.config)
+
+    @staticmethod
+    def _parse_duration(value: Any):
+        """Parse remote duration formats to datetime.timedelta."""
+        if value in (None, ''):
+            return None
+
+        if isinstance(value, timedelta):
+            return value
+
+        if isinstance(value, (int, float)):
+            return timedelta(seconds=float(value))
+
+        if isinstance(value, str):
+            try:
+                # Accept HH:MM:SS[.ffffff]
+                chunks = value.split(':')
+                if len(chunks) == 3:
+                    hours = int(chunks[0])
+                    minutes = int(chunks[1])
+                    seconds = float(chunks[2])
+                    return timedelta(hours=hours, minutes=minutes, seconds=seconds)
+            except (TypeError, ValueError):
+                return None
+
+        return None
+
+    def _fetch_remote_metadata(
+        self,
+        channel_auth: ExchangeChannelAuth,
+        remote_license_number: int,
+    ) -> Dict[str, Any]:
+        """Fetch authoritative metadata from remote OK-Tools API."""
+        endpoint = channel_auth.metadata_endpoint_for_license(remote_license_number)
+        headers = {
+            'Authorization': f'Token {channel_auth.metadata_api_token}',
+            'Accept': 'application/json',
+        }
+
+        try:
+            response = requests.get(
+                endpoint,
+                headers=headers,
+                timeout=channel_auth.request_timeout_seconds,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception as exc:
+            channel_auth.last_error = str(exc)
+            channel_auth.save(update_fields=['last_error', 'updated_at'])
+            raise Exception(
+                f"Remote metadata API request failed for channel '{channel_auth.channel_name}', "
+                f"license {remote_license_number}: {exc}"
+            )
+
+        if not isinstance(payload, dict):
+            raise Exception(
+                f"Remote metadata API returned non-object payload for channel "
+                f"'{channel_auth.channel_name}', license {remote_license_number}."
+            )
+
+        channel_auth.last_error = ''
+        channel_auth.last_success_at = timezone.now()
+        channel_auth.save(update_fields=['last_error', 'last_success_at', 'updated_at'])
+        return payload
+
+    def _resolve_license_for_remote_channel(
+        self,
+        profile: Profile,
+        remote_metadata: Dict[str, Any],
+    ) -> License:
+        """Resolve local license by stable remote identity for API-capable channels."""
+        contribution_id = self.exchange_item.contribution_id
+        if contribution_id is None:
+            raise Exception('Remote channel resolution requires contribution_id.')
+
+        source_channel = ExchangeChannelAuth.normalize_channel_name(self.exchange_item.channel)
+        mapping = ImportedLicenseMapping.objects.select_related('local_license').filter(
+            source_channel=source_channel,
+            remote_license_number=contribution_id,
+        ).first()
+
+        if mapping:
+            logger.info(
+                f"Using mapped local license {mapping.local_license.number} "
+                f"for remote {source_channel}:{contribution_id}"
+            )
+            return mapping.local_license
+
+        license_obj = self._get_or_create_license(profile, remote_metadata=remote_metadata)
+        ImportedLicenseMapping.objects.create(
+            source_channel=source_channel,
+            remote_license_number=contribution_id,
+            local_license=license_obj,
+        )
+        return license_obj
     
     def import_item(self, check_duplicates: bool = True) -> Tuple[ExchangeImport, Optional[List[License]]]:
         """
@@ -190,12 +296,30 @@ class ImportService:
             
             # Get or create profile for duplicate checking
             profile = self._get_or_create_profile()
+
+            channel_auth = ExchangeChannelAuth.get_for_channel(self.exchange_item.channel)
+            uses_remote_api = bool(
+                channel_auth
+                and channel_auth.supports_oktools_api
+                and self.exchange_item.contribution_id
+            )
+            remote_metadata = {}
+            if uses_remote_api:
+                remote_metadata = self._fetch_remote_metadata(
+                    channel_auth,
+                    int(self.exchange_item.contribution_id),
+                )
             
             # Check for potential duplicates before creating license
             potential_duplicates = None
             exact_match_license = None
             
-            if check_duplicates and self.exchange_item.title and profile:
+            if (
+                check_duplicates
+                and self.exchange_item.title
+                and profile
+                and not self.exchange_item.contribution_id
+            ):
                 potential_duplicates = find_potential_duplicates(
                     self.exchange_item.title,
                     profile,
@@ -230,7 +354,10 @@ class ImportService:
                     f"instead of creating new one for exchange item {self.exchange_item.id}"
                 )
             elif self.exchange_item.contribution_id:
-                license = self._get_or_create_license(profile)
+                if uses_remote_api:
+                    license = self._resolve_license_for_remote_channel(profile, remote_metadata)
+                else:
+                    license = self._get_or_create_license(profile)
             else:
                 license = self._create_legacy_license(profile)
             
@@ -491,7 +618,11 @@ class ImportService:
         # TODO: Verify checksums if available in ExchangeItem
         # For now, we rely on file size verification
     
-    def _get_or_create_license(self, profile: Profile) -> License:
+    def _get_or_create_license(
+        self,
+        profile: Profile,
+        remote_metadata: Optional[Dict[str, Any]] = None,
+    ) -> License:
         """
         Create a new internal license for OK-Tools managed item.
         
@@ -539,12 +670,17 @@ class ImportService:
 
         new_number = self._generate_next_license_number()
 
+        remote_metadata = remote_metadata or {}
+        remote_title = remote_metadata.get('title')
+        remote_description = remote_metadata.get('description')
+        remote_duration = self._parse_duration(remote_metadata.get('duration'))
+
         # Create license with metadata from exchange item (similar to import_json_view)
         license = License.objects.create(
             number=new_number,
-            title=self.exchange_item.title or f"Imported from Exchange - {contribution_id}",
-            description=self.exchange_item.description or "",
-            duration=self.exchange_item.duration or timezone.timedelta(seconds=0),
+            title=remote_title or self.exchange_item.title or f"Imported from Exchange - {contribution_id}",
+            description=remote_description or self.exchange_item.description or "",
+            duration=remote_duration or self.exchange_item.duration or timezone.timedelta(seconds=0),
             profile=profile,
             category=category,
             # Set exchange flags based on source
@@ -843,4 +979,3 @@ class ImportService:
         # TODO: Integrate with existing PeerTube upload pipeline
         # This would typically call a Celery task from media_files.tasks
         logger.info(f"PeerTube upload enqueued for video_file {video_file.id} (not implemented yet)")
-

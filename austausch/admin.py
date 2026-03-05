@@ -5,8 +5,30 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from django.urls import reverse
 
-from .models import ExchangeItem, ExchangeImport, ExchangeConfig, ExportToServerRun
+from .models import ExchangeChannelAuth
+from .models import ExchangeConfig
+from .models import ExchangeImport
+from .models import ExchangeItem
+from .models import ExportToServerRun
+from .models import ImportedLicenseMapping
 from .tasks import import_exchange_item_task
+
+
+class ExchangeChannelAuthInline(admin.TabularInline):
+    model = ExchangeChannelAuth
+    extra = 0
+    fields = [
+        'channel_name',
+        'supports_oktools_api',
+        'metadata_api_base_url',
+        'metadata_api_token',
+        'request_timeout_seconds',
+        'is_active',
+        'last_success_at',
+        'last_error',
+    ]
+    readonly_fields = ['last_success_at', 'last_error']
+    show_change_link = False
 
 
 @admin.register(ExchangeConfig)
@@ -14,6 +36,7 @@ class ExchangeConfigAdmin(admin.ModelAdmin):
     """Admin for ExchangeConfig (singleton)."""
     
     autocomplete_fields = ['storage_location', 'default_media_authority']
+    inlines = [ExchangeChannelAuthInline]
     
     def has_add_permission(self, request):
         """Only allow one config instance."""
@@ -100,6 +123,22 @@ class ExportToServerRunAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ImportedLicenseMapping)
+class ImportedLicenseMappingAdmin(admin.ModelAdmin):
+    """Admin for remote-to-local license mapping."""
+
+    list_display = ['source_channel', 'remote_license_number', 'local_license', 'updated_at']
+    list_filter = ['source_channel']
+    search_fields = ['source_channel', 'remote_license_number', 'local_license__number']
+    autocomplete_fields = ['local_license']
+
+    def has_module_permission(self, request):
+        return False
+
+    def has_view_permission(self, request, obj=None):
         return False
 
 

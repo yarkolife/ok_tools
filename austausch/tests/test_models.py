@@ -1,11 +1,15 @@
 """Tests for Austausch models."""
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from datetime import timedelta
 
-from austausch.models import ExchangeItem, ExchangeImport, ExchangeConfig
+from austausch.models import ExchangeChannelAuth
+from austausch.models import ExchangeConfig
+from austausch.models import ExchangeImport
+from austausch.models import ExchangeItem
 from licenses.models import License, Category
 from registration.models import Profile, OKUser
 
@@ -89,3 +93,27 @@ class TestExchangeImport(TestCase):
         self.assertEqual(import_record.imported_by, self.user)
         self.assertEqual(import_record.status, 'pending')
 
+
+@pytest.mark.django_db
+class TestExchangeChannelAuth(TestCase):
+    def test_normalizes_channel_name(self):
+        config = ExchangeConfig.get_config()
+        obj = ExchangeChannelAuth.objects.create(
+            config=config,
+            channel_name='  OK Magdeburg  ',
+            supports_oktools_api=False,
+        )
+        self.assertEqual(obj.channel_name, 'ok magdeburg')
+
+    def test_requires_url_and_token_when_api_enabled(self):
+        config = ExchangeConfig.get_config()
+        obj = ExchangeChannelAuth(
+            config=config,
+            channel_name='ok magdeburg',
+            supports_oktools_api=True,
+            metadata_api_base_url='',
+            metadata_api_token='',
+        )
+
+        with self.assertRaises(ValidationError):
+            obj.full_clean()

@@ -1292,3 +1292,91 @@ msgid ""
 "No items to export: all selected were already successfully exported or have "
 "no video/PDF."
 msgstr ""
+
+#: austausch/models.py
+msgid "Exchange Channel API Auth"
+msgstr "Austausch-Kanal-API"
+
+#: austausch/models.py
+msgid "Channel Name"
+msgstr "Kanalname"
+
+#: austausch/models.py
+msgid "Channel name as used in exchange feed (case-insensitive)."
+msgstr "Kanalname wie im Austausch-Feed verwendet (Groß-/Kleinschreibung wird ignoriert)."
+
+#: austausch/models.py
+msgid "Supports OK-Tools API"
+msgstr "Unterstützt OK-Tools-API"
+
+#: austausch/models.py
+msgid "Enable metadata enrichment via remote OK-Tools API."
+msgstr "Metadatenanreicherung über die entfernte OK-Tools-API aktivieren."
+
+#: austausch/models.py
+msgid "Metadata API Base URL"
+msgstr "Metadaten-API-Basis-URL"
+
+#: austausch/models.py
+msgid "Base URL of remote OK-Tools instance (e.g. https://portal.ok-magdeburg.de)."
+msgstr "Basis-URL der entfernten OK-Tools-Instanz (z. B. https://portal.ok-magdeburg.de)."
+
+#: austausch/models.py
+msgid "Metadata API Token"
+msgstr "Metadaten-API-Token"
+
+#: austausch/models.py
+msgid "Token used for Authorization: Token <value>."
+msgstr "Token für Autorisierung: Token <Wert>."
+
+#: austausch/models.py
+msgid "Request Timeout (seconds)"
+msgstr "Request-Timeout (Sekunden)"
+
+#: austausch/models.py
+msgid "HTTP timeout for metadata requests."
+msgstr "HTTP-Timeout für Metadaten-Anfragen."
+
+#: austausch/models.py
+msgid "Active"
+msgstr "Aktiv"
+
+#: austausch/models.py
+msgid "Last Success At"
+msgstr "Letzter erfolgreicher Zugriff"
+
+#: austausch/models.py
+msgid "Last Error"
+msgstr "Letzter Fehler"
+
+#: austausch/models.py
+msgid "Metadata API base URL is required when API support is enabled."
+msgstr "Die Metadaten-API-Basis-URL ist erforderlich, wenn API-Unterstützung aktiviert ist."
+
+#: austausch/models.py
+msgid "Metadata API token is required when API support is enabled."
+msgstr "Das Metadaten-API-Token ist erforderlich, wenn API-Unterstützung aktiviert ist."
+
+#: austausch/models.py
+msgid "Imported License Mapping"
+msgstr "Importiertes Freistellungs-Mapping"
+
+#: austausch/models.py
+msgid "Imported License Mappings"
+msgstr "Importierte Freistellungs-Mappings"
+
+#: austausch/models.py
+msgid "Source Channel"
+msgstr "Quellkanal"
+
+#: austausch/models.py
+msgid "Normalized exchange channel name."
+msgstr "Normalisierter Austausch-Kanalname."
+
+#: austausch/models.py
+msgid "Remote License Number"
+msgstr "Entfernte Freistellungsnummer"
+
+#: austausch/models.py
+msgid "Local License"
+msgstr "Lokale Freistellung"

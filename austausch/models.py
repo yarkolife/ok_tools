@@ -421,6 +421,139 @@ class ExchangeConfig(models.Model):
         return cls.objects.get(pk=1)
 
 
+class ExchangeChannelAuth(models.Model):
+    """Per-channel API capability and credentials for remote OK-Tools metadata."""
+
+    config = models.ForeignKey(
+        'austausch.ExchangeConfig',
+        on_delete=models.CASCADE,
+        related_name='channel_auth_entries',
+        verbose_name=_('Exchange Configuration'),
+        default=1,
+    )
+    channel_name = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name=_('Channel Name'),
+        help_text=_('Channel name as used in exchange feed (case-insensitive).'),
+    )
+    supports_oktools_api = models.BooleanField(
+        default=False,
+        verbose_name=_('Supports OK-Tools API'),
+        help_text=_('Enable metadata enrichment via remote OK-Tools API.'),
+    )
+    metadata_api_base_url = models.URLField(
+        blank=True,
+        verbose_name=_('Metadata API Base URL'),
+        help_text=_('Base URL of remote OK-Tools instance (e.g. https://portal.ok-magdeburg.de).'),
+    )
+    metadata_api_token = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Metadata API Token'),
+        help_text=_('Token used for Authorization: Token <value>.'),
+    )
+    request_timeout_seconds = models.PositiveIntegerField(
+        default=10,
+        verbose_name=_('Request Timeout (seconds)'),
+        help_text=_('HTTP timeout for metadata requests.'),
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_('Active'),
+    )
+    last_success_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Last Success At'),
+    )
+    last_error = models.TextField(
+        blank=True,
+        verbose_name=_('Last Error'),
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('Exchange Channel API Auth')
+        verbose_name_plural = _('Exchange Channel API Auth')
+        ordering = ['channel_name']
+
+    def __str__(self):
+        return self.channel_name
+
+    @staticmethod
+    def normalize_channel_name(channel_name: str) -> str:
+        return (channel_name or '').strip().lower()
+
+    @classmethod
+    def get_for_channel(cls, channel_name: str):
+        normalized = cls.normalize_channel_name(channel_name)
+        if not normalized:
+            return None
+        return cls.objects.filter(
+            is_active=True,
+            channel_name__iexact=normalized,
+        ).first()
+
+    def metadata_endpoint_for_license(self, license_number: int) -> str:
+        base_url = (self.metadata_api_base_url or '').rstrip('/')
+        return f"{base_url}/licenses/api/metadata/{license_number}/"
+
+    def clean(self):
+        self.channel_name = self.normalize_channel_name(self.channel_name)
+        if self.supports_oktools_api:
+            if not self.metadata_api_base_url:
+                raise ValidationError({
+                    'metadata_api_base_url': _('Metadata API base URL is required when API support is enabled.'),
+                })
+            if not self.metadata_api_token:
+                raise ValidationError({
+                    'metadata_api_token': _('Metadata API token is required when API support is enabled.'),
+                })
+
+    def save(self, *args, **kwargs):
+        if not self.config_id:
+            self.config = ExchangeConfig.get_config()
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class ImportedLicenseMapping(models.Model):
+    """Maps remote per-channel license numbers to local licenses."""
+
+    source_channel = models.CharField(
+        max_length=100,
+        verbose_name=_('Source Channel'),
+        help_text=_('Normalized exchange channel name.'),
+    )
+    remote_license_number = models.PositiveIntegerField(
+        verbose_name=_('Remote License Number'),
+    )
+    local_license = models.ForeignKey(
+        'licenses.License',
+        on_delete=models.CASCADE,
+        related_name='imported_license_mappings',
+        verbose_name=_('Local License'),
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('Imported License Mapping')
+        verbose_name_plural = _('Imported License Mappings')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['source_channel', 'remote_license_number'],
+                name='austausch_unique_remote_license_per_channel',
+            ),
+        ]
+        ordering = ['source_channel', 'remote_license_number']
+
+    def __str__(self):
+        return f"{self.source_channel}:{self.remote_license_number} -> {self.local_license.number}"
+
+
 class ExportToServerRun(models.Model):
     """Result of an export-to-server (Celery) run for user-visible report."""
 

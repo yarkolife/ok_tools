@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-03-05 (Version 4.1.0)
+==========================
+
+* **Austausch: API-backed license identity mapping per channel**
+  * Added channel-level OK-Tools API credentials and health tracking in Exchange configuration.
+  * Resolved imports by stable `(source_channel, contribution_id)` mapping to prevent title-based license reuse.
+  * Embedded channel API settings into `ExchangeConfig` admin and added German translations for new fields.
+
 2026-03-02 (Version 4.0.19)
 ==========================
 
