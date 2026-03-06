@@ -66,4 +66,39 @@ urlpatterns = [
         views.ConfirmUploadView.as_view(),
         name='confirm_upload'
     ),
+    path(
+        '<int:pk>/save-signature/',
+        views.SaveSignatureView.as_view(),
+        name='save_signature'
+    ),
+    path(
+        '<int:pk>/sign-session/create/',
+        views.CreateSigningSessionView.as_view(),
+        name='create_sign_session'
+    ),
+    path(
+        'sign-session/create/',
+        views.CreatePreLicenseSigningSessionView.as_view(),
+        name='create_prelicense_sign_session'
+    ),
+    path(
+        'sign-session/<str:token>/status/',
+        views.SigningSessionStatusView.as_view(),
+        name='sign_session_status'
+    ),
+    path(
+        'sign-session/<str:token>/qr/',
+        views.SigningSessionQRCodeView.as_view(),
+        name='sign_session_qr'
+    ),
+    path(
+        'sign-session/<str:token>/',
+        views.SigningSessionPageView.as_view(),
+        name='sign_session_page'
+    ),
+    path(
+        'sign-session/<str:token>/submit/',
+        views.SubmitSigningSessionView.as_view(),
+        name='sign_session_submit'
+    ),
 ]

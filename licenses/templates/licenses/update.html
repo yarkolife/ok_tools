@@ -30,7 +30,7 @@
     <form method="post" id="license-form">
         {% csrf_token %}
 
-        <div class="card shadow-sm border-0 mb-4">
+        <div class="card shadow-sm border-0 mb-4" id="license-info-card">
             <div class="card-header bg-transparent border-bottom">
                 <h5 class="card-title mb-1">
                     <i class="bi bi-file-text text-primary me-2"></i>
@@ -41,7 +41,7 @@
             <div class="card-body">
                 <div class="row g-3">
                     {% for field in form %}
-                    {% if field.name != 'signature' and field.name != 'video_file' %}
+                    {% if field.name != 'signature' and field.name != 'signature_svg' and field.name != 'signature_points' and field.name != 'signature_metadata' and field.name != 'signature_method' and field.name != 'signature_signed_at' and field.name != 'video_file' %}
                     <div class="col-12 col-lg-6">
                         {{ field|as_crispy_field }}
                     </div>
@@ -53,7 +53,7 @@
 
         <!-- Video Upload Section -->
         {% if NEXTCLOUD_ENABLED %}
-        <div class="card shadow-sm border-0 mb-4">
+        <div class="card shadow-sm border-0 mb-4" id="video-upload-card">
             <div class="card-header bg-transparent border-bottom">
                 <h5 class="card-title mb-1">
                     <i class="bi bi-camera-video text-primary me-2"></i>
@@ -124,8 +124,67 @@
         </div>
         {% endif %}
 
+        <div class="card shadow-sm border-0 mb-4" id="signature-method-card">
+            <div class="card-header bg-transparent border-bottom">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-pen text-dark me-2"></i>
+                    {% trans 'Signature Method' %}
+                </h5>
+                <p class="card-subtitle mb-0">{% trans 'Choose one method. QR signing is recommended for the best handwriting quality.' %}</p>
+            </div>
+            <div class="card-body">
+                <div class="signature-method-buttons" role="group" aria-label="signature-method-selector-update">
+                    <button type="button" class="btn btn-outline-primary signature-method-btn" id="choose-draw-signing-button-update">
+                        <svg class="signature-method-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M3 21h6l11-11a2.2 2.2 0 0 0-3.1-3.1L6 18v3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M14.5 6.5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>{% trans 'Sign Here Now' %}</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary signature-method-btn" id="choose-qr-signing-button-update">
+                        <svg class="signature-method-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
+                            <path d="M14 14h3v3h-3zM17 17h4M14 20h3M20 14v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>{% trans 'Sign with Phone (QR)' %}</span>
+                    </button>
+                </div>
+                <div id="update-signing-choice-status" class="small text-muted mt-2"></div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4" id="qr-sign-card">
+            <div class="card-header bg-transparent border-bottom">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-qr-code text-primary me-2"></i>
+                    {% trans 'Sign with phone (QR)' %}
+                </h5>
+                <p class="card-subtitle mb-0">{% trans 'Open signing page on your phone and sync signature back here.' %}</p>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-3 align-items-start">
+                    <button type="button" class="btn btn-outline-primary" id="create-sign-session-button">
+                        <i class="bi bi-phone me-2"></i>{% trans 'Generate QR Session' %}
+                    </button>
+                    <div id="sign-session-status" class="text-muted small"></div>
+                </div>
+                <div class="row mt-3" id="sign-session-panel" style="display: none;">
+                    <div class="col-md-4">
+                        <img id="sign-session-qr" class="img-fluid border rounded p-2 bg-white" alt="QR">
+                    </div>
+                    <div class="col-md-8">
+                        <p class="mb-2 fw-semibold">{% trans 'Scan QR and sign on your phone.' %}</p>
+                        <p class="mb-2 small"><a href="#" id="sign-session-link" target="_blank" rel="noopener"></a></p>
+                        <p class="mb-0 small text-muted" id="sign-session-expiry"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Signature Section (at the bottom, before buttons) -->
-        <div class="card shadow-sm border-0 mb-4">
+        <div class="card shadow-sm border-0 mb-4" id="draw-sign-card">
             <div class="card-header bg-transparent border-bottom">
                 <h5 class="card-title mb-1">
                     <i class="bi bi-pen text-dark me-2"></i>
@@ -154,7 +213,14 @@
                                     {% trans 'Please sign in the box above.' %}
                                 </div>
                             </div>
-                            <div class="d-none">{{ form.signature }}</div>
+                            <div class="d-none">
+                                {{ form.signature }}
+                                {{ form.signature_svg }}
+                                {{ form.signature_points }}
+                                {{ form.signature_metadata }}
+                                {{ form.signature_method }}
+                                {{ form.signature_signed_at }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -225,6 +291,47 @@
         margin-bottom: 0;
     }
 
+    .signature-method-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .signature-method-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 0.9rem;
+        padding: 0.62rem 1rem;
+        border-width: 1px;
+        font-weight: 600;
+    }
+
+    .signature-method-icon {
+        width: 1rem;
+        height: 1rem;
+        flex: 0 0 auto;
+    }
+
+    .signature-method-btn.active {
+        background-color: #e8f0ff;
+        border-color: #5e72e4;
+        color: #364fc7;
+    }
+
+    @media (max-width: 767.98px) {
+        .signature-method-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.65rem;
+        }
+
+        .signature-method-btn {
+            width: 100%;
+        }
+    }
+
     /* Red asterisk for required fields */
     label.required::after,
     .form-label.required::after,
@@ -238,8 +345,75 @@
 
 {% block extra_js %}
 <script src="{% static 'licenses/js/tags_input.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        function isMobileOrTabletDevice() {
+            const userAgent = navigator.userAgent || '';
+            const isIpadOs = navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1;
+            return /android|iphone|ipad|ipod|mobile|tablet/i.test(userAgent) || isIpadOs;
+        }
+
+        const qrSignCard = document.getElementById('qr-sign-card');
+        const drawSignCard = document.getElementById('draw-sign-card');
+        const signatureMethodCard = document.getElementById('signature-method-card');
+        const chooseDrawSigningButtonUpdate = document.getElementById('choose-draw-signing-button-update');
+        const chooseQrSigningButtonUpdate = document.getElementById('choose-qr-signing-button-update');
+        const updateSigningChoiceStatus = document.getElementById('update-signing-choice-status');
+        const allowQrSign = !isMobileOrTabletDevice();
+        let selectedUpdateSignMethod = allowQrSign ? 'qr' : 'draw';
+        let resizeSignatureCanvas = null;
+
+        function setUpdateSigningMethod(method) {
+            selectedUpdateSignMethod = method;
+            if (drawSignCard) {
+                drawSignCard.style.display = method === 'draw' ? '' : 'none';
+            }
+            if (qrSignCard) {
+                qrSignCard.style.display = method === 'qr' ? '' : 'none';
+            }
+            if (chooseDrawSigningButtonUpdate) {
+                chooseDrawSigningButtonUpdate.classList.toggle('active', method === 'draw');
+            }
+            if (chooseQrSigningButtonUpdate) {
+                chooseQrSigningButtonUpdate.classList.toggle('active', method === 'qr');
+            }
+            if (updateSigningChoiceStatus) {
+                if (method === 'qr') {
+                    updateSigningChoiceStatus.textContent = '{% trans "Recommended: sign on phone for better handwriting quality." %}';
+                } else {
+                    updateSigningChoiceStatus.textContent = '{% trans "Sign directly in the field below using mouse/stylus." %}';
+                }
+            }
+
+            if (method === 'draw' && typeof resizeSignatureCanvas === 'function') {
+                requestAnimationFrame(function() {
+                    resizeSignatureCanvas();
+                });
+            }
+        }
+
+        if (signatureMethodCard) {
+            signatureMethodCard.style.display = allowQrSign ? '' : 'none';
+        }
+
+        if (chooseDrawSigningButtonUpdate) {
+            chooseDrawSigningButtonUpdate.addEventListener('click', function() {
+                setUpdateSigningMethod('draw');
+            });
+        }
+        if (chooseQrSigningButtonUpdate && allowQrSign) {
+            chooseQrSigningButtonUpdate.addEventListener('click', function() {
+                setUpdateSigningMethod('qr');
+            });
+        }
+
+        if (allowQrSign) {
+            setUpdateSigningMethod('qr');
+        } else {
+            setUpdateSigningMethod('draw');
+        }
+
         // Youth protection toggle
         const youthProtectionField = document.getElementById("id_youth_protection_necessary");
         const youthCategoryRow = document.getElementById("div_id_youth_protection_category");
@@ -301,160 +475,231 @@
         // Signature pad functionality
         const canvas = document.getElementById('signature-pad');
         const signatureInput = document.getElementById('id_signature');
+        const signatureSvgInput = document.getElementById('id_signature_svg');
+        const signaturePointsInput = document.getElementById('id_signature_points');
+        const signatureMetadataInput = document.getElementById('id_signature_metadata');
+        const signatureMethodInput = document.getElementById('id_signature_method');
         const clearButton = document.getElementById('clear-signature');
+        let signaturePad = null;
+        let pointerMethod = 'mouse';
+
+        function clearSignatureFields() {
+            if (signatureInput) signatureInput.value = '';
+            if (signatureSvgInput) signatureSvgInput.value = '';
+            if (signaturePointsInput) signaturePointsInput.value = '';
+            if (signatureMetadataInput) signatureMetadataInput.value = '';
+            if (signatureMethodInput) signatureMethodInput.value = 'mouse';
+        }
+
+        function saveSignature() {
+            if (!signaturePad || signaturePad.isEmpty()) {
+                clearSignatureFields();
+                return;
+            }
+            if (signatureInput) signatureInput.value = signaturePad.toDataURL('image/png');
+            if (signatureSvgInput) signatureSvgInput.value = signaturePad.toSVG();
+            if (signaturePointsInput) signaturePointsInput.value = JSON.stringify(signaturePad.toData());
+            if (signatureMetadataInput) {
+                signatureMetadataInput.value = JSON.stringify({
+                    captured_at: new Date().toISOString(),
+                    user_agent: navigator.userAgent,
+                    max_touch_points: navigator.maxTouchPoints || 0,
+                    canvas_width: canvas.width,
+                    canvas_height: canvas.height,
+                });
+            }
+            if (signatureMethodInput) signatureMethodInput.value = pointerMethod;
+        }
 
         if (canvas) {
-            const ctx = canvas.getContext('2d');
-            let isDrawing = false;
-            let lastX = 0;
-            let lastY = 0;
+            signaturePad = new SignaturePad(canvas, {
+                minWidth: 1,
+                maxWidth: 2.8,
+                penColor: '#111111',
+            });
 
-            // Set canvas size to match display size
             function resizeCanvas() {
+                if (canvas.offsetWidth === 0 || canvas.offsetHeight === 0) {
+                    return;
+                }
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                const dataUrl = canvas.toDataURL();
-                
-                // Save display dimensions before changing canvas size
-                const displayWidth = canvas.offsetWidth;
-                const displayHeight = canvas.offsetHeight;
-
-                canvas.width = displayWidth * ratio;
-                canvas.height = displayHeight * ratio;
-                // Avoid accumulating transforms on repeated resize calls
-                // Use DPR only for backing store resolution (crisp lines), not for perceived stroke thickness.
-                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-                ctx.lineWidth = 6;
-
-                if (dataUrl !== 'data:,') {
-                    const img = new Image();
-                    img.onload = function () {
-                        // Calculate scaling to fit image without stretching
-                        const imgAspect = img.width / img.height;
-                        const canvasAspect = displayWidth / displayHeight;
-                        
-                        let drawWidth, drawHeight, drawX, drawY;
-                        
-                        if (imgAspect > canvasAspect) {
-                            // Image is wider - fit to width
-                            drawWidth = displayWidth * 0.9; // Use 90% of width
-                            drawHeight = drawWidth / imgAspect;
-                            drawX = (displayWidth - drawWidth) / 2;
-                            // Position signature higher (top 20% instead of center)
-                            drawY = displayHeight * 0.2;
-                        } else {
-                            // Image is taller - fit to height
-                            drawHeight = displayHeight * 0.6; // Use 60% of height
-                            drawWidth = drawHeight * imgAspect;
-                            drawX = (displayWidth - drawWidth) / 2;
-                            // Position signature higher
-                            drawY = displayHeight * 0.15;
-                        }
-                        
-                        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-                    };
-                    img.src = dataUrl;
+                const data = !signaturePad.isEmpty() ? signaturePad.toData() : null;
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext('2d').scale(ratio, ratio);
+                signaturePad.clear();
+                if (data && data.length) {
+                    signaturePad.fromData(data);
                 }
-
             }
 
-            // Load existing signature if present (after canvas is initialized)
+            resizeSignatureCanvas = resizeCanvas;
+
             function loadExistingSignature() {
-                if (signatureInput.value) {
-                    const displayWidth = canvas.offsetWidth;
-                    const displayHeight = canvas.offsetHeight;
-                    const img = new Image();
-                    img.onload = function () {
-                        // Calculate scaling to fit image without stretching
-                        const imgAspect = img.width / img.height;
-                        const canvasAspect = displayWidth / displayHeight;
-                        
-                        let drawWidth, drawHeight, drawX, drawY;
-                        
-                        if (imgAspect > canvasAspect) {
-                            // Image is wider - fit to width
-                            drawWidth = displayWidth * 0.9; // Use 90% of width
-                            drawHeight = drawWidth / imgAspect;
-                            drawX = (displayWidth - drawWidth) / 2;
-                            // Position signature higher (top 20% instead of center)
-                            drawY = displayHeight * 0.2;
-                        } else {
-                            // Image is taller - fit to height
-                            drawHeight = displayHeight * 0.6; // Use 60% of height
-                            drawWidth = drawHeight * imgAspect;
-                            drawX = (displayWidth - drawWidth) / 2;
-                            // Position signature higher
-                            drawY = displayHeight * 0.15;
+                if (signaturePointsInput && signaturePointsInput.value) {
+                    try {
+                        const points = JSON.parse(signaturePointsInput.value);
+                        if (Array.isArray(points) && points.length) {
+                            signaturePad.fromData(points);
+                            saveSignature();
+                            return;
                         }
-                        
-                        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-                    };
-                    img.src = signatureInput.value;
+                    } catch (e) {
+                        // Ignore malformed stored points and fallback to legacy data-url.
+                    }
+                }
+                if (signatureInput && signatureInput.value) {
+                    signaturePad.fromDataURL(signatureInput.value, {
+                        ratio: Math.max(window.devicePixelRatio || 1, 1),
+                    });
                 }
             }
-            
+
+            signaturePad.addEventListener('beginStroke', function (event) {
+                const pointerType = event && event.event && event.event.pointerType;
+                if (pointerType === 'touch' || pointerType === 'mouse' || pointerType === 'pen') {
+                    pointerMethod = pointerType === 'pen' ? 'stylus' : pointerType;
+                }
+                if (allowQrSign && selectedUpdateSignMethod !== 'draw') {
+                    setUpdateSigningMethod('draw');
+                }
+            });
+            signaturePad.addEventListener('endStroke', saveSignature);
+
             window.addEventListener('resize', resizeCanvas);
-            resizeCanvas(); // Initialize canvas first
-            setTimeout(loadExistingSignature, 150); // Load signature after canvas is ready
+            resizeCanvas();
+            setTimeout(loadExistingSignature, 150);
 
-            function startDrawing(e) {
-                isDrawing = true;
-                [lastX, lastY] = getCoordinates(e);
-            }
-
-            function draw(e) {
-                if (!isDrawing) return;
-                e.preventDefault();
-                const [x, y] = getCoordinates(e);
-
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(x, y);
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 6;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.stroke();
-
-                // Redraw rectangle to keep it visible
-                [lastX, lastY] = [x, y];
-            }
-
-            function stopDrawing() {
-                if (isDrawing) {
-                    isDrawing = false;
-                    saveSignature();
-                }
-            }
-
-            function getCoordinates(e) {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return [
-                    clientX - rect.left,
-                    clientY - rect.top
-                ];
-            }
-
-            function saveSignature() {
-                signatureInput.value = canvas.toDataURL();
-            }
-
-            // Mouse events
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-
-            // Touch events
-            canvas.addEventListener('touchstart', startDrawing);
-            canvas.addEventListener('touchmove', draw);
-            canvas.addEventListener('touchend', stopDrawing);
-
-            // Clear button
             clearButton.addEventListener('click', function () {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                signatureInput.value = '';
+                signaturePad.clear();
+                clearSignatureFields();
+            });
+        }
+
+        async function pushSignatureToServer() {
+            if (!signatureInput || !signatureInput.value) {
+                return;
+            }
+            const currentUrl = window.location.href;
+            const match = currentUrl.match(/\/licenses\/(\d+)\/update\//);
+            if (!match) {
+                return;
+            }
+            const licenseId = match[1];
+            await fetch(`/licenses/${licenseId}/save-signature/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify({
+                    signature_svg: signatureSvgInput ? signatureSvgInput.value : '',
+                    signature_points: signaturePointsInput ? signaturePointsInput.value : '',
+                    signature_metadata: signatureMetadataInput ? signatureMetadataInput.value : '',
+                    signature_method: signatureMethodInput ? signatureMethodInput.value : 'mouse',
+                    legacy_signature: signatureInput.value,
+                }),
+            });
+        }
+
+        // QR signing session
+        const createSessionButton = document.getElementById('create-sign-session-button');
+        const sessionPanel = document.getElementById('sign-session-panel');
+        const sessionQrImage = document.getElementById('sign-session-qr');
+        const sessionLink = document.getElementById('sign-session-link');
+        const sessionStatus = document.getElementById('sign-session-status');
+        const sessionExpiry = document.getElementById('sign-session-expiry');
+        let sessionPollTimer = null;
+
+        async function pollSignSession(token) {
+            try {
+                const response = await fetch(`/licenses/sign-session/${token}/status/`);
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || '{% trans "Failed to check signing session." %}');
+                }
+                if (data.status === 'signed') {
+                    if (sessionPollTimer) {
+                        clearInterval(sessionPollTimer);
+                        sessionPollTimer = null;
+                    }
+                    if (data.signature_svg && signatureSvgInput) {
+                        signatureSvgInput.value = data.signature_svg;
+                    }
+                    if (data.signature_points && signaturePointsInput) {
+                        signaturePointsInput.value = JSON.stringify(data.signature_points);
+                    }
+                    if (data.signature_metadata && signatureMetadataInput) {
+                        signatureMetadataInput.value = JSON.stringify(data.signature_metadata);
+                    }
+                    if (data.signature_method && signatureMethodInput) {
+                        signatureMethodInput.value = data.signature_method;
+                    }
+                    if (signaturePad && data.signature_points && Array.isArray(data.signature_points)) {
+                        signaturePad.clear();
+                        signaturePad.fromData(data.signature_points);
+                        saveSignature();
+                    }
+                    sessionStatus.innerHTML = '<span class="text-success">{% trans "Signature synchronized from phone." %}</span>';
+                } else if (data.status === 'expired') {
+                    if (sessionPollTimer) {
+                        clearInterval(sessionPollTimer);
+                        sessionPollTimer = null;
+                    }
+                    sessionStatus.innerHTML = '<span class="text-warning">{% trans "Signing session expired." %}</span>';
+                } else {
+                    sessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
+                }
+            } catch (error) {
+                if (sessionPollTimer) {
+                    clearInterval(sessionPollTimer);
+                    sessionPollTimer = null;
+                }
+                sessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
+            }
+        }
+
+        if (createSessionButton && allowQrSign) {
+            createSessionButton.addEventListener('click', async function() {
+                const currentUrl = window.location.href;
+                const match = currentUrl.match(/\/licenses\/(\d+)\/update\//);
+                if (!match) {
+                    return;
+                }
+                const licenseId = match[1];
+                createSessionButton.disabled = true;
+                sessionStatus.textContent = '{% trans "Creating signing session..." %}';
+
+                try {
+                    const response = await fetch(`/licenses/${licenseId}/sign-session/create/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.error || '{% trans "Failed to create signing session." %}');
+                    }
+                    sessionPanel.style.display = 'flex';
+                    sessionQrImage.src = data.qr_url;
+                    sessionLink.textContent = data.sign_url;
+                    sessionLink.href = data.sign_url;
+                    sessionExpiry.textContent = `{% trans "Expires at:" %} ${new Date(data.expires_at).toLocaleString()}`;
+                    sessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
+
+                    if (sessionPollTimer) {
+                        clearInterval(sessionPollTimer);
+                    }
+                    sessionPollTimer = setInterval(function() {
+                        pollSignSession(data.token);
+                    }, 2500);
+                    pollSignSession(data.token);
+                } catch (error) {
+                    sessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
+                } finally {
+                    createSessionButton.disabled = false;
+                }
             });
         }
 
@@ -463,7 +708,7 @@
          const saveButton = document.getElementById('save-button');
          
          if (licenseForm && saveButton) {
-             licenseForm.addEventListener('submit', function(e) {
+             licenseForm.addEventListener('submit', async function(e) {
                  // Get license ID from current URL
                  const currentUrl = window.location.href;
                  const match = currentUrl.match(/\/licenses\/(\d+)\/update\//);
@@ -474,8 +719,8 @@
                      const printUrl = '{% url "licenses:print" pk=0 %}'.replace('0', licenseId);
                      
                      // Check if there's already a digital signature
-                     const signatureInput = document.getElementById('id_signature');
-                     const hasDigitalSignature = signatureInput && signatureInput.value.trim() !== '';
+                      saveSignature();
+                      const hasDigitalSignature = signatureInput && signatureInput.value.trim() !== '';
                      
                      // Prevent default form submission
                      e.preventDefault();
@@ -485,8 +730,13 @@
                      const originalText = saveButton.textContent;
                      saveButton.textContent = '{% trans "Saving..." %}';
                      
-                     // Submit form via fetch
-                     const formData = new FormData(licenseForm);
+                      // Persist signature payload first to avoid losing SVG/biometric data
+                      if (hasDigitalSignature) {
+                          await pushSignatureToServer();
+                      }
+
+                      // Submit form via fetch
+                      const formData = new FormData(licenseForm);
                      
                      fetch(licenseForm.action || window.location.href, {
                          method: 'POST',

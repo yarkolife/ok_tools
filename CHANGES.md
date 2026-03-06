@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-03-06 (Version 4.3.0)
+==========================
+
+* **licenses: Signature v2 and phone QR signing flow**
+  * Added signature v2 fields (SVG, biometric points, metadata, method, signed timestamp) and QR signing sessions with mobile signing page and session lifecycle endpoints.
+  * Updated create/update UX to use explicit signature method selection, desktop-first QR recommendation, and phone-to-canvas synchronization before submit.
+  * Improved PDF signature insertion by preferring SVG/points rendering and preserving austausch compatibility via `has_any_signature()` checks.
+  * Added migration and test coverage for signature session flow and payload validation.
+
 2026-03-05 (Version 4.2.0)
 ==========================
 

@@ -69,6 +69,11 @@ class CreateLicenseForm(forms.ModelForm):
             'suggested_date': forms.DateInput(attrs={"type": "date"}),
             'further_persons': forms.Textarea(attrs={'style': 'max-height: 4em'}),
             'tags': TagsInputWidget(),
+            'signature_svg': forms.HiddenInput(),
+            'signature_points': forms.HiddenInput(),
+            'signature_metadata': forms.HiddenInput(),
+            'signature_method': forms.HiddenInput(),
+            'signature_signed_at': forms.HiddenInput(),
         }
 
     def is_valid(self) -> bool:

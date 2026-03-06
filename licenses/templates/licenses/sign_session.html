@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Sign License' %} - OK Tools{% endblock %}
+{% block page_title %}{% trans 'Sign License' %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="mb-1">{% trans 'Digital Signature' %}</h5>
+                    {% if is_valid_session %}
+                    <p class="text-muted mb-0">{% trans 'Please sign below and submit your signature.' %}</p>
+                    {% else %}
+                    <p class="text-muted mb-0">{% trans 'This signing session is invalid or expired.' %}</p>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if is_valid_session %}
+                    <form id="sign-session-form" method="post" action="{% url 'licenses:sign_session_submit' token=session.token %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <div class="signature-pad-container bg-white border rounded">
+                                <canvas id="signature-pad" class="signature-canvas" height="180"></canvas>
+                            </div>
+                        </div>
+                        <input type="hidden" id="id_signature_svg" name="signature_svg">
+                        <input type="hidden" id="id_signature_points" name="signature_points">
+                        <input type="hidden" id="id_signature_metadata" name="signature_metadata">
+                        <input type="hidden" id="id_signature_method" name="signature_method" value="qr_phone">
+                        <input type="hidden" id="id_legacy_signature" name="legacy_signature">
+
+                        <div class="d-flex gap-2 justify-content-between align-items-center flex-wrap">
+                            <button type="button" class="btn btn-outline-secondary" id="clear-signature">
+                                {% trans 'Clear Signature' %}
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="submit-signature">
+                                {% trans 'Submit Signature' %}
+                            </button>
+                        </div>
+                        <div id="submit-status" class="mt-3"></div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-warning mb-0">
+                        {% trans 'Please request a new signing session from the license page.' %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .signature-pad-container {
+        width: 100%;
+        max-width: 560px;
+        height: 180px;
+        position: relative;
+    }
+
+    .signature-canvas {
+        width: 100%;
+        height: 100%;
+        cursor: crosshair;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{% if is_valid_session %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('signature-pad');
+        const signatureSvgInput = document.getElementById('id_signature_svg');
+        const signaturePointsInput = document.getElementById('id_signature_points');
+        const signatureMetadataInput = document.getElementById('id_signature_metadata');
+        const legacySignatureInput = document.getElementById('id_legacy_signature');
+        const clearButton = document.getElementById('clear-signature');
+        const form = document.getElementById('sign-session-form');
+        const submitStatus = document.getElementById('submit-status');
+        const submitButton = document.getElementById('submit-signature');
+
+        if (!canvas) {
+            return;
+        }
+
+        let pointerMethod = 'qr_phone';
+        const signaturePad = new SignaturePad(canvas, {
+            minWidth: 1,
+            maxWidth: 2.8,
+            penColor: '#111111',
+        });
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+            signaturePad.clear();
+            clearSignatureFields();
+        }
+
+        function clearSignatureFields() {
+            signatureSvgInput.value = '';
+            signaturePointsInput.value = '';
+            signatureMetadataInput.value = '';
+            legacySignatureInput.value = '';
+        }
+
+        function saveSignatureFields() {
+            if (signaturePad.isEmpty()) {
+                clearSignatureFields();
+                return;
+            }
+            signatureSvgInput.value = signaturePad.toSVG();
+            signaturePointsInput.value = JSON.stringify(signaturePad.toData());
+            signatureMetadataInput.value = JSON.stringify({
+                captured_at: new Date().toISOString(),
+                user_agent: navigator.userAgent,
+                max_touch_points: navigator.maxTouchPoints || 0,
+                canvas_width: canvas.width,
+                canvas_height: canvas.height,
+            });
+            legacySignatureInput.value = signaturePad.toDataURL('image/png');
+            document.getElementById('id_signature_method').value = pointerMethod;
+        }
+
+        signaturePad.addEventListener('endStroke', saveSignatureFields);
+        signaturePad.addEventListener('beginStroke', function(event) {
+            const pointerType = event && event.event && event.event.pointerType;
+            if (pointerType === 'mouse' || pointerType === 'touch' || pointerType === 'pen') {
+                pointerMethod = pointerType === 'pen' ? 'stylus' : pointerType;
+            }
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        clearButton.addEventListener('click', function() {
+            signaturePad.clear();
+            clearSignatureFields();
+        });
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            saveSignatureFields();
+            if (signaturePad.isEmpty()) {
+                submitStatus.innerHTML = '<div class="alert alert-warning">{% trans "Please provide a signature first." %}</div>';
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitStatus.innerHTML = '<div class="alert alert-info">{% trans "Submitting signature..." %}</div>';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    credentials: 'same-origin',
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || '{% trans "Failed to submit signature." %}');
+                }
+                submitStatus.innerHTML = '<div class="alert alert-success">{% trans "Signature submitted successfully. You can close this page." %}</div>';
+            } catch (error) {
+                const errorMessage = error && error.message ? error.message : String(error);
+                submitStatus.innerHTML = `<div class="alert alert-danger">${errorMessage}</div>`;
+                submitButton.disabled = false;
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

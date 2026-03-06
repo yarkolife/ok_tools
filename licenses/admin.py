@@ -923,7 +923,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if not obj.pk:
             return '-'
         
-        if obj.signature:
+        if obj.has_any_signature():
             return format_html(
                 '<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}</span>',
                 _('Yes')
@@ -942,7 +942,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if not obj.pk:
             return '-'
         
-        if obj.signature:
+        if obj.has_any_signature():
             return format_html(
                 '<span style="color: #28a745; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}</span>',
                 _('Digital signature is present')

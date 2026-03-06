@@ -1889,6 +1889,121 @@ msgstr "Genehmigte Freistellung %(license)s kann nicht gelöscht werden"
 msgid "License %(license)s successfully deleted."
 msgstr "Freistellung %(license)s erfolgreich gelöscht."
 
+#: licenses/templates/licenses/create.html:344
+msgid "Choose one method. QR phone signing is recommended."
+msgstr "Wählen Sie eine Methode. Die QR-Signatur mit dem Telefon wird empfohlen."
+
+#: licenses/templates/licenses/create.html:351
+#: licenses/templates/licenses/update.html:142
+msgid "Sign Here Now"
+msgstr "Jetzt hier unterschreiben"
+
+#: licenses/templates/licenses/create.html:360
+#: licenses/templates/licenses/update.html:151
+msgid "Sign with Phone (QR)"
+msgstr "Mit dem Telefon unterschreiben (QR)"
+
+#: licenses/templates/licenses/create.html:370
+#: licenses/templates/licenses/update.html:162
+msgid "Sign with phone (QR)"
+msgstr "Mit dem Telefon unterschreiben (QR)"
+
+#: licenses/templates/licenses/create.html:372
+msgid "Scan the QR code and sign on your phone. The signature will sync to the canvas here."
+msgstr "Scannen Sie den QR-Code und unterschreiben Sie auf Ihrem Telefon. Die Unterschrift wird hier mit der Zeichenfläche synchronisiert."
+
+#: licenses/templates/licenses/create.html:374
+#: licenses/templates/licenses/update.html:169
+msgid "Generate QR Session"
+msgstr "QR-Sitzung erstellen"
+
+#: licenses/templates/licenses/create.html:406
+#: licenses/templates/licenses/update.html:644
+msgid "Signature synchronized from phone."
+msgstr "Unterschrift vom Telefon synchronisiert."
+
+#: licenses/templates/licenses/create.html:1128
+msgid "QR method selected (recommended). Generate a QR session and sign on your phone before submitting."
+msgstr "QR-Methode ausgewählt (empfohlen). Erstellen Sie eine QR-Sitzung und unterschreiben Sie vor dem Absenden auf Ihrem Telefon."
+
+#: licenses/templates/licenses/create.html:1315
+msgid "Please complete phone signing first, or switch to Sign Here Now."
+msgstr "Bitte schließen Sie zuerst die Unterschrift auf dem Telefon ab oder wechseln Sie zu \"Jetzt hier unterschreiben\"."
+
+#: licenses/templates/licenses/create.html:342
+#: licenses/templates/licenses/update.html:131
+msgid "Signature Method"
+msgstr "Unterschriftsmethode"
+
+#: licenses/templates/licenses/create.html:382
+#: licenses/templates/licenses/update.html:178
+msgid "Scan QR and sign on your phone."
+msgstr "QR-Code scannen und auf dem Telefon unterschreiben."
+
+#: licenses/templates/licenses/create.html:1188
+#: licenses/templates/licenses/create.html:1231
+#: licenses/templates/licenses/update.html:690
+msgid "Waiting for phone signature..."
+msgstr "Warten auf Unterschrift vom Telefon..."
+
+#: licenses/templates/licenses/create.html:1230
+#: licenses/templates/licenses/update.html:689
+msgid "Expires at:"
+msgstr "Läuft ab am:"
+
+#: licenses/templates/licenses/sign_session.html:5
+#: licenses/templates/licenses/sign_session.html:6
+msgid "Sign License"
+msgstr "Freistellung unterschreiben"
+
+#: licenses/templates/licenses/sign_session.html:16
+msgid "Please sign below and submit your signature."
+msgstr "Bitte unten unterschreiben und die Unterschrift absenden."
+
+#: licenses/templates/licenses/sign_session.html:41
+msgid "Submit Signature"
+msgstr "Unterschrift absenden"
+
+#: licenses/templates/licenses/sign_session.html:155
+msgid "Please provide a signature first."
+msgstr "Bitte zuerst unterschreiben."
+
+#: licenses/templates/licenses/sign_session.html:160
+msgid "Submitting signature..."
+msgstr "Unterschrift wird gesendet..."
+
+#: licenses/templates/licenses/sign_session.html:170
+msgid "Failed to submit signature."
+msgstr "Unterschrift konnte nicht gesendet werden."
+
+#: licenses/templates/licenses/sign_session.html:172
+msgid "Signature submitted successfully. You can close this page."
+msgstr "Unterschrift erfolgreich gesendet. Sie können diese Seite schließen."
+
+#: licenses/templates/licenses/sign_session.html:18
+msgid "This signing session is invalid or expired."
+msgstr "Diese Signatursitzung ist ungültig oder abgelaufen."
+
+#: licenses/templates/licenses/sign_session.html:48
+msgid "Please request a new signing session from the license page."
+msgstr "Bitte fordern Sie auf der Freistellungsseite eine neue Signatursitzung an."
+
+#: licenses/templates/licenses/update.html:133
+msgid "Choose one method. QR signing is recommended for the best handwriting quality."
+msgstr "Wählen Sie eine Methode. Für die beste Handschriftqualität wird die QR-Signatur empfohlen."
+
+#: licenses/templates/licenses/update.html:164
+msgid "Open signing page on your phone and sync signature back here."
+msgstr "Öffnen Sie die Signaturseite auf Ihrem Telefon und synchronisieren Sie die Unterschrift hierher zurück."
+
+#: licenses/templates/licenses/update.html:383
+msgid "Recommended: sign on phone for better handwriting quality."
+msgstr "Empfohlen: Auf dem Telefon unterschreiben für bessere Handschriftqualität."
+
+#: licenses/templates/licenses/update.html:385
+msgid "Sign directly in the field below using mouse/stylus."
+msgstr "Direkt im Feld unten mit Maus/Stylus unterschreiben."
+
 #: licenses/widgets.py:18
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr ""

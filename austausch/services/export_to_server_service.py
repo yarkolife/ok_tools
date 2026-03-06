@@ -385,7 +385,13 @@ class ExportToServerService:
         # PDF is required: resolve before uploading anything (no PDF -> skip entire item)
         pdf_source: Optional[Union[bytes, str]] = None  # bytes = generated from signature, str = local path
         pdf_remote_name: Optional[str] = None
-        if license_obj.signature:
+        has_signature = False
+        if hasattr(license_obj, 'has_any_signature') and license_obj.has_any_signature():
+            has_signature = True
+        elif license_obj.signature or getattr(license_obj, 'signature_svg', None) or getattr(license_obj, 'signature_points', None):
+            has_signature = True
+
+        if has_signature:
             pdf_bytes = generate_license_pdf_bytes(license_obj)
             pdf_source = pdf_bytes
             pdf_remote_name = f'{number}_{normalize_filename(license_obj.title or "license")}.pdf'

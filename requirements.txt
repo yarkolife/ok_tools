@@ -24,6 +24,7 @@ fdfgen==0.16.1
 freezegun==1.2.2
 icalendar>=6.0.0
 caldav>=2.2.0
+cairosvg==2.7.1
 iniconfig==1.1.1
 MarkupPy==1.14
 odfpy==1.4.1

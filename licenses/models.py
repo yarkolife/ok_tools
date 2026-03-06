@@ -3,11 +3,13 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from registration.models import Profile
 import datetime
 import logging
+import uuid
 
 
 logger = logging.getLogger('django')
@@ -177,6 +179,44 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         help_text=_('Base64 encoded signature image'),
     )
 
+    signature_svg = models.TextField(
+        _('Signature SVG'),
+        blank=True,
+        null=True,
+        help_text=_('Primary SVG signature data'),
+    )
+
+    signature_points = models.JSONField(
+        _('Signature points'),
+        blank=True,
+        null=True,
+        default=None,
+        help_text=_('Biometric signature stroke points (x,y,time,pressure).'),
+    )
+
+    signature_metadata = models.JSONField(
+        _('Signature metadata'),
+        blank=True,
+        null=True,
+        default=None,
+        help_text=_('Signature metadata such as device, user-agent, and capture details.'),
+    )
+
+    signature_method = models.CharField(
+        _('Signature method'),
+        max_length=32,
+        blank=True,
+        null=True,
+        help_text=_('Signature input method (mouse, touch, stylus, qr_phone).'),
+    )
+
+    signature_signed_at = models.DateTimeField(
+        _('Signature signed at'),
+        blank=True,
+        null=True,
+        help_text=_('When the digital signature was captured.'),
+    )
+
     created_at = models.DateTimeField(
         _('Created at'),
         auto_now_add=True,
@@ -321,6 +361,16 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         if isinstance(self.tags, list) and len(self.tags) > 0:
             return ', '.join(str(tag).strip() for tag in self.tags if tag)
         return ''
+
+    def has_any_signature(self):
+        """Return True when any supported signature format is available."""
+        if self.signature:
+            return True
+        if self.signature_svg:
+            return True
+        if self.signature_points:
+            return True
+        return False
 
     class Meta:
         """Defines the message IDs."""
@@ -512,3 +562,107 @@ class LicenseNotificationEvent(models.Model):
                 name="uniq_license_notification_event",
             ),
         ]
+
+
+class SigningSessionStatus(models.TextChoices):
+    """Status for cross-device signing sessions."""
+
+    PENDING = 'pending', _('Pending')
+    SIGNED = 'signed', _('Signed')
+    EXPIRED = 'expired', _('Expired')
+    CANCELLED = 'cancelled', _('Cancelled')
+
+
+class SigningSession(models.Model):
+    """Short-lived session used for QR-based phone signing."""
+
+    license = models.ForeignKey(
+        License,
+        on_delete=models.CASCADE,
+        related_name='signing_sessions',
+        verbose_name=_('License'),
+        blank=True,
+        null=True,
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='signing_sessions',
+        verbose_name=_('Owner'),
+        blank=True,
+        null=True,
+    )
+    token = models.CharField(
+        _('Token'),
+        max_length=64,
+        unique=True,
+        db_index=True,
+        default=uuid.uuid4,
+    )
+    status = models.CharField(
+        _('Status'),
+        max_length=16,
+        choices=SigningSessionStatus.choices,
+        default=SigningSessionStatus.PENDING,
+        db_index=True,
+    )
+    expires_at = models.DateTimeField(
+        _('Expires at'),
+        db_index=True,
+    )
+    signature_svg = models.TextField(
+        _('Signature SVG'),
+        blank=True,
+        null=True,
+    )
+    signature_points = models.JSONField(
+        _('Signature points'),
+        blank=True,
+        null=True,
+        default=None,
+    )
+    signature_metadata = models.JSONField(
+        _('Signature metadata'),
+        blank=True,
+        null=True,
+        default=None,
+    )
+    signature_method = models.CharField(
+        _('Signature method'),
+        max_length=32,
+        blank=True,
+        null=True,
+    )
+    signer_ip = models.GenericIPAddressField(
+        _('Signer IP'),
+        blank=True,
+        null=True,
+    )
+    signer_user_agent = models.TextField(
+        _('Signer user agent'),
+        blank=True,
+        null=True,
+    )
+    signed_at = models.DateTimeField(
+        _('Signed at'),
+        blank=True,
+        null=True,
+    )
+    created_at = models.DateTimeField(
+        _('Created at'),
+        auto_now_add=True,
+        db_index=True,
+    )
+
+    class Meta:
+        verbose_name = _('Signing Session')
+        verbose_name_plural = _('Signing Sessions')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        if self.license_id:
+            return f'{self.license.number} ({self.status})'
+        return f'{self.token} ({self.status})'
+
+    def is_expired(self):
+        return timezone.now() >= self.expires_at

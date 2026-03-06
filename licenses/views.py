@@ -2,26 +2,293 @@ from . import forms
 from .generate_file import generate_license_file
 from .models import License
 from .models import NextcloudVideoFile
+from .models import SigningSession
+from .models import SigningSessionStatus
 from .models import YouthProtectionCategory
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
 from registration.models import Profile
 from registration.views import _no_profile_error
+from typing import Any
+import base64
 import datetime
 import django.http as http
+import io
+import json
 import logging
+import qrcode
+import uuid
+import xml.etree.ElementTree as ET
 
 
 User = get_user_model()
 logger = logging.getLogger('django')
+SIGNATURE_SVG_MAX_LENGTH = 50000
+SIGNATURE_METADATA_MAX_LENGTH = 10000
+SIGNATURE_POINTS_MAX_GROUPS = 200
+SIGNATURE_POINTS_MAX_TOTAL_POINTS = 50000
+
+
+def _get_client_ip(request):
+    """Get client IP from request headers."""
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+def _extract_signature_payload(data):
+    """Extract signature payload from JSON/body dict."""
+    signature_svg = data.get('signature_svg')
+    signature_points = data.get('signature_points')
+    signature_metadata = data.get('signature_metadata')
+    signature_method = data.get('signature_method') or 'mouse'
+    legacy_signature = data.get('legacy_signature')
+
+    if isinstance(signature_points, str):
+        signature_points = signature_points.strip()
+        if signature_points:
+            signature_points = json.loads(signature_points)
+        else:
+            signature_points = None
+
+    if isinstance(signature_metadata, str):
+        signature_metadata = signature_metadata.strip()
+        if signature_metadata:
+            signature_metadata = json.loads(signature_metadata)
+        else:
+            signature_metadata = None
+
+    signature_svg = _sanitize_signature_svg(signature_svg)
+    signature_points = _sanitize_signature_points(signature_points)
+    signature_metadata = _sanitize_signature_metadata(signature_metadata)
+
+    if signature_svg is not None and not isinstance(signature_svg, str):
+        raise ValueError('signature_svg must be a string')
+    if signature_points is not None and not isinstance(signature_points, list):
+        raise ValueError('signature_points must be a list')
+    if signature_metadata is not None and not isinstance(signature_metadata, dict):
+        raise ValueError('signature_metadata must be an object')
+
+    has_payload = bool(signature_svg) or bool(signature_points) or bool(legacy_signature)
+    if not has_payload:
+        raise ValueError('No signature payload provided')
+
+    return {
+        'signature_svg': signature_svg,
+        'signature_points': signature_points,
+        'signature_metadata': signature_metadata,
+        'signature_method': signature_method,
+        'legacy_signature': legacy_signature,
+    }
+
+
+def _sanitize_signature_svg(signature_svg):
+    """Validate and sanitize SVG signature payload."""
+    if signature_svg is None:
+        return None
+    if not isinstance(signature_svg, str):
+        raise ValueError('signature_svg must be a string')
+
+    signature_svg = signature_svg.strip()
+    if not signature_svg:
+        return None
+    if len(signature_svg) > SIGNATURE_SVG_MAX_LENGTH:
+        raise ValueError('signature_svg is too large')
+
+    lowered = signature_svg.lower()
+    blocked_patterns = [
+        '<script',
+        'javascript:',
+        'onload=',
+        'onerror=',
+        '<foreignobject',
+        '<iframe',
+        '<object',
+        '<embed',
+    ]
+    if any(pattern in lowered for pattern in blocked_patterns):
+        raise ValueError('signature_svg contains unsafe content')
+
+    try:
+        root = ET.fromstring(signature_svg)
+    except ET.ParseError as e:
+        raise ValueError('signature_svg is not valid XML') from e
+
+    if not str(root.tag).lower().endswith('svg'):
+        raise ValueError('signature_svg root element must be <svg>')
+
+    return signature_svg
+
+
+def _sanitize_signature_points(signature_points):
+    """Validate biometric points payload shape and limits."""
+    if signature_points is None:
+        return None
+    if not isinstance(signature_points, list):
+        raise ValueError('signature_points must be a list')
+    if len(signature_points) > SIGNATURE_POINTS_MAX_GROUPS:
+        raise ValueError('Too many signature point groups')
+
+    total_points = 0
+    sanitized_groups: list[dict[str, Any]] = []
+
+    for group in signature_points:
+        if not isinstance(group, dict):
+            raise ValueError('signature_points group must be an object')
+        points = group.get('points', [])
+        if not isinstance(points, list):
+            raise ValueError('signature_points group points must be a list')
+
+        clean_points = []
+        for point in points:
+            if not isinstance(point, dict):
+                raise ValueError('signature point must be an object')
+            try:
+                x = float(point.get('x', 0))
+                y = float(point.get('y', 0))
+                t = float(point.get('time', 0))
+                p = float(point.get('pressure', 0.5))
+            except (TypeError, ValueError) as e:
+                raise ValueError('signature point contains invalid numeric values') from e
+
+            clean_points.append({
+                'x': x,
+                'y': y,
+                'time': t,
+                'pressure': p,
+            })
+
+        total_points += len(clean_points)
+        if total_points > SIGNATURE_POINTS_MAX_TOTAL_POINTS:
+            raise ValueError('Too many signature points')
+
+        clean_group: dict[str, Any] = {}
+        clean_group['points'] = clean_points
+        if 'color' in group:
+            clean_group['color'] = str(group['color'])[:32]
+        if 'minWidth' in group:
+            clean_group['minWidth'] = group['minWidth']
+        if 'maxWidth' in group:
+            clean_group['maxWidth'] = group['maxWidth']
+        sanitized_groups.append(clean_group)
+
+    return sanitized_groups
+
+
+def _sanitize_signature_metadata(signature_metadata):
+    """Validate metadata payload and apply size limits."""
+    if signature_metadata is None:
+        return None
+    if not isinstance(signature_metadata, dict):
+        raise ValueError('signature_metadata must be an object')
+
+    serialized = json.dumps(signature_metadata)
+    if len(serialized) > SIGNATURE_METADATA_MAX_LENGTH:
+        raise ValueError('signature_metadata is too large')
+
+    return signature_metadata
+
+
+def _render_svg_to_png_data_url(signature_svg):
+    """Render SVG string to PNG data URL for legacy compatibility."""
+    try:
+        from cairosvg import svg2png
+    except Exception:
+        return None
+
+    png_bytes = svg2png(bytestring=signature_svg.encode('utf-8'))
+    encoded = base64.b64encode(png_bytes).decode('ascii')
+    return f'data:image/png;base64,{encoded}'
+
+
+def _apply_signature_to_license(license_obj, payload):
+    """Apply new signature payload to license with legacy dual-write."""
+    _populate_signature_fields(license_obj, payload)
+
+    license_obj.save(update_fields=[
+        'signature',
+        'signature_svg',
+        'signature_points',
+        'signature_metadata',
+        'signature_method',
+        'signature_signed_at',
+    ])
+
+
+def _populate_signature_fields(license_obj, payload):
+    """Populate signature fields on model instance without saving."""
+    license_obj.signature_svg = payload.get('signature_svg') or None
+    license_obj.signature_points = payload.get('signature_points') or None
+    license_obj.signature_metadata = payload.get('signature_metadata') or None
+    license_obj.signature_method = payload.get('signature_method') or 'mouse'
+    license_obj.signature_signed_at = timezone.now()
+
+    legacy_signature = payload.get('legacy_signature')
+    if legacy_signature:
+        license_obj.signature = legacy_signature
+    elif license_obj.signature_svg:
+        rendered = _render_svg_to_png_data_url(license_obj.signature_svg)
+        if rendered:
+            license_obj.signature = rendered
+
+
+def _extract_signature_payload_from_form(form):
+    """Build and validate signature payload from cleaned form data."""
+    payload = {
+        'signature_svg': form.cleaned_data.get('signature_svg'),
+        'signature_points': form.cleaned_data.get('signature_points'),
+        'signature_metadata': form.cleaned_data.get('signature_metadata'),
+        'signature_method': form.cleaned_data.get('signature_method'),
+        'legacy_signature': form.cleaned_data.get('signature'),
+    }
+
+    has_any = bool(payload['signature_svg']) or bool(payload['signature_points']) or bool(payload['legacy_signature'])
+    if not has_any:
+        return None
+
+    return _extract_signature_payload(payload)
+
+
+def _extract_signature_payload_from_session(token, user):
+    """Load a signed QR session payload for create-form pre-submit flow."""
+    if not token:
+        return None
+
+    session = SigningSession.objects.filter(token=token).first()
+    if not session:
+        raise ValueError(_('Signing session not found.'))
+
+    owner = session.owner
+    if owner is None and session.license_id:
+        owner = session.license.profile.okuser
+    if owner != user:
+        raise ValueError(_('Not allowed to use this signing session.'))
+
+    if session.status != SigningSessionStatus.SIGNED:
+        raise ValueError(_('Signing session is not signed yet.'))
+
+    payload = {
+        'signature_svg': session.signature_svg,
+        'signature_points': session.signature_points,
+        'signature_metadata': session.signature_metadata,
+        'signature_method': session.signature_method or 'qr_phone',
+        'legacy_signature': None,
+    }
+    if not payload['signature_svg'] and not payload['signature_points']:
+        raise ValueError(_('Signing session has no signature payload.'))
+    return _extract_signature_payload(payload)
 
 
 def _license_does_not_exist(request) -> http.HttpResponseRedirect:
@@ -87,6 +354,24 @@ class CreateLicenseView(generic.CreateView):
 
     def form_valid(self, form):
         """Handle form submission and return JSON response for AJAX."""
+        sign_session_token = (self.request.POST.get('signing_session_token') or '').strip()
+
+        try:
+            signature_payload = _extract_signature_payload_from_form(form)
+        except ValueError as e:
+            form.add_error('signature', str(e))
+            return self.form_invalid(form)
+
+        if not signature_payload and sign_session_token:
+            try:
+                signature_payload = _extract_signature_payload_from_session(sign_session_token, self.request.user)
+            except ValueError as e:
+                form.add_error('signature', str(e))
+                return self.form_invalid(form)
+
+        if signature_payload:
+            _populate_signature_fields(form.instance, signature_payload)
+
         response = super().form_valid(form)
         
         # Check if this is an AJAX request
@@ -94,10 +379,7 @@ class CreateLicenseView(generic.CreateView):
         
         if is_ajax:
             # Return JSON response for AJAX requests
-            import json
-            from django.http import JsonResponse
-            
-            has_signature = bool(self.object.signature)
+            has_signature = self.object.has_any_signature()
             
             return JsonResponse({
                 'success': True,
@@ -283,6 +565,15 @@ class UpdateLicensesView(generic.edit.UpdateView):
             from licenses.config import get_screen_board_duration
             form.instance.duration = datetime.timedelta(
                 seconds=get_screen_board_duration())
+
+        try:
+            signature_payload = _extract_signature_payload_from_form(form)
+        except ValueError as e:
+            form.add_error('signature', str(e))
+            return self.form_invalid(form)
+
+        if signature_payload:
+            _populate_signature_fields(form.instance, signature_payload)
         
         response = super().form_valid(form)
         
@@ -670,6 +961,218 @@ class ConfirmUploadView(generic.View):
                 'success': False,
                 'error': _('Failed to confirm upload: %(error)s') % {'error': str(e)}
             }, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
+class SaveSignatureView(generic.View):
+    """Persist SVG/biometric signature payload for an existing license."""
+
+    def post(self, request, *args, **kwargs):
+        license_pk = kwargs.get('pk')
+        try:
+            license_obj = License.objects.get(pk=license_pk, profile__okuser=request.user)
+        except License.DoesNotExist:
+            return JsonResponse({'success': False, 'error': _('License not found.')}, status=404)
+
+        if license_obj.confirmed:
+            return JsonResponse({'success': False, 'error': _('Cannot update a confirmed license.')}, status=400)
+
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            payload = _extract_signature_payload(data)
+            _apply_signature_to_license(license_obj, payload)
+        except (json.JSONDecodeError, ValueError) as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        except Exception as e:
+            logger.error('Failed to save signature for license %s: %s', license_obj.number, e, exc_info=True)
+            return JsonResponse({'success': False, 'error': _('Failed to save signature.')}, status=500)
+
+        return JsonResponse({'success': True, 'has_signature': license_obj.has_any_signature()})
+
+
+@method_decorator(login_required, name='dispatch')
+class CreateSigningSessionView(generic.View):
+    """Create QR signing session for cross-device signature capture."""
+
+    def post(self, request, *args, **kwargs):
+        license_pk = kwargs.get('pk')
+        try:
+            license_obj = License.objects.get(pk=license_pk, profile__okuser=request.user)
+        except License.DoesNotExist:
+            return JsonResponse({'success': False, 'error': _('License not found.')}, status=404)
+
+        if license_obj.confirmed:
+            return JsonResponse({'success': False, 'error': _('Cannot sign a confirmed license.')}, status=400)
+
+        expires_at = timezone.now() + datetime.timedelta(minutes=10)
+        session = SigningSession.objects.create(
+            license=license_obj,
+            owner=request.user,
+            token=uuid.uuid4().hex,
+            status=SigningSessionStatus.PENDING,
+            expires_at=expires_at,
+        )
+        sign_url = request.build_absolute_uri(reverse('licenses:sign_session_page', kwargs={'token': session.token}))
+        qr_url = reverse('licenses:sign_session_qr', kwargs={'token': session.token})
+        return JsonResponse({
+            'success': True,
+            'token': session.token,
+            'status': session.status,
+            'expires_at': expires_at.isoformat(),
+            'sign_url': sign_url,
+            'qr_url': qr_url,
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class CreatePreLicenseSigningSessionView(generic.View):
+    """Create QR signing session before license is submitted on create page."""
+
+    def post(self, request, *args, **kwargs):
+        expires_at = timezone.now() + datetime.timedelta(minutes=10)
+        session = SigningSession.objects.create(
+            owner=request.user,
+            token=uuid.uuid4().hex,
+            status=SigningSessionStatus.PENDING,
+            expires_at=expires_at,
+        )
+        sign_url = request.build_absolute_uri(reverse('licenses:sign_session_page', kwargs={'token': session.token}))
+        qr_url = reverse('licenses:sign_session_qr', kwargs={'token': session.token})
+        return JsonResponse({
+            'success': True,
+            'token': session.token,
+            'status': session.status,
+            'expires_at': expires_at.isoformat(),
+            'sign_url': sign_url,
+            'qr_url': qr_url,
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class SigningSessionStatusView(generic.View):
+    """Poll status for QR signing session."""
+
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get('token')
+        session = SigningSession.objects.select_related('license', 'license__profile', 'license__profile__okuser').filter(token=token).first()
+        if not session:
+            return JsonResponse({'success': False, 'error': _('Signing session not found.')}, status=404)
+
+        owner = session.owner
+        if owner is None and session.license_id:
+            owner = session.license.profile.okuser
+        if owner != request.user:
+            return JsonResponse({'success': False, 'error': _('Not allowed.')}, status=403)
+
+        if session.status == SigningSessionStatus.PENDING and session.is_expired():
+            session.status = SigningSessionStatus.EXPIRED
+            session.save(update_fields=['status'])
+
+        return JsonResponse({
+            'success': True,
+            'status': session.status,
+            'expires_at': session.expires_at.isoformat(),
+            'signed_at': session.signed_at.isoformat() if session.signed_at else None,
+            'signature_svg': session.signature_svg,
+            'signature_points': session.signature_points,
+            'signature_metadata': session.signature_metadata,
+            'signature_method': session.signature_method,
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class SigningSessionQRCodeView(generic.View):
+    """Render QR PNG for signing session URL."""
+
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get('token')
+        session = SigningSession.objects.select_related('license', 'license__profile', 'license__profile__okuser').filter(token=token).first()
+        if not session:
+            return http.HttpResponseNotFound()
+        owner = session.owner
+        if owner is None and session.license_id:
+            owner = session.license.profile.okuser
+        if owner != request.user:
+            return http.HttpResponseForbidden()
+
+        sign_url = request.build_absolute_uri(reverse('licenses:sign_session_page', kwargs={'token': token}))
+        qr = qrcode.QRCode(version=1, box_size=8, border=2)
+        qr.add_data(sign_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='black', back_color='white')
+        buffer = io.BytesIO()
+        img.save(buffer, 'PNG')
+        return http.HttpResponse(buffer.getvalue(), content_type='image/png')
+
+
+class SigningSessionPageView(generic.TemplateView):
+    """Public page used on phone to capture and submit a signature."""
+
+    template_name = 'licenses/sign_session.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        token = kwargs.get('token')
+        session = SigningSession.objects.select_related('license').filter(token=token).first()
+        context['session'] = session
+        context['is_valid_session'] = bool(session and session.status == SigningSessionStatus.PENDING and not session.is_expired())
+        return context
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SubmitSigningSessionView(generic.View):
+    """Submit signed payload from phone and finalize session."""
+
+    def post(self, request, *args, **kwargs):
+        token = kwargs.get('token')
+        session = SigningSession.objects.select_related('license').filter(token=token).first()
+        if not session:
+            return JsonResponse({'success': False, 'error': _('Signing session not found.')}, status=404)
+
+        if session.status != SigningSessionStatus.PENDING:
+            return JsonResponse({'success': False, 'error': _('Signing session is not active.')}, status=400)
+        if session.is_expired():
+            session.status = SigningSessionStatus.EXPIRED
+            session.save(update_fields=['status'])
+            return JsonResponse({'success': False, 'error': _('Signing session expired.')}, status=400)
+
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            payload = _extract_signature_payload(data)
+        except (json.JSONDecodeError, ValueError) as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+        if not payload.get('signature_method'):
+            payload['signature_method'] = 'qr_phone'
+
+        session.signature_svg = payload.get('signature_svg')
+        session.signature_points = payload.get('signature_points')
+        session.signature_metadata = payload.get('signature_metadata')
+        session.signature_method = payload.get('signature_method') or 'qr_phone'
+        session.signer_ip = _get_client_ip(request)
+        session.signer_user_agent = request.META.get('HTTP_USER_AGENT')
+        session.signed_at = timezone.now()
+        session.status = SigningSessionStatus.SIGNED
+        session.save(update_fields=[
+            'signature_svg',
+            'signature_points',
+            'signature_metadata',
+            'signature_method',
+            'signer_ip',
+            'signer_user_agent',
+            'signed_at',
+            'status',
+        ])
+
+        if session.license_id:
+            _apply_signature_to_license(session.license, payload)
+        return JsonResponse({'success': True, 'status': session.status})
 
 
 @method_decorator(login_required, name='dispatch')

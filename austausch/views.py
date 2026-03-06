@@ -149,7 +149,9 @@ def _parse_license_numbers(text):
 
 def _license_has_pdf(license_obj, config):
     """Return True if license has PDF (signature or file in configured fallback paths)."""
-    if getattr(license_obj, 'signature', None):
+    if hasattr(license_obj, 'has_any_signature') and license_obj.has_any_signature():
+        return True
+    if getattr(license_obj, 'signature', None) or getattr(license_obj, 'signature_svg', None) or getattr(license_obj, 'signature_points', None):
         return True
     from .services.export_to_server_service import _find_pdf_in_paths
     paths = [
