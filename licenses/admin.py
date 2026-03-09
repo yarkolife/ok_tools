@@ -1,5 +1,4 @@
 from .forms import ImportJSONForm
-from .forms import MediathekRescanPeriodForm
 from .forms import RangeNumericForm
 from .generate_file import generate_license_file
 from .models import Category
@@ -27,6 +26,43 @@ from ok_tools.datetime import TZ
 from registration.models import MediaAuthority
 from registration.models import Profile
 from rangefilter.filters import DateTimeRangeFilter
+
+
+try:
+    from .forms import MediathekRescanPeriodForm
+except ImportError:
+    class MediathekRescanPeriodForm(forms.Form):
+        """Fallback admin form for mediathek rescan period."""
+
+        date_from = forms.DateField(
+            label=_('Date from'),
+            required=True,
+            widget=forms.DateInput(attrs={'type': 'date'}),
+        )
+        date_to = forms.DateField(
+            label=_('Date to'),
+            required=True,
+            widget=forms.DateInput(attrs={'type': 'date'}),
+        )
+        only_store_in_ok_media_library = forms.BooleanField(
+            label=_('Only licenses stored in OK media library'),
+            required=False,
+            initial=True,
+            help_text=_('If enabled, include only licenses with “Store in OK media library” set to Yes.'),
+        )
+
+        def clean(self):
+            """Validate period boundaries."""
+            cleaned_data = super().clean()
+            date_from = cleaned_data.get('date_from')
+            date_to = cleaned_data.get('date_to')
+
+            if date_from and date_to and date_from > date_to:
+                raise forms.ValidationError(
+                    _('Date from must be earlier than or equal to Date to.')
+                )
+
+            return cleaned_data
 
 
 class TranslatedDateTimeRangeFilter(DateTimeRangeFilter):
