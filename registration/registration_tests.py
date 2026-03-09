@@ -1,5 +1,6 @@
 from .email import send_auth_mail
 from .models import Gender
+from .models import OrganizationConfig
 from .models import Profile
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -28,6 +29,7 @@ APPLY_URL = f'{DOMAIN}{reverse_lazy("registration:print_registration")}'
 USER_EDIT_URL = f'{DOMAIN}{reverse_lazy("registration:user_data")}'
 AUTH_URL = r'http://localhost:8000/profile/reset/.*/'
 PWD_RESET_URL = f'{DOMAIN}{reverse_lazy("password_reset")}'
+PRIVACY_POLICY_URL = f'{DOMAIN}{reverse_lazy("privacy_policy")}'
 
 
 def test__registration__views__RegisterView__1(browser, user_dict):
@@ -296,6 +298,46 @@ def test__registration__templates__privacy_policy__1(browser):
     browser.open(REGISTER_URL)
     browser.getLink('privacy policy').click()
     assert 'Datenschutzerklärung' in browser.contents
+
+
+@pytest.mark.django_db
+def test__registration__templates__privacy_policy__uses_organization_config_markdown_and_placeholders(browser):
+    """Custom privacy policy from OrganizationConfig supports placeholders and markdown."""
+    config = OrganizationConfig.get_config()
+    config.name = 'Test Media Center e.V.'
+    config.datenschutz = (
+        '# Datenschutzerklärung\n\n'
+        'Willkommen bei **{{ OK_NAME }}**.\n\n'
+        '- Punkt 1\n'
+        '- Punkt 2\n'
+    )
+    config.save()
+
+    browser.open(PRIVACY_POLICY_URL)
+
+    assert '<h1>Datenschutzerklärung</h1>' in browser.contents
+    assert '<strong>Test Media Center e.V.</strong>' in browser.contents
+    assert '<li>Punkt 1</li>' in browser.contents
+    assert '<li>Punkt 2</li>' in browser.contents
+
+
+@pytest.mark.django_db
+def test__registration__templates__privacy_policy__sanitizes_disallowed_html(browser):
+    """Disallowed tags like script are removed from OrganizationConfig privacy text."""
+    config = OrganizationConfig.get_config()
+    config.datenschutz = (
+        '<h2>Datenschutz</h2>'
+        '<script>alert("x")</script>'
+        '<p>Erlaubter Text</p>'
+    )
+    config.save()
+
+    browser.open(PRIVACY_POLICY_URL)
+
+    assert '<h2>Datenschutz</h2>' in browser.contents
+    assert 'Erlaubter Text' in browser.contents
+    assert '<script>' not in browser.contents
+    assert 'alert("x")' not in browser.contents
 
 
 def test__registration__templates__navbar__1(browser):

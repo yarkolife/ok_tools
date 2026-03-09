@@ -21,6 +21,7 @@ from django.urls import include
 from django.urls import path
 from django.views.generic.base import TemplateView
 from django.views.i18n import JavaScriptCatalog
+from registration.views import PrivacyPolicyView
 from registration.views import PasswordResetConfirmView
 from registration.views import PasswordResetView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
@@ -61,7 +62,7 @@ urlpatterns = [
     path("profile/", include("registration.urls")),
     path(
         "privacy_policy/",
-        TemplateView.as_view(template_name="privacy_policy.html"),
+        PrivacyPolicyView.as_view(),
         name="privacy_policy",
     ),
     # JavaScript translations

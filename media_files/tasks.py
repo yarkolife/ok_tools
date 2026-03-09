@@ -249,6 +249,16 @@ def render_video_task(operation_id):
         is_preview = details.get("preview", False)
         use_intro_outro = details.get("use_intro_outro", False)
         invert_text_color = bool(details.get("invert_text_color", False))
+        overlay_text_color_intro = str(
+            details.get("overlay_text_color_intro") or ("black" if invert_text_color else "preset")
+        ).lower()
+        overlay_text_color_outro = str(
+            details.get("overlay_text_color_outro") or ("black" if invert_text_color else "preset")
+        ).lower()
+        if overlay_text_color_intro not in {"preset", "white", "black"}:
+            overlay_text_color_intro = "preset"
+        if overlay_text_color_outro not in {"preset", "white", "black"}:
+            overlay_text_color_outro = "preset"
         overlay_type = details.get("overlay_type")
         elements = details.get("elements", {})
         styles = details.get("styles", {})
@@ -436,10 +446,8 @@ def render_video_task(operation_id):
             intro_overlays = []
             outro_overlays = []
             segment_duration = 5.0
-            intro_path = None
-            outro_path = None
-            intro_path = None
-            outro_path = None
+            intro_path = details.get("intro_clip")
+            outro_path = details.get("outro_clip")
 
         def _force_box_color_white_spec(color: str) -> str:
             """
@@ -476,6 +484,30 @@ def render_video_task(operation_id):
                 except Exception:
                     out.append(layer)
             return out
+
+        def _force_layers_text_white(layers):
+            """Force ALL text overlays to pure white (no alpha suffix)."""
+            if not layers:
+                return layers
+            from dataclasses import replace
+
+            out = []
+            for layer in layers:
+                try:
+                    if getattr(layer, "type", None) != "text":
+                        out.append(layer)
+                        continue
+                    out.append(replace(layer, fontcolor="white"))
+                except Exception:
+                    out.append(layer)
+            return out
+
+        def _apply_layers_text_color(layers, color_choice):
+            if color_choice == "black":
+                return _force_layers_text_black(layers)
+            if color_choice == "white":
+                return _force_layers_text_white(layers)
+            return layers
         
         def filter_overlays_by_element(overlays, element_type):
             """Filter overlays to only include text overlays relevant to the specified element type."""
@@ -616,10 +648,9 @@ def render_video_task(operation_id):
         if overlay_type != "full_intro_outro" and not intro_overlays:
             raise ValueError("No valid presets found for selected elements")
 
-        # Optional: invert overlay text color (white ↔ black)
-        if invert_text_color:
-            intro_overlays = _force_layers_text_black(intro_overlays)
-            outro_overlays = _force_layers_text_black(outro_overlays)
+        # Optional: force overlay text colors per segment.
+        intro_overlays = _apply_layers_text_color(intro_overlays, overlay_text_color_intro)
+        outro_overlays = _apply_layers_text_color(outro_overlays, overlay_text_color_outro)
         
         # Load encoding preset
         encode = load_encode_preset(encode_name)
@@ -643,9 +674,6 @@ def render_video_task(operation_id):
         from django.conf import settings as django_settings
         media_root = Path(django_settings.MEDIA_ROOT)
         base_dir = Path(django_settings.BASE_DIR)
-        
-        intro_path = None
-        outro_path = None
         
         # Build list of candidate paths in order of preference
         # 1. MEDIA_ROOT/intro_outro/ (works for both production and local)

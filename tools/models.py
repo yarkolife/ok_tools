@@ -122,6 +122,16 @@ class SlideshowProject(models.Model):
         ('radial', _('Radial')),
         ('random', _('Random')),
     ]
+
+    DURATION_MODE_CHOICES = [
+        ('music', _('By Music Duration')),
+        ('images', _('By Image Duration')),
+    ]
+
+    AUDIO_TRIM_MODE_CHOICES = [
+        ('fade', _('Fade Out')),
+        ('trim', _('Trim to Fit')),
+    ]
     
     # Basic info
     name = models.CharField(
@@ -202,6 +212,22 @@ class SlideshowProject(models.Model):
         verbose_name=_('Video Codec'),
         help_text=_('Video codec (auto-detect if empty)')
     )
+
+    # Duration mode settings
+    duration_mode = models.CharField(
+        max_length=10,
+        choices=DURATION_MODE_CHOICES,
+        default='music',
+        verbose_name=_('Duration Mode'),
+        help_text=_('Calculate video length by music or by image duration')
+    )
+    audio_trim_mode = models.CharField(
+        max_length=10,
+        choices=AUDIO_TRIM_MODE_CHOICES,
+        default='fade',
+        verbose_name=_('Audio Trim Mode'),
+        help_text=_('How to handle audio when images are shorter than music')
+    )
     
     # Output
     output_file = models.FileField(
@@ -214,6 +240,30 @@ class SlideshowProject(models.Model):
         blank=True,
         verbose_name=_('Error Message'),
         help_text=_('Error message if generation failed')
+    )
+    
+    # Duration mode settings
+    DURATION_MODE_CHOICES = [
+        ('music', _('By Music Duration')),
+        ('images', _('By Image Duration')),
+    ]
+    duration_mode = models.CharField(
+        max_length=10,
+        choices=DURATION_MODE_CHOICES,
+        default='music',
+        verbose_name=_('Duration Mode'),
+        help_text=_('How to calculate video duration')
+    )
+    AUDIO_TRIM_MODE_CHOICES = [
+        ('fade', _('Fade Out')),
+        ('trim', _('Trim to Fit')),
+    ]
+    audio_trim_mode = models.CharField(
+        max_length=10,
+        choices=AUDIO_TRIM_MODE_CHOICES,
+        default='fade',
+        verbose_name=_('Audio Trim Mode'),
+        help_text=_('What to do when images are shorter than music')
     )
     
     # Timestamps

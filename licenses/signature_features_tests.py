@@ -158,6 +158,66 @@ def test__licenses__PreLicenseSigningSession__create_submit_and_status(client, u
 
 
 @pytest.mark.django_db
+def test__licenses__SigningSessionStatusView__consume_deletes_signed_session(client, user, license):
+    client.force_login(user)
+
+    create_url = reverse('licenses:create_sign_session', kwargs={'pk': license.pk})
+    token = client.post(create_url).json()['token']
+
+    submit_url = reverse('licenses:sign_session_submit', kwargs={'token': token})
+    submit_payload = {
+        'signature_svg': '<svg xmlns="http://www.w3.org/2000/svg"><path d="M1 1 L2 2"/></svg>',
+        'signature_points': json.dumps([
+            {
+                'points': [
+                    {'x': 1, 'y': 1, 'time': 1, 'pressure': 0.3},
+                ]
+            }
+        ]),
+        'signature_metadata': json.dumps({'source': 'phone'}),
+        'signature_method': 'qr_phone',
+    }
+    submit_response = client.post(submit_url, data=submit_payload)
+    assert submit_response.status_code == 200
+
+    status_url = reverse('licenses:sign_session_status', kwargs={'token': token})
+    consume_response = client.get(f'{status_url}?consume=1')
+    assert consume_response.status_code == 200
+    assert consume_response.json()['status'] == SigningSessionStatus.SIGNED
+    assert SigningSession.objects.filter(token=token).exists() is False
+
+
+@pytest.mark.django_db
+def test__licenses__SubmitSigningSessionView__rate_limit(client, user, license):
+    client.force_login(user)
+
+    create_url = reverse('licenses:create_sign_session', kwargs={'pk': license.pk})
+    token = client.post(create_url).json()['token']
+    submit_url = reverse('licenses:sign_session_submit', kwargs={'token': token})
+
+    payload = {
+        'signature_svg': '<svg xmlns="http://www.w3.org/2000/svg"><path d="M1 1 L2 2"/></svg>',
+        'signature_points': json.dumps([
+            {
+                'points': [
+                    {'x': 1, 'y': 1, 'time': 1, 'pressure': 0.3},
+                ]
+            }
+        ]),
+        'signature_metadata': json.dumps({'source': 'phone'}),
+        'signature_method': 'qr_phone',
+    }
+
+    for _ in range(20):
+        response = client.post(submit_url, data=payload)
+        assert response.status_code in (200, 400)
+
+    blocked_response = client.post(submit_url, data=payload)
+    assert blocked_response.status_code == 429
+    assert blocked_response.json()['success'] is False
+
+
+@pytest.mark.django_db
 def test__austausch__license_has_pdf_supports_svg_without_legacy_signature(license):
     austausch_views = pytest.importorskip('austausch.views')
 

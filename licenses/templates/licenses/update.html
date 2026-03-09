@@ -613,7 +613,7 @@
 
         async function pollSignSession(token) {
             try {
-                const response = await fetch(`/licenses/sign-session/${token}/status/`);
+                const response = await fetch(`/licenses/sign-session/${token}/status/?consume=1`);
                 const data = await response.json();
                 if (!response.ok || !data.success) {
                     throw new Error(data.error || '{% trans "Failed to check signing session." %}');

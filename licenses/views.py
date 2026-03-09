@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -17,7 +18,6 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views import generic
-from django.views.decorators.csrf import csrf_exempt
 from registration.models import Profile
 from registration.views import _no_profile_error
 from typing import Any
@@ -38,6 +38,8 @@ SIGNATURE_SVG_MAX_LENGTH = 50000
 SIGNATURE_METADATA_MAX_LENGTH = 10000
 SIGNATURE_POINTS_MAX_GROUPS = 200
 SIGNATURE_POINTS_MAX_TOTAL_POINTS = 50000
+SIGN_SESSION_RATE_LIMIT_ATTEMPTS = 20
+SIGN_SESSION_RATE_LIMIT_WINDOW_SECONDS = 600
 
 
 def _get_client_ip(request):
@@ -92,6 +94,17 @@ def _extract_signature_payload(data):
         'signature_method': signature_method,
         'legacy_signature': legacy_signature,
     }
+
+
+def _is_sign_session_rate_limited(request, token):
+    """Check and increment simple submit rate limit for signing sessions."""
+    ip = _get_client_ip(request) or 'unknown'
+    cache_key = f'sign-session-submit:{token}:{ip}'
+    attempts = cache.get(cache_key, 0)
+    if attempts >= SIGN_SESSION_RATE_LIMIT_ATTEMPTS:
+        return True
+    cache.set(cache_key, attempts + 1, timeout=SIGN_SESSION_RATE_LIMIT_WINDOW_SECONDS)
+    return False
 
 
 def _sanitize_signature_svg(signature_svg):
@@ -1071,7 +1084,7 @@ class SigningSessionStatusView(generic.View):
             session.status = SigningSessionStatus.EXPIRED
             session.save(update_fields=['status'])
 
-        return JsonResponse({
+        response_payload = {
             'success': True,
             'status': session.status,
             'expires_at': session.expires_at.isoformat(),
@@ -1080,7 +1093,13 @@ class SigningSessionStatusView(generic.View):
             'signature_points': session.signature_points,
             'signature_metadata': session.signature_metadata,
             'signature_method': session.signature_method,
-        })
+        }
+
+        consume_flag = str(request.GET.get('consume', '')).lower() in {'1', 'true', 'yes'}
+        if consume_flag and session.status == SigningSessionStatus.SIGNED:
+            session.delete()
+
+        return JsonResponse(response_payload)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -1122,12 +1141,15 @@ class SigningSessionPageView(generic.TemplateView):
         return context
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class SubmitSigningSessionView(generic.View):
     """Submit signed payload from phone and finalize session."""
 
     def post(self, request, *args, **kwargs):
         token = kwargs.get('token')
+
+        if _is_sign_session_rate_limited(request, token):
+            return JsonResponse({'success': False, 'error': _('Too many requests. Please try again later.')}, status=429)
+
         session = SigningSession.objects.select_related('license').filter(token=token).first()
         if not session:
             return JsonResponse({'success': False, 'error': _('Signing session not found.')}, status=404)
@@ -1156,7 +1178,7 @@ class SubmitSigningSessionView(generic.View):
         session.signature_metadata = payload.get('signature_metadata')
         session.signature_method = payload.get('signature_method') or 'qr_phone'
         session.signer_ip = _get_client_ip(request)
-        session.signer_user_agent = request.META.get('HTTP_USER_AGENT')
+        session.signer_user_agent = (request.META.get('HTTP_USER_AGENT') or '')[:512]
         session.signed_at = timezone.now()
         session.status = SigningSessionStatus.SIGNED
         session.save(update_fields=[

@@ -35,6 +35,51 @@ def _media_root_abs() -> Path:
     base_dir = Path(getattr(settings, "BASE_DIR", Path.cwd()))
     return (base_dir / media_root).resolve()
 
+
+def _resolve_intro_outro_paths() -> tuple[str | None, str | None]:
+    """Resolve intro/outro clip paths from known candidate locations."""
+    media_root = Path(getattr(settings, "MEDIA_ROOT", "media/"))
+    if not media_root.is_absolute():
+        media_root = (Path(getattr(settings, "BASE_DIR", Path.cwd())) / media_root).resolve()
+    else:
+        media_root = media_root.resolve()
+
+    base_dir = Path(getattr(settings, "BASE_DIR", Path.cwd())).resolve()
+
+    intro_candidates = [
+        media_root / "intro_outro" / "intro.mp4",
+        Path("/app/media/intro_outro/intro.mp4"),
+        base_dir / "docker-local" / "data" / "media" / "intro_outro" / "intro.mp4",
+        base_dir / "media" / "intro_outro" / "intro.mp4",
+    ]
+    outro_candidates = [
+        media_root / "intro_outro" / "outro.mp4",
+        Path("/app/media/intro_outro/outro.mp4"),
+        base_dir / "docker-local" / "data" / "media" / "intro_outro" / "outro.mp4",
+        base_dir / "media" / "intro_outro" / "outro.mp4",
+    ]
+
+    intro_path = None
+    outro_path = None
+
+    for candidate in intro_candidates:
+        try:
+            if candidate.exists() and candidate.is_file():
+                intro_path = str(candidate.resolve())
+                break
+        except (OSError, ValueError):
+            continue
+
+    for candidate in outro_candidates:
+        try:
+            if candidate.exists() and candidate.is_file():
+                outro_path = str(candidate.resolve())
+                break
+        except (OSError, ValueError):
+            continue
+
+    return intro_path, outro_path
+
 def _media_files_available() -> bool:
     return bool(
         getattr(settings, 'MEDIA_FILES_ENABLED', False)
@@ -340,7 +385,8 @@ class UpdateProjectSettingsView(APIView):
         allowed_fields = [
             'name', 'slide_duration', 'fps', 'width', 'height',
             'use_transitions', 'transition_type', 'transition_duration',
-            'video_bitrate', 'audio_bitrate', 'video_codec'
+            'video_bitrate', 'audio_bitrate', 'video_codec',
+            'duration_mode', 'audio_trim_mode'
         ]
         
         for field in allowed_fields:
@@ -488,6 +534,77 @@ class DeleteProjectView(APIView):
             'status': 'success',
             'message': _('Project deleted')
         }, status=status.HTTP_200_OK)
+
+
+class CopySlideshowProjectView(APIView):
+    """Copy slideshow project with all settings, media files, and audio."""
+    
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check if module is enabled."""
+        check_tools_enabled()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, project_id):
+        """Create a copy of the project."""
+        original_project = get_project_or_403(request, project_id)
+        
+        if original_project.status == 'processing':
+            return Response({
+                'error': _('Cannot copy project while processing')
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create new project with copied settings
+        new_project = SlideshowProject.objects.create(
+            name=_('Copy of {name}').format(name=original_project.name),
+            created_by=request.user,
+            slide_duration=original_project.slide_duration,
+            fps=original_project.fps,
+            width=original_project.width,
+            height=original_project.height,
+            use_transitions=original_project.use_transitions,
+            transition_type=original_project.transition_type,
+            transition_duration=original_project.transition_duration,
+            video_bitrate=original_project.video_bitrate,
+            audio_bitrate=original_project.audio_bitrate,
+            video_codec=original_project.video_codec,
+            duration_mode=getattr(original_project, 'duration_mode', 'music'),
+            audio_trim_mode=getattr(original_project, 'audio_trim_mode', 'fade'),
+        )
+        
+        # Copy media files (create new records referencing the same files)
+        media_files = original_project.media_files.all().order_by('order')
+        for media in media_files:
+            SlideshowMedia.objects.create(
+                project=new_project,
+                file=media.file,  # Reference same file
+                name=media.name,
+                media_type=media.media_type,
+                order=media.order,
+                duration_override=media.duration_override,
+                is_library=False
+            )
+        
+        # Copy audio files (reference the same files)
+        audio_files = original_project.audio_files.all()
+        for audio in audio_files:
+            SlideshowAudio.objects.create(
+                project=new_project,
+                file=audio.file,  # Reference same file
+                name=audio.name,
+                duration=audio.duration,
+                is_library=False
+            )
+        
+        logger.info(f"Slideshow project copied: original_id={project_id}, new_id={new_project.id}, user={request.user.email}")
+        
+        return Response({
+            'status': 'success',
+            'project_id': new_project.id,
+            'name': new_project.name
+        }, status=status.HTTP_201_CREATED)
 
 
 class LibraryAudioListView(APIView):
@@ -831,6 +948,142 @@ class DeleteLibraryMediaView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class DeleteLibraryAudioView(APIView):
+    """Delete audio file from library."""
+    
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check if module is enabled."""
+        check_tools_enabled()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def delete(self, request, audio_id):
+        """Delete library audio file."""
+        if not request.user.is_staff:
+            raise PermissionDenied(_('Only staff members can delete library files.'))
+        
+        audio = get_object_or_404(SlideshowAudio, id=audio_id, is_library=True)
+        audio.delete()
+        
+        return Response({
+            'status': 'success',
+            'message': _('Library audio deleted')
+        }, status=status.HTTP_200_OK)
+
+
+class BulkDeleteMediaView(APIView):
+    """Delete multiple media files from project at once."""
+    
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check if module is enabled."""
+        check_tools_enabled()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, project_id):
+        """Delete multiple media files."""
+        project = get_project_or_403(request, project_id)
+        
+        if project.status == 'processing':
+            return Response({
+                'error': _('Cannot modify project while processing')
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        media_ids = request.data.get('media_ids', [])
+        if not media_ids:
+            return Response({
+                'error': _('No media IDs provided')
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Delete all specified media files
+        deleted_count = SlideshowMedia.objects.filter(
+            id__in=media_ids,
+            project=project
+        ).delete()[0]
+        
+        logger.info(f"Bulk deleted {deleted_count} media files from project {project_id}")
+        
+        return Response({
+            'status': 'success',
+            'message': _('Deleted {count} media file(s)').format(count=deleted_count),
+            'deleted_count': deleted_count
+        }, status=status.HTTP_200_OK)
+
+
+class BulkMakeLibraryView(APIView):
+    """Add multiple project media files to library at once."""
+    
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check if module is enabled."""
+        check_tools_enabled()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, project_id):
+        """Add multiple media files to library."""
+        project = get_project_or_403(request, project_id)
+        
+        if project.status == 'processing':
+            return Response({
+                'error': _('Cannot modify project while processing')
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        media_ids = request.data.get('media_ids', [])
+        if not media_ids:
+            return Response({
+                'error': _('No media IDs provided')
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        added_count = 0
+        skipped_count = 0
+        
+        for media_id in media_ids:
+            try:
+                media = SlideshowMedia.objects.get(id=media_id, project=project)
+                
+                # Check if already in library
+                existing = SlideshowMedia.objects.filter(
+                    is_library=True,
+                    file=media.file
+                ).first()
+                
+                if existing:
+                    skipped_count += 1
+                    continue
+                
+                # Create library entry
+                SlideshowMedia.objects.create(
+                    project=None,
+                    file=media.file,
+                    name=media.name,
+                    media_type=media.media_type,
+                    order=0,
+                    is_library=True
+                )
+                added_count += 1
+                
+            except SlideshowMedia.DoesNotExist:
+                logger.warning(f"Media {media_id} not found in project {project_id}")
+                continue
+        
+        logger.info(f"Bulk added {added_count} media files to library from project {project_id}, skipped {skipped_count}")
+        
+        return Response({
+            'status': 'success',
+            'message': _('Added {added} file(s) to library, {skipped} already existed').format(
+                added=added_count, skipped=skipped_count
+            ),
+            'added_count': added_count,
+            'skipped_count': skipped_count
+        }, status=status.HTTP_200_OK)
+
+
 class AddLibraryAudioToProjectView(APIView):
     """Add audio from library to project."""
     
@@ -1138,6 +1391,22 @@ class VideoRenderSubmitView(APIView):
         is_preview = str(request.data.get("preview") or "false").lower() in ("true", "1", "yes", "on")
         use_intro_outro = str(request.data.get("use_intro_outro") or "false").lower() in ("true", "1", "yes", "on")
         invert_text_color = str(request.data.get("invert_text_color") or "false").lower() in ("true", "1", "yes", "on")
+        allowed_color_choices = {"preset", "white", "black"}
+        intro_color_raw = (request.data.get("overlay_text_color_intro") or "").strip().lower()
+        outro_color_raw = (request.data.get("overlay_text_color_outro") or "").strip().lower()
+        if intro_color_raw and intro_color_raw not in allowed_color_choices:
+            return Response(
+                {"success": False, "error": _("Invalid intro overlay text color.")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if outro_color_raw and outro_color_raw not in allowed_color_choices:
+            return Response(
+                {"success": False, "error": _("Invalid outro overlay text color.")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        color_default = "black" if invert_text_color else "preset"
+        overlay_text_color_intro = intro_color_raw or color_default
+        overlay_text_color_outro = outro_color_raw or color_default
         output_filename_raw = (request.data.get("output_filename") or "").strip()
 
         show_title = str(request.data.get("show_title") or "false").lower() in ("true", "1", "yes", "on")
@@ -1167,6 +1436,26 @@ class VideoRenderSubmitView(APIView):
             ]
         ):
             return Response({"success": False, "error": _("Please select styles for each selected element.")}, status=status.HTTP_400_BAD_REQUEST)
+
+        intro_clip = None
+        outro_clip = None
+        if use_intro_outro and not is_preview:
+            intro_clip, outro_clip = _resolve_intro_outro_paths()
+            if not intro_clip or not outro_clip:
+                missing = []
+                if not intro_clip:
+                    missing.append("intro.mp4")
+                if not outro_clip:
+                    missing.append("outro.mp4")
+                return Response(
+                    {
+                        "success": False,
+                        "error": _("Intro/outro mode requested but required files are missing: {files}").format(
+                            files=", ".join(missing)
+                        ),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         # Pick a source video: prefer a non-rendered version for this license number
         source_video = None
@@ -1289,6 +1578,10 @@ class VideoRenderSubmitView(APIView):
                 "preview": is_preview,
                 "use_intro_outro": use_intro_outro,
                 "invert_text_color": invert_text_color,
+                "overlay_text_color_intro": overlay_text_color_intro,
+                "overlay_text_color_outro": overlay_text_color_outro,
+                "intro_clip": intro_clip,
+                "outro_clip": outro_clip,
                 "elements": {
                     "title": show_title,
                     "subtitle": show_subtitle,

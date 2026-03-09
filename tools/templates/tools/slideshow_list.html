@@ -102,6 +102,7 @@
                 <td>
                     <a href="{% url 'tools:slideshow_detail' project.id %}" class="button">{% trans 'View' %}</a>
                     <a href="{% url 'tools:slideshow_edit' project.id %}" class="button">{% trans 'Edit' %}</a>
+                    <button onclick="copyProject({{ project.id }}, '{{ project.name|escapejs }}')" class="button">{% trans 'Copy' %}</button>
                     {% if project.status == 'completed' and project.output_file %}
                     <a href="{% url 'tools:api_download' project.id %}" class="button default">{% trans 'Download' %}</a>
                     {% endif %}
@@ -129,4 +130,32 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function copyProject(projectId, projectName) {
+    if (!confirm('{% trans "Create a copy of this project?" %}')) {
+        return;
+    }
+    
+    fetch('/tools/api/slideshow/' + projectId + '/copy/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('{% trans "Project copied successfully!" %}');
+            window.location.href = '/tools/slideshow/' + data.project_id + '/edit/';
+        } else {
+            alert('{% trans "Error copying project:" %} ' + (data.error || data.message));
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Error copying project:" %} ' + error);
+    });
+}
+</script>
 {% endblock %}

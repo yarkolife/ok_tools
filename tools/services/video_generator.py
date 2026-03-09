@@ -52,6 +52,99 @@ class VideoGenerator:
         
         # GOP settings (frames per keyframe)
         self.gop = 75
+
+    def calculate_total_duration(self, audio_len: float, duration_mode: str = 'music') -> float:
+        """
+        Calculate total video duration based on mode.
+
+        Args:
+            audio_len: Duration of audio file in seconds
+            duration_mode: 'music' (use audio duration) or 'images' (use image count * slide_duration)
+
+        Returns:
+            Total duration in seconds
+        """
+        if duration_mode == 'music':
+            return audio_len
+
+        # Image-based duration
+        media_files = list(self.project.media_files.all().order_by('order'))
+        if not media_files:
+            raise VideoGeneratorError("No media files found in project")
+
+        # Calculate total image duration (with transitions)
+        total = 0
+        for i, media in enumerate(media_files):
+            # Use duration_override if set, otherwise use slide_duration
+            duration = media.duration_override if media.duration_override else self.slide_sec
+            total += duration
+
+            # Add transition duration (except for last slide)
+            if i < len(media_files) - 1 and self.use_transitions:
+                total += self.trans_dur
+
+        return total
+
+    def prepare_audio_for_images_mode(self, audio_path: Path, image_duration: float, audio_duration: float) -> Path:
+        """
+        Prepare audio file for images mode - fade out or trim to match image duration.
+
+        Args:
+            audio_path: Path to original audio file
+            image_duration: Total duration of images in seconds
+            audio_duration: Duration of audio file in seconds
+
+        Returns:
+            Path to processed audio file (may be the same as input if no processing needed)
+        """
+        if audio_duration <= image_duration:
+            # Audio is shorter or equal, no processing needed
+            return audio_path
+
+        # Get audio_trim_mode from project settings
+        audio_trim_mode = getattr(self.project, 'audio_trim_mode', 'fade')
+
+        # Create output path for processed audio
+        output_dir = audio_path.parent
+        if audio_trim_mode == 'fade':
+            # Fade out audio in last 2 seconds
+            fade_duration = 2.0
+            fade_start = image_duration - fade_duration
+
+            if fade_start <= 0:
+                # Audio is too short to fade, just trim
+                fade_start = 0
+                fade_duration = image_duration
+
+            output_path = output_dir / f"{audio_path.stem}_faded{audio_path.suffix}"
+
+            cmd = [
+                self.ffmpeg, '-y',
+                '-i', str(audio_path),
+                '-af', f'afade=t=out:st={fade_start}:d={fade_duration}',
+                '-t', str(image_duration),
+                str(output_path)
+            ]
+        else:
+            # Trim to match image duration
+            output_path = output_dir / f"{audio_path.stem}_trimmed{audio_path.suffix}"
+
+            cmd = [
+                self.ffmpeg, '-y',
+                '-i', str(audio_path),
+                '-t', str(image_duration),
+                str(output_path)
+            ]
+
+        try:
+            subprocess.run(cmd, capture_output=True, check=True, timeout=60)
+            return output_path
+        except subprocess.CalledProcessError as e:
+            # If processing fails, return original audio
+            import logging
+            logger = logging.getLogger('django')
+            logger.warning(f"Audio processing failed, using original: {e}")
+            return audio_path
         
     @staticmethod
     def is_image(file_path: Path) -> bool:
@@ -391,6 +484,14 @@ class VideoGenerator:
         
         # Get audio duration
         audio_len = self.get_audio_duration(audio_path)
+
+        # Calculate total duration based on mode
+        duration_mode = getattr(self.project, 'duration_mode', 'music')
+        total_duration = self.calculate_total_duration(audio_len, duration_mode)
+
+        # Handle audio trimming/fading when images mode is used and audio is longer than images
+        if duration_mode == 'images' and audio_len > total_duration:
+            audio_path = self.prepare_audio_for_images_mode(audio_path, total_duration, audio_len)
         
         # Determine output path - use mounted path from config if available
         output_path_config = self.config.get_effective_output_path()
@@ -408,9 +509,9 @@ class VideoGenerator:
         
         # Build command
         if self.use_transitions:
-            cmd = self.build_xfade_command(media_paths, audio_path, output_path, audio_len)
+            cmd = self.build_xfade_command(media_paths, audio_path, output_path, total_duration)
         else:
-            cmd = self.build_simple_command(media_paths, audio_path, output_path, audio_len)
+            cmd = self.build_simple_command(media_paths, audio_path, output_path, total_duration)
         
         # Execute FFmpeg
         if progress_callback:
@@ -454,9 +555,9 @@ class VideoGenerator:
                     
                     # Rebuild command with libx264
                     if self.use_transitions:
-                        cmd = self.build_xfade_command(media_paths, audio_path, output_path, audio_len)
+                        cmd = self.build_xfade_command(media_paths, audio_path, output_path, total_duration)
                     else:
-                        cmd = self.build_simple_command(media_paths, audio_path, output_path, audio_len)
+                        cmd = self.build_simple_command(media_paths, audio_path, output_path, total_duration)
                     
                     # Retry with libx264
                     logger.debug(f"Retrying with libx264 codec")

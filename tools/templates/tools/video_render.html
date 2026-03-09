@@ -486,10 +486,24 @@
                         <input type="checkbox" id="use-intro-outro" name="use_intro_outro" value="true">
                         <span>{% trans "Add intro/outro clips and apply overlays to them" %}</span>
                     </label>
-                    <label style="display:flex; gap:10px; align-items:center; font-weight: 600; margin-top: 10px;">
-                        <input type="checkbox" id="invert-text-color" name="invert_text_color" value="true">
-                        <span>{% trans "Invert overlay text color (white ↔ black)" %}</span>
-                    </label>
+                    <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="field" style="min-width: 0; margin: 0;">
+                            <label for="overlay-text-color-intro">{% trans "Intro overlay text color" %}</label>
+                            <select id="overlay-text-color-intro" name="overlay_text_color_intro">
+                                <option value="preset">{% trans "Preset default" %}</option>
+                                <option value="white">{% trans "White" %}</option>
+                                <option value="black">{% trans "Black" %}</option>
+                            </select>
+                        </div>
+                        <div class="field" style="min-width: 0; margin: 0;">
+                            <label for="overlay-text-color-outro">{% trans "Outro overlay text color" %}</label>
+                            <select id="overlay-text-color-outro" name="overlay_text_color_outro">
+                                <option value="preset">{% trans "Preset default" %}</option>
+                                <option value="white">{% trans "White" %}</option>
+                                <option value="black">{% trans "Black" %}</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="hint">{% trans "If unchecked, overlays will be applied to the first and last segment of the main video." %}</div>
                 </div>
             </div>
@@ -616,11 +630,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const fd = new FormData(form);
         fd.set('preview', isPreview ? 'true' : 'false');
         fd.set('use_intro_outro', document.getElementById('use-intro-outro')?.checked ? 'true' : 'false');
-        fd.set('invert_text_color', document.getElementById('invert-text-color')?.checked ? 'true' : 'false');
+        fd.set('overlay_text_color_intro', (document.getElementById('overlay-text-color-intro')?.value || 'preset'));
+        fd.set('overlay_text_color_outro', (document.getElementById('overlay-text-color-outro')?.value || 'preset'));
         const outputFilename = (document.getElementById('outputFilename').value || '').trim();
         if (outputFilename) fd.set('output_filename', outputFilename);
         // normalize checkbox boolean values
-        ['show_title','show_subtitle','show_broadcast_resp','show_media_authority','invert_text_color'].forEach(name => {
+        ['show_title','show_subtitle','show_broadcast_resp','show_media_authority'].forEach(name => {
             const cb = form.querySelector(`[name="${name}"]`);
             if (cb) fd.set(name, cb.checked ? 'true' : 'false');
         });
@@ -649,4 +664,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
-

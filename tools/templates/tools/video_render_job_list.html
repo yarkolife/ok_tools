@@ -106,7 +106,8 @@
                         <div>{% trans 'Encode' %}: {{ op.details.encode|default:"-" }}</div>
                         <div>{% trans 'Style' %}: {{ op.details.style|default:"-" }}</div>
                         <div>{% trans 'Intro/Outro' %}: {% if op.details.use_intro_outro %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}</div>
-                        <div>{% trans 'Invert text' %}: {% if op.details.invert_text_color %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}</div>
+                        <div>{% trans 'Intro text color' %}: {{ op.details.overlay_text_color_intro|default:"preset" }}</div>
+                        <div>{% trans 'Outro text color' %}: {{ op.details.overlay_text_color_outro|default:"preset" }}</div>
                     {% else %}
                         -
                     {% endif %}
@@ -147,4 +148,3 @@
 </script>
 {% endif %}
 {% endblock %}
-

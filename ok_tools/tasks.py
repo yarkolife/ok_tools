@@ -192,3 +192,16 @@ def run_cleanup_deleted_nextcloud_videos_task():
     except Exception as e:
         logger.error(f"Error occurred during cleanup of deleted Nextcloud videos task: {e}")
         raise
+
+
+@shared_task(name='ok_tools.tasks.run_cleanup_signing_sessions_task')
+def run_cleanup_signing_sessions_task():
+    """Celery task to clean up old signing sessions for privacy retention."""
+    logger.info("Starting cleanup of old signing sessions task.")
+
+    try:
+        call_command('cleanup_signing_sessions')
+        logger.info("Cleanup of old signing sessions task completed successfully.")
+    except Exception as e:
+        logger.error(f"Error occurred during cleanup of old signing sessions task: {e}")
+        raise

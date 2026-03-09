@@ -365,6 +365,7 @@
                         <div style="position: absolute; top: 5px; left: 5px; background: rgba(0, 124, 186, 0.9); color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px;">
                             {% trans 'Click to add' %}
                         </div>
+                        <button type="button" class="delete-btn" onclick="event.stopPropagation(); deleteLibraryMedia({{ media.id }})" title="{% trans 'Delete from library' %}">×</button>
                     </div>
                     {% empty %}
                     <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
@@ -380,9 +381,23 @@
                     {% trans 'Project Media' %}
                     <span style="font-size: 13px; font-weight: normal; color: #6c757d; margin-left: 10px;">{% trans 'Drag to reorder' %}</span>
                 </h3>
+                <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="selectAllMedia" onchange="toggleSelectAll()">
+                        <span>{% trans 'Select All' %}</span>
+                    </label>
+                    <span id="selectedCount" style="color: #6c757d; font-size: 13px; margin-left: 10px;">0 {% trans 'selected' %}</span>
+                    <button type="button" id="bulkDeleteBtn" onclick="bulkDeleteMedia()" style="display: none; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 3px; padding: 5px 10px; cursor: pointer; font-size: 12px; margin-left: auto;">
+                        {% trans 'Delete Selected' %}
+                    </button>
+                    <button type="button" id="bulkLibraryBtn" onclick="bulkMakeLibrary()" style="display: none; background: rgba(0, 124, 186, 0.9); color: white; border: none; border-radius: 3px; padding: 5px 10px; cursor: pointer; font-size: 12px;">
+                        {% trans 'Add to Library' %}
+                    </button>
+                </div>
                 <div class="media-grid" id="mediaGrid">
                     {% for media in media_files %}
                     <div class="media-item" data-media-id="{{ media.id }}" data-order="{{ media.order }}" draggable="true">
+                        <input type="checkbox" class="media-checkbox" value="{{ media.id }}" onchange="updateSelectionCount()" style="position: absolute; top: 5px; left: 30px; z-index: 10; width: 20px; height: 20px; cursor: pointer;">
                         <div class="drag-handle">☰</div>
                         {% if media.media_type == 'image' %}
                         <img src="{{ media.get_file_url }}" alt="{{ media.file.name }}" style="pointer-events: none;">
@@ -428,8 +443,11 @@
                     {% for audio in library_audio %}
                     <div class="audio-item" style="cursor: pointer; position: relative;" onclick="addAudioFromLibrary({{ audio.id }})">
                         <span>🎵 {{ audio.name }} {% if audio.duration %}({{ audio.duration|floatformat:0 }}s){% endif %}</span>
-                        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0, 124, 186, 0.9); color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">
-                            {% trans 'Click to add' %}
+                        <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px;">
+                            <div style="background: rgba(0, 124, 186, 0.9); color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">
+                                {% trans 'Click to add' %}
+                            </div>
+                            <button type="button" class="delete-btn" onclick="event.stopPropagation(); deleteLibraryAudio({{ audio.id }})" title="{% trans 'Delete from library' %}" style="position: static; transform: none; margin: 0;">×</button>
                         </div>
                     </div>
                     {% empty %}
@@ -446,7 +464,7 @@
                 <div id="audioPreview">
                     {% for audio in audio_files %}
                     <div class="audio-item" data-audio-id="{{ audio.id }}">
-                        <span>🎵 {{ audio.name|default:audio.file.name }}</span>
+                        <span>🎵 {{ audio.name|default:audio.file.name }} {% if audio.duration %}({{ audio.duration|floatformat:0 }}s){% endif %}</span>
                         <div>
                             <button type="button" class="library-btn" onclick="makeAudioLibrary({{ audio.id }})">{% trans 'Make library' %}</button>
                             <button type="button" class="delete-btn" onclick="deleteAudio({{ audio.id }})">{% trans 'Delete' %}</button>
@@ -508,6 +526,29 @@
                             <option value="{{ value }}" {% if project and project.transition_type == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Duration Mode Settings -->
+            <div class="settings-subsection">
+                <h3>{% trans 'Duration & Audio Settings' %}</h3>
+                <div class="settings-row">
+                    <div class="settings-field">
+                        <label for="durationMode">{% trans 'Video Duration' %}</label>
+                        <select id="durationMode">
+                            <option value="music" {% if project and project.duration_mode == 'music' %}selected{% endif %}>{% trans 'By Music Duration' %}</option>
+                            <option value="images" {% if project and project.duration_mode == 'images' %}selected{% endif %}>{% trans 'By Image Duration' %}</option>
+                        </select>
+                        <div class="settings-help-text">{% trans 'Choose whether video length is determined by music or by number of images' %}</div>
+                    </div>
+                    <div class="settings-field">
+                        <label for="audioTrimMode">{% trans 'When images shorter than music' %}</label>
+                        <select id="audioTrimMode">
+                            <option value="fade" {% if project and project.audio_trim_mode == 'fade' %}selected{% endif %}>{% trans 'Fade Out Audio' %}</option>
+                            <option value="trim" {% if project and project.audio_trim_mode == 'trim' %}selected{% endif %}>{% trans 'Trim Audio' %}</option>
+                        </select>
+                        <div class="settings-help-text">{% trans 'What to do when images finish before music ends' %}</div>
                     </div>
                 </div>
             </div>
@@ -826,6 +867,46 @@ function makeMediaLibrary(mediaId) {
     });
 }
 
+function deleteLibraryMedia(mediaId) {
+    if (!confirm('{% trans "Delete this media from library? This cannot be undone." %}')) return;
+    
+    fetch('/tools/api/library/media/' + mediaId + '/', {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('{% trans "Failed to delete media:" %} ' + (data.error || data.message));
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Error deleting media:" %} ' + error);
+    });
+}
+
+function deleteLibraryAudio(audioId) {
+    if (!confirm('{% trans "Delete this audio from library? This cannot be undone." %}')) return;
+    
+    fetch('/tools/api/library/audio/' + audioId + '/', {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('{% trans "Failed to delete audio:" %} ' + (data.error || data.message));
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Error deleting audio:" %} ' + error);
+    });
+}
+
 function uploadAudio(file) {
     if (!projectId || projectId === '') {
         alert('{% trans "Please save project first" %}');
@@ -928,6 +1009,121 @@ function makeAudioLibrary(audioId) {
     });
 }
 
+// Multi-select functions
+function updateSelectionCount() {
+    const checkboxes = document.querySelectorAll('.media-checkbox:checked');
+    const count = checkboxes.length;
+    const selectedCount = document.getElementById('selectedCount');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const bulkLibraryBtn = document.getElementById('bulkLibraryBtn');
+    
+    if (selectedCount) {
+        selectedCount.textContent = count + ' {% trans "selected" %}';
+    }
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+    if (bulkLibraryBtn) {
+        bulkLibraryBtn.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAllMedia');
+    const checkboxes = document.querySelectorAll('.media-checkbox');
+    
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+    });
+    
+    updateSelectionCount();
+}
+
+function getSelectedMediaIds() {
+    const checkboxes = document.querySelectorAll('.media-checkbox:checked');
+    return Array.from(checkboxes).map(cb => parseInt(cb.value));
+}
+
+function bulkDeleteMedia() {
+    const selectedIds = getSelectedMediaIds();
+    
+    if (selectedIds.length === 0) {
+        alert('{% trans "No media selected" %}');
+        return;
+    }
+    
+    if (!confirm('{% trans "Delete selected media files?" %} (' + selectedIds.length + ' {% trans "items" %})')) {
+        return;
+    }
+    
+    if (!projectId || projectId === '') {
+        alert('{% trans "Invalid project ID" %}');
+        return;
+    }
+    
+    fetch(`/tools/api/slideshow/${projectId}/media/bulk-delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ media_ids: selectedIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('{% trans "Delete failed" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Bulk delete error:', error);
+        alert('{% trans "Delete failed" %}: ' + error.message);
+    });
+}
+
+function bulkMakeLibrary() {
+    const selectedIds = getSelectedMediaIds();
+    
+    if (selectedIds.length === 0) {
+        alert('{% trans "No media selected" %}');
+        return;
+    }
+    
+    if (!confirm('{% trans "Add selected media files to library?" %} (' + selectedIds.length + ' {% trans "items" %})')) {
+        return;
+    }
+    
+    if (!projectId || projectId === '') {
+        alert('{% trans "Invalid project ID" %}');
+        return;
+    }
+    
+    fetch(`/tools/api/slideshow/${projectId}/media/bulk-make-library/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ media_ids: selectedIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('{% trans "Failed to add to library" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    })
+    .catch(error => {
+        console.error('Bulk make library error:', error);
+        alert('{% trans "Failed to add to library" %}: ' + error.message);
+    });
+}
+
 function saveProject() {
     const name = document.getElementById('projectName').value;
     if (!name) {
@@ -967,7 +1163,9 @@ function updateSettings() {
         height: parseInt(resolution[1]),
         use_transitions: document.getElementById('useTransitions').checked,
         transition_type: document.getElementById('transitionType').value,
-        transition_duration: parseFloat(document.getElementById('transitionDuration').value)
+        transition_duration: parseFloat(document.getElementById('transitionDuration').value),
+        duration_mode: document.getElementById('durationMode') ? document.getElementById('durationMode').value : 'music',
+        audio_trim_mode: document.getElementById('audioTrimMode') ? document.getElementById('audioTrimMode').value : 'fade'
     };
     
     fetch(getApiUrl('settings'), {

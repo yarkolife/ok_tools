@@ -562,7 +562,21 @@ Import equipment inspection data:
 Privacy Policy
 ==============
 
-To include a privacy policy simply modify :code:`files/privacy_policy.html`.
+Privacy policy content is resolved in this order:
+
+1. If ``Organization Configuration -> Privacy Policy (Datenschutz)``
+   (``/admin/registration/organizationconfig/1/change/``) is non-empty,
+   this value is used.
+2. If that field is empty, fallback file :code:`files/privacy_policy.html`
+   is used.
+
+The database field supports:
+
+- Placeholder substitution (for example ``{{ OK_NAME }}``, ``{{ OK_ADDRESS }}``)
+  using organization context values.
+- Basic Markdown-style formatting (headings, lists, emphasis) for plain text
+  input.
+- Safe HTML rendering with a restrictive allowlist of tags/attributes.
 
 Security
 ========

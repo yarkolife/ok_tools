@@ -4,6 +4,10 @@
 {% load include_file %}
 
 {% block content %}
-        {% autoescape off %}{% include_file 'files/privacy_policy.html'%}{% endautoescape %}
+        {% if privacy_policy_html %}
+                {{ privacy_policy_html }}
+        {% else %}
+                {% autoescape off %}{% include_file 'files/privacy_policy.html'%}{% endautoescape %}
+        {% endif %}
 
 {% endblock content %}

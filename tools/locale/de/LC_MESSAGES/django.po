@@ -2943,6 +2943,146 @@ msgstr "Dateivorgang"
 msgid "Sendeverantwortung"
 msgstr "Sendeverantwortung"
 
+#: tools/api.py:523
+msgid "Cannot copy project while processing"
+msgstr "Projekt kann während der Verarbeitung nicht kopiert werden"
+
+#: tools/api.py:529
+#, python-brace-format
+msgid "Copy of {name}"
+msgstr "Kopie von {name}"
+
+#: tools/api.py:871
+#, python-brace-format
+msgid "Deleted {count} media file(s)"
+msgstr "{count} Mediendatei(en) gelöscht"
+
+#: tools/api.py:923
+#, python-brace-format
+msgid "Added {added} file(s) to library, {skipped} already existed"
+msgstr "{added} Datei(en) zur Bibliothek hinzugefügt, {skipped} existierte(n) bereits"
+
+#: tools/api.py:854
+msgid "Library audio deleted"
+msgstr "Bibliotheksaudio gelöscht"
+
+#: tools/templates/tools/slideshow_list.html:136
+msgid "Create a copy of this project?"
+msgstr "Eine Kopie dieses Projekts erstellen?"
+
+#: tools/templates/tools/slideshow_list.html:148
+msgid "Project copied successfully!"
+msgstr "Projekt erfolgreich kopiert!"
+
+#: tools/templates/tools/slideshow_list.html:151
+msgid "Error copying project:"
+msgstr "Fehler beim Kopieren des Projekts:"
+
+#: tools/templates/tools/slideshow_creator.html:368
+#: tools/templates/tools/slideshow_creator.html:449
+msgid "Delete from library"
+msgstr "Aus Bibliothek löschen"
+
+#: tools/templates/tools/slideshow_creator.html:384
+msgid "Select All"
+msgstr "Alle auswählen"
+
+#: tools/templates/tools/slideshow_creator.html:386
+#: tools/templates/tools/slideshow_creator.html:936
+msgid "selected"
+msgstr "ausgewählt"
+
+#: tools/templates/tools/slideshow_creator.html:388
+msgid "Delete Selected"
+msgstr "Ausgewählte löschen"
+
+#: tools/templates/tools/slideshow_creator.html:391
+msgid "Add to Library"
+msgstr "Zur Bibliothek hinzufügen"
+
+#: tools/templates/tools/slideshow_creator.html:515
+msgid "Duration & Audio Settings"
+msgstr "Dauer- & Audio-Einstellungen"
+
+#: tools/templates/tools/slideshow_creator.html:518
+msgid "Video Duration"
+msgstr "Videodauer"
+
+#: tools/templates/tools/slideshow_creator.html:520
+msgid "By Music Duration"
+msgstr "Nach Musikdauer"
+
+#: tools/templates/tools/slideshow_creator.html:521
+msgid "By Image Duration"
+msgstr "Nach Bilddauer"
+
+#: tools/templates/tools/slideshow_creator.html:523
+msgid "Choose whether video length is determined by music or by number of images"
+msgstr "Wählen Sie, ob die Videolänge durch die Musik oder durch die Anzahl der Bilder bestimmt wird"
+
+#: tools/templates/tools/slideshow_creator.html:526
+msgid "When images shorter than music"
+msgstr "Wenn Bilder kürzer als Musik sind"
+
+#: tools/templates/tools/slideshow_creator.html:528
+msgid "Fade Out Audio"
+msgstr "Audio ausblenden"
+
+#: tools/templates/tools/slideshow_creator.html:529
+msgid "Trim Audio"
+msgstr "Audio kürzen"
+
+#: tools/templates/tools/slideshow_creator.html:531
+msgid "What to do when images finish before music ends"
+msgstr "Was tun, wenn die Bilder enden, bevor die Musik endet"
+
+#: tools/templates/tools/slideshow_creator.html:829
+msgid "Delete this media from library? This cannot be undone."
+msgstr "Dieses Medium aus der Bibliothek löschen? Dies kann nicht rückgängig gemacht werden."
+
+#: tools/templates/tools/slideshow_creator.html:839
+msgid "Failed to delete media:"
+msgstr "Fehler beim Löschen des Mediums:"
+
+#: tools/templates/tools/slideshow_creator.html:843
+msgid "Error deleting media:"
+msgstr "Fehler beim Löschen des Mediums:"
+
+#: tools/templates/tools/slideshow_creator.html:849
+msgid "Delete this audio from library? This cannot be undone."
+msgstr "Diese Audiodatei aus der Bibliothek löschen? Dies kann nicht rückgängig gemacht werden."
+
+#: tools/templates/tools/slideshow_creator.html:859
+msgid "Failed to delete audio:"
+msgstr "Fehler beim Löschen der Audiodatei:"
+
+#: tools/templates/tools/slideshow_creator.html:863
+msgid "Error deleting audio:"
+msgstr "Fehler beim Löschen der Audiodatei:"
+
+#: tools/templates/tools/slideshow_creator.html:955
+#: tools/templates/tools/slideshow_creator.html:988
+msgid "No media selected"
+msgstr "Keine Medien ausgewählt"
+
+#: tools/templates/tools/slideshow_creator.html:993
+msgid "Delete selected media files?"
+msgstr "Ausgewählte Mediendateien löschen?"
+
+#: tools/templates/tools/slideshow_creator.html:993
+#: tools/templates/tools/slideshow_creator.html:1026
+msgid "items"
+msgstr "Elemente"
+
+#: tools/templates/tools/slideshow_creator.html:1021
+msgid "Add selected media files to library?"
+msgstr "Ausgewählte Mediendateien zur Bibliothek hinzufügen?"
+
+#: tools/templates/tools/slideshow_creator.html:1048
+#: tools/templates/tools/slideshow_creator.html:1053
+msgid "Failed to add to library"
+msgstr "Zur Bibliothek hinzufügen fehlgeschlagen"
+
 #, python-brace-format
 #~ msgid ""
 #~ "High peak levels and continuous background noise detected. Recommended: "
@@ -3102,3 +3242,47 @@ msgstr "Sendeverantwortung"
 
 #~ msgid "No matching files found under MEDIA_ROOT."
 #~ msgstr "Keine passenden Dateien unter MEDIA_ROOT gefunden."
+
+#: tools/templates/tools/video_render.html:492
+msgid "Intro overlay text color"
+msgstr "Textfarbe für Intro-Overlays"
+
+#: tools/templates/tools/video_render.html:494
+#: tools/templates/tools/video_render.html:501
+msgid "Preset default"
+msgstr "Preset-Standard"
+
+#: tools/templates/tools/video_render.html:495
+#: tools/templates/tools/video_render.html:502
+msgid "White"
+msgstr "Weiß"
+
+#: tools/templates/tools/video_render.html:496
+#: tools/templates/tools/video_render.html:503
+msgid "Black"
+msgstr "Schwarz"
+
+#: tools/templates/tools/video_render.html:499
+msgid "Outro overlay text color"
+msgstr "Textfarbe für Outro-Overlays"
+
+#: tools/templates/tools/video_render_job_list.html:109
+msgid "Intro text color"
+msgstr "Intro-Textfarbe"
+
+#: tools/templates/tools/video_render_job_list.html:110
+msgid "Outro text color"
+msgstr "Outro-Textfarbe"
+
+#: tools/api.py:1360
+msgid "Invalid intro overlay text color."
+msgstr "Ungültige Textfarbe für Intro-Overlays."
+
+#: tools/api.py:1365
+msgid "Invalid outro overlay text color."
+msgstr "Ungültige Textfarbe für Outro-Overlays."
+
+#: tools/api.py:1418
+#, python-brace-format
+msgid "Intro/outro mode requested but required files are missing: {files}"
+msgstr "Intro-/Outro-Modus angefordert, aber erforderliche Dateien fehlen: {files}"

@@ -35,18 +35,22 @@ urlpatterns = [
     path('api/slideshow/<int:project_id>/status/', api.ProjectStatusView.as_view(), name='api_status'),
     path('api/slideshow/<int:project_id>/download/', api.DownloadSlideshowView.as_view(), name='api_download'),
     path('api/slideshow/<int:project_id>/', api.DeleteProjectView.as_view(), name='api_delete'),
+    path('api/slideshow/<int:project_id>/copy/', api.CopySlideshowProjectView.as_view(), name='api_copy'),
     path('api/slideshow/<int:project_id>/media/<int:media_id>/', api.DeleteMediaView.as_view(), name='api_delete_media'),
     path('api/slideshow/<int:project_id>/media/<int:media_id>/make-library/', api.MakeProjectMediaLibraryView.as_view(), name='api_make_library_media'),
     path('api/slideshow/<int:project_id>/order/', api.UpdateMediaOrderView.as_view(), name='api_update_order'),
     path('api/slideshow/<int:project_id>/add-library-media/', api.AddLibraryMediaToProjectView.as_view(), name='api_add_library_media'),
     path('api/slideshow/<int:project_id>/add-library-audio/', api.AddLibraryAudioToProjectView.as_view(), name='api_add_library_audio'),
     path('api/slideshow/<int:project_id>/audio/<int:audio_id>/make-library/', api.MakeProjectAudioLibraryView.as_view(), name='api_make_library_audio'),
+    path('api/slideshow/<int:project_id>/media/bulk-delete/', api.BulkDeleteMediaView.as_view(), name='api_bulk_delete_media'),
+    path('api/slideshow/<int:project_id>/media/bulk-make-library/', api.BulkMakeLibraryView.as_view(), name='api_bulk_make_library'),
     
     # Library endpoints
     path('api/library/audio/', api.LibraryAudioListView.as_view(), name='api_library_audio'),
     path('api/library/media/', api.LibraryMediaListView.as_view(), name='api_library_media'),
     path('api/library/media/upload/', api.UploadLibraryMediaView.as_view(), name='api_upload_library_media'),
     path('api/library/media/<int:media_id>/', api.DeleteLibraryMediaView.as_view(), name='api_delete_library_media'),
+    path('api/library/audio/<int:audio_id>/', api.DeleteLibraryAudioView.as_view(), name='api_delete_library_audio'),
 
     # Audio normalize API
     path('api/audio-normalize/presets/', api.AudioPresetsView.as_view(), name='api_audio_presets'),

@@ -829,6 +829,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task',
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_DELETED_NEXTCLOUD_VIDEOS', '0 2 * * *'),
     },
+    'cleanup_signing_sessions': {
+        'task': 'ok_tools.tasks.run_cleanup_signing_sessions_task',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_SIGNING_SESSIONS', '30 2 * * *'),
+    },
     'sync_exchange_folders': {
         'task': 'austausch.tasks.sync_exchange_folders',
         'schedule': parse_crontab_env('CELERY_BEAT_SYNC_EXCHANGE', '0 2 * * *'),

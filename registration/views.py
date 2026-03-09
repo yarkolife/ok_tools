@@ -2,8 +2,11 @@ from .email import send_auth_mail
 from .forms import PasswordResetForm
 from .forms import ProfileForm
 from .forms import UserDataForm
+from .legal_texts import render_legal_text
+from .models import OrganizationConfig
 from .models import Profile
 from .print import generate_registration_form
+from . import context_processors as registration_context_processors
 from django import forms
 from django.conf import settings
 from django.contrib import messages
@@ -166,6 +169,24 @@ class RegistrationPlainFormFile(generic.View):
                 open(template_pdf, 'rb'),
                 filename=str(_('registration_form.pdf'))
             )
+
+
+class PrivacyPolicyView(generic.TemplateView):
+    """Display privacy policy from OrganizationConfig with fallback file."""
+
+    template_name = 'privacy_policy.html'
+
+    def get_context_data(self, **kwargs):
+        """Add rendered privacy policy HTML when custom text is configured."""
+        context = super().get_context_data(**kwargs)
+        config = OrganizationConfig.get_config()
+        custom_privacy_text = (config.datenschutz or '').strip()
+
+        if custom_privacy_text:
+            template_context = registration_context_processors.context(self.request)
+            context['privacy_policy_html'] = render_legal_text(custom_privacy_text, template_context)
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
