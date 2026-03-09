@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from datetime import timedelta
 import logging
+from typing import Any
 from urllib.parse import quote
 from urllib.parse import urljoin
 
@@ -84,41 +85,86 @@ def find_video_by_number_in_channel(
     max_pages: int = 50,
 ) -> dict | None:
     """Find full PeerTube video object by pluginData.videoNumber in channel."""
-    start = 0
-    video_number_str = str(video_number)
 
-    for _ in range(max_pages):
-        path = f'/api/v1/video-channels/{quote(channel_handle, safe="")}/videos'
-        data = peertube_get_json(
-            base_url,
-            path,
-            params={'count': page_size, 'start': start, 'sort': '-publishedAt'},
-        )
+    def _channel_candidates(value: str) -> list[str]:
+        raw = (value or '').strip()
+        if not raw:
+            return []
 
-        items = data.get('data') or []
-        if not items:
-            return None
+        candidates: list[str] = []
 
-        for item in items:
-            plugin_data = item.get('pluginData') or {}
-            if str(plugin_data.get('videoNumber', '')) == video_number_str:
+        def _add(candidate: str) -> None:
+            candidate = candidate.strip()
+            if candidate and candidate not in candidates:
+                candidates.append(candidate)
+
+        _add(raw)
+
+        no_leading_at = raw[1:] if raw.startswith('@') else raw
+        _add(no_leading_at)
+
+        if '@' in no_leading_at:
+            _add(no_leading_at.split('@', 1)[0])
+
+        return candidates
+
+    def _fetch_for_channel(channel_identifier: str) -> dict[str, Any] | None:
+        start = 0
+        video_number_str = str(video_number)
+
+        for _ in range(max_pages):
+            path = f'/api/v1/video-channels/{quote(channel_identifier, safe="")}/videos'
+            data = peertube_get_json(
+                base_url,
+                path,
+                params={'count': page_size, 'start': start, 'sort': '-publishedAt'},
+            )
+
+            items = data.get('data') or []
+            if not items:
+                return None
+
+            for item in items:
+                plugin_data = item.get('pluginData') or {}
+                if str(plugin_data.get('videoNumber', '')) == video_number_str:
+                    uuid = item.get('uuid')
+                    if not uuid:
+                        continue
+                    return peertube_get_json(base_url, f'/api/v1/videos/{quote(uuid, safe="")}')
+
                 uuid = item.get('uuid')
                 if not uuid:
                     continue
-                return peertube_get_json(base_url, f'/api/v1/videos/{quote(uuid, safe="")}')
 
-            uuid = item.get('uuid')
-            if not uuid:
+                full = peertube_get_json(base_url, f'/api/v1/videos/{quote(uuid, safe="")}')
+                full_plugin_data = full.get('pluginData') or {}
+                if str(full_plugin_data.get('videoNumber', '')) == video_number_str:
+                    return full
+
+            if len(items) < page_size:
+                return None
+            start += page_size
+
+        return None
+
+    last_http_error: requests.HTTPError | None = None
+    for candidate in _channel_candidates(channel_handle):
+        try:
+            return _fetch_for_channel(candidate)
+        except requests.HTTPError as exc:
+            status_code = getattr(getattr(exc, 'response', None), 'status_code', None)
+            if status_code == 404:
+                logger.warning(
+                    'PeerTube channel identifier not found: %s (base_url=%s)',
+                    candidate,
+                    base_url,
+                )
+                last_http_error = exc
                 continue
+            raise
 
-            full = peertube_get_json(base_url, f'/api/v1/videos/{quote(uuid, safe="")}')
-            full_plugin_data = full.get('pluginData') or {}
-            if str(full_plugin_data.get('videoNumber', '')) == video_number_str:
-                return full
-
-        if len(items) < page_size:
-            return None
-        start += page_size
+    if last_http_error:
+        raise last_http_error
 
     return None
 
