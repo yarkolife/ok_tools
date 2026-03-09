@@ -113,3 +113,13 @@ class TestExportToServerServiceNetworkShare(TestCase):
         finally:
             if os.path.exists(src_path):
                 os.unlink(src_path)
+
+    def test_run_includes_success_license_numbers_for_license_mode(self):
+        self.service._validate_destination = Mock(return_value=True)
+        self.service._export_one = Mock(return_value=('success', 12345, None))
+
+        report = self.service.run(selected_ids=[12345], mode='licenses')
+
+        self.assertEqual(report['success_count'], 1)
+        self.assertEqual(report['success_ids'], [12345])
+        self.assertEqual(report['success_license_numbers'], [12345])

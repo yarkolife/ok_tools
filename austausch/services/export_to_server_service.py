@@ -296,6 +296,7 @@ class ExportToServerService:
             'failure_count': 0,
             'skipped_no_pdf_count': 0,
             'success_ids': [],
+            'success_license_numbers': [],
             'failed': [],
             'skipped_no_pdf': [],
         }
@@ -314,9 +315,11 @@ class ExportToServerService:
                         from contributions.models import Contribution
                         contribution = Contribution.objects.filter(pk=item_id).first()
                         if contribution and contribution.license:
+                            report['success_license_numbers'].append(contribution.license.number)
                             self._record_exported_license(contribution.license.number)
                     else:
                         # mode == 'licenses', item_id is already the license number
+                        report['success_license_numbers'].append(out_id)
                         self._record_exported_license(out_id)
                 elif status == 'skipped_no_pdf':
                     report['skipped_no_pdf_count'] += 1

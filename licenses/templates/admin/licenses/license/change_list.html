@@ -5,6 +5,9 @@
 {% block object-tools-items %}
   {{ block.super }}
   <li>
+    <a href="{% url 'admin:licenses_license_rescan_mediathek' %}" class="addlink">{% trans "Rescan mediathek links" %}</a>
+  </li>
+  <li>
     <a href="{% url 'admin:licenses_license_import_json' %}" class="addlink">{% trans "Import from JSON" %}</a>
   </li>
 {% endblock %}

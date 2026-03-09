@@ -5,67 +5,323 @@
 <div class="breadcrumbs">
   <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
   &rsaquo; <a href="{% url 'admin:austausch_exchangeitem_changelist' %}">{% translate "Austausch" %}</a>
-  &rsaquo; {% translate "Export to server" %} &rsaquo; {% translate "Last result" %}
+  &rsaquo; <a href="{% url 'austausch:export_to_server_step1' %}">{% translate "Export to server" %}</a>
+  &rsaquo; {% translate "Last result" %}
 </div>
 {% endblock %}
 
 {% block content %}
-<h1>{% translate "Export to server – last result" %}</h1>
+<style>
+  .export-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .export-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .export-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .export-header svg {
+    width: 28px;
+    height: 28px;
+    color: #447e9b;
+  }
+  .export-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .export-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .export-info-item {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+  }
+  .export-info-item strong {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .export-info-item span {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+  .export-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .export-stat-card {
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  .export-stat-card.success {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+  .export-stat-card.skipped {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+  .export-stat-card.failed {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  .export-stat-card .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .export-stat-card .stat-label {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .export-details h2 {
+    font-size: 1.1rem;
+    margin: 24px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  .export-details .id-list {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .export-details .error-list {
+    background: #fff5f5;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  .export-details .error-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f5c6cb;
+    display: flex;
+    gap: 12px;
+  }
+  .export-details .error-list li:last-child {
+    border-bottom: none;
+  }
+  .export-details .error-list .error-id {
+    font-weight: 600;
+    color: #721c24;
+    white-space: nowrap;
+  }
+  .export-details .error-list .error-reason {
+    color: #721c24;
+  }
+  .export-error-banner {
+    background: #fff5f5;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #721c24;
+    font-weight: 500;
+  }
+  .export-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+  }
+  .export-empty svg {
+    width: 48px;
+    height: 48px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+  .export-empty p {
+    margin-bottom: 20px;
+  }
+  .export-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  .export-actions a {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background: #447e9b;
+    color: #fff;
+    border: 1px solid #447e9b;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .export-actions a:hover {
+    background: #366274;
+    border-color: #366274;
+  }
+  .running-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff3cd;
+    color: #856404;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .running-badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #856404;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+</style>
 
-{% if not run %}
-  <p>{% translate "No export run yet." %}</p>
-  <p><a href="{% url 'austausch:export_to_server_step1' %}">{% translate "Start export" %}</a></p>
-{% else %}
+<div class="export-container">
+  <div class="export-card">
+    <div class="export-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <h1>{% translate "Export to server – last result" %}</h1>
+    </div>
 
-<p>
-  <strong>{% translate "Started at" %}:</strong> {{ run.started_at|localtime|date:"Y-m-d H:i:s" }}
-  {% if run.completed_at %}
-    &nbsp;|&nbsp; <strong>{% translate "Completed at" %}:</strong> {{ run.completed_at|localtime|date:"Y-m-d H:i:s" }}
-  {% else %}
-    &nbsp;|&nbsp; <em>{% translate "Still running…" %}</em>
-  {% endif %}
-</p>
-<p><strong>{% translate "Mode" %}:</strong> {{ run.get_mode_display }}</p>
-<p><strong>{% translate "Total selected" %}:</strong> {{ run.total_count }}</p>
+    {% if not run %}
+      <div class="export-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>{% translate "No export run yet." %}</p>
+        <a href="{% url 'austausch:export_to_server_step1' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          {% translate "Start export" %}
+        </a>
+      </div>
+    {% else %}
 
-<table class="module">
-  <tr>
-    <th>{% translate "Uploaded" %}</th>
-    <td>{{ run.success_count }}</td>
-  </tr>
-  <tr>
-    <th>{% translate "Skipped (no PDF)" %}</th>
-    <td>{{ run.skipped_no_pdf_count }}</td>
-  </tr>
-  <tr>
-    <th>{% translate "Failed" %}</th>
-    <td>{{ run.failure_count }}</td>
-  </tr>
-</table>
+    <div class="export-info-grid">
+      <div class="export-info-item">
+        <strong>{% translate "Started at" %}</strong>
+        <span>{{ run.started_at|localtime|date:"Y-m-d H:i:s" }}</span>
+      </div>
+      <div class="export-info-item">
+        <strong>{% translate "Completed at" %}</strong>
+        {% if run.completed_at %}
+          <span>{{ run.completed_at|localtime|date:"Y-m-d H:i:s" }}</span>
+        {% else %}
+          <span class="running-badge">{% translate "Still running…" %}</span>
+        {% endif %}
+      </div>
+      <div class="export-info-item">
+        <strong>{% translate "Mode" %}</strong>
+        <span>{{ run.get_mode_display }}</span>
+      </div>
+      <div class="export-info-item">
+        <strong>{% translate "Total selected" %}</strong>
+        <span>{{ run.total_count }}</span>
+      </div>
+    </div>
 
-{% if run.details %}
-  {% if run.details.success_ids %}
-    <h2>{% translate "Uploaded (IDs)" %}</h2>
-    <p>{{ run.details.success_ids|join:", " }}</p>
-  {% endif %}
-  {% if run.details.skipped_no_pdf %}
-    <h2>{% translate "Skipped – no PDF (IDs)" %}</h2>
-    <p>{% translate "These items were not uploaded because no PDF was found (no signature and no file in fallback paths)." %}</p>
-    <p>{{ run.details.skipped_no_pdf|join:", " }}</p>
-  {% endif %}
-  {% if run.details.failed %}
-    <h2>{% translate "Failed (ID – reason)" %}</h2>
-    <ul>
-      {% for item in run.details.failed %}
-        <li>{{ item.id }} – {{ item.reason }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  {% if run.details.error %}
-    <p class="errornote">{% translate "Error" %}: {{ run.details.error }}</p>
-  {% endif %}
-{% endif %}
+    <div class="export-stats-grid">
+      <div class="export-stat-card success">
+        <div class="stat-value">{{ run.success_count }}</div>
+        <div class="stat-label">{% translate "Uploaded" %}</div>
+      </div>
+      <div class="export-stat-card skipped">
+        <div class="stat-value">{{ run.skipped_no_pdf_count }}</div>
+        <div class="stat-label">{% translate "Skipped (no PDF)" %}</div>
+      </div>
+      <div class="export-stat-card failed">
+        <div class="stat-value">{{ run.failure_count }}</div>
+        <div class="stat-label">{% translate "Failed" %}</div>
+      </div>
+    </div>
 
-<p><a href="{% url 'austausch:export_to_server_step1' %}">{% translate "Start new export" %}</a></p>
-{% endif %}
+    {% if run.details %}
+      <div class="export-details">
+        {% if run.details.success_ids %}
+          <h2>{% translate "Uploaded (IDs)" %}</h2>
+          <div class="id-list">{{ run.details.success_ids|join:", " }}</div>
+        {% endif %}
+
+        {% if run.details.skipped_no_pdf %}
+          <h2>{% translate "Skipped – no PDF (IDs)" %}</h2>
+          <p>{% translate "These items were not uploaded because no PDF was found (no signature and no file in fallback paths)." %}</p>
+          <div class="id-list">{{ run.details.skipped_no_pdf|join:", " }}</div>
+        {% endif %}
+
+        {% if run.details.failed %}
+          <h2>{% translate "Failed (ID – reason)" %}</h2>
+          <ul class="error-list">
+            {% for item in run.details.failed %}
+              <li>
+                <span class="error-id">{{ item.id }}</span>
+                <span class="error-reason">{{ item.reason }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if run.details.error %}
+          <div class="export-error-banner">
+            <strong>{% translate "Error" %}:</strong> {{ run.details.error }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="export-actions">
+      <a href="{% url 'austausch:export_to_server_step1' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        {% translate "Start new export" %}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

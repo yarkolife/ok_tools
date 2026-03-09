@@ -5,71 +5,232 @@
 <div class="breadcrumbs">
   <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
   &rsaquo; <a href="{% url 'admin:austausch_exchangeitem_changelist' %}">{% translate "Austausch" %}</a>
-  &rsaquo; {% translate "Export to server" %} &rsaquo; {% translate "Confirm" %}
+  &rsaquo; <a href="{% url 'austausch:export_to_server_step1' %}">{% translate "Export to server" %}</a>
+  &rsaquo; {% translate "Confirm" %}
 </div>
 {% endblock %}
 
 {% block content %}
 <style>
-.export-step2-table .bool-icon { display: inline-flex; align-items: center; justify-content: center; width: 1.25em; height: 1.25em; border-radius: 50%; font-size: 0.85em; font-weight: bold; line-height: 1; }
-.export-step2-table .bool-icon.bool-true { background: #d4edda; color: #155724; }
-.export-step2-table .bool-icon.bool-false { background: #f8d7da; color: #721c24; }
+  .export-container {
+    max-width: 100%;
+  }
+  .export-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .export-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .export-header svg {
+    width: 28px;
+    height: 28px;
+    color: #447e9b;
+  }
+  .export-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .export-description {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .export-table-wrapper {
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+  .export-step2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .export-step2-table th {
+    background: #f8f9fa;
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+    color: #333;
+  }
+  .export-step2-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+  .export-step2-table tr:hover {
+    background: #f8f9fa;
+  }
+  .export-step2-table tr:last-child td {
+    border-bottom: none;
+  }
+  .export-step2-table .bool-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    font-size: 0.9em;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .export-step2-table .bool-icon.bool-true {
+    background: #d4edda;
+    color: #155724;
+  }
+  .export-step2-table .bool-icon.bool-false {
+    background: #f8d7da;
+    color: #721c24;
+  }
+  .export-step2-table .title-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .export-form .schedule-row {
+    margin: 20px 0;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+  }
+  .export-form .schedule-row label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  .export-form input[type="datetime-local"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 280px;
+  }
+  .export-form input[type="datetime-local"]:focus {
+    border-color: #447e9b;
+    box-shadow: 0 0 0 2px rgba(68,126,155,0.1);
+    outline: none;
+  }
+  .export-form .help-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+  .export-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  .export-actions input[type="submit"] {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #28a745;
+    color: #fff;
+    border: 1px solid #28a745;
+  }
+  .export-actions input[type="submit"]:hover {
+    background: #218838;
+    border-color: #1e7e34;
+  }
+  .short-header {
+    font-size: 11px !important;
+  }
 </style>
-<h1>{% translate "Export to server – confirm selection" %}</h1>
-<p class="help">{% translate "Uncheck items you do not want to export. Then start upload now or schedule for later." %}</p>
-<p class="help">{% translate "Exported per item: video, PDF (required), JSON metadata, optional thumbnail. Only items with video are listed; items without PDF are skipped during upload." %}</p>
 
-<form method="post" action="">
-  {% csrf_token %}
-  <fieldset class="module aligned">
-    <div class="form-row">
-      <table class="export-step2-table">
-        <thead>
-          <tr>
-            <th><input type="checkbox" id="select_all" checked></th>
-            <th>{% translate "License number" %}</th>
-            <th>{% translate "Broadcast date (premiere)" %}</th>
-            <th>{% translate "Title" %}</th>
-            <th>{% translate "Profile" %}</th>
-            <th>{% translate "Duration" %}</th>
-            <th>{% translate "Exchange between Open Channels/Citizen Media in Saxony-Anhalt allowed" %}</th>
-            <th>{% translate "Exchange between Open Channels/Citizen Media outside Saxony-Anhalt allowed" %}</th>
-            <th>{% translate "Store in OK media library" %}</th>
-            <th>{% translate "Has PDF" %}</th>
-            <th>{% translate "Video" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in items %}
-          <tr>
-            <td><input type="checkbox" name="selected_ids" value="{{ item.item_id }}" class="item-cb" checked></td>
-            <td>{{ item.license_number }}</td>
-            <td>{{ item.broadcast_date_display|default:"—" }}</td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.profile_display }}</td>
-            <td>{{ item.duration_display }}</td>
-            <td>{% if item.exchange_saxony_anhalt %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
-            <td>{% if item.exchange_outside_saxony_anhalt %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
-            <td>{% if item.store_in_ok_media_library %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
-            <td>{% if item.has_pdf %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
-            <td>{% if item.video_url %}<a href="{{ item.video_url }}" target="_blank" rel="noopener">{% translate "Video" %}</a>{% else %}—{% endif %}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="11">{% translate "No items." %}</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="export-container">
+  <div class="export-card">
+    <div class="export-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <h1>{% translate "Export to server – confirm selection" %}</h1>
     </div>
-    <div class="form-row">
-      <label for="id_schedule_at">{% translate "Schedule for (optional)" %}:</label>
-      <input type="datetime-local" name="schedule_at" id="id_schedule_at" step="60">
-      <p class="help">{% translate "Leave empty to start upload immediately." %}</p>
-    </div>
-  </fieldset>
-  <div class="submit-row">
-    <input type="submit" class="default" value="{% translate "Start upload" %}">
+    <p class="export-description">
+      {% translate "Uncheck items you do not want to export. Then start upload now or schedule for later." %}
+    </p>
+    <p class="export-description">
+      {% translate "Exported per item: video, PDF (required), JSON metadata, optional thumbnail. Only items with video are listed; items without PDF are skipped during upload." %}
+    </p>
+
+    <form method="post" action="" class="export-form">
+      {% csrf_token %}
+      <fieldset class="module aligned">
+        <div class="form-row">
+          <div class="export-table-wrapper">
+            <table class="export-step2-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="select_all" checked></th>
+                  <th>{% translate "License" %}</th>
+                  <th>{% translate "Broadcast" %}</th>
+                  <th>{% translate "Title" %}</th>
+                  <th>{% translate "Profile" %}</th>
+                  <th>{% translate "Duration" %}</th>
+                  <th class="short-header" title="{% translate 'Exchange between Open Channels/Citizen Media in Saxony-Anhalt allowed' %}">{% translate "Exchange SA" %}</th>
+                  <th class="short-header" title="{% translate 'Exchange between Open Channels/Citizen Media outside Saxony-Anhalt allowed' %}">{% translate "Exchange Other" %}</th>
+                  <th class="short-header" title="{% translate 'Store in OK media library' %}">{% translate "OK Lib" %}</th>
+                  <th class="short-header" title="{% translate 'Has PDF' %}">{% translate "PDF" %}</th>
+                  <th>{% translate "Video" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in items %}
+                <tr>
+                  <td><input type="checkbox" name="selected_ids" value="{{ item.item_id }}" class="item-cb" checked></td>
+                  <td>{{ item.license_number }}</td>
+                  <td>{{ item.broadcast_date_display|default:"—" }}</td>
+                  <td class="title-cell" title="{{ item.title }}">{{ item.title }}</td>
+                  <td>{{ item.profile_display }}</td>
+                  <td>{{ item.duration_display }}</td>
+                  <td>{% if item.exchange_saxony_anhalt %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
+                  <td>{% if item.exchange_outside_saxony_anhalt %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
+                  <td>{% if item.store_in_ok_media_library %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
+                  <td>{% if item.has_pdf %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
+                  <td>{% if item.video_url %}<a href="{{ item.video_url }}" target="_blank" rel="noopener" class="export-link">{% translate "Video" %}</a>{% else %}—{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="11">{% translate "No items." %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="schedule-row">
+          <label for="id_schedule_at">{% translate "Schedule for (optional)" %}:</label>
+          <input type="datetime-local" name="schedule_at" id="id_schedule_at" step="60">
+          <p class="help-text">{% translate "Leave empty to start upload immediately." %}</p>
+        </div>
+      </fieldset>
+      <div class="export-actions">
+        <input type="submit" class="default" value="{% translate "Start upload" %}">
+      </div>
+    </form>
   </div>
-</form>
+</div>
 
 <script>
 (function() {

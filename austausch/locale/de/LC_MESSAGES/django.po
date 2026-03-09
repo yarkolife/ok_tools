@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -165,6 +164,7 @@ msgstr "Austausch-Element"
 
 #: austausch/admin.py:298 austausch/models.py:205
 #: austausch/templates/austausch/export_to_server_step1.html:29
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "License"
 msgstr "Freistellung"
 
@@ -249,6 +249,7 @@ msgstr "SHA256-Prüfsumme"
 #: austausch/templates/austausch/export_to_server_step2.html:32
 #: austausch/templates/austausch/feed.html:129
 #: austausch/templates/austausch/feed_admin.html:527
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Title"
 msgstr "Titel"
 
@@ -258,6 +259,7 @@ msgstr "Beschreibung"
 
 #: austausch/models.py:78
 #: austausch/templates/austausch/export_to_server_step2.html:34
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Duration"
 msgstr "Dauer"
 
@@ -300,6 +302,7 @@ msgstr "Importiert"
 #: austausch/templates/austausch/feed.html:189
 #: austausch/templates/austausch/feed_admin.html:338
 #: austausch/templates/austausch/feed_admin.html:380
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
@@ -364,10 +367,8 @@ msgid "Exchange Imports"
 msgstr "Austausch-Importe"
 
 #: austausch/models.py:230
-#, fuzzy
-#| msgid "Nextcloud Settings"
 msgid "Nextcloud"
-msgstr "Nextcloud-Einstellungen"
+msgstr "Nextcloud"
 
 #: austausch/models.py:231
 msgid "Network Share"
@@ -492,7 +493,7 @@ msgstr "Exportziel"
 #: austausch/models.py:312
 msgid ""
 "Select where export files should be written: Nextcloud or Network Share."
-msgstr ""
+msgstr "Wählen Sie, wohin Exportdateien geschrieben werden: Nextcloud oder Netzwerkfreigabe."
 
 #: austausch/models.py:317
 #, fuzzy
@@ -516,7 +517,7 @@ msgstr "Netzwerkfreigabe-Basispfad"
 msgid ""
 "Local mounted path inside container for network share export (e.g. /mnt/"
 "austausch_export/Vorschau/2025)."
-msgstr ""
+msgstr "Lokal eingebundener Pfad im Container für den Netzwerkfreigabe-Export (z. B. /mnt/austausch_export/Vorschau/2025)."
 
 #: austausch/models.py:330
 msgid "Network Share Subfolder"
@@ -526,7 +527,7 @@ msgstr "Netzwerkfreigabe-Unterordner"
 msgid ""
 "Optional subfolder under base path. Leave empty to write directly into base "
 "path."
-msgstr ""
+msgstr "Optionaler Unterordner unterhalb des Basispfads. Leer lassen, um direkt in den Basispfad zu schreiben."
 
 #: austausch/models.py:336
 msgid "Network Share Windows Root"
@@ -553,7 +554,7 @@ msgstr "Lokaler PDF-Fallback-Pfad"
 msgid ""
 "First local directory for unsigned licenses; PDFs searched by pattern "
 "{number}_*.pdf."
-msgstr ""
+msgstr "Erstes lokales Verzeichnis für unsignierte Freistellungen; PDFs werden nach dem Muster {number}_*.pdf gesucht."
 
 #: austausch/models.py:356
 msgid "Local PDF Fallback Path (2)"
@@ -563,7 +564,7 @@ msgstr "Lokaler PDF-Fallback-Pfad (2)"
 msgid ""
 "Second local directory for unsigned licenses; searched if not found in first "
 "path."
-msgstr ""
+msgstr "Zweites lokales Verzeichnis für unsignierte Freistellungen; wird durchsucht, wenn im ersten Pfad nichts gefunden wurde."
 
 #: austausch/models.py:361
 msgid "Upload Thumbnail Enabled"
@@ -573,11 +574,9 @@ msgstr "Thumbnail-Upload aktiviert"
 msgid ""
 "If enabled, upload video cover/thumbnail images from a local directory when "
 "exporting to server."
-msgstr ""
+msgstr "Wenn aktiviert, werden Video-Cover-/Vorschaubilder beim Export zum Server aus einem lokalen Verzeichnis hochgeladen."
 
 #: austausch/models.py:367
-#, fuzzy
-#| msgid "Thumbnail Path"
 msgid "Thumbnail Storage Path"
 msgstr "Vorschaubild-Speicherpfad"
 
@@ -607,56 +606,49 @@ msgstr "Für das Nextcloud-Exportziel ist ein Upload-Serverpfad erforderlich."
 #: austausch/models.py:395
 msgid ""
 "Network share base path is required for Network Share export destination."
-msgstr ""
+msgstr "Für das Exportziel Netzwerkfreigabe ist ein Basispfad der Netzwerkfreigabe erforderlich."
 
-#: austausch/models.py:428
-#: austausch/templates/austausch/export_to_server_result.html:21
-#, fuzzy
-#| msgid "Created At"
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Started at"
-msgstr "Erstellt am"
+msgstr "Gestartet um"
 
-#: austausch/models.py:433
-#: austausch/templates/austausch/export_to_server_result.html:23
-#, fuzzy
-#| msgid "Completed At"
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Completed at"
-msgstr "Abgeschlossen am"
+msgstr "Abgeschlossen um"
 
 #: austausch/models.py:442
 msgid "User"
 msgstr "Benutzer"
 
 #: austausch/models.py:446
-#, fuzzy
-#| msgid "Contribution ID"
 msgid "By contributions"
-msgstr "Beitrags-ID"
+msgstr "Nach Beiträgen"
 
 #: austausch/models.py:446
 msgid "By license numbers"
-msgstr "Nach Lizenznummern"
+msgstr "Nach Freistellungsnummern"
 
 #: austausch/models.py:447
 #: austausch/templates/austausch/export_to_server_result.html:28
 #: austausch/templates/austausch/export_to_server_step1.html:25
+#: austausch/templates/austausch/export_to_server_step1.html
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Mode"
 msgstr "Modus"
 
-#: austausch/models.py:449
-#: austausch/templates/austausch/export_to_server_result.html:29
-#, fuzzy
-#| msgid "Import Selected"
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Total selected"
-msgstr "Ausgewählte importieren"
+msgstr "Gesamt ausgewählt"
 
 #: austausch/models.py:450
 #: austausch/templates/austausch/export_to_server_result.html:33
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Uploaded"
 msgstr "Hochgeladen"
 
 #: austausch/models.py:453
 #: austausch/templates/austausch/export_to_server_result.html:37
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Skipped (no PDF)"
 msgstr "Übersprungen (kein PDF)"
 
@@ -677,51 +669,36 @@ msgid "Export to server runs"
 msgstr "Server-Exportläufe"
 
 #: austausch/models.py:478
-#, fuzzy
-#| msgid "License"
 msgid "License Number"
-msgstr "Freistellung"
+msgstr "Freistellungsnummer"
 
 #: austausch/models.py:479
-#, fuzzy
-#| msgid "All license numbers from Planung were already successfully exported."
 msgid "License number that was successfully exported to server"
-msgstr ""
-"Alle Lizenznummern aus der Planung wurden bereits erfolgreich exportiert."
+msgstr "Freistellungsnummer, die erfolgreich zum Server exportiert wurde"
 
 #: austausch/models.py:483
-#, fuzzy
-#| msgid "Imported At"
 msgid "First Exported At"
-msgstr "Importiert am"
+msgstr "Erstmals exportiert am"
 
 #: austausch/models.py:487
-#, fuzzy
-#| msgid "Imported At"
 msgid "Last Exported At"
-msgstr "Importiert am"
+msgstr "Zuletzt exportiert am"
 
 #: austausch/models.py:491
-#, fuzzy
-#| msgid "Export to server run"
 msgid "Export Count"
-msgstr "Server-Exportlauf"
+msgstr "Anzahl Exporte"
 
 #: austausch/models.py:492
 msgid "Number of times this license was exported"
-msgstr ""
+msgstr "Anzahl, wie oft diese Freistellung exportiert wurde"
 
 #: austausch/models.py:496
-#, fuzzy
-#| msgid "Imported License"
 msgid "Exported License"
-msgstr "Importierte Freistellung"
+msgstr "Exportierte Freistellung"
 
 #: austausch/models.py:497
-#, fuzzy
-#| msgid "Imported License"
 msgid "Exported Licenses"
-msgstr "Importierte Freistellung"
+msgstr "Exportierte Freistellungen"
 
 #: austausch/services/import_service.py:535
 #: austausch/services/import_service.py:538
@@ -797,76 +774,86 @@ msgstr "Import fehlgeschlagen. Bitte versuchen Sie es erneut."
 msgid "Home"
 msgstr "Startseite"
 
-#: austausch/templates/austausch/export_to_server_result.html:8
-#, fuzzy
-#| msgid "Last Seen At"
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Last result"
-msgstr "Zuletzt gesehen am"
+msgstr "Letztes Ergebnis"
 
 #: austausch/templates/austausch/export_to_server_result.html:13
 msgid "Export to server – last result"
 msgstr "Zum Server exportieren – letztes Ergebnis"
 
 #: austausch/templates/austausch/export_to_server_result.html:16
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "No export run yet."
-msgstr "Es wurde noch kein Exportlauf durchgeführt."
+msgstr "Noch kein Exportlauf."
 
 #: austausch/templates/austausch/export_to_server_result.html:17
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Start export"
 msgstr "Export starten"
 
 #: austausch/templates/austausch/export_to_server_result.html:25
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Still running…"
 msgstr "Läuft noch…"
 
 #: austausch/templates/austausch/export_to_server_result.html:48
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Uploaded (IDs)"
 msgstr "Hochgeladen (IDs)"
 
 #: austausch/templates/austausch/export_to_server_result.html:52
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Skipped – no PDF (IDs)"
 msgstr "Übersprungen – kein PDF (IDs)"
 
-#: austausch/templates/austausch/export_to_server_result.html:53
+#: austausch/templates/austausch/export_to_server_result.html
 msgid ""
 "These items were not uploaded because no PDF was found (no signature and no "
 "file in fallback paths)."
 msgstr ""
+"Diese Elemente wurden nicht hochgeladen, da kein PDF gefunden wurde (keine "
+"Signatur und keine Datei in Fallback-Pfaden)."
 
 #: austausch/templates/austausch/export_to_server_result.html:57
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Failed (ID – reason)"
 msgstr "Fehlgeschlagen (ID – Grund)"
 
 #: austausch/templates/austausch/export_to_server_result.html:65
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Error"
 msgstr "Fehler"
 
 #: austausch/templates/austausch/export_to_server_result.html:69
+#: austausch/templates/austausch/export_to_server_result.html
 msgid "Start new export"
 msgstr "Neuen Export starten"
 
-#: austausch/templates/austausch/export_to_server_step1.html:14
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid ""
 "Upload video, PDF, JSON metadata and optional thumbnail to Nextcloud. Step "
 "1: choose mode and filters."
 msgstr ""
+"Video, PDF, JSON-Metadaten und optionales Thumbnail auf Nextcloud hochladen. "
+"Schritt 1: Modus und Filter auswählen."
 
 #: austausch/templates/austausch/export_to_server_step1.html:15
 #: austausch/views.py:465
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "View last export result"
 msgstr "Letztes Exportergebnis anzeigen"
 
 #: austausch/templates/austausch/export_to_server_step1.html:27
-#, fuzzy
-#| msgid "Contribution ID"
 msgid "Contributions"
-msgstr "Beitrags-ID"
+msgstr "Beiträge"
 
 #: austausch/templates/austausch/export_to_server_step1.html:28
 msgid "Planung"
 msgstr "Planung"
 
 #: austausch/templates/austausch/export_to_server_step1.html:35
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "Media Authority (from settings)"
 msgstr "Medienanstalt (aus Einstellungen)"
 
@@ -885,6 +872,7 @@ msgid "Global Producer"
 msgstr "Globaler Produzent"
 
 #: austausch/templates/austausch/export_to_server_step1.html:53
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "All"
 msgstr "Alle"
 
@@ -893,6 +881,7 @@ msgstr "Alle"
 #: austausch/templates/austausch/export_to_server_step2.html:52
 #: austausch/templates/austausch/export_to_server_step2.html:53
 #: austausch/templates/austausch/export_to_server_step2.html:54
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "Yes"
 msgstr "Ja"
 
@@ -901,32 +890,36 @@ msgstr "Ja"
 #: austausch/templates/austausch/export_to_server_step2.html:52
 #: austausch/templates/austausch/export_to_server_step2.html:53
 #: austausch/templates/austausch/export_to_server_step2.html:54
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "No"
 msgstr "Nein"
 
-#: austausch/templates/austausch/export_to_server_step1.html:59
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid ""
 "Only primary (first broadcast / premiere) contributions are included, as in "
 "Mediathek export."
 msgstr ""
+"Nur Primärbeiträge (Erstausstrahlung / Premiere) werden eingeschlossen, wie "
+"beim Mediathek-Export."
 
-#: austausch/templates/austausch/export_to_server_step1.html:76
-#, fuzzy
-#| msgid "License"
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "License numbers"
-msgstr "Freistellung"
+msgstr "Freistellungsnummern"
 
 #: austausch/templates/austausch/export_to_server_step1.html:78
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "Comma or newline separated."
 msgstr "Durch Komma oder Zeilenumbruch getrennt."
 
 #: austausch/templates/austausch/export_to_server_step1.html:83
 #: austausch/templates/austausch/feed.html:242
 #: austausch/templates/austausch/feed_admin.html:504
+#: austausch/templates/austausch/export_to_server_step1.html
 msgid "Next"
 msgstr "Weiter"
 
 #: austausch/templates/austausch/export_to_server_step2.html:8
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Confirm"
 msgstr "Bestätigen"
 
@@ -934,30 +927,34 @@ msgstr "Bestätigen"
 msgid "Export to server – confirm selection"
 msgstr "Zum Server exportieren – Auswahl bestätigen"
 
-#: austausch/templates/austausch/export_to_server_step2.html:19
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid ""
 "Uncheck items you do not want to export. Then start upload now or schedule "
 "for later."
 msgstr ""
+"Abwählen, was nicht exportiert werden soll. Dann Upload jetzt starten oder "
+"für später planen."
 
-#: austausch/templates/austausch/export_to_server_step2.html:20
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid ""
 "Exported per item: video, PDF (required), JSON metadata, optional thumbnail. "
 "Only items with video are listed; items without PDF are skipped during "
 "upload."
 msgstr ""
+"Pro Element exportiert: Video, PDF (erforderlich), JSON-Metadaten, "
+"optionales Thumbnail. Nur Elemente mit Video werden aufgelistet; Elemente "
+"ohne PDF werden beim Upload übersprungen."
 
 #: austausch/templates/austausch/export_to_server_step2.html:30
-#, fuzzy
-#| msgid "License"
 msgid "License number"
-msgstr "Freistellung"
+msgstr "Freistellungsnummer"
 
 #: austausch/templates/austausch/export_to_server_step2.html:31
 msgid "Broadcast date (premiere)"
 msgstr "Sendedatum (Premiere)"
 
 #: austausch/templates/austausch/export_to_server_step2.html:33
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Profile"
 msgstr "Profil"
 
@@ -969,7 +966,7 @@ msgstr ""
 #: austausch/templates/austausch/export_to_server_step2.html:36
 msgid ""
 "Exchange between Open Channels/Citizen Media outside Saxony-Anhalt allowed"
-msgstr ""
+msgstr "Austausch zwischen Offenen Kanälen/Bürgermedien außerhalb Sachsen-Anhalts erlaubt"
 
 #: austausch/templates/austausch/export_to_server_step2.html:37
 msgid "Store in OK media library"
@@ -982,24 +979,26 @@ msgstr "Hat PDF"
 #: austausch/templates/austausch/export_to_server_step2.html:39
 #: austausch/templates/austausch/export_to_server_step2.html:55
 #: austausch/templates/austausch/feed.html:163
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Video"
 msgstr "Video"
 
 #: austausch/templates/austausch/export_to_server_step2.html:58
-#, fuzzy
-#| msgid "items"
 msgid "No items."
-msgstr "Elemente"
+msgstr "Keine Elemente."
 
 #: austausch/templates/austausch/export_to_server_step2.html:64
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Schedule for (optional)"
 msgstr "Geplant für (optional)"
 
 #: austausch/templates/austausch/export_to_server_step2.html:66
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Leave empty to start upload immediately."
 msgstr "Leer lassen, um den Upload sofort zu starten."
 
 #: austausch/templates/austausch/export_to_server_step2.html:70
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "Start upload"
 msgstr "Upload starten"
 
@@ -1085,6 +1084,7 @@ msgid "No metadata"
 msgstr "Keine Metadaten"
 
 #: austausch/templates/austausch/feed.html:165
+#: austausch/templates/austausch/export_to_server_step2.html
 msgid "PDF"
 msgstr "PDF"
 
@@ -1224,17 +1224,17 @@ msgstr ""
 
 #: austausch/views.py:317
 msgid "Enter at least one license number."
-msgstr "Geben Sie mindestens eine Lizenznummer ein."
+msgstr "Geben Sie mindestens eine Freistellungsnummer ein."
 
 #: austausch/views.py:322 austausch/views.py:353
 msgid ""
 "No licenses match: Default Media Authority (when set) and at least one of "
 "Exchange SA, Exchange outside SA, or In OK-Mediathek required."
-msgstr ""
+msgstr "Keine Freistellungen entsprechen den Kriterien: Standard-Medienanstalt (falls gesetzt) und mindestens eine der Optionen Austausch SA, Austausch außerhalb SA oder In OK-Mediathek sind erforderlich."
 
 #: austausch/views.py:329
 msgid "All entered license numbers were already successfully exported."
-msgstr "Alle eingegebenen Lizenznummern wurden bereits erfolgreich exportiert."
+msgstr "Alle eingegebenen Freistellungsnummern wurden bereits erfolgreich exportiert."
 
 #: austausch/views.py:337
 msgid "Date from and Date to are required for Planung mode."
@@ -1243,19 +1243,19 @@ msgstr "Für den Planung-Modus sind „Datum von“ und „Datum bis“ erforder
 #: austausch/views.py:341
 msgid "No license numbers found in Planung for the selected date range."
 msgstr ""
-"Für den ausgewählten Datumsbereich wurden in der Planung keine Lizenznummern "
+"Für den ausgewählten Datumsbereich wurden in der Planung keine Freistellungsnummern "
 "gefunden."
 
 #: austausch/views.py:346
 msgid ""
 "No items to export: all licenses in Planung for this range are repeats "
 "(premiere was before the selected date range)."
-msgstr ""
+msgstr "Keine Elemente zum Exportieren: Alle Freistellungen in der Planung für diesen Bereich sind Wiederholungen (Premiere lag vor dem ausgewählten Datumsbereich)."
 
 #: austausch/views.py:360
 msgid "All license numbers from Planung were already successfully exported."
 msgstr ""
-"Alle Lizenznummern aus der Planung wurden bereits erfolgreich exportiert."
+"Alle Freistellungsnummern aus der Planung wurden bereits erfolgreich exportiert."
 
 #: austausch/views.py:377
 msgid "Date from and Date to are required for contributions mode."
@@ -1270,10 +1270,8 @@ msgid "All matching contributions were already successfully exported."
 msgstr "Alle passenden Beiträge wurden bereits erfolgreich exportiert."
 
 #: austausch/views.py:433
-#, fuzzy
-#| msgid "Please select items to import"
 msgid "Select at least one item to export."
-msgstr "Bitte Elemente zum Importieren auswählen"
+msgstr "Bitte wählen Sie mindestens ein Element zum Exportieren aus."
 
 #: austausch/views.py:454
 msgid "Export to server has been scheduled."
@@ -1291,7 +1289,7 @@ msgstr "Sie können das Ergebnis anzeigen, sobald es bereit ist: "
 msgid ""
 "No items to export: all selected were already successfully exported or have "
 "no video/PDF."
-msgstr ""
+msgstr "Keine Elemente zum Exportieren: Alle ausgewählten wurden bereits erfolgreich exportiert oder haben kein Video/PDF."
 
 #: austausch/models.py
 msgid "Exchange Channel API Auth"
@@ -1303,7 +1301,9 @@ msgstr "Kanalname"
 
 #: austausch/models.py
 msgid "Channel name as used in exchange feed (case-insensitive)."
-msgstr "Kanalname wie im Austausch-Feed verwendet (Groß-/Kleinschreibung wird ignoriert)."
+msgstr ""
+"Kanalname wie im Austausch-Feed verwendet (Groß-/Kleinschreibung wird "
+"ignoriert)."
 
 #: austausch/models.py
 msgid "Supports OK-Tools API"
@@ -1318,8 +1318,11 @@ msgid "Metadata API Base URL"
 msgstr "Metadaten-API-Basis-URL"
 
 #: austausch/models.py
-msgid "Base URL of remote OK-Tools instance (e.g. https://portal.ok-magdeburg.de)."
-msgstr "Basis-URL der entfernten OK-Tools-Instanz (z. B. https://portal.ok-magdeburg.de)."
+msgid ""
+"Base URL of remote OK-Tools instance (e.g. https://portal.ok-magdeburg.de)."
+msgstr ""
+"Basis-URL der entfernten OK-Tools-Instanz (z. B. https://portal.ok-"
+"magdeburg.de)."
 
 #: austausch/models.py
 msgid "Metadata API Token"
@@ -1351,11 +1354,15 @@ msgstr "Letzter Fehler"
 
 #: austausch/models.py
 msgid "Metadata API base URL is required when API support is enabled."
-msgstr "Die Metadaten-API-Basis-URL ist erforderlich, wenn API-Unterstützung aktiviert ist."
+msgstr ""
+"Die Metadaten-API-Basis-URL ist erforderlich, wenn API-Unterstützung "
+"aktiviert ist."
 
 #: austausch/models.py
 msgid "Metadata API token is required when API support is enabled."
-msgstr "Das Metadaten-API-Token ist erforderlich, wenn API-Unterstützung aktiviert ist."
+msgstr ""
+"Das Metadaten-API-Token ist erforderlich, wenn API-Unterstützung aktiviert "
+"ist."
 
 #: austausch/models.py
 msgid "Imported License Mapping"
@@ -1380,3 +1387,35 @@ msgstr "Entfernte Freistellungsnummer"
 #: austausch/models.py
 msgid "Local License"
 msgstr "Lokale Freistellung"
+
+#: austausch/templates/austausch/export_to_server_step1.html
+msgid "Export by broadcast date range"
+msgstr "Nach Sendedatum-Bereich exportieren"
+
+#: austausch/templates/austausch/export_to_server_step1.html
+msgid "Export by planning date range"
+msgstr "Nach Planungsdatum-Bereich exportieren"
+
+#: austausch/templates/austausch/export_to_server_step1.html
+msgid "Export specific license numbers"
+msgstr "Bestimmte Freistellungsnummern exportieren"
+
+#: austausch/templates/austausch/export_to_server_step1.html
+msgid "at"
+msgstr "um"
+
+#: austausch/templates/austausch/export_to_server_step2.html
+msgid "Broadcast"
+msgstr "Ausstrahlung"
+
+#: austausch/templates/austausch/export_to_server_step2.html
+msgid "Exchange SA"
+msgstr "Austausch SA"
+
+#: austausch/templates/austausch/export_to_server_step2.html
+msgid "Exchange Other"
+msgstr "Austausch Andere"
+
+#: austausch/templates/austausch/export_to_server_step2.html
+msgid "OK Lib"
+msgstr "OK-Bib"

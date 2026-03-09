@@ -10,79 +10,294 @@
 {% endblock %}
 
 {% block content %}
-<h1>{% translate "Export to server" %}</h1>
-<p class="help">{% translate "Upload video, PDF, JSON metadata and optional thumbnail to Nextcloud. Step 1: choose mode and filters." %}</p>
-<p><a href="{% url 'austausch:export_to_server_result' %}">{% translate "View last export result" %}</a></p>
+<style>
+  .export-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .export-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .export-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .export-header svg {
+    width: 28px;
+    height: 28px;
+    color: #447e9b;
+  }
+  .export-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .export-description {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .export-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #447e9b;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .export-link:hover {
+    text-decoration: underline;
+  }
+  .export-error {
+    background: #fff5f5;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #721c24;
+  }
+  .export-form label.field-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  .export-form .mode-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .export-form .mode-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .export-form .mode-option:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+  }
+  .export-form .mode-option.selected {
+    background: #e3f2fd;
+    border-color: #447e9b;
+  }
+  .export-form .mode-option input {
+    margin: 0;
+  }
+  .export-form .mode-option .mode-title {
+    font-weight: 600;
+    color: #333;
+  }
+  .export-form .mode-option .mode-desc {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+  }
+  .export-form .form-row {
+    margin-bottom: 20px;
+  }
+  .export-form input[type="date"],
+  .export-form input[type="time"],
+  .export-form select,
+  .export-form textarea {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 250px;
+  }
+  .export-form input:focus,
+  .export-form select:focus,
+  .export-form textarea:focus {
+    border-color: #447e9b;
+    box-shadow: 0 0 0 2px rgba(68,126,155,0.1);
+    outline: none;
+  }
+  .export-form textarea {
+    max-width: 400px;
+    font-family: monospace;
+  }
+  .export-form .help-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+  .export-form .datetime-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .export-form .datetime-row span {
+    color: #888;
+  }
+  .media-authority-info {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .export-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  .export-actions input[type="submit"] {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #447e9b;
+    color: #fff;
+    border: 1px solid #447e9b;
+  }
+  .export-actions input[type="submit"]:hover {
+    background: #366274;
+    border-color: #366274;
+  }
+  .hidden {
+    display: none;
+  }
+  .field-group {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+</style>
 
-{% if error %}
-<ul class="errorlist"><li>{{ error }}</li></ul>
-{% endif %}
-
-<form method="post" action="">
-  {% csrf_token %}
-  <fieldset class="module aligned">
-    <div class="form-row">
-      <label>{% translate "Mode" %}:</label>
-      <div>
-        <label><input type="checkbox" name="mode_contributions" value="1" id="mode_contributions" checked> {% translate "Contributions" %}</label><br>
-        <label><input type="checkbox" name="mode_planung" value="1" id="mode_planung"> {% translate "Planung" %}</label><br>
-        <label><input type="checkbox" name="mode_license" value="1" id="mode_license"> {% translate "License" %}</label>
-      </div>
+<div class="export-container">
+  <div class="export-card">
+    <div class="export-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <h1>{% translate "Export to server" %}</h1>
     </div>
+    <p class="export-description">
+      {% translate "Upload video, PDF, JSON metadata and optional thumbnail to Nextcloud. Step 1: choose mode and filters." %}
+    </p>
+    <p><a href="{% url 'austausch:export_to_server_result' %}" class="export-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      {% translate "View last export result" %}
+    </a></p>
 
-    {% if default_media_authority_name %}
-    <div class="form-row">
-      <p class="help">{% translate "Media Authority (from settings)" %}: <strong>{{ default_media_authority_name }}</strong></p>
-    </div>
+    {% if error %}
+    <div class="export-error">{{ error }}</div>
     {% endif %}
 
-    <div id="contributions-fields">
-      <div class="form-row">
-        <label for="id_date_from">{% translate "Date from" %}:</label>
-        <input type="date" name="date_from" id="id_date_from">
-        <input type="time" name="time_from" id="id_time_from" value="00:00">
-      </div>
-      <div class="form-row">
-        <label for="id_date_to">{% translate "Date to" %}:</label>
-        <input type="date" name="date_to" id="id_date_to">
-        <input type="time" name="time_to" id="id_time_to" value="23:59">
-      </div>
-      <div class="form-row">
-        <label for="id_global_producer">{% translate "Global Producer" %}:</label>
-        <select name="global_producer" id="id_global_producer">
-          <option value="">{% translate "All" %}</option>
-          <option value="1">{% translate "Yes" %}</option>
-          <option value="0">{% translate "No" %}</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <p class="help">{% translate "Only primary (first broadcast / premiere) contributions are included, as in Mediathek export." %}</p>
-      </div>
-    </div>
+    <form method="post" action="" class="export-form">
+      {% csrf_token %}
+      <fieldset class="module aligned">
+        <div class="form-row">
+          <label class="field-label">{% translate "Mode" %}</label>
+          <div class="mode-options">
+            <label class="mode-option{% if not request.POST.mode_planung and not request.POST.mode_license %} selected{% endif %}" id="mode-contributions-label">
+              <input type="checkbox" name="mode_contributions" value="1" id="mode_contributions"{% if not request.POST.mode_planung and not request.POST.mode_license %} checked{% endif %}>
+              <div>
+                <div class="mode-title">{% translate "Contributions" %}</div>
+                <div class="mode-desc">{% translate "Export by broadcast date range" %}</div>
+              </div>
+            </label>
+            <label class="mode-option{% if request.POST.mode_planung %} selected{% endif %}" id="mode-planung-label">
+              <input type="checkbox" name="mode_planung" value="1" id="mode_planung"{% if request.POST.mode_planung %} checked{% endif %}>
+              <div>
+                <div class="mode-title">{% translate "Planung" %}</div>
+                <div class="mode-desc">{% translate "Export by planning date range" %}</div>
+              </div>
+            </label>
+            <label class="mode-option{% if request.POST.mode_license %} selected{% endif %}" id="mode-license-label">
+              <input type="checkbox" name="mode_license" value="1" id="mode_license"{% if request.POST.mode_license %} checked{% endif %}>
+              <div>
+                <div class="mode-title">{% translate "License" %}</div>
+                <div class="mode-desc">{% translate "Export specific license numbers" %}</div>
+              </div>
+            </label>
+          </div>
+        </div>
 
-    <div id="planung-fields" style="display: none;">
-      <div class="form-row">
-        <label for="id_planung_date_from">{% translate "Date from" %}:</label>
-        <input type="date" name="planung_date_from" id="id_planung_date_from">
-      </div>
-      <div class="form-row">
-        <label for="id_planung_date_to">{% translate "Date to" %}:</label>
-        <input type="date" name="planung_date_to" id="id_planung_date_to">
-      </div>
-    </div>
+        {% if default_media_authority_name %}
+        <div class="media-authority-info">
+          <strong>{% translate "Media Authority (from settings)" %}:</strong> {{ default_media_authority_name }}
+        </div>
+        {% endif %}
 
-    <div id="licenses-fields" style="display: none;">
-      <div class="form-row">
-        <label for="id_license_numbers">{% translate "License numbers" %}:</label>
-        <textarea name="license_numbers" id="id_license_numbers" rows="6" cols="40" placeholder="12345, 12346&#10;12347"></textarea>
-        <p class="help">{% translate "Comma or newline separated." %}</p>
+        <div id="contributions-fields" class="field-group{% if request.POST.mode_planung or request.POST.mode_license %} hidden{% endif %}">
+          <div class="form-row">
+            <label for="id_date_from" class="field-label">{% translate "Date from" %}</label>
+            <div class="datetime-row">
+              <input type="date" name="date_from" id="id_date_from">
+              <span>{% translate "at" %}</span>
+              <input type="time" name="time_from" id="id_time_from" value="00:00">
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="id_date_to" class="field-label">{% translate "Date to" %}</label>
+            <div class="datetime-row">
+              <input type="date" name="date_to" id="id_date_to">
+              <span>{% translate "at" %}</span>
+              <input type="time" name="time_to" id="id_time_to" value="23:59">
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="id_global_producer" class="field-label">{% translate "Global Producer" %}</label>
+            <select name="global_producer" id="id_global_producer">
+              <option value="">{% translate "All" %}</option>
+              <option value="1">{% translate "Yes" %}</option>
+              <option value="0">{% translate "No" %}</option>
+            </select>
+          </div>
+          <p class="help-text">{% translate "Only primary (first broadcast / premiere) contributions are included, as in Mediathek export." %}</p>
+        </div>
+
+        <div id="planung-fields" class="field-group{% if not request.POST.mode_planung %} hidden{% endif %}">
+          <div class="form-row">
+            <label for="id_planung_date_from" class="field-label">{% translate "Date from" %}</label>
+            <input type="date" name="planung_date_from" id="id_planung_date_from">
+          </div>
+          <div class="form-row">
+            <label for="id_planung_date_to" class="field-label">{% translate "Date to" %}</label>
+            <input type="date" name="planung_date_to" id="id_planung_date_to">
+          </div>
+        </div>
+
+        <div id="licenses-fields" class="field-group{% if not request.POST.mode_license %} hidden{% endif %}">
+          <div class="form-row">
+            <label for="id_license_numbers" class="field-label">{% translate "License numbers" %}</label>
+            <textarea name="license_numbers" id="id_license_numbers" rows="6" cols="40" placeholder="12345, 12346&#10;12347"></textarea>
+            <p class="help-text">{% translate "Comma or newline separated." %}</p>
+          </div>
+        </div>
+      </fieldset>
+      <div class="export-actions">
+        <input type="submit" value="{% translate "Next" %}">
       </div>
-    </div>
-  </fieldset>
-  <div class="submit-row">
-    <input type="submit" class="default" value="{% translate "Next" %}">
+    </form>
   </div>
-</form>
+</div>
 
 <script>
 (function() {
@@ -92,14 +307,24 @@
   const contributionsFields = document.getElementById('contributions-fields');
   const planungFields = document.getElementById('planung-fields');
   const licensesFields = document.getElementById('licenses-fields');
+  const modeContributionsLabel = document.getElementById('mode-contributions-label');
+  const modePlanungLabel = document.getElementById('mode-planung-label');
+  const modeLicenseLabel = document.getElementById('mode-license-label');
+
   function toggle() {
     const showContributions = modeContributions && modeContributions.checked;
     const showPlanung = modePlanung && modePlanung.checked;
     const showLicense = modeLicense && modeLicense.checked;
-    if (contributionsFields) contributionsFields.style.display = showContributions ? 'block' : 'none';
-    if (planungFields) planungFields.style.display = showPlanung ? 'block' : 'none';
-    if (licensesFields) licensesFields.style.display = showLicense ? 'block' : 'none';
+    
+    if (contributionsFields) contributionsFields.classList.toggle('hidden', !showContributions);
+    if (planungFields) planungFields.classList.toggle('hidden', !showPlanung);
+    if (licensesFields) licensesFields.classList.toggle('hidden', !showLicense);
+    
+    if (modeContributionsLabel) modeContributionsLabel.classList.toggle('selected', showContributions);
+    if (modePlanungLabel) modePlanungLabel.classList.toggle('selected', showPlanung);
+    if (modeLicenseLabel) modeLicenseLabel.classList.toggle('selected', showLicense);
   }
+  
   function ensureSingleMode(clicked) {
     if (clicked.checked) {
       if (modeContributions && modeContributions !== clicked) modeContributions.checked = false;
@@ -108,6 +333,7 @@
     }
     toggle();
   }
+  
   if (modeContributions) modeContributions.addEventListener('change', function() { ensureSingleMode(modeContributions); });
   if (modePlanung) modePlanung.addEventListener('change', function() { ensureSingleMode(modePlanung); });
   if (modeLicense) modeLicense.addEventListener('change', function() { ensureSingleMode(modeLicense); });

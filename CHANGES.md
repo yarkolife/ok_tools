@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-03-10 (Version 4.3.3)
+==========================
+
+* **licenses/austausch: Mediathek URL backfill and export UX improvements**
+  * Added management command `backfill_mediathek_urls` to populate missing Mediathek links for existing licenses.
+  * Added Mediathek-oriented admin rescan template and license admin improvements for refresh workflows.
+  * Extended exchange export templates/services/tasks with improved result presentation and processing.
+  * Added migration `licenses/0024_license_mediathek_url_fields.py` and related test coverage.
+  * Added deployment documentation for Mediathek links.
+
 2026-03-10 (Version 4.3.2)
 ==========================
 

@@ -1,0 +1,177 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='licenses' %}">{% translate "Licenses" %}</a>
+  &rsaquo; <a href="{% url 'admin:licenses_license_changelist' %}">{% translate "Licenses" %}</a>
+  &rsaquo; {% translate "Rescan mediathek links" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+  .mediathek-rescan-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .mediathek-rescan-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .mediathek-rescan-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .mediathek-rescan-header svg {
+    width: 28px;
+    height: 28px;
+    color: #447e9b;
+  }
+  .mediathek-rescan-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .mediathek-rescan-description {
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .mediathek-rescan-form .form-row {
+    margin-bottom: 20px;
+    padding: 0;
+  }
+  .mediathek-rescan-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  .mediathek-rescan-form input[type="date"] {
+    width: 100%;
+    max-width: 220px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .mediathek-rescan-form input[type="date"]:focus {
+    border-color: #447e9b;
+    box-shadow: 0 0 0 2px rgba(68,126,155,0.1);
+    outline: none;
+  }
+  .mediathek-rescan-form .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-top: 16px;
+  }
+  .mediathek-rescan-form .checkbox-row input {
+    margin-top: 3px;
+  }
+  .mediathek-rescan-form .checkbox-row label {
+    font-weight: normal;
+    cursor: pointer;
+  }
+  .mediathek-rescan-form .help-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+  .mediathek-rescan-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  .mediathek-rescan-actions input[type="submit"] {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .mediathek-rescan-actions input[type="submit"].default {
+    background: #447e9b;
+    color: #fff;
+    border: 1px solid #447e9b;
+  }
+  .mediathek-rescan-actions input[type="submit"].default:hover {
+    background: #366274;
+    border-color: #366274;
+  }
+  .mediathek-rescan-actions .cancel-link {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    text-decoration: none;
+    background: #fff;
+    color: #666;
+    border: 1px solid #ddd;
+    display: inline-block;
+    line-height: 1.2;
+  }
+  .mediathek-rescan-actions .cancel-link:hover {
+    background: #f5f5f5;
+    color: #333;
+  }
+</style>
+
+<div class="mediathek-rescan-container">
+  <div class="mediathek-rescan-card">
+    <div class="mediathek-rescan-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+        <path d="M21 3v5h-5"></path>
+      </svg>
+      <h1>{% translate "Rescan mediathek links" %}</h1>
+    </div>
+    <p class="mediathek-rescan-description">
+      {% translate "Select a period to enqueue mediathek link refresh for matching licenses." %}
+    </p>
+
+    <form method="post" action="" class="mediathek-rescan-form">
+      {% csrf_token %}
+      <fieldset class="module aligned">
+        <div class="form-row">
+          <label for="id_date_from">{% translate "Date from" %}</label>
+          <input type="date" name="date_from" id="id_date_from" required>
+        </div>
+        <div class="form-row">
+          <label for="id_date_to">{% translate "Date to" %}</label>
+          <input type="date" name="date_to" id="id_date_to" required>
+        </div>
+        <div class="form-row checkbox-row">
+          {{ form.only_store_in_ok_media_library }}
+          <label for="id_only_store_in_ok_media_library">
+            {{ form.only_store_in_ok_media_library.label }}
+            {% if form.only_store_in_ok_media_library.help_text %}
+              <span class="help-text">{{ form.only_store_in_ok_media_library.help_text }}</span>
+            {% endif %}
+          </label>
+        </div>
+      </fieldset>
+      <div class="mediathek-rescan-actions">
+        <input type="submit" class="default" value="{% translate 'Queue rescan' %}">
+        <a href="{% url 'admin:licenses_license_changelist' %}" class="button cancel-link">{% translate "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

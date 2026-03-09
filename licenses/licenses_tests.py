@@ -23,6 +23,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from unittest.mock import patch
 from django.test import override_settings
+from django.utils import timezone
 from django.utils import translation
 from urllib.error import HTTPError
 import datetime
@@ -1346,6 +1347,23 @@ def test__licenses__admin__tags_validation__invalid_json():
     # Should have error in tags field
     assert 'tags' in form.errors
     assert 'long_license' not in browser.contents
+
+
+@pytest.mark.django_db
+def test__licenses__models__confirmed_license_allows_mediathek_url_update(license):
+    """Confirmed license accepts mediathek URL update via update_fields allowlist."""
+    license.confirmed = True
+    license.save(update_fields=['confirmed'])
+
+    new_url = 'https://lokalmedial.de/w/test123'
+    now = timezone.now()
+    license.mediathek_url = new_url
+    license.mediathek_url_updated_at = now
+    license.save(update_fields=['mediathek_url', 'mediathek_url_updated_at'])
+
+    license.refresh_from_db()
+    assert license.mediathek_url == new_url
+    assert license.mediathek_url_updated_at is not None
 
 
 @pytest.mark.django_db

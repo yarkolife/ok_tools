@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Mediathek link maintenance**: Added backfill tooling for legacy licenses plus admin rescan workflow improvements and exchange export UX refinements
 - **Licenses notifications**: Added a dedicated "mediathek published" email that is sent once when a license receives its first Mediathek URL, including a direct watch link
 - **Admin-safe Mediathek refresh**: Manual admin refresh/rescan paths now skip user email delivery to avoid unintended notification bursts
 - **Planning module refactor**: Introduced dedicated planning services, reusable templates, and schedule change tracking with expanded tests

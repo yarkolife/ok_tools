@@ -13,6 +13,8 @@ from .services.nextcloud_exchange_service import NextcloudExchangeService
 from .services.import_service import ImportService
 from .services.export_to_server_service import ExportToServerService
 from licenses.models import License
+from licenses.services.peertube_service import compute_lookup_eta
+from licenses.services.peertube_service import compute_publish_time_for_license
 
 logger = logging.getLogger('django')
 
@@ -480,6 +482,7 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
         dict: success_count, failure_count, skipped_no_pdf_count, details, run_id.
     """
     from .models import ExportToServerRun
+    from licenses.tasks import refresh_license_mediathek_url
 
     User = get_user_model()
     user = User.objects.filter(pk=user_id).first() if user_id else None
@@ -496,11 +499,25 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
         run.skipped_no_pdf_count = report['skipped_no_pdf_count']
         run.details = {
             'success_ids': report['success_ids'],
+            'success_license_numbers': report.get('success_license_numbers', []),
             'failed': report['failed'],
             'skipped_no_pdf': report['skipped_no_pdf'],
         }
         run.completed_at = timezone.now()
         run.save()
+
+        for license_number in report.get('success_license_numbers', []):
+            license_obj = License.objects.filter(number=int(license_number)).first()
+            eta = timezone.now()
+            if license_obj:
+                publish_time = compute_publish_time_for_license(license_obj)
+                eta = compute_lookup_eta(publish_time)
+            refresh_license_mediathek_url.apply_async(
+                args=[int(license_number)],
+                kwargs={'force': False},
+                eta=eta,
+            )
+
         return {
             'success_count': report['success_count'],
             'failure_count': report['failure_count'],
