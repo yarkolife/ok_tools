@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.3.1
+**Current Version**: 4.3.2
 **Last Updated**: March 2026
 
 Features
@@ -27,6 +27,7 @@ Features
   - Nextcloud video file integration
   - Video upload support
   - Metadata export for planning systems
+  - Automated email notification when a published video is available in the Mediathek (with direct link)
   - License-to-video file synchronization
   - Tag-based categorization
   - Planning system integration with time extraction

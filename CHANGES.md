@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-03-10 (Version 4.3.2)
+==========================
+
+* **licenses: Mediathek publication notification email**
+  * Added a new `mediathek_published` notification event and email templates (subject, text, HTML).
+  * Sends a user email with direct Mediathek link when `mediathek_url` is set for the first time.
+  * Delivery is deduplicated via notification events to prevent duplicate sends.
+  * Admin-triggered Mediathek refresh/rescan flows explicitly disable email sending.
+  * Extended email render command support for `mediathek_published` preview.
+
 2026-03-09 (Version 4.3.1)
 ==========================
 

@@ -37,6 +37,8 @@
 
 ### Recent Updates
 
+- **Licenses notifications**: Added a dedicated "mediathek published" email that is sent once when a license receives its first Mediathek URL, including a direct watch link
+- **Admin-safe Mediathek refresh**: Manual admin refresh/rescan paths now skip user email delivery to avoid unintended notification bursts
 - **Planning module refactor**: Introduced dedicated planning services, reusable templates, and schedule change tracking with expanded tests
 - **Planning calendar UI**: Reworked calendar week admin UX (template, CSS, JavaScript) for better readability and interactions
 - **Austausch export to server**: Upload video, PDF, JSON (and optional thumbnails) to Nextcloud WebDAV; step-by-step UI and Celery task
@@ -751,8 +753,8 @@ For questions about the architecture or development setup, please refer to:
 - Deployment guides: `deployment/README.md`
 - Architecture reports: `architecture/` directory
 
-**Last Updated**: February 2026
-**Version**: 1.3
+**Last Updated**: March 2026
+**Version**: 1.4
 
 ## API Documentation
 
