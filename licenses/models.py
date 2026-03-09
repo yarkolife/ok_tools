@@ -158,6 +158,18 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         null=True,
     )
 
+    mediathek_url = models.URLField(
+        _('Mediathek URL'),
+        blank=True,
+        null=True,
+    )
+
+    mediathek_url_updated_at = models.DateTimeField(
+        _('Mediathek URL updated at'),
+        blank=True,
+        null=True,
+    )
+
     is_live = models.BooleanField(
         _('Live broadcast'),
         default=False,
@@ -320,8 +332,21 @@ class License(ExportModelOperationsMixin('license'), models.Model):
 
         old = License.objects.get(id=self.id)
 
-        # editing is allowed if only action was to unconfirm license or update duration
-        if old.confirmed and update_fields not in (['confirmed'], ['duration']):
+        # editing is allowed if only action was to unconfirm license,
+        # update duration, or update mediathek URL metadata
+        allowed_update_fields = {
+            ('confirmed',),
+            ('duration',),
+            ('mediathek_url',),
+            ('mediathek_url_updated_at',),
+            ('mediathek_url', 'mediathek_url_updated_at'),
+            ('mediathek_url_updated_at', 'mediathek_url'),
+        }
+        normalized_update_fields = None
+        if update_fields is not None:
+            normalized_update_fields = tuple(update_fields)
+
+        if old.confirmed and normalized_update_fields not in allowed_update_fields:
             logger.warning(
                 f'Not saved {self} because it is already confirmed.')
             return
@@ -519,6 +544,7 @@ class LicenseNotificationEventType(models.TextChoices):
     DRAFT_SCHEDULED = "draft_scheduled", _("Draft scheduled")
     PLANNED_SCHEDULED = "planned_scheduled", _("Planned scheduled")
     CONTRIBUTIONS_AVAILABLE = "contributions_available", _("Contributions available")
+    MEDIATHEK_PUBLISHED = "mediathek_published", _("Mediathek published")
 
 
 class LicenseNotificationEvent(models.Model):

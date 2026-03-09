@@ -1,0 +1,19 @@
+{% load i18n %}
+{% blocktranslate with first_name=first_name %}<p>Hello {{ first_name }},</p>{% endblocktranslate %}
+
+{% blocktranslate with license_number=license_number title=license_title mediathek_url=mediathek_url %}<p>Great news! Your video for license #{{ license_number }} ({{ title }}) has been published to the Mediathek.</p>
+
+<p>You can watch it here: <a href="{{ mediathek_url }}">{{ mediathek_url }}</a></p>{% endblocktranslate %}
+
+{% blocktranslate %}<p>Thank you for your contribution!</p>{% endblocktranslate %}
+
+{% if license_url %}
+{% blocktranslate %}<p>View license: <a href="{{ license_url }}">{{ license_url }}</a></p>{% endblocktranslate %}
+{% endif %}
+
+{% blocktranslate with ok_name=ok_name %}<p>Best regards,<br>
+The {{ ok_name }} team</p>{% endblocktranslate %}
+
+{% if contact_email %}
+{% blocktranslate with contact_email=contact_email %}<p style="color: #666; font-size: 12px;">Contact: {{ contact_email }}</p>{% endblocktranslate %}
+{% endif %}

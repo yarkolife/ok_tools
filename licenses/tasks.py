@@ -1,17 +1,27 @@
 """Celery tasks for licenses module."""
 
+from datetime import date
+from datetime import datetime
 import logging
 from pathlib import Path
 
 from celery import shared_task
 from django.conf import settings
+from django.db import transaction
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import translation
+from django.utils import timezone
 
 from registration.email import send_mail
 
-from .models import LicensesConfig, License, NextcloudVideoFile
+from .models import LicensesConfig, License, NextcloudVideoFile, LicenseNotificationEvent, LicenseNotificationEventType
 from .services.nextcloud_service import NextcloudService
+from .services.peertube_service import compute_lookup_eta
+from .services.peertube_service import compute_publish_time_for_license
+from .services.peertube_service import find_video_by_number_in_channel
+from .services.peertube_service import peertube_watch_url
+from .services.peertube_service import resolve_peertube_endpoint
 
 
 logger = logging.getLogger('django')
@@ -274,6 +284,11 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
                 "email/license_contributions_available_body.txt",
                 "email/license_contributions_available_body.html",
             ),
+            "mediathek_published": (
+                "email/license_mediathek_published_subject.txt",
+                "email/license_mediathek_published_body.txt",
+                "email/license_mediathek_published_body.html",
+            ),
         }
 
         if event_type not in templates:
@@ -302,3 +317,270 @@ def send_license_notification_email(event_type: str, license_number: int, payloa
 def enqueue_license_notification_email(event_type: str, license_number: int, payload: dict | None = None) -> None:
     """Public helper for other modules to queue a notification email."""
     _enqueue(send_license_notification_email, event_type, int(license_number), payload or None)
+
+
+def _get_peertube_target_channel(license_obj: License) -> str | None:
+    """Get target channel from license media authority if configured."""
+    profile = getattr(license_obj, 'profile', None)
+    media_authority = getattr(profile, 'media_authority', None) if profile else None
+    return (getattr(media_authority, 'target_channel', None) or '').strip() or None
+
+
+def _get_org_channel() -> str | None:
+    """Get OrganizationConfig peertube_channel if available."""
+    try:
+        from registration.models import OrganizationConfig
+
+        config = OrganizationConfig.get_config()
+        return (config.peertube_channel or '').strip() or None
+    except Exception:
+        return None
+
+
+def _send_mediathek_published_email(license_obj: License, mediathek_url: str) -> None:
+    """
+    Send email when video is first published to mediathek.
+
+    Uses LicenseNotificationEvent for deduplication - email is sent only once
+    per license when mediathek_url is first set.
+    """
+    event_type = LicenseNotificationEventType.MEDIATHEK_PUBLISHED
+    license_number = license_obj.number
+
+    # Check if already sent (deduplication)
+    if LicenseNotificationEvent.objects.filter(
+        license_number=license_number,
+        event_type=event_type,
+    ).exists():
+        logger.debug(
+            'Mediathek published email already sent for license %s, skipping',
+            license_number,
+        )
+        return
+
+    # Create event for deduplication
+    try:
+        LicenseNotificationEvent.objects.create(
+            license_number=license_number,
+            event_type=event_type,
+            payload={"mediathek_url": mediathek_url},
+        )
+    except Exception:
+        logger.warning(
+            'Failed to create LicenseNotificationEvent for license %s, '
+            'email may be sent again on retry',
+            license_number,
+        )
+
+    # Send the email
+    enqueue_license_notification_email(
+        event_type=event_type,
+        license_number=license_number,
+        payload={"mediathek_url": mediathek_url},
+    )
+    logger.info('Queued mediathek published email for license %s', license_number)
+
+
+@shared_task(
+    name='licenses.tasks.refresh_license_mediathek_url',
+    bind=True,
+    max_retries=8,
+)
+def refresh_license_mediathek_url(
+    self,
+    license_number: int,
+    force: bool = False,
+    send_notification_email: bool = True,
+) -> dict:
+    """Refresh mediathek watch URL for one license by PeerTube videoNumber."""
+    try:
+        license_obj = License.objects.select_related('profile__media_authority').get(
+            number=int(license_number)
+        )
+    except License.DoesNotExist:
+        logger.warning('License not found for mediathek refresh: %s', license_number)
+        return {
+            'license_number': int(license_number),
+            'updated': False,
+            'reason': 'license_not_found',
+        }
+
+    if not force and license_obj.mediathek_url:
+        return {
+            'license_number': int(license_number),
+            'updated': False,
+            'reason': 'already_set',
+            'mediathek_url': license_obj.mediathek_url,
+        }
+
+    target_channel = _get_peertube_target_channel(license_obj)
+    org_channel = _get_org_channel()
+
+    try:
+        endpoint = resolve_peertube_endpoint(
+            target_channel=target_channel,
+            organization_channel=org_channel,
+        )
+    except ValueError as exc:
+        logger.warning(
+            'Cannot resolve PeerTube endpoint for license %s: %s',
+            license_obj.number,
+            exc,
+        )
+        return {
+            'license_number': int(license_obj.number),
+            'updated': False,
+            'reason': 'endpoint_not_configured',
+        }
+
+    try:
+        video = find_video_by_number_in_channel(
+            endpoint.base_url,
+            endpoint.channel_handle,
+            str(license_obj.number),
+        )
+    except Exception as exc:
+        countdown = min(3600, 120 * (2 ** self.request.retries))
+        raise self.retry(exc=exc, countdown=countdown)
+
+    if not video:
+        if self.request.retries < self.max_retries:
+            countdown = min(7200, 300 * (2 ** self.request.retries))
+            raise self.retry(exc=RuntimeError('PeerTube video not found yet'), countdown=countdown)
+        return {
+            'license_number': int(license_obj.number),
+            'updated': False,
+            'reason': 'not_found',
+        }
+
+    watch_url = peertube_watch_url(endpoint.base_url, video)
+
+    # Check if this is the first time mediathek_url is being set
+    was_empty = not license_obj.mediathek_url
+
+    with transaction.atomic():
+        license_obj.mediathek_url = watch_url
+        license_obj.mediathek_url_updated_at = timezone.now()
+        license_obj.save(update_fields=['mediathek_url', 'mediathek_url_updated_at'])
+
+    logger.info('Updated mediathek URL for license %s: %s', license_obj.number, watch_url)
+
+    # Send email notification only on first publish when notifications are enabled
+    if was_empty and send_notification_email:
+        _send_mediathek_published_email(license_obj, watch_url)
+
+    return {
+        'license_number': int(license_obj.number),
+        'updated': True,
+        'mediathek_url': watch_url,
+    }
+
+
+def _parse_iso_date(value: str) -> date | None:
+    """Parse YYYY-MM-DD date safely."""
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').date()
+    except (TypeError, ValueError):
+        return None
+
+
+def _collect_license_numbers_from_planung(start_date: date, end_date: date) -> set[int]:
+    """Collect license numbers from TagesPlan items for date range."""
+    try:
+        from planung.models import TagesPlan
+    except (ImportError, RuntimeError, ModuleNotFoundError):
+        return set()
+
+    numbers: set[int] = set()
+    plans = TagesPlan.objects.filter(datum__gte=start_date, datum__lte=end_date)
+    for plan in plans:
+        for item in (plan.json_plan or {}).get('items', []):
+            number = item.get('number')
+            if number is None:
+                continue
+            try:
+                numbers.add(int(number))
+            except (TypeError, ValueError):
+                continue
+    return numbers
+
+
+@shared_task(name='licenses.tasks.rescan_mediathek_links_for_period')
+def rescan_mediathek_links_for_period(
+    start_date_iso: str,
+    end_date_iso: str,
+    only_store_in_ok_media_library: bool = True,
+    requested_by_user_id: int | None = None,
+) -> dict:
+    """Queue per-license mediathek URL refresh tasks for selected period."""
+    start_date = _parse_iso_date(start_date_iso)
+    end_date = _parse_iso_date(end_date_iso)
+    if not start_date or not end_date or start_date > end_date:
+        raise ValueError('Invalid date range')
+
+    numbers: set[int] = set()
+
+    try:
+        from contributions.models import Contribution
+
+        contribution_numbers = Contribution.objects.filter(
+            broadcast_date__date__gte=start_date,
+            broadcast_date__date__lte=end_date,
+        ).values_list('license__number', flat=True)
+        numbers.update(int(n) for n in contribution_numbers if n is not None)
+    except (ImportError, RuntimeError, ModuleNotFoundError):
+        pass
+
+    numbers.update(_collect_license_numbers_from_planung(start_date, end_date))
+
+    if not numbers:
+        logger.info(
+            'Mediathek period rescan: no license numbers found for %s..%s',
+            start_date_iso,
+            end_date_iso,
+        )
+        return {
+            'queued_count': 0,
+            'start_date': start_date_iso,
+            'end_date': end_date_iso,
+            'only_store_in_ok_media_library': bool(only_store_in_ok_media_library),
+            'requested_by_user_id': requested_by_user_id,
+        }
+
+    filters = Q(number__in=list(numbers))
+    if only_store_in_ok_media_library:
+        filters &= Q(store_in_ok_media_library=True)
+
+    license_numbers = list(
+        License.objects.filter(filters).values_list('number', flat=True)
+    )
+
+    queued_count = 0
+    for license_number in license_numbers:
+        license_obj = License.objects.filter(number=int(license_number)).first()
+        eta = timezone.now()
+        if license_obj:
+            publish_time = compute_publish_time_for_license(license_obj)
+            eta = compute_lookup_eta(publish_time)
+        refresh_license_mediathek_url.apply_async(
+            args=[int(license_number)],
+            kwargs={'force': True, 'send_notification_email': False},
+            eta=eta,
+        )
+        queued_count += 1
+
+    logger.info(
+        'Mediathek period rescan queued: %s licenses, range=%s..%s, requested_by=%s',
+        queued_count,
+        start_date_iso,
+        end_date_iso,
+        requested_by_user_id,
+    )
+
+    return {
+        'queued_count': queued_count,
+        'start_date': start_date_iso,
+        'end_date': end_date_iso,
+        'only_store_in_ok_media_library': bool(only_store_in_ok_media_library),
+        'requested_by_user_id': requested_by_user_id,
+    }

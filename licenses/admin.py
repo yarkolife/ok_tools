@@ -1,4 +1,5 @@
 from .forms import ImportJSONForm
+from .forms import MediathekRescanPeriodForm
 from .forms import RangeNumericForm
 from .generate_file import generate_license_file
 from .models import Category
@@ -16,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from import_export import resources
@@ -654,8 +656,6 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     ordering = ['-created_at']
     
-    actions = ['search_videos_for_licenses']
-    
     def delete_queryset(self, request, queryset):
         """Clear dashboard UserJourney references before delete to satisfy FK constraint."""
         try:
@@ -706,11 +706,25 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             'fields': ('store_in_ok_media_library', 'is_screen_board', 'infoblock'),
         }),
         (_('Status & Metadata'), {
-            'fields': ('number', 'confirmed', 'created_at', 'has_signature_display', 'video_file_info'),
+            'fields': (
+                'number',
+                'confirmed',
+                'created_at',
+                'has_signature_display',
+                'video_file_info',
+                'mediathek_url_display',
+                'mediathek_url_updated_at',
+            ),
             'description': _('Number is auto-generated but can be manually changed if needed.')
         }),
     )
-    readonly_fields = ('created_at', 'has_signature_display', 'video_file_info')
+    readonly_fields = (
+        'created_at',
+        'has_signature_display',
+        'video_file_info',
+        'mediathek_url_display',
+        'mediathek_url_updated_at',
+    )
     
     def video_file_info(self, obj):
         """Display video file information if exists."""
@@ -833,6 +847,41 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             return format_html('<span style="color: #999;">-</span>')
     
     video_file_info.short_description = _('Video File')
+
+    def mediathek_url_display(self, obj):
+        """Display mediathek watch URL with quick actions."""
+        if not obj or not obj.pk:
+            return '-'
+
+        refresh_url = reverse('admin:licenses_license_refresh_mediathek', args=[obj.id])
+        clear_url = reverse('admin:licenses_license_clear_mediathek', args=[obj.id])
+
+        if obj.mediathek_url:
+            return format_html(
+                '<a href="{}" target="_blank" rel="noopener">{}</a><br>'
+                '<div style="margin-top: 6px;">'
+                '<a class="button" href="{}" style="margin-right: 6px;">{}</a> '
+                '<a class="button" href="{}">{}</a>'
+                '</div>',
+                obj.mediathek_url,
+                obj.mediathek_url,
+                refresh_url,
+                _('Refresh URL'),
+                clear_url,
+                _('Clear URL'),
+            )
+
+        return format_html(
+            '<span style="color: #999;">{}</span><br>'
+            '<div style="margin-top: 6px;">'
+            '<a class="button" href="{}">{}</a>'
+            '</div>',
+            _('No mediathek URL set'),
+            refresh_url,
+            _('Refresh URL'),
+        )
+
+    mediathek_url_display.short_description = _('Mediathek URL')
     
     def video_status(self, obj):
         """Display video status with modal player link in list view.
@@ -1018,7 +1067,14 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         
         return fieldsets
 
-    actions = ['confirm', 'unconfirm', 'duplicate_license']
+    actions = [
+        'confirm',
+        'unconfirm',
+        'duplicate_license',
+        'search_videos_for_licenses',
+        'clear_mediathek_url_action',
+        'refresh_mediathek_url_action',
+    ]
 
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
@@ -1176,6 +1232,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path(
+                'rescan-mediathek/',
+                self.admin_site.admin_view(self.rescan_mediathek_view),
+                name='licenses_license_rescan_mediathek',
+            ),
+            path(
                 'import-json/',
                 self.admin_site.admin_view(self.import_json_view),
                 name='licenses_license_import_json',
@@ -1185,8 +1246,102 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 self.admin_site.admin_view(self.search_video_view),
                 name='licenses_license_search_video',
             ),
+            path(
+                '<int:license_id>/refresh-mediathek/',
+                self.admin_site.admin_view(self.refresh_mediathek_view),
+                name='licenses_license_refresh_mediathek',
+            ),
+            path(
+                '<int:license_id>/clear-mediathek/',
+                self.admin_site.admin_view(self.clear_mediathek_view),
+                name='licenses_license_clear_mediathek',
+            ),
         ]
         return custom_urls + urls
+
+    def refresh_mediathek_view(self, request, license_id):
+        """Queue mediathek URL refresh for one license from admin change view."""
+        from django.shortcuts import redirect
+
+        from .tasks import refresh_license_mediathek_url
+
+        license_obj = get_object_or_404(License, pk=license_id)
+        refresh_license_mediathek_url.delay(
+            int(license_obj.number),
+            force=True,
+            send_notification_email=False,
+        )
+        self.message_user(
+            request,
+            _('Mediathek URL refresh queued for license #%(number)s.') % {
+                'number': license_obj.number,
+            },
+            messages.SUCCESS,
+        )
+        return redirect('admin:licenses_license_change', license_id)
+
+    def clear_mediathek_view(self, request, license_id):
+        """Clear mediathek URL for one license from admin change view."""
+        from django.shortcuts import redirect
+
+        license_obj = get_object_or_404(License, pk=license_id)
+        license_obj.mediathek_url = None
+        license_obj.mediathek_url_updated_at = timezone.now()
+        license_obj.save(update_fields=['mediathek_url', 'mediathek_url_updated_at'])
+        self.message_user(
+            request,
+            _('Mediathek URL cleared for license #%(number)s.') % {
+                'number': license_obj.number,
+            },
+            messages.SUCCESS,
+        )
+        return redirect('admin:licenses_license_change', license_id)
+
+    def rescan_mediathek_view(self, request):
+        """Render and process admin form to trigger mediathek rescan by period."""
+        from datetime import date
+        from django.shortcuts import redirect
+        from django.shortcuts import render
+        from django.utils import timezone
+
+        from .tasks import rescan_mediathek_links_for_period
+
+        if request.method == 'POST':
+            form = MediathekRescanPeriodForm(request.POST)
+            if form.is_valid():
+                date_from = form.cleaned_data['date_from']
+                date_to = form.cleaned_data['date_to']
+                only_store = form.cleaned_data['only_store_in_ok_media_library']
+
+                rescan_mediathek_links_for_period.delay(
+                    start_date_iso=date_from.isoformat(),
+                    end_date_iso=date_to.isoformat(),
+                    only_store_in_ok_media_library=bool(only_store),
+                    requested_by_user_id=request.user.pk if request.user and request.user.is_authenticated else None,
+                )
+
+                self.message_user(
+                    request,
+                    _('Mediathek rescan has been queued in the background.'),
+                    messages.SUCCESS,
+                )
+                return redirect('admin:licenses_license_changelist')
+        else:
+            form = MediathekRescanPeriodForm(
+                initial={
+                    'date_from': date(2025, 1, 1),
+                    'date_to': timezone.localdate(),
+                    'only_store_in_ok_media_library': True,
+                }
+            )
+
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'title': _('Rescan mediathek links'),
+            'form': form,
+        }
+        return render(request, 'admin/licenses/rescan_mediathek.html', context)
     
     def search_video_view(self, request, license_id):
         """Search for video matching this license number."""
@@ -1303,6 +1458,50 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 f'{_("Search errors")}: {error_count}',
                 messages.ERROR
             )
+
+    @admin.action(description=_('Clear mediathek URL for selected licenses'))
+    def clear_mediathek_url_action(self, request, queryset):
+        """Admin action to clear mediathek URL for selected licenses."""
+        updated = 0
+        for obj in queryset:
+            obj.mediathek_url = None
+            obj.mediathek_url_updated_at = timezone.now()
+            obj.save(update_fields=['mediathek_url', 'mediathek_url_updated_at'])
+            updated += 1
+
+        self.message_user(
+            request,
+            _p(
+                '%d license mediathek URL was cleared.',
+                '%d license mediathek URLs were cleared.',
+                updated,
+            ) % updated,
+            messages.SUCCESS,
+        )
+
+    @admin.action(description=_('Refresh mediathek URL for selected licenses'))
+    def refresh_mediathek_url_action(self, request, queryset):
+        """Admin action to queue mediathek URL refresh for selected licenses."""
+        from .tasks import refresh_license_mediathek_url
+
+        queued = 0
+        for obj in queryset:
+            refresh_license_mediathek_url.delay(
+                int(obj.number),
+                force=True,
+                send_notification_email=False,
+            )
+            queued += 1
+
+        self.message_user(
+            request,
+            _p(
+                '%d mediathek refresh task was queued.',
+                '%d mediathek refresh tasks were queued.',
+                queued,
+            ) % queued,
+            messages.SUCCESS,
+        )
     
     def import_json_view(self, request):
         """Import License from JSON file."""

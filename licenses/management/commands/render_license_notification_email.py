@@ -44,6 +44,11 @@ TEMPLATES = {
         "email/license_contributions_available_body.txt",
         "email/license_contributions_available_body.html",
     ),
+    "mediathek_published": (
+        "email/license_mediathek_published_subject.txt",
+        "email/license_mediathek_published_body.txt",
+        "email/license_mediathek_published_body.html",
+    ),
 }
 
 

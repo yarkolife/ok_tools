@@ -1,0 +1,2 @@
+{% load i18n %}
+{% blocktranslate with license_number=license_number %}Your video is now available in the Mediathek - License #{{ license_number }}{% endblocktranslate %}

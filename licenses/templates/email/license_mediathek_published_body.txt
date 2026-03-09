@@ -1,0 +1,19 @@
+{% load i18n %}
+{% blocktranslate with first_name=first_name %}Hello {{ first_name }},{% endblocktranslate %}
+
+{% blocktranslate with license_number=license_number title=license_title mediathek_url=mediathek_url %}Great news! Your video for license #{{ license_number }} ({{ title }}) has been published to the Mediathek.
+
+You can watch it here: {{ mediathek_url }}{% endblocktranslate %}
+
+{% blocktranslate %}Thank you for your contribution!{% endblocktranslate %}
+
+{% if license_url %}
+{% blocktranslate %}View license:{% endblocktranslate %} {{ license_url }}
+{% endif %}
+
+{% blocktranslate with ok_name=ok_name %}Best regards,
+The {{ ok_name }} team{% endblocktranslate %}
+
+{% if contact_email %}
+{% blocktranslate with contact_email=contact_email %}Contact: {{ contact_email }}{% endblocktranslate %}
+{% endif %}
