@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+2026-03-09 (Version 4.3.1)
+==========================
+
+* **licenses: Signature session cleanup command**
+  * Added management command `cleanup_signing_sessions` to remove expired signature sessions.
+  * Added test coverage for signature session cleanup.
+
+* **tools: Video rendering and slideshow improvements**
+  * Added duration mode to slideshow creator for fixed-duration or fit-content modes.
+  * Improved video generator service with enhanced rendering options.
+  * Updated templates for slideshow creator, detail view, and video render job list.
+  * Added German translations for tools module.
+
+* **registration: Legal texts and privacy policy**
+  * Added legal_texts.py with GDPR and imprint content.
+  * Updated privacy policy templates with improved content.
+  * Added registration tests for legal text handling.
+
+* **media_files: Video render API tests**
+  * Added test coverage for video render API endpoints.
+
+* **General: Settings and URL updates**
+  * Added new settings for signature and video features.
+  * Updated URL configurations.
+
 2026-03-06 (Version 4.3.0)
 ==========================
 
