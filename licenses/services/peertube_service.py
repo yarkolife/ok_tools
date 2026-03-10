@@ -24,6 +24,14 @@ class PeerTubeEndpointConfig:
     channel_handle: str
 
 
+def normalize_channel_handle(channel_handle: str | None) -> str:
+    """Normalize PeerTube channel identifier to plain handle (name/slug)."""
+    value = (channel_handle or '').strip()
+    if value.startswith('@'):
+        value = value[1:]
+    return value.split('@', 1)[0].strip()
+
+
 def parse_target_channel(target_channel: str | None) -> tuple[str | None, str | None]:
     """Parse @handle@domain and return (handle, domain)."""
     value = (target_channel or '').strip()
@@ -48,7 +56,9 @@ def resolve_peertube_endpoint(*, target_channel: str | None, organization_channe
     """Resolve PeerTube base URL and channel handle."""
     parsed_handle, parsed_domain = parse_target_channel(target_channel)
 
-    channel_handle = (organization_channel or '').strip() or (parsed_handle or '')
+    org_handle = normalize_channel_handle(organization_channel)
+    parsed_handle = normalize_channel_handle(parsed_handle)
+    channel_handle = org_handle or parsed_handle
     if not channel_handle:
         raise ValueError('PeerTube channel handle is not configured')
 
@@ -85,28 +95,9 @@ def find_video_by_number_in_channel(
     max_pages: int = 50,
 ) -> dict | None:
     """Find full PeerTube video object by pluginData.videoNumber in channel."""
-
-    def _channel_candidates(value: str) -> list[str]:
-        raw = (value or '').strip()
-        if not raw:
-            return []
-
-        candidates: list[str] = []
-
-        def _add(candidate: str) -> None:
-            candidate = candidate.strip()
-            if candidate and candidate not in candidates:
-                candidates.append(candidate)
-
-        _add(raw)
-
-        no_leading_at = raw[1:] if raw.startswith('@') else raw
-        _add(no_leading_at)
-
-        if '@' in no_leading_at:
-            _add(no_leading_at.split('@', 1)[0])
-
-        return candidates
+    channel_handle = normalize_channel_handle(channel_handle)
+    if not channel_handle:
+        raise ValueError('PeerTube channel handle is empty')
 
     def _fetch_for_channel(channel_identifier: str) -> dict[str, Any] | None:
         start = 0
@@ -147,26 +138,7 @@ def find_video_by_number_in_channel(
 
         return None
 
-    last_http_error: requests.HTTPError | None = None
-    for candidate in _channel_candidates(channel_handle):
-        try:
-            return _fetch_for_channel(candidate)
-        except requests.HTTPError as exc:
-            status_code = getattr(getattr(exc, 'response', None), 'status_code', None)
-            if status_code == 404:
-                logger.warning(
-                    'PeerTube channel identifier not found: %s (base_url=%s)',
-                    candidate,
-                    base_url,
-                )
-                last_http_error = exc
-                continue
-            raise
-
-    if last_http_error:
-        raise last_http_error
-
-    return None
+    return _fetch_for_channel(channel_handle)
 
 
 def peertube_watch_url(base_url: str, video: dict) -> str:

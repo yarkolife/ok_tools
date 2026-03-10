@@ -1,13 +1,13 @@
 import datetime
 
 import pytest
-import requests
 from django.utils import timezone
 
 from contributions.models import Contribution
 from licenses.services.peertube_service import compute_lookup_eta
 from licenses.services.peertube_service import compute_publish_time_for_license
 from licenses.services.peertube_service import find_video_by_number_in_channel
+from licenses.services.peertube_service import normalize_channel_handle
 from licenses.services.peertube_service import parse_target_channel
 from licenses.services.peertube_service import resolve_peertube_endpoint
 from planung.models import TagesPlan
@@ -70,17 +70,20 @@ def test__licenses__peertube_service__compute_lookup_eta_adds_5_minutes():
 
 
 @pytest.mark.django_db
-def test__licenses__peertube_service__find_video_fallback_to_handle_without_domain(monkeypatch):
-    """Fallback from handle@domain to plain handle when channel endpoint returns 404."""
+def test__licenses__peertube_service__normalize_channel_handle():
+    """Channel handle normalizer strips @ and optional host part."""
+    assert normalize_channel_handle('@okmq@lokalmedial.de') == 'okmq'
+    assert normalize_channel_handle('okmq@lokalmedial.de') == 'okmq'
+    assert normalize_channel_handle('okmq') == 'okmq'
+
+
+@pytest.mark.django_db
+def test__licenses__peertube_service__find_video_uses_normalized_handle(monkeypatch):
+    """Video search uses normalized handle in channel videos endpoint."""
     calls = []
 
     def _fake_peertube_get_json(base_url, path, params=None, timeout=15):
         calls.append(path)
-        if path == '/api/v1/video-channels/okmq%40lokalmedial.de/videos':
-            response = requests.Response()
-            response.status_code = 404
-            raise requests.HTTPError(response=response)
-
         if path == '/api/v1/video-channels/okmq/videos':
             return {
                 'data': [
@@ -106,5 +109,5 @@ def test__licenses__peertube_service__find_video_fallback_to_handle_without_doma
 
     assert video is not None
     assert video.get('shortUUID') == 'short-1'
-    assert '/api/v1/video-channels/okmq%40lokalmedial.de/videos' in calls
     assert '/api/v1/video-channels/okmq/videos' in calls
+    assert '/api/v1/video-channels/okmq%40lokalmedial.de/videos' not in calls
