@@ -8,8 +8,8 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.utils.translation import gettext as _
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_http_methods
 from django.views.decorators.http import require_POST
 from licenses.models import License
 from planung.services.plan_service import delete_day_plan
@@ -70,7 +70,6 @@ def get_license_by_number(request, number):
 
 @require_POST
 @staff_member_required
-@csrf_exempt
 def save_day_plan(request):
     """Save a day plan with the provided data."""
     try:
@@ -98,7 +97,8 @@ def save_day_plan(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-@csrf_exempt
+@require_http_methods(["GET", "DELETE"])
+@staff_member_required
 def day_plan_detail(request, iso_date):
     """Retrieve or delete a day plan by ISO date.
 
@@ -244,7 +244,6 @@ def list_templates(request):
 
 @require_POST
 @staff_member_required
-@csrf_exempt
 def apply_template(request):
     """Apply a stored plan template to one target date."""
     payload = json.loads(request.body or "{}")
@@ -289,7 +288,6 @@ def apply_template(request):
 
 @require_POST
 @staff_member_required
-@csrf_exempt
 def copy_plan(request):
     """Copy plan from source date to target date."""
     payload = json.loads(request.body or "{}")
