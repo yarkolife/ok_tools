@@ -494,6 +494,28 @@ class GlobalProducerFilter(admin.SimpleListFilter):
         return queryset
 
 
+class HasMediathekUrlFilter(admin.SimpleListFilter):
+    """Filter licenses by mediathek URL presence."""
+
+    title = _('Has Mediathek URL')
+    parameter_name = 'has_mediathek_url'
+
+    def lookups(self, request, model_admin):
+        """Define filter options."""
+        return (
+            ('yes', _('Yes')),
+            ('no', _('No')),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter licenses by mediathek URL presence."""
+        if self.value() == 'yes':
+            return queryset.filter(mediathek_url__isnull=False).exclude(mediathek_url='')
+        elif self.value() == 'no':
+            return queryset.filter(mediathek_url__isnull=True) | queryset.filter(mediathek_url='')
+        return queryset
+
+
 class HasVideoFilter(admin.SimpleListFilter):
     """Filter licenses by video file presence and availability."""
 
@@ -1124,6 +1146,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'store_in_ok_media_library',
         GlobalProducerFilter,
         HasVideoFilter,
+        HasMediathekUrlFilter,
         WithoutContributionFilter,
     ]
 
