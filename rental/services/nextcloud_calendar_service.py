@@ -113,44 +113,18 @@ class NextcloudCalendarService:
         Returns:
             Calendar object or None if not found
         """
-        # #region agent log
-        import json
-        try:
-            with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"rental/services/nextcloud_calendar_service.py:62","message":"_get_calendar_for_room called","data":{"room_name":room.name if hasattr(room, 'name') else None,"default_calendar_name":self.default_calendar_name},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        except: pass
-        # #endregion
-        
         try:
             calendars = self.principal.calendars()
-            # #region agent log
-            try:
-                with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"rental/services/nextcloud_calendar_service.py:72","message":"Available calendars","data":{"count":len(calendars),"names":[c.name for c in calendars]},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            except: pass
-            # #endregion
             
             # Priority 1: Use default calendar if configured
             if self.default_calendar_name:
                 for cal in calendars:
                     if cal.name == self.default_calendar_name:
-                        # #region agent log
-                        try:
-                            with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"rental/services/nextcloud_calendar_service.py:77","message":"Found default calendar","data":{"calendar_name":cal.name},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                        except: pass
-                        # #endregion
                         return cal
                 logger.warning(
                     f'Default calendar "{self.default_calendar_name}" not found. '
                     f'Available calendars: {[c.name for c in calendars]}'
                 )
-                # #region agent log
-                try:
-                    with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"rental/services/nextcloud_calendar_service.py:85","message":"Default calendar not found, using fallback","data":{"default_calendar_name":self.default_calendar_name,"fallback_calendar":calendars[0].name if calendars else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                except: pass
-                # #endregion
                 # Fallback to first calendar if default not found
                 if calendars:
                     return calendars[0]
@@ -198,14 +172,6 @@ class NextcloudCalendarService:
         Returns:
             Event URL (href) if successful, None otherwise
         """
-        # #region agent log
-        import json
-        try:
-            with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"rental/services/nextcloud_calendar_service.py:121","message":"sync_room_rental_to_calendar called","data":{"room_rental_id":room_rental.id if hasattr(room_rental, 'id') else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        except: pass
-        # #endregion
-        
         from rental.models import RoomRental
         
         if not isinstance(room_rental, RoomRental):
@@ -214,12 +180,6 @@ class NextcloudCalendarService:
 
         # Only sync if rental request is confirmed (reserved or issued)
         status = room_rental.rental_request.status if hasattr(room_rental, 'rental_request') else None
-        # #region agent log
-        try:
-            with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"rental/services/nextcloud_calendar_service.py:137","message":"Status check in sync_room_rental_to_calendar","data":{"status":status,"should_sync":status in ['reserved', 'issued']},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        except: pass
-        # #endregion
         
         if status not in ['reserved', 'issued']:
             logger.debug(
@@ -279,12 +239,6 @@ class NextcloudCalendarService:
 
         # Get the calendar for the first room (we'll use this for all rooms in the request)
         calendar = self._get_calendar_for_room(primary_room_rental.room)
-        # #region agent log
-        try:
-            with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"rental/services/nextcloud_calendar_service.py:145","message":"Calendar lookup result","data":{"calendar_found":calendar is not None,"calendar_name":calendar.name if calendar else None,"room_name":primary_room_rental.room.name if hasattr(primary_room_rental, 'room') else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        except: pass
-        # #endregion
         
         if not calendar:
             logger.error(f'No calendar found for rooms in rental request {rental_request.id}')
@@ -416,25 +370,12 @@ class NextcloudCalendarService:
         # Create new event (either first time or after NotFoundError)
         if not main_event_href:
             try:
-                # #region agent log
-                try:
-                    with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"rental/services/nextcloud_calendar_service.py:230","message":"Creating new event in CalDAV","data":{"rental_request_id":rental_request.id,"ical_length":len(ical_text)},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                except: pass
-                # #endregion
-                
                 # Use save_event with iCal string (caldav 2.2.0+)
                 # save_event can accept iCal string or parameters
                 try:
                     # Try new API first (caldav 2.2.0+)
                     vevent = calendar.save_event(ical_text)
                 except (TypeError, AttributeError) as api_error:
-                    # #region agent log
-                    try:
-                        with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"rental/services/nextcloud_calendar_service.py:214","message":"New API failed, trying old API","data":{"error":str(api_error)},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                    except: pass
-                    # #endregion
                     # Fallback to old API (caldav < 2.2.0)
                     vevent = calendar.add_event(ical_text)
                 
@@ -442,12 +383,6 @@ class NextcloudCalendarService:
                 logger.info(
                     f'Created Nextcloud event for rental request {rental_request.id} at {event_href}'
                 )
-                # #region agent log
-                try:
-                    with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"rental/services/nextcloud_calendar_service.py:221","message":"Event created successfully","data":{"event_href":event_href,"rental_request_id":rental_request.id},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                except: pass
-                # #endregion
                 
                 # Update all room rentals in this request to use the same href
                 for rr in room_rentals:
@@ -456,12 +391,6 @@ class NextcloudCalendarService:
                 return event_href
             except Exception as e:
                 logger.error(f'Error creating Nextcloud event: {e}')
-                # #region agent log
-                try:
-                    with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"rental/services/nextcloud_calendar_service.py:224","message":"Exception creating event","data":{"error":str(e),"error_type":type(e).__name__},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                except: pass
-                # #endregion
                 return None
 
     def delete_room_rental_event(self, room_rental) -> bool:
@@ -473,14 +402,6 @@ class NextcloudCalendarService:
         Returns:
             True if successful, False otherwise
         """
-        # #region agent log
-        import json
-        try:
-            with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"J","location":"rental/services/nextcloud_calendar_service.py:230","message":"delete_room_rental_event called","data":{"room_rental_id":room_rental.id if hasattr(room_rental, 'id') else None,"event_href":room_rental.nextcloud_event_href if hasattr(room_rental, 'nextcloud_event_href') else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        except: pass
-        # #endregion
-        
         # Instead of deleting individual events, we need to delete the shared event for the entire rental request
         return self._delete_rental_request_event(room_rental.rental_request)
 
@@ -511,23 +432,11 @@ class NextcloudCalendarService:
 
         if not main_event_href:
             # No event to delete
-            # #region agent log
-            try:
-                with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"J","location":"rental/services/nextcloud_calendar_service.py:240","message":"No event href to delete","data":{"rental_request_id":rental_request.id if hasattr(rental_request, 'id') else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            except: pass
-            # #endregion
             return True
 
         try:
             # Use the calendar of the first room rental for deletion
             calendar = self._get_calendar_for_room(room_rentals[0].room)
-            # #region agent log
-            try:
-                with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"J","location":"rental/services/nextcloud_calendar_service.py:247","message":"Calendar lookup for delete","data":{"calendar_found":calendar is not None,"room_name":room_rentals[0].room.name if hasattr(room_rentals[0], 'room') else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            except: pass
-            # #endregion
             
             if not calendar:
                 logger.warning(f'No calendar found for rooms in rental request {rental_request.id}, cannot delete event')
@@ -540,12 +449,6 @@ class NextcloudCalendarService:
                     f'Deleted Nextcloud event for rental request {rental_request.id} '
                     f'at {main_event_href}'
                 )
-                # #region agent log
-                try:
-                    with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"J","location":"rental/services/nextcloud_calendar_service.py:260","message":"Event deleted successfully","data":{"rental_request_id":rental_request.id,"event_href":main_event_href},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                except: pass
-                # #endregion
                 
                 # Clear the event href for all room rentals in this request
                 for rr in room_rentals:
@@ -555,12 +458,6 @@ class NextcloudCalendarService:
             except self.caldav.error.NotFoundError:
                 # Event already deleted, that's fine
                 logger.info(f'Event {main_event_href} already deleted')
-                # #region agent log
-                try:
-                    with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"J","location":"rental/services/nextcloud_calendar_service.py:268","message":"Event already deleted (NotFoundError)","data":{"rental_request_id":rental_request.id,"event_href":main_event_href},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                except: pass
-                # #endregion
                 
                 # Clear the event href for all room rentals in this request
                 for rr in room_rentals:
@@ -569,22 +466,10 @@ class NextcloudCalendarService:
                 return True
             except Exception as e:
                 logger.error(f'Error deleting Nextcloud event: {e}')
-                # #region agent log
-                try:
-                    with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"J","location":"rental/services/nextcloud_calendar_service.py:275","message":"Exception deleting event","data":{"error":str(e),"error_type":type(e).__name__,"rental_request_id":rental_request.id},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                except: pass
-                # #endregion
                 return False
 
         except Exception as e:
             logger.error(f'Error deleting rental request {rental_request.id} from Nextcloud: {e}', exc_info=True)
-            # #region agent log
-            try:
-                with open('/Users/pavlo/coding/ok_tools_v3/.cursor/debug.log', 'a') as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"J","location":"rental/services/nextcloud_calendar_service.py:283","message":"Exception in _delete_rental_request_event","data":{"error":str(e),"rental_request_id":rental_request.id if hasattr(rental_request, 'id') else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            except: pass
-            # #endregion
             return False
 
 
