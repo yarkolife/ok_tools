@@ -735,15 +735,23 @@ class ExportToServerStatusView(APIView):
         Get export-to-server task status.
         
         Query parameters:
-        - run_id: Specific ExportToServerRun ID (optional, defaults to latest)
+        - run_id: Specific ExportToServerRun ID (optional)
+        - task_id: Specific Celery task ID (optional, finds run by task_id)
         
         Returns:
         Response with task status and progress
         """
         from django.utils import timezone
         
-        # Get the run (either specific or latest)
-        if run_id:
+        # Get the run - try task_id first, then run_id, then latest
+        task_id_param = request.query_params.get('task_id')
+        
+        if task_id_param:
+            # Find run by task_id in details
+            run = ExportToServerRun.objects.filter(
+                details__task_id=task_id_param
+            ).order_by('-started_at').first()
+        elif run_id:
             run = ExportToServerRun.objects.filter(pk=run_id).first()
         else:
             run = ExportToServerRun.objects.order_by('-started_at').first()
@@ -754,15 +762,15 @@ class ExportToServerStatusView(APIView):
                 'message': 'No export run found',
             }, status=status.HTTP_404_NOT_FOUND)
         
-        # Determine status
+        # Determine status - use task_id from query param if provided
+        task_id = task_id_param or (run.details.get('task_id') if run.details else None)
+        
         if run.completed_at:
             task_status = 'completed'
         else:
             task_status = 'running'
         
         # Check if there's a Celery task for this run
-        # We store task_id in the run details if available
-        task_id = run.details.get('task_id') if run.details else None
         
         celery_status = None
         celery_progress = None

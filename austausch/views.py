@@ -563,12 +563,23 @@ def export_to_server_result(request):
     from django.shortcuts import render
     from .models import ExportToServerRun
 
-    run = ExportToServerRun.objects.order_by('-started_at').first()
     task_id = request.session.get('export_task_id')
     
-    # Clear task_id from session after showing result page
-    if task_id and 'export_task_id' in request.session:
-        del request.session['export_task_id']
+    # Try to find the run that matches the current task_id
+    # If not found (e.g., task_id cleared), fall back to latest run
+    if task_id:
+        run = ExportToServerRun.objects.filter(
+            details__task_id=task_id
+        ).order_by('-started_at').first()
+        
+        # If not found by task_id, try latest run but still show progress
+        if not run:
+            run = ExportToServerRun.objects.order_by('-started_at').first()
+        
+        # Only clear task_id if the task is complete
+        # We'll check this via API; for now keep it in session
+    else:
+        run = ExportToServerRun.objects.order_by('-started_at').first()
     
     if not run:
         return render(request, 'austausch/export_to_server_result.html', {'run': None, 'task_id': task_id})

@@ -366,8 +366,8 @@
       </div>
     {% endif %}
 
-    {# Progress tracking for running tasks #}
-    {% if task_id and not run.completed_at %}
+    {# Progress tracking for running tasks - show if task_id exists #}
+    {% if task_id %}
     <div class="progress-container" id="export-progress">
       <div class="progress-header">
         <span class="progress-title">{% translate "Export Progress" %}</span>
@@ -465,7 +465,10 @@
   function poll() {
     if (!isRunning) return;
     
-    fetch('{% url "austausch:api_export_status" %}', {
+    // Pass task_id to API to get correct run status
+    const apiUrl = '{% url "austausch:api_export_status" %}' + '?task_id=' + encodeURIComponent(taskId);
+    
+    fetch(apiUrl, {
       headers: {
         'X-CSRFToken': '{{ csrf_token }}',
         'Accept': 'application/json'

@@ -490,6 +490,7 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
         user=user,
         mode=mode,
         total_count=len(selected_ids),
+        details={'task_id': str(self.request.id)},
     )
 
     def progress_callback(current: int, total: int, status: str, item_id: int = None):
