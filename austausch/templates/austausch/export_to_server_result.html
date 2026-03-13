@@ -442,11 +442,21 @@
     console.log('Updating UI with:', {progress, current, total});
     console.log('Elements:', {progressBar, progressPercent, progressStatus, progressItems});
     
+    // Force progress bar update with explicit pixel value for debugging
     progressBar.style.width = progress + '%';
+    progressBar.setAttribute('data-progress', progress);
     progressPercent.textContent = progress + '%';
     
+    // Force reflow to ensure styles are applied
+    void progressBar.offsetWidth;
+    
     if (statusText === 'processing' || statusText === '') {
-      progressStatus.textContent = '{% translate "Processing…" %}';
+      // If progress is 100% but task is still running, we're uploading files
+      if (progress === 100 && data.celery_status === 'PROGRESS') {
+        progressStatus.textContent = '{% translate "Uploading files…" %}';
+      } else {
+        progressStatus.textContent = '{% translate "Processing…" %}';
+      }
     } else if (statusText === 'completed') {
       progressStatus.textContent = '{% translate "Completed!" %}';
       isRunning = false;
