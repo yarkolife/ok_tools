@@ -368,6 +368,8 @@
 
     {# Progress tracking for running tasks - show if task_id exists #}
     {% if task_id %}
+    <!-- Debug: task_id={{ task_id }}, run={{ run }}, completed_at={{ run.completed_at|default:"none" }} -->
+    {% endif %}
     <div class="progress-container" id="export-progress">
       <div class="progress-header">
         <span class="progress-title">{% translate "Export Progress" %}</span>
@@ -454,19 +456,28 @@
     
     // Check if task is complete
     if (data.completed_at || data.status === 'completed') {
+      console.log('Task completed, stopping polling');
       isRunning = false;
       // Refresh page to show final results
       setTimeout(function() {
         window.location.reload();
       }, 2000);
+    } else {
+      console.log('Task still running, status:', data.status, 'celery_status:', data.celery_status);
     }
   }
   
   function poll() {
-    if (!isRunning) return;
+    if (!isRunning) {
+      console.log('Poll skipped: isRunning = false');
+      return;
+    }
+    
+    console.log('Polling for task:', taskId);
     
     // Pass task_id to API to get correct run status
     const apiUrl = '{% url "austausch:api_export_status" %}' + '?task_id=' + encodeURIComponent(taskId);
+    console.log('API URL:', apiUrl);
     
     fetch(apiUrl, {
       headers: {
@@ -474,10 +485,15 @@
         'Accept': 'application/json'
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      console.log('Response status:', response.status);
+      return response.json();
+    })
     .then(data => {
+      console.log('API response:', data);
       updateProgress(data);
       if (isRunning) {
+        console.log('Scheduling next poll in 5 seconds');
         setTimeout(poll, 5000);
       }
     })
