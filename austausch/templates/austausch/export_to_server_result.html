@@ -411,8 +411,6 @@
   function updateProgress(data) {
     if (!data) return;
     
-    console.log('updateProgress called with:', data);
-    
     // Update progress bar
     let progress = 0;
     let current = 0;
@@ -424,7 +422,6 @@
       current = data.celery_progress.current || 0;
       total = data.celery_progress.total || data.total_count || 0;
       statusText = data.celery_progress.status || '';
-      console.log('Using celery_progress:', {progress, current, total, statusText});
     } else if (data.total_count) {
       // Use counts from run
       const done = (data.success_count || 0) + (data.failure_count || 0) + (data.skipped_no_pdf_count || 0);
@@ -436,27 +433,15 @@
       } else {
         statusText = 'processing';
       }
-      console.log('Using run counts:', {progress, current, total, statusText, done});
     }
     
-    console.log('Updating UI with:', {progress, current, total});
-    console.log('Elements:', {progressBar, progressPercent, progressStatus, progressItems});
-    
-    // Force progress bar update with explicit pixel value for debugging
     progressBar.style.width = progress + '%';
-    progressBar.setAttribute('data-progress', progress);
     progressPercent.textContent = progress + '%';
     
-    // Force reflow to ensure styles are applied
-    void progressBar.offsetWidth;
-    
-    if (statusText === 'processing' || statusText === '') {
-      // If progress is 100% but task is still running, we're uploading files
-      if (progress === 100 && data.celery_status === 'PROGRESS') {
-        progressStatus.textContent = '{% translate "Uploading files…" %}';
-      } else {
-        progressStatus.textContent = '{% translate "Processing…" %}';
-      }
+    if (statusText === 'uploading') {
+      progressStatus.textContent = '{% translate "Uploading file…" %}';
+    } else if (statusText === 'processing' || statusText === '') {
+      progressStatus.textContent = '{% translate "Processing…" %}';
     } else if (statusText === 'completed') {
       progressStatus.textContent = '{% translate "Completed!" %}';
       isRunning = false;
@@ -470,28 +455,19 @@
     
     // Check if task is complete
     if (data.completed_at || data.status === 'completed') {
-      console.log('Task completed, stopping polling');
       isRunning = false;
       // Refresh page to show final results
       setTimeout(function() {
         window.location.reload();
       }, 2000);
-    } else {
-      console.log('Task still running, status:', data.status, 'celery_status:', data.celery_status);
     }
   }
   
   function poll() {
-    if (!isRunning) {
-      console.log('Poll skipped: isRunning = false');
-      return;
-    }
-    
-    console.log('Polling for task:', taskId);
+    if (!isRunning) return;
     
     // Pass task_id to API to get correct run status
     const apiUrl = '{% url "austausch:api_export_status" %}' + '?task_id=' + encodeURIComponent(taskId);
-    console.log('API URL:', apiUrl);
     
     fetch(apiUrl, {
       headers: {
@@ -499,15 +475,10 @@
         'Accept': 'application/json'
       }
     })
-    .then(response => {
-      console.log('Response status:', response.status);
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-      console.log('API response:', data);
       updateProgress(data);
       if (isRunning) {
-        console.log('Scheduling next poll in 5 seconds');
         setTimeout(poll, 5000);
       }
     })

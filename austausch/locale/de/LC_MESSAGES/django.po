@@ -1435,3 +1435,7 @@ msgstr "Wird verarbeitet…"
 #: austausch/templates/austausch/export_to_server_result.html
 msgid "Completed!"
 msgstr "Abgeschlossen!"
+
+#: austausch/templates/austausch/export_to_server_result.html
+msgid "Uploading file…"
+msgstr "Datei wird hochgeladen…"
