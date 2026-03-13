@@ -568,16 +568,21 @@ def export_to_server_result(request):
     # Try to find the run that matches the current task_id
     # If not found (e.g., task_id cleared), fall back to latest run
     if task_id:
-        run = ExportToServerRun.objects.filter(
-            details__task_id=task_id
-        ).order_by('-started_at').first()
-        
-        # If not found by task_id, try latest run but still show progress
-        if not run:
+        try:
+            # Use Python filtering to avoid JSONField lookup issues
+            runs = ExportToServerRun.objects.order_by('-started_at')[:10]
+            run = None
+            for r in runs:
+                if r.details and r.details.get('task_id') == task_id:
+                    run = r
+                    break
+            
+            # If not found by task_id, try latest run but still show progress
+            if not run:
+                run = ExportToServerRun.objects.order_by('-started_at').first()
+        except Exception:
+            # Fallback to latest run on any error
             run = ExportToServerRun.objects.order_by('-started_at').first()
-        
-        # Only clear task_id if the task is complete
-        # We'll check this via API; for now keep it in session
     else:
         run = ExportToServerRun.objects.order_by('-started_at').first()
     
