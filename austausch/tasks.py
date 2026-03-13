@@ -513,7 +513,9 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
         run.success_count = report['success_count']
         run.failure_count = report['failure_count']
         run.skipped_no_pdf_count = report['skipped_no_pdf_count']
+        # Preserve task_id in details
         run.details = {
+            'task_id': str(self.request.id),
             'success_ids': report['success_ids'],
             'success_license_numbers': report.get('success_license_numbers', []),
             'failed': report['failed'],
