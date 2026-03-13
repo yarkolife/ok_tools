@@ -159,3 +159,5 @@ docker-local/
 deployment/servers/
 !deployment/servers/README.md
 !deployment/servers/env.example
+ok_tools/static/img/logo.png
+ok_tools/static/img/favicon.ico
