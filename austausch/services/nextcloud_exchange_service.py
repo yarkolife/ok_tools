@@ -949,27 +949,72 @@ class NextcloudExchangeService:
         """Upload a single chunk with retry logic and exponential backoff."""
         import time
 
+        del session
+
         for attempt in range(1, self.CHUNK_UPLOAD_MAX_RETRIES + 1):
+            temp_path = None
             try:
-                resp = session.put(
+                with tempfile.NamedTemporaryFile(suffix='.chunk', delete=False) as temp_file:
+                    temp_file.write(chunk_data)
+                    temp_file.flush()
+                    temp_path = temp_file.name
+
+                file_size = len(chunk_data)
+                max_time = max(600, int(file_size / (1024 * 1024) * 60))
+                cmd = [
+                    'curl',
+                    '-X', 'PUT',
+                    '-T', temp_path,
+                    '-u', f'{self.username}:{self.password}',
+                    '-H', f'Destination: {headers["Destination"]}',
+                    '-H', f'OC-Total-Length: {headers["OC-Total-Length"]}',
+                    '-H', 'Content-Type: application/octet-stream',
+                    '-H', 'Expect:',
+                    '--connect-timeout', '30',
+                    '--max-time', str(max_time),
+                    '-s',
+                    '-w', '%{http_code}',
+                    '-o', '/dev/null',
                     chunk_url,
-                    headers=headers,
-                    data=chunk_data,
-                    timeout=600,
+                ]
+
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=max_time + 60,
                 )
-                if resp.status_code in (200, 201, 204):
+
+                status_code = result.stdout.strip()
+                if status_code in ('200', '201', '204'):
+                    logger.debug(
+                        "Chunk %05d/%s uploaded successfully via curl (%s bytes)",
+                        chunk_num, total_chunks, file_size,
+                    )
                     return True
 
                 logger.warning(
-                    "Chunk %05d PUT attempt %s/%s failed: HTTP %s - %s",
+                    "Chunk %05d PUT attempt %s/%s failed: HTTP %s, stderr=%s",
                     chunk_num, attempt, self.CHUNK_UPLOAD_MAX_RETRIES,
-                    resp.status_code, resp.text[:200],
+                    status_code or 'unknown',
+                    result.stderr[:500] if result.stderr else 'none',
                 )
-            except requests.exceptions.RequestException as e:
+            except subprocess.TimeoutExpired:
+                logger.warning(
+                    "Chunk %05d PUT attempt %s/%s timed out",
+                    chunk_num, attempt, self.CHUNK_UPLOAD_MAX_RETRIES,
+                )
+            except Exception as e:
                 logger.warning(
                     "Chunk %05d PUT attempt %s/%s exception: %s",
                     chunk_num, attempt, self.CHUNK_UPLOAD_MAX_RETRIES, e,
                 )
+            finally:
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.unlink(temp_path)
+                    except OSError:
+                        pass
 
             if attempt < self.CHUNK_UPLOAD_MAX_RETRIES:
                 sleep_time = min(2 ** attempt, 30)
@@ -1077,11 +1122,10 @@ class NextcloudExchangeService:
                         logger.debug("Skipping chunk %s (already uploaded)", chunk_name)
                         continue
 
-                    chunk_url = f"{upload_dir_url}/{chunk_name}"
+                    chunk_url = f"{upload_dir_url}/{quote(chunk_name, safe='')}"
                     headers = {
                         'Destination': destination_url,
                         'OC-Total-Length': str(file_size),
-                        'Content-Length': str(len(chunk)),
                     }
 
                     if not self._put_chunk_with_retry(
