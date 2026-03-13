@@ -368,8 +368,6 @@
 
     {# Progress tracking for running tasks - show if task_id exists #}
     {% if task_id %}
-    <!-- Debug: task_id={{ task_id }}, run={{ run }}, completed_at={{ run.completed_at|default:"none" }} -->
-    {% endif %}
     <div class="progress-container" id="export-progress">
       <div class="progress-header">
         <span class="progress-title">{% translate "Export Progress" %}</span>
@@ -393,7 +391,6 @@
       </a>
     </div>
     {% endif %}
-    </div>
   </div>
 </div>
 
