@@ -88,6 +88,14 @@ class ExportToServerService:
         self.user = user
         self.destination = getattr(self.config, 'export_destination', 'nextcloud')
         self.service = NextcloudExchangeService(self.config) if self.destination == 'nextcloud' else None
+        self._progress_callback = None
+
+    def set_progress_callback(self, callback):
+        """Set callback for progress updates during file uploads.
+
+        Callback receives: (chunk_num, total_chunks, percent)
+        """
+        self._progress_callback = callback
 
     def _record_exported_license(self, license_number: int) -> None:
         """Record successful export in ExportedLicense table."""
@@ -220,7 +228,7 @@ class ExportToServerService:
         """Upload to Nextcloud or copy to network share based on destination."""
         if self.destination == 'nextcloud':
             remote_path = f'{remote_base_path}{file_name}'
-            return self.service.upload_file_direct(local_path, remote_path)
+            return self.service.upload_file_direct(local_path, remote_path, self._progress_callback)
 
         export_dir = remote_base_path
         target_path = os.path.join(export_dir, file_name)

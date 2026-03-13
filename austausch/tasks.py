@@ -507,8 +507,22 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
             }
         )
 
+    def file_upload_callback(chunk_num: int, total_chunks: int, percent: float):
+        """Report file upload progress to Celery task state."""
+        self.update_state(
+            state='PROGRESS',
+            meta={
+                'current': chunk_num,
+                'total': total_chunks,
+                'progress': int(percent),
+                'status': 'uploading',
+                'current_item_id': None,
+            }
+        )
+
     try:
         service = ExportToServerService(user=user)
+        service.set_progress_callback(file_upload_callback)
         report = service.run(selected_ids=selected_ids, mode=mode, progress_callback=progress_callback)
         run.success_count = report['success_count']
         run.failure_count = report['failure_count']

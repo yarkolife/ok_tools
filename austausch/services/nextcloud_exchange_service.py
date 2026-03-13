@@ -1031,6 +1031,7 @@ class NextcloudExchangeService:
         local_path: str,
         remote_path: str,
         file_size: int,
+        progress_callback=None,
     ) -> bool:
         """
         Upload file via Nextcloud chunked upload v2 with resume support.
@@ -1045,6 +1046,7 @@ class NextcloudExchangeService:
             local_path: Local file path
             remote_path: Relative path in Nextcloud
             file_size: File size in bytes
+            progress_callback: Optional callback(chunk_num, total_chunks, percent)
 
         Returns:
             True if successful, False otherwise
@@ -1149,6 +1151,10 @@ class NextcloudExchangeService:
                         chunk_num, total_chunks, progress, chunk_name,
                     )
 
+                    # Call progress callback if provided
+                    if progress_callback:
+                        progress_callback(chunk_num, total_chunks, progress)
+
             assemble_url = f"{upload_dir_url}/.file"
             move_headers = {
                 'Destination': destination_url,
@@ -1235,7 +1241,7 @@ class NextcloudExchangeService:
             # Always clean up the share
             self._delete_share(share_id)
 
-    def upload_file_direct(self, local_path: str, remote_path: str) -> bool:
+    def upload_file_direct(self, local_path: str, remote_path: str, progress_callback=None) -> bool:
         """
         Upload a local file to Nextcloud via direct WebDAV.
 
@@ -1245,6 +1251,7 @@ class NextcloudExchangeService:
         Args:
             local_path: Local file path to read from
             remote_path: Relative path in Nextcloud (e.g. OKMQ/INBOX/file.mp4)
+            progress_callback: Optional callback(chunk_num, total_chunks, percent) for progress
 
         Returns:
             True if successful, False otherwise
@@ -1256,7 +1263,7 @@ class NextcloudExchangeService:
         file_size = os.path.getsize(local_path)
 
         if file_size > self.CHUNKED_UPLOAD_THRESHOLD:
-            return self._upload_file_chunked_resumable(local_path, remote_path, file_size)
+            return self._upload_file_chunked_resumable(local_path, remote_path, file_size, progress_callback)
         else:
             return self._upload_file_simple(local_path, remote_path)
 
