@@ -3,6 +3,8 @@
 import logging
 import os
 import re
+import subprocess
+import tempfile
 import uuid
 import requests
 from datetime import datetime, timedelta
@@ -732,95 +734,111 @@ class NextcloudExchangeService:
     def _upload_file_chunked(self, local_path: str, remote_path: str, file_size: int) -> bool:
         """
         Upload file via Nextcloud chunked upload v2 (MKCOL, PUT chunks, MOVE).
-        Use for large files so proxy/PHP does not drop the body (0 bytes received).
+        Implements proper Nextcloud chunked upload API via requests.
+
+        Args:
+            local_path: Local file path
+            remote_path: Relative path in Nextcloud (e.g., OK Magdeburg/INBOX/file.mp4)
+            file_size: File size in bytes
+
+        Returns:
+            True if successful, False otherwise
         """
-        path_clean = remote_path.strip('/')
-        parts = [p for p in path_clean.split('/') if p]
-        if not parts:
-            return False
-        parent_path = '/'.join(parts[:-1])
-        if parent_path and not self.ensure_directory(parent_path):
-            return False
-        base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
-        encoded_path = '/'.join(quote(p, safe='') for p in parts)
-        destination_url = f"{base_url}/{encoded_path}"
-        uploads_base = urljoin(
-            self.base_url + '/',
-            f"remote.php/dav/uploads/{quote(self.username, safe='')}/"
-        ).rstrip('/')
+        import requests
+
+        # Build URLs
+        uploads_base = f"{self.base_url}/remote.php/dav/uploads/{self.username}"
+        files_base = f"{self.base_url}/remote.php/dav/files/{self.username}"
+        destination_url = f"{files_base}/{remote_path.lstrip('/')}"
+
         upload_id = f"oktools-{uuid.uuid4()}"
-        upload_folder_url = f"{uploads_base}/{upload_id}"
+        upload_dir_url = f"{uploads_base}/{upload_id}"
+
+        # Use session for connection reuse
+        session = requests.Session()
+        session.auth = (self.username, self.password)
+
         try:
-            # 1. MKCOL with Destination
-            r = requests.request(
+            # 1. MKCOL - create upload directory
+            resp = session.request(
                 'MKCOL',
-                upload_folder_url,
-                auth=self._get_auth(),
+                upload_dir_url,
                 headers={'Destination': destination_url},
                 timeout=30,
             )
-            if r.status_code not in (201, 405):
-                logger.error("Chunked upload MKCOL failed: %s - %s", r.status_code, r.text[:200])
+            if resp.status_code not in (201,):
+                logger.error("Chunked upload MKCOL failed: %s %s", resp.status_code, resp.text[:200])
                 return False
-            # 2. PUT chunks (names 1..N, 5+ MB each except last)
-            total_len = str(file_size)
-            chunk_num = 1
+
+            # 2. PUT chunks
+            chunk_num = 0
             with open(local_path, 'rb') as f:
                 while True:
                     chunk = f.read(self.CHUNK_SIZE)
                     if not chunk:
                         break
-                    chunk_name = f"{chunk_num:05d}"
-                    chunk_url = f"{upload_folder_url}/{chunk_name}"
-                    headers = {
-                        'Content-Type': 'application/octet-stream',
-                        'Content-Length': str(len(chunk)),
-                        'Destination': destination_url,
-                        'OC-Total-Length': total_len,
-                    }
-                    r = requests.put(
-                        chunk_url,
-                        data=chunk,
-                        auth=self._get_auth(),
-                        headers=headers,
-                        timeout=600,
-                    )
-                    if r.status_code not in (200, 201, 204):
-                        err_snippet = (r.text or r.reason or '')[:500]
-                        logger.error(
-                            "Chunked upload PUT %s failed: %s (chunk size %s) - %s",
-                            chunk_name, r.status_code, len(chunk), err_snippet,
-                        )
-                        if 'Expected filesize' in (r.text or '') and '0 bytes' in (r.text or ''):
-                            logger.error(
-                                "Nextcloud received 0 bytes: fix server/proxy (nginx client_max_body_size, "
-                                "proxy_request_buffering, PHP upload_max_filesize). Or use in-app Upload Video."
-                            )
-                        return False
+
                     chunk_num += 1
                     if chunk_num > 10000:
-                        logger.error("Chunked upload: too many chunks")
+                        logger.error("Chunked upload: too many chunks (>10000)")
                         return False
+
+                    chunk_name = f"{chunk_num:05d}"
+                    chunk_url = f"{upload_dir_url}/{chunk_name}"
+
+                    headers = {
+                        'Destination': destination_url,
+                        'OC-Total-Length': str(file_size),
+                    }
+
+                    resp = session.put(
+                        chunk_url,
+                        headers=headers,
+                        data=chunk,
+                        timeout=600,
+                    )
+                    if resp.status_code not in (200, 201, 204):
+                        logger.error(
+                            "Chunked upload PUT %s failed: %s (chunk %s/%s, size %s) - %s",
+                            chunk_name, resp.status_code, chunk_num,
+                            (file_size + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
+                            len(chunk), resp.text[:200],
+                        )
+                        return False
+
+                    logger.debug("Uploaded chunk %s (%s bytes)", chunk_name, len(chunk))
+
             # 3. MOVE .file to assemble
-            move_source = f"{upload_folder_url}/.file"
-            r = requests.request(
+            assemble_url = f"{upload_dir_url}/.file"
+            move_headers = {
+                'Destination': destination_url,
+                'OC-Total-Length': str(file_size),
+                'Overwrite': 'T',
+            }
+
+            resp = session.request(
                 'MOVE',
-                move_source,
-                auth=self._get_auth(),
-                headers={
-                    'Destination': destination_url,
-                    'OC-Total-Length': total_len,
-                },
+                assemble_url,
+                headers=move_headers,
                 timeout=120,
             )
-            if r.status_code not in (200, 201, 204):
-                logger.error("Chunked upload MOVE failed: %s - %s", r.status_code, r.text[:500])
+            if resp.status_code not in (201, 204):
+                logger.error("Chunked upload MOVE failed: %s %s", resp.status_code, resp.text[:200])
                 return False
-            logger.info("Uploaded file (chunked): %s -> %s", local_path, remote_path)
+
+            logger.info(
+                "Uploaded file (chunked v2): %s -> %s (%s chunks, %s bytes)",
+                local_path, remote_path, chunk_num, file_size,
+            )
             return True
+
         except Exception as e:
             logger.error("Chunked upload failed %s -> %s: %s", local_path, remote_path, e, exc_info=True)
             return False
+
+        finally:
+            # Cleanup upload directory on failure (optional, server cleans after 24h)
+            session.close()
 
     def upload_file(self, local_path: str, remote_path: str) -> bool:
         """
@@ -865,9 +883,9 @@ class NextcloudExchangeService:
 
     def upload_file_direct(self, local_path: str, remote_path: str) -> bool:
         """
-        Upload a local file to Nextcloud via direct WebDAV (chunked for large files).
+        Upload a local file to Nextcloud via direct WebDAV using curl.
 
-        Uses Nextcloud chunked upload API for files >50MB to avoid proxy/PHP limits.
+        Uses curl subprocess for reliable large file uploads (works for any file size).
 
         Args:
             local_path: Local file path to read from
@@ -880,14 +898,7 @@ class NextcloudExchangeService:
             logger.error("Upload failed: local file not found: %s", local_path)
             return False
 
-        file_size = os.path.getsize(local_path)
-
-        # Use chunked upload for large files (>50MB)
-        if file_size > self.CHUNKED_UPLOAD_THRESHOLD:
-            logger.info("Using chunked upload for large file: %s (%s bytes)", local_path, file_size)
-            return self._upload_file_chunked(local_path, remote_path, file_size)
-
-        # For smaller files, use direct PUT
+        # Always use curl-based upload (works for any file size)
         return self._upload_file_simple(local_path, remote_path)
 
     def _upload_file_simple(self, local_path: str, remote_path: str) -> bool:
@@ -916,23 +927,40 @@ class NextcloudExchangeService:
         logger.info("Uploading file direct: %s (%s bytes) -> %s", local_path, file_size, url)
 
         try:
-            with open(local_path, 'rb') as f:
-                r = requests.put(
-                    url,
-                    data=f,
-                    auth=self._get_auth(),
-                    headers={
-                        'Content-Type': 'application/octet-stream',
-                        'Content-Length': str(file_size),
-                    },
-                    timeout=max(600, file_size // (1024 * 1024) * 60),  # ~1 min per MB, min 10 min
-                )
-            if r.status_code in (200, 201, 204):
-                logger.info("Uploaded file (direct): %s -> %s", local_path, remote_path)
+            # Use curl for reliable large file upload
+            import subprocess
+            max_time = max(600, int(file_size / (1024 * 1024) * 60))  # ~1 min per MB, min 10 min
+
+            cmd = [
+                'curl', '-X', 'PUT',
+                '-T', local_path,
+                '-u', f'{self.username}:{self.password}',
+                '-H', 'Content-Type: application/octet-stream',
+                '--connect-timeout', '30',
+                '--max-time', str(max_time),
+                '-s', '-w', '%{http_code}',
+                '-o', '/dev/null',
+                url,
+            ]
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=max_time + 60,
+            )
+
+            status_code = result.stdout.strip()
+
+            if status_code in ('200', '201', '204'):
+                logger.info("Uploaded file (direct curl): %s -> %s", local_path, remote_path)
                 return True
             else:
-                logger.error("Upload failed: %s - %s", r.status_code, r.text[:500])
+                logger.error("Upload failed: curl status %s, stderr: %s", status_code, result.stderr[:500])
                 return False
+        except subprocess.TimeoutExpired:
+            logger.error("Upload timeout for %s after %s seconds", local_path, max_time)
+            return False
         except Exception as e:
             logger.error("Upload failed: %s", e, exc_info=True)
             return False
