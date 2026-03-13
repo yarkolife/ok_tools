@@ -863,6 +863,80 @@ class NextcloudExchangeService:
             # Always clean up the share
             self._delete_share(share_id)
 
+    def upload_file_direct(self, local_path: str, remote_path: str) -> bool:
+        """
+        Upload a local file to Nextcloud via direct WebDAV (chunked for large files).
+
+        Uses Nextcloud chunked upload API for files >50MB to avoid proxy/PHP limits.
+
+        Args:
+            local_path: Local file path to read from
+            remote_path: Relative path in Nextcloud (e.g. OKMQ/INBOX/file.mp4)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        if not os.path.isfile(local_path):
+            logger.error("Upload failed: local file not found: %s", local_path)
+            return False
+
+        file_size = os.path.getsize(local_path)
+
+        # Use chunked upload for large files (>50MB)
+        if file_size > self.CHUNKED_UPLOAD_THRESHOLD:
+            logger.info("Using chunked upload for large file: %s (%s bytes)", local_path, file_size)
+            return self._upload_file_chunked(local_path, remote_path, file_size)
+
+        # For smaller files, use direct PUT
+        return self._upload_file_simple(local_path, remote_path)
+
+    def _upload_file_simple(self, local_path: str, remote_path: str) -> bool:
+        """
+        Upload a small file via direct WebDAV PUT (no chunking).
+        """
+        path_clean = remote_path.strip('/')
+        parts = [p for p in path_clean.split('/') if p]
+        if not parts:
+            logger.error("Upload failed: remote_path is empty")
+            return False
+
+        # Ensure parent directory exists
+        parent_path = '/'.join(parts[:-1])
+        if parent_path and not self.ensure_directory(parent_path):
+            return False
+
+        # Build direct WebDAV URL
+        base_url = self.get_webdav_url_for_path(path_clean).rstrip('/')
+        encoded_path = '/'.join(quote(p, safe='') for p in parts)
+        url = f"{base_url}/{encoded_path}"
+
+        filename = parts[-1]
+        file_size = os.path.getsize(local_path)
+
+        logger.info("Uploading file direct: %s (%s bytes) -> %s", local_path, file_size, url)
+
+        try:
+            with open(local_path, 'rb') as f:
+                r = requests.put(
+                    url,
+                    data=f,
+                    auth=self._get_auth(),
+                    headers={
+                        'Content-Type': 'application/octet-stream',
+                        'Content-Length': str(file_size),
+                    },
+                    timeout=max(600, file_size // (1024 * 1024) * 60),  # ~1 min per MB, min 10 min
+                )
+            if r.status_code in (200, 201, 204):
+                logger.info("Uploaded file (direct): %s -> %s", local_path, remote_path)
+                return True
+            else:
+                logger.error("Upload failed: %s - %s", r.status_code, r.text[:500])
+                return False
+        except Exception as e:
+            logger.error("Upload failed: %s", e, exc_info=True)
+            return False
+
     @staticmethod
     def parse_contribution_id(filename: str) -> Optional[int]:
         """

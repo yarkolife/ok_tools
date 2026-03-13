@@ -220,7 +220,7 @@ class ExportToServerService:
         """Upload to Nextcloud or copy to network share based on destination."""
         if self.destination == 'nextcloud':
             remote_path = f'{remote_base_path}{file_name}'
-            return self.service.upload_file(local_path, remote_path)
+            return self.service.upload_file_direct(local_path, remote_path)
 
         export_dir = remote_base_path
         target_path = os.path.join(export_dir, file_name)
