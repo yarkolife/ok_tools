@@ -448,14 +448,16 @@ def export_to_server_step2(request):
                 dt = None
 
             if dt:
-                export_to_server_task.apply_async(
+                result = export_to_server_task.apply_async(
                     args=[selected_ids, mode],
                     kwargs={'user_id': request.user.pk},
                     eta=dt,
                 )
+                request.session['export_task_id'] = result.id
                 messages.success(request, _('Export to server has been scheduled.'))
             else:
-                export_to_server_task.delay(selected_ids, mode, request.user.pk)
+                result = export_to_server_task.delay(selected_ids, mode, request.user.pk)
+                request.session['export_task_id'] = result.id
             if 'export_to_server' in request.session:
                 del request.session['export_to_server']
             messages.success(
@@ -562,6 +564,12 @@ def export_to_server_result(request):
     from .models import ExportToServerRun
 
     run = ExportToServerRun.objects.order_by('-started_at').first()
+    task_id = request.session.get('export_task_id')
+    
+    # Clear task_id from session after showing result page
+    if task_id and 'export_task_id' in request.session:
+        del request.session['export_task_id']
+    
     if not run:
-        return render(request, 'austausch/export_to_server_result.html', {'run': None})
-    return render(request, 'austausch/export_to_server_result.html', {'run': run})
+        return render(request, 'austausch/export_to_server_result.html', {'run': None, 'task_id': task_id})
+    return render(request, 'austausch/export_to_server_result.html', {'run': run, 'task_id': task_id})

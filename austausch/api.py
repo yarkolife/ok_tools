@@ -11,9 +11,10 @@ from rest_framework.throttling import UserRateThrottle
 from rest_framework.permissions import BasePermission
 import logging
 
+from celery.result import AsyncResult
 from licenses.models import License
 from licenses.serializers import LicenseMetadataSerializer
-from .models import ExchangeItem, ExchangeImport, ExchangeConfig
+from .models import ExchangeItem, ExchangeImport, ExchangeConfig, ExportToServerRun
 from .serializers import ExchangeItemSerializer, ExchangeImportSerializer
 from .services.import_service import ImportService, similarity_ratio
 from .services.nextcloud_exchange_service import NextcloudExchangeService
@@ -712,4 +713,80 @@ class DownloadExchangeFileView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class ExportToServerStatusView(APIView):
+    """
+    Check status of export-to-server task.
+    
+    Access: Staff members only.
+    """
+    
+    permission_classes = [IsStaffOnly]
+    throttle_classes = [UserRateThrottle]
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check if module is enabled before processing request."""
+        check_austausch_enabled()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request, run_id=None):
+        """
+        Get export-to-server task status.
+        
+        Query parameters:
+        - run_id: Specific ExportToServerRun ID (optional, defaults to latest)
+        
+        Returns:
+        Response with task status and progress
+        """
+        from django.utils import timezone
+        
+        # Get the run (either specific or latest)
+        if run_id:
+            run = ExportToServerRun.objects.filter(pk=run_id).first()
+        else:
+            run = ExportToServerRun.objects.order_by('-started_at').first()
+        
+        if not run:
+            return Response({
+                'status': 'no_run',
+                'message': 'No export run found',
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Determine status
+        if run.completed_at:
+            task_status = 'completed'
+        else:
+            task_status = 'running'
+        
+        # Check if there's a Celery task for this run
+        # We store task_id in the run details if available
+        task_id = run.details.get('task_id') if run.details else None
+        
+        celery_status = None
+        celery_progress = None
+        if task_id:
+            try:
+                celery_result = AsyncResult(task_id)
+                celery_status = celery_result.state
+                if celery_status == 'PROGRESS':
+                    celery_progress = celery_result.info
+            except Exception:
+                pass
+        
+        return Response({
+            'status': task_status,
+            'run_id': run.id,
+            'task_id': task_id,
+            'celery_status': celery_status,
+            'celery_progress': celery_progress,
+            'total_count': run.total_count,
+            'success_count': run.success_count,
+            'failure_count': run.failure_count,
+            'skipped_no_pdf_count': run.skipped_no_pdf_count,
+            'started_at': run.started_at.isoformat() if run.started_at else None,
+            'completed_at': run.completed_at.isoformat() if run.completed_at else None,
+            'mode': run.mode,
+        })
 

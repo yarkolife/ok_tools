@@ -279,6 +279,7 @@ class ExportToServerService:
         self,
         selected_ids: List[int],
         mode: str,
+        progress_callback=None,
     ) -> Dict[str, Any]:
         """
         Export items to server.
@@ -286,6 +287,7 @@ class ExportToServerService:
         Args:
             selected_ids: List of contribution IDs (mode=contributions) or license numbers (mode=licenses).
             mode: 'contributions' or 'licenses'.
+            progress_callback: Optional callback function(current, total, status, item_id) for progress updates.
 
         Returns:
             Dict with: success_count, failure_count, skipped_no_pdf_count,
@@ -303,7 +305,12 @@ class ExportToServerService:
         if not self._validate_destination(selected_ids, report):
             return report
 
-        for item_id in selected_ids:
+        total = len(selected_ids)
+        for idx, item_id in enumerate(selected_ids, start=1):
+            # Report progress before processing each item
+            if progress_callback:
+                progress_callback(idx, total, 'processing', item_id)
+
             try:
                 status, out_id, reason = self._export_one(item_id, mode)
                 if status == 'success':
@@ -331,6 +338,11 @@ class ExportToServerService:
                 logger.exception('Export to server failed for %s id=%s: %s', mode, item_id, e)
                 report['failure_count'] += 1
                 report['failed'].append({'id': item_id, 'reason': str(e)})
+
+        # Report final progress
+        if progress_callback:
+            progress_callback(total, total, 'completed', None)
+
         return report
 
     def _export_one(self, item_id: int, mode: str) -> Tuple[str, int, Optional[str]]:

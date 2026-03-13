@@ -19,5 +19,7 @@ urlpatterns = [
     path('api/import/batch/', api.ImportBatchExchangeItemsView.as_view(), name='api_import_batch'),
     path('api/download/<int:item_id>/<str:file_type>/', api.DownloadExchangeFileView.as_view(), name='api_download'),
     path('api/sync/', api.SyncExchangeView.as_view(), name='api_sync'),
+    path('api/export-status/', api.ExportToServerStatusView.as_view(), name='api_export_status'),
+    path('api/export-status/<int:run_id>/', api.ExportToServerStatusView.as_view(), name='api_export_status_by_id'),
 ]
 

@@ -491,9 +491,24 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
         mode=mode,
         total_count=len(selected_ids),
     )
+
+    def progress_callback(current: int, total: int, status: str, item_id: int = None):
+        """Report progress to Celery task state."""
+        progress = int((current / total) * 100) if total > 0 else 0
+        self.update_state(
+            state='PROGRESS',
+            meta={
+                'current': current,
+                'total': total,
+                'progress': progress,
+                'status': status,
+                'current_item_id': item_id,
+            }
+        )
+
     try:
         service = ExportToServerService(user=user)
-        report = service.run(selected_ids=selected_ids, mode=mode)
+        report = service.run(selected_ids=selected_ids, mode=mode, progress_callback=progress_callback)
         run.success_count = report['success_count']
         run.failure_count = report['failure_count']
         run.skipped_no_pdf_count = report['skipped_no_pdf_count']

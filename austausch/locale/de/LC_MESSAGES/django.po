@@ -1419,3 +1419,19 @@ msgstr "Austausch Andere"
 #: austausch/templates/austausch/export_to_server_step2.html
 msgid "OK Lib"
 msgstr "OK-Bib"
+
+#: austausch/templates/austausch/export_to_server_result.html
+msgid "Export Progress"
+msgstr "Export-Fortschritt"
+
+#: austausch/templates/austausch/export_to_server_result.html
+msgid "Loading…"
+msgstr "Laden…"
+
+#: austausch/templates/austausch/export_to_server_result.html
+msgid "Processing…"
+msgstr "Wird verarbeitet…"
+
+#: austausch/templates/austausch/export_to_server_result.html
+msgid "Completed!"
+msgstr "Abgeschlossen!"
