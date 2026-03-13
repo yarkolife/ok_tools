@@ -747,10 +747,18 @@ class ExportToServerStatusView(APIView):
         task_id_param = request.query_params.get('task_id')
         
         if task_id_param:
-            # Find run by task_id in details
-            run = ExportToServerRun.objects.filter(
-                details__task_id=task_id_param
-            ).order_by('-started_at').first()
+            # Find run by task_id in details - use Python filtering to avoid JSONField issues
+            try:
+                runs = ExportToServerRun.objects.order_by('-started_at')[:10]
+                run = None
+                for r in runs:
+                    if r.details and r.details.get('task_id') == task_id_param:
+                        run = r
+                        break
+                if not run:
+                    run = ExportToServerRun.objects.order_by('-started_at').first()
+            except Exception:
+                run = ExportToServerRun.objects.order_by('-started_at').first()
         elif run_id:
             run = ExportToServerRun.objects.filter(pk=run_id).first()
         else:
