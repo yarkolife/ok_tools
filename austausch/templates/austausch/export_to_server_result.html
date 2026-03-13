@@ -449,8 +449,16 @@
       progressStatus.textContent = statusText;
     }
     
+    // Show current/total with speed for uploads
     if (total > 0) {
-      progressItems.textContent = current + ' / ' + total + ' {% translate "items" %}';
+      if (statusText === 'uploading') {
+        const speed = data.celery_progress && data.celery_progress.speed_mbps
+          ? data.celery_progress.speed_mbps + ' MB/s'
+          : '';
+        progressItems.textContent = current + ' / ' + total + ' chunks' + (speed ? ' (' + speed + ')' : '');
+      } else {
+        progressItems.textContent = current + ' / ' + total + ' items';
+      }
     }
     
     // Check if task is complete

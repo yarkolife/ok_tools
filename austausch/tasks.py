@@ -507,7 +507,7 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
             }
         )
 
-    def file_upload_callback(chunk_num: int, total_chunks: int, percent: float):
+    def file_upload_callback(chunk_num: int, total_chunks: int, percent: float, speed_mbps: float = 0):
         """Report file upload progress to Celery task state."""
         self.update_state(
             state='PROGRESS',
@@ -517,6 +517,7 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
                 'progress': int(percent),
                 'status': 'uploading',
                 'current_item_id': None,
+                'speed_mbps': round(speed_mbps, 2),
             }
         )
 

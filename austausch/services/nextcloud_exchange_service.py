@@ -1105,6 +1105,9 @@ class NextcloudExchangeService:
 
             total_chunks = (file_size + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE
             chunks_uploaded = 0
+            import time
+            upload_start_time = time.time()
+            bytes_uploaded = 0
 
             with open(local_path, 'rb') as f:
                 chunk_num = 0
@@ -1145,15 +1148,21 @@ class NextcloudExchangeService:
                     self._save_upload_state(local_path, state)
 
                     chunks_uploaded += 1
+                    bytes_uploaded += len(chunk)
                     progress = (chunk_num / total_chunks) * 100
+
+                    # Calculate upload speed
+                    elapsed = time.time() - upload_start_time
+                    speed_mbps = (bytes_uploaded / elapsed) / (1024 * 1024) if elapsed > 0 else 0
+
                     logger.info(
-                        "Uploaded chunk %s/%s (%.1f%%): %s",
-                        chunk_num, total_chunks, progress, chunk_name,
+                        "Uploaded chunk %s/%s (%.1f%%): %s - Speed: %.2f MB/s",
+                        chunk_num, total_chunks, progress, chunk_name, speed_mbps,
                     )
 
                     # Call progress callback if provided
                     if progress_callback:
-                        progress_callback(chunk_num, total_chunks, progress)
+                        progress_callback(chunk_num, total_chunks, progress, speed_mbps)
 
             assemble_url = f"{upload_dir_url}/.file"
             move_headers = {
