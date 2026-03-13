@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-03-13 (Version 4.3.4)
+==========================
+
+* **austausch: Fix large file export to Nextcloud with chunked upload v2**
+  * Implemented proper Nextcloud chunked upload v2 API for files >50MB.
+  * Uses MKCOL to create upload directory, PUT chunks with numeric names, MOVE to assemble.
+  * Fixes "Expected filesize 0 bytes" errors when uploading large video files (9GB+).
+  * Added proper OC-Total-Length headers for quota checks on each chunk.
+  * Uses requests.Session for connection reuse during chunked uploads.
+
 2026-03-10 (Version 4.3.3)
 ==========================
 

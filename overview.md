@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Nextcloud chunked upload v2**: Fixed large file export (9GB+) to Nextcloud using proper chunked upload v2 API with MKCOL/PUT/MOVE sequence
 - **Mediathek link maintenance**: Added backfill tooling for legacy licenses plus admin rescan workflow improvements and exchange export UX refinements
 - **Licenses notifications**: Added a dedicated "mediathek published" email that is sent once when a license receives its first Mediathek URL, including a direct watch link
 - **Admin-safe Mediathek refresh**: Manual admin refresh/rescan paths now skip user email delivery to avoid unintended notification bursts
