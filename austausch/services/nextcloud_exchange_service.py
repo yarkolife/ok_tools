@@ -1081,6 +1081,7 @@ class NextcloudExchangeService:
                     headers = {
                         'Destination': destination_url,
                         'OC-Total-Length': str(file_size),
+                        'Content-Length': str(len(chunk)),
                     }
 
                     if not self._put_chunk_with_retry(
