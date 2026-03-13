@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+2026-03-13 (Version 4.4.0)
+==========================
+
+* **austausch: Add resumable chunked upload with state tracking**
+  * Implemented resumable chunked upload v2 with state file tracking for Nextcloud exchanges
+  * Added PROPFIND to check already uploaded chunks on server
+  * Added exponential backoff retry logic per chunk
+  * Added upload state persistence to /tmp/oktools-uploads/
+  * Files >50MB now use resumable chunked upload, smaller files use simple PUT
+  * Fixed potential upload interruptions by saving progress state
+  * Cleaned up state files and temporary upload directories on completion
+
 2026-03-13 (Version 4.3.4)
 ==========================
 

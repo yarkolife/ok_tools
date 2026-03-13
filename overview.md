@@ -756,7 +756,7 @@ For questions about the architecture or development setup, please refer to:
 - Architecture reports: `architecture/` directory
 
 **Last Updated**: March 2026
-**Version**: 1.4
+**Version**: 1.5
 
 ## API Documentation
 

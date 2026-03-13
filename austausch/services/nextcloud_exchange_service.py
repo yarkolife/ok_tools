@@ -840,6 +840,315 @@ class NextcloudExchangeService:
             # Cleanup upload directory on failure (optional, server cleans after 24h)
             session.close()
 
+    CHUNK_UPLOAD_MAX_RETRIES = 5
+    CHUNK_UPLOAD_STATE_DIR = '/tmp/oktools-uploads'
+
+    def _get_state_file_path(self, local_path: str) -> str:
+        """Get path to state file for tracking upload progress."""
+        import hashlib
+        file_hash = hashlib.sha256(local_path.encode()).hexdigest()[:16]
+        return os.path.join(self.CHUNK_UPLOAD_STATE_DIR, f'{file_hash}.json')
+
+    def _load_upload_state(self, local_path: str) -> Optional[Dict]:
+        """Load upload state from file if exists and is valid."""
+        state_file = self._get_state_file_path(local_path)
+        if not os.path.exists(state_file):
+            return None
+        try:
+            import json
+            with open(state_file, 'r', encoding='utf-8') as f:
+                state = json.load(f)
+            if not isinstance(state, dict):
+                return None
+            return state
+        except Exception:
+            return None
+
+    def _save_upload_state(self, local_path: str, state: Dict) -> None:
+        """Save upload state to file."""
+        import json
+        os.makedirs(self.CHUNK_UPLOAD_STATE_DIR, exist_ok=True)
+        state_file = self._get_state_file_path(local_path)
+        with open(state_file, 'w', encoding='utf-8') as f:
+            json.dump(state, f, ensure_ascii=False, indent=2)
+
+    def _delete_upload_state(self, local_path: str) -> None:
+        """Delete upload state file."""
+        state_file = self._get_state_file_path(local_path)
+        if os.path.exists(state_file):
+            try:
+                os.unlink(state_file)
+            except OSError:
+                pass
+
+    def _list_uploaded_chunks(self, session: requests.Session, upload_dir_url: str) -> set:
+        """List already uploaded chunks in the upload directory via PROPFIND."""
+        import xml.etree.ElementTree as ET
+        from urllib.parse import urlparse
+
+        body = b'''<?xml version="1.0" encoding="UTF-8"?>
+<d:propfind xmlns:d="DAV:">
+  <d:prop>
+    <d:resourcetype/>
+  </d:prop>
+</d:propfind>'''
+
+        headers = {
+            'Depth': '1',
+            'Content-Type': 'application/xml; charset=utf-8',
+        }
+
+        try:
+            resp = session.request(
+                'PROPFIND',
+                upload_dir_url,
+                headers=headers,
+                data=body,
+                timeout=30,
+            )
+            if resp.status_code not in (207,):
+                return set()
+        except Exception:
+            return set()
+
+        try:
+            root = ET.fromstring(resp.text)
+            ns = {'d': 'DAV:'}
+            uploaded = set()
+            base_path = urlparse(upload_dir_url).path.rstrip('/')
+
+            for response in root.findall('d:response', ns):
+                href_el = response.find('d:href', ns)
+                if href_el is None or not href_el.text:
+                    continue
+
+                href_path = urlparse(href_el.text).path.rstrip('/')
+                if href_path == base_path:
+                    continue
+
+                name = href_path.split('/')[-1]
+                if name == '.file':
+                    continue
+
+                if name.isdigit():
+                    uploaded.add(name)
+
+            return uploaded
+        except Exception:
+            return set()
+
+    def _put_chunk_with_retry(
+        self,
+        session: requests.Session,
+        chunk_url: str,
+        chunk_data: bytes,
+        headers: Dict,
+        chunk_num: int,
+        total_chunks: int,
+    ) -> bool:
+        """Upload a single chunk with retry logic and exponential backoff."""
+        import time
+
+        for attempt in range(1, self.CHUNK_UPLOAD_MAX_RETRIES + 1):
+            try:
+                resp = session.put(
+                    chunk_url,
+                    headers=headers,
+                    data=chunk_data,
+                    timeout=600,
+                )
+                if resp.status_code in (200, 201, 204):
+                    return True
+
+                logger.warning(
+                    "Chunk %05d PUT attempt %s/%s failed: HTTP %s - %s",
+                    chunk_num, attempt, self.CHUNK_UPLOAD_MAX_RETRIES,
+                    resp.status_code, resp.text[:200],
+                )
+            except requests.exceptions.RequestException as e:
+                logger.warning(
+                    "Chunk %05d PUT attempt %s/%s exception: %s",
+                    chunk_num, attempt, self.CHUNK_UPLOAD_MAX_RETRIES, e,
+                )
+
+            if attempt < self.CHUNK_UPLOAD_MAX_RETRIES:
+                sleep_time = min(2 ** attempt, 30)
+                logger.info(
+                    "Retrying chunk %05d in %s seconds (attempt %s/%s)",
+                    chunk_num, sleep_time, attempt + 1, self.CHUNK_UPLOAD_MAX_RETRIES,
+                )
+                time.sleep(sleep_time)
+
+        return False
+
+    def _upload_file_chunked_resumable(
+        self,
+        local_path: str,
+        remote_path: str,
+        file_size: int,
+    ) -> bool:
+        """
+        Upload file via Nextcloud chunked upload v2 with resume support.
+
+        Features:
+        - State file tracks upload progress
+        - PROPFIND checks already uploaded chunks
+        - Resume from interruption (skip existing chunks)
+        - Retry logic with exponential backoff per chunk
+
+        Args:
+            local_path: Local file path
+            remote_path: Relative path in Nextcloud
+            file_size: File size in bytes
+
+        Returns:
+            True if successful, False otherwise
+        """
+        uploads_base = f"{self.base_url}/remote.php/dav/uploads/{self.username}"
+        files_base = f"{self.base_url}/remote.php/dav/files/{self.username}"
+        destination_url = f"{files_base}/{remote_path.lstrip('/')}"
+
+        state = self._load_upload_state(local_path)
+        if (
+            state
+            and state.get('remote_path') == remote_path
+            and state.get('file_size') == file_size
+            and state.get('chunk_size') == self.CHUNK_SIZE
+        ):
+            upload_id = state['upload_id']
+            uploaded_chunks = set(state.get('uploaded_chunks', []))
+            logger.info(
+                "Resuming chunked upload: %s -> %s (already have %s chunks)",
+                local_path, remote_path, len(uploaded_chunks),
+            )
+        else:
+            upload_id = f"oktools-{uuid.uuid4()}"
+            uploaded_chunks = set()
+            state = {
+                'upload_id': upload_id,
+                'remote_path': remote_path,
+                'file_size': file_size,
+                'chunk_size': self.CHUNK_SIZE,
+                'uploaded_chunks': [],
+            }
+            self._save_upload_state(local_path, state)
+
+        upload_dir_url = f"{uploads_base}/{upload_id}"
+        session = requests.Session()
+        session.auth = (self.username, self.password)
+
+        try:
+            resp = session.request(
+                'MKCOL',
+                upload_dir_url,
+                headers={'Destination': destination_url},
+                timeout=30,
+            )
+            if resp.status_code not in (201, 405):
+                logger.error("Chunked upload MKCOL failed: %s %s", resp.status_code, resp.text[:200])
+                return False
+
+            server_uploaded = self._list_uploaded_chunks(session, upload_dir_url)
+            if server_uploaded:
+                uploaded_chunks = uploaded_chunks.union(server_uploaded)
+                logger.info(
+                    "Found %s existing chunks on server, resuming upload",
+                    len(server_uploaded),
+                )
+
+            total_chunks = (file_size + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE
+            chunks_uploaded = 0
+
+            with open(local_path, 'rb') as f:
+                chunk_num = 0
+                while True:
+                    chunk = f.read(self.CHUNK_SIZE)
+                    if not chunk:
+                        break
+
+                    chunk_num += 1
+                    if chunk_num > 10000:
+                        logger.error("Chunked upload: too many chunks (>10000)")
+                        return False
+
+                    chunk_name = f"{chunk_num:05d}"
+
+                    if chunk_name in uploaded_chunks:
+                        logger.debug("Skipping chunk %s (already uploaded)", chunk_name)
+                        continue
+
+                    chunk_url = f"{upload_dir_url}/{chunk_name}"
+                    headers = {
+                        'Destination': destination_url,
+                        'OC-Total-Length': str(file_size),
+                    }
+
+                    if not self._put_chunk_with_retry(
+                        session, chunk_url, chunk, headers,
+                        chunk_num, total_chunks,
+                    ):
+                        logger.error(
+                            "Failed to upload chunk %s after %s attempts",
+                            chunk_name, self.CHUNK_UPLOAD_MAX_RETRIES,
+                        )
+                        return False
+
+                    uploaded_chunks.add(chunk_name)
+                    state['uploaded_chunks'] = sorted(uploaded_chunks)
+                    self._save_upload_state(local_path, state)
+
+                    chunks_uploaded += 1
+                    progress = (chunk_num / total_chunks) * 100
+                    logger.info(
+                        "Uploaded chunk %s/%s (%.1f%%): %s",
+                        chunk_num, total_chunks, progress, chunk_name,
+                    )
+
+            assemble_url = f"{upload_dir_url}/.file"
+            move_headers = {
+                'Destination': destination_url,
+                'OC-Total-Length': str(file_size),
+                'Overwrite': 'T',
+            }
+
+            resp = session.request(
+                'MOVE',
+                assemble_url,
+                headers=move_headers,
+                timeout=120,
+            )
+            if resp.status_code not in (201, 204):
+                logger.error(
+                    "Chunked upload MOVE failed: %s %s",
+                    resp.status_code, resp.text[:200],
+                )
+                return False
+
+            logger.info(
+                "Uploaded file (chunked v2 resumable): %s -> %s "
+                "(%s chunks, %s bytes)",
+                local_path, remote_path, chunk_num, file_size,
+            )
+
+            self._delete_upload_state(local_path)
+
+            try:
+                session.delete(upload_dir_url, timeout=30)
+            except Exception:
+                pass
+
+            return True
+
+        except Exception as e:
+            logger.error(
+                "Chunked resumable upload failed %s -> %s: %s",
+                local_path, remote_path, e, exc_info=True,
+            )
+            return False
+
+        finally:
+            session.close()
+
     def upload_file(self, local_path: str, remote_path: str) -> bool:
         """
         Upload a local file to Nextcloud via public share WebDAV.
@@ -883,9 +1192,10 @@ class NextcloudExchangeService:
 
     def upload_file_direct(self, local_path: str, remote_path: str) -> bool:
         """
-        Upload a local file to Nextcloud via direct WebDAV using curl.
+        Upload a local file to Nextcloud via direct WebDAV.
 
-        Uses curl subprocess for reliable large file uploads (works for any file size).
+        For files > 50MB, uses chunked upload v2 with resume support.
+        For smaller files, uses simple curl-based PUT.
 
         Args:
             local_path: Local file path to read from
@@ -898,8 +1208,12 @@ class NextcloudExchangeService:
             logger.error("Upload failed: local file not found: %s", local_path)
             return False
 
-        # Always use curl-based upload (works for any file size)
-        return self._upload_file_simple(local_path, remote_path)
+        file_size = os.path.getsize(local_path)
+
+        if file_size > self.CHUNKED_UPLOAD_THRESHOLD:
+            return self._upload_file_chunked_resumable(local_path, remote_path, file_size)
+        else:
+            return self._upload_file_simple(local_path, remote_path)
 
     def _upload_file_simple(self, local_path: str, remote_path: str) -> bool:
         """
