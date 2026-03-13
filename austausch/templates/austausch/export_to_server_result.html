@@ -411,6 +411,8 @@
   function updateProgress(data) {
     if (!data) return;
     
+    console.log('updateProgress called with:', data);
+    
     // Update progress bar
     let progress = 0;
     let current = 0;
@@ -422,6 +424,7 @@
       current = data.celery_progress.current || 0;
       total = data.celery_progress.total || data.total_count || 0;
       statusText = data.celery_progress.status || '';
+      console.log('Using celery_progress:', {progress, current, total, statusText});
     } else if (data.total_count) {
       // Use counts from run
       const done = (data.success_count || 0) + (data.failure_count || 0) + (data.skipped_no_pdf_count || 0);
@@ -433,7 +436,11 @@
       } else {
         statusText = 'processing';
       }
+      console.log('Using run counts:', {progress, current, total, statusText, done});
     }
+    
+    console.log('Updating UI with:', {progress, current, total});
+    console.log('Elements:', {progressBar, progressPercent, progressStatus, progressItems});
     
     progressBar.style.width = progress + '%';
     progressPercent.textContent = progress + '%';
