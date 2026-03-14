@@ -783,7 +783,7 @@ class NextcloudExchangeService:
                         logger.error("Chunked upload: too many chunks (>10000)")
                         return False
 
-                    chunk_name = f"{chunk_num:05d}"
+                    chunk_name = str(chunk_num)
                     chunk_url = f"{upload_dir_url}/{chunk_name}"
 
                     headers = {
@@ -908,10 +908,7 @@ class NextcloudExchangeService:
             )
             if resp.status_code not in (207,):
                 return set()
-        except Exception:
-            return set()
 
-        try:
             root = ET.fromstring(resp.text)
             ns = {'d': 'DAV:'}
             uploaded = set()
@@ -936,6 +933,17 @@ class NextcloudExchangeService:
             return uploaded
         except Exception:
             return set()
+
+    def _normalize_uploaded_chunks(self, uploaded_chunks) -> set:
+        """Normalize chunk names to plain numeric strings."""
+        normalized = set()
+        for chunk_name in uploaded_chunks or []:
+            if chunk_name is None:
+                continue
+            chunk_name = str(chunk_name).strip()
+            if chunk_name.isdigit():
+                normalized.add(str(int(chunk_name)))
+        return normalized
 
     def _put_chunk_with_retry(
         self,
@@ -1065,7 +1073,7 @@ class NextcloudExchangeService:
             and state.get('chunk_size') == self.CHUNK_SIZE
         ):
             upload_id = state['upload_id']
-            uploaded_chunks = set(state.get('uploaded_chunks', []))
+            uploaded_chunks = self._normalize_uploaded_chunks(state.get('uploaded_chunks', []))
             logger.info(
                 "Resuming chunked upload: %s -> %s (already have %s chunks)",
                 local_path, remote_path, len(uploaded_chunks),
@@ -1123,7 +1131,7 @@ class NextcloudExchangeService:
                         logger.error("Chunked upload: too many chunks (>10000)")
                         return False
 
-                    chunk_name = f"{chunk_num:05d}"
+                    chunk_name = str(chunk_num)
 
                     if chunk_name in uploaded_chunks:
                         logger.debug("Skipping chunk %s (already uploaded)", chunk_name)
@@ -1210,20 +1218,32 @@ class NextcloudExchangeService:
                 assemble_url,
             ]
 
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=310,
-            )
-
-            status_code = result.stdout.strip()
-            if status_code not in ('201', '204'):
-                logger.error(
-                    "Chunked upload MOVE failed: HTTP %s, stderr=%s, assemble_url=%s, destination=%s",
-                    status_code, result.stderr[:500] if result.stderr else 'none', assemble_url, destination_url,
+            move_retries = 3
+            for attempt in range(1, move_retries + 1):
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=310,
                 )
-                return False
+
+                status_code = result.stdout.strip()
+                if status_code in ('201', '204'):
+                    break
+
+                logger.warning(
+                    "Chunked upload MOVE attempt %s/%s failed: HTTP %s, stderr=%s",
+                    attempt, move_retries, status_code or 'unknown',
+                    result.stderr[:500] if result.stderr else 'none',
+                )
+                if status_code not in ('404', '423', '504') or attempt == move_retries:
+                    logger.error(
+                        "Chunked upload MOVE failed: HTTP %s, stderr=%s, assemble_url=%s, destination=%s",
+                        status_code, result.stderr[:500] if result.stderr else 'none', assemble_url, destination_url,
+                    )
+                    return False
+
+                time.sleep(attempt)
 
             logger.info(
                 "Uploaded file (chunked v2 resumable): %s -> %s "
