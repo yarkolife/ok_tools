@@ -1192,21 +1192,36 @@ class NextcloudExchangeService:
                 )
                 return False
 
-            # Create fresh session for MOVE to avoid auth issues
-            fresh_session = requests.Session()
-            fresh_session.auth = (self.username, self.password)
-
-            resp = fresh_session.request(
-                'MOVE',
+            # Use curl for MOVE request to avoid issues with requests library
+            import subprocess
+            cmd = [
+                'curl',
+                '-X', 'MOVE',
+                '-u', f'{self.username}:{self.password}',
+                '-H', f'Destination: {destination_url}',
+                '-H', f'OC-Total-Length: {file_size}',
+                '-H', 'Overwrite: T',
+                '-H', 'Content-Length: 0',
+                '--connect-timeout', '30',
+                '--max-time', '300',
+                '-s',
+                '-w', '%{http_code}',
+                '-o', '/dev/null',
                 assemble_url,
-                headers=move_headers,
-                timeout=300,
+            ]
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=310,
             )
-            fresh_session.close()
-            if resp.status_code not in (201, 204):
+
+            status_code = result.stdout.strip()
+            if status_code not in ('201', '204'):
                 logger.error(
-                    "Chunked upload MOVE failed: %s %s - assemble_url=%s, destination=%s",
-                    resp.status_code, resp.text[:200], assemble_url, destination_url,
+                    "Chunked upload MOVE failed: HTTP %s, stderr=%s, assemble_url=%s, destination=%s",
+                    status_code, result.stderr[:500] if result.stderr else 'none', assemble_url, destination_url,
                 )
                 return False
 
