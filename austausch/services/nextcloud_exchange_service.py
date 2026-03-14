@@ -1053,7 +1053,9 @@ class NextcloudExchangeService:
         """
         uploads_base = f"{self.base_url}/remote.php/dav/uploads/{self.username}"
         files_base = f"{self.base_url}/remote.php/dav/files/{self.username}"
-        destination_url = f"{files_base}/{remote_path.lstrip('/')}"
+        # URL-encode the remote path to handle spaces and special characters
+        encoded_path = quote(remote_path.lstrip('/'), safe='/')
+        destination_url = f"{files_base}/{encoded_path}"
 
         state = self._load_upload_state(local_path)
         if (
