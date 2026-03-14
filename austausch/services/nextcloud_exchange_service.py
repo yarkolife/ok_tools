@@ -808,8 +808,8 @@ class NextcloudExchangeService:
 
                     logger.debug("Uploaded chunk %s (%s bytes)", chunk_name, len(chunk))
 
-            # 3. MOVE .file to assemble
-            assemble_url = f"{upload_dir_url}/.file"
+            # 3. MOVE upload directory to assemble
+            assemble_url = upload_dir_url
             move_headers = {
                 'Destination': destination_url,
                 'OC-Total-Length': str(file_size),
@@ -1174,7 +1174,7 @@ class NextcloudExchangeService:
                     if progress_callback:
                         progress_callback(chunk_num, total_chunks, progress, speed_mbps)
 
-            assemble_url = f"{upload_dir_url}/.file"
+            assemble_url = upload_dir_url
             move_headers = {
                 'Destination': destination_url,
                 'OC-Total-Length': str(file_size),
