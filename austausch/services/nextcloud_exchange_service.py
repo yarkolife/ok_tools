@@ -1178,12 +1178,31 @@ class NextcloudExchangeService:
                 assemble_url, destination_url, chunk_num, file_size,
             )
 
-            resp = session.request(
+            # Ensure parent directory exists before MOVE
+            parent_dir = '/'.join(remote_path.lstrip('/').split('/')[:-1])
+            if parent_dir:
+                self.ensure_directory(parent_dir)
+
+            # Verify upload directory still exists
+            check_resp = session.request('PROPFIND', upload_dir_url, timeout=30)
+            if check_resp.status_code != 207:
+                logger.error(
+                    "Upload directory no longer exists: %s (status: %s)",
+                    upload_dir_url, check_resp.status_code,
+                )
+                return False
+
+            # Create fresh session for MOVE to avoid auth issues
+            fresh_session = requests.Session()
+            fresh_session.auth = (self.username, self.password)
+
+            resp = fresh_session.request(
                 'MOVE',
                 assemble_url,
                 headers=move_headers,
                 timeout=300,
             )
+            fresh_session.close()
             if resp.status_code not in (201, 204):
                 logger.error(
                     "Chunked upload MOVE failed: %s %s - assemble_url=%s, destination=%s",
