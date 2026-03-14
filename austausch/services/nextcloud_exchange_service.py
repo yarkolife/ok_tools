@@ -1171,16 +1171,21 @@ class NextcloudExchangeService:
                 'Overwrite': 'T',
             }
 
+            logger.info(
+                "Assembling file: MOVE %s -> %s (%s chunks, %s bytes)",
+                assemble_url, destination_url, chunk_num, file_size,
+            )
+
             resp = session.request(
                 'MOVE',
                 assemble_url,
                 headers=move_headers,
-                timeout=120,
+                timeout=300,
             )
             if resp.status_code not in (201, 204):
                 logger.error(
-                    "Chunked upload MOVE failed: %s %s",
-                    resp.status_code, resp.text[:200],
+                    "Chunked upload MOVE failed: %s %s - assemble_url=%s, destination=%s",
+                    resp.status_code, resp.text[:200], assemble_url, destination_url,
                 )
                 return False
 
