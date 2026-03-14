@@ -1237,9 +1237,31 @@ class NextcloudExchangeService:
                     result.stderr[:500] if result.stderr else 'none',
                 )
                 if status_code not in ('404', '423', '504') or attempt == move_retries:
+                    debug_cmd = cmd.copy()
+                    debug_cmd.remove('-s')
+                    debug_cmd.remove('-o')
+                    debug_cmd.remove('/dev/null')
+                    debug_idx = debug_cmd.index('-w')
+                    debug_cmd.pop(debug_idx)
+                    debug_cmd.pop(debug_idx)
+                    debug_cmd.extend(['-v', '--dump-header', '-'])
+
+                    debug_result = subprocess.run(
+                        debug_cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=310,
+                    )
+
                     logger.error(
-                        "Chunked upload MOVE failed: HTTP %s, stderr=%s, assemble_url=%s, destination=%s",
-                        status_code, result.stderr[:500] if result.stderr else 'none', assemble_url, destination_url,
+                        "Chunked upload MOVE failed: HTTP %s, stderr=%s, stdout=%s, debug_stderr=%s, debug_stdout=%s, assemble_url=%s, destination=%s",
+                        status_code,
+                        result.stderr[:500] if result.stderr else 'none',
+                        result.stdout[:500] if result.stdout else 'none',
+                        debug_result.stderr[:4000] if debug_result.stderr else 'none',
+                        debug_result.stdout[:4000] if debug_result.stdout else 'none',
+                        assemble_url,
+                        destination_url,
                     )
                     return False
 
