@@ -310,6 +310,7 @@
     const BROADCAST_END = "{{ broadcast_end }}";
     const INITIAL_CALENDAR_START = '{{ calendar_start|default:"" }}';
     const CALENDAR_WEEKS = parseInt('{{ calendar_weeks|default:"18" }}', 10);
+    const PLANNING_CSRF_TOKEN = '{{ csrf_token }}';
   </script>
   <script src="{% static 'planung/js/calendar_weeks.js' %}"></script>
 

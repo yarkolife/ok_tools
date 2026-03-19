@@ -120,3 +120,13 @@ def test__planung__week_stats_endpoint(client, staff_user):
     assert "weeks" in data
     assert len(data["weeks"]) == 2
 
+
+@pytest.mark.django_db
+def test__planung__calendar_weeks_view__injects_js_csrf_token(client, staff_user):
+    """Calendar weeks admin view exposes a CSRF token for AJAX write actions."""
+    client.force_login(staff_user)
+    response = client.get("/admin/planung/tagesplan/calendar-weeks/")
+    assert response.status_code == 200
+    content = response.content.decode("utf-8")
+    assert "const PLANNING_CSRF_TOKEN = '" in content
+    assert "const PLANNING_CSRF_TOKEN = 'NOTPROVIDED'" not in content

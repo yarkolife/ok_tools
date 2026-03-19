@@ -1352,6 +1352,7 @@
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
+        beforeSend: addCsrfHeader,
         success: function (response) {
           notify(gettext('Draft saved successfully.'), 'success');
           location.reload(); // refresh calendar
@@ -1373,6 +1374,7 @@
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
+        beforeSend: addCsrfHeader,
         success: function () {
           notify(gettext('Plan saved successfully!'), 'success');
           const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
@@ -1415,6 +1417,7 @@
           method: 'POST',
           contentType: 'application/json',
           data: JSON.stringify({ source_date: sourceDate, target_date: targetDate, overwrite: true }),
+          beforeSend: addCsrfHeader,
           success: function () {
             notify(gettext('Plan copied successfully.'), 'success');
             location.reload();
@@ -1442,6 +1445,7 @@
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ date: targetDate, template_id: templateId, overwrite: true }),
+        beforeSend: addCsrfHeader,
         success: function () {
           notify(gettext('Template applied successfully.'), 'success');
           location.reload();
@@ -1466,7 +1470,19 @@
       }
       return cookieValue;
     }
-    const csrftoken = getCookie('csrftoken');
+    function getCsrfToken() {
+      if (typeof PLANNING_CSRF_TOKEN === 'string' && PLANNING_CSRF_TOKEN && PLANNING_CSRF_TOKEN !== 'NOTPROVIDED') {
+        return PLANNING_CSRF_TOKEN;
+      }
+      return getCookie('csrftoken');
+    }
+
+    function addCsrfHeader(xhr) {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+      }
+    }
 
     $('#deletePlanBtn').on('click', function () {
       const isoDate = $('#dayPlanModal').data('isoDate');
@@ -1485,9 +1501,7 @@
         $.ajax({
           url: '/api/day-plan/' + isoDate + '/',
           method: 'DELETE',
-          beforeSend: function(xhr) {
-            xhr.setRequestHeader('X-CSRFToken', csrftoken);
-          },
+          beforeSend: addCsrfHeader,
           success: function () {
             notify(gettext('Plan deleted!'), 'success');
             const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
