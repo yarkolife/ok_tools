@@ -238,7 +238,8 @@
                     </div>
                     <div class="col-md-4 text-end">
                         <span class="badge {% if rental.status == 'reserved' %}bg-info{% elif rental.status == 'issued' %}bg-primary{% elif rental.status == 'returned' %}bg-success{% else %}bg-secondary{% endif %} status-badge fs-5 mb-2">
-                            {% if rental.status == 'reserved' %}{% trans "Reserved" %}
+                            {% if rental.status == 'draft' %}{% trans "Draft" %}
+                            {% elif rental.status == 'reserved' %}{% trans "Reserved" %}
                             {% elif rental.status == 'issued' %}{% trans "Issued" %}
                             {% elif rental.status == 'returned' %}{% trans "Returned" %}
                             {% elif rental.status == 'cancelled' %}{% trans "Cancelled" %}
@@ -252,7 +253,7 @@
             </div>
 
             <!-- Action Buttons -->
-            {% if can_confirm or can_return or can_extend %}
+            {% if can_confirm or can_return or can_extend or rental.items.all %}
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card">
@@ -268,6 +269,18 @@
                                 <button class="btn btn-outline-warning" id="issueFromReservationBtn">
                                     <i class="fas fa-box-open me-1"></i>{% trans "Issue Equipment from Reservation" %}
                                 </button>
+                                {% endif %}
+                                {% if rental.items.all %}
+                                {% if rental.status == 'draft' or rental.status == 'reserved' %}
+                                <a class="btn btn-outline-secondary" href="{% url 'rental:print_pick_list' rental_id=rental.id %}" target="_blank">
+                                    <i class="fas fa-list-check me-1"></i>{% trans "Print pick list" %}
+                                </a>
+                                {% endif %}
+                                {% if rental.status == 'reserved' or rental.status == 'issued' %}
+                                <button class="btn btn-outline-secondary" id="printBtn">
+                                    <i class="fas fa-print me-1"></i>{% trans "Print rental" %}
+                                </button>
+                                {% endif %}
                                 {% endif %}
                                 {% if can_extend %}
                                 <button class="btn btn-outline-primary" id="extendBtn">
@@ -779,6 +792,9 @@
          data-issue-from-reservation-url="{% url 'rental:api_issue_from_reservation' %}"
          data-get-staff-users-url="{% url 'rental:api_get_staff_users' %}"
          data-search-inventory-url="{% url 'rental:api_search_inventory' %}"
+         data-rental-print-info-url="{% url 'rental:api_rental_print_info' rental_id=0 %}"
+         data-print-form-msa-url="{% url 'rental:print_form_msa' rental_id=0 %}"
+         data-print-form-okmq-url="{% url 'rental:print_form_okmq' rental_id=0 %}"
          style="display: none;">
     </div>
 

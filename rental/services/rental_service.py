@@ -18,6 +18,7 @@ from ..models import (
     RentalRequest, RentalItem, RentalTransaction, EquipmentSet,
     EquipmentSetItem, Room, RoomRental, EquipmentTemplate, EquipmentTemplateItem
 )
+from ..working_hours import validate_working_hours_period
 from .inventory_service_interface import inventory_service
 
 
@@ -304,6 +305,10 @@ class RentalService:
             
             if end_date <= start_date:
                 return {'success': False, 'error': _('End date must be after start date')}
+
+            is_valid_period, error_message = validate_working_hours_period(start_date, end_date)
+            if not is_valid_period:
+                return {'success': False, 'error': error_message}
             
             # Validate that at least items or rooms are provided
             if not items and not rooms:
@@ -445,6 +450,14 @@ class RentalService:
                                 room_end_date = tz.make_aware(room_end_date_parsed) if tz.is_naive(room_end_date_parsed) else room_end_date_parsed
                     
                     # Check availability with room-specific dates
+                    is_valid_room_period, error_message = validate_working_hours_period(
+                        room_start_date,
+                        room_end_date,
+                    )
+                    if not is_valid_room_period:
+                        rental_request.delete()
+                        return {'success': False, 'error': error_message}
+
                     if not RentalService.check_room_availability(
                         room,
                         room_start_date,
@@ -586,6 +599,13 @@ class RentalService:
                         room_end_date = tz.make_aware(room_end_date_parsed) if tz.is_naive(room_end_date_parsed) else room_end_date_parsed
             
             # Check availability with room-specific dates
+            is_valid_room_period, error_message = validate_working_hours_period(
+                room_start_date,
+                room_end_date,
+            )
+            if not is_valid_room_period:
+                continue
+
             if RentalService.check_room_availability(
                 room,
                 room_start_date,
@@ -874,6 +894,13 @@ class RentalService:
             bool: True if extension was successful, False otherwise
         """
         if new_end_date <= rental_request.requested_end_date:
+            return False
+
+        is_valid_period, error_message = validate_working_hours_period(
+            rental_request.requested_start_date,
+            new_end_date,
+        )
+        if not is_valid_period:
             return False
         
         # Check availability for all items and rooms

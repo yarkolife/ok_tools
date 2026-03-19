@@ -1,3 +1,5 @@
+from datetime import datetime
+from datetime import timedelta
 from .models import EquipmentSet
 from .models import EquipmentSetItem
 from .models import RentalIssue
@@ -6,6 +8,8 @@ from .models import RentalRequest
 from .models import RentalTransaction
 from .models import Room
 from .models import RoomRental
+from .config import get_rental_working_hours
+from .config import get_rental_working_hours_summary_text
 from .permissions import CanCreateRentalRequest
 from .permissions import IsAuthenticatedAndMemberOrReadOnly
 from .permissions import StaffCanIssuePermission
@@ -17,6 +21,8 @@ from .serializers import RentalItemSerializer
 from .serializers import RentalRequestSerializer
 from .serializers import RentalTransactionSerializer
 from .services import RentalService
+from .working_hours import get_day_working_window
+from .working_hours import validate_working_hours_period
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -40,6 +46,23 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 import json
+
+
+def _iter_time_slots(target_date, step_minutes):
+    start_at, end_at = get_day_working_window(target_date)
+    if not start_at or not end_at:
+        return []
+
+    slots = []
+    current = start_at
+    while current < end_at:
+        slot_end = current + timedelta(minutes=step_minutes)
+        if slot_end > end_at:
+            break
+        slots.append((current, slot_end))
+        current = slot_end
+
+    return slots
 
 
 class DefaultPagination(PageNumberPagination):
@@ -277,6 +300,8 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
             'inventory_items': inventory,
             'organizations': organizations,
             'equipment_sets': equipment_sets,
+            'rental_working_hours_json': json.dumps(get_rental_working_hours()),
+            'rental_working_hours_summary': get_rental_working_hours_summary_text(),
         })
         return context
 
@@ -1445,12 +1470,18 @@ def api_extend_rental(request):
             if new_end_datetime <= current_end_date:
                 return JsonResponse({'error': _('New end date must be after current end date')}, status=400)
 
+            is_valid_period, error_message = validate_working_hours_period(
+                rental_request.requested_start_date,
+                new_end_datetime,
+            )
+            if not is_valid_period:
+                return JsonResponse({'error': error_message}, status=400)
+
         except Exception as e:
             return JsonResponse({'error': _('Invalid date format: {error}').format(error=str(e))}, status=400)
 
-        # Update rental request
-        rental_request.requested_end_date = new_end_datetime
-        rental_request.save(update_fields=['requested_end_date'])
+        if not RentalService.extend_rental(rental_request, new_end_datetime, request.user):
+            return JsonResponse({'error': _('The rental cannot be extended to the selected end date.')}, status=400)
 
         return JsonResponse({
             'success': True,
@@ -1529,7 +1560,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         context['day'] = day
         context['prev_day'] = day - timedelta(days=1)
         context['next_day'] = day + timedelta(days=1)
-        context['hours'] = list(range(10, 19))
+        context['hours'] = [slot_start.strftime('%H:%M') for slot_start, _ in _iter_time_slots(day, 60)]
         return context
 
 
@@ -1920,13 +1951,19 @@ def api_inventory_calendar(request):
                 day_statuses = []
                 conflicts = item_id_to_rentals.get(it['id'], [])
                 for d in days:
-                    # Business day window 10:00..19:00
-                    d_start = timezone.make_aware(datetime.combine(d, datetime.min.time()).replace(hour=10, minute=0))
-                    d_end = timezone.make_aware(datetime.combine(d, datetime.min.time()).replace(hour=19, minute=0))
+                    d_start, d_end = get_day_working_window(d)
                     status = 'available'
                     has_reserved = False
                     selected_user = None
                     selected_req = None
+                    if not d_start or not d_end:
+                        day_statuses.append({
+                            'date': d.isoformat(),
+                            'status': 'closed',
+                            'user_name': None,
+                            'info': None,
+                        })
+                        continue
                     for ri in conflicts:
                         rs = timezone.localtime(ri.rental_request.requested_start_date)
                         re = timezone.localtime(ri.rental_request.requested_end_date)
@@ -1981,14 +2018,10 @@ def api_inventory_calendar(request):
                     'week': day_statuses,
                 })
         else:
-            # Business hours view 10:00..18:00
-            hours = list(range(10, 20))  # 10..19 inclusive
             for it in items_list:
                 hour_slots = []
                 conflicts = item_id_to_rentals.get(it['id'], [])
-                for h in hours:
-                    slot_start = timezone.make_aware(datetime.combine(day, datetime.min.time().replace(hour=h, minute=0)))
-                    slot_end = slot_start + timedelta(hours=1)
+                for slot_start, slot_end in _iter_time_slots(day, 60):
                     status = 'available'
                     info = None
                     for ri in conflicts:
@@ -2016,7 +2049,7 @@ def api_inventory_calendar(request):
                                 'end_time': re.strftime('%H:%M'),
                             }
                             break
-                    hour_slots.append({'time': f"{h:02d}:00", 'status': status, 'info': info})
+                    hour_slots.append({'time': slot_start.strftime('%H:%M'), 'status': status, 'info': info})
 
                 result.append({
                     'id': it['id'],
@@ -2381,6 +2414,92 @@ class PrintFormOKMQView(StaffRequiredMixin, TemplateView):
         return context
 
 
+class PrintPickListView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/print_pick_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        rental_id = kwargs.get('rental_id')
+
+        try:
+            rental_request = get_object_or_404(RentalRequest, id=rental_id)
+            rental_items = list(rental_request.items.select_related(
+                'inventory_item',
+                'inventory_item__location',
+            ))
+            rental_items.sort(
+                key=lambda item: (
+                    item.inventory_item.location.full_path,
+                    item.inventory_item.inventory_number,
+                )
+            )
+            grouped_items = []
+            current_location = None
+            current_items = []
+
+            for rental_item in rental_items:
+                location_name = rental_item.inventory_item.location.full_path
+                if location_name != current_location:
+                    if current_items:
+                        grouped_items.append({
+                            'location': current_location,
+                            'items': current_items,
+                        })
+                    current_location = location_name
+                    current_items = []
+                current_items.append(rental_item)
+
+            if current_items:
+                grouped_items.append({
+                    'location': current_location,
+                    'items': current_items,
+                })
+
+            context.update({
+                'rental_request': rental_request,
+                'rental_items': rental_items,
+                'grouped_rental_items': grouped_items,
+            })
+        except Exception as e:
+            context['error'] = _('Error loading rental: {error}').format(error=str(e))
+
+        return context
+
+
+@login_required
+@staff_member_required
+@csrf_exempt
+def api_update_pick_list(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+
+    try:
+        rental_request = get_object_or_404(RentalRequest, id=rental_id)
+        data = json.loads(request.body)
+        items = data.get('items', [])
+
+        rental_item_map = {
+            item.id: item
+            for item in rental_request.items.all()
+        }
+
+        updated_count = 0
+        for item_data in items:
+            item_id = item_data.get('id')
+            rental_item = rental_item_map.get(item_id)
+            if not rental_item:
+                continue
+
+            rental_item.pick_list_checked = bool(item_data.get('checked', False))
+            rental_item.pick_list_note = str(item_data.get('note', '') or '').strip()
+            rental_item.save(update_fields=['pick_list_checked', 'pick_list_note'])
+            updated_count += 1
+
+        return JsonResponse({'success': True, 'updated_count': updated_count})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
 @login_required
 @staff_member_required
 def api_get_rental_print_info(request, rental_id):
@@ -2582,96 +2701,72 @@ def api_get_room_schedule(request):
                     'slots': []
                 }
 
-                # Split day into 30-minute slots (10:00-18:00)
-                for hour in range(10, 18):
-                    for minute in [0, 30]:
-                        # Create datetime objects for current day
-                        slot_start = datetime.combine(current_date, datetime.min.time().replace(hour=hour, minute=minute))
-                        slot_end = slot_start + timedelta(minutes=30)
+                for slot_start_aware, slot_end_aware in _iter_time_slots(current_date, 30):
+                    slot_start = timezone.localtime(slot_start_aware)
+                    slot_end = timezone.localtime(slot_end_aware)
 
-                        # Check for overlaps with rentals
-                        slot_status = 'available'
-                        slot_info = None
+                    slot_status = 'available'
+                    slot_info = None
 
-                        for rental in room_rentals:
-                            # Get rental dates - use room-specific dates if available, otherwise use rental request dates
-                            rental_start = rental.get_start_date()
-                            rental_end = rental.get_end_date()
+                    for rental in room_rentals:
+                        rental_start = rental.get_start_date()
+                        rental_end = rental.get_end_date()
 
-                            # Check overlap using only time (without timezones)
-                            if rental_start and rental_end:
-                                # Convert to local time for comparison
-                                rental_start_local = timezone.localtime(rental_start)
-                                rental_end_local = timezone.localtime(rental_end)
+                        if rental_start and rental_end:
+                            rental_start_local = timezone.localtime(rental_start)
+                            rental_end_local = timezone.localtime(rental_end)
+                            rental_start_time = datetime.combine(current_date, rental_start_local.time())
+                            rental_end_time = datetime.combine(current_date, rental_end_local.time())
 
-                                # Create datetime objects for comparison
-                                rental_start_time = datetime.combine(
-                                    current_date,
-                                    rental_start_local.time()
-                                )
-                                rental_end_time = datetime.combine(
-                                    current_date,
-                                    rental_end_local.time()
-                                )
+                            rental_covers_day = rental_start_local.date() <= current_date <= rental_end_local.date()
+                            if not rental_covers_day:
+                                continue
 
-                                # Only consider rentals that actually cover this date
-                                rental_covers_day = (
-                                    rental_start_local.date() <= current_date <= rental_end_local.date()
-                                )
-                                if not rental_covers_day:
-                                    continue
+                            if slot_start.replace(tzinfo=None) < rental_end_time and slot_end.replace(tzinfo=None) > rental_start_time:
+                                slot_status = 'occupied'
+                                user = rental.rental_request.user
+                                user_name = _("Unknown user")
 
-                                # Check overlap
-                                if (slot_start < rental_end_time and slot_end > rental_start_time):
-                                    slot_status = 'occupied'
+                                try:
+                                    if hasattr(user, 'profile') and user.profile:
+                                        profile = user.profile
+                                        if hasattr(profile, 'first_name') and profile.first_name and hasattr(profile, 'last_name') and profile.last_name:
+                                            user_name = f"{profile.first_name} {profile.last_name}"
+                                        elif hasattr(profile, 'first_name') and profile.first_name:
+                                            user_name = profile.first_name
+                                        elif hasattr(profile, 'last_name') and profile.last_name:
+                                            user_name = profile.last_name
+                                    elif hasattr(user, 'first_name') and user.first_name and hasattr(user, 'last_name') and user.last_name:
+                                        user_name = f"{user.first_name} {user.last_name}"
+                                    elif hasattr(user, 'username') and user.username:
+                                        user_name = user.username
+                                    elif hasattr(user, 'email') and user.email:
+                                        user_name = user.email.split('@')[0]
+                                    else:
+                                        user_name = _("User #{user_id}").format(user_id=user.id)
+                                except Exception:
+                                    if hasattr(user, 'email') and user.email:
+                                        user_name = user.email.split('@')[0]
+                                    else:
+                                        user_name = _("User #{user_id}").format(user_id=user.id)
 
-                                    # Safely get user name
-                                    user = rental.rental_request.user
-                                    user_name = _("Unknown user")
+                                slot_info = {
+                                    'user_name': user_name,
+                                    'project': rental.rental_request.project_name or _("No project"),
+                                    'status': rental.rental_request.status,
+                                    'people_count': rental.people_count or 1,
+                                    'start_time': rental_start_local.strftime('%H:%M'),
+                                    'end_time': rental_end_local.strftime('%H:%M'),
+                                    'rental_request_id': rental.rental_request.id,
+                                    'user_email': user.email if hasattr(user, 'email') and user.email else ''
+                                }
+                                break
 
-                                    # Try to get name from profile (first_name + last_name)
-                                    try:
-                                        if hasattr(user, 'profile') and user.profile:
-                                            profile = user.profile
-                                            if hasattr(profile, 'first_name') and profile.first_name and hasattr(profile, 'last_name') and profile.last_name:
-                                                user_name = f"{profile.first_name} {profile.last_name}"
-                                            elif hasattr(profile, 'first_name') and profile.first_name:
-                                                user_name = profile.first_name
-                                            elif hasattr(profile, 'last_name') and profile.last_name:
-                                                user_name = profile.last_name
-                                        # If profile not found or empty, try other options
-                                        elif hasattr(user, 'first_name') and user.first_name and hasattr(user, 'last_name') and user.last_name:
-                                            user_name = f"{user.first_name} {user.last_name}"
-                                        elif hasattr(user, 'username') and user.username:
-                                            user_name = user.username
-                                        elif hasattr(user, 'email') and user.email:
-                                            user_name = user.email.split('@')[0]  # Take part before @
-                                        else:
-                                            user_name = _("User #{user_id}").format(user_id=user.id)
-                                    except Exception as e:
-                                        # In case of error, use fallback
-                                        if hasattr(user, 'email') and user.email:
-                                            user_name = user.email.split('@')[0]
-                                        else:
-                                            user_name = _("User #{user_id}").format(user_id=user.id)
-
-                                    slot_info = {
-                                        'user_name': user_name,
-                                        'project': rental.rental_request.project_name or _("No project"),
-                                        'status': rental.rental_request.status,
-                                        'people_count': rental.people_count or 1,
-                                        'start_time': rental_start_local.strftime('%H:%M'),
-                                        'end_time': rental_end_local.strftime('%H:%M'),
-                                        'rental_request_id': rental.rental_request.id,
-                                        'user_email': user.email if hasattr(user, 'email') and user.email else ''
-                                    }
-                                    break
-
-                        day_schedule['slots'].append({
-                            'time': f"{hour:02d}:{minute:02d}",
-                            'status': slot_status,
-                            'info': slot_info
-                        })
+                    day_schedule['slots'].append({
+                        'time': slot_start.strftime('%H:%M'),
+                        'status': slot_status,
+                        'info': slot_info
+                    })
 
                 schedule.append(day_schedule)
                 current_date += timedelta(days=1)
@@ -2771,13 +2866,11 @@ def api_get_inventory_schedule(request):
             }
 
             slot_count = 0
-            for hour in range(0, 24):  # 24 hours with 1-hour steps
+            for slot_start, slot_end in _iter_time_slots(current, 60):
                 slot_count += 1
-                if slot_count % 6 == 0:  # Log every 6th slot to avoid spam
-                    print(f"🔍 Processing slot {slot_count}/24 for day {current}")
+                if slot_count % 6 == 0:
+                    print(f"🔍 Processing slot {slot_count} for day {current}")
 
-                slot_start = timezone.make_aware(datetime.combine(current, datetime.min.time().replace(hour=hour, minute=0)))
-                slot_end = slot_start + timedelta(hours=1)
                 status = 'available'
                 info = None
 
@@ -2795,44 +2888,33 @@ def api_get_inventory_schedule(request):
                     current_end_of_day = timezone.make_aware(datetime.combine(current, datetime.min.time().replace(hour=23, minute=59)))
 
                     if rs <= current_end_of_day and re >= current_start_of_day:
-                        # Define working hours (10:00-19:00)
-                        working_start = timezone.make_aware(datetime.combine(current, datetime.min.time().replace(hour=10, minute=0)))
-                        working_end = timezone.make_aware(datetime.combine(current, datetime.min.time().replace(hour=19, minute=0)))
+                        working_start, working_end = get_day_working_window(current)
+                        if not working_start or not working_end:
+                            continue
 
                         # For the current day, adjust rental times to working hours
                         if current == rs.date():
                             # First day of rental
-                            if rs.hour >= 19:
-                                # If rental starts after 19:00, move to next day's 10:00
+                            if rs >= working_end:
                                 continue
-                            elif rs.hour < 10:
-                                # If rental starts before 10:00, use 10:00
+                            elif rs <= working_start:
                                 rental_start = working_start
                             else:
-                                # Use actual rental start time
                                 rental_start = rs
                         else:
-                            # Middle days - use working start
                             rental_start = working_start
 
                         if current == re.date():
-                            # Last day of rental
-                            if re.hour < 10:
-                                # If rental ends before 10:00, skip this day
+                            if re <= working_start:
                                 continue
-                            elif re.hour > 19:
-                                # If rental ends after 19:00, use 19:00
+                            elif re >= working_end:
                                 rental_end = working_end
                             else:
-                                # Use actual rental end time
                                 rental_end = re
                         else:
-                            # Middle days - use working end
                             rental_end = working_end
 
-                        # Check overlap with current slot
-                        if hour >= 10 and hour < 20:
-                            print(f"🔍 Checking slot {hour}:00 ({slot_start.strftime('%H:%M')}-{slot_end.strftime('%H:%M')}) vs rental ({rental_start.strftime('%H:%M')}-{rental_end.strftime('%H:%M')})")
+                        print(f"🔍 Checking slot {slot_start.strftime('%H:%M')} ({slot_start.strftime('%H:%M')}-{slot_end.strftime('%H:%M')}) vs rental ({rental_start.strftime('%H:%M')}-{rental_end.strftime('%H:%M')})")
                         
                         if slot_start < rental_end and slot_end > rental_start:
                             status = 'occupied'
@@ -2861,16 +2943,14 @@ def api_get_inventory_schedule(request):
                                 'end_time': re.strftime('%H:%M')
                             }
 
-                            # Log occupied slots for working hours (10-19)
-                            if hour >= 10 and hour < 20:
-                                print(f"🔍 Slot {hour}:00 occupied! Status: {status}, User: {user_name}")
+                            print(f"🔍 Slot {slot_start.strftime('%H:%M')} occupied! Status: {status}, User: {user_name}")
 
                             break
                         else:
                             if slot_count == 1:  # Only for first slot to avoid spam
                                 print(f"🔍 No overlap: Slot {slot_start.strftime('%H:%M')}-{slot_end.strftime('%H:%M')} vs Rental {rental_start.strftime('%H:%M')}-{rental_end.strftime('%H:%M')}")
 
-                day['slots'].append({'time': f"{hour:02d}:00", 'status': status, 'info': info})
+                day['slots'].append({'time': slot_start.strftime('%H:%M'), 'status': status, 'info': info})
 
             schedule.append(day)
             current += timedelta(days=1)
@@ -3307,39 +3387,31 @@ def api_get_room_schedule_user(request):
                     'slots': []
                 }
 
-                # Split day into 30-minute slots (10:00-18:00)
-                for hour in range(10, 18):
-                    for minute in [0, 30]:
-                        slot_start = datetime.combine(current_date, datetime.min.time().replace(hour=hour, minute=minute))
-                        slot_start = timezone.make_aware(slot_start)
-                        slot_end = slot_start + timedelta(minutes=30)
+                for slot_start, slot_end in _iter_time_slots(current_date, 30):
+                    slot_status = 'available'
+                    slot_info = None
 
-                        # Check for overlaps with rentals
-                        slot_status = 'available'
-                        slot_info = None
+                    for rental in room_rentals:
+                        rental_start = rental.rental_request.requested_start_date
+                        rental_end = rental.rental_request.requested_end_date
 
-                        for rental in room_rentals:
-                            rental_start = rental.rental_request.requested_start_date
-                            rental_end = rental.rental_request.requested_end_date
+                        if slot_start < rental_end and slot_end > rental_start:
+                            slot_status = 'occupied'
+                            slot_info = {
+                                'user_name': rental.rental_request.user.get_full_name() or rental.rental_request.user.username,
+                                'project': rental.rental_request.project_name or 'No project',
+                                'status': rental.rental_request.status,
+                                'people_count': rental.people_count or 1,
+                                'start_time': rental.rental_request.requested_start_date.strftime('%H:%M'),
+                                'end_time': rental.rental_request.requested_end_date.strftime('%H:%M')
+                            }
+                            break
 
-                            # Check if slot overlaps with rental
-                            if (slot_start < rental_end and slot_end > rental_start):
-                                slot_status = 'occupied'
-                                slot_info = {
-                                    'user_name': rental.rental_request.user.get_full_name() or rental.rental_request.user.username,
-                                    'project': rental.rental_request.project_name or 'No project',
-                                    'status': rental.rental_request.status,
-                                    'people_count': rental.people_count or 1,
-                                    'start_time': rental.rental_request.requested_start_date.strftime('%H:%M'),
-                                    'end_time': rental.rental_request.requested_end_date.strftime('%H:%M')
-                                }
-                                break
-
-                        day_schedule['slots'].append({
-                            'time': slot_start.strftime('%H:%M'),
-                            'status': slot_status,
-                            'info': slot_info
-                        })
+                    day_schedule['slots'].append({
+                        'time': slot_start.strftime('%H:%M'),
+                        'status': slot_status,
+                        'info': slot_info
+                    })
 
                 schedule.append(day_schedule)
                 current_date += timedelta(days=1)
@@ -3549,6 +3621,15 @@ def api_check_room_availability(request):
             start_datetime = timezone.make_aware(start_datetime)
         if timezone.is_naive(end_datetime):
             end_datetime = timezone.make_aware(end_datetime)
+
+        is_valid_period, error_message = validate_working_hours_period(start_datetime, end_datetime)
+        if not is_valid_period:
+            return JsonResponse({
+                'success': True,
+                'is_available': False,
+                'message': error_message,
+                'conflicts': [],
+            })
 
         # Get room
         from .models import Room

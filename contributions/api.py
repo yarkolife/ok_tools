@@ -246,6 +246,7 @@ class ProgramScheduleView(APIView):
                 'contribution': False,
                 'category': '',
                 'store_in_ok_media_library': '',
+                'mediathek_url': '',
                 'number': '',
             }
         
@@ -260,6 +261,7 @@ class ProgramScheduleView(APIView):
             'contribution': True,
             'category': str(license_obj.category) if license_obj.category else '',
             'store_in_ok_media_library': str(license_obj.store_in_ok_media_library) if license_obj.store_in_ok_media_library else '',
+            'mediathek_url': str(license_obj.mediathek_url) if license_obj.mediathek_url else '',
             'number': str(license_obj.number) if license_obj.number else '',
         }
     
@@ -286,6 +288,7 @@ class ProgramScheduleView(APIView):
             'contribution': False,
             'category': '',
             'store_in_ok_media_library': '',
+            'mediathek_url': '',
             'number': '',
         }
     

@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.4.0
+**Current Version**: 4.5.0
 **Last Updated**: March 2026
 
 Features
@@ -118,8 +118,10 @@ Features
 - **Rental System** - Equipment rental management with expiration tracking
   - Equipment rental requests with status workflow (draft, reserved, issued, returned, cancelled)
   - Room rental support with capacity tracking
+  - Configurable working hours for room and equipment bookings, including closed days
   - Equipment sets and templates for predefined configurations
   - Rental transactions (reserve, issue, return, cancel) with audit trail
+  - Pick-list printing and per-item checklist notes for issue preparation
   - User access control based on membership status (members can access organization equipment)
   - Availability checking for equipment and rooms
   - Rental item tracking with quantity management

@@ -388,6 +388,21 @@ msgstr "Arbeitszeiten"
 msgid "Mo-Fr, 10:00-18:00"
 msgstr "Mo-Fr, 10:00-18:00"
 
+msgid "Please select a valid time within working hours."
+msgstr "Bitte wählen Sie eine gültige Zeit innerhalb der Arbeitszeiten."
+
+msgid "The selected start day is closed."
+msgstr "Der gewählte Starttag ist geschlossen."
+
+msgid "The selected end day is closed."
+msgstr "Der gewählte Endtag ist geschlossen."
+
+msgid "Please select a start time within the configured working hours."
+msgstr "Bitte wählen Sie eine Startzeit innerhalb der konfigurierten Arbeitszeiten."
+
+msgid "Please select an end time within the configured working hours."
+msgstr "Bitte wählen Sie eine Endzeit innerhalb der konfigurierten Arbeitszeiten."
+
 msgid "(except for holidays)"
 msgstr "(außer an Feiertagen)"
 

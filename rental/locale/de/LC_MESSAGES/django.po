@@ -916,6 +916,82 @@ msgstr "Maximales Alter des Genehmigungs-Tokens (Sekunden)"
 msgid "Token expiration time for approve/deny links in seconds"
 msgstr "Token-Ablaufzeit für Genehmigen-/Ablehnen-Links in Sekunden"
 
+#: rental/admin.py:427
+msgid "Approval workflow"
+msgstr "Genehmigungsworkflow"
+
+#: rental/admin.py:436 rental/locale/de/LC_MESSAGES/djangojs.po:385
+msgid "Working hours"
+msgstr "Arbeitszeiten"
+
+#: rental/admin.py:446
+msgid "Leave both fields empty to mark a day as closed."
+msgstr "Lassen Sie beide Felder leer, um den Tag als geschlossen zu markieren."
+
+#: rental/models.py:878
+msgid "Monday opening time"
+msgstr "Montag Öffnungszeit"
+
+#: rental/models.py:884
+msgid "Monday closing time"
+msgstr "Montag Schließzeit"
+
+#: rental/models.py:890
+msgid "Tuesday opening time"
+msgstr "Dienstag Öffnungszeit"
+
+#: rental/models.py:896
+msgid "Tuesday closing time"
+msgstr "Dienstag Schließzeit"
+
+#: rental/models.py:902
+msgid "Wednesday opening time"
+msgstr "Mittwoch Öffnungszeit"
+
+#: rental/models.py:908
+msgid "Wednesday closing time"
+msgstr "Mittwoch Schließzeit"
+
+#: rental/models.py:914
+msgid "Thursday opening time"
+msgstr "Donnerstag Öffnungszeit"
+
+#: rental/models.py:920
+msgid "Thursday closing time"
+msgstr "Donnerstag Schließzeit"
+
+#: rental/models.py:926
+msgid "Friday opening time"
+msgstr "Freitag Öffnungszeit"
+
+#: rental/models.py:932
+msgid "Friday closing time"
+msgstr "Freitag Schließzeit"
+
+#: rental/models.py:937
+msgid "Saturday opening time"
+msgstr "Samstag Öffnungszeit"
+
+#: rental/models.py:942
+msgid "Saturday closing time"
+msgstr "Samstag Schließzeit"
+
+#: rental/models.py:947
+msgid "Sunday opening time"
+msgstr "Sonntag Öffnungszeit"
+
+#: rental/models.py:952
+msgid "Sunday closing time"
+msgstr "Sonntag Schließzeit"
+
+#: rental/models.py:977
+msgid "Please set both opening and closing time or leave both empty."
+msgstr "Bitte setzen Sie sowohl Öffnungs- als auch Schließzeit oder lassen Sie beide Felder leer."
+
+#: rental/models.py:979
+msgid "Opening time must be before closing time."
+msgstr "Die Öffnungszeit muss vor der Schließzeit liegen."
+
 #: rental/models.py:864 rental/models.py:865 rental/models.py:869
 msgid "Rental Configuration"
 msgstr "Ausleih-Konfiguration"
@@ -1016,6 +1092,26 @@ msgstr "Ungültiges Datumsformat"
 msgid "End date must be after start date"
 msgstr "Enddatum muss nach dem Startdatum liegen"
 
+#: rental/working_hours.py:92
+msgid "No working hours configured"
+msgstr "Keine Arbeitszeiten konfiguriert"
+
+#: rental/working_hours.py:133
+msgid "The selected start day is closed."
+msgstr "Der gewählte Starttag ist geschlossen."
+
+#: rental/working_hours.py:136
+msgid "The selected end day is closed."
+msgstr "Der gewählte Endtag ist geschlossen."
+
+#: rental/working_hours.py:139
+msgid "The selected start time is outside the configured working hours."
+msgstr "Die gewählte Startzeit liegt außerhalb der konfigurierten Arbeitszeiten."
+
+#: rental/working_hours.py:142
+msgid "The selected end time is outside the configured working hours."
+msgstr "Die gewählte Endzeit liegt außerhalb der konfigurierten Arbeitszeiten."
+
 #: rental/services/rental_service.py:310
 msgid "Please select at least one item or room"
 msgstr "Bitte wählen Sie mindestens einen Beitrag oder Raum aus"
@@ -1042,6 +1138,10 @@ msgstr "Raum nicht gefunden"
 #, python-brace-format
 msgid "Room \"{room_name}\" is not available for the selected period"
 msgstr "Raum \"{room_name}\" ist im gewählten Zeitraum nicht verfügbar"
+
+#: rental/views.py:1484
+msgid "The rental cannot be extended to the selected end date."
+msgstr "Die Ausleihe kann nicht bis zum gewählten Enddatum verlängert werden."
 
 #: rental/services/rental_service.py:931
 msgid "Only draft, reserved or issued rentals can be cancelled"
@@ -1071,6 +1171,59 @@ msgstr "Ausleihe aus Gerätesätzen erstellen"
 #: rental/templates/admin/rental/rentalrequest/change_list.html:7
 msgid "Open rental process"
 msgstr "Ausleihvorgang öffnen"
+
+#: rental/templates/rental/rental_detail.html:274
+msgid "Print rental"
+msgstr "Ausleihe drucken"
+
+#: rental/templates/rental/print_pick_list.html:7
+#: rental/templates/rental/print_pick_list.html:38
+msgid "Pick list"
+msgstr "Packliste"
+
+#: rental/templates/rental/print_pick_list.html:34
+msgid "Print"
+msgstr "Drucken"
+
+#: rental/templates/rental/rental_detail.html:275
+msgid "Print pick list"
+msgstr "Packliste drucken"
+
+#: rental/templates/rental/print_pick_list.html:67
+msgid "Checked"
+msgstr "Geprueft"
+
+#: rental/templates/rental/print_pick_list.html:72
+msgid "Add note"
+msgstr "Notiz hinzufuegen"
+
+#: rental/templates/rental/print_pick_list.html:53
+msgid "Check all"
+msgstr "Alle abhaken"
+
+#: rental/templates/rental/print_pick_list.html:54
+msgid "Reset all"
+msgstr "Alles zuruecksetzen"
+
+#: rental/templates/rental/print_pick_list.html:114
+msgid "Saving..."
+msgstr "Speichert..."
+
+#: rental/templates/rental/print_pick_list.html:132
+msgid "Saved"
+msgstr "Gespeichert"
+
+#: rental/templates/rental/print_pick_list.html:134
+msgid "Save failed"
+msgstr "Speichern fehlgeschlagen"
+
+#: rental/models.py:208
+msgid "Pick list checked"
+msgstr "Packliste geprueft"
+
+#: rental/models.py:212
+msgid "Pick list note"
+msgstr "Packlisten-Notiz"
 
 #: rental/templates/admin/rental/rent_sets_form.html:12
 msgid "Create"

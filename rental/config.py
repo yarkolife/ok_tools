@@ -4,6 +4,9 @@ import os
 from django.conf import settings
 from typing import List
 
+from .working_hours import get_working_hours_by_weekday
+from .working_hours import get_working_hours_summary
+
 
 def get_rental_user_request_requires_approval():
     """Get whether user rental requests require approval."""
@@ -75,3 +78,17 @@ def get_rental_approval_token_max_age_seconds():
             return int(os.getenv('RENTAL_APPROVAL_TOKEN_MAX_AGE_SECONDS', '604800'))
         except ValueError:
             return 604800  # 7 days default
+
+
+def get_rental_working_hours():
+    try:
+        return get_working_hours_by_weekday()
+    except Exception:
+        return {}
+
+
+def get_rental_working_hours_summary_text():
+    try:
+        return get_working_hours_summary()
+    except Exception:
+        return ''

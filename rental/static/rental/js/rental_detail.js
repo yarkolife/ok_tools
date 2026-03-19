@@ -25,7 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     confirmRental: dataElement.dataset.confirmUrl || '',
                     issueFromReservation: dataElement.dataset.issueFromReservationUrl || '',
                     getStaffUsers: dataElement.dataset.getStaffUsersUrl || '',
-                    searchInventory: dataElement.dataset.searchInventoryUrl || ''
+                    searchInventory: dataElement.dataset.searchInventoryUrl || '',
+                    rentalPrintInfo: (dataElement.dataset.rentalPrintInfoUrl || '').replace('/0/', '/{rentalId}/'),
+                    printFormMSA: (dataElement.dataset.printFormMsaUrl || '').replace('/0/', '/{rentalId}/'),
+                    printFormOKMQ: (dataElement.dataset.printFormOkmqUrl || '').replace('/0/', '/{rentalId}/')
                 };
             } else {
                 this.rentalId = 0;
@@ -82,6 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Issue from Reservation button
             const issueFromReservationBtn = document.getElementById('issueFromReservationBtn');
             if (issueFromReservationBtn) issueFromReservationBtn.addEventListener('click', this.showIssueFromReservationModal.bind(this));
+
+            const printBtn = document.getElementById('printBtn');
+            if (printBtn) printBtn.addEventListener('click', this.showRentalPrintModal.bind(this));
 
             // Extend modal confirm
             const confirmExtend = document.getElementById('confirmExtend');
@@ -275,6 +281,91 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error('Extend error:', error);
                 alert(gettext('Network error'));
+            }
+        }
+
+        async showRentalPrintModal() {
+            try {
+                const response = await fetch(this.urls.rentalPrintInfo.replace('{rentalId}', this.rentalId));
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert(gettext('Error loading print information: ') + (data.error || gettext('Unknown error')));
+                    return;
+                }
+
+                let printOptions = '';
+
+                if (data.has_msa_items) {
+                    printOptions += `
+                        <div class="mb-3">
+                            <button class="btn btn-outline-primary w-100" onclick="window.open('${this.urls.printFormMSA.replace('{rentalId}', this.rentalId)}', '_blank')">
+                                <i class="fas fa-print me-2"></i>
+                                MSA ${gettext('Print rental forms')} (${data.msa_items_count} ${gettext('items')})
+                            </button>
+                        </div>`;
+                }
+
+                if (data.has_okmq_items) {
+                    printOptions += `
+                        <div class="mb-3">
+                            <button class="btn btn-outline-success w-100" onclick="window.open('${this.urls.printFormOKMQ.replace('{rentalId}', this.rentalId)}', '_blank')">
+                                <i class="fas fa-print me-2"></i>
+                                OKMQ ${gettext('Print rental forms')} (${data.okmq_items_count} ${gettext('items')})
+                            </button>
+                        </div>`;
+                }
+
+                if (!printOptions) {
+                    printOptions = `<p class="text-muted">${gettext('No printable items in this rental found.')}</p>`;
+                }
+
+                const printModalHtml = `
+                    <div class="modal fade" id="printModal" tabindex="-1" aria-labelledby="printModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="printModalLabel">
+                                        <i class="fas fa-print me-2"></i>${gettext('Print rental forms')}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <small class="text-muted"><b>${gettext('User')}: ${data.user_name}</b></small><br>
+                                        <small class="text-muted">${data.project_name}</small>
+                                    </div>
+                                    <div class="print-options">
+                                        ${printOptions}
+                                    </div>
+                                    <div class="alert alert-info mt-3">
+                                        <small>${gettext('Rental forms will be opened in separate windows. Use the print function of the browser (Ctrl+P).')}</small>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${gettext('Close')}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                const existingModal = document.getElementById('printModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                document.body.insertAdjacentHTML('beforeend', printModalHtml);
+
+                const modalElement = document.getElementById('printModal');
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+
+                modalElement.addEventListener('hidden.bs.modal', function () {
+                    modalElement.remove();
+                });
+            } catch (error) {
+                console.error('Error showing print modal:', error);
+                alert(gettext('Error loading print options'));
             }
         }
 

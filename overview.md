@@ -37,6 +37,9 @@
 
 ### Recent Updates
 
+- **Rental working hours and pick lists**: Added DB-backed weekday opening hours, public/admin validation, smarter room-booking time selection, and printable pick lists with checklist fields on rental items
+- **Program schedule metadata**: Extended the contributions program schedule API and admin example output with `mediathek_url` for published licenses
+- **Dashboard and planning UX**: Improved dashboard chart translations/placeholders and kept filtered planning calendar cells hidden from keyboard navigation without breaking table layout
 - **Nextcloud chunked upload v2**: Fixed large file export (9GB+) to Nextcloud using proper chunked upload v2 API with MKCOL/PUT/MOVE sequence
 - **Mediathek link maintenance**: Added backfill tooling for legacy licenses plus admin rescan workflow improvements and exchange export UX refinements
 - **Licenses notifications**: Added a dedicated "mediathek published" email that is sent once when a license receives its first Mediathek URL, including a direct watch link

@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from typing import List, Dict, Any, Optional, Union
 from django.db.models.query import QuerySet
 from datetime import datetime, date
+from datetime import time
 
 
 class RentalRequest(models.Model):
@@ -202,6 +203,14 @@ class RentalItem(models.Model):
     notes = models.TextField(
         blank=True,
         verbose_name=_('Notes'),
+    )
+    pick_list_checked = models.BooleanField(
+        default=False,
+        verbose_name=_('Pick list checked'),
+    )
+    pick_list_note = models.TextField(
+        blank=True,
+        verbose_name=_('Pick list note'),
     )
 
     class Meta:
@@ -816,6 +825,16 @@ class EquipmentTemplateItem(models.Model):
 
 class RentalConfig(models.Model):
     """Configuration for rental module (singleton)."""
+
+    WEEKDAY_FIELD_NAMES = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+    ]
     
     # Enable email-based approval workflow for user-created rental requests
     # When enabled, user requests are created as 'draft' and require admin approval
@@ -859,6 +878,87 @@ class RentalConfig(models.Model):
         verbose_name=_('Approval Token Max Age (seconds)'),
         help_text=_('Token expiration time for approve/deny links in seconds')
     )
+
+    monday_start_time = models.TimeField(
+        default=time(hour=10, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Monday opening time'),
+    )
+    monday_end_time = models.TimeField(
+        default=time(hour=18, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Monday closing time'),
+    )
+    tuesday_start_time = models.TimeField(
+        default=time(hour=10, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Tuesday opening time'),
+    )
+    tuesday_end_time = models.TimeField(
+        default=time(hour=18, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Tuesday closing time'),
+    )
+    wednesday_start_time = models.TimeField(
+        default=time(hour=10, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Wednesday opening time'),
+    )
+    wednesday_end_time = models.TimeField(
+        default=time(hour=18, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Wednesday closing time'),
+    )
+    thursday_start_time = models.TimeField(
+        default=time(hour=10, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Thursday opening time'),
+    )
+    thursday_end_time = models.TimeField(
+        default=time(hour=18, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Thursday closing time'),
+    )
+    friday_start_time = models.TimeField(
+        default=time(hour=10, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Friday opening time'),
+    )
+    friday_end_time = models.TimeField(
+        default=time(hour=18, minute=0),
+        null=True,
+        blank=True,
+        verbose_name=_('Friday closing time'),
+    )
+    saturday_start_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Saturday opening time'),
+    )
+    saturday_end_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Saturday closing time'),
+    )
+    sunday_start_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Sunday opening time'),
+    )
+    sunday_end_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Sunday closing time'),
+    )
     
     class Meta:
         verbose_name = _('Rental Configuration')
@@ -872,6 +972,22 @@ class RentalConfig(models.Model):
         """Ensure only one config instance exists."""
         self.pk = 1
         super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        from django.core.exceptions import ValidationError
+
+        errors = {}
+        for day_name in self.WEEKDAY_FIELD_NAMES:
+            start_time = getattr(self, f'{day_name}_start_time')
+            end_time = getattr(self, f'{day_name}_end_time')
+            if bool(start_time) != bool(end_time):
+                errors[f'{day_name}_start_time'] = _('Please set both opening and closing time or leave both empty.')
+            elif start_time and end_time and start_time >= end_time:
+                errors[f'{day_name}_start_time'] = _('Opening time must be before closing time.')
+
+        if errors:
+            raise ValidationError(errors)
     
     @classmethod
     def get_config(cls):
@@ -884,3 +1000,14 @@ class RentalConfig(models.Model):
         if not self.approval_recipient_emails:
             return []
         return [email.strip() for email in self.approval_recipient_emails.split(',') if email.strip()]
+
+    def get_weekday_hours(self, weekday: int) -> Dict[str, Any]:
+        day_name = self.WEEKDAY_FIELD_NAMES[weekday]
+        start_time = getattr(self, f'{day_name}_start_time')
+        end_time = getattr(self, f'{day_name}_end_time')
+        enabled = bool(start_time and end_time)
+        return {
+            'enabled': enabled,
+            'start': start_time if enabled else None,
+            'end': end_time if enabled else None,
+        }

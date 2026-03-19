@@ -2,8 +2,10 @@ from .models import RentalIssue
 from .models import RentalItem
 from .models import RentalRequest
 from .models import RentalTransaction
+from .working_hours import validate_working_hours_period
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from inventory.models import InventoryItem
 from registration.models import OKUser
 from .services.inventory_service_interface import inventory_service
 
@@ -24,6 +26,10 @@ class RentalRequestAdminForm(forms.ModelForm):
         end = cleaned.get('requested_end_date')
         if start and end and end < start:
             raise forms.ValidationError(_('Requested end date must be after start date.'))
+        if start and end:
+            is_valid, error_message = validate_working_hours_period(start, end)
+            if not is_valid and error_message:
+                raise forms.ValidationError(error_message)
         return cleaned
 
 
@@ -124,6 +130,16 @@ class RentalRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['user'].queryset = OKUser.objects.filter(is_active=True)
+
+    def clean(self):
+        cleaned = super().clean()
+        start = cleaned.get('requested_start_date')
+        end = cleaned.get('requested_end_date')
+        if start and end:
+            is_valid, error_message = validate_working_hours_period(start, end)
+            if not is_valid and error_message:
+                raise forms.ValidationError(error_message)
+        return cleaned
 
 
 class RentalItemForm(forms.ModelForm):

@@ -1,0 +1,243 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Pick list" %} - {{ rental_request.project_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+            color: #111827;
+        }
+        h1, h2 {
+            margin: 0 0 12px;
+        }
+        .meta {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .meta div {
+            margin-bottom: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #f8fafc;
+        }
+        .actions {
+            margin: 16px 0;
+        }
+        .print-button {
+            border: 1px solid #1f2937;
+            background: #fff;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .check-column {
+            width: 72px;
+            text-align: center;
+        }
+        .check-input {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+        .location-row th {
+            background: #e2e8f0;
+            font-size: 15px;
+        }
+        .notes-column {
+            width: 180px;
+        }
+        .note-input {
+            width: 100%;
+            min-height: 72px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font: inherit;
+            resize: vertical;
+        }
+        @media print {
+            .actions {
+                display: none;
+            }
+            body {
+                margin: 0;
+            }
+            .note-input {
+                min-height: 88px;
+                border: 1px solid #94a3b8;
+                border-radius: 0;
+                resize: none;
+            }
+            .note-input::placeholder {
+                color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% if error %}
+        <h1>{% trans "Error" %}</h1>
+        <p>{{ error }}</p>
+    {% else %}
+        <div class="actions">
+            <button class="print-button" onclick="window.print()">{% trans "Print" %}</button>
+            <button class="print-button" type="button" id="checkAllBtn">{% trans "Check all" %}</button>
+            <button class="print-button" type="button" id="resetAllBtn">{% trans "Reset all" %}</button>
+            <span id="saveStatus"></span>
+        </div>
+
+        <h1>{% trans "Pick list" %}</h1>
+        <div class="meta">
+            <div><strong>{% trans "Project name" %}:</strong> {{ rental_request.project_name }}</div>
+            <div><strong>{% trans "User" %}:</strong> {{ rental_request.user.profile.first_name }} {{ rental_request.user.profile.last_name }}</div>
+            <div><strong>{% trans "Requested start date" %}:</strong> {{ rental_request.requested_start_date|date:"d.m.Y H:i" }}</div>
+            <div><strong>{% trans "Requested end date" %}:</strong> {{ rental_request.requested_end_date|date:"d.m.Y H:i" }}</div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th class="check-column">{% trans "Checked" %}</th>
+                    <th>{% trans "Description" %}</th>
+                    <th>{% trans "Inventory item" %}</th>
+                    <th>{% trans "Location" %}</th>
+                    <th>{% trans "Quantity" %}</th>
+                    <th class="notes-column">{% trans "Notes" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in grouped_rental_items %}
+                    <tr class="location-row">
+                        <th colspan="6">{{ group.location }}</th>
+                    </tr>
+                    {% for item in group.items %}
+                        <tr>
+                            <td class="check-column">
+                                <input
+                                    class="check-input js-pick-check"
+                                    type="checkbox"
+                                    data-item-id="{{ item.id }}"
+                                    {% if item.pick_list_checked %}checked{% endif %}
+                                    aria-label="{% trans "Checked" %} {{ item.inventory_item.inventory_number }}"
+                                >
+                            </td>
+                            <td>{{ item.inventory_item.description|default:item.inventory_item.inventory_number }}</td>
+                            <td>{{ item.inventory_item.inventory_number }}</td>
+                            <td>{{ item.inventory_item.location.full_path|default:"-" }}</td>
+                            <td>{{ item.quantity_requested }}</td>
+                            <td>
+                                <textarea
+                                    class="note-input js-pick-note"
+                                    data-item-id="{{ item.id }}"
+                                    placeholder="{% trans "Add note" %}"
+                                >{{ item.pick_list_note }}</textarea>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% empty %}
+                    <tr>
+                        <td colspan="6">{% trans "No printable items in this rental found." %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script>
+            (function() {
+                const saveUrl = '{% url "rental:api_update_pick_list" rental_id=rental_request.id %}';
+                const saveStatus = document.getElementById('saveStatus');
+                let saveTimeout = null;
+
+                function getCsrfToken() {
+                    const value = `; ${document.cookie}`;
+                    const parts = value.split('; csrftoken=');
+                    if (parts.length === 2) {
+                        return parts.pop().split(';').shift();
+                    }
+                    return '';
+                }
+
+                function collectState() {
+                    return Array.from(document.querySelectorAll('.js-pick-check')).map((input) => {
+                        const itemId = input.dataset.itemId;
+                        const note = document.querySelector(`.js-pick-note[data-item-id="${itemId}"]`);
+                        return {
+                            id: Number(itemId),
+                            checked: input.checked,
+                            note: note ? note.value : '',
+                        };
+                    });
+                }
+
+                async function persistState() {
+                    saveStatus.textContent = '{% trans "Saving..." %}';
+                    try {
+                        const response = await fetch(saveUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCsrfToken(),
+                            },
+                            body: JSON.stringify({
+                                items: collectState(),
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('save-failed');
+                        }
+
+                        saveStatus.textContent = '{% trans "Saved" %}';
+                    } catch (error) {
+                        saveStatus.textContent = '{% trans "Save failed" %}';
+                    }
+                }
+
+                function queuePersist() {
+                    window.clearTimeout(saveTimeout);
+                    saveTimeout = window.setTimeout(persistState, 250);
+                }
+
+                document.querySelectorAll('.js-pick-check').forEach((input) => {
+                    input.addEventListener('change', queuePersist);
+                });
+
+                document.querySelectorAll('.js-pick-note').forEach((input) => {
+                    input.addEventListener('input', queuePersist);
+                });
+
+                document.getElementById('checkAllBtn').addEventListener('click', () => {
+                    document.querySelectorAll('.js-pick-check').forEach((input) => {
+                        input.checked = true;
+                    });
+                    queuePersist();
+                });
+
+                document.getElementById('resetAllBtn').addEventListener('click', () => {
+                    document.querySelectorAll('.js-pick-check').forEach((input) => {
+                        input.checked = false;
+                    });
+                    document.querySelectorAll('.js-pick-note').forEach((input) => {
+                        input.value = '';
+                    });
+                    queuePersist();
+                });
+            })();
+        </script>
+    {% endif %}
+</body>
+</html>

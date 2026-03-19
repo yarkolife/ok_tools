@@ -4392,6 +4392,14 @@ msgstr "Monatliche Übersicht"
 msgid "Your activity trends over the last 6 months"
 msgstr "Ihre Aktivitätstrends der letzten 6 Monate"
 
+#: ok_tools/templates/dashboard.html:333
+msgid "No chart data available"
+msgstr "Keine Diagrammdaten verfügbar"
+
+#: ok_tools/templates/dashboard.html:334
+msgid "Monthly statistics will appear here when data is available"
+msgstr "Monatliche Statistiken werden hier angezeigt, sobald Daten verfügbar sind"
+
 #: ok_tools/templates/guest_welcome.html:12
 msgid "Welcome to OK Tools"
 msgstr "Willkommen bei OK Tools"

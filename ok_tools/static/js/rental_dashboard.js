@@ -1891,22 +1891,7 @@ const status = (rental.status || '').toLowerCase();
 
             // Smart date calculation function
             const getSmartStartDate = () => {
-                const now = new Date();
-                const currentHour = now.getHours();
-
-                // If current time is after 18:00, suggest next day
-                if (currentHour >= 18) {
-                    const tomorrow = new Date(now);
-                    tomorrow.setDate(tomorrow.getDate() + 1);
-                    return tomorrow.getFullYear() + '-' +
-                           String(tomorrow.getMonth() + 1).padStart(2, '0') + '-' +
-                           String(tomorrow.getDate()).padStart(2, '0');
-                }
-
-                // If it's during working hours, use today
-                return now.getFullYear() + '-' +
-                       String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                       String(now.getDate()).padStart(2, '0');
+                return RentalWorkingHours.getSuggestedStartDate();
             };
 
             const smartStartDate = getSmartStartDate();
@@ -1935,25 +1920,7 @@ const status = (rental.status || '').toLowerCase();
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><strong>🕐 ${gettext('Start time')}:</strong></label>
-                        <select class="form-select time-select" id="roomStartTime">
-                            <option value="10:00" selected>10:00</option>
-                            <option value="10:30">10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="11:30">11:30</option>
-                            <option value="12:00">12:00</option>
-                            <option value="12:30">12:30</option>
-                            <option value="13:00">13:00</option>
-                            <option value="13:30">13:30</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
-                            <option value="16:30">16:30</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                        </select>
+                        <select class="form-select time-select" id="roomStartTime"></select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><strong>📅 ${gettext('End date')} (${gettext('optional')}):</strong></label>
@@ -1969,28 +1936,11 @@ const status = (rental.status || '').toLowerCase();
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><strong>🕐 ${gettext('End time')}:</strong></label>
-                        <select class="form-select time-select" id="roomEndTime">
-                            <option value="10:30" selected>10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="11:30">11:30</option>
-                            <option value="12:00">12:00</option>
-                            <option value="12:30">12:30</option>
-                            <option value="13:00">13:00</option>
-                            <option value="13:30">13:30</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
-                            <option value="16:30">16:30</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                        </select>
+                        <select class="form-select time-select" id="roomEndTime"></select>
                     </div>
                 </div>
                 <div class="alert alert-info p-2">
-                    <small><i class="fas fa-info-circle me-1"></i>${gettext('Working hours')}: ${gettext('Mo-Fr, 10:00-18:00')} ${gettext('(except for holidays)')}</small>
+                    <small><i class="fas fa-info-circle me-1"></i>${gettext('Working hours')}: ${RENTAL_WORKING_HOURS_SUMMARY}</small>
                 </div>
                 <div id="roomAvailabilityStatus" class="mt-3"></div>`;
 
@@ -2005,200 +1955,107 @@ const status = (rental.status || '').toLowerCase();
                 const differentEndDateCheckbox = document.getElementById('differentEndDate');
                 const availabilityStatus = document.getElementById('roomAvailabilityStatus');
 
-                // Debounce function for availability checks
-                let availabilityCheckTimeout;
-                const debouncedAvailabilityCheck = (roomId, startDate, startTime, endDate, endTime, statusElement) => {
-                    clearTimeout(availabilityCheckTimeout);
-                    availabilityCheckTimeout = setTimeout(() => {
-                        this.checkRoomAvailability(roomId, startDate, startTime, endDate, endTime, statusElement);
-                    }, 300); // 300ms delay
-                };
-
-                // Smart time calculation function
-                const getSmartStartTime = (date) => {
-                    const now = new Date();
-                    const today = now.getFullYear() + '-' +
-                                 String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                                 String(now.getDate()).padStart(2, '0');
-
-                    if (date === today) {
-                        const currentHour = now.getHours();
-                        const currentMinute = now.getMinutes();
-
-                        // If current time is after 18:00, suggest tomorrow
-                        if (currentHour >= 18) {
-                            return null; // Will be handled by date logic
-                        }
-
-                        // Round up to next 30-minute slot
-                        let suggestedHour = currentHour;
-                        let suggestedMinute = currentMinute <= 30 ? 30 : 0;
-
-                        if (suggestedMinute === 0) {
-                            suggestedHour += 1;
-                        }
-
-                        // Ensure time is within working hours (10:00-18:00)
-                        if (suggestedHour < 10) {
-                            suggestedHour = 10;
-                            suggestedMinute = 0;
-                        } else if (suggestedHour >= 18) {
-                            return null; // Will be handled by date logic
-                        }
-
-                        const suggestedTime = `${suggestedHour.toString().padStart(2, '0')}:${suggestedMinute.toString().padStart(2, '0')}`;
-                        return suggestedTime;
-                    }
-
-                    return '10:00'; // Default for future dates
-                };
-
                 if (startTimeSelect && endTimeSelect) {
-
-                    // Set smart initial values (use already calculated date)
-                    const smartStartTime = getSmartStartTime(smartStartDate);
-
                     if (startDateInput) {
                         startDateInput.value = smartStartDate;
                     }
+                    const setAddRoomEnabled = (enabled) => {
+                        const addRoomBtn = document.getElementById('addRoomToRentalBtn');
+                        if (!addRoomBtn) return;
+                        addRoomBtn.disabled = !enabled;
+                        addRoomBtn.classList.toggle('btn-success', enabled);
+                        addRoomBtn.classList.toggle('btn-secondary', !enabled);
+                    };
+                    const getEffectiveEndDate = () => differentEndDateCheckbox?.checked ? endDateInput.value : startDateInput.value;
+                    const showInvalidSelection = (message) => {
+                        availabilityStatus.innerHTML = `
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>${message}
+                            </div>
+                        `;
+                        setAddRoomEnabled(false);
+                    };
+                    const syncEndDate = () => {
+                        if (endDateInput && !differentEndDateCheckbox?.checked) {
+                            endDateInput.value = startDateInput.value;
+                        }
+                    };
+                    const refreshStartTimes = () => {
+                        const currentValue = startTimeSelect.value;
+                        const options = RentalWorkingHours.buildOptions(startDateInput.value, 'start');
+                        const suggestedValue = RentalWorkingHours.getSuggestedStartTime(startDateInput.value) || options[0] || '';
+                        RentalWorkingHours.populateSelect(startTimeSelect, options, suggestedValue);
+                        if (currentValue && options.includes(currentValue)) {
+                            startTimeSelect.value = currentValue;
+                        } else if (suggestedValue) {
+                            startTimeSelect.value = suggestedValue;
+                        }
+                    };
+                    const refreshEndTimes = () => {
+                        const endDateValue = getEffectiveEndDate();
+                        const currentValue = endTimeSelect.value;
+                        const options = RentalWorkingHours.buildOptions(endDateValue, 'end', startTimeSelect.value);
+                        const suggestedValue = RentalWorkingHours.getNextEndTime(endDateValue, startTimeSelect.value) || options[0] || '';
+                        RentalWorkingHours.populateSelect(endTimeSelect, options, suggestedValue);
+                        if (currentValue && options.includes(currentValue)) {
+                            endTimeSelect.value = currentValue;
+                        } else if (suggestedValue) {
+                            endTimeSelect.value = suggestedValue;
+                        }
+                    };
+                    const refreshAvailability = () => {
+                        const endDateValue = getEffectiveEndDate();
+                        if (RentalWorkingHours.isClosed(startDateInput.value)) {
+                            showInvalidSelection(gettext('The selected start day is closed.'));
+                            return;
+                        }
+                        if (RentalWorkingHours.isClosed(endDateValue)) {
+                            showInvalidSelection(gettext('The selected end day is closed.'));
+                            return;
+                        }
+                        if (!startTimeSelect.value || !endTimeSelect.value) {
+                            showInvalidSelection(gettext('Please select a valid time within working hours.'));
+                            return;
+                        }
+                        this.checkRoomAvailability(room.id, startDateInput.value, startTimeSelect.value, endDateValue, endTimeSelect.value, availabilityStatus);
+                    };
 
-                    if (smartStartTime) {
-                        startTimeSelect.value = smartStartTime;
-                    } else {
-                        startTimeSelect.value = '10:00';
-                    }
+                    syncEndDate();
+                    refreshStartTimes();
+                    refreshEndTimes();
+                    refreshAvailability();
 
-                    // Calculate and set end time
-                    const startTime = startTimeSelect.value;
-                    const startHour = parseInt(startTime.split(':')[0]);
-                    const startMinute = parseInt(startTime.split(':')[1]);
-
-                    let endHour = startHour;
-                    let endMinute = startMinute + 30;
-
-                    if (endMinute >= 60) {
-                        endMinute = 0;
-                        endHour += 1;
-                    }
-
-                    if (endHour > 18) {
-                        endHour = 18;
-                        endMinute = 0;
-                    }
-
-                    const initialEndTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
-                    endTimeSelect.value = initialEndTime;
-
-                    // Add change event listener for start date
                     if (startDateInput) {
                         startDateInput.addEventListener('change', () => {
-
-                            // Auto-update end date to match start date
-                            if (endDateInput && !differentEndDateCheckbox?.checked) {
-                                endDateInput.value = startDateInput.value;
-                            }
-
-                            // Update start time based on new date
-                            const smartStartTime = getSmartStartTime(startDateInput.value);
-
-                            if (smartStartTime && smartStartTime !== startTimeSelect.value) {
-                                startTimeSelect.value = smartStartTime;
-
-                                // Recalculate end time
-                                const startHour = parseInt(smartStartTime.split(':')[0]);
-                                const startMinute = parseInt(smartStartTime.split(':')[1]);
-
-                                let endHour = startHour;
-                                let endMinute = startMinute + 30;
-
-                                if (endMinute >= 60) {
-                                    endMinute = 0;
-                                    endHour += 1;
-                                }
-
-                                if (endHour > 18) {
-                                    endHour = 18;
-                                    endMinute = 0;
-                                }
-
-                                const newEndTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
-                                endTimeSelect.value = newEndTime;
-                            }
-
-
-                            // Use setTimeout to prevent multiple rapid calls
-                            setTimeout(() => {
-                                this.checkRoomAvailability(room.id, startDateInput.value, startTimeSelect.value, startDateInput.value, endTimeSelect.value, availabilityStatus);
-                            }, 300);
+                            syncEndDate();
+                            refreshStartTimes();
+                            refreshEndTimes();
+                            refreshAvailability();
                         });
                     }
 
-                    // Add change event listener for start time
                     startTimeSelect.addEventListener('change', () => {
-                        const startTime = startTimeSelect.value;
-
-                        // Recalculate end time
-                        const startHour = parseInt(startTime.split(':')[0]);
-                        const startMinute = parseInt(startTime.split(':')[1]);
-
-                        let endHour = startHour;
-                        let endMinute = startMinute + 30;
-
-                        if (endMinute >= 60) {
-                            endMinute = 0;
-                            endHour += 1;
-                        }
-
-                        if (endHour > 18) {
-                            endHour = 18;
-                            endMinute = 0;
-                        }
-
-                        const newEndTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
-                        endTimeSelect.value = newEndTime;
-
-                        // Check availability after time change
-                        setTimeout(() => {
-                            this.checkRoomAvailability(room.id, startDateInput.value, startTimeSelect.value, startDateInput.value, newEndTime, availabilityStatus);
-                        }, 300);
+                        refreshEndTimes();
+                        refreshAvailability();
                     });
 
-                    // Add change event listener for end time
                     endTimeSelect.addEventListener('change', () => {
-                        const endTime = endTimeSelect.value;
-
-                        // Check availability after end time change
-                        this.checkRoomAvailability(room.id, startDateInput.value, startTimeSelect.value, startDateInput.value, endTime, availabilityStatus);
+                        refreshAvailability();
                     });
 
-                                    // Initial availability check
-                setTimeout(() => {
-                    this.checkRoomAvailability(room.id, startDateInput.value, startTimeSelect.value, startDateInput.value, endTimeSelect.value, availabilityStatus);
-                }, 300);
-                }
+                    if (differentEndDateCheckbox && endDateInput) {
+                        differentEndDateCheckbox.addEventListener('change', () => {
+                            endDateInput.disabled = !differentEndDateCheckbox.checked;
+                            syncEndDate();
+                            refreshEndTimes();
+                            refreshAvailability();
+                        });
 
-                // Handle different end date checkbox
-                if (differentEndDateCheckbox && endDateInput) {
-                    differentEndDateCheckbox.addEventListener('change', () => {
-                        endDateInput.disabled = !differentEndDateCheckbox.checked;
-                        if (!differentEndDateCheckbox.checked) {
-                            endDateInput.value = document.getElementById('roomStartDate').value;
-                        }
-                        // Check availability after checkbox change
-                        setTimeout(() => {
-                            this.checkRoomAvailability(room.id, startDateInput.value, startTimeSelect.value, startDateInput.value, endTimeSelect.value, availabilityStatus);
-                        }, 300);
-                    });
-                }
-
-                // Handle end date change
-                if (endDateInput) {
-                    endDateInput.addEventListener('change', () => {
-                        // Check availability after end date change
-                        setTimeout(() => {
-                            this.checkRoomAvailability(room.id, startDateInput.value, startTimeSelect.value, endDateInput.value, endTimeSelect.value, availabilityStatus);
-                        }, 300);
-                    });
+                        endDateInput.addEventListener('change', () => {
+                            refreshEndTimes();
+                            refreshAvailability();
+                        });
+                    }
                 }
             }, 100); // 100ms delay to ensure DOM is ready
         }
@@ -2227,10 +2084,11 @@ const status = (rental.status || '').toLowerCase();
                             addRoomBtn.classList.add('btn-success');
                         }
                     } else {
+                        const unavailableMessage = data.message || gettext('Room is not available for the selected period.');
                         statusElement.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="bi bi-x-circle me-2"></i>
-                                ${gettext('Room is not available for the selected period.')}
+                                ${unavailableMessage}
                                 ${data.conflicts && data.conflicts.length > 0 ?
                                     `<br><small class="mt-2"><strong>${gettext('Conflicts:')}</strong><br>${data.conflicts.join('<br>')}</small>` : ''}
                             </div>
@@ -2306,23 +2164,25 @@ const status = (rental.status || '').toLowerCase();
             const endHour = parseInt(endTime.split(':')[0]);
             const endMinute = parseInt(endTime.split(':')[1]);
 
-            if (startHour < 10 || startHour > 18 || endHour < 10 || endHour > 18) {
-                alert(gettext('Please select time between 10:00 and 18:00'));
+            if (!RentalWorkingHours.isWithinDayHours(startDate, startTime, false)) {
+                alert(gettext('Please select a start time within the configured working hours.'));
                 return;
             }
 
-            // Convert to minutes for easier comparison
-            const startTotalMinutes = startHour * 60 + startMinute;
-            const endTotalMinutes = endHour * 60 + endMinute;
+            if (!RentalWorkingHours.isWithinDayHours(finalEndDate, endTime, true)) {
+                alert(gettext('Please select an end time within the configured working hours.'));
+                return;
+            }
 
-            if (endTotalMinutes <= startTotalMinutes) {
+            const startDateTime = new Date(`${startDate}T${startTime}`);
+            const endDateTime = new Date(`${finalEndDate}T${endTime}`);
+
+            if (endDateTime <= startDateTime) {
                 alert(gettext('End time must be after start time'));
                 return;
             }
 
             // Check if time is in the past
-            const startDateTime = new Date(`${startDate}T${startTime}`);
-            const endDateTime = new Date(`${finalEndDate}T${endTime}`);
             const now = new Date();
 
             if (startDateTime < now) {

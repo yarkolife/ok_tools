@@ -122,6 +122,18 @@ msgstr "Abgelaufene Ausleihen"
 msgid "Rentals"
 msgstr "Ausleihen"
 
+msgid "Licenses"
+msgstr "Freistellungen"
+
+msgid "Contributions"
+msgstr "Beiträge"
+
+msgid "No chart data available"
+msgstr "Keine Diagrammdaten verfügbar"
+
+msgid "Monthly statistics will appear here when data is available"
+msgstr "Monatliche Statistiken werden hier angezeigt, sobald Daten verfügbar sind"
+
 msgid "Draft"
 msgstr "Entwurf"
 

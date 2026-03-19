@@ -1725,7 +1725,9 @@
         var queryOk = !query || cellText.indexOf(query) >= 0;
         var visible = statusOk && queryOk;
 
-        $td.toggle(visible);
+        $td.toggleClass('planning-cell-filtered-out', !visible);
+        $btn.attr('aria-hidden', visible ? 'false' : 'true');
+        $btn.attr('tabindex', visible ? '0' : '-1');
       });
     }
 

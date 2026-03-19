@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+2026-03-19 (Version 4.5.0)
+==========================
+
+* **rental: Add configurable working hours and pick lists**
+  * Added weekday opening-hour fields to rental configuration plus validation helpers for admin and public booking flows.
+  * Updated rental dashboards and detail views with working-hour-aware time selection, clearer availability feedback, and printable pick-list support.
+  * Added rental migrations, new working-hours tests, and per-item pick-list fields for issue preparation.
+
+* **contributions/dashboard: Extend published metadata output**
+  * Added `mediathek_url` to the program schedule API response and admin documentation examples.
+  * Improved dashboard chart translation handling and empty-state copy.
+  * Kept filtered planning calendar cells out of keyboard navigation while preserving layout.
+
 2026-03-13 (Version 4.4.0)
 ==========================
 

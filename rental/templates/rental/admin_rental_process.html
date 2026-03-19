@@ -667,7 +667,10 @@
             deleteTemplate: "{% url 'rental:api_delete_template' template_id=0 %}".replace('/0/', '/')
         };
         const CSRF_TOKEN = "{{ csrf_token }}";
+        const RENTAL_WORKING_HOURS = {{ rental_working_hours_json|safe }};
+        const RENTAL_WORKING_HOURS_SUMMARY = "{{ rental_working_hours_summary|escapejs }}";
     </script>
+    <script src="{% static 'rental/js/working_hours.js' %}"></script>
     <script src="{% static 'rental/js/admin_rental.js' %}"></script>
 </body>
 </html>

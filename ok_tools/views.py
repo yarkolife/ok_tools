@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
+import json
 
 
 # Import models from other apps
@@ -382,7 +383,13 @@ class RentalDashboardView(LoginRequiredMixin, TemplateView):
 
         # Add user ID for JavaScript API calls
         context['user_id'] = self.request.user.id
-        context['rental_requires_approval'] = bool(getattr(settings, 'RENTAL_USER_REQUEST_REQUIRES_APPROVAL', False))
+        from rental.config import get_rental_user_request_requires_approval
+        from rental.config import get_rental_working_hours
+        from rental.config import get_rental_working_hours_summary_text
+
+        context['rental_requires_approval'] = get_rental_user_request_requires_approval()
+        context['rental_working_hours_json'] = json.dumps(get_rental_working_hours())
+        context['rental_working_hours_summary'] = get_rental_working_hours_summary_text()
 
         # Add rental statistics for the current user
         try:

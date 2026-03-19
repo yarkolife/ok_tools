@@ -4,6 +4,7 @@ from .views import EquipmentSetViewSet
 from .views import InventoryItemViewSet
 from .views import PrintFormMSAView
 from .views import PrintFormOKMQView
+from .views import PrintPickListView
 from .views import RentalDetailView
 from .views import UserRentalDetailView
 from .views import RentalIssueViewSet
@@ -56,6 +57,7 @@ from .views import api_save_template
 from .views import api_search_inventory_items
 from .views import api_search_users
 from .views import api_user_active_items
+from .views import api_update_pick_list
 from .email_approval_views import email_approval_action
 from django.urls import include
 from django.urls import path
@@ -119,6 +121,7 @@ urlpatterns = [
     path('api/inventory-calendar/', api_inventory_calendar, name='api_inventory_calendar'),
     path('api/create-equipment-set/', api_create_equipment_set, name='api_create_equipment_set'),
     path('api/search-inventory/', api_search_inventory_items, name='api_search_inventory'),
+    path('api/rental/<int:rental_id>/pick-list/', api_update_pick_list, name='api_update_pick_list'),
 
     # Room expiration API
     path('api/expire-room-rentals/', api_expire_room_rentals, name='api_expire_room_rentals'),
@@ -142,6 +145,7 @@ urlpatterns = [
     # Print forms
     path('print/msa/<int:rental_id>/', PrintFormMSAView.as_view(), name='print_form_msa'),
     path('print/okmq/<int:rental_id>/', PrintFormOKMQView.as_view(), name='print_form_okmq'),
+    path('print/pick-list/<int:rental_id>/', PrintPickListView.as_view(), name='print_pick_list'),
     path('api/rental/<int:rental_id>/print-info/', api_get_rental_print_info, name='api_rental_print_info'),
 
     # Email approval (signed links)

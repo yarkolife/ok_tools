@@ -36,6 +36,17 @@
     .status-failed { background: #dc3545; color: #fff; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
     .row-highlight { background: #fff7e6; }
+    .job-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .job-actions .button {
+        white-space: nowrap;
+        margin: 0;
+    }
 </style>
 {% endblock %}
 
@@ -113,9 +124,11 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'tools:video_render' op.video_file.id %}" class="button">{% trans 'Open Tool' %}</a>
-                    <a href="{% url 'admin:media_files_videofile_change' op.video_file.id %}" class="button" target="_blank">{% trans 'Admin' %}</a>
-                    <a href="{% url 'admin:media_files_fileoperation_change' op.id %}" class="button" target="_blank">{% trans 'File Operation' %}</a>
+                    <div class="job-actions">
+                        <a href="{% url 'tools:video_render' op.video_file.id %}" class="button">{% trans 'Open Tool' %}</a>
+                        <a href="{% url 'admin:media_files_videofile_change' op.video_file.id %}" class="button" target="_blank">{% trans 'Admin' %}</a>
+                        <a href="{% url 'admin:media_files_fileoperation_change' op.id %}" class="button" target="_blank">{% trans 'File Operation' %}</a>
+                    </div>
                 </td>
             </tr>
             {% empty %}

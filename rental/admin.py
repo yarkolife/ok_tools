@@ -1,6 +1,7 @@
 from .forms import RentalIssueForm
 from .forms import RentalRequestAdminForm
 from .forms import RentalTransactionForm
+from .working_hours import validate_working_hours_period
 from .models import EquipmentSet
 from .models import EquipmentSetItem
 from .models import RentalIssue
@@ -253,19 +254,28 @@ class EquipmentSetAdmin(admin.ModelAdmin):
         if request.method == 'POST':
             form = self.RentSetsForm(request.POST)
             if form.is_valid():
-                rental_request = RentalRequest.objects.create(
-                    user=form.cleaned_data['user'],
-                    created_by=form.cleaned_data['created_by'],
-                    project_name=form.cleaned_data['project_name'],
-                    purpose=form.cleaned_data['purpose'],
-                    requested_start_date=form.cleaned_data['requested_start_date'],
-                    requested_end_date=form.cleaned_data['requested_end_date'],
-                    status='reserved',
+                requested_start_date = form.cleaned_data['requested_start_date']
+                requested_end_date = form.cleaned_data['requested_end_date']
+                is_valid_period, error_message = validate_working_hours_period(
+                    requested_start_date,
+                    requested_end_date,
                 )
-                for equipment_set in form.cleaned_data['equipment_sets']:
-                    equipment_set.apply_to_rental_request(rental_request)
-                self.message_user(request, _('Rental request created: %s') % rental_request)
-                return redirect('admin:rental_rentalrequest_change', rental_request.pk)
+                if not is_valid_period:
+                    form.add_error(None, error_message)
+                else:
+                    rental_request = RentalRequest.objects.create(
+                        user=form.cleaned_data['user'],
+                        created_by=form.cleaned_data['created_by'],
+                        project_name=form.cleaned_data['project_name'],
+                        purpose=form.cleaned_data['purpose'],
+                        requested_start_date=requested_start_date,
+                        requested_end_date=requested_end_date,
+                        status='reserved',
+                    )
+                    for equipment_set in form.cleaned_data['equipment_sets']:
+                        equipment_set.apply_to_rental_request(rental_request)
+                    self.message_user(request, _('Rental request created: %s') % rental_request)
+                    return redirect('admin:rental_rentalrequest_change', rental_request.pk)
         else:
             initial_created_by = getattr(request, 'user', None)
             form = self.RentSetsForm(initial={'created_by': initial_created_by})
@@ -412,6 +422,30 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
 @admin.register(RentalConfig)
 class RentalConfigAdmin(admin.ModelAdmin):
     """Admin interface for RentalConfig model."""
+
+    fieldsets = (
+        (_('Approval workflow'), {
+            'fields': (
+                'user_request_requires_approval',
+                'site_base_url',
+                'request_url_template',
+                'approval_recipient_emails',
+                'approval_token_max_age_seconds',
+            ),
+        }),
+        (_('Working hours'), {
+            'fields': (
+                ('monday_start_time', 'monday_end_time'),
+                ('tuesday_start_time', 'tuesday_end_time'),
+                ('wednesday_start_time', 'wednesday_end_time'),
+                ('thursday_start_time', 'thursday_end_time'),
+                ('friday_start_time', 'friday_end_time'),
+                ('saturday_start_time', 'saturday_end_time'),
+                ('sunday_start_time', 'sunday_end_time'),
+            ),
+            'description': _('Leave both fields empty to mark a day as closed.'),
+        }),
+    )
     
     def has_add_permission(self, request):
         """Only one config instance allowed."""

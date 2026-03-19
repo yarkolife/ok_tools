@@ -326,6 +326,14 @@
             contributions: []
         };
     }
+
+    window.dashboardI18n = {
+        licenses: '{% trans "Licenses" %}',
+        rentals: '{% trans "Rentals" %}',
+        contributions: '{% trans "Contributions" %}',
+        noChartData: '{% trans "No chart data available" %}',
+        monthlyStatsPlaceholder: '{% trans "Monthly statistics will appear here when data is available" %}',
+    };
 </script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}
