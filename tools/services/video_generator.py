@@ -1,17 +1,25 @@
 """Video generator service for slideshow creation."""
 
+import logging
 import os
 import random
+import shutil
 import subprocess
-import sys
 from pathlib import Path
-from typing import List, Optional, Callable
+from typing import Callable
+from typing import List
+from typing import Optional
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
-
-from tools.models import SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
+from tools.models import SlideshowProject, ToolsConfig
 from tools.utils import resolve_tools_file_path
+
+
+logger = logging.getLogger("django")
+
+
+_FFMPEG_VALIDATE_TIMEOUT_SECONDS = 10
+_FFMPEG_VALIDATE_RETRY_TIMEOUT_SECONDS = 30
 
 
 class VideoGeneratorError(Exception):
@@ -273,15 +281,83 @@ class VideoGenerator:
                 pass
             raise VideoGeneratorError(f"Audio file not found: {audio.file.name}")
         
-        # Check ffmpeg/ffprobe
-        try:
-            subprocess.run([self.ffmpeg, "-version"], capture_output=True, check=True, timeout=5)
-            subprocess.run([self.ffprobe, "-version"], capture_output=True, check=True, timeout=5)
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-            raise VideoGeneratorError(f"FFmpeg or FFprobe not found or not working")
+        self._validate_binary(self.ffmpeg, "FFmpeg")
+        self._validate_binary(self.ffprobe, "FFprobe")
         
         return True
-    
+
+    def _validate_binary(self, executable: str, display_name: str) -> None:
+        """Validate that a configured binary exists and responds to a version probe."""
+        resolved_executable = self._resolve_binary_path(executable)
+        if resolved_executable is None:
+            raise VideoGeneratorError(f"{display_name} executable not found: {executable}")
+
+        cmd = self._build_probe_command(resolved_executable)
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                timeout=_FFMPEG_VALIDATE_TIMEOUT_SECONDS,
+                text=True,
+            )
+            self._raise_for_failed_probe(result, display_name, executable)
+        except subprocess.TimeoutExpired:
+            logger.warning(
+                "%s probe timed out after %ss; retrying with %ss",
+                display_name,
+                _FFMPEG_VALIDATE_TIMEOUT_SECONDS,
+                _FFMPEG_VALIDATE_RETRY_TIMEOUT_SECONDS,
+            )
+            try:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    timeout=_FFMPEG_VALIDATE_RETRY_TIMEOUT_SECONDS,
+                    text=True,
+                )
+                self._raise_for_failed_probe(result, display_name, executable)
+            except subprocess.TimeoutExpired as exc:
+                raise VideoGeneratorError(
+                    f"{display_name} probe timed out after {_FFMPEG_VALIDATE_RETRY_TIMEOUT_SECONDS}s"
+                ) from exc
+            except FileNotFoundError as exc:
+                raise VideoGeneratorError(f"{display_name} executable not found: {executable}") from exc
+        except FileNotFoundError as exc:
+            raise VideoGeneratorError(f"{display_name} executable not found: {executable}") from exc
+
+    @staticmethod
+    def _resolve_binary_path(executable: str) -> Optional[str]:
+        """Return the resolved executable path when available."""
+        path = Path(executable)
+        if path.is_absolute() or path.parent != Path("."):
+            return str(path) if path.exists() and os.access(path, os.X_OK) else None
+        return shutil.which(executable)
+
+    @staticmethod
+    def _build_probe_command(executable: str) -> List[str]:
+        """Build a safe version probe command for the given executable."""
+        executable_name = Path(executable).name.lower()
+        if executable_name.startswith("ffmpeg"):
+            return [executable, "-nostdin", "-version"]
+        return [executable, "-version"]
+
+    @staticmethod
+    def _raise_for_failed_probe(
+        result: subprocess.CompletedProcess[str],
+        display_name: str,
+        executable: str,
+    ) -> None:
+        """Raise a detailed error when a version probe fails."""
+        if result.returncode == 0:
+            return
+
+        details = (result.stderr or result.stdout or "").strip()
+        if details:
+            details = f": {details[:500]}"
+        raise VideoGeneratorError(
+            f"{display_name} not working: {executable} (exit {result.returncode}){details}"
+        )
+
     def prepare_inputs(self) -> tuple[List[Path], Path]:
         """Prepare media and audio file paths, sorted by order."""
         # Get media files ordered by order field (ascending)
@@ -518,8 +594,6 @@ class VideoGenerator:
             progress_callback("Starting video generation...")
         
         # Log command for debugging (without sensitive paths)
-        import logging
-        logger = logging.getLogger('django')
         logger.debug(f"FFmpeg command: {' '.join(cmd[:10])}... (truncated)")
         
         try:
@@ -535,13 +609,15 @@ class VideoGenerator:
             
             # Read stderr for progress (FFmpeg outputs progress to stderr)
             error_lines = []
-            for line in process.stderr:
-                line = line.strip()
-                if progress_callback and ("time=" in line or "frame=" in line):
-                    progress_callback(line)
-                else:
-                    # Collect error/warning lines
-                    error_lines.append(line)
+            stderr_stream = process.stderr
+            if stderr_stream is not None:
+                for line in stderr_stream:
+                    line = line.strip()
+                    if progress_callback and ("time=" in line or "frame=" in line):
+                        progress_callback(line)
+                    else:
+                        # Collect error/warning lines
+                        error_lines.append(line)
             
             process.wait()
             
@@ -571,12 +647,14 @@ class VideoGenerator:
                     )
                     
                     error_lines = []
-                    for line in process.stderr:
-                        line = line.strip()
-                        if progress_callback and ("time=" in line or "frame=" in line):
-                            progress_callback(line)
-                        else:
-                            error_lines.append(line)
+                    stderr_stream = process.stderr
+                    if stderr_stream is not None:
+                        for line in stderr_stream:
+                            line = line.strip()
+                            if progress_callback and ("time=" in line or "frame=" in line):
+                                progress_callback(line)
+                            else:
+                                error_lines.append(line)
                     
                     process.wait()
                     
