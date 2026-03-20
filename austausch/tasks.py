@@ -278,6 +278,10 @@ def sync_exchange_folders_task(self):
                         'description': final_description,
                         'duration': final_duration,
                         'sendeverantwortung': final_sender,
+                        'allow_exchange': meta_data.get('allow_exchange', False),
+                        'allow_exchange_other_states': meta_data.get('allow_exchange_other_states', False),
+                        'bundesland': meta_data.get('bundesland', ''),
+                        'bundesland_code': meta_data.get('bundesland_code', ''),
                     }
                 )
                 

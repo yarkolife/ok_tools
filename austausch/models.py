@@ -82,6 +82,26 @@ class ExchangeItem(models.Model):
         blank=True,
         verbose_name=_('Sender Responsible')
     )
+    allow_exchange = models.BooleanField(
+        default=False,
+        verbose_name=_('Allow Exchange'),
+        help_text=_('Visible for exchange within the same federal state')
+    )
+    allow_exchange_other_states = models.BooleanField(
+        default=False,
+        verbose_name=_('Allow Exchange Other States'),
+        help_text=_('Visible for exchange from other federal states')
+    )
+    bundesland = models.CharField(
+        max_length=64,
+        blank=True,
+        verbose_name=_('Bundesland')
+    )
+    bundesland_code = models.CharField(
+        max_length=2,
+        blank=True,
+        verbose_name=_('Bundesland Code')
+    )
     
     # Status
     is_oktools_managed = models.BooleanField(
@@ -302,6 +322,14 @@ class ExchangeConfig(models.Model):
         verbose_name=_('Channels List'),
         help_text=_('Comma-separated list of channel names to sync (optional, can be auto-discovered)')
     )
+    same_state_channel_exceptions = models.TextField(
+        blank=True,
+        verbose_name=_('Same-State Channel Exceptions'),
+        help_text=_(
+            'Comma-separated or newline-separated channel names that should be '
+            'treated as local/same-state for visibility rules.'
+        )
+    )
     
     # Export to server settings
     export_destination = models.CharField(
@@ -400,6 +428,15 @@ class ExchangeConfig(models.Model):
         self.full_clean()  # Run validation before saving
         self.pk = 1
         super().save(*args, **kwargs)
+
+    def get_same_state_channel_exceptions(self) -> set[str]:
+        raw_value = self.same_state_channel_exceptions or ''
+        normalized = set()
+        for chunk in raw_value.replace(',', '\n').splitlines():
+            name = ExchangeChannelAuth.normalize_channel_name(chunk)
+            if name:
+                normalized.add(name)
+        return normalized
     
     @classmethod
     def get_config(cls):
