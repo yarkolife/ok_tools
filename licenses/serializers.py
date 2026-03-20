@@ -33,11 +33,10 @@ class LicenseMetadataSerializer(serializers.Serializer):
     senderResponsible = serializers.SerializerMethodField()
     videoNumber = serializers.IntegerField(source='number')
     saveToMediathek = serializers.BooleanField(source='store_in_ok_media_library')
-    allowExchange = serializers.BooleanField(source='media_authority_exchange_allowed')
-    allowExchangeOtherStates = serializers.BooleanField(
-        source='media_authority_exchange_allowed_other_states',
-        allow_null=True
-    )
+    allowExchange = serializers.SerializerMethodField()
+    allowExchangeOtherStates = serializers.SerializerMethodField()
+    bundesland = serializers.SerializerMethodField()
+    bundesland_code = serializers.SerializerMethodField()
     furtherInvolvedPersons = serializers.CharField(
         source='further_persons',
         allow_blank=True,
@@ -83,6 +82,20 @@ class LicenseMetadataSerializer(serializers.Serializer):
         if hours > 0:
             return f"{hours:d}:{minutes:02d}:{seconds:02d}"
         return f"{minutes:d}:{seconds:02d}"
+
+    def get_allowExchange(self, obj):
+        return bool(obj.media_authority_exchange_allowed)
+
+    def get_allowExchangeOtherStates(self, obj):
+        return bool(obj.media_authority_exchange_allowed_other_states)
+
+    def get_bundesland(self, obj):
+        from registration.models import OrganizationConfig
+        return OrganizationConfig.get_config().bundesland
+
+    def get_bundesland_code(self, obj):
+        from registration.models import OrganizationConfig
+        return OrganizationConfig.get_config().bundesland_code
 
     def get_profile(self, obj):
         """Get profile display name from profile."""

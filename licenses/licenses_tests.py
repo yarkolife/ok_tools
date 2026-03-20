@@ -18,6 +18,7 @@ from ok_tools.testing import create_license
 from ok_tools.testing import create_user
 from ok_tools.testing import pdfToText
 from planung.models import TagesPlan
+from registration.models import OrganizationConfig
 from registration.models import Profile
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -793,6 +794,10 @@ def test__licenses__api__LicenseMetadataView__unauthorized(api_client, license):
 def test__licenses__api__LicenseMetadataView__authorized(
         api_client, api_token, license):
     """API endpoint returns license metadata when valid token is provided."""
+    config = OrganizationConfig.get_config()
+    config.bundesland = 'Sachsen-Anhalt'
+    config.save()
+
     license.subtitle = 'Untertitel'
     license.further_persons = 'Person A, Person B'
     license.tags = ['tag1', 'tag2']
@@ -823,6 +828,8 @@ def test__licenses__api__LicenseMetadataView__authorized(
     )
     assert data['videoNumber'] == license.number
     assert data['saveToMediathek'] == license.store_in_ok_media_library
+    assert data['bundesland'] == 'Sachsen-Anhalt'
+    assert data['bundesland_code'] == 'ST'
     assert data['allowExchange'] == license.media_authority_exchange_allowed
     assert data['allowExchangeOtherStates'] is True
     assert data['repetitionsAllowed'] is True
