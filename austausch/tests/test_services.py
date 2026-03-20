@@ -1,5 +1,4 @@
-"""Tests for Austausch services."""
-
+import json
 import os
 import tempfile
 import pytest
@@ -9,6 +8,7 @@ from django.test import TestCase
 from austausch.models import ExchangeItem, ExchangeConfig
 from austausch.services.nextcloud_exchange_service import NextcloudExchangeService
 from austausch.services.export_to_server_service import ExportToServerService
+from austausch.services.metadata_normalizer import is_exchange_allowed_for_viewer
 
 
 @pytest.mark.django_db
@@ -24,6 +24,7 @@ class TestNextcloudExchangeService(TestCase):
         self.config.download_storage_path = '/tmp'
         self.config.upload_server_path = 'GroupFolders/Test-Upload'
         self.config.save()
+        self.service = NextcloudExchangeService(self.config)
     
     def test_parse_contribution_id(self):
         """Test parsing contribution ID from filename."""
@@ -43,7 +44,6 @@ class TestNextcloudExchangeService(TestCase):
         self.assertIsNone(NextcloudExchangeService.parse_contribution_id('no_number.mp4'))
     
     def test_detect_file_type(self):
-        """Test file type detection."""
         self.assertEqual(
             NextcloudExchangeService.detect_file_type('video.mp4'),
             'video'
@@ -56,6 +56,72 @@ class TestNextcloudExchangeService(TestCase):
             NextcloudExchangeService.detect_file_type('unknown.txt'),
             'unknown'
         )
+
+    def test_parse_meta_json_supports_nested_canonical_fields(self):
+        payload = {
+            'name': 'Nested Title',
+            'organization': {
+                'bundesland': 'Sachsen-Anhalt',
+                'bundesland_code': 'ST',
+            },
+            'license': {
+                'allowExchange': True,
+                'allowExchangeOtherStates': True,
+            },
+        }
+
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json', encoding='utf-8') as src:
+            json.dump(payload, src)
+            source_path = src.name
+
+        def _copy_download(_remote_path, local_path):
+            with open(source_path, 'r', encoding='utf-8') as source_file:
+                with open(local_path, 'w', encoding='utf-8') as target_file:
+                    target_file.write(source_file.read())
+            return True
+
+        try:
+            with patch.object(self.service, 'download_file', side_effect=_copy_download):
+                metadata = self.service.parse_meta_json('/remote/test.meta.json')
+        finally:
+            os.unlink(source_path)
+
+        self.assertIsNotNone(metadata)
+        self.assertEqual(metadata['bundesland'], 'Sachsen-Anhalt')
+        self.assertEqual(metadata['bundesland_code'], 'ST')
+        self.assertTrue(metadata['allow_exchange'])
+        self.assertTrue(metadata['allow_exchange_other_states'])
+
+
+def test_is_exchange_allowed_for_viewer_uses_bundesland_code_rules():
+    payload = {
+        'organization': {
+            'bundesland': 'Sachsen-Anhalt',
+            'bundesland_code': 'ST',
+        },
+        'license': {
+            'allowExchange': True,
+            'allowExchangeOtherStates': False,
+        },
+    }
+
+    assert is_exchange_allowed_for_viewer(payload, 'ST') is True
+    assert is_exchange_allowed_for_viewer(payload, 'SN') is False
+
+
+def test_is_exchange_allowed_for_viewer_parses_string_booleans():
+    payload = {
+        'organization': {
+            'bundesland_code': 'ST',
+        },
+        'license': {
+            'allowExchange': 'false',
+            'allowExchangeOtherStates': 'true',
+        },
+    }
+
+    assert is_exchange_allowed_for_viewer(payload, 'ST') is False
+    assert is_exchange_allowed_for_viewer(payload, 'SN') is True
 
 
 @pytest.mark.django_db

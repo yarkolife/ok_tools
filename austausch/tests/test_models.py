@@ -46,6 +46,11 @@ class TestExchangeItem(TestCase):
         self.assertTrue(legacy.is_legacy)
         self.assertIsNone(legacy.contribution_id)
 
+    def test_visibility_metadata_defaults_to_hidden(self):
+        self.assertFalse(self.item.allow_exchange)
+        self.assertFalse(self.item.allow_exchange_other_states)
+        self.assertEqual(self.item.bundesland_code, '')
+
 
 @pytest.mark.django_db
 class TestExchangeConfig(TestCase):
@@ -64,6 +69,15 @@ class TestExchangeConfig(TestCase):
         config = ExchangeConfig.get_config()
         self.assertIsNotNone(config)
         self.assertEqual(config.pk, 1)
+
+    def test_parses_same_state_channel_exceptions(self):
+        config = ExchangeConfig.get_config()
+        config.same_state_channel_exceptions = 'OK Magdeburg\n OK Dessau , ok stendal '
+
+        self.assertEqual(
+            config.get_same_state_channel_exceptions(),
+            {'ok magdeburg', 'ok dessau', 'ok stendal'}
+        )
 
 
 @pytest.mark.django_db

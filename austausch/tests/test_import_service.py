@@ -192,3 +192,46 @@ class TestImportServiceIdentity:
         assert license_obj.profile.first_name == 'Remote'
         assert license_obj.profile.last_name == 'Author'
         assert mocked_delay.call_count == 1
+
+    @patch('austausch.tasks.download_exchange_files_task.delay')
+    @patch.object(ImportService, '_fetch_remote_metadata')
+    def test_api_channel_maps_nested_exchange_permissions(self, mocked_metadata, mocked_delay):
+        self._ensure_exchange_config()
+        user, _profile = self._create_user_with_profile()
+
+        mocked_metadata.return_value = {
+            'name': 'Nested API Title',
+            'organization': {
+                'bundesland': 'Sachsen-Anhalt',
+                'bundesland_code': 'ST',
+            },
+            'license': {
+                'allowExchange': True,
+                'allowExchangeOtherStates': True,
+            },
+        }
+
+        ExchangeChannelAuth.objects.create(
+            channel_name='ok magdeburg',
+            supports_oktools_api=True,
+            metadata_api_base_url='https://portal.ok-magdeburg.de',
+            metadata_api_token='secret-token',
+            is_active=True,
+        )
+
+        item = ExchangeItem.objects.create(
+            contribution_id=3741,
+            filename='3741_video.mp4',
+            file_path='/exchange/3741_video.mp4',
+            channel='OK Magdeburg',
+            title='Fallback Title',
+            file_type='video',
+            is_oktools_managed=True,
+        )
+
+        import_record, _ = ImportService(item, user).import_item()
+
+        assert import_record.license is not None
+        assert import_record.license.media_authority_exchange_allowed is True
+        assert import_record.license.media_authority_exchange_allowed_other_states is True
+        assert mocked_delay.call_count == 1
