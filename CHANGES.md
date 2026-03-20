@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+2026-03-21 (Version 4.6.0)
+==========================
+
+* **registration/licenses: Add Bundesland metadata configuration**
+  * Added OrganizationConfig Bundesland selection with automatic Bundesland code generation for metadata exports.
+  * Extended the license metadata API to always emit `bundesland`, `bundesland_code`, `allowExchange`, and `allowExchangeOtherStates`.
+
+* **austausch: Normalize metadata and filter feed visibility**
+  * Normalized both flat legacy and nested canonical metadata payloads for sync, API import, and admin JSON import flows.
+  * Persisted exchange visibility metadata on ExchangeItem records and filtered the feed by same-state vs other-state exchange permissions.
+  * Added configurable same-state channel exceptions in Austausch settings for Nextcloud channel folders such as OK Magdeburg and OK Dessau.
+
 2026-03-19 (Version 4.5.0)
 ==========================
 
