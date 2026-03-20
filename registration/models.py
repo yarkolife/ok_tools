@@ -460,6 +460,49 @@ class RegistrationConfig(models.Model):
 
 class OrganizationConfig(models.Model):
     """Configuration for main organization (singleton)."""
+
+    BUNDESLAND_CHOICES = [
+        ('Baden-Württemberg', _('Baden-Württemberg')),
+        ('Bayern', _('Bayern')),
+        ('Berlin', _('Berlin')),
+        ('Brandenburg', _('Brandenburg')),
+        ('Bremen', _('Bremen')),
+        ('Hamburg', _('Hamburg')),
+        ('Hessen', _('Hessen')),
+        ('Mecklenburg-Vorpommern', _('Mecklenburg-Vorpommern')),
+        ('Niedersachsen', _('Niedersachsen')),
+        ('Nordrhein-Westfalen', _('Nordrhein-Westfalen')),
+        ('Rheinland-Pfalz', _('Rheinland-Pfalz')),
+        ('Saarland', _('Saarland')),
+        ('Sachsen', _('Sachsen')),
+        ('Sachsen-Anhalt', _('Sachsen-Anhalt')),
+        ('Schleswig-Holstein', _('Schleswig-Holstein')),
+        ('Thüringen', _('Thüringen')),
+    ]
+
+    BUNDESLAND_CODE_CHOICES = [
+        ('BW', 'BW'),
+        ('BY', 'BY'),
+        ('BE', 'BE'),
+        ('BB', 'BB'),
+        ('HB', 'HB'),
+        ('HH', 'HH'),
+        ('HE', 'HE'),
+        ('MV', 'MV'),
+        ('NI', 'NI'),
+        ('NW', 'NW'),
+        ('RP', 'RP'),
+        ('SL', 'SL'),
+        ('SN', 'SN'),
+        ('ST', 'ST'),
+        ('SH', 'SH'),
+        ('TH', 'TH'),
+    ]
+
+    BUNDESLAND_TO_CODE = dict(zip(
+        [choice[0] for choice in BUNDESLAND_CHOICES],
+        [choice[0] for choice in BUNDESLAND_CODE_CHOICES],
+    ))
     
     # Basic organization info
     name = models.CharField(
@@ -553,6 +596,22 @@ class OrganizationConfig(models.Model):
         verbose_name=_('Organization Owner'),
         help_text=_('Owner/operator identifier (matches MediaAuthority name)')
     )
+
+    bundesland = models.CharField(
+        max_length=64,
+        choices=BUNDESLAND_CHOICES,
+        default='Sachsen-Anhalt',
+        verbose_name=_('Bundesland'),
+        help_text=_('German federal state written to exchange metadata; code is generated automatically')
+    )
+
+    bundesland_code = models.CharField(
+        max_length=2,
+        choices=BUNDESLAND_CODE_CHOICES,
+        default='ST',
+        verbose_name=_('Bundesland Code'),
+        help_text=_('Two-letter federal state code written to exchange metadata')
+    )
     
     # Broadcasting schedule
     broadcast_start = models.TimeField(
@@ -601,9 +660,18 @@ class OrganizationConfig(models.Model):
     def __str__(self):
         """Return string representation."""
         return str(_("Organization Configuration"))
+
+    def clean(self):
+        super().clean()
+        expected_code = self.BUNDESLAND_TO_CODE.get(self.bundesland)
+        if expected_code:
+            self.bundesland_code = expected_code
     
     def save(self, *args, **kwargs):
         """Ensure only one config instance exists."""
+        expected_code = self.BUNDESLAND_TO_CODE.get(self.bundesland)
+        if expected_code:
+            self.bundesland_code = expected_code
         self.pk = 1
         super().save(*args, **kwargs)
     

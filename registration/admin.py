@@ -461,7 +461,7 @@ class OrganizationConfigAdmin(admin.ModelAdmin):
             'fields': ('website', 'email', 'phone', 'fax', 'address', 'opening_hours')
         }),
         (_('Regulatory & Ownership'), {
-            'fields': ('state_media_institution', 'organization_owner')
+            'fields': ('state_media_institution', 'organization_owner', 'bundesland')
         }),
         (_('Broadcasting Schedule'), {
             'fields': ('broadcast_start', 'broadcast_end')
