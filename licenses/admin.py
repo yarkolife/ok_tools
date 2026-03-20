@@ -78,6 +78,8 @@ import json
 import logging
 from difflib import SequenceMatcher
 
+from austausch.services.metadata_normalizer import normalize_exchange_metadata
+
 
 logger = logging.getLogger('django')
 
@@ -1658,7 +1660,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 json_file = request.FILES['json_file']
                 try:
                     # Read and parse JSON
-                    json_data = json.loads(json_file.read().decode('utf-8'))
+                    json_data = normalize_exchange_metadata(
+                        json.loads(json_file.read().decode('utf-8'))
+                    )
                     
                     # Map JSON fields to License model
                     license_data = {}
@@ -1777,7 +1781,10 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     
                     # Default values
                     license_data['repetitions_allowed'] = False
-                    license_data['media_authority_exchange_allowed_other_states'] = False
+                    license_data['media_authority_exchange_allowed_other_states'] = json_data.get(
+                        'allowExchangeOtherStates',
+                        False,
+                    )
                     license_data['youth_protection_necessary'] = False
                     license_data['youth_protection_category'] = 'none'
                     license_data['is_screen_board'] = False

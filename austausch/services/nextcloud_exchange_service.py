@@ -16,6 +16,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 from ..models import ExchangeConfig
+from .metadata_normalizer import _coerce_bool
+from .metadata_normalizer import normalize_exchange_metadata
 
 logger = logging.getLogger('django')
 
@@ -1490,6 +1492,8 @@ class NextcloudExchangeService:
             if not isinstance(data, dict):
                 logger.error(f"Invalid meta.json format: expected dict, got {type(data)}")
                 return None
+
+            data = normalize_exchange_metadata(data)
             
             # Extract and clean fields
             # Handle both formats:
@@ -1523,11 +1527,14 @@ class NextcloudExchangeService:
                 'target_channel': str(data.get('targetChannel', '')).strip(),
                 'originally_published_at': data.get('originallyPublishedAt'),
                 'thumbnail': str(data.get('thumbnail', '')).strip(),
-                'allow_exchange': bool(data.get('allowExchange', False)),
-                'save_to_mediathek': bool(data.get('saveToMediathek', False)),
+                'allow_exchange': _coerce_bool(data.get('allowExchange')),
+                'allow_exchange_other_states': _coerce_bool(data.get('allowExchangeOtherStates')),
+                'save_to_mediathek': _coerce_bool(data.get('saveToMediathek')),
                 'tags': data.get('tags', []),  # Array of tags
-                'youth_protection_necessary': bool(data.get('youthProtectionNecessary', False)),
+                'youth_protection_necessary': _coerce_bool(data.get('youthProtectionNecessary')),
                 'youth_protection_category': str(data.get('youthProtectionCategory', '')).strip(),
+                'bundesland': str(data.get('bundesland', '')).strip(),
+                'bundesland_code': str(data.get('bundesland_code', '')).strip(),
                 'video_number': video_number,  # Store videoNumber if present
                 'duration': duration_val,
             }

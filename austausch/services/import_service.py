@@ -27,6 +27,7 @@ from ..models import ExchangeConfig
 from ..models import ExchangeImport
 from ..models import ExchangeItem
 from ..models import ImportedLicenseMapping
+from .metadata_normalizer import normalize_exchange_metadata
 from .nextcloud_exchange_service import NextcloudExchangeService
 
 logger = logging.getLogger('django')
@@ -245,7 +246,7 @@ class ImportService:
         channel_auth.last_error = ''
         channel_auth.last_success_at = timezone.now()
         channel_auth.save(update_fields=['last_error', 'last_success_at', 'updated_at'])
-        return payload
+        return normalize_exchange_metadata(payload)
 
     def _resolve_license_for_remote_channel(
         self,
@@ -349,6 +350,7 @@ class ImportService:
                     channel_auth,
                     int(self.exchange_item.contribution_id),
                 )
+                remote_metadata = normalize_exchange_metadata(remote_metadata)
             
             # Check for potential duplicates before creating license
             potential_duplicates = None
@@ -745,7 +747,7 @@ class ImportService:
         )
         allow_exchange_other_states = self._parse_bool(
             remote_metadata.get('allowExchangeOtherStates', remote_metadata.get('media_authority_exchange_allowed_other_states')),
-            default=False,
+            default=meta_data.get('allow_exchange_other_states', False),
         )
         youth_protection_necessary = self._parse_bool(
             remote_metadata.get('youthProtectionNecessary', remote_metadata.get('youth_protection_necessary')),
@@ -851,7 +853,7 @@ class ImportService:
             media_authority_exchange_allowed=meta_data.get('allow_exchange', True),
             store_in_ok_media_library=meta_data.get('save_to_mediathek', False),
             repetitions_allowed=False,
-            media_authority_exchange_allowed_other_states=False,
+            media_authority_exchange_allowed_other_states=meta_data.get('allow_exchange_other_states', False),
             youth_protection_necessary=meta_data.get('youth_protection_necessary', False),
             youth_protection_category=meta_data.get('youth_protection_category', 'none'),
             is_screen_board=False,
