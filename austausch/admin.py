@@ -69,7 +69,12 @@ class ExchangeConfigAdmin(admin.ModelAdmin):
             'fields': ('channel_folder_pattern', 'exchange_folder_pattern')
         }),
         (_('Sync Settings'), {
-            'fields': ('sync_lookback_days', 'sync_date_folders_days', 'channels_list'),
+            'fields': (
+                'sync_lookback_days',
+                'sync_date_folders_days',
+                'channels_list',
+                'same_state_channel_exceptions',
+            ),
             'description': _(
                 'Note: Periodic sync schedule is managed via '
                 '<a href="/admin/django_celery_beat/periodictask/" target="_blank">Periodic Tasks</a> '

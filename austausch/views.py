@@ -7,7 +7,9 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
+from .models import ExchangeConfig
 from .models import ExchangeItem
+from registration.models import OrganizationConfig
 
 
 def check_austausch_enabled():
@@ -34,11 +36,29 @@ class ExchangeFeedView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         """Check if module is enabled before processing request."""
         check_austausch_enabled()
         return super().dispatch(request, *args, **kwargs)
-    
+
+    def _get_visible_video_queryset(self):
+        exchange_config = ExchangeConfig.get_config()
+        viewer_bundesland_code = OrganizationConfig.get_config().bundesland_code
+        same_state_channels = exchange_config.get_same_state_channel_exceptions()
+        same_state_filter = Q(
+            bundesland_code__iexact=viewer_bundesland_code,
+            allow_exchange=True,
+        )
+        for channel_name in same_state_channels:
+            same_state_filter |= Q(
+                channel__iexact=channel_name,
+                allow_exchange=True,
+            )
+
+        return ExchangeItem.objects.filter(file_type='video').filter(
+            Q(allow_exchange_other_states=True)
+            | same_state_filter
+        )
+
     def get_queryset(self):
         """Get filtered queryset based on request parameters."""
-        # Only show video items (PDF is part of package, not shown separately)
-        qs = ExchangeItem.objects.filter(file_type='video')
+        qs = self._get_visible_video_queryset()
         
         # Filter by channel
         channel = self.request.GET.get('channel')
@@ -108,7 +128,7 @@ class ExchangeFeedView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         context['search'] = self.request.GET.get('search', '')
         
         # Statistics (only video items, matching the queryset filter)
-        video_items = ExchangeItem.objects.filter(file_type='video')
+        video_items = self._get_visible_video_queryset()
         context['total_items'] = video_items.count()
         context['new_items'] = video_items.filter(import_status='new').count()
         context['imported_items'] = video_items.filter(import_status='imported').count()
