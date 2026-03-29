@@ -972,62 +972,75 @@ class ImportService:
         # Get duration (prefer metadata, then exchange_item, then None)
         duration = metadata.get('duration') or self.exchange_item.duration
         
-        # OneToOneField: one License can have only one VideoFile. Unlink existing
-        # so we can create the new one (e.g. re-import or replace).
+        video_defaults = {
+            'filename': video_file_path.name,
+            'file_size': file_size,
+            'format': file_format,
+            'checksum': checksum,
+            'license': license,
+            'is_available': True,
+            'duration': duration,
+            'has_video': metadata.get('has_video', False),
+            'video_codec': metadata.get('video_codec', ''),
+            'video_codec_long': metadata.get('video_codec_long', ''),
+            'video_profile': metadata.get('video_profile', ''),
+            'video_bitrate': metadata.get('video_bitrate'),
+            'video_bitrate_mode': metadata.get('video_bitrate_mode', ''),
+            'fps': metadata.get('fps'),
+            'width': metadata.get('width'),
+            'height': metadata.get('height'),
+            'aspect_ratio': metadata.get('aspect_ratio', ''),
+            'pixel_format': metadata.get('pixel_format', ''),
+            'color_space': metadata.get('color_space', ''),
+            'color_range': metadata.get('color_range', ''),
+            'chroma_subsampling': metadata.get('chroma_subsampling', ''),
+            'has_audio': metadata.get('has_audio', False),
+            'audio_codec': metadata.get('audio_codec', ''),
+            'audio_codec_long': metadata.get('audio_codec_long', ''),
+            'audio_bitrate': metadata.get('audio_bitrate'),
+            'audio_sample_rate': metadata.get('audio_sample_rate'),
+            'audio_channels': metadata.get('audio_channels'),
+            'audio_channel_layout': metadata.get('audio_channel_layout', ''),
+            'total_bitrate': metadata.get('total_bitrate'),
+            'last_scanned': timezone.now(),
+        }
+
+        video_file = VideoFile.objects.filter(
+            number=license.number,
+            storage_location=storage_location,
+            file_path=relative_path,
+        ).first()
+
         existing = getattr(license, 'video_file', None)
-        if existing:
+        if existing and (not video_file or existing.pk != video_file.pk):
             VideoFile.objects.filter(pk=existing.pk).update(license=None)
             logger.info(
                 f"Unlinked existing VideoFile {existing.id} from License {license.number} "
-                "before creating new one for import"
+                "before assigning imported file"
             )
-        
-        # Create VideoFile record with all metadata
-        video_file = VideoFile.objects.create(
-            number=license.number,
-            filename=video_file_path.name,
-            storage_location=storage_location,
-            file_path=relative_path,
-            file_size=file_size,
-            format=file_format,
-            checksum=checksum,
-            license=license,  # Explicitly set, signals will ensure it's the newest
-            is_available=True,
-            duration=duration,
-            # Video metadata
-            has_video=metadata.get('has_video', False),
-            video_codec=metadata.get('video_codec', ''),
-            video_codec_long=metadata.get('video_codec_long', ''),
-            video_profile=metadata.get('video_profile', ''),
-            video_bitrate=metadata.get('video_bitrate'),
-            video_bitrate_mode=metadata.get('video_bitrate_mode', ''),
-            fps=metadata.get('fps'),
-            width=metadata.get('width'),
-            height=metadata.get('height'),
-            aspect_ratio=metadata.get('aspect_ratio', ''),
-            pixel_format=metadata.get('pixel_format', ''),
-            color_space=metadata.get('color_space', ''),
-            color_range=metadata.get('color_range', ''),
-            chroma_subsampling=metadata.get('chroma_subsampling', ''),
-            # Audio metadata
-            has_audio=metadata.get('has_audio', False),
-            audio_codec=metadata.get('audio_codec', ''),
-            audio_codec_long=metadata.get('audio_codec_long', ''),
-            audio_bitrate=metadata.get('audio_bitrate'),
-            audio_sample_rate=metadata.get('audio_sample_rate'),
-            audio_channels=metadata.get('audio_channels'),
-            audio_channel_layout=metadata.get('audio_channel_layout', ''),
-            # Overall metadata
-            total_bitrate=metadata.get('total_bitrate'),
-            last_scanned=timezone.now(),
-        )
-        
-        logger.info(
-            f"Created VideoFile {video_file.id} for license {license.number} "
-            f"with full metadata (codec: {video_file.video_codec}, "
-            f"resolution: {video_file.width}x{video_file.height}, "
-            f"fps: {video_file.fps})"
-        )
+
+        if video_file:
+            for field_name, field_value in video_defaults.items():
+                setattr(video_file, field_name, field_value)
+            video_file.save()
+            logger.info(
+                f"Updated existing VideoFile {video_file.id} for license {license.number} "
+                "after concurrent scan discovery"
+            )
+        else:
+            video_file = VideoFile.objects.create(
+                number=license.number,
+                storage_location=storage_location,
+                file_path=relative_path,
+                **video_defaults,
+            )
+            logger.info(
+                f"Created VideoFile {video_file.id} for license {license.number} "
+                f"with full metadata (codec: {video_file.video_codec}, "
+                f"resolution: {video_file.width}x{video_file.height}, "
+                f"fps: {video_file.fps})"
+            )
+
         return video_file
     
     def _calculate_checksum(self, file_path: str) -> str:

@@ -134,6 +134,7 @@ nosetests.xml
 .cursor/
 .kilocode/
 .claude/
+.sisyphus/
 AGENTS.md
 .github/
 playout/

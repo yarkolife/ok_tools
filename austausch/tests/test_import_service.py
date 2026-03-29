@@ -9,6 +9,8 @@ from austausch.models import ImportedLicenseMapping
 from austausch.services.import_service import ImportService
 from licenses.models import Category
 from licenses.models import License
+from media_files.models import StorageLocation
+from media_files.models import VideoFile
 from ok_tools.testing import create_user
 from registration.models import Profile
 
@@ -235,3 +237,117 @@ class TestImportServiceIdentity:
         assert import_record.license.media_authority_exchange_allowed is True
         assert import_record.license.media_authority_exchange_allowed_other_states is True
         assert mocked_delay.call_count == 1
+
+
+@pytest.mark.django_db
+def test_create_video_file_reuses_scanned_record(tmp_path):
+    config = ExchangeConfig.get_config()
+    config.nextcloud_base_url = 'https://cloud.example.com'
+    config.nextcloud_username = 'exchange'
+    config.nextcloud_password = 'secret'
+    config.download_storage_path = str(tmp_path)
+    config.upload_server_path = 'GroupFolders/Test-Upload'
+    config.save()
+
+    user = create_user(
+        {
+            'email': 'scan-race@example.com',
+            'first_name': 'Scan',
+            'last_name': 'Race',
+            'gender': 'none',
+            'phone_number': '',
+            'mobile_number': '',
+            'birthday': '01.01.1990',
+            'street': 'Teststreet',
+            'house_number': '1',
+            'zipcode': '12345',
+            'city': 'Test City',
+        },
+        verified=True,
+    )
+    profile = Profile.objects.get(okuser=user)
+    category = Category.objects.create(name='Import Category')
+    license_obj = License.objects.create(
+        number=6123,
+        title='Imported video',
+        description='Existing license',
+        profile=profile,
+        category=category,
+    )
+    exchange_item = ExchangeItem.objects.create(
+        contribution_id=6123,
+        filename='6123_video.mp4',
+        file_path='/exchange/6123_video.mp4',
+        channel='ok magdeburg',
+        title='Imported video',
+        file_type='video',
+        is_oktools_managed=True,
+    )
+    storage = StorageLocation.objects.create(
+        name='Import Storage',
+        storage_type='CUSTOM',
+        path=str(tmp_path),
+    )
+    video_path = tmp_path / '6123_video.mp4'
+    video_path.write_bytes(b'final-video-payload')
+
+    scanned_video = VideoFile.objects.create(
+        number=license_obj.number,
+        filename=video_path.name,
+        storage_location=storage,
+        file_path=video_path.name,
+        file_size=10,
+        format='mp4',
+        checksum='partial-checksum',
+        is_available=True,
+        video_codec='unknown',
+        width=320,
+        height=240,
+    )
+
+    service = ImportService(exchange_item, user)
+    metadata = {
+        'file_size': len(b'final-video-payload'),
+        'format': 'mp4',
+        'duration': None,
+        'has_video': True,
+        'video_codec': 'h264',
+        'video_codec_long': 'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10',
+        'video_profile': 'High',
+        'video_bitrate': 123456,
+        'video_bitrate_mode': 'vbr',
+        'fps': 25.0,
+        'width': 1920,
+        'height': 1080,
+        'aspect_ratio': '16:9',
+        'pixel_format': 'yuv420p',
+        'color_space': 'bt709',
+        'color_range': 'tv',
+        'chroma_subsampling': '4:2:0',
+        'has_audio': True,
+        'audio_codec': 'aac',
+        'audio_codec_long': 'AAC (Advanced Audio Coding)',
+        'audio_bitrate': 128000,
+        'audio_sample_rate': 48000,
+        'audio_channels': 2,
+        'audio_channel_layout': 'stereo',
+        'total_bitrate': 251456,
+    }
+
+    with patch('media_files.utils.extract_video_metadata_fast', return_value=metadata), patch.object(
+        ImportService,
+        '_calculate_checksum',
+        return_value='final-checksum',
+    ):
+        video_file = service._create_video_file(license_obj, str(video_path), storage)
+
+    assert video_file.id == scanned_video.id
+    assert VideoFile.objects.count() == 1
+
+    video_file.refresh_from_db()
+    assert video_file.license_id == license_obj.id
+    assert video_file.checksum == 'final-checksum'
+    assert video_file.file_size == len(b'final-video-payload')
+    assert video_file.video_codec == 'h264'
+    assert video_file.width == 1920
+    assert video_file.height == 1080
