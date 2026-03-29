@@ -46,17 +46,6 @@ urlpatterns = [
         name='copy'
     ),
     path(
-        '<int:pk>/upload-video/',
-        views.UploadVideoView.as_view(),
-        name='upload_video'
-    ),
-    path(
-        'upload-progress/',
-        views.UploadProgressView.as_view(),
-        name='upload_progress'
-    ),
-    # Direct upload endpoints (bypasses Django server)
-    path(
         '<int:pk>/get-upload-token/',
         views.GetUploadTokenView.as_view(),
         name='get_upload_token'
