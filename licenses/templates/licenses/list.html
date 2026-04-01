@@ -285,7 +285,7 @@
     }
     
     // Chunked upload settings from Django settings
-    const CHUNKED_ENABLED = {{ NEXTCLOUD_CHUNKED_UPLOAD_ENABLED|default:"true" }};  // Enable/disable chunked upload
+    const CHUNKED_ENABLED = {{ NEXTCLOUD_CHUNKED_UPLOAD_ENABLED|default:"true"|lower }};  // Enable/disable chunked upload
     const CHUNK_THRESHOLD = {{ NEXTCLOUD_CHUNK_THRESHOLD|default:"104857600" }};  // 100MB default
     const CHUNK_SIZE = {{ NEXTCLOUD_CHUNK_SIZE|default:"10485760" }};  // 10MB default
 
