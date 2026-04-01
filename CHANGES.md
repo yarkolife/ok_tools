@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+2026-04-01 (Version 4.7.0)
+==========================
+
+* **licenses: Fix Nextcloud 32 upload URL and add configurable chunked upload**
+  * Fixed WebDAV upload URL format for Nextcloud 32 compatibility:
+    * Changed from `/public.php/webdav/` to `/public.php/dav/files/{token}/`
+  * Added configurable chunked upload for large files to improve reliability:
+    * New environment variable `NEXTCLOUD_CHUNKED_UPLOAD_ENABLED` to enable/disable chunked upload (default: true)
+    * New environment variable `NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD` - file size threshold in MB (default: 100)
+    * New environment variable `NEXTCLOUD_CHUNK_SIZE` - chunk size in MB (default: 10)
+  * Updated all deployment config templates (okmq, ok-bayern, ok-nrw) with new chunked upload settings
+  * Files larger than threshold now use WebDAV chunked upload protocol (MKCOL → PUT chunks → MOVE assembly)
+  * Fallback to direct upload if chunked upload fails
+  * Added `X-Requested-With: XMLHttpRequest` headers for better Nextcloud compatibility
+
 2026-03-21 (Version 4.6.0)
 ==========================
 
