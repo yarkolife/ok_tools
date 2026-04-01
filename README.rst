@@ -412,6 +412,27 @@ Configuration is done via environment variables in `.env` file located in the pr
 
 See ``deployment/docs/ENV_VARIABLES.md`` for complete reference.
 
+Nextcloud Integration
+---------------------
+
+**Nextcloud 32+ Chunked Upload:**
+
+For Nextcloud 32 and later versions, chunked upload is REQUIRED for files larger than 100MB.
+The WebDAV API changed in NC32 - the old ``/public.php/webdav/`` endpoint was replaced with ``/public.php/dav/files/{token}/``.
+
+Chunked upload works by:
+1. Splitting large files into smaller chunks (default 10MB each)
+2. Uploading each chunk separately via WebDAV PUT requests
+3. Assembling chunks into the final file using MOVE request
+
+**Configuration:**
+
+- ``NEXTCLOUD_CHUNKED_UPLOAD_ENABLED`` - Enable/disable chunked upload (default: ``true``)
+- ``NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD`` - File size threshold in MB (default: ``100``)
+- ``NEXTCLOUD_CHUNK_SIZE`` - Size of each chunk in MB (default: ``10``)
+
+For older Nextcloud versions (<32), you can disable chunked upload or adjust the threshold.
+
 Maintenance
 ===========
 
