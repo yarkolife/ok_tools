@@ -536,11 +536,14 @@
             const safeName = sanitizeFilename(file.name);
             const uniqueFilename = `${license_number}_${safeName}`;
 
+            // Choose upload method based on settings and file size
+            const useChunked = CHUNKED_ENABLED && file.size >= CHUNK_THRESHOLD;
+
             console.log('Upload to Nextcloud:', {
                 upload_url: upload_url,
                 filename: uniqueFilename,
                 file_size: formatBytes(file.size),
-                use_chunked: file.size >= CHUNK_THRESHOLD
+                use_chunked: useChunked
             });
 
             // Step 2: Upload to Nextcloud (chunked or direct based on file size)
@@ -561,9 +564,6 @@
                     'Speed:', formatBytes(speed) + '/s'
                 );
             }
-
-            // Choose upload method based on settings and file size
-            const useChunked = CHUNKED_ENABLED && file.size >= CHUNK_THRESHOLD;
 
             if (useChunked) {
                 // Try chunked upload first, fallback to direct if it fails
