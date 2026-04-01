@@ -104,7 +104,7 @@ class NextcloudExchangeService:
             return {
                 'share_id': share_id,
                 'token': token,
-                'upload_url': f"{self.base_url}/public.php/webdav/",
+                'upload_url': f"{self.base_url}/public.php/dav/files/{token}/",
             }
         except Exception as e:
             logger.error("Error creating upload share: %s", e, exc_info=True)
@@ -133,29 +133,29 @@ class NextcloudExchangeService:
         - curl is battle-tested for WebDAV uploads
         """
         import subprocess
-        
-        upload_url = f"{self.base_url}/public.php/webdav/{quote(filename, safe='')}"
+
+        # NC32+ format: token in URL path, not in basic auth
+        upload_url = f"{self.base_url}/public.php/dav/files/{share_token}/{quote(filename, safe='')}"
         file_size = os.path.getsize(local_path)
-        
+
         logger.info(
             "Starting curl upload: %s (%s bytes) -> %s",
             local_path, file_size, upload_url
         )
-        
+
         try:
             # Use curl for reliable large file upload
             # -T: upload file
-            # -u: authentication (token:empty_password)
             # -H: disable Expect header
             # --connect-timeout: connection timeout
             # --max-time: maximum total time (1 hour per GB, minimum 10 min)
             max_time = max(600, int(file_size / (1024 * 1024) * 60))  # ~1 min per MB, min 10 min
-            
+
             cmd = [
                 'curl',
                 '-X', 'PUT',
                 '-T', local_path,
-                '-u', f'{share_token}:',
+                '-u', f'{share_token}:',  # NC32+ still accepts auth (backward compatible)
                 '-H', 'Expect:',  # Disable Expect: 100-continue
                 '-H', 'Content-Type: application/octet-stream',
                 '--connect-timeout', '30',
@@ -214,7 +214,8 @@ class NextcloudExchangeService:
     
     def _upload_via_requests(self, local_path: str, filename: str, share_token: str) -> bool:
         """Fallback upload using Python requests (if curl not available)."""
-        upload_url = f"{self.base_url}/public.php/webdav/{quote(filename, safe='')}"
+        # NC32+ format: token in URL path, not in basic auth
+        upload_url = f"{self.base_url}/public.php/dav/files/{share_token}/{quote(filename, safe='')}"
         file_size = os.path.getsize(local_path)
         headers = {
             'Content-Type': 'application/octet-stream',
@@ -226,7 +227,6 @@ class NextcloudExchangeService:
                 r = requests.put(
                     upload_url,
                     data=f,
-                    auth=(share_token, ''),
                     headers=headers,
                     timeout=3600,
                 )

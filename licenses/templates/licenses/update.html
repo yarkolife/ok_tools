@@ -802,6 +802,169 @@
             return filename;
         }
 
+        // Chunked upload settings from Django settings
+        const CHUNKED_ENABLED = {{ NEXTCLOUD_CHUNKED_UPLOAD_ENABLED|default:"true" }};  // Enable/disable chunked upload
+        const CHUNK_THRESHOLD = {{ NEXTCLOUD_CHUNK_THRESHOLD|default:"104857600" }};  // 100MB default
+        const CHUNK_SIZE = {{ NEXTCLOUD_CHUNK_SIZE|default:"10485760" }};  // 10MB default
+
+        // Upload file using chunked upload (for large files)
+        function uploadFileChunked(file, uploadUrl, token, filename, onProgress) {
+            return new Promise(function(resolve, reject) {
+                const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const uploadId = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+                // Extract base URL for chunked upload endpoint
+                const baseUrl = uploadUrl.replace(/\/public\.php\/dav\/files\/[^/]+\/.*$/, '');
+                const chunkedUploadUrl = baseUrl + '/public.php/dav/uploads/' + token + '/' + uploadId;
+                const destinationUrl = uploadUrl + encodeURIComponent(safeFilename);
+
+                let currentChunk = 0;
+                let uploadedBytes = 0;
+                let uploadStartTime = Date.now();
+                let lastProgressTime = uploadStartTime;
+                let lastProgressBytes = 0;
+
+                function uploadNextChunk() {
+                    const start = currentChunk * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const chunk = file.slice(start, end);
+                    const chunkNumber = (currentChunk + 1).toString().padStart(5, '0');
+
+                    const xhr = new XMLHttpRequest();
+                    const chunkUrl = chunkedUploadUrl + '/' + chunkNumber;
+
+                    xhr.addEventListener('load', function() {
+                        if (xhr.status === 201 || xhr.status === 204 || xhr.status === 200) {
+                            currentChunk++;
+                            uploadedBytes = end;
+
+                            // Calculate speed and progress
+                            const now = Date.now();
+                            const elapsed = (now - lastProgressTime) / 1000;
+                            if (elapsed > 0.5 || currentChunk === totalChunks) {
+                                const bytesSinceLast = uploadedBytes - lastProgressBytes;
+                                const speed = bytesSinceLast / elapsed;
+                                const progress = (uploadedBytes / file.size * 100).toFixed(1);
+
+                                if (onProgress) {
+                                    onProgress(uploadedBytes, file.size, speed, progress);
+                                }
+
+                                lastProgressTime = now;
+                                lastProgressBytes = uploadedBytes;
+                            }
+
+                            if (currentChunk < totalChunks) {
+                                uploadNextChunk();
+                            } else {
+                                assembleFile();
+                            }
+                        } else {
+                            reject(new Error('{% trans "Chunk upload failed with status" %}: ' + xhr.status));
+                        }
+                    });
+
+                    xhr.addEventListener('error', function() {
+                        reject(new Error('{% trans "Network error during chunk upload" %}'));
+                    });
+
+                    xhr.open('PUT', chunkUrl);
+                    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    xhr.send(chunk);
+                }
+
+                function createUploadFolder() {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('MKCOL', chunkedUploadUrl);
+                    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    xhr.addEventListener('load', function() {
+                        if (xhr.status === 201 || xhr.status === 200 || xhr.status === 405) {
+                            uploadNextChunk();
+                        } else {
+                            reject(new Error('{% trans "Failed to create upload folder" %}: ' + xhr.status));
+                        }
+                    });
+                    xhr.addEventListener('error', function() {
+                        reject(new Error('{% trans "Network error creating upload folder" %}'));
+                    });
+                    xhr.send();
+                }
+
+                function assembleFile() {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('MOVE', chunkedUploadUrl + '/.file');
+                    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
+                    xhr.setRequestHeader('Destination', destinationUrl);
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                    xhr.addEventListener('load', function() {
+                        if (xhr.status === 201 || xhr.status === 204) {
+                            resolve(safeFilename);
+                        } else {
+                            reject(new Error('{% trans "File assembly failed with status" %}: ' + xhr.status));
+                        }
+                    });
+
+                    xhr.addEventListener('error', function() {
+                        reject(new Error('{% trans "Network error during file assembly" %}'));
+                    });
+
+                    xhr.send();
+                }
+
+                createUploadFolder();
+            });
+        }
+
+        // Upload file using direct upload (for small files)
+        function uploadFileDirect(file, uploadUrl, token, filename, onProgress) {
+            return new Promise(function(resolve, reject) {
+                const xhr = new XMLHttpRequest();
+                let startTime = Date.now();
+                let lastProgressTime = startTime;
+                let lastProgressBytes = 0;
+
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable && e.total > 0) {
+                        const now = Date.now();
+                        const elapsed = (now - lastProgressTime) / 1000;
+
+                        if (elapsed > 0.5 || e.loaded === e.total) {
+                            const speed = (e.loaded - lastProgressBytes) / elapsed;
+                            const progress = (e.loaded / e.total * 100).toFixed(1);
+
+                            if (onProgress) {
+                                onProgress(e.loaded, e.total, speed, progress);
+                            }
+
+                            lastProgressTime = now;
+                            lastProgressBytes = e.loaded;
+                        }
+                    }
+                });
+
+                xhr.addEventListener('load', function() {
+                    if (xhr.status === 201 || xhr.status === 204) {
+                        resolve(filename);
+                    } else {
+                        reject(new Error('{% trans "Upload failed with status" %}: ' + xhr.status));
+                    }
+                });
+
+                xhr.addEventListener('error', function() {
+                    reject(new Error('{% trans "Network error during upload" %}'));
+                });
+
+                xhr.open('PUT', uploadUrl + encodeURIComponent(filename));
+                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.send(file);
+            });
+        }
+
         if (videoFileInput && uploadVideoButton) {
             // Validate file on selection
             videoFileInput.addEventListener('change', function(e) {
@@ -887,49 +1050,36 @@ const file = videoFileInput.files[0];
                     const safeName = sanitizeFilename(file.name);
                     const uniqueFilename = `${license_number}_${safeName}`;
 
-                    console.log('Direct upload to Nextcloud:', {
+                    console.log('Upload to Nextcloud:', {
                         upload_url: upload_url,
                         filename: uniqueFilename,
-                        file_size: formatBytes(file.size)
+                        file_size: formatBytes(file.size),
+                        use_chunked: file.size >= CHUNK_THRESHOLD
                     });
 
-                    // Step 2: Upload directly to Nextcloud
-                    const xhr = new XMLHttpRequest();
-                    let startTime = Date.now();
+                    // Step 2: Upload to Nextcloud (chunked or direct based on file size)
+                    // Progress callback for both upload methods
+                    function onProgress(uploaded, total, speed, percent) {
+                        const remaining = (total - uploaded) / speed;
+                        uploadStatus.innerHTML = `<small class="text-info">${percent}% (${formatBytes(uploaded)} / ${formatBytes(total)}) - ${formatBytes(speed)}/s - ~${formatTime(remaining)}</small>`;
+                    }
 
-                    xhr.upload.addEventListener('progress', function(ev) {
-                        if (ev.lengthComputable && ev.total > 0) {
-                            const percent = Math.round((ev.loaded / ev.total) * 100);
-                            const elapsed = (Date.now() - startTime) / 1000;
-                            const speed = ev.loaded / elapsed;
-                            const remaining = (ev.total - ev.loaded) / speed;
+            // Choose upload method based on settings and file size
+            const useChunked = CHUNKED_ENABLED && file.size >= CHUNK_THRESHOLD;
 
-                            uploadStatus.innerHTML = `<small class="text-info">${percent}% (${formatBytes(ev.loaded)} / ${formatBytes(ev.total)}) - ${formatBytes(speed)}/s - ~${formatTime(remaining)}</small>`;
+                    if (useChunked) {
+                        // Try chunked upload first, fallback to direct if it fails
+                        try {
+                            await uploadFileChunked(file, upload_url, token, uniqueFilename, onProgress);
+                        } catch (chunkedError) {
+                            console.warn('Chunked upload failed, falling back to direct upload:', chunkedError);
+                            uploadStatus.innerHTML = '<small class="text-warning">{% trans "Retrying with direct upload..." %}</small>';
+                            await uploadFileDirect(file, upload_url, token, uniqueFilename, onProgress);
                         }
-                    });
-
-                    // Create promise for XHR
-                    const uploadPromise = new Promise((resolve, reject) => {
-                        xhr.addEventListener('load', function() {
-                            if (xhr.status === 201 || xhr.status === 204) {
-                                resolve();
-                            } else {
-                                reject(new Error(`{% trans "Upload failed with status" %}: ${xhr.status}`));
-                            }
-                        });
-
-                        xhr.addEventListener('error', function() {
-                            reject(new Error('{% trans "Network error during upload" %}'));
-                        });
-                    });
-
-                    // Open connection to Nextcloud public share WebDAV endpoint
-                    xhr.open('PUT', upload_url + encodeURIComponent(uniqueFilename));
-                    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(token + ':'));
-                    xhr.send(file);
-
-                    // Wait for upload to complete
-                    await uploadPromise;
+                    } else {
+                        // Direct upload for small files
+                        await uploadFileDirect(file, upload_url, token, uniqueFilename, onProgress);
+                    }
 
                     // Step 3: Confirm upload with Django
                     uploadStatus.innerHTML = '<small class="text-info">{% trans "Confirming upload..." %}</small>';

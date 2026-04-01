@@ -405,14 +405,14 @@ class NextcloudService:
                 logger.error(error_msg)
                 raise Exception(error_msg)
             
-            # WebDAV URL for public share upload
-            upload_url = f"{self.base_url}/public.php/webdav/"
-            
+            # WebDAV URL for public share upload (NC32+ format)
+            upload_url = f"{self.base_url}/public.php/dav/files/{token}/"
+
             logger.info(
                 f'Created upload share for license {license_number}, '
                 f'share_id={share_id}, expires={expire_date}'
             )
-            
+
             return {
                 'share_id': share_id,
                 'token': token,

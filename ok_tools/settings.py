@@ -539,6 +539,16 @@ if NEXTCLOUD_ENABLED:
     NEXTCLOUD_PASSWORD = get_env('NEXTCLOUD_PASSWORD', required=True)
     NEXTCLOUD_UPLOAD_FOLDER = get_env('NEXTCLOUD_UPLOAD_FOLDER', default='Freistellungen/Videos')
     NEXTCLOUD_WEBDAV_PATH = get_env('NEXTCLOUD_WEBDAV_PATH', default='/remote.php/dav/files/{username}/')
+    # Chunked upload settings for files > threshold
+    NEXTCLOUD_CHUNKED_UPLOAD_ENABLED = get_env(
+        'NEXTCLOUD_CHUNKED_UPLOAD_ENABLED', default=True, cast=bool
+    )
+    NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD = get_env(
+        'NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD', default=100, cast=int
+    )  # MB - files larger than this use chunked upload
+    NEXTCLOUD_CHUNK_SIZE = get_env(
+        'NEXTCLOUD_CHUNK_SIZE', default=10, cast=int
+    )  # MB - size of each chunk
 else:
     # Set defaults when disabled to avoid errors
     NEXTCLOUD_URL = ''
@@ -546,6 +556,9 @@ else:
     NEXTCLOUD_PASSWORD = ''
     NEXTCLOUD_UPLOAD_FOLDER = ''
     NEXTCLOUD_WEBDAV_PATH = '/remote.php/dav/files/{username}/'
+    NEXTCLOUD_CHUNKED_UPLOAD_ENABLED = False
+    NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD = 100  # MB
+    NEXTCLOUD_CHUNK_SIZE = 10  # MB
 
 # Registration form settings - now managed via RegistrationConfig model
 # See registration.config for helper functions

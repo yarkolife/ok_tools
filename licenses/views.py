@@ -324,11 +324,21 @@ class ListLicensesView(generic.list.ListView):
     context_object_name = 'licenses'
 
     def get_context_data(self, **kwargs):
-        """Add NEXTCLOUD_ENABLED to context."""
+        """Add NEXTCLOUD_ENABLED and chunked upload settings to context."""
         context = super().get_context_data(**kwargs)
         context['NEXTCLOUD_ENABLED'] = settings.NEXTCLOUD_ENABLED
+        # Chunked upload settings (bytes for JS)
+        context['NEXTCLOUD_CHUNKED_UPLOAD_ENABLED'] = (
+            settings.NEXTCLOUD_CHUNKED_UPLOAD_ENABLED
+        )
+        context['NEXTCLOUD_CHUNK_THRESHOLD'] = (
+            settings.NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD * 1024 * 1024
+        )
+        context['NEXTCLOUD_CHUNK_SIZE'] = (
+            settings.NEXTCLOUD_CHUNK_SIZE * 1024 * 1024
+        )
         return context
-    
+
     def get_queryset(self):
         """List only the licenses of the logged in user."""
         try:
@@ -436,9 +446,19 @@ class CreateLicenseView(generic.CreateView):
         return form
 
     def get_context_data(self, **kwargs):
-        """Add NEXTCLOUD_ENABLED to context."""
+        """Add NEXTCLOUD_ENABLED and chunked upload settings to context."""
         context = super().get_context_data(**kwargs)
         context['NEXTCLOUD_ENABLED'] = settings.NEXTCLOUD_ENABLED
+        # Chunked upload settings (bytes for JS)
+        context['NEXTCLOUD_CHUNKED_UPLOAD_ENABLED'] = (
+            settings.NEXTCLOUD_CHUNKED_UPLOAD_ENABLED
+        )
+        context['NEXTCLOUD_CHUNK_THRESHOLD'] = (
+            settings.NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD * 1024 * 1024
+        )
+        context['NEXTCLOUD_CHUNK_SIZE'] = (
+            settings.NEXTCLOUD_CHUNK_SIZE * 1024 * 1024
+        )
         return context
 
     def get(self, request, *args, **kwargs) -> http.HttpResponse:
@@ -549,17 +569,27 @@ class UpdateLicensesView(generic.edit.UpdateView):
         return reverse('licenses:print', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
-        """Add NEXTCLOUD_ENABLED and existing video to context."""
+        """Add NEXTCLOUD_ENABLED, chunked settings, and existing video to context."""
         context = super().get_context_data(**kwargs)
         context['NEXTCLOUD_ENABLED'] = settings.NEXTCLOUD_ENABLED
-        
+        # Chunked upload settings (bytes for JS)
+        context['NEXTCLOUD_CHUNKED_UPLOAD_ENABLED'] = (
+            settings.NEXTCLOUD_CHUNKED_UPLOAD_ENABLED
+        )
+        context['NEXTCLOUD_CHUNK_THRESHOLD'] = (
+            settings.NEXTCLOUD_CHUNKED_UPLOAD_THRESHOLD * 1024 * 1024
+        )
+        context['NEXTCLOUD_CHUNK_SIZE'] = (
+            settings.NEXTCLOUD_CHUNK_SIZE * 1024 * 1024
+        )
+
         # Add existing Nextcloud video if exists
         if settings.NEXTCLOUD_ENABLED:
             context['nextcloud_video'] = NextcloudVideoFile.objects.filter(
                 license=self.object,
                 is_deleted=False
             ).first()
-        
+
         return context
 
     def post(self, request, *args, **kwargs) -> http.HttpResponse:
