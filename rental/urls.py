@@ -18,6 +18,17 @@ from .views import InventoryCalendarWeekView
 from .views import RentalListView
 from .views import api_inventory_calendar
 from .views import RentalTransactionViewSet
+from .views import cancel_rental
+from .views import close_rental
+from .views import create_submit
+from .views import duplicate_rental
+from .views import edit_note
+from .views import extend_rental
+from .views import mark_issued
+from .views import print_slip
+from .views import quick_issue
+from .views import report_issue
+from .views import send_reminder
 from .views import api_cancel_rental
 from .views import api_confirm_rental
 from .views import api_check_room_availability
@@ -82,6 +93,9 @@ router.register(r'equipment-set-items', EquipmentSetItemViewSet, basename='equip
 
 urlpatterns = [
     path('', RentalListView.as_view(), name='list'),
+    path('new/', RentalProcessView.as_view(), name='create'),
+    path('create/submit/', create_submit, name='create_submit'),
+    path('quick-issue/', quick_issue, name='quick_issue'),
     path('api/', include(router.urls)),
     # Custom admin-like pages and endpoints
     path('admin/rental-process/', RentalProcessView.as_view(), name='admin_rental_process'),
@@ -149,6 +163,15 @@ urlpatterns = [
     # Detail page for rental
     path('rental/<int:rental_id>/', RentalDetailView.as_view(), name='rental_detail'),
     path('rental/<int:rental_id>/return/', RentalReturnView.as_view(), name='rental_return'),
+    path('rental/<int:rental_id>/extend/', extend_rental, name='extend'),
+    path('rental/<int:rental_id>/mark-issued/', mark_issued, name='mark_issued'),
+    path('rental/<int:rental_id>/cancel/', cancel_rental, name='cancel'),
+    path('rental/<int:rental_id>/close/', close_rental, name='close'),
+    path('rental/<int:rental_id>/send-reminder/', send_reminder, name='send_reminder'),
+    path('rental/<int:rental_id>/edit-note/', edit_note, name='edit_note'),
+    path('rental/<int:rental_id>/report-issue/', report_issue, name='report_issue'),
+    path('rental/<int:rental_id>/duplicate/', duplicate_rental, name='duplicate'),
+    path('rental/<int:rental_id>/print-slip/', print_slip, name='print_slip'),
     # User detail page for rental
     path('user/rental/<int:rental_id>/', UserRentalDetailView.as_view(), name='user_rental_detail'),
 

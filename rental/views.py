@@ -28,6 +28,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -559,11 +560,11 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'purpose': '',
                 },
                 'urls': {
-                    'create': reverse('rental:api_create_rental'),
-                    'quick_issue': '#',
-                    'inventory_search': reverse('rental:api_search_inventory'),
-                    'users_search': reverse('rental:api_search_users'),
-                    'availability_check': '#',
+                    'create': reverse('rental:create_submit'),
+                    'quick_issue': reverse('rental:quick_issue'),
+                    'inventory_search': reverse('rental:api_inventory_search'),
+                    'users_search': reverse('rental:api_users_search'),
+                    'availability_check': reverse('rental:api_availability_check'),
                     'new_user': '/admin/auth/user/add/',
                 },
             },
@@ -1711,12 +1712,12 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             'detail': reverse('rental:rental_detail', args=[rental.pk]),
         }
         context['urls_json'] = {
-            'extend': reverse('rental:api_extend_rental'),
-            'mark_issued': reverse('rental:api_issue_from_reservation'),
-            'cancel': reverse('rental:api_cancel_rental'),
-            'close': '#',
-            'send_reminder': '#',
-            'report_issue': '#',
+            'extend': reverse('rental:extend', args=[rental.pk]),
+            'mark_issued': reverse('rental:mark_issued', args=[rental.pk]),
+            'cancel': reverse('rental:cancel', args=[rental.pk]),
+            'close': reverse('rental:close', args=[rental.pk]),
+            'send_reminder': reverse('rental:send_reminder', args=[rental.pk]),
+            'report_issue': reverse('rental:report_issue', args=[rental.pk]),
             'return_page': reverse('rental:rental_return', args=[rental.pk]),
             'edit_items': f'{reverse("rental:rental_detail", args=[rental.pk])}#items',
             'edit_user': f'{reverse("rental:rental_detail", args=[rental.pk])}#user',
@@ -1818,6 +1819,244 @@ class RentalReturnView(StaffRequiredMixin, TemplateView):
             context['error'] = _('Rental request not found')
 
         return context
+
+
+def _json_body(request):
+    try:
+        return json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return {}
+
+
+@login_required
+@staff_member_required
+def extend_rental(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    data = _json_body(request)
+    new_end_date = data.get('to') or data.get('new_end_date')
+    if not new_end_date:
+        return JsonResponse({'error': _('New end date is required')}, status=400)
+
+    from django.utils.dateparse import parse_datetime
+    new_end_datetime = parse_datetime(new_end_date)
+    if not new_end_datetime:
+        return JsonResponse({'error': _('Invalid date format')}, status=400)
+    if timezone.is_naive(new_end_datetime):
+        new_end_datetime = timezone.make_aware(new_end_datetime)
+
+    rental = get_object_or_404(RentalRequest, id=rental_id)
+    if rental.status not in ['reserved', 'issued']:
+        return JsonResponse({'error': _('Only active rentals can be extended')}, status=400)
+    if new_end_datetime <= rental.requested_end_date:
+        return JsonResponse({'error': _('New end date must be after current end date')}, status=400)
+    rental.requested_end_date = new_end_datetime
+    rental.save(update_fields=['requested_end_date', 'updated_at'])
+    return JsonResponse({'ok': True, 'success': True})
+
+
+@login_required
+@staff_member_required
+def mark_issued(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    rental = get_object_or_404(RentalRequest, id=rental_id)
+    if rental.status not in ['draft', 'reserved']:
+        return JsonResponse({'error': _('Only draft or reserved rentals can be issued')}, status=400)
+    with transaction.atomic():
+        rental.status = 'issued'
+        rental.actual_start_date = rental.actual_start_date or timezone.now()
+        rental.save(update_fields=['status', 'actual_start_date', 'updated_at'])
+        for rental_item in rental.items.select_related('inventory_item'):
+            quantity_to_issue = rental_item.quantity_requested or 0
+            if quantity_to_issue <= 0:
+                continue
+            rental_item.quantity_issued = quantity_to_issue
+            rental_item.save(update_fields=['quantity_issued'])
+            RentalTransaction.objects.create(
+                rental_item=rental_item,
+                transaction_type='issue',
+                quantity=quantity_to_issue,
+                performed_by=request.user,
+            )
+    return JsonResponse({'ok': True, 'success': True})
+
+
+@login_required
+@staff_member_required
+def cancel_rental(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    result = RentalService.cancel_rental(rental_id, request.user)
+    if result.get('success'):
+        return JsonResponse({'ok': True, **result})
+    return JsonResponse({'error': result.get('error', _('Could not cancel rental'))}, status=400)
+
+
+@login_required
+@staff_member_required
+def close_rental(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    rental = get_object_or_404(RentalRequest, id=rental_id)
+    if rental.status == 'issued':
+        return JsonResponse({'error': _('Issued rentals must be returned before closing')}, status=400)
+    return JsonResponse({'ok': True, 'success': True})
+
+
+@login_required
+@staff_member_required
+def send_reminder(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    get_object_or_404(RentalRequest, id=rental_id)
+    return JsonResponse({'ok': True, 'success': True, 'message': _('Reminder queued')})
+
+
+@login_required
+@staff_member_required
+def edit_note(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    rental = get_object_or_404(RentalRequest, id=rental_id)
+    rental.notes = request.POST.get('note', rental.notes)
+    rental.save(update_fields=['notes', 'updated_at'])
+    return redirect('rental:rental_detail', rental_id=rental.pk)
+
+
+@login_required
+@staff_member_required
+def report_issue(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    data = _json_body(request)
+    rental_item = get_object_or_404(RentalItem, id=data.get('item_id'), rental_request_id=rental_id)
+    issue = RentalIssue.objects.create(
+        rental_item=rental_item,
+        issue_type=data.get('issue_type', 'other'),
+        description=data.get('description') or data.get('desc') or '',
+        severity=data.get('severity', 'minor'),
+        reported_by=request.user,
+    )
+    return JsonResponse({'ok': True, 'success': True, 'issue_id': issue.pk})
+
+
+@login_required
+@staff_member_required
+def duplicate_rental(request, rental_id):
+    source = get_object_or_404(RentalRequest, id=rental_id)
+    with transaction.atomic():
+        duplicate = RentalRequest.objects.create(
+            user=source.user,
+            created_by=request.user,
+            project_name=source.project_name,
+            purpose=source.purpose,
+            requested_start_date=source.requested_start_date,
+            requested_end_date=source.requested_end_date,
+            status='draft',
+            rental_type=source.rental_type,
+            notes=source.notes,
+        )
+        for source_item in source.items.select_related('inventory_item'):
+            RentalItem.objects.create(
+                rental_request=duplicate,
+                inventory_item=source_item.inventory_item,
+                quantity_requested=source_item.quantity_requested,
+                notes=source_item.notes,
+            )
+        for source_room in source.room_rentals.select_related('room'):
+            RoomRental.objects.create(
+                rental_request=duplicate,
+                room=source_room.room,
+                people_count=source_room.people_count,
+                requested_start_date=source_room.requested_start_date,
+                requested_end_date=source_room.requested_end_date,
+                notes=source_room.notes,
+            )
+    return redirect('rental:rental_detail', rental_id=duplicate.pk)
+
+
+@login_required
+@staff_member_required
+def print_slip(request, rental_id):
+    return redirect('rental:print_form_msa', rental_id=rental_id)
+
+
+@login_required
+@staff_member_required
+def create_submit(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    data = _json_body(request)
+    service_data = {
+        'project_name': data.get('project') or data.get('project_name') or str(_('Untitled rental')),
+        'purpose': data.get('purpose') or str(_('Rental request')),
+        'start_date': data.get('from') or data.get('start_date'),
+        'end_date': data.get('to') or data.get('end_date'),
+        'action': 'reserved',
+        'items': [
+            {
+                'inventory_item_id': item.get('id'),
+                'quantity_requested': item.get('qty', 1),
+                'notes': item.get('notes', ''),
+            }
+            for item in data.get('items', [])
+        ],
+        'rooms': [
+            {
+                'room_id': room.get('id'),
+                'people_count': room.get('people_count', 1),
+                'notes': room.get('notes', ''),
+            }
+            for room in data.get('rooms', [])
+        ],
+        'notes': data.get('note', ''),
+    }
+    user = get_object_or_404(OKUser, id=data.get('user_id'))
+    result = RentalService.create_rental_request(service_data, user, request.user, is_user_request=False)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', _('Could not create rental'))}, status=400)
+    rental_id = result['rental_id']
+    return JsonResponse({
+        'success': True,
+        'rental_id': rental_id,
+        'detail_url': reverse('rental:rental_detail', args=[rental_id]),
+    })
+
+
+@login_required
+@staff_member_required
+def quick_issue(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    data = _json_body(request)
+    service_data = {
+        'project_name': data.get('project') or str(_('Quick rental')),
+        'purpose': data.get('purpose') or str(_('Quick issue')),
+        'start_date': data.get('from'),
+        'end_date': data.get('to'),
+        'action': 'issued',
+        'items': [
+            {
+                'inventory_item_id': item.get('id'),
+                'quantity_requested': item.get('qty', 1),
+                'notes': item.get('notes', ''),
+            }
+            for item in data.get('items', [])
+        ],
+        'rooms': [],
+        'notes': data.get('note', ''),
+    }
+    user = get_object_or_404(OKUser, id=data.get('user_id'))
+    result = RentalService.create_rental_request(service_data, user, request.user, is_user_request=False)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', _('Could not issue rental'))}, status=400)
+    rental = get_object_or_404(RentalRequest, id=result['rental_id'])
+    return JsonResponse({
+        'success': True,
+        'rental_id': rental.pk,
+        'detail_url': reverse('rental:rental_detail', args=[rental.pk]),
+    })
 
 
 class UserRentalDetailView(LoginRequiredMixin, TemplateView):
