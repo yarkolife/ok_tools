@@ -541,6 +541,11 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
             'rental_working_hours_summary': get_rental_working_hours_summary_text(),
             'initial_json': {
                 'categories': [{
+                    'id': '',
+                    'label': str(_('All')),
+                    'icon': 'fa-th',
+                    'count': InventoryItem.objects.filter(available_for_rent=True, status='in_stock').count(),
+                }] + [{
                     'id': str(category.pk),
                     'label': category.name,
                     'icon': 'fa-box',

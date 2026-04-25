@@ -33,20 +33,20 @@ function WizardScreen({ initial }) {
   const [notifySms, setNotifySms]     = React.useState(false);
 
   const steps = [
-    { title: t('wiz.step1', 'Items & rooms'),      hint: `${cart.length} ${t('wiz.items','items')} · ${rooms.length} ${t('wiz.rooms','rooms')}` },
-    { title: t('wiz.step2', 'User'),               hint: user ? user.name : t('wiz.no_user', 'Not selected') },
-    { title: t('wiz.step3', 'Time & conflicts'),   hint: period.from ? period.from.slice(0,10) + ' → ' + period.to.slice(0,10) : '—' },
+    { title: t('wiz.step1', 'User'),               hint: user ? user.name : t('wiz.no_user', 'Not selected') },
+    { title: t('wiz.step2', 'Time & conflicts'),   hint: period.from ? period.from.slice(0,10) + ' → ' + period.to.slice(0,10) : '—' },
+    { title: t('wiz.step3', 'Items & rooms'),      hint: `${cart.length} ${t('wiz.items','items')} · ${rooms.length} ${t('wiz.rooms','rooms')}` },
     { title: t('wiz.step4', 'Review & confirm'),   hint: t('wiz.send_confirm', 'Send confirmation') },
   ];
 
   // Validation per step — block "Next" until required fields are set
   const canNext = () => {
-    if (step === 0) return cart.length > 0 || rooms.length > 0;
-    if (step === 1) return !!user;
-    if (step === 2) {
+    if (step === 0) return !!user;
+    if (step === 1) {
       const f = new Date(period.from), tt = new Date(period.to);
       return !isNaN(f) && !isNaN(tt) && f < tt;
     }
+    if (step === 2) return cart.length > 0 || rooms.length > 0;
     return true;
   };
 
@@ -96,10 +96,10 @@ function WizardScreen({ initial }) {
             <Stepper steps={steps} active={step} setActive={setStep} />
 
             <div className="wizard-body">
-              {step === 0 && <StepItems initial={initial} cart={cart} setCart={setCart}
+              {step === 0 && <StepUser initial={initial} selected={user} setSelected={setUser} />}
+              {step === 1 && <StepTime initial={initial} period={period} setPeriod={setPeriod} cart={cart} />}
+              {step === 2 && <StepItems initial={initial} cart={cart} setCart={setCart}
                                         rooms={rooms} setRooms={setRooms} />}
-              {step === 1 && <StepUser initial={initial} selected={user} setSelected={setUser} />}
-              {step === 2 && <StepTime initial={initial} period={period} setPeriod={setPeriod} cart={cart} />}
               {step === 3 && <StepReview user={user} period={period} cart={cart} rooms={rooms}
                                          project={project} setProject={setProject}
                                          purpose={purpose} setPurpose={setPurpose}
@@ -161,7 +161,7 @@ function StepItems({ initial, cart, setCart, rooms, setRooms }) {
 
   // Fetch inventory items when category or search changes
   React.useEffect(() => {
-    if (mode !== 'items' || !activeTab) return;
+    if (mode !== 'items' || activeTab == null) return;
     setLoading(true);
     const timer = setTimeout(() => {
       const q = new URLSearchParams({ cat: activeTab, q: search });

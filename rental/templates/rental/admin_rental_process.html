@@ -1,76 +1,66 @@
-{% extends 'base.html' %}
 {% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "New rental" %} — OK Tools</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #417690 !important;">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Rentals" %}
+            </a>
+            <div class="navbar-nav ms-auto align-items-center gap-2">
+                <span class="navbar-text text-white d-none d-md-inline">
+                    <i class="fas fa-plus-circle me-2"></i>{% trans "New Rental" %}
+                </span>
+                <a class="btn btn-sm btn-outline-light" href="/admin/">
+                    <i class="fas fa-cog me-1"></i>{% trans "Admin" %}
+                </a>
+            </div>
+        </div>
+    </nav>
 
-{% comment %}
-  rental/templates/rental/admin_rental_process.html
-  -----------------------------------------------------------------
-  Full React island — all interactivity lives in wizard.jsx.
+    <div class="container-fluid" style="max-width:1400px; padding:20px 24px">
+        <div id="wizard-root">
+            <div class="p-5 text-center muted">
+                <i class="fas fa-spinner fa-spin" style="font-size: 24px"></i>
+                <div class="mt-2">{% trans "Loading…" %}</div>
+            </div>
+        </div>
+    </div>
 
-  View context:
-    initial_json    — dict passed to WizardScreen as props. Structure:
-      {
-        categories: [{id, label, icon, count}, ...],
-        users:      [{id, name, org, role, initials, past, email, warn?}, ...],
-        rooms:      [{id, name, sub, free, default_slot?}, ...],
-        defaults:   {from: 'YYYY-MM-DDTHH:MM', to: '...', project: '', purpose: ''},
-        urls: {
-          create:              reverse('rental:create_submit'),
-          quick_issue:         reverse('rental:quick_issue'),
-          inventory_search:    reverse('rental:api_inventory'),
-          availability_check:  reverse('rental:api_availability'),
-          users_search:        reverse('rental:api_users'),
-          new_user:            reverse('rental:new_user'),
-        },
-      }
-    i18n_strings    — dict of translated strings (see wizard.jsx for keys)
-  -----------------------------------------------------------------
-{% endcomment %}
+    {{ initial_json|json_script:"wizard-initial" }}
+    {{ i18n_strings|json_script:"rr-i18n" }}
 
-{% block title %}{% trans "New rental" %}{% endblock %}
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+            integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+            integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+            integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+            crossorigin="anonymous"></script>
 
-{% block extra_css %}
-  <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block content %}
-
-<div class="crumbs">
-  <a href="{% url 'rental:list' %}">{% trans "Rentals" %}</a>
-  <i class="fas fa-chevron-right"></i>
-  <span>{% trans "New" %}</span>
-</div>
-
-<div id="wizard-root">
-  <div class="p-5 text-center muted">
-    <i class="fas fa-spinner fa-spin" style="font-size: 24px"></i>
-    <div class="mt-2">{% trans "Loading…" %}</div>
-  </div>
-</div>
-
-{{ initial_json|json_script:"wizard-initial" }}
-{{ i18n_strings|json_script:"rr-i18n" }}
-
-{% endblock %}
-
-
-{% block extra_js %}
-<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
-        integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
-        crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
-        integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
-        crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
-        integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
-        crossorigin="anonymous"></script>
-
-<script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
-<script type="text/babel" src="{% static 'rental/js/wizard.jsx' %}"></script>
-<script type="text/babel">
-(() => {
-  const initial = JSON.parse(document.getElementById('wizard-initial').textContent);
-  ReactDOM.createRoot(document.getElementById('wizard-root'))
-          .render(<WizardScreen initial={initial} />);
-})();
-</script>
-{% endblock %}
+    <script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'rental/js/wizard.jsx' %}"></script>
+    <script type="text/babel">
+    (() => {
+      const initial = JSON.parse(document.getElementById('wizard-initial').textContent);
+      ReactDOM.createRoot(document.getElementById('wizard-root'))
+              .render(<WizardScreen initial={initial} />);
+    })();
+    </script>
+</body>
+</html>
