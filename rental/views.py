@@ -84,6 +84,18 @@ class DefaultPagination(PageNumberPagination):
     max_page_size = 200
 
 
+def _add_sidebar_counts(context):
+    now = timezone.now()
+    base = RentalRequest.objects.all()
+    context['sidebar'] = {
+        'all_count': base.count(),
+        'issued_count': base.filter(status='issued').count(),
+        'overdue_count': base.filter(status='issued', requested_end_date__lt=now).count(),
+        'due_today_count': base.filter(status='issued', requested_end_date__date=now.date()).count(),
+        'pending_approval_count': base.filter(status='draft').count(),
+    }
+
+
 def _user_display_name(user):
     profile = getattr(user, 'profile', None)
     if profile and profile.first_name and profile.last_name:
@@ -2369,6 +2381,30 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         context['prev_day'] = day - timedelta(days=1)
         context['next_day'] = day + timedelta(days=1)
         context['hours'] = [slot_start.strftime('%H:%M') for slot_start, _ in _iter_time_slots(day, 60)]
+        context['sidebar_active'] = 'calendar'
+        _add_sidebar_counts(context)
+        return context
+
+
+class InventoryCalendarWeekView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/inventory_calendar_week.html'
+
+    def get_context_data(self, **kwargs):
+        from django.utils import timezone
+        from datetime import timedelta
+        context = super().get_context_data(**kwargs)
+        date_str = self.request.GET.get('date')
+        try:
+            from django.utils.dateparse import parse_date
+            ref = parse_date(date_str) if date_str else timezone.now().date()
+        except Exception:
+            ref = timezone.now().date()
+        context['ref_day'] = ref
+        context['prev_week'] = ref - timedelta(days=7)
+        context['next_week'] = ref + timedelta(days=7)
+        context['week_days'] = [ref + timedelta(days=i) for i in range(7)]
+        context['sidebar_active'] = 'calendar'
+        _add_sidebar_counts(context)
         return context
 
 

@@ -1,0 +1,49 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Inventory Calendar" %} — {{ day|date:"d M Y" }}</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">{% trans "OK Tools Rental" %}</a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/">{% trans "Admin" %}</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="page">
+        {% include 'rental/_sidebar.html' %}
+        <div class="page-main">
+            <div class="page-title">
+                <h1>{% trans "Inventory Calendar" %}</h1>
+                <span class="sub">{{ day|date:"l, d F Y" }}</span>
+                <div class="page-actions">
+                    <a href="?date={{ prev_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
+                    <a href="{% url 'rental:inventory_calendar_week' %}?date={{ day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Week" %}</a>
+                    <a href="?date={{ next_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+            <div class="surface p-4">
+                <div id="calendar-day-root"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+            integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+            integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+</body>
+</html>

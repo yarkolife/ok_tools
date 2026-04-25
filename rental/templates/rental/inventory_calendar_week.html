@@ -1,0 +1,44 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Inventory Calendar" %}</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">{% trans "OK Tools Rental" %}</a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/">{% trans "Admin" %}</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="page">
+        {% include 'rental/_sidebar.html' %}
+        <div class="page-main">
+            <div class="page-title">
+                <h1>{% trans "Inventory Calendar" %}</h1>
+                <span class="sub">{% trans "Week view" %}</span>
+                <div class="page-actions">
+                    <a href="?date={{ prev_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
+                    <a href="?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Today" %}</a>
+                    <a href="?date={{ next_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+            <div class="surface p-4">
+                <p class="muted">{% trans "Inventory calendar week view will be enhanced in a future update." %}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
