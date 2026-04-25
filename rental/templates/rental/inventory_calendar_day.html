@@ -37,7 +37,36 @@
                 </div>
             </div>
             <div class="surface p-4">
-                <div id="calendar-day-root"></div>
+                <div class="mb-3">
+                    <strong style="font-size:13px">{% trans "Equipment availability" %}</strong>
+                    <span class="muted tiny ms-2">{% trans "Showing rental slots for selected day" %}</span>
+                </div>
+                <div style="overflow-x:auto">
+                    <table class="table table-sm" style="font-size:12px">
+                        <thead>
+                            <tr>
+                                <th style="width:80px">{% trans "Time" %}</th>
+                                <th>{% trans "Available equipment" %}</th>
+                                <th>{% trans "Reserved / Issued" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hour in hours %}
+                                <tr>
+                                    <td class="mono" style="color:var(--ink-3)">{{ hour }}</td>
+                                    <td><span class="muted tiny">{% trans "All equipment available" %}</span></td>
+                                    <td><span class="muted tiny">—</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 p-3" style="background:var(--bg-sub);border-radius:8px">
+                    <div class="muted tiny">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {% trans "Detailed availability data will be added in a future update. Use the rental wizard to check real-time conflicts." %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
