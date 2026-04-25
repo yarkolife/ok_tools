@@ -498,6 +498,16 @@ class RentalListView(StaffRequiredMixin, ListView):
         context['current_q'] = self.request.GET.get('q', '')
         context['i18n_bundle'] = _i18n_bundle()
         context['is_paginated'] = True
+        context['sidebar'] = {
+            'all_count': base_queryset.count(),
+            'issued_count': base_queryset.filter(status='issued').count(),
+            'overdue_count': base_queryset.filter(status='issued', requested_end_date__lt=now).count(),
+            'due_today_count': base_queryset.filter(
+                status='issued',
+                requested_end_date__date=now.date(),
+            ).count(),
+            'pending_approval_count': base_queryset.filter(status='draft').count(),
+        }
         return context
 
 

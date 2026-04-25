@@ -1,48 +1,99 @@
-{% extends 'base.html' %}
 {% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Rentals" %} — OK Tools</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
+                    {% trans "OK Tools Rental" %}
+                </a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/">
+                        <i class="fas fa-cog me-1"></i>{% trans "Admin" %}
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
 
-{% comment %}
-  rental/templates/rental/list.html
-  -----------------------------------------------------------------
-  Simplified rentals list — no React. Pure Django template + CSS.
+    <div class="page">
+        <aside class="page-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Workflows" %}</div>
+                <a class="nav-link" href="{% url 'rental:admin_rental_process' %}">
+                    <i class="fas fa-plus"></i>
+                    <div style="min-width:0;flex:1">
+                        <div style="line-height:1.2">{% trans "New rental" %}</div>
+                    </div>
+                    <span class="kbd">N</span>
+                </a>
+                <a class="nav-link active" href="{% url 'rental:list' %}">
+                    <i class="fas fa-list-ul"></i>
+                    <div style="min-width:0;flex:1">
+                        <div style="line-height:1.2">{% trans "All rentals" %}</div>
+                    </div>
+                    <span class="nav-count">{{ sidebar.all_count }}</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <i class="fas fa-box-open"></i>
+                    <div style="min-width:0;flex:1">
+                        <div style="line-height:1.2">{% trans "Return" %}</div>
+                    </div>
+                    <span class="nav-count warn">{{ sidebar.issued_count }}</span>
+                </a>
+            </div>
 
-  View must provide:
-    rentals          — iterable of rental objects (see below for expected attrs)
-    counts           — dict: {all, reserved, issued, overdue, returned}
-    current_status   — '' or one of the statuses (for active tab)
-    current_q        — search string
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Views" %}</div>
+                <a class="nav-link" href="{% url 'rental:inventory_calendar_week' %}">
+                    <i class="fas fa-calendar-days"></i>{% trans "Calendar" %}
+                </a>
+                <a class="nav-link" href="/admin/inventory/inventoryitem/">
+                    <i class="fas fa-warehouse"></i>{% trans "Inventory" %}
+                </a>
+                <a class="nav-link" href="/admin/rental/room/">
+                    <i class="fas fa-door-open"></i>{% trans "Rooms" %}
+                </a>
+                <a class="nav-link" href="/admin/registration/okuser/">
+                    <i class="fas fa-users"></i>{% trans "Users" %}
+                </a>
+            </div>
 
-  Each rental object (from view, not model) needs:
-    .id            — str, e.g. 'R-2411-0142'
-    .project       — str
-    .purpose       — str (optional)
-    .user          — obj with .name, .org, .initials
-    .status        — 'reserved'|'issued'|'overdue'|'returned'|'cancelled'|'draft'
-    .from_at       — datetime (use .isoformat or a filter below)
-    .to_at         — datetime
-    .item_count    — int
-    .room_count    — int
-    .first_room    — str (optional, shown under id)
-    .overdue_days  — int (for overdue rentals)
-    .detail_url    — str (reverse of detail view)
-    .return_url    — str (reverse of return view, when status == issued/overdue)
-    .issue_url     — str (reverse of mark-issued action, when status == reserved)
-  -----------------------------------------------------------------
-{% endcomment %}
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Attention" %}</div>
+                <a class="nav-link" href="?status=overdue">
+                    <i class="fas fa-triangle-exclamation" style="color:oklch(0.6 0.15 28)"></i>
+                    {% trans "Overdue" %}
+                    <span class="nav-count bad">{{ sidebar.overdue_count }}</span>
+                </a>
+                <a class="nav-link" href="?status=issued">
+                    <i class="fas fa-hourglass-half" style="color:oklch(0.62 0.12 75)"></i>
+                    {% trans "Due today" %}
+                    <span class="nav-count warn">{{ sidebar.due_today_count }}</span>
+                </a>
+                <a class="nav-link" href="?status=draft">
+                    <i class="fas fa-circle-question"></i>
+                    {% trans "Pending approval" %}
+                    <span class="nav-count">{{ sidebar.pending_approval_count }}</span>
+                </a>
+            </div>
+        </aside>
 
-{% block title %}{% trans "Rentals" %} — OK Tools{% endblock %}
-
-{% block extra_css %}
-  <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block content %}
-
-<div class="crumbs">
-  <a href="{% url 'home' %}">{% trans "OK Tools" %}</a>
-  <i class="fas fa-chevron-right"></i>
-  <span>{% trans "Rentals" %}</span>
-</div>
+        <div class="page-main">
 
 <div class="page-title">
   <h1>{% trans "All rentals" %}</h1>
@@ -57,7 +108,6 @@
   </div>
 </div>
 
-{# === Stat strip acts as status filter === #}
 <div class="stat-bar">
   <a href="?{% if current_q %}q={{ current_q }}{% endif %}"
      class="stat-cell {% if not current_status %}active{% endif %}"
@@ -91,7 +141,6 @@
   </a>
 </div>
 
-{# === Toolbar === #}
 <form method="get" class="list-toolbar">
   {% if current_status %}<input type="hidden" name="status" value="{{ current_status }}">{% endif %}
   <div class="filters" style="margin:0;flex:1">
@@ -118,7 +167,6 @@
   <div class="muted tiny">{{ rentals|length }} {% trans "shown" %}</div>
 </form>
 
-{# === List === #}
 <div class="rental-list">
   <div class="list-head">
     <div>{% trans "Rental ID" %}</div>
@@ -206,7 +254,6 @@
   {% endfor %}
 </div>
 
-{# === Pagination === #}
 {% if is_paginated %}
   <nav class="mt-3 d-flex justify-content-center">
     <ul class="pagination pagination-sm">
@@ -223,4 +270,7 @@
   </nav>
 {% endif %}
 
-{% endblock %}
+        </div>
+    </div>
+</body>
+</html>
