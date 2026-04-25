@@ -18,10 +18,14 @@
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
     <!-- Legacy dashboard CSS (will be gradually replaced) -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
-    <!-- Dashboard Theme CSS -->
-    <link href="{% static DASHBOARD_THEME_FILE %}" rel="stylesheet">
-    <link href="{% static 'css/themes/theme-dark.css' %}" rel="stylesheet">
-    {% block extra_css %}{% endblock %}
+     <!-- Dashboard Theme CSS -->
+     <link href="{% static DASHBOARD_THEME_FILE %}" rel="stylesheet">
+     <link href="{% static 'css/themes/theme-dark.css' %}" rel="stylesheet">
+     <!-- FontAwesome 6.4 -->
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+     <!-- Inter & JetBrains Mono Fonts -->
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+     {% block extra_css %}{% endblock %}
 </head>
 <body class="dashboard-body">
     <!-- Sidebar -->
