@@ -2403,7 +2403,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                 for rental_item in active_rentals:
                     r = rental_item.rental_request
                     items_data.append({
-                        'name': item.name,
+                        'name': item.description,
                         'num': item.inventory_number,
                         'category': item.category.name if item.category else '—',
                         'status': r.status,
@@ -2414,7 +2414,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                     })
             else:
                 items_data.append({
-                    'name': item.name,
+                    'name': item.description,
                     'num': item.inventory_number,
                     'category': item.category.name if item.category else '—',
                     'status': 'available',
