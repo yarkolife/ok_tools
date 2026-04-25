@@ -2384,12 +2384,21 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         day_start = timezone.make_aware(timezone.datetime.combine(day, timezone.datetime.min.time()))
         day_end = day_start + timedelta(days=1)
         
+        search_query = self.request.GET.get('q', '').strip()
+        status_filter = self.request.GET.get('status', '')
+        sort_by = self.request.GET.get('sort', 'status')
+        
         from inventory.models import InventoryItem
         items = InventoryItem.objects.filter(
             available_for_rent=True, status='in_stock'
         ).select_related('category', 'location').prefetch_related(
             'rentalitem_set__rental_request'
         )
+        
+        if search_query:
+            items = items.filter(
+                Q(description__icontains=search_query) | Q(inventory_number__icontains=search_query)
+            )
         
         items_data = []
         for item in items:
@@ -2424,7 +2433,20 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                     'to': None,
                 })
         
-        context['items'] = sorted(items_data, key=lambda x: (x['status'] != 'available', x['name']))
+        if status_filter:
+            items_data = [i for i in items_data if i['status'] == status_filter]
+        
+        if sort_by == 'name':
+            items_data.sort(key=lambda x: x['name'].lower())
+        elif sort_by == 'category':
+            items_data.sort(key=lambda x: x['category'].lower())
+        else:
+            items_data.sort(key=lambda x: (x['status'] != 'available', x['name'].lower()))
+        
+        context['items'] = items_data
+        context['search_query'] = search_query
+        context['status_filter'] = status_filter
+        context['sort_by'] = sort_by
         context['sidebar_active'] = 'calendar'
         _add_sidebar_counts(context)
         return context

@@ -37,34 +37,57 @@
                 </div>
             </div>
             <div class="surface p-4">
-                <div class="mb-3">
-                    <strong style="font-size:13px">{% trans "Equipment status" %}</strong>
-                    <span class="muted tiny ms-2">{{ items|length }} {% trans "item(s)" %}</span>
+                <div class="mb-3 d-flex align-items-center" style="gap:12px">
+                    <div style="flex:1">
+                        <strong style="font-size:13px">{% trans "Equipment status" %}</strong>
+                        <span class="muted tiny ms-2">{{ items|length }} {% trans "item(s)" %}</span>
+                    </div>
+                    <form method="get" class="d-flex" style="gap:8px">
+                        <input type="hidden" name="date" value="{{ day|date:'Y-m-d' }}">
+                        <div class="search" style="max-width:280px">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="form-control form-control-sm" name="q" 
+                                   placeholder="{% trans 'Search item or number…' %}"
+                                   value="{{ search_query|default:'' }}">
+                        </div>
+                        <select class="form-select form-select-sm" name="status" style="max-width:140px" onchange="this.form.submit()">
+                            <option value="">{% trans "All statuses" %}</option>
+                            <option value="available" {% if status_filter == 'available' %}selected{% endif %}>{% trans "Available" %}</option>
+                            <option value="reserved" {% if status_filter == 'reserved' %}selected{% endif %}>{% trans "Reserved" %}</option>
+                            <option value="issued" {% if status_filter == 'issued' %}selected{% endif %}>{% trans "Issued" %}</option>
+                        </select>
+                        <select class="form-select form-select-sm" name="sort" style="max-width:140px" onchange="this.form.submit()">
+                            <option value="status" {% if sort_by == 'status' %}selected{% endif %}>{% trans "Sort: Status" %}</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>{% trans "Sort: Name" %}</option>
+                            <option value="category" {% if sort_by == 'category' %}selected{% endif %}>{% trans "Sort: Category" %}</option>
+                        </select>
+                        <button type="submit" class="btn btn-ghost btn-sm"><i class="fas fa-filter"></i></button>
+                    </form>
                 </div>
                 
                 <div class="rental-list">
                     <div class="list-head">
-                        <div>{% trans "Item" %}</div>
-                        <div>{% trans "Category" %}</div>
-                        <div>{% trans "Status" %}</div>
-                        <div>{% trans "Rental / User" %}</div>
-                        <div>{% trans "Period" %}</div>
+                        <div style="min-width:240px">{% trans "Item" %}</div>
+                        <div style="min-width:120px">{% trans "Category" %}</div>
+                        <div style="min-width:100px">{% trans "Status" %}</div>
+                        <div style="min-width:140px">{% trans "Rental / User" %}</div>
+                        <div style="min-width:160px">{% trans "Period" %}</div>
                     </div>
                     {% for item in items %}
                         <div class="rental-row">
-                            <div style="min-width:0">
+                            <div style="min-width:240px">
                                 <div class="name" style="font-size:13px;font-weight:500">{{ item.name }}</div>
                                 <div class="muted tiny mono">{{ item.num }}</div>
                             </div>
-                            <div><span class="muted" style="font-size:12px">{{ item.category }}</span></div>
-                            <div>
+                            <div style="min-width:120px"><span class="muted" style="font-size:12px">{{ item.category }}</span></div>
+                            <div style="min-width:100px">
                                 {% if item.status == 'available' %}
                                     <span class="tag tag-green">{% trans "Available" %}</span>
                                 {% else %}
                                     {% include 'rental/_status_pill.html' with status=item.status %}
                                 {% endif %}
                             </div>
-                            <div style="min-width:0">
+                            <div style="min-width:140px">
                                 {% if item.rental_id %}
                                     <div class="rid" style="font-size:11px">{{ item.rental_id }}</div>
                                     <div class="muted tiny">{{ item.user }}</div>
@@ -72,7 +95,7 @@
                                     <span class="muted tiny">—</span>
                                 {% endif %}
                             </div>
-                            <div>
+                            <div style="min-width:160px">
                                 {% if item.from %}
                                     <div class="time-cell" style="font-size:11px">
                                         {{ item.from|date:"d M H:i" }}
@@ -82,6 +105,11 @@
                                     <span class="muted tiny">—</span>
                                 {% endif %}
                             </div>
+                        </div>
+                    {% empty %}
+                        <div class="p-4 text-center muted">
+                            <i class="fas fa-search" style="font-size:32px;color:var(--ink-4)"></i>
+                            <div class="mt-2">{% trans "No items match your filters." %}</div>
                         </div>
                     {% endfor %}
                 </div>
