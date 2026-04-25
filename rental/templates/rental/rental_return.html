@@ -1,71 +1,122 @@
-{% extends 'base.html' %}
 {% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Process return" %} — {{ rental.id }}</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
+                    {% trans "OK Tools Rental" %}
+                </a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/">
+                        <i class="fas fa-cog me-1"></i>{% trans "Admin" %}
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
 
-{% comment %}
-  rental/templates/rental/rental_return.html
-  -----------------------------------------------------------------
-  React island — all return logic in return.jsx.
+    <div class="page">
+        <aside class="page-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Workflows" %}</div>
+                <a class="nav-link" href="{% url 'rental:admin_rental_process' %}">
+                    <i class="fas fa-plus"></i>
+                    <div style="min-width:0;flex:1"><div style="line-height:1.2">{% trans "New rental" %}</div></div>
+                    <span class="kbd">N</span>
+                </a>
+                <a class="nav-link" href="{% url 'rental:list' %}">
+                    <i class="fas fa-list-ul"></i>
+                    <div style="min-width:0;flex:1"><div style="line-height:1.2">{% trans "All rentals" %}</div></div>
+                    <span class="nav-count">{{ sidebar.all_count }}</span>
+                </a>
+                <a class="nav-link active" href="{% url 'rental:admin_return' %}">
+                    <i class="fas fa-box-open"></i>
+                    <div style="min-width:0;flex:1"><div style="line-height:1.2">{% trans "Return" %}</div></div>
+                    <span class="nav-count warn">{{ sidebar.issued_count }}</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Views" %}</div>
+                <a class="nav-link" href="{% url 'rental:inventory_calendar_week' %}"><i class="fas fa-calendar-days"></i>{% trans "Calendar" %}</a>
+                <a class="nav-link" href="/admin/inventory/inventoryitem/"><i class="fas fa-warehouse"></i>{% trans "Inventory" %}</a>
+                <a class="nav-link" href="/admin/rental/room/"><i class="fas fa-door-open"></i>{% trans "Rooms" %}</a>
+                <a class="nav-link" href="/admin/registration/okuser/"><i class="fas fa-users"></i>{% trans "Users" %}</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Attention" %}</div>
+                <a class="nav-link" href="{% url 'rental:list' %}?status=overdue">
+                    <i class="fas fa-triangle-exclamation" style="color:oklch(0.6 0.15 28)"></i>
+                    {% trans "Overdue" %}<span class="nav-count bad">{{ sidebar.overdue_count }}</span>
+                </a>
+                <a class="nav-link" href="{% url 'rental:list' %}?status=issued">
+                    <i class="fas fa-hourglass-half" style="color:oklch(0.62 0.12 75)"></i>
+                    {% trans "Due today" %}<span class="nav-count warn">{{ sidebar.due_today_count }}</span>
+                </a>
+                <a class="nav-link" href="{% url 'rental:list' %}?status=draft">
+                    <i class="fas fa-circle-question"></i>
+                    {% trans "Pending approval" %}<span class="nav-count">{{ sidebar.pending_approval_count }}</span>
+                </a>
+            </div>
+        </aside>
 
-  View context:
-    rental          — dict with .id, .project, .user{name,org,initials}, .to_at (ISO)
-    rental_json     — serialized rental for React
-    items_json      — list of items: {id, name, num, qty_issued, issued_at}
-    urls_json       — {submit_return, detail}
-    i18n_strings    — translations
-  -----------------------------------------------------------------
-{% endcomment %}
+        <div class="page-main">
 
-{% block title %}{% trans "Process return" %} — {{ rental.id }}{% endblock %}
+            <div class="crumbs">
+                <a href="{% url 'rental:list' %}">{% trans "Rentals" %}</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="{% url 'rental:rental_detail' rental.pk %}">{{ rental.id }}</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>{% trans "Return" %}</span>
+            </div>
 
-{% block extra_css %}
-  <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
-{% endblock %}
+            <div class="page-title">
+                <h1>{% trans "Process return" %}</h1>
+                <span class="sub">{{ rental.project }} · {{ rental.user.name }}</span>
+            </div>
 
-{% block content %}
+            <div id="return-root"></div>
 
-<div class="crumbs">
-  <a href="{% url 'rental:list' %}">{% trans "Rentals" %}</a>
-  <i class="fas fa-chevron-right"></i>
-  <a href="{% url 'rental:rental_detail' rental.pk %}">{{ rental.id }}</a>
-  <i class="fas fa-chevron-right"></i>
-  <span>{% trans "Return" %}</span>
-</div>
+            {{ rental_json|json_script:"rental-data" }}
+            {{ items_json|json_script:"rental-items" }}
+            {{ urls_json|json_script:"rental-urls" }}
+            {{ i18n_strings|json_script:"rr-i18n" }}
 
-<div class="page-title">
-  <h1>{% trans "Process return" %}</h1>
-  <span class="sub">{{ rental.project }} · {{ rental.user.name }}</span>
-</div>
-
-<div id="return-root"></div>
-
-{{ rental_json|json_script:"rental-data" }}
-{{ items_json|json_script:"rental-items" }}
-{{ urls_json|json_script:"rental-urls" }}
-{{ i18n_strings|json_script:"rr-i18n" }}
-
-{% endblock %}
-
-
-{% block extra_js %}
-<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
-        integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
-        crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
-        integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
-        crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
-        integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
-        crossorigin="anonymous"></script>
-
-<script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
-<script type="text/babel" src="{% static 'rental/js/return.jsx' %}"></script>
-<script type="text/babel">
-(() => {
-  const rental = JSON.parse(document.getElementById('rental-data').textContent);
-  const items  = JSON.parse(document.getElementById('rental-items').textContent);
-  const urls   = JSON.parse(document.getElementById('rental-urls').textContent);
-  ReactDOM.createRoot(document.getElementById('return-root'))
-    .render(<ReturnScreen rental={rental} items={items} urls={urls} />);
-})();
-</script>
-{% endblock %}
+            <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+                    integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
+                    crossorigin="anonymous"></script>
+            <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+                    integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
+                    crossorigin="anonymous"></script>
+            <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+                    integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+                    crossorigin="anonymous"></script>
+            <script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
+            <script type="text/babel" src="{% static 'rental/js/return.jsx' %}"></script>
+            <script type="text/babel">
+            (() => {
+              const rental = JSON.parse(document.getElementById('rental-data').textContent);
+              const items  = JSON.parse(document.getElementById('rental-items').textContent);
+              const urls   = JSON.parse(document.getElementById('rental-urls').textContent);
+              ReactDOM.createRoot(document.getElementById('return-root'))
+                .render(<ReturnScreen rental={rental} items={items} urls={urls} />);
+            })();
+            </script>
+        </div>
+    </div>
+</body>
+</html>

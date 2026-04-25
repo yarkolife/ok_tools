@@ -164,7 +164,7 @@ urlpatterns = [
 
     # Detail page for rental
     path('rental/<int:rental_id>/', RentalDetailView.as_view(), name='rental_detail'),
-    path('rental/<int:rental_id>/return/', RentalReturnView.as_view(), name='rental_return'),
+    path('admin/return/<int:rental_id>/', RentalReturnView.as_view(), name='rental_return'),
     path('rental/<int:rental_id>/extend/', extend_rental, name='extend'),
     path('rental/<int:rental_id>/mark-issued/', mark_issued, name='mark_issued'),
     path('rental/<int:rental_id>/cancel/', cancel_rental, name='cancel'),

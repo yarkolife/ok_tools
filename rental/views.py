@@ -1801,6 +1801,15 @@ class RentalReturnView(StaffRequiredMixin, TemplateView):
         """Prepare context data for rental return page."""
         context = super().get_context_data(**kwargs)
         rental_id = kwargs.get('rental_id')
+        now = timezone.now()
+        base = RentalRequest.objects.all()
+        context['sidebar'] = {
+            'all_count': base.count(),
+            'issued_count': base.filter(status='issued').count(),
+            'overdue_count': base.filter(status='issued', requested_end_date__lt=now).count(),
+            'due_today_count': base.filter(status='issued', requested_end_date__date=now.date()).count(),
+            'pending_approval_count': base.filter(status='draft').count(),
+        }
 
         try:
             rental = RentalRequest.objects.select_related(
