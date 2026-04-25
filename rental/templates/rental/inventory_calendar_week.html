@@ -28,15 +28,24 @@
         <div class="page-main">
             <div class="page-title">
                 <h1>{% trans "Inventory Calendar" %}</h1>
-                <span class="sub">{% trans "Week view" %}</span>
+                <span class="sub">{% trans "Week" %} {{ ref_day|date:"W, Y" }}</span>
                 <div class="page-actions">
                     <a href="?date={{ prev_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
-                    <a href="?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Today" %}</a>
+                    <a href="{% url 'rental:inventory_calendar_day' %}?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-primary btn-sm">{% trans "Day" %}</a>
                     <a href="?date={{ next_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
                 </div>
             </div>
             <div class="surface p-4">
-                <p class="muted">{% trans "Inventory calendar week view will be enhanced in a future update." %}</p>
+                <div class="d-flex mb-3" style="gap:8px;overflow-x:auto">
+                    {% for d in week_days %}
+                        <a href="{% url 'rental:inventory_calendar_day' %}?date={{ d|date:'Y-m-d' }}" 
+                           class="btn btn-ghost btn-sm" style="min-width:80px">
+                            <div style="font-size:11px;color:var(--ink-3)">{{ d|date:"D" }}</div>
+                            <div style="font-weight:600">{{ d|date:"d M" }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                <p class="muted">{% trans "Select a day above to view detailed availability." %}</p>
             </div>
         </div>
     </div>
