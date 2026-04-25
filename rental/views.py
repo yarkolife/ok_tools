@@ -2380,7 +2380,51 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         context['day'] = day
         context['prev_day'] = day - timedelta(days=1)
         context['next_day'] = day + timedelta(days=1)
-        context['hours'] = [slot_start.strftime('%H:%M') for slot_start, _ in _iter_time_slots(day, 60)]
+        
+        day_start = timezone.make_aware(timezone.datetime.combine(day, timezone.datetime.min.time()))
+        day_end = day_start + timedelta(days=1)
+        
+        from inventory.models import InventoryItem
+        items = InventoryItem.objects.filter(
+            available_for_rent=True, status='in_stock'
+        ).select_related('category', 'location').prefetch_related(
+            'rentalitem_set__rental_request'
+        )
+        
+        items_data = []
+        for item in items:
+            active_rentals = item.rentalitem_set.filter(
+                rental_request__status__in=['reserved', 'issued'],
+                rental_request__requested_start_date__lt=day_end,
+                rental_request__requested_end_date__gt=day_start,
+            ).select_related('rental_request__user', 'rental_request__user__profile')
+            
+            if active_rentals.exists():
+                for rental_item in active_rentals:
+                    r = rental_item.rental_request
+                    items_data.append({
+                        'name': item.name,
+                        'num': item.inventory_number,
+                        'category': item.category.name if item.category else '—',
+                        'status': r.status,
+                        'rental_id': f"R-{r.created_at.strftime('%y%m')}-{r.pk:04d}",
+                        'user': _user_display_name(r.user),
+                        'from': r.requested_start_date,
+                        'to': r.requested_end_date,
+                    })
+            else:
+                items_data.append({
+                    'name': item.name,
+                    'num': item.inventory_number,
+                    'category': item.category.name if item.category else '—',
+                    'status': 'available',
+                    'rental_id': None,
+                    'user': None,
+                    'from': None,
+                    'to': None,
+                })
+        
+        context['items'] = sorted(items_data, key=lambda x: (x['status'] != 'available', x['name']))
         context['sidebar_active'] = 'calendar'
         _add_sidebar_counts(context)
         return context
