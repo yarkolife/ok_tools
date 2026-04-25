@@ -339,9 +339,29 @@ function CartSummary({ cart, setQty, removeItem, rooms }) {
 /* ===== STEP 2 — User ===== */
 function StepUser({ initial, selected, setSelected }) {
   const [q, setQ] = React.useState('');
-  const filtered = (initial.users || []).filter(u =>
+  const [remoteUsers, setRemoteUsers] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  // Debounced remote search when user types
+  React.useEffect(() => {
+    if (!q || q.length < 2) { setRemoteUsers([]); return; }
+    setLoading(true);
+    const timer = setTimeout(() => {
+      apiGet(initial.urls.users_search + '?q=' + encodeURIComponent(q))
+        .then(data => setRemoteUsers(data.users || []))
+        .catch(() => setRemoteUsers([]))
+        .finally(() => setLoading(false));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  // Merge local + remote, deduplicate by id
+  const localFiltered = (initial.users || []).filter(u =>
     !q || u.name.toLowerCase().includes(q.toLowerCase()) || u.org.toLowerCase().includes(q.toLowerCase())
   );
+  const seen = new Set(localFiltered.map(u => u.id));
+  const merged = [...localFiltered, ...(remoteUsers || []).filter(u => !seen.has(u.id))];
+
   return (
     <div>
       <h2 style={{fontSize: 16, fontWeight: 600, margin: '0 0 4px'}}>
@@ -361,8 +381,9 @@ function StepUser({ initial, selected, setSelected }) {
           <i className="fas fa-user-plus me-1"></i>{t('wiz.new_user', 'New user')}
         </a>
       </div>
+      {loading && <div className="muted tiny" style={{marginBottom: 8}}>{t('loading', 'Searching…')}</div>}
       <div className="row g-2">
-        {filtered.map(u => (
+        {merged.map(u => (
           <div key={u.id} className="col-md-6">
             <div className={cls('user-card', selected?.id === u.id && 'selected')}
                  onClick={() => setSelected(u)}>

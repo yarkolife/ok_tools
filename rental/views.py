@@ -546,7 +546,7 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'icon': 'fa-box',
                     'count': category.inventoryitem_set.filter(status='in_stock').count(),
                 } for category in categories],
-                'users': [serialize_user(user) for user in users.order_by('last_name', 'first_name', 'email')],
+                'users': [serialize_user(user) for user in users.order_by('-date_joined')[:200]],
                 'rooms': [{
                     'id': room.pk,
                     'name': room.name,
