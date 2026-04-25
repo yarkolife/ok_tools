@@ -48,7 +48,7 @@
                     </div>
                     <span class="nav-count">{{ sidebar.all_count }}</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{% url 'rental:admin_return' %}">
                     <i class="fas fa-box-open"></i>
                     <div style="min-width:0;flex:1">
                         <div style="line-height:1.2">{% trans "Return" %}</div>

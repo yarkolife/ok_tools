@@ -11,6 +11,7 @@ from .views import RentalIssueViewSet
 from .views import RentalItemViewSet
 from .views import RentalProcessView
 from .views import RentalReturnView
+from .views import RentalReturnWorkflowView
 from .views import RentalRequestViewSet
 from .views import RentalStatsView
 from .views import InventoryCalendarDayView
@@ -93,6 +94,7 @@ router.register(r'equipment-set-items', EquipmentSetItemViewSet, basename='equip
 
 urlpatterns = [
     path('admin/', RentalListView.as_view(), name='list'),
+    path('admin/return/', RentalReturnWorkflowView.as_view(), name='admin_return'),
     path('new/', RentalProcessView.as_view(), name='create'),
     path('create/submit/', create_submit, name='create_submit'),
     path('quick-issue/', quick_issue, name='quick_issue'),

@@ -2085,6 +2085,59 @@ def quick_issue(request):
     })
 
 
+class RentalReturnWorkflowView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/admin_return.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get('q', '').strip()
+        user_id = self.request.GET.get('user_id')
+        now = timezone.now()
+
+        base = RentalRequest.objects.all()
+        context['sidebar'] = {
+            'all_count': base.count(),
+            'issued_count': base.filter(status='issued').count(),
+            'overdue_count': base.filter(status='issued', requested_end_date__lt=now).count(),
+            'due_today_count': base.filter(status='issued', requested_end_date__date=now.date()).count(),
+            'pending_approval_count': base.filter(status='draft').count(),
+        }
+
+        if user_id:
+            user = get_object_or_404(OKUser, id=user_id)
+            context['selected_user'] = serialize_user(user)
+            rentals = RentalRequest.objects.select_related(
+                'user', 'user__profile',
+            ).prefetch_related(
+                'items', 'room_rentals',
+            ).filter(user=user, status='issued').order_by('-created_at')
+            context['user_rentals'] = [{
+                'id': f"R-{r.created_at.strftime('%y%m')}-{r.pk:04d}",
+                'pk': r.pk,
+                'project': r.project_name,
+                'from_at': r.requested_start_date,
+                'to_at': r.requested_end_date,
+                'item_count': r.items.count(),
+                'room_count': r.room_rentals.count(),
+                'overdue': r.requested_end_date < now,
+                'return_url': reverse('rental:rental_return', args=[r.pk]),
+            } for r in rentals]
+        elif query:
+            context['search_results'] = [
+                serialize_user(u)
+                for u in OKUser.objects.select_related('profile', 'profile__media_authority').filter(
+                    is_active=True,
+                ).filter(
+                    Q(email__icontains=query)
+                    | Q(profile__first_name__icontains=query)
+                    | Q(profile__last_name__icontains=query)
+                ).distinct().order_by('last_name', 'first_name', 'email')[:30]
+            ]
+            context['search_query'] = query
+
+        return context
+
+
 class UserRentalDetailView(LoginRequiredMixin, TemplateView):
     """
     User-facing detail view for a specific rental request.

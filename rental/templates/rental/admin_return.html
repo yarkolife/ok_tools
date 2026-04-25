@@ -1,0 +1,176 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Return" %} — OK Tools</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
+                    {% trans "OK Tools Rental" %}
+                </a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/">
+                        <i class="fas fa-cog me-1"></i>{% trans "Admin" %}
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="page">
+        <aside class="page-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Workflows" %}</div>
+                <a class="nav-link" href="{% url 'rental:admin_rental_process' %}">
+                    <i class="fas fa-plus"></i>
+                    <div style="min-width:0;flex:1"><div style="line-height:1.2">{% trans "New rental" %}</div></div>
+                    <span class="kbd">N</span>
+                </a>
+                <a class="nav-link" href="{% url 'rental:list' %}">
+                    <i class="fas fa-list-ul"></i>
+                    <div style="min-width:0;flex:1"><div style="line-height:1.2">{% trans "All rentals" %}</div></div>
+                    <span class="nav-count">{{ sidebar.all_count }}</span>
+                </a>
+                <a class="nav-link active" href="{% url 'rental:admin_return' %}">
+                    <i class="fas fa-box-open"></i>
+                    <div style="min-width:0;flex:1"><div style="line-height:1.2">{% trans "Return" %}</div></div>
+                    <span class="nav-count warn">{{ sidebar.issued_count }}</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Views" %}</div>
+                <a class="nav-link" href="{% url 'rental:inventory_calendar_week' %}"><i class="fas fa-calendar-days"></i>{% trans "Calendar" %}</a>
+                <a class="nav-link" href="/admin/inventory/inventoryitem/"><i class="fas fa-warehouse"></i>{% trans "Inventory" %}</a>
+                <a class="nav-link" href="/admin/rental/room/"><i class="fas fa-door-open"></i>{% trans "Rooms" %}</a>
+                <a class="nav-link" href="/admin/registration/okuser/"><i class="fas fa-users"></i>{% trans "Users" %}</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">{% trans "Attention" %}</div>
+                <a class="nav-link" href="{% url 'rental:list' %}?status=overdue">
+                    <i class="fas fa-triangle-exclamation" style="color:oklch(0.6 0.15 28)"></i>
+                    {% trans "Overdue" %}<span class="nav-count bad">{{ sidebar.overdue_count }}</span>
+                </a>
+                <a class="nav-link" href="{% url 'rental:list' %}?status=issued">
+                    <i class="fas fa-hourglass-half" style="color:oklch(0.62 0.12 75)"></i>
+                    {% trans "Due today" %}<span class="nav-count warn">{{ sidebar.due_today_count }}</span>
+                </a>
+                <a class="nav-link" href="{% url 'rental:list' %}?status=draft">
+                    <i class="fas fa-circle-question"></i>
+                    {% trans "Pending approval" %}<span class="nav-count">{{ sidebar.pending_approval_count }}</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="page-main">
+
+            <div class="page-title">
+                <h1>{% trans "Process return" %}</h1>
+                <span class="sub">{% trans "Find user, pick their active rental, return equipment" %}</span>
+            </div>
+
+            {% if selected_user %}
+                <div class="p-3 mb-3" style="background:oklch(0.97 0.03 240); border:1px solid oklch(0.88 0.06 240); border-radius:10px; display:flex; align-items:center; gap:12px">
+                    <span class="av" style="width:36px;height:36px;font-size:14px">{{ selected_user.initials }}</span>
+                    <div style="min-width:0">
+                        <div style="font-weight:600;font-size:13px">{{ selected_user.name }}</div>
+                        <div class="muted tiny">{{ selected_user.org }} · {{ selected_user.role }} · {{ selected_user.email }}</div>
+                    </div>
+                    <a href="{% url 'rental:admin_return' %}" class="btn btn-ghost btn-sm ms-auto">
+                        <i class="fas fa-arrow-left me-1"></i>{% trans "Change user" %}
+                    </a>
+                </div>
+
+                <h6 class="mb-2" style="font-size:13px;font-weight:600">{% trans "Active rentals" %}</h6>
+                {% if user_rentals %}
+                    <div class="rental-list">
+                        <div class="list-head">
+                            <div>{% trans "Rental ID" %}</div>
+                            <div>{% trans "Project" %}</div>
+                            <div>{% trans "Period" %}</div>
+                            <div>{% trans "Items" %}</div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        {% for r in user_rentals %}
+                            <div class="rental-row">
+                                <div>
+                                    <div class="rid">{{ r.id }}</div>
+                                    {% if r.overdue %}<span class="tag tag-bad" style="font-size:10px">{% trans "Overdue" %}</span>{% endif %}
+                                </div>
+                                <div style="min-width:0">
+                                    <div class="project">{{ r.project|default:_("Untitled") }}</div>
+                                </div>
+                                <div class="time-cell">
+                                    {{ r.from_at|date:"d M · H:i" }}
+                                    <div class="sub">→ {{ r.to_at|date:"d M · H:i" }}</div>
+                                </div>
+                                <div style="text-align:right;font-variant-numeric:tabular-nums">
+                                    {{ r.item_count }}
+                                    {% if r.room_count %}<span class="muted tiny">+{{ r.room_count }} {% trans "room" %}</span>{% endif %}
+                                </div>
+                                <div><a href="{{ r.return_url }}" class="btn btn-primary btn-sm">{% trans "Return" %} <i class="fas fa-arrow-right ms-1"></i></a></div>
+                                <div></div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-5 text-center muted">
+                        <i class="fas fa-inbox" style="font-size:32px;color:var(--ink-4)"></i>
+                        <div class="mt-2">{% trans "No active rentals for this user." %}</div>
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <form method="get" class="mb-4">
+                    <div class="search" style="max-width:480px">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" name="q"
+                               placeholder="{% trans 'Search user by name or email…' %}"
+                               value="{{ search_query|default:'' }}" autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">
+                        <i class="fas fa-search me-1"></i>{% trans "Search" %}
+                    </button>
+                </form>
+
+                {% if search_results %}
+                    <div class="row g-2">
+                        {% for u in search_results %}
+                            <div class="col-md-6">
+                                <a href="?user_id={{ u.id }}" class="text-decoration-none">
+                                    <div class="user-card" style="padding:10px 12px; display:grid; grid-template-columns:36px 1fr auto; gap:10px; align-items:center; border:1px solid var(--line); border-radius:8px">
+                                        <span class="av" style="width:32px;height:32px;font-size:12px">{{ u.initials }}</span>
+                                        <div style="min-width:0">
+                                            <div class="name" style="font-size:13px;font-weight:500;color:var(--ink)">{{ u.name }}</div>
+                                            <div class="org" style="font-size:11px;color:var(--ink-3)">{{ u.org }} · {{ u.role }}</div>
+                                        </div>
+                                        <div style="font-size:11px;color:var(--ink-3);text-align:right">
+                                            {{ u.email }}
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elif search_query %}
+                    <div class="p-4 text-center muted">{% trans "No users found." %}</div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+</body>
+</html>
