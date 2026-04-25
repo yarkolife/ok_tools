@@ -573,6 +573,16 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'new_user': '/admin/auth/user/add/',
                 },
             },
+            'sidebar': {
+                'all_count': RentalRequest.objects.count(),
+                'issued_count': RentalRequest.objects.filter(status='issued').count(),
+                'overdue_count': RentalRequest.objects.filter(status='issued', requested_end_date__lt=timezone.now()).count(),
+                'due_today_count': RentalRequest.objects.filter(
+                    status='issued',
+                    requested_end_date__date=timezone.now().date(),
+                ).count(),
+                'pending_approval_count': RentalRequest.objects.filter(status='draft').count(),
+            },
             'i18n_strings': _i18n_bundle(),
         })
         return context
