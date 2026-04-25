@@ -60,6 +60,9 @@ from .views import api_search_inventory_items
 from .views import api_search_users
 from .views import api_user_active_items
 from .views import api_update_pick_list
+from .views_api import api_availability_check
+from .views_api import api_inventory_search
+from .views_api import api_users_search
 from .email_approval_views import email_approval_action
 from django.urls import include
 from django.urls import path
@@ -124,6 +127,9 @@ urlpatterns = [
     path('api/inventory-calendar/', api_inventory_calendar, name='api_inventory_calendar'),
     path('api/create-equipment-set/', api_create_equipment_set, name='api_create_equipment_set'),
     path('api/search-inventory/', api_search_inventory_items, name='api_search_inventory'),
+    path('api/rental/inventory/', api_inventory_search, name='api_inventory_search'),
+    path('api/rental/users/', api_users_search, name='api_users_search'),
+    path('api/rental/check-availability/', api_availability_check, name='api_availability_check'),
     path('api/rental/<int:rental_id>/pick-list/', api_update_pick_list, name='api_update_pick_list'),
 
     # Room expiration API
