@@ -167,6 +167,28 @@
                     </div>
                 {% elif search_query %}
                     <div class="p-4 text-center muted">{% trans "No users found." %}</div>
+                {% else %}
+                    {% if active_users %}
+                        <h6 class="mb-2" style="font-size:13px;font-weight:600">{% trans "Users with active rentals" %}</h6>
+                        <div class="row g-2">
+                            {% for u in active_users %}
+                                <div class="col-md-6">
+                                    <a href="?user_id={{ u.id }}" class="text-decoration-none">
+                                        <div class="user-card" style="padding:10px 12px; display:grid; grid-template-columns:36px 1fr auto; gap:10px; align-items:center; border:1px solid var(--line); border-radius:8px">
+                                            <span class="av" style="width:32px;height:32px;font-size:12px">{{ u.initials }}</span>
+                                            <div style="min-width:0">
+                                                <div class="name" style="font-size:13px;font-weight:500;color:var(--ink)">{{ u.name }}</div>
+                                                <div class="org" style="font-size:11px;color:var(--ink-3)">{{ u.org }} · {{ u.role }}</div>
+                                            </div>
+                                            <div style="font-size:11px;color:var(--ink-3);text-align:right">
+                                                {{ u.email }}
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 {% endif %}
             {% endif %}
 

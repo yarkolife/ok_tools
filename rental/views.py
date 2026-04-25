@@ -2143,6 +2143,19 @@ class RentalReturnWorkflowView(StaffRequiredMixin, TemplateView):
                 ).distinct().order_by('last_name', 'first_name', 'email')[:30]
             ]
             context['search_query'] = query
+        else:
+            # Show users with active rentals upfront
+            active_user_ids = RentalRequest.objects.filter(
+                status='issued'
+            ).values_list('user_id', flat=True).distinct()
+            context['active_users'] = [
+                serialize_user(u)
+                for u in OKUser.objects.select_related(
+                    'profile', 'profile__media_authority'
+                ).filter(
+                    id__in=active_user_ids, is_active=True
+                ).order_by('last_name', 'first_name', 'email')[:50]
+            ]
 
         return context
 
