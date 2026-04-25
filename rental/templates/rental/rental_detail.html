@@ -1,803 +1,170 @@
-{% load static %}
-{% load i18n %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
-    <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
-    <title>{% trans "Rental Details" %} - OK Tools</title>
-    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .rental-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .item-card { border: 1px solid #dee2e6; border-radius: 8px; transition: all 0.3s ease; }
-        .item-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+{% extends 'base.html' %}
+{% load i18n static %}
 
-        /* Return selection styles */
-        .item-card.selected-for-return {
-            border: 2px solid #28a745;
-            background-color: #f8fff9;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
-        }
+{% comment %}
+  rental/templates/rental/rental_detail.html
+  -----------------------------------------------------------------
+  HYBRID: Django renders the static frame (header, status timeline,
+  sidebar cards). React mounts into three islands for interactivity:
+    #rental-action-bar   — CTA + overflow menu + inline extend
+    #rental-tabs         — Items / Rooms / Issues / History tabs
 
-        .item-card.selected-for-return .form-check-input:checked {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
+  View context:
+    rental          — dict/obj with full rental info (see list below)
+    rental_json     — same, serialized via json_script
+    timeline        — list of {id, label, at_iso} for the 5 status steps
+    current_status  — string
+    issues          — list of dicts {id, severity, item, num, desc, by, at}
+    history         — list of dicts {at, who, what}
+    items           — list of dicts for tab
+    rooms           — list of dicts for tab
+    urls            — dict {extend, mark_issued, return, cancel, report_issue}
+    i18n_strings    — dict for frontend translations
+  -----------------------------------------------------------------
+{% endcomment %}
 
-        .item-card:not(.selected-for-return) .return-form {
-            display: none !important;
-        }
-        .status-badge { font-size: 0.85rem; }
-        .condition-excellent { background: #28a745; }
-        .condition-good { background: #17a2b8; }
-        .condition-fair { background: #ffc107; color: #212529; }
-        .condition-poor { background: #dc3545; }
-        .issue-minor { border-left: 4px solid #ffc107; }
-        .issue-major { border-left: 4px solid #fd7e14; }
-        .issue-critical { border-left: 4px solid #dc3545; }
-        .return-info { background: #f8f9fa; border: 1px solid #e9ecef; }
-        .overdue-highlight { background: #fff5f5; border: 1px solid #fed7d7; }
-        .ontime-highlight { background: #f0fff4; border: 1px solid #9ae6b4; }
+{% block title %}{{ rental.project }} — {{ rental.id }}{% endblock %}
 
-        /* Modal Styles */
-        .modal-content {
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+{% block extra_css %}
+  <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+{% endblock %}
 
-        .modal-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-bottom: 2px solid #007bff;
-            border-radius: 12px 12px 0 0;
-            padding: 1.5rem;
-        }
+{% block content %}
 
-        .modal-title {
-            color: #495057;
-            font-weight: 600;
-            font-size: 1.25rem;
-        }
+<div class="crumbs">
+  <a href="{{ page_urls.list }}">{% trans "Rentals" %}</a>
+  <i class="fas fa-chevron-right"></i>
+  <span>{{ rental.id }}</span>
+</div>
 
-        .modal-body {
-            padding: 2rem;
-        }
+<div class="page-title">
+  <h1>{{ rental.project|default:_("Untitled rental") }}</h1>
+  <div class="page-actions">
+    <a href="{{ page_urls.print_slip }}" class="btn btn-ghost btn-sm" target="_blank">
+      <i class="fas fa-print me-1"></i>{% trans "Print slip" %}
+    </a>
+    <a href="{{ page_urls.duplicate }}" class="btn btn-ghost btn-sm">
+      <i class="fas fa-clone me-1"></i>{% trans "Duplicate" %}
+    </a>
+  </div>
+</div>
 
-        .modal-footer {
-            background: #f8f9fa;
-            border-top: 1px solid #dee2e6;
-            border-radius: 0 0 12px 12px;
-            padding: 1.5rem;
-        }
-
-        /* Form Controls */
-        .form-control, .form-select {
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-            transition: all 0.2s ease;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-            transform: translateY(-1px);
-        }
-
-        /* Buttons */
-        .btn {
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        /* Rental Cards */
-        .rental-card {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-
-        .rental-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .rental-card .card-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-bottom: 2px solid #007bff;
-            padding: 1.5rem;
-        }
-
-        .rental-card .card-header h5 {
-            color: #495057;
-            font-weight: 700;
-            margin: 0;
-            font-size: 1.3rem;
-        }
-
-        .rental-card .card-body {
-            padding: 2rem;
-        }
-
-        /* Item Cards */
-        .item-card {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-
-        .item-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-
-        /* Status Badges */
-        .status-badge {
-            border-radius: 20px;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-        }
-
-        /* Return Forms */
-        .return-form {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-        /* Issues */
-        .issue-form {
-            background: #fff;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            transition: all 0.2s ease;
-        }
-
-        .issue-form:hover {
-            border-color: #007bff;
-            box-shadow: 0 2px 8px rgba(0,123,255,0.1);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .rental-header .d-flex {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .rental-header .d-flex span {
-                text-align: center;
-            }
-
-            .modal-body {
-                padding: 1rem;
-            }
-
-            .rental-card .card-body {
-                padding: 1rem;
-            }
-        }
-
-        .collapse-icon {
-            transition: transform 0.3s ease;
-        }
-        [data-bs-toggle="collapse"]:hover {
-            background-color: rgba(0, 123, 255, 0.1);
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #417690 !important;">
-        <div class="container-fluid">
-            <a class="navbar-brand text-white" href="{% url 'rental:admin_rental_process' %}">
-                <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Rental Process" %}
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link text-white" href="{% url 'admin:index' %}">
-                    <i class="fas fa-cog me-1"></i>{% trans "Administration" %}
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container-fluid mt-3">
-        {% if error %}
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
-            </div>
-        {% elif rental %}
-            <!-- Rental Header -->
-            <div class="rental-details-header p-4 rounded mb-4">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h2 class="mb-1">{{ rental.project_name }}</h2>
-                        <p class="mb-2">{{ rental.purpose }}</p>
-                        <div class="d-flex gap-3 flex-wrap">
-                            <span><i class="fas fa-user me-1"></i>{% if rental.user.profile %}{{ rental.user.profile.first_name }} {{ rental.user.profile.last_name }}{% else %}{{ rental.user.email }}{% endif %}</span>
-                            <span><i class="fas fa-envelope me-1"></i>{{ rental.user.email }}</span>
-                            <span><i class="fas fa-calendar me-1"></i>{{ rental.requested_start_date|date:"d.m.Y H:i" }} - {{ rental.requested_end_date|date:"d.m.Y H:i" }}</span>
-                            {% if rental.actual_end_date and rental.status == 'returned' %}
-                            <span><i class="fas fa-calendar-check me-1"></i>{% trans "Returned" %}: {{ rental.actual_end_date|date:"d.m.Y H:i" }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <span class="badge {% if rental.status == 'reserved' %}bg-info{% elif rental.status == 'issued' %}bg-primary{% elif rental.status == 'returned' %}bg-success{% else %}bg-secondary{% endif %} status-badge fs-5 mb-2">
-                            {% if rental.status == 'draft' %}{% trans "Draft" %}
-                            {% elif rental.status == 'reserved' %}{% trans "Reserved" %}
-                            {% elif rental.status == 'issued' %}{% trans "Issued" %}
-                            {% elif rental.status == 'returned' %}{% trans "Returned" %}
-                            {% elif rental.status == 'cancelled' %}{% trans "Cancelled" %}
-                            {% else %}{{ rental.status }}{% endif %}
-                        </span>
-                        <div>
-                            <small class="text-light">ID: {{ rental.id }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            {% if can_confirm or can_return or can_extend or rental.items.all %}
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-tools me-2"></i>{% trans "Actions" %}</h5>
-                            <div class="btn-group" role="group">
-                                {% if can_confirm %}
-                                <button class="btn btn-outline-success" id="confirmBtn">
-                                    <i class="fas fa-check me-1"></i>{% trans "Confirm request" %}
-                                </button>
-                                {% endif %}
-                                {% if rental.status == 'draft' or rental.status == 'reserved' and rental.items.all %}
-                                <button class="btn btn-outline-warning" id="issueFromReservationBtn">
-                                    <i class="fas fa-box-open me-1"></i>{% trans "Issue Equipment from Reservation" %}
-                                </button>
-                                {% endif %}
-                                {% if rental.items.all %}
-                                {% if rental.status == 'draft' or rental.status == 'reserved' %}
-                                <a class="btn btn-outline-secondary" href="{% url 'rental:print_pick_list' rental_id=rental.id %}" target="_blank">
-                                    <i class="fas fa-list-check me-1"></i>{% trans "Print pick list" %}
-                                </a>
-                                {% endif %}
-                                {% if rental.status == 'reserved' or rental.status == 'issued' %}
-                                <button class="btn btn-outline-secondary" id="printBtn">
-                                    <i class="fas fa-print me-1"></i>{% trans "Print rental" %}
-                                </button>
-                                {% endif %}
-                                {% endif %}
-                                {% if can_extend %}
-                                <button class="btn btn-outline-primary" id="extendBtn">
-                                    <i class="fas fa-calendar-plus me-1"></i>{% trans "Extend" %}
-                                </button>
-                                {% endif %}
-                                {% if can_return %}
-                                <button class="btn btn-outline-success" id="returnBtn">
-                                    <i class="fas fa-save me-1"></i>{% trans "Save return" %}
-                                </button>
-                                {% endif %}
-                                <button class="btn btn-outline-danger" id="cancelBtn">
-                                    <i class="fas fa-times me-1"></i>{% trans "Cancel" %}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Items List -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="rental-card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>{% trans "Equipment" %} ({{ rental.items.count }} {% trans "items" %})</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row" id="itemsList">
-                                {% for item in rental.items.all %}
-                                <div class="col-md-6 col-lg-4 mb-3">
-                                    <div class="item-card p-3" data-item-id="{{ item.id }}">
-                                        {% if can_return %}
-                                            <!-- Return Selection Checkbox -->
-                                            <div class="mb-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-input item-return-checkbox" type="checkbox"
-                                                           id="item-checkbox-{{ item.id }}"
-                                                           data-item-id="{{ item.id }}"
-                                                           {% if item.quantity_issued|default:0|add:item.quantity_returned|default:0 > 0 %}checked{% endif %}>
-                                                    <label class="form-check-label" for="item-checkbox-{{ item.id }}">
-                                                        <strong>{% trans "Select for return" %}</strong>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        {% endif %}
-
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="mb-1">{{ item.inventory_item.description|default:item.inventory_item.inventory_number }}</h6>
-                                            <span class="badge bg-secondary">{{ item.inventory_item.inventory_number }}</span>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-map-marker-alt me-1"></i>{{ item.inventory_item.location.full_path }}
-                                                {% if item.inventory_item.category %}
-                                                <br><i class="fas fa-tag me-1"></i>{{ item.inventory_item.category.name }}
-                                                {% endif %}
-                                            </small>
-                                        </div>
-
-                                        <div class="row text-center mb-2">
-                                            <div class="col-4">
-                                                <strong>{{ item.quantity_requested }}</strong>
-                                                <br><small class="text-muted">{% trans "Requested" %}</small>
-                                            </div>
-                                            <div class="col-4">
-                                                <strong>{{ item.quantity_issued|default:0 }}</strong>
-                                                <br><small class="text-muted">{% trans "Issued" %}</small>
-                                            </div>
-                                            <div class="col-4">
-                                                <strong>{{ item.quantity_returned|default:0 }}</strong>
-                                                <br><small class="text-muted">{% trans "Returned" %}</small>
-                                            </div>
-                                        </div>
-
-                                        {% if can_return %}
-                                            <!-- Return Date Information -->
-                                            {% if item.actual_return_date or item.quantity_returned > 0 %}
-                                            <div class="mb-2 p-2 rounded {% if item.actual_return_date %}{% if item.is_overdue %}overdue-highlight{% else %}ontime-highlight{% endif %}{% else %}return-info{% endif %}">
-                                                <div class="row text-center">
-                                                    <div class="col-6">
-                                                        <small class="text-muted d-block">
-                                                            <i class="fas fa-calendar-alt me-1"></i>{% trans "Planned until" %}:
-                                                        </small>
-                                                        <strong class="text-info">{{ rental.requested_end_date|date:"d.m.Y H:i" }}</strong>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        {% if item.actual_return_date %}
-                                                            <small class="text-muted d-block">
-                                                                <i class="fas fa-calendar-check me-1"></i>{% trans "Actually returned" %}:
-                                                            </small>
-                                                            <strong class="{% if item.is_overdue %}text-danger{% else %}text-success{% endif %}">
-                                                                {{ item.actual_return_date|date:"d.m.Y H:i" }}
-                                                            </strong>
-                                                            {% if item.is_overdue and item.days_overdue > 0 %}
-                                                                <br><small class="text-danger fw-bold">
-                                                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ item.days_overdue }} {% trans "day" %}{{ item.days_overdue|pluralize:"s" }} {% trans "overdue" %}
-                                                                </small>
-                                                            {% elif not item.is_overdue %}
-                                                                <br><small class="text-success fw-bold">
-                                                                    <i class="fas fa-check me-1"></i>{% trans "Returned on time" %}
-                                                                </small>
-                                                            {% endif %}
-                                                        {% else %}
-                                                            <small class="text-muted d-block">
-                                                                <i class="fas fa-hourglass-half me-1"></i>{% trans "Not yet returned" %}
-                                                            </small>
-                                                            {% if item.outstanding_to_return > 0 %}
-                                                                {% now "Y-m-d H:i" as current_time %}
-                                                                {% if rental.requested_end_date|date:"Y-m-d H:i" < current_time %}
-                                                                    <strong class="text-warning">
-                                                                        <i class="fas fa-clock me-1"></i>{% trans "Overdue" %}
-                                                                    </strong>
-                                                                {% else %}
-                                                                    <strong class="text-info">
-                                                                        <i class="fas fa-hourglass-half me-1"></i>{% trans "Pending" %}
-                                                                    </strong>
-                                                                {% endif %}
-                                                            {% endif %}
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        {% endif %}
-
-                                        {% if can_return %}
-                                            {% with outstanding=item.quantity_issued|default:0|add:item.quantity_returned|default:0 %}
-                                            {% if outstanding > 0 %}
-                                            <div class="text-center mb-2">
-                                                <span class="badge bg-warning">{{ outstanding }} {% trans "outstanding" %}</span>
-                                            </div>
-                                            {% endif %}
-                                            {% endwith %}
-                                        {% endif %}
-
-                                        {% if can_return %}
-                                            <!-- Return Form for this item (hidden initially) -->
-                                            <div class="return-form d-none mt-3 p-2 bg-light rounded" data-item-id="{{ item.id }}">
-                                                <h6>{% trans "Return" %}</h6>
-                                                <div class="mb-2">
-                                                    <label class="form-label form-label-sm">{% trans "Quantity" %}:</label>
-                                                    <input type="number" class="form-control form-control-sm return-quantity"
-                                                           min="1" max="{{ item.quantity_issued|default:0|add:item.quantity_returned|default:0 }}"
-                                                           value="{{ item.quantity_issued|default:0|add:item.quantity_returned|default:0 }}">
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label form-label-sm">{% trans "Condition" %}:</label>
-                                                    <select class="form-select form-select-sm return-condition">
-                                                        <option value="excellent">{% trans "Excellent" %}</option>
-                                                        <option value="good" selected>{% trans "Good" %}</option>
-                                                        <option value="fair">{% trans "Fair" %}</option>
-                                                        <option value="poor">{% trans "Poor" %}</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label form-label-sm">{% trans "Notes" %}:</label>
-                                                    <textarea class="form-control form-control-sm return-notes" rows="2"></textarea>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label form-label-sm">{% trans "Issues" %}:</label>
-                                                    <div class="issues-container">
-                                                        <button type="button" class="btn btn-sm btn-outline-warning add-issue-btn">
-                                                            <i class="fas fa-plus me-1"></i>{% trans "Add Issue" %}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {% endif %}
-
-                                        {% if can_return %}
-                                            <!-- Issues Display -->
-                                            {% if item.issues.all %}
-                                            <div class="mt-2">
-                                                <h6 class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>{% trans "Issues" %}:</h6>
-                                                {% for issue in item.issues.all %}
-                                                <div class="alert alert-sm p-2 mb-1 issue-{{ issue.severity }}">
-                                                    <strong>{{ issue.get_issue_type_display }}:</strong> {{ issue.description }}
-                                                    <br><small class="text-muted">{{ issue.reported_at|date:"d.m.Y H:i" }} {% trans "by" %} {{ issue.reported_by.email }}</small>
-                                                </div>
-                                                {% endfor %}
-                                            </div>
-                                            {% endif %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rooms List -->
-            {% if rental.room_rentals.all %}
-            <div class="row">
-                <div class="col-12">
-                    <div class="rental-card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-building me-2"></i>{% trans "Rooms" %} ({{ rental.room_rentals.count }} {% trans "rooms" %})</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row" id="roomsList">
-                                {% for room_rental in rental.room_rentals.all %}
-                                <div class="col-md-6 col-lg-4 mb-3">
-                                    <div class="item-card p-3" data-room-id="{{ room_rental.id }}">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="mb-1">{{ room_rental.room.name }}</h6>
-                                            <span class="badge bg-success">{{ room_rental.room.inventory_number|default:room_rental.room.name }}</span>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-users me-1"></i>{{ room_rental.people_count }} {% trans "people" %}
-                                                {% if room_rental.room.location %}
-                                                <br><i class="fas fa-map-marker-alt me-1"></i>{{ room_rental.room.location }}
-                                                {% endif %}
-                                                {% if room_rental.room.description %}
-                                                <br><i class="fas fa-info-circle me-1"></i>{{ room_rental.room.description }}
-                                                {% endif %}
-                                            </small>
-                                        </div>
-
-                                        <div class="row text-center mb-2">
-                                            <div class="col-6">
-                                                <strong>{{ room_rental.room.capacity }}</strong>
-                                                <br><small class="text-muted">{% trans "Capacity" %}</small>
-                                            </div>
-                                            <div class="col-6">
-                                                <strong>{{ room_rental.people_count }}</strong>
-                                                <br><small class="text-muted">{% trans "Booked" %}</small>
-                                            </div>
-                                        </div>
-
-                                        {% if room_rental.notes %}
-                                        <div class="mb-2 p-2 bg-light rounded">
-                                            <small class="text-muted">
-                                                <i class="fas fa-sticky-note me-1"></i>{{ room_rental.notes }}
-                                            </small>
-                                        </div>
-                                        {% endif %}
-
-                                        <!-- Return Date Information for Rooms -->
-                                        <div class="mb-2 p-2 rounded return-info">
-                                            <div class="row text-center">
-                                                <div class="col-6">
-                                                    <small class="text-muted d-block">
-                                                        <i class="fas fa-calendar-alt me-1"></i>{% trans "Planned until" %}:
-                                                    </small>
-                                                    <strong class="text-info">{{ rental.requested_end_date|date:"d.m.Y H:i" }}</strong>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small class="text-muted d-block">
-                                                        <i class="fas fa-clock me-1"></i>{% trans "Status" %}:
-                                                    </small>
-                                                    <strong class="text-primary">
-                                                        {% if rental.status == 'returned' %}{% trans "Returned" %}
-                                                        {% elif rental.status == 'issued' %}{% trans "Issued" %}
-                                                        {% elif rental.status == 'reserved' %}{% trans "Reserved" %}
-                                                        {% else %}{{ rental.status }}{% endif %}
-                                                    </strong>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Extend Modal -->
-            <div class="modal fade" id="extendModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">{% trans "Extend Rental" %}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">{% trans "Current End Date" %}:</label>
-                                <div class="border rounded p-2 bg-light" id="currentEndDateDisplay">
-                                    <!-- Current end date will be displayed here -->
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">{% trans "New End Date" %}:</label>
-                                <input type="datetime-local" class="form-control" id="newEndDate"
-                                       min="{{ rental.requested_end_date|date:'Y-m-d\TH:i' }}">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
-                            <button type="button" class="btn btn-primary" id="confirmExtend">{% trans "Extend" %}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Issue from Reservation Modal -->
-            {% if rental.status == 'reserved' %}
-            <div class="modal fade" id="issueFromReservationModal" tabindex="-1" aria-labelledby="issueFromReservationModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="issueFromReservationModalLabel">
-                                <i class="fas fa-box-open me-2"></i>{% trans "Issue Equipment from Reservation" %}
-                                <small class="d-block text-muted mt-1">{% trans "Rooms remain reserved and are not issued" %}</small>
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6><i class="fas fa-boxes me-2"></i>{% trans "Equipment Items" %}</h6>
-                                    <div id="issueItemsList" class="mb-3">
-                                        <!-- Items will be rendered here -->
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6><i class="fas fa-building me-2"></i>{% trans "Rooms (Reserved Only)" %}</h6>
-                                    <div id="issueRoomsList" class="mb-3">
-                                        <div class="alert alert-info">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            <strong>{% trans "Note:" %}</strong> {% trans "Rooms cannot be issued - they remain reserved and are automatically available after the scheduled time." %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="issueStartDate" class="form-label">{% trans "Start Date" %}</label>
-                                        <input type="date" class="form-control" id="issueStartDate" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="issueEndDate" class="form-label">{% trans "End Date" %}</label>
-                                        <input type="date" class="form-control" id="issueEndDate" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="issueStartTime" class="form-label">{% trans "Start Time" %}</label>
-                                        <select class="form-select" id="issueStartTime" required>
-                                            <option value="">{% trans "Select time" %}</option>
-                                            <option value="08:00">08:00</option>
-                                            <option value="08:30">08:30</option>
-                                            <option value="09:00">09:00</option>
-                                            <option value="09:30">09:30</option>
-                                            <option value="10:00">10:00</option>
-                                            <option value="10:30">10:30</option>
-                                            <option value="11:00">11:00</option>
-                                            <option value="11:30">11:30</option>
-                                            <option value="12:00">12:00</option>
-                                            <option value="12:30">12:30</option>
-                                            <option value="13:00">13:00</option>
-                                            <option value="13:30">13:30</option>
-                                            <option value="14:00">14:00</option>
-                                            <option value="14:30">14:30</option>
-                                            <option value="15:00">15:00</option>
-                                            <option value="15:30">15:30</option>
-                                            <option value="16:00">16:00</option>
-                                            <option value="16:30">16:30</option>
-                                            <option value="17:00">17:00</option>
-                                            <option value="17:30">17:30</option>
-                                            <option value="18:00">18:00</option>
-                                            <option value="18:30">18:30</option>
-                                            <option value="19:00">19:00</option>
-                                            <option value="19:30">19:30</option>
-                                            <option value="20:00">20:00</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="issueEndTime" class="form-label">{% trans "End Time" %}</label>
-                                        <select class="form-select" id="issueEndTime" required>
-                                            <option value="">{% trans "Select time" %}</option>
-                                            <option value="08:00">08:00</option>
-                                            <option value="08:30">08:30</option>
-                                            <option value="09:00">09:00</option>
-                                            <option value="09:30">09:30</option>
-                                            <option value="10:00">10:00</option>
-                                            <option value="10:30">10:30</option>
-                                            <option value="11:00">11:00</option>
-                                            <option value="11:30">11:30</option>
-                                            <option value="12:00">12:00</option>
-                                            <option value="12:30">12:30</option>
-                                            <option value="13:00">13:00</option>
-                                            <option value="13:30">13:30</option>
-                                            <option value="14:00">14:00</option>
-                                            <option value="14:30">14:30</option>
-                                            <option value="15:00">15:00</option>
-                                            <option value="15:30">15:30</option>
-                                            <option value="16:00">16:00</option>
-                                            <option value="16:30">16:30</option>
-                                            <option value="17:00">17:00</option>
-                                            <option value="17:30">17:30</option>
-                                            <option value="18:00">18:00</option>
-                                            <option value="18:30">18:30</option>
-                                            <option value="19:00">19:00</option>
-                                            <option value="19:30">19:30</option>
-                                            <option value="20:00">20:00</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="issueCreatedBy" class="form-label">{% trans "Created by" %}</label>
-                                        <select class="form-select" id="issueCreatedBy" required>
-                                            <option value="">{% trans "Select staff member" %}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="issueNotes" class="form-label">{% trans "Notes" %}</label>
-                                        <textarea class="form-control" id="issueNotes" rows="2" placeholder="{% trans 'Optional notes' %}"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
-                            <button type="button" class="btn btn-primary" id="processIssueFromReservationBtn">
-                                <i class="fas fa-check me-2"></i>{% trans "Issue Equipment" %}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add Item Modal -->
-            <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addItemModalLabel">
-                                <i class="fas fa-plus me-2"></i>{% trans "Add Equipment to Issue" %}
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="addItemSearch" class="form-label">{% trans "Search by inventory number or description" %}</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="addItemSearch" placeholder="{% trans 'Search...' %}">
-                                    <button class="btn btn-outline-secondary" type="button" id="searchItemsBtn">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="addItemItemsList" style="max-height: 500px; overflow-y: auto;">
-                                <div class="text-center p-3">
-                                    <div class="spinner-border spinner-border-sm" role="status"></div>
-                                    <small class="ms-2">{% trans 'Loading available items...' %}</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <div class="text-start me-auto">
-                                <small class="text-info">
-                                    <i class="fas fa-info-circle me-1"></i>{% trans "Click '+' to add items. Modal stays open for multiple selections." %}
-                                </small>
-                            </div>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
+<div class="status-timeline">
+  {% for s in timeline %}
+    <div class="status-node
+                {% if s.state == 'done' %}done{% endif %}
+                {% if s.state == 'active' %}active{% endif %}
+                {% if current_status == 'overdue' and s.state == 'active' %}overdue{% endif %}
+                {% if s.state == 'skipped' %}skipped{% endif %}">
+      <div class="dot-lg">
+        {% if s.state == 'done' %}
+          <i class="fas fa-check"></i>
+        {% elif s.state == 'active' and current_status == 'overdue' %}
+          <i class="fas fa-triangle-exclamation"></i>
+        {% elif s.state == 'active' %}
+          <i class="fas fa-circle" style="font-size:8px"></i>
+        {% else %}
+          {{ forloop.counter }}
         {% endif %}
+      </div>
+      <div style="min-width:0">
+        <div class="s-title">{{ s.label }}</div>
+        <div class="s-time">{% if s.at %}{{ s.at|date:"d M · H:i" }}{% else %}—{% endif %}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div id="rental-action-bar"></div>
+
+<div class="detail-grid">
+  <div>
+    <div id="rental-tabs"></div>
+  </div>
+
+  <div>
+    <div class="side-card" style="margin-bottom:12px">
+      <h6>{% trans "User" %}</h6>
+      <div class="d-flex" style="gap:10px;align-items:center;margin-bottom:10px">
+        <span class="av" style="width:36px;height:36px;font-size:14px">{{ rental.user.initials }}</span>
+        <div>
+          <div style="font-weight:600;font-size:13px">{{ rental.user.name }}</div>
+          <div class="muted tiny">{{ rental.user.org }}</div>
+        </div>
+      </div>
+      <div class="kv">
+        <span class="k">{% trans "Role" %}</span><span class="v">{{ rental.user.role }}</span>
+        <span class="k">{% trans "Past rentals" %}</span><span class="v">{{ rental.user.past_count }}</span>
+        <span class="k">{% trans "Phone" %}</span><span class="v mono">{{ rental.user.phone|default:"—" }}</span>
+        <span class="k">{% trans "Email" %}</span><span class="v mono tiny">{{ rental.user.email }}</span>
+      </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-
-    <!-- JavaScript translations -->
-    <script src="{% url 'javascript-catalog' %}"></script>
-
-    <!-- Data attributes for JavaScript -->
-    <div id="rental-data"
-         data-rental-id="{{ rental.id|default:0 }}"
-         data-start-date="{{ rental.requested_start_date|date:'Y-m-d' }}"
-         data-end-date="{{ rental.requested_end_date|date:'Y-m-d' }}"
-         data-start-time="{{ rental.requested_start_date|time:'H:i' }}"
-         data-end-time="{{ rental.requested_end_date|time:'H:i' }}"
-         data-csrf-token="{{ csrf_token }}"
-         data-extend-url="{% url 'rental:api_extend_rental' %}"
-         data-return-url="{% url 'rental:api_return_rental_items' %}"
-         data-cancel-url="{% url 'rental:api_cancel_rental' %}"
-         data-confirm-url="{% url 'rental:api_confirm_rental' %}"
-         data-issue-from-reservation-url="{% url 'rental:api_issue_from_reservation' %}"
-         data-get-staff-users-url="{% url 'rental:api_get_staff_users' %}"
-         data-search-inventory-url="{% url 'rental:api_search_inventory' %}"
-         data-rental-print-info-url="{% url 'rental:api_rental_print_info' rental_id=0 %}"
-         data-print-form-msa-url="{% url 'rental:print_form_msa' rental_id=0 %}"
-         data-print-form-okmq-url="{% url 'rental:print_form_okmq' rental_id=0 %}"
-         style="display: none;">
+    <div class="side-card" style="margin-bottom:12px">
+      <h6>{% trans "Rental" %}</h6>
+      <div class="kv">
+        <span class="k">{% trans "ID" %}</span><span class="v mono">{{ rental.id }}</span>
+        <span class="k">{% trans "Pickup" %}</span><span class="v">{{ rental.from_at|date:"d M · H:i" }}</span>
+        <span class="k">{% trans "Return by" %}</span><span class="v">{{ rental.to_at|date:"d M · H:i" }}</span>
+        <span class="k">{% trans "Issued by" %}</span><span class="v">{{ rental.issued_by|default:"—" }}</span>
+        <span class="k">{% trans "Created" %}</span><span class="v">{{ rental.created_at|date:"d M · H:i" }}</span>
+      </div>
     </div>
 
-    <script src="{% static 'rental/js/rental_detail.js' %}"></script>
-</body>
-</html>
+    <div class="side-card">
+      <h6>{% trans "Internal note" %}</h6>
+      <p style="font-size:12.5px;color:var(--ink-2);margin:0;line-height:1.5">
+        {{ rental.internal_note|default:_("No internal note.") }}
+      </p>
+      <form method="post" action="{{ page_urls.edit_note }}" class="mt-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost btn-sm" style="width:100%">
+          <i class="fas fa-pen me-1"></i>{% trans "Edit note" %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{ rental_json|json_script:"rental-data" }}
+{{ items_json|json_script:"rental-items" }}
+{{ rooms_json|json_script:"rental-rooms" }}
+{{ issues_json|json_script:"rental-issues" }}
+{{ history_json|json_script:"rental-history" }}
+{{ urls_json|json_script:"rental-urls" }}
+{{ i18n_strings|json_script:"rr-i18n" }}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+        integrity="sha384-0hAheEuBsQdUDUBt9QC/MoTWrGBpEtEYg1c8nilJMpM4zMaxWzrelmZOdebUIibI"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+        integrity="sha384-Ux5Nl/8Nfw9vaSvm2x8cE3TBrF+Dk9qJqbbaMpFUdR9GLwnfBsXfpUksZRtgl6hR"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+        integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
+<script type="text/babel" src="{% static 'rental/js/detail.jsx' %}"></script>
+<script type="text/babel">
+(() => {
+  const rental = JSON.parse(document.getElementById('rental-data').textContent);
+  const items = JSON.parse(document.getElementById('rental-items').textContent);
+  const rooms = JSON.parse(document.getElementById('rental-rooms').textContent);
+  const issues = JSON.parse(document.getElementById('rental-issues').textContent);
+  const history = JSON.parse(document.getElementById('rental-history').textContent);
+  const urls = JSON.parse(document.getElementById('rental-urls').textContent);
+
+  ReactDOM.createRoot(document.getElementById('rental-action-bar'))
+    .render(<ActionBar rental={rental} urls={urls} />);
+
+  ReactDOM.createRoot(document.getElementById('rental-tabs'))
+    .render(<RentalTabs rental={rental} items={items} rooms={rooms}
+                        issues={issues} history={history} urls={urls} />);
+})();
+</script>
+{% endblock %}
