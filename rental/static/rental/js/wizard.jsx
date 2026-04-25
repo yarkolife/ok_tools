@@ -192,7 +192,7 @@ function StepItems({ initial, cart, setCart, rooms, setRooms }) {
           </button>
           <button className={cls('btn btn-sm', mode === 'rooms' ? 'btn-primary' : 'btn-ghost')}
                   onClick={() => setMode('rooms')}>
-            <i className="fas fa-door-open me-1"></i>{t('wiz.rooms', 'Rooms')}
+            <i className="fas fa-door-open me-1"></i>{t('wiz.rooms', 'Reserve rooms')}
           </button>
         </div>
       </div>
@@ -426,10 +426,26 @@ function StepTime({ initial, period, setPeriod, cart }) {
   const from = new Date(period.from), to = new Date(period.to);
   const warnings = [];
   if (period.from && period.to && from >= to) warnings.push(t('wiz.warn.reversed', 'End time is before start time.'));
+
+  // Check against configured working hours
+  const wh = initial.working_hours || {};
   if (period.from) {
-    const h = from.getHours();
-    if (h < 8 || h >= 20) warnings.push(t('wiz.warn.hours', 'Pickup is outside workshop hours.'));
-    if (from.getDay() === 0 || from.getDay() === 6) warnings.push(t('wiz.warn.weekend', 'Weekend pickup — workshop is closed.'));
+    const dayKey = String(from.getDay() === 0 ? 6 : from.getDay() - 1); // JS getDay: 0=Sun, config: 0=Mon
+    const dayHours = wh[dayKey];
+    if (dayHours && !dayHours.enabled) {
+      warnings.push(t('wiz.warn.closed', 'Selected day is closed.'));
+    } else if (dayHours && dayHours.enabled) {
+      const h = from.getHours();
+      const m = from.getMinutes();
+      const startParts = (dayHours.start || '00:00').split(':').map(Number);
+      const endParts = (dayHours.end || '00:00').split(':').map(Number);
+      const startMins = startParts[0] * 60 + startParts[1];
+      const endMins = endParts[0] * 60 + endParts[1];
+      const pickMins = h * 60 + m;
+      if (pickMins < startMins || pickMins >= endMins) {
+        warnings.push(t('wiz.warn.hours', 'Pickup is outside working hours ({start} – {end}).').replace('{start}', dayHours.start).replace('{end}', dayHours.end));
+      }
+    }
   }
   const duration = period.from && period.to ? Math.round((to - from) / 36e5) : 0;
   const hasConflict = conflicts.some(c => c.ranges && c.ranges.some(r => r.conflict));
@@ -440,18 +456,28 @@ function StepTime({ initial, period, setPeriod, cart }) {
         {t('wiz.when', 'When is the equipment needed?')}
       </h2>
       <div className="muted tiny" style={{marginBottom: 14}}>
-        {t('wiz.hours', 'Workshop hours: Mon–Fri 08:00 — 20:00. Sat–Sun closed.')}
+        {(() => {
+          const wh = initial.working_hours || {};
+          const days = [];
+          for (let i = 0; i < 7; i++) {
+            const d = wh[String(i)];
+            if (d && d.enabled) days.push(d.short_label);
+          }
+          const hours = Object.values(wh).filter(d => d.enabled).map(d => d.start + '–' + d.end);
+          const uniqueHours = [...new Set(hours)].join(', ');
+          return t('wiz.hours', 'Working hours: {days} {hours}').replace('{days}', days.join('–')).replace('{hours}', uniqueHours);
+        })()}
       </div>
 
       <div className="time-grid" style={{marginBottom: 14}}>
         <div className="t-card">
           <label>{t('wiz.pickup', 'Pickup')}</label>
-          <input type="datetime-local" className="form-control" value={period.from}
+          <input type="datetime-local" className="form-control" value={period.from} step="1800"
                  onChange={e => setPeriod(p => ({...p, from: e.target.value}))} />
         </div>
         <div className="t-card">
           <label>{t('wiz.return_by', 'Return by')}</label>
-          <input type="datetime-local" className="form-control" value={period.to}
+          <input type="datetime-local" className="form-control" value={period.to} step="1800"
                  onChange={e => setPeriod(p => ({...p, to: e.target.value}))} />
           <div className="tiny muted mt-1">
             <i className="fas fa-clock me-1"></i>{duration > 0 ? `${duration}h` : '—'}

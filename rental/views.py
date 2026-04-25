@@ -575,6 +575,7 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'project': '',
                     'purpose': '',
                 },
+                'working_hours': json.loads(rental_working_hours_json) if isinstance(rental_working_hours_json, str) else get_rental_working_hours(),
                 'urls': {
                     'create': reverse('rental:create_submit'),
                     'quick_issue': reverse('rental:quick_issue'),
