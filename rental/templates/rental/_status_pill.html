@@ -1,0 +1,23 @@
+{% load i18n %}
+{% comment %}
+  Partial: status pill.
+  Usage: {% include 'rental/_status_pill.html' with status=rental.status %}
+  status: draft | reserved | issued | returned | overdue | cancelled
+{% endcomment %}
+<span class="status-pill {{ status }}">
+  {% if status == 'draft' %}
+    <i class="fas fa-pen-ruler" style="font-size:10px"></i>{% trans "Draft" %}
+  {% elif status == 'reserved' %}
+    <i class="fas fa-calendar-check" style="font-size:10px"></i>{% trans "Reserved" %}
+  {% elif status == 'issued' %}
+    <i class="fas fa-box-open" style="font-size:10px"></i>{% trans "Issued" %}
+  {% elif status == 'returned' %}
+    <i class="fas fa-check" style="font-size:10px"></i>{% trans "Returned" %}
+  {% elif status == 'overdue' %}
+    <i class="fas fa-triangle-exclamation" style="font-size:10px"></i>{% trans "Overdue" %}
+  {% elif status == 'cancelled' %}
+    <i class="fas fa-ban" style="font-size:10px"></i>{% trans "Cancelled" %}
+  {% else %}
+    {{ status }}
+  {% endif %}
+</span>
