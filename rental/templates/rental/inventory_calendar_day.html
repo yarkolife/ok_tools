@@ -37,33 +37,31 @@
                 </div>
             </div>
             <div class="surface p-4">
-                <div class="mb-3 d-flex align-items-center" style="gap:12px">
+                <form method="get" class="mb-3 d-flex align-items-center" style="gap:12px">
+                    <input type="hidden" name="date" value="{{ day|date:'Y-m-d' }}">
                     <div style="flex:1">
                         <strong style="font-size:13px">{% trans "Equipment status" %}</strong>
                         <span class="muted tiny ms-2">{{ items|length }} {% trans "item(s)" %}</span>
                     </div>
-                    <form method="get" class="d-flex" style="gap:8px">
-                        <input type="hidden" name="date" value="{{ day|date:'Y-m-d' }}">
-                        <div class="search" style="max-width:280px">
-                            <i class="fas fa-search"></i>
-                            <input type="text" class="form-control form-control-sm" name="q" 
-                                   placeholder="{% trans 'Search item or number…' %}"
-                                   value="{{ search_query|default:'' }}">
-                        </div>
-                        <select class="form-select form-select-sm" name="status" style="max-width:140px" onchange="this.form.submit()">
-                            <option value="">{% trans "All statuses" %}</option>
-                            <option value="available" {% if status_filter == 'available' %}selected{% endif %}>{% trans "Available" %}</option>
-                            <option value="reserved" {% if status_filter == 'reserved' %}selected{% endif %}>{% trans "Reserved" %}</option>
-                            <option value="issued" {% if status_filter == 'issued' %}selected{% endif %}>{% trans "Issued" %}</option>
-                        </select>
-                        <select class="form-select form-select-sm" name="sort" style="max-width:140px" onchange="this.form.submit()">
-                            <option value="status" {% if sort_by == 'status' %}selected{% endif %}>{% trans "Sort: Status" %}</option>
-                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>{% trans "Sort: Name" %}</option>
-                            <option value="category" {% if sort_by == 'category' %}selected{% endif %}>{% trans "Sort: Category" %}</option>
-                        </select>
-                        <button type="submit" class="btn btn-ghost btn-sm"><i class="fas fa-filter"></i></button>
-                    </form>
-                </div>
+                    <div class="search" style="max-width:280px">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control form-control-sm" name="q" 
+                               placeholder="{% trans 'Search item or number…' %}"
+                               value="{{ search_query|default:'' }}">
+                    </div>
+                    <select class="form-select form-select-sm" name="status" style="width:140px" onchange="this.form.submit()">
+                        <option value="">{% trans "All statuses" %}</option>
+                        <option value="available" {% if status_filter == 'available' %}selected{% endif %}>{% trans "Available" %}</option>
+                        <option value="reserved" {% if status_filter == 'reserved' %}selected{% endif %}>{% trans "Reserved" %}</option>
+                        <option value="issued" {% if status_filter == 'issued' %}selected{% endif %}>{% trans "Issued" %}</option>
+                    </select>
+                    <select class="form-select form-select-sm" name="sort" style="width:140px" onchange="this.form.submit()">
+                        <option value="status" {% if sort_by == 'status' %}selected{% endif %}>{% trans "Sort: Status" %}</option>
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>{% trans "Sort: Name" %}</option>
+                        <option value="category" {% if sort_by == 'category' %}selected{% endif %}>{% trans "Sort: Category" %}</option>
+                    </select>
+                    <button type="submit" class="btn btn-ghost btn-sm"><i class="fas fa-filter"></i></button>
+                </form>
                 
                 <div class="rental-list">
                     <div class="list-head">
