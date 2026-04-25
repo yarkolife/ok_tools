@@ -33,11 +33,17 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.urls import NoReverseMatch
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
+from inventory.models import Category
+from types import SimpleNamespace
 from rental.services.inventory_service_interface import inventory_service
 from registration.models import OKUser
 from registration.models import Profile
@@ -63,8 +69,6 @@ def _iter_time_slots(target_date, step_minutes):
         current = slot_end
 
     return slots
-
-
 class DefaultPagination(PageNumberPagination):
     """
     Default pagination configuration for rental API views.
@@ -76,6 +80,139 @@ class DefaultPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 200
+
+
+def _user_display_name(user):
+    profile = getattr(user, 'profile', None)
+    if profile and profile.first_name and profile.last_name:
+        return f'{profile.first_name} {profile.last_name}'
+    if profile and profile.first_name:
+        return profile.first_name
+
+    full_name = user.get_full_name().strip() if user else ''
+    if full_name:
+        return full_name
+
+    return user.email if user and user.email else ''
+
+
+def serialize_user(user):
+    profile = getattr(user, 'profile', None)
+    name = _user_display_name(user)
+    name_parts = [part for part in name.split() if part]
+    initials = ''.join(part[0] for part in name_parts[:2]).upper() if name_parts else '?'
+    org = '—'
+    if profile and profile.media_authority:
+        org = profile.media_authority.full_name or profile.media_authority.name or '—'
+
+    if user and user.is_staff:
+        role = _('Staff')
+    elif profile and profile.member:
+        role = _('Member')
+    else:
+        role = _('User')
+
+    past_count = max(0, RentalRequest.objects.filter(user=user).count() - 1)
+
+    return {
+        'id': user.pk,
+        'initials': initials,
+        'name': name,
+        'org': org,
+        'role': str(role),
+        'past': past_count,
+        'past_count': past_count,
+        'phone': ((profile.phone_number or profile.mobile_number) if profile else ''),
+        'email': user.email or '',
+        'warn': None,
+    }
+
+
+def serialize_rental(rental):
+    overdue_days = 0
+    effective_status = rental.status
+    now = timezone.now()
+    if rental.status == 'issued' and rental.requested_end_date and rental.requested_end_date < now:
+        effective_status = 'overdue'
+        overdue_days = (now - rental.requested_end_date).days
+
+    return {
+        'pk': rental.pk,
+        'id': f'R-{rental.created_at.strftime("%y%m")}-{rental.pk:04d}',
+        'project': rental.project_name or '',
+        'purpose': rental.purpose or '',
+        'status': effective_status,
+        'from_at': rental.requested_start_date.isoformat() if rental.requested_start_date else None,
+        'to_at': rental.requested_end_date.isoformat() if rental.requested_end_date else None,
+        'to_iso': rental.requested_end_date.strftime('%Y-%m-%dT%H:%M') if rental.requested_end_date else '',
+        'overdue_days': overdue_days,
+        'user': serialize_user(rental.user),
+        'issued_by': _user_display_name(rental.created_by) if rental.created_by else None,
+        'created_at': rental.created_at.isoformat() if rental.created_at else None,
+        'internal_note': rental.notes or '',
+    }
+
+
+def serialize_item(rental_item):
+    inventory_item = rental_item.inventory_item
+    category = inventory_item.category
+    return {
+        'id': rental_item.pk,
+        'name': inventory_item.description or '',
+        'num': inventory_item.inventory_number or '',
+        'cat': category.name if category else '',
+        'loc': inventory_item.location.name if inventory_item.location else '',
+        'owner': inventory_item.owner.name if inventory_item.owner else '',
+        'notes': rental_item.notes or '',
+        'qty_requested': rental_item.quantity_requested,
+        'qty_issued': rental_item.quantity_issued,
+        'qty_returned': rental_item.quantity_returned,
+        'issued_at': rental_item.rental_request.actual_start_date.isoformat() if rental_item.rental_request.actual_start_date else None,
+    }
+
+
+def _i18n_bundle():
+    return {
+        'status.draft': str(_('Draft')),
+        'status.reserved': str(_('Reserved')),
+        'status.issued': str(_('Issued')),
+        'status.returned': str(_('Returned')),
+        'status.overdue': str(_('Overdue')),
+        'status.cancelled': str(_('Cancelled')),
+        'err.return': _('Could not submit return: '),
+        'ret.returning': _('returning'),
+        'ret.items': _('items'),
+        'ret.progress': _('Progress'),
+        'ret.checked': _('checked'),
+        'ret.issues': _('Issues'),
+        'ret.due_by': _('Due by'),
+        'btn.cancel': _('Cancel'),
+        'btn.complete_return': _('Complete return'),
+        'ret.heading': _('Equipment returning'),
+        'ret.sub': _("Tick off items as the user hands them back. Mark condition if something's not right."),
+        'btn.reset': _('Reset'),
+        'btn.all_ok': _('All returned, all OK'),
+        'ret.col.item': _('Item'),
+        'ret.col.returned': _('Returned'),
+        'ret.col.condition': _('Condition'),
+        'ret.col.note': _('Issue note'),
+        'ret.issued': _('issued'),
+        'ret.back': _('back'),
+        'ret.ok': _('OK'),
+        'ret.minor': _('Minor'),
+        'ret.damage': _('Damage'),
+        'ret.logged': _('Logged'),
+        'ret.add_note': _('Add note'),
+        'ret.log_for': _('Log issue for'),
+        'ret.desc_ph': _("Describe what's wrong…"),
+        'ret.charge': _('Charge user (recoverable damage)'),
+        'ret.hold_out': _('Hold item out of pool until reviewed'),
+        'ret.int_note': _('Return note (internal)'),
+        'ret.int_note_ph': _('Anything to remember for next time?'),
+        'ret.email_receipt': _('Email return receipt to user'),
+        'ret.close': _('Close rental after return'),
+        'ret.audit': _('Flag for inventory audit'),
+    }
 
 
 class InventoryItemViewSet(viewsets.ReadOnlyModelViewSet):
@@ -265,6 +402,103 @@ class StaffRequiredMixin(UserPassesTestMixin):
             return redirect('rental:access_denied')
 
 
+class RentalListView(StaffRequiredMixin, ListView):
+    template_name = 'rental/list.html'
+    context_object_name = 'rentals'
+    paginate_by = 40
+
+    def get_queryset(self):
+        queryset = RentalRequest.objects.select_related(
+            'user',
+            'user__profile',
+        ).prefetch_related(
+            'items',
+            'room_rentals',
+            'room_rentals__room',
+        )
+        status = self.request.GET.get('status')
+        query = self.request.GET.get('q')
+        now = timezone.now()
+
+        if status == 'overdue':
+            queryset = queryset.filter(
+                status='issued',
+                requested_end_date__lt=now,
+            )
+        elif status == 'issued':
+            queryset = queryset.filter(status='issued').exclude(requested_end_date__lt=now)
+        elif status:
+            queryset = queryset.filter(status=status)
+
+        if query:
+            queryset = queryset.filter(
+                Q(project_name__icontains=query)
+                | Q(user__first_name__icontains=query)
+                | Q(user__last_name__icontains=query)
+                | Q(user__email__icontains=query)
+            )
+
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        now = timezone.now()
+        rentals = []
+
+        for rental in context['object_list']:
+            derived_status = 'overdue' if (
+                rental.status == 'issued' and rental.requested_end_date < now
+            ) else rental.status
+            overdue_days = 0
+            if derived_status == 'overdue':
+                overdue_days = max((now.date() - rental.requested_end_date.date()).days, 0)
+
+            return_url = None
+            if derived_status in ['issued', 'overdue']:
+                try:
+                    return_url = reverse('rental:rental_return', args=[rental.pk])
+                except NoReverseMatch:
+                    return_url = ''
+
+            issue_url = None
+            if derived_status == 'reserved':
+                try:
+                    issue_url = reverse('rental:api_issue_from_reservation', args=[rental.pk])
+                except NoReverseMatch:
+                    issue_url = ''
+
+            rentals.append({
+                'id': f"R-{rental.created_at.strftime('%y%m')}-{rental.pk:04d}",
+                'project': rental.project_name,
+                'user': serialize_user(rental.user),
+                'status': derived_status,
+                'from_at': rental.requested_start_date,
+                'to_at': rental.requested_end_date,
+                'item_count': rental.items.count(),
+                'room_count': rental.room_rentals.count(),
+                'first_room': rental.room_rentals.first().room.name if rental.room_rentals.exists() else '',
+                'overdue_days': overdue_days,
+                'detail_url': reverse('rental:rental_detail', args=[rental.pk]),
+                'return_url': return_url,
+                'issue_url': issue_url,
+            })
+
+        base_queryset = RentalRequest.objects.all()
+        context['rentals'] = rentals
+        context['counts'] = {
+            'all': base_queryset.count(),
+            'reserved': base_queryset.filter(status='reserved').count(),
+            'issued': base_queryset.filter(status='issued', requested_end_date__gte=now).count(),
+            'overdue': base_queryset.filter(status='issued', requested_end_date__lt=now).count(),
+            'returned': base_queryset.filter(status='returned').count(),
+        }
+        context['current_status'] = self.request.GET.get('status', '')
+        context['current_q'] = self.request.GET.get('q', '')
+        context['i18n_bundle'] = _i18n_bundle()
+        context['is_paginated'] = True
+        return context
+
+
 class RentalProcessView(StaffRequiredMixin, TemplateView):
     """
     Custom admin page for rental process management.
@@ -287,6 +521,8 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
         """
         context = super().get_context_data(**kwargs)
         users = OKUser.objects.select_related('profile').filter(is_active=True)
+        active_rooms = Room.objects.filter(is_active=True).order_by('name')
+        categories = Category.objects.all().order_by('name')
         
         # Use the inventory service to get available items
         inventory_data = inventory_service.get_available_items()
@@ -302,6 +538,36 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
             'equipment_sets': equipment_sets,
             'rental_working_hours_json': json.dumps(get_rental_working_hours()),
             'rental_working_hours_summary': get_rental_working_hours_summary_text(),
+            'initial_json': {
+                'categories': [{
+                    'id': str(category.pk),
+                    'label': category.name,
+                    'icon': 'fa-box',
+                    'count': category.inventoryitem_set.filter(status='in_stock').count(),
+                } for category in categories],
+                'users': [serialize_user(user) for user in users.order_by('last_name', 'first_name', 'email')],
+                'rooms': [{
+                    'id': room.pk,
+                    'name': room.name,
+                    'sub': room.description or '',
+                    'free': room.is_active,
+                } for room in active_rooms],
+                'defaults': {
+                    'from': '',
+                    'to': '',
+                    'project': '',
+                    'purpose': '',
+                },
+                'urls': {
+                    'create': reverse('rental:api_create_rental'),
+                    'quick_issue': '#',
+                    'inventory_search': reverse('rental:api_search_inventory'),
+                    'users_search': reverse('rental:api_search_users'),
+                    'availability_check': '#',
+                    'new_user': '/admin/auth/user/add/',
+                },
+            },
+            'i18n_strings': _i18n_bundle(),
         })
         return context
 
@@ -1219,6 +1485,12 @@ def api_return_rental_items(request):
         data = json.loads(request.body)
         rental_id = data.get('rental_id')
         items = data.get('items', [])
+        general_note = (data.get('note') or '').strip()
+
+        if not rental_id and items:
+            first_item_id = items[0].get('rental_item_id') or items[0].get('id')
+            if first_item_id:
+                rental_id = RentalItem.objects.filter(id=first_item_id).values_list('rental_request_id', flat=True).first()
 
         if not rental_id or not items:
             return JsonResponse({'error': _('Rental ID and items are required')}, status=400)
@@ -1234,11 +1506,32 @@ def api_return_rental_items(request):
             return JsonResponse({'error': _('Only active rentals can have returns')}, status=400)
 
         for item_data in items:
-            rental_item_id = item_data.get('rental_item_id')
-            quantity = int(item_data.get('quantity', 0))
-            condition = item_data.get('condition', 'good')
+            rental_item_id = item_data.get('rental_item_id') or item_data.get('id')
+            quantity = int(item_data.get('quantity') or item_data.get('qty_returned') or 0)
+
+            condition_map = {
+                'ok': 'good',
+                'warn': 'fair',
+                'bad': 'poor',
+            }
+            condition = condition_map.get(item_data.get('condition'), item_data.get('condition', 'good'))
+
+            issue_text = (item_data.get('issue') or '').strip()
             notes = item_data.get('notes', '')
-            issues = item_data.get('issues', [])
+            if issue_text and not notes:
+                notes = issue_text
+            if general_note:
+                notes = f'{notes}\n\n{general_note}'.strip() if notes else general_note
+
+            issues = item_data.get('issues')
+            if issues is None:
+                issues = []
+                if issue_text:
+                    issues.append({
+                        'issue_type': 'damaged' if condition == 'poor' else 'other',
+                        'description': issue_text,
+                        'severity': 'major' if condition == 'poor' else 'minor',
+                    })
 
             if quantity <= 0:
                 continue
@@ -1320,35 +1613,209 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/rental_detail.html'
 
     def get_context_data(self, **kwargs):
-        """
-        Prepare context data for rental detail page.
+        context = super().get_context_data(**kwargs)
+        rental_id = kwargs.get('rental_id')
 
-        Args:
-            **kwargs: Additional context data including rental_id
+        rental = get_object_or_404(
+            RentalRequest.objects.select_related(
+                'user',
+                'user__profile',
+                'user__profile__media_authority',
+                'created_by',
+                'created_by__profile',
+            ).prefetch_related(
+                'items__inventory_item__owner',
+                'items__inventory_item__location',
+                'items__inventory_item__category',
+                'room_rentals__room',
+            ),
+            id=rental_id,
+        )
 
-        Returns:
-            dict: Context with rental details and action permissions
-        """
+        rental_json = serialize_rental(rental)
+        context['rental'] = SimpleNamespace(
+            **{
+                **rental_json,
+                'from_at': rental.requested_start_date,
+                'to_at': rental.requested_end_date,
+                'created_at': rental.created_at,
+                'user': SimpleNamespace(**rental_json['user']),
+            }
+        )
+        context['rental_json'] = rental_json
+        context['current_status'] = rental_json['status']
+        context['timeline'] = self._build_timeline(rental)
+        context['items_json'] = [
+            serialize_item(item)
+            for item in rental.items.select_related(
+                'rental_request',
+                'inventory_item__category',
+                'inventory_item__location',
+                'inventory_item__owner',
+            )
+        ]
+        context['rooms_json'] = [
+            {
+                'id': room_rental.pk,
+                'name': room_rental.room.name,
+                'period': (
+                    f'{room_start:%d %b · %H:%M} – {room_end:%H:%M}'
+                    if room_start and room_end else ''
+                ),
+                'seat': str(room_rental.people_count) if room_rental.people_count else '—',
+            }
+            for room_rental in rental.room_rentals.select_related('room')
+            for room_start, room_end in [(room_rental.get_start_date(), room_rental.get_end_date())]
+        ]
+        context['issues_json'] = [
+            {
+                'id': issue.pk,
+                'severity': issue.severity,
+                'item': issue.rental_item.inventory_item.description if issue.rental_item else '',
+                'num': issue.rental_item.inventory_item.inventory_number if issue.rental_item else '',
+                'desc': issue.description,
+                'by': _user_display_name(issue.reported_by),
+                'at': issue.reported_at.isoformat() if issue.reported_at else None,
+            }
+            for issue in RentalIssue.objects.filter(
+                rental_item__rental_request=rental,
+            ).select_related(
+                'rental_item__inventory_item',
+                'reported_by',
+                'reported_by__profile',
+            )
+        ]
+        context['history_json'] = [
+            {
+                'at': transaction.performed_at.isoformat() if transaction.performed_at else None,
+                'who': _user_display_name(transaction.performed_by),
+                'what': (
+                    f'{transaction.get_transaction_type_display()} {transaction.quantity}x '
+                    f'{transaction.rental_item.inventory_item.description}'
+                    if transaction.rental_item else transaction.get_transaction_type_display()
+                ),
+            }
+            for transaction in RentalTransaction.objects.filter(
+                rental_item__rental_request=rental,
+            ).select_related(
+                'performed_by',
+                'performed_by__profile',
+                'rental_item__inventory_item',
+            )[:30]
+        ]
+        context['page_urls'] = {
+            'list': self._safe_reverse('rental:list'),
+            'print_slip': reverse('rental:print_form_msa', args=[rental.pk]),
+            'duplicate': self._safe_reverse('rental:duplicate', args=[rental.pk]),
+            'edit_note': self._safe_reverse('rental:edit_note', args=[rental.pk]),
+            'detail': reverse('rental:rental_detail', args=[rental.pk]),
+        }
+        context['urls_json'] = {
+            'extend': reverse('rental:api_extend_rental'),
+            'mark_issued': reverse('rental:api_issue_from_reservation'),
+            'cancel': reverse('rental:api_cancel_rental'),
+            'close': '#',
+            'send_reminder': '#',
+            'report_issue': '#',
+            'return_page': reverse('rental:rental_return', args=[rental.pk]),
+            'edit_items': f'{reverse("rental:rental_detail", args=[rental.pk])}#items',
+            'edit_user': f'{reverse("rental:rental_detail", args=[rental.pk])}#user',
+            'edit_period': f'{reverse("rental:rental_detail", args=[rental.pk])}#period',
+            'resend_email': '#',
+            'export_pdf': reverse('rental:print_form_msa', args=[rental.pk]),
+            'swap_unit': '#',
+            'remove_item': '#',
+        }
+        context['i18n_strings'] = _i18n_bundle()
+
+        return context
+
+    def _build_timeline(self, rental):
+        steps = [
+            ('created', _('Created'), rental.created_at),
+            ('reserved', _('Reserved'), None),
+            ('issued', _('Issued'), rental.actual_start_date),
+            ('returned', _('Returned'), rental.actual_end_date),
+            ('closed', _('Closed'), None),
+        ]
+        status = serialize_rental(rental)['status']
+        done_until = {
+            'draft': 0,
+            'reserved': 1,
+            'issued': 2,
+            'overdue': 2,
+            'returned': 3,
+            'cancelled': 1,
+            'closed': 4,
+        }.get(status, 0)
+        timeline = []
+        for index, (step_id, label, at) in enumerate(steps):
+            state = (
+                'done' if index < done_until else
+                'active' if index == done_until else
+                'upcoming'
+            )
+            timeline.append({'id': step_id, 'label': label, 'at': at, 'state': state})
+        return timeline
+
+    def _safe_reverse(self, name, args=None, kwargs=None, fallback='#'):
+        try:
+            return reverse(name, args=args, kwargs=kwargs)
+        except NoReverseMatch:
+            return fallback
+
+
+class RentalReturnView(StaffRequiredMixin, TemplateView):
+    """Return processing view for staff React island."""
+
+    template_name = 'rental/rental_return.html'
+
+    def get_context_data(self, **kwargs):
+        """Prepare context data for rental return page."""
         context = super().get_context_data(**kwargs)
         rental_id = kwargs.get('rental_id')
 
         try:
-            from .models import RentalRequest
-            rental = RentalRequest.objects.select_related('user', 'created_by').prefetch_related(
-                'items__inventory_item__owner',
-                'items__inventory_item__location',
+            rental = RentalRequest.objects.select_related(
+                'user',
+                'user__profile',
+                'user__profile__media_authority',
+                'created_by',
+            ).prefetch_related(
                 'items__inventory_item__category',
+                'items__inventory_item__location',
                 'items__transactions',
-                'items__issues'
             ).get(id=rental_id)
 
-            context['rental'] = rental
-            context['can_confirm'] = rental.status == 'draft'
-            context['can_return'] = rental.status in ['reserved', 'issued']
-            context['can_extend'] = rental.status in ['reserved', 'issued']
-
-        except Exception as e:
-            context['error'] = str(e)
+            rental_json = serialize_rental(rental)
+            context['rental'] = SimpleNamespace(
+                **{
+                    **rental_json,
+                    'from_at': rental.requested_start_date,
+                    'to_at': rental.requested_end_date,
+                    'user': SimpleNamespace(**rental_json['user']),
+                }
+            )
+            context['rental_json'] = rental_json
+            context['items_json'] = [
+                {
+                    **serialize_item(item),
+                    'outstanding': max(0, (item.quantity_issued or 0) - (item.quantity_returned or 0)),
+                }
+                for item in rental.items.select_related(
+                    'rental_request',
+                    'inventory_item__category',
+                    'inventory_item__location',
+                    'inventory_item__owner',
+                ).prefetch_related('transactions')
+            ]
+            context['urls_json'] = {
+                'submit_return': reverse('rental:api_return_rental_items'),
+                'detail': reverse('rental:rental_detail', args=[rental.pk]),
+            }
+            context['i18n_strings'] = _i18n_bundle()
+        except RentalRequest.DoesNotExist:
+            context['error'] = _('Rental request not found')
 
         return context
 

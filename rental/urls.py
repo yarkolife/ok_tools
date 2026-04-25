@@ -10,10 +10,12 @@ from .views import UserRentalDetailView
 from .views import RentalIssueViewSet
 from .views import RentalItemViewSet
 from .views import RentalProcessView
+from .views import RentalReturnView
 from .views import RentalRequestViewSet
 from .views import RentalStatsView
 from .views import InventoryCalendarDayView
 from .views import InventoryCalendarWeekView
+from .views import RentalListView
 from .views import api_inventory_calendar
 from .views import RentalTransactionViewSet
 from .views import api_cancel_rental
@@ -76,6 +78,7 @@ router.register(r'equipment-sets', EquipmentSetViewSet, basename='equipment-set'
 router.register(r'equipment-set-items', EquipmentSetItemViewSet, basename='equipment-set-item')
 
 urlpatterns = [
+    path('', RentalListView.as_view(), name='list'),
     path('api/', include(router.urls)),
     # Custom admin-like pages and endpoints
     path('admin/rental-process/', RentalProcessView.as_view(), name='admin_rental_process'),
@@ -139,6 +142,7 @@ urlpatterns = [
 
     # Detail page for rental
     path('rental/<int:rental_id>/', RentalDetailView.as_view(), name='rental_detail'),
+    path('rental/<int:rental_id>/return/', RentalReturnView.as_view(), name='rental_return'),
     # User detail page for rental
     path('user/rental/<int:rental_id>/', UserRentalDetailView.as_view(), name='user_rental_detail'),
 
