@@ -92,7 +92,7 @@ router.register(r'equipment-sets', EquipmentSetViewSet, basename='equipment-set'
 router.register(r'equipment-set-items', EquipmentSetItemViewSet, basename='equipment-set-item')
 
 urlpatterns = [
-    path('list/', RentalListView.as_view(), name='list'),
+    path('admin/', RentalListView.as_view(), name='list'),
     path('new/', RentalProcessView.as_view(), name='create'),
     path('create/submit/', create_submit, name='create_submit'),
     path('quick-issue/', quick_issue, name='quick_issue'),
