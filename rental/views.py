@@ -44,6 +44,7 @@ from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
 from inventory.models import Category
+from inventory.models import InventoryItem
 from types import SimpleNamespace
 from rental.services.inventory_service_interface import inventory_service
 from registration.models import OKUser
