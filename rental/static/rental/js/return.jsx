@@ -1,0 +1,263 @@
+/* =========================================================
+   rental/static/rental/js/return.jsx
+   React island for rental_return.html.
+   Depends on: shared.jsx (cls, fmtDateShort, apiPost, t, Avatar)
+   ========================================================= */
+
+function ReturnScreen({ rental, items, urls }) {
+  const [returns, setReturns] = React.useState(() =>
+    items.map(i => ({
+      id: i.id,
+      name: i.name,
+      num: i.num,
+      issuedAt: i.issued_at,
+      total: i.qty_issued,
+      qtyReturned: 0,
+      condition: null,
+      issue: '',
+      charge: false,
+      holdOut: true,
+    }))
+  );
+  const [showIssueFor, setShowIssueFor] = React.useState(null);
+  const [note, setNote] = React.useState('');
+  const [emailReceipt, setEmailReceipt] = React.useState(true);
+  const [closeRental, setCloseRental] = React.useState(true);
+  const [flagAudit, setFlagAudit] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const setRet = (id, patch) => setReturns(xs => xs.map(x => x.id === id ? { ...x, ...patch } : x));
+  const checkAll = () => setReturns(xs => xs.map(x => ({ ...x, qtyReturned: x.total, condition: x.condition || 'ok' })));
+  const clearAll = () => setReturns(xs => xs.map(x => ({ ...x, qtyReturned: 0, condition: null, issue: '' })));
+
+  const checkedCount = returns.filter(x => x.qtyReturned >= x.total).length;
+  const totalCount = returns.length;
+  const issueCount = returns.filter(x => x.condition === 'warn' || x.condition === 'bad' || x.issue).length;
+
+  const submit = async () => {
+    setSubmitting(true);
+    try {
+      await apiPost(urls.submit_return, {
+        items: returns.map(r => ({
+          id: r.id,
+          qty_returned: r.qtyReturned,
+          condition: r.condition,
+          issue: r.issue,
+          charge: r.charge,
+          hold_out: r.holdOut,
+        })),
+        note,
+        email_receipt: emailReceipt,
+        close_rental: closeRental,
+        flag_audit: flagAudit,
+      });
+      window.location = urls.detail;
+    } catch (e) {
+      alert(t('err.return', 'Could not submit return: ') + e.message);
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Summary bar */}
+      <div className="action-bar" style={{background: 'oklch(0.97 0.03 240)', borderColor: 'oklch(0.88 0.06 240)'}}>
+        <div className="primary-cta">
+          <Avatar user={rental.user} size={32} />
+          <div>
+            <div style={{fontWeight: 600, fontSize: 13}}>{rental.user.name}</div>
+            <div className="muted tiny">{rental.user.org} · {t('ret.returning','returning')} {totalCount} {t('ret.items','items')}</div>
+          </div>
+        </div>
+        <div className="secondary" style={{gap: 12, fontSize: 13}}>
+          <div>
+            <div className="muted tiny" style={{textTransform: 'uppercase', letterSpacing: '.04em', fontWeight: 600}}>
+              {t('ret.progress', 'Progress')}
+            </div>
+            <div style={{fontWeight: 600, fontVariantNumeric: 'tabular-nums'}}>
+              {checkedCount}/{totalCount} {t('ret.checked', 'checked')}
+            </div>
+          </div>
+          <div>
+            <div className="muted tiny" style={{textTransform: 'uppercase', letterSpacing: '.04em', fontWeight: 600}}>
+              {t('ret.issues', 'Issues')}
+            </div>
+            <div style={{fontWeight: 600, color: issueCount > 0 ? 'oklch(0.45 0.14 28)' : 'var(--ink)'}}>
+              {issueCount}
+            </div>
+          </div>
+          <div>
+            <div className="muted tiny" style={{textTransform: 'uppercase', letterSpacing: '.04em', fontWeight: 600}}>
+              {t('ret.due_by', 'Due by')}
+            </div>
+            <div style={{fontWeight: 600}}>{fmtDateShort(rental.to_at)}</div>
+          </div>
+          <a className="btn btn-ghost btn-sm" href={urls.detail}>{t('btn.cancel', 'Cancel')}</a>
+          <button className="btn btn-primary btn-sm" disabled={submitting} onClick={submit}>
+            <i className="fas fa-check me-1"></i>{t('btn.complete_return', 'Complete return')}
+          </button>
+        </div>
+      </div>
+
+      <div className="d-flex align-items-center mb-2" style={{gap: 8}}>
+        <strong style={{fontSize: 13}}>{t('ret.heading', 'Equipment returning')}</strong>
+        <span className="muted tiny">
+          {t('ret.sub', "Tick off items as the user hands them back. Mark condition if something's not right.")}
+        </span>
+        <div className="ms-auto d-flex" style={{gap: 6}}>
+          <button className="btn btn-ghost btn-sm" onClick={clearAll}>
+            <i className="fas fa-rotate-left me-1"></i>{t('btn.reset', 'Reset')}
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={checkAll}>
+            <i className="fas fa-check-double me-1"></i>{t('btn.all_ok', 'All returned, all OK')}
+          </button>
+        </div>
+      </div>
+
+      <div className="return-list">
+        <div className="return-list-head">
+          <div></div>
+          <div>{t('ret.col.item', 'Item')}</div>
+          <div>{t('ret.col.returned', 'Returned')}</div>
+          <div>{t('ret.col.condition', 'Condition')}</div>
+          <div>{t('ret.col.note', 'Issue note')}</div>
+        </div>
+
+        {returns.map(ret => {
+          const done = ret.qtyReturned >= ret.total;
+          const hasIssue = ret.condition === 'warn' || ret.condition === 'bad';
+          return (
+            <React.Fragment key={ret.id}>
+              <div className={cls('return-row', done && 'checked')}>
+                <input type="checkbox" className="form-check-input"
+                       checked={done}
+                       onChange={e => setRet(ret.id, {
+                         qtyReturned: e.target.checked ? ret.total : 0,
+                         condition: e.target.checked ? (ret.condition || 'ok') : null,
+                       })} />
+                <div>
+                  <div className="name">{ret.name}</div>
+                  <div className="sub">
+                    <span className="mono">{ret.num}</span> · {t('ret.issued','issued')} {fmtDateShort(ret.issuedAt)}
+                  </div>
+                </div>
+                <div>
+                  {ret.total > 1 ? (
+                    <div className="input-group input-group-sm" style={{maxWidth: 100}}>
+                      <button className="btn btn-ghost"
+                              onClick={() => setRet(ret.id, { qtyReturned: Math.max(0, ret.qtyReturned - 1) })}>−</button>
+                      <input className="form-control text-center" readOnly
+                             value={`${ret.qtyReturned}/${ret.total}`} />
+                      <button className="btn btn-ghost"
+                              onClick={() => setRet(ret.id, {
+                                qtyReturned: Math.min(ret.total, ret.qtyReturned + 1),
+                                condition: ret.condition || 'ok',
+                              })}>+</button>
+                    </div>
+                  ) : (
+                    <span className={cls('tag', done ? 'tag-ok' : 'tag-neutral')}>
+                      {done ? `1/1 ${t('ret.back','back')}` : '0/1'}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div className="condition-pick">
+                    <button className={cls(ret.condition === 'ok' && 'sel-ok')}
+                            onClick={() => setRet(ret.id, { condition: 'ok', qtyReturned: ret.total })}>
+                      {t('ret.ok', 'OK')}
+                    </button>
+                    <button className={cls(ret.condition === 'warn' && 'sel-warn')}
+                            onClick={() => { setRet(ret.id, { condition: 'warn', qtyReturned: ret.total }); setShowIssueFor(ret.id); }}>
+                      {t('ret.minor', 'Minor')}
+                    </button>
+                    <button className={cls(ret.condition === 'bad' && 'sel-bad')}
+                            onClick={() => { setRet(ret.id, { condition: 'bad', qtyReturned: ret.total }); setShowIssueFor(ret.id); }}>
+                      {t('ret.damage', 'Damage')}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  {hasIssue ? (
+                    <button className="btn btn-sm btn-ghost" style={{width: '100%'}}
+                            onClick={() => setShowIssueFor(showIssueFor === ret.id ? null : ret.id)}>
+                      {ret.issue
+                        ? <><i className="fas fa-check-circle me-1" style={{color: 'oklch(0.55 0.12 145)'}}></i>{t('ret.logged','Logged')}</>
+                        : <><i className="fas fa-plus me-1"></i>{t('ret.add_note','Add note')}</>}
+                    </button>
+                  ) : <span className="muted tiny">—</span>}
+                </div>
+              </div>
+
+              {showIssueFor === ret.id && hasIssue && (
+                <div style={{padding: '12px 20px 14px 60px', background: 'oklch(0.98 0.02 28)',
+                                borderBottom: '1px solid var(--line)'}}>
+                  <div className="d-flex" style={{gap: 10, alignItems: 'center', marginBottom: 8}}>
+                    <i className="fas fa-triangle-exclamation" style={{color: 'oklch(0.55 0.14 45)'}}></i>
+                    <strong style={{fontSize: 12.5}}>
+                      {t('ret.log_for', 'Log issue for')} {ret.name}
+                    </strong>
+                  </div>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 220px', gap: 10}}>
+                    <textarea className="form-control form-control-sm" rows={2}
+                              value={ret.issue}
+                              onChange={e => setRet(ret.id, { issue: e.target.value })}
+                              placeholder={t('ret.desc_ph', "Describe what's wrong…")} />
+                    <div>
+                      <div className="form-check tiny">
+                        <input className="form-check-input" type="checkbox" id={`charge-${ret.id}`}
+                               checked={ret.charge} onChange={e => setRet(ret.id, {charge: e.target.checked})} />
+                        <label className="form-check-label" htmlFor={`charge-${ret.id}`}>
+                          {t('ret.charge','Charge user (recoverable damage)')}
+                        </label>
+                      </div>
+                      <div className="form-check tiny">
+                        <input className="form-check-input" type="checkbox" id={`holdout-${ret.id}`}
+                               checked={ret.holdOut} onChange={e => setRet(ret.id, {holdOut: e.target.checked})} />
+                        <label className="form-check-label" htmlFor={`holdout-${ret.id}`}>
+                          {t('ret.hold_out','Hold item out of pool until reviewed')}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Bottom — internal note + final toggles */}
+      <div className="surface p-3 mt-3">
+        <strong style={{fontSize: 13}}>{t('ret.int_note', 'Return note (internal)')}</strong>
+        <textarea className="form-control mt-2" rows={2}
+                  value={note} onChange={e => setNote(e.target.value)}
+                  placeholder={t('ret.int_note_ph', 'Anything to remember for next time?')} />
+        <div className="mt-2 d-flex" style={{gap: 16, fontSize: 12, color: 'var(--ink-2)'}}>
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox" id="emailRet"
+                   checked={emailReceipt} onChange={e => setEmailReceipt(e.target.checked)} />
+            <label className="form-check-label" htmlFor="emailRet">
+              {t('ret.email_receipt', 'Email return receipt to user')}
+            </label>
+          </div>
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox" id="closeRet"
+                   checked={closeRental} onChange={e => setCloseRental(e.target.checked)} />
+            <label className="form-check-label" htmlFor="closeRet">
+              {t('ret.close', 'Close rental after return')}
+            </label>
+          </div>
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox" id="auditRet"
+                   checked={flagAudit} onChange={e => setFlagAudit(e.target.checked)} />
+            <label className="form-check-label" htmlFor="auditRet">
+              {t('ret.audit', 'Flag for inventory audit')}
+            </label>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+Object.assign(window, { ReturnScreen });

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% comment %}
+  rental/templates/rental/rental_return.html
+  -----------------------------------------------------------------
+  React island — all return logic in return.jsx.
+
+  View context:
+    rental          — dict with .id, .project, .user{name,org,initials}, .to_at (ISO)
+    rental_json     — serialized rental for React
+    items_json      — list of items: {id, name, num, qty_issued, issued_at}
+    urls_json       — {submit_return, detail}
+    i18n_strings    — translations
+  -----------------------------------------------------------------
+{% endcomment %}
+
+{% block title %}{% trans "Process return" %} — {{ rental.id }}{% endblock %}
+
+{% block extra_css %}
+  <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="crumbs">
+  <a href="{% url 'rental:list' %}">{% trans "Rentals" %}</a>
+  <i class="fas fa-chevron-right"></i>
+  <a href="{% url 'rental:rental_detail' rental.pk %}">{{ rental.id }}</a>
+  <i class="fas fa-chevron-right"></i>
+  <span>{% trans "Return" %}</span>
+</div>
+
+<div class="page-title">
+  <h1>{% trans "Process return" %}</h1>
+  <span class="sub">{{ rental.project }} · {{ rental.user.name }}</span>
+</div>
+
+<div id="return-root"></div>
+
+{{ rental_json|json_script:"rental-data" }}
+{{ items_json|json_script:"rental-items" }}
+{{ urls_json|json_script:"rental-urls" }}
+{{ i18n_strings|json_script:"rr-i18n" }}
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+        integrity="sha384-0hAheEuBsQdUDUBt9QC/MoTWrGBpEtEYg1c8nilJMpM4zMaxWzrelmZOdebUIibI"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+        integrity="sha384-Ux5Nl/8Nfw9vaSvm2x8cE3TBrF+Dk9qJqbbaMpFUdR9GLwnfBsXfpUksZRtgl6hR"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+        integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+        crossorigin="anonymous"></script>
+
+<script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
+<script type="text/babel" src="{% static 'rental/js/return.jsx' %}"></script>
+<script type="text/babel">
+(() => {
+  const rental = JSON.parse(document.getElementById('rental-data').textContent);
+  const items  = JSON.parse(document.getElementById('rental-items').textContent);
+  const urls   = JSON.parse(document.getElementById('rental-urls').textContent);
+  ReactDOM.createRoot(document.getElementById('return-root'))
+    .render(<ReturnScreen rental={rental} items={items} urls={urls} />);
+})();
+</script>
+{% endblock %}
