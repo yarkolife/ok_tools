@@ -230,11 +230,14 @@ html, body {
 }
 .filters .form-control, .filters .form-select { font-size: 12.5px; height: 32px; padding: 2px 10px; }
 .filters .search { position: relative; flex: 1; min-width: 220px; }
-.filters .search i {
+.search { position: relative; display: inline-block; }
+.filters .search i,
+.search i {
   position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
   color: var(--ink-3); font-size: 12px;
 }
-.filters .search .form-control { padding-left: 28px; }
+.filters .search .form-control,
+.search .form-control { padding-left: 28px; }
 
 /* Item rows */
 .item-row {
