@@ -208,11 +208,17 @@ def api_users_search(request):
             | Q(profile__first_name__icontains=query)
             | Q(profile__last_name__icontains=query)
         )
+    from .views import RENTAL_PROCESS_COUNTED_STATUSES
+    from .views import serialize_user
+
     queryset = queryset.distinct().annotate(
-        rental_count=Count('rentalrequest', distinct=True),
+        rental_count=Count(
+            'rentalrequest',
+            filter=Q(rentalrequest__status__in=RENTAL_PROCESS_COUNTED_STATUSES),
+            distinct=True,
+        ),
     ).order_by('email')[:30]
 
-    from .views import serialize_user
     return JsonResponse({'users': [serialize_user(user) for user in queryset]})
 
 
