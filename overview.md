@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Rental user selection optimization**: Prioritized initial user fetch for rental process, unified user search endpoints with shared serialization, added tests
 - **Austausch visibility rules**: Feed items now respect `allowExchange`/`allowExchangeOtherStates`, compare `bundesland_code` against the local organization config, and support configurable same-state channel exceptions from the exchange admin settings
 - **Bundesland metadata compatibility**: Organization configuration now stores the export Bundesland, auto-generates the Bundesland code, and guarantees both fields in license metadata/API payloads
 - **Nested metadata normalization**: Austausch imports and admin JSON imports now normalize both flat legacy payloads and nested canonical `organization`/`license` structures, including string boolean handling

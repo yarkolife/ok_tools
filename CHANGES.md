@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-05-01 (Version 4.9.0)
+==========================
+
+* **rental: Optimize user selection for rental process**
+  * Added prioritized initial user fetch with active rental count and limit
+  * Updated user serialization to use pre-annotated rental counts
+  * Unified user search endpoints to reuse serialization logic
+  * Added tests for new user selection and serialization behavior
+
 2026-04-30 (Version 4.8.0)
 ==========================
 
