@@ -322,6 +322,13 @@ TIME_ZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 
 USE_I18N = True
 
+USE_L10N = True
+
+DATE_FORMAT = 'd.m.Y'
+DATETIME_FORMAT = 'd.m.Y H:i'
+SHORT_DATE_FORMAT = 'd.m.Y'
+SHORT_DATETIME_FORMAT = 'd.m.Y H:i'
+
 USE_TZ = True
 
 LOCALE_PATHS = [BASE_DIR / "ok_tools/locale"]

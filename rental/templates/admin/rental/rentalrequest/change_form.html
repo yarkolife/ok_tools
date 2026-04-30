@@ -1,0 +1,411 @@
+{% extends 'admin/change_form.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.admin-signature-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #fafafa; }
+.admin-signature-section h3 { margin-top: 0; }
+.admin-signature-existing { margin: 15px 0; text-align: center; }
+.admin-signature-existing img { max-width: 100%; max-height: 200px; }
+.admin-signature-canvas-wrapper { position: relative; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; }
+.admin-signature-canvas { width: 100%; height: 200px; touch-action: none; user-select: none; }
+.admin-signature-guide { position: absolute; bottom: 30%; left: 5%; right: 5%; border-bottom: 1px dashed #ccc; pointer-events: none; }
+.admin-signature-actions { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+.admin-signature-method-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+.admin-signature-method-buttons .btn.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
+.icon-svg { vertical-align: text-bottom; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
+<script>
+(function() {
+    'use strict';
+
+    function initSignatureSection() {
+        const container = document.getElementById('admin-signature-section');
+        if (!container) {
+            return;
+        }
+
+        const canvas = document.getElementById('admin-signature-canvas');
+        const signatureInput = document.getElementById('id_signature');
+        const signatureSvgInput = document.getElementById('id_signature_svg');
+        const signaturePointsInput = document.getElementById('id_signature_points');
+        const signatureMetadataInput = document.getElementById('id_signature_metadata');
+        const signatureMethodInput = document.getElementById('id_signature_method');
+        const clearButton = document.getElementById('admin-clear-signature');
+        const chooseDrawButton = document.getElementById('admin-choose-draw');
+        const chooseQrButton = document.getElementById('admin-choose-qr');
+        const drawPanel = document.getElementById('admin-draw-panel');
+        const qrPanel = document.getElementById('admin-qr-panel');
+        const createSessionButton = document.getElementById('admin-create-sign-session');
+        const sessionStatus = document.getElementById('admin-session-status');
+        const sessionQr = document.getElementById('admin-session-qr');
+        const sessionLink = document.getElementById('admin-session-link');
+        const sessionExpiry = document.getElementById('admin-session-expiry');
+        const sessionPanel = document.getElementById('admin-session-panel');
+        const existingPanel = document.getElementById('admin-existing-signature');
+        const rentalId = container.dataset.rentalId;
+
+        if (!canvas || !rentalId) {
+            return;
+        }
+
+        let pointerMethod = 'mouse';
+        let sessionPollTimer = null;
+        let selectedMethod = 'draw';
+
+        const signaturePad = new SignaturePad(canvas, {
+            minWidth: 1,
+            maxWidth: 2.8,
+            penColor: '#111111',
+        });
+
+        function clearSignatureFields() {
+            if (signatureInput) signatureInput.value = '';
+            if (signatureSvgInput) signatureSvgInput.value = '';
+            if (signaturePointsInput) signaturePointsInput.value = '';
+            if (signatureMetadataInput) signatureMetadataInput.value = '';
+            if (signatureMethodInput) signatureMethodInput.value = '';
+        }
+
+        function saveSignature() {
+            if (signaturePad.isEmpty()) {
+                clearSignatureFields();
+                return;
+            }
+            if (signatureInput) signatureInput.value = signaturePad.toDataURL('image/png');
+            if (signatureSvgInput) signatureSvgInput.value = signaturePad.toSVG();
+            if (signaturePointsInput) signaturePointsInput.value = JSON.stringify(signaturePad.toData());
+            if (signatureMetadataInput) {
+                signatureMetadataInput.value = JSON.stringify({
+                    captured_at: new Date().toISOString(),
+                    user_agent: navigator.userAgent,
+                    max_touch_points: navigator.maxTouchPoints || 0,
+                    canvas_width: canvas.width,
+                    canvas_height: canvas.height,
+                });
+            }
+            if (signatureMethodInput) signatureMethodInput.value = pointerMethod;
+        }
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const data = !signaturePad.isEmpty() ? signaturePad.toData() : null;
+            const displayWidth = canvas.offsetWidth;
+            const displayHeight = canvas.offsetHeight;
+            if (!displayWidth || !displayHeight) {
+                return;
+            }
+            canvas.width = displayWidth * ratio;
+            canvas.height = displayHeight * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+            signaturePad.clear();
+            if (data && data.length) {
+                signaturePad.fromData(data);
+            }
+        }
+
+        function loadExistingSignature() {
+            if (signaturePointsInput && signaturePointsInput.value) {
+                try {
+                    const points = JSON.parse(signaturePointsInput.value);
+                    if (Array.isArray(points) && points.length) {
+                        signaturePad.fromData(points);
+                        saveSignature();
+                        return;
+                    }
+                } catch (e) {
+                    // Ignore malformed stored points and fallback to legacy image.
+                }
+            }
+            if (signatureInput && signatureInput.value) {
+                signaturePad.fromDataURL(signatureInput.value, {
+                    ratio: Math.max(window.devicePixelRatio || 1, 1),
+                });
+            }
+        }
+
+        function setMethod(method) {
+            selectedMethod = method;
+            if (drawPanel) drawPanel.style.display = method === 'draw' ? '' : 'none';
+            if (qrPanel) qrPanel.style.display = method === 'qr' ? '' : 'none';
+            if (chooseDrawButton) chooseDrawButton.classList.toggle('active', method === 'draw');
+            if (chooseQrButton) chooseQrButton.classList.toggle('active', method === 'qr');
+            if (method === 'draw') {
+                resizeCanvas();
+            }
+        }
+
+        function applyRemoteSignature(payload) {
+            const points = payload && payload.signature_points;
+            const svg = payload && payload.signature_svg;
+            if (!points && !svg) {
+                return false;
+            }
+            signaturePad.clear();
+            let rendered = false;
+            if (Array.isArray(points) && points.length) {
+                signaturePad.fromData(points);
+                rendered = true;
+                if (signaturePointsInput) signaturePointsInput.value = JSON.stringify(points);
+            }
+            if (!rendered && svg) {
+                if (signatureSvgInput) signatureSvgInput.value = svg;
+            }
+            signatureInput.value = signaturePad.isEmpty() ? '' : signaturePad.toDataURL('image/png');
+            if (signatureSvgInput && svg) {
+                signatureSvgInput.value = svg;
+            } else if (signatureSvgInput && !signaturePad.isEmpty()) {
+                signatureSvgInput.value = signaturePad.toSVG();
+            }
+            if (signatureMetadataInput && payload.signature_metadata) {
+                signatureMetadataInput.value = JSON.stringify(payload.signature_metadata);
+            }
+            if (signatureMethodInput) {
+                signatureMethodInput.value = payload.signature_method || 'qr_phone';
+            }
+            if (existingPanel) existingPanel.style.display = 'none';
+            return true;
+        }
+
+        async function pollSession(token) {
+            try {
+                const response = await fetch(`/rental/sign-session/${token}/status/?consume=1`);
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || '{% trans "Failed to check signing session." %}');
+                }
+                if (data.status === 'signed') {
+                    if (sessionPollTimer) {
+                        clearInterval(sessionPollTimer);
+                        sessionPollTimer = null;
+                    }
+                    applyRemoteSignature(data);
+                    setMethod('draw');
+                    if (sessionStatus) {
+                        sessionStatus.innerHTML = '<span class="text-success">{% trans "Signature synchronized from phone." %}</span>';
+                    }
+                } else if (data.status === 'expired') {
+                    if (sessionPollTimer) {
+                        clearInterval(sessionPollTimer);
+                        sessionPollTimer = null;
+                    }
+                    if (sessionStatus) {
+                        sessionStatus.innerHTML = '<span class="text-warning">{% trans "Signing session expired." %}</span>';
+                    }
+                } else {
+                    if (sessionStatus) {
+                        sessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
+                    }
+                }
+            } catch (error) {
+                if (sessionPollTimer) {
+                    clearInterval(sessionPollTimer);
+                    sessionPollTimer = null;
+                }
+                if (sessionStatus) {
+                    sessionStatus.innerHTML = '<span class="text-danger">' + error.message + '</span>';
+                }
+            }
+        }
+
+        if (chooseDrawButton) {
+            chooseDrawButton.addEventListener('click', function() { setMethod('draw'); });
+        }
+        if (chooseQrButton) {
+            chooseQrButton.addEventListener('click', function() { setMethod('qr'); });
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', function() {
+                signaturePad.clear();
+                clearSignatureFields();
+            });
+        }
+
+        signaturePad.addEventListener('beginStroke', function(event) {
+            const pointerType = event && event.event && event.event.pointerType;
+            if (pointerType === 'touch' || pointerType === 'mouse' || pointerType === 'pen') {
+                pointerMethod = pointerType === 'pen' ? 'stylus' : pointerType;
+            }
+        });
+        signaturePad.addEventListener('endStroke', saveSignature);
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        setTimeout(loadExistingSignature, 150);
+
+        if (createSessionButton) {
+            createSessionButton.addEventListener('click', async function() {
+                createSessionButton.disabled = true;
+                if (sessionStatus) sessionStatus.innerHTML = '<span class="text-muted">{% trans "Creating signing session..." %}</span>';
+                if (sessionPanel) sessionPanel.style.display = 'none';
+
+                try {
+                    const response = await fetch(`/rental/rental/${rentalId}/sign-session/create/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.error || '{% trans "Failed to create signing session." %}');
+                    }
+                    if (sessionPanel) sessionPanel.style.display = '';
+                    if (sessionQr) sessionQr.src = data.qr_url;
+                    if (sessionLink) {
+                        sessionLink.textContent = data.sign_url;
+                        sessionLink.href = data.sign_url;
+                    }
+                    if (sessionExpiry) {
+                        sessionExpiry.textContent = '{% trans "Expires at:" %} ' + new Date(data.expires_at).toLocaleString();
+                    }
+                    if (sessionStatus) {
+                        sessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
+                    }
+                    if (sessionPollTimer) {
+                        clearInterval(sessionPollTimer);
+                    }
+                    sessionPollTimer = setInterval(function() {
+                        pollSession(data.token);
+                    }, 2500);
+                    pollSession(data.token);
+                } catch (error) {
+                    if (sessionStatus) {
+                        sessionStatus.innerHTML = '<span class="text-danger">' + error.message + '</span>';
+                    }
+                } finally {
+                    createSessionButton.disabled = false;
+                }
+            });
+        }
+
+        // Save signature to server before form submit
+        const form = document.querySelector('#rentalrequest_form');
+        if (form) {
+            form.addEventListener('submit', async function() {
+                saveSignature();
+                if (signatureInput && signatureInput.value) {
+                    try {
+                        await fetch(`/rental/rental/${rentalId}/save-signature/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            },
+                            body: JSON.stringify({
+                                signature_svg: signatureSvgInput ? signatureSvgInput.value : '',
+                                signature_points: signaturePointsInput ? signaturePointsInput.value : '',
+                                signature_metadata: signatureMetadataInput ? signatureMetadataInput.value : '',
+                                signature_method: signatureMethodInput ? signatureMethodInput.value : 'mouse',
+                                legacy_signature: signatureInput ? signatureInput.value : '',
+                            }),
+                        });
+                    } catch (e) {
+                        // Silent fail; hidden inputs still carry data
+                    }
+                }
+            });
+        }
+    }
+
+    function insertSignatureSection() {
+        const form = document.querySelector('form#rentalrequest_form');
+        if (!form) {
+            return;
+        }
+        const submitRow = form.querySelector('.submit-row');
+        const section = document.getElementById('admin-signature-section');
+        if (section && submitRow) {
+            submitRow.parentNode.insertBefore(section, submitRow);
+            section.style.display = '';
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            insertSignatureSection();
+            initSignatureSection();
+        });
+    } else {
+        insertSignatureSection();
+        initSignatureSection();
+    }
+})();
+</script>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+<div id="admin-signature-section" style="display:none;" data-rental-id="{% if original %}{{ original.pk }}{% endif %}">
+    <div class="admin-signature-section">
+        <h3>{% trans 'Digital Signature' %}</h3>
+
+        {% if original and original.has_any_signature %}
+        <div class="admin-signature-existing" id="admin-existing-signature">
+            <p>{% trans 'Existing signature:' %}</p>
+            {% if original.signature %}
+            <img src="{{ original.signature }}" alt="{% trans 'Signature' %}">
+            {% elif original.signature_svg %}
+            <div>{{ original.signature_svg|safe }}</div>
+            {% endif %}
+            <p class="text-muted small">{% trans 'Draw or use QR to replace the existing signature.' %}</p>
+        </div>
+        {% endif %}
+
+        <div class="admin-signature-method-buttons">
+            <button type="button" class="btn" id="admin-choose-draw">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h6l11-11a2.2 2.2 0 0 0-3.1-3.1L6 18v3z"></path>
+                    <path d="M14.5 6.5l3 3"></path>
+                </svg>
+                {% trans 'Sign Here Now' %}
+            </button>
+            <button type="button" class="btn active" id="admin-choose-qr">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                    <path d="M14 14h3v3h-3zM17 17h4M14 20h3M20 14v3"></path>
+                </svg>
+                {% trans 'Sign with Phone (QR)' %}
+            </button>
+        </div>
+
+        <div id="admin-draw-panel" style="display:none;">
+            <div class="admin-signature-canvas-wrapper">
+                <canvas id="admin-signature-canvas" class="admin-signature-canvas"></canvas>
+                <div class="admin-signature-guide"></div>
+            </div>
+            <div class="admin-signature-actions">
+                <button type="button" class="button" id="admin-clear-signature">
+                    {% trans 'Clear Signature' %}
+                </button>
+                <span class="text-muted small">{% trans 'Please sign in the box above.' %}</span>
+            </div>
+        </div>
+
+        <div id="admin-qr-panel">
+            <p class="text-muted small">{% trans 'Scan the QR code and sign on your phone. The signature will sync to the canvas here.' %}</p>
+            <button type="button" class="button" id="admin-create-sign-session">
+                {% trans 'Generate QR Session' %}
+            </button>
+            <div id="admin-session-status" class="small text-muted mt-2"></div>
+            <div id="admin-session-panel" style="display:none; margin-top: 10px;">
+                <div style="display:flex; gap:15px; align-items:flex-start; flex-wrap:wrap;">
+                    <img id="admin-session-qr" style="max-width:200px; border:1px solid #ddd; border-radius:4px;" alt="{% trans 'QR Code' %}">
+                    <div>
+                        <p class="mb-1"><strong>{% trans 'Scan QR and sign on your phone.' %}</strong></p>
+                        <p class="mb-1 small"><a href="#" id="admin-session-link" target="_blank" rel="noopener"></a></p>
+                        <p class="mb-0 small text-muted" id="admin-session-expiry"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ block.super }}
+{% endblock %}

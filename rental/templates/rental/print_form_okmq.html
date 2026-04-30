@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -229,6 +230,11 @@
             font-size: 11px;
         }
 
+        .signature-field.has-signature img {
+            max-height: 80px;
+            width: auto;
+        }
+
         .date-field {
             font-size: 12px;
         }
@@ -392,7 +398,19 @@
 
     <div class="signature-section">
         <div class="date-field">{{ "now"|date:"d.m.Y" }}</div>
-        <div class="signature-field">Unterschrift Nutzer</div>
+        <div class="signature-field{% if has_signature and signature_image %} has-signature{% endif %}">
+            {% if has_signature and signature_image %}
+            <img src="{{ signature_image }}" alt="{% trans 'Digital signature' %}" style="max-height: 80px;">
+            <div style="font-size: 10px; margin-top: 4px;">
+                {% if signature_signed_at %}
+                <span class="text-muted">{% trans 'Digitally signed' %}: {{ signature_signed_at|date:"d.m.Y H:i" }}{% if signature_method %} ({{ signature_method }}){% endif %}</span>
+                {% else %}
+                <strong>{% trans 'Digitally signed' %}</strong>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div style="font-size: 10px; text-align: center; margin-top: 2px;">{% trans 'Signature' %}</div>
     </div>
 
     <script>

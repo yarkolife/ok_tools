@@ -157,6 +157,7 @@ def enrich_plan_items(items: list[dict]) -> list[dict]:
         license_obj = licenses_dict[license_number]
         enriched_item["title"] = license_obj.title or item.get("title", "")
         enriched_item["subtitle"] = license_obj.subtitle or item.get("subtitle", "")
+        enriched_item["is_live"] = license_obj.is_live
 
         duration_seconds = int(license_obj.duration.total_seconds())
         if getattr(license_obj, "video_file", None) and license_obj.video_file.duration:

@@ -1,6 +1,32 @@
 CHANGELOG
 =========
 
+2026-04-30 (Version 4.8.0)
+==========================
+
+* **rental: Add rental request signatures and room calendar**
+  * Added digital signature support for rental requests (signature fields, signing sessions)
+  * Added room calendar view with day/week display and availability status
+  * Added email notifications for rental request approval/rejection and return receipts
+  * Added rental request admin form with signature capture
+  * New models: RentalConfig with employee organizations, RentalRequest signature fields
+  * New templates: sign_session, room_calendar_day, email templates for issued/returned
+  * Improved rental detail, wizard, and return views with better UX
+
+* **rental: Enhance UI and filtering**
+  * Added search, filters and sorting to rental day calendar
+  * Improved calendar filter layout with fixed widths
+  * Added standalone search styles for calendar filters
+  * Updated rental CSS with improved styling
+
+* **planung: Update calendar weeks view**
+  * Improved calendar weeks CSS and JavaScript
+  * Updated admin calendar template
+
+* **translations: Update German translations**
+  * Updated translations across all modules
+  * Added new translation strings for rental features
+
 2026-04-01 (Version 4.7.0)
 ==========================
 

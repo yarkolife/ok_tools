@@ -16,6 +16,8 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
 
+from planung.services.plan_service import enrich_plan_items
+
 
 @admin.register(TagesPlan)
 class TagesPlanAdmin(admin.ModelAdmin):
@@ -89,8 +91,9 @@ class TagesPlanAdmin(admin.ModelAdmin):
             datum__range=(start, end_date)
         ):
             items = plan.json_plan.get("items", [])
+            enriched_items = enrich_plan_items(items)
             total = sum(
-                item.get("duration", 0) for item in items
+                item.get("duration", 0) for item in enriched_items
             )
 
             search_tokens = []
@@ -126,12 +129,15 @@ class TagesPlanAdmin(admin.ModelAdmin):
             if plan.kommentar:
                 search_tokens.append(str(plan.kommentar))
 
+            has_live = any(item.get("is_live") for item in enriched_items)
+
             plans[str(plan.datum)] = {
                 "seconds": total,
                 "draft": plan.json_plan.get("draft", False),
                 "planned": plan.json_plan.get("planned", False),
                 "comment": plan.kommentar or "",
                 "search_text": " ".join(search_tokens).lower(),
+                "has_live": has_live,
             }
 
         # 2. forming weeks
@@ -177,6 +183,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                 show_check = is_planned or (is_full and not is_draft)
                 show_pencil = is_full and is_draft and not is_planned
                 show_clock = is_partial and not is_planned
+                show_live = info.get("has_live", False)
 
                 # Strict status mapping for frontend filtering
                 if show_check:
@@ -199,6 +206,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                         "show_check": show_check,
                         "show_pencil": show_pencil,
                         "show_clock": show_clock,
+                        "show_live": show_live,
                         "remaining_minutes": remaining_minutes if show_clock else 0,
                     }
                 )

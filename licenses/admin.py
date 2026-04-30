@@ -558,7 +558,29 @@ class LicenseAdminForm(forms.ModelForm):
         widgets = {
             'tags': TagsInputWidget(),
             'youth_protection_necessary': forms.NullBooleanSelect(),
+            'signature_points': forms.HiddenInput(),
+            'signature_svg': forms.HiddenInput(),
+            'signature_metadata': forms.HiddenInput(),
+            'signature_method': forms.HiddenInput(),
+            'signature_signed_at': forms.HiddenInput(),
         }
+
+    signature_signed_at = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['signature_points'].required = False
+        self.fields['signature_svg'].required = False
+        self.fields['signature_metadata'].required = False
+        self.fields['signature_method'].required = False
+        self.fields['signature_signed_at'].required = False
+
+    def clean_signature_signed_at(self):
+        data = self.cleaned_data.get('signature_signed_at')
+        if not data:
+            return None
+        from django.utils.dateparse import parse_datetime
+        return parse_datetime(data)
 
     def clean(self):
         """Raise an error if the LR of an unverified user gets confirmed."""
@@ -771,6 +793,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 'confirmed',
                 'created_at',
                 'has_signature_display',
+                'signature_points',
+                'signature_svg',
+                'signature_metadata',
+                'signature_method',
+                'signature_signed_at',
                 'video_file_info',
                 'mediathek_url_display',
                 'mediathek_url_updated_at',
@@ -1246,6 +1273,16 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     def response_change(self, request, obj: License):
         """Add Print license and Sync duration buttons to change view."""
+        if '_delete_signature' in request.POST:
+            obj.signature_points = None
+            obj.signature_svg = None
+            obj.signature_metadata = None
+            obj.signature_method = None
+            obj.signature_signed_at = None
+            obj.save(update_fields=['signature_points', 'signature_svg', 'signature_metadata', 'signature_method', 'signature_signed_at'])
+            self.message_user(request, _('Signature deleted.'), messages.SUCCESS)
+            return HttpResponseRedirect(request.path)
+            
         if '_print_license' in request.POST:
             return generate_license_file(obj)
         

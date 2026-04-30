@@ -1,6 +1,6 @@
 {% load i18n static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,11 +19,11 @@
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
-                    {% trans "OK Tools Rental" %}
+                    <i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span>
                 </a>
                 <div class="navbar-nav ms-auto align-items-center gap-2">
                     <a class="btn btn-sm btn-outline-light" href="/admin/">
-                        <i class="fas fa-cog me-1"></i>{% trans "Admin" %}
+                        <i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span>
                     </a>
                 </div>
             </div>
@@ -41,6 +41,13 @@
             </div>
 
             {% if selected_user %}
+                <div class="stat-bar">
+                    <div class="stat-cell active">
+                        <div class="n">{{ user_rentals|length }}</div>
+                        <div class="l"><span class="dot dot-amber"></span>{% trans "Active rentals" %}</div>
+                    </div>
+                </div>
+
                 <div class="p-3 mb-3" style="background:oklch(0.97 0.03 240); border:1px solid oklch(0.88 0.06 240); border-radius:10px; display:flex; align-items:center; gap:12px">
                     <span class="av" style="width:36px;height:36px;font-size:14px">{{ selected_user.initials }}</span>
                     <div style="min-width:0">
@@ -52,57 +59,77 @@
                     </a>
                 </div>
 
-                <h6 class="mb-2" style="font-size:13px;font-weight:600">{% trans "Active rentals" %}</h6>
-                {% if user_rentals %}
-                    <div class="rental-list">
-                        <div class="list-head">
-                            <div>{% trans "Rental ID" %}</div>
-                            <div>{% trans "Project" %}</div>
-                            <div>{% trans "Period" %}</div>
-                            <div>{% trans "Items" %}</div>
-                            <div></div>
-                            <div></div>
-                        </div>
-                        {% for r in user_rentals %}
-                            <div class="rental-row">
-                                <div>
-                                    <div class="rid">{{ r.id }}</div>
-                                    {% if r.overdue %}<span class="tag tag-bad" style="font-size:10px">{% trans "Overdue" %}</span>{% endif %}
-                                </div>
-                                <div style="min-width:0">
-                                    <div class="project">{{ r.project|default:_("Untitled") }}</div>
-                                </div>
-                                <div class="time-cell">
-                                    {{ r.from_at|date:"d M · H:i" }}
-                                    <div class="sub">→ {{ r.to_at|date:"d M · H:i" }}</div>
-                                </div>
-                                <div style="text-align:right;font-variant-numeric:tabular-nums">
-                                    {{ r.item_count }}
-                                    {% if r.room_count %}<span class="muted tiny">+{{ r.room_count }} {% trans "room" %}</span>{% endif %}
-                                </div>
-                                <div><a href="{{ r.return_url }}" class="btn btn-primary btn-sm">{% trans "Return" %} <i class="fas fa-arrow-right ms-1"></i></a></div>
-                                <div></div>
+                <div class="rental-list">
+                    <div class="list-head">
+                        <div>{% trans "Rental ID" %}</div>
+                        <div>{% trans "Project" %}</div>
+                        <div>{% trans "Period" %}</div>
+                        <div>{% trans "Status" %}</div>
+                        <div style="text-align:right">{% trans "Items" %}</div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    {% for r in user_rentals %}
+                        <div class="rental-row"
+                             onclick="window.location='{{ r.return_url }}'"
+                             role="link"
+                             tabindex="0">
+                            <div>
+                                <div class="rid">{{ r.id }}</div>
                             </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="p-5 text-center muted">
-                        <i class="fas fa-inbox" style="font-size:32px;color:var(--ink-4)"></i>
-                        <div class="mt-2">{% trans "No active rentals for this user." %}</div>
-                    </div>
-                {% endif %}
+                            <div style="min-width:0">
+                                <div class="project">{{ r.project|default:_("Untitled") }}</div>
+                            </div>
+                            <div class="time-cell">
+                                {{ r.from_at|date:"d.m.Y H:i" }}
+                                <div class="sub">→ {{ r.to_at|date:"d.m.Y H:i" }}</div>
+                            </div>
+                            <div>
+                                {% include 'rental/_status_pill.html' with status=r.status %}
+                                {% if r.overdue %}
+                                    <div class="muted tiny" style="color:oklch(0.45 0.14 28);margin-top:3px">
+                                        {% blocktrans count days=r.overdue_days %}{{ days }} day late{% plural %}{{ days }} days late{% endblocktrans %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div style="text-align:right;font-variant-numeric:tabular-nums">
+                                {{ r.item_count }}
+                                {% if r.room_count %}<span class="muted tiny"> + {{ r.room_count }} {% trans "room" %}</span>{% endif %}
+                            </div>
+                            <div>
+                                <a href="{{ r.return_url }}" class="btn btn-ghost btn-sm"
+                                   onclick="event.stopPropagation()">
+                                    <i class="fas fa-box-open me-1"></i>{% trans "Return" %}
+                                </a>
+                            </div>
+                            <div style="text-align:right">
+                                <a href="{{ r.detail_url }}" class="btn btn-ghost btn-sm"
+                                   onclick="event.stopPropagation()">
+                                    <i class="fas fa-ellipsis muted"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="p-5 text-center muted">
+                            <i class="fas fa-inbox" style="font-size:32px;color:var(--ink-4)"></i>
+                            <div class="mt-2">{% trans "No active rentals for this user." %}</div>
+                        </div>
+                    {% endfor %}
+                </div>
 
             {% else %}
-                <form method="get" class="mb-4">
-                    <div class="search" style="max-width:480px">
-                        <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" name="q"
-                               placeholder="{% trans 'Search user by name or email…' %}"
-                               value="{{ search_query|default:'' }}" autofocus>
+                <form method="get" class="list-toolbar">
+                    <div class="filters" style="margin:0;flex:1">
+                        <div class="search" style="max-width:480px">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="form-control" name="q"
+                                   placeholder="{% trans 'Search user by name or email…' %}"
+                                   value="{{ search_query|default:'' }}" autofocus>
+                        </div>
+                        <button type="submit" class="btn btn-ghost btn-sm">
+                            <i class="fas fa-filter me-1"></i>{% trans "Search" %}
+                        </button>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm mt-2">
-                        <i class="fas fa-search me-1"></i>{% trans "Search" %}
-                    </button>
                 </form>
 
                 {% if search_results %}

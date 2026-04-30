@@ -1,11 +1,11 @@
 {% load i18n static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
-    <title>{% trans "Inventory Calendar" %} — {{ day|date:"d M Y" }}</title>
+    <title>{% trans "Inventory Calendar" %} — {{ day|date:"d.m.Y" }}</title>
     <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
     <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
@@ -16,9 +16,9 @@
     <div class="topbar">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
-                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">{% trans "OK Tools Rental" %}</a>
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}"><i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span></a>
                 <div class="navbar-nav ms-auto align-items-center gap-2">
-                    <a class="btn btn-sm btn-outline-light" href="/admin/">{% trans "Admin" %}</a>
+                    <a class="btn btn-sm btn-outline-light" href="/admin/"><i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span></a>
                 </div>
             </div>
         </nav>
@@ -31,7 +31,7 @@
                 <span class="sub">{{ day|date:"l, d F Y" }}</span>
                 <div class="page-actions">
                     <a href="?date={{ prev_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
-                    <a href="?date={{ day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Today" %}</a>
+                    <a href="?date={{ today|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Today" %}</a>
                     <a href="{% url 'rental:inventory_calendar_week' %}?date={{ day|date:'Y-m-d' }}" class="btn btn-primary btn-sm">{% trans "Week" %}</a>
                     <a href="?date={{ next_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
                 </div>
@@ -63,41 +63,41 @@
                     <button type="submit" class="btn btn-ghost btn-sm"><i class="fas fa-filter"></i></button>
                 </form>
                 
-                <div class="rental-list">
+                <div class="rental-list inventory-calendar-day">
                     <div class="list-head">
-                        <div style="min-width:240px">{% trans "Item" %}</div>
-                        <div style="min-width:120px">{% trans "Category" %}</div>
-                        <div style="min-width:100px">{% trans "Status" %}</div>
-                        <div style="min-width:140px">{% trans "Rental / User" %}</div>
-                        <div style="min-width:160px">{% trans "Period" %}</div>
+                        <div>{% trans "Item" %}</div>
+                        <div>{% trans "Category" %}</div>
+                        <div>{% trans "Status" %}</div>
+                        <div>{% trans "Rental / User" %}</div>
+                        <div>{% trans "Period" %}</div>
                     </div>
                     {% for item in items %}
                         <div class="rental-row">
-                            <div style="min-width:240px">
+                            <div>
                                 <div class="name" style="font-size:13px;font-weight:500">{{ item.name }}</div>
                                 <div class="muted tiny mono">{{ item.num }}</div>
                             </div>
-                            <div style="min-width:120px"><span class="muted" style="font-size:12px">{{ item.category }}</span></div>
-                            <div style="min-width:100px">
+                            <div><span class="muted" style="font-size:12px">{{ item.category }}</span></div>
+                            <div>
                                 {% if item.status == 'available' %}
                                     <span class="tag tag-green">{% trans "Available" %}</span>
                                 {% else %}
                                     {% include 'rental/_status_pill.html' with status=item.status %}
                                 {% endif %}
                             </div>
-                            <div style="min-width:140px">
+                            <div>
                                 {% if item.rental_id %}
-                                    <div class="rid" style="font-size:11px">{{ item.rental_id }}</div>
+                                    <div class="rid">{{ item.rental_id }}</div>
                                     <div class="muted tiny">{{ item.user }}</div>
                                 {% else %}
                                     <span class="muted tiny">—</span>
                                 {% endif %}
                             </div>
-                            <div style="min-width:160px">
+                            <div>
                                 {% if item.from %}
-                                    <div class="time-cell" style="font-size:11px">
-                                        {{ item.from|date:"d M H:i" }}
-                                        <div class="sub">→ {{ item.to|date:"d M H:i" }}</div>
+                                    <div class="time-cell">
+                                        {{ item.from|date:"d.m.Y H:i" }}
+                                        <div class="sub">→ {{ item.to|date:"d.m.Y H:i" }}</div>
                                     </div>
                                 {% else %}
                                     <span class="muted tiny">—</span>

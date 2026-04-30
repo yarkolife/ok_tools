@@ -23,6 +23,9 @@
         <a class="nav-link {% if sidebar_active == 'calendar' %}active{% endif %}" href="{% url 'rental:inventory_calendar_week' %}">
             <i class="fas fa-calendar-days"></i>{% trans "Calendar" %}
         </a>
+        <a class="nav-link {% if sidebar_active == 'room_calendar' %}active{% endif %}" href="/rental/admin/room-calendar/day/">
+            <i class="fas fa-door-open"></i>{% trans "Room Calendar" %}
+        </a>
         <a class="nav-link" href="/admin/inventory/inventoryitem/"><i class="fas fa-warehouse"></i>{% trans "Inventory" %}</a>
         <a class="nav-link" href="/admin/rental/room/"><i class="fas fa-door-open"></i>{% trans "Rooms" %}</a>
         <a class="nav-link" href="/admin/registration/okuser/"><i class="fas fa-users"></i>{% trans "Users" %}</a>

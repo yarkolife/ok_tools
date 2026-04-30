@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from typing import List, Dict, Any, Optional, Union
 from django.db.models.query import QuerySet
 from datetime import datetime, date
 from datetime import time
+import uuid
 
 
 class RentalRequest(models.Model):
@@ -51,6 +53,7 @@ class RentalRequest(models.Model):
         ('issued', _('Issued')),
         ('returned', _('Returned')),
         ('cancelled', _('Cancelled')),
+        ('closed', _('Closed')),
     ]
     status = models.CharField(
         max_length=20,
@@ -76,6 +79,46 @@ class RentalRequest(models.Model):
         verbose_name=_('Notes'),
     )
 
+    signature = models.TextField(
+        _('Signature'),
+        blank=True,
+        null=True,
+        help_text=_('Base64 encoded signature image'),
+    )
+    signature_svg = models.TextField(
+        _('Signature SVG'),
+        blank=True,
+        null=True,
+        help_text=_('Primary SVG signature data'),
+    )
+    signature_points = models.JSONField(
+        _('Signature points'),
+        blank=True,
+        null=True,
+        default=None,
+        help_text=_('Biometric signature stroke points (x,y,time,pressure).'),
+    )
+    signature_metadata = models.JSONField(
+        _('Signature metadata'),
+        blank=True,
+        null=True,
+        default=None,
+        help_text=_('Signature metadata such as device, user-agent, and capture details.'),
+    )
+    signature_method = models.CharField(
+        _('Signature method'),
+        max_length=32,
+        blank=True,
+        null=True,
+        help_text=_('Signature input method (mouse, touch, stylus, qr_phone).'),
+    )
+    signature_signed_at = models.DateTimeField(
+        _('Signature signed at'),
+        blank=True,
+        null=True,
+        help_text=_('When the digital signature was captured.'),
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -89,6 +132,16 @@ class RentalRequest(models.Model):
     def __str__(self) -> str:
         """Return human-readable representation."""
         return f"{self.project_name} ({self.user})"
+
+    def has_any_signature(self):
+        """Return True when any supported signature format is available."""
+        if self.signature:
+            return True
+        if self.signature_svg:
+            return True
+        if self.signature_points:
+            return True
+        return False
 
     def __init__(self, *args, **kwargs):
         """Save original state for change auditing."""
@@ -959,7 +1012,26 @@ class RentalConfig(models.Model):
         blank=True,
         verbose_name=_('Sunday closing time'),
     )
-    
+
+    user_organizations = models.ManyToManyField(
+        'inventory.Organization',
+        blank=True,
+        related_name='rental_config_user',
+        verbose_name=_("User organizations"),
+    )
+    member_organizations = models.ManyToManyField(
+        'inventory.Organization',
+        blank=True,
+        related_name='rental_config_member',
+        verbose_name=_("Member organizations"),
+    )
+    employee_organizations = models.ManyToManyField(
+        'inventory.Organization',
+        blank=True,
+        related_name='rental_config_employee',
+        verbose_name=_("Employee organizations"),
+    )
+
     class Meta:
         verbose_name = _('Rental Configuration')
         verbose_name_plural = _('Rental Configuration')
@@ -1011,3 +1083,107 @@ class RentalConfig(models.Model):
             'start': start_time if enabled else None,
             'end': end_time if enabled else None,
         }
+
+
+class RentalSigningSessionStatus(models.TextChoices):
+    """Status choices for rental signing sessions."""
+
+    PENDING = 'pending', _('Pending')
+    SIGNED = 'signed', _('Signed')
+    EXPIRED = 'expired', _('Expired')
+
+
+class RentalSigningSession(models.Model):
+    """Short-lived session for QR-based phone signing of rental requests."""
+
+    rental_request = models.ForeignKey(
+        RentalRequest,
+        on_delete=models.CASCADE,
+        related_name='signing_sessions',
+        verbose_name=_('Rental request'),
+        blank=True,
+        null=True,
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='rental_signing_sessions',
+        verbose_name=_('Owner'),
+        blank=True,
+        null=True,
+    )
+    token = models.CharField(
+        _('Token'),
+        max_length=64,
+        unique=True,
+        db_index=True,
+        default=uuid.uuid4,
+    )
+    status = models.CharField(
+        _('Status'),
+        max_length=16,
+        choices=RentalSigningSessionStatus.choices,
+        default=RentalSigningSessionStatus.PENDING,
+        db_index=True,
+    )
+    expires_at = models.DateTimeField(
+        _('Expires at'),
+        db_index=True,
+    )
+    signature_svg = models.TextField(
+        _('Signature SVG'),
+        blank=True,
+        null=True,
+    )
+    signature_points = models.JSONField(
+        _('Signature points'),
+        blank=True,
+        null=True,
+        default=None,
+    )
+    signature_metadata = models.JSONField(
+        _('Signature metadata'),
+        blank=True,
+        null=True,
+        default=None,
+    )
+    signature_method = models.CharField(
+        _('Signature method'),
+        max_length=32,
+        blank=True,
+        null=True,
+    )
+    signer_ip = models.GenericIPAddressField(
+        _('Signer IP'),
+        blank=True,
+        null=True,
+    )
+    signer_user_agent = models.TextField(
+        _('Signer user agent'),
+        blank=True,
+        null=True,
+    )
+    signed_at = models.DateTimeField(
+        _('Signed at'),
+        blank=True,
+        null=True,
+    )
+    created_at = models.DateTimeField(
+        _('Created at'),
+        auto_now_add=True,
+        db_index=True,
+    )
+
+    class Meta:
+        verbose_name = _('Rental Signing Session')
+        verbose_name_plural = _('Rental Signing Sessions')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        if self.rental_request_id:
+            return f'R-{self.rental_request_id} ({self.status})'
+        return f'{self.token} ({self.status})'
+
+    def is_expired(self):
+        from django.utils import timezone
+        return timezone.now() >= self.expires_at

@@ -232,27 +232,43 @@ function ReturnScreen({ rental, items, urls }) {
         <textarea className="form-control mt-2" rows={2}
                   value={note} onChange={e => setNote(e.target.value)}
                   placeholder={t('ret.int_note_ph', 'Anything to remember for next time?')} />
-        <div className="mt-2 d-flex" style={{gap: 16, fontSize: 12, color: 'var(--ink-2)'}}>
-          <div className="form-check">
+        <div className="return-options mt-3">
+          <div className="return-options-title">{t('ret.options_explain', 'What these options do')}</div>
+          <div className="form-check return-option">
             <input className="form-check-input" type="checkbox" id="emailRet"
                    checked={emailReceipt} onChange={e => setEmailReceipt(e.target.checked)} />
-            <label className="form-check-label" htmlFor="emailRet">
-              {t('ret.email_receipt', 'Email return receipt to user')}
-            </label>
+            <div>
+              <label className="form-check-label" htmlFor="emailRet">
+                {t('ret.email_receipt', 'Email return receipt to user')}
+              </label>
+              <div className="return-option-help">
+                {emailReceipt ? t('ret.email_help_on', 'Checked: the user receives a return receipt by email.') : t('ret.email_help_off', 'Unchecked: the return is saved without sending a receipt email.')}
+              </div>
+            </div>
           </div>
-          <div className="form-check">
+          <div className="form-check return-option">
             <input className="form-check-input" type="checkbox" id="closeRet"
                    checked={closeRental} onChange={e => setCloseRental(e.target.checked)} />
-            <label className="form-check-label" htmlFor="closeRet">
-              {t('ret.close', 'Close rental after return')}
-            </label>
+            <div>
+              <label className="form-check-label" htmlFor="closeRet">
+                {t('ret.close', 'Close rental after return')}
+              </label>
+              <div className="return-option-help">
+                {closeRental ? t('ret.close_help_on', 'Checked: after all issued items are back, the rental is closed immediately and no separate Close rental step is needed.') : t('ret.close_help_off', 'Unchecked: the rental stays returned, so staff can review it and close it later.')}
+              </div>
+            </div>
           </div>
-          <div className="form-check">
+          <div className="form-check return-option">
             <input className="form-check-input" type="checkbox" id="auditRet"
                    checked={flagAudit} onChange={e => setFlagAudit(e.target.checked)} />
-            <label className="form-check-label" htmlFor="auditRet">
-              {t('ret.audit', 'Flag for inventory audit')}
-            </label>
+            <div>
+              <label className="form-check-label" htmlFor="auditRet">
+                {t('ret.audit', 'Flag for inventory audit')}
+              </label>
+              <div className="return-option-help">
+                {flagAudit ? t('ret.audit_help_on', 'Checked: an inventory audit issue is created for each returned item.') : t('ret.audit_help_off', 'Unchecked: no audit issue is created unless an item condition note is entered.')}
+              </div>
+            </div>
           </div>
         </div>
       </div>

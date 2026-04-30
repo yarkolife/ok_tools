@@ -6,6 +6,71 @@
    Depends on: shared.jsx (cls, fmtDate, apiPost, apiGet, t, Avatar)
    ========================================================= */
 
+/* ===== Helpers ===== */
+
+// Round a date up to the next :00 or :30
+function _roundUp(d) {
+  const m = d.getMinutes();
+  if (m === 0 || m === 30) return d;
+  if (m < 30) { d.setMinutes(30, 0, 0); }
+  else { d.setHours(d.getHours() + 1, 0, 0, 0); }
+  return d;
+}
+
+function _fmtDT(d) {
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const h = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  return `${y}-${mo}-${dd}T${h}:${mi}`;
+}
+
+// Get working-hours config for a specific date (null if closed/missing)
+function _whForDate(date, wh) {
+  const dayIdx = date.getDay() === 0 ? 6 : date.getDay() - 1;
+  return wh?.[String(dayIdx)] || null;
+}
+
+// Snap a date forward to the next valid working-hours slot.
+// Returns a new Date (never mutates the input).
+function snapToWorkingHours(date, workingHours) {
+  const d = new Date(date);
+  for (let attempt = 0; attempt < 14; attempt++) {
+    const dayHours = _whForDate(d, workingHours);
+    if (!dayHours || !dayHours.enabled) {
+      d.setDate(d.getDate() + 1);
+      d.setHours(0, 0, 0, 0);
+      continue;
+    }
+    const [sh, sm] = (dayHours.start || '00:00').split(':').map(Number);
+    const [eh, em] = (dayHours.end   || '00:00').split(':').map(Number);
+    const startMins = sh * 60 + sm;
+    const endMins   = eh * 60 + em;
+    const curMins   = d.getHours() * 60 + d.getMinutes();
+
+    if (curMins < startMins) {
+      d.setHours(sh, sm, 0, 0);
+      return d;
+    }
+    if (curMins >= endMins) {
+      d.setDate(d.getDate() + 1);
+      d.setHours(0, 0, 0, 0);
+      continue;
+    }
+    // Within working hours → round up to next slot
+    _roundUp(d);
+    const snappedMins = d.getHours() * 60 + d.getMinutes();
+    if (snappedMins > endMins) {
+      d.setDate(d.getDate() + 1);
+      d.setHours(0, 0, 0, 0);
+      continue;
+    }
+    return d;
+  }
+  return d;
+}
+
 /* ===== Root ===== */
 function WizardScreen({ initial }) {
   // initial = {
@@ -30,11 +95,14 @@ function WizardScreen({ initial }) {
   const [project, setProject] = React.useState(initial.defaults?.project || '');
   const [purpose, setPurpose] = React.useState(initial.defaults?.purpose || '');
   const [notifyEmail, setNotifyEmail] = React.useState(true);
-  const [notifySms, setNotifySms]     = React.useState(false);
+
+  const hasOnlyRooms = rooms.length > 0 && cart.length === 0;
 
   const steps = [
     { title: t('wiz.step1', 'User'),               hint: user ? user.name : t('wiz.no_user', 'Not selected') },
-    { title: t('wiz.step2', 'Time & conflicts'),   hint: period.from ? period.from.slice(0,10) + ' → ' + period.to.slice(0,10) : '—' },
+    { title: t('wiz.step2', 'Time & conflicts'),   hint: hasOnlyRooms
+      ? t('wiz.skipped_rooms', 'Skipped (rooms only)')
+      : (period.from ? period.from.slice(0,10) + ' → ' + period.to.slice(0,10) : '—') },
     { title: t('wiz.step3', 'Items & rooms'),      hint: `${cart.length} ${t('wiz.items','items')} · ${rooms.length} ${t('wiz.rooms','rooms')}` },
     { title: t('wiz.step4', 'Review & confirm'),   hint: t('wiz.send_confirm', 'Send confirmation') },
   ];
@@ -43,10 +111,17 @@ function WizardScreen({ initial }) {
   const canNext = () => {
     if (step === 0) return !!user;
     if (step === 1) {
+      if (hasOnlyRooms) return true;
       const f = new Date(period.from), tt = new Date(period.to);
       return !isNaN(f) && !isNaN(tt) && f < tt;
     }
-    if (step === 2) return cart.length > 0 || rooms.length > 0;
+    if (step === 2) {
+      if (rooms.length > 0) {
+        const allRoomsHaveDates = rooms.every(r => r.start_date && r.start_time && r.end_date && r.end_time);
+        if (!allRoomsHaveDates) return false;
+      }
+      return cart.length > 0 || rooms.length > 0;
+    }
     return true;
   };
 
@@ -59,8 +134,14 @@ function WizardScreen({ initial }) {
         to: period.to,
         project, purpose,
         items: cart.map(c => ({ id: c.id, qty: c.qty })),
-        rooms: rooms.map(r => ({ id: r.id, slot: r.slot })),
-        notify: { email: notifyEmail, sms: notifySms },
+        rooms: rooms.map(r => ({
+          id: r.id,
+          start_date: r.start_date || '',
+          start_time: r.start_time || '',
+          end_date: r.end_date || '',
+          end_time: r.end_time || '',
+        })),
+        notify: { email: notifyEmail },
       };
       const res = await apiPost(initial.urls.create, payload);
       window.location = res.detail_url;
@@ -97,14 +178,22 @@ function WizardScreen({ initial }) {
 
             <div className="wizard-body">
               {step === 0 && <StepUser initial={initial} selected={user} setSelected={setUser} />}
-              {step === 1 && <StepTime initial={initial} period={period} setPeriod={setPeriod} cart={cart} />}
+              {step === 1 && (hasOnlyRooms
+                ? <div className="surface" style={{padding: 20, textAlign: 'center'}}>
+                    <i className="fas fa-door-open muted" style={{fontSize: 24, marginBottom: 8}}></i>
+                    <div style={{fontSize: 14, fontWeight: 600}}>{t('wiz.rooms_skip_title', 'Room-only rental')}</div>
+                    <div className="muted tiny" style={{marginTop: 4}}>
+                      {t('wiz.rooms_skip_hint', 'Each room has its own time slot. You can skip this step.')}
+                    </div>
+                  </div>
+                : <StepTime initial={initial} period={period} setPeriod={setPeriod} cart={cart} />)}
               {step === 2 && <StepItems initial={initial} cart={cart} setCart={setCart}
-                                        rooms={rooms} setRooms={setRooms} />}
+                                        rooms={rooms} setRooms={setRooms}
+                                        user={user} period={period} />}
               {step === 3 && <StepReview user={user} period={period} cart={cart} rooms={rooms}
                                          project={project} setProject={setProject}
                                          purpose={purpose} setPurpose={setPurpose}
-                                         notifyEmail={notifyEmail} setNotifyEmail={setNotifyEmail}
-                                         notifySms={notifySms} setNotifySms={setNotifySms} />}
+                                         notifyEmail={notifyEmail} setNotifyEmail={setNotifyEmail} />}
             </div>
 
             <div className="wizard-foot">
@@ -152,31 +241,48 @@ function Stepper({ steps, active, setActive }) {
 }
 
 /* ===== STEP 1 — Items & rooms ===== */
-function StepItems({ initial, cart, setCart, rooms, setRooms }) {
+function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
   const [activeTab, setActiveTab] = React.useState(initial.categories[0]?.id || '');
   const [mode, setMode] = React.useState('items');
   const [search, setSearch] = React.useState('');
   const [items, setItems] = React.useState([]);
+  const [categories, setCategories] = React.useState(initial.categories || []);
   const [loading, setLoading] = React.useState(false);
 
-  // Fetch inventory items when category or search changes
   React.useEffect(() => {
     if (mode !== 'items' || activeTab == null) return;
     setLoading(true);
     const timer = setTimeout(() => {
-      const q = new URLSearchParams({ cat: activeTab, q: search });
+      const params = { cat: activeTab, q: search };
+      if (user && user.id) params.user_id = user.id;
+      if (period && period.from) params.from = period.from;
+      if (period && period.to) params.to = period.to;
+      const q = new URLSearchParams(params);
       apiGet(`${initial.urls.inventory_search}?${q}`)
-        .then(data => setItems(data.items || []))
+        .then(data => {
+          setItems(data.items || []);
+          if (Array.isArray(data.categories)) {
+            setCategories(data.categories);
+          }
+        })
         .catch(() => setItems([]))
         .finally(() => setLoading(false));
     }, search ? 250 : 0);
     return () => clearTimeout(timer);
-  }, [activeTab, search, mode]);
+  }, [activeTab, search, mode, user, period]);
 
   const inCart = id => cart.some(c => c.id === id);
   const addItem = it => !inCart(it.id) && setCart(c => [...c, { id: it.id, name: it.name, num: it.num, qty: 1, cat: it.cat }]);
   const setQty = (id, qty) => setCart(c => c.map(x => x.id === id ? { ...x, qty } : x));
   const removeItem = id => setCart(c => c.filter(x => x.id !== id));
+
+  const visibleCategories = React.useMemo(() => categories.filter(c => c.count > 0 || c.id === ''), [categories]);
+
+  React.useEffect(() => {
+    if (!visibleCategories.some(c => c.id === activeTab)) {
+      setActiveTab(visibleCategories[0]?.id || '');
+    }
+  }, [visibleCategories, activeTab]);
 
   return (
     <div>
@@ -187,20 +293,28 @@ function StepItems({ initial, cart, setCart, rooms, setRooms }) {
         <div className="muted tiny">{t('wiz.tap_to_add', 'Tap to add. Then set quantities on the right.')}</div>
         <div className="ms-auto d-flex" style={{gap: 4}}>
           <button className={cls('btn btn-sm', mode === 'items' ? 'btn-primary' : 'btn-ghost')}
-                  onClick={() => setMode('items')}>
+                  onClick={() => setMode('items')}
+                  disabled={rooms.length > 0}
+                  title={rooms.length > 0 ? t('wiz.rooms_only_hint', 'Equipment must be rented separately — create a new rental for equipment') : ''}
+                  style={{opacity: rooms.length > 0 ? 0.5 : 1, pointerEvents: rooms.length > 0 ? 'none' : 'auto'}}>
             <i className="fas fa-toolbox me-1"></i>{t('wiz.equipment', 'Equipment')}
           </button>
           <button className={cls('btn btn-sm', mode === 'rooms' ? 'btn-primary' : 'btn-ghost')}
-                  onClick={() => setMode('rooms')}>
+                  onClick={() => setMode('rooms')}
+                  disabled={cart.length > 0}
+                  title={cart.length > 0 ? t('wiz.equipment_only_hint', 'Rooms must be rented separately — create a new rental for rooms') : ''}
+                  style={{opacity: cart.length > 0 ? 0.5 : 1, pointerEvents: cart.length > 0 ? 'none' : 'auto'}}>
             <i className="fas fa-door-open me-1"></i>{t('wiz.rooms', 'Reserve rooms')}
           </button>
         </div>
       </div>
 
+      <CartSummary cart={cart} setQty={setQty} removeItem={removeItem} rooms={rooms} />
+
       {mode === 'items' ? (
         <div className="catalog" style={{border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background: '#fff'}}>
           <div className="catalog-tabs">
-            {initial.categories.map(c => (
+            {visibleCategories.map(c => (
               <div key={c.id} className={cls('t', activeTab === c.id && 'active')}
                    onClick={() => setActiveTab(c.id)}>
                 <i className={`fas ${c.icon}`}></i>
@@ -223,28 +337,33 @@ function StepItems({ initial, cart, setCart, rooms, setRooms }) {
 
             {items.map(item => {
               const chosen = inCart(item.id);
+              const canChoose = item.qty.avail > 0 && !item.conflict;
+              const availabilityLabel = item.status_label || (
+                item.conflict && item.qty.issued ? t('tag.issued', 'Issued') :
+                item.conflict && item.qty.reserved ? t('tag.reserved', 'Reserved') :
+                item.conflict ? t('tag.booked', 'Booked') :
+                item.qty.avail > 0 ? t('tag.in_stock', 'In stock') : t('tag.out', 'Out')
+              );
               return (
                 <div key={item.id}
-                     className={cls('item-row', chosen && 'selected', item.conflict && !chosen && 'conflict')}
-                     onClick={() => addItem(item)}>
-                  <input type="checkbox" className="form-check-input" checked={chosen} readOnly />
+                     className={cls('item-row', chosen && 'selected', !canChoose && !chosen && 'unavailable')}
+                     onClick={() => canChoose && addItem(item)}>
+                  <input type="checkbox" className="form-check-input" checked={chosen} readOnly disabled={!canChoose && !chosen} />
                   <div>
                     <div className="name">{item.name}</div>
                     <div className="num">{item.num} · <span className="muted">{item.loc}</span></div>
                   </div>
                   <div className="meta">{item.qty.avail}/{item.qty.total} {t('wiz.available', 'available')}</div>
                   <div>
-                    {item.conflict
-                      ? <span className="tag tag-bad"><i className="fas fa-triangle-exclamation" style={{fontSize: 9}}></i>{t('tag.conflict','Conflict')}</span>
-                      : item.qty.avail > 0
-                        ? <span className="tag tag-ok">{t('tag.in_stock', 'In stock')}</span>
-                        : <span className="tag tag-warn">{t('tag.out', 'Out')}</span>}
+                    {!canChoose
+                      ? <span className="tag tag-hold"><i className="fas fa-lock" style={{fontSize: 9}}></i>{availabilityLabel}</span>
+                      : <span className="tag tag-ok">{availabilityLabel}</span>}
                   </div>
                   <div className="meta" style={{textAlign: 'right'}}>
                     {item.qty.reserved ? `${item.qty.reserved} ${t('wiz.reserved','reserved')}` : t('wiz.free','Free')}
                   </div>
                   <div style={{textAlign: 'right'}}>
-                    <button className="btn btn-sm btn-ghost"
+                    <button className="btn btn-sm btn-ghost" disabled={!canChoose && !chosen}
                             onClick={e => { e.stopPropagation(); chosen ? removeItem(item.id) : addItem(item); }}>
                       <i className={`fas fa-${chosen ? 'minus' : 'plus'}`}></i>
                     </button>
@@ -258,40 +377,226 @@ function StepItems({ initial, cart, setCart, rooms, setRooms }) {
           </div>
         </div>
       ) : (
-        <RoomPicker rooms={rooms} setRooms={setRooms} options={initial.rooms || []} />
+        <RoomPicker rooms={rooms} setRooms={setRooms} options={initial.rooms || []} initial={initial} />
       )}
-
-      <CartSummary cart={cart} setQty={setQty} removeItem={removeItem} rooms={rooms} />
     </div>
   );
 }
 
-function RoomPicker({ rooms, setRooms, options }) {
-  const toggle = r => {
-    if (rooms.find(x => x.id === r.id)) setRooms(rs => rs.filter(x => x.id !== r.id));
-    else setRooms(rs => [...rs, { id: r.id, name: r.name, slot: r.default_slot || '' }]);
+function RoomPicker({ rooms, setRooms, options, initial }) {
+  const [expandedRoom, setExpandedRoom] = React.useState(null);
+  const [checking, setChecking] = React.useState({});
+  const [availResult, setAvailResult] = React.useState({});
+  const wh = initial?.working_hours || {};
+
+  const getTimeSlots = (dateStr) => {
+    if (!dateStr) return [];
+    const d = new Date(dateStr + 'T00:00:00');
+    const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+    const dayHours = wh[String(dayIdx)];
+    if (!dayHours || !dayHours.enabled) return [];
+    const [sh, sm] = (dayHours.start || '00:00').split(':').map(Number);
+    const [eh, em] = (dayHours.end || '00:00').split(':').map(Number);
+    const slots = [];
+    let mins = sh * 60 + sm;
+    const endMins = eh * 60 + em;
+    while (mins < endMins) {
+      const h = String(Math.floor(mins / 60)).padStart(2, '0');
+      const m = String(mins % 60).padStart(2, '0');
+      slots.push(`${h}:${m}`);
+      mins += 30;
+    }
+    return slots;
   };
+
+  const getDefaultTimes = (dateStr) => {
+    const slots = getTimeSlots(dateStr);
+    return { start: slots[0] || '', end: slots[slots.length - 1] || '' };
+  };
+
+  const checkAvailability = async (roomId, sd, st, ed, et) => {
+    if (!sd || !st || !ed || !et) return;
+    setChecking(c => ({ ...c, [roomId]: true }));
+    setAvailResult(r => ({ ...r, [roomId]: null }));
+    try {
+      const params = new URLSearchParams({
+        room_id: roomId, start_date: sd, start_time: st,
+        end_date: ed, end_time: et,
+      });
+      const data = await apiGet(`${initial.urls.room_availability_check}?${params}`);
+      setAvailResult(r => ({ ...r, [roomId]: data }));
+    } catch {
+      setAvailResult(r => ({ ...r, [roomId]: { success: false, is_available: false, message: t('room.check_error', 'Could not check availability') } }));
+    }
+    setChecking(c => ({ ...c, [roomId]: false }));
+  };
+
+  const toggleExpand = (r) => {
+    if (expandedRoom === r.id) {
+      setExpandedRoom(null);
+    } else {
+      setExpandedRoom(r.id);
+    }
+  };
+
+  const confirmRoom = (roomId, name, sd, st, ed, et) => {
+    setRooms(rs => {
+      const exists = rs.find(x => x.id === roomId);
+      const entry = { id: roomId, name, start_date: sd, start_time: st, end_date: ed, end_time: et };
+      return exists ? rs.map(x => x.id === roomId ? entry : x) : [...rs, entry];
+    });
+    setExpandedRoom(null);
+  };
+
+  const removeRoom = (roomId) => {
+    setRooms(rs => rs.filter(x => x.id !== roomId));
+    setExpandedRoom(null);
+    setAvailResult(r => { const copy = { ...r }; delete copy[roomId]; return copy; });
+  };
+
   return (
     <div className="surface" style={{padding: 14}}>
       <div className="row g-2">
         {options.map(r => {
-          const on = rooms.find(x => x.id === r.id);
+          const booked = rooms.find(x => x.id === r.id);
+          const isExpanded = expandedRoom === r.id;
+          const result = availResult[r.id];
           return (
             <div key={r.id} className="col-md-6">
-              <div className={cls('user-card', on && 'selected')} onClick={() => toggle(r)}
-                   style={{gridTemplateColumns: '36px 1fr auto'}}>
-                <span className="av" style={{width: 36, height: 36, fontSize: 14}}>
+              <div className={cls('user-card', booked && 'selected')}
+                   style={{gridTemplateColumns: '36px 1fr auto', cursor: 'pointer'}}>
+                <span className="av" style={{width: 36, height: 36, fontSize: 14}} onClick={() => toggleExpand(r)}>
                   <i className="fas fa-door-open"></i>
                 </span>
-                <div><div className="name">{r.name}</div><div className="org">{r.sub}</div></div>
-                {r.free
-                  ? (on ? <span className="tag tag-hold">{t('room.added','Added')}</span>
-                        : <span className="tag tag-ok">{t('room.open','Open')}</span>)
-                  : <span className="tag tag-warn">{t('room.restricted','Restricted')}</span>}
+                <div onClick={() => toggleExpand(r)}>
+                  <div className="name">{r.name}</div>
+                  <div className="org">{r.sub}</div>
+                  {booked && (
+                    <div className="tiny" style={{color: 'var(--brand)', marginTop: 2}}>
+                      {booked.start_date} {booked.start_time} – {booked.end_date} {booked.end_time}
+                    </div>
+                  )}
+                </div>
+                {!r.free
+                  ? <span className="tag tag-warn">{t('room.restricted','Restricted')}</span>
+                  : booked
+                    ? <span className="tag tag-hold" style={{cursor: 'pointer'}} onClick={(e) => { e.stopPropagation(); removeRoom(r.id); }}>
+                        <i className="fas fa-times" style={{fontSize: 9, marginRight: 4}}></i>{t('room.remove','Remove')}
+                      </span>
+                    : <span className="tag tag-ok">{t('room.open','Open')}</span>}
               </div>
+
+              {isExpanded && !booked && (
+                <RoomDateTimeForm
+                  room={r}
+                  wh={wh}
+                  getTimeSlots={getTimeSlots}
+                  getDefaultTimes={getDefaultTimes}
+                  checking={checking[r.id]}
+                  result={result}
+                  onCheck={(sd, st, ed, et) => checkAvailability(r.id, sd, st, ed, et)}
+                  onConfirm={(sd, st, ed, et) => confirmRoom(r.id, r.name, sd, st, ed, et)}
+                  onCancel={() => setExpandedRoom(null)}
+                />
+              )}
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function RoomDateTimeForm({ room, wh, getTimeSlots, getDefaultTimes, checking, result, onCheck, onConfirm, onCancel }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [startDate, setStartDate] = React.useState(today);
+  const [endDate, setEndDate] = React.useState(today);
+  const startSlots = getTimeSlots(startDate);
+  const endSlots = getTimeSlots(endDate);
+  const defaults = getDefaultTimes(startDate);
+  const [startTime, setStartTime] = React.useState(defaults.start);
+  const [endTime, setEndTime] = React.useState(defaults.end);
+
+  React.useEffect(() => {
+    const d = getDefaultTimes(startDate);
+    if (!startSlots.includes(startTime)) setStartTime(d.start);
+  }, [startDate]);
+  React.useEffect(() => {
+    const d = getDefaultTimes(endDate);
+    if (!endSlots.includes(endTime)) setEndTime(d.end);
+  }, [endDate]);
+
+  const startDayIdx = startDate ? (new Date(startDate + 'T00:00:00').getDay() === 0 ? 6 : new Date(startDate + 'T00:00:00').getDay() - 1) : -1;
+  const startDayHours = wh[String(startDayIdx)];
+  const dayClosed = startDayHours && !startDayHours.enabled;
+
+  const canCheck = startDate && startTime && endDate && endTime && !dayClosed;
+  const canConfirm = result && result.is_available;
+
+  return (
+    <div style={{padding: '10px 12px', borderTop: '1px solid var(--line)', background: 'var(--bg-sub, #f8f9fa)', borderRadius: '0 0 8px 8px'}}>
+      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12}}>
+        <div>
+          <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.start_date', 'Start date')}</label>
+          <input type="date" className="form-control form-control-sm" value={startDate}
+                 onChange={e => setStartDate(e.target.value)} min={today} />
+        </div>
+        <div>
+          <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.start_time', 'Start time')}</label>
+          {startSlots.length > 0 ? (
+            <select className="form-select form-select-sm" value={startTime} onChange={e => setStartTime(e.target.value)}>
+              {startSlots.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          ) : (
+            <input type="time" className="form-control form-control-sm" value={startTime} step="1800"
+                   onChange={e => setStartTime(e.target.value)} />
+          )}
+        </div>
+        <div>
+          <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.end_date', 'End date')}</label>
+          <input type="date" className="form-control form-control-sm" value={endDate}
+                 onChange={e => setEndDate(e.target.value)} min={startDate || today} />
+        </div>
+        <div>
+          <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.end_time', 'End time')}</label>
+          {endSlots.length > 0 ? (
+            <select className="form-select form-select-sm" value={endTime} onChange={e => setEndTime(e.target.value)}>
+              {endSlots.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          ) : (
+            <input type="time" className="form-control form-control-sm" value={endTime} step="1800"
+                   onChange={e => setEndTime(e.target.value)} />
+          )}
+        </div>
+      </div>
+
+      {dayClosed && (
+        <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginTop: 6}}>
+          <i className="fas fa-triangle-exclamation me-1"></i>{t('room.day_closed', 'Selected day is closed.')}
+        </div>
+      )}
+
+      {result && !result.is_available && (
+        <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginTop: 6}}>
+          <i className="fas fa-triangle-exclamation me-1"></i>{result.message || t('room.not_available', 'Room is not available for this period.')}
+        </div>
+      )}
+      {result && result.is_available && (
+        <div className="tiny" style={{color: 'oklch(0.45 0.12 145)', marginTop: 6}}>
+          <i className="fas fa-check-circle me-1"></i>{t('room.available', 'Room is available!')}
+        </div>
+      )}
+
+      <div style={{display: 'flex', gap: 6, marginTop: 8, justifyContent: 'flex-end'}}>
+        <button className="btn btn-ghost btn-sm" onClick={onCancel}>{t('btn.cancel', 'Cancel')}</button>
+        <button className="btn btn-ghost btn-sm" disabled={!canCheck || checking}
+                onClick={() => onCheck(startDate, startTime, endDate, endTime)}>
+          {checking ? t('loading', 'Loading…') : <><i className="fas fa-search me-1"></i>{t('room.check', 'Check')}</>}
+        </button>
+        <button className="btn btn-primary btn-sm" disabled={!canConfirm}
+                onClick={() => onConfirm(startDate, startTime, endDate, endTime)}>
+          <i className="fas fa-plus me-1"></i>{t('room.reserve', 'Reserve')}
+        </button>
       </div>
     </div>
   );
@@ -328,7 +633,7 @@ function CartSummary({ cart, setQty, removeItem, rooms }) {
           <i className="fas fa-door-open muted"></i>
           <div>
             <div style={{fontWeight: 500}}>{r.name}</div>
-            <div className="muted tiny">{r.slot}</div>
+            <div className="muted tiny">{r.start_date} {r.start_time} – {r.end_date} {r.end_time}</div>
           </div>
         </div>
       ))}
@@ -390,7 +695,7 @@ function StepUser({ initial, selected, setSelected }) {
               <Avatar user={u} size={32} />
               <div style={{minWidth: 0}}>
                 <div className="name">{u.name}</div>
-                <div className="org">{u.org} · {u.role} · {u.past || 0} {t('user.past_rentals','past rentals')}</div>
+                <div className="org">{u.org} · <RoleBadge role={u.role} /> · {u.past || 0} {t('user.past_rentals','past rentals')}</div>
                 {u.warn && <div className="mt-1 tiny" style={{color: 'oklch(0.45 0.14 28)'}}>
                   <i className="fas fa-triangle-exclamation me-1"></i>{u.warn}
                 </div>}
@@ -404,10 +709,112 @@ function StepUser({ initial, selected, setSelected }) {
   );
 }
 
+/* ===== Quick Pick presets ===== */
+function QuickPick({ period, setPeriod, workingHours }) {
+  const applyQuickPick = (preset) => {
+    const now = new Date();
+    let from, to;
+
+    switch (preset) {
+      case 'today-tomorrow': {
+        from = snapToWorkingHours(now, workingHours);
+        to = new Date(from);
+        to.setDate(to.getDate() + 1);
+        break;
+      }
+      case 'afternoon': {
+        // Start at 14:00 today, snap forward to valid hours if needed
+        from = snapToWorkingHours(
+          new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0, 0, 0),
+          workingHours,
+        );
+        // End at closing time of whatever day "from" landed on
+        const fromDayHours = _whForDate(from, workingHours);
+        const [eh, em] = fromDayHours?.enabled
+          ? fromDayHours.end.split(':').map(Number)
+          : [18, 0];
+        to = new Date(from);
+        to.setHours(eh, em, 0, 0);
+        break;
+      }
+      case 'weekend': {
+        const dow = now.getDay();
+        const daysUntilFri = dow <= 5 ? 5 - dow : 5 + (7 - dow);
+        const fri = new Date(now);
+        fri.setDate(fri.getDate() + daysUntilFri);
+        const friHours = _whForDate(fri, workingHours);
+        if (friHours?.enabled) {
+          const [fh, fm] = friHours.start.split(':').map(Number);
+          fri.setHours(fh, fm, 0, 0);
+        } else {
+          fri.setHours(10, 0, 0, 0);
+        }
+        from = fri;
+
+        const mon = new Date(fri);
+        mon.setDate(mon.getDate() + 3);
+        const monHours = _whForDate(mon, workingHours);
+        if (monHours?.enabled) {
+          const [mh, mm] = monHours.end.split(':').map(Number);
+          mon.setHours(mh, mm, 0, 0);
+        } else {
+          mon.setHours(18, 0, 0, 0);
+        }
+        to = mon;
+        break;
+      }
+      case '7days': {
+        from = snapToWorkingHours(now, workingHours);
+        to = new Date(from);
+        to.setDate(to.getDate() + 7);
+        break;
+      }
+    }
+
+    setPeriod({ from: _fmtDT(from), to: _fmtDT(to) });
+  };
+
+  const presets = [
+    { key: 'today-tomorrow', label: t('quick.today_tomorrow', 'Today → tomorrow') },
+    { key: 'afternoon',      label: t('quick.afternoon', 'This afternoon') },
+    { key: 'weekend',        label: t('quick.weekend', 'Fri — Mon (weekend)') },
+    { key: '7days',          label: t('quick.7days', 'Next 7 days') },
+  ];
+
+  return (
+    <div className="t-card surface p-3" style={{marginBottom: 14}}>
+      <div className="muted tiny" style={{textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em'}}>
+        {t('quick.title', 'Quick pick')}
+      </div>
+      <div className="mt-2" style={{display: 'flex', flexWrap: 'wrap', gap: 6}}>
+        {presets.map(p => (
+          <button key={p.key} className="btn btn-sm btn-ghost" onClick={() => applyQuickPick(p.key)}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ===== STEP 3 — Time & conflicts ===== */
 function StepTime({ initial, period, setPeriod, cart }) {
   const [conflicts, setConflicts] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
+
+  // Earliest valid pickup time (snapped to working hours)
+  const earliestFrom = React.useMemo(() => {
+    return _fmtDT(snapToWorkingHours(new Date(), initial.working_hours));
+  }, [initial.working_hours]);
+
+  // Snap a field value to working hours on blur
+  const snapInput = (field, raw) => {
+    const snapped = snapToWorkingHours(new Date(raw), initial.working_hours);
+    const snappedStr = _fmtDT(snapped);
+    if (snappedStr !== raw) {
+      setPeriod(p => ({...p, [field]: snappedStr}));
+    }
+  };
 
   // Pull real conflict data whenever period or cart changes.
   React.useEffect(() => {
@@ -473,17 +880,23 @@ function StepTime({ initial, period, setPeriod, cart }) {
         <div className="t-card">
           <label>{t('wiz.pickup', 'Pickup')}</label>
           <input type="datetime-local" className="form-control" value={period.from} step="1800"
-                 onChange={e => setPeriod(p => ({...p, from: e.target.value}))} />
+                 min={earliestFrom}
+                 onChange={e => setPeriod(p => ({...p, from: e.target.value}))}
+                 onBlur={e => { if (e.target.value) snapInput('from', e.target.value); }} />
         </div>
         <div className="t-card">
           <label>{t('wiz.return_by', 'Return by')}</label>
           <input type="datetime-local" className="form-control" value={period.to} step="1800"
-                 onChange={e => setPeriod(p => ({...p, to: e.target.value}))} />
+                 min={period.from || earliestFrom}
+                 onChange={e => setPeriod(p => ({...p, to: e.target.value}))}
+                 onBlur={e => { if (e.target.value) snapInput('to', e.target.value); }} />
           <div className="tiny muted mt-1">
             <i className="fas fa-clock me-1"></i>{duration > 0 ? `${duration}h` : '—'}
           </div>
         </div>
       </div>
+
+      <QuickPick period={period} setPeriod={setPeriod} workingHours={initial.working_hours} />
 
       {warnings.length > 0 && (
         <div className="inline-extend" style={{background: 'oklch(0.97 0.04 28)', borderColor: 'oklch(0.85 0.09 28)'}}>
@@ -531,11 +944,10 @@ function StepTime({ initial, period, setPeriod, cart }) {
 
 /* ===== STEP 4 — Review + email preview ===== */
 function StepReview({ user, period, cart, rooms, project, setProject, purpose, setPurpose,
-                     notifyEmail, setNotifyEmail, notifySms, setNotifySms }) {
+                     notifyEmail, setNotifyEmail }) {
   if (!user) return <div className="muted">{t('wiz.need_user','Select a user first.')}</div>;
   return (
-    <div className="row g-4">
-      <div className="col-lg-6">
+    <div className="col-lg-12">
         <h2 style={{fontSize: 16, fontWeight: 600, margin: '0 0 10px'}}>
           {t('wiz.confirm', 'Confirm details')}
         </h2>
@@ -565,18 +977,24 @@ function StepReview({ user, period, cart, rooms, project, setProject, purpose, s
 
         <div className="surface p-3 mb-3">
           <strong style={{fontSize: 13}}>{t('wiz.period', 'Period')}</strong>
-          <div style={{display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 10, alignItems: 'center',
-                        fontSize: 13, marginTop: 8}}>
-            <div>
-              <div className="muted tiny">{t('wiz.pickup', 'Pickup')}</div>
-              <div style={{fontWeight: 600}}>{fmtDate(period.from.replace('T', ' '))}</div>
+          {cart.length > 0 && period.from && period.to ? (
+            <div style={{display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 10, alignItems: 'center',
+                          fontSize: 13, marginTop: 8}}>
+              <div>
+                <div className="muted tiny">{t('wiz.pickup', 'Pickup')}</div>
+                <div style={{fontWeight: 600}}>{fmtDate(period.from.replace('T', ' '))}</div>
+              </div>
+              <i className="fas fa-arrow-right muted"></i>
+              <div>
+                <div className="muted tiny">{t('wiz.return', 'Return')}</div>
+                <div style={{fontWeight: 600}}>{fmtDate(period.to.replace('T', ' '))}</div>
+              </div>
             </div>
-            <i className="fas fa-arrow-right muted"></i>
-            <div>
-              <div className="muted tiny">{t('wiz.return', 'Return')}</div>
-              <div style={{fontWeight: 600}}>{fmtDate(period.to.replace('T', ' '))}</div>
+          ) : rooms.length > 0 ? (
+            <div className="muted tiny" style={{marginTop: 6}}>
+              {t('wiz.per_room', 'Time slots are set per room (see below).')}
             </div>
-          </div>
+          ) : null}
         </div>
 
         <div className="surface p-3 mb-3">
@@ -592,7 +1010,7 @@ function StepReview({ user, period, cart, rooms, project, setProject, purpose, s
               <li key={r.id} style={{display: 'flex', justifyContent: 'space-between', padding: '4px 0',
                                         borderBottom: '1px solid var(--line)'}}>
                 <span><i className="fas fa-door-open me-2 muted"></i>{r.name}</span>
-                <span className="muted">{r.slot}</span>
+                <span className="muted">{r.start_date} {r.start_time} – {r.end_date} {r.end_time}</span>
               </li>
             ))}
           </ul>
@@ -607,57 +1025,7 @@ function StepReview({ user, period, cart, rooms, project, setProject, purpose, s
               {t('wiz.notify_email', 'Send confirmation email to')} <strong>{user.email}</strong>
             </label>
           </div>
-          <div className="form-check">
-            <input className="form-check-input" type="checkbox" checked={notifySms}
-                   onChange={e => setNotifySms(e.target.checked)} id="nSms" />
-            <label className="form-check-label tiny" htmlFor="nSms">
-              {t('wiz.notify_sms', 'Send SMS pickup reminder 1h before')}
-            </label>
-          </div>
         </div>
-      </div>
-
-      <div className="col-lg-6">
-        <strong style={{fontSize: 13}}>{t('wiz.email_preview', 'Confirmation email preview')}</strong>
-        <div className="email-preview mt-2">
-          <div className="email-head">
-            <div className="row">
-              <div className="lbl">From</div><div>workshop@uni.de</div>
-              <div className="lbl">To</div><div>{user.email}</div>
-              <div className="lbl">Subject</div><div>{t('wiz.email_subject', 'Your rental — confirmed')}</div>
-            </div>
-          </div>
-          <div className="email-body">
-            <h3>{t('wiz.email_hi', 'Hi')} {user.name.split(' ')[0]},</h3>
-            <p>{t('wiz.email_intro', 'Your workshop rental is reserved. Please pick up at the front desk at the time below.')}</p>
-            {project && (
-              <p style={{background: 'var(--bg-sub)', padding: '10px 12px', borderRadius: 8,
-                            borderLeft: '3px solid var(--brand)'}}>
-                <strong>{project}</strong><br/><span className="muted">{purpose}</span>
-              </p>
-            )}
-            <table>
-              <tbody>
-                <tr><th>{t('wiz.pickup', 'Pickup')}</th><td>{fmtDate(period.from.replace('T', ' '))}</td></tr>
-                <tr><th>{t('wiz.return_by', 'Return by')}</th><td>{fmtDate(period.to.replace('T', ' '))}</td></tr>
-              </tbody>
-            </table>
-            <p style={{marginTop: 10, marginBottom: 4}}>
-              <strong>{t('wiz.items_n', 'Items')} ({cart.reduce((a, c) => a + c.qty, 0)})</strong>
-            </p>
-            <table>
-              <tbody>
-                {cart.map(c => (
-                  <tr key={c.id}>
-                    <td>{c.name} <span className="muted mono" style={{fontSize: 11}}>({c.num})</span></td>
-                    <td style={{textAlign: 'right', width: 60}}>{c.qty}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -670,7 +1038,11 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
   const addByScan = async () => {
     if (!scan.trim()) return;
     try {
-      const data = await apiGet(`${initial.urls.inventory_search}?num=${encodeURIComponent(scan.trim())}`);
+      const params = new URLSearchParams({ num: scan.trim() });
+      if (user && user.id) params.append('user_id', user.id);
+      if (period && period.from) params.append('from', period.from);
+      if (period && period.to) params.append('to', period.to);
+      const data = await apiGet(`${initial.urls.inventory_search}?${params}`);
       const hit = data.items?.[0];
       if (hit) {
         setCart(c => c.some(x => x.id === hit.id) ? c : [...c, { ...hit, qty: 1 }]);

@@ -593,3 +593,31 @@
   font-size: 0.85em;
   font-weight: 500;
 }
+
+#licenseTable .live-badge {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.live-cell-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.planning-calendar-table .date-cell.has-live {
+  border: 2px solid #dc3545;
+}
+
+.status-badge--live {
+  background-color: #dc3545;
+  color: white;
+  animation: pulse-live 2s infinite;
+}
+
+@keyframes pulse-live {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}

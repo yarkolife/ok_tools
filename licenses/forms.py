@@ -82,6 +82,11 @@ class CreateLicenseForm(forms.ModelForm):
             # it's a screen board, we are fine
             return super().is_valid()
 
+        # When is_live is checked, the dependent fields are disabled in the
+        # browser and therefore not submitted with the POST.  The model's
+        # save() already auto-sets them to False, so skip validation here.
+        is_live = self.data.get('is_live') in ('on', 'true', 'True', True, '1')
+
         # Validate required boolean fields (must be Yes or No, not empty)
         boolean_fields = [
             'repetitions_allowed',
@@ -92,6 +97,13 @@ class CreateLicenseForm(forms.ModelForm):
         ]
         
         for field_name in boolean_fields:
+            if is_live and field_name in (
+                'repetitions_allowed',
+                'store_in_ok_media_library',
+                'media_authority_exchange_allowed',
+                'media_authority_exchange_allowed_other_states',
+            ):
+                continue
             value = self.data.get(field_name)
             if not value or value == '':
                 self.add_error(

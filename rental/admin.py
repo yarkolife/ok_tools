@@ -76,6 +76,7 @@ class RentalRequestAdmin(admin.ModelAdmin):
     """Admin configuration for ``RentalRequest`` objects."""
 
     form = RentalRequestAdminForm
+    change_form_template = 'admin/rental/rentalrequest/change_form.html'
     list_display = (
         "project_name",
         "user",
@@ -86,6 +87,7 @@ class RentalRequestAdmin(admin.ModelAdmin):
         "created_at",
         "total_items_count",
         "total_rooms_count",
+        "has_signature",
     )
     list_filter = (
         "status",
@@ -96,10 +98,10 @@ class RentalRequestAdmin(admin.ModelAdmin):
     )
     search_fields = ("project_name", "purpose", "user__email", "created_by__email")
     inlines = [RentalItemInline, RoomRentalInline]
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at", "has_signature_display")
     fieldsets = (
         (_('Meta'), {
-            'fields': ("status", "created_at", "updated_at"),
+            'fields': ("status", "created_at", "updated_at", "has_signature_display"),
         }),
         (_('Actors'), {
             'fields': ("user", "created_by"),
@@ -115,15 +117,50 @@ class RentalRequestAdmin(admin.ModelAdmin):
         }),
     )
 
+    def has_signature(self, obj):
+        """Display signature status in list view."""
+        if not obj.pk:
+            return '-'
+        if obj.has_any_signature():
+            return format_html(
+                '<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}</span>',
+                _('Yes')
+            )
+        else:
+            return format_html(
+                '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
+                _('No')
+            )
+
+    has_signature.short_description = _('Signature')
+    has_signature.admin_order_field = 'signature'
+
+    def has_signature_display(self, obj):
+        """Display signature status in change form."""
+        if not obj.pk:
+            return '-'
+        if obj.has_any_signature():
+            return format_html(
+                '<span style="color: #28a745; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}</span>',
+                _('Digital signature is present')
+            )
+        else:
+            return format_html(
+                '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
+                _('No digital signature')
+            )
+
+    has_signature_display.short_description = _('Digital Signature')
+
     # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
     def get_queryset(self, request):
         """Optimize queryset with select_related and prefetch_related."""
         return super().get_queryset(request).select_related(
-            'user', 
-            'created_by', 
+            'user',
+            'created_by',
             'user__profile'
         ).prefetch_related(
-            'items__inventory_item', 
+            'items__inventory_item',
             'room_rentals__room'
         )
 
@@ -192,10 +229,20 @@ class RentalItemAdmin(admin.ModelAdmin):
         if obj.is_overdue:
             days = obj.days_overdue
             if days > 0:
-                return f"🔴 {days} days overdue"
+                return format_html(
+                    '<span style="color: #dc3545;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> {} {}</span>',
+                    days,
+                    _('days overdue')
+                )
             else:
-                return "🔴 Overdue"
-        return "🟢 On time"
+                return format_html(
+                    '<span style="color: #dc3545;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> {}</span>',
+                    _('Overdue')
+                )
+        return format_html(
+            '<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {}</span>',
+            _('On time')
+        )
     is_overdue_display.short_description = _('Overdue Status')
 
 
@@ -423,6 +470,8 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
 class RentalConfigAdmin(admin.ModelAdmin):
     """Admin interface for RentalConfig model."""
 
+    filter_horizontal = ['user_organizations', 'member_organizations', 'employee_organizations']
+
     fieldsets = (
         (_('Approval workflow'), {
             'fields': (
@@ -445,7 +494,18 @@ class RentalConfigAdmin(admin.ModelAdmin):
             ),
             'description': _('Leave both fields empty to mark a day as closed.'),
         }),
+        (_('Organization Access'), {
+            'fields': ('user_organizations', 'member_organizations', 'employee_organizations'),
+        }),
     )
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_manytomany(db_field, request, **kwargs)
+        if db_field.name in ('user_organizations', 'member_organizations', 'employee_organizations'):
+            formfield.widget.can_add_related = False
+            formfield.widget.can_change_related = False
+            formfield.widget.can_delete_related = False
+        return formfield
     
     def has_add_permission(self, request):
         """Only one config instance allowed."""

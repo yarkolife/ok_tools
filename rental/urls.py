@@ -1,4 +1,5 @@
 from .views import AccessDeniedView
+from .views import CreateSigningSessionView
 from .views import EquipmentSetItemViewSet
 from .views import EquipmentSetViewSet
 from .views import InventoryItemViewSet
@@ -14,8 +15,14 @@ from .views import RentalReturnView
 from .views import RentalReturnWorkflowView
 from .views import RentalRequestViewSet
 from .views import RentalStatsView
+from .views import SaveSignatureView
+from .views import SigningSessionPageView
+from .views import SigningSessionQRCodeView
+from .views import SigningSessionStatusView
+from .views import SubmitSigningSessionView
 from .views import InventoryCalendarDayView
 from .views import InventoryCalendarWeekView
+from .views import RoomCalendarDayView
 from .views import RentalListView
 from .views import api_inventory_calendar
 from .views import RentalTransactionViewSet
@@ -28,8 +35,10 @@ from .views import extend_rental
 from .views import mark_issued
 from .views import print_slip
 from .views import quick_issue
+from .views import remove_item_from_rental
 from .views import report_issue
 from .views import send_reminder
+from .views import swap_rental_item
 from .views import api_cancel_rental
 from .views import api_confirm_rental
 from .views import api_check_room_availability
@@ -73,6 +82,9 @@ from .views import api_search_users
 from .views import api_user_active_items
 from .views import api_update_pick_list
 from .views_api import api_availability_check
+from .views_api import api_add_rental_items
+from .views_api import api_change_rental_period
+from .views_api import api_change_rental_user
 from .views_api import api_inventory_search
 from .views_api import api_users_search
 from .email_approval_views import email_approval_action
@@ -104,6 +116,7 @@ urlpatterns = [
     path('admin/stats/', RentalStatsView.as_view(), name='rental_stats'),
     path('admin/inventory-calendar/day/', InventoryCalendarDayView.as_view(), name='inventory_calendar_day'),
     path('admin/inventory-calendar/week/', InventoryCalendarWeekView.as_view(), name='inventory_calendar_week'),
+    path('admin/room-calendar/day/', RoomCalendarDayView.as_view(), name='room_calendar_day'),
     path('access-denied/', AccessDeniedView.as_view(), name='access_denied'),
     path('api/search-users/', api_search_users, name='api_search_users'),
     path('api/user/<int:user_id>/inventory/', api_get_user_inventory, name='api_user_inventory'),
@@ -168,6 +181,8 @@ urlpatterns = [
     path('rental/<int:rental_id>/extend/', extend_rental, name='extend'),
     path('rental/<int:rental_id>/mark-issued/', mark_issued, name='mark_issued'),
     path('rental/<int:rental_id>/cancel/', cancel_rental, name='cancel'),
+    path('rental/<int:rental_id>/remove-item/', remove_item_from_rental, name='remove_item'),
+    path('rental/<int:rental_id>/swap-item/', swap_rental_item, name='swap_item'),
     path('rental/<int:rental_id>/close/', close_rental, name='close'),
     path('rental/<int:rental_id>/send-reminder/', send_reminder, name='send_reminder'),
     path('rental/<int:rental_id>/edit-note/', edit_note, name='edit_note'),
@@ -182,6 +197,17 @@ urlpatterns = [
     path('print/okmq/<int:rental_id>/', PrintFormOKMQView.as_view(), name='print_form_okmq'),
     path('print/pick-list/<int:rental_id>/', PrintPickListView.as_view(), name='print_pick_list'),
     path('api/rental/<int:rental_id>/print-info/', api_get_rental_print_info, name='api_rental_print_info'),
+
+    # Signature URLs
+    path('rental/<int:pk>/save-signature/', SaveSignatureView.as_view(), name='save_signature'),
+    path('rental/<int:pk>/sign-session/create/', CreateSigningSessionView.as_view(), name='create_sign_session'),
+    path('rental/<int:rental_id>/change-user/', api_change_rental_user, name='api_change_rental_user'),
+    path('rental/<int:rental_id>/change-period/', api_change_rental_period, name='api_change_rental_period'),
+    path('rental/<int:rental_id>/add-items/', api_add_rental_items, name='api_add_rental_items'),
+    path('sign-session/<str:token>/status/', SigningSessionStatusView.as_view(), name='sign_session_status'),
+    path('sign-session/<str:token>/qr/', SigningSessionQRCodeView.as_view(), name='sign_session_qr'),
+    path('sign-session/<str:token>/', SigningSessionPageView.as_view(), name='sign_session_page'),
+    path('sign-session/<str:token>/submit/', SubmitSigningSessionView.as_view(), name='sign_session_submit'),
 
     # Email approval (signed links)
     path('email-approval/<int:rental_id>/<str:action>/<str:token>/', email_approval_action, name='email_approval_action'),

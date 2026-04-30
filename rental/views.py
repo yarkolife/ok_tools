@@ -1,5 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
+from django.conf import settings
 from .models import EquipmentSet
 from .models import EquipmentSetItem
 from .models import RentalIssue
@@ -21,6 +22,9 @@ from .serializers import RentalItemSerializer
 from .serializers import RentalRequestSerializer
 from .serializers import RentalTransactionSerializer
 from .services import RentalService
+from .services.rental_email import send_issued_confirmation_email
+from .services.rental_email import send_reminder_email
+from .services.rental_email import send_return_receipt_email
 from .working_hours import get_day_working_window
 from .working_hours import validate_working_hours_period
 from django.contrib import messages
@@ -54,6 +58,24 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 import json
+import base64
+import io
+import logging
+import qrcode
+import uuid
+import xml.etree.ElementTree as ET
+from django.core.cache import cache
+from django.http import HttpResponse
+from django.http import HttpResponseForbidden
+from django.http import HttpResponseNotFound
+from django.views.generic import View
+from typing import Any
+from .models import RentalSigningSession
+from .models import RentalSigningSessionStatus
+
+
+logger = logging.getLogger('django')
+
 
 
 def _iter_time_slots(target_date, step_minutes):
@@ -164,6 +186,7 @@ def serialize_rental(rental):
         'issued_by': _user_display_name(rental.created_by) if rental.created_by else None,
         'created_at': rental.created_at.isoformat() if rental.created_at else None,
         'internal_note': rental.notes or '',
+        'has_signature': rental.has_any_signature(),
     }
 
 
@@ -187,12 +210,140 @@ def serialize_item(rental_item):
 
 def _i18n_bundle():
     return {
+        # Status pills
         'status.draft': str(_('Draft')),
         'status.reserved': str(_('Reserved')),
         'status.issued': str(_('Issued')),
         'status.returned': str(_('Returned')),
         'status.overdue': str(_('Overdue')),
         'status.cancelled': str(_('Cancelled')),
+        # Wizard - step titles and hints
+        'wiz.title': _('Create rental'),
+        'wiz.sub': _('Reserve items and rooms for a user'),
+        'wiz.guided': _('Guided'),
+        'wiz.quick': _('Quick'),
+        'wiz.step': _('Step'),
+        'wiz.step1': _('User'),
+        'wiz.step2': _('Time & conflicts'),
+        'wiz.step3': _('Items & rooms'),
+        'wiz.step4': _('Review & confirm'),
+        'wiz.no_user': _('Not selected'),
+        'wiz.skipped_rooms': _('Skipped (rooms only)'),
+        'wiz.items': _('items'),
+        'wiz.rooms': _('rooms'),
+        'wiz.send_confirm': _('Send confirmation'),
+        # Wizard - step 1 user
+        'wiz.who': _('Who is this rental for?'),
+        'wiz.who_sub': _('Pick an existing user or create a new account.'),
+        'wiz.search_user': _('Search by name, email, student ID…'),
+        'wiz.new_user': _('New user'),
+        'wiz.user': _('User'),
+        'wiz.need_user': _('Please select a user first'),
+        'wiz.past_rentals': _('past rentals'),
+        # Wizard - step 2 time
+        'wiz.when': _('When do you need it?'),
+        'wiz.when_sub': _('Select a date range. Working hours are shown below.'),
+        'wiz.period': _('Period'),
+        'wiz.hours': _('Working hours'),
+        'wiz.availability': _('availability'),
+        'wiz.need_dates': _('Please select start and end dates'),
+        'wiz.warn.closed': _('The selected day is closed.'),
+        'wiz.warn.hours': _('Outside configured working hours.'),
+        'wiz.warn.reversed': _('End date must be after start date.'),
+        'wiz.rooms_skip_title': _('Room-only rental'),
+        'wiz.rooms_skip_hint': _('Each room has its own time slot. You can skip this step.'),
+        # Wizard - step 3 items
+        'wiz.equipment': _('Equipment'),
+        'wiz.rooms_tab': _('Rooms'),
+        'wiz.equipment_only_hint': _('Select equipment to rent.'),
+        'wiz.rooms_only_hint': _('Select rooms to reserve.'),
+        'wiz.search_items': _('Search items…'),
+        'wiz.in_cat': _('in'),
+        'wiz.available': _('Available'),
+        'wiz.no_items': _('No items match your search.'),
+        'wiz.tap_to_add': _('Tap + to add items.'),
+        'wiz.clear': _('Clear'),
+        'wiz.of': _('of'),
+        'wiz.free': _('free'),
+        'wiz.per_room': _('per room'),
+        'wiz.reserved': _('Reserved'),
+        'wiz.scan': _('Scan item'),
+        'wiz.scan_hint': _('Scan barcode to add item'),
+        'wiz.confirm': _('Confirm'),
+        'wiz.no_items_selected': _('No items or rooms selected'),
+        'wiz.need_items': _('Please select at least one item or room'),
+        # Wizard - step 4 review
+        'wiz.review': _('Review & confirm'),
+        'wiz.review_sub': _('Check your selection and submit.'),
+        'wiz.project': _('Project'),
+        'wiz.project_ph': _('Project name'),
+        'wiz.purpose': _('Purpose'),
+        'wiz.purpose_ph': _('What is this rental for?'),
+        'wiz.notifications': _('Notifications'),
+        'wiz.notify_email': _('Send email notification to user'),
+        'wiz.reserved_until': _('Reserved until'),
+        'wiz.return_by': _('Return by'),
+        'wiz.pickup': _('Pickup'),
+        'wiz.returns': _('Returns'),
+        'wiz.items_label': _('Items'),
+        'wiz.rooms_label': _('Rooms'),
+        'wiz.what_need': _('What do you need?'),
+        'wiz.total': _('Total'),
+        'wiz.your_booking': _('Your booking'),
+        'wiz.add_items': _('Add items'),
+        'wiz.add_rooms': _('Add rooms'),
+        # Quick rental
+        'quick.title': _('Quick rental'),
+        'quick.today_tomorrow': _('Today / Tomorrow'),
+        'quick.7days': _('Next 7 days'),
+        'quick.afternoon': _('Afternoon'),
+        'quick.weekend': _('Weekend'),
+        # Buttons
+        'btn.back': _('Back'),
+        'btn.next': _('Next'),
+        'btn.cancel': _('Cancel'),
+        'btn.confirm_send': _('Create rental'),
+        'btn.issue_now': _('Issue now'),
+        'btn.sending': _('Creating…'),
+        # Cart / items
+        'cart.title': _('Selected items'),
+        # Errors
+        'err.create': _('Could not create rental: '),
+        'err.extend': _('Could not extend rental: '),
+        'err.change_user': _('Could not change user: '),
+        'err.change_period': _('Could not change period: '),
+        'err.sign_session': _('Could not create signing session: '),
+        'err.save_sig': _('Failed to save signature.'),
+        'err.swap': _('Could not swap item: '),
+        'err.add_items': _('Could not add items: '),
+        'err.scan_not_found': _('Item not found'),
+        # Room
+        'room.available': _('Available'),
+        'room.check': _('Check availability'),
+        'room.check_error': _('Error checking availability'),
+        'room.day_closed': _('Day is closed'),
+        'room.end_date': _('End date'),
+        'room.end_time': _('End time'),
+        'room.not_available': _('Not available'),
+        'room.open': _('Open'),
+        'room.remove': _('Remove'),
+        'room.reserve': _('Reserve room'),
+        'room.restricted': _('Restricted'),
+        'room.start_date': _('Start date'),
+        'room.start_time': _('Start time'),
+        'room.booked': _('Booked'),
+        'rooms.none': _('No rooms booked in this rental.'),
+        # Tags
+        'tag.booked': _('Booked'),
+        'tag.in_stock': _('In stock'),
+        'tag.issued': _('Issued'),
+        'tag.out': _('Out'),
+        'tag.reserved': _('Reserved'),
+        'tag.returned': _('Returned'),
+        # Misc
+        'from': _('From'),
+        'to': _('To'),
+        'loading': _('Loading…'),
         'err.return': _('Could not submit return: '),
         'ret.returning': _('returning'),
         'ret.items': _('items'),
@@ -200,7 +351,6 @@ def _i18n_bundle():
         'ret.checked': _('checked'),
         'ret.issues': _('Issues'),
         'ret.due_by': _('Due by'),
-        'btn.cancel': _('Cancel'),
         'btn.complete_return': _('Complete return'),
         'ret.heading': _('Equipment returning'),
         'ret.sub': _("Tick off items as the user hands them back. Mark condition if something's not right."),
@@ -226,6 +376,136 @@ def _i18n_bundle():
         'ret.email_receipt': _('Email return receipt to user'),
         'ret.close': _('Close rental after return'),
         'ret.audit': _('Flag for inventory audit'),
+        'ret.email_help_on': _('Checked: the user receives a return receipt by email.'),
+        'ret.email_help_off': _('Unchecked: the return is saved without sending a receipt email.'),
+        'ret.close_help_on': _('Checked: after all issued items are back, the rental is closed immediately and no separate Close rental step is needed.'),
+        'ret.close_help_off': _('Unchecked: the rental stays returned, so staff can review it and close it later.'),
+        'ret.audit_help_on': _('Checked: an inventory audit issue is created for each returned item.'),
+        'ret.audit_help_off': _('Unchecked: no audit issue is created unless an item condition note is entered.'),
+        'ret.options_explain': _('What these options do'),
+        'add_items.title': _('Add items to rental'),
+        'add_items.search': _('Search inventory…'),
+        'add_items.none': _('No available items found'),
+        'add_items.selected': _('selected'),
+        'add_items.confirm': _('Add selected items'),
+        'err.add_items': _('Could not add items: '),
+        'tab.equipment': _('Equipment'),
+        'tab.rooms': _('Rooms'),
+        'tab.issues': _('Issues'),
+        'tab.history': _('History'),
+        'sig.title': _('Digital Signature'),
+        'sig.choose': _('Choose a signing method. Drawing directly is recommended for tablets.'),
+        'sig.draw_here': _('Draw here'),
+        'sig.draw_desc': _('Draw directly on this device'),
+        'sig.qr_phone': _('Sign with phone'),
+        'sig.qr_desc': _('Scan QR code with your phone'),
+        'sig.draw_title': _('Draw your signature'),
+        'sig.draw_hint': _('Sign below using your finger or stylus.'),
+        'sig.clear': _('Clear'),
+        'sig.submit': _('Submit signature'),
+        'sig.saving': _('Saving…'),
+        'sig.scan_qr': _('Scan the QR code with your phone to sign'),
+        'sig.expired': _('Signing session expired. Please try again.'),
+        'sig.retry': _('Retry'),
+        'sig.auto_check': _('Status will update automatically'),
+        'sig.waiting': _('Waiting for signature…'),
+        'sig.signed': _('Signed'),
+        'sig.draw_empty': _('Please draw a signature first.'),
+        'confirm.mark_issued': _('Mark this rental as issued?'),
+        'confirm.cancel': _('Cancel this rental?'),
+        'confirm.close': _('Close this rental?'),
+        'confirm.remove': _('Remove this item from the rental?'),
+        'extend.title': _('Extend return deadline'),
+        'extend.from': _('from'),
+        'extend.to': _('to'),
+        'extend.reason': _('Reason (shown to user)…'),
+        'item.location': _('Location'),
+        'item.owner': _('Owner dept.'),
+        'item.issued_at': _('Issued at'),
+        'item.notes': _('Asset notes'),
+        'item.swap': _('Swap unit'),
+        'item.remove': _('Remove from rental'),
+        'item.report': _('Report issue'),
+        'btn.mark_issued': _('Mark issued'),
+        'btn.request_signature': _('Request signature'),
+        'btn.extend': _('Extend'),
+        'btn.start_return': _('Start return'),
+        'btn.edit_items': _('Edit items'),
+        'btn.change_user': _('Change user'),
+        'btn.edit_period': _('Edit period'),
+        'btn.resend': _('Resend confirmation'),
+        'btn.export_pdf': _('Export as PDF'),
+        'btn.cancel_rental': _('Cancel rental'),
+        'btn.close_rental': _('Close rental'),
+        'btn.send_reminder': _('Send reminder'),
+        'btn.add_item': _('Add item'),
+        'btn.remove': _('Remove from rental'),
+        'btn.report_issue': _('Report issue'),
+        'btn.log_issue': _('Log issue'),
+        'btn.swap': _('Swap unit'),
+        'btn.swap_confirm': _('Confirm swap'),
+        'btn.save_period': _('Save period'),
+        'btn.issue_now': _('Issue now'),
+        'btn.complete_return': _('Complete return'),
+        'btn.all_ok': _('All returned, all OK'),
+        'btn.reset': _('Reset'),
+        'btn.submit': _('Submit'),
+        'btn.change_user': _('Change user'),
+        'btn.cancel': _('Cancel'),
+        'sev.minor': _('Minor'),
+        'sev.major': _('Major'),
+        'sev.critical': _('Critical'),
+        'issues.note': _("Issues are logged during return — they don't affect item availability until closed."),
+        'issues.none': _('No issues logged.'),
+        'report.title': _('Log issue'),
+        'report.title_item': _('Report issue'),
+        'report.severity': _('Severity'),
+        'report.description': _('Description'),
+        'report.placeholder': _('Describe the issue…'),
+        'swap.title': _('Swap'),
+        'swap.search': _('Search inventory…'),
+        'swap.no_results': _('No items found'),
+        'swap.unavailable': _('Unavailable'),
+        'change_user.title': _('Change user'),
+        'change_user.search': _('Search by name, email…'),
+        'change_user.no_results': _('No users found'),
+        'change_user.type_hint': _('Type at least 2 characters to search'),
+        'change_period.title': _('Edit rental period'),
+        'change_period.from': _('Pickup date'),
+        'change_period.to': _('Return date'),
+        'change_period.required': _('Both dates are required.'),
+        'user.past_rentals': _('past rentals'),
+        'wiz.items_rooms': _('Items & rooms'),
+        'wiz.return': _('Return'),
+        'wiz.conflicts': _('Conflicts'),
+        'btn.back': _('Back'),
+        'btn.next': _('Next'),
+        'btn.confirm_send': _('Confirm & send'),
+        'btn.sending': _('Sending…'),
+        'btn.reminder_sent': _('Reminder sent.'),
+        'menu.edit_items': _('Edit items'),
+        'menu.change_user': _('Change user'),
+        'menu.edit_period': _('Edit period'),
+        'menu.resend_email': _('Resend confirmation'),
+        'menu.export_pdf': _('Export as PDF'),
+        'menu.cancel': _('Cancel rental'),
+        'due.return_due': _('Return due'),
+        'due.closed': _('Closed'),
+        'due.pickup_at': _('Pickup'),
+        'due.days_overdue': _('days overdue'),
+        'ok.reminder_sent': _('Reminder sent.'),
+        'items.total': _('Total:'),
+        'items.units_issued': _('units issued'),
+        'qty.req': _('req'),
+        'qty.issued': _('issued'),
+        'qty.back': _('back'),
+        'status.draft': _('Draft'),
+        'status.reserved': _('Reserved'),
+        'status.issued': _('Issued'),
+        'status.returned': _('Returned'),
+        'status.overdue': _('Overdue'),
+        'status.cancelled': _('Cancelled'),
+        'status.closed': _('Closed'),
     }
 
 
@@ -563,6 +843,7 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
             'rental_working_hours_json': json.dumps(get_rental_working_hours()),
             'rental_working_hours_summary': get_rental_working_hours_summary_text(),
             'initial_json': {
+                'from_email': getattr(settings, 'EMAIL_HOST_USER', 'noreply@localhost'),
                 'categories': [{
                     'id': '',
                     'label': str(_('All')),
@@ -594,7 +875,8 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'inventory_search': reverse('rental:api_inventory_search'),
                     'users_search': reverse('rental:api_users_search'),
                     'availability_check': reverse('rental:api_availability_check'),
-                    'new_user': '/admin/auth/user/add/',
+                    'room_availability_check': reverse('rental:api_check_room_availability'),
+                    'new_user': reverse('admin:registration_okuser_add'),
                 },
             },
             'sidebar': {
@@ -1526,6 +1808,9 @@ def api_return_rental_items(request):
         rental_id = data.get('rental_id')
         items = data.get('items', [])
         general_note = (data.get('note') or '').strip()
+        email_receipt = bool(data.get('email_receipt'))
+        close_after_return = bool(data.get('close_rental'))
+        flag_audit = bool(data.get('flag_audit'))
 
         if not rental_id and items:
             first_item_id = items[0].get('rental_item_id') or items[0].get('id')
@@ -1545,6 +1830,7 @@ def api_return_rental_items(request):
         if rental_request.status not in ['reserved', 'issued']:
             return JsonResponse({'error': _('Only active rentals can have returns')}, status=400)
 
+        returned_items_for_email = []
         for item_data in items:
             rental_item_id = item_data.get('rental_item_id') or item_data.get('id')
             quantity = int(item_data.get('quantity') or item_data.get('qty_returned') or 0)
@@ -1557,9 +1843,18 @@ def api_return_rental_items(request):
             condition = condition_map.get(item_data.get('condition'), item_data.get('condition', 'good'))
 
             issue_text = (item_data.get('issue') or '').strip()
+            charge_user = bool(item_data.get('charge'))
+            hold_out = bool(item_data.get('hold_out'))
             notes = item_data.get('notes', '')
             if issue_text and not notes:
                 notes = issue_text
+            extra_notes = []
+            if charge_user:
+                extra_notes.append(str(_('Marked as recoverable damage charge.')))
+            if hold_out:
+                extra_notes.append(str(_('Hold item out of the rental pool until reviewed.')))
+            if extra_notes:
+                notes = f'{notes}\n' + '\n'.join(extra_notes) if notes else '\n'.join(extra_notes)
             if general_note:
                 notes = f'{notes}\n\n{general_note}'.strip() if notes else general_note
 
@@ -1577,6 +1872,7 @@ def api_return_rental_items(request):
                 continue
 
             rental_item = rental_request.items.get(id=rental_item_id)
+            previous_returned_quantity = rental_item.quantity_returned or 0
 
             # Create return transaction
             from django.utils import timezone
@@ -1589,9 +1885,17 @@ def api_return_rental_items(request):
                 condition=condition,
                 notes=notes
             )
+            returned_items_for_email.append({
+                'name': str(rental_item.inventory_item),
+                'quantity': quantity,
+                'condition': transaction.get_condition_display(),
+            })
 
             # Update actual return date when item is fully returned
             rental_item.refresh_from_db()
+            if (rental_item.quantity_returned or 0) <= previous_returned_quantity:
+                rental_item.quantity_returned = previous_returned_quantity + quantity
+                rental_item.save(update_fields=['quantity_returned'])
             if (rental_item.quantity_issued or 0) <= (rental_item.quantity_returned or 0):
                 # Item is fully returned - set actual return date
                 rental_item.actual_return_date = timezone.now()
@@ -1607,6 +1911,14 @@ def api_return_rental_items(request):
                         severity=issue_data.get('severity', 'minor'),
                         reported_by=request.user
                     )
+            if flag_audit:
+                RentalIssue.objects.create(
+                    rental_item=rental_item,
+                    issue_type='other',
+                    description=_('Inventory audit requested during return processing.'),
+                    severity='minor',
+                    reported_by=request.user,
+                )
 
         # Check if all equipment items are returned
         # Note: Rooms are handled separately via automatic expiration
@@ -1628,9 +1940,16 @@ def api_return_rental_items(request):
         # Rooms will be automatically returned by the expiration task
         if all_equipment_returned and has_equipment:
             from django.utils import timezone
-            rental_request.status = 'returned'
+            rental_request.status = 'closed' if close_after_return else 'returned'
             rental_request.actual_end_date = timezone.now()
-            rental_request.save(update_fields=['status', 'actual_end_date'])
+            rental_request.save(update_fields=['status', 'actual_end_date', 'updated_at'])
+
+        if email_receipt:
+            send_return_receipt_email(
+                rental_request=rental_request,
+                returned_items=returned_items_for_email,
+                note=general_note,
+            )
 
         return JsonResponse({
             'success': True,
@@ -1746,10 +2065,12 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
         context['page_urls'] = {
             'list': self._safe_reverse('rental:list'),
             'print_slip': reverse('rental:print_form_msa', args=[rental.pk]),
+            'print_pick_list': reverse('rental:print_pick_list', args=[rental.pk]),
             'duplicate': self._safe_reverse('rental:duplicate', args=[rental.pk]),
             'edit_note': self._safe_reverse('rental:edit_note', args=[rental.pk]),
             'detail': reverse('rental:rental_detail', args=[rental.pk]),
         }
+        context['show_pick_list'] = rental.status in ('reserved', 'issued')
         context['urls_json'] = {
             'extend': reverse('rental:extend', args=[rental.pk]),
             'mark_issued': reverse('rental:mark_issued', args=[rental.pk]),
@@ -1763,10 +2084,22 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             'edit_period': f'{reverse("rental:rental_detail", args=[rental.pk])}#period',
             'resend_email': '#',
             'export_pdf': reverse('rental:print_form_msa', args=[rental.pk]),
+            'inventory_search': reverse('rental:api_inventory_search'),
+            'swap_item': reverse('rental:swap_item', args=[rental.pk]),
             'swap_unit': '#',
-            'remove_item': '#',
+            'remove_item': reverse('rental:remove_item', args=[rental.pk]),
+            'create_sign_session': reverse('rental:create_sign_session', args=[rental.pk]),
+            'save_signature': reverse('rental:save_signature', args=[rental.pk]),
+            'sign_session_status': '/rental/sign-session/',
+            'sign_session_qr': '/rental/sign-session/',
+            'change_user': reverse('rental:api_change_rental_user', args=[rental.pk]),
+            'change_period': reverse('rental:api_change_rental_period', args=[rental.pk]),
+            'add_items': reverse('rental:api_add_rental_items', args=[rental.pk]),
+            'users_search': reverse('rental:api_users_search'),
         }
         context['i18n_strings'] = _i18n_bundle()
+        context['sidebar_active'] = 'list'
+        _add_sidebar_counts(context)
 
         return context
 
@@ -1898,8 +2231,8 @@ def extend_rental(request, rental_id):
         return JsonResponse({'error': _('Only active rentals can be extended')}, status=400)
     if new_end_datetime <= rental.requested_end_date:
         return JsonResponse({'error': _('New end date must be after current end date')}, status=400)
-    rental.requested_end_date = new_end_datetime
-    rental.save(update_fields=['requested_end_date', 'updated_at'])
+    if not RentalService.extend_rental(rental, new_end_datetime, request.user):
+        return JsonResponse({'error': _('The rental cannot be extended to the selected end date.')}, status=400)
     return JsonResponse({'ok': True, 'success': True})
 
 
@@ -1919,14 +2252,13 @@ def mark_issued(request, rental_id):
             quantity_to_issue = rental_item.quantity_requested or 0
             if quantity_to_issue <= 0:
                 continue
-            rental_item.quantity_issued = quantity_to_issue
-            rental_item.save(update_fields=['quantity_issued'])
             RentalTransaction.objects.create(
                 rental_item=rental_item,
                 transaction_type='issue',
                 quantity=quantity_to_issue,
                 performed_by=request.user,
             )
+    send_issued_confirmation_email(rental_request=rental)
     return JsonResponse({'ok': True, 'success': True})
 
 
@@ -1943,12 +2275,89 @@ def cancel_rental(request, rental_id):
 
 @login_required
 @staff_member_required
+def remove_item_from_rental(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        item_id = data.get('item_id')
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'error': _('Invalid JSON body')}, status=400)
+
+    if not item_id:
+        return JsonResponse({'error': _('item_id is required')}, status=400)
+
+    rental = get_object_or_404(RentalRequest, id=rental_id)
+
+    if rental.status not in ('draft', 'reserved'):
+        return JsonResponse({'error': _('Cannot remove items from issued, overdue, or returned rentals')}, status=400)
+
+    if rental.has_any_signature():
+        return JsonResponse({'error': _('Cannot modify items after rental is signed')}, status=400)
+
+    try:
+        rental_item = RentalItem.objects.get(id=item_id, rental_request=rental)
+    except RentalItem.DoesNotExist:
+        return JsonResponse({'error': _('Rental item not found')}, status=404)
+
+    rental_item.delete()
+    return JsonResponse({'ok': True})
+
+
+@login_required
+@staff_member_required
+def swap_rental_item(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        current_item_id = data.get('current_item_id')
+        new_inventory_item_id = data.get('new_inventory_item_id')
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'error': _('Invalid JSON body')}, status=400)
+
+    if not current_item_id or not new_inventory_item_id:
+        return JsonResponse({'error': _('current_item_id and new_inventory_item_id are required')}, status=400)
+
+    rental = get_object_or_404(RentalRequest, id=rental_id)
+
+    if rental.status not in ('draft', 'reserved'):
+        return JsonResponse({'error': _('Cannot swap items after issuance')}, status=400)
+
+    if rental.has_any_signature():
+        return JsonResponse({'error': _('Cannot modify items after rental is signed')}, status=400)
+
+    try:
+        rental_item = RentalItem.objects.get(id=current_item_id, rental_request=rental)
+    except RentalItem.DoesNotExist:
+        return JsonResponse({'error': _('Rental item not found')}, status=404)
+
+    try:
+        new_inventory_item = InventoryItem.objects.get(
+            id=new_inventory_item_id,
+            status='in_stock',
+            available_for_rent=True,
+        )
+    except InventoryItem.DoesNotExist:
+        return JsonResponse({'error': _('Inventory item not found or not available')}, status=404)
+
+    rental_item.inventory_item = new_inventory_item
+    rental_item.save(update_fields=['inventory_item'])
+    return JsonResponse({'ok': True, 'item': serialize_item(rental_item)})
+
+
+@login_required
+@staff_member_required
 def close_rental(request, rental_id):
     if request.method != 'POST':
         return JsonResponse({'error': _('Method not allowed')}, status=405)
     rental = get_object_or_404(RentalRequest, id=rental_id)
     if rental.status == 'issued':
         return JsonResponse({'error': _('Issued rentals must be returned before closing')}, status=400)
+    rental.status = 'closed'
+    rental.save(update_fields=['status', 'updated_at'])
     return JsonResponse({'ok': True, 'success': True})
 
 
@@ -1957,7 +2366,8 @@ def close_rental(request, rental_id):
 def send_reminder(request, rental_id):
     if request.method != 'POST':
         return JsonResponse({'error': _('Method not allowed')}, status=405)
-    get_object_or_404(RentalRequest, id=rental_id)
+    rental = get_object_or_404(RentalRequest, id=rental_id)
+    send_reminder_email(rental_request=rental)
     return JsonResponse({'ok': True, 'success': True, 'message': _('Reminder queued')})
 
 
@@ -2053,6 +2463,10 @@ def create_submit(request):
         'rooms': [
             {
                 'room_id': room.get('id'),
+                'start_date': room.get('start_date', ''),
+                'start_time': room.get('start_time', ''),
+                'end_date': room.get('end_date', ''),
+                'end_time': room.get('end_time', ''),
                 'people_count': room.get('people_count', 1),
                 'notes': room.get('notes', ''),
             }
@@ -2133,17 +2547,30 @@ class RentalReturnWorkflowView(StaffRequiredMixin, TemplateView):
             ).prefetch_related(
                 'items', 'room_rentals',
             ).filter(user=user, status='issued').order_by('-created_at')
-            context['user_rentals'] = [{
-                'id': f"R-{r.created_at.strftime('%y%m')}-{r.pk:04d}",
-                'pk': r.pk,
-                'project': r.project_name,
-                'from_at': r.requested_start_date,
-                'to_at': r.requested_end_date,
-                'item_count': r.items.count(),
-                'room_count': r.room_rentals.count(),
-                'overdue': r.requested_end_date < now,
-                'return_url': reverse('rental:rental_return', args=[r.pk]),
-            } for r in rentals]
+
+            user_rentals = []
+            for r in rentals:
+                derived_status = 'overdue' if r.requested_end_date < now else 'issued'
+                overdue_days = 0
+                if derived_status == 'overdue':
+                    overdue_days = max((now.date() - r.requested_end_date.date()).days, 0)
+
+                user_rentals.append({
+                    'id': f"R-{r.created_at.strftime('%y%m')}-{r.pk:04d}",
+                    'pk': r.pk,
+                    'project': r.project_name,
+                    'from_at': r.requested_start_date,
+                    'to_at': r.requested_end_date,
+                    'item_count': r.items.count(),
+                    'room_count': r.room_rentals.count(),
+                    'status': derived_status,
+                    'overdue': derived_status == 'overdue',
+                    'overdue_days': overdue_days,
+                    'detail_url': reverse('rental:rental_detail', args=[r.pk]),
+                    'return_url': reverse('rental:rental_return', args=[r.pk]),
+                })
+
+            context['user_rentals'] = user_rentals
         elif query:
             context['search_results'] = [
                 serialize_user(u)
@@ -2378,6 +2805,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         except Exception:
             day = timezone.now().date()
         context['day'] = day
+        context['today'] = timezone.now().date()
         context['prev_day'] = day - timedelta(days=1)
         context['next_day'] = day + timedelta(days=1)
         
@@ -2452,8 +2880,8 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         return context
 
 
-class InventoryCalendarWeekView(StaffRequiredMixin, TemplateView):
-    template_name = 'rental/inventory_calendar_week.html'
+class RoomCalendarDayView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/room_calendar_day.html'
 
     def get_context_data(self, **kwargs):
         from django.utils import timezone
@@ -2462,14 +2890,14 @@ class InventoryCalendarWeekView(StaffRequiredMixin, TemplateView):
         date_str = self.request.GET.get('date')
         try:
             from django.utils.dateparse import parse_date
-            ref = parse_date(date_str) if date_str else timezone.now().date()
+            day = parse_date(date_str) if date_str else timezone.now().date()
         except Exception:
-            ref = timezone.now().date()
-        context['ref_day'] = ref
-        context['prev_week'] = ref - timedelta(days=7)
-        context['next_week'] = ref + timedelta(days=7)
-        context['week_days'] = [ref + timedelta(days=i) for i in range(7)]
-        context['sidebar_active'] = 'calendar'
+            day = timezone.now().date()
+        context['day'] = day
+        context['today'] = timezone.now().date()
+        context['prev_day'] = day - timedelta(days=1)
+        context['next_day'] = day + timedelta(days=1)
+        context['sidebar_active'] = 'room_calendar'
         _add_sidebar_counts(context)
         return context
 
@@ -2490,8 +2918,9 @@ class InventoryCalendarWeekView(StaffRequiredMixin, TemplateView):
         context['ref_day'] = ref
         context['prev_week'] = ref - timedelta(days=7)
         context['next_week'] = ref + timedelta(days=7)
-        # Also expose the actual week day labels (dates) for header rendering
         context['week_days'] = [ref + timedelta(days=i) for i in range(7)]
+        context['sidebar_active'] = 'calendar'
+        _add_sidebar_counts(context)
         return context
 
 
@@ -3274,6 +3703,10 @@ class PrintFormMSAView(StaffRequiredMixin, TemplateView):
             context.update({
                 'rental_request': rental_request,
                 'msa_items': msa_items,
+                'has_signature': rental_request.has_any_signature(),
+                'signature_image': rental_request.signature,
+                'signature_signed_at': rental_request.signature_signed_at,
+                'signature_method': rental_request.signature_method,
             })
 
         except Exception as e:
@@ -3316,6 +3749,10 @@ class PrintFormOKMQView(StaffRequiredMixin, TemplateView):
             context.update({
                 'rental_request': rental_request,
                 'okmq_items': okmq_items,
+                'has_signature': rental_request.has_any_signature(),
+                'signature_image': rental_request.signature,
+                'signature_signed_at': rental_request.signature_signed_at,
+                'signature_method': rental_request.signature_method,
             })
 
         except Exception as e:
@@ -3369,6 +3806,10 @@ class PrintPickListView(StaffRequiredMixin, TemplateView):
                 'rental_request': rental_request,
                 'rental_items': rental_items,
                 'grouped_rental_items': grouped_items,
+                'has_signature': rental_request.has_any_signature(),
+                'signature_image': rental_request.signature,
+                'signature_signed_at': rental_request.signature_signed_at,
+                'signature_method': rental_request.signature_method,
             })
         except Exception as e:
             context['error'] = _('Error loading rental: {error}').format(error=str(e))
@@ -5015,3 +5456,433 @@ def api_get_staff_users(request):
         import traceback
         traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=400)
+
+SIGNATURE_SVG_MAX_LENGTH = 50000
+SIGNATURE_METADATA_MAX_LENGTH = 10000
+SIGNATURE_POINTS_MAX_GROUPS = 200
+SIGNATURE_POINTS_MAX_TOTAL_POINTS = 50000
+SIGN_SESSION_RATE_LIMIT_ATTEMPTS = 20
+SIGN_SESSION_RATE_LIMIT_WINDOW_SECONDS = 600
+
+
+def _get_client_ip(request):
+    """Get client IP from request headers."""
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+def _extract_signature_payload(data):
+    """Extract signature payload from JSON/body dict."""
+    signature_svg = data.get('signature_svg')
+    signature_points = data.get('signature_points')
+    signature_metadata = data.get('signature_metadata')
+    signature_method = data.get('signature_method') or 'mouse'
+    legacy_signature = data.get('legacy_signature')
+
+    if isinstance(signature_points, str):
+        signature_points = signature_points.strip()
+        if signature_points:
+            signature_points = json.loads(signature_points)
+        else:
+            signature_points = None
+
+    if isinstance(signature_metadata, str):
+        signature_metadata = signature_metadata.strip()
+        if signature_metadata:
+            signature_metadata = json.loads(signature_metadata)
+        else:
+            signature_metadata = None
+
+    signature_svg = _sanitize_signature_svg(signature_svg)
+    signature_points = _sanitize_signature_points(signature_points)
+    signature_metadata = _sanitize_signature_metadata(signature_metadata)
+
+    if signature_svg is not None and not isinstance(signature_svg, str):
+        raise ValueError('signature_svg must be a string')
+    if signature_points is not None and not isinstance(signature_points, list):
+        raise ValueError('signature_points must be a list')
+    if signature_metadata is not None and not isinstance(signature_metadata, dict):
+        raise ValueError('signature_metadata must be an object')
+
+    has_payload = bool(signature_svg) or bool(signature_points) or bool(legacy_signature)
+    if not has_payload:
+        raise ValueError('No signature payload provided')
+
+    return {
+        'signature_svg': signature_svg,
+        'signature_points': signature_points,
+        'signature_metadata': signature_metadata,
+        'signature_method': signature_method,
+        'legacy_signature': legacy_signature,
+    }
+
+
+def _is_sign_session_rate_limited(request, token):
+    """Check and increment simple submit rate limit for signing sessions."""
+    ip = _get_client_ip(request) or 'unknown'
+    cache_key = f'sign-session-submit:{token}:{ip}'
+    attempts = cache.get(cache_key, 0)
+    if attempts >= SIGN_SESSION_RATE_LIMIT_ATTEMPTS:
+        return True
+    cache.set(cache_key, attempts + 1, timeout=SIGN_SESSION_RATE_LIMIT_WINDOW_SECONDS)
+    return False
+
+
+def _sanitize_signature_svg(signature_svg):
+    """Validate and sanitize SVG signature payload."""
+    if signature_svg is None:
+        return None
+    if not isinstance(signature_svg, str):
+        raise ValueError('signature_svg must be a string')
+
+    signature_svg = signature_svg.strip()
+    if not signature_svg:
+        return None
+    if len(signature_svg) > SIGNATURE_SVG_MAX_LENGTH:
+        raise ValueError('signature_svg is too large')
+
+    lowered = signature_svg.lower()
+    blocked_patterns = [
+        '<script',
+        'javascript:',
+        'onload=',
+        'onerror=',
+        '<foreignobject',
+        '<iframe',
+        '<object',
+        '<embed',
+    ]
+    if any(pattern in lowered for pattern in blocked_patterns):
+        raise ValueError('signature_svg contains unsafe content')
+
+    try:
+        root = ET.fromstring(signature_svg)
+    except ET.ParseError as e:
+        raise ValueError('signature_svg is not valid XML') from e
+
+    if not str(root.tag).lower().endswith('svg'):
+        raise ValueError('signature_svg root element must be <svg>')
+
+    return signature_svg
+
+
+def _sanitize_signature_points(signature_points):
+    """Validate biometric points payload shape and limits."""
+    if signature_points is None:
+        return None
+    if not isinstance(signature_points, list):
+        raise ValueError('signature_points must be a list')
+    if len(signature_points) > SIGNATURE_POINTS_MAX_GROUPS:
+        raise ValueError('Too many signature point groups')
+
+    total_points = 0
+    sanitized_groups: list[dict[str, Any]] = []
+
+    for group in signature_points:
+        if not isinstance(group, dict):
+            raise ValueError('signature_points group must be an object')
+        points = group.get('points', [])
+        if not isinstance(points, list):
+            raise ValueError('signature_points group points must be a list')
+
+        clean_points = []
+        for point in points:
+            if not isinstance(point, dict):
+                raise ValueError('signature point must be an object')
+            try:
+                x = float(point.get('x', 0))
+                y = float(point.get('y', 0))
+                t = float(point.get('time', 0))
+                p = float(point.get('pressure', 0.5))
+            except (TypeError, ValueError) as e:
+                raise ValueError('signature point contains invalid numeric values') from e
+
+            clean_points.append({
+                'x': x,
+                'y': y,
+                'time': t,
+                'pressure': p,
+            })
+
+        total_points += len(clean_points)
+        if total_points > SIGNATURE_POINTS_MAX_TOTAL_POINTS:
+            raise ValueError('Too many signature points')
+
+        clean_group: dict[str, Any] = {}
+        clean_group['points'] = clean_points
+        if 'color' in group:
+            clean_group['color'] = str(group['color'])[:32]
+        if 'minWidth' in group:
+            clean_group['minWidth'] = group['minWidth']
+        if 'maxWidth' in group:
+            clean_group['maxWidth'] = group['maxWidth']
+        sanitized_groups.append(clean_group)
+
+    return sanitized_groups
+
+
+def _sanitize_signature_metadata(signature_metadata):
+    """Validate metadata payload and apply size limits."""
+    if signature_metadata is None:
+        return None
+    if not isinstance(signature_metadata, dict):
+        raise ValueError('signature_metadata must be an object')
+
+    serialized = json.dumps(signature_metadata)
+    if len(serialized) > SIGNATURE_METADATA_MAX_LENGTH:
+        raise ValueError('signature_metadata is too large')
+
+    return signature_metadata
+
+
+def _render_svg_to_png_data_url(signature_svg):
+    """Render SVG string to PNG data URL for legacy compatibility."""
+    try:
+        from cairosvg import svg2png
+    except Exception:
+        return None
+
+    png_bytes = svg2png(bytestring=signature_svg.encode('utf-8'))
+    encoded = base64.b64encode(png_bytes).decode('ascii')
+    return f'data:image/png;base64,{encoded}'
+
+
+def _apply_signature_to_rental_request(rental_request, payload):
+    """Apply new signature payload to rental request with legacy dual-write."""
+    _populate_signature_fields(rental_request, payload)
+
+    rental_request.save(update_fields=[
+        'signature',
+        'signature_svg',
+        'signature_points',
+        'signature_metadata',
+        'signature_method',
+        'signature_signed_at',
+    ])
+
+
+def _populate_signature_fields(rental_request, payload):
+    """Populate signature fields on model instance without saving."""
+    rental_request.signature_svg = payload.get('signature_svg') or None
+    rental_request.signature_points = payload.get('signature_points') or None
+    rental_request.signature_metadata = payload.get('signature_metadata') or None
+    rental_request.signature_method = payload.get('signature_method') or 'mouse'
+    rental_request.signature_signed_at = timezone.now()
+
+    legacy_signature = payload.get('legacy_signature')
+    if legacy_signature:
+        rental_request.signature = legacy_signature
+    elif rental_request.signature_svg:
+        rendered = _render_svg_to_png_data_url(rental_request.signature_svg)
+        if rendered:
+            rental_request.signature = rendered
+
+
+@method_decorator(login_required, name='dispatch')
+class SaveSignatureView(View):
+    """Persist SVG/biometric signature payload for an existing rental request."""
+
+    def post(self, request, *args, **kwargs):
+        rental_pk = kwargs.get('pk')
+        try:
+            rental_request = RentalRequest.objects.get(pk=rental_pk)
+        except RentalRequest.DoesNotExist:
+            return JsonResponse({'success': False, 'error': _('Rental request not found.')}, status=404)
+
+        if rental_request.status in ('returned', 'cancelled', 'closed'):
+            return JsonResponse({'success': False, 'error': _('Cannot update a closed rental request.')}, status=400)
+
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            payload = _extract_signature_payload(data)
+            _apply_signature_to_rental_request(rental_request, payload)
+        except (json.JSONDecodeError, ValueError) as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        except Exception as e:
+            logger.error('Failed to save signature for rental request %s: %s', rental_pk, e, exc_info=True)
+            return JsonResponse({'success': False, 'error': _('Failed to save signature.')}, status=500)
+
+        return JsonResponse({'success': True, 'has_signature': rental_request.has_any_signature()})
+
+
+@method_decorator(login_required, name='dispatch')
+class CreateSigningSessionView(View):
+    """Create QR signing session for cross-device signature capture."""
+
+    def post(self, request, *args, **kwargs):
+        rental_pk = kwargs.get('pk')
+        try:
+            rental_request = RentalRequest.objects.get(pk=rental_pk)
+        except RentalRequest.DoesNotExist:
+            return JsonResponse({'success': False, 'error': _('Rental request not found.')}, status=404)
+
+        if rental_request.status in ('returned', 'cancelled', 'closed'):
+            return JsonResponse({'success': False, 'error': _('Cannot sign a closed rental request.')}, status=400)
+
+        try:
+            expires_at = timezone.now() + timedelta(minutes=10)
+            session = RentalSigningSession.objects.create(
+                rental_request=rental_request,
+                owner=request.user,
+                token=uuid.uuid4().hex,
+                status=RentalSigningSessionStatus.PENDING,
+                expires_at=expires_at,
+            )
+            sign_url = request.build_absolute_uri(reverse('rental:sign_session_page', kwargs={'token': session.token}))
+            qr_url = reverse('rental:sign_session_qr', kwargs={'token': session.token})
+        except Exception:
+            logger.exception('Failed to create signing session for rental %s', rental_pk)
+            return JsonResponse({'success': False, 'error': _('Could not create signing session. Please try again.')}, status=500)
+
+        return JsonResponse({
+            'success': True,
+            'token': session.token,
+            'status': session.status,
+            'expires_at': expires_at.isoformat(),
+            'sign_url': sign_url,
+            'qr_url': qr_url,
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class SigningSessionStatusView(View):
+    """Poll status for QR signing session."""
+
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get('token')
+        session = RentalSigningSession.objects.select_related('rental_request').filter(token=token).first()
+        if not session:
+            return JsonResponse({'success': False, 'error': _('Signing session not found.')}, status=404)
+
+        owner = session.owner
+        if owner is None and session.rental_request_id:
+            owner = session.rental_request.user
+        if owner != request.user:
+            return JsonResponse({'success': False, 'error': _('Not allowed.')}, status=403)
+
+        if session.status == RentalSigningSessionStatus.PENDING and session.is_expired():
+            session.status = RentalSigningSessionStatus.EXPIRED
+            session.save(update_fields=['status'])
+
+        response_payload = {
+            'success': True,
+            'status': session.status,
+            'expires_at': session.expires_at.isoformat(),
+            'signed_at': session.signed_at.isoformat() if session.signed_at else None,
+            'signature_svg': session.signature_svg,
+            'signature_points': session.signature_points,
+            'signature_metadata': session.signature_metadata,
+            'signature_method': session.signature_method,
+        }
+
+        consume_flag = str(request.GET.get('consume', '')).lower() in {'1', 'true', 'yes'}
+        if consume_flag and session.status == RentalSigningSessionStatus.SIGNED:
+            session.delete()
+
+        return JsonResponse(response_payload)
+
+
+@method_decorator(login_required, name='dispatch')
+class SigningSessionQRCodeView(View):
+    """Render QR PNG for signing session URL."""
+
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get('token')
+        session = RentalSigningSession.objects.select_related('rental_request').filter(token=token).first()
+        if not session:
+            return HttpResponseNotFound()
+        owner = session.owner
+        if owner is None and session.rental_request_id:
+            owner = session.rental_request.user
+        if owner != request.user:
+            return HttpResponseForbidden()
+
+        sign_url = request.build_absolute_uri(reverse('rental:sign_session_page', kwargs={'token': token}))
+        qr = qrcode.QRCode(version=1, box_size=8, border=2)
+        qr.add_data(sign_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='black', back_color='white')
+        buffer = io.BytesIO()
+        img.save(buffer, 'PNG')
+        return HttpResponse(buffer.getvalue(), content_type='image/png')
+
+
+class SigningSessionPageView(TemplateView):
+    """Public page used on phone to capture and submit a signature."""
+
+    template_name = 'rental/sign_session.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        token = kwargs.get('token')
+        session = RentalSigningSession.objects.select_related('rental_request').filter(token=token).first()
+        context['session'] = session
+        context['is_valid_session'] = bool(
+            session and session.status == RentalSigningSessionStatus.PENDING and not session.is_expired()
+        )
+        if session and session.rental_request_id:
+            context['rental_detail_url'] = reverse('rental:user_rental_detail', args=[session.rental_request_id])
+        return context
+
+
+class SubmitSigningSessionView(View):
+    """Submit signed payload from phone and finalize session."""
+
+    def post(self, request, *args, **kwargs):
+        token = kwargs.get('token')
+
+        if _is_sign_session_rate_limited(request, token):
+            return JsonResponse(
+                {'success': False, 'error': _('Too many requests. Please try again later.')}, status=429
+            )
+
+        session = RentalSigningSession.objects.select_related('rental_request').filter(token=token).first()
+        if not session:
+            return JsonResponse({'success': False, 'error': _('Signing session not found.')}, status=404)
+
+        if session.status != RentalSigningSessionStatus.PENDING:
+            return JsonResponse({'success': False, 'error': _('Signing session is not active.')}, status=400)
+        if session.is_expired():
+            session.status = RentalSigningSessionStatus.EXPIRED
+            session.save(update_fields=['status'])
+            return JsonResponse({'success': False, 'error': _('Signing session expired.')}, status=400)
+
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            payload = _extract_signature_payload(data)
+        except (json.JSONDecodeError, ValueError) as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+        if not payload.get('signature_method'):
+            payload['signature_method'] = 'qr_phone'
+
+        session.signature_svg = payload.get('signature_svg')
+        session.signature_points = payload.get('signature_points')
+        session.signature_metadata = payload.get('signature_metadata')
+        session.signature_method = payload.get('signature_method') or 'qr_phone'
+        session.signer_ip = _get_client_ip(request)
+        session.signer_user_agent = (request.META.get('HTTP_USER_AGENT') or '')[:512]
+        session.signed_at = timezone.now()
+        session.status = RentalSigningSessionStatus.SIGNED
+        session.save(update_fields=[
+            'signature_svg',
+            'signature_points',
+            'signature_metadata',
+            'signature_method',
+            'signer_ip',
+            'signer_user_agent',
+            'signed_at',
+            'status',
+        ])
+
+        if session.rental_request_id:
+            _apply_signature_to_rental_request(session.rental_request, payload)
+        return JsonResponse({'success': True, 'status': session.status})

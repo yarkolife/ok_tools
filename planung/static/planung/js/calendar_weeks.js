@@ -487,15 +487,18 @@
                       startTimeWithSeconds = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0') + ':00';
                     }
                     const startTimeDisplay = timeToDisplay(startTimeWithSeconds); // Show only HH:MM
+                    const isLive = Boolean(item.is_live);
+                    const liveBadge = isLive ? '<span class="live-badge" style="margin-left: 4px;"><svg viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg></span>' : '';
                     const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + item.number + '">' +
                       '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: #6c757d; font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
                       '<td class="end-time">' + endTime + '</td>' +
-                      '<td>' + licenseLink + contributionLink + '</td>' +
+                      '<td>' + licenseLink + contributionLink + liveBadge + '</td>' +
                       '<td>' + (item.title || '') + (item.subtitle ? ' – ' + item.subtitle : '') + '</td>' +
                       '<td class="sender-responsible">' + senderResponsible + '</td>' +
                       '<td>' + formatTime(durationSeconds) + '</td>' +
                       '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
                       '</tr>');
+                    $row.data('is-live', isLive);
                     $('#licenseTable tbody').append($row);
 
                     const $input = $row.find('.start-time-input');
@@ -522,7 +525,8 @@
                       subtitle: item.subtitle,
                       sender_responsible: senderResponsible,
                       license_id: licenseId,
-                      start: startTimeWithSeconds // Store with seconds
+                      start: startTimeWithSeconds,
+                      is_live: isLive
                     });
                 });
 
@@ -883,15 +887,18 @@
         // startTime is already HH:MM:SS from secondsToTimeString()
         const startTimeWithSeconds = startTime;
         const startTimeDisplay = timeToDisplay(startTimeWithSeconds); // Show only HH:MM
+        const isLive = Boolean(data.is_live);
+        const liveBadge = isLive ? '<span class="live-badge" style="margin-left: 4px;"><svg viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg></span>' : '';
         const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + data.number + '">' +
           '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: #6c757d; font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
           '<td class="end-time">' + endTime + '</td>' +
-          '<td>' + licenseLink + contributionLink + '</td>' +
+          '<td>' + licenseLink + contributionLink + liveBadge + '</td>' +
           '<td>' + data.title + (data.subtitle ? ' – ' + data.subtitle : '') + '</td>' +
           '<td class="sender-responsible">' + senderResponsible + '</td>' +
           '<td>' + formatTime(data.duration_seconds) + '</td>' +
           '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
           '</tr>');
+        $row.data('is-live', isLive);
 
         const $input = $row.find('.start-time-input');
         setDesiredTime($input, startTimeDisplay);
@@ -929,7 +936,8 @@
           subtitle: data.subtitle,
           sender_responsible: senderResponsible,
           license_id: licenseId,
-          start: startTime
+          start: startTime,
+          is_live: isLive
         });
 
         // Sync planned items first to match DOM order before recalculating

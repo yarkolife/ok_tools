@@ -300,29 +300,46 @@ class DirectInventoryService(InventoryServiceInterface):
         if user_id:
             try:
                 from registration.models import OKUser
+                from rental.models import RentalConfig
                 user = OKUser.objects.get(id=user_id)
-                
+
                 # Staff users (Mitarbeiter) have access to all items
                 if user.is_staff:
                     # No filtering needed - staff can access all items
                     pass
                 elif hasattr(user, 'profile') and user.profile and user.profile.member:
-                    # Member can access state institution + organization
-                    state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-                    organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
-                    # Filter by owner name, ensuring owner is not None
-                    query = query.filter(
-                        owner__isnull=False,
-                        owner__name__in=[state_institution, organization_owner]
-                    )
+                    # Member filtering
+                    config = RentalConfig.get_config()
+                    orgs = config.member_organizations.all()
+                    if orgs.exists():
+                        query = query.filter(
+                            owner__isnull=False,
+                            owner__in=orgs
+                        )
+                    else:
+                        # Fallback to hardcoded behavior
+                        state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+                        organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
+                        query = query.filter(
+                            owner__isnull=False,
+                            owner__name__in=[state_institution, organization_owner]
+                        )
                 else:
-                    # Non-member can only access state media institution
-                    state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
-                    # Filter by owner name, ensuring owner is not None
-                    query = query.filter(
-                        owner__isnull=False,
-                        owner__name=state_institution
-                    )
+                    # Regular confirmed user filtering
+                    config = RentalConfig.get_config()
+                    orgs = config.user_organizations.all()
+                    if orgs.exists():
+                        query = query.filter(
+                            owner__isnull=False,
+                            owner__in=orgs
+                        )
+                    else:
+                        # Fallback to hardcoded behavior
+                        state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
+                        query = query.filter(
+                            owner__isnull=False,
+                            owner__name=state_institution
+                        )
             except OKUser.DoesNotExist:
                 # If user doesn't exist, return empty list
                 return []

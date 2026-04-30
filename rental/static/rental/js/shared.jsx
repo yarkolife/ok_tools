@@ -11,9 +11,9 @@ function fmtDate(s) {
   if (!s) return '—';
   const d = new Date(typeof s === 'string' ? s.replace(' ', 'T') : s);
   if (isNaN(d)) return s;
-  return d.toLocaleDateString(document.documentElement.lang || 'en-GB',
-                              { day: '2-digit', month: 'short' }) +
-         ', ' + d.toLocaleTimeString(document.documentElement.lang || 'en-GB',
+  return d.toLocaleDateString('de-DE',
+                              { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+         ', ' + d.toLocaleTimeString('de-DE',
                                      { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -21,9 +21,9 @@ function fmtDateShort(s) {
   if (!s) return '—';
   const d = new Date(typeof s === 'string' ? s.replace(' ', 'T') : s);
   if (isNaN(d)) return s;
-  return d.toLocaleDateString(document.documentElement.lang || 'en-GB',
-                              { day: '2-digit', month: 'short' }) +
-         ' · ' + d.toLocaleTimeString(document.documentElement.lang || 'en-GB',
+  return d.toLocaleDateString('de-DE',
+                              { day: '2-digit', month: '2-digit' }) +
+         ' · ' + d.toLocaleTimeString('de-DE',
                                       { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -44,13 +44,21 @@ async function apiPost(url, body) {
     },
     body: JSON.stringify(body || {}),
   });
-  if (!r.ok) throw new Error(`${url} → ${r.status}`);
+  if (!r.ok) {
+    let msg = `${url} → ${r.status}`;
+    try { const b = await r.clone().json(); if (b && b.error) msg = b.error; } catch {}
+    throw new Error(msg);
+  }
   return r.json();
 }
 
 async function apiGet(url) {
   const r = await fetch(url, { credentials: 'same-origin' });
-  if (!r.ok) throw new Error(`${url} → ${r.status}`);
+  if (!r.ok) {
+    let msg = `${url} → ${r.status}`;
+    try { const b = await r.clone().json(); if (b && b.error) msg = b.error; } catch {}
+    throw new Error(msg);
+  }
   return r.json();
 }
 
@@ -73,6 +81,7 @@ function StatusPill({ status, className }) {
     returned:  t('status.returned',  'Returned'),
     overdue:   t('status.overdue',   'Overdue'),
     cancelled: t('status.cancelled', 'Cancelled'),
+    closed:    t('status.closed',    'Closed'),
   };
   const icons = {
     draft: 'fa-pen-ruler',
@@ -81,6 +90,7 @@ function StatusPill({ status, className }) {
     returned: 'fa-check',
     overdue: 'fa-triangle-exclamation',
     cancelled: 'fa-ban',
+    closed: 'fa-circle',
   };
   return (
     <span className={cls('status-pill', status, className)}>
@@ -90,7 +100,6 @@ function StatusPill({ status, className }) {
   );
 }
 
-/* ---------- Avatar ---------- */
 function Avatar({ user, size }) {
   const s = size || 22;
   const initials = user?.initials ||
@@ -102,8 +111,18 @@ function Avatar({ user, size }) {
   );
 }
 
+function RoleBadge({ role }) {
+  const roleMap = {
+    'Mitarbeiter': 'role-staff',
+    'Mitglied': 'role-member',
+    'Nutzer': 'role-user',
+  };
+  const cls = roleMap[role] || 'role-user';
+  return <span className={`role-badge ${cls}`}>{role}</span>;
+}
+
 Object.assign(window, {
   cls, fmtDate, fmtDateShort,
   getCookie, apiPost, apiGet,
-  t, StatusPill, Avatar,
+  t, StatusPill, Avatar, RoleBadge,
 });

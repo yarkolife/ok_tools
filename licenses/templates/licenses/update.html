@@ -735,6 +735,11 @@
                           await pushSignatureToServer();
                       }
 
+                      // Re-enable disabled selects so they are included in FormData
+                      licenseForm.querySelectorAll('select:disabled').forEach(function(sel) {
+                          sel.disabled = false;
+                      });
+
                       // Submit form via fetch
                       const formData = new FormData(licenseForm);
                      

@@ -18,6 +18,14 @@ class RentalRequestAdminForm(forms.ModelForm):
 
         model = RentalRequest
         fields = '__all__'
+        widgets = {
+            'signature': forms.HiddenInput(),
+            'signature_svg': forms.HiddenInput(),
+            'signature_points': forms.HiddenInput(),
+            'signature_metadata': forms.HiddenInput(),
+            'signature_method': forms.HiddenInput(),
+            'signature_signed_at': forms.HiddenInput(),
+        }
 
     def clean(self):
         """Validate date consistency (end after start)."""

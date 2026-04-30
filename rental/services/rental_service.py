@@ -42,6 +42,28 @@ class RentalService:
         Returns:
             bool: True if user has access, False otherwise
         """
+        from inventory.models import InventoryItem
+        from rental.models import RentalConfig
+
+        try:
+            item = InventoryItem.objects.select_related('owner').get(id=inventory_item_id)
+        except InventoryItem.DoesNotExist:
+            return False
+
+        if not item.available_for_rent or item.status != 'in_stock':
+            return False
+
+        config = RentalConfig.get_config()
+        if user.is_staff:
+            orgs = config.employee_organizations.all()
+        elif hasattr(user, 'profile') and user.profile and user.profile.member:
+            orgs = config.member_organizations.all()
+        else:
+            orgs = config.user_organizations.all()
+
+        if orgs.exists():
+            return bool(item.owner_id and orgs.filter(id=item.owner_id).exists())
+
         return inventory_service.can_user_access_item(user.id, inventory_item_id)
     
     @staticmethod
@@ -274,8 +296,23 @@ class RentalService:
                 return {'success': False, 'error': _('Project name is required')}
             if not purpose:
                 return {'success': False, 'error': _('Purpose is required')}
+
+            room_has_own_times = rooms and any(
+                r.get('start_date') or r.get('start_time') or r.get('end_date') or r.get('end_time')
+                for r in rooms
+            )
             if not start_date_str or not end_date_str:
-                return {'success': False, 'error': _('Start date and end date are required')}
+                if not room_has_own_times:
+                    return {'success': False, 'error': _('Start date and end date are required')}
+                for r in rooms:
+                    r_start = r.get('start_date', '')
+                    r_start_time = r.get('start_time', '00:00')
+                    r_end = r.get('end_date', '')
+                    r_end_time = r.get('end_time', '23:59')
+                    if r_start and (not start_date_str or r_start < start_date_str):
+                        start_date_str = f"{r_start}T{r_start_time}"
+                    if r_end and (not end_date_str or r_end > end_date_str):
+                        end_date_str = f"{r_end}T{r_end_time}"
             
             # Parse dates
             start_date = parse_datetime(start_date_str)
@@ -307,7 +344,7 @@ class RentalService:
                 return {'success': False, 'error': _('End date must be after start date')}
 
             is_valid_period, error_message = validate_working_hours_period(start_date, end_date)
-            if not is_valid_period:
+            if not is_valid_period and not rooms:
                 return {'success': False, 'error': error_message}
             
             # Validate that at least items or rooms are provided

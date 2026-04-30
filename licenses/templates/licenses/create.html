@@ -1318,6 +1318,11 @@
                     }
                 }
                 
+                // Re-enable disabled selects so they are included in FormData
+                licenseForm.querySelectorAll('select:disabled').forEach(function(sel) {
+                    sel.disabled = false;
+                });
+
                 const formData = new FormData(licenseForm);
                 
                 try {

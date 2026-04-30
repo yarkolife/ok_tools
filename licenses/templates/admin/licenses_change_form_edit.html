@@ -5,12 +5,108 @@
 
 {% block extrahead %}
 {{ block.super }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
+    /* Signature section styles - Django admin look */
+    .admin-signature-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        background: #f9f9f9;
+    }
+    .admin-signature-section h3 {
+        margin: 0 0 15px 0;
+        padding: 0;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+    }
+    .admin-signature-canvas-wrapper {
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+    .admin-signature-canvas {
+        display: block;
+        width: 100%;
+        height: 150px;
+        cursor: crosshair;
+        background: #fff;
+    }
+    .admin-signature-methods {
+        display: flex;
+        gap: 0;
+        margin-bottom: 15px;
+    }
+    .admin-signature-method-btn {
+        padding: 8px 16px;
+        border: 1px solid #ccc;
+        background: #f6f6f6;
+        color: #333;
+        font-size: 13px;
+        cursor: pointer;
+        margin-right: -1px;
+    }
+    .admin-signature-method-btn:hover {
+        background: #e6e6e6;
+    }
+    .admin-signature-method-btn.active {
+        background: #79a5dd;
+        color: #fff;
+        border-color: #79a5dd;
+    }
+    .admin-qr-sign-panel {
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 15px;
+        margin-top: 10px;
+    }
+    .signature-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .signature-clear-btn {
+        padding: 4px 12px;
+        border: 1px solid #ccc;
+        background: #f6f6f6;
+        color: #333;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .signature-clear-btn:hover {
+        background: #e6e6e6;
+    }
+    .signature-delete-btn {
+        padding: 4px 12px;
+        border: 1px solid #dc3545;
+        background: #f8d7da;
+        color: #dc3545;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .signature-delete-btn:hover {
+        background: #f5c6cb;
+    }
+    .signature-hint {
+        font-size: 12px;
+        color: #666;
+    }
+    /* Hide signature fields in Status & Metadata section */
+    .field-signature_points,
+    .field-signature_svg,
+    .field-signature_metadata,
+    .field-signature_method,
+    .field-signature_signed_at {
+        display: none !important;
+    }
     /* Hide youth_protection_category field row initially - JavaScript will control visibility */
     .field-youth_protection_category {
         display: none !important;
     }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
 (function() {
     'use strict';
@@ -203,6 +299,354 @@
             initIsLiveToggle();
         }, 300);
     }
+})();
+</script>
+{% endblock %}
+
+{% block after_related_objects %}
+{{ block.super }}
+<div class="admin-signature-section">
+    <h3>{% translate 'Signature' %}</h3>
+    
+    <div class="admin-signature-methods">
+        <button type="button" class="admin-signature-method-btn active" id="admin-draw-method-btn" onclick="setAdminSigningMethod('draw')">
+            <i class="bi bi-pen"></i> {% translate 'Draw Signature' %}
+        </button>
+        <button type="button" class="admin-signature-method-btn" id="admin-qr-method-btn" onclick="setAdminSigningMethod('qr')">
+            <i class="bi bi-qr-code"></i> {% translate 'Sign with Phone (QR)' %}
+        </button>
+    </div>
+    
+    <div id="admin-draw-panel">
+        <div class="admin-signature-canvas-wrapper">
+            <canvas id="admin-signature-canvas" class="admin-signature-canvas"></canvas>
+        </div>
+        <div class="signature-actions">
+            <button type="button" class="signature-clear-btn" onclick="clearAdminSignature()">
+                <i class="bi bi-eraser"></i> {% translate 'Clear' %}
+            </button>
+            <button type="button" class="signature-delete-btn" onclick="deleteAdminSignature()" id="admin-delete-sig-btn" style="display: none;">
+                <i class="bi bi-trash"></i> {% translate 'Delete Signature' %}
+            </button>
+            <span class="signature-hint text-muted" id="admin-sig-hint">
+                {% translate 'Sign above using your mouse or stylus' %}
+            </span>
+        </div>
+    </div>
+    
+    <div id="admin-qr-sign-panel" style="display: none;">
+        <div class="admin-qr-sign-panel">
+            <p class="help">
+                {% translate 'Scan the QR code and sign on your phone. The signature will sync to the canvas.' %}
+            </p>
+            <button type="button" class="btn btn-outline-primary" id="admin-create-qr-session-btn" onclick="createAdminSignSession()">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                    <path d="M14 14h3v3h-3zM17 17h4M14 20h3M20 14v3"></path>
+                </svg>
+                {% translate 'Generate QR Session' %}
+            </button>
+            <div id="admin-qr-session-status" class="text-muted small mt-2" 
+                 data-msg-waiting="{% translate 'Scan QR code and sign on your phone...' %}"
+                 data-msg-success="{% translate 'Signature synchronized!' %}"
+                 data-msg-expired="{% translate 'Session expired.' %}"></div>
+            <div id="admin-qr-session-content" style="display: none; margin-top: 15px;">
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div>
+                        <img id="admin-qr-session-qr" class="img-fluid border rounded p-2 bg-white" alt="QR" style="max-width: 180px;">
+                    </div>
+                    <div>
+                        <p class="mb-2" style="font-weight: 600;">{% trans 'Scan QR code and sign on your phone.' %}</p>
+                        <p class="mb-2 small"><a href="#" id="admin-qr-session-link" target="_blank" rel="noopener"></a></p>
+                        <p class="mb-0 small text-muted" id="admin-qr-session-expiry"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    
+    var adminSignaturePad = null;
+    var adminCurrentMethod = 'draw';
+    var adminSessionPollTimer = null;
+    var adminActiveSessionToken = null;
+    
+    function setAdminSigningMethod(method) {
+        adminCurrentMethod = method;
+        
+        var drawPanel = document.getElementById('admin-draw-panel');
+        var qrPanel = document.getElementById('admin-qr-sign-panel');
+        var drawBtn = document.getElementById('admin-draw-method-btn');
+        var qrBtn = document.getElementById('admin-qr-method-btn');
+        
+        if (method === 'draw') {
+            if (drawPanel) drawPanel.style.display = 'block';
+            if (qrPanel) qrPanel.style.display = 'none';
+            if (drawBtn) drawBtn.classList.add('active');
+            if (qrBtn) qrBtn.classList.remove('active');
+        } else {
+            if (drawPanel) drawPanel.style.display = 'none';
+            if (qrPanel) qrPanel.style.display = 'block';
+            if (drawBtn) drawBtn.classList.remove('active');
+            if (qrBtn) qrBtn.classList.add('active');
+        }
+    }
+    
+    function initAdminSignaturePad() {
+        var canvas = document.getElementById('admin-signature-canvas');
+        if (!canvas) return;
+        
+        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+        var rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * ratio;
+        canvas.height = rect.height * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        
+        adminSignaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(0, 0, 0)'
+        });
+        
+        adminSignaturePad.addEventListener('endStroke', function() {
+            saveAdminSignature();
+        });
+    }
+    
+    function saveAdminSignature() {
+        if (adminSignaturePad) {
+            var sigData = adminSignaturePad.toData();
+            var sigDataStr = (sigData && sigData.length > 0) ? JSON.stringify(sigData) : '[]';
+            
+            var form = document.getElementById('license_form') || document.querySelector('form');
+            if (form) {
+                var pointsInput = form.querySelector('input[name="signature_points"]');
+                if (pointsInput) pointsInput.value = sigDataStr;
+                
+                var svgInput = form.querySelector('input[name="signature_svg"]');
+                if (svgInput) svgInput.value = (sigData && sigData.length > 0) ? adminSignaturePad.toDataURL('image/svg+xml') : '';
+                
+                var methodInput = form.querySelector('input[name="signature_method"]');
+                if (methodInput) methodInput.value = (sigData && sigData.length > 0) ? adminCurrentMethod : '';
+                
+                var signedAtInput = form.querySelector('input[name="signature_signed_at"]');
+                if (signedAtInput) {
+                    signedAtInput.value = (sigData && sigData.length > 0) ? new Date().toISOString() : '';
+                }
+            }
+        }
+    }
+    
+    // Save signature on form submit
+    function setupFormSubmitListener() {
+        // No longer needed - signature fields have names and are submitted automatically
+    }
+    
+    // Wait for page to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(setupFormSubmitListener, 500);
+        });
+    } else {
+        setTimeout(setupFormSubmitListener, 500);
+    }
+    
+    function createAdminSignSession() {
+        var statusDiv = document.getElementById('admin-qr-session-status');
+        var createBtn = document.getElementById('admin-create-qr-session-btn');
+        
+        if (!statusDiv) return;
+        
+        createBtn.disabled = true;
+        statusDiv.innerHTML = '<span class="text-info">{% trans "Creating session..." %}</span>';
+        
+        fetch('/licenses/sign-session/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to create session');
+            }
+            
+            adminActiveSessionToken = data.token;
+            
+            var qrImg = document.getElementById('admin-qr-session-qr');
+            var linkSpan = document.getElementById('admin-qr-session-link');
+            var expirySpan = document.getElementById('admin-qr-session-expiry');
+            var qrContent = document.getElementById('admin-qr-session-content');
+            
+            // qr_url is a path - construct full URL
+            var baseUrl = window.location.origin;
+            if (qrImg) qrImg.src = baseUrl + data.qr_url;
+            if (linkSpan) {
+                linkSpan.href = data.sign_url;
+                linkSpan.textContent = data.sign_url;
+            }
+            if (expirySpan && data.expires_at) {
+                var expiryDate = new Date(data.expires_at);
+                expirySpan.textContent = '{% translate "Expires:" %} ' + expiryDate.toLocaleString();
+            }
+            if (qrContent) qrContent.style.display = 'flex';
+            
+            statusDiv.innerHTML = '<span class="text-info">' + (statusDiv.dataset.msgWaiting || 'Scan QR code and sign on your phone...') + '</span>';
+            
+            adminSessionPollTimer = setInterval(function() {
+                pollAdminSignSession(adminActiveSessionToken);
+            }, 2500);
+            pollAdminSignSession(adminActiveSessionToken);
+            
+        })
+        .catch(function(error) {
+            statusDiv.innerHTML = '<span class="text-danger">' + error.message + '</span>';
+            createBtn.disabled = false;
+        });
+    }
+    
+    function pollAdminSignSession(token) {
+        fetch('/licenses/sign-session/' + token + '/status/?consume=1')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to check status');
+            }
+            
+            var statusDiv = document.getElementById('admin-qr-session-status');
+            
+            if (data.status === 'signed') {
+                if (adminSessionPollTimer) {
+                    clearInterval(adminSessionPollTimer);
+                    adminSessionPollTimer = null;
+                }
+                
+                if (data.signature_points && adminSignaturePad) {
+                    adminSignaturePad.clear();
+                    try {
+                        var points = typeof data.signature_points === 'string'
+                            ? JSON.parse(data.signature_points)
+                            : data.signature_points;
+                        if (Array.isArray(points) && points.length) {
+                            adminSignaturePad.fromData(points);
+                            saveAdminSignature();
+                        }
+                    } catch (e) {}
+                }
+                
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<span class="text-success">' + (statusDiv.dataset.msgSuccess || 'Signature synchronized!') + '</span>';
+                }
+            } else if (data.status === 'expired') {
+                if (adminSessionPollTimer) {
+                    clearInterval(adminSessionPollTimer);
+                    adminSessionPollTimer = null;
+                }
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<span class="text-warning">' + (statusDiv.dataset.msgExpired || 'Session expired.') + '</span>';
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Poll error:', error);
+        });
+    }
+    
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Initialize signature pad
+    function initSignature() {
+        initAdminSignaturePad();
+        
+        // Load existing signature if present
+        if (adminSignaturePad) {
+            var existingInput = document.querySelector('input[name="signature_points"]');
+            if (existingInput && existingInput.value) {
+                try {
+                    var points = JSON.parse(existingInput.value);
+                    if (Array.isArray(points) && points.length > 0) {
+                        adminSignaturePad.fromData(points);
+                        var deleteBtn = document.getElementById('admin-delete-sig-btn');
+                        if (deleteBtn) deleteBtn.style.display = '';
+                    }
+                } catch(e) {
+                    console.warn('Could not load existing signature:', e);
+                }
+            }
+        }
+        
+        var drawBtn = document.getElementById('admin-draw-method-btn');
+        if (drawBtn) drawBtn.click();
+    }
+    
+    // Wait for page to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initSignature, 300);
+        });
+    } else {
+        setTimeout(initSignature, 300);
+    }
+    
+    window.setAdminSigningMethod = setAdminSigningMethod;
+    window.clearAdminSignature = function() {
+        if (adminSignaturePad) {
+            adminSignaturePad.clear();
+            var form = document.getElementById('license_form') || document.querySelector('form');
+            if (form) {
+                var pointsInput = form.querySelector('input[name="signature_points"]');
+                if (pointsInput) pointsInput.value = '';
+                var svgInput = form.querySelector('input[name="signature_svg"]');
+                if (svgInput) svgInput.value = '';
+                var methodInput = form.querySelector('input[name="signature_method"]');
+                if (methodInput) methodInput.value = '';
+                var signedAtInput = form.querySelector('input[name="signature_signed_at"]');
+                if (signedAtInput) signedAtInput.value = '';
+            }
+            var deleteBtn = document.getElementById('admin-delete-sig-btn');
+            if (deleteBtn) deleteBtn.style.display = 'none';
+        }
+    };
+    window.deleteAdminSignature = function() {
+        if (!confirm('{% translate "Are you sure you want to delete the signature?" %}')) return;
+        
+        var form = document.getElementById('license_form') || document.querySelector('form');
+        if (form) {
+            // Remove required attributes from other fields to avoid validation errors on delete
+            var requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(function(f) {
+                f.removeAttribute('required');
+            });
+
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = '_delete_signature';
+            input.value = '1';
+            form.appendChild(input);
+            form.submit();
+        }
+    };
+    window.createAdminSignSession = createAdminSignSession;
 })();
 </script>
 {% endblock %}

@@ -1,0 +1,44 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+<h2>{% blocktrans with user_name=user_name %}Hello {{ user_name }},{% endblocktrans %}</h2>
+
+<p>{% blocktrans with rental_id=rental_id ok_name=ok_name %}Your rental request #{{ rental_id }} in {{ ok_name }} has been issued and is ready for pickup.{% endblocktrans %}</p>
+
+<h3>{% trans "Rental Details" %}:</h3>
+<table style="border-collapse: collapse; width: 100%;">
+<tr><td style="padding: 4px 8px;"><strong>{% trans "Project" %}:</strong></td><td style="padding: 4px 8px;">{{ project_name }}</td></tr>
+<tr><td style="padding: 4px 8px;"><strong>{% trans "Period" %}:</strong></td><td style="padding: 4px 8px;">{{ start }} – {{ end }}</td></tr>
+{% if actual_start %}
+<tr><td style="padding: 4px 8px;"><strong>{% trans "Issued on" %}:</strong></td><td style="padding: 4px 8px;">{{ actual_start }}</td></tr>
+{% endif %}
+</table>
+
+{% if items %}
+<h3>{% blocktrans with items_total=items_total %}Equipment ({{ items_total }} items):{% endblocktrans %}</h3>
+<ul>
+{% for item in items %}
+<li>{{ item.quantity }} x {{ item.name }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if rooms %}
+<h3>{% blocktrans with rooms_total=rooms_total %}Rooms ({{ rooms_total }} total):{% endblocktrans %}</h3>
+<ul>
+{% for room in rooms %}
+<li>{{ room.name }} ({{ room.people_count }} {% trans "people" %}){% if room.start and room.end %}, {{ room.start|date:"Y-m-d H:i" }} to {{ room.end|date:"Y-m-d H:i" }}{% endif %}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<p>{% trans "Please take care of the equipment and return it on time." %}</p>
+
+<p>{% trans "If you have any questions, please contact us." %}<br>
+{% if contact_email %}{% blocktrans with contact_email=contact_email %}E-mail: {{ contact_email }}{% endblocktrans %}{% endif %}</p>
+</body>
+</html>

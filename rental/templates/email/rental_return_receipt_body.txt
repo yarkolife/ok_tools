@@ -1,0 +1,19 @@
+{% load i18n %}{% blocktrans with user_name=user_name %}Hello {{ user_name }},{% endblocktrans %}
+
+{% blocktrans with rental_id=rental_id ok_name=ok_name %}We received the returned equipment for rental request #{{ rental_id }} in {{ ok_name }}.{% endblocktrans %}
+
+{% trans "Rental Details" %}:
+{% blocktrans with project_name=project_name %}Project: {{ project_name }}{% endblocktrans %}
+{% if returned_at %}{% blocktrans with returned_at=returned_at %}Returned on: {{ returned_at }}{% endblocktrans %}{% endif %}
+
+{% if returned_items %}
+{% trans "Returned equipment" %}:
+{% for item in returned_items %}
+- {{ item.quantity }} x {{ item.name }} — {{ item.condition }}
+{% endfor %}
+{% endif %}
+
+{% if note %}{% blocktrans with note=note %}Return note: {{ note }}{% endblocktrans %}{% endif %}
+
+{% trans "Thank you for returning the equipment." %}
+{% if contact_email %}{% blocktrans with contact_email=contact_email %}E-mail: {{ contact_email }}{% endblocktrans %}{% endif %}

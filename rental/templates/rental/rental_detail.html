@@ -1,35 +1,39 @@
-{% extends 'base.html' %}
 {% load i18n static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{{ rental.project|default:_("Untitled rental") }} — OK Tools</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
+                    <i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span>
+                </a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/">
+                        <i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
 
-{% comment %}
-  rental/templates/rental/rental_detail.html
-  -----------------------------------------------------------------
-  HYBRID: Django renders the static frame (header, status timeline,
-  sidebar cards). React mounts into three islands for interactivity:
-    #rental-action-bar   — CTA + overflow menu + inline extend
-    #rental-tabs         — Items / Rooms / Issues / History tabs
+    <div class="page">
+        {% include 'rental/_sidebar.html' with sidebar_active='list' %}
 
-  View context:
-    rental          — dict/obj with full rental info (see list below)
-    rental_json     — same, serialized via json_script
-    timeline        — list of {id, label, at_iso} for the 5 status steps
-    current_status  — string
-    issues          — list of dicts {id, severity, item, num, desc, by, at}
-    history         — list of dicts {at, who, what}
-    items           — list of dicts for tab
-    rooms           — list of dicts for tab
-    urls            — dict {extend, mark_issued, return, cancel, report_issue}
-    i18n_strings    — dict for frontend translations
-  -----------------------------------------------------------------
-{% endcomment %}
-
-{% block title %}{{ rental.project }} — {{ rental.id }}{% endblock %}
-
-{% block extra_css %}
-  <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block content %}
+        <div class="page-main">
 
 <div class="crumbs">
   <a href="{{ page_urls.list }}">{% trans "Rentals" %}</a>
@@ -43,6 +47,11 @@
     <a href="{{ page_urls.print_slip }}" class="btn btn-ghost btn-sm" target="_blank">
       <i class="fas fa-print me-1"></i>{% trans "Print slip" %}
     </a>
+    {% if show_pick_list %}
+    <a href="{{ page_urls.print_pick_list }}" class="btn btn-ghost btn-sm" target="_blank">
+      <i class="fas fa-list-check me-1"></i>{% trans "Print pick list" %}
+    </a>
+    {% endif %}
     <a href="{{ page_urls.duplicate }}" class="btn btn-ghost btn-sm">
       <i class="fas fa-clone me-1"></i>{% trans "Duplicate" %}
     </a>
@@ -55,7 +64,8 @@
                 {% if s.state == 'done' %}done{% endif %}
                 {% if s.state == 'active' %}active{% endif %}
                 {% if current_status == 'overdue' and s.state == 'active' %}overdue{% endif %}
-                {% if s.state == 'skipped' %}skipped{% endif %}">
+                {% if s.state == 'skipped' %}skipped{% endif %}
+                {% if s.state == 'pending' %}pending{% endif %}">
       <div class="dot-lg">
         {% if s.state == 'done' %}
           <i class="fas fa-check"></i>
@@ -69,7 +79,7 @@
       </div>
       <div style="min-width:0">
         <div class="s-title">{{ s.label }}</div>
-        <div class="s-time">{% if s.at %}{{ s.at|date:"d M · H:i" }}{% else %}—{% endif %}</div>
+        <div class="s-time">{% if s.at %}{{ s.at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</div>
       </div>
     </div>
   {% endfor %}
@@ -83,7 +93,7 @@
   </div>
 
   <div>
-    <div class="side-card" style="margin-bottom:12px">
+    <div class="side-card" id="user" style="margin-bottom:12px">
       <h6>{% trans "User" %}</h6>
       <div class="d-flex" style="gap:10px;align-items:center;margin-bottom:10px">
         <span class="av" style="width:36px;height:36px;font-size:14px">{{ rental.user.initials }}</span>
@@ -100,14 +110,14 @@
       </div>
     </div>
 
-    <div class="side-card" style="margin-bottom:12px">
+    <div class="side-card" id="period" style="margin-bottom:12px">
       <h6>{% trans "Rental" %}</h6>
       <div class="kv">
         <span class="k">{% trans "ID" %}</span><span class="v mono">{{ rental.id }}</span>
-        <span class="k">{% trans "Pickup" %}</span><span class="v">{{ rental.from_at|date:"d M · H:i" }}</span>
-        <span class="k">{% trans "Return by" %}</span><span class="v">{{ rental.to_at|date:"d M · H:i" }}</span>
+        <span class="k">{% trans "Pickup" %}</span><span class="v">{{ rental.from_at|date:"d.m.Y H:i" }}</span>
+        <span class="k">{% trans "Return by" %}</span><span class="v">{{ rental.to_at|date:"d.m.Y H:i" }}</span>
         <span class="k">{% trans "Issued by" %}</span><span class="v">{{ rental.issued_by|default:"—" }}</span>
-        <span class="k">{% trans "Created" %}</span><span class="v">{{ rental.created_at|date:"d M · H:i" }}</span>
+        <span class="k">{% trans "Created" %}</span><span class="v">{{ rental.created_at|date:"d.m.Y H:i" }}</span>
       </div>
     </div>
 
@@ -118,11 +128,15 @@
       </p>
       <form method="post" action="{{ page_urls.edit_note }}" class="mt-2">
         {% csrf_token %}
+        <textarea name="note" class="form-control form-control-sm mb-2" rows="2">{{ rental.internal_note }}</textarea>
         <button type="submit" class="btn btn-ghost btn-sm" style="width:100%">
-          <i class="fas fa-pen me-1"></i>{% trans "Edit note" %}
+          <i class="fas fa-pen me-1"></i>{% trans "Save note" %}
         </button>
       </form>
     </div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -134,9 +148,6 @@
 {{ urls_json|json_script:"rental-urls" }}
 {{ i18n_strings|json_script:"rr-i18n" }}
 
-{% endblock %}
-
-{% block extra_js %}
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
         integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
         crossorigin="anonymous"></script>
@@ -147,6 +158,7 @@
         integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
         crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
 
 <script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
 <script type="text/babel" src="{% static 'rental/js/detail.jsx' %}"></script>
@@ -167,4 +179,5 @@
                         issues={issues} history={history} urls={urls} />);
 })();
 </script>
-{% endblock %}
+</body>
+</html>

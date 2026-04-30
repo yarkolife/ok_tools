@@ -1,0 +1,153 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Room Calendar" %} — {{ day|date:"d.m.Y" }}</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .tl-wrap { display: flex; flex-direction: column; gap: 6px; }
+        .tl-wh {
+            font-size: 12px; color: var(--ink-5, #6b7280); margin-bottom: 4px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .tl-wh i { font-size: 11px; }
+
+        /* time axis */
+        .tl-axis {
+            position: relative; height: 18px; margin-left: 160px;
+            margin-right: 12px; flex-shrink: 0;
+        }
+        .tl-axis-mark {
+            position: absolute; top: 0; font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; color: var(--ink-5, #9ca3af); transform: translateX(-50%);
+            white-space: nowrap; line-height: 18px;
+        }
+        .tl-axis-hour { color: var(--ink-3, #374151); font-weight: 500; }
+
+        /* row */
+        .tl-row {
+            display: flex; align-items: center; gap: 0;
+            border-bottom: 1px solid var(--ink-9, #f1f5f9);
+            padding: 6px 0;
+        }
+        .tl-row:last-child { border-bottom: none; }
+        .tl-row-label {
+            width: 160px; flex-shrink: 0; padding-right: 12px;
+            display: flex; flex-direction: column; gap: 1px;
+        }
+        .tl-room-name {
+            font-size: 13px; font-weight: 600; color: var(--ink-2, #1f2937);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .tl-room-cap {
+            font-size: 11px; color: var(--ink-5, #6b7280);
+            display: inline-flex; align-items: center; gap: 3px;
+        }
+        .tl-room-loc {
+            font-size: 11px; color: var(--ink-5, #9ca3af);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* bar */
+        .tl-bar {
+            flex: 1; display: flex; gap: 2px; height: 28px;
+            margin-right: 12px; border-radius: 4px; overflow: hidden;
+            background: var(--ink-10, #f8fafc);
+        }
+
+        /* segment */
+        .tl-seg {
+            height: 100%; border-radius: 3px; display: flex;
+            align-items: center; justify-content: center;
+            cursor: default; transition: filter 0.12s ease;
+            min-width: 4px; position: relative;
+        }
+        .tl-seg.available {
+            background: oklch(0.92 0.06 150);
+        }
+        .tl-seg.occupied {
+            background: oklch(0.78 0.13 25);
+        }
+        .tl-seg.occupied:hover {
+            filter: brightness(0.92);
+        }
+        .tl-seg-text {
+            font-size: 10px; font-weight: 500; color: white;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            padding: 0 4px; max-width: 100%;
+        }
+
+        /* states */
+        .tl-loading, .tl-error, .tl-empty, .tl-closed {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 32px; color: var(--ink-5, #6b7280); font-size: 13px;
+        }
+        .tl-error { color: oklch(0.55 0.15 25); }
+
+        @media (max-width: 768px) {
+            .tl-row { flex-direction: column; align-items: stretch; }
+            .tl-row-label { width: auto; padding-right: 0; padding-bottom: 4px; }
+            .tl-bar { margin-right: 0; }
+            .tl-axis { margin-left: 0; margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}"><i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span></a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/"><i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span></a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="page">
+        {% include 'rental/_sidebar.html' %}
+        <div class="page-main">
+            <div class="page-title">
+                <h1>{% trans "Room Calendar" %}</h1>
+                <span class="sub">{{ day|date:"l, d F Y" }}</span>
+                <div class="page-actions">
+                    <a href="?date={{ prev_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
+                    <a href="?date={{ today|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Today" %}</a>
+                    <a href="?date={{ next_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+            <div class="surface p-4">
+                <div id="room-calendar-root"></div>
+            </div>
+        </div>
+    </div>
+
+    {{ day.isoformat|json_script:"room-cal-date" }}
+
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+    <script src="{% static 'rental/js/shared.jsx' %}" type="text/babel"></script>
+    <script src="{% static 'rental/js/room_calendar.jsx' %}" type="text/babel"></script>
+    <script type="text/babel">
+        (() => {
+            const dateEl = document.getElementById('room-cal-date');
+            if (!dateEl) {
+                console.error('Date element not found');
+                return;
+            }
+            const date = JSON.parse(dateEl.textContent);
+            const root = document.getElementById('room-calendar-root');
+            if (root) {
+                ReactDOM.createRoot(root).render(<RoomCalendar date={date} />);
+            }
+        })();
+    </script>
+</body>
+</html>

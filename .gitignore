@@ -135,6 +135,10 @@ nosetests.xml
 .kilocode/
 .claude/
 .sisyphus/
+.opencode/
+.venv_check/
+.venv312/
+test_db.sqlite3
 AGENTS.md
 .github/
 playout/

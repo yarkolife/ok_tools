@@ -1,6 +1,6 @@
 {% load i18n static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,11 +19,11 @@
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
-                    {% trans "OK Tools Rental" %}
+                    <i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span>
                 </a>
                 <div class="navbar-nav ms-auto align-items-center gap-2">
                     <a class="btn btn-sm btn-outline-light" href="/admin/">
-                        <i class="fas fa-cog me-1"></i>{% trans "Admin" %}
+                        <i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span>
                     </a>
                 </div>
             </div>

@@ -156,6 +156,30 @@
             </tbody>
         </table>
 
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px;">
+            <div style="font-size: 12px;">{{ "now"|date:"d.m.Y" }}</div>
+            {% if has_signature and signature_image %}
+            <div style="text-align: center; width: 250px;">
+                <div style="border-bottom: 1px dotted #000; padding-bottom: 5px;">
+                    <img src="{{ signature_image }}" alt="{% trans 'Digital signature' %}" style="max-height: 80px;">
+                </div>
+                <div style="font-size: 10px; margin-top: 4px;">
+                    {% if signature_signed_at %}
+                    <span style="color: #666;">{% trans 'Digitally signed' %}: {{ signature_signed_at|date:"d.m.Y H:i" }}{% if signature_method %} ({{ signature_method }}){% endif %}</span>
+                    {% else %}
+                    <strong>{% trans 'Digitally signed' %}</strong>
+                    {% endif %}
+                </div>
+                <div style="font-size: 10px; margin-top: 2px;">{% trans 'Signature' %}</div>
+            </div>
+            {% else %}
+            <div style="text-align: center; width: 250px;">
+                <div style="border-bottom: 1px dotted #000; min-height: 40px;"></div>
+                <div style="font-size: 10px; margin-top: 2px;">{% trans 'Signature' %}</div>
+            </div>
+            {% endif %}
+        </div>
+
         <script>
             (function() {
                 const saveUrl = '{% url "rental:api_update_pick_list" rental_id=rental_request.id %}';

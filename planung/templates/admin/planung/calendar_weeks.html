@@ -80,6 +80,7 @@
     <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
     <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
     <span class="status-badge status-badge--empty">{% trans "Empty" %}</span>
+    <span class="status-badge status-badge--live">{% trans "Live broadcast" %}</span>
   </section>
 
   <div class="planning-calendar-table table-responsive">
@@ -106,13 +107,18 @@
 
           {% for cell in week.days %}
             <td class="{{ cell.cls }}" data-status="{{ cell.data_status }}">
-              <button class="btn btn-sm btn-outline-primary date-cell"
+              <button class="btn btn-sm btn-outline-primary date-cell{% if cell.show_live %} has-live{% endif %}"
                       data-date="{{ cell.iso }}"
                       data-search="{{ cell.search|default:'' }}"
                       data-has-comment="{{ cell.has_comment|yesno:'true,false' }}"
-                      aria-label="{{ cell.date|date:'d.m.Y' }} {% if cell.data_status == 'planned' %}{% trans 'Planned' %}{% elif cell.data_status == 'draft' %}{% trans 'Draft' %}{% elif cell.data_status == 'comment' %}{% trans 'Comment' %}{% else %}{% trans 'Empty' %}{% endif %}">
+                      aria-label="{{ cell.date|date:'d.m.Y' }} {% if cell.show_live %}{% trans 'Live broadcast' %}, {% endif %}{% if cell.data_status == 'planned' %}{% trans 'Planned' %}{% elif cell.data_status == 'draft' %}{% trans 'Draft' %}{% elif cell.data_status == 'comment' %}{% trans 'Comment' %}{% else %}{% trans 'Empty' %}{% endif %}">
                 {{ cell.date|date:"d.m" }}
                 <span class="date-cell-meta">
+{% if cell.show_live %}
+                  <span class="live-cell-badge" aria-hidden="true">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg>
+                  </span>
+{% endif %}
                   {% if cell.show_check or cell.show_pencil or cell.show_clock or cell.has_comment %}
                     <span class="icon-group">
                       {% if cell.show_check %}

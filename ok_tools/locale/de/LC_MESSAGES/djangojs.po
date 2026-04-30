@@ -365,3 +365,50 @@ msgid "Error checking room availability. Please try again."
 msgstr ""
 "Fehler bei der Überprüfung der Raumverfügbarkeit. Bitte versuchen Sie es "
 "erneut."
+
+# Django admin selector widget translations
+#, javascript-format
+msgid "Available %s"
+msgstr "Verfügbar %s"
+
+#, javascript-format
+msgid "Choose %s by selecting them and then select the \"Choose\" arrow button."
+msgstr "Wählen Sie %s aus, indem Sie sie markieren und dann auf den \"Auswählen\"-Pfeil klicken."
+
+#, javascript-format
+msgid "Type into this box to filter down the list of available %s."
+msgstr "Geben Sie in dieses Feld ein, um die Liste der verfügbaren %s zu filtern."
+
+msgid "Filter"
+msgstr "Filter"
+
+#, javascript-format
+msgid "Choose all %s"
+msgstr "Alle %s auswählen"
+
+#, javascript-format
+msgid "Choose selected %s"
+msgstr "Ausgewählte %s auswählen"
+
+#, javascript-format
+msgid "Remove selected %s"
+msgstr "Ausgewählte %s entfernen"
+
+#, javascript-format
+msgid "Chosen %s"
+msgstr "Ausgewählte %s"
+
+#, javascript-format
+msgid "Remove %s by selecting them and then select the \"Remove\" arrow button."
+msgstr "Entfernen Sie %s, indem Sie sie markieren und dann auf den \"Entfernen\"-Pfeil klicken."
+
+#, javascript-format
+msgid "Type into this box to filter down the list of selected %s."
+msgstr "Geben Sie in dieses Feld ein, um die Liste der ausgewählten %s zu filtern."
+
+msgid "(click to clear)"
+msgstr "(Klicken zum Leeren)"
+
+#, javascript-format
+msgid "Remove all %s"
+msgstr "Alle %s entfernen"
