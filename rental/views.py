@@ -80,7 +80,8 @@ from .models import RentalSigningSessionStatus
 logger = logging.getLogger('django')
 
 RENTAL_PROCESS_INITIAL_USER_LIMIT = 20
-RENTAL_PROCESS_ACTIVE_STATUSES = ('draft', 'reserved', 'issued')
+RENTAL_PROCESS_ACTIVE_STATUSES = ('reserved', 'issued')
+RENTAL_PROCESS_COUNTED_STATUSES = ('reserved', 'issued', 'returned', 'closed')
 
 
 
@@ -155,9 +156,14 @@ def serialize_user(user):
         role = _('User')
 
     rental_count = getattr(user, 'rental_count', None)
-    if rental_count is None:
-        rental_count = RentalRequest.objects.filter(user=user).count()
-    past_count = max(0, rental_count - 1)
+    if rental_count is not None:
+        past_count = rental_count
+    else:
+        rental_count = RentalRequest.objects.filter(
+            user=user,
+            status__in=RENTAL_PROCESS_COUNTED_STATUSES,
+        ).count()
+        past_count = max(0, rental_count - 1)
 
     return {
         'id': user.pk,
@@ -182,8 +188,15 @@ def get_initial_rental_process_users(limit=RENTAL_PROCESS_INITIAL_USER_LIMIT):
             filter=Q(rentalrequest__status__in=RENTAL_PROCESS_ACTIVE_STATUSES),
             distinct=True,
         ),
-        latest_rental_at=Max('rentalrequest__created_at'),
-        rental_count=Count('rentalrequest', distinct=True),
+        latest_rental_at=Max(
+            'rentalrequest__created_at',
+            filter=Q(rentalrequest__status__in=RENTAL_PROCESS_COUNTED_STATUSES),
+        ),
+        rental_count=Count(
+            'rentalrequest',
+            filter=Q(rentalrequest__status__in=RENTAL_PROCESS_COUNTED_STATUSES),
+            distinct=True,
+        ),
     )
     borrowers = list(users.filter(rental_count__gt=0).order_by(
         '-active_rental_count',
@@ -960,7 +973,11 @@ def api_search_users(request):
         Q(profile__first_name__icontains=query) |
         Q(profile__last_name__icontains=query)
     ).distinct().annotate(
-        rental_count=Count('rentalrequest', distinct=True),
+        rental_count=Count(
+            'rentalrequest',
+            filter=Q(rentalrequest__status__in=RENTAL_PROCESS_COUNTED_STATUSES),
+            distinct=True,
+        ),
     ).order_by('email')[:30]
     
     result = []
