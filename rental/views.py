@@ -33,6 +33,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db import transaction
+from django.db.models import Count
+from django.db.models import F
+from django.db.models import Max
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -75,6 +78,9 @@ from .models import RentalSigningSessionStatus
 
 
 logger = logging.getLogger('django')
+
+RENTAL_PROCESS_INITIAL_USER_LIMIT = 20
+RENTAL_PROCESS_ACTIVE_STATUSES = ('draft', 'reserved', 'issued')
 
 
 
@@ -148,7 +154,10 @@ def serialize_user(user):
     else:
         role = _('User')
 
-    past_count = max(0, RentalRequest.objects.filter(user=user).count() - 1)
+    rental_count = getattr(user, 'rental_count', None)
+    if rental_count is None:
+        rental_count = RentalRequest.objects.filter(user=user).count()
+    past_count = max(0, rental_count - 1)
 
     return {
         'id': user.pk,
@@ -162,6 +171,36 @@ def serialize_user(user):
         'email': user.email or '',
         'warn': None,
     }
+
+
+def get_initial_rental_process_users(limit=RENTAL_PROCESS_INITIAL_USER_LIMIT):
+    users = OKUser.objects.select_related('profile', 'profile__media_authority').filter(
+        is_active=True,
+    ).annotate(
+        active_rental_count=Count(
+            'rentalrequest',
+            filter=Q(rentalrequest__status__in=RENTAL_PROCESS_ACTIVE_STATUSES),
+            distinct=True,
+        ),
+        latest_rental_at=Max('rentalrequest__created_at'),
+        rental_count=Count('rentalrequest', distinct=True),
+    )
+    borrowers = list(users.filter(rental_count__gt=0).order_by(
+        '-active_rental_count',
+        F('latest_rental_at').desc(nulls_last=True),
+        '-rental_count',
+        '-date_joined',
+    )[:limit])
+    remaining = limit - len(borrowers)
+    if remaining <= 0:
+        return borrowers
+
+    borrower_ids = [user.pk for user in borrowers]
+    staff_fallback = list(users.filter(is_staff=True).exclude(pk__in=borrower_ids).order_by(
+        '-is_staff',
+        '-date_joined',
+    )[:remaining])
+    return borrowers + staff_fallback
 
 
 def serialize_rental(rental):
@@ -824,7 +863,7 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
             dict: Context with users, inventory, organizations, and equipment sets
         """
         context = super().get_context_data(**kwargs)
-        users = OKUser.objects.select_related('profile').filter(is_active=True)
+        users = get_initial_rental_process_users()
         active_rooms = Room.objects.filter(is_active=True).order_by('name')
         categories = Category.objects.all().order_by('name')
         
@@ -855,7 +894,7 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'icon': 'fa-box',
                     'count': category.inventoryitem_set.filter(status='in_stock').count(),
                 } for category in categories],
-                'users': [serialize_user(user) for user in users.order_by('-date_joined')[:200]],
+                'users': [serialize_user(user) for user in users],
                 'rooms': [{
                     'id': room.pk,
                     'name': room.name,
@@ -916,11 +955,13 @@ def api_search_users(request):
     
     # Search by email first (works for all users, including those without profile)
     # Then search by profile fields using LEFT JOIN to include users without profile
-    users = OKUser.objects.select_related('profile').filter(
+    users = OKUser.objects.select_related('profile', 'profile__media_authority').filter(
         Q(email__icontains=query) |
         Q(profile__first_name__icontains=query) |
         Q(profile__last_name__icontains=query)
-    ).distinct()[:10]
+    ).distinct().annotate(
+        rental_count=Count('rentalrequest', distinct=True),
+    ).order_by('email')[:30]
     
     result = []
     from registration import organization_config
@@ -942,24 +983,14 @@ def api_search_users(request):
             member_status = _('User')
             permissions_text = state_institution
         
-        # Get user name
-        if profile:
-            name = f"{profile.first_name} {profile.last_name}".strip()
-            if not name:
-                name = user.email  # Fallback to email if name is empty
-        else:
-            # User without profile (e.g., staff members with only email/password)
-            name = user.email
-                
-        result.append({
-            'id': user.id,
-            'name': name,
-            'email': user.email,
+        user_data = serialize_user(user)
+        user_data.update({
             'member_status': member_status,
             'permissions': permissions_text,
             'is_member': profile.member if profile else False,
             'is_staff': user.is_staff,
         })
+        result.append(user_data)
     
     return JsonResponse({'users': result})
 

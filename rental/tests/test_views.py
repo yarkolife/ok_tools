@@ -2,6 +2,7 @@
 
 import json
 import pytest
+from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -9,23 +10,100 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import RequestFactory
 from django.urls import reverse
+from django.utils import timezone
 
+from rental.models import RentalRequest
 from rental.views import (
+    RENTAL_PROCESS_INITIAL_USER_LIMIT,
     StaffRequiredMixin,
     api_create_rental_user,
     api_create_rental,
     api_cancel_rental,
     api_get_staff_users,
+    get_initial_rental_process_users,
+    serialize_user,
 )
 
 
 User = get_user_model()
 
 
+def create_rental_request(user, created_by, status='returned'):
+    return RentalRequest.objects.create(
+        user=user,
+        created_by=created_by,
+        project_name='Test Project',
+        purpose='Test Purpose',
+        requested_start_date=timezone.now(),
+        requested_end_date=timezone.now() + timedelta(days=1),
+        status=status,
+    )
+
+
 class DummyView(StaffRequiredMixin):
     """Minimal subclass to exercise StaffRequiredMixin.handle_no_permission."""
     def __init__(self, user):
         self.request = SimpleNamespace(user=user)
+
+
+@pytest.mark.django_db
+def test__rental__views__get_initial_rental_process_users__limits_default_selection():
+    """Initial rental-process users are capped and prioritize active borrowers."""
+    staff = User.objects.create_user(email="staff@example.com", password="pwd", is_staff=True)
+    active_user = User.objects.create_user(email="active@example.com", password="pwd")
+    frequent_user = User.objects.create_user(email="frequent@example.com", password="pwd")
+    recent_user = User.objects.create_user(email="recent@example.com", password="pwd")
+    create_rental_request(active_user, staff, status='issued')
+    old_rental = create_rental_request(frequent_user, staff, status='returned')
+    old_rental.created_at = timezone.now() - timedelta(days=30)
+    old_rental.save(update_fields=['created_at'])
+    older_rental = create_rental_request(frequent_user, staff, status='returned')
+    older_rental.created_at = timezone.now() - timedelta(days=31)
+    older_rental.save(update_fields=['created_at'])
+    create_rental_request(recent_user, staff, status='returned')
+
+    zero_history_staff = None
+    for index in range(25):
+        zero_history_staff = User.objects.create_user(
+            email=f"staff{index}@example.com",
+            password="pwd",
+            is_staff=True,
+        )
+
+    for index in range(25):
+        user = User.objects.create_user(email=f"user{index}@example.com", password="pwd")
+        if index < 3:
+            create_rental_request(user, staff)
+
+    users = list(get_initial_rental_process_users())
+    user_ids = {user.pk for user in users}
+
+    assert len(users) == RENTAL_PROCESS_INITIAL_USER_LIMIT
+    assert active_user.pk in user_ids
+    assert frequent_user.pk in user_ids
+    assert recent_user.pk in user_ids
+    assert zero_history_staff.pk in user_ids
+    assert users[0].pk == active_user.pk
+    assert users.index(recent_user) < users.index(frequent_user)
+    assert users.index(recent_user) < users.index(zero_history_staff)
+
+
+@pytest.mark.django_db
+def test__rental__views__serialize_user__uses_annotated_rental_count():
+    """Serialized users use annotated rental counts for the initial page payload."""
+    staff = User.objects.create_user(email="staff@example.com", password="pwd", is_staff=True)
+    user = User.objects.create_user(email="borrower@example.com", password="pwd")
+    create_rental_request(user, staff)
+    create_rental_request(user, staff)
+
+    annotated_user = next(
+        candidate for candidate in get_initial_rental_process_users(limit=10)
+        if candidate.pk == user.pk
+    )
+    serialized = serialize_user(annotated_user)
+
+    assert serialized['past'] == 1
+    assert serialized['past_count'] == 1
 
 
 @pytest.mark.django_db
