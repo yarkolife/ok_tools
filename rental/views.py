@@ -2518,22 +2518,50 @@ def duplicate_rental(request, rental_id):
 @login_required
 @staff_member_required
 def print_slip(request, rental_id):
-    """Redirect to the appropriate organization print form."""
-    first_item = (
-        RentalItem.objects
-        .filter(rental_request_id=rental_id, inventory_item__owner__isnull=False)
-        .select_related('inventory_item__owner')
-        .first()
-    )
-    if first_item and first_item.inventory_item.owner:
-        return redirect('rental:print_form', org_id=first_item.inventory_item.owner_id, rental_id=rental_id)
+    """Show print form selection or redirect if only one template group."""
+    has_msa = False
+    has_non_msa = False
+    msa_org_id = None
+    for item in RentalItem.objects.filter(
+        rental_request_id=rental_id,
+        inventory_item__owner__isnull=False,
+    ).select_related('inventory_item__owner'):
+        if item.inventory_item.owner.name == 'MSA':
+            has_msa = True
+            msa_org_id = item.inventory_item.owner_id
+        else:
+            has_non_msa = True
 
-    # Fallback to MSA print form for backward compatibility
-    try:
-        msa_org = Organization.objects.only('id').get(name='MSA')
-        return redirect('rental:print_form', org_id=msa_org.pk, rental_id=rental_id)
-    except Organization.DoesNotExist:
-        raise Http404(_('No print form available for this rental.'))
+    msa_and_other = has_msa and has_non_msa
+
+    if not msa_and_other:
+        if has_msa and msa_org_id:
+            return redirect('rental:print_form', org_id=msa_org_id, rental_id=rental_id)
+        if has_non_msa:
+            return redirect('rental:print_form', org_id=0, rental_id=rental_id)
+        # Fallback
+        try:
+            msa_org = Organization.objects.only('id').get(name='MSA')
+            return redirect('rental:print_form', org_id=msa_org.pk, rental_id=rental_id)
+        except Organization.DoesNotExist:
+            raise Http404(_('No print form available for this rental.'))
+
+    print_slips = []
+    if has_msa and msa_org_id:
+        print_slips.append({
+            'org_name': 'MSA',
+            'url': reverse('rental:print_form', args=[msa_org_id, rental_id]),
+        })
+    if has_non_msa:
+        print_slips.append({
+            'org_name': str(_('Other')),
+            'url': reverse('rental:print_form', args=[0, rental_id]),
+        })
+
+    return render(request, 'rental/print_slip_select.html', {
+        'rental_id': rental_id,
+        'print_slips': print_slips,
+    })
 
 
 @login_required

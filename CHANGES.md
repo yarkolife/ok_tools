@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-05-12 (Version 4.10.2)
+===========================
+
+* **rental: Add print form selection page instead of inline buttons**
+  * Single "Print slip" button on rental detail; redirects directly if one template group
+  * Renders print_slip_select.html when both MSA and non-MSA items exist
+  * Removed per-organization print buttons from rental detail page
+
 2026-05-12 (Version 4.10.1)
 ===========================
 
