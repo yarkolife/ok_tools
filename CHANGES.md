@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-05-12 (Version 4.10.3)
+===========================
+
+* **rental: Replace print form selection page with Bootstrap dropdown**
+  * Single "Print slip" button with dropdown menu when multiple template groups exist
+  * Dropdown items open print forms in new tabs; no intermediate page
+
 2026-05-12 (Version 4.10.2)
 ===========================
 

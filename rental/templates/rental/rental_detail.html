@@ -44,9 +44,22 @@
 <div class="page-title">
   <h1>{{ rental.project|default:_("Untitled rental") }}</h1>
   <div class="page-actions">
+    {% if print_slips %}
+    <div class="btn-group">
+      <button type="button" class="btn btn-ghost btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-print me-1"></i>{% trans "Print slip" %}
+      </button>
+      <ul class="dropdown-menu">
+        {% for ps in print_slips %}
+        <li><a href="{{ ps.url }}" class="dropdown-item" target="_blank">{{ ps.org_name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}
     <a href="{{ page_urls.print_slip }}" class="btn btn-ghost btn-sm" target="_blank">
       <i class="fas fa-print me-1"></i>{% trans "Print slip" %}
     </a>
+    {% endif %}
     {% if show_pick_list %}
     <a href="{{ page_urls.print_pick_list }}" class="btn btn-ghost btn-sm" target="_blank">
       <i class="fas fa-list-check me-1"></i>{% trans "Print pick list" %}
