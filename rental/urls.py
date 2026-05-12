@@ -3,8 +3,7 @@ from .views import CreateSigningSessionView
 from .views import EquipmentSetItemViewSet
 from .views import EquipmentSetViewSet
 from .views import InventoryItemViewSet
-from .views import PrintFormMSAView
-from .views import PrintFormOKMQView
+from .views import PrintFormView
 from .views import PrintPickListView
 from .views import RentalDetailView
 from .views import UserRentalDetailView
@@ -33,6 +32,8 @@ from .views import duplicate_rental
 from .views import edit_note
 from .views import extend_rental
 from .views import mark_issued
+from .views import print_form_msa_redirect
+from .views import print_form_okmq_redirect
 from .views import print_slip
 from .views import quick_issue
 from .views import remove_item_from_rental
@@ -193,8 +194,9 @@ urlpatterns = [
     path('user/rental/<int:rental_id>/', UserRentalDetailView.as_view(), name='user_rental_detail'),
 
     # Print forms
-    path('print/msa/<int:rental_id>/', PrintFormMSAView.as_view(), name='print_form_msa'),
-    path('print/okmq/<int:rental_id>/', PrintFormOKMQView.as_view(), name='print_form_okmq'),
+    path('print/<int:org_id>/<int:rental_id>/', PrintFormView.as_view(), name='print_form'),
+    path('print/msa/<int:rental_id>/', print_form_msa_redirect, name='print_form_msa'),
+    path('print/okmq/<int:rental_id>/', print_form_okmq_redirect, name='print_form_okmq'),
     path('print/pick-list/<int:rental_id>/', PrintPickListView.as_view(), name='print_pick_list'),
     path('api/rental/<int:rental_id>/print-info/', api_get_rental_print_info, name='api_rental_print_info'),
 

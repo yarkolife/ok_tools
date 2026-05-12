@@ -37,6 +37,7 @@ from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import Q
+from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -52,6 +53,7 @@ from django.views.generic import TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
 from inventory.models import Category
 from inventory.models import InventoryItem
+from inventory.models import Organization
 from types import SimpleNamespace
 from rental.services.inventory_service_interface import inventory_service
 from registration.models import OKUser
@@ -2112,12 +2114,14 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
         ]
         context['page_urls'] = {
             'list': self._safe_reverse('rental:list'),
-            'print_slip': reverse('rental:print_form_msa', args=[rental.pk]),
+            'print_slip': reverse('rental:print_slip', args=[rental.pk]),
             'print_pick_list': reverse('rental:print_pick_list', args=[rental.pk]),
             'duplicate': self._safe_reverse('rental:duplicate', args=[rental.pk]),
             'edit_note': self._safe_reverse('rental:edit_note', args=[rental.pk]),
             'detail': reverse('rental:rental_detail', args=[rental.pk]),
         }
+        # Per-organization print form URLs for items in this rental
+        context['print_slips'] = self._build_print_slip_urls(rental)
         context['show_pick_list'] = rental.status in ('reserved', 'issued')
         context['urls_json'] = {
             'extend': reverse('rental:extend', args=[rental.pk]),
@@ -2131,7 +2135,7 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             'edit_user': f'{reverse("rental:rental_detail", args=[rental.pk])}#user',
             'edit_period': f'{reverse("rental:rental_detail", args=[rental.pk])}#period',
             'resend_email': '#',
-            'export_pdf': reverse('rental:print_form_msa', args=[rental.pk]),
+            'export_pdf': reverse('rental:print_slip', args=[rental.pk]),
             'inventory_search': reverse('rental:api_inventory_search'),
             'swap_item': reverse('rental:swap_item', args=[rental.pk]),
             'swap_unit': '#',
@@ -2150,6 +2154,21 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
         _add_sidebar_counts(context)
 
         return context
+
+    def _build_print_slip_urls(self, rental):
+        """Build per-organization print form URLs for items in the rental."""
+        org_ids = set()
+        print_slips = []
+        for item in rental.items.select_related('inventory_item__owner'):
+            owner = item.inventory_item.owner
+            if owner and owner.pk not in org_ids:
+                org_ids.add(owner.pk)
+                print_slips.append({
+                    'org_id': owner.pk,
+                    'org_name': owner.name,
+                    'url': reverse('rental:print_form', args=[owner.pk, rental.pk]),
+                })
+        return print_slips
 
     def _build_timeline(self, rental):
         steps = [
@@ -2485,7 +2504,38 @@ def duplicate_rental(request, rental_id):
 @login_required
 @staff_member_required
 def print_slip(request, rental_id):
-    return redirect('rental:print_form_msa', rental_id=rental_id)
+    """Redirect to the appropriate organization print form."""
+    first_item = (
+        RentalItem.objects
+        .filter(rental_request_id=rental_id, inventory_item__owner__isnull=False)
+        .select_related('inventory_item__owner')
+        .first()
+    )
+    if first_item and first_item.inventory_item.owner:
+        return redirect('rental:print_form', org_id=first_item.inventory_item.owner_id, rental_id=rental_id)
+
+    # Fallback to MSA print form for backward compatibility
+    try:
+        msa_org = Organization.objects.only('id').get(name='MSA')
+        return redirect('rental:print_form', org_id=msa_org.pk, rental_id=rental_id)
+    except Organization.DoesNotExist:
+        raise Http404(_('No print form available for this rental.'))
+
+
+@login_required
+@staff_member_required
+def print_form_msa_redirect(request, rental_id):
+    """Redirect old MSA print form URL to new unified URL."""
+    org = get_object_or_404(Organization, name='MSA')
+    return redirect('rental:print_form', org_id=org.pk, rental_id=rental_id)
+
+
+@login_required
+@staff_member_required
+def print_form_okmq_redirect(request, rental_id):
+    """Redirect old OKMQ print form URL to new unified URL."""
+    org = get_object_or_404(Organization, name='OKMQ')
+    return redirect('rental:print_form', org_id=org.pk, rental_id=rental_id)
 
 
 @login_required
@@ -3717,91 +3767,66 @@ def api_search_inventory_items(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-class PrintFormMSAView(StaffRequiredMixin, TemplateView):
+class PrintFormView(StaffRequiredMixin, TemplateView):
     """
-    View for printing MSA rental forms.
+    Unified print form view for any organization.
 
-    Displays MSA-specific rental information for printing,
-    filtering items to show only MSA-owned equipment.
+    Accepts rental_id and organization_id from URL kwargs.
+    Template selection: MSA → print_form_msa.html, all others → print_form_okmq.html.
+    Filters items to show only equipment owned by the specified organization.
     """
 
-    template_name = 'rental/print_form_msa.html'
+    MSA_TEMPLATE = 'rental/print_form_msa.html'
+    DEFAULT_TEMPLATE = 'rental/print_form_okmq.html'
+
+    def get_template_names(self):
+        """Select template based on organization name."""
+        org_id = self.kwargs.get('org_id')
+        try:
+            organization = Organization.objects.only('name').get(pk=org_id)
+            if organization.name == 'MSA':
+                return [self.MSA_TEMPLATE]
+        except Organization.DoesNotExist:
+            pass
+        return [self.DEFAULT_TEMPLATE]
 
     def get_context_data(self, **kwargs):
         """
-        Prepare context data for MSA rental form printing.
+        Prepare context data for rental form printing.
 
         Args:
             **kwargs: Additional context data including rental_id
 
         Returns:
-            dict: Context with MSA rental items and request details
+            dict: Context with rental items filtered by organization
+                  and request details.
         """
         context = super().get_context_data(**kwargs)
         rental_id = kwargs.get('rental_id')
+        org_id = self.kwargs.get('org_id')
 
         try:
             rental_request = get_object_or_404(RentalRequest, id=rental_id)
+            organization = get_object_or_404(Organization, pk=org_id)
 
-            # Get only MSA items for this rental
-            msa_items = rental_request.items.filter(
-                inventory_item__owner__name='MSA'
-            ).select_related('inventory_item', 'inventory_item__owner')
+            items = rental_request.items.filter(
+                inventory_item__owner_id=org_id,
+            ).select_related(
+                'inventory_item',
+                'inventory_item__owner',
+                'inventory_item__location',
+            )
 
-            context.update({
-                'rental_request': rental_request,
-                'msa_items': msa_items,
-                'has_signature': rental_request.has_any_signature(),
-                'signature_image': rental_request.signature,
-                'signature_signed_at': rental_request.signature_signed_at,
-                'signature_method': rental_request.signature_method,
-            })
-
-        except Exception as e:
-            context['error'] = _('Error loading rental: {error}').format(error=str(e))
-
-        return context
-
-
-class PrintFormOKMQView(StaffRequiredMixin, TemplateView):
-    """
-    View for printing OKMQ rental forms.
-
-    Displays OKMQ-specific rental information for printing,
-    filtering items to show only OKMQ-owned equipment.
-    """
-
-    template_name = 'rental/print_form_okmq.html'
-
-    def get_context_data(self, **kwargs):
-        """
-        Prepare context data for OKMQ rental form printing.
-
-        Args:
-            **kwargs: Additional context data including rental_id
-
-        Returns:
-            dict: Context with OKMQ rental items and request details
-        """
-        context = super().get_context_data(**kwargs)
-        rental_id = kwargs.get('rental_id')
-
-        try:
-            rental_request = get_object_or_404(RentalRequest, id=rental_id)
-
-            # Get only OKMQ items for this rental
-            okmq_items = rental_request.items.filter(
-                inventory_item__owner__name='OKMQ'
-            ).select_related('inventory_item', 'inventory_item__owner', 'inventory_item__location')
-
-            context.update({
-                'rental_request': rental_request,
-                'okmq_items': okmq_items,
-                'has_signature': rental_request.has_any_signature(),
-                'signature_image': rental_request.signature,
-                'signature_signed_at': rental_request.signature_signed_at,
-                'signature_method': rental_request.signature_method,
-            })
+            # Both template context variable names supported for backward compatibility
+            context['msa_items'] = items
+            context['okmq_items'] = items
+            context['items'] = items
+            context['rental_request'] = rental_request
+            context['organization'] = organization
+            context['has_signature'] = rental_request.has_any_signature()
+            context['signature_image'] = rental_request.signature
+            context['signature_signed_at'] = rental_request.signature_signed_at
+            context['signature_method'] = rental_request.signature_method
 
         except Exception as e:
             context['error'] = _('Error loading rental: {error}').format(error=str(e))

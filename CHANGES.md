@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-05-12 (Version 4.10.0)
+===========================
+
+* **rental: Add organization-agnostic print form system**
+  * Replaced hardcoded PrintFormMSAView/PrintFormOKMQView with unified PrintFormView
+  * Template selection: MSA → print_form_msa.html, all other orgs → print_form_okmq.html
+  * New URL pattern `/print/<org_id>/<rental_id>/` for any organization
+  * Smart print_slip redirect to first organization with items in the rental
+  * Per-organization print buttons on rental detail page
+  * Backward-compatible redirects for old `/print/msa/` and `/print/okmq/` URLs
+
 2026-05-01 (Version 4.9.0)
 ==========================
 
