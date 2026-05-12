@@ -2156,18 +2156,32 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
         return context
 
     def _build_print_slip_urls(self, rental):
-        """Build per-organization print form URLs for items in the rental."""
-        org_ids = set()
+        """Build print form URLs grouped by template (MSA vs non-MSA)."""
+        has_msa = False
+        has_non_msa = False
+        msa_org_id = None
         print_slips = []
         for item in rental.items.select_related('inventory_item__owner'):
             owner = item.inventory_item.owner
-            if owner and owner.pk not in org_ids:
-                org_ids.add(owner.pk)
-                print_slips.append({
-                    'org_id': owner.pk,
-                    'org_name': owner.name,
-                    'url': reverse('rental:print_form', args=[owner.pk, rental.pk]),
-                })
+            if not owner:
+                continue
+            if owner.name == 'MSA':
+                has_msa = True
+                msa_org_id = owner.pk
+            else:
+                has_non_msa = True
+        if has_msa and msa_org_id:
+            print_slips.append({
+                'org_id': msa_org_id,
+                'org_name': 'MSA',
+                'url': reverse('rental:print_form', args=[msa_org_id, rental.pk]),
+            })
+        if has_non_msa:
+            print_slips.append({
+                'org_id': 0,
+                'org_name': str(_('Other')),
+                'url': reverse('rental:print_form', args=[0, rental.pk]),
+            })
         return print_slips
 
     def _build_timeline(self, rental):
@@ -3772,16 +3786,18 @@ class PrintFormView(StaffRequiredMixin, TemplateView):
     Unified print form view for any organization.
 
     Accepts rental_id and organization_id from URL kwargs.
+    org_id=0 means all non-MSA items combined.
     Template selection: MSA → print_form_msa.html, all others → print_form_okmq.html.
-    Filters items to show only equipment owned by the specified organization.
     """
 
     MSA_TEMPLATE = 'rental/print_form_msa.html'
     DEFAULT_TEMPLATE = 'rental/print_form_okmq.html'
 
     def get_template_names(self):
-        """Select template based on organization name."""
+        """Select template based on organization. org_id=0 defaults to non-MSA template."""
         org_id = self.kwargs.get('org_id')
+        if org_id == 0:
+            return [self.DEFAULT_TEMPLATE]
         try:
             organization = Organization.objects.only('name').get(pk=org_id)
             if organization.name == 'MSA':
@@ -3791,38 +3807,35 @@ class PrintFormView(StaffRequiredMixin, TemplateView):
         return [self.DEFAULT_TEMPLATE]
 
     def get_context_data(self, **kwargs):
-        """
-        Prepare context data for rental form printing.
-
-        Args:
-            **kwargs: Additional context data including rental_id
-
-        Returns:
-            dict: Context with rental items filtered by organization
-                  and request details.
-        """
         context = super().get_context_data(**kwargs)
         rental_id = kwargs.get('rental_id')
         org_id = self.kwargs.get('org_id')
 
         try:
             rental_request = get_object_or_404(RentalRequest, id=rental_id)
-            organization = get_object_or_404(Organization, pk=org_id)
 
-            items = rental_request.items.filter(
-                inventory_item__owner_id=org_id,
-            ).select_related(
-                'inventory_item',
-                'inventory_item__owner',
-                'inventory_item__location',
-            )
+            if org_id == 0:
+                items = rental_request.items.exclude(
+                    inventory_item__owner__name='MSA',
+                ).select_related(
+                    'inventory_item',
+                    'inventory_item__owner',
+                    'inventory_item__location',
+                )
+            else:
+                organization = get_object_or_404(Organization, pk=org_id)
+                items = rental_request.items.filter(
+                    inventory_item__owner_id=org_id,
+                ).select_related(
+                    'inventory_item',
+                    'inventory_item__owner',
+                    'inventory_item__location',
+                )
 
-            # Both template context variable names supported for backward compatibility
             context['msa_items'] = items
             context['okmq_items'] = items
             context['items'] = items
             context['rental_request'] = rental_request
-            context['organization'] = organization
             context['has_signature'] = rental_request.has_any_signature()
             context['signature_image'] = rental_request.signature
             context['signature_signed_at'] = rental_request.signature_signed_at

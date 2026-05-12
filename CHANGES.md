@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-05-12 (Version 4.10.1)
+===========================
+
+* **rental: Group non-MSA organizations into single print form**
+  * Print buttons now grouped by template: MSA separate, all others combined (org_id=0)
+  * PrintFormView handles org_id=0 to exclude MSA items and use default template
+  * Maximum 2 print buttons per rental regardless of how many organizations
+
 2026-05-12 (Version 4.10.0)
 ===========================
 
