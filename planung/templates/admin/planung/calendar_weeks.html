@@ -6,6 +6,470 @@
   <link rel="stylesheet"
         href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'planung/css/calendar_weeks.css' %}">
+  <style>
+    .playout-api-docs {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .playout-api-docs h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .playout-api-docs code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .playout-api-docs pre {
+      background: #282c34;
+      color: #abb2bf;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .playout-api-docs pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+    .playout-api-docs .copy-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 12px;
+    }
+    .playout-api-docs .copy-btn:hover {
+      background: #0056b3;
+    }
+    .playout-api-docs .endpoint-section {
+      margin: 15px 0;
+      padding: 15px;
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+    }
+    .playout-api-docs .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+    .playout-api-docs .param-table th,
+    .playout-api-docs .param-table td {
+      border: 1px solid #dee2e6;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .playout-api-docs .param-table th {
+      background: #e9ecef;
+      font-weight: 600;
+    }
+    .playout-api-docs .param-table code {
+      background: #f1f3f5;
+    }
+    .playout-api-docs .method-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      margin-right: 6px;
+    }
+    .playout-api-docs .method-get { background: #28a745; }
+    .playout-api-docs .method-post { background: #ffc107; color: #333; }
+  </style>
+
+  <script>
+    const playoutApiUrls = {
+      media: '{% url "playout_api_media" %}',
+      schedule: '{% url "playout_api_schedule" %}',
+      airReports: '{% url "playout_api_air_reports" %}',
+      webhook: '/api/integrations/incoming/conn-1',
+    };
+
+    const playoutI18n = {
+      modalTitle: "{% trans 'Playout Integration API' %}",
+      endpointsTitle: "{% trans 'Endpoints' %}",
+      authenticationTitle: "{% trans 'Authentication' %}",
+      authenticationDesc: "{% trans 'DRF token authentication. Include a token from the admin token list in the request header:' %}",
+      tokenSource: "{% trans 'Tokens are managed in the admin token list:' %}",
+      queryParametersTitle: "{% trans 'Query Parameters' %}",
+      parameter: "{% trans 'Parameter' %}",
+      type: "{% trans 'Type' %}",
+      description: "{% trans 'Description' %}",
+      example: "{% trans 'Example' %}",
+      requestBodyTitle: "{% trans 'Request Body' %}",
+      responseFormatTitle: "{% trans 'Response Format' %}",
+      exampleRequestsTitle: "{% trans 'Example Requests' %}",
+      mediaEndpoint: "{% trans 'Media Metadata' %}",
+      mediaDesc: "{% trans 'Retrieve media file metadata for playout. Supports incremental sync via updated_since and specific file lookup via filename.' %}",
+      scheduleEndpoint: "{% trans 'Broadcast Schedule' %}",
+      scheduleDesc: "{% trans 'Retrieve the broadcast schedule for a date range. Returns planned items with their time slots and associated media.' %}",
+      airReportsEndpoint: "{% trans 'Air Reports' %}",
+      airReportsDesc: "{% trans 'Submit air reports from playout. Confirms that a media item was broadcast at a specific time.' %}",
+      webhookEndpoint: "{% trans 'Incoming Webhook' %}",
+      webhookDesc: "{% trans 'Receive incoming integration events from external systems. Supports optional HMAC-SHA256 signature verification.' %}",
+      required: "{% trans 'Required' %}",
+      optional: "{% trans 'Optional' %}",
+      note: "{% trans 'Note:' %}",
+      noteMedia: "{% trans 'The id field is the license number as a string. Use updated_since for incremental sync or filename for backfill.' %}",
+      noteSchedule: "{% trans 'Dates must be in ISO 8601 format. The id field follows the pattern plan-{pk}-pos-{position}.' %}",
+      noteAirReport: "{% trans 'Each report confirms a media item was actually broadcast. The external_id identifies the report in the playout system.' %}",
+      noteWebhook: "{% trans 'The connector_id in the URL identifies the source system. If HMAC is configured, include the X-Signature-256 header.' %}",
+      getMedia: "{% trans 'Get all media' %}",
+      getMediaUpdated: "{% trans 'Get media updated after a timestamp' %}",
+      getMediaFilename: "{% trans 'Get specific media by filename' %}",
+      getSchedule: "{% trans 'Get broadcast schedule for a date range' %}",
+      postAirReports: "{% trans 'Submit air reports' %}",
+      postWebhook: "{% trans 'Send incoming webhook event' %}",
+      copy: "{% trans 'Copy' %}",
+      copyCurlCopied: "{% trans 'cURL command copied!' %}",
+      copyJsCopied: "{% trans 'JavaScript code copied!' %}",
+      copyResponseCopied: "{% trans 'Response example copied!' %}",
+      copyFailed: "{% trans 'Failed to copy to clipboard' %}",
+    };
+
+    function showPlayoutApiModal() {
+      let modal = document.getElementById('playout-api-modal');
+      if (!modal) {
+        createPlayoutApiModal();
+        modal = document.getElementById('playout-api-modal');
+      }
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function createPlayoutApiModal() {
+      const origin = window.location.origin;
+      const mediaUrl = `${origin}${playoutApiUrls.media}`;
+      const scheduleUrl = `${origin}${playoutApiUrls.schedule}`;
+      const airReportsUrl = `${origin}${playoutApiUrls.airReports}`;
+      const webhookUrl = `${origin}${playoutApiUrls.webhook}`;
+
+      const modal = document.createElement('div');
+      modal.id = 'playout-api-modal';
+      modal.className = 'playout-api-docs';
+      modal.style.cssText = `
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      `;
+
+      modal.innerHTML = `
+        <div style="background-color: #fefefe; margin: 3% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 1000px; border-radius: 8px; max-height: 94vh; overflow-y: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px;">
+            <h2 style="margin: 0;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg> ${playoutI18n.modalTitle}</h2>
+            <button onclick="closePlayoutApiModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <p><strong>${playoutI18n.authenticationTitle}:</strong> ${playoutI18n.authenticationDesc}</p>
+            <pre><code>X-API-Key: YOUR_API_KEY_HERE</code></pre>
+            <p style="margin-top: 5px; font-size: 0.9em; color: #666;">${playoutI18n.tokenSource} <a href="/admin/authtoken/token/">/admin/authtoken/token/</a></p>
+            <p style="margin-top: 5px; font-size: 0.9em; color: #666;">{% trans "Alternatively, use the Authorization header with Bearer:" %}</p>
+            <pre><code>Authorization: Bearer YOUR_API_KEY_HERE</code></pre>
+          </div>
+
+          <!-- GET /api/v1/media -->
+          <div class="endpoint-section">
+            <h3><span class="method-badge method-get">GET</span> ${playoutI18n.mediaEndpoint}</h3>
+            <p>${playoutI18n.mediaDesc}</p>
+            <p><strong>${playoutI18n.endpointsTitle}:</strong> <code>GET ${mediaUrl}</code></p>
+
+            <h4>${playoutI18n.queryParametersTitle}</h4>
+            <table class="param-table">
+              <thead>
+                <tr>
+                  <th>${playoutI18n.parameter}</th>
+                  <th>${playoutI18n.type}</th>
+                  <th>${playoutI18n.description}</th>
+                  <th>${playoutI18n.example}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>updated_since</code></td>
+                  <td>ISO 8601 datetime (${playoutI18n.optional})</td>
+                  <td>{% trans 'Return only records modified after this timestamp' %}</td>
+                  <td><code>2025-01-15T10:30:00Z</code></td>
+                </tr>
+                <tr>
+                  <td><code>filename</code></td>
+                  <td>string (${playoutI18n.optional})</td>
+                  <td>{% trans 'Comma-separated filenames for specific file lookup' %}</td>
+                  <td><code>video1.mp4,video2.mp4</code></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4>${playoutI18n.exampleRequestsTitle}</h4>
+            <p><strong>${playoutI18n.getMedia}:</strong></p>
+            <pre><code>curl -H "X-API-Key: YOUR_API_KEY" \\
+  "${mediaUrl}"</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(\`curl -H \\"X-API-Key: YOUR_API_KEY\\" \\\\\\n  \\"${mediaUrl}\\"\`, playoutI18n.copyCurlCopied)">${playoutI18n.copy}</button>
+
+            <p><strong>${playoutI18n.getMediaUpdated}:</strong></p>
+            <pre><code>curl -H "X-API-Key: YOUR_API_KEY" \\
+  "${mediaUrl}?updated_since=2025-01-15T10:30:00Z"</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(\`curl -H \\"X-API-Key: YOUR_API_KEY\\" \\\\\\n  \\"${mediaUrl}?updated_since=2025-01-15T10:30:00Z\\"\`, playoutI18n.copyCurlCopied)">${playoutI18n.copy}</button>
+
+            <p><strong>${playoutI18n.getMediaFilename}:</strong></p>
+            <pre><code>curl -H "X-API-Key: YOUR_API_KEY" \\
+  "${mediaUrl}?filename=documentary.mp4"</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(\`curl -H \\"X-API-Key: YOUR_API_KEY\\" \\\\\\n  \\"${mediaUrl}?filename=documentary.mp4\\"\`, playoutI18n.copyCurlCopied)">${playoutI18n.copy}</button>
+
+            <h4>${playoutI18n.responseFormatTitle}</h4>
+            <pre><code>{
+  "items": [
+    {
+      "id": "14755",
+      "filename": "sardinien_2022.mp4",
+      "title": "Sardinien 2022",
+      "author": "Jochen Spie\u00df",
+      "description": "Eine Reise durch Nordsardinien"
+    }
+  ]
+}</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(playoutMediaResponseExample, playoutI18n.copyResponseCopied)">${playoutI18n.copy}</button>
+
+            <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+              <p style="margin: 0; font-size: 0.9em;"><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> ${playoutI18n.note}</strong> ${playoutI18n.noteMedia}</p>
+            </div>
+          </div>
+
+          <!-- GET /api/v1/schedule -->
+          <div class="endpoint-section">
+            <h3><span class="method-badge method-get">GET</span> ${playoutI18n.scheduleEndpoint}</h3>
+            <p>${playoutI18n.scheduleDesc}</p>
+            <p><strong>${playoutI18n.endpointsTitle}:</strong> <code>GET ${scheduleUrl}</code></p>
+
+            <h4>${playoutI18n.queryParametersTitle}</h4>
+            <table class="param-table">
+              <thead>
+                <tr>
+                  <th>${playoutI18n.parameter}</th>
+                  <th>${playoutI18n.type}</th>
+                  <th>${playoutI18n.description}</th>
+                  <th>${playoutI18n.example}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>from</code></td>
+                  <td>ISO 8601 date (${playoutI18n.required})</td>
+                  <td>{% trans 'Start date of the schedule range' %}</td>
+                  <td><code>2025-06-09</code></td>
+                </tr>
+                <tr>
+                  <td><code>to</code></td>
+                  <td>ISO 8601 date (${playoutI18n.required})</td>
+                  <td>{% trans 'End date of the schedule range' %}</td>
+                  <td><code>2025-06-15</code></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4>${playoutI18n.exampleRequestsTitle}</h4>
+            <p><strong>${playoutI18n.getSchedule}:</strong></p>
+            <pre><code>curl -H "X-API-Key: YOUR_API_KEY" \\
+  "${scheduleUrl}?from=2025-06-09&to=2025-06-15"</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(\`curl -H \\"X-API-Key: YOUR_API_KEY\\" \\\\\\n  \\"${scheduleUrl}?from=2025-06-09&to=2025-06-15\\"\`, playoutI18n.copyCurlCopied)">${playoutI18n.copy}</button>
+
+            <h4>${playoutI18n.responseFormatTitle}</h4>
+            <pre><code>{
+  "items": [
+    {
+      "id": "plan-42-pos-0",
+      "date": "2025-06-09",
+      "start_time": "18:00:00",
+      "end_time": "18:28:53",
+      "media_filename": "sardinien_2022.mp4",
+      "title": "Sardinien 2022",
+      "duration_seconds": 1733
+    }
+  ]
+}</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(playoutScheduleResponseExample, playoutI18n.copyResponseCopied)">${playoutI18n.copy}</button>
+
+            <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+              <p style="margin: 0; font-size: 0.9em;"><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> ${playoutI18n.note}</strong> ${playoutI18n.noteSchedule}</p>
+            </div>
+          </div>
+
+          <!-- POST /api/v1/air-reports -->
+          <div class="endpoint-section">
+            <h3><span class="method-badge method-post">POST</span> ${playoutI18n.airReportsEndpoint}</h3>
+            <p>${playoutI18n.airReportsDesc}</p>
+            <p><strong>${playoutI18n.endpointsTitle}:</strong> <code>POST ${airReportsUrl}</code></p>
+
+            <h4>${playoutI18n.requestBodyTitle}</h4>
+            <pre><code>{
+  "reports": [
+    {
+      "external_id": "air-2025-06-09-001",
+      "aired_at": "2025-06-09T18:00:00Z",
+      "media_filename": "sardinien_2022.mp4",
+      "actual_start": "2025-06-09T18:00:05Z",
+      "actual_end": "2025-06-09T18:28:50Z"
+    }
+  ]
+}</code></pre>
+
+            <h4>${playoutI18n.exampleRequestsTitle}</h4>
+            <pre><code>curl -X POST -H "X-API-Key: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"reports":[{"external_id":"air-001","aired_at":"2025-06-09T18:00:00Z","media_filename":"doc.mp4","actual_start":"2025-06-09T18:00:05Z","actual_end":"2025-06-09T18:28:50Z"}]}' \\
+  "${airReportsUrl}"</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(playoutAirReportsCurlExample, playoutI18n.copyCurlCopied)">${playoutI18n.copy}</button>
+
+            <h4>${playoutI18n.responseFormatTitle}</h4>
+            <pre><code>{
+  "status": "received",
+  "count": 1
+}</code></pre>
+
+            <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+              <p style="margin: 0; font-size: 0.9em;"><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> ${playoutI18n.note}</strong> ${playoutI18n.noteAirReport}</p>
+            </div>
+          </div>
+
+          <!-- POST /api/integrations/incoming -->
+          <div class="endpoint-section">
+            <h3><span class="method-badge method-post">POST</span> ${playoutI18n.webhookEndpoint}</h3>
+            <p>${playoutI18n.webhookDesc}</p>
+            <p><strong>${playoutI18n.endpointsTitle}:</strong> <code>POST ${webhookUrl}</code></p>
+
+            <h4>${playoutI18n.requestBodyTitle}</h4>
+            <pre><code>{
+  "direction": "incoming",
+  "items": [
+    {
+      "type": "media_update",
+      "payload": { "filename": "sardinien_2022.mp4" }
+    }
+  ]
+}</code></pre>
+
+            <h4>${playoutI18n.exampleRequestsTitle}</h4>
+            <pre><code>curl -X POST -H "X-API-Key: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"direction":"incoming","items":[{"type":"media_update","payload":{"filename":"doc.mp4"}}]}' \\
+  "${webhookUrl}"</code></pre>
+            <button class="copy-btn" onclick="copyPlayoutToClipboard(playoutWebhookCurlExample, playoutI18n.copyCurlCopied)">${playoutI18n.copy}</button>
+
+            <h4>${playoutI18n.responseFormatTitle}</h4>
+            <pre><code>{
+  "status": "received",
+  "run_id": 1
+}</code></pre>
+
+            <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+              <p style="margin: 0; font-size: 0.9em;"><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> ${playoutI18n.note}</strong> ${playoutI18n.noteWebhook}</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closePlayoutApiModal();
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closePlayoutApiModal();
+        }
+      });
+    }
+
+    // Response/curl examples for copy buttons
+    const playoutMediaResponseExample = JSON.stringify({
+      "items": [{"id": "14755", "filename": "sardinien_2022.mp4", "title": "Sardinien 2022", "author": "Jochen Spie\u00df", "description": "Eine Reise durch Nordsardinien"}]
+    }, null, 2);
+    const playoutScheduleResponseExample = JSON.stringify({
+      "items": [{"id": "plan-42-pos-0", "date": "2025-06-09", "start_time": "18:00:00", "end_time": "18:28:53", "media_filename": "sardinien_2022.mp4", "title": "Sardinien 2022", "duration_seconds": 1733}]
+    }, null, 2);
+    const playoutAirReportsCurlExample = `curl -X POST -H "X-API-Key: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"reports":[{"external_id":"air-001","aired_at":"2025-06-09T18:00:00Z","media_filename":"doc.mp4","actual_start":"2025-06-09T18:00:05Z","actual_end":"2025-06-09T18:28:50Z"}]}' \\
+  "${window.location.origin}${playoutApiUrls.airReports}"`;
+    const playoutWebhookCurlExample = `curl -X POST -H "X-API-Key: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"direction":"incoming","items":[{"type":"media_update","payload":{"filename":"doc.mp4"}}]}' \\
+  "${window.location.origin}${playoutApiUrls.webhook}"`;
+
+    function closePlayoutApiModal() {
+      const modal = document.getElementById('playout-api-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    function copyPlayoutToClipboard(text, message) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          showPlayoutNotification(message);
+        }).catch(function(err) {
+          console.error('Failed to copy: ', err);
+          fallbackPlayoutCopy(text, message);
+        });
+      } else {
+        fallbackPlayoutCopy(text, message);
+      }
+    }
+
+    function fallbackPlayoutCopy(text, message) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showPlayoutNotification(message);
+      } catch (err) {
+        console.error('Fallback: Could not copy text: ', err);
+        showPlayoutNotification(playoutI18n.copyFailed);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function showPlayoutNotification(message) {
+      const notification = document.createElement('div');
+      notification.style.cssText = 'position:fixed;top:20px;right:20px;background:#28a745;color:white;padding:12px 20px;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);z-index:10001;font-size:14px;opacity:0;transition:opacity 0.3s ease;';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(function() { notification.style.opacity = '1'; }, 10);
+      setTimeout(function() {
+        notification.style.opacity = '0';
+        setTimeout(function() {
+          if (notification.parentNode) { notification.parentNode.removeChild(notification); }
+        }, 300);
+      }, 3000);
+    }
+  </script>
 {% endblock %}
 
 {% block content %}
@@ -29,6 +493,11 @@
         <option value="comment">{% trans "Comment only" %}</option>
         <option value="empty">{% trans "Empty" %}</option>
       </select>
+      {% if show_api_docs %}
+      <button type="button" onclick="showPlayoutApiModal()" class="button" style="background: #007bff; color: white; margin-left: 8px;">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg> {% trans "API-Dokumentation" %}
+      </button>
+      {% endif %}
     </div>
   </div>
 
@@ -267,6 +736,14 @@
           <button id="planPlanBtn" class="button default" type="button">
             <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 8 1.5Zm2.97 5.53-3.25 3.25a.75.75 0 0 1-1.06 0L5.03 8.66a.75.75 0 1 1 1.06-1.06l1.1 1.1 2.72-2.72a.75.75 0 1 1 1.06 1.06Z" fill="currentColor"/></svg>
             {% trans "Plan!" %}
+          </button>
+          <button id="sendMetadataBtn" class="button" type="button" style="display:none;" title="{% trans 'Send media metadata to playout' %}">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.5 1a.5.5 0 0 1 .5.5V4h2.5a.5.5 0 0 1 0 1H12v2.5a.5.5 0 0 1-1 0V5H8.5a.5.5 0 0 1 0-1H11V1.5a.5.5 0 0 1 .5-.5ZM5 8a.5.5 0 0 1 .5.5V11H8a.5.5 0 0 1 0 1H5.5v2.5a.5.5 0 0 1-1 0V12H2a.5.5 0 0 1 0-1h2.5V8.5A.5.5 0 0 1 5 8Z" fill="currentColor"/></svg>
+            {% trans "Send metadata" %}
+          </button>
+          <button id="sendScheduleBtn" class="button" type="button" style="display:none;" title="{% trans 'Send schedule to playout' %}">
+            <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5ZM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1Z" fill="currentColor"/></svg>
+            {% trans "Send schedule" %}
           </button>
         </div>
       </div>

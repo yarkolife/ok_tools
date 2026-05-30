@@ -16,18 +16,21 @@ Including another URLconf
 
 from . import accessibility_views
 from . import views
+# Import custom admin configurations to ensure they are loaded
+from .admin_imports import register_custom_admin
 from django.contrib import admin
 from django.urls import include
 from django.urls import path
 from django.views.generic.base import TemplateView
 from django.views.i18n import JavaScriptCatalog
-from registration.views import PrivacyPolicyView
+from drf_spectacular.views import SpectacularAPIView
+from drf_spectacular.views import SpectacularRedocView
+from drf_spectacular.views import SpectacularSwaggerView
 from registration.views import PasswordResetConfirmView
 from registration.views import PasswordResetView
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from registration.views import PrivacyPolicyView
 
-# Import custom admin configurations to ensure they are loaded
-from .admin_imports import register_custom_admin
+
 register_custom_admin()
 
 # Import Celery admin customizations after all apps are loaded
@@ -115,6 +118,11 @@ if getattr(settings, 'PLANUNG_ENABLED', False):
     urlpatterns.append(
         path("api/", include("planung.urls")),
     )
+    from planung import api as planung_api
+    urlpatterns.append(path("api/v1/media", planung_api.MediaListView.as_view(), name="playout_api_media"))
+    urlpatterns.append(path("api/v1/schedule", planung_api.ScheduleListView.as_view(), name="playout_api_schedule"))
+    urlpatterns.append(path("api/v1/air-reports", planung_api.AirReportCreateView.as_view(), name="playout_api_air_reports"))
+    urlpatterns.append(path("api/integrations/incoming/<str:connector_id>", planung_api.IncomingWebhookView.as_view(), name="playout_api_webhook"))
 
 # Media Files URLs
 if getattr(settings, 'MEDIA_FILES_ENABLED', False):
