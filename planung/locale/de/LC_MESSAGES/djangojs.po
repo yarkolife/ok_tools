@@ -142,3 +142,48 @@ msgstr "Plan kopieren"
 
 msgid "Source date (YYYY-MM-DD)"
 msgstr "Quelldatum (JJJJ-MM-TT)"
+
+msgid "Send metadata"
+msgstr "Metadaten senden"
+
+msgid "Send schedule"
+msgstr "Sendeplan senden"
+
+msgid "Send media metadata to playout"
+msgstr "Medienmetadaten an Playout senden"
+
+msgid "Send schedule to playout"
+msgstr "Sendeplan an Playout senden"
+
+msgid "Playout metadata failed: "
+msgstr "Playout-Metadaten fehlgeschlagen: "
+
+msgid "Playout metadata sent. Matched: "
+msgstr "Playout-Metadaten gesendet. Zugeordnet: "
+
+msgid "Playout metadata sent."
+msgstr "Playout-Metadaten gesendet."
+
+msgid "Playout metadata request failed."
+msgstr "Playout-Metadaten-Anfrage fehlgeschlagen."
+
+msgid "Playout schedule failed: "
+msgstr "Playout-Sendeplan fehlgeschlagen: "
+
+msgid "Playout schedule sent. Created: "
+msgstr "Playout-Sendeplan gesendet. Erstellt: "
+
+msgid "Playout schedule sent."
+msgstr "Playout-Sendeplan gesendet."
+
+msgid "Playout schedule request failed."
+msgstr "Playout-Sendeplan-Anfrage fehlgeschlagen."
+
+msgid "Plan the day first"
+msgstr "Tag zuerst planen"
+
+msgid "Select a day first"
+msgstr "Zuerst einen Tag auswählen"
+
+msgid "No plan for this day"
+msgstr "Kein Plan für diesen Tag"
