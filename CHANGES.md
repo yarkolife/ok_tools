@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+2026-05-29 (Version 4.12.0)
+===========================
+
+* **planung: Send broadcast schedule to external playout**
+  * Added Playout Schedule URL to Planning Configuration admin settings
+  * The planning `Plan!` action now posts the day's broadcast schedule to `/api/schedule/import/oktools`
+  * Schedule payload includes day, start times, item kinds (video/placeholder/live), filenames, titles, youth protection, and enriched media metadata
+  * Kind determination: `video` (has VideoFile), `placeholder` (Freistellung without video), `live` (is_live=True)
+  * Youth protection category mapping: none → none, from_12 → 12+, from_16 → 16+, from_18 → 18+
+  * Added DRF-token-protected playout pull endpoints for media metadata, schedules, air reports, and incoming webhook events
+  * Added calendar API documentation modal with German translations and token guidance
+  * Added schedule import service, view integration, and test coverage
+
+2026-05-28 (Version 4.11.0)
+===========================
+
+* **planung: Send planned media metadata to external playout**
+  * Added Planning Configuration admin settings for playout import URL, API key, and timeout
+  * The planning `Plan!` action now posts allowlisted media metadata by filename to the configured playout import endpoint
+  * Added optional periodic missing-metadata checks against `/api/media/import/missing`
+  * Added playout import service tests and view coverage for the planning trigger
+
 2026-05-12 (Version 4.10.3)
 ===========================
 

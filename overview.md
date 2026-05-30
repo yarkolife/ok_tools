@@ -37,6 +37,9 @@
 
 ### Recent Updates
 
+- **Playout metadata import from planning**: The planning "Plan!" action can now POST allowlisted media metadata by filename to an external playout import endpoint configured in the Planning Configuration admin UI, with an optional periodic check for playout files missing metadata.
+- **Playout schedule import from planning**: The planning "Plan!" action also sends the day's broadcast schedule (day, start times, item kinds, filenames, youth protection) to a configurable external playout schedule endpoint, supporting video, placeholder (Freistellung), and live item kinds.
+- **Playout API endpoints**: Planning exposes DRF-token-protected endpoints for external playout systems to pull media metadata and schedules and to submit air reports/webhook events.
 - **Rental user selection optimization**: Prioritized initial user fetch for rental process, unified user search endpoints with shared serialization, added tests
 - **Austausch visibility rules**: Feed items now respect `allowExchange`/`allowExchangeOtherStates`, compare `bundesland_code` against the local organization config, and support configurable same-state channel exceptions from the exchange admin settings
 - **Bundesland metadata compatibility**: Organization configuration now stores the export Bundesland, auto-generates the Bundesland code, and guarantees both fields in license metadata/API payloads

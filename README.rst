@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.10.3
+**Current Version**: 4.12.0
 **Last Updated**: May 2026
 
 Features
@@ -55,6 +55,9 @@ Features
   - Draft and planned status tracking
   - Time extraction from license data
   - JSON-based plan storage with comments
+  - Optional playout metadata import: sends planned media metadata by filename to an external playout endpoint configured in the Planning Configuration admin UI when a plan is marked planned
+  - Optional periodic playout check for files that exist in playout but are still missing metadata
+  - Optional playout schedule import and DRF-token-protected playout API endpoints for external playout integrations
 
 - **Contributions Management** - Handle user contributions and submissions
   - DISA import from Excel files (XLSX/XLS format support)
