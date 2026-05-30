@@ -1,8 +1,14 @@
 from datetime import timedelta
+from django.test import override_settings
 from django.urls import reverse
 from licenses.models import License
 from licenses.models import default_category
 from planung.models import TagesPlan
+from planung.services.playout_import_service import PlayoutImportResult
+from planung.services.playout_import_service import PlayoutMissingMediaResult
+from planung.services.playout_import_service import PlayoutScheduleResult
+from unittest.mock import patch
+import json
 import pytest
 
 
@@ -130,3 +136,136 @@ def test__planung__calendar_weeks_view__injects_js_csrf_token(client, staff_user
     content = response.content.decode("utf-8")
     assert "const PLANNING_CSRF_TOKEN = '" in content
     assert "const PLANNING_CSRF_TOKEN = 'NOTPROVIDED'" not in content
+
+
+@pytest.mark.django_db
+@override_settings(
+    CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}},
+)
+def test__planung__plan_action__does_not_send_playout_automatically(client, staff_user, license_obj):
+    """Planning a day no longer triggers outbound playout calls automatically."""
+    client.force_login(staff_user)
+
+    payload = {
+        "date": "2026-02-10",
+        "items": [
+            {
+                "number": license_obj.number,
+                "start": "18:00:00",
+                "duration": 1200,
+                "title": "Planning API License",
+                "subtitle": "",
+            }
+        ],
+        "planned": True,
+        "comment": "API test",
+    }
+
+    with patch("planung.views.send_playout_import") as mocked_import, patch(
+        "planung.views.send_playout_schedule_service"
+    ) as mocked_schedule:
+        response = client.post(
+            reverse("save_day_plan"),
+            data=payload,
+            content_type="application/json",
+        )
+
+    assert response.status_code == 200
+    mocked_import.assert_not_called()
+    mocked_schedule.assert_not_called()
+    body = response.json()
+    assert "playout_import" not in body
+    assert "playout_schedule" not in body
+
+
+@pytest.mark.django_db
+def test__planung__playout_missing_media_endpoint(client, staff_user):
+    """Endpoint proxies playout files that are missing metadata."""
+    client.force_login(staff_user)
+    import_result = PlayoutMissingMediaResult(
+        configured=True,
+        items=[{"id": 123, "filename": "clip01.mp4"}],
+        total=1,
+        page=1,
+        page_size=100,
+        error="",
+    )
+
+    with patch("planung.views.fetch_playout_missing_media", return_value=import_result) as mocked_fetch:
+        response = client.get(reverse("planning_playout_missing"), {"page": "1", "page_size": "100"})
+
+    assert response.status_code == 200
+    mocked_fetch.assert_called_once_with(page=1, page_size=100)
+    body = response.json()
+    assert body["items"] == [{"id": 123, "filename": "clip01.mp4"}]
+    assert body["total"] == 1
+    assert body["configured"] is True
+
+
+@pytest.mark.django_db
+def test__planung__playout_metadata_endpoint(client, staff_user, license_obj):
+    """Separate endpoint sends playout metadata for a planned day."""
+    client.force_login(staff_user)
+    TagesPlan.objects.create(
+        datum="2026-02-10",
+        json_plan={
+            "items": [{"number": license_obj.number, "start": "18:00:00", "duration": 1200, "title": "Test"}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+    import_result = PlayoutImportResult(
+        configured=True,
+        sent=1,
+        matched=1,
+        unmatched=[],
+        error="",
+    )
+
+    with patch("planung.views.send_playout_import", return_value=import_result) as mocked_import:
+        response = client.post(
+            reverse("planning_playout_metadata"),
+            data=json.dumps({"date": "2026-02-10"}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 200
+    mocked_import.assert_called_once()
+    body = response.json()
+    assert body["configured"] is True
+    assert body["sent"] == 1
+
+
+@pytest.mark.django_db
+def test__planung__playout_schedule_endpoint(client, staff_user, license_obj):
+    """Separate endpoint sends playout schedule for a planned day."""
+    client.force_login(staff_user)
+    TagesPlan.objects.create(
+        datum="2026-02-10",
+        json_plan={
+            "items": [{"number": license_obj.number, "start": "18:00:00", "duration": 1200, "title": "Test"}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+    schedule_result = PlayoutScheduleResult(
+        configured=True,
+        sent=1,
+        created=1,
+        unmatched=[],
+        rejected=[],
+        error="",
+    )
+
+    with patch("planung.views.send_playout_schedule_service", return_value=schedule_result) as mocked_schedule:
+        response = client.post(
+            reverse("planning_playout_schedule"),
+            data=json.dumps({"date": "2026-02-10"}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 200
+    mocked_schedule.assert_called_once()
+    body = response.json()
+    assert body["configured"] is True
+    assert body["created"] == 1

@@ -2,6 +2,7 @@
 from .models import CalendarWeeksProxy
 from .models import PlanChangeLog
 from .models import PlanTemplate
+from .models import PlanungConfig
 from .models import TagesPlan
 from datetime import date
 from datetime import timedelta
@@ -237,6 +238,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
             "broadcast_end": broadcast_end,
             "calendar_start": start.isoformat(),
             "calendar_weeks": weeks_count,
+            "show_api_docs": PlanungConfig.get_config().is_playout_api_configured(),
         }
         cache.set(cache_key, context, timeout=300)
         return TemplateResponse(request, "admin/planung/calendar_weeks.html", context)
@@ -354,6 +356,48 @@ class PlanTemplateAdmin(admin.ModelAdmin):
     search_fields = ("name", "description")
     readonly_fields = ("created_at", "updated_at")
     fields = ("name", "description", "json_plan", "is_active", "created_at", "updated_at")
+
+
+@admin.register(PlanungConfig)
+class PlanungConfigAdmin(admin.ModelAdmin):
+    """Admin interface for planning module configuration."""
+
+    fieldsets = (
+        (_('Playout Import'), {
+            'fields': (
+                'playout_import_url',
+                'playout_import_api_key',
+                'playout_import_timeout',
+                'playout_missing_url',
+                'playout_missing_sync_enabled',
+                'playout_missing_sync_interval_minutes',
+                'playout_missing_page_size',
+            ),
+            'description': _(
+                'When configured, the Plan! action sends planned media metadata to '
+                'the external playout import endpoint. The missing metadata settings '
+                'can periodically query playout for files that still need metadata.'
+            ),
+        }),
+        (_('Playout Schedule'), {
+            'fields': (
+                'playout_schedule_url',
+            ),
+            'description': _(
+                'When configured, the Plan! action also sends the day\'s broadcast '
+                'schedule (day, start times, item kinds, filenames) to the external '
+                'playout schedule endpoint.'
+            ),
+        }),
+    )
+
+    def has_add_permission(self, request):
+        """Only one config instance allowed."""
+        return not PlanungConfig.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of config."""
+        return False
 
 
 @admin.register(PlanChangeLog)

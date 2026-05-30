@@ -1383,8 +1383,9 @@
         contentType: 'application/json',
         data: JSON.stringify(data),
         beforeSend: addCsrfHeader,
-        success: function () {
-          notify(gettext('Plan saved successfully!'), 'success');
+        success: function (response) {
+          var message = gettext('Plan saved successfully!');
+          notify(message, 'success');
           const modal = bootstrap.Modal.getInstance(document.getElementById('dayPlanModal'));
           modal.hide();
           location.reload(); // refresh calendar
@@ -1780,6 +1781,117 @@
     // Load weekly statistics after all functions are defined
     loadTemplates();
     loadWeeklyStatistics();
+
+    // Playout integration: show buttons only when configured
+    $.ajax({
+      url: '/api/planning/playout/config/',
+      method: 'GET',
+      dataType: 'json',
+      success: function (cfg) {
+        if (cfg.import_configured) {
+          $('#sendMetadataBtn').show();
+        }
+        if (cfg.schedule_configured) {
+          $('#sendScheduleBtn').show();
+        }
+      }
+    });
+
+    function checkDayPlanStatus() {
+      var iso = $('#dayPlanModal').data('iso-date');
+      var $metaBtn = $('#sendMetadataBtn');
+      var $schedBtn = $('#sendScheduleBtn');
+      if (!iso) {
+        $metaBtn.prop('disabled', true).attr('title', gettext('Select a day first'));
+        $schedBtn.prop('disabled', true).attr('title', gettext('Select a day first'));
+        return;
+      }
+      $.ajax({
+        url: '/api/day-plan/' + iso + '/',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          var isPlanned = data && data.planned;
+          if (isPlanned) {
+            $metaBtn.prop('disabled', false).attr('title', gettext('Send media metadata to playout'));
+            $schedBtn.prop('disabled', false).attr('title', gettext('Send schedule to playout'));
+          } else {
+            $metaBtn.prop('disabled', true).attr('title', gettext('Plan the day first'));
+            $schedBtn.prop('disabled', true).attr('title', gettext('Plan the day first'));
+          }
+        },
+        error: function () {
+          $metaBtn.prop('disabled', true).attr('title', gettext('No plan for this day'));
+          $schedBtn.prop('disabled', true).attr('title', gettext('No plan for this day'));
+        }
+      });
+    }
+
+    $('#dayPlanModal').on('shown.bs.modal', checkDayPlanStatus);
+
+    $('#sendMetadataBtn').on('click', function () {
+      var iso = $('#dayPlanModal').data('iso-date');
+      if (!iso) {
+        notify(gettext('Date is missing.'), 'error');
+        return;
+      }
+      var $btn = $(this);
+      $btn.prop('disabled', true);
+      $.ajax({
+        url: '/api/planning/playout/metadata/',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ date: iso }),
+        beforeSend: addCsrfHeader,
+        success: function (response) {
+          if (response.error) {
+            notify(gettext('Playout metadata failed: ') + response.error, 'error');
+          } else if (response.matched !== undefined) {
+            notify(gettext('Playout metadata sent. Matched: ') + response.matched, 'success');
+          } else {
+            notify(gettext('Playout metadata sent.'), 'success');
+          }
+        },
+        error: function (xhr) {
+          notify(gettext('Playout metadata request failed.'), 'error');
+        },
+        complete: function () {
+          $btn.prop('disabled', false);
+        }
+      });
+    });
+
+    $('#sendScheduleBtn').on('click', function () {
+      var iso = $('#dayPlanModal').data('iso-date');
+      if (!iso) {
+        notify(gettext('Date is missing.'), 'error');
+        return;
+      }
+      var $btn = $(this);
+      $btn.prop('disabled', true);
+      $.ajax({
+        url: '/api/planning/playout/schedule/',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ date: iso }),
+        beforeSend: addCsrfHeader,
+        success: function (response) {
+          if (response.error) {
+            notify(gettext('Playout schedule failed: ') + response.error, 'error');
+          } else if (response.created !== undefined) {
+            notify(gettext('Playout schedule sent. Created: ') + response.created, 'success');
+          } else {
+            notify(gettext('Playout schedule sent.'), 'success');
+          }
+        },
+        error: function (xhr) {
+          notify(gettext('Playout schedule request failed.'), 'error');
+        },
+        complete: function () {
+          $btn.prop('disabled', false);
+        }
+      });
+    });
 
   });
 })(jQuery);

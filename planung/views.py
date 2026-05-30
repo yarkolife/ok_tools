@@ -1,4 +1,5 @@
 from .models import PlanTemplate
+from .models import PlanungConfig
 from .models import TagesPlan
 from datetime import timedelta
 from django.contrib.admin.views.decorators import staff_member_required
@@ -15,6 +16,9 @@ from licenses.models import License
 from planung.services.plan_service import delete_day_plan
 from planung.services.plan_service import enrich_plan_items
 from planung.services.plan_service import save_day_plan as save_day_plan_service
+from planung.services.playout_import_service import fetch_playout_missing_media
+from planung.services.playout_import_service import send_playout_import
+from planung.services.playout_import_service import send_playout_schedule as send_playout_schedule_service
 from planung.services.validation_service import PlanningValidationError
 from planung.services.validation_service import validate_day_plan_payload
 import json
@@ -331,6 +335,34 @@ def copy_plan(request):
 
 @require_GET
 @staff_member_required
+def playout_missing_media(request):
+    """Proxy playout files that exist there but are missing metadata."""
+    try:
+        page = max(1, int(request.GET.get("page", 1)))
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        page_size = max(1, min(500, int(request.GET.get("page_size", 100))))
+    except (TypeError, ValueError):
+        page_size = 100
+
+    result = fetch_playout_missing_media(page=page, page_size=page_size)
+    status_code = 502 if result.error else 200
+    return JsonResponse(
+        {
+            "configured": result.configured,
+            "items": result.items,
+            "total": result.total,
+            "page": result.page,
+            "page_size": result.page_size,
+            "error": result.error,
+        },
+        status=status_code,
+    )
+
+
+@require_GET
+@staff_member_required
 def export_day_plan(request, iso_date):
     """Export plan payload in JSON format for one date."""
     date_obj = parse_date(iso_date)
@@ -357,3 +389,81 @@ def calendar_weeks_view(request):
     Implementation of the calendar_weeks_view.
     """
     return HttpResponseRedirect(reverse("admin:calendar_weeks_view"))
+
+
+@require_GET
+@staff_member_required
+def playout_config(request):
+    """Return playout integration configuration status."""
+    config = PlanungConfig.get_config()
+    return JsonResponse({
+        "import_configured": config.is_playout_import_configured(),
+        "schedule_configured": config.is_playout_schedule_configured(),
+    })
+
+
+@require_POST
+@staff_member_required
+def send_playout_metadata(request):
+    """Send planned media metadata to the external playout import endpoint."""
+    try:
+        data = json.loads(request.body)
+        iso_date = data.get("date")
+        date_obj = parse_date(iso_date) if iso_date else None
+        if not date_obj:
+            return JsonResponse({"error": _("Invalid date")}, status=400)
+
+        plan = TagesPlan.objects.filter(datum=date_obj).first()
+        if not plan:
+            return JsonResponse({"error": _("No plan for this day")}, status=404)
+
+        items = plan.json_plan.get("items", [])
+        result = send_playout_import(items)
+        return JsonResponse({
+            "configured": result.configured,
+            "sent": result.sent,
+            "matched": result.matched,
+            "unmatched": result.unmatched,
+            "error": result.error,
+        })
+    except Exception as e:
+        logger.exception("Failed to send playout metadata")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@require_POST
+@staff_member_required
+def send_playout_schedule(request):
+    """Send the day's broadcast schedule to the external playout schedule endpoint."""
+    try:
+        data = json.loads(request.body)
+        iso_date = data.get("date")
+        date_obj = parse_date(iso_date) if iso_date else None
+        if not date_obj:
+            return JsonResponse({"error": _("Invalid date")}, status=400)
+
+        plan = TagesPlan.objects.filter(datum=date_obj).first()
+        if not plan:
+            return JsonResponse({"error": _("No plan for this day")}, status=404)
+
+        items = plan.json_plan.get("items", [])
+        draft = plan.json_plan.get("draft", False)
+        planned = plan.json_plan.get("planned", False)
+
+        result = send_playout_schedule_service(
+            plan_date=date_obj,
+            plan_items=items,
+            draft=draft,
+            planned=planned,
+        )
+        return JsonResponse({
+            "configured": result.configured,
+            "sent": result.sent,
+            "created": result.created,
+            "unmatched": result.unmatched,
+            "rejected": result.rejected,
+            "error": result.error,
+        })
+    except Exception as e:
+        logger.exception("Failed to send playout schedule")
+        return JsonResponse({"error": str(e)}, status=500)
