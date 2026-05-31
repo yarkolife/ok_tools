@@ -34,6 +34,9 @@ class MediaItemSerializer(serializers.Serializer):
     title = serializers.CharField(allow_blank=True, default="")
     author = serializers.CharField(allow_blank=True, default="")
     description = serializers.CharField(allow_blank=True, default="")
+    year = serializers.IntegerField(allow_null=True, default=None)
+    category = serializers.CharField(allow_blank=True, default="")
+    age_rating = serializers.CharField(allow_blank=True, default="")
 
 
 class MediaListResponseSerializer(serializers.Serializer):

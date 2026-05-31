@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-05-31 (Version 4.13.0)
+===========================
+
+* **planung: Add year, category, age_rating to playout media API**
+  * GET /api/v1/media now includes year (license creation year), category (license category name), and age_rating (12+/16+/18+ mapped from youth protection) in each item
+  * Youth protection mapping: none→"", from_12→"12+", from_16→"16+", from_18→"18+"
+
 2026-05-29 (Version 4.12.0)
 ===========================
 

@@ -35,6 +35,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+_AGE_RATING_MAP = {
+    "none": "",
+    "from_12": "12+",
+    "from_16": "16+",
+    "from_18": "18+",
+}
+
 
 def _get_video_file_model():
     """Return the VideoFile model if media_files app is installed, else None."""
@@ -51,7 +58,7 @@ class MediaListView(APIView):
         updated_since  — ISO 8601 datetime, return only records modified after this
         filename       — Comma-separated filenames, return only matching records
 
-    Response: {"items": [{id, filename, title, author, description}, ...]}
+    Response: {"items": [{id, filename, title, author, description, year, category, age_rating}, ...]}
     """
 
     authentication_classes = [PlayoutApiKeyAuthentication]
@@ -91,12 +98,25 @@ class MediaListView(APIView):
         items = []
         for vf in qs:
             license_obj = getattr(vf, "license", None)
+            cat_name = ""
+            year = None
+            age_rating = ""
+            if license_obj:
+                cat = getattr(license_obj, "category", None)
+                cat_name = getattr(cat, "name", "") or ""
+                created_at = getattr(license_obj, "created_at", None)
+                year = created_at.year if created_at else None
+                raw_rating = getattr(license_obj, "youth_protection_category", "") or ""
+                age_rating = _AGE_RATING_MAP.get(raw_rating, "")
             item = {
                 "id": str(vf.number),
                 "filename": vf.filename,
                 "title": getattr(license_obj, "title", "") or "" if license_obj else "",
                 "author": _author_name(license_obj) if license_obj else "",
                 "description": getattr(license_obj, "description", "") or "" if license_obj else "",
+                "year": year,
+                "category": cat_name,
+                "age_rating": age_rating,
             }
             items.append(item)
 

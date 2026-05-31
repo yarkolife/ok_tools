@@ -159,6 +159,9 @@ class TestMediaListView:
         assert item["title"] == lic.title
         assert "author" in item
         assert "description" in item
+        assert item["year"] == lic.created_at.year
+        assert item["category"] == lic.category.name
+        assert item["age_rating"] == ""
 
     @override_settings(MEDIA_FILES_ENABLED=True)
     def test_filter_by_updated_since(self, api_client, license_with_video):
