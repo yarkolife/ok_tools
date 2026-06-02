@@ -137,6 +137,7 @@ nosetests.xml
 .sisyphus/
 .opencode/
 .codegraph/
+.agents/
 .venv_check/
 .venv312/
 test_db.sqlite3
