@@ -1878,6 +1878,8 @@
         success: function (response) {
           if (response.error) {
             notify(gettext('Playout schedule failed: ') + response.error, 'error');
+          } else if (Number(response.placeholders_created || 0) > 0) {
+            notify(gettext('Playout schedule sent. Placeholders: ') + response.placeholders_created, 'success');
           } else if (response.created !== undefined) {
             notify(gettext('Playout schedule sent. Created: ') + response.created, 'success');
           } else {

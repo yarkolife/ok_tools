@@ -16,7 +16,7 @@ urlpatterns = [
     path("planning/templates/apply/", views.apply_template, name="planning_template_apply"),
     path("planning/copy/", views.copy_plan, name="planning_copy_plan"),
     path("planning/playout/config/", views.playout_config, name="planning_playout_config"),
-    path("planning/playout/missing/", views.playout_missing_media, name="playout_playout_missing"),
+    path("planning/playout/missing/", views.playout_missing_media, name="planning_playout_missing"),
     path("planning/playout/metadata/", views.send_playout_metadata, name="planning_playout_metadata"),
     path("planning/playout/schedule/", views.send_playout_schedule, name="planning_playout_schedule"),
 ]

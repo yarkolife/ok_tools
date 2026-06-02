@@ -1,7 +1,6 @@
 """Send planned media metadata and schedule to an external playout system."""
 
 from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import date
 from django.apps import apps
@@ -18,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 
 YOUTH_PROTECTION_MAP = {
-    YouthProtectionCategory.NONE: "none",
-    YouthProtectionCategory.FROM_12: "12+",
-    YouthProtectionCategory.FROM_16: "16+",
-    YouthProtectionCategory.FROM_18: "18+",
+    YouthProtectionCategory.NONE: "0+",
+    YouthProtectionCategory.FROM_12: "12",
+    YouthProtectionCategory.FROM_16: "16",
+    YouthProtectionCategory.FROM_18: "18",
 }
 
 
@@ -52,6 +51,7 @@ class PlayoutScheduleResult:
     unmatched: list[dict[str, str]]
     rejected: list[dict[str, str]]
     error: str
+    placeholders_created: int | None = None
 
 
 def _duration_seconds(video_file: Any, license_obj: License) -> float | None:
@@ -297,15 +297,97 @@ def fetch_playout_missing_media(*, page: int = 1, page_size: int | None = None) 
 
 def _youth_protection_label(license_obj: License) -> str:
     ypc = getattr(license_obj, "youth_protection_category", None) or ""
-    return YOUTH_PROTECTION_MAP.get(ypc, "none")
+    return YOUTH_PROTECTION_MAP.get(ypc, "0+")
 
 
-def _determine_kind(license_obj: License, has_video_file: bool) -> str:
+def _start_time(value: Any) -> str:
+    """Return local schedule time as HH:MM:SS."""
+    if hasattr(value, "strftime"):
+        return value.strftime("%H:%M:%S")
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    parts = text.split(":")
+    if len(parts) == 2:
+        return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}:00"
+    if len(parts) == 3:
+        return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}:{parts[2].zfill(2)}"
+    return text
+
+
+def _duration_sec(value: Any) -> int:
+    """Return schedule duration as integer seconds."""
+    if isinstance(value, (int, float)):
+        return int(value)
+    if hasattr(value, "total_seconds"):
+        return int(value.total_seconds())
+    text = str(value or "").strip()
+    if not text:
+        return 0
+    parts = text.split(":")
+    try:
+        if len(parts) == 3:
+            hours, minutes, seconds = [int(part) for part in parts]
+            return hours * 3600 + minutes * 60 + seconds
+        if len(parts) == 2:
+            minutes, seconds = [int(part) for part in parts]
+            return minutes * 60 + seconds
+        return int(float(text))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _determine_kind(license_obj: License, has_video_file: bool, explicit_kind: Any = "") -> str:
+    explicit = str(explicit_kind or "").strip().lower()
+    if explicit in {"placeholder", "freistellung"}:
+        return "placeholder"
     if getattr(license_obj, "is_live", False):
+        return "live"
+    if explicit == "live":
         return "live"
     if has_video_file:
         return "video"
     return "placeholder"
+
+
+def _first_text(*values: Any) -> str:
+    """Return the first non-empty text value."""
+    for value in values:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
+
+
+def _add_plan_item_metadata(item: dict[str, Any], plan_item: dict[str, Any]) -> None:
+    """Copy optional placeholder metadata from a stored plan row."""
+    for source_key, target_key in (
+        ("description", "description"),
+        ("author", "author"),
+        ("sender_responsible", "author"),
+        ("category", "category"),
+        ("category_name", "category"),
+    ):
+        if target_key in item:
+            continue
+        value = _first_text(plan_item.get(source_key))
+        if value:
+            item[target_key] = value
+
+    language = _first_text(plan_item.get("language"))
+    item["language"] = language or _language_code()
+
+    youth_protection = _first_text(
+        plan_item.get("youth_protection"),
+        plan_item.get("age_rating"),
+    )
+    if youth_protection:
+        item["youth_protection"] = youth_protection
+
+
+def _placeholder_filename(plan_item: dict[str, Any]) -> str:
+    """Return the expected placeholder file name from a plan row."""
+    return _first_text(plan_item.get("placeholder_filename"), plan_item.get("filename"))
 
 
 def build_playout_schedule_payload(
@@ -345,21 +427,26 @@ def build_playout_schedule_payload(
         video_file = video_files_by_number.get(number) if number else None
 
         if not license_obj:
-            schedule_items.append({
+            item = {
                 "position": position,
-                "start": plan_item.get("start", ""),
-                "duration_sec": plan_item.get("duration", 0),
+                "start": _start_time(plan_item.get("start", "")),
+                "duration_sec": _duration_sec(plan_item.get("duration", 0)),
                 "kind": "placeholder",
                 "title": plan_item.get("title", ""),
-                "youth_protection": "none",
-            })
+                "youth_protection": "0+",
+            }
+            filename = _placeholder_filename(plan_item)
+            if filename:
+                item["placeholder_filename"] = filename
+            _add_plan_item_metadata(item, plan_item)
+            schedule_items.append(item)
             continue
 
-        kind = _determine_kind(license_obj, video_file is not None)
+        kind = _determine_kind(license_obj, video_file is not None, plan_item.get("kind", ""))
         item: dict[str, Any] = {
             "position": position,
-            "start": plan_item.get("start", ""),
-            "duration_sec": plan_item.get("duration", 0),
+            "start": _start_time(plan_item.get("start", "")),
+            "duration_sec": _duration_sec(plan_item.get("duration", 0)),
             "kind": kind,
             "title": getattr(license_obj, "title", "") or "",
             "youth_protection": _youth_protection_label(license_obj),
@@ -367,13 +454,16 @@ def build_playout_schedule_payload(
 
         category = getattr(license_obj, "category", None)
         if category:
-            item["category_name"] = getattr(category, "name", "")
+            item["category"] = str(getattr(category, "name", "") or "")
 
         if kind == "video" and video_file:
             item["filename"] = getattr(video_file, "filename", "")
         elif kind == "placeholder":
+            placeholder_filename = _placeholder_filename(plan_item)
+            if placeholder_filename:
+                item["placeholder_filename"] = placeholder_filename
             is_screen_board = getattr(license_obj, "is_screen_board", False)
-            if is_screen_board:
+            if is_screen_board and "placeholder_filename" not in item:
                 item["placeholder_filename"] = f"{number}_freistellung.mp4"
 
         if kind == "live":
@@ -431,6 +521,7 @@ def build_playout_schedule_payload(
 
     payload: dict[str, Any] = {
         "date": plan_date.isoformat(),
+        "block_id": None,
         "status": "planned" if planned else "draft",
         "items": schedule_items,
     }
@@ -503,4 +594,5 @@ def send_playout_schedule(
         unmatched=_str_list(data.get("unmatched")),
         rejected=_str_list(data.get("rejected")),
         error="",
+        placeholders_created=data.get("placeholders_created"),
     )

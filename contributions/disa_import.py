@@ -1,6 +1,6 @@
 from . import models
-from datetime import datetime
 from datetime import date as date_type
+from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -9,8 +9,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from io import BytesIO
 from licenses.models import License
-from openpyxl import load_workbook
 from openpyxl import Workbook
+from openpyxl import load_workbook
 from zoneinfo import ZoneInfo
 import logging
 import os
@@ -193,6 +193,9 @@ def validate(file):
     ws = wb[WS_NAME]
     rows = ws.rows
     header = next(rows)
+    if len(header) <= TYPE:
+        e(_('The header row is missing required columns.'))
+        raise ValidationError(errors)
 
     if header[BEGIN].value != (NAME := 'Anfang'):
         e(_('Column %(nr)s needs to be named %(name)s')
@@ -309,13 +312,17 @@ def _process_row_data(rows, from_date: date_type = None):
     license_numbers = set()
     
     for row in rows:
-        # Skip empty rows (continue instead of break to process entire file)
-        if not any([row[i].value for i in range(TYPE)]):
+        if len(row) <= TYPE:
             continue
 
+        # Skip empty rows (continue instead of break to process entire file)
+        if not any([row[i].value for i in range(TYPE + 1)]):
+            continue
+
+        title = str(row[TITLE].value or "")
         if (
             row[TYPE].value == INFO or
-            any([row[TITLE].value.startswith(x) for x in IGNORED_PREFIXES])
+            any([title.startswith(x) for x in IGNORED_PREFIXES])
         ):
             continue
 
@@ -327,7 +334,7 @@ def _process_row_data(rows, from_date: date_type = None):
                 if parsed_date and parsed_date.date() < from_date:
                     continue
 
-        license_number = _extract_license_number(row[TITLE].value)
+        license_number = _extract_license_number(title)
         if license_number:
             license_numbers.add(license_number)
             rows_data.append(row)
@@ -388,6 +395,7 @@ def _prepare_contributions_for_batch_creation(rows_data, licenses_dict, no_repet
     contributions_to_create = []
     dates_to_delete = set()
     error_count = 0
+    seen_contributions = set()
     
     for row in rows_data:
         license_number = _extract_license_number(row[TITLE].value)
@@ -404,6 +412,12 @@ def _prepare_contributions_for_batch_creation(rows_data, licenses_dict, no_repet
         if not broadcast_date:
             error_count += 1
             continue
+
+        live = row[TYPE].value == LIVE
+        contribution_key = (license.id, broadcast_date, live)
+        if contribution_key in seen_contributions:
+            continue
+        seen_contributions.add(contribution_key)
 
         # Collect dates for batch deletion
         dates_to_delete.add(broadcast_date.date())
@@ -423,9 +437,11 @@ def _prepare_contributions_for_batch_creation(rows_data, licenses_dict, no_repet
         contribution = models.Contribution(
             license=license,
             broadcast_date=broadcast_date,
-            live=(row[TYPE].value == LIVE)
+            live=live
         )
         contributions_to_create.append(contribution)
+        if not license.is_live and license.id in no_repetition_license_ids:
+            existing_contributions_set.add(license.id)
     
     return contributions_to_create, dates_to_delete, error_count
 
@@ -506,8 +522,8 @@ def disa_import(request, file, from_date: date_type = None):
         wb = _load_workbook_auto(file)
         ws = wb[WS_NAME]
         rows = ws.rows
-        next(rows)  # ignore headers
-        next(rows)  # ignore empty row
+        next(rows, None)  # ignore headers
+        next(rows, None)  # ignore empty row
 
         # Process row data and extract license numbers (with optional date filtering)
         rows_data, license_numbers = _process_row_data(rows, from_date)
@@ -551,14 +567,12 @@ def disa_import(request, file, from_date: date_type = None):
         # Only notify if a video is linked to the license and only once per license.
         # ------------------------------------------------------------------
         try:
-            from licenses.models import (
-                License,
-                LicenseNotificationEvent,
-                LicenseNotificationEventType,
-                NextcloudVideoFile,
-            )
-            from licenses.tasks import enqueue_license_notification_email
             from licenses.config import get_send_status_emails
+            from licenses.models import License
+            from licenses.models import LicenseNotificationEvent
+            from licenses.models import LicenseNotificationEventType
+            from licenses.models import NextcloudVideoFile
+            from licenses.tasks import enqueue_license_notification_email
 
             # Determine which licenses were part of this import batch
             imported_license_ids = {

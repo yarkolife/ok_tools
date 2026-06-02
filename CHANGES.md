@@ -1,6 +1,29 @@
 CHANGELOG
 =========
 
+2026-06-03 (Version 4.14.0)
+===========================
+
+* **contributions: Fix DISA import edge cases**
+  * Added header row length validation
+  * Added live contribution deduplication by (license, date, live) key
+  * Fixed row boundary checks and empty row detection
+  * Fixed no-repetition license tracking not updating `existing_contributions_set`
+
+* **planung: Enhance playout import service**
+  * Youth protection mapping changed to `0+` / `12` / `16` / `18` for playout
+  * Added `placeholders_created` field to `PlayoutScheduleResult`
+  * Added `_start_time` and `_duration_sec` helpers with flexible parsing
+  * Calendar weeks JS: fixed placeholder count notification
+
+* **Test infrastructure improvements**
+  * Browser fixture: `db` → `transactional_db`, lazy wsgi import, login button fallback
+  * pytest.ini: added `--noconftest`-compatible top-level config
+
+* **chore: config and import cleanups**
+  * Added `DATABASE_CONN_MAX_AGE` env var support in settings
+  * Fixed isort grouping in settings.py
+
 2026-05-31 (Version 4.13.0)
 ===========================
 

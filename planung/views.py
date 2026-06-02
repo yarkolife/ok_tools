@@ -10,15 +10,17 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 from licenses.models import License
 from planung.services.plan_service import delete_day_plan
 from planung.services.plan_service import enrich_plan_items
-from planung.services.plan_service import save_day_plan as save_day_plan_service
+from planung.services.plan_service import \
+    save_day_plan as save_day_plan_service
 from planung.services.playout_import_service import fetch_playout_missing_media
 from planung.services.playout_import_service import send_playout_import
-from planung.services.playout_import_service import send_playout_schedule as send_playout_schedule_service
+from planung.services.playout_import_service import \
+    send_playout_schedule as send_playout_schedule_service
 from planung.services.validation_service import PlanningValidationError
 from planung.services.validation_service import validate_day_plan_payload
 import json
@@ -460,6 +462,7 @@ def send_playout_schedule(request):
             "configured": result.configured,
             "sent": result.sent,
             "created": result.created,
+            "placeholders_created": result.placeholders_created,
             "unmatched": result.unmatched,
             "rejected": result.rejected,
             "error": result.error,

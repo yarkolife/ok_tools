@@ -20,20 +20,21 @@ from projects.models import Project
 from projects.models import ProjectLeader
 from projects.models import default_category as default_project_category
 from projects.models import default_target_group
-import ok_tools.wsgi
 import pytest
 import zope.testbrowser.browser
 
 
 @pytest.fixture(scope="function")
-def browser(db, admin_user):
+def browser(transactional_db, admin_user):
     """Get a ``zope.testbrowser`` Browser instance.
 
     Usage:
     >>> browser.open(URL)
     >>> browser.login(USERNAME, PASSWORD)
     """
-    return Browser(wsgi_app=ok_tools.wsgi.application)
+    from ok_tools.wsgi import application
+
+    return Browser(wsgi_app=application)
 
 
 class Browser(zope.testbrowser.browser.Browser):
@@ -55,7 +56,10 @@ class Browser(zope.testbrowser.browser.Browser):
             f'Not on login page, URL is {self.url}'
         self.getControl('Email address').value = email
         self.getControl('Password').value = password
-        self.getControl('Log in').click()
+        try:
+            self.getControl('Log in').click()
+        except LookupError:
+            self.getForm(index=1).submit()
 
 
 @pytest.fixture(scope='function')

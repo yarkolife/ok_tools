@@ -9,15 +9,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+from celery.schedules import crontab
+from datetime import timedelta
 from django.contrib.messages import constants as messages
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 import dj_database_url
 import logging
 import os
-from datetime import timedelta
-from celery.schedules import crontab
-from django.core.exceptions import ImproperlyConfigured
 
 
 # Logger for settings.py
@@ -282,7 +282,7 @@ WSGI_APPLICATION = "ok_tools.wsgi.application"
 DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
+        conn_max_age=get_env('DATABASE_CONN_MAX_AGE', default=600, cast=int),
     )
 }
 
