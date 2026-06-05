@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OK Tools 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-30 13:33+0200\n"
+"POT-Creation-Date: 2026-06-05 23:51+0200\n"
 "PO-Revision-Date: 2026-01-28 12:00+0100\n"
 "Last-Translator: OK Tools Team\n"
 "Language-Team: German\n"
@@ -15,196 +15,310 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: contributions/admin.py:33
 msgid "Broadcast date"
 msgstr "Sendedatum"
 
+#: contributions/admin.py:55 contributions/admin.py:450
+#: contributions/templates/admin/export.html:32 projects/admin.py:49
 msgid "Date from"
 msgstr "Datum von"
 
+#: contributions/admin.py:57 contributions/admin.py:62 projects/admin.py:51
+#: projects/admin.py:56
 msgid "From"
 msgstr "Von"
 
+#: contributions/admin.py:60 projects/admin.py:54
 msgid "Time from"
 msgstr "Zeit von"
 
+#: contributions/admin.py:65 contributions/admin.py:455
+#: contributions/templates/admin/export.html:37 projects/admin.py:59
 msgid "Date to"
 msgstr "Datum bis"
 
+#: contributions/admin.py:67 contributions/admin.py:72 projects/admin.py:61
+#: projects/admin.py:66
 msgid "To"
 msgstr "Bis"
 
+#: contributions/admin.py:70 projects/admin.py:64
 msgid "Time to"
 msgstr "Zeit bis"
 
+#: contributions/admin.py:137 contributions/api.py:43
 msgid "Info block"
 msgstr "Infoblock"
 
+#: contributions/admin.py:223 contributions/admin.py:417
+#: contributions/models.py:90
+#: contributions/templates/contributions/list.html:155
 msgid "Broadcast Date"
 msgstr "Sendedatum"
 
+#: contributions/admin.py:224
 msgid "Start Time"
 msgstr "Startzeit"
 
+#: contributions/admin.py:225
 msgid "End Time"
 msgstr "Endzeit"
 
+#: contributions/admin.py:226 contributions/admin.py:415
+#: contributions/admin.py:642 contributions/admin.py:937
+#: contributions/templates/contributions/list.html:154 projects/admin.py:171
+#: registration/models.py:285
 msgid "Title"
 msgstr "Titel"
 
+#: contributions/admin.py:227 contributions/admin.py:416
+#: contributions/admin.py:643 contributions/admin.py:942
 msgid "Subtitle"
 msgstr "Untertitel"
 
+#: contributions/admin.py:228
+#: contributions/templates/admin/contributions/contribution/change_list.html:100
+#: inventory/admin.py:29 inventory/models.py:31 inventory/models.py:48
+#: inventory/models.py:64 inventory/models.py:191 projects/admin.py:173
+#: projects/models.py:143 registration/models.py:559
 msgid "Description"
 msgstr "Beschreibung"
 
+#: contributions/admin.py:229
 msgid "Credits"
 msgstr "Mitwirkende"
 
+#: contributions/admin.py:231
+#: contributions/templates/contributions/list.html:157 inventory/admin.py:32
+#: inventory/admin.py:103 inventory/models.py:69 inventory/models.py:212
+#: inventory/templates/inventory/list.html:68
 msgid "Category"
 msgstr "Kategorie"
 
+#: contributions/admin.py:232 contributions/admin.py:471
+#: contributions/templates/admin/export.html:59
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
+#: contributions/admin.py:233 contributions/admin.py:953
 msgid "Number"
 msgstr "Nummer"
 
+#: contributions/admin.py:292 contributions/api.py:260
 msgid "A contribution by {}"
 msgstr "Ein Beitrag von {}"
 
+#: contributions/admin.py:362
 msgid "Program"
 msgstr "Programm"
 
+#: contributions/admin.py:414 contributions/admin.py:641
 msgid "License number"
 msgstr "Freistellungsnummer"
 
+#: contributions/admin.py:418
 msgid "Broadcast Time"
 msgstr "Sendezeit"
 
+#: contributions/admin.py:419 contributions/admin.py:644
+#: contributions/admin.py:879 registration/models.py:253
+#: registration/templates/navbar.html:119 ok_tools/templates/base.html:66
+#: ok_tools/templates/dashboard.html:64
 msgid "Profile"
 msgstr "Profil"
 
+#: contributions/admin.py:420
 msgid "Profile ID"
 msgstr "Profil-ID"
 
+#: contributions/admin.py:421
+#: contributions/templates/contributions/list.html:156 projects/admin.py:175
+#: projects/models.py:155
 msgid "Duration"
 msgstr "Dauer"
 
+#: contributions/admin.py:422
+#: contributions/templates/contributions/list.html:106
+#: contributions/templates/contributions/list.html:184 ok_tools/views.py:193
 msgid "Live"
 msgstr "Live"
 
+#: contributions/admin.py:441
 msgid "Data export"
 msgstr "Datenexport"
 
+#: contributions/admin.py:460 contributions/admin.py:886
+#: contributions/templates/admin/export.html:42 registration/admin.py:101
+#: registration/models.py:80 registration/models.py:108
+#: registration/models.py:209
 msgid "Media Authority"
 msgstr "Offener Kanal/Bürgermedium"
 
+#: contributions/admin.py:463 contributions/admin.py:467
+#: contributions/admin.py:472 contributions/admin.py:477
+#: contributions/templates/admin/export.html:44
+#: contributions/templates/admin/export.html:53
+#: contributions/templates/admin/export.html:61
+#: contributions/templates/admin/export.html:69
 msgid "All"
 msgstr "Alle"
 
+#: contributions/admin.py:466 contributions/templates/admin/export.html:51
+#: registration/models.py:220
 msgid "Global Producer"
 msgstr "Globaler Produzent"
 
+#: contributions/admin.py:467 contributions/admin.py:472
+#: contributions/admin.py:477 contributions/admin.py:729
+#: contributions/templates/admin/export.html:54
+#: contributions/templates/admin/export.html:62
+#: contributions/templates/admin/export.html:70 inventory/models.py:581
+#: inventory/models.py:582 ok_tools/admin_celery.py:193
 msgid "Yes"
 msgstr "Ja"
 
+#: contributions/admin.py:467 contributions/admin.py:472
+#: contributions/admin.py:477 contributions/admin.py:730
+#: contributions/templates/admin/export.html:55
+#: contributions/templates/admin/export.html:63
+#: contributions/templates/admin/export.html:71 inventory/models.py:581
+#: inventory/models.py:582 ok_tools/admin_celery.py:193
 msgid "No"
 msgstr "Nein"
 
+#: contributions/admin.py:476 contributions/templates/admin/export.html:67
 msgid "Has video"
 msgstr "Hat Video"
 
+#: contributions/admin.py:645
 msgid "Broadcast date and time"
 msgstr "Sendedatum und -zeit"
 
+#: contributions/admin.py:646
 msgid "Video path (Windows)"
 msgstr "Videopfad (Windows)"
 
+#: contributions/admin.py:672
 msgid "Mediathek import"
 msgstr "Mediathek-Import"
 
+#: contributions/admin.py:680
 msgid "Broadcast week"
 msgstr "Sendewoche"
 
+#: contributions/admin.py:686
 msgid "In this week"
 msgstr "In dieser Woche"
 
+#: contributions/admin.py:687
 msgid "Until next week"
 msgstr "Bis nächste Woche"
 
+#: contributions/admin.py:688
 msgid "Until week after next"
 msgstr "Bis übernächste Woche"
 
+#: contributions/admin.py:723
 msgid "Primary Contribution"
 msgstr "Hauptbeitrag"
 
+#: contributions/admin.py:754
 msgid "Broadcast year"
 msgstr "Sendejahr"
 
+#: contributions/admin.py:760 projects/admin.py:219 registration/admin.py:170
 msgid "This year"
 msgstr "Dieses Jahr"
 
+#: contributions/admin.py:761 projects/admin.py:220 registration/admin.py:171
 msgid "Last year"
 msgstr "Letztes Jahr"
 
+#: contributions/admin.py:828
 msgid "Date from and Date to are required for Mediathek export."
 msgstr "Datum von und Datum bis sind für den Mediathek-Export erforderlich."
 
+#: contributions/admin.py:876
 msgid "Title, Subtitle, Number"
 msgstr "Titel, Untertitel, Nummer"
 
+#: contributions/admin.py:880 contributions/models.py:84
 msgid "License"
 msgstr "Freistellung"
 
+#: contributions/admin.py:890
 msgid "Broadcast Information"
 msgstr "Sendeinformationen"
 
+#: contributions/admin.py:893
 msgid "Contribution Status"
 msgstr "Beitragsstatus"
 
+#: contributions/admin.py:896
 msgid "Automatically determined based on broadcast date."
 msgstr "Wird automatisch anhand des Sendedatums bestimmt."
 
+#: contributions/admin.py:931
 msgid "Is primary"
 msgstr "Ist Hauptbeitrag"
 
+#: contributions/admin.py:947 inventory/models.py:527 registration/models.py:67
+#: registration/models.py:149 ok_tools/templates/rental_dashboard.html:43
 msgid "User"
 msgstr "Nutzer"
 
+#: contributions/admin.py:977
 msgid "Import selected DISA exports."
 msgstr "Ausgewählte DISA-Exporte importieren."
 
+#: contributions/admin.py:988
 #, python-format
 msgid "%d file successfully imported."
 msgid_plural "%d files successfully imported."
 msgstr[0] "%d Datei erfolgreich importiert."
 msgstr[1] "%d Dateien erfolgreich importiert."
 
+#: contributions/admin.py:1007
 #, python-format
 msgid "\"%(obj)s\" successfully imported."
 msgstr "\"%(obj)s\" erfolgreich importiert."
 
+#: contributions/apps.py:10 contributions/models.py:118
+#: registration/templates/navbar.html:163 ok_tools/templates/base.html:82
+#: ok_tools/templates/dashboard.html:211 ok_tools/templates/dashboard.html:333
 msgid "Contributions"
 msgstr "Beiträge"
 
+#: contributions/disa_import.py:190
 #, python-format
 msgid "The worksheet needs to be named \"%(name)s\"."
 msgstr "Das Arbeitsblatt muss \"%(name)s\" heißen."
 
+#: contributions/disa_import.py:197
+msgid "The header row is missing required columns."
+msgstr ""
+
+#: contributions/disa_import.py:201 contributions/disa_import.py:208
+#: contributions/disa_import.py:215 contributions/disa_import.py:222
+#: contributions/disa_import.py:229
 #, python-format
 msgid "Column %(nr)s needs to be named %(name)s"
 msgstr "Spalte %(nr)s muss %(name)s heißen"
 
+#: contributions/disa_import.py:239
 #, python-format
 msgid "Invalid title in cell %(c)s%(r)s. Title needs the format <nr>_<title>."
 msgstr ""
 "Ungültiger Titel in Zelle %(c)s%(r)s. Titel muss das Format <Nr>_<Titel> "
 "haben."
 
+#: contributions/disa_import.py:405
 #, python-format
 msgid "No license with number %(n)s found."
 msgstr "Keine Freistellung mit Nummer %(n)s gefunden."
 
+#: contributions/disa_import.py:429
 #, python-format
 msgid ""
 "No repetitions for number %(n)s allowed and already found a primary "
@@ -213,9 +327,11 @@ msgstr ""
 "Keine Wiederholungen für Nummer %(n)s erlaubt und bereits einen Hauptbeitrag "
 "gefunden."
 
+#: contributions/disa_import.py:532
 msgid "No valid data found in file."
 msgstr "Keine gültigen Daten in der Datei gefunden."
 
+#: contributions/disa_import.py:554
 #, python-format
 msgid ""
 "Successfully processed %(total)d rows, created %(created)d contributions, "
@@ -224,304 +340,425 @@ msgstr ""
 "%(total)d Zeilen erfolgreich verarbeitet, %(created)d Beiträge erstellt, "
 "%(errors)d Fehler."
 
+#: contributions/disa_import.py:632
 #, python-format
 msgid "Error during import: %(error)s"
 msgstr "Fehler beim Import: %(error)s"
 
+#: contributions/models.py:97
 msgid "Is live"
 msgstr "Ist Live"
 
+#: contributions/models.py:117
 msgid "Contribution"
 msgstr "Beitrag"
 
+#: contributions/models.py:136
 msgid "DISA export file"
 msgstr "DISA-Exportdatei"
 
+#: contributions/models.py:146
+#: contributions/templates/admin/disa_import_change_form.html:77
 msgid "Import from date"
 msgstr "Importieren ab Datum"
 
+#: contributions/models.py:149
 msgid "Only import contributions from this date onwards."
 msgstr "Nur Beiträge ab diesem Datum importieren."
 
+#: contributions/models.py:153 inventory/models.py:355 inventory/models.py:735
 msgid "Imported"
 msgstr "Importiert"
 
+#: contributions/models.py:157 inventory/models.py:357 inventory/models.py:737
 msgid "Just marking the file as imported does not import the file!"
 msgstr "Das Markieren der Datei als importiert importiert die Datei nicht!"
 
+#: contributions/models.py:173
 msgid "DISA-Import"
 msgstr "DISA-Import"
 
+#: contributions/models.py:174
 msgid "DISA-Imports"
 msgstr "DISA-Importe"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:93
 msgid "Program Schedule API"
 msgstr "Programmplan-API"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:94
 #, fuzzy
 #| msgid "API Endpoint"
 msgid "Endpoint"
 msgstr "API-Endpunkt"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:95
+#: contributions/templates/admin/contributions/contribution/change_list.html:107
 msgid "Authentication"
 msgstr "Authentifizierung"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:96
 msgid "Token-based (include token in Authorization header)"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:97
 msgid "Query Parameters"
 msgstr "Abfrageparameter"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:98
 msgid "Parameter"
 msgstr "Parameter"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:99
+#: registration/models.py:296
 msgid "Type"
 msgstr "Typ"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:101
 msgid "Example"
 msgstr "Beispiel"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:102
 msgid "Specific date"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:103
 #, fuzzy
 #| msgid "Start of period (YYYY-MM-DD)"
 msgid "Start date of period"
 msgstr "Anfang des Zeitraums (JJJJ-MM-TT)"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:104
 msgid "End date of period"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:105
 #, fuzzy
 #| msgid "Start time (HH:MM:SS)"
 msgid "Start time (optional)"
 msgstr "Startzeit (HH:MM:SS)"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:106
 msgid "End time (optional)"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:108
 msgid "Include your token in the Authorization header:"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:109
 msgid "Example Requests"
 msgstr "Beispielanfragen"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:110
 msgid "Get program for a specific date:"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:111
 msgid "Get program for a date range:"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:112
 msgid "Get program with time filter:"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:113
 #, fuzzy
 #| msgid "JavaScript Example"
 msgid "JavaScript Example:"
 msgstr "JavaScript-Beispiel"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:114
 msgid "Response Format"
 msgstr "Antwortformat"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:115
 msgid "Returns an array of program entries:"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:116
 msgid "Note:"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:117
 msgid ""
 "Screen boards (Info blocks) are automatically added for gaps between "
 "programs. Consecutive info blocks are merged."
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:118
 msgid "Copy"
 msgstr "Kopieren"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:119
 msgid "cURL command copied!"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:120
 #, fuzzy
 #| msgid "JavaScript Example"
 msgid "JavaScript code copied!"
 msgstr "JavaScript-Beispiel"
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:121
 msgid "Response example copied!"
 msgstr ""
 
+#: contributions/templates/admin/contributions/contribution/change_list.html:122
 msgid "Failed to copy to clipboard"
 msgstr ""
 
 # API Documentation translations
+#: contributions/templates/admin/contributions/contribution/change_list.html:437
 msgid "API Documentation"
 msgstr "API-Dokumentation"
 
+#: contributions/templates/admin/disa_import_change_form.html:79
+#: contributions/templates/admin/disa_import_change_form.html:137
 msgid "All dates"
 msgstr "Alle Daten"
 
+#: contributions/templates/admin/disa_import_change_form.html:82
 msgid "Loading dates..."
 msgstr "Daten werden geladen..."
 
+#: contributions/templates/admin/disa_import_change_form.html:87
 msgid "Save"
 msgstr "Speichern"
 
+#: contributions/templates/admin/disa_import_change_form.html:88
 msgid "Save and Import"
 msgstr "Speichern und Importieren"
 
+#: contributions/templates/admin/disa_import_change_form.html:149
 msgid "dates available"
 msgstr "Daten verfügbar"
 
+#: contributions/templates/admin/disa_import_change_form.html:181
+#: contributions/templates/admin/disa_import_change_form.html:210
 msgid "Error loading dates"
 msgstr "Fehler beim Laden der Daten"
 
+#: contributions/templates/admin/export.html:7
+#: inventory/templates/admin/export.html:7
+#: inventory/templates/admin/inventory_item_change_list.html:7
 msgid "Export"
 msgstr "Export"
 
+#: contributions/templates/admin/export.html:76
 msgid "The data export will only export primary contributions."
 msgstr "Der Datenexport exportiert nur Hauptbeiträge."
 
+#: contributions/templates/admin/export.html:79
+#: inventory/templates/admin/export.html:27
 msgid "Submit"
 msgstr "Absenden"
 
+#: contributions/templates/contributions/list.html:5
+#: contributions/templates/contributions/list.html:6
+#: ok_tools/templates/dashboard.html:30
 msgid "Your Contributions"
 msgstr "Ihre Beiträge"
 
+#: contributions/templates/contributions/list.html:12
 msgid "Manage your broadcast contributions and airings"
 msgstr "Verwalten Sie Ihre Sendebeiträge und Ausstrahlungen"
 
+#: contributions/templates/contributions/list.html:17
 msgid "Switch view"
 msgstr "Ansicht wechseln"
 
+#: contributions/templates/contributions/list.html:20
 msgid "New License"
 msgstr "Neue Freistellung"
 
+#: contributions/templates/contributions/list.html:34
 msgid "Active Licenses"
 msgstr "Aktive Freistellungen"
 
+#: contributions/templates/contributions/list.html:43
 msgid "Total Broadcasts"
 msgstr "Ausstrahlungen gesamt"
 
+#: contributions/templates/contributions/list.html:52
 msgid "Live Broadcasts"
 msgstr "Live-Sendungen"
 
+#: contributions/templates/contributions/list.html:61
 msgid "Recordings"
 msgstr "Aufzeichnungen"
 
+#: contributions/templates/contributions/list.html:84
 msgid "Broadcasts"
 msgstr "Ausstrahlungen"
 
+#: contributions/templates/contributions/list.html:110
+#: contributions/templates/contributions/list.html:186
 msgid "Recording"
 msgstr "Aufzeichnung"
 
+#: contributions/templates/contributions/list.html:136
 msgid "No contributions found"
 msgstr "Keine Beiträge gefunden"
 
+#: contributions/templates/contributions/list.html:137
 msgid "You have no broadcast contributions yet. Create a license first."
 msgstr ""
 "Sie haben noch keine Sendebeiträge. Erstellen Sie zuerst eine Freistellung."
 
+#: contributions/templates/contributions/list.html:139
 msgid "Create first license"
 msgstr "Erste Freistellung erstellen"
 
+#: contributions/templates/contributions/list.html:158 inventory/admin.py:35
+#: inventory/admin.py:271 inventory/admin.py:378 inventory/models.py:227
+#: inventory/models.py:573 inventory/templates/inventory/list.html:78
+#: inventory/templates/inventory/list.html:160
+#: inventory/tests/test_models.py:353 ok_tools/admin_celery.py:109
+#: ok_tools/admin_celery.py:664 ok_tools/admin_celery.py:745
+#: ok_tools/templates/dashboard.html:246
+#: ok_tools/templates/rental_dashboard.html:96
 msgid "Status"
 msgstr "Status"
 
+#: contributions/templates/contributions/list.html:159
 msgid "Actions"
 msgstr "Aktionen"
 
+#: contributions/templates/contributions/list.html:268
 msgid "Card view"
 msgstr "Kartenansicht"
 
+#: contributions/templates/contributions/list.html:273
 msgid "Table view"
 msgstr "Tabellenansicht"
 
+#: htmlcov/d_bfd9e7db70bf35f3_forms_py.html:162
+#: htmlcov/z_bfd9e7db70bf35f3_forms_py.html:162
+#: registration/templates/registration/print_registration.html:29
 msgid "Print registration form"
 msgstr "Registrierungsformular drucken"
 
+#: inventory/admin.py:28 inventory/admin.py:232 inventory/models.py:186
 msgid "Inventory Number"
 msgstr "Inventarnummer"
 
+#: inventory/admin.py:30 inventory/models.py:197
 msgid "Serial Number"
 msgstr "Seriennummer"
 
+#: inventory/admin.py:31 inventory/admin.py:102 inventory/models.py:36
+#: inventory/models.py:204 inventory/models.py:670
 msgid "Manufacturer"
 msgstr "Hersteller"
 
+#: inventory/admin.py:33 inventory/admin.py:105 inventory/models.py:148
+#: inventory/models.py:218 inventory/models.py:574
+#: inventory/templates/inventory/list.html:88
+#: inventory/templates/inventory/list.html:172
 msgid "Location"
 msgstr "Standort"
 
+#: inventory/admin.py:34 inventory/models.py:221 inventory/models.py:572
+#: inventory/tests/test_models.py:352
 msgid "Quantity"
 msgstr "Menge"
 
+#: inventory/admin.py:36 inventory/admin.py:104 inventory/models.py:234
+#: inventory/models.py:570
 msgid "Owner"
 msgstr "Eigentümer"
 
+#: inventory/admin.py:37 inventory/models.py:240
 msgid "Inventory Number Owner"
 msgstr "Inventarnummer des Eigentümers"
 
+#: inventory/admin.py:41 inventory/models.py:246
 msgid "Purchase Date"
 msgstr "Kaufdatum"
 
+#: inventory/admin.py:112
 msgid "Identification"
 msgstr "Identifikation"
 
+#: inventory/admin.py:115
 msgid "Classification"
 msgstr "Klassifikation"
 
+#: inventory/admin.py:118
 msgid "Ownership & Inventory"
 msgstr "Eigentum & Inventar"
 
+#: inventory/admin.py:121
 msgid "Quantity & Availability"
 msgstr "Menge & Verfügbarkeit"
 
+#: inventory/admin.py:123
 msgid "Reserved and rented quantities are calculated automatically."
 msgstr "Reservierte und verliehene Mengen werden automatisch berechnet."
 
+#: inventory/admin.py:125
 msgid "Purchase Information"
 msgstr "Kaufinformationen"
 
+#: inventory/admin.py:191 inventory/models.py:506
 msgid "Model Name"
 msgstr "Modellname"
 
+#: inventory/admin.py:192 inventory/models.py:510
 msgid "Object ID"
 msgstr "Objekt-ID"
 
+#: inventory/admin.py:193 inventory/models.py:515
 msgid "Action"
 msgstr "Aktion"
 
+#: inventory/admin.py:194 inventory/admin.py:238 inventory/models.py:520
 msgid "Changes"
 msgstr "Änderungen"
 
+#: inventory/admin.py:195 inventory/models.py:531
 msgid "Timestamp"
 msgstr "Zeitstempel"
 
+#: inventory/admin.py:276 inventory/admin.py:383
 msgid "-"
 msgstr "-"
 
+#: inventory/admin.py:284 inventory/admin.py:391
 msgid "Download Error Log File"
 msgstr "Fehlerprotokoll-Datei herunterladen"
 
+#: inventory/admin.py:293 inventory/admin.py:400 inventory/models.py:378
+#: inventory/models.py:753
 msgid "Error Log"
 msgstr "Fehlerprotokoll"
 
+#: inventory/admin.py:295
 msgid "Import selected inventory files"
 msgstr "Ausgewählte Inventardateien importieren"
 
+#: inventory/admin.py:306
 #, python-format
 msgid "Import task for %(file)s has been started. Task ID: %(task_id)s"
 msgstr "Importvorgang für %(file)s wurde gestartet. Vorgangs-ID: %(task_id)s"
 
+#: inventory/admin.py:314
 msgid "Import selected inventory files synchronously"
 msgstr "Ausgewählte Inventardateien synchron importieren"
 
+#: inventory/admin.py:332
 #, python-format
 msgid "Successfully imported %(created)s items. %(skipped)s items skipped."
 msgstr ""
 "%(created)s Elemente erfolgreich importiert. %(skipped)s Elemente "
 "übersprungen."
 
+#: inventory/admin.py:402
 msgid "Import selected inspection files"
 msgstr "Ausgewählte Prüfungsdateien importieren"
 
+#: inventory/admin.py:420
 #, python-format
 msgid ""
 "Successfully imported %(created)s inspections. %(skipped)s items skipped."
@@ -529,28 +766,43 @@ msgstr ""
 "%(created)s Prüfungen erfolgreich importiert. %(skipped)s Elemente "
 "übersprungen."
 
+#: inventory/apps.py:10 inventory/inventory_import.py:18
+#: inventory/services/inventory_service.py:30
+#: inventory/templates/inventory/list.html:5
+#: inventory/templates/inventory/list.html:6
 msgid "Inventory"
 msgstr "Inventar"
 
+#: inventory/forms.py:10 inventory/models.py:655
 msgid "Inspection Number"
 msgstr "Prüfnummer"
 
+#: inventory/forms.py:12
 msgid "Enter existing number or a new one"
 msgstr "Vorhandene Nummer oder neue Nummer eingeben"
 
+#: inventory/forms.py:35
 msgid "Inspection number already attached to another item."
 msgstr "Prüfnummer ist bereits einem anderen Element zugeordnet."
 
+#: inventory/inspection_import.py:78
+#: inventory/services/inventory_service.py:1008
 msgid "File must be CSV or XLSX format"
 msgstr "Datei muss das Format CSV oder XLSX haben"
 
+#: inventory/inspection_import.py:81
+#: inventory/services/inventory_service.py:1011
 msgid "Could not read headers from file."
 msgstr "Konnte die Kopfzeilen der Datei nicht lesen."
 
+#: inventory/inspection_import.py:87
+#: inventory/services/inventory_service.py:1017
 #, python-format
 msgid "File must contain columns: %(columns)s. Missing: %(missing)s"
 msgstr "Datei muss die Spalten enthalten: %(columns)s. Fehlend: %(missing)s"
 
+#: inventory/inspection_import.py:124
+#: inventory/services/inventory_service.py:974
 #, python-format
 msgid ""
 "Invalid date format for \"inspection_date\". Supported formats: YYYY-MM-DD, "
@@ -559,537 +811,757 @@ msgstr ""
 "Ungültiges Datumsformat für \"inspection_date\". Unterstützte Formate: JJJJ-"
 "MM-TT, TT.MM.JJJJ, TT/MM/JJJJ, JJJJ/MM/TT. Erhalten: \"%(date_str)s\""
 
+#: inventory/inspection_import.py:154
+#: inventory/services/inventory_service.py:1053
 msgid "No file provided for import."
 msgstr "Keine Datei für den Import angegeben."
 
+#: inventory/inspection_import.py:172
+#: inventory/services/inventory_service.py:1071
 msgid "CSV file is empty or has no header row."
 msgstr "CSV-Datei ist leer oder enthält keine Kopfzeile."
 
+#: inventory/inspection_import.py:180
+#: inventory/services/inventory_service.py:1079
 #, python-format
 msgid "Unsupported file format: %(ext)s"
 msgstr "Nicht unterstütztes Dateiformat: %(ext)s"
 
+#: inventory/inspection_import.py:183
+#: inventory/services/inventory_service.py:1082
 msgid "Could not determine headers from the file."
 msgstr "Konnte die Kopfzeilen in der Datei nicht bestimmen."
 
+#: inventory/inspection_import.py:190
+#: inventory/services/inventory_service.py:1089
 #, python-format
 msgid "Missing required field: %(field)s"
 msgstr "Erforderliches Feld fehlt: %(field)s"
 
+#: inventory/inspection_import.py:197
+#: inventory/services/inventory_service.py:1096
 msgid "Field 'inspection_date' cannot be empty."
 msgstr "Feld 'inspection_date' darf nicht leer sein."
 
+#: inventory/inspection_import.py:202
+#: inventory/services/inventory_service.py:1101
 msgid "Field 'inspection_number' cannot be empty."
 msgstr "Feld 'inspection_number' darf nicht leer sein."
 
+#: inventory/inspection_import.py:233
+#: inventory/services/inventory_service.py:1132
 #, python-format
 msgid "Row %(row_num)s: %(error)s"
 msgstr "Zeile %(row_num)s: %(error)s"
 
+#: inventory/inspection_import.py:238
+#: inventory/services/inventory_service.py:1137
 #, python-format
 msgid "Error processing row %(row_num)s: %(error)s"
 msgstr "Fehler beim Verarbeiten der Zeile %(row_num)s: %(error)s"
 
+#: inventory/inspection_import.py:246 inventory/inventory_import.py:286
+#: inventory/services/inventory_service.py:894
+#: inventory/services/inventory_service.py:1145
 msgid "Import Errors"
 msgstr "Importfehler"
 
+#: inventory/inspection_import.py:247 inventory/inventory_import.py:289
+#: inventory/services/inventory_service.py:897
+#: inventory/services/inventory_service.py:1146
 msgid "Row"
 msgstr "Zeile"
 
+#: inventory/inspection_import.py:247 inventory/inventory_import.py:289
+#: inventory/services/inventory_service.py:897
+#: inventory/services/inventory_service.py:1146 ok_tools/admin_celery.py:93
 msgid "Error"
 msgstr "Fehler"
 
+#: inventory/inspection_import.py:253 inventory/inventory_import.py:300
+#: inventory/services/inventory_service.py:908
+#: inventory/services/inventory_service.py:1152
 #, python-format
 msgid "import_errors_%(timestamp)s.xlsx"
 msgstr "import_fehler_%(timestamp)s.xlsx"
 
+#: inventory/inspection_import.py:264
+#: inventory/services/inventory_service.py:1163
 #, python-format
 msgid "Import failed: %(error)s"
 msgstr "Import fehlgeschlagen: %(error)s"
 
+#: inventory/inspection_import.py:265
+#: inventory/services/inventory_service.py:1164
 #, python-format
 msgid "Fatal Error: %(error)s"
 msgstr "Schwerwiegender Fehler: %(error)s"
 
+#: inventory/inspection_import.py:267
+#: inventory/services/inventory_service.py:1166
 msgid "No errors during import."
 msgstr "Keine Fehler beim Import."
 
+#: inventory/inventory_import.py:19 inventory/services/inventory_service.py:31
 msgid "Test"
 msgstr "Test"
 
+#: inventory/inventory_import.py:19 inventory/services/inventory_service.py:31
 msgid "Sample"
 msgstr "Beispiel"
 
+#: inventory/inventory_import.py:35 inventory/services/inventory_service.py:665
 #, python-format
 msgid "%(model)s \"%(value)s\" created automatically."
 msgstr "%(model)s \"%(value)s\" wurde automatisch erstellt."
 
+#: inventory/inventory_import.py:40 inventory/services/inventory_service.py:670
 #, python-format
 msgid "%(model)s name is missing in row %(row)s. Skipping..."
 msgstr "Name von %(model)s fehlt in Zeile %(row)s. Überspringen..."
 
+#: inventory/inventory_import.py:76 inventory/services/inventory_service.py:713
 #, python-format
 msgid "Column %(col)s should be named \"%(expected)s\", but got \"%(actual)s\""
 msgstr "Spalte %(col)s sollte \"%(expected)s\" heißen, hat aber \"%(actual)s\""
 
+#: inventory/inventory_import.py:151
+#: inventory/services/inventory_service.py:784
 #, python-format
 msgid "Location \"%(location)s\" not found in dictionary"
 msgstr "Standort \"%(location)s\" nicht im Wörterbuch gefunden"
 
+#: inventory/inventory_import.py:167
+#: inventory/services/inventory_service.py:800
 msgid "in Betrieb"
 msgstr "in Betrieb"
 
+#: inventory/inventory_import.py:168
+#: inventory/services/inventory_service.py:801
 msgid "defekt"
 msgstr "defekt"
 
+#: inventory/inventory_import.py:169
+#: inventory/services/inventory_service.py:802
 msgid "ausgemustert"
 msgstr "ausgemustert"
 
+#: inventory/inventory_import.py:170
+#: inventory/services/inventory_service.py:803
 msgid "verliehen"
 msgstr "verliehen"
 
+#: inventory/inventory_import.py:171
+#: inventory/services/inventory_service.py:804
 msgid "Ausleihe"
 msgstr "Ausleihe"
 
+#: inventory/inventory_import.py:268 inventory/inventory_import.py:307
+#: inventory/services/inventory_service.py:883
+#: inventory/services/inventory_service.py:915
 #, python-format
 msgid "Row %(row)s: %(error)s"
 msgstr "Zeile %(row)s: %(error)s"
 
+#: inventory/inventory_import.py:316
+#: inventory/services/inventory_service.py:923
 msgid "No errors"
 msgstr "Keine Fehler"
 
+#: inventory/inventory_import.py:328
 #, python-format
 msgid "Successfully created %(count)d inventory items in batch"
 msgstr "%(count)d Inventarartikel wurden im Stapel erfolgreich erstellt"
 
+#: inventory/inventory_import.py:333
 #, python-format
 msgid "Bulk create failed: %(error)s. Falling back to individual creation."
 msgstr ""
 "Stapelweise Erstellung fehlgeschlagen: %(error)s. Es wird auf "
 "Einzelerstellung zurückgegriffen."
 
+#: inventory/inventory_import.py:341
 #, python-format
 msgid "Failed to create item %(inventory_number)s: %(error)s"
 msgstr "Fehler beim Erstellen des Elements %(inventory_number)s: %(error)s"
 
+#: inventory/inventory_import.py:362
 #, python-format
 msgid "Successfully updated %(count)d inventory items in batch"
 msgstr "%(count)d Inventarartikel wurden im Stapel erfolgreich aktualisiert"
 
+#: inventory/inventory_import.py:367
 #, python-format
 msgid "Bulk update failed: %(error)s. Falling back to individual updates."
 msgstr ""
 "Stapelaktualisierung fehlgeschlagen: %(error)s. Es wird auf "
 "Einzelaktualisierung zurückgegriffen."
 
+#: inventory/inventory_import.py:375
 #, python-format
 msgid "Failed to update item %(inventory_number)s: %(error)s"
 msgstr "Fehler beim Aktualisieren des Elements %(inventory_number)s: %(error)s"
 
+#: inventory/models.py:30 inventory/models.py:47 inventory/models.py:63
+#: inventory/models.py:133
 msgid "Name"
 msgstr "Name"
 
+#: inventory/models.py:37
 msgid "Manufacturers"
 msgstr "Hersteller"
 
+#: inventory/models.py:53 projects/admin.py:300 registration/admin.py:233
 msgid "Organization"
 msgstr "Organisation"
 
+#: inventory/models.py:54
 msgid "Organizations"
 msgstr "Organisationen"
 
+#: inventory/models.py:70
 msgid "Categories"
 msgstr "Kategorien"
 
+#: inventory/models.py:140
 msgid "Parent"
 msgstr "Übergeordnet"
 
+#: inventory/models.py:149
 msgid "Locations"
 msgstr "Standorte"
 
+#: inventory/models.py:177
 msgid "In stock"
 msgstr "Auf Lager"
 
+#: inventory/models.py:178 inventory/templates/inventory/list.html:50
+#: inventory/templates/inventory/list.html:82
+#: inventory/templates/inventory/list.html:164
 msgid "Rented"
 msgstr "Verliehen"
 
+#: inventory/models.py:179
 msgid "Written off"
 msgstr "Ausgebucht"
 
+#: inventory/models.py:180
 msgid "Defect"
 msgstr "Defekt"
 
+#: inventory/models.py:241
 msgid "Enter the inventory number of the owner of the item."
 msgstr "Geben Sie die Inventarnummer des Eigentümers des Objekts ein."
 
+#: inventory/models.py:253
 msgid "Purchase Cost"
 msgstr "Kaufpreis"
 
+#: inventory/models.py:257
 msgid "Date Added"
 msgstr "Hinzugefügt am"
 
+#: inventory/models.py:261 inventory/models.py:571
 msgid "Available for Rental"
 msgstr "Für Verleih verfügbar"
 
+#: inventory/models.py:262
 msgid "Check if this item is available for rental."
 msgstr ""
 "Aktivieren Sie diese Option, wenn dieser Artikel für den Verleih verfügbar "
 "ist."
 
+#: inventory/models.py:266
 msgid "Reserved Quantity"
 msgstr "Reservierte Menge"
 
+#: inventory/models.py:270
 msgid "Rented Quantity"
 msgstr "Verliehene Menge"
 
+#: inventory/models.py:288 inventory/models.py:667
 msgid "Inventory Item"
 msgstr "Inventarartikel"
 
+#: inventory/models.py:289
 msgid "Inventory Items"
 msgstr "Inventarartikel"
 
+#: inventory/models.py:307
 msgid "Not specified"
 msgstr "Nicht angegeben"
 
+#: inventory/models.py:324 inventory/models.py:411 inventory/models.py:704
+#: ok_tools/views.py:162
 msgid "Pending"
 msgstr "Ausstehend"
 
+#: inventory/models.py:325 inventory/models.py:412 inventory/models.py:705
 msgid "In Progress"
 msgstr "In Bearbeitung"
 
+#: inventory/models.py:326 inventory/models.py:413 inventory/models.py:706
+#: ok_tools/admin_celery.py:73 ok_tools/admin_celery.py:77
+#: ok_tools/admin_celery.py:85 ok_tools/views.py:162
 msgid "Completed"
 msgstr "Abgeschlossen"
 
+#: inventory/models.py:327 inventory/models.py:414 inventory/models.py:707
 msgid "Completed with Errors"
 msgstr "Abgeschlossen mit Fehlern"
 
+#: inventory/models.py:328 inventory/models.py:415 inventory/models.py:708
+#: ok_tools/admin_celery.py:66 ok_tools/admin_celery.py:80
+#: ok_tools/admin_celery.py:97 ok_tools/admin_celery.py:751
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
+#: inventory/models.py:339
 msgid "Inventory file"
 msgstr "Inventardatei"
 
+#: inventory/models.py:351 inventory/models.py:731
 msgid "Import Status"
 msgstr "Importstatus"
 
+#: inventory/models.py:362 inventory/models.py:742
 msgid "Items Created"
 msgstr "Erstellte Elemente"
 
+#: inventory/models.py:367 inventory/models.py:747
 msgid "Items Skipped"
 msgstr "Übersprungene Elemente"
 
+#: inventory/models.py:372
 msgid "Items Updated"
 msgstr "Aktualisierte Elemente"
 
+#: inventory/models.py:383 inventory/models.py:758
 msgid "Import Date"
 msgstr "Importdatum"
 
+#: inventory/models.py:389 inventory/models.py:764
 msgid "Completed Date"
 msgstr "Abschlussdatum"
 
+#: inventory/models.py:396 inventory/models.py:771
 msgid "Error Log File"
 msgstr "Fehlerprotokolldatei"
 
+#: inventory/models.py:403
 msgid "Task ID"
 msgstr "Aufgaben-ID"
 
+#: inventory/models.py:404
 msgid "Celery task ID for asynchronous processing"
 msgstr "Celery-Aufgaben-ID für asynchrone Verarbeitung"
 
+#: inventory/models.py:410
 msgid "Not Started"
 msgstr "Nicht gestartet"
 
+#: inventory/models.py:416
 msgid "Retry"
 msgstr "Erneut versuchen"
 
+#: inventory/models.py:417
 msgid "Revoked"
 msgstr "Widerrufen"
 
+#: inventory/models.py:420
 msgid "Celery Status"
 msgstr "Celery-Status"
 
+#: inventory/models.py:426
 msgid "Inventory Import"
 msgstr "Inventarimport"
 
+#: inventory/models.py:427
 msgid "Inventory Imports"
 msgstr "Inventarimporte"
 
+#: inventory/models.py:436 inventory/models.py:787
 msgid "No file provided."
 msgstr "Keine Datei bereitgestellt."
 
+#: inventory/models.py:499
 msgid "Created"
 msgstr "Erstellt"
 
+#: inventory/models.py:500
 msgid "Updated"
 msgstr "Aktualisiert"
 
+#: inventory/models.py:501
 msgid "Deleted"
 msgstr "Gelöscht"
 
+#: inventory/models.py:537
 msgid "Audit Log"
 msgstr "Audit-Log"
 
+#: inventory/models.py:538
 msgid "Audit Logs"
 msgstr "Audit-Logs"
 
+#: inventory/models.py:543
 #, python-format
 msgid "%(number)s %(action)s by %(user)s at %(timestamp)s"
 msgstr "%(number)s %(action)s von %(user)s am %(timestamp)s"
 
+#: inventory/models.py:561
 #, python-format
 msgid "Deleted item (ID: %(id)s)"
 msgstr "Gelöschtes Objekt (ID: %(id)s)"
 
+#: inventory/models.py:567
 msgid "No changes recorded."
 msgstr "Keine Änderungen protokolliert."
 
+#: inventory/models.py:586
 #, python-format
 msgid "%(field)s: %(old)s → %(new)s"
 msgstr "%(field)s: %(old)s → %(new)s"
 
+#: inventory/models.py:648
 msgid "Whole device"
 msgstr "Gesamtes Gerät"
 
+#: inventory/models.py:649
 msgid "Power cable"
 msgstr "Netzkabel"
 
+#: inventory/models.py:650
 msgid "Power supply unit"
 msgstr "Netzteil"
 
+#: inventory/models.py:656
 msgid "Number assigned by the inspection company"
 msgstr "Nummer, die von der Prüfgesellschaft zugewiesen wurde"
 
+#: inventory/models.py:671
 msgid "Device Type"
 msgstr "Gerätetyp"
 
+#: inventory/models.py:672
 msgid "Room"
 msgstr "Raum"
 
+#: inventory/models.py:678
 msgid "Target Part"
 msgstr "Prüfteil"
 
+#: inventory/models.py:680
 msgid "Inspection Date"
 msgstr "Prüfungsdatum"
 
+#: inventory/models.py:685
 msgid "Result / Comment"
 msgstr "Ergebnis / Kommentar"
 
+#: inventory/models.py:691
 msgid "Inspection"
 msgstr "Prüfung"
 
+#: inventory/models.py:692
 msgid "Inspections"
 msgstr "Prüfungen"
 
+#: inventory/models.py:719
 msgid "Inspection file"
 msgstr "Prüfungsdatei"
 
+#: inventory/models.py:777
 msgid "Inspection Import"
 msgstr "Prüfungsimport"
 
+#: inventory/models.py:778
 msgid "Inspection Imports"
 msgstr "Prüfungsimporte"
 
+#: inventory/services/inventory_service.py:854
+#: inventory/services/inventory_service.py:859
 #, python-format
 msgid "Inventory item with number \"%(number)s\" already exists. Skipping..."
 msgstr ""
 "Inventargegenstand mit der Nummer \"%(number)s\" existiert bereits. "
 "Überspringen..."
 
+#: inventory/templates/admin/export.html:25
 msgid "The data export will include all inventory items."
 msgstr "Der Datenexport wird alle Inventargegenstände enthalten."
 
+#: inventory/templates/admin/inspection_import_change_form.html:7
+#: inventory/templates/admin/inventory_import_change_form.html:7
+#: inventory/templates/inventory/list.html:16
 msgid "Import"
 msgstr "Importieren"
 
+#: inventory/templates/inventory/list.html:12
 msgid "Manage your equipment and inventory items"
 msgstr "Verwalten Sie Ihre Ausrüstung und Inventargegenstände"
 
+#: inventory/templates/inventory/list.html:19
 msgid "Add Item"
 msgstr "Gegenstand hinzufügen"
 
+#: inventory/templates/inventory/list.html:32
 msgid "Total Items"
 msgstr "Gesamtanzahl der Gegenstände"
 
+#: inventory/templates/inventory/list.html:41
+#: inventory/templates/inventory/list.html:81
+#: inventory/templates/inventory/list.html:162
 msgid "Available"
 msgstr "Verfügbar"
 
+#: inventory/templates/inventory/list.html:59
+#: inventory/templates/inventory/list.html:83
+#: inventory/templates/inventory/list.html:166
 msgid "Maintenance"
 msgstr "Wartung"
 
+#: inventory/templates/inventory/list.html:70
+#: ok_tools/templates/rental_dashboard.html:189
 msgid "All Categories"
 msgstr "Alle Kategorien"
 
+#: inventory/templates/inventory/list.html:71
 msgid "Camera"
 msgstr "Kamera"
 
+#: inventory/templates/inventory/list.html:72
 msgid "Audio"
 msgstr "Audio"
 
+#: inventory/templates/inventory/list.html:73
 msgid "Lighting"
 msgstr "Beleuchtung"
 
+#: inventory/templates/inventory/list.html:74
 msgid "Computer"
 msgstr "Computer"
 
+#: inventory/templates/inventory/list.html:80
 msgid "All Statuses"
 msgstr "Alle Status"
 
+#: inventory/templates/inventory/list.html:84
 msgid "Reserved"
 msgstr "Reserviert"
 
+#: inventory/templates/inventory/list.html:90
 msgid "All Locations"
 msgstr "Alle Standorte"
 
+#: inventory/templates/inventory/list.html:91
 msgid "Storage"
 msgstr "Lager"
 
+#: inventory/templates/inventory/list.html:92
 msgid "Studio"
 msgstr "Studio"
 
+#: inventory/templates/inventory/list.html:93
 msgid "Office"
 msgstr "Büro"
 
+#: inventory/templates/inventory/list.html:97
 msgid "Search"
 msgstr "Suche"
 
+#: inventory/templates/inventory/list.html:98
 msgid "Search items..."
 msgstr "Gegenstände suchen..."
 
+#: inventory/templates/inventory/list.html:103
 msgid "Clear Filters"
 msgstr "Filter löschen"
 
+#: inventory/templates/inventory/list.html:124
 msgid "View Details"
 msgstr "Details anzeigen"
 
+#: inventory/templates/inventory/list.html:127
 msgid "Edit"
 msgstr "Bearbeiten"
 
+#: inventory/templates/inventory/list.html:131
 msgid "Delete"
 msgstr "Löschen"
 
+#: inventory/templates/inventory/list.html:168 ok_tools/admin_celery.py:655
 msgid "Unknown"
 msgstr "Unbekannt"
 
+#: inventory/templates/inventory/list.html:179
 msgid "Last Inspection"
 msgstr "Letzte Prüfung"
 
+#: inventory/templates/inventory/list.html:188
 msgid "Rent"
 msgstr "Verleihen"
 
+#: inventory/templates/inventory/list.html:192
 msgid "Not Available"
 msgstr "Nicht verfügbar"
 
+#: inventory/templates/inventory/list.html:204
 msgid "No inventory items found"
 msgstr "Keine Inventargegenstände gefunden"
 
+#: inventory/templates/inventory/list.html:205
 msgid "Add your first item"
 msgstr "Fügen Sie Ihren ersten Gegenstand hinzu"
 
+#: inventory/templates/inventory/list.html:214
 msgid "Inventory pagination"
 msgstr "Inventar-Seitenumbruch"
 
+#: inventory/templates/inventory/list.html:218
 msgid "First"
 msgstr "Erste"
 
+#: inventory/templates/inventory/list.html:221
 msgid "Previous"
 msgstr "Vorherige"
 
+#: inventory/templates/inventory/list.html:227
 msgid "Page"
 msgstr "Seite"
 
+#: inventory/templates/inventory/list.html:227
 msgid "of"
 msgstr "von"
 
+#: inventory/templates/inventory/list.html:233
 msgid "Next"
 msgstr "Nächste"
 
+#: inventory/templates/inventory/list.html:236
 msgid "Last"
 msgstr "Letzte"
 
+#: inventory/templates/inventory/list.html:308
 msgid "Are you sure you want to delete this inventory item?"
 msgstr "Sind Sie sicher, dass Sie diesen Inventargegenstand löschen möchten?"
 
+#: projects/admin.py:172 projects/models.py:136
 msgid "Topic"
 msgstr "Thema"
 
+#: projects/admin.py:174 projects/models.py:149
+#: ok_tools/templates/dashboard.html:245
 msgid "Date"
 msgstr "Datum"
 
+#: projects/admin.py:176 projects/models.py:162
 msgid "External venue"
 msgstr "Externer Veranstaltungsort"
 
+#: projects/admin.py:177 projects/models.py:168
 msgid "Jugendmedienschutz"
 msgstr "Jugendmedienschutz"
 
+#: projects/admin.py:178 projects/models.py:95 projects/models.py:108
+#: projects/models.py:184
 msgid "Target group"
 msgstr "Zielgruppe"
 
+#: projects/admin.py:179 projects/models.py:67 projects/models.py:80
+#: projects/models.py:191
 msgid "Project category"
 msgstr "Projektkategorie"
 
+#: projects/admin.py:180 projects/admin.py:269 projects/models.py:30
+#: projects/models.py:199
 msgid "Project leader"
 msgstr "Projektleiter"
 
+#: projects/admin.py:181 projects/models.py:209
 msgid "bis 6 Jahre"
 msgstr "bis 6 Jahre"
 
+#: projects/admin.py:182 projects/models.py:215
 msgid "7-10 Jahre"
 msgstr "7-10 Jahre"
 
+#: projects/admin.py:183 projects/models.py:221
 msgid "11-14 Jahre"
 msgstr "11-14 Jahre"
 
+#: projects/admin.py:184 projects/models.py:227
 msgid "15-18 Jahre"
 msgstr "15-18 Jahre"
 
+#: projects/admin.py:185 projects/models.py:233
 msgid "19-34 Jahre"
 msgstr "19-34 Jahre"
 
+#: projects/admin.py:186 projects/models.py:239
 msgid "35-50 Jahre"
 msgstr "35-50 Jahre"
 
+#: projects/admin.py:187 projects/models.py:245
 msgid "51-65 Jahre"
 msgstr "51-65 Jahre"
 
+#: projects/admin.py:188 projects/models.py:251
 msgid "über 65 Jahre"
 msgstr "über 65 Jahre"
 
+#: projects/admin.py:189 projects/admin.py:193 projects/models.py:257
+#: projects/models.py:276
 msgid "ohne Angabe"
 msgstr "ohne Angabe"
 
+#: projects/admin.py:190 projects/models.py:264
 msgid "weiblich"
 msgstr "weiblich"
 
+#: projects/admin.py:191 projects/models.py:270
 msgid "männlich"
 msgstr "männlich"
 
+#: projects/admin.py:192 projects/models.py:282 registration/models.py:124
+#: registration/registration_tests.py:576
 msgid "diverse"
 msgstr "divers"
 
+#: projects/admin.py:206 projects/apps.py:10 projects/models.py:315
 msgid "Projects"
 msgstr "Projekte"
 
+#: projects/admin.py:212
 msgid "start year"
 msgstr "Startjahr"
 
+#: projects/admin.py:264
 msgid "title, topic, description"
 msgstr "Titel, Thema, Beschreibung"
 
+#: projects/admin.py:267
 msgid "Target Group"
 msgstr "Zielgruppe"
 
+#: projects/admin.py:268
 msgid "Project Category"
 msgstr "Projektkategorie"
 
+#: projects/admin.py:288 registration/admin.py:223 registration/admin.py:362
+#: registration/admin.py:457
 msgid "Basic Information"
 msgstr "Grundinformationen"
 
+#: projects/admin.py:291
 msgid "Schedule & Details"
 msgstr "Zeitplan & Details"
 
+#: projects/admin.py:308
 msgid "Participants by Age"
 msgstr "Teilnehmer nach Alter"
 
+#: projects/admin.py:320
 msgid ""
 "Enter the number of participants in each age group. Total must match gender "
 "totals."
@@ -1097,9 +1569,11 @@ msgstr ""
 "Geben Sie die Anzahl der Teilnehmer in jeder Altersgruppe ein. Die "
 "Gesamtsumme muss mit der Summe nach Geschlecht übereinstimmen."
 
+#: projects/admin.py:322
 msgid "Participants by Gender"
 msgstr "Teilnehmer nach Geschlecht"
 
+#: projects/admin.py:329
 msgid ""
 "Enter the number of participants by gender. Total must match age group "
 "totals."
@@ -1107,54 +1581,70 @@ msgstr ""
 "Geben Sie die Teilnehmerzahl nach Geschlecht ein. Die Gesamtsumme muss mit "
 "der Summe nach Altersgruppen übereinstimmen."
 
+#: projects/admin.py:335
 msgid "Create a copy of selected projects"
 msgstr "Erstellen Sie eine Kopie der ausgewählten Projekte"
 
+#: projects/admin.py:356
 #, python-format
 msgid "%(count)d project copy was successfully created."
 msgstr "%(count)d Projektkopie wurde erfolgreich erstellt."
 
+#: projects/admin.py:357
 #, python-format
 msgid "%(count)d project copies were successfully created."
 msgstr "%(count)d Projektkopien wurden erfolgreich erstellt."
 
+#: projects/ics_export.py:21
 #, python-format
 msgid "Dauer: %(duration)s"
 msgstr "Dauer: %(duration)s"
 
+#: projects/ics_export.py:34
 msgid "projects.ics"
 msgstr "projekte.ics"
 
+#: projects/models.py:17 projects/models.py:42
 msgid "Full name"
 msgstr "Vollständiger Name"
 
+#: projects/models.py:31
 msgid "Project leaders"
 msgstr "Projektleiter"
 
+#: projects/models.py:55
 msgid "Media education supervisor"
 msgstr "Medienpädagogische Leitung"
 
+#: projects/models.py:56 projects/models.py:205
 msgid "Media education supervisors"
 msgstr "Medienpädagogische Leitungen"
 
+#: projects/models.py:81
 msgid "Project categories"
 msgstr "Projektkategorien"
 
+#: projects/models.py:109
 msgid "Target groups"
 msgstr "Zielgruppen"
 
+#: projects/models.py:117 projects/models.py:122
 msgid "Not Selected"
 msgstr "Nicht ausgewählt"
 
+#: projects/models.py:129
 msgid "Project title"
 msgstr "Projekttitel"
 
+#: projects/models.py:156
 msgid "Format: hh:mm:ss or mm:ss"
 msgstr "Format: hh:mm:ss oder mm:ss"
 
+#: projects/models.py:174
 msgid "Democracy project"
 msgstr "Demokratieprojekt"
 
+#: projects/models.py:299
 #, python-format
 msgid ""
 "The sum of participants by age (%(age)s) does not match the sum of "
@@ -1164,183 +1654,242 @@ msgstr ""
 "Teilnehmer nach Geschlecht (%(gender)s) überein. Bitte korrigieren Sie Ihre "
 "Angaben."
 
+#: projects/models.py:314
 msgid "Project"
 msgstr "Projekt"
 
+#: projects/templates/admin/change_list_ics_export_item.html:3
 msgid "Export dates"
 msgstr "Daten exportieren"
 
+#: registration/admin.py:44 registration/admin.py:61
 msgid "E-Mail address"
 msgstr "E-Mail-Adresse"
 
+#: registration/admin.py:47 registration/admin.py:64
 msgid "Password"
 msgstr "Passwort"
 
+#: registration/admin.py:50
 msgid "Admin"
 msgstr "Admin"
 
+#: registration/admin.py:53
 msgid "permissions"
 msgstr "Berechtigungen"
 
+#: registration/admin.py:56 registration/admin.py:67
 msgid "Staff"
 msgstr "Mitarbeiter"
 
+#: registration/admin.py:86
 msgid "ID"
 msgstr "ID"
 
+#: registration/admin.py:87 registration/models.py:153
 msgid "first name"
 msgstr "Vorname"
 
+#: registration/admin.py:88 registration/models.py:155
 msgid "last name"
 msgstr "Nachname"
 
+#: registration/admin.py:89 registration/models.py:158
 msgid "gender"
 msgstr "Geschlecht"
 
+#: registration/admin.py:90 registration/models.py:55
 msgid "email address"
 msgstr "E-Mail-Adresse"
 
+#: registration/admin.py:91 registration/models.py:167
 msgid "phone number"
 msgstr "Telefonnummer"
 
+#: registration/admin.py:92 registration/models.py:170
 msgid "mobile number"
 msgstr "Handynummer"
 
+#: registration/admin.py:93 registration/models.py:174
 msgid "ID document number"
 msgstr "Ausweisnummer"
 
+#: registration/admin.py:94 registration/models.py:180
 msgid "birthday"
 msgstr "Geburtstag"
 
+#: registration/admin.py:95 registration/models.py:183
 msgid "street"
 msgstr "Straße"
 
+#: registration/admin.py:96 registration/models.py:185
 msgid "house number"
 msgstr "Hausnummer"
 
+#: registration/admin.py:97 registration/models.py:187
 msgid "zipcode"
 msgstr "Postleitzahl"
 
+#: registration/admin.py:98 registration/models.py:189
 msgid "city"
 msgstr "Stadt"
 
+#: registration/admin.py:99 registration/models.py:200
 msgid "created at"
 msgstr "Erstellt am"
 
+#: registration/admin.py:100 registration/models.py:213
 msgid "member"
 msgstr "Mitglied"
 
+#: registration/admin.py:102 registration/models.py:228
 msgid "comment"
 msgstr "Kommentar"
 
+#: registration/admin.py:124
 msgid "birthmonth"
 msgstr "Geburtsmonat"
 
+#: registration/admin.py:130
 msgid "January"
 msgstr "Januar"
 
+#: registration/admin.py:131
 msgid "February"
 msgstr "Februar"
 
+#: registration/admin.py:132
 msgid "March"
 msgstr "März"
 
+#: registration/admin.py:133
 msgid "April"
 msgstr "April"
 
+#: registration/admin.py:134
 msgid "May"
 msgstr "Mai"
 
+#: registration/admin.py:135
 msgid "June"
 msgstr "Juni"
 
+#: registration/admin.py:136
 msgid "July"
 msgstr "Juli"
 
+#: registration/admin.py:137
 msgid "August"
 msgstr "August"
 
+#: registration/admin.py:138
 msgid "September"
 msgstr "September"
 
+#: registration/admin.py:139
 msgid "October"
 msgstr "Oktober"
 
+#: registration/admin.py:140
 msgid "November"
 msgstr "November"
 
+#: registration/admin.py:141
 msgid "December"
 msgstr "Dezember"
 
+#: registration/admin.py:163
 msgid "created year"
 msgstr "Erstellungsjahr"
 
+#: registration/admin.py:212
 msgid "e-mail, first name, last name"
 msgstr "E-Mail, Vorname, Nachname"
 
+#: registration/admin.py:226 registration/admin.py:460
+#: registration/templates/registration/edit_profile.html:115
+#: ok_tools/templates/guest_welcome.html:109
 msgid "Contact Information"
 msgstr "Kontaktinformationen"
 
+#: registration/admin.py:229
 msgid "ID Document"
 msgstr "Ausweisdokument"
 
+#: registration/admin.py:236
 msgid "Data Sharing Permissions"
 msgstr "Datenfreigabeberechtigungen"
 
+#: registration/admin.py:239
 msgid "Admin-only: Permissions for sharing data with third parties"
 msgstr "Nur für Admins: Berechtigungen zur Weitergabe von Daten an Dritte"
 
+#: registration/admin.py:241
 msgid "Additional Information"
 msgstr "Weitere Informationen"
 
+#: registration/admin.py:276
 msgid "Verify selected profiles"
 msgstr "Ausgewählte Profile genehmigen"
 
+#: registration/admin.py:281
 #, python-format
 msgid "%d profile was successfully verified."
 msgid_plural "%d profiles were successfully verified."
 msgstr[0] "%d Profil wurde erfolgreich genehmigt."
 msgstr[1] "%d Profile wurden erfolgreich genehmigt."
 
+#: registration/admin.py:286
 msgid "Unverify selected profiles"
 msgstr "Genehmigung der ausgewählten Profile aufheben"
 
+#: registration/admin.py:291
 #, python-format
 msgid "%d profile was successfully unverified."
 msgid_plural "%d profiles were successfully unverified."
 msgstr[0] "Bei %d Profil wurde die Genehmigung aufgehoben."
 msgstr[1] "Bei %d Profilen wurde die Genehmigung aufgehoben."
 
+#: registration/admin.py:365
 msgid "Display Settings"
 msgstr "Anzeigeeinstellungen"
 
+#: registration/admin.py:368
 msgid "Metadata"
 msgstr "Metadaten"
 
+#: registration/admin.py:430
 msgid ""
 "Select PDF template file from files/ directory. Only .pdf files are shown."
 msgstr ""
 "Wählen Sie eine PDF-Vorlagendatei aus dem Verzeichnis files/. Es werden "
 "nur .pdf-Dateien angezeigt."
 
+#: registration/admin.py:463
 msgid "Regulatory & Ownership"
 msgstr "Regulierung & Trägerschaft"
 
+#: registration/admin.py:466
 msgid "Broadcasting Schedule"
 msgstr "Sendeplan"
 
+#: registration/admin.py:469
 msgid "Integration"
 msgstr "Integration"
 
+#: registration/admin.py:472
 msgid "Legal Texts (Optional)"
 msgstr "Rechtstexte (optional)"
 
+#: registration/apps.py:39
 msgid "Registration"
 msgstr "Registrierung"
 
+#: registration/forms.py:25 registration/forms.py:89
 msgid "Email address"
 msgstr "E-Mail-Adresse"
 
+#: registration/forms.py:69
 msgid ""
 "Your profile is already verified. To change further data please contact an "
 "employee."
@@ -1348,415 +1897,552 @@ msgstr ""
 "Ihr Profil ist bereits genehmigt. Um weitere Daten zu ändern, wenden Sie "
 "sich bitte an einen Mitarbeiter."
 
+#: registration/forms.py:73
 msgid "Submit changes"
 msgstr "Änderungen speichern"
 
+#: registration/forms.py:91
 msgid "I have read the privacy agreement and accept it."
 msgstr "Ich habe die Datenschutzerklärung gelesen und akzeptiere sie."
 
+#: registration/forms.py:94
 msgid "I have read the usage agreement and accept it."
 msgstr "Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie."
 
+#: registration/forms.py:97
 msgid "Birthday"
 msgstr "Geburtstag"
 
+#: registration/forms.py:135 registration/templates/navbar.html:180
+#: ok_tools/templates/base.html:173 ok_tools/templates/guest_welcome.html:85
 msgid "Register"
 msgstr "Registrieren"
 
+#: registration/forms.py:146 registration/forms.py:158
 msgid "Please accept our "
 msgstr "Bitte akzeptieren Sie unsere "
 
+#: registration/forms.py:148
 msgid "privacy policy"
 msgstr "Datenschutzerklärung"
 
+#: registration/forms.py:160
 msgid "usage policy"
 msgstr "Nutzungsbedingungen"
 
+#: registration/models.py:18
 msgid "The given email must be set"
 msgstr "Die angegebene E-Mail-Adresse muss angegeben werden"
 
+#: registration/models.py:36
 msgid "Superuser must have is_staff=True."
 msgstr "Superuser muss is_staff=True haben."
 
+#: registration/models.py:38
 msgid "Superuser must have is_superuser=True."
 msgstr "Superuser muss is_superuser=True haben."
 
+#: registration/models.py:68
 msgid "Users"
 msgstr "Nutzer"
 
+#: registration/models.py:86
 msgid "Full Name"
 msgstr "Vollständiger Name"
 
+#: registration/models.py:90
 msgid "Full name of the media authority (e.g., \"Offener Kanal Dessau\")"
 msgstr "Vollständiger Name der Medienanstalt (z. B. \"Offener Kanal Dessau\")"
 
+#: registration/models.py:93
 msgid "Target Channel"
 msgstr "Zielkanal"
 
+#: registration/models.py:98
 msgid "Target channel identifier (e.g., \"@ok_dessau@lokalmedial.de\")"
 msgstr "Zielkanal-Kennung (z. B. \"@ok_dessau@lokalmedial.de\")"
 
+#: registration/models.py:109
 msgid "Media Authorities"
 msgstr "Offene Kanäle/Bürgermedien"
 
+#: registration/models.py:121 registration/registration_tests.py:577
 msgid "not given"
 msgstr "nicht angegeben"
 
+#: registration/models.py:122 registration/registration_tests.py:574
 msgid "male"
 msgstr "männlich"
 
+#: registration/models.py:123 registration/registration_tests.py:575
 msgid "female"
 msgstr "weiblich"
 
+#: registration/models.py:175
 msgid "ID document number (passport, ID card, etc.)"
 msgstr "Ausweisdokumentnummer (Reisepass, Personalausweis usw.)"
 
+#: registration/models.py:193
 msgid "verified"
 msgstr "genehmigt"
 
+#: registration/models.py:195
 msgid "The profile data was verified by showing the ID to an employee."
 msgstr ""
 "Die Profildaten wurden durch Vorzeigen des Ausweises gegenüber einem "
 "Mitarbeitenden genehmigt."
 
+#: registration/models.py:224
 msgid "Global producer status for the profile."
 msgstr "Globaler Produzentenstatus für das Profil."
 
+#: registration/models.py:235
 msgid "Phone data sharing allowed"
 msgstr "Telefon-Datenfreigabe erlaubt"
 
+#: registration/models.py:237
 msgid "Permission to share phone number with third parties"
 msgstr "Erlaubnis zur Weitergabe der Telefonnummer an Dritte"
 
+#: registration/models.py:241
 msgid "Email data sharing allowed"
 msgstr "E-Mail-Datenfreigabe erlaubt"
 
+#: registration/models.py:243
 msgid "Permission to share email address with third parties"
 msgstr "Erlaubnis zur Weitergabe der E-Mail-Adresse an Dritte"
 
+#: registration/models.py:254
 msgid "Profiles"
 msgstr "Profile"
 
+#: registration/models.py:265
 msgid "Information"
 msgstr "Information"
 
+#: registration/models.py:266
 msgid "Success"
 msgstr "Erfolg"
 
+#: registration/models.py:267
 msgid "Warning"
 msgstr "Warnung"
 
+#: registration/models.py:268
 msgid "Danger"
 msgstr "Gefahr"
 
+#: registration/models.py:272
 msgid "Info Circle"
 msgstr "Informationssymbol"
 
+#: registration/models.py:273
 msgid "Check Circle"
 msgstr "Prüfsymbol"
 
+#: registration/models.py:274
 msgid "Exclamation Triangle"
 msgstr "Ausrufezeichendreieck"
 
+#: registration/models.py:275
 msgid "Exclamation Circle"
 msgstr "Ausrufezeichen-Kreis"
 
+#: registration/models.py:276
 msgid "Clock"
 msgstr "Uhr"
 
+#: registration/models.py:277
 msgid "Bell"
 msgstr "Glocke"
 
+#: registration/models.py:278
 msgid "Broadcast"
 msgstr "Sendung"
 
+#: registration/models.py:279
 msgid "Star"
 msgstr "Stern"
 
+#: registration/models.py:280
 msgid "Gear"
 msgstr "Zahnrad"
 
+#: registration/models.py:281
 msgid "Shield Check"
 msgstr "Schild mit Häkchen"
 
+#: registration/models.py:287
 msgid "Short title for the notification"
 msgstr "Kurztitel für die Benachrichtigung"
 
+#: registration/models.py:291
 msgid "Message"
 msgstr "Nachricht"
 
+#: registration/models.py:292
 msgid "Main notification text"
 msgstr "Hauptbenachrichtigungstext"
 
+#: registration/models.py:300
 msgid "Notification type determines color and style"
 msgstr "Der Benachrichtigungstyp bestimmt Farbe und Stil"
 
+#: registration/models.py:304
 msgid "Icon"
 msgstr "Icon"
 
+#: registration/models.py:308
 msgid "Bootstrap Icons icon name"
 msgstr "Bootstrap Icons-Name"
 
+#: registration/models.py:312 ok_tools/templates/dashboard.html:45
 msgid "Active"
 msgstr "Aktiv"
 
+#: registration/models.py:314
 msgid "Only active notifications are displayed to users"
 msgstr "Nur aktive Benachrichtigungen werden Nutzer:innen angezeigt"
 
+#: registration/models.py:318
 msgid "Priority"
 msgstr "Priorität"
 
+#: registration/models.py:320
 msgid "Higher priority notifications appear first (1-10)"
 msgstr "Benachrichtigungen mit höherer Priorität erscheinen zuerst (1–10)"
 
+#: registration/models.py:324
 msgid "Start Date"
 msgstr "Startdatum"
 
+#: registration/models.py:326
 msgid "When to start showing this notification"
 msgstr "Ab wann diese Benachrichtigung angezeigt werden soll"
 
+#: registration/models.py:330
 msgid "End Date"
 msgstr "Enddatum"
 
+#: registration/models.py:333
 msgid "When to stop showing this notification (optional)"
 msgstr "Bis wann diese Benachrichtigung angezeigt werden soll (optional)"
 
+#: registration/models.py:337
 msgid "Created At"
 msgstr "Erstellt am"
 
+#: registration/models.py:346
 msgid "Created By"
 msgstr "Erstellt von"
 
+#: registration/models.py:347
 msgid "Admin who created this notification (auto-filled)"
 msgstr ""
 "Administrator, der diese Benachrichtigung erstellt hat (wird automatisch "
 "ausgefüllt)"
 
+#: registration/models.py:357
 msgid "Notification"
 msgstr "Benachrichtigung"
 
+#: registration/models.py:358 ok_tools/templates/dashboard.html:174
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
+#: registration/models.py:381
 msgid "Registration Form PDF"
 msgstr "Registrierungsformular-PDF"
 
+#: registration/models.py:382
 msgid "PDF template file for registration form (must be in files/ directory)"
 msgstr ""
 "PDF-Vorlagendatei für das Registrierungsformular (muss im Verzeichnis files/ "
 "liegen)"
 
+#: registration/models.py:429
 msgid "PDF"
 msgstr "PDF"
 
+#: registration/models.py:430
 msgid "HTML"
 msgstr "HTML"
 
+#: registration/models.py:431
 msgid "TEXT"
 msgstr "TEXT"
 
+#: registration/models.py:437
 msgid "Registration Form Type"
 msgstr "Registrierungsformular-Typ"
 
+#: registration/models.py:438
 msgid "Type of registration form to generate"
 msgstr "Art des zu generierenden Registrierungsformulars"
 
+#: registration/models.py:442 registration/models.py:443
+#: registration/models.py:447 ok_tools/admin.py:51
 msgid "Registration Configuration"
 msgstr "Registrierungskonfiguration"
 
+#: registration/models.py:465
 msgid "Baden-Württemberg"
 msgstr ""
 
+#: registration/models.py:466
 msgid "Bayern"
 msgstr ""
 
+#: registration/models.py:467
 #, fuzzy
 #| msgid "verliehen"
 msgid "Berlin"
 msgstr "verliehen"
 
+#: registration/models.py:468
 msgid "Brandenburg"
 msgstr ""
 
+#: registration/models.py:469
 msgid "Bremen"
 msgstr ""
 
+#: registration/models.py:470
 msgid "Hamburg"
 msgstr ""
 
+#: registration/models.py:471
 msgid "Hessen"
 msgstr ""
 
+#: registration/models.py:472
 msgid "Mecklenburg-Vorpommern"
 msgstr ""
 
+#: registration/models.py:473
 msgid "Niedersachsen"
 msgstr ""
 
+#: registration/models.py:474
 msgid "Nordrhein-Westfalen"
 msgstr ""
 
+#: registration/models.py:475
 msgid "Rheinland-Pfalz"
 msgstr ""
 
+#: registration/models.py:476
 msgid "Saarland"
 msgstr ""
 
+#: registration/models.py:477
 msgid "Sachsen"
 msgstr ""
 
+#: registration/models.py:478
 msgid "Sachsen-Anhalt"
 msgstr ""
 
+#: registration/models.py:479
 msgid "Schleswig-Holstein"
 msgstr ""
 
+#: registration/models.py:480
 msgid "Thüringen"
 msgstr ""
 
+#: registration/models.py:511
 msgid "Organization Name"
 msgstr "Organisationsname"
 
+#: registration/models.py:512
 msgid "Full name of the organization"
 msgstr "Vollständiger Name der Organisation"
 
+#: registration/models.py:518
 msgid "Short Name"
 msgstr "Kurzname"
 
+#: registration/models.py:519
 msgid "Short name of the organization"
 msgstr "Kurzname der Organisation"
 
+#: registration/models.py:526 ok_tools/templates/base.html:100
 msgid "Website"
 msgstr "Webseite"
 
+#: registration/models.py:527
 msgid "Organization website URL"
 msgstr "URL der Organisationswebseite"
 
+#: registration/models.py:533
 msgid "Email"
 msgstr "E-Mail"
 
+#: registration/models.py:534
 msgid "Contact email address"
 msgstr "Kontakt-E-Mail-Adresse"
 
+#: registration/models.py:540
 msgid "Phone"
 msgstr "Telefon"
 
+#: registration/models.py:541
 msgid "Contact phone number"
 msgstr "Kontakt-Telefonnummer"
 
+#: registration/models.py:547
 msgid "Fax"
 msgstr "Fax"
 
+#: registration/models.py:548
 msgid "Fax number"
 msgstr "Faxnummer"
 
+#: registration/models.py:553
 msgid "Address"
 msgstr "Adresse"
 
+#: registration/models.py:554
 msgid "Organization address (multiline)"
 msgstr "Adresse der Organisation (mehrzeilig)"
 
+#: registration/models.py:560
 msgid "Welcome message or organization description"
 msgstr "Begrüßungstext oder Beschreibung der Organisation"
 
+#: registration/models.py:567
 msgid "Large logo"
 msgstr "Großes Logo"
 
+#: registration/models.py:568
 msgid "Large logo displayed in the expanded sidebar"
 msgstr "Großes Logo für die ausgeklappte Seitenleiste"
 
+#: registration/models.py:575
 msgid "Small logo"
 msgstr "Kleines Logo"
 
+#: registration/models.py:576
 msgid "Square logo or SVG displayed in the collapsed sidebar"
 msgstr "Quadratisches Logo oder SVG für die eingeklappte Seitenleiste"
 
+#: registration/models.py:581
 msgid "Opening Hours"
 msgstr "Öffnungszeiten"
 
+#: registration/models.py:582
 msgid "Opening hours (multiline)"
 msgstr "Öffnungszeiten (mehrzeilig)"
 
+#: registration/models.py:589
 msgid "State Media Institution"
 msgstr "Landesmedienanstalt"
 
+#: registration/models.py:590
 msgid "Regulatory institution code (MSA, LFK, BLM, etc.)"
 msgstr "Kürzel der Landesmedienanstalt (MSA, LFK, BLM, etc.)"
 
+#: registration/models.py:596
 msgid "Organization Owner"
 msgstr "Träger"
 
+#: registration/models.py:597
 msgid "Owner/operator identifier (matches MediaAuthority name)"
 msgstr "Träger/Betreiber-Kennung (entspricht MediaAuthority-Name)"
 
+#: registration/models.py:604
 msgid "Bundesland"
 msgstr ""
 
+#: registration/models.py:605
 msgid ""
 "German federal state written to exchange metadata; code is generated "
 "automatically"
 msgstr ""
 
+#: registration/models.py:612
 msgid "Bundesland Code"
 msgstr ""
 
+#: registration/models.py:613
 msgid "Two-letter federal state code written to exchange metadata"
 msgstr ""
 
+#: registration/models.py:619
 msgid "Broadcast Start Time"
 msgstr "Sendestart"
 
+#: registration/models.py:620
 msgid "Default broadcast start time"
 msgstr "Standard-Startzeit der Ausstrahlung"
 
+#: registration/models.py:625
 msgid "Broadcast End Time"
 msgstr "Sendeende"
 
+#: registration/models.py:626
 msgid "Default broadcast end time"
 msgstr "Standard-Endzeit der Ausstrahlung"
 
+#: registration/models.py:633
 msgid "PeerTube Channel"
 msgstr "PeerTube-Kanal"
 
+#: registration/models.py:634
 msgid "PeerTube channel identifier"
 msgstr "PeerTube-Kanalkennung"
 
+#: registration/models.py:640
 msgid "Privacy Policy (Datenschutz)"
 msgstr "Datenschutzerklärung"
 
+#: registration/models.py:641
 msgid "Privacy policy text"
 msgstr "Text der Datenschutzerklärung"
 
+#: registration/models.py:646
 msgid "Imprint (Impressum)"
 msgstr "Impressum"
 
+#: registration/models.py:647
 msgid "Legal imprint text"
 msgstr "Impressumstext"
 
+#: registration/models.py:652
 msgid "Terms and Conditions (AGB)"
 msgstr "AGB"
 
+#: registration/models.py:653
 msgid "Terms and conditions text"
 msgstr "AGB-Text"
 
+#: registration/models.py:657 registration/models.py:658
+#: registration/models.py:662 ok_tools/admin.py:47
 msgid "Organization Configuration"
 msgstr "Organisationskonfiguration"
 
+#: registration/organization_config.py:16
 msgid "Open Channel Merseburg-Querfurt e.V."
 msgstr "Offener Kanal Merseburg-Querfurt e.V."
 
+#: registration/organization_config.py:27
 msgid "OK Merseburg"
 msgstr "OK Merseburg"
 
+#: registration/print.py:151
 msgid "registration_form.txt"
 msgstr "registrierungsformular.txt"
 
+#: registration/print.py:282 registration/views.py:170
 msgid "registration_form.pdf"
 msgstr "registrierungsformular.pdf"
 
+#: registration/templates/admin/registration_change_form_edit.html:8
 msgid "Print application"
 msgstr "Antrag drucken"
 
+#: registration/templates/email/confirm_verification_body.html:3
 #, python-format
 msgid ""
 "\n"
@@ -1765,6 +2451,7 @@ msgstr ""
 "\n"
 "Hallo %(first_name)s,\n"
 
+#: registration/templates/email/confirm_verification_body.html:7
 msgid ""
 "\n"
 "We have received your application and verified your data. Your account is "
@@ -1774,6 +2461,7 @@ msgstr ""
 "Wir haben Ihren Antrag erhalten und Ihre Daten genehmigt. Ihr Konto ist nun "
 "vollständig aktiviert.\n"
 
+#: registration/templates/email/confirm_verification_body.html:11
 msgid ""
 "\n"
 "You can now login and file a license.\n"
@@ -1781,6 +2469,9 @@ msgstr ""
 "\n"
 "Sie können sich jetzt einloggen und eine Freistellung beantragen.\n"
 
+#: registration/templates/email/confirm_verification_body.html:20
+#: registration/templates/registration/password_reset_email.html:19
+#: registration/templates/registration/password_set_email_customized.html:16
 #, python-format
 msgid ""
 "\n"
@@ -1793,47 +2484,60 @@ msgstr ""
 "\n"
 "das %(ok_name)s-Team\n"
 
-#, python-format
-msgid ""
-"\n"
-"Your Account for %(ok_name)s has been verified\n"
-msgstr ""
-"\n"
-"Ihr Konto für %(ok_name)s wurde genehmigt\n"
-
+#: registration/templates/navbar.html:123
+#: registration/templates/registration/print_registration.html:32
 msgid "Edit user data"
 msgstr "Nutzerdaten bearbeiten"
 
+#: registration/templates/navbar.html:126
+#: registration/templates/registration/password_reset_confirm.html:16
 msgid "Change password"
 msgstr "Passwort ändern"
 
+#: registration/templates/navbar.html:131
+#: registration/templates/registration/edit_profile.html:22
 msgid "Print Registration Form"
 msgstr "Registrierungsformular drucken"
 
+#: registration/templates/navbar.html:136 ok_tools/templates/dashboard.html:151
 msgid "Privacy Policy"
 msgstr "Datenschutzerklärung"
 
+#: registration/templates/navbar.html:150 ok_tools/templates/base.html:74
+#: ok_tools/templates/dashboard.html:331
 msgid "Licenses"
 msgstr "Freistellungen"
 
+#: registration/templates/navbar.html:154 ok_tools/admin_celery.py:605
 msgid "Overview"
 msgstr "Übersicht"
 
+#: registration/templates/navbar.html:157
 msgid "Create license"
 msgstr "Freistellung erstellen"
 
+#: registration/templates/navbar.html:174 ok_tools/templates/base.html:109
+#: ok_tools/templates/base.html:165 ok_tools/templates/dashboard.html:156
 msgid "Logout"
 msgstr "Abmelden"
 
+#: registration/templates/navbar.html:186
+#: registration/templates/registration/login.html:6
+#: ok_tools/templates/base.html:174 ok_tools/templates/guest_welcome.html:82
 msgid "Login"
 msgstr "Anmelden"
 
+#: registration/templates/registration/edit_profile.html:5
+#: registration/templates/registration/edit_profile.html:6
+#: ok_tools/templates/dashboard.html:142
 msgid "Edit Profile"
 msgstr "Profil bearbeiten"
 
+#: registration/templates/registration/edit_profile.html:12
 msgid "Manage your personal data"
 msgstr "Verwalten Sie Ihre persönlichen Daten"
 
+#: registration/templates/registration/edit_profile.html:16
 msgid ""
 "Your profile is already verified. For changes to additional data, please "
 "contact an employee."
@@ -1841,76 +2545,101 @@ msgstr ""
 "Ihr Profil ist bereits verifiziert. Für Änderungen an zusätzlichen Daten "
 "wenden Sie sich bitte an eine Mitarbeiterin oder einen Mitarbeiter."
 
+#: registration/templates/registration/edit_profile.html:36
 msgid "Personal Information"
 msgstr "Persönliche Informationen"
 
+#: registration/templates/registration/edit_profile.html:38
 msgid "Basic information about you"
 msgstr "Grundlegende Informationen über Sie"
 
+#: registration/templates/registration/edit_profile.html:117
 msgid "Phone numbers for contact"
 msgstr "Telefonnummern für die Kontaktaufnahme"
 
+#: registration/templates/registration/edit_profile.html:132
 msgid "Landline number"
 msgstr "Festnetznummer"
 
+#: registration/templates/registration/edit_profile.html:145
 msgid "Mobile number"
 msgstr "Mobilnummer"
 
+#: registration/templates/registration/edit_profile.html:156
 #, fuzzy
 #| msgid "License Information"
 msgid "Address Information"
 msgstr "Freistellungsinformationen"
 
+#: registration/templates/registration/edit_profile.html:158
 msgid "Your residential address"
 msgstr "Ihre Wohnadresse"
 
+#: registration/templates/registration/edit_profile.html:221
 msgid "Back to Dashboard"
 msgstr "Zurück zum Dashboard"
 
+#: registration/templates/registration/edit_profile.html:225
+#: ok_tools/templates/rental_dashboard.html:216
 msgid "Reset"
 msgstr "Zurücksetzen"
 
+#: registration/templates/registration/edit_profile.html:228
 msgid "Confirm Changes"
 msgstr "Änderungen bestätigen"
 
+#: registration/templates/registration/edit_profile.html:240
 #, fuzzy
 #| msgid "Are you sure you want to run this task now?"
 msgid "Are you sure you want to reset all changes?"
 msgstr "Sind Sie sicher, dass Sie diese Aufgabe jetzt ausführen möchten?"
 
+#: registration/templates/registration/login.html:16
 msgid "Welcome Back"
 msgstr "Willkommen zurück"
 
+#: registration/templates/registration/login.html:17
 msgid "Sign in to your account"
 msgstr "Melden Sie sich bei Ihrem Konto an"
 
+#: registration/templates/registration/login.html:25
 msgid "Sign In"
 msgstr "Anmelden"
 
+#: registration/templates/registration/login.html:28
 msgid "Forgot Password?"
 msgstr "Passwort vergessen?"
 
+#: registration/templates/registration/login.html:34
 msgid "Don't have an account?"
 msgstr "Haben Sie noch kein Konto?"
 
+#: registration/templates/registration/login.html:35
 msgid "Register here"
 msgstr "Hier registrieren"
 
+#: registration/templates/registration/password_reset_complete.html:5
+#: registration/templates/registration/password_reset_complete.html:8
 msgid "Password reset complete"
 msgstr "Passwort zurückgesetzt"
 
+#: registration/templates/registration/password_reset_complete.html:9
 msgid "Your new password has been set. You can log in now:"
 msgstr "Ihr neues Passwort wurde gesetzt. Sie können sich jetzt anmelden:"
 
+#: registration/templates/registration/password_reset_complete.html:9
 msgid "log in page"
 msgstr "Anmeldeseite"
 
+#: registration/templates/registration/password_reset_confirm.html:6
 msgid "Enter new password"
 msgstr "Neues Passwort eingeben"
 
+#: registration/templates/registration/password_reset_confirm.html:12
 msgid "Set a new password!"
 msgstr "Neues Passwort festlegen!"
 
+#: registration/templates/registration/password_reset_confirm.html:21
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
@@ -1919,12 +2648,15 @@ msgstr ""
 "er bereits benutzt. Bitte fordern Sie einen neuen Link zum Zurücksetzen des "
 "Passworts an."
 
+#: registration/templates/registration/password_reset_done.html:5
 msgid "Email Sent"
 msgstr "E-Mail gesendet"
 
+#: registration/templates/registration/password_reset_done.html:8
 msgid "Check your inbox."
 msgstr "Überprüfen Sie Ihren Posteingang."
 
+#: registration/templates/registration/password_reset_done.html:9
 msgid ""
 "If your given email is registered, we've emailed you instructions for "
 "setting your password. You should receive the email shortly!"
@@ -1933,12 +2665,15 @@ msgstr ""
 "Anweisungen zum Festlegen Ihres Passworts per E-Mail gesendet. Sie sollten "
 "die E-Mail in Kürze erhalten!"
 
+#: registration/templates/registration/password_reset_done.html:11
 msgid "Home"
 msgstr "Startseite"
 
+#: registration/templates/registration/password_reset_done.html:12
 msgid "Log In"
 msgstr "Anmelden"
 
+#: registration/templates/registration/password_reset_email.html:3
 #, python-format
 msgid ""
 "\n"
@@ -1947,6 +2682,7 @@ msgstr ""
 "\n"
 "Hallo %(first_name)s,\n"
 
+#: registration/templates/registration/password_reset_email.html:7
 #, python-format
 msgid ""
 "\n"
@@ -1959,6 +2695,7 @@ msgstr ""
 "Nutzerkonto bei %(ok_name)s angefordert haben.\n"
 "Bitte gehen Sie auf die folgende Seite und wählen Sie ein neues Passwort:\n"
 
+#: registration/templates/registration/password_reset_email.html:15
 #, python-format
 msgid ""
 "\n"
@@ -1967,9 +2704,12 @@ msgstr ""
 "\n"
 "Ihr Nutzername, falls Sie ihn vergessen haben: %(user.get_username)s\n"
 
+#: registration/templates/registration/password_reset_form.html:7
+#: ok_tools/templates/dashboard.html:145
 msgid "Change Password"
 msgstr "Passwort ändern"
 
+#: registration/templates/registration/password_reset_form.html:8
 msgid ""
 "Enter your email address below, and we'll send you a link so you can set a "
 "new password."
@@ -1977,13 +2717,11 @@ msgstr ""
 "Geben Sie unten Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, mit "
 "dem Sie ein neues Passwort festlegen können."
 
+#: registration/templates/registration/password_reset_form.html:13
 msgid "Send email"
 msgstr "E-Mail senden"
 
-#, python-format
-msgid "Password reset for %(ok_name)s"
-msgstr "Passwortzurücksetzung für %(ok_name)s"
-
+#: registration/templates/registration/password_set_email_customized.html:3
 #, python-format
 msgid ""
 "\n"
@@ -1992,6 +2730,7 @@ msgstr ""
 "\n"
 "Hallo %(first_name)s,\n"
 
+#: registration/templates/registration/password_set_email_customized.html:7
 #, python-format
 msgid ""
 "\n"
@@ -2003,33 +2742,37 @@ msgstr ""
 "Sie erhalten diese E-Mail, weil Sie sich bei %(ok_name)s registriert haben.\n"
 "Bitte gehen Sie auf die folgende Seite und legen Sie Ihr Passwort fest:\n"
 
-#, python-format
-msgid "Welcome to the %(ok_name)s"
-msgstr "Willkommen bei %(ok_name)s"
-
+#: registration/templates/registration/print_registration.html:7
 msgid "User data for "
 msgstr "Nutzerdaten für "
 
+#: registration/templates/registration/print_registration.html:35
 msgid "Print template only"
 msgstr "Nur Vorlage drucken"
 
+#: registration/templates/registration/register.html:14
 msgid "Create Your Account"
 msgstr "Erstellen Sie Ihr Konto"
 
+#: registration/templates/registration/register.html:15
 msgid "Join our community and start creating amazing content"
 msgstr ""
 "Treten Sie unserer Community bei und beginnen Sie, großartige Inhalte zu "
 "erstellen"
 
+#: registration/templates/registration/register.html:21
 msgid "Already have an account?"
 msgstr "Sie haben bereits ein Konto?"
 
+#: registration/templates/registration/register.html:22
 msgid "Sign in here"
 msgstr "Hier anmelden"
 
+#: registration/templates/registration/user_created.html:6
 msgid "Welcome!"
 msgstr "Willkommen!"
 
+#: registration/templates/registration/user_created.html:9
 #, python-format
 msgid ""
 "\n"
@@ -2042,1635 +2785,580 @@ msgstr ""
 "Sie eine E-Mail mit einem Link. Benutzen Sie diesen Link, um Ihr Passwort "
 "festzulegen. Danach sollten Sie sich anmelden können.\n"
 
+#: registration/templates/registration/user_created.html:15
 msgid "Back to the start page"
 msgstr "Zurück zur Startseite"
 
+#: registration/views.py:53
 #, python-format
 msgid "There is no profile for %(user)s"
 msgstr "Es gibt kein Profil für %(user)s"
 
+#: registration/views.py:281
 msgid "Your profile was successfully updated."
 msgstr "Ihr Profil wurde erfolgreich aktualisiert."
 
-#, python-format
-msgid " By %(filter_title)s "
-msgstr " Nach %(filter_title)s "
-
-#, python-brace-format
-msgid "{editor}: Editing failed"
-msgstr ""
-
-#, python-brace-format
-msgid "{editor}: Editing failed: {e}"
-msgstr ""
-
-#, python-brace-format
-msgid "{text} {deprecated_message}"
-msgstr ""
-
-#, fuzzy
-#| msgid "Actions"
-msgid "Options"
-msgstr "Aktionen"
-
-#, python-brace-format
-msgid "Got unexpected extra argument ({args})"
-msgid_plural "Got unexpected extra arguments ({args})"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "DeprecationWarning: The command {name!r} is deprecated.{extra_message}"
-msgstr ""
-
-#, fuzzy
-#| msgid "Imported"
-msgid "Aborted!"
-msgstr "Importiert"
-
-msgid "Commands"
-msgstr ""
-
-msgid "Missing command."
-msgstr ""
-
-msgid "No such command {name!r}."
-msgstr ""
-
-#, fuzzy
-#| msgid "Value must be valid JSON."
-msgid "Value must be an iterable."
-msgstr "Der Wert muss ein gültiges JSON sein."
-
-#, python-brace-format
-msgid "Takes {nargs} values but 1 was given."
-msgid_plural "Takes {nargs} values but {len} were given."
-msgstr[0] ""
-msgstr[1] ""
-
-msgid ""
-"DeprecationWarning: The {param_type} {name!r} is deprecated.{extra_message}"
-msgstr ""
-
-#, python-brace-format
-msgid "env var: {var}"
-msgstr ""
-
-#, python-brace-format
-msgid "default: {default}"
-msgstr ""
-
-msgid "(dynamic)"
-msgstr ""
-
-#, python-format
-msgid "%(prog)s, version %(version)s"
-msgstr ""
-
-msgid "Show the version and exit."
-msgstr ""
-
-msgid "Show this message and exit."
-msgstr ""
-
-#, python-brace-format
-msgid "Error: {message}"
-msgstr ""
-
-#, python-brace-format
-msgid "Try '{command} {option}' for help."
-msgstr ""
-
-#, python-brace-format
-msgid "Invalid value: {message}"
-msgstr ""
-
-#, python-brace-format
-msgid "Invalid value for {param_hint}: {message}"
-msgstr ""
-
-msgid "Missing argument"
-msgstr ""
-
-msgid "Missing option"
-msgstr ""
-
-#, fuzzy
-#| msgid "Parameter"
-msgid "Missing parameter"
-msgstr "Parameter"
-
-#, python-brace-format
-msgid "Missing {param_type}"
-msgstr ""
-
-#, python-brace-format
-msgid "Missing parameter: {param_name}"
-msgstr ""
-
-#, python-brace-format
-msgid "No such option: {name}"
-msgstr ""
-
-#, python-brace-format
-msgid "Did you mean {possibility}?"
-msgid_plural "(Possible options: {possibilities})"
-msgstr[0] ""
-msgstr[1] ""
-
-#, fuzzy
-#| msgid "No errors"
-msgid "unknown error"
-msgstr "Keine Fehler"
-
-msgid "Could not open file {filename!r}: {message}"
-msgstr ""
-
-#, fuzzy
-#| msgid "Message"
-msgid "Usage:"
-msgstr "Nachricht"
-
-msgid "Argument {name!r} takes {nargs} values."
-msgstr ""
-
-msgid "Option {name!r} does not take a value."
-msgstr ""
-
-msgid "Option {name!r} requires an argument."
-msgid_plural "Option {name!r} requires {nargs} arguments."
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "Shell completion is not supported for Bash versions older than 4.4."
-msgstr ""
-
-msgid "Couldn't detect Bash version, shell completion is not supported."
-msgstr ""
-
-#, fuzzy
-#| msgid "Registration Configuration"
-msgid "Repeat for confirmation"
-msgstr "Registrierungskonfiguration"
-
-msgid "Error: The value you entered was invalid."
-msgstr ""
-
-#, python-brace-format
-msgid "Error: {e.message}"
-msgstr ""
-
-msgid "Error: The two entered values do not match."
-msgstr ""
-
-msgid "Error: invalid input"
-msgstr ""
-
-msgid "Press any key to continue..."
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"Choose from:\n"
-"\t{choices}"
-msgstr ""
-
-#, fuzzy
-#| msgid "Value %(value)r is not a valid choice."
-msgid "{value!r} is not {choice}."
-msgid_plural "{value!r} is not one of {choices}."
-msgstr[0] "Wert %(value)r ist keine gültige Auswahl."
-msgstr[1] "Wert %(value)r ist keine gültige Auswahl."
-
-msgid "{value!r} does not match the format {format}."
-msgid_plural "{value!r} does not match the formats {formats}."
-msgstr[0] ""
-msgstr[1] ""
-
-#, fuzzy
-#| msgid "Value %(value)r is not a valid choice."
-msgid "{value!r} is not a valid {number_type}."
-msgstr "Wert %(value)r ist keine gültige Auswahl."
-
-#, python-brace-format
-msgid "{value} is not in the range {range}."
-msgstr ""
-
-msgid "{value!r} is not a valid boolean. Recognized values: {states}"
-msgstr ""
-
-#, fuzzy
-#| msgid "“%(value)s” is not a valid UUID."
-msgid "{value!r} is not a valid UUID."
-msgstr "„%(value)s“ ist keine gültige UUID."
-
-#, fuzzy
-#| msgid "Profile"
-msgid "file"
-msgstr "Profil"
-
-msgid "directory"
-msgstr ""
-
-#, fuzzy
-#| msgid "File path"
-msgid "path"
-msgstr "Dateipfad"
-
-msgid "{name} {filename!r} does not exist."
-msgstr ""
-
-msgid "{name} {filename!r} is a file."
-msgstr ""
-
-msgid "{name} {filename!r} is a directory."
-msgstr ""
-
-msgid "{name} {filename!r} is not readable."
-msgstr ""
-
-msgid "{name} {filename!r} is not writable."
-msgstr ""
-
-msgid "{name} {filename!r} is not executable."
-msgstr ""
-
-#, python-brace-format
-msgid "{len_type} values are required, but {len_value} was given."
-msgid_plural "{len_type} values are required, but {len_value} were given."
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "Messages"
-msgstr "Nachrichten"
-
-msgid "Site Maps"
-msgstr "Sitemaps"
-
-msgid "Static Files"
-msgstr "Statische Dateien"
-
-msgid "Syndication"
-msgstr "Syndikation"
-
-#. Translators: String used to replace omitted page numbers in elided page
-#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
-msgid "…"
-msgstr "…"
-
-msgid "That page number is not an integer"
-msgstr "Diese Seitennummer ist keine ganze Zahl"
-
-msgid "That page number is less than 1"
-msgstr "Diese Seitennummer ist kleiner als 1"
-
-msgid "That page contains no results"
-msgstr "Diese Seite enthält keine Ergebnisse"
-
-msgid "Enter a valid value."
-msgstr "Geben Sie einen gültigen Wert ein."
-
-msgid "Enter a valid domain name."
-msgstr "Geben Sie einen gültigen Domainnamen ein."
-
-msgid "Enter a valid URL."
-msgstr "Geben Sie eine gültige URL ein."
-
-msgid "Enter a valid integer."
-msgstr "Geben Sie eine gültige Ganzzahl ein."
-
-msgid "Enter a valid email address."
-msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
-
-#. Translators: "letters" means latin letters: a-z and A-Z.
-msgid ""
-"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
-msgstr ""
-"Geben Sie einen gültigen „Slug“ ein, bestehend aus Buchstaben, Zahlen, "
-"Unterstrichen oder Bindestrichen."
-
-msgid ""
-"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
-"hyphens."
-msgstr ""
-"Geben Sie einen gültigen „Slug“ ein, bestehend aus Unicode-Buchstaben, "
-"Zahlen, Unterstrichen oder Bindestrichen."
-
-#, python-format
-msgid "Enter a valid %(protocol)s address."
-msgstr "Geben Sie eine gültige %(protocol)s-Adresse ein."
-
-msgid "IPv4"
-msgstr "IPv4"
-
-msgid "IPv6"
-msgstr "IPv6"
-
-msgid "IPv4 or IPv6"
-msgstr "IPv4 oder IPv6"
-
-msgid "Enter only digits separated by commas."
-msgstr "Geben Sie nur Ziffern ein, getrennt durch Kommas."
-
-#, python-format
-msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
-msgstr ""
-"Stellen Sie sicher, dass dieser Wert %(limit_value)s ist (es ist "
-"%(show_value)s)."
-
-#, python-format
-msgid "Ensure this value is less than or equal to %(limit_value)s."
-msgstr ""
-"Stellen Sie sicher, dass dieser Wert kleiner oder gleich %(limit_value)s ist."
-
-#, python-format
-msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
-"Stellen Sie sicher, dass dieser Wert größer oder gleich %(limit_value)s ist."
-
-#, python-format
-msgid "Ensure this value is a multiple of step size %(limit_value)s."
-msgstr ""
-"Stellen Sie sicher, dass dieser Wert ein Vielfaches von %(limit_value)s ist."
-
-#, python-format
-msgid ""
-"Ensure this value is a multiple of step size %(limit_value)s, starting from "
-"%(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and so on."
-msgstr ""
-"Stellen Sie sicher, dass dieser Wert ein Vielfaches von %(limit_value)s ist, "
-"beginnend bei %(offset)s, z.B. %(offset)s, %(valid_value1)s, "
-"%(valid_value2)s usw."
-
-#, python-format
-msgid ""
-"Ensure this value has at least %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at least %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-"Stellen Sie sicher, dass dieser Wert mindestens %(limit_value)d Zeichen hat "
-"(er hat %(show_value)d)."
-msgstr[1] ""
-"Stellen Sie sicher, dass dieser Wert mindestens %(limit_value)d Zeichen hat "
-"(er hat %(show_value)d)."
-
-#, python-format
-msgid ""
-"Ensure this value has at most %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at most %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-"Stellen Sie sicher, dass dieser Wert höchstens %(limit_value)d Zeichen hat "
-"(er hat %(show_value)d)."
-msgstr[1] ""
-"Stellen Sie sicher, dass dieser Wert höchstens %(limit_value)d Zeichen hat "
-"(er hat %(show_value)d)."
-
-msgid "Enter a number."
-msgstr "Geben Sie eine Zahl ein."
-
-#, python-format
-msgid "Ensure that there are no more than %(max)s digit in total."
-msgid_plural "Ensure that there are no more than %(max)s digits in total."
-msgstr[0] ""
-"Stellen Sie sicher, dass insgesamt nicht mehr als %(max)s Ziffer vorhanden "
-"ist."
-msgstr[1] ""
-"Stellen Sie sicher, dass insgesamt nicht mehr als %(max)s Ziffern vorhanden "
-"sind."
-
-#, python-format
-msgid "Ensure that there are no more than %(max)s decimal place."
-msgid_plural "Ensure that there are no more than %(max)s decimal places."
-msgstr[0] ""
-"Stellen Sie sicher, dass nicht mehr als %(max)s Dezimalstelle vorhanden ist."
-msgstr[1] ""
-"Stellen Sie sicher, dass nicht mehr als %(max)s Dezimalstellen vorhanden "
-"sind."
-
-#, python-format
-msgid ""
-"Ensure that there are no more than %(max)s digit before the decimal point."
-msgid_plural ""
-"Ensure that there are no more than %(max)s digits before the decimal point."
-msgstr[0] ""
-"Stellen Sie sicher, dass vor dem Dezimalpunkt nicht mehr als %(max)s Ziffer "
-"vorhanden ist."
-msgstr[1] ""
-"Stellen Sie sicher, dass vor dem Dezimalpunkt nicht mehr als %(max)s Ziffern "
-"vorhanden sind."
-
-#, python-format
-msgid ""
-"File extension “%(extension)s” is not allowed. Allowed extensions are: "
-"%(allowed_extensions)s."
-msgstr ""
-"Dateierweiterung „%(extension)s“ ist nicht erlaubt. Erlaubte Erweiterungen "
-"sind: %(allowed_extensions)s."
-
-msgid "Null characters are not allowed."
-msgstr "Nullzeichen sind nicht erlaubt."
-
-msgid "and"
-msgstr "und"
-
-#, python-format
-msgid "%(model_name)s with this %(field_labels)s already exists."
-msgstr "%(model_name)s mit diesen %(field_labels)s existiert bereits."
-
-#, python-format
-msgid "Constraint “%(name)s” is violated."
-msgstr "Einschränkung „%(name)s“ wurde verletzt."
-
-#, python-format
-msgid "Value %(value)r is not a valid choice."
-msgstr "Wert %(value)r ist keine gültige Auswahl."
-
-msgid "This field cannot be null."
-msgstr "Dieses Feld darf nicht Null sein."
-
-msgid "This field cannot be blank."
-msgstr "Dieses Feld darf nicht leer sein."
-
-#, python-format
-msgid "%(model_name)s with this %(field_label)s already exists."
-msgstr "%(model_name)s mit diesem %(field_label)s existiert bereits."
-
-#. Translators: The 'lookup_type' is one of 'date', 'year' or
-#. 'month'. Eg: "Title must be unique for pub_date year"
-#, python-format
-msgid ""
-"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
-msgstr ""
-"%(field_label)s muss für %(date_field_label)s %(lookup_type)s eindeutig sein."
-
-#, python-format
-msgid "Field of type: %(field_type)s"
-msgstr "Feld vom Typ: %(field_type)s"
-
-#, python-format
-msgid "“%(value)s” value must be either True or False."
-msgstr "Der Wert „%(value)s“ muss entweder wahr oder falsch sein."
-
-#, python-format
-msgid "“%(value)s” value must be either True, False, or None."
-msgstr "Der Wert „%(value)s“ muss entweder wahr, falsch oder None sein."
-
-msgid "Boolean (Either True or False)"
-msgstr "Boolesch (entweder wahr oder falsch)"
-
-#, python-format
-msgid "String (up to %(max_length)s)"
-msgstr "Zeichenkette (bis zu %(max_length)s)"
-
-msgid "String (unlimited)"
-msgstr "Zeichenkette (unbegrenzt)"
-
-msgid "Comma-separated integers"
-msgstr "Kommagetrennte Ganzzahlen"
-
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
-"format."
-msgstr ""
-"Der Wert „%(value)s“ hat ein ungültiges Datumsformat. Es muss im Format JJJJ-"
-"MM-TT sein."
-
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
-"date."
-msgstr ""
-"Der Wert „%(value)s“ hat das korrekte Format (JJJJ-MM-TT), ist aber ein "
-"ungültiges Datum."
-
-msgid "Date (without time)"
-msgstr "Datum (ohne Uhrzeit)"
-
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
-"HH:MM[:ss[.uuuuuu]][TZ] format."
-msgstr ""
-"Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format JJJJ-MM-TT "
-"HH:MM[:ss[.uuuuuu]][TZ] sein."
-
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
-"[TZ]) but it is an invalid date/time."
-msgstr ""
-"Der Wert „%(value)s“ hat das korrekte Format (JJJJ-MM-TT HH:MM[:ss[.uuuuuu]]"
-"[TZ]), ist aber ein ungültiges Datum/Uhrzeit."
-
-msgid "Date (with time)"
-msgstr "Datum (mit Uhrzeit)"
-
-#, python-format
-msgid "“%(value)s” value must be a decimal number."
-msgstr "Der Wert „%(value)s“ muss eine Dezimalzahl sein."
-
-msgid "Decimal number"
-msgstr "Dezimalzahl"
-
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in [DD] "
-"[[HH:]MM:]ss[.uuuuuu] format."
-msgstr ""
-"Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format [TT] "
-"[[HH:]MM:]ss[.uuuuuu] sein."
-
-msgid "File path"
-msgstr "Dateipfad"
-
-#, python-format
-msgid "“%(value)s” value must be a float."
-msgstr "Der Wert „%(value)s“ muss eine Gleitkommazahl sein."
-
-msgid "Floating point number"
-msgstr "Gleitkommazahl"
-
-#, python-format
-msgid "“%(value)s” value must be an integer."
-msgstr "Der Wert „%(value)s“ muss eine Ganzzahl sein."
-
-msgid "Integer"
-msgstr "Ganzzahl"
-
-msgid "Big (8 byte) integer"
-msgstr "Große Ganzzahl (8 Byte)"
-
-msgid "Small integer"
-msgstr "Kleine Ganzzahl"
-
-msgid "IPv4 address"
-msgstr "IPv4-Adresse"
-
-msgid "IP address"
-msgstr "IP-Adresse"
-
-#, python-format
-msgid "“%(value)s” value must be either None, True or False."
-msgstr "Der Wert „%(value)s“ muss entweder None, wahr oder falsch sein."
-
-msgid "Boolean (Either True, False or None)"
-msgstr "Boolesch (entweder wahr, falsch oder None)"
-
-msgid "Positive big integer"
-msgstr "Positive große Ganzzahl"
-
-msgid "Positive integer"
-msgstr "Positive Ganzzahl"
-
-msgid "Positive small integer"
-msgstr "Positive kleine Ganzzahl"
-
-#, python-format
-msgid "Slug (up to %(max_length)s)"
-msgstr "Slug (bis zu %(max_length)s)"
-
-msgid "Text"
-msgstr "Text"
-
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
-"format."
-msgstr ""
-"Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format "
-"HH:MM[:ss[.uuuuuu]] sein."
-
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
-"invalid time."
-msgstr ""
-"Der Wert „%(value)s“ hat das korrekte Format (HH:MM[:ss[.uuuuuu]]), ist aber "
-"eine ungültige Uhrzeit."
-
-msgid "Time"
-msgstr "Uhrzeit"
-
-msgid "URL"
-msgstr "URL"
-
-msgid "Raw binary data"
-msgstr "Roh-Binärdaten"
-
-#, python-format
-msgid "“%(value)s” is not a valid UUID."
-msgstr "„%(value)s“ ist keine gültige UUID."
-
-msgid "Universally unique identifier"
-msgstr "Universally Unique Identifier (UUID)"
-
-msgid "File"
-msgstr "Datei"
-
-msgid "Image"
-msgstr "Bild"
-
-msgid "A JSON object"
-msgstr "Ein JSON-Objekt"
-
-msgid "Value must be valid JSON."
-msgstr "Der Wert muss ein gültiges JSON sein."
-
-#, python-format
-msgid "%(model)s instance with %(field)s %(value)r is not a valid choice."
-msgstr "%(model)s-Instanz mit %(field)s %(value)r ist keine gültige Auswahl."
-
-msgid "Foreign Key (type determined by related field)"
-msgstr "Fremdschlüssel (Typ durch das zugehörige Feld bestimmt)"
-
-msgid "One-to-one relationship"
-msgstr "Eins-zu-eins-Beziehung"
-
-#, python-format
-msgid "%(from)s-%(to)s relationship"
-msgstr "%(from)s-%(to)s Beziehung"
-
-#, python-format
-msgid "%(from)s-%(to)s relationships"
-msgstr "%(from)s-%(to)s Beziehungen"
-
-msgid "Many-to-many relationship"
-msgstr "Viele-zu-viele-Beziehung"
-
-#. Translators: If found as last label character, these punctuation
-#. characters will prevent the default label_suffix to be appended to the label
-msgid ":?.!"
-msgstr ":?.!"
-
-msgid "This field is required."
-msgstr "Dieses Feld ist erforderlich."
-
-msgid "Enter a whole number."
-msgstr "Geben Sie eine ganze Zahl ein."
-
-msgid "Enter a valid date."
-msgstr "Geben Sie ein gültiges Datum ein."
-
-msgid "Enter a valid time."
-msgstr "Geben Sie eine gültige Uhrzeit ein."
-
-msgid "Enter a valid date/time."
-msgstr "Geben Sie ein gültiges Datum/Uhrzeit ein."
-
-msgid "Enter a valid duration."
-msgstr "Geben Sie eine gültige Dauer ein."
-
-#, python-brace-format
-msgid "The number of days must be between {min_days} and {max_days}."
-msgstr "Die Anzahl der Tage muss zwischen {min_days} und {max_days} liegen."
-
-msgid "No file was submitted. Check the encoding type on the form."
-msgstr ""
-"Es wurde keine Datei übermittelt. Prüfen Sie den Codierungstyp im Formular."
-
-msgid "No file was submitted."
-msgstr "Es wurde keine Datei übermittelt."
-
-msgid "The submitted file is empty."
-msgstr "Die übermittelte Datei ist leer."
-
-#, python-format
-msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
-msgid_plural ""
-"Ensure this filename has at most %(max)d characters (it has %(length)d)."
-msgstr[0] ""
-"Stellen Sie sicher, dass der Dateiname höchstens %(max)d Zeichen hat (er hat "
-"%(length)d)."
-msgstr[1] ""
-"Stellen Sie sicher, dass der Dateiname höchstens %(max)d Zeichen hat (er hat "
-"%(length)d)."
-
-msgid "Please either submit a file or check the clear checkbox, not both."
-msgstr ""
-"Bitte reichen Sie entweder eine Datei ein oder wählen Sie das Feld zum "
-"Entfernen aus, aber nicht beides."
-
-msgid ""
-"Upload a valid image. The file you uploaded was either not an image or a "
-"corrupted image."
-msgstr ""
-"Laden Sie ein gültiges Bild hoch. Die hochgeladene Datei war entweder kein "
-"Bild oder ein beschädigtes Bild."
-
-#, python-format
-msgid "Select a valid choice. %(value)s is not one of the available choices."
-msgstr ""
-"Wählen Sie eine gültige Option. %(value)s ist keine der verfügbaren "
-"Auswahlmöglichkeiten."
-
-msgid "Enter a list of values."
-msgstr "Geben Sie eine Liste von Werten ein."
-
-msgid "Enter a complete value."
-msgstr "Geben Sie einen vollständigen Wert ein."
-
-msgid "Enter a valid UUID."
-msgstr "Geben Sie eine gültige UUID ein."
-
-msgid "Enter a valid JSON."
-msgstr "Geben Sie ein gültiges JSON ein."
-
-#. Translators: This is the default suffix added to form field labels
-msgid ":"
-msgstr ":"
-
-#, python-format
-msgid "(Hidden field %(name)s) %(error)s"
-msgstr "(Verstecktes Feld %(name)s) %(error)s"
-
-#, python-format
-msgid ""
-"ManagementForm data is missing or has been tampered with. Missing fields: "
-"%(field_names)s. You may need to file a bug report if the issue persists."
-msgstr ""
-"ManagementForm-Daten fehlen oder wurden verändert. Fehlende Felder: "
-"%(field_names)s. Falls das Problem weiterhin besteht, melden Sie bitte einen "
-"Fehler."
-
-#, python-format
-msgid "Please submit at most %(num)d form."
-msgid_plural "Please submit at most %(num)d forms."
-msgstr[0] "Bitte übermitteln Sie höchstens %(num)d Formular."
-msgstr[1] "Bitte übermitteln Sie höchstens %(num)d Formulare."
-
-#, python-format
-msgid "Please submit at least %(num)d form."
-msgid_plural "Please submit at least %(num)d forms."
-msgstr[0] "Bitte übermitteln Sie mindestens %(num)d Formular."
-msgstr[1] "Bitte übermitteln Sie mindestens %(num)d Formulare."
-
-msgid "Order"
-msgstr "Bestellung"
-
-#, python-format
-msgid "Please correct the duplicate data for %(field)s."
-msgstr "Bitte korrigieren Sie die doppelten Daten für %(field)s."
-
-#, python-format
-msgid "Please correct the duplicate data for %(field)s, which must be unique."
-msgstr ""
-"Bitte korrigieren Sie die doppelten Daten für %(field)s, die eindeutig sein "
-"müssen."
-
-#, python-format
-msgid ""
-"Please correct the duplicate data for %(field_name)s which must be unique "
-"for the %(lookup)s in %(date_field)s."
-msgstr ""
-"Bitte korrigieren Sie die doppelten Daten für %(field_name)s, die für "
-"%(lookup)s in %(date_field)s eindeutig sein müssen."
-
-msgid "Please correct the duplicate values below."
-msgstr "Bitte korrigieren Sie die unten stehenden doppelten Werte."
-
-msgid "The inline value did not match the parent instance."
-msgstr "Der Inline-Wert stimmt nicht mit der übergeordneten Instanz überein."
-
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr "Wählen Sie eine gültige Option. Diese Auswahl ist nicht verfügbar."
-
-#, python-format
-msgid "“%(pk)s” is not a valid value."
-msgstr "„%(pk)s“ ist kein gültiger Wert."
-
-#, python-format
-msgid ""
-"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
-"may be ambiguous or it may not exist."
-msgstr ""
-"%(datetime)s konnte in der Zeitzone %(current_timezone)s nicht interpretiert "
-"werden; sie ist möglicherweise nicht eindeutig oder existiert nicht."
-
-msgid "Clear"
-msgstr "Löschen"
-
-msgid "Currently"
-msgstr "Aktuell"
-
-msgid "Change"
-msgstr "Ändern"
-
-#. Translators: Please do not add spaces around commas.
-msgid "yes,no,maybe"
-msgstr "ja,nein,vielleicht"
-
-#, python-format
-msgid "%(size)d byte"
-msgid_plural "%(size)d bytes"
-msgstr[0] "%(size)d Byte"
-msgstr[1] "%(size)d Bytes"
-
-#, python-format
-msgid "%s KB"
-msgstr "%s KB"
-
-#, python-format
-msgid "%s MB"
-msgstr "%s MB"
-
-#, python-format
-msgid "%s GB"
-msgstr "%s GB"
-
-#, python-format
-msgid "%s TB"
-msgstr "%s TB"
-
-#, python-format
-msgid "%s PB"
-msgstr "%s PB"
-
-msgid "p.m."
-msgstr "nachm."
-
-msgid "a.m."
-msgstr "vorm."
-
-msgid "PM"
-msgstr "NM"
-
-msgid "AM"
-msgstr "VM"
-
-msgid "midnight"
-msgstr "Mitternacht"
-
-msgid "noon"
-msgstr "Mittag"
-
-msgid "Monday"
-msgstr "Montag"
-
-msgid "Tuesday"
-msgstr "Dienstag"
-
-msgid "Wednesday"
-msgstr "Mittwoch"
-
-msgid "Thursday"
-msgstr "Donnerstag"
-
-msgid "Friday"
-msgstr "Freitag"
-
-msgid "Saturday"
-msgstr "Samstag"
-
-msgid "Sunday"
-msgstr "Sonntag"
-
-msgid "Mon"
-msgstr "Mo"
-
-msgid "Tue"
-msgstr "Di"
-
-msgid "Wed"
-msgstr "Mi"
-
-msgid "Thu"
-msgstr "Do"
-
-msgid "Fri"
-msgstr "Fr"
-
-msgid "Sat"
-msgstr "Sa"
-
-msgid "Sun"
-msgstr "So"
-
-msgid "jan"
-msgstr "Jan"
-
-msgid "feb"
-msgstr "Feb"
-
-msgid "mar"
-msgstr "Mär"
-
-msgid "apr"
-msgstr "Apr"
-
-msgid "may"
-msgstr "Mai"
-
-msgid "jun"
-msgstr "Jun"
-
-msgid "jul"
-msgstr "Jul"
-
-msgid "aug"
-msgstr "Aug"
-
-msgid "sep"
-msgstr "Sep"
-
-msgid "oct"
-msgstr "Okt"
-
-msgid "nov"
-msgstr "Nov"
-
-msgid "dec"
-msgstr "Dez"
-
-msgctxt "abbrev. month"
-msgid "Jan."
-msgstr "Jan."
-
-msgctxt "abbrev. month"
-msgid "Feb."
-msgstr "Feb."
-
-msgctxt "abbrev. month"
-msgid "March"
-msgstr "März"
-
-msgctxt "abbrev. month"
-msgid "April"
-msgstr "April"
-
-msgctxt "abbrev. month"
-msgid "May"
-msgstr "Mai"
-
-msgctxt "abbrev. month"
-msgid "June"
-msgstr "Juni"
-
-msgctxt "abbrev. month"
-msgid "July"
-msgstr "Juli"
-
-msgctxt "abbrev. month"
-msgid "Aug."
-msgstr "Aug."
-
-msgctxt "abbrev. month"
-msgid "Sept."
-msgstr "Sep."
-
-msgctxt "abbrev. month"
-msgid "Oct."
-msgstr "Okt."
-
-msgctxt "abbrev. month"
-msgid "Nov."
-msgstr "Nov."
-
-msgctxt "abbrev. month"
-msgid "Dec."
-msgstr "Dez."
-
-msgctxt "alt. month"
-msgid "January"
-msgstr "Januar"
-
-msgctxt "alt. month"
-msgid "February"
-msgstr "Februar"
-
-msgctxt "alt. month"
-msgid "March"
-msgstr "März"
-
-msgctxt "alt. month"
-msgid "April"
-msgstr "April"
-
-msgctxt "alt. month"
-msgid "May"
-msgstr "Mai"
-
-msgctxt "alt. month"
-msgid "June"
-msgstr "Juni"
-
-msgctxt "alt. month"
-msgid "July"
-msgstr "Juli"
-
-msgctxt "alt. month"
-msgid "August"
-msgstr "August"
-
-msgctxt "alt. month"
-msgid "September"
-msgstr "September"
-
-msgctxt "alt. month"
-msgid "October"
-msgstr "Oktober"
-
-msgctxt "alt. month"
-msgid "November"
-msgstr "November"
-
-msgctxt "alt. month"
-msgid "December"
-msgstr "Dezember"
-
-msgid "This is not a valid IPv6 address."
-msgstr "Dies ist keine gültige IPv6-Adresse."
-
-#, python-format
-msgctxt "String to return when truncating text"
-msgid "%(truncated_text)s…"
-msgstr "%(truncated_text)s…"
-
-msgid "or"
-msgstr "oder"
-
-#. Translators: This string is used as a separator between list elements
-msgid ", "
-msgstr ", "
-
-#, python-format
-msgid "%(num)d year"
-msgid_plural "%(num)d years"
-msgstr[0] "%(num)d Jahr"
-msgstr[1] "%(num)d Jahre"
-
-#, python-format
-msgid "%(num)d month"
-msgid_plural "%(num)d months"
-msgstr[0] "%(num)d Monat"
-msgstr[1] "%(num)d Monate"
-
-#, python-format
-msgid "%(num)d week"
-msgid_plural "%(num)d weeks"
-msgstr[0] "%(num)d Woche"
-msgstr[1] "%(num)d Wochen"
-
-#, python-format
-msgid "%(num)d day"
-msgid_plural "%(num)d days"
-msgstr[0] "%(num)d Tag"
-msgstr[1] "%(num)d Tage"
-
-#, python-format
-msgid "%(num)d hour"
-msgid_plural "%(num)d hours"
-msgstr[0] "%(num)d Stunde"
-msgstr[1] "%(num)d Stunden"
-
-#, python-format
-msgid "%(num)d minute"
-msgid_plural "%(num)d minutes"
-msgstr[0] "%(num)d Minute"
-msgstr[1] "%(num)d Minuten"
-
-msgid "Forbidden"
-msgstr "Verboten"
-
-msgid "CSRF verification failed. Request aborted."
-msgstr "CSRF-Überprüfung fehlgeschlagen. Anfrage abgebrochen."
-
-msgid ""
-"You are seeing this message because this HTTPS site requires a “Referer "
-"header” to be sent by your web browser, but none was sent. This header is "
-"required for security reasons, to ensure that your browser is not being "
-"hijacked by third parties."
-msgstr ""
-"Sie sehen diese Nachricht, weil diese HTTPS-Seite verlangt, dass Ihr "
-"Webbrowser einen \"Referer-Header\" sendet, aber keiner gesendet wurde. "
-"Dieser Header wird aus Sicherheitsgründen benötigt, um sicherzustellen, dass "
-"Ihr Browser nicht von Dritten übernommen wird."
-
-msgid ""
-"If you have configured your browser to disable “Referer” headers, please re-"
-"enable them, at least for this site, or for HTTPS connections, or for “same-"
-"origin” requests."
-msgstr ""
-"Wenn Sie Ihren Browser so konfiguriert haben, dass er \"Referer\"-Header "
-"deaktiviert, aktivieren Sie diese bitte erneut – zumindest für diese Seite, "
-"für HTTPS-Verbindungen oder für \"Same-Origin\"-Anfragen."
-
-msgid ""
-"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
-"including the “Referrer-Policy: no-referrer” header, please remove them. The "
-"CSRF protection requires the “Referer” header to do strict referer checking. "
-"If you’re concerned about privacy, use alternatives like <a "
-"rel=\"noreferrer\" …> for links to third-party sites."
-msgstr ""
-"Falls Sie das <meta name=\"referrer\" content=\"no-referrer\">-Tag oder den "
-"Header \"Referrer-Policy: no-referrer\" verwenden, entfernen Sie diese "
-"bitte. Der CSRF-Schutz erfordert den \"Referer\"-Header zur strikten "
-"Überprüfung. Wenn Sie sich um Ihre Privatsphäre sorgen, verwenden Sie "
-"Alternativen wie <a rel=\"noreferrer\" …> bei Links zu Drittseiten."
-
-msgid ""
-"You are seeing this message because this site requires a CSRF cookie when "
-"submitting forms. This cookie is required for security reasons, to ensure "
-"that your browser is not being hijacked by third parties."
-msgstr ""
-"Sie sehen diese Nachricht, weil diese Seite beim Absenden von Formularen ein "
-"CSRF-Cookie benötigt. Dieses Cookie wird aus Sicherheitsgründen benötigt, um "
-"sicherzustellen, dass Ihr Browser nicht von Dritten übernommen wird."
-
-msgid ""
-"If you have configured your browser to disable cookies, please re-enable "
-"them, at least for this site, or for “same-origin” requests."
-msgstr ""
-"Wenn Sie Ihren Browser so konfiguriert haben, dass Cookies deaktiviert sind, "
-"aktivieren Sie diese bitte erneut, zumindest für diese Seite oder für \"Same-"
-"Origin\"-Anfragen."
-
-msgid "More information is available with DEBUG=True."
-msgstr "Mehr Informationen sind mit DEBUG=True verfügbar."
-
-msgid "No year specified"
-msgstr "Kein Jahr angegeben"
-
-msgid "Date out of range"
-msgstr "Datum außerhalb des gültigen Bereichs"
-
-msgid "No month specified"
-msgstr "Kein Monat angegeben"
-
-msgid "No day specified"
-msgstr "Kein Tag angegeben"
-
-msgid "No week specified"
-msgstr "Keine Woche angegeben"
-
-#, python-format
-msgid "No %(verbose_name_plural)s available"
-msgstr "Keine %(verbose_name_plural)s verfügbar"
-
-#, python-format
-msgid ""
-"Future %(verbose_name_plural)s not available because "
-"%(class_name)s.allow_future is False."
-msgstr ""
-"Zukünftige %(verbose_name_plural)s sind nicht verfügbar, da "
-"%(class_name)s.allow_future auf False gesetzt ist."
-
-#, python-format
-msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
-msgstr "Ungültiger Datumsstring „%(datestr)s“ im Format „%(format)s“"
-
-#, python-format
-msgid "No %(verbose_name)s found matching the query"
-msgstr "Kein %(verbose_name)s entsprechend der Abfrage gefunden"
-
-msgid "Page is not “last”, nor can it be converted to an int."
-msgstr "Seite ist weder „last“ noch kann sie in eine Zahl umgewandelt werden."
-
-#, python-format
-msgid "Invalid page (%(page_number)s): %(message)s"
-msgstr "Ungültige Seite (%(page_number)s): %(message)s"
-
-#, python-format
-msgid "Empty list and “%(class_name)s.allow_empty” is False."
-msgstr "Leere Liste und „%(class_name)s.allow_empty“ ist False."
-
-msgid "Directory indexes are not allowed here."
-msgstr "Verzeichnis-Indizes sind hier nicht erlaubt."
-
-#, python-format
-msgid "“%(path)s” does not exist"
-msgstr "„%(path)s“ existiert nicht"
-
-#, python-format
-msgid "Index of %(directory)s"
-msgstr "Index von %(directory)s"
-
-msgid "The install worked successfully! Congratulations!"
-msgstr "Die Installation war erfolgreich! Glückwunsch!"
-
-#, python-format
-msgid ""
-"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
-"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
-msgstr ""
-"Lesen Sie die <a href=\"https://docs.djangoproject.com/en/%(version)s/"
-"releases/\" target=\"_blank\" rel=\"noopener\">Release Notes</a> für Django "
-"%(version)s"
-
-#, python-format
-msgid ""
-"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
-"%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
-"configured any URLs."
-msgstr ""
-"Sie sehen diese Seite, weil <a href=\"https://docs.djangoproject.com/en/"
-"%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> in Ihrer Einstellungsdatei aktiviert ist und "
-"Sie keine URLs konfiguriert haben."
-
-msgid "Django Documentation"
-msgstr "Django-Dokumentation"
-
-msgid "Topics, references, &amp; how-to’s"
-msgstr "Themen, Referenzen &amp; How-tos"
-
-msgid "Tutorial: A Polling App"
-msgstr "Tutorial: Eine Umfrage-App"
-
-msgid "Get started with Django"
-msgstr "Starte mit Django"
-
-msgid "Django Community"
-msgstr "Django-Community"
-
-msgid "Connect, get help, or contribute"
-msgstr "Vernetzen, Hilfe erhalten oder beitragen"
-
-#, fuzzy
-#| msgid "No results yet"
-msgid "No response body"
-msgstr "Noch keine Ergebnisse"
-
-msgid "Unspecified response body"
-msgstr ""
-
-#, python-format
-msgid "Token-based authentication with required prefix \"%s\""
-msgstr ""
-
-msgid ""
-"\n"
-"    OpenApi3 schema for this API. Format can be selected via content "
-"negotiation.\n"
-"\n"
-"    - YAML: application/vnd.oai.openapi\n"
-"    - JSON: application/vnd.oai.openapi+json\n"
-"    "
-msgstr ""
-
-#, python-format
-msgid "Attempting to connect to qpid with SASL mechanism %s"
-msgstr ""
-
-#, python-format
-msgid "Connected to qpid with SASL mechanism %s"
-msgstr ""
-
-#, python-format
-msgid "Unable to connect to qpid with SASL mechanism %s"
-msgstr ""
-
-#, fuzzy
-#| msgid "This field is required."
-msgid "A valid timezone is required."
-msgstr "Dieses Feld ist erforderlich."
-
-msgid "Required input is missing."
-msgstr ""
-
-msgid "Object is of wrong type."
-msgstr ""
-
-msgid "Value is too big"
-msgstr ""
-
-msgid "Value is too small"
-msgstr ""
-
-msgid "Value is too long"
-msgstr ""
-
-msgid "Value is too short"
-msgstr ""
-
-#, fuzzy
-#| msgid "Enter a valid value."
-msgid "Invalid value"
-msgstr "Geben Sie einen gültigen Wert ein."
-
-msgid "Constraint not satisfied"
-msgstr ""
-
-msgid "Not a container"
-msgstr ""
-
-msgid "Not an iterator"
-msgstr ""
-
-msgid "Wrong contained type"
-msgstr ""
-
-msgid "An object failed schema or invariant validation."
-msgstr ""
-
-msgid "Schema not fully implemented"
-msgstr ""
-
-#, fuzzy
-#| msgid "Yes - if date_to not provided"
-msgid "Schema not provided"
-msgstr "Ja - wenn date_to nicht angegeben"
-
-msgid "One or more entries of sequence are not unique."
-msgstr ""
-
-msgid "The specified URI is not valid."
-msgstr ""
-
-msgid "The specified id is not valid."
-msgstr ""
-
-msgid "The specified dotted name is not valid."
-msgstr ""
-
-#, fuzzy
-#| msgid "This field cannot be null."
-msgid "The field is not bound."
-msgstr "Dieses Feld darf nicht Null sein."
-
-msgid "A short summary or label"
-msgstr ""
-
-msgid "A description of the field"
-msgstr ""
-
-msgid "Required"
-msgstr "Erforderlich"
-
-msgid "Tells whether a field requires its value to exist."
-msgstr ""
-
-msgid "Read Only"
-msgstr ""
-
-msgid "If true, the field's value cannot be changed."
-msgstr ""
-
-msgid "Default Value"
-msgstr ""
-
-msgid ""
-"The field default value may be None or a legal\n"
-"                        field value"
-msgstr ""
-
-msgid "Missing Value"
-msgstr ""
-
-msgid ""
-"If input for this Field is missing, and that's ok,\n"
-"                          then this is the value to use"
-msgstr ""
-
-#, fuzzy
-#| msgid "Order"
-msgid "Field Order"
-msgstr "Bestellung"
-
-msgid ""
-"\n"
-"        The order attribute can be used to determine the order in\n"
-"        which fields in a schema were defined. If one field is created\n"
-"        after another (in the same thread), its order will be\n"
-"        greater.\n"
-"\n"
-"        (Fields in separate threads could have the same order.)\n"
-"        "
-msgstr ""
-
-#, fuzzy
-#| msgid "Date out of range"
-msgid "Start of the range"
-msgstr "Datum außerhalb des gültigen Bereichs"
-
-msgid "End of the range (including the value itself)"
-msgstr ""
-
-msgid "Minimum length"
-msgstr ""
-
-msgid ""
-"\n"
-"        Value after whitespace processing cannot have less than\n"
-"        `min_length` characters (if a string type) or elements (if\n"
-"        another sequence type). If `min_length` is ``None``, there is\n"
-"        no minimum.\n"
-"        "
-msgstr ""
-
-msgid "Maximum length"
-msgstr ""
-
-msgid ""
-"\n"
-"        Value after whitespace processing cannot have greater\n"
-"        or equal than `max_length` characters (if a string type) or\n"
-"        elements (if another sequence type). If `max_length` is\n"
-"        ``None``, there is no maximum."
-msgstr ""
-
-msgid "Minimum number of dots"
-msgstr ""
-
-msgid "Maximum number of dots (should not be less than min_dots)"
-msgstr ""
-
-msgid "Vocabulary or source providing values"
-msgstr ""
-
-msgid ""
-"The ISource, IContextSourceBinder or IBaseVocabulary object that provides "
-"values for this field."
-msgstr ""
-
-msgid "Vocabulary name"
-msgstr ""
-
-msgid "Vocabulary name to lookup in the vocabulary registry"
-msgstr ""
-
-msgid "Value Type"
-msgstr ""
-
-msgid ""
-"Field value items must conform to the given type, expressed via a Field."
-msgstr ""
-
-#, fuzzy
-#| msgid "Member"
-msgid "Unique Members"
-msgstr "Mitglied"
-
-msgid "Specifies whether the members of the collection must be unique."
-msgstr ""
-
-msgid "The Interface that defines the Fields comprising the Object."
-msgstr ""
-
-msgid "Validate Invariants"
-msgstr ""
-
-msgid ""
-"A boolean that says whether ``schema.validateInvariants`` is called from "
-"``self.validate()``. The default is true."
-msgstr ""
-
-msgid "Field keys must conform to the given type, expressed via a Field."
-msgstr ""
-
-msgid "Field values must conform to the given type, expressed via a Field."
-msgstr ""
-
-msgid "Boss"
-msgstr ""
-
-#, fuzzy
-#| msgid "Description"
-msgid "Boss description"
-msgstr "Beschreibung"
-
-#, fuzzy
-#| msgid "Member"
-msgid "Member List"
-msgstr "Mitglied"
-
-#, fuzzy
-#| msgid "title, topic, description"
-msgid "Member list description"
-msgstr "Titel, Thema, Beschreibung"
-
-msgid "Unit"
-msgstr ""
-
-#, fuzzy
-#| msgid "Description"
-msgid "Unit description"
-msgstr "Beschreibung"
-
-msgid "test string"
-msgstr ""
-
+#: ok_tools/accessibility_views.py:28
 msgid "Please fill in all required fields."
 msgstr "Bitte füllen Sie alle Pflichtfelder aus."
 
+#: ok_tools/accessibility_views.py:32
 #, python-brace-format
 msgid "Accessibility barrier reported: {barrier_type}"
 msgstr "Barriere für Barrierefreiheit gemeldet: {barrier_type}"
 
+#: ok_tools/accessibility_views.py:52
 msgid "Thank you for your message. We will contact you within 2 weeks."
 msgstr ""
 "Vielen Dank für Ihre Nachricht. Wir werden Sie innerhalb von 2 Wochen "
 "kontaktieren."
 
+#: ok_tools/accessibility_views.py:55
 msgid "There was an error sending your message. Please try again later."
 msgstr ""
 "Beim Senden Ihrer Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie "
 "es später erneut."
 
+#: ok_tools/admin.py:44 ok_tools/admin.py:63
+#: ok_tools/templates/admin/configuration_index.html:6
+#: ok_tools/templates/admin/configuration_index.html:11
 msgid "Configuration"
 msgstr "Konfiguration"
 
+#: ok_tools/admin.py:101 ok_tools/templates/base.html:60
 msgid "Dashboard"
 msgstr "Dashboard"
 
+#: ok_tools/admin.py:107
 msgid "Main Dashboard"
 msgstr "Haupt-Dashboard"
 
+#: ok_tools/admin.py:126
 msgid "Exchange Feed"
 msgstr "Austausch-Feed"
 
+#: ok_tools/admin.py:142
 msgid "All Tools"
 msgstr "Alle Werkzeuge"
 
+#: ok_tools/admin_celery.py:30
+msgid "Download exchange files"
+msgstr "Austausch-Dateien herunterladen"
+
+#: ok_tools/admin_celery.py:31
+msgid "Export broadcasts to server"
+msgstr "Sendungen auf den Server exportieren"
+
+#: ok_tools/admin_celery.py:32
+msgid "Import exchange item"
+msgstr "Austausch-Eintrag importieren"
+
+#: ok_tools/admin_celery.py:33
+msgid "Synchronize exchange folders"
+msgstr "Austausch-Ordner synchronisieren"
+
+#: ok_tools/admin_celery.py:34
+msgid "Download Nextcloud video to storage"
+msgstr "Nextcloud-Video in den Speicher herunterladen"
+
+#: ok_tools/admin_celery.py:35
+msgid "Refresh media library link"
+msgstr "Mediathek-Link aktualisieren"
+
+#: ok_tools/admin_celery.py:36
+msgid "Rescan media library links"
+msgstr "Mediathek-Links erneut prüfen"
+
+#: ok_tools/admin_celery.py:37
+msgid "Send license notification email"
+msgstr "Freistellungs-Benachrichtigung per E-Mail senden"
+
+#: ok_tools/admin_celery.py:38
+msgid "Copy videos for broadcast plan"
+msgstr "Videos für den Sendeplan kopieren"
+
+#: ok_tools/admin_celery.py:39
+msgid "Render video"
+msgstr "Video rendern"
+
+#: ok_tools/admin_celery.py:40
+msgid "Run automatic media scan"
+msgstr "Automatischen Medienscan ausführen"
+
+#: ok_tools/admin_celery.py:41
+msgid "Clean up duplicate media files"
+msgstr "Doppelte Mediendateien bereinigen"
+
+#: ok_tools/admin_celery.py:42
+msgid "Clean up missing media files"
+msgstr "Fehlende Mediendateien bereinigen"
+
+#: ok_tools/admin_celery.py:43
+msgid "Clean up old file operations"
+msgstr "Alte Dateioperationen bereinigen"
+
+#: ok_tools/admin_celery.py:44
+msgid "Clean up playout storage"
+msgstr "Playout-Speicher bereinigen"
+
+#: ok_tools/admin_celery.py:45
+msgid "Find duplicate media files"
+msgstr "Doppelte Mediendateien suchen"
+
+#: ok_tools/admin_celery.py:46
+msgid "Link unassigned licenses"
+msgstr "Nicht zugeordnete Freistellungen verknüpfen"
+
+#: ok_tools/admin_celery.py:47
+msgid "Scan video storage"
+msgstr "Videospeicher scannen"
+
+#: ok_tools/admin_celery.py:48
+msgid "Synchronize licenses and videos"
+msgstr "Freistellungen und Videos synchronisieren"
+
+#: ok_tools/admin_celery.py:49
+msgid "Update video metadata"
+msgstr "Video-Metadaten aktualisieren"
+
+#: ok_tools/admin_celery.py:50
+msgid "Convert HEVC video to H.264"
+msgstr "HEVC-Video nach H.264 konvertieren"
+
+#: ok_tools/admin_celery.py:51
+msgid "Clean up old backups"
+msgstr "Alte Backups bereinigen"
+
+#: ok_tools/admin_celery.py:52
+msgid "Create database backup"
+msgstr "Datenbank-Backup erstellen"
+
+#: ok_tools/admin_celery.py:53
+msgid "Clean up deleted Nextcloud videos"
+msgstr "Gelöschte Nextcloud-Videos bereinigen"
+
+#: ok_tools/admin_celery.py:54
+msgid "Clean up old signing sessions"
+msgstr "Alte Signatur-Sitzungen bereinigen"
+
+#: ok_tools/admin_celery.py:55
+msgid "Expire outdated room rentals"
+msgstr "Abgelaufene Raumverleihvorgänge beenden"
+
+#: ok_tools/admin_celery.py:56
+msgid "Synchronize missing playout media"
+msgstr "Fehlende Playout-Medien synchronisieren"
+
+#: ok_tools/admin_celery.py:57
+msgid "Analyze audio for normalization"
+msgstr "Audio für Normalisierung analysieren"
+
+#: ok_tools/admin_celery.py:58
+msgid "Clean up old audio normalization jobs"
+msgstr "Alte Audio-Normalisierungsaufträge bereinigen"
+
+#: ok_tools/admin_celery.py:59
+msgid "Clean up old slideshow projects"
+msgstr "Alte Slideshow-Projekte bereinigen"
+
+#: ok_tools/admin_celery.py:60
+msgid "Clean up old video render operations"
+msgstr "Alte Video-Render-Vorgänge bereinigen"
+
+#: ok_tools/admin_celery.py:61
+msgid "Generate slideshow video"
+msgstr "Slideshow-Video erzeugen"
+
+#: ok_tools/admin_celery.py:62
+msgid "Normalize audio"
+msgstr "Audio normalisieren"
+
+#: ok_tools/admin_celery.py:67
+msgid "Waiting"
+msgstr "Wartet"
+
+#: ok_tools/admin_celery.py:68
+msgid "In progress"
+msgstr "In Bearbeitung"
+
+#: ok_tools/admin_celery.py:69
+msgid "Received"
+msgstr "Empfangen"
+
+#: ok_tools/admin_celery.py:70
+msgid "Retrying"
+msgstr "Wird erneut versucht"
+
+#: ok_tools/admin_celery.py:71
+msgid "Canceled"
+msgstr "Abgebrochen"
+
+#: ok_tools/admin_celery.py:72
+msgid "Started"
+msgstr "Gestartet"
+
+#: ok_tools/admin_celery.py:78
+msgid "Downloading"
+msgstr "Wird heruntergeladen"
+
+#: ok_tools/admin_celery.py:79
+msgid "Exporting"
+msgstr "Wird exportiert"
+
+#: ok_tools/admin_celery.py:81
+msgid "Importing"
+msgstr "Wird importiert"
+
+#: ok_tools/admin_celery.py:82
+msgid "Processing"
+msgstr "Wird verarbeitet"
+
+#: ok_tools/admin_celery.py:83
+msgid "Rendering"
+msgstr "Wird gerendert"
+
+#: ok_tools/admin_celery.py:84
+msgid "Skipped"
+msgstr "Übersprungen"
+
+#: ok_tools/admin_celery.py:86
+msgid "Uploading"
+msgstr "Wird hochgeladen"
+
+#: ok_tools/admin_celery.py:90
+msgid "Current"
+msgstr "Aktuell"
+
+#: ok_tools/admin_celery.py:91
+msgid "Current item ID"
+msgstr "Aktuelle Eintrags-ID"
+
+#: ok_tools/admin_celery.py:92
+msgid "Details"
+msgstr "Details"
+
+#: ok_tools/admin_celery.py:94
+msgid "Exception message"
+msgstr "Fehlermeldung"
+
+#: ok_tools/admin_celery.py:95
+msgid "Exception module"
+msgstr "Fehlermodul"
+
+#: ok_tools/admin_celery.py:96
+msgid "Exception type"
+msgstr "Fehlertyp"
+
+#: ok_tools/admin_celery.py:98
+msgid "Failed entries"
+msgstr "Fehlgeschlagene Einträge"
+
+#: ok_tools/admin_celery.py:99
+msgid "Job ID"
+msgstr "Auftrags-ID"
+
+#: ok_tools/admin_celery.py:100
+msgid "Output file"
+msgstr "Ausgabedatei"
+
+#: ok_tools/admin_celery.py:101
+msgid "External output path"
+msgstr "Externer Ausgabepfad"
+
+#: ok_tools/admin_celery.py:102 ok_tools/admin_celery.py:690
+#: ok_tools/admin_celery.py:760
+msgid "Progress"
+msgstr "Fortschritt"
+
+#: ok_tools/admin_celery.py:103
+msgid "Reason"
+msgstr "Grund"
+
+#: ok_tools/admin_celery.py:104
+msgid "Recommendations"
+msgstr "Empfehlungen"
+
+#: ok_tools/admin_celery.py:105 ok_tools/admin_celery.py:757
+msgid "Report ID"
+msgstr "Berichts-ID"
+
+#: ok_tools/admin_celery.py:106 ok_tools/admin_celery.py:107
+#: ok_tools/admin_celery.py:754
+msgid "Skipped without PDF"
+msgstr "Ohne PDF übersprungen"
+
+#: ok_tools/admin_celery.py:108 ok_tools/admin_celery.py:781
+msgid "Upload speed"
+msgstr "Upload-Geschwindigkeit"
+
+#: ok_tools/admin_celery.py:110 ok_tools/admin_celery.py:748
+msgid "Successful"
+msgstr "Erfolgreich"
+
+#: ok_tools/admin_celery.py:111
+msgid "Successful IDs"
+msgstr "Erfolgreiche IDs"
+
+#: ok_tools/admin_celery.py:112
+msgid "Successful license numbers"
+msgstr "Erfolgreiche Freistellungsnummern"
+
+#: ok_tools/admin_celery.py:113
+msgid "Total"
+msgstr "Gesamt"
+
+#: ok_tools/admin_celery.py:120
+msgid "Unknown task"
+msgstr "Unbekannte Aufgabe"
+
+#: ok_tools/admin_celery.py:216
+msgid "licenses"
+msgstr "Freistellungen"
+
+#: ok_tools/admin_celery.py:218
+msgid "contributions"
+msgstr "Beiträge"
+
+#: ok_tools/admin_celery.py:219
+msgid "unknown"
+msgstr "unbekannt"
+
+#: ok_tools/admin_celery.py:256
+#, python-format
+msgid "User ID %(user_id)s"
+msgstr "Benutzer-ID %(user_id)s"
+
+#: ok_tools/admin_celery.py:261
+#, python-format
+msgid "%(label)s (ID %(user_id)s)"
+msgstr "%(label)s (ID %(user_id)s)"
+
+#: ok_tools/admin_celery.py:279
+#, python-format
+msgid "#%(number)s %(title)s"
+msgstr "#%(number)s %(title)s"
+
+#: ok_tools/admin_celery.py:285
+#, python-format
+msgid "#%(number)s (not found)"
+msgstr "#%(number)s (nicht gefunden)"
+
+#: ok_tools/admin_celery.py:303
+#, python-format
+msgid "#%(id)s - license %(number)s %(title)s"
+msgstr "#%(id)s - Freistellung %(number)s %(title)s"
+
+#: ok_tools/admin_celery.py:314
+#, python-format
+msgid "#%(id)s (not found)"
+msgstr "#%(id)s (nicht gefunden)"
+
+#: ok_tools/admin_celery.py:321
+#, python-format
+msgid "and %(count)s more"
+msgstr "und %(count)s weitere"
+
+#: ok_tools/admin_celery.py:330
+msgid "No selected entries"
+msgstr "Keine ausgewählten Einträge"
+
+#: ok_tools/admin_celery.py:348
 msgid "Run selected periodic tasks now"
 msgstr "Gewählte periodische Aufgaben jetzt ausführen"
 
+#: ok_tools/admin_celery.py:363 ok_tools/admin_celery.py:474
 #, python-format
 msgid "Task \"%(task_name)s\" not found in Celery app."
 msgstr "Aufgabe \"%(task_name)s\" wurde in der Celery-App nicht gefunden."
 
+#: ok_tools/admin_celery.py:382
 #, python-format
 msgid "Task \"%(task_name)s\" started. Task ID: %(task_id)s"
 msgstr "Aufgabe \"%(task_name)s\" gestartet. Aufgaben-ID: %(task_id)s"
 
+#: ok_tools/admin_celery.py:392 ok_tools/admin_celery.py:499
 #, python-format
 msgid "Error running task \"%(task_name)s\": %(error)s"
 msgstr "Fehler beim Ausführen der Aufgabe \"%(task_name)s\": %(error)s"
 
+#: ok_tools/admin_celery.py:400
 #, python-format
 msgid "%d task(s) started successfully."
 msgstr "%d Aufgabe(n) erfolgreich gestartet."
 
+#: ok_tools/admin_celery.py:402
 #, python-format
 msgid "%d task(s) failed to start."
 msgstr "%d Aufgabe(n) konnten nicht gestartet werden."
 
+#: ok_tools/admin_celery.py:430
 msgid "Total runs: {}"
 msgstr "Gesamtausführungen: {}"
 
+#: ok_tools/admin_celery.py:432
 msgid "Never run"
 msgstr "Nie ausgeführt"
 
+#: ok_tools/admin_celery.py:433
 msgid "Last Run"
 msgstr "Letzte Ausführung"
 
+#: ok_tools/admin_celery.py:438
 msgid "No task specified"
 msgstr "Keine Aufgabe ausgewählt"
 
+#: ok_tools/admin_celery.py:445
 msgid "No results yet"
 msgstr "Noch keine Ergebnisse"
 
+#: ok_tools/admin_celery.py:459
 msgid "View Results"
 msgstr "Ergebnisse anzeigen"
 
+#: ok_tools/admin_celery.py:461
 msgid "Last: {}"
 msgstr "Letzte: {}"
 
+#: ok_tools/admin_celery.py:461
 msgid "N/A"
 msgstr "N/V"
 
+#: ok_tools/admin_celery.py:463
 msgid "Task Results"
 msgstr "Aufgabenergebnisse"
 
+#: ok_tools/admin_celery.py:491
 #, python-format
 msgid "Task \"%(task_name)s\" started successfully. Task ID: %(task_id)s"
 msgstr ""
 "Aufgabe \"%(task_name)s\" erfolgreich gestartet. Aufgaben-ID: %(task_id)s"
 
+#: ok_tools/admin_celery.py:617
+msgid "Technical details"
+msgstr "Technische Details"
+
+#: ok_tools/admin_celery.py:639
+msgid "Task"
+msgstr "Aufgabe"
+
+#: ok_tools/admin_celery.py:681 ok_tools/admin_celery.py:760
+#, python-format
+msgid "%(progress)s%% complete"
+msgstr "%(progress)s %% abgeschlossen"
+
+#: ok_tools/admin_celery.py:683 ok_tools/admin_celery.py:764
+#: ok_tools/admin_celery.py:770
+#, python-format
+msgid "%(current)s of %(total)s"
+msgstr "%(current)s von %(total)s"
+
+#: ok_tools/admin_celery.py:687 ok_tools/admin_celery.py:781
+#, python-format
+msgid "%(speed)s Mbit/s"
+msgstr "%(speed)s Mbit/s"
+
+#: ok_tools/admin_celery.py:698
+msgid "Export type"
+msgstr "Exporttyp"
+
+#: ok_tools/admin_celery.py:699
+msgid "Selected entries"
+msgstr "Ausgewählte Einträge"
+
+#: ok_tools/admin_celery.py:700
+msgid "Linked entries"
+msgstr "Verknüpfte Einträge"
+
+#: ok_tools/admin_celery.py:703
+msgid "Started by"
+msgstr "Gestartet von"
+
+#: ok_tools/admin_celery.py:707
+msgid "No parameters"
+msgstr "Keine Parameter"
+
+#: ok_tools/admin_celery.py:715
+#, python-format
+msgid "Argument %(number)s"
+msgstr "Argument %(number)s"
+
+#: ok_tools/admin_celery.py:719
+msgid "Arguments"
+msgstr "Argumente"
+
+#: ok_tools/admin_celery.py:727
+msgid "Named arguments"
+msgstr "Benannte Argumente"
+
+#: ok_tools/admin_celery.py:729
+msgid "Parameters"
+msgstr "Parameter"
+
+#: ok_tools/admin_celery.py:764
+msgid "Uploaded chunks"
+msgstr "Hochgeladene Dateiteile"
+
+#: ok_tools/admin_celery.py:768
+msgid "Meaning"
+msgstr "Bedeutung"
+
+#: ok_tools/admin_celery.py:768
+msgid "The file is being uploaded in parts; this is the uploaded chunk count."
+msgstr ""
+"Die Datei wird in Teilen hochgeladen; dies ist die Anzahl der hochgeladenen "
+"Dateiteile."
+
+#: ok_tools/admin_celery.py:770
+msgid "Processed entries"
+msgstr "Verarbeitete Einträge"
+
+#: ok_tools/admin_celery.py:776
+msgid "Current entry"
+msgstr "Aktueller Eintrag"
+
+#: ok_tools/admin_celery.py:791
+msgid "Result"
+msgstr "Ergebnis"
+
+#: ok_tools/management/commands/migrate_module_configs.py:18
 msgid "Migrate module settings from environment variables to database configs"
 msgstr ""
 "Moduleinstellungen von Umgebungsvariablen zu Datenbank-Konfigurationen "
 "migrieren"
 
+#: ok_tools/management/commands/migrate_module_configs.py:24
 msgid "Show what would be migrated without actually saving"
 msgstr "Anzeigen, was migriert werden würde, ohne zu speichern"
 
+#: ok_tools/management/commands/migrate_module_configs.py:31
 msgid "DRY RUN MODE - No changes will be saved"
 msgstr "TESTMODUS – Es werden keine Änderungen gespeichert"
 
+#: ok_tools/management/commands/migrate_module_configs.py:62
 msgid "✓ Registration config migrated"
 msgstr "✓ Registrierungskonfiguration migriert"
 
+#: ok_tools/management/commands/migrate_module_configs.py:126
 msgid "✓ Rental config migrated"
 msgstr "✓ Mietkonfiguration migriert"
 
+#: ok_tools/management/commands/migrate_module_configs.py:216
 msgid "✓ Media Files config migrated"
 msgstr "✓ Medien-Dateikonfiguration migriert"
 
+#: ok_tools/management/commands/migrate_module_configs.py:240
 msgid "✓ Licenses config migrated"
 msgstr "✓ Freistellungskonfiguration migriert"
 
+#: ok_tools/management/commands/migrate_module_configs.py:302
 msgid "✓ Tools config migrated"
 msgstr "✓ Werkzeugkonfiguration migriert"
 
+#: ok_tools/management/commands/migrate_module_configs.py:438
 msgid "✓ Organization config migrated"
 msgstr "✓ Organisationskonfiguration migriert"
 
+#: ok_tools/management/commands/migrate_module_configs.py:445
 #, python-brace-format
 msgid ""
 "\n"
@@ -3679,6 +3367,7 @@ msgstr ""
 "\n"
 "Würde {count} Konfiguration(en) migrieren"
 
+#: ok_tools/management/commands/migrate_module_configs.py:447
 #, python-brace-format
 msgid ""
 "\n"
@@ -3687,15 +3376,20 @@ msgstr ""
 "\n"
 "✓ Erfolgreich {count} Konfiguration(en) migriert"
 
+#: ok_tools/templates/admin/base_site.html:6
+#: ok_tools/templates/admin/base_site.html:126
 msgid "Administration interface"
 msgstr "Administrationsoberfläche"
 
+#: ok_tools/templates/admin/django_celery_beat/periodictask/change_form.html:8
 msgid "Run task now"
 msgstr "Aufgabe jetzt ausführen"
 
+#: ok_tools/templates/admin/django_celery_beat/periodictask/change_form.html:10
 msgid "Are you sure you want to run this task now?"
 msgstr "Sind Sie sicher, dass Sie diese Aufgabe jetzt ausführen möchten?"
 
+#: ok_tools/templates/admin/django_celery_beat/periodictask/change_form.html:13
 msgid ""
 "This will execute the task immediately asynchronously. Check task results to "
 "see the execution status."
@@ -3703,76 +3397,108 @@ msgstr ""
 "Dies wird die Aufgabe sofort asynchron ausführen. Überprüfen Sie die "
 "Aufgabenergebnisse, um den Status der Ausführung zu sehen."
 
+#: ok_tools/templates/admin/index.html:154
+#: ok_tools/templates/admin/nav_sidebar.html:15
 #, python-format
 msgid "Models in the %(name)s application"
 msgstr "Modelle in der %(name)s-Anwendung"
 
+#: ok_tools/templates/admin/index.html:159
+#: ok_tools/templates/admin/nav_sidebar.html:20
 msgid "Model name"
 msgstr "Modellname"
 
+#: ok_tools/templates/admin/index.html:160
 msgid "Add link"
 msgstr "Link hinzufügen"
 
+#: ok_tools/templates/admin/index.html:161
 msgid "Change or view list link"
 msgstr "Linkliste ändern oder anzeigen"
 
+#: ok_tools/templates/admin/index.html:177
+#: ok_tools/templates/admin/nav_sidebar.html:36
 msgid "Add"
 msgstr "Hinzufügen"
 
+#: ok_tools/templates/admin/index.html:184
 msgid "View"
 msgstr "Anzeigen"
 
+#: ok_tools/templates/admin/index.html:186
+msgid "Change"
+msgstr "Ändern"
+
+#: ok_tools/templates/admin/index.html:199
 msgid "You don't have permission to view or edit anything."
 msgstr "Sie haben keine Berechtigung, etwas anzuzeigen oder zu bearbeiten."
 
+#: ok_tools/templates/admin/index.html:279
 msgid "Recent actions"
 msgstr "Letzte Aktionen"
 
+#: ok_tools/templates/admin/index.html:280
 msgid "My actions"
 msgstr "Meine Aktionen"
 
+#: ok_tools/templates/admin/index.html:284
 msgid "None available"
 msgstr "Keine verfügbar"
 
+#: ok_tools/templates/admin/index.html:289
 msgid "Added:"
 msgstr "Hinzugefügt:"
 
+#: ok_tools/templates/admin/index.html:289
 msgid "Changed:"
 msgstr "Geändert:"
 
+#: ok_tools/templates/admin/index.html:289
 msgid "Deleted:"
 msgstr "Gelöscht:"
 
+#: ok_tools/templates/admin/index.html:299
 msgid "Unknown content"
 msgstr "Unbekannter Inhalt"
 
+#: ok_tools/templates/admin/nav_sidebar.html:2
 msgid "Toggle navigation"
 msgstr "Navigation umschalten"
 
+#: ok_tools/templates/admin/nav_sidebar.html:3
 msgid "Sidebar"
 msgstr "Seitenleiste"
 
+#: ok_tools/templates/admin/nav_sidebar.html:5
 msgid "Start typing to filter…"
 msgstr "Tippen Sie, um zu filtern…"
 
+#: ok_tools/templates/admin/nav_sidebar.html:6
 msgid "Filter navigation items"
 msgstr "Navigationseinträge filtern"
 
+#: ok_tools/templates/base.html:12
 msgid "OK Tools Dashboard"
 msgstr "OK Tools Dashboard"
 
+#: ok_tools/templates/base.html:91 ok_tools/templates/dashboard.html:42
+#: ok_tools/templates/rental_dashboard.html:5
 msgid "Rental"
 msgstr "Ausleihe"
 
+#: ok_tools/templates/base.html:134
 msgid "Toggle theme"
 msgstr ""
 
+#: ok_tools/templates/base.html:207
 msgid "Coming Soon!"
 msgstr "Demnächst verfügbar!"
 
+#: ok_tools/templates/base.html:215 ok_tools/templates/dashboard.html:216
 msgid "Rental Dashboard"
 msgstr "Ausleihe Dashboard"
 
+#: ok_tools/templates/base.html:217
 msgid ""
 "We're working hard to bring you the rental dashboard feature. Soon you'll be "
 "able to book equipment and studio rooms with ease!"
@@ -3780,99 +3506,130 @@ msgstr ""
 "Wir arbeiten fleißig daran, Ihnen das Ausleihe-Dashboard bereitzustellen. "
 "Bald können Sie problemlos Geräte und Studioräume buchen!"
 
+#: ok_tools/templates/base.html:222
 msgid "Development Progress"
 msgstr "Entwicklungsfortschritt"
 
+#: ok_tools/templates/base.html:226
 msgid "Got it!"
 msgstr "Verstanden!"
 
+#: ok_tools/templates/base.html:318
 msgid "Collapse sidebar"
 msgstr ""
 
+#: ok_tools/templates/dashboard.html:5
 msgid "Dashboard - OK Tools"
 msgstr "Dashboard – OK Tools"
 
+#: ok_tools/templates/dashboard.html:6
 msgid "My Dashboard"
 msgstr "Mein Dashboard"
 
+#: ok_tools/templates/dashboard.html:18
 msgid "Your Licenses"
 msgstr "Ihre Freistellungen"
 
+#: ok_tools/templates/dashboard.html:46
 msgid "Returned"
 msgstr "Zurückgegeben"
 
+#: ok_tools/templates/dashboard.html:47
 msgid "Overdue"
 msgstr "Überfällig"
 
+#: ok_tools/templates/dashboard.html:66
 msgid "Manage your profile and account settings"
 msgstr "Verwalten Sie Ihr Profil und Ihre Kontoeinstellungen"
 
+#: ok_tools/templates/dashboard.html:120
 msgid "Verified"
 msgstr "Genehmigt"
 
+#: ok_tools/templates/dashboard.html:125
 msgid "Member"
 msgstr "Mitglied"
 
+#: ok_tools/templates/dashboard.html:139 ok_tools/templates/dashboard.html:199
 msgid "Quick Actions"
 msgstr "Schnellaktionen"
 
+#: ok_tools/templates/dashboard.html:148
 msgid "Print Registration"
 msgstr "Registrierung drucken"
 
+#: ok_tools/templates/dashboard.html:176
 msgid "Your important updates and alerts"
 msgstr "Ihre wichtigen Updates und Benachrichtigungen"
 
+#: ok_tools/templates/dashboard.html:187
 msgid "All systems operational"
 msgstr "Alle Systeme betriebsbereit"
 
+#: ok_tools/templates/dashboard.html:201
 msgid "Your common tasks and shortcuts"
 msgstr "Ihre häufigen Aktionen und Kurzbefehle"
 
+#: ok_tools/templates/dashboard.html:206
 msgid "Create License"
 msgstr "Freistellung erstellen"
 
+#: ok_tools/templates/dashboard.html:221
 msgid "Organization Website"
 msgstr "Organisationswebsite"
 
+#: ok_tools/templates/dashboard.html:235
 msgid "Recent Activities"
 msgstr "Letzte Aktivitäten"
 
+#: ok_tools/templates/dashboard.html:237
 msgid "Your latest updates and activities"
 msgstr "Ihre neuesten Updates und Aktivitäten"
 
+#: ok_tools/templates/dashboard.html:244
 msgid "Activity"
 msgstr "Aktivität"
 
+#: ok_tools/templates/dashboard.html:268
 msgid "No recent activities"
 msgstr "Keine aktuellen Aktivitäten"
 
+#: ok_tools/templates/dashboard.html:269
 msgid "Your activities will appear here when you use the system"
 msgstr "Ihre Aktivitäten werden hier angezeigt, wenn Sie das System nutzen"
 
+#: ok_tools/templates/dashboard.html:285
 msgid "Monthly Overview"
 msgstr "Monatliche Übersicht"
 
+#: ok_tools/templates/dashboard.html:287
 msgid "Your activity trends over the last 6 months"
 msgstr "Ihre Aktivitätstrends der letzten 6 Monate"
 
+#: ok_tools/templates/dashboard.html:332
 #, fuzzy
 #| msgid "Rental"
 msgid "Rentals"
 msgstr "Ausleihe"
 
+#: ok_tools/templates/dashboard.html:334
 msgid "No chart data available"
 msgstr "Keine Diagrammdaten verfügbar"
 
+#: ok_tools/templates/dashboard.html:335
 msgid "Monthly statistics will appear here when data is available"
 msgstr ""
 "Monatliche Statistiken werden hier angezeigt, sobald Daten verfügbar sind"
 
+#: ok_tools/templates/guest_welcome.html:12
 msgid "Welcome to OK Tools"
 msgstr "Willkommen bei OK Tools"
 
+#: ok_tools/templates/guest_welcome.html:13
 msgid "OK Tools is the official platform for users of"
 msgstr "OK Tools ist die offizielle Plattform für Nutzer:innen von"
 
+#: ok_tools/templates/guest_welcome.html:13
 msgid ""
 "Here you can register as a user, submit your videos for broadcasting, check "
 "the broadcast history, and book equipment or studio rooms for your "
@@ -3882,18 +3639,22 @@ msgstr ""
 "Ausstrahlung einreichen, die Ausstrahlungshistorie einsehen und Geräte oder "
 "Studioräume für Ihre Produktionen buchen."
 
+#: ok_tools/templates/guest_welcome.html:16
 msgid "Available after registration:"
 msgstr "Nach der Anmeldung verfügbar:"
 
+#: ok_tools/templates/guest_welcome.html:16
 msgid ""
 "All features below become accessible once you create an account and log in."
 msgstr ""
 "Alle folgenden Funktionen stehen Ihnen nach der Erstellung eines Kontos und "
 "dem Login zur Verfügung."
 
+#: ok_tools/templates/guest_welcome.html:27
 msgid "User Registration"
 msgstr "Benutzerregistrierung"
 
+#: ok_tools/templates/guest_welcome.html:28
 msgid ""
 "Create your personal account to get access to our media services, "
 "facilities, and broadcasting options."
@@ -3901,12 +3662,15 @@ msgstr ""
 "Legen Sie ein persönliches Konto an, um auf unsere Mediendienste, "
 "Einrichtungen und Ausstrahlungsoptionen zuzugreifen."
 
+#: ok_tools/templates/guest_welcome.html:30
 msgid "First Step"
 msgstr "Erster Schritt"
 
+#: ok_tools/templates/guest_welcome.html:40
 msgid "Video Contribution"
 msgstr "Videobeitrag"
 
+#: ok_tools/templates/guest_welcome.html:41
 msgid ""
 "Submit your own productions for broadcasting on TV, in our livestream, and "
 "in the public Mediathek. Keep track of when your videos have been shown."
@@ -3915,12 +3679,17 @@ msgstr ""
 "und in der öffentlichen Mediathek ein. Behalten Sie im Überblick, wann Ihre "
 "Videos ausgestrahlt wurden."
 
+#: ok_tools/templates/guest_welcome.html:43
+#: ok_tools/templates/guest_welcome.html:56
+#: ok_tools/templates/guest_welcome.html:69
 msgid "After Login"
 msgstr "Nach dem Login"
 
+#: ok_tools/templates/guest_welcome.html:53
 msgid "Studios & Editing Rooms"
 msgstr "Studios & Schnittplätze"
 
+#: ok_tools/templates/guest_welcome.html:54
 msgid ""
 "Book professional editing suites or our TV studio to realize your projects "
 "with full technical support."
@@ -3928,9 +3697,11 @@ msgstr ""
 "Buchen Sie professionelle Schnittplätze oder unser TV-Studio, um Ihre "
 "Projekte mit kompletter technischer Unterstützung zu realisieren."
 
+#: ok_tools/templates/guest_welcome.html:66
 msgid "Equipment Rental"
 msgstr "Geräteverleih"
 
+#: ok_tools/templates/guest_welcome.html:67
 msgid ""
 "Borrow professional video, audio, and lighting equipment for free as part of "
 "your membership."
@@ -3938,9 +3709,11 @@ msgstr ""
 "Leihen Sie sich im Rahmen Ihrer Mitgliedschaft kostenlos professionelle "
 "Video-, Audio- und Lichttechnik aus."
 
+#: ok_tools/templates/guest_welcome.html:78
 msgid "Ready to get started?"
 msgstr "Bereit loszulegen?"
 
+#: ok_tools/templates/guest_welcome.html:79
 msgid ""
 "Sign up now and become part of our community – create, broadcast, and share "
 "your own video productions."
@@ -3948,39 +3721,51 @@ msgstr ""
 "Melden Sie sich jetzt an und werden Sie Teil unserer Community – erstellen, "
 "senden und teilen Sie Ihre eigenen Videoproduktionen."
 
+#: ok_tools/templates/guest_welcome.html:89
 msgid "Choose one of the options above to begin"
 msgstr "Wählen Sie eine der obigen Optionen, um zu beginnen"
 
+#: ok_tools/templates/guest_welcome.html:102
 msgid "About"
 msgstr "Über"
 
+#: ok_tools/templates/guest_welcome.html:113
 msgid "Community Media Center"
 msgstr "Community Media Center"
 
+#: ok_tools/templates/guest_welcome.html:125
 msgid "Phone:"
 msgstr "Telefon:"
 
+#: ok_tools/templates/guest_welcome.html:126
 msgid "Fax:"
 msgstr "Fax:"
 
+#: ok_tools/templates/guest_welcome.html:127
 msgid "E-mail:"
 msgstr "E-Mail:"
 
+#: ok_tools/templates/guest_welcome.html:135
 msgid "Website:"
 msgstr "Webseite:"
 
+#: ok_tools/templates/guest_welcome.html:141
 msgid "Opening hours:"
 msgstr "Öffnungszeiten:"
 
+#: ok_tools/templates/guest_welcome.html:162
 msgid "Datenschutzerklärung"
 msgstr "Datenschutzerklärung"
 
+#: ok_tools/templates/guest_welcome.html:165
 msgid "Impressum"
 msgstr "Impressum"
 
+#: ok_tools/templates/guest_welcome.html:170
 msgid "All rights reserved."
 msgstr "Alle Rechte vorbehalten."
 
+#: ok_tools/templates/home.html:26
 msgid ""
 "\n"
 "    This account is not verified. Please print the application form, sign it "
@@ -3994,9 +3779,11 @@ msgstr ""
 "mit Ihrem Ausweis zu uns zurück. Das Konto wird dann genehmigt.\n"
 "    "
 
+#: ok_tools/templates/home.html:31
 msgid "Application form"
 msgstr "Freistellungsformular"
 
+#: ok_tools/templates/home.html:35
 msgid ""
 "\n"
 "    This account is verified.\n"
@@ -4006,490 +3793,1391 @@ msgstr ""
 "    Dieses Konto ist genehmigt.\n"
 "    "
 
+#: ok_tools/templates/rental_dashboard.html:6
 msgid "Equipment and Studio Rooms Booking"
 msgstr "Buchung von Geräten und Studioräumen"
 
+#: ok_tools/templates/rental_dashboard.html:18
 msgid "Booking Process"
 msgstr "Buchungsprozess"
 
+#: ok_tools/templates/rental_dashboard.html:26
 msgid "1. Your Information"
 msgstr "1. Ihre Angaben"
 
+#: ok_tools/templates/rental_dashboard.html:57
 msgid "Statistics"
 msgstr "Statistiken"
 
+#: ok_tools/templates/rental_dashboard.html:90
 msgid "Your requests"
 msgstr "Ihre Anfragen"
 
+#: ok_tools/templates/rental_dashboard.html:94
 msgid "No active requests"
 msgstr "Keine aktiven Anfragen"
 
+#: ok_tools/templates/rental_dashboard.html:95
 msgid "Request"
 msgstr "Anfrage"
 
+#: ok_tools/templates/rental_dashboard.html:97
 msgid "Period"
 msgstr "Zeitraum"
 
+#: ok_tools/templates/rental_dashboard.html:98
 msgid "Items"
 msgstr "Elemente"
 
+#: ok_tools/templates/rental_dashboard.html:99
+#: ok_tools/templates/rental_dashboard.html:194
 msgid "Rooms"
 msgstr "Räume"
 
+#: ok_tools/templates/rental_dashboard.html:101
 msgid "Loading..."
 msgstr "Wird geladen..."
 
+#: ok_tools/templates/rental_dashboard.html:109
 msgid "2. Project Information"
 msgstr "2. Projektinformationen"
 
+#: ok_tools/templates/rental_dashboard.html:112
 msgid "Project Name"
 msgstr "Projektname"
 
+#: ok_tools/templates/rental_dashboard.html:115
 msgid "Purpose of Use"
 msgstr "Verwendungszweck"
 
+#: ok_tools/templates/rental_dashboard.html:123
 msgid "3. Time Period"
 msgstr "3. Zeitraum"
 
+#: ok_tools/templates/rental_dashboard.html:126
+#: ok_tools/templates/rental_dashboard.html:325
 msgid "From:"
 msgstr "Von:"
 
+#: ok_tools/templates/rental_dashboard.html:130
+#: ok_tools/templates/rental_dashboard.html:329
 msgid "To:"
 msgstr "Bis:"
 
+#: ok_tools/templates/rental_dashboard.html:139
 msgid "4. Selection"
 msgstr "4. Auswahl"
 
+#: ok_tools/templates/rental_dashboard.html:142
 msgid "Nothing selected"
 msgstr "Nichts ausgewählt"
 
+#: ok_tools/templates/rental_dashboard.html:150
 msgid "5. Action"
 msgstr "5. Aktion"
 
+#: ok_tools/templates/rental_dashboard.html:154
 msgid "Reserve"
 msgstr "Reservieren"
 
+#: ok_tools/templates/rental_dashboard.html:169
 msgid "Available Inventory"
 msgstr "Verfügbarer Bestand"
 
+#: ok_tools/templates/rental_dashboard.html:179
 msgid "Search inventory..."
 msgstr "Bestand durchsuchen..."
 
+#: ok_tools/templates/rental_dashboard.html:184
 msgid "All Owners"
 msgstr "Alle Besitzer"
 
+#: ok_tools/templates/rental_dashboard.html:221
 msgid "Show Sets"
 msgstr "Sets anzeigen"
 
+#: ok_tools/templates/rental_dashboard.html:236
 msgid "Equipment Sets"
 msgstr "Gerätesets"
 
+#: ok_tools/templates/rental_dashboard.html:243
 msgid "Available Sets"
 msgstr "Verfügbare Sets"
 
+#: ok_tools/templates/rental_dashboard.html:247
 msgid "Loading sets..."
 msgstr "Lade Sets..."
 
+#: ok_tools/templates/rental_dashboard.html:252
 msgid "Set Contents"
 msgstr "Set-Inhalt"
 
+#: ok_tools/templates/rental_dashboard.html:254
 msgid "Select a set to view contents"
 msgstr "Wählen Sie ein Set, um den Inhalt anzuzeigen"
 
+#: ok_tools/templates/rental_dashboard.html:260
+#: ok_tools/templates/rental_dashboard.html:348
+#: ok_tools/templates/rental_dashboard.html:374
+#: ok_tools/templates/rental_dashboard.html:399
+#: ok_tools/templates/rental_dashboard.html:424
 msgid "Close"
 msgstr "Schließen"
 
+#: ok_tools/templates/rental_dashboard.html:261
 msgid "Add Set"
 msgstr "Set hinzufügen"
 
+#: ok_tools/templates/rental_dashboard.html:273
+#: ok_tools/templates/rental_dashboard.html:298
 msgid "Available Rooms"
 msgstr "Verfügbare Räume"
 
+#: ok_tools/templates/rental_dashboard.html:282
 msgid "List"
 msgstr "Liste"
 
+#: ok_tools/templates/rental_dashboard.html:287
 msgid "Calendar"
 msgstr "Kalender"
 
+#: ok_tools/templates/rental_dashboard.html:302
 msgid "Loading rooms..."
 msgstr "Lade Räume..."
 
+#: ok_tools/templates/rental_dashboard.html:307
 msgid "Booking"
 msgstr "Buchung"
 
+#: ok_tools/templates/rental_dashboard.html:309
 msgid "Select a room to book time"
 msgstr "Wählen Sie einen Raum, um eine Zeit zu buchen"
 
+#: ok_tools/templates/rental_dashboard.html:319
 msgid "Select room:"
 msgstr "Raum auswählen:"
 
+#: ok_tools/templates/rental_dashboard.html:321
 msgid "All Rooms"
 msgstr "Alle Räume"
 
+#: ok_tools/templates/rental_dashboard.html:336
 msgid "Loading calendar..."
 msgstr "Kalender wird geladen..."
 
+#: ok_tools/templates/rental_dashboard.html:345
 msgid "Rooms are automatically returned after scheduled time"
 msgstr "Räume werden nach der geplanten Zeit automatisch zurückgegeben"
 
+#: ok_tools/templates/rental_dashboard.html:349
 msgid "Add Room"
 msgstr "Raum hinzufügen"
 
+#: ok_tools/templates/rental_dashboard.html:361
 msgid "CURRENT RENTALS"
 msgstr "AKTUELLE AUSLEIHEN"
 
+#: ok_tools/templates/rental_dashboard.html:369
 msgid "Loading current rentals..."
 msgstr "Lade aktuelle Ausleihen..."
 
+#: ok_tools/templates/rental_dashboard.html:386
 msgid "RETURNED RENTALS"
 msgstr "ZURÜCKGEGEBENE AUSLEIHEN"
 
+#: ok_tools/templates/rental_dashboard.html:394
 msgid "Loading returned rentals..."
 msgstr "Zurückgegebene Verleihvorgänge werden geladen..."
 
+#: ok_tools/templates/rental_dashboard.html:411
 msgid "EXPIRED RENTALS"
 msgstr "ABGELAUFENE VERLEIHVORGÄNGE"
 
+#: ok_tools/templates/rental_dashboard.html:419
 msgid "Loading expired rentals..."
 msgstr "Abgelaufene Verleihvorgänge werden geladen..."
 
+#: ok_tools/views.py:159
 #, python-format
 msgid "License created: %(title)s"
 msgstr "Freistellung erstellt: %(title)s"
 
+#: ok_tools/views.py:173
 #, python-format
 msgid "Rental %(type)s for %(item)s"
 msgstr "Verleih %(type)s für %(item)s"
 
+#: ok_tools/views.py:190
 #, python-format
 msgid "Contribution broadcast: %(title)s"
 msgstr "Beitrag ausgestrahlt: %(title)s"
 
+#: ok_tools/views.py:193
 msgid "Recorded"
 msgstr "Aufgezeichnet"
 
+#: ok_tools/views.py:240
 #, python-format
 msgid "%(count)d of your license(s) pending approval"
 msgstr "%(count)d Ihrer Freistellungen warten auf Genehmigung"
 
+#: ok_tools/views.py:257
 #, python-format
 msgid "You have %(count)d active rental(s)"
 msgstr "Sie haben %(count)d aktive Verleihvorgänge"
 
+#: ok_tools/views.py:270
 #, python-format
 msgid "You have %(count)d contribution(s) this week"
 msgstr "Sie haben %(count)d Beiträge in dieser Woche"
 
+#: ok_tools/views.py:278
 #, python-format
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
 
-msgid "Download exchange files"
-msgstr "Austausch-Dateien herunterladen"
-
-msgid "Export broadcasts to server"
-msgstr "Sendungen auf den Server exportieren"
-
-msgid "Import exchange item"
-msgstr "Austausch-Eintrag importieren"
-
-msgid "Synchronize exchange folders"
-msgstr "Austausch-Ordner synchronisieren"
-
-msgid "Download Nextcloud video to storage"
-msgstr "Nextcloud-Video in den Speicher herunterladen"
-
-msgid "Refresh media library link"
-msgstr "Mediathek-Link aktualisieren"
-
-msgid "Rescan media library links"
-msgstr "Mediathek-Links erneut prüfen"
-
-msgid "Send license notification email"
-msgstr "Freistellungs-Benachrichtigung per E-Mail senden"
-
-msgid "Copy videos for broadcast plan"
-msgstr "Videos für den Sendeplan kopieren"
-
-msgid "Render video"
-msgstr "Video rendern"
-
-msgid "Run automatic media scan"
-msgstr "Automatischen Medienscan ausführen"
-
-msgid "Clean up duplicate media files"
-msgstr "Doppelte Mediendateien bereinigen"
-
-msgid "Clean up missing media files"
-msgstr "Fehlende Mediendateien bereinigen"
-
-msgid "Clean up old file operations"
-msgstr "Alte Dateioperationen bereinigen"
-
-msgid "Clean up playout storage"
-msgstr "Playout-Speicher bereinigen"
-
-msgid "Find duplicate media files"
-msgstr "Doppelte Mediendateien suchen"
-
-msgid "Link unassigned licenses"
-msgstr "Nicht zugeordnete Freistellungen verknüpfen"
-
-msgid "Scan video storage"
-msgstr "Videospeicher scannen"
-
-msgid "Synchronize licenses and videos"
-msgstr "Freistellungen und Videos synchronisieren"
-
-msgid "Update video metadata"
-msgstr "Video-Metadaten aktualisieren"
-
-msgid "Convert HEVC video to H.264"
-msgstr "HEVC-Video nach H.264 konvertieren"
-
-msgid "Clean up old backups"
-msgstr "Alte Backups bereinigen"
-
-msgid "Create database backup"
-msgstr "Datenbank-Backup erstellen"
-
-msgid "Clean up deleted Nextcloud videos"
-msgstr "Gelöschte Nextcloud-Videos bereinigen"
-
-msgid "Clean up old signing sessions"
-msgstr "Alte Signatur-Sitzungen bereinigen"
-
-msgid "Expire outdated room rentals"
-msgstr "Abgelaufene Raumverleihvorgänge beenden"
-
-msgid "Synchronize missing playout media"
-msgstr "Fehlende Playout-Medien synchronisieren"
-
-msgid "Analyze audio for normalization"
-msgstr "Audio für Normalisierung analysieren"
-
-msgid "Clean up old audio normalization jobs"
-msgstr "Alte Audio-Normalisierungsaufträge bereinigen"
-
-msgid "Clean up old slideshow projects"
-msgstr "Alte Slideshow-Projekte bereinigen"
-
-msgid "Clean up old video render operations"
-msgstr "Alte Video-Render-Vorgänge bereinigen"
-
-msgid "Generate slideshow video"
-msgstr "Slideshow-Video erzeugen"
-
-msgid "Normalize audio"
-msgstr "Audio normalisieren"
-
-msgid "Waiting"
-msgstr "Wartet"
-
-msgid "In progress"
-msgstr "In Bearbeitung"
-
-msgid "Received"
-msgstr "Empfangen"
-
-msgid "Retrying"
-msgstr "Wird erneut versucht"
-
-msgid "Canceled"
-msgstr "Abgebrochen"
-
-msgid "Started"
-msgstr "Gestartet"
-
-msgid "Downloading"
-msgstr "Wird heruntergeladen"
-
-msgid "Exporting"
-msgstr "Wird exportiert"
-
-msgid "Importing"
-msgstr "Wird importiert"
-
-msgid "Processing"
-msgstr "Wird verarbeitet"
-
-msgid "Rendering"
-msgstr "Wird gerendert"
-
-msgid "Skipped"
-msgstr "Übersprungen"
-
-msgid "Uploading"
-msgstr "Wird hochgeladen"
-
-msgid "Unknown task"
-msgstr "Unbekannte Aufgabe"
-
-msgid "unknown"
-msgstr "unbekannt"
-
-msgid "licenses"
-msgstr "Freistellungen"
-
-msgid "contributions"
-msgstr "Beiträge"
-
-msgid "Task"
-msgstr "Aufgabe"
-
-msgid "Progress"
-msgstr "Fortschritt"
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "Your Account for %(ok_name)s has been verified\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Ihr Konto für %(ok_name)s wurde genehmigt\n"
 
 #, python-format
-msgid "%(progress)s%% complete"
-msgstr "%(progress)s %% abgeschlossen"
+#~ msgid "Password reset for %(ok_name)s"
+#~ msgstr "Passwortzurücksetzung für %(ok_name)s"
 
 #, python-format
-msgid "%(current)s of %(total)s"
-msgstr "%(current)s von %(total)s"
+#~ msgid "Welcome to the %(ok_name)s"
+#~ msgstr "Willkommen bei %(ok_name)s"
 
 #, python-format
-msgid "%(speed)s Mbit/s"
-msgstr "%(speed)s Mbit/s"
+#~ msgid " By %(filter_title)s "
+#~ msgstr " Nach %(filter_title)s "
 
-msgid "Technical details"
-msgstr "Technische Details"
+#, fuzzy
+#~| msgid "Actions"
+#~ msgid "Options"
+#~ msgstr "Aktionen"
 
-msgid "Export type"
-msgstr "Exporttyp"
+#, fuzzy
+#~| msgid "Imported"
+#~ msgid "Aborted!"
+#~ msgstr "Importiert"
 
-msgid "Selected entries"
-msgstr "Ausgewählte Einträge"
+#, fuzzy
+#~| msgid "Value must be valid JSON."
+#~ msgid "Value must be an iterable."
+#~ msgstr "Der Wert muss ein gültiges JSON sein."
 
-msgid "Linked entries"
-msgstr "Verknüpfte Einträge"
+#, fuzzy
+#~| msgid "Parameter"
+#~ msgid "Missing parameter"
+#~ msgstr "Parameter"
 
-msgid "Started by"
-msgstr "Gestartet von"
+#, fuzzy
+#~| msgid "No errors"
+#~ msgid "unknown error"
+#~ msgstr "Keine Fehler"
 
-msgid "No selected entries"
-msgstr "Keine ausgewählten Einträge"
+#, fuzzy
+#~| msgid "Message"
+#~ msgid "Usage:"
+#~ msgstr "Nachricht"
+
+#, fuzzy
+#~| msgid "Registration Configuration"
+#~ msgid "Repeat for confirmation"
+#~ msgstr "Registrierungskonfiguration"
+
+#, fuzzy
+#~| msgid "Value %(value)r is not a valid choice."
+#~ msgid "{value!r} is not {choice}."
+#~ msgid_plural "{value!r} is not one of {choices}."
+#~ msgstr[0] "Wert %(value)r ist keine gültige Auswahl."
+#~ msgstr[1] "Wert %(value)r ist keine gültige Auswahl."
+
+#, fuzzy
+#~| msgid "Value %(value)r is not a valid choice."
+#~ msgid "{value!r} is not a valid {number_type}."
+#~ msgstr "Wert %(value)r ist keine gültige Auswahl."
+
+#, fuzzy
+#~| msgid "“%(value)s” is not a valid UUID."
+#~ msgid "{value!r} is not a valid UUID."
+#~ msgstr "„%(value)s“ ist keine gültige UUID."
+
+#, fuzzy
+#~| msgid "Profile"
+#~ msgid "file"
+#~ msgstr "Profil"
+
+#, fuzzy
+#~| msgid "File path"
+#~ msgid "path"
+#~ msgstr "Dateipfad"
+
+#~ msgid "Messages"
+#~ msgstr "Nachrichten"
+
+#~ msgid "Site Maps"
+#~ msgstr "Sitemaps"
+
+#~ msgid "Static Files"
+#~ msgstr "Statische Dateien"
+
+#~ msgid "Syndication"
+#~ msgstr "Syndikation"
+
+#~ msgid "…"
+#~ msgstr "…"
+
+#~ msgid "That page number is not an integer"
+#~ msgstr "Diese Seitennummer ist keine ganze Zahl"
+
+#~ msgid "That page number is less than 1"
+#~ msgstr "Diese Seitennummer ist kleiner als 1"
+
+#~ msgid "That page contains no results"
+#~ msgstr "Diese Seite enthält keine Ergebnisse"
+
+#~ msgid "Enter a valid value."
+#~ msgstr "Geben Sie einen gültigen Wert ein."
+
+#~ msgid "Enter a valid domain name."
+#~ msgstr "Geben Sie einen gültigen Domainnamen ein."
+
+#~ msgid "Enter a valid URL."
+#~ msgstr "Geben Sie eine gültige URL ein."
+
+#~ msgid "Enter a valid integer."
+#~ msgstr "Geben Sie eine gültige Ganzzahl ein."
+
+#~ msgid "Enter a valid email address."
+#~ msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
+
+#~ msgid ""
+#~ "Enter a valid “slug” consisting of letters, numbers, underscores or "
+#~ "hyphens."
+#~ msgstr ""
+#~ "Geben Sie einen gültigen „Slug“ ein, bestehend aus Buchstaben, Zahlen, "
+#~ "Unterstrichen oder Bindestrichen."
+
+#~ msgid ""
+#~ "Enter a valid “slug” consisting of Unicode letters, numbers, underscores, "
+#~ "or hyphens."
+#~ msgstr ""
+#~ "Geben Sie einen gültigen „Slug“ ein, bestehend aus Unicode-Buchstaben, "
+#~ "Zahlen, Unterstrichen oder Bindestrichen."
 
 #, python-format
-msgid "User ID %(user_id)s"
-msgstr "Benutzer-ID %(user_id)s"
+#~ msgid "Enter a valid %(protocol)s address."
+#~ msgstr "Geben Sie eine gültige %(protocol)s-Adresse ein."
+
+#~ msgid "IPv4"
+#~ msgstr "IPv4"
+
+#~ msgid "IPv6"
+#~ msgstr "IPv6"
+
+#~ msgid "IPv4 or IPv6"
+#~ msgstr "IPv4 oder IPv6"
+
+#~ msgid "Enter only digits separated by commas."
+#~ msgstr "Geben Sie nur Ziffern ein, getrennt durch Kommas."
 
 #, python-format
-msgid "%(label)s (ID %(user_id)s)"
-msgstr "%(label)s (ID %(user_id)s)"
+#~ msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
+#~ msgstr ""
+#~ "Stellen Sie sicher, dass dieser Wert %(limit_value)s ist (es ist "
+#~ "%(show_value)s)."
 
 #, python-format
-msgid "#%(number)s %(title)s"
-msgstr "#%(number)s %(title)s"
+#~ msgid "Ensure this value is less than or equal to %(limit_value)s."
+#~ msgstr ""
+#~ "Stellen Sie sicher, dass dieser Wert kleiner oder gleich %(limit_value)s "
+#~ "ist."
 
 #, python-format
-msgid "#%(number)s (not found)"
-msgstr "#%(number)s (nicht gefunden)"
+#~ msgid "Ensure this value is greater than or equal to %(limit_value)s."
+#~ msgstr ""
+#~ "Stellen Sie sicher, dass dieser Wert größer oder gleich %(limit_value)s "
+#~ "ist."
 
 #, python-format
-msgid "#%(id)s - license %(number)s %(title)s"
-msgstr "#%(id)s - Freistellung %(number)s %(title)s"
+#~ msgid "Ensure this value is a multiple of step size %(limit_value)s."
+#~ msgstr ""
+#~ "Stellen Sie sicher, dass dieser Wert ein Vielfaches von %(limit_value)s "
+#~ "ist."
 
 #, python-format
-msgid "#%(id)s (not found)"
-msgstr "#%(id)s (nicht gefunden)"
+#~ msgid ""
+#~ "Ensure this value is a multiple of step size %(limit_value)s, starting "
+#~ "from %(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and "
+#~ "so on."
+#~ msgstr ""
+#~ "Stellen Sie sicher, dass dieser Wert ein Vielfaches von %(limit_value)s "
+#~ "ist, beginnend bei %(offset)s, z.B. %(offset)s, %(valid_value1)s, "
+#~ "%(valid_value2)s usw."
 
 #, python-format
-msgid "and %(count)s more"
-msgstr "und %(count)s weitere"
-
-msgid "Arguments"
-msgstr "Argumente"
-
-msgid "Named arguments"
-msgstr "Benannte Argumente"
-
-msgid "No parameters"
-msgstr "Keine Parameter"
-
-msgid "Successful"
-msgstr "Erfolgreich"
-
-msgid "Skipped without PDF"
-msgstr "Ohne PDF übersprungen"
-
-msgid "Report ID"
-msgstr "Berichts-ID"
-
-msgid "Processed entries"
-msgstr "Verarbeitete Einträge"
-
-msgid "Uploaded chunks"
-msgstr "Hochgeladene Dateiteile"
-
-msgid "Meaning"
-msgstr "Bedeutung"
-
-msgid "The file is being uploaded in parts; this is the uploaded chunk count."
-msgstr ""
-"Die Datei wird in Teilen hochgeladen; dies ist die Anzahl der hochgeladenen "
-"Dateiteile."
-
-msgid "Current entry"
-msgstr "Aktueller Eintrag"
-
-msgid "Upload speed"
-msgstr "Upload-Geschwindigkeit"
-
-msgid "Parameters"
-msgstr "Parameter"
-
-msgid "Result"
-msgstr "Ergebnis"
+#~ msgid ""
+#~ "Ensure this value has at least %(limit_value)d character (it has "
+#~ "%(show_value)d)."
+#~ msgid_plural ""
+#~ "Ensure this value has at least %(limit_value)d characters (it has "
+#~ "%(show_value)d)."
+#~ msgstr[0] ""
+#~ "Stellen Sie sicher, dass dieser Wert mindestens %(limit_value)d Zeichen "
+#~ "hat (er hat %(show_value)d)."
+#~ msgstr[1] ""
+#~ "Stellen Sie sicher, dass dieser Wert mindestens %(limit_value)d Zeichen "
+#~ "hat (er hat %(show_value)d)."
 
 #, python-format
-msgid "Argument %(number)s"
-msgstr "Argument %(number)s"
+#~ msgid ""
+#~ "Ensure this value has at most %(limit_value)d character (it has "
+#~ "%(show_value)d)."
+#~ msgid_plural ""
+#~ "Ensure this value has at most %(limit_value)d characters (it has "
+#~ "%(show_value)d)."
+#~ msgstr[0] ""
+#~ "Stellen Sie sicher, dass dieser Wert höchstens %(limit_value)d Zeichen "
+#~ "hat (er hat %(show_value)d)."
+#~ msgstr[1] ""
+#~ "Stellen Sie sicher, dass dieser Wert höchstens %(limit_value)d Zeichen "
+#~ "hat (er hat %(show_value)d)."
 
-msgid "Current"
-msgstr "Aktuell"
+#~ msgid "Enter a number."
+#~ msgstr "Geben Sie eine Zahl ein."
 
-msgid "Current item ID"
-msgstr "Aktuelle Eintrags-ID"
+#, python-format
+#~ msgid "Ensure that there are no more than %(max)s digit in total."
+#~ msgid_plural "Ensure that there are no more than %(max)s digits in total."
+#~ msgstr[0] ""
+#~ "Stellen Sie sicher, dass insgesamt nicht mehr als %(max)s Ziffer "
+#~ "vorhanden ist."
+#~ msgstr[1] ""
+#~ "Stellen Sie sicher, dass insgesamt nicht mehr als %(max)s Ziffern "
+#~ "vorhanden sind."
 
-msgid "Details"
-msgstr "Details"
+#, python-format
+#~ msgid "Ensure that there are no more than %(max)s decimal place."
+#~ msgid_plural "Ensure that there are no more than %(max)s decimal places."
+#~ msgstr[0] ""
+#~ "Stellen Sie sicher, dass nicht mehr als %(max)s Dezimalstelle vorhanden "
+#~ "ist."
+#~ msgstr[1] ""
+#~ "Stellen Sie sicher, dass nicht mehr als %(max)s Dezimalstellen vorhanden "
+#~ "sind."
 
-msgid "External output path"
-msgstr "Externer Ausgabepfad"
+#, python-format
+#~ msgid ""
+#~ "Ensure that there are no more than %(max)s digit before the decimal point."
+#~ msgid_plural ""
+#~ "Ensure that there are no more than %(max)s digits before the decimal "
+#~ "point."
+#~ msgstr[0] ""
+#~ "Stellen Sie sicher, dass vor dem Dezimalpunkt nicht mehr als %(max)s "
+#~ "Ziffer vorhanden ist."
+#~ msgstr[1] ""
+#~ "Stellen Sie sicher, dass vor dem Dezimalpunkt nicht mehr als %(max)s "
+#~ "Ziffern vorhanden sind."
 
-msgid "Exception type"
-msgstr "Fehlertyp"
+#, python-format
+#~ msgid ""
+#~ "File extension “%(extension)s” is not allowed. Allowed extensions are: "
+#~ "%(allowed_extensions)s."
+#~ msgstr ""
+#~ "Dateierweiterung „%(extension)s“ ist nicht erlaubt. Erlaubte "
+#~ "Erweiterungen sind: %(allowed_extensions)s."
 
-msgid "Exception message"
-msgstr "Fehlermeldung"
+#~ msgid "Null characters are not allowed."
+#~ msgstr "Nullzeichen sind nicht erlaubt."
 
-msgid "Exception module"
-msgstr "Fehlermodul"
+#~ msgid "and"
+#~ msgstr "und"
 
-msgid "Failed entries"
-msgstr "Fehlgeschlagene Einträge"
+#, python-format
+#~ msgid "%(model_name)s with this %(field_labels)s already exists."
+#~ msgstr "%(model_name)s mit diesen %(field_labels)s existiert bereits."
 
-msgid "Job ID"
-msgstr "Auftrags-ID"
+#, python-format
+#~ msgid "Constraint “%(name)s” is violated."
+#~ msgstr "Einschränkung „%(name)s“ wurde verletzt."
 
-msgid "Output file"
-msgstr "Ausgabedatei"
+#, python-format
+#~ msgid "Value %(value)r is not a valid choice."
+#~ msgstr "Wert %(value)r ist keine gültige Auswahl."
 
-msgid "Reason"
-msgstr "Grund"
+#~ msgid "This field cannot be null."
+#~ msgstr "Dieses Feld darf nicht Null sein."
 
-msgid "Recommendations"
-msgstr "Empfehlungen"
+#~ msgid "This field cannot be blank."
+#~ msgstr "Dieses Feld darf nicht leer sein."
 
-msgid "Successful IDs"
-msgstr "Erfolgreiche IDs"
+#, python-format
+#~ msgid "%(model_name)s with this %(field_label)s already exists."
+#~ msgstr "%(model_name)s mit diesem %(field_label)s existiert bereits."
 
-msgid "Successful license numbers"
-msgstr "Erfolgreiche Freistellungsnummern"
+#, python-format
+#~ msgid ""
+#~ "%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
+#~ msgstr ""
+#~ "%(field_label)s muss für %(date_field_label)s %(lookup_type)s eindeutig "
+#~ "sein."
 
-msgid "Total"
-msgstr "Gesamt"
+#, python-format
+#~ msgid "Field of type: %(field_type)s"
+#~ msgstr "Feld vom Typ: %(field_type)s"
+
+#, python-format
+#~ msgid "“%(value)s” value must be either True or False."
+#~ msgstr "Der Wert „%(value)s“ muss entweder wahr oder falsch sein."
+
+#, python-format
+#~ msgid "“%(value)s” value must be either True, False, or None."
+#~ msgstr "Der Wert „%(value)s“ muss entweder wahr, falsch oder None sein."
+
+#~ msgid "Boolean (Either True or False)"
+#~ msgstr "Boolesch (entweder wahr oder falsch)"
+
+#, python-format
+#~ msgid "String (up to %(max_length)s)"
+#~ msgstr "Zeichenkette (bis zu %(max_length)s)"
+
+#~ msgid "String (unlimited)"
+#~ msgstr "Zeichenkette (unbegrenzt)"
+
+#~ msgid "Comma-separated integers"
+#~ msgstr "Kommagetrennte Ganzzahlen"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
+#~ "format."
+#~ msgstr ""
+#~ "Der Wert „%(value)s“ hat ein ungültiges Datumsformat. Es muss im Format "
+#~ "JJJJ-MM-TT sein."
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has the correct format (YYYY-MM-DD) but it is an "
+#~ "invalid date."
+#~ msgstr ""
+#~ "Der Wert „%(value)s“ hat das korrekte Format (JJJJ-MM-TT), ist aber ein "
+#~ "ungültiges Datum."
+
+#~ msgid "Date (without time)"
+#~ msgstr "Datum (ohne Uhrzeit)"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
+#~ "HH:MM[:ss[.uuuuuu]][TZ] format."
+#~ msgstr ""
+#~ "Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format JJJJ-MM-"
+#~ "TT HH:MM[:ss[.uuuuuu]][TZ] sein."
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
+#~ "[TZ]) but it is an invalid date/time."
+#~ msgstr ""
+#~ "Der Wert „%(value)s“ hat das korrekte Format (JJJJ-MM-TT "
+#~ "HH:MM[:ss[.uuuuuu]][TZ]), ist aber ein ungültiges Datum/Uhrzeit."
+
+#~ msgid "Date (with time)"
+#~ msgstr "Datum (mit Uhrzeit)"
+
+#, python-format
+#~ msgid "“%(value)s” value must be a decimal number."
+#~ msgstr "Der Wert „%(value)s“ muss eine Dezimalzahl sein."
+
+#~ msgid "Decimal number"
+#~ msgstr "Dezimalzahl"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid format. It must be in [DD] "
+#~ "[[HH:]MM:]ss[.uuuuuu] format."
+#~ msgstr ""
+#~ "Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format [TT] "
+#~ "[[HH:]MM:]ss[.uuuuuu] sein."
+
+#~ msgid "File path"
+#~ msgstr "Dateipfad"
+
+#, python-format
+#~ msgid "“%(value)s” value must be a float."
+#~ msgstr "Der Wert „%(value)s“ muss eine Gleitkommazahl sein."
+
+#~ msgid "Floating point number"
+#~ msgstr "Gleitkommazahl"
+
+#, python-format
+#~ msgid "“%(value)s” value must be an integer."
+#~ msgstr "Der Wert „%(value)s“ muss eine Ganzzahl sein."
+
+#~ msgid "Integer"
+#~ msgstr "Ganzzahl"
+
+#~ msgid "Big (8 byte) integer"
+#~ msgstr "Große Ganzzahl (8 Byte)"
+
+#~ msgid "Small integer"
+#~ msgstr "Kleine Ganzzahl"
+
+#~ msgid "IPv4 address"
+#~ msgstr "IPv4-Adresse"
+
+#~ msgid "IP address"
+#~ msgstr "IP-Adresse"
+
+#, python-format
+#~ msgid "“%(value)s” value must be either None, True or False."
+#~ msgstr "Der Wert „%(value)s“ muss entweder None, wahr oder falsch sein."
+
+#~ msgid "Boolean (Either True, False or None)"
+#~ msgstr "Boolesch (entweder wahr, falsch oder None)"
+
+#~ msgid "Positive big integer"
+#~ msgstr "Positive große Ganzzahl"
+
+#~ msgid "Positive integer"
+#~ msgstr "Positive Ganzzahl"
+
+#~ msgid "Positive small integer"
+#~ msgstr "Positive kleine Ganzzahl"
+
+#, python-format
+#~ msgid "Slug (up to %(max_length)s)"
+#~ msgstr "Slug (bis zu %(max_length)s)"
+
+#~ msgid "Text"
+#~ msgstr "Text"
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has an invalid format. It must be in "
+#~ "HH:MM[:ss[.uuuuuu]] format."
+#~ msgstr ""
+#~ "Der Wert „%(value)s“ hat ein ungültiges Format. Es muss im Format "
+#~ "HH:MM[:ss[.uuuuuu]] sein."
+
+#, python-format
+#~ msgid ""
+#~ "“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is "
+#~ "an invalid time."
+#~ msgstr ""
+#~ "Der Wert „%(value)s“ hat das korrekte Format (HH:MM[:ss[.uuuuuu]]), ist "
+#~ "aber eine ungültige Uhrzeit."
+
+#~ msgid "Time"
+#~ msgstr "Uhrzeit"
+
+#~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid "Raw binary data"
+#~ msgstr "Roh-Binärdaten"
+
+#, python-format
+#~ msgid "“%(value)s” is not a valid UUID."
+#~ msgstr "„%(value)s“ ist keine gültige UUID."
+
+#~ msgid "Universally unique identifier"
+#~ msgstr "Universally Unique Identifier (UUID)"
+
+#~ msgid "File"
+#~ msgstr "Datei"
+
+#~ msgid "Image"
+#~ msgstr "Bild"
+
+#~ msgid "A JSON object"
+#~ msgstr "Ein JSON-Objekt"
+
+#~ msgid "Value must be valid JSON."
+#~ msgstr "Der Wert muss ein gültiges JSON sein."
+
+#, python-format
+#~ msgid "%(model)s instance with %(field)s %(value)r is not a valid choice."
+#~ msgstr ""
+#~ "%(model)s-Instanz mit %(field)s %(value)r ist keine gültige Auswahl."
+
+#~ msgid "Foreign Key (type determined by related field)"
+#~ msgstr "Fremdschlüssel (Typ durch das zugehörige Feld bestimmt)"
+
+#~ msgid "One-to-one relationship"
+#~ msgstr "Eins-zu-eins-Beziehung"
+
+#, python-format
+#~ msgid "%(from)s-%(to)s relationship"
+#~ msgstr "%(from)s-%(to)s Beziehung"
+
+#, python-format
+#~ msgid "%(from)s-%(to)s relationships"
+#~ msgstr "%(from)s-%(to)s Beziehungen"
+
+#~ msgid "Many-to-many relationship"
+#~ msgstr "Viele-zu-viele-Beziehung"
+
+#~ msgid ":?.!"
+#~ msgstr ":?.!"
+
+#~ msgid "This field is required."
+#~ msgstr "Dieses Feld ist erforderlich."
+
+#~ msgid "Enter a whole number."
+#~ msgstr "Geben Sie eine ganze Zahl ein."
+
+#~ msgid "Enter a valid date."
+#~ msgstr "Geben Sie ein gültiges Datum ein."
+
+#~ msgid "Enter a valid time."
+#~ msgstr "Geben Sie eine gültige Uhrzeit ein."
+
+#~ msgid "Enter a valid date/time."
+#~ msgstr "Geben Sie ein gültiges Datum/Uhrzeit ein."
+
+#~ msgid "Enter a valid duration."
+#~ msgstr "Geben Sie eine gültige Dauer ein."
+
+#, python-brace-format
+#~ msgid "The number of days must be between {min_days} and {max_days}."
+#~ msgstr "Die Anzahl der Tage muss zwischen {min_days} und {max_days} liegen."
+
+#~ msgid "No file was submitted. Check the encoding type on the form."
+#~ msgstr ""
+#~ "Es wurde keine Datei übermittelt. Prüfen Sie den Codierungstyp im "
+#~ "Formular."
+
+#~ msgid "No file was submitted."
+#~ msgstr "Es wurde keine Datei übermittelt."
+
+#~ msgid "The submitted file is empty."
+#~ msgstr "Die übermittelte Datei ist leer."
+
+#, python-format
+#~ msgid ""
+#~ "Ensure this filename has at most %(max)d character (it has %(length)d)."
+#~ msgid_plural ""
+#~ "Ensure this filename has at most %(max)d characters (it has %(length)d)."
+#~ msgstr[0] ""
+#~ "Stellen Sie sicher, dass der Dateiname höchstens %(max)d Zeichen hat (er "
+#~ "hat %(length)d)."
+#~ msgstr[1] ""
+#~ "Stellen Sie sicher, dass der Dateiname höchstens %(max)d Zeichen hat (er "
+#~ "hat %(length)d)."
+
+#~ msgid "Please either submit a file or check the clear checkbox, not both."
+#~ msgstr ""
+#~ "Bitte reichen Sie entweder eine Datei ein oder wählen Sie das Feld zum "
+#~ "Entfernen aus, aber nicht beides."
+
+#~ msgid ""
+#~ "Upload a valid image. The file you uploaded was either not an image or a "
+#~ "corrupted image."
+#~ msgstr ""
+#~ "Laden Sie ein gültiges Bild hoch. Die hochgeladene Datei war entweder "
+#~ "kein Bild oder ein beschädigtes Bild."
+
+#, python-format
+#~ msgid ""
+#~ "Select a valid choice. %(value)s is not one of the available choices."
+#~ msgstr ""
+#~ "Wählen Sie eine gültige Option. %(value)s ist keine der verfügbaren "
+#~ "Auswahlmöglichkeiten."
+
+#~ msgid "Enter a list of values."
+#~ msgstr "Geben Sie eine Liste von Werten ein."
+
+#~ msgid "Enter a complete value."
+#~ msgstr "Geben Sie einen vollständigen Wert ein."
+
+#~ msgid "Enter a valid UUID."
+#~ msgstr "Geben Sie eine gültige UUID ein."
+
+#~ msgid "Enter a valid JSON."
+#~ msgstr "Geben Sie ein gültiges JSON ein."
+
+#~ msgid ":"
+#~ msgstr ":"
+
+#, python-format
+#~ msgid "(Hidden field %(name)s) %(error)s"
+#~ msgstr "(Verstecktes Feld %(name)s) %(error)s"
+
+#, python-format
+#~ msgid ""
+#~ "ManagementForm data is missing or has been tampered with. Missing fields: "
+#~ "%(field_names)s. You may need to file a bug report if the issue persists."
+#~ msgstr ""
+#~ "ManagementForm-Daten fehlen oder wurden verändert. Fehlende Felder: "
+#~ "%(field_names)s. Falls das Problem weiterhin besteht, melden Sie bitte "
+#~ "einen Fehler."
+
+#, python-format
+#~ msgid "Please submit at most %(num)d form."
+#~ msgid_plural "Please submit at most %(num)d forms."
+#~ msgstr[0] "Bitte übermitteln Sie höchstens %(num)d Formular."
+#~ msgstr[1] "Bitte übermitteln Sie höchstens %(num)d Formulare."
+
+#, python-format
+#~ msgid "Please submit at least %(num)d form."
+#~ msgid_plural "Please submit at least %(num)d forms."
+#~ msgstr[0] "Bitte übermitteln Sie mindestens %(num)d Formular."
+#~ msgstr[1] "Bitte übermitteln Sie mindestens %(num)d Formulare."
+
+#~ msgid "Order"
+#~ msgstr "Bestellung"
+
+#, python-format
+#~ msgid "Please correct the duplicate data for %(field)s."
+#~ msgstr "Bitte korrigieren Sie die doppelten Daten für %(field)s."
+
+#, python-format
+#~ msgid ""
+#~ "Please correct the duplicate data for %(field)s, which must be unique."
+#~ msgstr ""
+#~ "Bitte korrigieren Sie die doppelten Daten für %(field)s, die eindeutig "
+#~ "sein müssen."
+
+#, python-format
+#~ msgid ""
+#~ "Please correct the duplicate data for %(field_name)s which must be unique "
+#~ "for the %(lookup)s in %(date_field)s."
+#~ msgstr ""
+#~ "Bitte korrigieren Sie die doppelten Daten für %(field_name)s, die für "
+#~ "%(lookup)s in %(date_field)s eindeutig sein müssen."
+
+#~ msgid "Please correct the duplicate values below."
+#~ msgstr "Bitte korrigieren Sie die unten stehenden doppelten Werte."
+
+#~ msgid "The inline value did not match the parent instance."
+#~ msgstr ""
+#~ "Der Inline-Wert stimmt nicht mit der übergeordneten Instanz überein."
+
+#~ msgid ""
+#~ "Select a valid choice. That choice is not one of the available choices."
+#~ msgstr "Wählen Sie eine gültige Option. Diese Auswahl ist nicht verfügbar."
+
+#, python-format
+#~ msgid "“%(pk)s” is not a valid value."
+#~ msgstr "„%(pk)s“ ist kein gültiger Wert."
+
+#, python-format
+#~ msgid ""
+#~ "%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; "
+#~ "it may be ambiguous or it may not exist."
+#~ msgstr ""
+#~ "%(datetime)s konnte in der Zeitzone %(current_timezone)s nicht "
+#~ "interpretiert werden; sie ist möglicherweise nicht eindeutig oder "
+#~ "existiert nicht."
+
+#~ msgid "Clear"
+#~ msgstr "Löschen"
+
+#~ msgid "Currently"
+#~ msgstr "Aktuell"
+
+#~ msgid "yes,no,maybe"
+#~ msgstr "ja,nein,vielleicht"
+
+#, python-format
+#~ msgid "%(size)d byte"
+#~ msgid_plural "%(size)d bytes"
+#~ msgstr[0] "%(size)d Byte"
+#~ msgstr[1] "%(size)d Bytes"
+
+#, python-format
+#~ msgid "%s KB"
+#~ msgstr "%s KB"
+
+#, python-format
+#~ msgid "%s MB"
+#~ msgstr "%s MB"
+
+#, python-format
+#~ msgid "%s GB"
+#~ msgstr "%s GB"
+
+#, python-format
+#~ msgid "%s TB"
+#~ msgstr "%s TB"
+
+#, python-format
+#~ msgid "%s PB"
+#~ msgstr "%s PB"
+
+#~ msgid "p.m."
+#~ msgstr "nachm."
+
+#~ msgid "a.m."
+#~ msgstr "vorm."
+
+#~ msgid "PM"
+#~ msgstr "NM"
+
+#~ msgid "AM"
+#~ msgstr "VM"
+
+#~ msgid "midnight"
+#~ msgstr "Mitternacht"
+
+#~ msgid "noon"
+#~ msgstr "Mittag"
+
+#~ msgid "Monday"
+#~ msgstr "Montag"
+
+#~ msgid "Tuesday"
+#~ msgstr "Dienstag"
+
+#~ msgid "Wednesday"
+#~ msgstr "Mittwoch"
+
+#~ msgid "Thursday"
+#~ msgstr "Donnerstag"
+
+#~ msgid "Friday"
+#~ msgstr "Freitag"
+
+#~ msgid "Saturday"
+#~ msgstr "Samstag"
+
+#~ msgid "Sunday"
+#~ msgstr "Sonntag"
+
+#~ msgid "Mon"
+#~ msgstr "Mo"
+
+#~ msgid "Tue"
+#~ msgstr "Di"
+
+#~ msgid "Wed"
+#~ msgstr "Mi"
+
+#~ msgid "Thu"
+#~ msgstr "Do"
+
+#~ msgid "Fri"
+#~ msgstr "Fr"
+
+#~ msgid "Sat"
+#~ msgstr "Sa"
+
+#~ msgid "Sun"
+#~ msgstr "So"
+
+#~ msgid "jan"
+#~ msgstr "Jan"
+
+#~ msgid "feb"
+#~ msgstr "Feb"
+
+#~ msgid "mar"
+#~ msgstr "Mär"
+
+#~ msgid "apr"
+#~ msgstr "Apr"
+
+#~ msgid "may"
+#~ msgstr "Mai"
+
+#~ msgid "jun"
+#~ msgstr "Jun"
+
+#~ msgid "jul"
+#~ msgstr "Jul"
+
+#~ msgid "aug"
+#~ msgstr "Aug"
+
+#~ msgid "sep"
+#~ msgstr "Sep"
+
+#~ msgid "oct"
+#~ msgstr "Okt"
+
+#~ msgid "nov"
+#~ msgstr "Nov"
+
+#~ msgid "dec"
+#~ msgstr "Dez"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Jan."
+#~ msgstr "Jan."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Feb."
+#~ msgstr "Feb."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "March"
+#~ msgstr "März"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "April"
+#~ msgstr "April"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "May"
+#~ msgstr "Mai"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "June"
+#~ msgstr "Juni"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "July"
+#~ msgstr "Juli"
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Aug."
+#~ msgstr "Aug."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Sept."
+#~ msgstr "Sep."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Oct."
+#~ msgstr "Okt."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Nov."
+#~ msgstr "Nov."
+
+#~ msgctxt "abbrev. month"
+#~ msgid "Dec."
+#~ msgstr "Dez."
+
+#~ msgctxt "alt. month"
+#~ msgid "January"
+#~ msgstr "Januar"
+
+#~ msgctxt "alt. month"
+#~ msgid "February"
+#~ msgstr "Februar"
+
+#~ msgctxt "alt. month"
+#~ msgid "March"
+#~ msgstr "März"
+
+#~ msgctxt "alt. month"
+#~ msgid "April"
+#~ msgstr "April"
+
+#~ msgctxt "alt. month"
+#~ msgid "May"
+#~ msgstr "Mai"
+
+#~ msgctxt "alt. month"
+#~ msgid "June"
+#~ msgstr "Juni"
+
+#~ msgctxt "alt. month"
+#~ msgid "July"
+#~ msgstr "Juli"
+
+#~ msgctxt "alt. month"
+#~ msgid "August"
+#~ msgstr "August"
+
+#~ msgctxt "alt. month"
+#~ msgid "September"
+#~ msgstr "September"
+
+#~ msgctxt "alt. month"
+#~ msgid "October"
+#~ msgstr "Oktober"
+
+#~ msgctxt "alt. month"
+#~ msgid "November"
+#~ msgstr "November"
+
+#~ msgctxt "alt. month"
+#~ msgid "December"
+#~ msgstr "Dezember"
+
+#~ msgid "This is not a valid IPv6 address."
+#~ msgstr "Dies ist keine gültige IPv6-Adresse."
+
+#, python-format
+#~ msgctxt "String to return when truncating text"
+#~ msgid "%(truncated_text)s…"
+#~ msgstr "%(truncated_text)s…"
+
+#~ msgid "or"
+#~ msgstr "oder"
+
+#~ msgid ", "
+#~ msgstr ", "
+
+#, python-format
+#~ msgid "%(num)d year"
+#~ msgid_plural "%(num)d years"
+#~ msgstr[0] "%(num)d Jahr"
+#~ msgstr[1] "%(num)d Jahre"
+
+#, python-format
+#~ msgid "%(num)d month"
+#~ msgid_plural "%(num)d months"
+#~ msgstr[0] "%(num)d Monat"
+#~ msgstr[1] "%(num)d Monate"
+
+#, python-format
+#~ msgid "%(num)d week"
+#~ msgid_plural "%(num)d weeks"
+#~ msgstr[0] "%(num)d Woche"
+#~ msgstr[1] "%(num)d Wochen"
+
+#, python-format
+#~ msgid "%(num)d day"
+#~ msgid_plural "%(num)d days"
+#~ msgstr[0] "%(num)d Tag"
+#~ msgstr[1] "%(num)d Tage"
+
+#, python-format
+#~ msgid "%(num)d hour"
+#~ msgid_plural "%(num)d hours"
+#~ msgstr[0] "%(num)d Stunde"
+#~ msgstr[1] "%(num)d Stunden"
+
+#, python-format
+#~ msgid "%(num)d minute"
+#~ msgid_plural "%(num)d minutes"
+#~ msgstr[0] "%(num)d Minute"
+#~ msgstr[1] "%(num)d Minuten"
+
+#~ msgid "Forbidden"
+#~ msgstr "Verboten"
+
+#~ msgid "CSRF verification failed. Request aborted."
+#~ msgstr "CSRF-Überprüfung fehlgeschlagen. Anfrage abgebrochen."
+
+#~ msgid ""
+#~ "You are seeing this message because this HTTPS site requires a “Referer "
+#~ "header” to be sent by your web browser, but none was sent. This header is "
+#~ "required for security reasons, to ensure that your browser is not being "
+#~ "hijacked by third parties."
+#~ msgstr ""
+#~ "Sie sehen diese Nachricht, weil diese HTTPS-Seite verlangt, dass Ihr "
+#~ "Webbrowser einen \"Referer-Header\" sendet, aber keiner gesendet wurde. "
+#~ "Dieser Header wird aus Sicherheitsgründen benötigt, um sicherzustellen, "
+#~ "dass Ihr Browser nicht von Dritten übernommen wird."
+
+#~ msgid ""
+#~ "If you have configured your browser to disable “Referer” headers, please "
+#~ "re-enable them, at least for this site, or for HTTPS connections, or for "
+#~ "“same-origin” requests."
+#~ msgstr ""
+#~ "Wenn Sie Ihren Browser so konfiguriert haben, dass er \"Referer\"-Header "
+#~ "deaktiviert, aktivieren Sie diese bitte erneut – zumindest für diese "
+#~ "Seite, für HTTPS-Verbindungen oder für \"Same-Origin\"-Anfragen."
+
+#~ msgid ""
+#~ "If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag "
+#~ "or including the “Referrer-Policy: no-referrer” header, please remove "
+#~ "them. The CSRF protection requires the “Referer” header to do strict "
+#~ "referer checking. If you’re concerned about privacy, use alternatives "
+#~ "like <a rel=\"noreferrer\" …> for links to third-party sites."
+#~ msgstr ""
+#~ "Falls Sie das <meta name=\"referrer\" content=\"no-referrer\">-Tag oder "
+#~ "den Header \"Referrer-Policy: no-referrer\" verwenden, entfernen Sie "
+#~ "diese bitte. Der CSRF-Schutz erfordert den \"Referer\"-Header zur "
+#~ "strikten Überprüfung. Wenn Sie sich um Ihre Privatsphäre sorgen, "
+#~ "verwenden Sie Alternativen wie <a rel=\"noreferrer\" …> bei Links zu "
+#~ "Drittseiten."
+
+#~ msgid ""
+#~ "You are seeing this message because this site requires a CSRF cookie when "
+#~ "submitting forms. This cookie is required for security reasons, to ensure "
+#~ "that your browser is not being hijacked by third parties."
+#~ msgstr ""
+#~ "Sie sehen diese Nachricht, weil diese Seite beim Absenden von Formularen "
+#~ "ein CSRF-Cookie benötigt. Dieses Cookie wird aus Sicherheitsgründen "
+#~ "benötigt, um sicherzustellen, dass Ihr Browser nicht von Dritten "
+#~ "übernommen wird."
+
+#~ msgid ""
+#~ "If you have configured your browser to disable cookies, please re-enable "
+#~ "them, at least for this site, or for “same-origin” requests."
+#~ msgstr ""
+#~ "Wenn Sie Ihren Browser so konfiguriert haben, dass Cookies deaktiviert "
+#~ "sind, aktivieren Sie diese bitte erneut, zumindest für diese Seite oder "
+#~ "für \"Same-Origin\"-Anfragen."
+
+#~ msgid "More information is available with DEBUG=True."
+#~ msgstr "Mehr Informationen sind mit DEBUG=True verfügbar."
+
+#~ msgid "No year specified"
+#~ msgstr "Kein Jahr angegeben"
+
+#~ msgid "Date out of range"
+#~ msgstr "Datum außerhalb des gültigen Bereichs"
+
+#~ msgid "No month specified"
+#~ msgstr "Kein Monat angegeben"
+
+#~ msgid "No day specified"
+#~ msgstr "Kein Tag angegeben"
+
+#~ msgid "No week specified"
+#~ msgstr "Keine Woche angegeben"
+
+#, python-format
+#~ msgid "No %(verbose_name_plural)s available"
+#~ msgstr "Keine %(verbose_name_plural)s verfügbar"
+
+#, python-format
+#~ msgid ""
+#~ "Future %(verbose_name_plural)s not available because "
+#~ "%(class_name)s.allow_future is False."
+#~ msgstr ""
+#~ "Zukünftige %(verbose_name_plural)s sind nicht verfügbar, da "
+#~ "%(class_name)s.allow_future auf False gesetzt ist."
+
+#, python-format
+#~ msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
+#~ msgstr "Ungültiger Datumsstring „%(datestr)s“ im Format „%(format)s“"
+
+#, python-format
+#~ msgid "No %(verbose_name)s found matching the query"
+#~ msgstr "Kein %(verbose_name)s entsprechend der Abfrage gefunden"
+
+#~ msgid "Page is not “last”, nor can it be converted to an int."
+#~ msgstr ""
+#~ "Seite ist weder „last“ noch kann sie in eine Zahl umgewandelt werden."
+
+#, python-format
+#~ msgid "Invalid page (%(page_number)s): %(message)s"
+#~ msgstr "Ungültige Seite (%(page_number)s): %(message)s"
+
+#, python-format
+#~ msgid "Empty list and “%(class_name)s.allow_empty” is False."
+#~ msgstr "Leere Liste und „%(class_name)s.allow_empty“ ist False."
+
+#~ msgid "Directory indexes are not allowed here."
+#~ msgstr "Verzeichnis-Indizes sind hier nicht erlaubt."
+
+#, python-format
+#~ msgid "“%(path)s” does not exist"
+#~ msgstr "„%(path)s“ existiert nicht"
+
+#, python-format
+#~ msgid "Index of %(directory)s"
+#~ msgstr "Index von %(directory)s"
+
+#~ msgid "The install worked successfully! Congratulations!"
+#~ msgstr "Die Installation war erfolgreich! Glückwunsch!"
+
+#, python-format
+#~ msgid ""
+#~ "View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
+#~ "target=\"_blank\" rel=\"noopener\">release notes</a> for Django "
+#~ "%(version)s"
+#~ msgstr ""
+#~ "Lesen Sie die <a href=\"https://docs.djangoproject.com/en/%(version)s/"
+#~ "releases/\" target=\"_blank\" rel=\"noopener\">Release Notes</a> für "
+#~ "Django %(version)s"
+
+#, python-format
+#~ msgid ""
+#~ "You are seeing this page because <a href=\"https://docs.djangoproject.com/"
+#~ "en/%(version)s/ref/settings/#debug\" target=\"_blank\" "
+#~ "rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
+#~ "configured any URLs."
+#~ msgstr ""
+#~ "Sie sehen diese Seite, weil <a href=\"https://docs.djangoproject.com/en/"
+#~ "%(version)s/ref/settings/#debug\" target=\"_blank\" "
+#~ "rel=\"noopener\">DEBUG=True</a> in Ihrer Einstellungsdatei aktiviert ist "
+#~ "und Sie keine URLs konfiguriert haben."
+
+#~ msgid "Django Documentation"
+#~ msgstr "Django-Dokumentation"
+
+#~ msgid "Topics, references, &amp; how-to’s"
+#~ msgstr "Themen, Referenzen &amp; How-tos"
+
+#~ msgid "Tutorial: A Polling App"
+#~ msgstr "Tutorial: Eine Umfrage-App"
+
+#~ msgid "Get started with Django"
+#~ msgstr "Starte mit Django"
+
+#~ msgid "Django Community"
+#~ msgstr "Django-Community"
+
+#~ msgid "Connect, get help, or contribute"
+#~ msgstr "Vernetzen, Hilfe erhalten oder beitragen"
+
+#, fuzzy
+#~| msgid "No results yet"
+#~ msgid "No response body"
+#~ msgstr "Noch keine Ergebnisse"
+
+#, fuzzy
+#~| msgid "This field is required."
+#~ msgid "A valid timezone is required."
+#~ msgstr "Dieses Feld ist erforderlich."
+
+#, fuzzy
+#~| msgid "Enter a valid value."
+#~ msgid "Invalid value"
+#~ msgstr "Geben Sie einen gültigen Wert ein."
+
+#, fuzzy
+#~| msgid "Yes - if date_to not provided"
+#~ msgid "Schema not provided"
+#~ msgstr "Ja - wenn date_to nicht angegeben"
+
+#, fuzzy
+#~| msgid "This field cannot be null."
+#~ msgid "The field is not bound."
+#~ msgstr "Dieses Feld darf nicht Null sein."
+
+#~ msgid "Required"
+#~ msgstr "Erforderlich"
+
+#, fuzzy
+#~| msgid "Order"
+#~ msgid "Field Order"
+#~ msgstr "Bestellung"
+
+#, fuzzy
+#~| msgid "Date out of range"
+#~ msgid "Start of the range"
+#~ msgstr "Datum außerhalb des gültigen Bereichs"
+
+#, fuzzy
+#~| msgid "Member"
+#~ msgid "Unique Members"
+#~ msgstr "Mitglied"
+
+#, fuzzy
+#~| msgid "Description"
+#~ msgid "Boss description"
+#~ msgstr "Beschreibung"
+
+#, fuzzy
+#~| msgid "Member"
+#~ msgid "Member List"
+#~ msgstr "Mitglied"
+
+#, fuzzy
+#~| msgid "title, topic, description"
+#~ msgid "Member list description"
+#~ msgstr "Titel, Thema, Beschreibung"
+
+#, fuzzy
+#~| msgid "Description"
+#~ msgid "Unit description"
+#~ msgstr "Beschreibung"
 
 #~ msgid "Single date (YYYY-MM-DD)"
 #~ msgstr "Einzelnes Datum (JJJJ-MM-TT)"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-30 13:33+0200\n"
+"POT-Creation-Date: 2026-06-05 23:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: austausch/admin.py:55
 msgid "Open Exchange Feed"
 msgstr "Austausch-Feed öffnen"
 
+#: austausch/admin.py:57
 msgid "Exchange Feed UI"
 msgstr "Austausch-Feed-Benutzeroberfläche"
 
+#: austausch/admin.py:61
 msgid "Quick Links"
 msgstr "Schnelllinks"
 
+#: austausch/admin.py:65
 msgid "Nextcloud Settings"
 msgstr "Nextcloud-Einstellungen"
 
+#: austausch/admin.py:68
 msgid "Folder Patterns"
 msgstr "Ordner-Muster"
 
+#: austausch/admin.py:71
 msgid "Sync Settings"
 msgstr "Synchronisierungseinstellungen"
 
+#: austausch/admin.py:79
 msgid ""
 "Note: Periodic sync schedule is managed via <a href=\"/admin/"
 "django_celery_beat/periodictask/\" target=\"_blank\">Periodic Tasks</a> "
@@ -46,9 +53,11 @@ msgstr ""
 "a> (Aufgabenname: \"sync_exchange_folders\") gesteuert. Sie können ihn dort "
 "aktivieren/deaktivieren und den Zeitplan ändern."
 
+#: austausch/admin.py:85
 msgid "Storage Settings"
 msgstr "Speichereinstellungen"
 
+#: austausch/admin.py:88
 msgid ""
 "Select an existing storage location to use for imports, or leave empty to "
 "create a new one automatically. If storage location is set, download storage "
@@ -58,12 +67,20 @@ msgstr ""
 "Feld leer, um automatisch einen neuen zu erstellen. Wenn ein Speicherort "
 "festgelegt ist, wird der Download-Speicherpfad nur als Fallback verwendet."
 
+#: austausch/admin.py:92
 msgid "Auto-Import Settings"
 msgstr "Auto-Import-Einstellungen"
 
+#: austausch/admin.py:95
+#: austausch/templates/austausch/export_to_server_result.html:8
+#: austausch/templates/austausch/export_to_server_step1.html:8
+#: austausch/templates/austausch/export_to_server_step1.html:198
+#: austausch/templates/austausch/export_to_server_step2.html:8
+#: austausch/templates/austausch/feed_admin.html:313
 msgid "Export to server"
 msgstr "Zum Server exportieren"
 
+#: austausch/admin.py:109
 msgid ""
 "Settings for exporting video, PDF, JSON and optional thumbnails. Choose "
 "export destination (Nextcloud or Network Share). Thumbnail storage path is "
@@ -74,245 +91,361 @@ msgstr ""
 "Netzwerkfreigabe). Der Vorschaubild-Speicherpfad wird nur verwendet, wenn "
 "\"Thumbnail-Upload aktiviert\" aktiviert ist."
 
+#: austausch/admin.py:207 austausch/models.py:22
+#: austausch/templates/austausch/feed.html:127
+#: austausch/templates/austausch/feed_admin.html:526
 msgid "Filename"
 msgstr "Dateiname"
 
+#: austausch/admin.py:222 austausch/admin.py:334 austausch/models.py:201
+#: austausch/templates/austausch/feed.html:76
+#: austausch/templates/austausch/feed.html:132
+#: austausch/templates/austausch/feed_admin.html:375
 msgid "Status"
 msgstr "Status"
 
+#: austausch/admin.py:227
 msgid "OK-Tools"
 msgstr "OK-Tools"
 
+#: austausch/admin.py:229 austausch/models.py:114
+#: austausch/templates/austausch/feed.html:181
+#: austausch/templates/austausch/feed_admin.html:460
 msgid "Legacy"
 msgstr "Legacy"
 
+#: austausch/admin.py:231 austausch/templates/austausch/feed.html:130
 #, fuzzy
 #| msgid "File Type"
 msgid "Type"
 msgstr "Dateityp"
 
+#: austausch/admin.py:239 austausch/models.py:152
 msgid "Imported License"
 msgstr "Importierte Freistellung"
 
+#: austausch/admin.py:248 austausch/templates/austausch/feed_admin.html:703
 msgid "Import this item?"
 msgstr "Dieses Element importieren?"
 
+#: austausch/admin.py:249
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:34
+#: austausch/templates/austausch/feed.html:198
+#: austausch/templates/austausch/feed_admin.html:476
+#: austausch/templates/austausch/feed_admin.html:535
+#: austausch/templates/austausch/feed_admin.html:738
 msgid "Import"
 msgstr "Importieren"
 
+#: austausch/admin.py:253 austausch/templates/austausch/feed.html:203
+#: austausch/templates/austausch/feed_admin.html:481
 msgid "View License"
 msgstr "Freistellung anzeigen"
 
+#: austausch/admin.py:255 austausch/templates/austausch/feed.html:134
 msgid "Actions"
 msgstr "Aktionen"
 
+#: austausch/admin.py:270
 msgid "Error importing {}: {}"
 msgstr "Fehler beim Importieren von {}: {}"
 
+#: austausch/admin.py:276
 msgid "Successfully imported {} items."
 msgstr "{} Elemente erfolgreich importiert."
 
+#: austausch/admin.py:279
 msgid "Import selected items"
 msgstr "Ausgewählte Elemente importieren"
 
+#: austausch/admin.py:317 austausch/models.py:156 austausch/models.py:180
 msgid "Exchange Item"
 msgstr "Austausch-Element"
 
+#: austausch/admin.py:342 austausch/models.py:225
+#: austausch/templates/austausch/export_to_server_step1.html:235
+#: austausch/templates/austausch/export_to_server_step2.html:188
 msgid "License"
 msgstr "Freistellung"
 
+#: austausch/admin.py:350 austausch/models.py:233
 msgid "Video File"
 msgstr "Videodatei"
 
+#: austausch/admin.py:363 austausch/models.py:205
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
+#: austausch/apps.py:12
+#: austausch/templates/austausch/export_to_server_result.html:7
+#: austausch/templates/austausch/export_to_server_step1.html:7
+#: austausch/templates/austausch/export_to_server_step2.html:7
 msgid "Austausch"
 msgstr "Austausch"
 
+#: austausch/models.py:17
 msgid "Contribution ID"
 msgstr "Beitrags-ID"
 
+#: austausch/models.py:18
 msgid "Numeric ID from filename (if OK-Tools managed)"
 msgstr "Numerische ID aus Dateinamen (wenn OK-Tools verwaltet)"
 
+#: austausch/models.py:26
 msgid "File Path"
 msgstr "Dateipfad"
 
+#: austausch/models.py:27
 msgid "Full Nextcloud path to video file"
 msgstr "Vollständiger Nextcloud-Pfad zur Videodatei"
 
+#: austausch/models.py:32
 msgid "PDF Path"
 msgstr "PDF-Pfad"
 
+#: austausch/models.py:33
 msgid "Full Nextcloud path to PDF file (if part of package)"
 msgstr "Vollständiger Nextcloud-Pfad zur PDF-Datei (wenn Teil des Pakets)"
 
+#: austausch/models.py:38
 msgid "Thumbnail Path"
 msgstr "Vorschaubild-Pfad"
 
+#: austausch/models.py:39
 msgid "Full Nextcloud path to thumbnail image (jpg, png, etc.)"
 msgstr "Vollständiger Nextcloud-Pfad zum Vorschaubild (jpg, png, etc.)"
 
+#: austausch/models.py:43 austausch/templates/austausch/feed.html:65
+#: austausch/templates/austausch/feed.html:128
+#: austausch/templates/austausch/feed_admin.html:364
 msgid "Channel"
 msgstr "Kanal"
 
+#: austausch/models.py:44
 msgid "Source channel name"
 msgstr "Quellkanalname"
 
+#: austausch/models.py:51
 msgid "File Size (bytes)"
 msgstr "Dateigröße (Bytes)"
 
+#: austausch/models.py:55
 msgid "File Type"
 msgstr "Dateityp"
 
+#: austausch/models.py:56
 msgid "'video' or 'pdf'"
 msgstr "'video' oder 'pdf'"
 
+#: austausch/models.py:61
 msgid "Checksum"
 msgstr "Prüfsumme"
 
+#: austausch/models.py:62
 msgid "SHA256 checksum"
 msgstr "SHA256-Prüfsumme"
 
+#: austausch/models.py:69
+#: austausch/templates/austausch/export_to_server_step2.html:190
+#: austausch/templates/austausch/feed.html:129
+#: austausch/templates/austausch/feed_admin.html:527
 msgid "Title"
 msgstr "Titel"
 
+#: austausch/models.py:73
 msgid "Description"
 msgstr "Beschreibung"
 
+#: austausch/models.py:78
+#: austausch/templates/austausch/export_to_server_step2.html:192
 msgid "Duration"
 msgstr "Dauer"
 
+#: austausch/models.py:83
 msgid "Sender Responsible"
 msgstr "Sendeverantwortlicher"
 
+#: austausch/models.py:87
 #, fuzzy
 #| msgid "Exchange SA"
 msgid "Allow Exchange"
 msgstr "Austausch SA"
 
+#: austausch/models.py:88
 msgid "Visible for exchange within the same federal state"
 msgstr ""
 
+#: austausch/models.py:92
 #, fuzzy
 #| msgid "Exchange Other"
 msgid "Allow Exchange Other States"
 msgstr "Austausch Andere"
 
+#: austausch/models.py:93
 msgid "Visible for exchange from other federal states"
 msgstr ""
 
+#: austausch/models.py:98
 msgid "Bundesland"
 msgstr ""
 
+#: austausch/models.py:103
 msgid "Bundesland Code"
 msgstr ""
 
+#: austausch/models.py:109
 msgid "OK-Tools Managed"
 msgstr "OK-Tools verwaltet"
 
+#: austausch/models.py:110
 msgid "Item is managed by OK-Tools (has contribution_id)"
 msgstr "Element wird von OK-Tools verwaltet (hat Beitrags-ID)"
 
+#: austausch/models.py:115
 msgid "Item without numeric ID prefix"
 msgstr "Element ohne numerisches ID-Präfix"
 
+#: austausch/models.py:120 austausch/templates/austausch/feed.html:79
+#: austausch/templates/austausch/feed.html:185
+#: austausch/templates/austausch/feed_admin.html:378
 msgid "New"
 msgstr "Neu"
 
+#: austausch/models.py:121 austausch/templates/austausch/feed.html:47
+#: austausch/templates/austausch/feed.html:80
+#: austausch/templates/austausch/feed.html:187
+#: austausch/templates/austausch/feed.html:206
+#: austausch/templates/austausch/feed_admin.html:334
+#: austausch/templates/austausch/feed_admin.html:379
+#: austausch/templates/austausch/feed_admin.html:436
+#: austausch/templates/austausch/feed_admin.html:484
 msgid "Imported"
 msgstr "Importiert"
 
+#: austausch/models.py:122 austausch/models.py:197 austausch/models.py:621
+#: austausch/templates/austausch/export_to_server_result.html:332
+#: austausch/templates/austausch/feed.html:81
+#: austausch/templates/austausch/feed.html:189
+#: austausch/templates/austausch/feed_admin.html:338
+#: austausch/templates/austausch/feed_admin.html:380
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
+#: austausch/models.py:126
 msgid "Import Status"
 msgstr "Importstatus"
 
+#: austausch/models.py:133
 msgid "Discovered At"
 msgstr "Entdeckt am"
 
+#: austausch/models.py:137
 msgid "Last Seen At"
 msgstr "Zuletzt gesehen am"
 
+#: austausch/models.py:142
 msgid "Imported At"
 msgstr "Importiert am"
 
+#: austausch/models.py:157 austausch/templates/austausch/feed_admin.html:10
 msgid "Exchange Items"
 msgstr "Austausch-Elemente"
 
+#: austausch/models.py:187
 msgid "Imported By"
 msgstr "Importiert von"
 
+#: austausch/models.py:192
 msgid "Pending"
 msgstr "Ausstehend"
 
+#: austausch/models.py:193
 msgid "Pending Download"
 msgstr "Download ausstehend"
 
+#: austausch/models.py:194
 msgid "Downloading"
 msgstr "Wird heruntergeladen"
 
+#: austausch/models.py:195
 msgid "Processing"
 msgstr "Wird verarbeitet"
 
+#: austausch/models.py:196
 msgid "Completed"
 msgstr "Abgeschlossen"
 
+#: austausch/models.py:210 austausch/models.py:511 austausch/models.py:576
 msgid "Created At"
 msgstr "Erstellt am"
 
+#: austausch/models.py:215
 msgid "Completed At"
 msgstr "Abgeschlossen am"
 
+#: austausch/models.py:237
 msgid "Exchange Import"
 msgstr "Austausch-Import"
 
+#: austausch/models.py:238
 msgid "Exchange Imports"
 msgstr "Austausch-Importe"
 
+#: austausch/models.py:250
 msgid "Nextcloud"
 msgstr "Nextcloud"
 
+#: austausch/models.py:251
 msgid "Network Share"
 msgstr "Netzwerkfreigabe"
 
+#: austausch/models.py:256
 msgid "Nextcloud Base URL"
 msgstr "Nextcloud-Basis-URL"
 
+#: austausch/models.py:257
 msgid "Base URL of Nextcloud server (e.g., https://cloud.example.com)"
 msgstr "Basis-URL des Nextcloud-Servers (z.B. https://cloud.example.com)"
 
+#: austausch/models.py:261
 msgid "Nextcloud Username"
 msgstr "Nextcloud-Benutzername"
 
+#: austausch/models.py:262
 msgid "Service account username for WebDAV access"
 msgstr "Dienstkonto-Benutzername für WebDAV-Zugriff"
 
+#: austausch/models.py:266
 msgid "Nextcloud Password"
 msgstr "Nextcloud-Passwort"
 
+#: austausch/models.py:267
 msgid "App password or service account password"
 msgstr "App-Passwort oder Dienstkonto-Passwort"
 
+#: austausch/models.py:274
 msgid "Channel Folder Pattern"
 msgstr "Kanal-Ordner-Muster"
 
+#: austausch/models.py:275
 #, python-brace-format
 msgid "Pattern for channel folders: {channel} will be replaced"
 msgstr "Muster für Kanal-Ordner: {channel} wird ersetzt"
 
+#: austausch/models.py:280
 msgid "Exchange Folder Pattern"
 msgstr "Austausch-Ordner-Muster"
 
+#: austausch/models.py:281
 #, python-brace-format
 msgid "Pattern for exchange folders: {channel} will be replaced"
 msgstr "Muster für Austausch-Ordner: {channel} wird ersetzt"
 
+#: austausch/models.py:287
 msgid "Sync Lookback Days"
 msgstr "Sync-Rückblick-Tage"
 
+#: austausch/models.py:288
 msgid ""
 "How many days back to check for new items (for file age filtering). Only "
 "files modified within this period will be processed."
@@ -321,9 +454,11 @@ msgstr ""
 "Dateialtersfilterung). Nur Dateien, die in diesem Zeitraum geändert wurden, "
 "werden verarbeitet."
 
+#: austausch/models.py:292
 msgid "Sync Date Folders Days"
 msgstr "Sync-Datumsordner-Tage"
 
+#: austausch/models.py:293
 msgid ""
 "How many recent date folders to scan (e.g., 2 = today and yesterday). Files "
 "are organized in date-named folders like \"2026_01_07\"."
@@ -332,9 +467,11 @@ msgstr ""
 "gestern). Dateien sind in datumsbenannten Ordnern wie \"2026_01_07\" "
 "organisiert."
 
+#: austausch/models.py:302
 msgid "Storage Location"
 msgstr "Speicherort"
 
+#: austausch/models.py:303
 msgid ""
 "Select existing storage location for imported files. If not set, a new "
 "storage will be created automatically."
@@ -342,9 +479,11 @@ msgstr ""
 "Wählen Sie einen vorhandenen Speicherort für importierte Dateien aus. Falls "
 "nicht gesetzt, wird automatisch ein neuer Speicherort erstellt."
 
+#: austausch/models.py:308
 msgid "Download Storage Path"
 msgstr "Download-Speicherpfad"
 
+#: austausch/models.py:309
 msgid ""
 "Local path for downloaded files before import (used if storage location is "
 "not set)"
@@ -352,15 +491,19 @@ msgstr ""
 "Lokaler Pfad für heruntergeladene Dateien vor dem Import (wird verwendet, "
 "wenn kein Speicherort gesetzt ist)"
 
+#: austausch/models.py:315
 msgid "Auto-Import Enabled"
 msgstr "Auto-Import aktiviert"
 
+#: austausch/models.py:316
 msgid "Automatically enqueue PeerTube upload after import"
 msgstr "PeerTube-Upload nach Import automatisch in die Warteschlange stellen"
 
+#: austausch/models.py:322
 msgid "Channels List"
 msgstr "Kanalliste"
 
+#: austausch/models.py:323
 msgid ""
 "Comma-separated list of channel names to sync (optional, can be auto-"
 "discovered)"
@@ -368,28 +511,34 @@ msgstr ""
 "Kommagetrennte Liste von Kanalnamen zum Synchronisieren (optional, kann "
 "automatisch erkannt werden)"
 
+#: austausch/models.py:327
 msgid "Same-State Channel Exceptions"
 msgstr ""
 
+#: austausch/models.py:329
 msgid ""
 "Comma-separated or newline-separated channel names that should be treated as "
 "local/same-state for visibility rules."
 msgstr ""
 
+#: austausch/models.py:339
 msgid "Export Destination"
 msgstr "Exportziel"
 
+#: austausch/models.py:340
 msgid ""
 "Select where export files should be written: Nextcloud or Network Share."
 msgstr ""
 "Wählen Sie, wohin Exportdateien geschrieben werden: Nextcloud oder "
 "Netzwerkfreigabe."
 
+#: austausch/models.py:345
 #, fuzzy
 #| msgid "Download Storage Path"
 msgid "Upload Server Path"
 msgstr "Upload-Serverpfad"
 
+#: austausch/models.py:346
 msgid ""
 "WebDAV path on Nextcloud for upload (e.g. GroupFolders/Mediathek-Upload/"
 "OK_MQ). Distinct from download/sync paths."
@@ -397,9 +546,11 @@ msgstr ""
 "WebDAV-Pfad auf Nextcloud für den Upload (z. B. GroupFolders/Mediathek-"
 "Upload/OK_MQ). Unabhängig von Download-/Synchronisierungspfaden."
 
+#: austausch/models.py:351
 msgid "Network Share Base Path"
 msgstr "Netzwerkfreigabe-Basispfad"
 
+#: austausch/models.py:352
 msgid ""
 "Local mounted path inside container for network share export (e.g. /mnt/"
 "austausch_export/Vorschau/2025)."
@@ -407,9 +558,11 @@ msgstr ""
 "Lokal eingebundener Pfad im Container für den Netzwerkfreigabe-Export (z. "
 "B. /mnt/austausch_export/Vorschau/2025)."
 
+#: austausch/models.py:358
 msgid "Network Share Subfolder"
 msgstr "Netzwerkfreigabe-Unterordner"
 
+#: austausch/models.py:359
 msgid ""
 "Optional subfolder under base path. Leave empty to write directly into base "
 "path."
@@ -417,21 +570,27 @@ msgstr ""
 "Optionaler Unterordner unterhalb des Basispfads. Leer lassen, um direkt in "
 "den Basispfad zu schreiben."
 
+#: austausch/models.py:364
 msgid "Network Share Windows Root"
 msgstr "Windows-Stammpfad der Netzwerkfreigabe"
 
+#: austausch/models.py:365
 msgid "Windows path root used for files.txt entries (e.g. Z:\\Vorschau\\2025)."
 msgstr "Windows-Stammpfad für files.txt-Einträge (z. B. Z:\\Vorschau\\2025)."
 
+#: austausch/models.py:372
 msgid "Default Media Authority"
 msgstr "Standard-Medienanstalt"
 
+#: austausch/models.py:373
 msgid "Optional \"Offener Kanal\" preselected for export."
 msgstr "Optionale \"Offener Kanal\"-Vorauswahl für den Export."
 
+#: austausch/models.py:378
 msgid "Local PDF Fallback Path"
 msgstr "Lokaler PDF-Fallback-Pfad"
 
+#: austausch/models.py:379
 #, python-brace-format
 msgid ""
 "First local directory for unsigned licenses; PDFs searched by pattern "
@@ -440,9 +599,11 @@ msgstr ""
 "Erstes lokales Verzeichnis für unsignierte Freistellungen; PDFs werden nach "
 "dem Muster {number}_*.pdf gesucht."
 
+#: austausch/models.py:384
 msgid "Local PDF Fallback Path (2)"
 msgstr "Lokaler PDF-Fallback-Pfad (2)"
 
+#: austausch/models.py:385
 msgid ""
 "Second local directory for unsigned licenses; searched if not found in first "
 "path."
@@ -450,9 +611,11 @@ msgstr ""
 "Zweites lokales Verzeichnis für unsignierte Freistellungen; wird durchsucht, "
 "wenn im ersten Pfad nichts gefunden wurde."
 
+#: austausch/models.py:389
 msgid "Upload Thumbnail Enabled"
 msgstr "Thumbnail-Upload aktiviert"
 
+#: austausch/models.py:390
 msgid ""
 "If enabled, upload video cover/thumbnail images from a local directory when "
 "exporting to server."
@@ -460,9 +623,11 @@ msgstr ""
 "Wenn aktiviert, werden Video-Cover-/Vorschaubilder beim Export zum Server "
 "aus einem lokalen Verzeichnis hochgeladen."
 
+#: austausch/models.py:395
 msgid "Thumbnail Storage Path"
 msgstr "Vorschaubild-Speicherpfad"
 
+#: austausch/models.py:396
 msgid ""
 "Local directory where cover images are stored. Used when \"Upload Thumbnail "
 "Enabled\" is on. Matching by number at start of filename (e.g. "
@@ -473,221 +638,322 @@ msgstr ""
 "Nummer am Dateianfang (z. B. 12345_cover.jpg). "
 "Unterstützt: .jpg, .jpeg, .png, .webp."
 
+#: austausch/models.py:400 austausch/models.py:401 austausch/models.py:468
 msgid "Exchange Configuration"
 msgstr "Austausch-Konfiguration"
 
+#: austausch/models.py:412 austausch/models.py:413
 msgid "Either storage location or download storage path must be set."
 msgstr "Entweder Speicherort oder Download-Speicherpfad muss festgelegt sein."
 
+#: austausch/models.py:418
 msgid "Upload server path is required for Nextcloud export destination."
 msgstr "Für das Nextcloud-Exportziel ist ein Upload-Serverpfad erforderlich."
 
+#: austausch/models.py:423
 msgid ""
 "Network share base path is required for Network Share export destination."
 msgstr ""
 "Für das Exportziel Netzwerkfreigabe ist ein Basispfad der Netzwerkfreigabe "
 "erforderlich."
 
+#: austausch/models.py:474
 msgid "Channel Name"
 msgstr "Kanalname"
 
+#: austausch/models.py:475
 msgid "Channel name as used in exchange feed (case-insensitive)."
 msgstr ""
 "Kanalname wie im Austausch-Feed verwendet (Groß-/Kleinschreibung wird "
 "ignoriert)."
 
+#: austausch/models.py:479
 msgid "Supports OK-Tools API"
 msgstr "Unterstützt OK-Tools-API"
 
+#: austausch/models.py:480
 msgid "Enable metadata enrichment via remote OK-Tools API."
 msgstr "Metadatenanreicherung über die entfernte OK-Tools-API aktivieren."
 
+#: austausch/models.py:484
 msgid "Metadata API Base URL"
 msgstr "Metadaten-API-Basis-URL"
 
+#: austausch/models.py:485
 msgid ""
 "Base URL of remote OK-Tools instance (e.g. https://portal.ok-magdeburg.de)."
 msgstr ""
 "Basis-URL der entfernten OK-Tools-Instanz (z. B. https://portal.ok-"
 "magdeburg.de)."
 
+#: austausch/models.py:490
 msgid "Metadata API Token"
 msgstr "Metadaten-API-Token"
 
+#: austausch/models.py:491
 msgid "Token used for Authorization: Token <value>."
 msgstr "Token für Autorisierung: Token <Wert>."
 
+#: austausch/models.py:495
 msgid "Request Timeout (seconds)"
 msgstr "Request-Timeout (Sekunden)"
 
+#: austausch/models.py:496
 msgid "HTTP timeout for metadata requests."
 msgstr "HTTP-Timeout für Metadaten-Anfragen."
 
+#: austausch/models.py:500
 msgid "Active"
 msgstr "Aktiv"
 
+#: austausch/models.py:505
 msgid "Last Success At"
 msgstr "Letzter erfolgreicher Zugriff"
 
+#: austausch/models.py:509
 msgid "Last Error"
 msgstr "Letzter Fehler"
 
+#: austausch/models.py:512 austausch/models.py:577
 #, fuzzy
 #| msgid "Created At"
 msgid "Updated At"
 msgstr "Erstellt am"
 
+#: austausch/models.py:515 austausch/models.py:516
 msgid "Exchange Channel API Auth"
 msgstr "Austausch-Kanal-API"
 
+#: austausch/models.py:545
 msgid "Metadata API base URL is required when API support is enabled."
 msgstr ""
 "Die Metadaten-API-Basis-URL ist erforderlich, wenn API-Unterstützung "
 "aktiviert ist."
 
+#: austausch/models.py:549
 msgid "Metadata API token is required when API support is enabled."
 msgstr ""
 "Das Metadaten-API-Token ist erforderlich, wenn API-Unterstützung aktiviert "
 "ist."
 
+#: austausch/models.py:564
 msgid "Source Channel"
 msgstr "Quellkanal"
 
+#: austausch/models.py:565
 msgid "Normalized exchange channel name."
 msgstr "Normalisierter Austausch-Kanalname."
 
+#: austausch/models.py:568
 msgid "Remote License Number"
 msgstr "Entfernte Freistellungsnummer"
 
+#: austausch/models.py:574
 msgid "Local License"
 msgstr "Lokale Freistellung"
 
+#: austausch/models.py:580
 msgid "Imported License Mapping"
 msgstr "Importiertes Freistellungs-Mapping"
 
+#: austausch/models.py:581
 msgid "Imported License Mappings"
 msgstr "Importierte Freistellungs-Mappings"
 
+#: austausch/models.py:598
+#: austausch/templates/austausch/export_to_server_result.html:300
 msgid "Started at"
 msgstr "Gestartet um"
 
+#: austausch/models.py:603
+#: austausch/templates/austausch/export_to_server_result.html:304
 msgid "Completed at"
 msgstr "Abgeschlossen um"
 
+#: austausch/models.py:612
 msgid "User"
 msgstr "Benutzer"
 
+#: austausch/models.py:616
 msgid "By contributions"
 msgstr "Nach Beiträgen"
 
+#: austausch/models.py:616
 msgid "By license numbers"
 msgstr "Nach Freistellungsnummern"
 
+#: austausch/models.py:617
+#: austausch/templates/austausch/export_to_server_result.html:312
+#: austausch/templates/austausch/export_to_server_step1.html:216
 msgid "Mode"
 msgstr "Modus"
 
+#: austausch/models.py:619
+#: austausch/templates/austausch/export_to_server_result.html:316
 msgid "Total selected"
 msgstr "Gesamt ausgewählt"
 
+#: austausch/models.py:620
+#: austausch/templates/austausch/export_to_server_result.html:324
 msgid "Uploaded"
 msgstr "Hochgeladen"
 
+#: austausch/models.py:623
+#: austausch/templates/austausch/export_to_server_result.html:328
 msgid "Skipped (no PDF)"
 msgstr "Übersprungen (kein PDF)"
 
+#: austausch/models.py:629
 msgid "Details"
 msgstr "Details"
 
+#: austausch/models.py:630
 msgid "success_ids, failed (id, reason), skipped_no_pdf"
 msgstr "success_ids, failed (id, reason), skipped_no_pdf"
 
+#: austausch/models.py:635
 msgid "Export to server run"
 msgstr "Server-Exportlauf"
 
+#: austausch/models.py:636
 msgid "Export to server runs"
 msgstr "Server-Exportläufe"
 
+#: austausch/models.py:648
 msgid "License Number"
 msgstr "Freistellungsnummer"
 
+#: austausch/models.py:649
 msgid "License number that was successfully exported to server"
 msgstr "Freistellungsnummer, die erfolgreich zum Server exportiert wurde"
 
+#: austausch/models.py:653
 msgid "First Exported At"
 msgstr "Erstmals exportiert am"
 
+#: austausch/models.py:657
 msgid "Last Exported At"
 msgstr "Zuletzt exportiert am"
 
+#: austausch/models.py:661
 msgid "Export Count"
 msgstr "Anzahl Exporte"
 
+#: austausch/models.py:662
 msgid "Number of times this license was exported"
 msgstr "Anzahl, wie oft diese Freistellung exportiert wurde"
 
+#: austausch/models.py:666
 msgid "Exported License"
 msgstr "Exportierte Freistellung"
 
+#: austausch/models.py:667
 msgid "Exported Licenses"
 msgstr "Exportierte Freistellungen"
 
+#: austausch/services/import_service.py:721
+#: austausch/services/import_service.py:724
+#: austausch/services/import_service.py:852
+#: austausch/services/import_service.py:855
 msgid "Gastbeitrag"
 msgstr "Gastbeitrag"
 
+#: austausch/services/nextcloud_exchange_service.py:44
 msgid "Nextcloud base URL not configured in ExchangeConfig"
 msgstr "Nextcloud-Basis-URL nicht in ExchangeConfig konfiguriert"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:7
+#: austausch/templates/austausch/feed.html:5
+#: austausch/templates/austausch/feed.html:6
+#: austausch/templates/austausch/feed_admin.html:5
+#: austausch/templates/austausch/feed_admin.html:11
+#: austausch/templates/austausch/feed_admin.html:310
 msgid "Exchange Feed"
 msgstr "Austausch-Feed"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:10
+#: austausch/templates/austausch/feed_admin.html:351
 msgid "Import Selected"
 msgstr "Ausgewählte importieren"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:30
+#: austausch/templates/austausch/feed_admin.html:734
 msgid "Please select items to import"
 msgstr "Bitte Elemente zum Importieren auswählen"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:34
+#: austausch/templates/austausch/feed_admin.html:738
 msgid "selected items?"
 msgstr "ausgewählte Elemente?"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:49
+#: austausch/templates/austausch/feed_admin.html:754
 msgid "Import started for"
 msgstr "Import gestartet für"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:49
+#: austausch/templates/austausch/feed_admin.html:754
 msgid "items"
 msgstr "Elemente"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:52
+#: austausch/templates/austausch/feed.html:300
+#: austausch/templates/austausch/feed_admin.html:723
+#: austausch/templates/austausch/feed_admin.html:757
 msgid "Import failed: "
 msgstr "Import fehlgeschlagen: "
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:52
+#: austausch/templates/austausch/feed.html:300
+#: austausch/templates/austausch/feed_admin.html:687
+#: austausch/templates/austausch/feed_admin.html:723
+#: austausch/templates/austausch/feed_admin.html:757
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
 
+#: austausch/templates/admin/austausch/exchangeitem/change_list.html:57
+#: austausch/templates/austausch/feed.html:306
+#: austausch/templates/austausch/feed_admin.html:728
+#: austausch/templates/austausch/feed_admin.html:762
 msgid "Import failed. Please try again."
 msgstr "Import fehlgeschlagen. Bitte versuchen Sie es erneut."
 
+#: austausch/templates/austausch/export_to_server_result.html:6
+#: austausch/templates/austausch/export_to_server_step1.html:6
+#: austausch/templates/austausch/export_to_server_step2.html:6
+#: austausch/templates/austausch/feed_admin.html:9
 msgid "Home"
 msgstr "Startseite"
 
+#: austausch/templates/austausch/export_to_server_result.html:9
 msgid "Last result"
 msgstr "Letztes Ergebnis"
 
+#: austausch/templates/austausch/export_to_server_result.html:280
 msgid "Export to server – last result"
 msgstr "Zum Server exportieren – letztes Ergebnis"
 
+#: austausch/templates/austausch/export_to_server_result.html:290
 msgid "No export run yet."
 msgstr "Noch kein Exportlauf."
 
+#: austausch/templates/austausch/export_to_server_result.html:293
 msgid "Start export"
 msgstr "Export starten"
 
+#: austausch/templates/austausch/export_to_server_result.html:308
 msgid "Still running…"
 msgstr "Läuft noch…"
 
+#: austausch/templates/austausch/export_to_server_result.html:339
 msgid "Uploaded (IDs)"
 msgstr "Hochgeladen (IDs)"
 
+#: austausch/templates/austausch/export_to_server_result.html:344
 msgid "Skipped – no PDF (IDs)"
 msgstr "Übersprungen – kein PDF (IDs)"
 
+#: austausch/templates/austausch/export_to_server_result.html:345
 msgid ""
 "These items were not uploaded because no PDF was found (no signature and no "
 "file in fallback paths)."
@@ -695,33 +961,43 @@ msgstr ""
 "Diese Elemente wurden nicht hochgeladen, da kein PDF gefunden wurde (keine "
 "Signatur und keine Datei in Fallback-Pfaden)."
 
+#: austausch/templates/austausch/export_to_server_result.html:350
 msgid "Failed (ID – reason)"
 msgstr "Fehlgeschlagen (ID – Grund)"
 
+#: austausch/templates/austausch/export_to_server_result.html:363
 msgid "Error"
 msgstr "Fehler"
 
+#: austausch/templates/austausch/export_to_server_result.html:373
 msgid "Export Progress"
 msgstr "Export-Fortschritt"
 
+#: austausch/templates/austausch/export_to_server_result.html:380
 msgid "Loading…"
 msgstr "Laden…"
 
+#: austausch/templates/austausch/export_to_server_result.html:383
 msgid "Auto-refreshing every 5 seconds…"
 msgstr ""
 
+#: austausch/templates/austausch/export_to_server_result.html:390
 msgid "Start new export"
 msgstr "Neuen Export starten"
 
+#: austausch/templates/austausch/export_to_server_result.html:442
 msgid "Uploading file…"
 msgstr "Datei wird hochgeladen…"
 
+#: austausch/templates/austausch/export_to_server_result.html:444
 msgid "Processing…"
 msgstr "Wird verarbeitet…"
 
+#: austausch/templates/austausch/export_to_server_result.html:446
 msgid "Completed!"
 msgstr "Abgeschlossen!"
 
+#: austausch/templates/austausch/export_to_server_step1.html:201
 msgid ""
 "Upload video, PDF, JSON metadata and optional thumbnail to Nextcloud. Step "
 "1: choose mode and filters."
@@ -729,48 +1005,75 @@ msgstr ""
 "Video, PDF, JSON-Metadaten und optionales Thumbnail auf Nextcloud hochladen. "
 "Schritt 1: Modus und Filter auswählen."
 
+#: austausch/templates/austausch/export_to_server_step1.html:205
+#: austausch/views.py:489
 msgid "View last export result"
 msgstr "Letztes Exportergebnis anzeigen"
 
+#: austausch/templates/austausch/export_to_server_step1.html:221
 msgid "Contributions"
 msgstr "Beiträge"
 
+#: austausch/templates/austausch/export_to_server_step1.html:222
 msgid "Export by broadcast date range"
 msgstr "Nach Sendedatum-Bereich exportieren"
 
+#: austausch/templates/austausch/export_to_server_step1.html:228
 msgid "Planung"
 msgstr "Planung"
 
+#: austausch/templates/austausch/export_to_server_step1.html:229
 msgid "Export by planning date range"
 msgstr "Nach Planungsdatum-Bereich exportieren"
 
+#: austausch/templates/austausch/export_to_server_step1.html:236
 msgid "Export specific license numbers"
 msgstr "Bestimmte Freistellungsnummern exportieren"
 
+#: austausch/templates/austausch/export_to_server_step1.html:244
 msgid "Media Authority (from settings)"
 msgstr "Medienanstalt (aus Einstellungen)"
 
+#: austausch/templates/austausch/export_to_server_step1.html:250
+#: austausch/templates/austausch/export_to_server_step1.html:278
 msgid "Date from"
 msgstr "Datum von"
 
+#: austausch/templates/austausch/export_to_server_step1.html:253
+#: austausch/templates/austausch/export_to_server_step1.html:261
 msgid "at"
 msgstr "um"
 
+#: austausch/templates/austausch/export_to_server_step1.html:258
+#: austausch/templates/austausch/export_to_server_step1.html:282
 msgid "Date to"
 msgstr "Datum bis"
 
+#: austausch/templates/austausch/export_to_server_step1.html:266
 msgid "Global Producer"
 msgstr "Globaler Produzent"
 
+#: austausch/templates/austausch/export_to_server_step1.html:268
 msgid "All"
 msgstr "Alle"
 
+#: austausch/templates/austausch/export_to_server_step1.html:269
+#: austausch/templates/austausch/export_to_server_step2.html:209
+#: austausch/templates/austausch/export_to_server_step2.html:210
+#: austausch/templates/austausch/export_to_server_step2.html:211
+#: austausch/templates/austausch/export_to_server_step2.html:212
 msgid "Yes"
 msgstr "Ja"
 
+#: austausch/templates/austausch/export_to_server_step1.html:270
+#: austausch/templates/austausch/export_to_server_step2.html:209
+#: austausch/templates/austausch/export_to_server_step2.html:210
+#: austausch/templates/austausch/export_to_server_step2.html:211
+#: austausch/templates/austausch/export_to_server_step2.html:212
 msgid "No"
 msgstr "Nein"
 
+#: austausch/templates/austausch/export_to_server_step1.html:273
 msgid ""
 "Only primary (first broadcast / premiere) contributions are included, as in "
 "Mediathek export."
@@ -778,21 +1081,29 @@ msgstr ""
 "Nur Primärbeiträge (Erstausstrahlung / Premiere) werden eingeschlossen, wie "
 "beim Mediathek-Export."
 
+#: austausch/templates/austausch/export_to_server_step1.html:289
 msgid "License numbers"
 msgstr "Freistellungsnummern"
 
+#: austausch/templates/austausch/export_to_server_step1.html:291
 msgid "Comma or newline separated."
 msgstr "Durch Komma oder Zeilenumbruch getrennt."
 
+#: austausch/templates/austausch/export_to_server_step1.html:296
+#: austausch/templates/austausch/feed.html:242
+#: austausch/templates/austausch/feed_admin.html:504
 msgid "Next"
 msgstr "Weiter"
 
+#: austausch/templates/austausch/export_to_server_step2.html:9
 msgid "Confirm"
 msgstr "Bestätigen"
 
+#: austausch/templates/austausch/export_to_server_step2.html:170
 msgid "Export to server – confirm selection"
 msgstr "Zum Server exportieren – Auswahl bestätigen"
 
+#: austausch/templates/austausch/export_to_server_step2.html:173
 msgid ""
 "Uncheck items you do not want to export. Then start upload now or schedule "
 "for later."
@@ -800,6 +1111,7 @@ msgstr ""
 "Abwählen, was nicht exportiert werden soll. Dann Upload jetzt starten oder "
 "für später planen."
 
+#: austausch/templates/austausch/export_to_server_step2.html:176
 msgid ""
 "Exported per item: video, PDF (required), JSON metadata, optional thumbnail. "
 "Only items with video are listed; items without PDF are skipped during "
@@ -809,181 +1121,266 @@ msgstr ""
 "optionales Thumbnail. Nur Elemente mit Video werden aufgelistet; Elemente "
 "ohne PDF werden beim Upload übersprungen."
 
+#: austausch/templates/austausch/export_to_server_step2.html:189
 msgid "Broadcast"
 msgstr "Ausstrahlung"
 
+#: austausch/templates/austausch/export_to_server_step2.html:191
 msgid "Profile"
 msgstr "Profil"
 
+#: austausch/templates/austausch/export_to_server_step2.html:193
 msgid "Exchange between Open Channels/Citizen Media in Saxony-Anhalt allowed"
 msgstr ""
 "Austausch zwischen Offenen Kanälen/Bürgermedien in Sachsen-Anhalt erlaubt"
 
+#: austausch/templates/austausch/export_to_server_step2.html:193
 msgid "Exchange SA"
 msgstr "Austausch SA"
 
+#: austausch/templates/austausch/export_to_server_step2.html:194
 msgid ""
 "Exchange between Open Channels/Citizen Media outside Saxony-Anhalt allowed"
 msgstr ""
 "Austausch zwischen Offenen Kanälen/Bürgermedien außerhalb Sachsen-Anhalts "
 "erlaubt"
 
+#: austausch/templates/austausch/export_to_server_step2.html:194
 msgid "Exchange Other"
 msgstr "Austausch Andere"
 
+#: austausch/templates/austausch/export_to_server_step2.html:195
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
+#: austausch/templates/austausch/export_to_server_step2.html:195
 msgid "OK Lib"
 msgstr "OK-Bib"
 
+#: austausch/templates/austausch/export_to_server_step2.html:196
 msgid "Has PDF"
 msgstr "Hat PDF"
 
+#: austausch/templates/austausch/export_to_server_step2.html:196
+#: austausch/templates/austausch/feed.html:165
 msgid "PDF"
 msgstr "PDF"
 
+#: austausch/templates/austausch/export_to_server_step2.html:197
+#: austausch/templates/austausch/export_to_server_step2.html:213
+#: austausch/templates/austausch/feed.html:163
 msgid "Video"
 msgstr "Video"
 
+#: austausch/templates/austausch/export_to_server_step2.html:216
 msgid "No items."
 msgstr "Keine Elemente."
 
+#: austausch/templates/austausch/export_to_server_step2.html:223
 msgid "Schedule for (optional)"
 msgstr "Geplant für (optional)"
 
+#: austausch/templates/austausch/export_to_server_step2.html:225
 msgid "Leave empty to start upload immediately."
 msgstr "Leer lassen, um den Upload sofort zu starten."
 
+#: austausch/templates/austausch/export_to_server_step2.html:229
 msgid "Start upload"
 msgstr "Upload starten"
 
+#: austausch/templates/austausch/feed.html:12
+#: austausch/templates/austausch/feed_admin.html:320
 msgid "Browse and import content from exchange folders"
 msgstr "Durchsuchen und Importieren von Inhalten aus Austausch-Ordnern"
 
+#: austausch/templates/austausch/feed.html:16
 msgid "API"
 msgstr "API"
 
+#: austausch/templates/austausch/feed.html:29
+#: austausch/templates/austausch/feed_admin.html:326
 msgid "Total Items"
 msgstr "Gesamte Elemente"
 
+#: austausch/templates/austausch/feed.html:38
+#: austausch/templates/austausch/feed_admin.html:330
 msgid "New Items"
 msgstr "Neue Elemente"
 
+#: austausch/templates/austausch/feed.html:56
+#: austausch/templates/austausch/feed.html:179
+#: austausch/templates/austausch/feed_admin.html:342
 msgid "OK-Tools Verified"
 msgstr "OK-Tools verifiziert"
 
+#: austausch/templates/austausch/feed.html:67
+#: austausch/templates/austausch/feed_admin.html:366
 msgid "All Channels"
 msgstr "Alle Kanäle"
 
+#: austausch/templates/austausch/feed.html:78
+#: austausch/templates/austausch/feed_admin.html:377
 msgid "All Status"
 msgstr "Alle Status"
 
+#: austausch/templates/austausch/feed.html:85
+#: austausch/templates/austausch/feed_admin.html:384
 msgid "From Date"
 msgstr "Ab Datum"
 
+#: austausch/templates/austausch/feed.html:89
+#: austausch/templates/austausch/feed_admin.html:388
 msgid "Search"
 msgstr "Suchen"
 
+#: austausch/templates/austausch/feed.html:90
 msgid "Title, description, filename..."
 msgstr "Titel, Beschreibung, Dateiname..."
 
+#: austausch/templates/austausch/feed.html:96
+#: austausch/templates/austausch/feed_admin.html:406
 msgid "Filter"
 msgstr "Filter"
 
+#: austausch/templates/austausch/feed.html:107
+#: austausch/templates/austausch/feed_admin.html:396
 msgid "OK-Tools managed only"
 msgstr "Nur von OK-Tools verwaltete"
 
+#: austausch/templates/austausch/feed.html:113
+#: austausch/templates/austausch/feed_admin.html:402
 msgid "Legacy items only"
 msgstr "Nur Altelelemente"
 
+#: austausch/templates/austausch/feed.html:126
 msgid "ID"
 msgstr "ID"
 
+#: austausch/templates/austausch/feed.html:131
+#: austausch/templates/austausch/feed_admin.html:529
 msgid "Size"
 msgstr "Größe"
 
+#: austausch/templates/austausch/feed.html:133
 msgid "Discovered"
 msgstr "Entdeckt"
 
+#: austausch/templates/austausch/feed.html:158
 msgid "No metadata"
 msgstr "Keine Metadaten"
 
+#: austausch/templates/austausch/feed.html:216
+#: austausch/templates/austausch/feed_admin.html:491
 msgid "No exchange items found"
 msgstr "Keine Austausch-Elemente gefunden"
 
+#: austausch/templates/austausch/feed.html:226
 msgid "Pagination"
 msgstr "Seitennummerierung"
 
+#: austausch/templates/austausch/feed.html:230
+#: austausch/templates/austausch/feed_admin.html:500
 msgid "Previous"
 msgstr "Zurück"
 
+#: austausch/templates/austausch/feed.html:236
+#: austausch/templates/austausch/feed_admin.html:502
 msgid "Page"
 msgstr "Seite"
 
+#: austausch/templates/austausch/feed.html:236
+#: austausch/templates/austausch/feed_admin.html:502
 msgid "of"
 msgstr "von"
 
+#: austausch/templates/austausch/feed.html:255
 msgid "Import Exchange Item"
 msgstr "Austausch-Beitrag importieren"
 
+#: austausch/templates/austausch/feed.html:259
 msgid "Importing"
 msgstr "Importiere"
 
+#: austausch/templates/austausch/feed.html:263
 msgid "This may take a few minutes..."
 msgstr "Dies kann einige Minuten dauern..."
 
+#: austausch/templates/austausch/feed.html:294
+#: austausch/templates/austausch/feed_admin.html:717
 msgid "Import started successfully!"
 msgstr "Import wurde erfolgreich gestartet!"
 
+#: austausch/templates/austausch/feed.html:297
+#: austausch/templates/austausch/feed_admin.html:720
 msgid "Item has already been imported."
 msgstr "Beitrag wurde bereits importiert."
 
+#: austausch/templates/austausch/feed_admin.html:316
 msgid "Sync Exchange Folders"
 msgstr "Austausch-Ordner synchronisieren"
 
+#: austausch/templates/austausch/feed_admin.html:348
 msgid "Selected items:"
 msgstr "Ausgewählte Beiträge:"
 
+#: austausch/templates/austausch/feed_admin.html:354
 msgid "Clear Selection"
 msgstr "Auswahl löschen"
 
+#: austausch/templates/austausch/feed_admin.html:389
 msgid "Title, description, author..."
 msgstr "Titel, Beschreibung, Autor..."
 
+#: austausch/templates/austausch/feed_admin.html:408
 msgid "Reset"
 msgstr "Zurücksetzen"
 
+#: austausch/templates/austausch/feed_admin.html:422
 msgid "Video thumbnail"
 msgstr "Video-Vorschaubild"
 
+#: austausch/templates/austausch/feed_admin.html:442
+#: austausch/templates/austausch/feed_admin.html:571
 msgid "No title"
 msgstr "Kein Titel"
 
+#: austausch/templates/austausch/feed_admin.html:455
+#: austausch/templates/austausch/feed_admin.html:528
+#: austausch/templates/austausch/feed_admin.html:561
 msgid "Author"
 msgstr "Autor"
 
+#: austausch/templates/austausch/feed_admin.html:471
 msgid "Preview"
 msgstr "Vorschau"
 
+#: austausch/templates/austausch/feed_admin.html:515
 msgid "Video Preview"
 msgstr "Video-Vorschau"
 
+#: austausch/templates/austausch/feed_admin.html:522
 msgid "Your browser does not support video playback."
 msgstr "Ihr Browser unterstützt keine Videowiedergabe."
 
+#: austausch/templates/austausch/feed_admin.html:533
 msgid "Close"
 msgstr "Schließen"
 
+#: austausch/templates/austausch/feed_admin.html:554
 msgid "Item not found"
 msgstr "Beitrag nicht gefunden"
 
+#: austausch/templates/austausch/feed_admin.html:570
+#: austausch/templates/austausch/feed_admin.html:572
+#: austausch/templates/austausch/feed_admin.html:573
 msgid "Unknown"
 msgstr "Unbekannt"
 
+#: austausch/templates/austausch/feed_admin.html:668
 msgid "Syncing..."
 msgstr "Synchronisiere..."
 
+#: austausch/templates/austausch/feed_admin.html:681
 msgid ""
 "Sync started successfully! The sync is running in the background. Please "
 "refresh the page in a few moments to see new items."
@@ -992,20 +1389,25 @@ msgstr ""
 "Hintergrund. Bitte aktualisieren Sie die Seite in wenigen Momenten, um neue "
 "Beiträge zu sehen."
 
+#: austausch/templates/austausch/feed_admin.html:687
 msgid "Sync failed: "
 msgstr "Synchronisation fehlgeschlagen: "
 
+#: austausch/templates/austausch/feed_admin.html:695
 msgid "Error triggering sync: "
 msgstr "Fehler beim Starten der Synchronisation: "
 
+#: austausch/views.py:19
 msgid "Austausch module is disabled. Set AUSTAUSCH_ENABLED=true to enable."
 msgstr ""
 "Das Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um "
 "es zu aktivieren."
 
+#: austausch/views.py:339
 msgid "Enter at least one license number."
 msgstr "Geben Sie mindestens eine Freistellungsnummer ein."
 
+#: austausch/views.py:344 austausch/views.py:375
 msgid ""
 "No licenses match: Default Media Authority (when set) and at least one of "
 "Exchange SA, Exchange outside SA, or In OK-Mediathek required."
@@ -1014,18 +1416,22 @@ msgstr ""
 "(falls gesetzt) und mindestens eine der Optionen Austausch SA, Austausch "
 "außerhalb SA oder In OK-Mediathek sind erforderlich."
 
+#: austausch/views.py:351
 msgid "All entered license numbers were already successfully exported."
 msgstr ""
 "Alle eingegebenen Freistellungsnummern wurden bereits erfolgreich exportiert."
 
+#: austausch/views.py:359
 msgid "Date from and Date to are required for Planung mode."
 msgstr "Für den Planung-Modus sind „Datum von“ und „Datum bis“ erforderlich."
 
+#: austausch/views.py:363
 msgid "No license numbers found in Planung for the selected date range."
 msgstr ""
 "Für den ausgewählten Datumsbereich wurden in der Planung keine "
 "Freistellungsnummern gefunden."
 
+#: austausch/views.py:368
 msgid ""
 "No items to export: all licenses in Planung for this range are repeats "
 "(premiere was before the selected date range)."
@@ -1034,32 +1440,41 @@ msgstr ""
 "diesen Bereich sind Wiederholungen (Premiere lag vor dem ausgewählten "
 "Datumsbereich)."
 
+#: austausch/views.py:382
 msgid "All license numbers from Planung were already successfully exported."
 msgstr ""
 "Alle Freistellungsnummern aus der Planung wurden bereits erfolgreich "
 "exportiert."
 
+#: austausch/views.py:399
 msgid "Date from and Date to are required for contributions mode."
 msgstr "Für den Beitragsmodus sind „Datum von“ und „Datum bis“ erforderlich."
 
+#: austausch/views.py:403
 msgid "No contributions match the selected filters."
 msgstr "Keine Beiträge entsprechen den ausgewählten Filtern."
 
+#: austausch/views.py:416
 msgid "All matching contributions were already successfully exported."
 msgstr "Alle passenden Beiträge wurden bereits erfolgreich exportiert."
 
+#: austausch/views.py:455
 msgid "Select at least one item to export."
 msgstr "Bitte wählen Sie mindestens ein Element zum Exportieren aus."
 
+#: austausch/views.py:477
 msgid "Export to server has been scheduled."
 msgstr "Der Server-Export wurde eingeplant."
 
+#: austausch/views.py:486
 msgid "Export to server has been started in the background. "
 msgstr "Der Server-Export wurde im Hintergrund gestartet. "
 
+#: austausch/views.py:487
 msgid "You can view the result when ready: "
 msgstr "Sie können das Ergebnis anzeigen, sobald es bereit ist: "
 
+#: austausch/views.py:569
 msgid ""
 "No items to export: all selected were already successfully exported or have "
 "no video/PDF."
