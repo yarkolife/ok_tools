@@ -1933,13 +1933,15 @@
         error: function (xhr) {
           var response = xhr.responseJSON || {};
           if (xhr.status === 409 && response.error === 'videos_still_copying') {
-            notify(gettext('Videos are still being copied to the playout storage. Retrying in 30 seconds...'), 'info');
+            var missing = (response.missing && response.missing.length)
+              ? gettext('Missing: ') + response.missing.join(', ')
+              : '';
+            notify(gettext('Videos are still being copied to the playout storage. Retrying in 30 seconds...') + (missing ? ' ' + missing : ''), 'info');
             setTimeout(function () { renderAnchorPreview(force); }, RENDER_RETRY_DELAY_MS);
             return;
           }
           if (xhr.status === 409 && response.error === 'copy_failed') {
-            notify(gettext('Video copy failed. Please check the plan and try again.'), 'error');
-            $btn.prop('disabled', false);
+            showCopyFailedDialog(response, $btn);
             return;
           }
           if (xhr.status === 409 && response.requires_confirmation) {
@@ -1998,6 +2000,73 @@
           }
         });
       }, POLL_INTERVAL_MS);
+    }
+
+    function buildCopyFailedMessage(response) {
+      var lines = [];
+      if (response.copy_task_id) {
+        var adminUrl = '/admin/django_celery_results/taskresult/?task_id=' + encodeURIComponent(response.copy_task_id);
+        lines.push(gettext('Video copy failed. Check the Celery task result for details.'));
+        lines.push(gettext('Task ID: ') + response.copy_task_id);
+        lines.push(adminUrl);
+      } else {
+        lines.push(gettext('Video copy failed. Please check the plan and try again.'));
+      }
+      if (response.ready && response.ready.length) {
+        lines.push(gettext('Ready: ') + response.ready.join(', '));
+      }
+      if (response.missing && response.missing.length) {
+        lines.push(gettext('Missing/Failed: ') + response.missing.join(', '));
+      }
+      return lines.join('\n');
+    }
+
+    function showCopyFailedDialog(response, $btn) {
+      if (!window.bootstrap || !bootstrap.Modal) {
+        notify(buildCopyFailedMessage(response), 'error');
+        promptForceRenderAnyway($btn);
+        return;
+      }
+      var modalEl = document.getElementById('planningActionModal');
+      if (!modalEl) {
+        notify(buildCopyFailedMessage(response), 'error');
+        promptForceRenderAnyway($btn);
+        return;
+      }
+      var $message = $('#planningActionMessage');
+      var $input = $('#planningActionInput');
+      var $inputLabel = $('#planningActionInputLabel');
+      var $confirmBtn = $('#planningActionConfirmBtn');
+
+      $('#planningActionLabel').text(gettext('Video copy failed'));
+      $message.text(buildCopyFailedMessage(response));
+      $input.prop('hidden', true).val('');
+      $inputLabel.text('');
+
+      var $modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      var originalConfirm = $confirmBtn.text();
+      $confirmBtn.text(gettext('Render anyway'));
+      var handler = function () {
+        renderAnchorPreview(true);
+        $modal.hide();
+        $confirmBtn.off('click', handler);
+        $confirmBtn.text(originalConfirm);
+      };
+      $confirmBtn.on('click', handler);
+      modalEl.addEventListener('hidden.bs.modal', function () {
+        $btn.prop('disabled', false);
+        $confirmBtn.off('click', handler);
+        $confirmBtn.text(originalConfirm);
+      }, { once: true });
+      $modal.show();
+    }
+
+    function promptForceRenderAnyway($btn) {
+      if (window.confirm(gettext('Render anyway with the current files?'))) {
+        renderAnchorPreview(true);
+      } else {
+        $btn.prop('disabled', false);
+      }
     }
 
     $('#renderAnchorBtn').on('click', function () {
