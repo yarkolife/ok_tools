@@ -25,6 +25,7 @@ from planung.services.playout_import_service import \
     send_playout_schedule as send_playout_schedule_service
 from planung.services.validation_service import PlanningValidationError
 from planung.services.validation_service import validate_day_plan_payload
+from planung.tasks import anchor_render_chain
 from planung.tasks import poll_anchor_render_job
 import json
 import logging
@@ -479,7 +480,12 @@ def send_playout_schedule(request):
 @require_POST
 @staff_member_required
 def render_anchor_preview_view(request):
-    """Send a planned day to the external anchor renderer."""
+    """Enqueue anchor render after verifying videos are copied to playout.
+
+    Returns 202 with a Celery task ID — the render runs fully in the background.
+    Returns 409 when copy_videos_for_plan is still running and no playout
+    VideoFile records exist yet.
+    """
     try:
         data = json.loads(request.body)
         iso_date = data.get("date")
@@ -497,44 +503,48 @@ def render_anchor_preview_view(request):
         if not profile:
             return JsonResponse({"error": _("User profile is missing")}, status=400)
 
-        result = render_anchor_preview(
-            plan_date=date_obj,
-            plan_items=plan.json_plan.get("items", []),
-            profile=profile,
+        copy_state = _check_plan_copy_state(plan)
+        if copy_state == "copying":
+            return JsonResponse({
+                "error": "videos_still_copying",
+                "copy_task_id": plan.copy_task_id,
+                "status": "pending",
+            }, status=409)
+        if copy_state == "copy_failed":
+            return JsonResponse({
+                "error": "copy_failed",
+                "copy_task_id": plan.copy_task_id,
+            }, status=409)
+
+        async_result = anchor_render_chain.delay(
+            plan_date_str=iso_date,
             force=bool(data.get("force")),
+            user_id=request.user.id,
         )
-        status_code = 502 if result.error and result.sent else 200
-        if result.error == "output_video_exists":
-            status_code = 409
-        elif result.error in {"not_configured", "missing_video_or_placeholder", "no_items"}:
-            status_code = 400
-        elif result.error:
-            logger.warning(
-                "Anchor preview render returned an error for %s: %s",
-                date_obj,
-                result.error,
-            )
-        celery_task_id = ""
-        if result.job_id and result.status not in {"done", "error"} and not result.error:
-            celery_result = poll_anchor_render_job.delay(result.job_id, result.output_name)
-            celery_task_id = celery_result.id
         return JsonResponse({
-            "configured": result.configured,
-            "sent": result.sent,
-            "license_id": result.license_id,
-            "license_number": result.license_number,
-            "output_name": result.output_name,
-            "job_id": result.job_id,
-            "status": result.status,
-            "file": result.file,
-            "error": result.error,
-            "license_created": result.license_created,
-            "video_exists": result.video_exists,
-            "requires_confirmation": result.requires_confirmation,
-            "celery_task_id": celery_task_id,
-        }, status=status_code)
+            "status": "queued",
+            "task_id": async_result.id,
+        }, status=202)
     except Exception as e:
-        logger.exception("Failed to render anchor preview")
+        logger.exception("Failed to enqueue anchor render")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@require_GET
+@staff_member_required
+def render_anchor_status_view(request, task_id):
+    """Return the state and result of an anchor_render_chain Celery task."""
+    try:
+        from celery.result import AsyncResult
+
+        result = AsyncResult(task_id)
+        return JsonResponse({
+            "task_id": task_id,
+            "state": result.state,
+            "result": result.result if result.ready() else None,
+        })
+    except Exception as e:
+        logger.exception("Failed to fetch anchor render task status")
         return JsonResponse({"error": str(e)}, status=500)
 
 
@@ -557,3 +567,44 @@ def anchor_job_status_view(request, job_id):
     except Exception as e:
         logger.exception("Failed to fetch anchor job status")
         return JsonResponse({"error": str(e)}, status=500)
+
+
+def _check_plan_copy_state(plan):
+    """Combined strategy: Celery AsyncResult + direct VideoFile fallback.
+
+    Returns 'ready' | 'copying' | 'copy_failed'.
+    """
+    from celery.result import AsyncResult
+    from media_files.models import VideoFile
+
+    if plan.copy_task_id:
+        async_result = AsyncResult(plan.copy_task_id)
+        if async_result.state == "SUCCESS":
+            return "ready"
+        if async_result.state == "FAILURE":
+            return "copy_failed"
+        if async_result.state in {"PROGRESS", "STARTED"}:
+            return "copying"
+
+    numbers = [
+        item.get("number")
+        for item in plan.json_plan.get("items", [])
+        if item.get("number")
+    ]
+    if not numbers:
+        return "ready"
+
+    ready_count = (
+        VideoFile.objects.filter(
+            number__in=numbers,
+            storage_location__storage_type="PLAYOUT",
+            is_available=True,
+            is_preview=False,
+        )
+        .values_list("number", flat=True)
+        .distinct()
+        .count()
+    )
+    if ready_count >= len(numbers):
+        return "ready"
+    return "copying"

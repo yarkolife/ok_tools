@@ -249,8 +249,8 @@ def test__anchor_render__endpoint_requires_planned_day(client, staff_user):
 
 
 @pytest.mark.django_db
-def test__anchor_render__endpoint_returns_renderer_result(client, staff_user):
-    """The render endpoint returns the service result for planned days."""
+def test__anchor_render__endpoint_returns_202_with_task_id(client, staff_user):
+    """The render endpoint queues a Celery chain and returns 202 with task_id."""
     client.force_login(staff_user)
     TagesPlan.objects.create(
         datum="2026-06-08",
@@ -260,71 +260,49 @@ def test__anchor_render__endpoint_returns_renderer_result(client, staff_user):
             "planned": True,
         },
     )
-    result = AnchorRenderResult(
-        configured=True,
-        sent=True,
-        license_id=12,
-        license_number=16573,
-        output_name="16573_Programmvorschau_260608.mp4",
-        job_id="job-1",
-        status="done",
-        file="16573_Programmvorschau_260608.mp4",
-        error="",
-    )
+    celery_result = Mock(id="chain-task-1")
+    chain_mock = Mock(delay=Mock(return_value=celery_result))
 
-    with patch("planung.views.render_anchor_preview", return_value=result) as mocked_render:
+    with patch(
+        "planung.views._check_plan_copy_state", return_value="ready"
+    ), patch(
+        "planung.views.anchor_render_chain", chain_mock
+    ):
         response = client.post(
             "/api/planning/anchor/render/",
             data=json.dumps({"date": "2026-06-08"}),
             content_type="application/json",
         )
 
-    assert response.status_code == 200
-    mocked_render.assert_called_once()
+    assert response.status_code == 202
+    chain_mock.delay.assert_called_once()
     body = response.json()
-    assert body["output_name"] == "16573_Programmvorschau_260608.mp4"
-    assert body["status"] == "done"
-    assert body["celery_task_id"] == ""
+    assert body["status"] == "queued"
+    assert body["task_id"] == "chain-task-1"
 
 
 @pytest.mark.django_db
-def test__anchor_render__endpoint_queues_celery_polling(client, staff_user):
-    """Queued anchor jobs are handed off to Celery for status polling."""
+def test__anchor_render__endpoint_blocks_when_copying(client, staff_user):
+    """409 when videos are still being copied to playout."""
     client.force_login(staff_user)
     TagesPlan.objects.create(
         datum="2026-06-08",
         json_plan={
-            "items": [{"start": "19:00:00", "duration": 20, "title": "Preview"}],
+            "items": [{"start": "19:00:00", "duration": 20, "title": "Preview", "number": 1}],
             "draft": False,
             "planned": True,
         },
     )
-    result = AnchorRenderResult(
-        configured=True,
-        sent=True,
-        license_id=12,
-        license_number=16573,
-        output_name="16573_Programmvorschau_260608.mp4",
-        job_id="job-1",
-        status="queued",
-        file="",
-        error="",
-    )
-    celery_result = Mock(id="task-1")
 
-    with patch("planung.views.render_anchor_preview", return_value=result), patch(
-        "planung.views.poll_anchor_render_job.delay",
-        return_value=celery_result,
-    ) as mocked_delay:
+    with patch("planung.views._check_plan_copy_state", return_value="copying"):
         response = client.post(
             "/api/planning/anchor/render/",
             data=json.dumps({"date": "2026-06-08"}),
             content_type="application/json",
         )
 
-    assert response.status_code == 200
-    mocked_delay.assert_called_once_with("job-1", "16573_Programmvorschau_260608.mp4")
-    assert response.json()["celery_task_id"] == "task-1"
+    assert response.status_code == 409
+    assert response.json()["error"] == "videos_still_copying"
 
 
 @pytest.mark.django_db

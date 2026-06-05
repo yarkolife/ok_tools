@@ -13,6 +13,12 @@ class TagesPlan(models.Model):
     datum = models.DateField(unique=True)
     json_plan = models.JSONField(default=dict, blank=True)
     kommentar = models.TextField(blank=True)
+    copy_task_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text=_("Celery task ID for copy_videos_for_plan"),
+    )
 
     def __str__(self):
         """Return a formatted date string representing this plan."""
