@@ -1903,6 +1903,10 @@
       });
     });
 
+    var POLL_INTERVAL_MS = 15000;       // 15 seconds between status checks
+    var MAX_POLL_ATTEMPTS = 120;        // 30 minutes total (120 × 15s)
+    var RENDER_RETRY_DELAY_MS = 30000;  // 30 seconds retry when videos still copying
+
     function renderAnchorPreview(force) {
       var iso = $('#dayPlanModal').data('iso-date');
       if (!iso) {
@@ -1918,23 +1922,26 @@
         data: JSON.stringify({ date: iso, force: Boolean(force) }),
         beforeSend: addCsrfHeader,
         success: function (response) {
-          if (response.error) {
-            notify(gettext('Programme preview render failed: ') + response.error, 'error');
-          } else if (response.status === 'done') {
-            notify(gettext('Programme preview render completed: ') + (response.file || response.output_name), 'success');
-          } else if (response.status === 'error') {
-            notify(gettext('Programme preview render failed: ') + (response.error || response.status), 'error');
-          } else if (response.job_id) {
-            var taskSuffix = response.celery_task_id ? ' • ' + gettext('Celery task: ') + response.celery_task_id : '';
-            notify(gettext('Programme preview render task queued: ') + (response.output_name || response.job_id) + taskSuffix, 'success');
-          } else if (response.output_name) {
-            notify(gettext('Programme preview render task queued: ') + response.output_name, 'success');
+          if (response.status === 'queued' && response.task_id) {
+            notify(gettext('Programme preview render started. You can close this window — it continues in the background.'), 'info');
+            pollRenderStatus(response.task_id, $btn, 0);
           } else {
             notify(gettext('Programme preview render task queued.'), 'success');
+            $btn.prop('disabled', false);
           }
         },
         error: function (xhr) {
           var response = xhr.responseJSON || {};
+          if (xhr.status === 409 && response.error === 'videos_still_copying') {
+            notify(gettext('Videos are still being copied to the playout storage. Retrying in 30 seconds...'), 'info');
+            setTimeout(function () { renderAnchorPreview(force); }, RENDER_RETRY_DELAY_MS);
+            return;
+          }
+          if (xhr.status === 409 && response.error === 'copy_failed') {
+            notify(gettext('Video copy failed. Please check the plan and try again.'), 'error');
+            $btn.prop('disabled', false);
+            return;
+          }
           if (xhr.status === 409 && response.requires_confirmation) {
             openActionModal({
               title: gettext('Render programme preview again?'),
@@ -1943,17 +1950,54 @@
             }).then(function (confirmed) {
               if (confirmed) {
                 renderAnchorPreview(true);
+              } else {
+                $btn.prop('disabled', false);
               }
             });
             return;
           }
           var message = response.error || gettext('Programme preview render request failed.');
           notify(message, 'error');
-        },
-        complete: function () {
           $btn.prop('disabled', false);
         }
       });
+    }
+
+    function pollRenderStatus(taskId, $btn, attempts) {
+      if (attempts >= MAX_POLL_ATTEMPTS) {
+        notify(gettext('Programme preview render is taking too long. Check the Celery task results in the admin panel.'), 'error');
+        $btn.prop('disabled', false);
+        return;
+      }
+      setTimeout(function () {
+        $.ajax({
+          url: '/api/planning/anchor/render/status/' + taskId + '/',
+          method: 'GET',
+          beforeSend: addCsrfHeader,
+          success: function (response) {
+            if (response.state === 'SUCCESS') {
+              var r = response.result || {};
+              if (r.status === 'error' || r.error) {
+                notify(gettext('Programme preview render failed: ') + (r.error || r.status), 'error');
+              } else if (r.status === 'done') {
+                notify(gettext('Programme preview render completed: ') + (r.file || r.output_name), 'success');
+              } else {
+                notify(gettext('Programme preview render completed: ') + (r.file || r.output_name || 'done'), 'success');
+              }
+              $btn.prop('disabled', false);
+            } else if (response.state === 'FAILURE') {
+              var r = response.result || {};
+              notify(gettext('Programme preview render failed: ') + (r.error || 'unknown'), 'error');
+              $btn.prop('disabled', false);
+            } else {
+              pollRenderStatus(taskId, $btn, attempts + 1);
+            }
+          },
+          error: function () {
+            pollRenderStatus(taskId, $btn, attempts + 1);
+          }
+        });
+      }, POLL_INTERVAL_MS);
     }
 
     $('#renderAnchorBtn').on('click', function () {
