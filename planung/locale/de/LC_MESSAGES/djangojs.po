@@ -241,3 +241,27 @@ msgstr "Videokopie fehlgeschlagen. Bitte überprüfen Sie den Plan und versuchen
 
 msgid "Programme preview render is taking too long. Check the Celery task results in the admin panel."
 msgstr "Das Rendern der Programmvorschau dauert zu lange. Überprüfen Sie die Celery-Aufgabenergebnisse im Admin-Bereich."
+
+msgid "Missing: "
+msgstr "Fehlend: "
+
+msgid "Video copy failed. Check the Celery task result for details."
+msgstr "Videokopie fehlgeschlagen. Überprüfen Sie das Celery-Aufgabenergebnis für Details."
+
+msgid "Task ID: "
+msgstr "Aufgaben-ID: "
+
+msgid "Ready: "
+msgstr "Bereit: "
+
+msgid "Missing/Failed: "
+msgstr "Fehlend/Fehlgeschlagen: "
+
+msgid "Video copy failed"
+msgstr "Videokopie fehlgeschlagen"
+
+msgid "Render anyway"
+msgstr "Trotzdem rendern"
+
+msgid "Render anyway with the current files?"
+msgstr "Trotzdem mit den vorhandenen Dateien rendern?"
