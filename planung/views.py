@@ -484,7 +484,7 @@ def render_anchor_preview_view(request):
 
     Returns 202 with a Celery task ID — the render runs fully in the background.
     Returns 409 when copy_videos_for_plan is still running and no playout
-    VideoFile records exist yet.
+    VideoFile records exist yet. With force=true, copy_failed is bypassed.
     """
     try:
         data = json.loads(request.body)
@@ -503,27 +503,34 @@ def render_anchor_preview_view(request):
         if not profile:
             return JsonResponse({"error": _("User profile is missing")}, status=400)
 
-        copy_state = _check_plan_copy_state(plan)
-        if copy_state == "copying":
+        force = bool(data.get("force"))
+        state = _check_plan_copy_state(plan)
+
+        if state["status"] == "copying":
             return JsonResponse({
                 "error": "videos_still_copying",
                 "copy_task_id": plan.copy_task_id,
                 "status": "pending",
+                "missing": state["missing"],
             }, status=409)
-        if copy_state == "copy_failed":
+
+        if state["status"] == "copy_failed" and not force:
             return JsonResponse({
                 "error": "copy_failed",
                 "copy_task_id": plan.copy_task_id,
+                "missing": state["missing"],
+                "ready": state["ready"],
             }, status=409)
 
         async_result = anchor_render_chain.delay(
             plan_date_str=iso_date,
-            force=bool(data.get("force")),
+            force=force,
             user_id=request.user.id,
         )
         return JsonResponse({
             "status": "queued",
             "task_id": async_result.id,
+            "forced": force and state["status"] == "copy_failed",
         }, status=202)
     except Exception as e:
         logger.exception("Failed to enqueue anchor render")
@@ -572,19 +579,25 @@ def anchor_job_status_view(request, job_id):
 def _check_plan_copy_state(plan):
     """Combined strategy: Celery AsyncResult + direct VideoFile fallback.
 
-    Returns 'ready' | 'copying' | 'copy_failed'.
+    Returns:
+        dict with keys:
+          - status: 'ready' | 'copying' | 'copy_failed'
+          - missing: list of plan numbers without VideoFile in PLAYOUT
+          - ready: list of plan numbers with VideoFile in PLAYOUT
     """
     from celery.result import AsyncResult
     from media_files.models import VideoFile
 
+    celery_state = None
     if plan.copy_task_id:
         async_result = AsyncResult(plan.copy_task_id)
-        if async_result.state == "SUCCESS":
-            return "ready"
-        if async_result.state == "FAILURE":
-            return "copy_failed"
-        if async_result.state in {"PROGRESS", "STARTED"}:
-            return "copying"
+        celery_state = async_result.state
+        if celery_state == "SUCCESS":
+            celery_state = "ready"
+        elif celery_state == "FAILURE":
+            celery_state = "copy_failed"
+        elif celery_state in {"PROGRESS", "STARTED", "RECEIVED"}:
+            celery_state = "copying"
 
     numbers = [
         item.get("number")
@@ -592,19 +605,22 @@ def _check_plan_copy_state(plan):
         if item.get("number")
     ]
     if not numbers:
-        return "ready"
+        return {"status": "ready", "missing": [], "ready": []}
 
-    ready_count = (
+    ready_set = set(
         VideoFile.objects.filter(
             number__in=numbers,
             storage_location__storage_type="PLAYOUT",
             is_available=True,
             is_preview=False,
-        )
-        .values_list("number", flat=True)
-        .distinct()
-        .count()
+        ).values_list("number", flat=True)
     )
-    if ready_count >= len(numbers):
-        return "ready"
-    return "copying"
+    missing = [n for n in numbers if n not in ready_set]
+    ready = [n for n in numbers if n in ready_set]
+
+    if celery_state in {"ready", "copy_failed", "copying"}:
+        return {"status": celery_state, "missing": missing, "ready": ready}
+
+    if not missing:
+        return {"status": "ready", "missing": [], "ready": ready}
+    return {"status": "copying", "missing": missing, "ready": ready}

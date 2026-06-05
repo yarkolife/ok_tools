@@ -144,6 +144,7 @@ def anchor_render_chain(
     Frontend polls TaskResult via /api/planning/anchor/render/status/<task_id>/
     """
     from planung.models import TagesPlan
+    from django.contrib.auth import get_user_model
     from registration.models import Profile
 
     plan_date_obj = date.fromisoformat(plan_date_str)
@@ -151,7 +152,14 @@ def anchor_render_chain(
     if not plan:
         return {"status": "error", "error": "no_plan"}
 
-    profile = Profile.objects.filter(user_id=user_id).first() if user_id else None
+    profile = None
+    if user_id:
+        User = get_user_model()
+        try:
+            user = User.objects.get(pk=user_id)
+            profile = Profile.objects.filter(okuser=user).first()
+        except User.DoesNotExist:
+            pass
     if not profile:
         return {"status": "error", "error": "no_profile"}
 

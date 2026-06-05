@@ -264,7 +264,8 @@ def test__anchor_render__endpoint_returns_202_with_task_id(client, staff_user):
     chain_mock = Mock(delay=Mock(return_value=celery_result))
 
     with patch(
-        "planung.views._check_plan_copy_state", return_value="ready"
+        "planung.views._check_plan_copy_state",
+        return_value={"status": "ready", "missing": [], "ready": []},
     ), patch(
         "planung.views.anchor_render_chain", chain_mock
     ):
@@ -294,7 +295,10 @@ def test__anchor_render__endpoint_blocks_when_copying(client, staff_user):
         },
     )
 
-    with patch("planung.views._check_plan_copy_state", return_value="copying"):
+    with patch(
+        "planung.views._check_plan_copy_state",
+        return_value={"status": "copying", "missing": [1], "ready": []},
+    ):
         response = client.post(
             "/api/planning/anchor/render/",
             data=json.dumps({"date": "2026-06-08"}),
@@ -302,7 +306,75 @@ def test__anchor_render__endpoint_blocks_when_copying(client, staff_user):
         )
 
     assert response.status_code == 409
-    assert response.json()["error"] == "videos_still_copying"
+    body = response.json()
+    assert body["error"] == "videos_still_copying"
+    assert body["missing"] == [1]
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_returns_409_with_details_on_copy_failed(client, staff_user):
+    """409 with missing/ready lists when copy_videos_for_plan failed."""
+    client.force_login(staff_user)
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "19:00:00", "duration": 20, "title": "Preview", "number": 1}],
+            "draft": False,
+            "planned": True,
+        },
+        copy_task_id="failed-task-id",
+    )
+
+    with patch(
+        "planung.views._check_plan_copy_state",
+        return_value={"status": "copy_failed", "missing": [1, 2], "ready": [3]},
+    ):
+        response = client.post(
+            "/api/planning/anchor/render/",
+            data=json.dumps({"date": "2026-06-08"}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 409
+    body = response.json()
+    assert body["error"] == "copy_failed"
+    assert body["copy_task_id"] == "failed-task-id"
+    assert body["missing"] == [1, 2]
+    assert body["ready"] == [3]
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_force_bypasses_copy_failed(client, staff_user):
+    """force=true allows render even when copy_videos_for_plan failed."""
+    client.force_login(staff_user)
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "19:00:00", "duration": 20, "title": "Preview", "number": 1}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+    celery_result = Mock(id="forced-task-1")
+    chain_mock = Mock(delay=Mock(return_value=celery_result))
+
+    with patch(
+        "planung.views._check_plan_copy_state",
+        return_value={"status": "copy_failed", "missing": [1], "ready": [2]},
+    ), patch(
+        "planung.views.anchor_render_chain", chain_mock
+    ):
+        response = client.post(
+            "/api/planning/anchor/render/",
+            data=json.dumps({"date": "2026-06-08", "force": True}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 202
+    body = response.json()
+    assert body["status"] == "queued"
+    assert body["forced"] is True
+    chain_mock.delay.assert_called_once()
 
 
 @pytest.mark.django_db
