@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-06-06 (Version 4.16.0)
+===========================
+
+* **planung: Queue anchor rendering after playout copy readiness**
+  * Added copy task tracking on daily plans so anchor rendering can wait until videos are available in playout
+  * Changed the anchor render endpoint to queue a Celery chain and return task polling metadata
+  * Added frontend status polling for copy and render progress in the planning calendar
+  * Refreshed German translation catalogs for updated planning and media workflow strings
+
 2026-06-05 (Version 4.15.0)
 ===========================
 
