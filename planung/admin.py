@@ -6,8 +6,8 @@ from .models import PlanungConfig
 from .models import TagesPlan
 from datetime import date
 from datetime import timedelta
-from django.core.cache import cache
 from django.contrib import admin
+from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path
@@ -16,7 +16,6 @@ from django.utils.dateparse import parse_date
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
-
 from planung.services.plan_service import enrich_plan_items
 
 
@@ -387,6 +386,22 @@ class PlanungConfigAdmin(admin.ModelAdmin):
                 'When configured, the Plan! action also sends the day\'s broadcast '
                 'schedule (day, start times, item kinds, filenames) to the external '
                 'playout schedule endpoint.'
+            ),
+        }),
+        (_('Anchor Render'), {
+            'fields': (
+                'anchor_render_url',
+                'anchor_render_api_key',
+                'anchor_render_timeout',
+                'anchor_render_wait',
+                'anchor_output_filename_pattern',
+                'anchor_playout_path_prefix',
+                'anchor_default_placeholder_video',
+                'anchor_placeholder_rules',
+            ),
+            'description': _(
+                'When configured, planned days can be sent to the external '
+                'anchor renderer to create a programme preview video.'
             ),
         }),
     )

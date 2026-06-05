@@ -601,3 +601,69 @@ msgstr "DRF-Token-Authentifizierung. Fügen Sie ein Token aus der Admin-Tokenlis
 
 msgid "Tokens are managed in the admin token list:"
 msgstr "Tokens werden in der Admin-Tokenliste verwaltet:"
+
+msgid "Anchor Render"
+msgstr "Anchor-Render"
+
+msgid "When configured, planned days can be sent to the external anchor renderer to create a programme preview video."
+msgstr "Wenn konfiguriert, können geplante Tage an den externen Anchor-Renderer gesendet werden, um eine Programmvorschau zu erstellen."
+
+msgid "Anchor render URL"
+msgstr "Anchor-Render-URL"
+
+msgid "External anchor render endpoint, e.g. http://192.168.88.50:8011/api/anchor"
+msgstr "Externer Anchor-Render-Endpunkt, z. B. http://192.168.88.50:8011/api/anchor"
+
+msgid "Anchor render API key"
+msgstr "Anchor-Render-API-Schlüssel"
+
+msgid "API key sent as X-API-Key when the programme preview video is rendered."
+msgstr "API-Schlüssel, der beim Rendern der Programmvorschau als X-API-Key gesendet wird."
+
+msgid "Anchor render timeout (seconds)"
+msgstr "Anchor-Render-Timeout (Sekunden)"
+
+msgid "HTTP timeout for anchor render requests."
+msgstr "HTTP-Timeout für Anchor-Render-Anfragen."
+
+msgid "Wait for render result"
+msgstr "Auf Render-Ergebnis warten"
+
+msgid "Append wait=1 to the render request and wait for the synchronous response."
+msgstr "Hängt wait=1 an die Render-Anfrage an und wartet auf die synchrone Antwort."
+
+msgid "Anchor output filename pattern"
+msgstr "Anchor-Ausgabedateinamen-Muster"
+
+msgid "Python format string with {number} and {date}, e.g. {number}_Programmvorschau_{date:%y%m%d}.mp4."
+msgstr "Python-Formatstring mit {number} und {date}, z. B. {number}_Programmvorschau_{date:%y%m%d}.mp4."
+
+msgid "Anchor playout path prefix"
+msgstr "Anchor-Playout-Pfadpräfix"
+
+msgid "NAS-relative prefix sent for videos copied to playout."
+msgstr "NAS-relatives Präfix, das für ins Playout kopierte Videos gesendet wird."
+
+msgid "Anchor default placeholder video"
+msgstr "Anchor-Standard-Platzhaltervideo"
+
+msgid "NAS-relative fallback video path, e.g. playout/placeholder/default.mp4."
+msgstr "NAS-relativer Fallback-Videopfad, z. B. playout/placeholder/default.mp4."
+
+msgid "Anchor placeholder rules"
+msgstr "Anchor-Platzhalterregeln"
+
+msgid "List of rules. Supported match values: live, title_prefix. Each rule needs a video path; title_prefix rules also need prefix."
+msgstr "Liste von Regeln. Unterstützte match-Werte: live, title_prefix. Jede Regel benötigt einen Videopfad; title_prefix-Regeln benötigen zusätzlich prefix."
+
+msgid "User profile is missing"
+msgstr "Benutzerprofil fehlt"
+
+msgid "Plan the day first"
+msgstr "Tag zuerst planen"
+
+msgid "Render programme preview"
+msgstr "Programmvorschau rendern"
+
+msgid "Render preview"
+msgstr "Vorschau rendern"

@@ -1,20 +1,348 @@
-"""
-Custom admin for Celery Beat periodic tasks.
-Adds ability to run tasks manually from Django admin interface.
-"""
+"""Custom admin for Celery Beat periodic tasks and task results."""
 
-from django.contrib import admin, messages
-from django.utils.html import format_html
+from ast import literal_eval
+from celery import current_app
+from django.contrib import admin
+from django.contrib import messages
 from django.urls import reverse
-from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSchedule, SolarSchedule, ClockedSchedule
+from django.utils.html import format_html
+from django.utils.html import format_html_join
+from django.utils.translation import gettext_lazy as _
+from django_celery_beat.models import ClockedSchedule
+from django_celery_beat.models import CrontabSchedule
+from django_celery_beat.models import IntervalSchedule
+from django_celery_beat.models import PeriodicTask
+from django_celery_beat.models import SolarSchedule
+import json
+
+
 try:
-    from django_celery_beat.admin import PeriodicTaskAdmin as BasePeriodicTaskAdmin
+    from django_celery_beat.admin import \
+        PeriodicTaskAdmin as BasePeriodicTaskAdmin
 except ImportError:
     # Fallback if admin is not available
     from django.contrib.admin import ModelAdmin as BasePeriodicTaskAdmin
+
 from django_celery_results.models import TaskResult
-from celery import current_app
-from django.utils.translation import gettext_lazy as _
+
+
+TASK_DISPLAY_NAMES = {
+    'austausch.tasks.download_exchange_files': _('Download exchange files'),
+    'austausch.tasks.export_to_server': _('Export broadcasts to server'),
+    'austausch.tasks.import_exchange_item': _('Import exchange item'),
+    'austausch.tasks.sync_exchange_folders': _('Synchronize exchange folders'),
+    'licenses.tasks.download_nextcloud_video_file_to_storage': _('Download Nextcloud video to storage'),
+    'licenses.tasks.refresh_license_mediathek_url': _('Refresh media library link'),
+    'licenses.tasks.rescan_mediathek_links_for_period': _('Rescan media library links'),
+    'licenses.tasks.send_license_notification_email': _('Send license notification email'),
+    'media_files.tasks.copy_videos_for_plan': _('Copy videos for broadcast plan'),
+    'media_files.tasks.render_video_task': _('Render video'),
+    'media_files.tasks.run_auto_scan': _('Run automatic media scan'),
+    'media_files.tasks.run_cleanup_duplicates': _('Clean up duplicate media files'),
+    'media_files.tasks.run_cleanup_missing_files': _('Clean up missing media files'),
+    'media_files.tasks.run_cleanup_old_file_operations': _('Clean up old file operations'),
+    'media_files.tasks.run_cleanup_playout': _('Clean up playout storage'),
+    'media_files.tasks.run_find_duplicates': _('Find duplicate media files'),
+    'media_files.tasks.run_link_orphan_licenses': _('Link unassigned licenses'),
+    'media_files.tasks.run_scan_video_storage': _('Scan video storage'),
+    'media_files.tasks.run_sync_licenses_videos': _('Synchronize licenses and videos'),
+    'media_files.tasks.run_update_video_metadata': _('Update video metadata'),
+    'media_files.tasks.transcode_hevc_to_h264': _('Convert HEVC video to H.264'),
+    'ok_tools.tasks.cleanup_old_backups_task': _('Clean up old backups'),
+    'ok_tools.tasks.run_backup_db_task': _('Create database backup'),
+    'ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task': _('Clean up deleted Nextcloud videos'),
+    'ok_tools.tasks.run_cleanup_signing_sessions_task': _('Clean up old signing sessions'),
+    'ok_tools.tasks.run_expire_room_rentals_task': _('Expire outdated room rentals'),
+    'planung.tasks.sync_playout_missing_media': _('Synchronize missing playout media'),
+    'tools.tasks.analyze_audio_normalize_job': _('Analyze audio for normalization'),
+    'tools.tasks.cleanup_old_audio_normalize_jobs_task': _('Clean up old audio normalization jobs'),
+    'tools.tasks.cleanup_old_projects_task': _('Clean up old slideshow projects'),
+    'tools.tasks.cleanup_old_video_render_operations_task': _('Clean up old video render operations'),
+    'tools.tasks.generate_slideshow': _('Generate slideshow video'),
+    'tools.tasks.normalize_audio': _('Normalize audio'),
+}
+
+TASK_STATUS_NAMES = {
+    'FAILURE': _('Failed'),
+    'PENDING': _('Waiting'),
+    'PROGRESS': _('In progress'),
+    'RECEIVED': _('Received'),
+    'RETRY': _('Retrying'),
+    'REVOKED': _('Canceled'),
+    'STARTED': _('Started'),
+    'SUCCESS': _('Completed'),
+}
+
+TASK_PROGRESS_STATUS_NAMES = {
+    'completed': _('Completed'),
+    'downloading': _('Downloading'),
+    'exporting': _('Exporting'),
+    'failed': _('Failed'),
+    'importing': _('Importing'),
+    'processing': _('Processing'),
+    'rendering': _('Rendering'),
+    'skipped': _('Skipped'),
+    'success': _('Completed'),
+    'uploading': _('Uploading'),
+}
+
+TASK_FIELD_LABELS = {
+    'current': _('Current'),
+    'current_item_id': _('Current item ID'),
+    'details': _('Details'),
+    'error': _('Error'),
+    'exc_message': _('Exception message'),
+    'exc_module': _('Exception module'),
+    'exc_type': _('Exception type'),
+    'failure_count': _('Failed'),
+    'failed': _('Failed entries'),
+    'job_id': _('Job ID'),
+    'output_file': _('Output file'),
+    'output_path_external': _('External output path'),
+    'progress': _('Progress'),
+    'reason': _('Reason'),
+    'recommendations': _('Recommendations'),
+    'run_id': _('Report ID'),
+    'skipped_no_pdf': _('Skipped without PDF'),
+    'skipped_no_pdf_count': _('Skipped without PDF'),
+    'speed_mbps': _('Upload speed'),
+    'status': _('Status'),
+    'success_count': _('Successful'),
+    'success_ids': _('Successful IDs'),
+    'success_license_numbers': _('Successful license numbers'),
+    'total': _('Total'),
+}
+
+
+def _get_task_display_name(task_name):
+    """Return a user-facing task name while keeping unknown task names readable."""
+    if not task_name:
+        return _('Unknown task')
+    return TASK_DISPLAY_NAMES.get(task_name, task_name.rsplit('.', 1)[-1].replace('_', ' ').title())
+
+
+def _loads_json(value):
+    if not value:
+        return None
+    try:
+        return json.loads(value)
+    except (TypeError, json.JSONDecodeError):
+        return None
+
+
+def _loads_task_args(value):
+    parsed = _loads_json(value)
+    if isinstance(parsed, str):
+        try:
+            return literal_eval(parsed)
+        except (SyntaxError, ValueError):
+            return parsed
+    return parsed
+
+
+def _is_empty_task_value(value):
+    parsed = _loads_task_args(value)
+    if parsed in (None, '', '-', (), [], {}):
+        return True
+    if isinstance(parsed, str) and parsed.strip() in ('', '-', '()', '[]', '{}'):
+        return True
+    return False
+
+
+def _format_task_value(value):
+    parsed = _loads_task_args(value)
+    if parsed is None:
+        return '-'
+    return parsed
+
+
+def _format_field_label(key):
+    if key in TASK_FIELD_LABELS:
+        return TASK_FIELD_LABELS[key]
+    return str(key).replace('_', ' ').title()
+
+
+def _format_sequence(values):
+    if not values:
+        return '-'
+    return format_html(
+        '<ul style="margin: 0; padding-left: 1.25rem;">{}</ul>',
+        format_html_join(
+            '',
+            '<li>{}</li>',
+            ((_format_generic_value(None, value),) for value in values),
+        ),
+    )
+
+
+def _format_mapping(mapping):
+    if not mapping:
+        return '-'
+    return _format_definition_list(
+        (_format_field_label(key), _format_generic_value(key, value))
+        for key, value in mapping.items()
+    )
+
+
+def _format_generic_value(key, value):
+    if value in (None, ''):
+        return '-'
+    if key == 'status' and isinstance(value, str):
+        return TASK_PROGRESS_STATUS_NAMES.get(value, TASK_STATUS_NAMES.get(value, value))
+    if isinstance(value, bool):
+        return _('Yes') if value else _('No')
+    if isinstance(value, dict):
+        return _format_mapping(value)
+    if isinstance(value, (list, tuple, set)):
+        return _format_sequence(list(value))
+    if isinstance(value, str) and value.startswith(('http://', 'https://')):
+        return format_html('<a href="{}">{}</a>', value, value)
+    return value
+
+
+def _format_definition_list(rows):
+    return format_html(
+        '<dl style="margin: 0;">{}</dl>',
+        format_html_join(
+            '',
+            '<dt style="font-weight: 600;">{}</dt><dd style="margin: 0 0 0.5rem;">{}</dd>',
+            rows,
+        ),
+    )
+
+
+def _format_mode(mode):
+    if mode == 'licenses':
+        return _('licenses')
+    if mode == 'contributions':
+        return _('contributions')
+    return mode or _('unknown')
+
+
+def _format_count(value):
+    if isinstance(value, (list, tuple, set)):
+        return len(value)
+    return value
+
+
+def _get_export_task_args(obj):
+    if obj.task_name != 'austausch.tasks.export_to_server':
+        return None
+    args = _loads_task_args(obj.task_args)
+    if not isinstance(args, tuple) or len(args) < 2:
+        return None
+    selected_ids = args[0] if isinstance(args[0], (list, tuple)) else []
+    user_id = args[2] if len(args) >= 3 else None
+    return selected_ids, args[1], user_id
+
+
+def _admin_change_link(url_name, obj_id, label):
+    try:
+        url = reverse(url_name, args=[obj_id])
+    except Exception:
+        return label
+    return format_html('<a href="{}">{}</a>', url, label)
+
+
+def _format_user_link(user_id):
+    if not user_id:
+        return '-'
+    try:
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.filter(pk=user_id).first()
+    except Exception:
+        user = None
+    if not user:
+        return _('User ID %(user_id)s') % {'user_id': user_id}
+    label = getattr(user, 'email', None) or str(user)
+    return _admin_change_link(
+        'admin:registration_user_change',
+        user.pk,
+        _('%(label)s (ID %(user_id)s)') % {'label': label, 'user_id': user_id},
+    )
+
+
+def _format_license_links(numbers, limit=20):
+    try:
+        from licenses.models import License
+        licenses = {
+            license_obj.number: license_obj
+            for license_obj in License.objects.filter(number__in=numbers)
+        }
+    except Exception:
+        licenses = {}
+
+    links = []
+    for number in numbers[:limit]:
+        license_obj = licenses.get(number)
+        if license_obj:
+            label = _('#%(number)s %(title)s') % {
+                'number': license_obj.number,
+                'title': license_obj.title or '',
+            }
+            links.append(_admin_change_link('admin:licenses_license_change', license_obj.pk, label))
+        else:
+            links.append(_('#%(number)s (not found)') % {'number': number})
+    return _format_link_list(links, numbers, limit)
+
+
+def _format_contribution_links(ids, limit=20):
+    try:
+        from contributions.models import Contribution
+        contributions = {
+            contribution.pk: contribution
+            for contribution in Contribution.objects.select_related('license').filter(pk__in=ids)
+        }
+    except Exception:
+        contributions = {}
+
+    links = []
+    for contribution_id in ids[:limit]:
+        contribution = contributions.get(contribution_id)
+        if contribution:
+            label = _('#%(id)s - license %(number)s %(title)s') % {
+                'id': contribution.pk,
+                'number': contribution.license.number,
+                'title': contribution.license.title or '',
+            }
+            links.append(_admin_change_link(
+                'admin:contributions_contribution_change',
+                contribution.pk,
+                label,
+            ))
+        else:
+            links.append(_('#%(id)s (not found)') % {'id': contribution_id})
+    return _format_link_list(links, ids, limit)
+
+
+def _format_link_list(links, all_values, limit):
+    more_count = max(len(all_values) - limit, 0)
+    if more_count:
+        links.append(_('and %(count)s more') % {'count': more_count})
+    return format_html(
+        '<ul style="margin: 0; padding-left: 1.25rem;">{}</ul>',
+        format_html_join('', '<li>{}</li>', ((link,) for link in links)),
+    )
+
+
+def _format_selected_entries(mode, selected_ids):
+    if not selected_ids:
+        return _('No selected entries')
+    if mode == 'licenses':
+        return _format_license_links(selected_ids)
+    if mode == 'contributions':
+        return _format_contribution_links(selected_ids)
+    return ', '.join(str(value) for value in selected_ids)
+
+
+def _format_current_entry(mode, item_id):
+    if not item_id:
+        return '-'
+    if mode == 'licenses':
+        return _format_license_links([item_id], limit=1)
+    if mode == 'contributions':
+        return _format_contribution_links([item_id], limit=1)
+    return item_id
 
 
 @admin.action(description=_('Run selected periodic tasks now'))
@@ -245,8 +573,10 @@ hide_unused_schedules()
 
 # Custom admin for TaskResult to improve visibility
 try:
-    from django_celery_results.admin import TaskResultAdmin as BaseTaskResultAdmin
-    from django_celery_results.models import TaskResult, GroupResult
+    from django_celery_results.admin import \
+        TaskResultAdmin as BaseTaskResultAdmin
+    from django_celery_results.models import GroupResult
+    from django_celery_results.models import TaskResult
     
     class TaskResultAdmin(BaseTaskResultAdmin):
         """Custom admin for TaskResult with better filtering and display."""
@@ -257,8 +587,208 @@ try:
         base_search_fields = getattr(BaseTaskResultAdmin, 'search_fields', ())
         search_fields = list(base_search_fields) + ['task_name']
         
-        list_display = getattr(BaseTaskResultAdmin, 'list_display', None)
-        readonly_fields = getattr(BaseTaskResultAdmin, 'readonly_fields', ())
+        list_display = (
+            'readable_task_name',
+            'readable_status',
+            'readable_progress',
+            'date_done',
+            'periodic_task_name',
+        )
+        readonly_fields = tuple(getattr(BaseTaskResultAdmin, 'readonly_fields', ())) + (
+            'readable_task_name',
+            'readable_status',
+            'readable_progress',
+            'readable_parameters',
+            'readable_result',
+        )
+        fieldsets = (
+            (_('Overview'), {
+                'fields': (
+                    'readable_task_name',
+                    'readable_status',
+                    'readable_progress',
+                    'readable_parameters',
+                    'readable_result',
+                    'date_created',
+                    'date_done',
+                ),
+                'classes': ('extrapretty', 'wide'),
+            }),
+            (_('Technical details'), {
+                'fields': (
+                    'task_id',
+                    'task_name',
+                    'periodic_task_name',
+                    'status',
+                    'worker',
+                    'content_type',
+                    'content_encoding',
+                    'task_args',
+                    'task_kwargs',
+                    'result',
+                    'traceback',
+                    'meta',
+                ),
+                'classes': ('collapse', 'extrapretty', 'wide'),
+            }),
+        )
+
+        def readable_task_name(self, obj):
+            """Display the task name in a way staff users can understand."""
+            return _get_task_display_name(obj.task_name)
+        readable_task_name.short_description = _('Task')
+        readable_task_name.admin_order_field = 'task_name'
+
+        def get_readonly_fields(self, request, obj=None):
+            """Keep computed fields readonly with django-celery-results edits disabled."""
+            custom_fields = (
+                'readable_task_name',
+                'readable_status',
+                'readable_progress',
+                'readable_parameters',
+                'readable_result',
+            )
+            return tuple(dict.fromkeys([*super().get_readonly_fields(request, obj), *custom_fields]))
+
+        def readable_status(self, obj):
+            """Display the Celery status with a translated label."""
+            label = TASK_STATUS_NAMES.get(obj.status, obj.status or _('Unknown'))
+            colors = {
+                'FAILURE': '#ba2121',
+                'PROGRESS': '#b35f00',
+                'RETRY': '#b35f00',
+                'SUCCESS': '#118811',
+            }
+            color = colors.get(obj.status, 'var(--body-fg)')
+            return format_html('<strong style="color: {};">{}</strong>', color, label)
+        readable_status.short_description = _('Status')
+        readable_status.admin_order_field = 'status'
+
+        def readable_progress(self, obj):
+            """Summarize task progress from stored result metadata."""
+            data = _loads_json(obj.result)
+            if not isinstance(data, dict):
+                return '-'
+
+            progress = data.get('progress')
+            current = data.get('current')
+            total = data.get('total')
+            status = TASK_PROGRESS_STATUS_NAMES.get(data.get('status'), data.get('status'))
+            speed = data.get('speed_mbps')
+            parts = []
+
+            if progress is not None:
+                parts.append(_('%(progress)s%% complete') % {'progress': progress})
+            if current is not None and total is not None:
+                parts.append(_('%(current)s of %(total)s') % {'current': current, 'total': total})
+            if status:
+                parts.append(str(status))
+            if speed:
+                parts.append(_('%(speed)s Mbit/s') % {'speed': speed})
+
+            return ' · '.join(parts) if parts else '-'
+        readable_progress.short_description = _('Progress')
+
+        def readable_parameters(self, obj):
+            """Show the user-relevant task arguments."""
+            export_args = _get_export_task_args(obj)
+            if export_args:
+                selected_ids, mode, user_id = export_args
+                rows = [
+                    (_('Export type'), _format_mode(mode)),
+                    (_('Selected entries'), _format_count(selected_ids)),
+                    (_('Linked entries'), _format_selected_entries(mode, selected_ids)),
+                ]
+                if user_id:
+                    rows.append((_('Started by'), _format_user_link(user_id)))
+                return _format_definition_list(rows)
+
+            if _is_empty_task_value(obj.task_args) and _is_empty_task_value(obj.task_kwargs):
+                return _('No parameters')
+
+            rows = []
+            args = _format_task_value(obj.task_args)
+            kwargs = _format_task_value(obj.task_kwargs)
+            if not _is_empty_task_value(obj.task_args):
+                if isinstance(args, (list, tuple)):
+                    rows.extend(
+                        (_('Argument %(number)s') % {'number': index}, _format_generic_value(None, value))
+                        for index, value in enumerate(args, start=1)
+                    )
+                else:
+                    rows.append((_('Arguments'), _format_generic_value(None, args)))
+            if not _is_empty_task_value(obj.task_kwargs):
+                if isinstance(kwargs, dict):
+                    rows.extend(
+                        (_format_field_label(key), _format_generic_value(key, value))
+                        for key, value in kwargs.items()
+                    )
+                else:
+                    rows.append((_('Named arguments'), _format_generic_value(None, kwargs)))
+            return _format_definition_list(rows)
+        readable_parameters.short_description = _('Parameters')
+
+        def readable_result(self, obj):
+            """Show a concise result summary for common task result payloads."""
+            data = _loads_json(obj.result)
+            if not isinstance(data, dict):
+                if _is_empty_task_value(obj.result):
+                    return '-'
+                return _format_generic_value('result', _format_task_value(obj.result))
+
+            rows = []
+            handled_keys = set()
+            export_args = _get_export_task_args(obj)
+            mode = export_args[1] if export_args else None
+
+            if 'status' in data:
+                rows.append((_('Status'), _format_generic_value('status', data.get('status'))))
+                handled_keys.add('status')
+            if 'success_count' in data:
+                rows.append((_('Successful'), data.get('success_count')))
+                handled_keys.add('success_count')
+            if 'failure_count' in data:
+                rows.append((_('Failed'), data.get('failure_count')))
+                handled_keys.add('failure_count')
+            if 'skipped_no_pdf_count' in data:
+                rows.append((_('Skipped without PDF'), data.get('skipped_no_pdf_count')))
+                handled_keys.add('skipped_no_pdf_count')
+            if 'run_id' in data:
+                rows.append((_('Report ID'), data.get('run_id')))
+                handled_keys.add('run_id')
+            if 'progress' in data:
+                rows.append((_('Progress'), _('%(progress)s%% complete') % {'progress': data.get('progress')}))
+                handled_keys.add('progress')
+            if data.get('current') is not None and data.get('total') is not None:
+                if data.get('status') == 'uploading':
+                    rows.append((_('Uploaded chunks'), _('%(current)s of %(total)s') % {
+                        'current': data.get('current'),
+                        'total': data.get('total'),
+                    }))
+                    rows.append((_('Meaning'), _('The file is being uploaded in parts; this is the uploaded chunk count.')))
+                else:
+                    rows.append((_('Processed entries'), _('%(current)s of %(total)s') % {
+                        'current': data.get('current'),
+                        'total': data.get('total'),
+                    }))
+                handled_keys.update(('current', 'total'))
+            if 'current_item_id' in data and data.get('current_item_id'):
+                rows.append((_('Current entry'), _format_current_entry(mode, data.get('current_item_id'))))
+                handled_keys.add('current_item_id')
+            elif 'current_item_id' in data:
+                handled_keys.add('current_item_id')
+            if data.get('speed_mbps'):
+                rows.append((_('Upload speed'), _('%(speed)s Mbit/s') % {'speed': data.get('speed_mbps')}))
+                handled_keys.add('speed_mbps')
+
+            rows.extend(
+                (_format_field_label(key), _format_generic_value(key, value))
+                for key, value in data.items()
+                if key not in handled_keys
+            )
+
+            return _format_definition_list(rows) if rows else '-'
+        readable_result.short_description = _('Result')
     
     # Register custom TaskResult admin
     if TaskResult in admin.site._registry:
@@ -274,4 +804,3 @@ try:
 except (ImportError, Exception):
     # If TaskResultAdmin is not available or registration fails, skip customization
     pass
-

@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from django.views.decorators.http import require_http_methods
 from licenses.models import License
+from planung.services.anchor_render_service import render_anchor_preview
 from planung.services.plan_service import delete_day_plan
 from planung.services.plan_service import enrich_plan_items
 from planung.services.plan_service import \
@@ -401,6 +402,7 @@ def playout_config(request):
     return JsonResponse({
         "import_configured": config.is_playout_import_configured(),
         "schedule_configured": config.is_playout_schedule_configured(),
+        "anchor_configured": config.is_anchor_render_configured(),
     })
 
 
@@ -469,4 +471,49 @@ def send_playout_schedule(request):
         })
     except Exception as e:
         logger.exception("Failed to send playout schedule")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@require_POST
+@staff_member_required
+def render_anchor_preview_view(request):
+    """Send a planned day to the external anchor renderer."""
+    try:
+        data = json.loads(request.body)
+        iso_date = data.get("date")
+        date_obj = parse_date(iso_date) if iso_date else None
+        if not date_obj:
+            return JsonResponse({"error": _("Invalid date")}, status=400)
+
+        plan = TagesPlan.objects.filter(datum=date_obj).first()
+        if not plan:
+            return JsonResponse({"error": _("No plan for this day")}, status=404)
+        if not plan.json_plan.get("planned", False):
+            return JsonResponse({"error": _("Plan the day first")}, status=400)
+
+        profile = getattr(request.user, "profile", None)
+        if not profile:
+            return JsonResponse({"error": _("User profile is missing")}, status=400)
+
+        result = render_anchor_preview(
+            plan_date=date_obj,
+            plan_items=plan.json_plan.get("items", []),
+            profile=profile,
+        )
+        status_code = 502 if result.error and result.sent else 200
+        if result.error in {"not_configured", "missing_video_or_placeholder", "no_items"}:
+            status_code = 400
+        return JsonResponse({
+            "configured": result.configured,
+            "sent": result.sent,
+            "license_id": result.license_id,
+            "license_number": result.license_number,
+            "output_name": result.output_name,
+            "job_id": result.job_id,
+            "status": result.status,
+            "file": result.file,
+            "error": result.error,
+        }, status=status_code)
+    except Exception as e:
+        logger.exception("Failed to render anchor preview")
         return JsonResponse({"error": str(e)}, status=500)

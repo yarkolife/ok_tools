@@ -351,3 +351,60 @@ def test_create_video_file_reuses_scanned_record(tmp_path):
     assert video_file.video_codec == 'h264'
     assert video_file.width == 1920
     assert video_file.height == 1080
+
+
+@pytest.mark.django_db
+def test_download_files_falls_back_to_storage_location_path(tmp_path):
+    config = ExchangeConfig.get_config()
+    config.nextcloud_base_url = 'https://cloud.example.com'
+    config.nextcloud_username = 'exchange'
+    config.nextcloud_password = 'secret'
+    config.download_storage_path = ''
+    config.upload_server_path = 'GroupFolders/Test-Upload'
+    storage = StorageLocation.objects.create(
+        name='Exchange Inbox',
+        storage_type='CUSTOM',
+        path=str(tmp_path),
+    )
+    config.storage_location = storage
+    config.save()
+
+    user = create_user(
+        {
+            'email': 'download-fallback@example.com',
+            'first_name': 'Download',
+            'last_name': 'Fallback',
+            'gender': 'none',
+            'phone_number': '',
+            'mobile_number': '',
+            'birthday': '01.01.1990',
+            'street': 'Teststreet',
+            'house_number': '1',
+            'zipcode': '12345',
+            'city': 'Test City',
+        },
+        verified=True,
+    )
+    item = ExchangeItem.objects.create(
+        contribution_id=7001,
+        filename='7001_video.mp4',
+        file_path='/exchange/7001_video.mp4',
+        channel='ok magdeburg',
+        title='Downloaded video',
+        file_type='video',
+        file_size=5,
+        is_oktools_managed=True,
+    )
+
+    def fake_download(_remote_path, local_path, resume=False):
+        with open(local_path, 'wb') as handle:
+            handle.write(b'video')
+        return True
+
+    service = ImportService(item, user)
+    with patch.object(service.service, 'download_file', side_effect=fake_download):
+        video_path, pdf_path = service._download_files()
+
+    assert pdf_path is None
+    assert video_path == str(tmp_path / '7001_7001_video.mp4')
+    assert (tmp_path / '7001_7001_video.mp4').read_bytes() == b'video'

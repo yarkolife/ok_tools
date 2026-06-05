@@ -19,4 +19,5 @@ urlpatterns = [
     path("planning/playout/missing/", views.playout_missing_media, name="planning_playout_missing"),
     path("planning/playout/metadata/", views.send_playout_metadata, name="planning_playout_metadata"),
     path("planning/playout/schedule/", views.send_playout_schedule, name="planning_playout_schedule"),
+    path("planning/anchor/render/", views.render_anchor_preview_view, name="planning_anchor_render"),
 ]

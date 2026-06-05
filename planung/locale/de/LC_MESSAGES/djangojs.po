@@ -187,3 +187,18 @@ msgstr "Zuerst einen Tag auswählen"
 
 msgid "No plan for this day"
 msgstr "Kein Plan für diesen Tag"
+
+msgid "Render programme preview"
+msgstr "Programmvorschau rendern"
+
+msgid "Programme preview render failed: "
+msgstr "Rendern der Programmvorschau fehlgeschlagen: "
+
+msgid "Programme preview render queued: "
+msgstr "Rendern der Programmvorschau eingereiht: "
+
+msgid "Programme preview render queued."
+msgstr "Rendern der Programmvorschau eingereiht."
+
+msgid "Programme preview render request failed."
+msgstr "Render-Anfrage für die Programmvorschau fehlgeschlagen."

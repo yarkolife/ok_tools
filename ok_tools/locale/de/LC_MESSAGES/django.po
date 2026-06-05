@@ -4184,6 +4184,313 @@ msgstr "Sie haben %(count)d Beiträge in dieser Woche"
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
 
+msgid "Download exchange files"
+msgstr "Austausch-Dateien herunterladen"
+
+msgid "Export broadcasts to server"
+msgstr "Sendungen auf den Server exportieren"
+
+msgid "Import exchange item"
+msgstr "Austausch-Eintrag importieren"
+
+msgid "Synchronize exchange folders"
+msgstr "Austausch-Ordner synchronisieren"
+
+msgid "Download Nextcloud video to storage"
+msgstr "Nextcloud-Video in den Speicher herunterladen"
+
+msgid "Refresh media library link"
+msgstr "Mediathek-Link aktualisieren"
+
+msgid "Rescan media library links"
+msgstr "Mediathek-Links erneut prüfen"
+
+msgid "Send license notification email"
+msgstr "Freistellungs-Benachrichtigung per E-Mail senden"
+
+msgid "Copy videos for broadcast plan"
+msgstr "Videos für den Sendeplan kopieren"
+
+msgid "Render video"
+msgstr "Video rendern"
+
+msgid "Run automatic media scan"
+msgstr "Automatischen Medienscan ausführen"
+
+msgid "Clean up duplicate media files"
+msgstr "Doppelte Mediendateien bereinigen"
+
+msgid "Clean up missing media files"
+msgstr "Fehlende Mediendateien bereinigen"
+
+msgid "Clean up old file operations"
+msgstr "Alte Dateioperationen bereinigen"
+
+msgid "Clean up playout storage"
+msgstr "Playout-Speicher bereinigen"
+
+msgid "Find duplicate media files"
+msgstr "Doppelte Mediendateien suchen"
+
+msgid "Link unassigned licenses"
+msgstr "Nicht zugeordnete Freistellungen verknüpfen"
+
+msgid "Scan video storage"
+msgstr "Videospeicher scannen"
+
+msgid "Synchronize licenses and videos"
+msgstr "Freistellungen und Videos synchronisieren"
+
+msgid "Update video metadata"
+msgstr "Video-Metadaten aktualisieren"
+
+msgid "Convert HEVC video to H.264"
+msgstr "HEVC-Video nach H.264 konvertieren"
+
+msgid "Clean up old backups"
+msgstr "Alte Backups bereinigen"
+
+msgid "Create database backup"
+msgstr "Datenbank-Backup erstellen"
+
+msgid "Clean up deleted Nextcloud videos"
+msgstr "Gelöschte Nextcloud-Videos bereinigen"
+
+msgid "Clean up old signing sessions"
+msgstr "Alte Signatur-Sitzungen bereinigen"
+
+msgid "Expire outdated room rentals"
+msgstr "Abgelaufene Raumverleihvorgänge beenden"
+
+msgid "Synchronize missing playout media"
+msgstr "Fehlende Playout-Medien synchronisieren"
+
+msgid "Analyze audio for normalization"
+msgstr "Audio für Normalisierung analysieren"
+
+msgid "Clean up old audio normalization jobs"
+msgstr "Alte Audio-Normalisierungsaufträge bereinigen"
+
+msgid "Clean up old slideshow projects"
+msgstr "Alte Slideshow-Projekte bereinigen"
+
+msgid "Clean up old video render operations"
+msgstr "Alte Video-Render-Vorgänge bereinigen"
+
+msgid "Generate slideshow video"
+msgstr "Slideshow-Video erzeugen"
+
+msgid "Normalize audio"
+msgstr "Audio normalisieren"
+
+msgid "Waiting"
+msgstr "Wartet"
+
+msgid "In progress"
+msgstr "In Bearbeitung"
+
+msgid "Received"
+msgstr "Empfangen"
+
+msgid "Retrying"
+msgstr "Wird erneut versucht"
+
+msgid "Canceled"
+msgstr "Abgebrochen"
+
+msgid "Started"
+msgstr "Gestartet"
+
+msgid "Downloading"
+msgstr "Wird heruntergeladen"
+
+msgid "Exporting"
+msgstr "Wird exportiert"
+
+msgid "Importing"
+msgstr "Wird importiert"
+
+msgid "Processing"
+msgstr "Wird verarbeitet"
+
+msgid "Rendering"
+msgstr "Wird gerendert"
+
+msgid "Skipped"
+msgstr "Übersprungen"
+
+msgid "Uploading"
+msgstr "Wird hochgeladen"
+
+msgid "Unknown task"
+msgstr "Unbekannte Aufgabe"
+
+msgid "unknown"
+msgstr "unbekannt"
+
+msgid "licenses"
+msgstr "Freistellungen"
+
+msgid "contributions"
+msgstr "Beiträge"
+
+msgid "Task"
+msgstr "Aufgabe"
+
+msgid "Progress"
+msgstr "Fortschritt"
+
+#, python-format
+msgid "%(progress)s%% complete"
+msgstr "%(progress)s %% abgeschlossen"
+
+#, python-format
+msgid "%(current)s of %(total)s"
+msgstr "%(current)s von %(total)s"
+
+#, python-format
+msgid "%(speed)s Mbit/s"
+msgstr "%(speed)s Mbit/s"
+
+msgid "Technical details"
+msgstr "Technische Details"
+
+msgid "Export type"
+msgstr "Exporttyp"
+
+msgid "Selected entries"
+msgstr "Ausgewählte Einträge"
+
+msgid "Linked entries"
+msgstr "Verknüpfte Einträge"
+
+msgid "Started by"
+msgstr "Gestartet von"
+
+msgid "No selected entries"
+msgstr "Keine ausgewählten Einträge"
+
+#, python-format
+msgid "User ID %(user_id)s"
+msgstr "Benutzer-ID %(user_id)s"
+
+#, python-format
+msgid "%(label)s (ID %(user_id)s)"
+msgstr "%(label)s (ID %(user_id)s)"
+
+#, python-format
+msgid "#%(number)s %(title)s"
+msgstr "#%(number)s %(title)s"
+
+#, python-format
+msgid "#%(number)s (not found)"
+msgstr "#%(number)s (nicht gefunden)"
+
+#, python-format
+msgid "#%(id)s - license %(number)s %(title)s"
+msgstr "#%(id)s - Freistellung %(number)s %(title)s"
+
+#, python-format
+msgid "#%(id)s (not found)"
+msgstr "#%(id)s (nicht gefunden)"
+
+#, python-format
+msgid "and %(count)s more"
+msgstr "und %(count)s weitere"
+
+msgid "Arguments"
+msgstr "Argumente"
+
+msgid "Named arguments"
+msgstr "Benannte Argumente"
+
+msgid "No parameters"
+msgstr "Keine Parameter"
+
+msgid "Successful"
+msgstr "Erfolgreich"
+
+msgid "Skipped without PDF"
+msgstr "Ohne PDF übersprungen"
+
+msgid "Report ID"
+msgstr "Berichts-ID"
+
+msgid "Processed entries"
+msgstr "Verarbeitete Einträge"
+
+msgid "Uploaded chunks"
+msgstr "Hochgeladene Dateiteile"
+
+msgid "Meaning"
+msgstr "Bedeutung"
+
+msgid "The file is being uploaded in parts; this is the uploaded chunk count."
+msgstr ""
+"Die Datei wird in Teilen hochgeladen; dies ist die Anzahl der hochgeladenen "
+"Dateiteile."
+
+msgid "Current entry"
+msgstr "Aktueller Eintrag"
+
+msgid "Upload speed"
+msgstr "Upload-Geschwindigkeit"
+
+msgid "Parameters"
+msgstr "Parameter"
+
+msgid "Result"
+msgstr "Ergebnis"
+
+#, python-format
+msgid "Argument %(number)s"
+msgstr "Argument %(number)s"
+
+msgid "Current"
+msgstr "Aktuell"
+
+msgid "Current item ID"
+msgstr "Aktuelle Eintrags-ID"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "External output path"
+msgstr "Externer Ausgabepfad"
+
+msgid "Exception type"
+msgstr "Fehlertyp"
+
+msgid "Exception message"
+msgstr "Fehlermeldung"
+
+msgid "Exception module"
+msgstr "Fehlermodul"
+
+msgid "Failed entries"
+msgstr "Fehlgeschlagene Einträge"
+
+msgid "Job ID"
+msgstr "Auftrags-ID"
+
+msgid "Output file"
+msgstr "Ausgabedatei"
+
+msgid "Reason"
+msgstr "Grund"
+
+msgid "Recommendations"
+msgstr "Empfehlungen"
+
+msgid "Successful IDs"
+msgstr "Erfolgreiche IDs"
+
+msgid "Successful license numbers"
+msgstr "Erfolgreiche Freistellungsnummern"
+
+msgid "Total"
+msgstr "Gesamt"
+
 #~ msgid "Single date (YYYY-MM-DD)"
 #~ msgstr "Einzelnes Datum (JJJJ-MM-TT)"
 

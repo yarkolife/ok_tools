@@ -1794,6 +1794,9 @@
         if (cfg.schedule_configured) {
           $('#sendScheduleBtn').show();
         }
+        if (cfg.anchor_configured) {
+          $('#renderAnchorBtn').show();
+        }
       }
     });
 
@@ -1801,9 +1804,11 @@
       var iso = $('#dayPlanModal').data('iso-date');
       var $metaBtn = $('#sendMetadataBtn');
       var $schedBtn = $('#sendScheduleBtn');
+      var $anchorBtn = $('#renderAnchorBtn');
       if (!iso) {
         $metaBtn.prop('disabled', true).attr('title', gettext('Select a day first'));
         $schedBtn.prop('disabled', true).attr('title', gettext('Select a day first'));
+        $anchorBtn.prop('disabled', true).attr('title', gettext('Select a day first'));
         return;
       }
       $.ajax({
@@ -1815,14 +1820,17 @@
           if (isPlanned) {
             $metaBtn.prop('disabled', false).attr('title', gettext('Send media metadata to playout'));
             $schedBtn.prop('disabled', false).attr('title', gettext('Send schedule to playout'));
+            $anchorBtn.prop('disabled', false).attr('title', gettext('Render programme preview'));
           } else {
             $metaBtn.prop('disabled', true).attr('title', gettext('Plan the day first'));
             $schedBtn.prop('disabled', true).attr('title', gettext('Plan the day first'));
+            $anchorBtn.prop('disabled', true).attr('title', gettext('Plan the day first'));
           }
         },
         error: function () {
           $metaBtn.prop('disabled', true).attr('title', gettext('No plan for this day'));
           $schedBtn.prop('disabled', true).attr('title', gettext('No plan for this day'));
+          $anchorBtn.prop('disabled', true).attr('title', gettext('No plan for this day'));
         }
       });
     }
@@ -1888,6 +1896,40 @@
         },
         error: function (xhr) {
           notify(gettext('Playout schedule request failed.'), 'error');
+        },
+        complete: function () {
+          $btn.prop('disabled', false);
+        }
+      });
+    });
+
+    $('#renderAnchorBtn').on('click', function () {
+      var iso = $('#dayPlanModal').data('iso-date');
+      if (!iso) {
+        notify(gettext('Date is missing.'), 'error');
+        return;
+      }
+      var $btn = $(this);
+      $btn.prop('disabled', true);
+      $.ajax({
+        url: '/api/planning/anchor/render/',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ date: iso }),
+        beforeSend: addCsrfHeader,
+        success: function (response) {
+          if (response.error) {
+            notify(gettext('Programme preview render failed: ') + response.error, 'error');
+          } else if (response.output_name) {
+            notify(gettext('Programme preview render queued: ') + response.output_name, 'success');
+          } else {
+            notify(gettext('Programme preview render queued.'), 'success');
+          }
+        },
+        error: function (xhr) {
+          var response = xhr.responseJSON || {};
+          var message = response.error || gettext('Programme preview render request failed.');
+          notify(message, 'error');
         },
         complete: function () {
           $btn.prop('disabled', false);

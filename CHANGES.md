@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-06-05 (Version 4.15.0)
+===========================
+
+* **planung: Add anchor programme preview renderer**
+  * Added Planning Configuration fields for anchor render URL, API key, timeout, wait mode, output filename pattern, playout path prefix, and placeholder rules
+  * Added `/api/planning/anchor/render/` to render planned days through the external anchor service
+  * Creates a preview license named `Programmvorschau vom DD.MM.YYYY` before rendering and uses its license number in the output filename
+  * Sends only the first 8 planned items, randomly selects `m`/`w` voice, omits `kontakt`/`musik`, and uses playout videos or configured placeholders
+  * Added a calendar modal button for configured anchor rendering and grouped external actions with export controls
+  * Added focused service and endpoint tests for payload shape, planned-day validation, license creation, and render requests
+
 2026-06-03 (Version 4.14.0)
 ===========================
 

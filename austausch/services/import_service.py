@@ -493,7 +493,7 @@ class ImportService:
         Returns:
             Tuple of (video_path, pdf_path) local file paths
         """
-        download_dir = Path(self.config.download_storage_path)
+        download_dir = self._get_download_directory()
         download_dir.mkdir(parents=True, exist_ok=True)
         
         # Get license number for filename prefix
@@ -634,6 +634,19 @@ class ImportService:
                     logger.info(f"Downloaded PDF (fallback): {pdf_file_path} -> {pdf_path}")
         
         return video_path, pdf_path
+
+    def _get_download_directory(self) -> Path:
+        """Resolve the local directory used for exchange downloads."""
+        download_storage_path = (self.config.download_storage_path or '').strip()
+        if download_storage_path:
+            return Path(download_storage_path)
+
+        if self.config.storage_location and self.config.storage_location.path:
+            return Path(self.config.storage_location.path)
+
+        raise ValueError(
+            "Either download_storage_path or storage_location.path must be configured."
+        )
     
     def _verify_files(self, video_path: str, pdf_path: Optional[str]):
         """

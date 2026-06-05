@@ -139,6 +139,56 @@ class PlanungConfig(models.Model):
             "http://192.168.88.50/api/schedule/import/oktools"
         ),
     )
+    anchor_render_url = models.URLField(
+        blank=True,
+        verbose_name=_("Anchor render URL"),
+        help_text=_("External anchor render endpoint, e.g. http://192.168.88.50:8011/api/anchor"),
+    )
+    anchor_render_api_key = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("Anchor render API key"),
+        help_text=_("API key sent as X-API-Key when the programme preview video is rendered."),
+    )
+    anchor_render_timeout = models.PositiveIntegerField(
+        default=30,
+        verbose_name=_("Anchor render timeout (seconds)"),
+        help_text=_("HTTP timeout for anchor render requests."),
+    )
+    anchor_render_wait = models.BooleanField(
+        default=True,
+        verbose_name=_("Wait for render result"),
+        help_text=_("Append wait=1 to the render request and wait for the synchronous response."),
+    )
+    anchor_output_filename_pattern = models.CharField(
+        max_length=255,
+        blank=True,
+        default="{number}_Programmvorschau_{date:%y%m%d}.mp4",
+        verbose_name=_("Anchor output filename pattern"),
+        help_text=_("Python format string with {number} and {date}, e.g. {number}_Programmvorschau_{date:%y%m%d}.mp4."),
+    )
+    anchor_playout_path_prefix = models.CharField(
+        max_length=255,
+        blank=True,
+        default="playout",
+        verbose_name=_("Anchor playout path prefix"),
+        help_text=_("NAS-relative prefix sent for videos copied to playout."),
+    )
+    anchor_default_placeholder_video = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_("Anchor default placeholder video"),
+        help_text=_("NAS-relative fallback video path, e.g. playout/placeholder/default.mp4."),
+    )
+    anchor_placeholder_rules = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name=_("Anchor placeholder rules"),
+        help_text=_(
+            "List of rules. Supported match values: live, title_prefix. "
+            "Each rule needs a video path; title_prefix rules also need prefix."
+        ),
+    )
     webhook_hmac_secret = models.CharField(
         max_length=255,
         blank=True,
@@ -186,6 +236,10 @@ class PlanungConfig(models.Model):
     def is_playout_schedule_configured(self) -> bool:
         """Return whether outbound playout schedule can be used."""
         return bool(self.playout_schedule_url and self.playout_import_api_key)
+
+    def is_anchor_render_configured(self) -> bool:
+        """Return whether the anchor render service can be used."""
+        return bool(self.anchor_render_url and self.anchor_render_api_key)
 
     def sync_playout_missing_periodic_task(self) -> None:
         """Create/update the Celery Beat task controlled by this config."""

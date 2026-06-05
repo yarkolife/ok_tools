@@ -39,6 +39,7 @@
 
 - **Playout metadata import from planning**: The planning "Plan!" action can now POST allowlisted media metadata by filename to an external playout import endpoint configured in the Planning Configuration admin UI, with an optional periodic check for playout files missing metadata.
 - **Playout schedule import from planning**: The planning "Plan!" action also sends the day's broadcast schedule (day, start times, item kinds, filenames, youth protection) to a configurable external playout schedule endpoint, supporting video, placeholder (Freistellung), and live item kinds.
+- **Anchor programme preview render from planning**: Planned days can be sent to a configurable external anchor renderer; OK Tools creates a preview license, sends the first 8 items with playout/placeholder video paths, and formats the output filename from configuration.
 - **Playout API endpoints**: Planning exposes DRF-token-protected endpoints for external playout systems to pull media metadata and schedules and to submit air reports/webhook events.
 - **Rental user selection optimization**: Prioritized initial user fetch for rental process, unified user search endpoints with shared serialization, added tests
 - **Austausch visibility rules**: Feed items now respect `allowExchange`/`allowExchangeOtherStates`, compare `bundesland_code` against the local organization config, and support configurable same-state channel exceptions from the exchange admin settings
@@ -765,8 +766,8 @@ For questions about the architecture or development setup, please refer to:
 - Deployment guides: `deployment/README.md`
 - Architecture reports: `architecture/` directory
 
-**Last Updated**: March 2026
-**Version**: 1.5
+**Last Updated**: June 2026
+**Version**: 1.6
 
 ## API Documentation
 
