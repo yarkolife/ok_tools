@@ -229,3 +229,15 @@ msgstr "Statusanfrage für die Programmvorschau fehlgeschlagen."
 
 msgid "Programme preview render request failed."
 msgstr "Render-Anfrage für die Programmvorschau fehlgeschlagen."
+
+msgid "Programme preview render started. You can close this window — it continues in the background."
+msgstr "Rendern der Programmvorschau gestartet. Sie können dieses Fenster schließen — es läuft im Hintergrund weiter."
+
+msgid "Videos are still being copied to the playout storage. Retrying in 30 seconds..."
+msgstr "Videos werden noch in den Playout-Speicher kopiert. Erneuter Versuch in 30 Sekunden..."
+
+msgid "Video copy failed. Please check the plan and try again."
+msgstr "Videokopie fehlgeschlagen. Bitte überprüfen Sie den Plan und versuchen Sie es erneut."
+
+msgid "Programme preview render is taking too long. Check the Celery task results in the admin panel."
+msgstr "Das Rendern der Programmvorschau dauert zu lange. Überprüfen Sie die Celery-Aufgabenergebnisse im Admin-Bereich."

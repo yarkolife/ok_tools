@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-30 13:34+0200\n"
+"POT-Creation-Date: 2026-06-05 23:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,60 +17,81 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: planung/admin.py:222
 msgid "Mon"
 msgstr "Mo"
 
+#: planung/admin.py:223
 msgid "Tue"
 msgstr "Di"
 
+#: planung/admin.py:224
 msgid "Wed"
 msgstr "Mi"
 
+#: planung/admin.py:225
 msgid "Thu"
 msgstr "Do"
 
+#: planung/admin.py:226
 msgid "Fri"
 msgstr "Fr"
 
+#: planung/admin.py:227
 msgid "Sat"
 msgstr "Sa"
 
+#: planung/admin.py:228
 msgid "Sun"
 msgstr "So"
 
+#: planung/admin.py:232
 msgid "Calendar Weeks – Broadcast Planning"
 msgstr "Kalenderwochen – Sendeplanung"
 
+#: planung/admin.py:254
 msgid "Draft?"
 msgstr "Entwurf?"
 
+#: planung/admin.py:263
 msgid "Planned items"
 msgstr "Geplante Beiträge"
 
+#: planung/admin.py:272 planung/templates/admin/planung/calendar_weeks.html:550
+#: planung/templates/admin/planung/calendar_weeks.html:583
+#: planung/templates/admin/planung/calendar_weeks.html:615
 msgid "Comment"
 msgstr "Kommentar"
 
+#: planung/admin.py:298
 msgid "not found"
 msgstr "nicht gefunden"
 
+#: planung/admin.py:317 planung/templates/admin/planung/calendar_weeks.html:674
 msgid "Start"
 msgstr "Start"
 
+#: planung/admin.py:318
 msgid "License"
 msgstr "Freistellung"
 
+#: planung/admin.py:319
 msgid "Author"
 msgstr "Sendeverantwortung"
 
+#: planung/admin.py:320 planung/templates/admin/planung/calendar_weeks.html:679
 msgid "Duration"
 msgstr "Dauer"
 
+#: planung/admin.py:326
 msgid "Planned items (preview)"
 msgstr "Geplante Beiträge (Vorschau)"
 
+#: planung/admin.py:365
 msgid "Playout Import"
 msgstr "Playout-Import"
 
+#: planung/admin.py:376
 msgid ""
 "When configured, the Plan! action sends planned media metadata to the "
 "external playout import endpoint. The missing metadata settings can "
@@ -78,69 +99,146 @@ msgid ""
 msgstr ""
 "Wenn konfiguriert, sendet die Plan!-Aktion geplante Medienmetadaten an den "
 "externen Playout-Import-Endpunkt. Die Einstellungen für fehlende Metadaten "
-"können periodisch Playout nach Dateien abfragen, die noch Metadaten benötigen."
+"können periodisch Playout nach Dateien abfragen, die noch Metadaten "
+"benötigen."
 
+#: planung/admin.py:381
 msgid "Playout Schedule"
 msgstr "Playout-Sendeplan"
 
+#: planung/admin.py:386
 msgid ""
 "When configured, the Plan! action also sends the day's broadcast schedule "
 "(day, start times, item kinds, filenames) to the external playout schedule "
 "endpoint."
 msgstr ""
-"Wenn konfiguriert, sendet die Plan!-Aktion auch den Tages-Sendeplan "
-"(Tag, Startzeiten, Beitragstypen, Dateinamen) an den externen "
-"Playout-Sendeplan-Endpunkt."
+"Wenn konfiguriert, sendet die Plan!-Aktion auch den Tages-Sendeplan (Tag, "
+"Startzeiten, Beitragstypen, Dateinamen) an den externen Playout-Sendeplan-"
+"Endpunkt."
 
+#: planung/admin.py:391
+msgid "Anchor Render"
+msgstr "Anchor-Render"
+
+#: planung/admin.py:404
+msgid ""
+"When configured, planned days can be sent to the external anchor renderer to "
+"create a programme preview video."
+msgstr ""
+"Wenn konfiguriert, können geplante Tage an den externen Anchor-Renderer "
+"gesendet werden, um eine Programmvorschau zu erstellen."
+
+#: planung/api.py:86 planung/api.py:154
+msgid "Invalid ISO 8601 datetime format."
+msgstr ""
+
+#: planung/api.py:147
+msgid "Both 'from' and 'to' query parameters are required."
+msgstr ""
+
+#: planung/api.py:245
+#, fuzzy
+#| msgid "Invalid date"
+msgid "Invalid request body."
+msgstr "Ungültiges Datum"
+
+#: planung/api.py:299
+#, fuzzy
+#| msgid "Invalid date"
+msgid "Invalid HMAC signature."
+msgstr "Ungültiges Datum"
+
+#: planung/api.py:306
+msgid "Invalid webhook payload."
+msgstr ""
+
+#: planung/authentication.py:27
+msgid ""
+"Authentication credentials were not provided. Send X-API-Key header or "
+"Authorization: Bearer <token>."
+msgstr ""
+
+#: planung/authentication.py:34
+msgid "User inactive or deleted."
+msgstr ""
+
+#: planung/authentication.py:41
+#, fuzzy
+#| msgid "Invalid date"
+msgid "Invalid API key."
+msgstr "Ungültiges Datum"
+
+#: planung/models.py:20
+msgid "Celery task ID for copy_videos_for_plan"
+msgstr ""
+
+#: planung/models.py:34 planung/models.py:35
 msgid "Calendar weeks"
 msgstr "Kalenderwochen"
 
+#: planung/models.py:50
 #, fuzzy
 #| msgid "Apply template"
 msgid "Plan template"
 msgstr "Vorlage anwenden"
 
+#: planung/models.py:51
 #, fuzzy
 #| msgid "Apply template"
 msgid "Plan templates"
 msgstr "Vorlage anwenden"
 
+#: planung/models.py:67
 msgid "Create"
 msgstr "Erstellen"
 
+#: planung/models.py:68
 msgid "Update"
 msgstr "Aktualisieren"
 
+#: planung/models.py:69 planung/templates/admin/planung/calendar_weeks.html:735
 msgid "Delete"
 msgstr "Löschen"
 
+#: planung/models.py:86
 msgid "Plan change log"
 msgstr "Planänderungsprotokoll"
 
+#: planung/models.py:87
 msgid "Plan change logs"
 msgstr "Planänderungsprotokolle"
 
+#: planung/models.py:102
 msgid "Playout import URL"
 msgstr "Playout-Import-URL"
 
+#: planung/models.py:103
 msgid "External playout endpoint, e.g. http://192.168.88.50/api/media/import"
 msgstr "Externer Playout-Endpunkt, z.B. http://192.168.88.50/api/media/import"
 
+#: planung/models.py:108
 msgid "Playout import API key"
 msgstr "Playout-Import-API-Schlüssel"
 
+#: planung/models.py:109
 msgid "API key sent as X-API-Key when planned media metadata is exported."
-msgstr "API-Schlüssel, der als X-API-Key gesendet wird, wenn geplante Medienmetadaten exportiert werden."
+msgstr ""
+"API-Schlüssel, der als X-API-Key gesendet wird, wenn geplante "
+"Medienmetadaten exportiert werden."
 
+#: planung/models.py:113
 msgid "Playout import timeout (seconds)"
 msgstr "Playout-Import-Zeitüberschreitung (Sekunden)"
 
+#: planung/models.py:114
 msgid "HTTP timeout for playout metadata import requests."
 msgstr "HTTP-Zeitüberschreitung für Playout-Metadaten-Importanfragen."
 
+#: planung/models.py:118
 msgid "Playout missing metadata URL"
 msgstr "Playout-URL für fehlende Metadaten"
 
+#: planung/models.py:120
 msgid ""
 "Endpoint for files without metadata, e.g. http://192.168.88.50/api/media/"
 "import/missing. If empty, /missing is appended to the import URL."
@@ -148,27 +246,36 @@ msgstr ""
 "Endpunkt für Dateien ohne Metadaten, z.B. http://192.168.88.50/api/media/"
 "import/missing. Wenn leer, wird /missing an die Import-URL angehängt."
 
+#: planung/models.py:127
 msgid "Enable periodic missing metadata check"
 msgstr "Periodische Prüfung auf fehlende Metadaten aktivieren"
 
+#: planung/models.py:128
 msgid "Periodically query playout for files that still need metadata."
-msgstr "Periodisch Playout nach Dateien abfragen, die noch Metadaten benötigen."
+msgstr ""
+"Periodisch Playout nach Dateien abfragen, die noch Metadaten benötigen."
 
+#: planung/models.py:132
 msgid "Missing metadata check interval (minutes)"
 msgstr "Prüfintervall für fehlende Metadaten (Minuten)"
 
+#: planung/models.py:133
 msgid "How often Celery Beat should query playout for missing metadata."
 msgstr "Wie oft Celery Beat Playout nach fehlenden Metadaten abfragen soll."
 
+#: planung/models.py:137
 msgid "Missing metadata page size"
 msgstr "Seitengröße für fehlende Metadaten"
 
+#: planung/models.py:138
 msgid "Number of missing playout files requested per page."
 msgstr "Anzahl der fehlenden Playout-Dateien pro Seite."
 
+#: planung/models.py:142
 msgid "Playout schedule URL"
 msgstr "Playout-Sendeplan-URL"
 
+#: planung/models.py:144
 msgid ""
 "External playout schedule endpoint, e.g. http://192.168.88.50/api/schedule/"
 "import/oktools"
@@ -176,140 +283,645 @@ msgstr ""
 "Externer Playout-Sendeplan-Endpunkt, z.B. http://192.168.88.50/api/schedule/"
 "import/oktools"
 
+#: planung/models.py:150
+msgid "Anchor render URL"
+msgstr "Anchor-Render-URL"
+
+#: planung/models.py:151
+msgid ""
+"External anchor render endpoint, e.g. http://192.168.88.50:8011/api/anchor"
+msgstr ""
+"Externer Anchor-Render-Endpunkt, z. B. http://192.168.88.50:8011/api/anchor"
+
+#: planung/models.py:156
+msgid "Anchor render API key"
+msgstr "Anchor-Render-API-Schlüssel"
+
+#: planung/models.py:157
+msgid "API key sent as X-API-Key when the programme preview video is rendered."
+msgstr ""
+"API-Schlüssel, der beim Rendern der Programmvorschau als X-API-Key gesendet "
+"wird."
+
+#: planung/models.py:161
+msgid "Anchor render timeout (seconds)"
+msgstr "Anchor-Render-Timeout (Sekunden)"
+
+#: planung/models.py:162
+msgid "HTTP timeout for anchor render requests."
+msgstr "HTTP-Timeout für Anchor-Render-Anfragen."
+
+#: planung/models.py:166
+msgid "Anchor contribution duration (seconds)"
+msgstr "Anchor-Beitragsdauer (Sekunden)"
+
+#: planung/models.py:167
+msgid ""
+"Preview clip length sent as durationInSeconds for each anchor contribution."
+msgstr ""
+"Länge des Vorschauclips, die für jeden Anchor-Beitrag als durationInSeconds "
+"gesendet wird."
+
+#: planung/models.py:171
+msgid "Wait for render result"
+msgstr "Auf Render-Ergebnis warten"
+
+#: planung/models.py:172
+msgid ""
+"Append wait=1 to the render request and wait for the synchronous response."
+msgstr ""
+"Hängt wait=1 an die Render-Anfrage an und wartet auf die synchrone Antwort."
+
+#: planung/models.py:178
+msgid "Anchor output filename pattern"
+msgstr "Anchor-Ausgabedateinamen-Muster"
+
+#: planung/models.py:179
+msgid ""
+"Python format string with {number} and {date}, e.g. {number}"
+"_Programmvorschau_{date:%y%m%d}.mp4."
+msgstr ""
+"Python-Formatstring mit {number} und {date}, z. B. {number}"
+"_Programmvorschau_{date:%y%m%d}.mp4."
+
+#: planung/models.py:185
+msgid "Anchor output playout directory"
+msgstr "Anchor-Ausgabeverzeichnis im Playout"
+
+#: planung/models.py:186
+msgid ""
+"Directory inside the playout storage where rendered programme preview files "
+"are written."
+msgstr ""
+"Verzeichnis innerhalb des Playout-Speichers, in das gerenderte "
+"Programmvorschau-Dateien geschrieben werden."
+
+#: planung/models.py:192
+msgid "Anchor playout path prefix"
+msgstr "Anchor-Playout-Pfadpräfix"
+
+#: planung/models.py:193
+msgid "NAS-relative prefix sent for videos copied to playout."
+msgstr ""
+"NAS-relatives Präfix, das für ins Playout kopierte Videos gesendet wird."
+
+#: planung/models.py:198
+msgid "Anchor default placeholder video"
+msgstr "Anchor-Standard-Platzhaltervideo"
+
+#: planung/models.py:199
+msgid "NAS-relative fallback video path, e.g. playout/placeholder/default.mp4."
+msgstr ""
+"NAS-relativer Fallback-Videopfad, z. B. playout/placeholder/default.mp4."
+
+#: planung/models.py:204
+msgid "Anchor placeholder rules"
+msgstr "Anchor-Platzhalterregeln"
+
+#: planung/models.py:206
+msgid ""
+"List of rules. Supported match values: live, title_prefix. Each rule needs a "
+"video path; title_prefix rules also need prefix."
+msgstr ""
+"Liste von Regeln. Unterstützte match-Werte: live, title_prefix. Jede Regel "
+"benötigt einen Videopfad; title_prefix-Regeln benötigen zusätzlich prefix."
+
+#: planung/models.py:214
+msgid "Webhook HMAC secret"
+msgstr ""
+
+#: planung/models.py:215
+msgid "Shared secret for HMAC-SHA256 verification of incoming webhooks."
+msgstr ""
+
+#: planung/models.py:219 planung/models.py:220 planung/models.py:224
 msgid "Planning Configuration"
 msgstr "Planungskonfiguration"
 
+#: planung/models.py:308 planung/models.py:382
+msgid "Inbound media"
+msgstr ""
+
+#: planung/models.py:309 planung/models.py:383
+#, fuzzy
+#| msgid "Playout Schedule"
+msgid "Inbound schedule"
+msgstr "Playout-Sendeplan"
+
+#: planung/models.py:310 planung/models.py:384
+#, fuzzy
+#| msgid "Submit air reports"
+msgid "Outbound air report"
+msgstr "Ausstrahlungsberichte übermitteln"
+
+#: planung/models.py:317
+msgid "External ID"
+msgstr ""
+
+#: planung/models.py:323
+msgid "Media filename"
+msgstr ""
+
+#: planung/models.py:328
+msgid "Scheduled start"
+msgstr ""
+
+#: planung/models.py:333
+#, fuzzy
+#| msgid "Start"
+msgid "Started at"
+msgstr "Start"
+
+#: planung/models.py:338
+msgid "Ended at"
+msgstr ""
+
+#: planung/models.py:342
+msgid "Used fallback"
+msgstr ""
+
+#: planung/models.py:348 planung/models.py:396
+#, fuzzy
+#| msgid "Duration"
+msgid "Direction"
+msgstr "Dauer"
+
+#: planung/models.py:353
+msgid "Raw payload"
+msgstr ""
+
+#: planung/models.py:357 planung/models.py:405
+msgid "Processed"
+msgstr ""
+
+#: planung/models.py:362 planung/models.py:411
+#, fuzzy
+#| msgid "Create"
+msgid "Created at"
+msgstr "Erstellen"
+
+#: planung/models.py:366
+#, fuzzy
+#| msgid "Air Reports"
+msgid "Air report"
+msgstr "Ausstrahlungsberichte"
+
+#: planung/models.py:367
+#, fuzzy
+#| msgid "Air Reports"
+msgid "Air reports"
+msgstr "Ausstrahlungsberichte"
+
+#: planung/models.py:391
+msgid "Connector ID"
+msgstr ""
+
+#: planung/models.py:401
+msgid "Payload"
+msgstr ""
+
+#: planung/models.py:406
+msgid "Whether the webhook payload has been processed."
+msgstr ""
+
+#: planung/models.py:415
+#, fuzzy
+#| msgid "Incoming Webhook"
+msgid "Incoming webhook log"
+msgstr "Eingehender Webhook"
+
+#: planung/models.py:416
+#, fuzzy
+#| msgid "Incoming Webhook"
+msgid "Incoming webhook logs"
+msgstr "Eingehender Webhook"
+
+#: planung/services/plan_service.py:113 planung/views.py:121
+#: planung/views.py:122 planung/views.py:156 planung/views.py:376
 msgid "Bad date format"
 msgstr "Ungültiges Datumsformat"
 
+#: planung/services/plan_service.py:118 planung/views.py:154
+#: planung/views.py:381 planung/views.py:425 planung/views.py:454
+#: planung/views.py:498
 msgid "No plan for this day"
 msgstr "Kein Plan für diesen Tag"
 
+#: planung/services/validation_service.py:56 planung/views.py:265
+#: planung/views.py:421 planung/views.py:450 planung/views.py:494
 msgid "Invalid date"
 msgstr "Ungültiges Datum"
 
+#: planung/services/validation_service.py:60
 msgid "Items must be a list"
 msgstr ""
 
+#: planung/services/validation_service.py:69
 msgid "Item must be an object"
 msgstr ""
 
+#: planung/services/validation_service.py:79
 msgid "License number must be an integer"
 msgstr ""
 
+#: planung/services/validation_service.py:85
 msgid "Duration must be an integer in seconds"
 msgstr ""
 
+#: planung/services/validation_service.py:89
 msgid "Duration must be greater than zero"
 msgstr ""
 
+#: planung/services/validation_service.py:95
 msgid "Start time must be HH:MM or HH:MM:SS"
 msgstr ""
 
+#: planung/services/validation_service.py:101
 msgid "Duplicate license number in one day plan"
 msgstr ""
 
+#: planung/services/validation_service.py:125
 msgid "Time overlap detected with another item"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:101
+msgid "Playout Integration API"
+msgstr "Playout-Integrations-API"
+
+#: planung/templates/admin/planung/calendar_weeks.html:102
+msgid "Endpoints"
+msgstr "Endpunkte"
+
+#: planung/templates/admin/planung/calendar_weeks.html:103
+msgid "Authentication"
+msgstr "Authentifizierung"
+
+#: planung/templates/admin/planung/calendar_weeks.html:104
+msgid ""
+"DRF token authentication. Include a token from the admin token list in the "
+"request header:"
+msgstr ""
+"DRF-Token-Authentifizierung. Fügen Sie ein Token aus der Admin-Tokenliste im "
+"Request-Header ein:"
+
+#: planung/templates/admin/planung/calendar_weeks.html:105
+msgid "Tokens are managed in the admin token list:"
+msgstr "Tokens werden in der Admin-Tokenliste verwaltet:"
+
+#: planung/templates/admin/planung/calendar_weeks.html:106
+msgid "Query Parameters"
+msgstr "Query-Parameter"
+
+#: planung/templates/admin/planung/calendar_weeks.html:107
+msgid "Parameter"
+msgstr "Parameter"
+
+#: planung/templates/admin/planung/calendar_weeks.html:108
+msgid "Type"
+msgstr "Typ"
+
+#: planung/templates/admin/planung/calendar_weeks.html:109
+msgid "Description"
+msgstr "Beschreibung"
+
+#: planung/templates/admin/planung/calendar_weeks.html:110
+msgid "Example"
+msgstr "Beispiel"
+
+#: planung/templates/admin/planung/calendar_weeks.html:111
+msgid "Request Body"
+msgstr "Request-Body"
+
+#: planung/templates/admin/planung/calendar_weeks.html:112
+msgid "Response Format"
+msgstr "Response-Format"
+
+#: planung/templates/admin/planung/calendar_weeks.html:113
+msgid "Example Requests"
+msgstr "Beispiel-Requests"
+
+#: planung/templates/admin/planung/calendar_weeks.html:114
+msgid "Media Metadata"
+msgstr "Medienmetadaten"
+
+#: planung/templates/admin/planung/calendar_weeks.html:115
+msgid ""
+"Retrieve media file metadata for playout. Supports incremental sync via "
+"updated_since and specific file lookup via filename."
+msgstr ""
+"Ruft Medienmetadaten für das Playout ab. Unterstützt inkrementelle "
+"Synchronisierung über updated_since und gezielte Dateisuche über filename."
+
+#: planung/templates/admin/planung/calendar_weeks.html:116
+msgid "Broadcast Schedule"
+msgstr "Sendeplan"
+
+#: planung/templates/admin/planung/calendar_weeks.html:117
+msgid ""
+"Retrieve the broadcast schedule for a date range. Returns planned items with "
+"their time slots and associated media."
+msgstr ""
+"Ruft den Sendeplan für einen Datumsbereich ab. Gibt geplante Beiträge mit "
+"ihren Zeitfenstern und zugehörigen Medien zurück."
+
+#: planung/templates/admin/planung/calendar_weeks.html:118
+msgid "Air Reports"
+msgstr "Ausstrahlungsberichte"
+
+#: planung/templates/admin/planung/calendar_weeks.html:119
+msgid ""
+"Submit air reports from playout. Confirms that a media item was broadcast at "
+"a specific time."
+msgstr ""
+"Übermittelt Ausstrahlungsberichte aus dem Playout. Bestätigt, dass ein "
+"Medienbeitrag zu einem bestimmten Zeitpunkt ausgestrahlt wurde."
+
+#: planung/templates/admin/planung/calendar_weeks.html:120
+msgid "Incoming Webhook"
+msgstr "Eingehender Webhook"
+
+#: planung/templates/admin/planung/calendar_weeks.html:121
+msgid ""
+"Receive incoming integration events from external systems. Supports optional "
+"HMAC-SHA256 signature verification."
+msgstr ""
+"Empfängt eingehende Integrationsereignisse von externen Systemen. "
+"Unterstützt optional die Signaturprüfung mit HMAC-SHA256."
+
+#: planung/templates/admin/planung/calendar_weeks.html:122
+msgid "Required"
+msgstr "Erforderlich"
+
+#: planung/templates/admin/planung/calendar_weeks.html:123
+msgid "Optional"
+msgstr "Optional"
+
+#: planung/templates/admin/planung/calendar_weeks.html:124
+msgid "Note:"
+msgstr "Hinweis:"
+
+#: planung/templates/admin/planung/calendar_weeks.html:125
+msgid ""
+"The id field is the license number as a string. Use updated_since for "
+"incremental sync or filename for backfill."
+msgstr ""
+"Das Feld id ist die Freistellungsnummer als Zeichenkette. Verwenden Sie "
+"updated_since für die inkrementelle Synchronisierung oder filename für "
+"Backfill."
+
+#: planung/templates/admin/planung/calendar_weeks.html:126
+#, python-brace-format
+msgid ""
+"Dates must be in ISO 8601 format. The id field follows the pattern plan-{pk}-"
+"pos-{position}."
+msgstr ""
+"Datumsangaben müssen im ISO-8601-Format vorliegen. Das Feld id folgt dem "
+"Muster plan-{pk}-pos-{position}."
+
+#: planung/templates/admin/planung/calendar_weeks.html:127
+msgid ""
+"Each report confirms a media item was actually broadcast. The external_id "
+"identifies the report in the playout system."
+msgstr ""
+"Jeder Bericht bestätigt, dass ein Medienbeitrag tatsächlich ausgestrahlt "
+"wurde. Die external_id identifiziert den Bericht im Playout-System."
+
+#: planung/templates/admin/planung/calendar_weeks.html:128
+msgid ""
+"The connector_id in the URL identifies the source system. If HMAC is "
+"configured, include the X-Signature-256 header."
+msgstr ""
+"Die connector_id in der URL identifiziert das Quellsystem. Wenn HMAC "
+"konfiguriert ist, fügen Sie den Header X-Signature-256 hinzu."
+
+#: planung/templates/admin/planung/calendar_weeks.html:129
+msgid "Get all media"
+msgstr "Alle Medien abrufen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:130
+msgid "Get media updated after a timestamp"
+msgstr "Medien abrufen, die nach einem Zeitstempel aktualisiert wurden"
+
+#: planung/templates/admin/planung/calendar_weeks.html:131
+msgid "Get specific media by filename"
+msgstr "Bestimmte Medien nach Dateiname abrufen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:132
+msgid "Get broadcast schedule for a date range"
+msgstr "Sendeplan für einen Datumsbereich abrufen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:133
+msgid "Submit air reports"
+msgstr "Ausstrahlungsberichte übermitteln"
+
+#: planung/templates/admin/planung/calendar_weeks.html:134
+msgid "Send incoming webhook event"
+msgstr "Eingehendes Webhook-Ereignis senden"
+
+#: planung/templates/admin/planung/calendar_weeks.html:135
+msgid "Copy"
+msgstr "Kopieren"
+
+#: planung/templates/admin/planung/calendar_weeks.html:136
+msgid "cURL command copied!"
+msgstr "cURL-Befehl kopiert!"
+
+#: planung/templates/admin/planung/calendar_weeks.html:137
+msgid "JavaScript code copied!"
+msgstr "JavaScript-Code kopiert!"
+
+#: planung/templates/admin/planung/calendar_weeks.html:138
+msgid "Response example copied!"
+msgstr "Response-Beispiel kopiert!"
+
+#: planung/templates/admin/planung/calendar_weeks.html:139
+msgid "Failed to copy to clipboard"
+msgstr "Kopieren in die Zwischenablage fehlgeschlagen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:184
+msgid "Alternatively, use the Authorization header with Bearer:"
+msgstr "Alternativ verwenden Sie den Authorization-Header mit Bearer:"
+
+#: planung/templates/admin/planung/calendar_weeks.html:208
+msgid "Return only records modified after this timestamp"
+msgstr ""
+"Nur Datensätze zurückgeben, die nach diesem Zeitstempel geändert wurden"
+
+#: planung/templates/admin/planung/calendar_weeks.html:214
+msgid "Comma-separated filenames for specific file lookup"
+msgstr "Kommagetrennte Dateinamen für die gezielte Dateisuche"
+
+#: planung/templates/admin/planung/calendar_weeks.html:275
+msgid "Start date of the schedule range"
+msgstr "Startdatum des Sendeplanzeitraums"
+
+#: planung/templates/admin/planung/calendar_weeks.html:281
+msgid "End date of the schedule range"
+msgstr "Enddatum des Sendeplanzeitraums"
+
+#: planung/templates/admin/planung/calendar_weeks.html:481
 msgid "Previous 4 weeks"
 msgstr "Vorherige 4 Wochen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:482
 msgid "Today"
 msgstr "Heute"
 
+#: planung/templates/admin/planung/calendar_weeks.html:483
 msgid "Next 4 weeks"
 msgstr "Nächste 4 Wochen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:486
 msgid "Search calendar"
 msgstr "Kalender durchsuchen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:487
 msgid "Search comment/license/date"
 msgstr "Kommentar/Freistellung/Datum suchen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:488
 msgid "Filter by status"
 msgstr "Nach Status filtern"
 
+#: planung/templates/admin/planung/calendar_weeks.html:490
 msgid "All statuses"
 msgstr "Alle Status"
 
+#: planung/templates/admin/planung/calendar_weeks.html:491
+#: planung/templates/admin/planung/calendar_weeks.html:548
+#: planung/templates/admin/planung/calendar_weeks.html:583
+#: planung/templates/admin/planung/calendar_weeks.html:611
 msgid "Planned"
 msgstr "Geplant"
 
+#: planung/templates/admin/planung/calendar_weeks.html:492
+#: planung/templates/admin/planung/calendar_weeks.html:549
+#: planung/templates/admin/planung/calendar_weeks.html:583
+#: planung/templates/admin/planung/calendar_weeks.html:613
 msgid "Draft"
 msgstr "Entwurf"
 
+#: planung/templates/admin/planung/calendar_weeks.html:493
 msgid "Comment only"
 msgstr "Nur Kommentar"
 
+#: planung/templates/admin/planung/calendar_weeks.html:494
+#: planung/templates/admin/planung/calendar_weeks.html:551
+#: planung/templates/admin/planung/calendar_weeks.html:583
+#: planung/templates/admin/planung/calendar_weeks.html:617
 msgid "Empty"
 msgstr "Leer"
 
+#: planung/templates/admin/planung/calendar_weeks.html:498
+msgid "API-Dokumentation"
+msgstr "API-Dokumentation"
+
+#: planung/templates/admin/planung/calendar_weeks.html:506
 msgid "Current Week"
 msgstr "Aktuelle Woche"
 
+#: planung/templates/admin/planung/calendar_weeks.html:506
+#: planung/templates/admin/planung/calendar_weeks.html:516
+#: planung/templates/admin/planung/calendar_weeks.html:526
+#: planung/templates/admin/planung/calendar_weeks.html:536
+#: planung/templates/admin/planung/calendar_weeks.html:571
 msgid "CW"
 msgstr "KW"
 
+#: planung/templates/admin/planung/calendar_weeks.html:508
+#: planung/templates/admin/planung/calendar_weeks.html:518
+#: planung/templates/admin/planung/calendar_weeks.html:528
+#: planung/templates/admin/planung/calendar_weeks.html:538
 msgid "Planned days"
 msgstr "Geplante Tage"
 
+#: planung/templates/admin/planung/calendar_weeks.html:509
+#: planung/templates/admin/planung/calendar_weeks.html:519
+#: planung/templates/admin/planung/calendar_weeks.html:529
+#: planung/templates/admin/planung/calendar_weeks.html:539
 msgid "Total time"
 msgstr "Gesamtzeit"
 
+#: planung/templates/admin/planung/calendar_weeks.html:510
+#: planung/templates/admin/planung/calendar_weeks.html:520
+#: planung/templates/admin/planung/calendar_weeks.html:530
+#: planung/templates/admin/planung/calendar_weeks.html:540
 msgid "Fill rate"
 msgstr "Füllrate"
 
+#: planung/templates/admin/planung/calendar_weeks.html:511
+#: planung/templates/admin/planung/calendar_weeks.html:521
+#: planung/templates/admin/planung/calendar_weeks.html:531
+#: planung/templates/admin/planung/calendar_weeks.html:541
 msgid "Licenses"
 msgstr "Freistellungen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:516
 msgid "Next Week"
 msgstr "Nächste Woche"
 
+#: planung/templates/admin/planung/calendar_weeks.html:526
 msgid "Week After Next"
 msgstr "Übernächste Woche"
 
+#: planung/templates/admin/planung/calendar_weeks.html:536
 msgid "3 Weeks Ahead"
 msgstr "3 Wochen voraus"
 
+#: planung/templates/admin/planung/calendar_weeks.html:546
 msgid "Calendar status legend"
 msgstr "Legende der Kalenderstatus"
 
+#: planung/templates/admin/planung/calendar_weeks.html:547
 msgid "Legend"
 msgstr "Legende"
 
+#: planung/templates/admin/planung/calendar_weeks.html:552
+#: planung/templates/admin/planung/calendar_weeks.html:583
 msgid "Live broadcast"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:556
 msgid "Planning calendar weeks"
 msgstr "Planungs-Kalenderwochen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:557
 msgid "Calendar with planning status by day"
 msgstr "Kalender mit Planungsstatus pro Tag"
 
+#: planung/templates/admin/planung/calendar_weeks.html:560
 msgid "Week"
 msgstr "Woche"
 
+#: planung/templates/admin/planung/calendar_weeks.html:573
 #, fuzzy
 #| msgid "Current Week"
 msgid "Current"
 msgstr "Aktuelle Woche"
 
+#: planung/templates/admin/planung/calendar_weeks.html:602
 msgid "min"
 msgstr "Min"
 
+#: planung/templates/admin/planung/calendar_weeks.html:639
+#: planung/templates/admin/planung/calendar_weeks.html:742
+#: planung/templates/admin/planung/calendar_weeks.html:764
 msgid "Close"
 msgstr "Schließen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:644
 msgid "Broadcast block"
 msgstr "Sendeblock"
 
+#: planung/templates/admin/planung/calendar_weeks.html:645
 msgid "Full available"
 msgstr "Voll verfügbar"
 
+#: planung/templates/admin/planung/calendar_weeks.html:646
 msgid "Large gaps (≥5 min) can be filled with videos"
 msgstr "Große Lücken (≥5 Min.) können mit Videos gefüllt werden"
 
+#: planung/templates/admin/planung/calendar_weeks.html:647
 msgid ""
 "You can manually set any time (including 00:00 and times outside the block) "
 "by editing the start time field"
@@ -317,142 +929,202 @@ msgstr ""
 "Sie können jede Zeit manuell einstellen (einschließlich 00:00 und Zeiten "
 "außerhalb des Blocks), indem Sie das Startzeitfeld bearbeiten."
 
+#: planung/templates/admin/planung/calendar_weeks.html:651
 msgid "Items"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:652
 msgid "Outside block"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:653
 msgid "Large gaps"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:654
 msgid "Overlaps"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:660
 msgid "Enter license number..."
 msgstr "Freistellungsnummer eingeben..."
 
+#: planung/templates/admin/planung/calendar_weeks.html:663
 msgid "Add"
 msgstr "Hinzufügen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:665
 msgid "Align all start times to 0 or 5 minutes"
 msgstr "Alle Startzeiten auf 0 oder 5 Minuten ausrichten"
 
+#: planung/templates/admin/planung/calendar_weeks.html:667
 msgid "Align to 5 min"
 msgstr "Auf 5 Min. ausrichten"
 
+#: planung/templates/admin/planung/calendar_weeks.html:675
 msgid "End"
 msgstr "Ende"
 
+#: planung/templates/admin/planung/calendar_weeks.html:676
 msgid "Number"
 msgstr "Nummer"
 
+#: planung/templates/admin/planung/calendar_weeks.html:677
 msgid "Title"
 msgstr "Titel"
 
+#: planung/templates/admin/planung/calendar_weeks.html:678
 msgid "Sendeverantwortung"
 msgstr "Sendeverantwortung"
 
+#: planung/templates/admin/planung/calendar_weeks.html:680
 msgid "Actions"
 msgstr "Aktionen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:689
 msgid "Comment or notes:"
 msgstr "Kommentar oder Notizen:"
 
+#: planung/templates/admin/planung/calendar_weeks.html:695
 msgid "Preparation actions"
 msgstr "Vorbereitungsaktionen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:697
 msgid "Select template"
 msgstr "Vorlage auswählen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:701
 msgid "Apply template"
 msgstr "Vorlage anwenden"
 
+#: planung/templates/admin/planung/calendar_weeks.html:705
 msgid "Copy from date"
 msgstr "Von Datum kopieren"
 
+#: planung/templates/admin/planung/calendar_weeks.html:707
+#: planung/templates/admin/planung/calendar_weeks.html:709
 msgid "Sort by time"
 msgstr "Nach Zeit sortieren"
 
+#: planung/templates/admin/planung/calendar_weeks.html:713
 msgid "Export action"
 msgstr "Exportaktion"
 
+#: planung/templates/admin/planung/calendar_weeks.html:716
 msgid "Export JSON"
 msgstr "JSON exportieren"
 
-msgid "Danger actions"
-msgstr "Gefährliche Aktionen"
-
-msgid "Primary actions"
-msgstr "Primäre Aktionen"
-
-msgid "Save"
-msgstr "Speichern"
-
-msgid "Plan!"
-msgstr "Planen!"
-
+#: planung/templates/admin/planung/calendar_weeks.html:718
 msgid "Send media metadata to playout"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:720
 msgid "Send metadata"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:722
 msgid "Send schedule to playout"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:724
 msgid "Send schedule"
 msgstr ""
 
+#: planung/templates/admin/planung/calendar_weeks.html:726
+msgid "Render programme preview"
+msgstr "Programmvorschau rendern"
+
+#: planung/templates/admin/planung/calendar_weeks.html:728
+msgid "Render preview"
+msgstr "Vorschau rendern"
+
+#: planung/templates/admin/planung/calendar_weeks.html:732
+msgid "Danger actions"
+msgstr "Gefährliche Aktionen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:739
+msgid "Primary actions"
+msgstr "Primäre Aktionen"
+
+#: planung/templates/admin/planung/calendar_weeks.html:746
+msgid "Save"
+msgstr "Speichern"
+
+#: planung/templates/admin/planung/calendar_weeks.html:750
+msgid "Plan!"
+msgstr "Planen!"
+
+#: planung/templates/admin/planung/calendar_weeks.html:763
 msgid "Confirm action"
 msgstr "Aktion bestätigen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:768
 msgid "Enter value"
 msgstr "Wert eingeben"
 
+#: planung/templates/admin/planung/calendar_weeks.html:772
 msgid "Cancel"
 msgstr "Abbrechen"
 
+#: planung/templates/admin/planung/calendar_weeks.html:773
 msgid "Confirm"
 msgstr "Bestätigen"
 
+#: planung/views.py:44
 msgid "License not found or not confirmed."
 msgstr "Freistellung nicht gefunden oder nicht genehmigt."
 
+#: planung/views.py:99 planung/views.py:292 planung/views.py:335
 msgid "Validation failed"
 msgstr ""
 
+#: planung/views.py:158
 msgid "Method not allowed"
 msgstr "Methode nicht erlaubt"
 
+#: planung/views.py:175
 #, fuzzy
 #| msgid "Invalid date"
 msgid "Invalid start date"
 msgstr "Ungültiges Datum"
 
+#: planung/views.py:267
 msgid "Template id is required"
 msgstr ""
 
+#: planung/views.py:272
 #, fuzzy
 #| msgid "not found"
 msgid "Template not found"
 msgstr "nicht gefunden"
 
+#: planung/views.py:276 planung/views.py:320
 #, fuzzy
 #| msgid "Planned items"
 msgid "Plan already exists"
 msgstr "Geplante Beiträge"
 
+#: planung/views.py:309
 msgid "Both source and target dates are required"
 msgstr ""
 
+#: planung/views.py:311
 msgid "Source and target dates must differ"
 msgstr ""
 
+#: planung/views.py:316
 #, fuzzy
 #| msgid "not found"
 msgid "Source plan not found"
 msgstr "nicht gefunden"
+
+#: planung/views.py:500
+msgid "Plan the day first"
+msgstr "Tag zuerst planen"
+
+#: planung/views.py:504
+msgid "User profile is missing"
+msgstr "Benutzerprofil fehlt"
 
 #~ msgid "Time Off"
 #~ msgstr "Freizeit"
@@ -460,222 +1132,10 @@ msgstr "nicht gefunden"
 #~ msgid "m"
 #~ msgstr "Min"
 
-msgid "API key authentication. Include your key in the request header:"
-msgstr "API-Schlüssel-Authentifizierung. Fügen Sie Ihren Schlüssel im Request-Header ein:"
-
-msgid "API-Dokumentation"
-msgstr "API-Dokumentation"
-
-msgid "Air Reports"
-msgstr "Ausstrahlungsberichte"
-
-msgid "Alternatively, use the Authorization header with Bearer:"
-msgstr "Alternativ verwenden Sie den Authorization-Header mit Bearer:"
-
-msgid "Authentication"
-msgstr "Authentifizierung"
-
-msgid "Broadcast Schedule"
-msgstr "Sendeplan"
-
-msgid "Comma-separated filenames for specific file lookup"
-msgstr "Kommagetrennte Dateinamen für die gezielte Dateisuche"
-
-msgid "Copy"
-msgstr "Kopieren"
-
-msgid "Dates must be in ISO 8601 format. The id field follows the pattern plan-{pk}-pos-{position}."
-msgstr "Datumsangaben müssen im ISO-8601-Format vorliegen. Das Feld id folgt dem Muster plan-{pk}-pos-{position}."
-
-msgid "Description"
-msgstr "Beschreibung"
-
-msgid "Each report confirms a media item was actually broadcast. The external_id identifies the report in the playout system."
-msgstr "Jeder Bericht bestätigt, dass ein Medienbeitrag tatsächlich ausgestrahlt wurde. Die external_id identifiziert den Bericht im Playout-System."
-
-msgid "End date of the schedule range"
-msgstr "Enddatum des Sendeplanzeitraums"
-
-msgid "Endpoints"
-msgstr "Endpunkte"
-
-msgid "Example"
-msgstr "Beispiel"
-
-msgid "Example Requests"
-msgstr "Beispiel-Requests"
-
-msgid "Failed to copy to clipboard"
-msgstr "Kopieren in die Zwischenablage fehlgeschlagen"
-
-msgid "Get all media"
-msgstr "Alle Medien abrufen"
-
-msgid "Get broadcast schedule for a date range"
-msgstr "Sendeplan für einen Datumsbereich abrufen"
-
-msgid "Get media updated after a timestamp"
-msgstr "Medien abrufen, die nach einem Zeitstempel aktualisiert wurden"
-
-msgid "Get specific media by filename"
-msgstr "Bestimmte Medien nach Dateiname abrufen"
-
-msgid "Incoming Webhook"
-msgstr "Eingehender Webhook"
-
-msgid "JavaScript code copied!"
-msgstr "JavaScript-Code kopiert!"
-
-msgid "Media Metadata"
-msgstr "Medienmetadaten"
-
-msgid "Note:"
-msgstr "Hinweis:"
-
-msgid "Optional"
-msgstr "Optional"
-
-msgid "Parameter"
-msgstr "Parameter"
-
-msgid "Playout Integration API"
-msgstr "Playout-Integrations-API"
-
-msgid "Query Parameters"
-msgstr "Query-Parameter"
-
-msgid "Receive incoming integration events from external systems. Supports optional HMAC-SHA256 signature verification."
-msgstr "Empfängt eingehende Integrationsereignisse von externen Systemen. Unterstützt optional die Signaturprüfung mit HMAC-SHA256."
-
-msgid "Request Body"
-msgstr "Request-Body"
-
-msgid "Required"
-msgstr "Erforderlich"
-
-msgid "Response Format"
-msgstr "Response-Format"
-
-msgid "Response example copied!"
-msgstr "Response-Beispiel kopiert!"
-
-msgid "Retrieve media file metadata for playout. Supports incremental sync via updated_since and specific file lookup via filename."
-msgstr "Ruft Medienmetadaten für das Playout ab. Unterstützt inkrementelle Synchronisierung über updated_since und gezielte Dateisuche über filename."
-
-msgid "Retrieve the broadcast schedule for a date range. Returns planned items with their time slots and associated media."
-msgstr "Ruft den Sendeplan für einen Datumsbereich ab. Gibt geplante Beiträge mit ihren Zeitfenstern und zugehörigen Medien zurück."
-
-msgid "Return only records modified after this timestamp"
-msgstr "Nur Datensätze zurückgeben, die nach diesem Zeitstempel geändert wurden"
-
-msgid "Send incoming webhook event"
-msgstr "Eingehendes Webhook-Ereignis senden"
-
-msgid "Start date of the schedule range"
-msgstr "Startdatum des Sendeplanzeitraums"
-
-msgid "Submit air reports"
-msgstr "Ausstrahlungsberichte übermitteln"
-
-msgid "Submit air reports from playout. Confirms that a media item was broadcast at a specific time."
-msgstr "Übermittelt Ausstrahlungsberichte aus dem Playout. Bestätigt, dass ein Medienbeitrag zu einem bestimmten Zeitpunkt ausgestrahlt wurde."
-
-msgid "The connector_id in the URL identifies the source system. If HMAC is configured, include the X-Signature-256 header."
-msgstr "Die connector_id in der URL identifiziert das Quellsystem. Wenn HMAC konfiguriert ist, fügen Sie den Header X-Signature-256 hinzu."
-
-msgid "The id field is the license number as a string. Use updated_since for incremental sync or filename for backfill."
-msgstr "Das Feld id ist die Freistellungsnummer als Zeichenkette. Verwenden Sie updated_since für die inkrementelle Synchronisierung oder filename für Backfill."
-
-msgid "Type"
-msgstr "Typ"
-
-
-msgid "cURL command copied!"
-msgstr "cURL-Befehl kopiert!"
-
-msgid "API keys are managed in the admin token list:"
-msgstr "API-Schlüssel werden in der Admin-Tokenliste verwaltet:"
-
-msgid "DRF token authentication. Include a token from the admin token list in the request header:"
-msgstr "DRF-Token-Authentifizierung. Fügen Sie ein Token aus der Admin-Tokenliste im Request-Header ein:"
-
-msgid "Tokens are managed in the admin token list:"
-msgstr "Tokens werden in der Admin-Tokenliste verwaltet:"
-
-msgid "Anchor Render"
-msgstr "Anchor-Render"
-
-msgid "When configured, planned days can be sent to the external anchor renderer to create a programme preview video."
-msgstr "Wenn konfiguriert, können geplante Tage an den externen Anchor-Renderer gesendet werden, um eine Programmvorschau zu erstellen."
-
-msgid "Anchor render URL"
-msgstr "Anchor-Render-URL"
-
-msgid "External anchor render endpoint, e.g. http://192.168.88.50:8011/api/anchor"
-msgstr "Externer Anchor-Render-Endpunkt, z. B. http://192.168.88.50:8011/api/anchor"
-
-msgid "Anchor render API key"
-msgstr "Anchor-Render-API-Schlüssel"
-
-msgid "API key sent as X-API-Key when the programme preview video is rendered."
-msgstr "API-Schlüssel, der beim Rendern der Programmvorschau als X-API-Key gesendet wird."
-
-msgid "Anchor render timeout (seconds)"
-msgstr "Anchor-Render-Timeout (Sekunden)"
-
-msgid "HTTP timeout for anchor render requests."
-msgstr "HTTP-Timeout für Anchor-Render-Anfragen."
-
-msgid "Anchor contribution duration (seconds)"
-msgstr "Anchor-Beitragsdauer (Sekunden)"
-
-msgid "Preview clip length sent as durationInSeconds for each anchor contribution."
-msgstr "Länge des Vorschauclips, die für jeden Anchor-Beitrag als durationInSeconds gesendet wird."
-
-msgid "Wait for render result"
-msgstr "Auf Render-Ergebnis warten"
-
-msgid "Append wait=1 to the render request and wait for the synchronous response."
-msgstr "Hängt wait=1 an die Render-Anfrage an und wartet auf die synchrone Antwort."
-
-msgid "Anchor output filename pattern"
-msgstr "Anchor-Ausgabedateinamen-Muster"
-
-msgid "Python format string with {number} and {date}, e.g. {number}_Programmvorschau_{date:%y%m%d}.mp4."
-msgstr "Python-Formatstring mit {number} und {date}, z. B. {number}_Programmvorschau_{date:%y%m%d}.mp4."
-
-msgid "Anchor output playout directory"
-msgstr "Anchor-Ausgabeverzeichnis im Playout"
-
-msgid "Directory inside the playout storage where rendered programme preview files are written."
-msgstr "Verzeichnis innerhalb des Playout-Speichers, in das gerenderte Programmvorschau-Dateien geschrieben werden."
-
-msgid "Anchor playout path prefix"
-msgstr "Anchor-Playout-Pfadpräfix"
-
-msgid "NAS-relative prefix sent for videos copied to playout."
-msgstr "NAS-relatives Präfix, das für ins Playout kopierte Videos gesendet wird."
-
-msgid "Anchor default placeholder video"
-msgstr "Anchor-Standard-Platzhaltervideo"
-
-msgid "NAS-relative fallback video path, e.g. playout/placeholder/default.mp4."
-msgstr "NAS-relativer Fallback-Videopfad, z. B. playout/placeholder/default.mp4."
-
-msgid "Anchor placeholder rules"
-msgstr "Anchor-Platzhalterregeln"
-
-msgid "List of rules. Supported match values: live, title_prefix. Each rule needs a video path; title_prefix rules also need prefix."
-msgstr "Liste von Regeln. Unterstützte match-Werte: live, title_prefix. Jede Regel benötigt einen Videopfad; title_prefix-Regeln benötigen zusätzlich prefix."
-
-msgid "User profile is missing"
-msgstr "Benutzerprofil fehlt"
-
-msgid "Plan the day first"
-msgstr "Tag zuerst planen"
-
-msgid "Render programme preview"
-msgstr "Programmvorschau rendern"
-
-msgid "Render preview"
-msgstr "Vorschau rendern"
+#~ msgid "API key authentication. Include your key in the request header:"
+#~ msgstr ""
+#~ "API-Schlüssel-Authentifizierung. Fügen Sie Ihren Schlüssel im Request-"
+#~ "Header ein:"
+
+#~ msgid "API keys are managed in the admin token list:"
+#~ msgstr "API-Schlüssel werden in der Admin-Tokenliste verwaltet:"
