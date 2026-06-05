@@ -7,8 +7,10 @@ from media_files.models import VideoFile
 from planung.models import PlanungConfig
 from planung.models import TagesPlan
 from planung.services.anchor_render_service import AnchorRenderResult
+from planung.services.anchor_render_service import AnchorJobStatus
 from planung.services.anchor_render_service import build_anchor_payload
 from planung.services.anchor_render_service import render_anchor_preview
+from planung.tasks import poll_anchor_render_job
 from registration.models import Profile
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -172,6 +174,58 @@ def test__anchor_render__payload_uses_wide_random_window_for_long_videos(verifie
 
 
 @pytest.mark.django_db
+def test__anchor_render__payload_uses_configured_clip_duration_not_plan_item_duration(verified_profile):
+    """Anchor clip length must not use the full planned broadcast duration."""
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Full length programme",
+        description="Description",
+        duration=timedelta(hours=1),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    storage = StorageLocation.objects.create(
+        name="Playout Full Length",
+        storage_type="PLAYOUT",
+        path="/mnt/nas/playout",
+    )
+    VideoFile.objects.create(
+        number=license_obj.number,
+        filename="full.mp4",
+        storage_location=storage,
+        file_path="000_Sendungen/full.mp4",
+        duration=timedelta(hours=1),
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_contribution_duration_seconds = 20
+    config.save()
+
+    with patch("planung.services.anchor_render_service.triangular", return_value=1790):
+        payload, rejected = build_anchor_payload(
+            plan_date=date(2026, 6, 8),
+            plan_items=[
+                {
+                    "number": license_obj.number,
+                    "start": "18:00:00",
+                    "duration": 3600,
+                    "title": "Full length programme",
+                }
+            ],
+            output_name="16573_Programmvorschau_260608.mp4",
+        )
+
+    assert rejected == []
+    contribution = payload["beitraege"][0]
+    assert contribution["durationInSeconds"] == 20
+    assert contribution["startFromSeconds"] == 1790
+
+
+@pytest.mark.django_db
 def test__anchor_render__endpoint_requires_planned_day(client, staff_user):
     """The render endpoint only accepts already planned days."""
     client.force_login(staff_user)
@@ -230,6 +284,47 @@ def test__anchor_render__endpoint_returns_renderer_result(client, staff_user):
     body = response.json()
     assert body["output_name"] == "16573_Programmvorschau_260608.mp4"
     assert body["status"] == "done"
+    assert body["celery_task_id"] == ""
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_queues_celery_polling(client, staff_user):
+    """Queued anchor jobs are handed off to Celery for status polling."""
+    client.force_login(staff_user)
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "19:00:00", "duration": 20, "title": "Preview"}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+    result = AnchorRenderResult(
+        configured=True,
+        sent=True,
+        license_id=12,
+        license_number=16573,
+        output_name="16573_Programmvorschau_260608.mp4",
+        job_id="job-1",
+        status="queued",
+        file="",
+        error="",
+    )
+    celery_result = Mock(id="task-1")
+
+    with patch("planung.views.render_anchor_preview", return_value=result), patch(
+        "planung.views.poll_anchor_render_job.delay",
+        return_value=celery_result,
+    ) as mocked_delay:
+        response = client.post(
+            "/api/planning/anchor/render/",
+            data=json.dumps({"date": "2026-06-08"}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 200
+    mocked_delay.assert_called_once_with("job-1", "16573_Programmvorschau_260608.mp4")
+    assert response.json()["celery_task_id"] == "task-1"
 
 
 @pytest.mark.django_db
@@ -386,3 +481,32 @@ def test__anchor_render__endpoint_checks_job_status(client, staff_user):
         headers={"X-API-Key": "secret"},
         timeout=17,
     )
+
+
+def test__anchor_render__celery_task_polls_until_done():
+    """Celery polling returns the final renderer status in TaskResult."""
+    results = [
+        AnchorJobStatus(True, "job-1", "queued", "", ""),
+        AnchorJobStatus(True, "job-1", "rendering", "", ""),
+        AnchorJobStatus(True, "job-1", "done", "preview.mp4", ""),
+    ]
+
+    with patch(
+        "planung.tasks.get_anchor_job_status",
+        side_effect=results,
+    ), patch("planung.tasks.time.sleep") as mocked_sleep, patch.object(
+        poll_anchor_render_job,
+        "update_state",
+    ) as mocked_update_state:
+        payload = poll_anchor_render_job.run(
+            job_id="job-1",
+            output_name="preview.mp4",
+            poll_interval=1,
+            max_attempts=5,
+        )
+
+    assert payload["status"] == "done"
+    assert payload["file"] == "preview.mp4"
+    assert payload["output_name"] == "preview.mp4"
+    assert mocked_sleep.call_count == 2
+    assert mocked_update_state.call_count == 3

@@ -1903,56 +1903,6 @@
       });
     });
 
-    var anchorPollTimer = null;
-    var anchorPolling = false;
-    var anchorPollAttempts = 0;
-
-    function stopAnchorPolling() {
-      if (anchorPollTimer) {
-        clearTimeout(anchorPollTimer);
-        anchorPollTimer = null;
-      }
-      anchorPolling = false;
-      anchorPollAttempts = 0;
-      $('#renderAnchorBtn').prop('disabled', false);
-    }
-
-    function pollAnchorStatus(jobId, outputName) {
-      anchorPolling = true;
-      anchorPollAttempts += 1;
-      $.ajax({
-        url: '/api/planning/anchor/status/' + encodeURIComponent(jobId) + '/',
-        method: 'GET',
-        dataType: 'json',
-        success: function (response) {
-          var status = response.status || '';
-          if (status === 'done') {
-            stopAnchorPolling();
-            notify(gettext('Programme preview render completed: ') + (response.file || outputName || jobId), 'success');
-            return;
-          }
-          if (status === 'error' || response.error) {
-            stopAnchorPolling();
-            notify(gettext('Programme preview render failed: ') + (response.error || status), 'error');
-            return;
-          }
-          if (anchorPollAttempts >= 180) {
-            stopAnchorPolling();
-            notify(gettext('Programme preview status polling timed out.'), 'error');
-            return;
-          }
-          anchorPollTimer = setTimeout(function () {
-            pollAnchorStatus(jobId, outputName);
-          }, 4000);
-        },
-        error: function (xhr) {
-          var response = xhr.responseJSON || {};
-          stopAnchorPolling();
-          notify(response.error || gettext('Programme preview status request failed.'), 'error');
-        }
-      });
-    }
-
     function renderAnchorPreview(force) {
       var iso = $('#dayPlanModal').data('iso-date');
       if (!iso) {
@@ -1975,12 +1925,12 @@
           } else if (response.status === 'error') {
             notify(gettext('Programme preview render failed: ') + (response.error || response.status), 'error');
           } else if (response.job_id) {
-            notify(gettext('Programme preview render queued: ') + (response.output_name || response.job_id), 'success');
-            pollAnchorStatus(response.job_id, response.output_name);
+            var taskSuffix = response.celery_task_id ? ' • ' + gettext('Celery task: ') + response.celery_task_id : '';
+            notify(gettext('Programme preview render task queued: ') + (response.output_name || response.job_id) + taskSuffix, 'success');
           } else if (response.output_name) {
-            notify(gettext('Programme preview render queued: ') + response.output_name, 'success');
+            notify(gettext('Programme preview render task queued: ') + response.output_name, 'success');
           } else {
-            notify(gettext('Programme preview render queued.'), 'success');
+            notify(gettext('Programme preview render task queued.'), 'success');
           }
         },
         error: function (xhr) {
@@ -2001,9 +1951,7 @@
           notify(message, 'error');
         },
         complete: function () {
-          if (!anchorPolling) {
-            $btn.prop('disabled', false);
-          }
+          $btn.prop('disabled', false);
         }
       });
     }

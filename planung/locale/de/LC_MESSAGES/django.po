@@ -626,6 +626,12 @@ msgstr "Anchor-Render-Timeout (Sekunden)"
 msgid "HTTP timeout for anchor render requests."
 msgstr "HTTP-Timeout für Anchor-Render-Anfragen."
 
+msgid "Anchor contribution duration (seconds)"
+msgstr "Anchor-Beitragsdauer (Sekunden)"
+
+msgid "Preview clip length sent as durationInSeconds for each anchor contribution."
+msgstr "Länge des Vorschauclips, die für jeden Anchor-Beitrag als durationInSeconds gesendet wird."
+
 msgid "Wait for render result"
 msgstr "Auf Render-Ergebnis warten"
 

@@ -155,6 +155,11 @@ class PlanungConfig(models.Model):
         verbose_name=_("Anchor render timeout (seconds)"),
         help_text=_("HTTP timeout for anchor render requests."),
     )
+    anchor_contribution_duration_seconds = models.PositiveIntegerField(
+        default=20,
+        verbose_name=_("Anchor contribution duration (seconds)"),
+        help_text=_("Preview clip length sent as durationInSeconds for each anchor contribution."),
+    )
     anchor_render_wait = models.BooleanField(
         default=True,
         verbose_name=_("Wait for render result"),

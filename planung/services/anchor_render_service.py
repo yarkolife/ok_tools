@@ -68,13 +68,18 @@ class AnchorJobStatus:
     error: str
 
 
-def _duration_sec(value: Any) -> int:
+def _duration_sec(value: Any = None) -> int:
     """Return duration in seconds with the anchor default as fallback."""
     if isinstance(value, (int, float)):
         return max(1, int(value))
     if hasattr(value, "total_seconds"):
         return max(1, int(value.total_seconds()))
     return 20
+
+
+def _anchor_clip_duration(config: PlanungConfig) -> int:
+    """Return the configured preview clip duration for anchor contributions."""
+    return _duration_sec(getattr(config, "anchor_contribution_duration_seconds", 20))
 
 
 def _start_from_seconds(video_file: Any, clip_duration: int) -> int | None:
@@ -235,7 +240,7 @@ def build_anchor_payload(
         start = str(plan_item.get("start") or "").strip()
         title = str(plan_item.get("title") or getattr(license_obj, "title", "") or "").strip()
         subtitle = str(plan_item.get("subtitle") or getattr(license_obj, "subtitle", "") or "").strip()
-        duration_seconds = _duration_sec(plan_item.get("duration", 20))
+        duration_seconds = _anchor_clip_duration(config)
         contribution = {
             "uhrzeit": start[:5] if start else "",
             "sendung": title,

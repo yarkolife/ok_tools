@@ -209,6 +209,15 @@ msgstr "Rendern der Programmvorschau eingereiht: "
 msgid "Programme preview render queued."
 msgstr "Rendern der Programmvorschau eingereiht."
 
+msgid "Programme preview render task queued: "
+msgstr "Render-Aufgabe für die Programmvorschau eingereiht: "
+
+msgid "Programme preview render task queued."
+msgstr "Render-Aufgabe für die Programmvorschau eingereiht."
+
+msgid "Celery task: "
+msgstr "Celery-Aufgabe: "
+
 msgid "Programme preview render completed: "
 msgstr "Rendern der Programmvorschau abgeschlossen: "
 

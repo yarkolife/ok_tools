@@ -25,6 +25,7 @@ from planung.services.playout_import_service import \
     send_playout_schedule as send_playout_schedule_service
 from planung.services.validation_service import PlanningValidationError
 from planung.services.validation_service import validate_day_plan_payload
+from planung.tasks import poll_anchor_render_job
 import json
 import logging
 
@@ -513,6 +514,10 @@ def render_anchor_preview_view(request):
                 date_obj,
                 result.error,
             )
+        celery_task_id = ""
+        if result.job_id and result.status not in {"done", "error"} and not result.error:
+            celery_result = poll_anchor_render_job.delay(result.job_id, result.output_name)
+            celery_task_id = celery_result.id
         return JsonResponse({
             "configured": result.configured,
             "sent": result.sent,
@@ -526,6 +531,7 @@ def render_anchor_preview_view(request):
             "license_created": result.license_created,
             "video_exists": result.video_exists,
             "requires_confirmation": result.requires_confirmation,
+            "celery_task_id": celery_task_id,
         }, status=status_code)
     except Exception as e:
         logger.exception("Failed to render anchor preview")

@@ -393,6 +393,7 @@ class PlanungConfigAdmin(admin.ModelAdmin):
                 'anchor_render_url',
                 'anchor_render_api_key',
                 'anchor_render_timeout',
+                'anchor_contribution_duration_seconds',
                 'anchor_output_filename_pattern',
                 'anchor_output_playout_directory',
                 'anchor_playout_path_prefix',
