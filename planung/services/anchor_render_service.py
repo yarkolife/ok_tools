@@ -7,11 +7,16 @@ from datetime import datetime
 from datetime import time
 from datetime import timedelta
 from django.apps import apps
+from django.conf import settings
 from django.utils import timezone
+from licenses.models import Category
 from licenses.models import License
-from licenses.models import default_category
+from pathlib import Path
 from planung.models import PlanungConfig
 from random import choice
+from random import triangular
+from registration import organization_config
+from registration.models import Profile
 from requests import RequestException
 from typing import Any
 import logging
@@ -47,6 +52,20 @@ class AnchorRenderResult:
     file: str
     error: str
     payload: dict[str, Any] | None = None
+    license_created: bool = False
+    video_exists: bool = False
+    requires_confirmation: bool = False
+
+
+@dataclass(frozen=True)
+class AnchorJobStatus:
+    """Status returned by the external anchor renderer for one job."""
+
+    configured: bool
+    job_id: str
+    status: str
+    file: str
+    error: str
 
 
 def _duration_sec(value: Any) -> int:
@@ -56,6 +75,32 @@ def _duration_sec(value: Any) -> int:
     if hasattr(value, "total_seconds"):
         return max(1, int(value.total_seconds()))
     return 20
+
+
+def _start_from_seconds(video_file: Any, clip_duration: int) -> int | None:
+    """Return a random source start near the middle of the video."""
+    source_duration = getattr(video_file, "duration", None)
+    if not source_duration or not hasattr(source_duration, "total_seconds"):
+        return None
+
+    source_seconds = int(source_duration.total_seconds())
+    max_start = source_seconds - clip_duration - 7
+    if max_start < 0:
+        return None
+    if max_start == 0:
+        return 0
+
+    center_start = max(0, min(max_start, round((source_seconds / 2) - (clip_duration / 2))))
+    if source_seconds <= 180:
+        radius = max(3, min(12, max_start * 0.12))
+    elif source_seconds <= 600:
+        radius = max(8, min(60, max_start * 0.22))
+    else:
+        radius = max(60, max_start * 0.45)
+
+    low = max(0, center_start - radius)
+    high = min(max_start, center_start + radius)
+    return int(round(triangular(low, high, center_start)))
 
 
 def _author_name(license_obj: License | None, plan_item: dict[str, Any]) -> str:
@@ -168,7 +213,9 @@ def build_anchor_payload(
     for plan_item in plan_items[:8]:
         number = plan_item.get("number")
         license_obj = licenses_by_number.get(number) if number else None
-        video = _video_path_from_playout(videos_by_number.get(number), config)
+        video_file = videos_by_number.get(number)
+        video = _video_path_from_playout(video_file, config)
+        uses_playout_video = bool(video)
         if not video:
             video = _placeholder_video(license_obj, plan_item, config)
         if not video:
@@ -188,22 +235,25 @@ def build_anchor_payload(
         start = str(plan_item.get("start") or "").strip()
         title = str(plan_item.get("title") or getattr(license_obj, "title", "") or "").strip()
         subtitle = str(plan_item.get("subtitle") or getattr(license_obj, "subtitle", "") or "").strip()
-        contributions.append(
-            {
-                "uhrzeit": start[:5] if start else "",
-                "sendung": title,
-                "untertitel": subtitle,
-                "titel": title,
-                "autor": _author_name(license_obj, plan_item),
-                "hinweis": str(
-                    plan_item.get("description")
-                    or getattr(license_obj, "description", "")
-                    or ""
-                ).strip(),
-                "video": video,
-                "durationInSeconds": _duration_sec(plan_item.get("duration", 20)),
-            }
-        )
+        duration_seconds = _duration_sec(plan_item.get("duration", 20))
+        contribution = {
+            "uhrzeit": start[:5] if start else "",
+            "sendung": title,
+            "untertitel": subtitle,
+            "titel": title,
+            "autor": _author_name(license_obj, plan_item),
+            "hinweis": str(
+                plan_item.get("description")
+                or getattr(license_obj, "description", "")
+                or ""
+            ).strip(),
+            "video": video,
+            "durationInSeconds": duration_seconds,
+        }
+        start_from = _start_from_seconds(video_file, duration_seconds) if uses_playout_video else None
+        if start_from is not None:
+            contribution["startFromSeconds"] = start_from
+        contributions.append(contribution)
 
     payload: dict[str, Any] = {
         "wochentag": WEEKDAY_NAMES[plan_date.weekday()],
@@ -220,13 +270,73 @@ def _output_name(config: PlanungConfig, license_number: int, plan_date: date) ->
     return pattern.format(number=license_number, date=plan_date)
 
 
-def _create_preview_license(profile: Any, plan_date: date) -> License:
-    """Create the license record associated with the rendered preview file."""
+def _license_title(plan_date: date) -> str:
+    """Return the stable title used to identify programme preview licenses."""
+    return f"Programmvorschau vom {plan_date.strftime('%d.%m.%Y')}"
+
+
+def _anchor_category() -> Category:
+    """Return the category used for programme preview licenses."""
+    return Category.objects.get_or_create(name="Sonstiges")[0]
+
+
+def _anchor_profile(fallback_profile: Any) -> Any:
+    """Return the organization profile used for programme preview licenses."""
+    names = [
+        organization_config.get_organization_name(),
+        getattr(settings, "OK_NAME", ""),
+        "Offener Kanal Merseburg-Querfurt e.V.",
+    ]
+    candidates = {str(name).strip().casefold() for name in names if str(name).strip()}
+    if not candidates:
+        return fallback_profile
+
+    for profile in Profile.objects.only("first_name", "last_name"):
+        full_name = f"{profile.first_name or ''} {profile.last_name or ''}".strip()
+        first_name = str(profile.first_name or "").strip()
+        if full_name.casefold() in candidates or first_name.casefold() in candidates:
+            return profile
+
+    return fallback_profile
+
+
+def _sync_preview_license_fields(license_obj: License, profile: Any, plan_date: date) -> License:
+    """Keep anchor preview license metadata aligned with the configured defaults."""
+    updates: list[str] = []
+    values = {
+        "profile": _anchor_profile(profile),
+        "category": _anchor_category(),
+        "title": _license_title(plan_date),
+        "description": "Information für unsere Zuschauer.",
+        "duration": timedelta(minutes=1),
+        "repetitions_allowed": True,
+        "media_authority_exchange_allowed": False,
+        "media_authority_exchange_allowed_other_states": False,
+        "youth_protection_necessary": False,
+        "store_in_ok_media_library": False,
+        "confirmed": True,
+        "infoblock": True,
+    }
+    for field, value in values.items():
+        if getattr(license_obj, field) != value:
+            setattr(license_obj, field, value)
+            updates.append(field)
+    if updates:
+        license_obj.save(update_fields=updates)
+    return license_obj
+
+
+def _get_or_create_preview_license(profile: Any, plan_date: date) -> tuple[License, bool]:
+    """Return the existing preview license for the date or create it."""
+    existing = License.objects.filter(title=_license_title(plan_date)).order_by("-id").first()
+    if existing:
+        return _sync_preview_license_fields(existing, profile, plan_date), False
+
     aware_date = timezone.make_aware(datetime.combine(plan_date, time.min))
-    return License.objects.create(
-        profile=profile,
-        category=default_category(),
-        title=f"Programmvorschau vom {plan_date.strftime('%d.%m.%Y')}",
+    license_obj = License.objects.create(
+        profile=_anchor_profile(profile),
+        category=_anchor_category(),
+        title=_license_title(plan_date),
         subtitle="",
         description="Information für unsere Zuschauer.",
         further_persons="",
@@ -238,7 +348,34 @@ def _create_preview_license(profile: Any, plan_date: date) -> License:
         youth_protection_necessary=False,
         store_in_ok_media_library=False,
         confirmed=True,
+        infoblock=True,
     )
+    return license_obj, True
+
+
+def _anchor_output_video_exists(config: PlanungConfig, license_number: int, output_name: str) -> bool:
+    """Return whether the rendered programme preview file is already known or present."""
+    try:
+        VideoFile = apps.get_model("media_files", "VideoFile")
+        if VideoFile.objects.filter(number=license_number, filename=output_name, is_available=True).exists():
+            return True
+    except (ImportError, LookupError):
+        pass
+
+    try:
+        StorageLocation = apps.get_model("media_files", "StorageLocation")
+    except (ImportError, LookupError):
+        return False
+
+    rel_dir = str(config.anchor_output_playout_directory or "003_Programmvorschau").strip().strip("/")
+    for storage in StorageLocation.objects.filter(storage_type="PLAYOUT", is_active=True):
+        path = Path(storage.path) / rel_dir / output_name
+        try:
+            if path.exists():
+                return True
+        except OSError as exc:
+            logger.warning("Could not check anchor output file %s: %s", path, exc)
+    return False
 
 
 def render_anchor_preview(
@@ -246,6 +383,7 @@ def render_anchor_preview(
     plan_date: date,
     plan_items: list[dict[str, Any]],
     profile: Any,
+    force: bool = False,
 ) -> AnchorRenderResult:
     """Create a license and send a planned day to the anchor renderer."""
     config = PlanungConfig.get_config()
@@ -262,8 +400,26 @@ def render_anchor_preview(
             "not_configured",
         )
 
-    license_obj = _create_preview_license(profile, plan_date)
+    license_obj, license_created = _get_or_create_preview_license(profile, plan_date)
     output_name = _output_name(config, license_obj.number, plan_date)
+    video_exists = _anchor_output_video_exists(config, license_obj.number, output_name)
+    if video_exists and not force:
+        return AnchorRenderResult(
+            True,
+            False,
+            license_obj.id,
+            license_obj.number,
+            output_name,
+            "",
+            "",
+            output_name,
+            "output_video_exists",
+            None,
+            license_created,
+            video_exists,
+            True,
+        )
+
     payload, rejected = build_anchor_payload(
         plan_date=plan_date,
         plan_items=plan_items,
@@ -282,6 +438,8 @@ def render_anchor_preview(
             "",
             "missing_video_or_placeholder",
             payload,
+            license_created,
+            video_exists,
         )
     if not payload["beitraege"]:
         return AnchorRenderResult(
@@ -295,13 +453,13 @@ def render_anchor_preview(
             "",
             "no_items",
             payload,
+            license_created,
+            video_exists,
         )
 
-    params = {"wait": "1"} if config.anchor_render_wait else None
     try:
         response = requests.post(
             config.anchor_render_url,
-            params=params,
             json=payload,
             headers={
                 "Content-Type": "application/json",
@@ -324,8 +482,14 @@ def render_anchor_preview(
             "",
             str(exc),
             payload,
+            license_created,
+            video_exists,
         )
 
+    status = str(data.get("status") or "")
+    error = str(data.get("error") or "")
+    if status == "error" and not error:
+        error = "render_error"
     return AnchorRenderResult(
         True,
         True,
@@ -333,8 +497,48 @@ def render_anchor_preview(
         license_obj.number,
         output_name,
         str(data.get("job_id") or ""),
-        str(data.get("status") or ""),
+        status,
         str(data.get("file") or ""),
-        str(data.get("error") or ""),
+        error,
         payload,
+        license_created,
+        video_exists,
+    )
+
+
+def get_anchor_job_status(job_id: str) -> AnchorJobStatus:
+    """Return the current status of an anchor renderer job."""
+    config = PlanungConfig.get_config()
+    if not config.is_anchor_render_configured():
+        return AnchorJobStatus(False, job_id, "", "", "not_configured")
+
+    safe_job_id = str(job_id or "").strip()
+    if not safe_job_id:
+        return AnchorJobStatus(True, "", "", "", "missing_job_id")
+
+    status_url = f"{config.anchor_render_url.rstrip('/')}/{safe_job_id}"
+    try:
+        response = requests.get(
+            status_url,
+            headers={
+                "X-API-Key": config.anchor_render_api_key,
+            },
+            timeout=config.anchor_render_timeout,
+        )
+        response.raise_for_status()
+        data = response.json()
+    except (RequestException, ValueError) as exc:
+        logger.exception("Failed to fetch anchor job status")
+        return AnchorJobStatus(True, safe_job_id, "", "", str(exc))
+
+    status = str(data.get("status") or "")
+    error = str(data.get("error") or "")
+    if status == "error" and not error:
+        error = "render_error"
+    return AnchorJobStatus(
+        True,
+        safe_job_id,
+        status,
+        str(data.get("file") or ""),
+        error,
     )

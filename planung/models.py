@@ -167,6 +167,13 @@ class PlanungConfig(models.Model):
         verbose_name=_("Anchor output filename pattern"),
         help_text=_("Python format string with {number} and {date}, e.g. {number}_Programmvorschau_{date:%y%m%d}.mp4."),
     )
+    anchor_output_playout_directory = models.CharField(
+        max_length=500,
+        blank=True,
+        default="003_Programmvorschau",
+        verbose_name=_("Anchor output playout directory"),
+        help_text=_("Directory inside the playout storage where rendered programme preview files are written."),
+    )
     anchor_playout_path_prefix = models.CharField(
         max_length=255,
         blank=True,

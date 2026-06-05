@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from django.views.decorators.http import require_http_methods
 from licenses.models import License
+from planung.services.anchor_render_service import get_anchor_job_status
 from planung.services.anchor_render_service import render_anchor_preview
 from planung.services.plan_service import delete_day_plan
 from planung.services.plan_service import enrich_plan_items
@@ -499,10 +500,19 @@ def render_anchor_preview_view(request):
             plan_date=date_obj,
             plan_items=plan.json_plan.get("items", []),
             profile=profile,
+            force=bool(data.get("force")),
         )
         status_code = 502 if result.error and result.sent else 200
-        if result.error in {"not_configured", "missing_video_or_placeholder", "no_items"}:
+        if result.error == "output_video_exists":
+            status_code = 409
+        elif result.error in {"not_configured", "missing_video_or_placeholder", "no_items"}:
             status_code = 400
+        elif result.error:
+            logger.warning(
+                "Anchor preview render returned an error for %s: %s",
+                date_obj,
+                result.error,
+            )
         return JsonResponse({
             "configured": result.configured,
             "sent": result.sent,
@@ -513,7 +523,31 @@ def render_anchor_preview_view(request):
             "status": result.status,
             "file": result.file,
             "error": result.error,
+            "license_created": result.license_created,
+            "video_exists": result.video_exists,
+            "requires_confirmation": result.requires_confirmation,
         }, status=status_code)
     except Exception as e:
         logger.exception("Failed to render anchor preview")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@require_GET
+@staff_member_required
+def anchor_job_status_view(request, job_id):
+    """Return the current status of an external anchor renderer job."""
+    try:
+        result = get_anchor_job_status(job_id)
+        status_code = 502 if result.error and result.status != "error" else 200
+        if result.error in {"not_configured", "missing_job_id"}:
+            status_code = 400
+        return JsonResponse({
+            "configured": result.configured,
+            "job_id": result.job_id,
+            "status": result.status,
+            "file": result.file,
+            "error": result.error,
+        }, status=status_code)
+    except Exception as e:
+        logger.exception("Failed to fetch anchor job status")
         return JsonResponse({"error": str(e)}, status=500)

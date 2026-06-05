@@ -638,6 +638,12 @@ msgstr "Anchor-Ausgabedateinamen-Muster"
 msgid "Python format string with {number} and {date}, e.g. {number}_Programmvorschau_{date:%y%m%d}.mp4."
 msgstr "Python-Formatstring mit {number} und {date}, z. B. {number}_Programmvorschau_{date:%y%m%d}.mp4."
 
+msgid "Anchor output playout directory"
+msgstr "Anchor-Ausgabeverzeichnis im Playout"
+
+msgid "Directory inside the playout storage where rendered programme preview files are written."
+msgstr "Verzeichnis innerhalb des Playout-Speichers, in das gerenderte Programmvorschau-Dateien geschrieben werden."
+
 msgid "Anchor playout path prefix"
 msgstr "Anchor-Playout-Pfadpräfix"
 

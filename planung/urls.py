@@ -20,4 +20,5 @@ urlpatterns = [
     path("planning/playout/metadata/", views.send_playout_metadata, name="planning_playout_metadata"),
     path("planning/playout/schedule/", views.send_playout_schedule, name="planning_playout_schedule"),
     path("planning/anchor/render/", views.render_anchor_preview_view, name="planning_anchor_render"),
+    path("planning/anchor/status/<str:job_id>/", views.anchor_job_status_view, name="planning_anchor_status"),
 ]

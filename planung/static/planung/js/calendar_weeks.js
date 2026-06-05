@@ -1903,23 +1903,80 @@
       });
     });
 
-    $('#renderAnchorBtn').on('click', function () {
+    var anchorPollTimer = null;
+    var anchorPolling = false;
+    var anchorPollAttempts = 0;
+
+    function stopAnchorPolling() {
+      if (anchorPollTimer) {
+        clearTimeout(anchorPollTimer);
+        anchorPollTimer = null;
+      }
+      anchorPolling = false;
+      anchorPollAttempts = 0;
+      $('#renderAnchorBtn').prop('disabled', false);
+    }
+
+    function pollAnchorStatus(jobId, outputName) {
+      anchorPolling = true;
+      anchorPollAttempts += 1;
+      $.ajax({
+        url: '/api/planning/anchor/status/' + encodeURIComponent(jobId) + '/',
+        method: 'GET',
+        dataType: 'json',
+        success: function (response) {
+          var status = response.status || '';
+          if (status === 'done') {
+            stopAnchorPolling();
+            notify(gettext('Programme preview render completed: ') + (response.file || outputName || jobId), 'success');
+            return;
+          }
+          if (status === 'error' || response.error) {
+            stopAnchorPolling();
+            notify(gettext('Programme preview render failed: ') + (response.error || status), 'error');
+            return;
+          }
+          if (anchorPollAttempts >= 180) {
+            stopAnchorPolling();
+            notify(gettext('Programme preview status polling timed out.'), 'error');
+            return;
+          }
+          anchorPollTimer = setTimeout(function () {
+            pollAnchorStatus(jobId, outputName);
+          }, 4000);
+        },
+        error: function (xhr) {
+          var response = xhr.responseJSON || {};
+          stopAnchorPolling();
+          notify(response.error || gettext('Programme preview status request failed.'), 'error');
+        }
+      });
+    }
+
+    function renderAnchorPreview(force) {
       var iso = $('#dayPlanModal').data('iso-date');
       if (!iso) {
         notify(gettext('Date is missing.'), 'error');
-        return;
+        return Promise.resolve();
       }
-      var $btn = $(this);
+      var $btn = $('#renderAnchorBtn');
       $btn.prop('disabled', true);
-      $.ajax({
+      return $.ajax({
         url: '/api/planning/anchor/render/',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ date: iso }),
+        data: JSON.stringify({ date: iso, force: Boolean(force) }),
         beforeSend: addCsrfHeader,
         success: function (response) {
           if (response.error) {
             notify(gettext('Programme preview render failed: ') + response.error, 'error');
+          } else if (response.status === 'done') {
+            notify(gettext('Programme preview render completed: ') + (response.file || response.output_name), 'success');
+          } else if (response.status === 'error') {
+            notify(gettext('Programme preview render failed: ') + (response.error || response.status), 'error');
+          } else if (response.job_id) {
+            notify(gettext('Programme preview render queued: ') + (response.output_name || response.job_id), 'success');
+            pollAnchorStatus(response.job_id, response.output_name);
           } else if (response.output_name) {
             notify(gettext('Programme preview render queued: ') + response.output_name, 'success');
           } else {
@@ -1928,13 +1985,31 @@
         },
         error: function (xhr) {
           var response = xhr.responseJSON || {};
+          if (xhr.status === 409 && response.requires_confirmation) {
+            openActionModal({
+              title: gettext('Render programme preview again?'),
+              message: gettext('A programme preview video already exists for this day. Recreate it and overwrite the existing output file?'),
+              confirmText: gettext('Recreate')
+            }).then(function (confirmed) {
+              if (confirmed) {
+                renderAnchorPreview(true);
+              }
+            });
+            return;
+          }
           var message = response.error || gettext('Programme preview render request failed.');
           notify(message, 'error');
         },
         complete: function () {
-          $btn.prop('disabled', false);
+          if (!anchorPolling) {
+            $btn.prop('disabled', false);
+          }
         }
       });
+    }
+
+    $('#renderAnchorBtn').on('click', function () {
+      renderAnchorPreview(false);
     });
 
   });

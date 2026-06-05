@@ -191,6 +191,15 @@ msgstr "Kein Plan für diesen Tag"
 msgid "Render programme preview"
 msgstr "Programmvorschau rendern"
 
+msgid "Render programme preview again?"
+msgstr "Programmvorschau erneut rendern?"
+
+msgid "A programme preview video already exists for this day. Recreate it and overwrite the existing output file?"
+msgstr "Für diesen Tag existiert bereits eine Programmvorschau. Erneut rendern und die vorhandene Ausgabedatei überschreiben?"
+
+msgid "Recreate"
+msgstr "Neu erstellen"
+
 msgid "Programme preview render failed: "
 msgstr "Rendern der Programmvorschau fehlgeschlagen: "
 
@@ -199,6 +208,15 @@ msgstr "Rendern der Programmvorschau eingereiht: "
 
 msgid "Programme preview render queued."
 msgstr "Rendern der Programmvorschau eingereiht."
+
+msgid "Programme preview render completed: "
+msgstr "Rendern der Programmvorschau abgeschlossen: "
+
+msgid "Programme preview status polling timed out."
+msgstr "Statusabfrage der Programmvorschau ist abgelaufen."
+
+msgid "Programme preview status request failed."
+msgstr "Statusanfrage für die Programmvorschau fehlgeschlagen."
 
 msgid "Programme preview render request failed."
 msgstr "Render-Anfrage für die Programmvorschau fehlgeschlagen."
