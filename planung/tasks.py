@@ -42,6 +42,24 @@ def poll_anchor_render_job(
     max_attempts: int = 480,
 ) -> dict[str, Any]:
     """Poll the external anchor renderer until the render job is finished."""
+    return _poll_anchor_render_job(
+        job_id=job_id,
+        output_name=output_name,
+        poll_interval=poll_interval,
+        max_attempts=max_attempts,
+        update_state=self.update_state,
+    )
+
+
+def _poll_anchor_render_job(
+    *,
+    job_id: str,
+    output_name: str = "",
+    poll_interval: int = 15,
+    max_attempts: int = 480,
+    update_state=None,
+) -> dict[str, Any]:
+    """Poll renderer status; optionally report progress to the current Celery task."""
     safe_interval = max(1, int(poll_interval))
     safe_attempts = max(1, int(max_attempts))
 
@@ -56,7 +74,8 @@ def poll_anchor_render_job(
             "attempt": attempt,
             "max_attempts": safe_attempts,
         }
-        self.update_state(state="PROGRESS", meta=payload)
+        if update_state:
+            update_state(state="PROGRESS", meta=payload)
 
         if result.status == "done":
             logger.info("Anchor render job %s finished: %s", job_id, result.file)
@@ -255,11 +274,12 @@ def anchor_render_chain(
         }
 
     self.update_state(state="PROGRESS", meta={"phase": "polling", "job_id": result.job_id})
-    final = poll_anchor_render_job(
+    final = _poll_anchor_render_job(
         job_id=result.job_id,
         output_name=result.output_name,
         poll_interval=15,
         max_attempts=480,
+        update_state=self.update_state,
     )
     return {
         "status": final.get("status", "done"),
