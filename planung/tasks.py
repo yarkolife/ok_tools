@@ -2,9 +2,10 @@
 
 from celery import shared_task
 from datetime import date
-from planung.services.playout_import_service import fetch_playout_missing_media
+from planung.services.anchor_render_service import _placeholder_video
 from planung.services.anchor_render_service import get_anchor_job_status
 from planung.services.anchor_render_service import render_anchor_preview
+from planung.services.playout_import_service import fetch_playout_missing_media
 from typing import Any
 import logging
 import time
@@ -104,6 +105,9 @@ def _wait_for_copy_in_chain(plan_date_obj: date, timeout_seconds: int = 1800) ->
 
     A successful copy task is enough to proceed even when it returned warnings;
     missing videos are allowed only when no source video exists in CUSTOM/ARCHIVE.
+    When no source VideoFile exists anywhere and a configured placeholder rule or
+    default placeholder resolves for a missing number, that number is considered
+    ready without waiting for a copy task.
     """
     from celery.result import AsyncResult
     from media_files.models import VideoFile
@@ -142,6 +146,13 @@ def _wait_for_copy_in_chain(plan_date_obj: date, timeout_seconds: int = 1800) ->
         ready = [n for n in numbers if n in ready_numbers]
         if not missing:
             return {"ready": True, "elapsed": int(time.time() - start), "missing": [], "ready_numbers": ready}
+
+        if missing:
+            _resolve_placeholder_missing(plan, missing, ready_numbers)
+            missing = [n for n in numbers if n not in ready_numbers]
+            ready = [n for n in numbers if n in ready_numbers]
+            if not missing:
+                return {"ready": True, "elapsed": int(time.time() - start), "missing": [], "ready_numbers": ready}
 
         if plan.copy_task_id:
             async_result = AsyncResult(plan.copy_task_id)
@@ -203,6 +214,56 @@ def _numbers_with_source_videos(numbers: list[int]) -> list[int]:
     )
 
 
+def _resolve_placeholder_missing(
+    plan: Any,
+    missing: list[int],
+    ready_numbers: set[int],
+) -> None:
+    """Check if any missing plan numbers without source videos can use placeholders.
+
+    For each missing number that has NO available non-preview VideoFile anywhere,
+    resolve a placeholder via PlanungConfig rules (mirrors _check_plan_copy_state).
+    Resolved numbers are added to ready_numbers in-place.
+    Numbers with a source VideoFile outside PLAYOUT remain missing.
+    """
+    if not missing:
+        return
+    from licenses.models import License
+    from media_files.models import VideoFile
+    from planung.models import PlanungConfig
+
+    source_set = set(
+        VideoFile.objects.filter(
+            number__in=missing,
+            is_available=True,
+            is_preview=False,
+        ).values_list("number", flat=True)
+    )
+    missing_without_source = [n for n in missing if n not in source_set]
+    if not missing_without_source:
+        return
+
+    config = PlanungConfig.get_config()
+    has_rules = isinstance(config.anchor_placeholder_rules, list) and bool(config.anchor_placeholder_rules)
+    has_default = bool(str(config.anchor_default_placeholder_video or "").strip())
+    if not has_rules and not has_default:
+        return
+
+    items = plan.json_plan.get("items", [])
+    items_by_number = {item.get("number"): item for item in items if item.get("number")}
+    license_objs = License.objects.filter(number__in=missing_without_source).select_related("profile")
+    licenses_by_number = {lic.number: lic for lic in license_objs}
+
+    for n in missing_without_source:
+        item = items_by_number.get(n)
+        if not item:
+            continue
+        license_obj = licenses_by_number.get(n)
+        placeholder = _placeholder_video(license_obj, item, config)
+        if placeholder:
+            ready_numbers.add(n)
+
+
 @shared_task(name="planung.tasks.anchor_render_chain", bind=True)
 def anchor_render_chain(
     self,
@@ -215,8 +276,8 @@ def anchor_render_chain(
     Runs entirely inside Celery so the user can close the browser tab.
     Frontend polls TaskResult via /api/planning/anchor/render/status/<task_id>/
     """
-    from planung.models import TagesPlan
     from django.contrib.auth import get_user_model
+    from planung.models import TagesPlan
     from registration.models import Profile
 
     plan_date_obj = date.fromisoformat(plan_date_str)

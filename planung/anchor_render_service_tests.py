@@ -6,8 +6,8 @@ from media_files.models import StorageLocation
 from media_files.models import VideoFile
 from planung.models import PlanungConfig
 from planung.models import TagesPlan
-from planung.services.anchor_render_service import AnchorRenderResult
 from planung.services.anchor_render_service import AnchorJobStatus
+from planung.services.anchor_render_service import AnchorRenderResult
 from planung.services.anchor_render_service import build_anchor_payload
 from planung.services.anchor_render_service import render_anchor_preview
 from planung.tasks import _wait_for_copy_in_chain
@@ -606,6 +606,176 @@ def test__anchor_render__wait_for_copy_blocks_when_missing_number_has_source_vid
         datum=date(2026, 6, 15),
         json_plan={
             "items": [{"number": 18383, "title": "Has source but not playout"}],
+            "draft": False,
+            "planned": True,
+        },
+        copy_task_id="copy-success-but-incomplete",
+    )
+    async_result = Mock(state="SUCCESS")
+
+    with patch("celery.result.AsyncResult", return_value=async_result):
+        result = _wait_for_copy_in_chain(date(2026, 6, 15), timeout_seconds=1)
+
+    assert result["ready"] is False
+    assert result["error"] == "copy_incomplete_after_success"
+    assert result["missing"] == [18383]
+    assert result["missing_with_source"] == [18383]
+
+
+@pytest.mark.django_db
+def test__anchor_render__wait_for_copy_resolves_live_placeholder_without_source(
+    verified_profile,
+):
+    """Missing live number with no source VideoFile resolves via live placeholder."""
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Live Show",
+        description="Description",
+        duration=timedelta(minutes=30),
+        is_live=True,
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "live", "video": "playout/placeholder/live_trailer.mp4"},
+    ]
+    config.save()
+
+    TagesPlan.objects.create(
+        datum=date(2026, 6, 15),
+        json_plan={
+            "items": [{"number": license_obj.number, "title": "Live Show", "is_live": True}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    result = _wait_for_copy_in_chain(date(2026, 6, 15), timeout_seconds=1)
+
+    assert result["ready"] is True
+    assert result["missing"] == []
+    assert license_obj.number in result["ready_numbers"]
+
+
+@pytest.mark.django_db
+def test__anchor_render__wait_for_copy_resolves_title_prefix_placeholder_without_source(
+    verified_profile,
+):
+    """Missing title_prefix number with no source VideoFile resolves via placeholder."""
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Merseburg Report June",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {
+            "match": "title_prefix",
+            "video": "playout/placeholder/merseburg_intro.mp4",
+            "prefix": "Merseburg Report",
+        },
+    ]
+    config.save()
+
+    TagesPlan.objects.create(
+        datum=date(2026, 6, 15),
+        json_plan={
+            "items": [{"number": license_obj.number, "title": "Merseburg Report June"}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    result = _wait_for_copy_in_chain(date(2026, 6, 15), timeout_seconds=1)
+
+    assert result["ready"] is True
+    assert result["missing"] == []
+    assert license_obj.number in result["ready_numbers"]
+
+
+@pytest.mark.django_db
+def test__anchor_render__wait_for_copy_resolves_default_placeholder_without_source(
+    verified_profile,
+):
+    """Missing number with no source VideoFile resolves via default placeholder."""
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Unknown Programme",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = []
+    config.anchor_default_placeholder_video = "playout/placeholder/default.mp4"
+    config.save()
+
+    TagesPlan.objects.create(
+        datum=date(2026, 6, 15),
+        json_plan={
+            "items": [{"number": license_obj.number, "title": "Unknown Programme"}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    result = _wait_for_copy_in_chain(date(2026, 6, 15), timeout_seconds=1)
+
+    assert result["ready"] is True
+    assert result["missing"] == []
+    assert license_obj.number in result["ready_numbers"]
+
+
+@pytest.mark.django_db
+def test__anchor_render__wait_for_copy_blocks_source_video_with_placeholder(
+    tmp_path,
+):
+    """Placeholder does not bypass copy when a source VideoFile exists in ARCHIVE."""
+    archive = StorageLocation.objects.create(
+        name="Kaefig-Archiv",
+        storage_type="ARCHIVE",
+        path=str(tmp_path),
+        is_active=True,
+    )
+    VideoFile.objects.create(
+        number=18383,
+        filename="18383_source.mp4",
+        file_path="18383_source.mp4",
+        storage_location=archive,
+        is_available=True,
+        is_preview=False,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "live", "video": "playout/placeholder/live.mp4"},
+    ]
+    config.anchor_default_placeholder_video = "playout/placeholder/default.mp4"
+    config.save()
+
+    TagesPlan.objects.create(
+        datum=date(2026, 6, 15),
+        json_plan={
+            "items": [{"number": 18383, "title": "Archive stuff", "is_live": True}],
             "draft": False,
             "planned": True,
         },
