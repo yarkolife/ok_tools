@@ -1,5 +1,6 @@
 from datetime import timedelta
 from .models import RentalItem, RentalRequest
+from .models import Room, RoomRental
 from .services import RentalService
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -427,4 +428,201 @@ def api_add_rental_items(request, rental_id):
     return JsonResponse({
         'success': True,
         'items': [serialize_item(item) for item in created_items],
+    })
+
+
+@login_required
+@staff_member_required
+def api_add_room_to_rental(request, rental_id):
+    """Add a room to an editable rental request."""
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+
+    try:
+        rental = RentalRequest.objects.get(pk=rental_id)
+    except RentalRequest.DoesNotExist:
+        return JsonResponse({'error': _('Rental request not found.')}, status=404)
+
+    if rental.status not in ('draft', 'reserved'):
+        return JsonResponse({'error': _('Cannot add rooms in the current rental status')}, status=400)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'error': _('Invalid JSON.')}, status=400)
+
+    room_id = data.get('room_id')
+    if not room_id:
+        return JsonResponse({'error': _('room_id is required')}, status=400)
+
+    try:
+        room = Room.objects.get(pk=room_id)
+    except Room.DoesNotExist:
+        return JsonResponse({'error': _('Room not found.')}, status=404)
+
+    if RoomRental.objects.filter(rental_request=rental, room=room).exists():
+        return JsonResponse({'error': _('This room is already in the rental.')}, status=400)
+
+    start_date_str = data.get('start_date', '')
+    start_time_str = data.get('start_time', '')
+    end_date_str = data.get('end_date', '')
+    end_time_str = data.get('end_time', '')
+
+    requested_start_date = None
+    requested_end_date = None
+
+    if start_date_str and start_time_str:
+        try:
+            requested_start_date = timezone.make_aware(
+                datetime.datetime.strptime(f'{start_date_str}T{start_time_str}', '%Y-%m-%dT%H:%M')
+            )
+        except (ValueError, TypeError):
+            return JsonResponse({'error': _('Invalid start date/time format.')}, status=400)
+
+    if end_date_str and end_time_str:
+        try:
+            requested_end_date = timezone.make_aware(
+                datetime.datetime.strptime(f'{end_date_str}T{end_time_str}', '%Y-%m-%dT%H:%M')
+            )
+        except (ValueError, TypeError):
+            return JsonResponse({'error': _('Invalid end date/time format.')}, status=400)
+
+    if requested_start_date and requested_end_date and requested_end_date <= requested_start_date:
+        return JsonResponse({'error': _('End date must be after start date.')}, status=400)
+
+    if requested_start_date and requested_end_date:
+        if not room.is_available_for_time(requested_start_date, requested_end_date):
+            return JsonResponse({'error': _('Room is not available for the selected time period.')}, status=409)
+
+    room_rental = RoomRental.objects.create(
+        rental_request=rental,
+        room=room,
+        people_count=data.get('people_count', 1),
+        requested_start_date=requested_start_date,
+        requested_end_date=requested_end_date,
+        notes=data.get('notes', ''),
+    )
+
+    return JsonResponse({
+        'success': True,
+        'room_rental': {
+            'id': room_rental.pk,
+            'name': room.name,
+            'start_date': start_date_str,
+            'start_time': start_time_str,
+            'end_date': end_date_str,
+            'end_time': end_time_str,
+        },
+    })
+
+
+@login_required
+@staff_member_required
+def api_update_room_rental(request, rental_id):
+    """Update a room rental's dates for an editable rental request."""
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+
+    try:
+        rental = RentalRequest.objects.get(pk=rental_id)
+    except RentalRequest.DoesNotExist:
+        return JsonResponse({'error': _('Rental request not found.')}, status=404)
+
+    if rental.status not in ('draft', 'reserved'):
+        return JsonResponse({'error': _('Cannot edit rooms in the current rental status')}, status=400)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'error': _('Invalid JSON.')}, status=400)
+
+    room_rental_id = data.get('room_rental_id')
+    if not room_rental_id:
+        return JsonResponse({'error': _('room_rental_id is required')}, status=400)
+
+    try:
+        room_rental = RoomRental.objects.get(pk=room_rental_id, rental_request=rental)
+    except RoomRental.DoesNotExist:
+        return JsonResponse({'error': _('Room rental not found.')}, status=404)
+
+    start_date_str = data.get('start_date', '')
+    start_time_str = data.get('start_time', '')
+    end_date_str = data.get('end_date', '')
+    end_time_str = data.get('end_time', '')
+
+    if start_date_str and start_time_str:
+        try:
+            room_rental.requested_start_date = timezone.make_aware(
+                datetime.datetime.strptime(f'{start_date_str}T{start_time_str}', '%Y-%m-%dT%H:%M')
+            )
+        except (ValueError, TypeError):
+            return JsonResponse({'error': _('Invalid start date/time format.')}, status=400)
+
+    if end_date_str and end_time_str:
+        try:
+            room_rental.requested_end_date = timezone.make_aware(
+                datetime.datetime.strptime(f'{end_date_str}T{end_time_str}', '%Y-%m-%dT%H:%M')
+            )
+        except (ValueError, TypeError):
+            return JsonResponse({'error': _('Invalid end date/time format.')}, status=400)
+
+    if room_rental.requested_start_date and room_rental.requested_end_date:
+        if room_rental.requested_end_date <= room_rental.requested_start_date:
+            return JsonResponse({'error': _('End date must be after start date.')}, status=400)
+        if not room_rental.room.is_available_for_time(
+            room_rental.requested_start_date, room_rental.requested_end_date,
+            exclude_rental_request=rental.pk,
+        ):
+            return JsonResponse({'error': _('Room is not available for the selected time period.')}, status=409)
+
+    room_rental.save(update_fields=['requested_start_date', 'requested_end_date'])
+
+    return JsonResponse({
+        'success': True,
+        'room_rental': {
+            'id': room_rental.pk,
+            'name': room_rental.room.name,
+            'start_date': start_date_str,
+            'start_time': start_time_str,
+            'end_date': end_date_str,
+            'end_time': end_time_str,
+        },
+    })
+
+
+@login_required
+@staff_member_required
+def api_remove_room_rental(request, rental_id):
+    """Remove a room rental from an editable rental request."""
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+
+    try:
+        rental = RentalRequest.objects.get(pk=rental_id)
+    except RentalRequest.DoesNotExist:
+        return JsonResponse({'error': _('Rental request not found.')}, status=404)
+
+    if rental.status not in ('draft', 'reserved'):
+        return JsonResponse({'error': _('Cannot remove rooms in the current rental status')}, status=400)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'error': _('Invalid JSON.')}, status=400)
+
+    room_rental_id = data.get('room_rental_id')
+    if not room_rental_id:
+        return JsonResponse({'error': _('room_rental_id is required')}, status=400)
+
+    try:
+        room_rental = RoomRental.objects.get(pk=room_rental_id, rental_request=rental)
+    except RoomRental.DoesNotExist:
+        return JsonResponse({'error': _('Room rental not found.')}, status=404)
+
+    room_name = room_rental.room.name
+    room_rental.delete()
+
+    return JsonResponse({
+        'success': True,
+        'message': _('Room "%s" removed from rental.') % room_name,
     })

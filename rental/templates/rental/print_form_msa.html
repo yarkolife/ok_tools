@@ -303,6 +303,9 @@
                             <strong>{{ item.inventory_item.inventory_number }}</strong><br>
                             {{ item.inventory_item.description }}<br>
                             <small>Menge: {{ item.quantity_requested }}{% if item.quantity_issued %} (ausgegeben: {{ item.quantity_issued }}){% endif %}</small>
+{% for issue in item.issues.all %}
+<br><small style="color:#c00;">⚠ {{ issue.get_issue_type_display }} — {{ issue.description }}</small>
+{% endfor %}
                             {% if item.inventory_item.serial_number %}
                             <br><small>S/N: {{ item.inventory_item.serial_number }}</small>
                             {% endif %}

@@ -55,6 +55,10 @@ python manage.py setup_organizations || true
 echo "Migrating module configs from environment variables (if empty/default in DB)..."
 python manage.py migrate_module_configs || echo "Warning: Failed to migrate module configs, continuing anyway..."
 
+# Setup Celery Beat periodic tasks
+echo "Setting up Celery Beat periodic tasks..."
+python manage.py setup_periodic_tasks || echo "Warning: Failed to setup periodic tasks, continuing anyway..."
+
 # Start gunicorn
 echo "Starting gunicorn..."
 exec gunicorn \

@@ -1,0 +1,74 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Equipment Sets" %} — OK Tools</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
+                    <i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span>
+                </a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/">
+                        <i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="page">
+        {% include 'rental/_sidebar.html' with sidebar_active='sets' %}
+
+        <div class="page-main">
+            <div class="page-title">
+                <h1>{% trans "Equipment Sets" %}</h1>
+                <span class="sub">{% trans "Create and manage reusable equipment combinations" %}</span>
+            </div>
+
+            <div id="sets-root">
+                <div class="p-5 text-center muted">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 24px"></i>
+                    <div class="mt-2">{% trans "Loading…" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ initial_json|json_script:"sets-initial" }}
+    {{ i18n_strings|json_script:"rr-i18n" }}
+
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+            integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+            integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+            integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+            crossorigin="anonymous"></script>
+
+    <script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'rental/js/equipment_sets.jsx' %}"></script>
+    <script type="text/babel">
+    (() => {
+      const initial = JSON.parse(document.getElementById('sets-initial').textContent);
+      ReactDOM.createRoot(document.getElementById('sets-root'))
+              .render(<EquipmentSetsScreen initial={initial} />);
+    })();
+    </script>
+</body>
+</html>

@@ -1,3 +1,1 @@
-{% load i18n %}
-{% blocktrans with rental_id=rental_id %}Rental request #{{ rental_id }} has been declined{% endblocktrans %}
-
+{% load i18n %}{% blocktrans with rental_id=rental_id %}Ausleihe #{{ rental_id }} wurde abgelehnt{% endblocktrans %}

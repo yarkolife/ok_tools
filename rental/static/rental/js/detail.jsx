@@ -180,6 +180,7 @@ function SignatureModal({ urls, onClose, onSigned }) {
 }
 function ActionBar({ rental, urls }) {
   const status = rental.status;
+  const isRoomOnly = (rental.item_count || 0) === 0 && (rental.room_count || 0) > 0;
   const [extendOpen, setExtendOpen] = React.useState(false);
   const [extendTo, setExtendTo] = React.useState(rental.to_iso || '');
   const [extendReason, setExtendReason] = React.useState('');
@@ -252,6 +253,13 @@ function ActionBar({ rental, urls }) {
     catch (e) { alert(e.message); setBusy(false); }
   };
 
+  const doConfirm = async () => {
+    if (!confirm(t('confirm.draft', 'Confirm this rental? It will become reserved.'))) return;
+    setBusy(true);
+    try { await apiPost(urls.confirm, { rental_id: rental.pk }); window.location.reload(); }
+    catch (e) { alert(e.message); setBusy(false); }
+  };
+
   return (
     <>
       {extendOpen && (
@@ -288,14 +296,17 @@ function ActionBar({ rental, urls }) {
               <strong style={{color:'var(--ink-2)'}}> {fmtDateShort(rental.to_at)}</strong></>}
             {status === 'overdue'  && <span style={{color:'oklch(0.45 0.14 28)'}}>
               {rental.overdue_days} {t('due.days_overdue', 'days overdue')}</span>}
-            {status === 'reserved' && <>{t('due.pickup_at', 'Pickup')}
+            {status === 'reserved' && isRoomOnly && <>
+              {t('due.reserved_until', 'Reserved')}
+              <strong> {fmtDateShort(rental.to_at)}</strong></>}
+            {status === 'reserved' && !isRoomOnly && <>{t('due.pickup_at', 'Pickup')}
               <strong> {fmtDateShort(rental.from_at)}</strong></>}
             {status === 'returned' && <>{t('due.closed', 'Closed')}</>}
           </span>
         </div>
 
         <div className="secondary">
-          {status === 'reserved' && (
+          {status === 'reserved' && !isRoomOnly && (
             <button className="btn btn-primary btn-sm" onClick={doMarkIssued} disabled={busy}>
               <i className="fas fa-box-open me-1"></i>{t('btn.mark_issued', 'Mark issued')}
             </button>
@@ -330,9 +341,14 @@ function ActionBar({ rental, urls }) {
               </a>
             </>
           )}
-          {status === 'returned' && (
+          {status === 'returned' && !isRoomOnly && (
             <button className="btn btn-primary btn-sm" onClick={doClose} disabled={busy}>
               <i className="fas fa-lock me-1"></i>{t('btn.close', 'Close rental')}
+            </button>
+          )}
+          {status === 'draft' && (
+            <button className="btn btn-success btn-sm" onClick={doConfirm} disabled={busy}>
+              <i className="fas fa-check-circle me-1"></i>{t('btn.confirm', 'Confirm')}
             </button>
           )}
 
@@ -402,9 +418,12 @@ function RentalTabs({ rental, items, rooms, issues, history, urls }) {
   const [tab, setTab] = React.useState('items');
   const [expanded, setExpanded] = React.useState(null);
   const [reportItem, setReportItem] = React.useState(null);
+  const [reportModalOpen, setReportModalOpen] = React.useState(false);
   const [swapItem, setSwapItem] = React.useState(null);
   const [addItemsOpen, setAddItemsOpen] = React.useState(false);
+  const [addRoomOpen, setAddRoomOpen] = React.useState(false);
   const canAddItems = !rental.has_signature && !['returned', 'closed'].includes(rental.status);
+  const canEditRooms = !rental.has_signature && (rental.status === 'draft' || rental.status === 'reserved');
 
   React.useEffect(() => {
     const doNavigate = (target) => {
@@ -484,18 +503,15 @@ function RentalTabs({ rental, items, rooms, issues, history, urls }) {
             <div className="p-4 muted text-center">{t('rooms.none', 'No rooms booked in this rental.')}</div>
           )}
           {rooms.map(room => (
-            <div key={room.id} style={{padding: '14px 16px', borderBottom: '1px solid var(--line)',
-                                          display:'grid', gridTemplateColumns: '40px 1fr auto', gap: 12, alignItems:'center'}}>
-              <span className="av" style={{width: 40, height: 40, fontSize: 14}}>
-                <i className="fas fa-door-open"></i>
-              </span>
-              <div>
-                <div style={{fontWeight: 600, fontSize: 14}}>{room.name}</div>
-                <div className="muted tiny">{room.period} · {room.seat}</div>
-              </div>
-              <span className="tag tag-hold">{t('room.booked', 'Booked')}</span>
-            </div>
+            <EditableRoomRow key={room.id} room={room} canEdit={canEditRooms} urls={urls} />
           ))}
+          {canEditRooms && (
+            <div style={{padding:'8px 12px',display:'flex',justifyContent:'flex-end'}}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setAddRoomOpen(true)}>
+                <i className="fas fa-plus me-1"></i>{t('btn.add_room', 'Add room')}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -503,9 +519,10 @@ function RentalTabs({ rental, items, rooms, issues, history, urls }) {
         <IssuesPanel issues={issues} urls={urls} onReportIssue={setReportItem} />
       )}
 
-      {reportItem !== null && <ReportIssueModal item={reportItem} onClose={() => setReportItem(null)} urls={urls} />}
+      {reportModalOpen && <ReportIssueModal item={reportItem} onClose={() => setReportModalOpen(false)} urls={urls} />}
       {swapItem !== null && <SwapUnitModal item={swapItem} onClose={() => setSwapItem(null)} urls={urls} rental={rental} />}
       {addItemsOpen && canAddItems && <AddItemsModal rental={rental} urls={urls} existingItems={items} onClose={() => setAddItemsOpen(false)} />}
+      {addRoomOpen && canEditRooms && <AddRoomModal rental={rental} urls={urls} existingRooms={rooms} onClose={() => setAddRoomOpen(false)} />}
 
       {tab === 'history' && (
         <div className="surface" style={{padding: '4px 0'}}>
@@ -731,8 +748,8 @@ function ItemRow({ item, expanded, toggle, urls, onReportIssue, onSwapClick, sta
                 <i className="fas fa-circle-minus me-1"></i>{t('btn.remove', 'Remove from rental')}
               </button>
             )}
-            <button className="btn btn-ghost btn-sm" onClick={() => onReportIssue(item)}>
-              <i className="fas fa-triangle-exclamation me-1"></i>{t('btn.report_issue', 'Report issue')}
+              <button className="btn btn-ghost btn-sm" onClick={() => { onReportIssue(item); setReportModalOpen(true); }}>
+                <i className="fas fa-triangle-exclamation me-1"></i>{t('btn.report_issue', 'Report issue')}
             </button>
           </div>
         </div>
@@ -747,9 +764,9 @@ function IssuesPanel({ issues, onReportIssue }) {
     <>
       <div style={{display:'flex', alignItems:'center', marginBottom: 10, gap: 10}}>
         <div className="muted tiny">
-          {t('issues.note', "Issues are logged during return — they don't affect item availability until closed.")}
+          {t('issues.note', "Issues can be logged at any stage of the rental lifecycle.")}
         </div>
-        <button className="btn btn-ghost btn-sm ms-auto" onClick={() => onReportIssue(null)}>
+        <button className="btn btn-ghost btn-sm ms-auto" onClick={() => { setReportItem(null); setReportModalOpen(true); }}>
           <i className="fas fa-plus me-1"></i>{t('btn.log_issue', 'Log issue')}
         </button>
       </div>
@@ -1006,3 +1023,223 @@ function ChangePeriodModal({ rental, urls, onClose, onChanged }) {
 }
 
 Object.assign(window, { ActionBar, RentalTabs });
+
+/* ---------- Editable Room Row ---------- */
+function EditableRoomRow({ room, canEdit, urls }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [startDate, setStartDate] = React.useState(room.start_date || today);
+  const [startTime, setStartTime] = React.useState(room.start_time || '10:00');
+  const [endDate, setEndDate] = React.useState(room.end_date || today);
+  const [endTime, setEndTime] = React.useState(room.end_time || '17:30');
+  const [busy, setBusy] = React.useState(false);
+
+  if (!canEdit) {
+    return (
+      <div style={{padding: '14px 16px', borderBottom: '1px solid var(--line)',
+                    display:'grid', gridTemplateColumns: '40px 1fr auto', gap: 12, alignItems:'center'}}>
+        <span className="av" style={{width: 40, height: 40, fontSize: 14}}>
+          <i className="fas fa-door-open"></i>
+        </span>
+        <div>
+          <div style={{fontWeight: 600, fontSize: 14}}>{room.name}</div>
+          <div className="muted tiny">{room.period} · {room.seat}</div>
+        </div>
+        <span className="tag tag-hold">{t('room.booked', 'Booked')}</span>
+      </div>
+    );
+  }
+
+  const doSave = async () => {
+    setBusy(true);
+    try {
+      await apiPost(urls.update_room, {
+        room_rental_id: room.id,
+        start_date: startDate,
+        start_time: startTime,
+        end_date: endDate,
+        end_time: endTime,
+      });
+      window.location.reload();
+    } catch (e) {
+      alert(t('err.update_room', 'Could not update room: ') + e.message);
+      setBusy(false);
+    }
+  };
+
+  const doRemove = async () => {
+    if (!confirm(t('confirm.remove_room', 'Remove this room from the rental?'))) return;
+    setBusy(true);
+    try {
+      await apiPost(urls.remove_room, { room_rental_id: room.id });
+      window.location.reload();
+    } catch (e) {
+      alert(t('err.remove_room', 'Could not remove room: ') + e.message);
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div style={{padding: '14px 16px', borderBottom: '1px solid var(--line)'}}>
+      <div style={{display:'grid', gridTemplateColumns: '40px 1fr auto', gap: 12, alignItems:'center', marginBottom: 10}}>
+        <span className="av" style={{width: 40, height: 40, fontSize: 14}}>
+          <i className="fas fa-door-open"></i>
+        </span>
+        <div>
+          <div style={{fontWeight: 600, fontSize: 14}}>{room.name}</div>
+        </div>
+        <button className="btn btn-ghost btn-sm" style={{color:'oklch(0.45 0.13 28)'}} onClick={doRemove} disabled={busy}>
+          <i className="fas fa-trash"></i>
+        </button>
+      </div>
+      <div style={{display:'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12}}>
+        <div>
+          <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_date', 'Start date')}</label>
+          <input type="date" className="form-control form-control-sm" value={startDate}
+                 onChange={e => { setStartDate(e.target.value); setEndDate(e.target.value); }} min={today} />
+        </div>
+        <div>
+          <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_time', 'Start time')}</label>
+          <input type="time" className="form-control form-control-sm" value={startTime} step="1800"
+                 onChange={e => setStartTime(e.target.value)} />
+        </div>
+        <div>
+          <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_date', 'End date')}</label>
+          <input type="date" className="form-control form-control-sm" value={endDate}
+                 onChange={e => setEndDate(e.target.value)} min={startDate || today} />
+        </div>
+        <div>
+          <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_time', 'End time')}</label>
+          <input type="time" className="form-control form-control-sm" value={endTime} step="1800"
+                 onChange={e => setEndTime(e.target.value)} />
+        </div>
+      </div>
+      <div style={{display:'flex', gap: 6, marginTop: 8, justifyContent: 'flex-end'}}>
+        <button className="btn btn-primary btn-sm" onClick={doSave} disabled={busy}>
+          <i className="fas fa-check me-1"></i>{t('btn.save_room', 'Save')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Add Room Modal ---------- */
+function AddRoomModal({ rental, urls, existingRooms, onClose }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [rooms, setRooms] = React.useState([]);
+  const [selectedRoom, setSelectedRoom] = React.useState(null);
+  const [startDate, setStartDate] = React.useState(today);
+  const [startTime, setStartTime] = React.useState('10:00');
+  const [endDate, setEndDate] = React.useState(today);
+  const [endTime, setEndTime] = React.useState('17:30');
+  const [busy, setBusy] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          start_date: `${startDate}T${startTime}`,
+          end_date: `${endDate}T${endTime}`,
+        });
+        const data = await apiGet(`${urls.rooms_available}?${params}`);
+        const existingIds = new Set(existingRooms.map(r => r.room_id));
+        setRooms((data.rooms || data || []).filter(r => !existingIds.has(r.id)));
+        setSelectedRoom(null);
+      } catch (e) {
+        console.debug('Failed to load rooms:', e);
+      }
+      setLoading(false);
+    };
+    load();
+  }, [startDate, startTime, endDate, endTime]);
+
+  const doAdd = async () => {
+    if (!selectedRoom) return;
+    setBusy(true);
+    try {
+      await apiPost(urls.add_room, {
+        room_id: selectedRoom.id,
+        start_date: startDate,
+        start_time: startTime,
+        end_date: endDate,
+        end_time: endTime,
+      });
+      window.location.reload();
+    } catch (e) {
+      alert(t('err.add_room', 'Could not add room: ') + e.message);
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={onClose}>
+      <div style={{background:'#fff',borderRadius:12,padding:20,width:560,maxWidth:'90vw',maxHeight:'85vh',overflowY:'auto'}} onClick={e => e.stopPropagation()}>
+        <h6 style={{margin:'0 0 16px',fontSize:13,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--ink-3)',fontWeight:600}}>
+          {t('add_room.title', 'Add room to rental')}
+        </h6>
+
+        {loading ? (
+          <div className="p-3 text-center muted">{t('common.loading', 'Loading…')}</div>
+        ) : rooms.length === 0 ? (
+          <div className="p-3 muted text-center">{t('add_room.no_rooms', 'No rooms available.')}</div>
+        ) : (
+          <div style={{marginBottom: 16, maxHeight: 200, overflowY: 'auto'}}>
+            {rooms.map(r => (
+              <div key={r.id}
+                   onClick={() => r.is_available && setSelectedRoom(r)}
+                   style={{padding:'8px 10px',cursor: r.is_available ? 'pointer' : 'default',borderRadius:6,
+                           background: selectedRoom?.id === r.id ? 'var(--bg-sub)' : 'transparent',
+                           borderBottom: '1px solid var(--line)', opacity: r.is_available ? 1 : 0.5}}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                  <div style={{fontWeight: 600, fontSize: 13}}>
+                    <i className="fas fa-door-open me-2 muted"></i>{r.name || r.room_name}
+                  </div>
+                  <span className={cls('tag', r.is_available ? 'tag-ok' : 'tag-bad')} style={{fontSize: 10}}>
+                    {r.is_available ? t('add_room.free', 'Free') : t('add_room.occupied', 'Occupied')}
+                  </span>
+                </div>
+                {r.description && <div className="muted tiny">{r.description}</div>}
+                {!r.is_available && r.availability_info && (
+                  <div className="muted tiny" style={{color:'oklch(0.5 0.14 28)'}}>{r.availability_info}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedRoom && (
+          <div style={{display:'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, marginBottom: 16}}>
+            <div>
+              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_date', 'Start date')}</label>
+              <input type="date" className="form-control form-control-sm" value={startDate}
+                     onChange={e => { setStartDate(e.target.value); setEndDate(e.target.value); }} min={today} />
+            </div>
+            <div>
+              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_time', 'Start time')}</label>
+              <input type="time" className="form-control form-control-sm" value={startTime} step="1800"
+                     onChange={e => setStartTime(e.target.value)} />
+            </div>
+            <div>
+              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_date', 'End date')}</label>
+              <input type="date" className="form-control form-control-sm" value={endDate}
+                     onChange={e => setEndDate(e.target.value)} min={startDate || today} />
+            </div>
+            <div>
+              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_time', 'End time')}</label>
+              <input type="time" className="form-control form-control-sm" value={endTime} step="1800"
+                     onChange={e => setEndTime(e.target.value)} />
+            </div>
+          </div>
+        )}
+
+        <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn btn-ghost btn-sm" onClick={onClose}>{t('btn.cancel', 'Cancel')}</button>
+          <button className="btn btn-primary btn-sm" onClick={doAdd} disabled={busy || !selectedRoom}>
+            <i className="fas fa-plus me-1"></i>{t('btn.add_room', 'Add room')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

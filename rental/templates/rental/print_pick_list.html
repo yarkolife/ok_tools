@@ -140,6 +140,9 @@
                             <td>{{ item.inventory_item.location.full_path|default:"-" }}</td>
                             <td>{{ item.quantity_requested }}</td>
                             <td>
+                                {% for issue in item.issues.all %}
+                                <div style="color:#c00;font-size:10px;">⚠ {{ issue.get_issue_type_display }} — {{ issue.description }}</div>
+                                {% endfor %}
                                 <textarea
                                     class="note-input js-pick-note"
                                     data-item-id="{{ item.id }}"

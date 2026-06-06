@@ -482,6 +482,13 @@ class RentalConfigAdmin(admin.ModelAdmin):
                 'approval_token_max_age_seconds',
             ),
         }),
+        (_('Automatic Reminders'), {
+            'fields': (
+                'auto_reminder_enabled',
+                'auto_reminder_hours_before',
+            ),
+            'description': _('Send automatic return reminder emails before the return deadline.'),
+        }),
         (_('Working hours'), {
             'fields': (
                 ('monday_start_time', 'monday_end_time'),

@@ -857,6 +857,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'austausch.tasks.sync_exchange_folders',
         'schedule': parse_crontab_env('CELERY_BEAT_SYNC_EXCHANGE', '0 2 * * *'),
     },
+    'send_return_reminders': {
+        'task': 'ok_tools.tasks.send_return_reminders_task',
+        'schedule': parse_crontab_env('CELERY_BEAT_SEND_RETURN_REMINDERS', '0 * * * *'),
+    },
     'cleanup_old_tool_projects': {
         'task': 'tools.tasks.cleanup_old_projects_task',
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_TOOL_PROJECTS', '0 4 * * 0'),

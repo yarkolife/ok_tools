@@ -1,13 +1,11 @@
 {% load i18n %}
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-</head>
+<head><meta charset="utf-8"></head>
 <body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
 <h2>{% blocktrans with user_name=user_name %}Hallo {{ user_name }},{% endblocktrans %}</h2>
 
-<p>{% blocktrans with rental_id=rental_id ok_name=ok_name %}Deine Ausleihe #{{ rental_id }} im {{ ok_name }} wurde ausgegeben und ist zur Abholung bereit.{% endblocktrans %}</p>
+<p>{% blocktrans with rental_id=rental_id ok_name=ok_name %}Erinnerung: Ihre Ausleihe #{{ rental_id }} im {{ ok_name }} läuft bald ab. Bitte geben Sie das Equipment rechtzeitig zurück.{% endblocktrans %}</p>
 
 <h3>{% trans "Ausleihdetails" %}:</h3>
 <table style="border-collapse: collapse; width: 100%;">
@@ -20,28 +18,16 @@
 
 {% if items %}
 <h3>{% blocktrans with items_total=items_total %}Equipment ({{ items_total }} Geräte):{% endblocktrans %}</h3>
-<ul>
-{% for item in items %}
-<li>{{ item.quantity }} x {{ item.name }}</li>
-{% endfor %}
-</ul>
+<ul>{% for item in items %}<li>{{ item.quantity }} x {{ item.name }}</li>{% endfor %}</ul>
 {% endif %}
 
 {% if rooms %}
 <h3>{% blocktrans with rooms_total=rooms_total %}Räume ({{ rooms_total }}):{% endblocktrans %}</h3>
-<ul>
-{% for room in rooms %}
-<li>{{ room.name }}{% if room.start and room.end %}, {{ room.start|date:"d.m.Y H:i" }} – {{ room.end|date:"d.m.Y H:i" }}{% endif %}</li>
-{% endfor %}
-</ul>
+<ul>{% for room in rooms %}<li>{{ room.name }}{% if room.start and room.end %}, {{ room.start|date:"d.m.Y H:i" }} – {{ room.end|date:"d.m.Y H:i" }}{% endif %}</li>{% endfor %}</ul>
 {% endif %}
 
-<p><strong>{% trans "Bitte gehe sorgfältig mit dem Equipment um und gib es rechtzeitig zurück." %}</strong></p>
-{% if end %}
-<p>{% blocktrans with end=end %}Rückgabe bis: {{ end }}{% endblocktrans %}</p>
-{% endif %}
-
-<p>{% trans "Bei Fragen kontaktiere uns bitte." %}<br>
+<p><strong>{% trans "Bitte geben Sie das Equipment vollständig und unbeschädigt zurück." %}</strong></p>
+<p>{% trans "Bei Fragen kontaktieren Sie uns bitte." %}<br>
 {% if contact_email %}{% blocktrans with contact_email=contact_email %}E-Mail: {{ contact_email }}{% endblocktrans %}<br>{% endif %}
 {% if ok_phone %}{% blocktrans with ok_phone=ok_phone %}Tel: {{ ok_phone }}{% endblocktrans %}<br>{% endif %}
 {% if ok_address %}{{ ok_address }}<br>{% endif %}

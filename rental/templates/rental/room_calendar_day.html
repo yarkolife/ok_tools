@@ -119,6 +119,8 @@
                 <div class="page-actions">
                     <a href="?date={{ prev_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
                     <a href="?date={{ today|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Today" %}</a>
+                    <a href="{% url 'rental:room_calendar_week' %}?date={{ day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Week" %}</a>
+                    <a href="{% url 'rental:room_calendar_month' %}?date={{ day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Month" %}</a>
                     <a href="?date={{ next_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
                 </div>
             </div>

@@ -927,9 +927,20 @@ class RentalConfig(models.Model):
     # Optional: Token expiration time for approve/deny links (in seconds)
     # Default: 7 days (604800 seconds)
     approval_token_max_age_seconds = models.IntegerField(
-        default=604800,  # 7 days
+        default=604800,
         verbose_name=_('Approval Token Max Age (seconds)'),
         help_text=_('Token expiration time for approve/deny links in seconds')
+    )
+
+    auto_reminder_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Automatic Return Reminders'),
+        help_text=_('Enable automatic return reminder emails for issued rentals')
+    )
+    auto_reminder_hours_before = models.IntegerField(
+        default=24,
+        verbose_name=_('Reminder Hours Before Return'),
+        help_text=_('Send reminder this many hours before the requested return date')
     )
 
     monday_start_time = models.TimeField(

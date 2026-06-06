@@ -22,6 +22,7 @@ def send_mail(
     from_email: str,
     to_email: str,
     html_email_template_name: str | None = None,
+    attachments: list | None = None,
 ) -> None:
     """
     Send a django.core.mail.EmailMultiAlternatives to `to_email`.
@@ -38,6 +39,10 @@ def send_mail(
     if html_email_template_name:
         html_email = loader.render_to_string(html_email_template_name, context)
         email_message.attach_alternative(html_email, "text/html")
+
+    if attachments:
+        for filename, content, mime_type in attachments:
+            email_message.attach(filename, content, mime_type)
 
     email_message.send()
 

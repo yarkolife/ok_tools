@@ -1,0 +1,93 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <title>{% trans "Room Calendar" %} — KW {{ ref_day|date:"W, Y" }}</title>
+    <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .week-col { min-width: 0; }
+        .week-col-header { text-align: center; padding: 8px 4px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
+        .week-col-header .wday { font-weight: 600; color: var(--ink-2); }
+        .week-col-header .wdate { font-size: 11px; color: var(--ink-5); }
+        .week-col-header.today { background: var(--brand); }
+        .week-col-header.today .wday, .week-col-header.today .wdate { color: #fff; }
+        .week-col-body { min-height: 120px; background: oklch(0.97 0.03 150); border-radius: 6px; padding: 4px; }
+        .week-booking {
+            background: oklch(0.78 0.13 25); color: #fff;
+            border-radius: 4px; padding: 4px 6px; margin: 2px 0;
+            font-size: 10px; line-height: 1.3;
+            cursor: pointer; overflow: hidden;
+            white-space: nowrap; text-overflow: ellipsis;
+        }
+        .week-booking .wb-user { font-weight: 600; }
+        .week-booking .wb-time { font-size: 9px; opacity: .85; }
+        .week-closed { text-align: center; padding: 16px 8px; font-size: 11px; color: var(--ink-5); }
+        @media (max-width: 768px) { .week-grid { grid-template-columns: repeat(4, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{% url 'rental:list' %}"><i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span></a>
+                <div class="navbar-nav ms-auto align-items-center gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/"><i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span></a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="page">
+        {% include 'rental/_sidebar.html' with sidebar_active='room_calendar' %}
+        <div class="page-main">
+            <div class="page-title">
+                <h1>{% trans "Room Calendar" %}</h1>
+                <span class="sub">{% trans "Week" %} {{ ref_day|date:"W, Y" }}</span>
+                <div class="page-actions">
+                    <a href="?date={{ prev_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
+                    <a href="{% url 'rental:room_calendar_day' %}?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-primary btn-sm">{% trans "Day" %}</a>
+                    <a href="{% url 'rental:room_calendar_month' %}?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Month" %}</a>
+                    <a href="?date={{ next_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            {% for rd in rooms_data %}
+            <div class="surface p-3 mb-3">
+                <h6 style="font-size: 13px; margin: 0 0 10px;">
+                    <i class="fas fa-door-open me-2 muted"></i>{{ rd.name }}
+                </h6>
+                <div class="week-grid">
+                    {% for day in rd.days %}
+                    <div class="week-col">
+                        <div class="week-col-header {% if day.date == today %}today{% endif %}">
+                            <div class="wday">{{ day.date|date:"D" }}</div>
+                            <div class="wdate">{{ day.date|date:"d.m" }}</div>
+                        </div>
+                        <div class="week-col-body">
+                            {% if day.bookings %}
+                                {% for bk in day.bookings %}
+                                <div class="week-booking" title="{{ bk.project }}">
+                                    <div class="wb-user">{{ bk.user|truncatechars:12 }}</div>
+                                    <div class="wb-time">{{ bk.time }}</div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="week-closed muted">—</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

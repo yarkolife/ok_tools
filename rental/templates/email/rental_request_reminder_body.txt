@@ -1,0 +1,34 @@
+{% load i18n %}{% blocktrans with user_name=user_name %}Hallo {{ user_name }},{% endblocktrans %}
+
+{% blocktrans with rental_id=rental_id ok_name=ok_name %}Erinnerung: Ihre Ausleihe #{{ rental_id }} im {{ ok_name }} läuft bald ab. Bitte geben Sie das Equipment rechtzeitig zurück.{% endblocktrans %}
+
+
+{% trans "Ausleihdetails" %}:
+{% blocktrans with project_name=project_name %}Projekt: {{ project_name }}{% endblocktrans %}
+{% blocktrans with start=start end=end %}Zeitraum: {{ start }} – {{ end }}{% endblocktrans %}
+{% if actual_start %}
+{% blocktrans with actual_start=actual_start %}Ausgegeben am: {{ actual_start }}{% endblocktrans %}
+{% endif %}
+
+{% if items %}
+{% blocktrans with items_total=items_total %}Equipment ({{ items_total }} Gegenstände):{% endblocktrans %}
+{% for item in items %}
+- {{ item.quantity }} x {{ item.name }}
+{% endfor %}
+{% endif %}
+
+{% if rooms %}
+{% blocktrans with rooms_total=rooms_total %}Räume ({{ rooms_total }} gesamt):{% endblocktrans %}
+{% for room in rooms %}
+- {{ room.name }}{% if room.start and room.end %}, {{ room.start|date:"d.m.Y H:i" }} – {{ room.end|date:"d.m.Y H:i" }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% trans "Bitte geben Sie das Equipment vollständig und unbeschädigt zurück." %}
+
+{% trans "Bei Fragen kontaktieren Sie uns bitte." %}
+{% if contact_email %}{% blocktrans with contact_email=contact_email %}E-Mail: {{ contact_email }}{% endblocktrans %}{% endif %}
+{% if ok_phone %}{% blocktrans with ok_phone=ok_phone %}Tel: {{ ok_phone }}{% endblocktrans %}{% endif %}
+{% if ok_address %}{{ ok_address }}{% endif %}
+{% if ok_website %}{% blocktrans with ok_website=ok_website %}Web: {{ ok_website }}{% endblocktrans %}{% endif %}
+{% if ok_name %}— {{ ok_name }}{% endif %}

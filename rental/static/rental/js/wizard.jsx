@@ -94,7 +94,7 @@ function WizardScreen({ initial }) {
   });
   const [project, setProject] = React.useState(initial.defaults?.project || '');
   const [purpose, setPurpose] = React.useState(initial.defaults?.purpose || '');
-  const [notifyEmail, setNotifyEmail] = React.useState(true);
+  const [notifyEmail, setNotifyEmail] = React.useState(false);
 
   const hasOnlyRooms = rooms.length > 0 && cart.length === 0;
 
@@ -126,6 +126,14 @@ function WizardScreen({ initial }) {
   };
 
   const submit = async () => {
+    if (!project.trim()) {
+      alert(t('wiz.project_req', 'Please enter a project name.'));
+      return;
+    }
+    if (hasOnlyRooms && rooms.length === 0) {
+      alert(t('wiz.no_items_rooms', 'Please select at least one item or room.'));
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
@@ -248,6 +256,10 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
   const [items, setItems] = React.useState([]);
   const [categories, setCategories] = React.useState(initial.categories || []);
   const [loading, setLoading] = React.useState(false);
+  const [sets, setSets] = React.useState([]);
+  const [setsLoading, setSetsLoading] = React.useState(false);
+  const [setsError, setSetsError] = React.useState('');
+  const [addingSetId, setAddingSetId] = React.useState(null);
 
   React.useEffect(() => {
     if (mode !== 'items' || activeTab == null) return;
@@ -271,10 +283,59 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
     return () => clearTimeout(timer);
   }, [activeTab, search, mode, user, period]);
 
+  React.useEffect(() => {
+    if (mode !== 'sets') return;
+    setSetsLoading(true);
+    setSetsError('');
+    apiGet(initial.urls.equipment_sets)
+      .then(data => {
+        setSets(data.equipment_sets || []);
+      })
+      .catch(err => {
+        setSets([]);
+        setSetsError(err.message || t('wiz.sets_error', 'Could not load equipment sets.'));
+      })
+      .finally(() => setSetsLoading(false));
+  }, [mode, initial.urls.equipment_sets]);
+
   const inCart = id => cart.some(c => c.id === id);
   const addItem = it => !inCart(it.id) && setCart(c => [...c, { id: it.id, name: it.name, num: it.num, qty: 1, cat: it.cat }]);
   const setQty = (id, qty) => setCart(c => c.map(x => x.id === id ? { ...x, qty } : x));
   const removeItem = id => setCart(c => c.filter(x => x.id !== id));
+
+  const addSetToCart = async (setId) => {
+    if (addingSetId) return;
+    setAddingSetId(setId);
+    try {
+      const url = initial.urls.equipment_set_details.replace('/0/', `/${setId}/`);
+      const data = await apiGet(url);
+      const setItems = data.equipment_set?.items || [];
+      if (setItems.length === 0) return;
+      setCart(prevCart => {
+        const nextCart = prevCart.slice();
+        for (const si of setItems) {
+          const invId = si.inventory_item_id;
+          const existing = nextCart.find(c => c.id === invId);
+          if (existing) {
+            existing.qty += si.quantity_needed || 1;
+          } else {
+            nextCart.push({
+              id: invId,
+              name: si.description || '',
+              num: si.inventory_number || '',
+              qty: si.quantity_needed || 1,
+              cat: si.category || '',
+            });
+          }
+        }
+        return nextCart;
+      });
+    } catch (err) {
+      setSetsError(err.message || t('wiz.set_add_error', 'Could not add equipment set.'));
+    } finally {
+      setAddingSetId(null);
+    }
+  };
 
   const visibleCategories = React.useMemo(() => categories.filter(c => c.count > 0 || c.id === ''), [categories]);
 
@@ -298,6 +359,13 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
                   title={rooms.length > 0 ? t('wiz.rooms_only_hint', 'Equipment must be rented separately — create a new rental for equipment') : ''}
                   style={{opacity: rooms.length > 0 ? 0.5 : 1, pointerEvents: rooms.length > 0 ? 'none' : 'auto'}}>
             <i className="fas fa-toolbox me-1"></i>{t('wiz.equipment', 'Equipment')}
+          </button>
+          <button className={cls('btn btn-sm', mode === 'sets' ? 'btn-primary' : 'btn-ghost')}
+                  onClick={() => setMode('sets')}
+                  disabled={rooms.length > 0}
+                  title={rooms.length > 0 ? t('wiz.rooms_only_hint', 'Equipment must be rented separately — create a new rental for equipment') : ''}
+                  style={{opacity: rooms.length > 0 ? 0.5 : 1, pointerEvents: rooms.length > 0 ? 'none' : 'auto'}}>
+            <i className="fas fa-layer-group me-1"></i>{t('wiz.sets', 'Sets')}
           </button>
           <button className={cls('btn btn-sm', mode === 'rooms' ? 'btn-primary' : 'btn-ghost')}
                   onClick={() => setMode('rooms')}
@@ -376,14 +444,54 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
             )}
           </div>
         </div>
+      ) : mode === 'sets' ? (
+        <div className="catalog" style={{border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background: '#fff'}}>
+          <div className="catalog-body">
+            <div className="filters">
+              <div className="ms-auto muted tiny">
+                {setsLoading ? t('loading', 'Loading…') : `${sets.length} ${t('wiz.sets_count', 'sets')}`}
+              </div>
+            </div>
+
+            {setsError && (
+              <div className="alert alert-warning" style={{fontSize: 13, padding: '10px 12px', marginBottom: 10}}>
+                <i className="fas fa-exclamation-triangle me-1"></i>{setsError}
+              </div>
+            )}
+
+            {sets.map(set => (
+              <div key={set.id} className="item-row" style={{cursor: 'default'}}>
+                <div></div>
+                <div>
+                  <div className="name">{set.name}</div>
+                  <div className="num">{set.description || ''}</div>
+                </div>
+                <div className="meta">{set.items_count} {t('wiz.items', 'items')}</div>
+                <div></div>
+                <div></div>
+                <div style={{textAlign: 'right'}}>
+                  <button className="btn btn-sm btn-ghost" disabled={addingSetId === set.id}
+                          onClick={() => addSetToCart(set.id)}>
+                    <i className={`fas fa-${addingSetId === set.id ? 'spinner fa-spin' : 'plus'}`}></i>
+                    {addingSetId === set.id ? t('wiz.adding', 'Adding…') : t('wiz.add_set', 'Add set')}
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {!setsLoading && sets.length === 0 && !setsError && (
+              <div className="muted p-3">{t('wiz.no_sets', 'No equipment sets available.')}</div>
+            )}
+          </div>
+        </div>
       ) : (
-        <RoomPicker rooms={rooms} setRooms={setRooms} options={initial.rooms || []} initial={initial} />
+        <RoomPicker rooms={rooms} setRooms={setRooms} options={initial.rooms || []} initial={initial} period={period} />
       )}
     </div>
   );
 }
 
-function RoomPicker({ rooms, setRooms, options, initial }) {
+function RoomPicker({ rooms, setRooms, options, initial, period }) {
   const [expandedRoom, setExpandedRoom] = React.useState(null);
   const [checking, setChecking] = React.useState({});
   const [availResult, setAvailResult] = React.useState({});
@@ -487,11 +595,10 @@ function RoomPicker({ rooms, setRooms, options, initial }) {
               </div>
 
               {isExpanded && !booked && (
-                <RoomDateTimeForm
+                <RoomCheckPanel
                   room={r}
+                  period={period}
                   wh={wh}
-                  getTimeSlots={getTimeSlots}
-                  getDefaultTimes={getDefaultTimes}
                   checking={checking[r.id]}
                   result={result}
                   onCheck={(sd, st, ed, et) => checkAvailability(r.id, sd, st, ed, et)}
@@ -507,15 +614,84 @@ function RoomPicker({ rooms, setRooms, options, initial }) {
   );
 }
 
-function RoomDateTimeForm({ room, wh, getTimeSlots, getDefaultTimes, checking, result, onCheck, onConfirm, onCancel }) {
+function RoomCheckPanel({ room, period, wh, checking, result, onCheck, onConfirm, onCancel }) {
   const today = new Date().toISOString().slice(0, 10);
-  const [startDate, setStartDate] = React.useState(today);
-  const [endDate, setEndDate] = React.useState(today);
+  const startDate = period?.from ? period.from.slice(0, 10) : today;
+  const startTime = period?.from ? period.from.slice(11, 16) : '';
+  const endDate = period?.to ? period.to.slice(0, 10) : today;
+  const endTime = period?.to ? period.to.slice(11, 16) : '';
+  const [checked, setChecked] = React.useState(false);
+
+  React.useEffect(() => {
+    if (startDate && startTime && endDate && endTime) {
+      onCheck(startDate, startTime, endDate, endTime);
+      setChecked(true);
+    }
+  }, [room.id]);
+
+  const startDayIdx = startDate ? (new Date(startDate + 'T00:00:00').getDay() === 0 ? 6 : new Date(startDate + 'T00:00:00').getDay() - 1) : -1;
+  const startDayHours = wh[String(startDayIdx)];
+  const dayClosed = startDayHours && !startDayHours.enabled;
+  const canConfirm = result && result.is_available;
+
+  return (
+    <div style={{padding: '10px 12px', borderTop: '1px solid var(--line)', background: 'var(--bg-sub, #f8f9fa)', borderRadius: '0 0 8px 8px'}}>
+      <div className="tiny muted" style={{marginBottom: 10}}>
+        {startDate} {startTime} – {endDate} {endTime}
+      </div>
+
+      {dayClosed ? (
+        <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginBottom: 6}}>
+          <i className="fas fa-triangle-exclamation me-1"></i>{t('room.day_closed', 'The day is closed')}
+        </div>
+      ) : !startDate || !startTime || !endDate || !endTime ? (
+        <div className="tiny muted" style={{marginBottom: 6}}>
+          {t('room.need_period', 'Please set dates and times in step 2 first.')}
+        </div>
+      ) : !checked || checking ? (
+        <div className="tiny muted" style={{marginBottom: 6}}>
+          <i className="fas fa-spinner fa-spin me-1"></i>{t('room.checking', 'Checking availability…')}
+        </div>
+      ) : result ? (
+        result.is_available ? (
+          <div className="tiny" style={{color: 'oklch(0.5 0.15 150)', marginBottom: 6}}>
+            <i className="fas fa-check-circle me-1"></i>{result.message || t('room.available', 'Available')}
+          </div>
+        ) : (
+          <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginBottom: 6}}>
+            <i className="fas fa-times-circle me-1"></i>{result.message || t('room.not_available', 'Not available')}
+          </div>
+        )
+      ) : (
+        <div className="tiny muted" style={{marginBottom: 6}}>
+          {t('room.check_failed', 'Could not check availability')}
+        </div>
+      )}
+
+      <div style={{display: 'flex', gap: 6, justifyContent: 'flex-end'}}>
+        <button className="btn btn-ghost btn-sm" onClick={onCancel}>{t('btn.cancel', 'Cancel')}</button>
+        <button className="btn btn-primary btn-sm" disabled={!canConfirm}
+                onClick={() => onConfirm(startDate, startTime, endDate, endTime)}>
+          <i className="fas fa-plus me-1"></i>{t('room.reserve', 'Reserve room')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, checking, result, onCheck, onConfirm, onCancel }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const periodStart = period?.from ? period.from.slice(0, 10) : today;
+  const periodEnd = period?.to ? period.to.slice(0, 10) : today;
+  const periodStartTime = period?.from ? period.from.slice(11, 16) : '';
+  const periodEndTime = period?.to ? period.to.slice(11, 16) : '';
+  const [startDate, setStartDate] = React.useState(periodStart);
+  const [endDate, setEndDate] = React.useState(periodEnd);
   const startSlots = getTimeSlots(startDate);
   const endSlots = getTimeSlots(endDate);
   const defaults = getDefaultTimes(startDate);
-  const [startTime, setStartTime] = React.useState(defaults.start);
-  const [endTime, setEndTime] = React.useState(defaults.end);
+  const [startTime, setStartTime] = React.useState(periodStartTime || defaults.start);
+  const [endTime, setEndTime] = React.useState(periodEndTime || defaults.end);
 
   React.useEffect(() => {
     const d = getDefaultTimes(startDate);
@@ -539,7 +715,7 @@ function RoomDateTimeForm({ room, wh, getTimeSlots, getDefaultTimes, checking, r
         <div>
           <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.start_date', 'Start date')}</label>
           <input type="date" className="form-control form-control-sm" value={startDate}
-                 onChange={e => setStartDate(e.target.value)} min={today} />
+                  onChange={e => { setStartDate(e.target.value); setEndDate(e.target.value); }} min={today} />
         </div>
         <div>
           <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.start_time', 'Start time')}</label>
@@ -958,7 +1134,10 @@ function StepReview({ user, period, cart, rooms, project, setProject, purpose, s
           </div>
           <input className="form-control" value={project} onChange={e => setProject(e.target.value)}
                  placeholder={t('wiz.project_ph', 'Project name')}
-                 style={{fontSize: 15, fontWeight: 600}} />
+                 required style={{fontSize: 15, fontWeight: 600}} />
+          {!project.trim() && <div className="muted tiny" style={{marginTop: 4}}>
+            <span style={{color: 'oklch(0.50 0.16 28)'}}>*</span> {t('wiz.project_req', 'Required — please enter a project name')}
+          </div>}
           <textarea className="form-control mt-2" rows={2} value={purpose}
                     onChange={e => setPurpose(e.target.value)}
                     placeholder={t('wiz.purpose_ph', 'Short description of purpose')} />

@@ -28,6 +28,9 @@
         </a>
         <a class="nav-link" href="/admin/inventory/inventoryitem/"><i class="fas fa-warehouse"></i>{% trans "Inventory" %}</a>
         <a class="nav-link" href="/admin/rental/room/"><i class="fas fa-door-open"></i>{% trans "Rooms" %}</a>
+        <a class="nav-link {% if sidebar_active == 'sets' %}active{% endif %}" href="{% url 'rental:admin_equipment_sets' %}">
+            <i class="fas fa-layer-group"></i>{% trans "Equipment Sets" %}
+        </a>
         <a class="nav-link" href="/admin/registration/okuser/"><i class="fas fa-users"></i>{% trans "Users" %}</a>
     </div>
     <div class="nav-section">

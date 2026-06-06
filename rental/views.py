@@ -241,6 +241,8 @@ def serialize_rental(rental):
         'created_at': rental.created_at.isoformat() if rental.created_at else None,
         'internal_note': rental.notes or '',
         'has_signature': rental.has_any_signature(),
+        'item_count': rental.items.count(),
+        'room_count': rental.room_rentals.count(),
     }
 
 
@@ -331,6 +333,8 @@ def _i18n_bundle():
         'wiz.review_sub': _('Check your selection and submit.'),
         'wiz.project': _('Project'),
         'wiz.project_ph': _('Project name'),
+        'wiz.project_req': _('Required — please enter a project name'),
+        'wiz.no_items_rooms': _('Please select at least one item or room.'),
         'wiz.purpose': _('Purpose'),
         'wiz.purpose_ph': _('What is this rental for?'),
         'wiz.notifications': _('Notifications'),
@@ -382,6 +386,13 @@ def _i18n_bundle():
         'room.open': _('Open'),
         'room.remove': _('Remove'),
         'room.reserve': _('Reserve room'),
+        'room.restricted': _('Restricted'),
+        'room.day_closed': _('The day is closed'),
+        'room.need_period': _('Please set dates and times in step 2 first.'),
+        'room.checking': _('Checking availability…'),
+        'room.available': _('Available'),
+        'room.check_failed': _('Could not check availability'),
+        'room.check_error': _('Could not check availability'),
         'room.restricted': _('Restricted'),
         'room.start_date': _('Start date'),
         'room.start_time': _('Start time'),
@@ -447,6 +458,15 @@ def _i18n_bundle():
         'tab.rooms': _('Rooms'),
         'tab.issues': _('Issues'),
         'tab.history': _('History'),
+        'tab.equipment_sets': _('Sets'),
+        'tab.sets': _('Sets'),
+        'sets.none': _('No equipment sets available.'),
+        'sets.items': _('items'),
+        'btn.add_set': _('Add'),
+        'confirm.add_set': _('Add all items from set to rental?'),
+        'err.load_sets': _('Could not load equipment sets.'),
+        'err.set_empty': _('This set has no items.'),
+        'err.add_set': _('Could not add set'),
         'sig.title': _('Digital Signature'),
         'sig.choose': _('Choose a signing method. Drawing directly is recommended for tablets.'),
         'sig.draw_here': _('Draw here'),
@@ -469,6 +489,7 @@ def _i18n_bundle():
         'confirm.cancel': _('Cancel this rental?'),
         'confirm.close': _('Close this rental?'),
         'confirm.remove': _('Remove this item from the rental?'),
+        'confirm.draft': _('Confirm this rental? It will become reserved.'),
         'extend.title': _('Extend return deadline'),
         'extend.from': _('from'),
         'extend.to': _('to'),
@@ -491,6 +512,7 @@ def _i18n_bundle():
         'btn.export_pdf': _('Export as PDF'),
         'btn.cancel_rental': _('Cancel rental'),
         'btn.close_rental': _('Close rental'),
+        'btn.confirm': _('Confirm'),
         'btn.send_reminder': _('Send reminder'),
         'btn.add_item': _('Add item'),
         'btn.remove': _('Remove from rental'),
@@ -528,6 +550,36 @@ def _i18n_bundle():
         'change_period.from': _('Pickup date'),
         'change_period.to': _('Return date'),
         'change_period.required': _('Both dates are required.'),
+        'btn.save_room': _('Save'),
+        'btn.add_room': _('Add room'),
+        'add_room.title': _('Add room to rental'),
+        'add_room.no_rooms': _('No rooms available.'),
+        'add_room.free': _('Free'),
+        'add_room.occupied': _('Occupied'),
+        'confirm.remove_room': _('Remove this room from the rental?'),
+        'room.start_date': _('Start date'),
+        'room.start_time': _('Start time'),
+        'room.end_date': _('End date'),
+        'room.end_time': _('End time'),
+        'room.booked': _('Booked'),
+        'tab.equipment': _('Equipment'),
+        'tab.rooms': _('Rooms'),
+        'tab.issues': _('Issues'),
+        'tab.history': _('History'),
+        'tab.equipment_sets': _('Sets'),
+        'tab.sets': _('Sets'),
+        'sets.none': _('No equipment sets available.'),
+        'sets.items': _('items'),
+        'btn.add_set': _('Add'),
+        'confirm.add_set': _('Add all items from set to rental?'),
+        'err.load_sets': _('Could not load equipment sets.'),
+        'err.set_empty': _('This set has no items.'),
+        'err.add_set': _('Could not add set'),
+        'rooms.none': _('No rooms booked in this rental.'),
+        'common.loading': _('Loading…'),
+        'err.update_room': _('Could not update room'),
+        'err.remove_room': _('Could not remove room'),
+        'err.add_room': _('Could not add room'),
         'user.past_rentals': _('past rentals'),
         'wiz.items_rooms': _('Items & rooms'),
         'wiz.return': _('Return'),
@@ -546,6 +598,7 @@ def _i18n_bundle():
         'due.return_due': _('Return due'),
         'due.closed': _('Closed'),
         'due.pickup_at': _('Pickup'),
+        'due.reserved_until': _('Reserved'),
         'due.days_overdue': _('days overdue'),
         'ok.reminder_sent': _('Reminder sent.'),
         'items.total': _('Total:'),
@@ -560,6 +613,37 @@ def _i18n_bundle():
         'status.overdue': _('Overdue'),
         'status.cancelled': _('Cancelled'),
         'status.closed': _('Closed'),
+        'wiz.sets': str(_('Sets')),
+        'wiz.sets_error': str(_('Could not load equipment sets.')),
+        'wiz.sets_count': str(_('sets')),
+        'wiz.add_set': str(_('Add set')),
+        'wiz.adding': str(_('Adding…')),
+        'wiz.set_add_error': str(_('Could not add equipment set.')),
+        'wiz.no_sets': str(_('No equipment sets available.')),
+        'sets.load_error': str(_('Could not load equipment sets.')),
+        'sets.total': str(_('sets')),
+        'sets.hide_form': str(_('Hide form')),
+        'sets.new_set': str(_('New set')),
+        'sets.confirm_delete': str(_('Delete set "{name}"?')),
+        'sets.delete_error': str(_('Could not delete set: ')),
+        'sets.need_name': str(_('Please enter a set name.')),
+        'sets.need_items': str(_('Please add at least one item.')),
+        'sets.create_error': str(_('Could not create set.')),
+        'sets.create_title': str(_('Create Equipment Set')),
+        'sets.name': str(_('Name')),
+        'sets.name_ph': str(_('e.g. Podcast Kit')),
+        'sets.description': str(_('Description')),
+        'sets.desc_ph': str(_('Optional description…')),
+        'sets.search_items': str(_('Search inventory items')),
+        'sets.search_ph': str(_('Type to search by name, number, or manufacturer…')),
+        'sets.add': str(_('Add')),
+        'sets.no_results': str(_('No items found.')),
+        'sets.selected_items': str(_('Selected items')),
+        'sets.creating': str(_('Creating…')),
+        'sets.create': str(_('Create set')),
+        'sets.cancel': str(_('Cancel')),
+        'sets.empty_title': str(_('No equipment sets yet.')),
+        'sets.empty_desc': str(_('Create your first set using the button above.')),
     }
 
 
@@ -931,6 +1015,8 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'availability_check': reverse('rental:api_availability_check'),
                     'room_availability_check': reverse('rental:api_check_room_availability'),
                     'new_user': reverse('admin:registration_okuser_add'),
+                    'equipment_sets': reverse('rental:api_equipment_sets_available'),
+                    'equipment_set_details': reverse('rental:api_equipment_set_details', kwargs={'set_id': 0}),
                 },
             },
             'sidebar': {
@@ -2067,10 +2153,15 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             {
                 'id': room_rental.pk,
                 'name': room_rental.room.name,
+                'room_id': room_rental.room.id,
                 'period': (
                     f'{room_start:%d %b · %H:%M} – {room_end:%H:%M}'
                     if room_start and room_end else ''
                 ),
+                'start_date': room_start.strftime('%Y-%m-%d') if room_start else '',
+                'start_time': room_start.strftime('%H:%M') if room_start else '',
+                'end_date': room_end.strftime('%Y-%m-%d') if room_end else '',
+                'end_time': room_end.strftime('%H:%M') if room_end else '',
                 'seat': str(room_rental.people_count) if room_rental.people_count else '—',
             }
             for room_rental in rental.room_rentals.select_related('room')
@@ -2148,6 +2239,14 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             'change_period': reverse('rental:api_change_rental_period', args=[rental.pk]),
             'add_items': reverse('rental:api_add_rental_items', args=[rental.pk]),
             'users_search': reverse('rental:api_users_search'),
+            'confirm': reverse('rental:api_confirm_rental'),
+            'add_room': reverse('rental:api_add_room_to_rental', args=[rental.pk]),
+            'update_room': reverse('rental:api_update_room_rental', args=[rental.pk]),
+            'remove_room': reverse('rental:api_remove_room_rental', args=[rental.pk]),
+            'rooms_available': reverse('rental:api_rooms_available'),
+            'equipment_sets': reverse('rental:admin_equipment_sets'),
+            'equipment_sets_available': reverse('rental:api_equipment_sets_available'),
+            'equipment_set_details': reverse('rental:api_equipment_set_details', args=[0]),
         }
         context['i18n_strings'] = _i18n_bundle()
         context['sidebar_active'] = 'list'
@@ -2185,13 +2284,20 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
         return print_slips
 
     def _build_timeline(self, rental):
-        steps = [
-            ('created', _('Created'), rental.created_at),
-            ('reserved', _('Reserved'), None),
-            ('issued', _('Issued'), rental.actual_start_date),
-            ('returned', _('Returned'), rental.actual_end_date),
-            ('closed', _('Closed'), None),
-        ]
+        is_room_only = rental.items.count() == 0 and rental.room_rentals.count() > 0
+        if is_room_only:
+            steps = [
+                ('created', _('Created'), rental.created_at),
+                ('reserved', _('Reserved'), None),
+            ]
+        else:
+            steps = [
+                ('created', _('Created'), rental.created_at),
+                ('reserved', _('Reserved'), None),
+                ('issued', _('Issued'), rental.actual_start_date),
+                ('returned', _('Returned'), rental.actual_end_date),
+                ('closed', _('Closed'), None),
+            ]
         status = serialize_rental(rental)['status']
         done_until = {
             'draft': 0,
@@ -2200,7 +2306,7 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             'overdue': 2,
             'returned': 3,
             'cancelled': 1,
-            'closed': 4,
+            'closed': 4 if not is_room_only else 2,
         }.get(status, 0)
         timeline = []
         for index, (step_id, label, at) in enumerate(steps):
@@ -2325,6 +2431,8 @@ def mark_issued(request, rental_id):
     rental = get_object_or_404(RentalRequest, id=rental_id)
     if rental.status not in ['draft', 'reserved']:
         return JsonResponse({'error': _('Only draft or reserved rentals can be issued')}, status=400)
+    if rental.items.count() == 0 and rental.room_rentals.count() > 0:
+        return JsonResponse({'error': _('Room-only rentals cannot be issued. Reservations expire automatically.')}, status=400)
     with transaction.atomic():
         rental.status = 'issued'
         rental.actual_start_date = rental.actual_start_date or timezone.now()
@@ -2437,6 +2545,8 @@ def close_rental(request, rental_id):
     rental = get_object_or_404(RentalRequest, id=rental_id)
     if rental.status == 'issued':
         return JsonResponse({'error': _('Issued rentals must be returned before closing')}, status=400)
+    if rental.items.count() == 0 and rental.room_rentals.count() > 0:
+        return JsonResponse({'error': _('Room-only rentals are closed automatically.')}, status=400)
     rental.status = 'closed'
     rental.save(update_fields=['status', 'updated_at'])
     return JsonResponse({'ok': True, 'success': True})
@@ -2931,6 +3041,51 @@ class RentalStatsView(StaffRequiredMixin, TemplateView):
         return context
 
 
+class EquipmentSetsAdminView(StaffRequiredMixin, TemplateView):
+    """
+    Admin page for managing equipment sets.
+
+    Provides staff interface for viewing, creating, and deleting
+    reusable equipment sets.
+    """
+
+    template_name = 'rental/admin_equipment_sets.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Prepare context data for equipment sets admin page.
+
+        Args:
+            **kwargs: Additional context data
+
+        Returns:
+            dict: Context with API URLs and sidebar counts
+        """
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'initial_json': {
+                'urls': {
+                    'api_get_all_equipment_sets': reverse('rental:api_get_all_equipment_sets'),
+                    'api_create_equipment_set': reverse('rental:api_create_equipment_set'),
+                    'api_delete_equipment_set': reverse('rental:api_delete_equipment_set', kwargs={'pk': 0}),
+                    'api_inventory_search': reverse('rental:api_inventory_search'),
+                },
+            },
+            'sidebar': {
+                'all_count': RentalRequest.objects.count(),
+                'issued_count': RentalRequest.objects.filter(status='issued').count(),
+                'overdue_count': RentalRequest.objects.filter(status='issued', requested_end_date__lt=timezone.now()).count(),
+                'due_today_count': RentalRequest.objects.filter(
+                    status='issued',
+                    requested_end_date__date=timezone.now().date(),
+                ).count(),
+                'pending_approval_count': RentalRequest.objects.filter(status='draft').count(),
+            },
+            'i18n_strings': _i18n_bundle(),
+        })
+        return context
+
+
 class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/inventory_calendar_day.html'
 
@@ -3037,6 +3192,143 @@ class RoomCalendarDayView(StaffRequiredMixin, TemplateView):
         context['today'] = timezone.now().date()
         context['prev_day'] = day - timedelta(days=1)
         context['next_day'] = day + timedelta(days=1)
+        context['sidebar_active'] = 'room_calendar'
+        _add_sidebar_counts(context)
+        return context
+
+
+class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/room_calendar_week.html'
+
+    def get_context_data(self, **kwargs):
+        from django.utils import timezone
+        from datetime import timedelta
+        from .models import Room, RoomRental
+        context = super().get_context_data(**kwargs)
+        date_str = self.request.GET.get('date')
+        try:
+            from django.utils.dateparse import parse_date
+            ref_day = parse_date(date_str) if date_str else timezone.now().date()
+        except Exception:
+            ref_day = timezone.now().date()
+        context['ref_day'] = ref_day
+        context['today'] = timezone.now().date()
+        context['prev_week'] = ref_day - timedelta(days=7)
+        context['next_week'] = ref_day + timedelta(days=7)
+
+        monday = ref_day - timedelta(days=ref_day.weekday())
+        week_days = [monday + timedelta(days=i) for i in range(7)]
+
+        rooms = Room.objects.filter(is_active=True).order_by('name')
+
+        week_start = timezone.make_aware(timezone.datetime.combine(week_days[0], timezone.datetime.min.time()))
+        week_end = week_start + timedelta(days=7)
+
+        all_bookings = RoomRental.objects.filter(
+            room__in=rooms,
+            rental_request__status__in=['reserved', 'issued'],
+        ).select_related('rental_request__user__profile', 'room').order_by('requested_start_date')
+
+        bookings_by_room_date = {}
+        for b in all_bookings:
+            start = b.get_start_date()
+            end = b.get_end_date()
+            if start and end and start < week_end and end > week_start:
+                d = start.date()
+                if b.room_id not in bookings_by_room_date:
+                    bookings_by_room_date[b.room_id] = {}
+                if d not in bookings_by_room_date[b.room_id]:
+                    bookings_by_room_date[b.room_id][d] = []
+                bookings_by_room_date[b.room_id][d].append({
+                    'user': _user_display_name(b.rental_request.user) if b.rental_request and b.rental_request.user else '—',
+                    'time': f"{start.strftime('%H:%M')} – {end.strftime('%H:%M')}",
+                    'project': b.rental_request.project_name or '',
+                })
+
+        rooms_data = []
+        for room in rooms:
+            room_bookings = bookings_by_room_date.get(room.id, {})
+            days_data = []
+            for d in week_days:
+                days_data.append({
+                    'date': d,
+                    'bookings': room_bookings.get(d, []),
+                })
+            rooms_data.append({
+                'name': room.name,
+                'days': days_data,
+            })
+
+        context['rooms_data'] = rooms_data
+        context['week_days'] = week_days
+        context['sidebar_active'] = 'room_calendar'
+        _add_sidebar_counts(context)
+        return context
+
+
+class RoomCalendarMonthView(StaffRequiredMixin, TemplateView):
+    template_name = 'rental/room_calendar_month.html'
+
+    def get_context_data(self, **kwargs):
+        from django.utils import timezone
+        from datetime import timedelta
+        import calendar
+        from .models import Room, RoomRental
+        context = super().get_context_data(**kwargs)
+        date_str = self.request.GET.get('date')
+        try:
+            from django.utils.dateparse import parse_date
+            ref_day = parse_date(date_str) if date_str else timezone.now().date()
+        except Exception:
+            ref_day = timezone.now().date()
+        context['ref_day'] = ref_day
+        context['today'] = timezone.now().date()
+
+        year, month = ref_day.year, ref_day.month
+        cal = calendar.Calendar(firstweekday=0)
+        month_days = cal.monthdatescalendar(year, month)
+        context['month_name'] = f"{ref_day.strftime('%B %Y')}"
+
+        prev_month = ref_day.replace(day=1) - timedelta(days=1)
+        next_month = (ref_day.replace(day=28) + timedelta(days=4)).replace(day=1)
+        context['prev_month'] = prev_month
+        context['next_month'] = next_month
+
+        rooms = Room.objects.filter(is_active=True).order_by('name')
+
+        month_start = timezone.make_aware(timezone.datetime.combine(
+            month_days[0][0], timezone.datetime.min.time()
+        ))
+        month_end = timezone.make_aware(timezone.datetime.combine(
+            month_days[-1][-1] + timedelta(days=1), timezone.datetime.min.time()
+        ))
+
+        all_bookings = RoomRental.objects.filter(
+            room__in=rooms,
+            rental_request__status__in=['reserved', 'issued'],
+        ).select_related('rental_request__user__profile', 'room').order_by('requested_start_date')
+
+        bookings_by_room_date = {}
+        for b in all_bookings:
+            start = b.get_start_date()
+            end = b.get_end_date()
+            if not (start and end and start < month_end and end > month_start):
+                continue
+            r_id = b.room_id
+            d = start.date()
+            if r_id not in bookings_by_room_date:
+                bookings_by_room_date[r_id] = {}
+            if d not in bookings_by_room_date[r_id]:
+                bookings_by_room_date[r_id][d] = []
+            bookings_by_room_date[r_id][d].append({
+                'user': _user_display_name(b.rental_request.user) if b.rental_request and b.rental_request.user else '—',
+                'project': b.rental_request.project_name or '',
+                'time': start.strftime('%H:%M'),
+            })
+
+        context['rooms'] = rooms
+        context['month_days'] = month_days
+        context['bookings_by_room_date'] = bookings_by_room_date
         context['sidebar_active'] = 'room_calendar'
         _add_sidebar_counts(context)
         return context
@@ -3849,7 +4141,7 @@ class PrintFormView(StaffRequiredMixin, TemplateView):
                     'inventory_item',
                     'inventory_item__owner',
                     'inventory_item__location',
-                )
+                ).prefetch_related('issues')
             else:
                 organization = get_object_or_404(Organization, pk=org_id)
                 items = rental_request.items.filter(
@@ -3858,7 +4150,7 @@ class PrintFormView(StaffRequiredMixin, TemplateView):
                     'inventory_item',
                     'inventory_item__owner',
                     'inventory_item__location',
-                )
+                ).prefetch_related('issues')
 
             context['msa_items'] = items
             context['okmq_items'] = items
@@ -3887,7 +4179,7 @@ class PrintPickListView(StaffRequiredMixin, TemplateView):
             rental_items = list(rental_request.items.select_related(
                 'inventory_item',
                 'inventory_item__location',
-            ))
+            ).prefetch_related('issues'))
             rental_items.sort(
                 key=lambda item: (
                     item.inventory_item.location.full_path,

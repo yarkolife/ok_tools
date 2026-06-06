@@ -81,6 +81,7 @@ pip-audit==2.7.2
 drf-spectacular==0.27.2
 django-celery-beat==2.8.1
 django-celery-results==2.5.1
+weasyprint>=69.0
 
 dj-database-url==2.1.0
 requests==2.31.0

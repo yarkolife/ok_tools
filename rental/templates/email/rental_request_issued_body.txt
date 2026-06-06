@@ -1,30 +1,30 @@
-{% load i18n %}{% blocktrans with user_name=user_name %}Hello {{ user_name }},{% endblocktrans %}
+{% load i18n %}{% blocktrans with user_name=user_name %}Hallo {{ user_name }},{% endblocktrans %}
 
-{% blocktrans with rental_id=rental_id ok_name=ok_name %}Your rental request #{{ rental_id }} in {{ ok_name }} has been issued and is ready for pickup.{% endblocktrans %}
-
-
-{% trans "Rental Details" %}:
-{% blocktrans with project_name=project_name %}Project: {{ project_name }}{% endblocktrans %}
-{% blocktrans with start=start end=end %}Period: {{ start }} – {{ end }}{% endblocktrans %}
-{% if actual_start %}
-{% blocktrans with actual_start=actual_start %}Issued on: {{ actual_start }}{% endblocktrans %}
-{% endif %}
+{% blocktrans with rental_id=rental_id ok_name=ok_name %}Deine Ausleihe #{{ rental_id }} im {{ ok_name }} wurde ausgegeben und ist zur Abholung bereit.{% endblocktrans %}
 
 {% if items %}
-{% blocktrans with items_total=items_total %}Equipment ({{ items_total }} items):{% endblocktrans %}
+{% blocktrans with items_total=items_total %}Equipment ({{ items_total }} Geräte):{% endblocktrans %}
 {% for item in items %}
 - {{ item.quantity }} x {{ item.name }}
 {% endfor %}
 {% endif %}
 
 {% if rooms %}
-{% blocktrans with rooms_total=rooms_total %}Rooms ({{ rooms_total }} total):{% endblocktrans %}
+{% blocktrans with rooms_total=rooms_total %}Räume ({{ rooms_total }}):{% endblocktrans %}
 {% for room in rooms %}
-- {{ room.name }} ({{ room.people_count }} {% trans "people" %}){% if room.start and room.end %}, {{ room.start|date:"Y-m-d H:i" }} to {{ room.end|date:"Y-m-d H:i" }}{% endif %}
+- {{ room.name }}{% if room.start and room.end %}, {{ room.start|date:"d.m.Y H:i" }} – {{ room.end|date:"d.m.Y H:i" }}{% endif %}
 {% endfor %}
 {% endif %}
 
-{% trans "Please take care of the equipment and return it on time." %}
+{% trans "Bitte gehe sorgfältig mit dem Equipment um und gib es rechtzeitig zurück." %}
 
-{% trans "If you have any questions, please contact us." %}
-{% if contact_email %}{% blocktrans with contact_email=contact_email %}E-mail: {{ contact_email }}{% endblocktrans %}{% endif %}
+{% if end %}
+{% blocktrans with end=end %}Rückgabe bis: {{ end }}{% endblocktrans %}
+{% endif %}
+
+{% trans "Bei Fragen kontaktiere uns bitte." %}
+{% if contact_email %}{% blocktrans with contact_email=contact_email %}E-Mail: {{ contact_email }}{% endblocktrans %}{% endif %}
+{% if ok_phone %}{% blocktrans with ok_phone=ok_phone %}Tel: {{ ok_phone }}{% endblocktrans %}{% endif %}
+{% if ok_address %}{{ ok_address }}{% endif %}
+{% if ok_website %}{% blocktrans with ok_website=ok_website %}Web: {{ ok_website }}{% endblocktrans %}{% endif %}
+{% if ok_name %}— {{ ok_name }}{% endif %}

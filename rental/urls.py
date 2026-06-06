@@ -13,6 +13,7 @@ from .views import RentalProcessView
 from .views import RentalReturnView
 from .views import RentalReturnWorkflowView
 from .views import RentalRequestViewSet
+from .views import EquipmentSetsAdminView
 from .views import RentalStatsView
 from .views import SaveSignatureView
 from .views import SigningSessionPageView
@@ -22,6 +23,8 @@ from .views import SubmitSigningSessionView
 from .views import InventoryCalendarDayView
 from .views import InventoryCalendarWeekView
 from .views import RoomCalendarDayView
+from .views import RoomCalendarMonthView
+from .views import RoomCalendarWeekView
 from .views import RentalListView
 from .views import api_inventory_calendar
 from .views import RentalTransactionViewSet
@@ -84,9 +87,12 @@ from .views import api_user_active_items
 from .views import api_update_pick_list
 from .views_api import api_availability_check
 from .views_api import api_add_rental_items
+from .views_api import api_add_room_to_rental
 from .views_api import api_change_rental_period
 from .views_api import api_change_rental_user
 from .views_api import api_inventory_search
+from .views_api import api_remove_room_rental
+from .views_api import api_update_room_rental
 from .views_api import api_users_search
 from .email_approval_views import email_approval_action
 from django.urls import include
@@ -115,9 +121,14 @@ urlpatterns = [
     # Custom admin-like pages and endpoints
     path('admin/rental-process/', RentalProcessView.as_view(), name='admin_rental_process'),
     path('admin/stats/', RentalStatsView.as_view(), name='rental_stats'),
+    path('admin/equipment-sets/', EquipmentSetsAdminView.as_view(), name='admin_equipment_sets'),
     path('admin/inventory-calendar/day/', InventoryCalendarDayView.as_view(), name='inventory_calendar_day'),
     path('admin/inventory-calendar/week/', InventoryCalendarWeekView.as_view(), name='inventory_calendar_week'),
     path('admin/room-calendar/day/', RoomCalendarDayView.as_view(), name='room_calendar_day'),
+    path('admin/room-calendar/week/', RoomCalendarWeekView.as_view(), name='room_calendar_week'),
+    path('admin/room-calendar/month/', RoomCalendarMonthView.as_view(), name='room_calendar_month'),
+    path('admin/room-calendar/week/', RoomCalendarWeekView.as_view(), name='room_calendar_week'),
+    path('admin/room-calendar/month/', RoomCalendarMonthView.as_view(), name='room_calendar_month'),
     path('access-denied/', AccessDeniedView.as_view(), name='access_denied'),
     path('api/search-users/', api_search_users, name='api_search_users'),
     path('api/user/<int:user_id>/inventory/', api_get_user_inventory, name='api_user_inventory'),
@@ -206,6 +217,9 @@ urlpatterns = [
     path('rental/<int:rental_id>/change-user/', api_change_rental_user, name='api_change_rental_user'),
     path('rental/<int:rental_id>/change-period/', api_change_rental_period, name='api_change_rental_period'),
     path('rental/<int:rental_id>/add-items/', api_add_rental_items, name='api_add_rental_items'),
+    path('rental/<int:rental_id>/add-room/', api_add_room_to_rental, name='api_add_room_to_rental'),
+    path('rental/<int:rental_id>/update-room-rental/', api_update_room_rental, name='api_update_room_rental'),
+    path('rental/<int:rental_id>/remove-room-rental/', api_remove_room_rental, name='api_remove_room_rental'),
     path('sign-session/<str:token>/status/', SigningSessionStatusView.as_view(), name='sign_session_status'),
     path('sign-session/<str:token>/qr/', SigningSessionQRCodeView.as_view(), name='sign_session_qr'),
     path('sign-session/<str:token>/', SigningSessionPageView.as_view(), name='sign_session_page'),
