@@ -383,6 +383,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
     search_fields = ['name', 'path']
     readonly_fields = ['created_at', 'updated_at', 'video_count_info']
     change_list_template = 'admin/media_files/storagelocation/change_list.html'
+    delete_confirmation_template = 'admin/media_files/storagelocation/delete_confirmation.html'
     
     fieldsets = (
         (None, {
