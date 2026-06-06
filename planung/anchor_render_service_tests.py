@@ -620,3 +620,411 @@ def test__anchor_render__wait_for_copy_blocks_when_missing_number_has_source_vid
     assert result["error"] == "copy_incomplete_after_success"
     assert result["missing"] == [18383]
     assert result["missing_with_source"] == [18383]
+
+
+@pytest.mark.django_db
+def test__check_plan_copy_state__resolves_live_placeholder_rule(verified_profile):
+    """Missing PLAYOUT numbers resolve to ready when live placeholder rule matches."""
+    from planung.views import _check_plan_copy_state
+
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Live show",
+        description="Description",
+        duration=timedelta(minutes=30),
+        is_live=True,
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "live", "video": "playout/placeholder/live_trailer.mp4"},
+    ]
+    config.save()
+
+    plan = TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "18:00:00", "duration": 20, "title": "Live show", "number": license_obj.number}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    state = _check_plan_copy_state(plan)
+    assert state["status"] == "ready"
+    assert state["ready"] == [license_obj.number]
+    assert state["missing"] == []
+
+
+@pytest.mark.django_db
+def test__check_plan_copy_state__resolves_title_prefix_placeholder_rule(verified_profile):
+    """Missing PLAYOUT numbers resolve to ready when title_prefix placeholder rule matches."""
+    from planung.views import _check_plan_copy_state
+
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Merseburg Report Episode 5",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "title_prefix", "video": "playout/placeholder/merseburg_intro.mp4", "prefix": "Merseburg Report"},
+    ]
+    config.save()
+
+    plan = TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "19:00:00", "duration": 20, "title": "Merseburg Report Episode 5", "number": license_obj.number}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    state = _check_plan_copy_state(plan)
+    assert state["status"] == "ready"
+    assert state["ready"] == [license_obj.number]
+    assert state["missing"] == []
+
+
+@pytest.mark.django_db
+def test__check_plan_copy_state__still_copying_when_no_placeholder_match(verified_profile):
+    """Status remains copying when missing numbers have no matching placeholder."""
+    from planung.views import _check_plan_copy_state
+
+    License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Unmatched show",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "live", "video": "playout/placeholder/live_trailer.mp4"},
+    ]
+    config.anchor_default_placeholder_video = ""
+    config.save()
+
+    plan = TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "18:00:00", "duration": 20, "title": "Unmatched show", "number": 99999}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    state = _check_plan_copy_state(plan)
+    assert state["status"] == "copying"
+    assert state["ready"] == []
+    assert state["missing"] == [99999]
+
+
+@pytest.mark.django_db
+def test__check_plan_copy_state__resolves_default_placeholder(verified_profile):
+    """Missing PLAYOUT numbers resolve to ready when default placeholder video is configured."""
+    from planung.views import _check_plan_copy_state
+
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Generic programme",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = []
+    config.anchor_default_placeholder_video = "playout/placeholder/default.mp4"
+    config.save()
+
+    plan = TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "20:00:00", "duration": 20, "title": "Generic programme", "number": license_obj.number}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    state = _check_plan_copy_state(plan)
+    assert state["status"] == "ready"
+    assert state["ready"] == [license_obj.number]
+    assert state["missing"] == []
+
+
+@pytest.mark.django_db
+def test__check_plan_copy_state__waits_for_source_video_despite_default_placeholder(verified_profile, tmp_path):
+    """Configured placeholders do not bypass copying when a source video exists outside PLAYOUT."""
+    from planung.views import _check_plan_copy_state
+
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Archive programme",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    archive = StorageLocation.objects.create(
+        name="Archive Source",
+        storage_type="ARCHIVE",
+        path=str(tmp_path),
+        is_active=True,
+    )
+    VideoFile.objects.create(
+        number=license_obj.number,
+        filename="archive_source.mp4",
+        file_path="archive_source.mp4",
+        storage_location=archive,
+        is_available=True,
+        is_preview=False,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = []
+    config.anchor_default_placeholder_video = "playout/placeholder/default.mp4"
+    config.save()
+
+    plan = TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "20:00:00", "duration": 20, "title": "Archive programme", "number": license_obj.number}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    state = _check_plan_copy_state(plan)
+    assert state["status"] == "copying"
+    assert state["ready"] == []
+    assert state["missing"] == [license_obj.number]
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_waits_for_source_video_despite_live_placeholder(client, staff_user, tmp_path):
+    """Endpoint keeps returning 409 when a live item has a source video that still needs copying."""
+    client.force_login(staff_user)
+    license_obj = License.objects.create(
+        profile=staff_user.profile,
+        category=default_category(),
+        title="Live programme with source",
+        description="Description",
+        duration=timedelta(minutes=30),
+        is_live=True,
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    archive = StorageLocation.objects.create(
+        name="Live Archive Source",
+        storage_type="ARCHIVE",
+        path=str(tmp_path),
+        is_active=True,
+    )
+    VideoFile.objects.create(
+        number=license_obj.number,
+        filename="live_source.mp4",
+        file_path="live_source.mp4",
+        storage_location=archive,
+        is_available=True,
+        is_preview=False,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "live", "video": "playout/placeholder/live_trailer.mp4"},
+    ]
+    config.save()
+
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "18:00:00", "duration": 20, "title": "Live programme with source", "number": license_obj.number}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    response = client.post(
+        "/api/planning/anchor/render/",
+        data=json.dumps({"date": "2026-06-08"}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 409
+    body = response.json()
+    assert body["error"] == "videos_still_copying"
+    assert body["missing"] == [license_obj.number]
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_proceeds_when_live_placeholder_resolves(client, staff_user):
+    """Endpoint returns 202, not 409, when a missing live item has a live placeholder rule."""
+    client.force_login(staff_user)
+    license_obj = License.objects.create(
+        profile=staff_user.profile,
+        category=default_category(),
+        title="Live programme",
+        description="Description",
+        duration=timedelta(minutes=30),
+        is_live=True,
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "live", "video": "playout/placeholder/live_trailer.mp4"},
+    ]
+    config.save()
+
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "18:00:00", "duration": 20, "title": "Live programme", "number": license_obj.number}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+    celery_result = Mock(id="live-placeholder-task")
+    chain_mock = Mock(delay=Mock(return_value=celery_result))
+
+    with patch("planung.views.anchor_render_chain", chain_mock):
+        response = client.post(
+            "/api/planning/anchor/render/",
+            data=json.dumps({"date": "2026-06-08"}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 202
+    body = response.json()
+    assert body["status"] == "queued"
+    assert body["task_id"] == "live-placeholder-task"
+    chain_mock.delay.assert_called_once()
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_proceeds_when_title_prefix_placeholder_resolves(client, staff_user):
+    """Endpoint returns 202, not 409, when a missing title_prefix item has a matching placeholder."""
+    client.force_login(staff_user)
+    license_obj = License.objects.create(
+        profile=staff_user.profile,
+        category=default_category(),
+        title="Merseburg Report June",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {"match": "title_prefix", "video": "playout/placeholder/merseburg_intro.mp4", "prefix": "Merseburg Report"},
+    ]
+    config.save()
+
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "19:00:00", "duration": 20, "title": "Merseburg Report June", "number": license_obj.number}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+    celery_result = Mock(id="prefix-placeholder-task")
+    chain_mock = Mock(delay=Mock(return_value=celery_result))
+
+    with patch("planung.views.anchor_render_chain", chain_mock):
+        response = client.post(
+            "/api/planning/anchor/render/",
+            data=json.dumps({"date": "2026-06-08"}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 202
+    body = response.json()
+    assert body["status"] == "queued"
+    assert body["task_id"] == "prefix-placeholder-task"
+    chain_mock.delay.assert_called_once()
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_still_409_when_no_placeholder_exists(client, staff_user):
+    """Endpoint still returns 409 when items have no playout video and no placeholder."""
+    client.force_login(staff_user)
+    License.objects.create(
+        profile=staff_user.profile,
+        category=default_category(),
+        title="Unplaced programme",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = []
+    config.anchor_default_placeholder_video = ""
+    config.save()
+
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [{"start": "20:00:00", "duration": 20, "title": "Unplaced programme", "number": 99999}],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    response = client.post(
+        "/api/planning/anchor/render/",
+        data=json.dumps({"date": "2026-06-08"}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 409
+    body = response.json()
+    assert body["error"] == "videos_still_copying"
+    assert body["missing"] == [99999]

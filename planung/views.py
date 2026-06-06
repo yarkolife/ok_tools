@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from django.views.decorators.http import require_http_methods
 from licenses.models import License
+from planung.services.anchor_render_service import _placeholder_video
 from planung.services.anchor_render_service import get_anchor_job_status
 from planung.services.anchor_render_service import render_anchor_preview
 from planung.services.plan_service import delete_day_plan
@@ -599,11 +600,8 @@ def _check_plan_copy_state(plan):
         elif celery_state in {"PROGRESS", "STARTED", "RECEIVED"}:
             celery_state = "copying"
 
-    numbers = [
-        item.get("number")
-        for item in plan.json_plan.get("items", [])
-        if item.get("number")
-    ]
+    items = plan.json_plan.get("items", [])
+    numbers = [item.get("number") for item in items if item.get("number")]
     if not numbers:
         return {"status": "ready", "missing": [], "ready": []}
 
@@ -615,12 +613,39 @@ def _check_plan_copy_state(plan):
             is_preview=False,
         ).values_list("number", flat=True)
     )
+    source_set = set(
+        VideoFile.objects.filter(
+            number__in=numbers,
+            is_available=True,
+            is_preview=False,
+        ).values_list("number", flat=True)
+    )
+    missing = [n for n in numbers if n not in ready_set]
+
+    if missing:
+        config = PlanungConfig.get_config()
+        has_rules = isinstance(config.anchor_placeholder_rules, list) and bool(config.anchor_placeholder_rules)
+        has_default = bool(str(config.anchor_default_placeholder_video or "").strip())
+        if has_rules or has_default:
+            items_by_number = {item.get("number"): item for item in items if item.get("number")}
+            missing_without_source = [n for n in missing if n not in source_set]
+            license_objs = License.objects.filter(number__in=missing_without_source).select_related("profile")
+            licenses_by_number = {lic.number: lic for lic in license_objs}
+            for n in missing_without_source:
+                item = items_by_number.get(n)
+                if not item:
+                    continue
+                license_obj = licenses_by_number.get(n)
+                placeholder = _placeholder_video(license_obj, item, config)
+                if placeholder:
+                    ready_set.add(n)
+
     missing = [n for n in numbers if n not in ready_set]
     ready = [n for n in numbers if n in ready_set]
 
-    if celery_state in {"ready", "copy_failed", "copying"}:
-        return {"status": celery_state, "missing": missing, "ready": ready}
-
     if not missing:
         return {"status": "ready", "missing": [], "ready": ready}
+
+    if celery_state in {"ready", "copy_failed", "copying"}:
+        return {"status": celery_state, "missing": missing, "ready": ready}
     return {"status": "copying", "missing": missing, "ready": ready}
