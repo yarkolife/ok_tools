@@ -10,6 +10,7 @@ from planung.services.anchor_render_service import AnchorRenderResult
 from planung.services.anchor_render_service import AnchorJobStatus
 from planung.services.anchor_render_service import build_anchor_payload
 from planung.services.anchor_render_service import render_anchor_preview
+from planung.tasks import _wait_for_copy_in_chain
 from planung.tasks import poll_anchor_render_job
 from registration.models import Profile
 from unittest.mock import Mock
@@ -560,3 +561,62 @@ def test__anchor_render__celery_task_polls_until_done():
     assert payload["output_name"] == "preview.mp4"
     assert mocked_sleep.call_count == 2
     assert mocked_update_state.call_count == 3
+
+
+@pytest.mark.django_db
+def test__anchor_render__wait_for_copy_allows_success_with_missing_warning():
+    """Successful copy task with warnings proceeds so placeholders can be used."""
+    TagesPlan.objects.create(
+        datum=date(2026, 6, 15),
+        json_plan={
+            "items": [{"number": 18468, "title": "Missing source"}],
+            "draft": False,
+            "planned": True,
+        },
+        copy_task_id="copy-success-with-warning",
+    )
+    async_result = Mock(state="SUCCESS")
+
+    with patch("celery.result.AsyncResult", return_value=async_result):
+        result = _wait_for_copy_in_chain(date(2026, 6, 15), timeout_seconds=1)
+
+    assert result["ready"] is True
+    assert result["copy_task_state"] == "SUCCESS"
+    assert result["missing"] == [18468]
+
+
+@pytest.mark.django_db
+def test__anchor_render__wait_for_copy_blocks_when_missing_number_has_source_video(tmp_path):
+    """Successful copy task still blocks when a missing PLAYOUT number has a source video."""
+    archive = StorageLocation.objects.create(
+        name="Archive",
+        storage_type="ARCHIVE",
+        path=str(tmp_path),
+        is_active=True,
+    )
+    VideoFile.objects.create(
+        number=18383,
+        filename="18383_source.mp4",
+        file_path="18383_source.mp4",
+        storage_location=archive,
+        is_available=True,
+        is_preview=False,
+    )
+    TagesPlan.objects.create(
+        datum=date(2026, 6, 15),
+        json_plan={
+            "items": [{"number": 18383, "title": "Has source but not playout"}],
+            "draft": False,
+            "planned": True,
+        },
+        copy_task_id="copy-success-but-incomplete",
+    )
+    async_result = Mock(state="SUCCESS")
+
+    with patch("celery.result.AsyncResult", return_value=async_result):
+        result = _wait_for_copy_in_chain(date(2026, 6, 15), timeout_seconds=1)
+
+    assert result["ready"] is False
+    assert result["error"] == "copy_incomplete_after_success"
+    assert result["missing"] == [18383]
+    assert result["missing_with_source"] == [18383]

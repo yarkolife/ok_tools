@@ -81,12 +81,13 @@ def poll_anchor_render_job(
 
 
 def _wait_for_copy_in_chain(plan_date_obj: date, timeout_seconds: int = 1800) -> dict[str, Any]:
-    """Poll VideoFile records until all plan items exist in PLAOUT storage.
+    """Wait until the copy task finished or all plan videos exist in PLAYOUT.
 
-    Returns {"ready": True, "elapsed": int} on success,
-    {"ready": False, "error": str, "missing": [...]} on failure.
-    Falls back to direct VideoFile check — independent of Celery result expiry.
+    A successful copy task is enough to proceed even when it returned warnings;
+    missing videos are allowed only when no source video exists in CUSTOM/ARCHIVE.
     """
+    from celery.result import AsyncResult
+    from media_files.models import VideoFile
     from planung.models import TagesPlan
 
     plan = TagesPlan.objects.filter(datum=plan_date_obj).first()
@@ -102,24 +103,57 @@ def _wait_for_copy_in_chain(plan_date_obj: date, timeout_seconds: int = 1800) ->
         return {"ready": True, "elapsed": 0}
 
     start = time.time()
+    missing = list(numbers)
+    ready: list[int] = []
     while time.time() - start < timeout_seconds:
-        try:
-            from media_files.models import VideoFile
+        plan = TagesPlan.objects.filter(datum=plan_date_obj).first()
+        if not plan:
+            return {"ready": False, "error": "plan_missing"}
 
-            ready_numbers = set(
-                VideoFile.objects.filter(
-                    number__in=numbers,
-                    storage_location__storage_type="PLAYOUT",
-                    is_available=True,
-                    is_preview=False,
-                ).values_list("number", flat=True)
-            )
-        except Exception:
-            ready_numbers = set()
+        ready_numbers = set(
+            VideoFile.objects.filter(
+                number__in=numbers,
+                storage_location__storage_type="PLAYOUT",
+                is_available=True,
+                is_preview=False,
+            ).values_list("number", flat=True)
+        )
 
         missing = [n for n in numbers if n not in ready_numbers]
+        ready = [n for n in numbers if n in ready_numbers]
         if not missing:
-            return {"ready": True, "elapsed": int(time.time() - start)}
+            return {"ready": True, "elapsed": int(time.time() - start), "missing": [], "ready_numbers": ready}
+
+        if plan.copy_task_id:
+            async_result = AsyncResult(plan.copy_task_id)
+            if async_result.state == "SUCCESS":
+                missing_with_source = _numbers_with_source_videos(missing)
+                if missing_with_source:
+                    return {
+                        "ready": False,
+                        "error": "copy_incomplete_after_success",
+                        "elapsed": int(time.time() - start),
+                        "missing": missing,
+                        "ready_numbers": ready,
+                        "copy_task_state": "SUCCESS",
+                        "missing_with_source": missing_with_source,
+                    }
+                return {
+                    "ready": True,
+                    "elapsed": int(time.time() - start),
+                    "missing": missing,
+                    "ready_numbers": ready,
+                    "copy_task_state": "SUCCESS",
+                }
+            if async_result.state == "FAILURE":
+                return {
+                    "ready": False,
+                    "error": "copy_failed",
+                    "elapsed": int(time.time() - start),
+                    "missing": missing,
+                    "ready_numbers": ready,
+                    "copy_task_state": "FAILURE",
+                }
 
         time.sleep(15)
 
@@ -128,7 +162,26 @@ def _wait_for_copy_in_chain(plan_date_obj: date, timeout_seconds: int = 1800) ->
         "error": "timeout",
         "elapsed": int(time.time() - start),
         "missing": missing,
+        "ready_numbers": ready,
     }
+
+
+def _numbers_with_source_videos(numbers: list[int]) -> list[int]:
+    """Return missing plan numbers that still have source videos outside PLAYOUT."""
+    if not numbers:
+        return []
+    from media_files.models import VideoFile
+
+    return list(
+        VideoFile.objects.filter(
+            number__in=numbers,
+            is_available=True,
+            is_preview=False,
+        )
+        .exclude(storage_location__storage_type="PLAYOUT")
+        .values_list("number", flat=True)
+        .distinct()
+    )
 
 
 @shared_task(name="planung.tasks.anchor_render_chain", bind=True)
