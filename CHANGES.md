@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-06-06 (Version 4.17.0)
+===========================
+
+* **rental: Add return reminders and booking workflow tools**
+  * Added configurable automatic return reminder emails for issued rentals
+  * Added room calendar week/month views and equipment set management UI
+  * Added rental email attachments support and refreshed German translations
+
 2026-06-06 (Version 4.16.0)
 ===========================
 

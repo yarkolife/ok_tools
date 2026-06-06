@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Rental return reminders and booking tools**: Rental administrators can configure automatic return reminder emails for issued rentals, manage equipment sets from the rental UI, and use expanded room calendar views for week and month scheduling.
 - **Playout metadata import from planning**: The planning "Plan!" action can now POST allowlisted media metadata by filename to an external playout import endpoint configured in the Planning Configuration admin UI, with an optional periodic check for playout files missing metadata.
 - **Playout schedule import from planning**: The planning "Plan!" action also sends the day's broadcast schedule (day, start times, item kinds, filenames, youth protection) to a configurable external playout schedule endpoint, supporting video, placeholder (Freistellung), and live item kinds.
 - **Anchor programme preview render from planning**: Planned days can be sent to a configurable external anchor renderer; OK Tools now waits for playout copy readiness, queues preview rendering asynchronously, exposes task status polling, and formats the output filename from configuration.

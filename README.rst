@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.16.0
+**Current Version**: 4.17.0
 **Last Updated**: June 2026
 
 Features
@@ -133,7 +133,9 @@ Features
   - Equipment condition tracking
   - REST API endpoints for rental operations
   - Calendar view for rental scheduling
+  - Week and month calendar views for room booking schedules
   - Automatic rental expiration management via cron jobs
+  - Configurable automatic return reminder emails for issued rentals
 
 - **Dashboard Analytics** - Comprehensive data visualization and monitoring
   - Multiple dashboard widgets (Users, Licenses, Contributions, Projects, Inventory, Notifications, Funnel, Media Data)
