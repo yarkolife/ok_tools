@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OK Tools 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 23:51+0200\n"
+"POT-Creation-Date: 2026-06-06 20:53+0200\n"
 "PO-Revision-Date: 2026-01-28 12:00+0100\n"
 "Last-Translator: OK Tools Team\n"
 "Language-Team: German\n"
@@ -2484,6 +2484,15 @@ msgstr ""
 "\n"
 "das %(ok_name)s-Team\n"
 
+#: registration/templates/email/confirm_verification_subject.txt:2
+#, python-format
+msgid ""
+"\n"
+"Your Account for %(ok_name)s has been verified\n"
+msgstr ""
+"\n"
+"Ihr Konto für %(ok_name)s wurde genehmigt\n"
+
 #: registration/templates/navbar.html:123
 #: registration/templates/registration/print_registration.html:32
 msgid "Edit user data"
@@ -2721,6 +2730,11 @@ msgstr ""
 msgid "Send email"
 msgstr "E-Mail senden"
 
+#: registration/templates/registration/password_reset_subject.txt:2
+#, python-format
+msgid "Password reset for %(ok_name)s"
+msgstr "Passwortzurücksetzung für %(ok_name)s"
+
 #: registration/templates/registration/password_set_email_customized.html:3
 #, python-format
 msgid ""
@@ -2741,6 +2755,11 @@ msgstr ""
 "\n"
 "Sie erhalten diese E-Mail, weil Sie sich bei %(ok_name)s registriert haben.\n"
 "Bitte gehen Sie auf die folgende Seite und legen Sie Ihr Passwort fest:\n"
+
+#: registration/templates/registration/password_set_subject_customized.txt:2
+#, python-format
+msgid "Welcome to the %(ok_name)s"
+msgstr "Willkommen bei %(ok_name)s"
 
 #: registration/templates/registration/print_registration.html:7
 msgid "User data for "
@@ -4035,22 +4054,6 @@ msgstr "Sie haben %(count)d Beiträge in dieser Woche"
 #, python-format
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
-
-#, python-format
-#~ msgid ""
-#~ "\n"
-#~ "Your Account for %(ok_name)s has been verified\n"
-#~ msgstr ""
-#~ "\n"
-#~ "Ihr Konto für %(ok_name)s wurde genehmigt\n"
-
-#, python-format
-#~ msgid "Password reset for %(ok_name)s"
-#~ msgstr "Passwortzurücksetzung für %(ok_name)s"
-
-#, python-format
-#~ msgid "Welcome to the %(ok_name)s"
-#~ msgstr "Willkommen bei %(ok_name)s"
 
 #, python-format
 #~ msgid " By %(filter_title)s "

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 23:51+0200\n"
+"POT-Creation-Date: 2026-06-06 20:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -496,19 +496,19 @@ msgstr "Eingehender Webhook"
 msgid "Incoming webhook logs"
 msgstr "Eingehender Webhook"
 
-#: planung/services/plan_service.py:113 planung/views.py:121
-#: planung/views.py:122 planung/views.py:156 planung/views.py:376
+#: planung/services/plan_service.py:113 planung/views.py:122
+#: planung/views.py:123 planung/views.py:157 planung/views.py:377
 msgid "Bad date format"
 msgstr "Ungültiges Datumsformat"
 
-#: planung/services/plan_service.py:118 planung/views.py:154
-#: planung/views.py:381 planung/views.py:425 planung/views.py:454
-#: planung/views.py:498
+#: planung/services/plan_service.py:118 planung/views.py:155
+#: planung/views.py:382 planung/views.py:426 planung/views.py:455
+#: planung/views.py:499
 msgid "No plan for this day"
 msgstr "Kein Plan für diesen Tag"
 
-#: planung/services/validation_service.py:56 planung/views.py:265
-#: planung/views.py:421 planung/views.py:450 planung/views.py:494
+#: planung/services/validation_service.py:56 planung/views.py:266
+#: planung/views.py:422 planung/views.py:451 planung/views.py:495
 msgid "Invalid date"
 msgstr "Ungültiges Datum"
 
@@ -1070,59 +1070,59 @@ msgstr "Abbrechen"
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: planung/views.py:44
+#: planung/views.py:45
 msgid "License not found or not confirmed."
 msgstr "Freistellung nicht gefunden oder nicht genehmigt."
 
-#: planung/views.py:99 planung/views.py:292 planung/views.py:335
+#: planung/views.py:100 planung/views.py:293 planung/views.py:336
 msgid "Validation failed"
 msgstr ""
 
-#: planung/views.py:158
+#: planung/views.py:159
 msgid "Method not allowed"
 msgstr "Methode nicht erlaubt"
 
-#: planung/views.py:175
+#: planung/views.py:176
 #, fuzzy
 #| msgid "Invalid date"
 msgid "Invalid start date"
 msgstr "Ungültiges Datum"
 
-#: planung/views.py:267
+#: planung/views.py:268
 msgid "Template id is required"
 msgstr ""
 
-#: planung/views.py:272
+#: planung/views.py:273
 #, fuzzy
 #| msgid "not found"
 msgid "Template not found"
 msgstr "nicht gefunden"
 
-#: planung/views.py:276 planung/views.py:320
+#: planung/views.py:277 planung/views.py:321
 #, fuzzy
 #| msgid "Planned items"
 msgid "Plan already exists"
 msgstr "Geplante Beiträge"
 
-#: planung/views.py:309
+#: planung/views.py:310
 msgid "Both source and target dates are required"
 msgstr ""
 
-#: planung/views.py:311
+#: planung/views.py:312
 msgid "Source and target dates must differ"
 msgstr ""
 
-#: planung/views.py:316
+#: planung/views.py:317
 #, fuzzy
 #| msgid "not found"
 msgid "Source plan not found"
 msgstr "nicht gefunden"
 
-#: planung/views.py:500
+#: planung/views.py:501
 msgid "Plan the day first"
 msgstr "Tag zuerst planen"
 
-#: planung/views.py:504
+#: planung/views.py:505
 msgid "User profile is missing"
 msgstr "Benutzerprofil fehlt"
 

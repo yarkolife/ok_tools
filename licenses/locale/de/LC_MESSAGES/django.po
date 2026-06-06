@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 23:51+0200\n"
+"POT-Creation-Date: 2026-06-06 20:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Deutsch <LL@li.org>\n"
@@ -1415,14 +1415,20 @@ msgstr ""
 "        "
 
 #: licenses/templates/email/license_contributions_available_body.html:2
+#: licenses/templates/email/license_contributions_available_body.txt:2
 #: licenses/templates/email/license_draft_scheduled_body.html:2
+#: licenses/templates/email/license_draft_scheduled_body.txt:2
+#: licenses/templates/email/license_mediathek_published_body.txt:2
 #: licenses/templates/email/license_planned_scheduled_body.html:2
+#: licenses/templates/email/license_planned_scheduled_body.txt:2
 #: licenses/templates/email/license_video_uploaded_body.html:2
+#: licenses/templates/email/license_video_uploaded_body.txt:2
 #, python-format
 msgid "Hello %(first_name)s,"
 msgstr "Hallo %(first_name)s,"
 
 #: licenses/templates/email/license_contributions_available_body.html:4
+#: licenses/templates/email/license_contributions_available_body.txt:4
 #, python-format
 msgid "Your license #%(license_number)s (%(title)s) now has broadcast dates."
 msgstr ""
@@ -1433,17 +1439,24 @@ msgid "Premiere:"
 msgstr "Premiere:"
 
 #: licenses/templates/email/license_contributions_available_body.html:11
+#: licenses/templates/email/license_contributions_available_body.txt:11
 msgid "Repeats:"
 msgstr "Wiederholungen:"
 
 #: licenses/templates/email/license_contributions_available_body.html:20
+#: licenses/templates/email/license_contributions_available_body.txt:18
 msgid "View details in Contributions:"
 msgstr "Details in Beiträgen ansehen:"
 
 #: licenses/templates/email/license_contributions_available_body.html:23
+#: licenses/templates/email/license_contributions_available_body.txt:21
 #: licenses/templates/email/license_draft_scheduled_body.html:16
+#: licenses/templates/email/license_draft_scheduled_body.txt:16
+#: licenses/templates/email/license_mediathek_published_body.txt:14
 #: licenses/templates/email/license_planned_scheduled_body.html:16
+#: licenses/templates/email/license_planned_scheduled_body.txt:16
 #: licenses/templates/email/license_video_uploaded_body.html:16
+#: licenses/templates/email/license_video_uploaded_body.txt:16
 #, python-format
 msgid ""
 "Best regards,\n"
@@ -1453,14 +1466,30 @@ msgstr ""
 "Ihr Team von %(ok_name)s"
 
 #: licenses/templates/email/license_contributions_available_body.html:28
+#: licenses/templates/email/license_contributions_available_body.txt:25
 #: licenses/templates/email/license_draft_scheduled_body.html:21
+#: licenses/templates/email/license_draft_scheduled_body.txt:20
+#: licenses/templates/email/license_mediathek_published_body.txt:18
 #: licenses/templates/email/license_planned_scheduled_body.html:21
+#: licenses/templates/email/license_planned_scheduled_body.txt:20
 #: licenses/templates/email/license_video_uploaded_body.html:21
+#: licenses/templates/email/license_video_uploaded_body.txt:20
 #, python-format
 msgid "Contact: %(contact_email)s"
 msgstr "Kontakt: %(contact_email)s"
 
+#: licenses/templates/email/license_contributions_available_body.txt:7
+#, python-format
+msgid "Premiere: %(premiere_datetime)s"
+msgstr "Premiere: %(premiere_datetime)s"
+
+#: licenses/templates/email/license_contributions_available_subject.txt:1
+#, python-format
+msgid "Broadcast dates available for license #%(license_number)s"
+msgstr "Sendetermine verfügbar für Freistellung #%(license_number)s"
+
 #: licenses/templates/email/license_draft_scheduled_body.html:4
+#: licenses/templates/email/license_draft_scheduled_body.txt:4
 #, python-format
 msgid ""
 "Your video for license #%(license_number)s (%(title)s) has been tentatively "
@@ -1470,19 +1499,30 @@ msgstr ""
 "eingeplant."
 
 #: licenses/templates/email/license_draft_scheduled_body.html:7
+#: licenses/templates/email/license_draft_scheduled_body.txt:7
 #, python-format
 msgid "Draft schedule: %(plan_date)s at %(start_time)s (%(tz)s)."
 msgstr "Entwurf: %(plan_date)s um %(start_time)s (%(tz)s)."
 
 #: licenses/templates/email/license_draft_scheduled_body.html:10
+#: licenses/templates/email/license_draft_scheduled_body.txt:10
 msgid "This is a draft and may still change."
 msgstr "Dies ist ein Entwurf und kann sich noch ändern."
 
 #: licenses/templates/email/license_draft_scheduled_body.html:13
+#: licenses/templates/email/license_draft_scheduled_body.txt:13
+#: licenses/templates/email/license_mediathek_published_body.txt:11
 #: licenses/templates/email/license_planned_scheduled_body.html:13
+#: licenses/templates/email/license_planned_scheduled_body.txt:13
 #: licenses/templates/email/license_video_uploaded_body.html:13
+#: licenses/templates/email/license_video_uploaded_body.txt:13
 msgid "View license:"
 msgstr "Freistellung ansehen:"
+
+#: licenses/templates/email/license_draft_scheduled_subject.txt:1
+#, python-format
+msgid "Draft schedule created for license #%(license_number)s"
+msgstr "Entwurf gespeichert für Freistellung #%(license_number)s"
 
 #: licenses/templates/email/license_mediathek_published_body.html:2
 #, fuzzy, python-format
@@ -1534,7 +1574,34 @@ msgid ""
 "<p style=\"color: #666; font-size: 12px;\">Contact: %(contact_email)s</p>"
 msgstr ""
 
+#: licenses/templates/email/license_mediathek_published_body.txt:4
+#, fuzzy, python-format
+#| msgid ""
+#| "Great news! Your video for license #%(license_number)s (%(title)s) has "
+#| "been published to the Mediathek."
+msgid ""
+"Great news! Your video for license #%(license_number)s (%(title)s) has been "
+"published to the Mediathek.\n"
+"\n"
+"You can watch it here: %(mediathek_url)s"
+msgstr ""
+"Großartige Neuigkeiten! Ihr Video für Freistellung #%(license_number)s "
+"(%(title)s) wurde in der Mediathek veröffentlicht."
+
+#: licenses/templates/email/license_mediathek_published_body.txt:8
+msgid "Thank you for your contribution!"
+msgstr "Vielen Dank für Ihren Beitrag!"
+
+#: licenses/templates/email/license_mediathek_published_subject.txt:2
+#, python-format
+msgid ""
+"Your video is now available in the Mediathek - License #%(license_number)s"
+msgstr ""
+"Ihr Video ist jetzt in der Mediathek verfügbar - Freistellung "
+"#%(license_number)s"
+
 #: licenses/templates/email/license_planned_scheduled_body.html:4
+#: licenses/templates/email/license_planned_scheduled_body.txt:4
 #, python-format
 msgid ""
 "Your video for license #%(license_number)s (%(title)s) has been scheduled."
@@ -1542,17 +1609,25 @@ msgstr ""
 "Ihr Video für Freistellung #%(license_number)s (%(title)s) wurde eingeplant."
 
 #: licenses/templates/email/license_planned_scheduled_body.html:7
+#: licenses/templates/email/license_planned_scheduled_body.txt:7
 #, python-format
 msgid "Planned broadcast: %(plan_date)s at %(start_time)s (%(tz)s)."
 msgstr "Geplante Ausstrahlung: %(plan_date)s um %(start_time)s (%(tz)s)."
 
 #: licenses/templates/email/license_planned_scheduled_body.html:10
+#: licenses/templates/email/license_planned_scheduled_body.txt:10
 msgid "This schedule is considered final and is very likely to air as planned."
 msgstr ""
 "Dieser Plan gilt als final und wird sehr wahrscheinlich wie geplant "
 "ausgestrahlt."
 
+#: licenses/templates/email/license_planned_scheduled_subject.txt:1
+#, python-format
+msgid "Scheduled broadcast for license #%(license_number)s"
+msgstr "Sendetermin geplant für Freistellung #%(license_number)s"
+
 #: licenses/templates/email/license_video_uploaded_body.html:4
+#: licenses/templates/email/license_video_uploaded_body.txt:4
 #, python-format
 msgid ""
 "We received your video upload for license #%(license_number)s (%(title)s)."
@@ -1561,13 +1636,20 @@ msgstr ""
 "(%(title)s) erhalten."
 
 #: licenses/templates/email/license_video_uploaded_body.html:7
+#: licenses/templates/email/license_video_uploaded_body.txt:7
 #, python-format
 msgid "File: %(filename)s"
 msgstr "Datei: %(filename)s"
 
 #: licenses/templates/email/license_video_uploaded_body.html:10
+#: licenses/templates/email/license_video_uploaded_body.txt:10
 msgid "You will receive updates when your video is scheduled."
 msgstr "Sie erhalten Updates, sobald Ihr Video eingeplant wurde."
+
+#: licenses/templates/email/license_video_uploaded_subject.txt:1
+#, python-format
+msgid "Video uploaded for license #%(license_number)s"
+msgstr "Video hochgeladen für Freistellung #%(license_number)s"
 
 #: licenses/templates/licenses/create.html:5
 #: licenses/templates/licenses/create.html:6
@@ -2432,49 +2514,6 @@ msgstr "Freistellung %(license)s erfolgreich gelöscht."
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr ""
 "Tags durch Kommas getrennt eingeben (z.B. beitrag1, beitrag2, beitrag3)"
-
-#, python-format
-#~ msgid "Premiere: %(premiere_datetime)s"
-#~ msgstr "Premiere: %(premiere_datetime)s"
-
-#, python-format
-#~ msgid "Broadcast dates available for license #%(license_number)s"
-#~ msgstr "Sendetermine verfügbar für Freistellung #%(license_number)s"
-
-#, python-format
-#~ msgid "Draft schedule created for license #%(license_number)s"
-#~ msgstr "Entwurf gespeichert für Freistellung #%(license_number)s"
-
-#, fuzzy, python-format
-#~| msgid ""
-#~| "Great news! Your video for license #%(license_number)s (%(title)s) has "
-#~| "been published to the Mediathek."
-#~ msgid ""
-#~ "Great news! Your video for license #%(license_number)s (%(title)s) has "
-#~ "been published to the Mediathek.\n"
-#~ "\n"
-#~ "You can watch it here: %(mediathek_url)s"
-#~ msgstr ""
-#~ "Großartige Neuigkeiten! Ihr Video für Freistellung #%(license_number)s "
-#~ "(%(title)s) wurde in der Mediathek veröffentlicht."
-
-#~ msgid "Thank you for your contribution!"
-#~ msgstr "Vielen Dank für Ihren Beitrag!"
-
-#, python-format
-#~ msgid ""
-#~ "Your video is now available in the Mediathek - License #%(license_number)s"
-#~ msgstr ""
-#~ "Ihr Video ist jetzt in der Mediathek verfügbar - Freistellung "
-#~ "#%(license_number)s"
-
-#, python-format
-#~ msgid "Scheduled broadcast for license #%(license_number)s"
-#~ msgstr "Sendetermin geplant für Freistellung #%(license_number)s"
-
-#, python-format
-#~ msgid "Video uploaded for license #%(license_number)s"
-#~ msgstr "Video hochgeladen für Freistellung #%(license_number)s"
 
 #~ msgid "No video file provided."
 #~ msgstr "Keine Videodatei bereitgestellt."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 23:51+0200\n"
+"POT-Creation-Date: 2026-06-06 20:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -98,136 +98,136 @@ msgstr "Pfad ist keine Datei: {}"
 msgid "File must be within storage location: {}"
 msgstr "Datei muss sich im vorgegebenen Speicherort befinden: {}"
 
-#: media_files/admin.py:391
+#: media_files/admin.py:392
 msgid "Scanning"
 msgstr "Scannen"
 
-#: media_files/admin.py:394
+#: media_files/admin.py:395
 msgid "Information"
 msgstr "Information"
 
-#: media_files/admin.py:422
+#: media_files/admin.py:423
 msgid "Video count"
 msgstr "Anzahl Videos"
 
-#: media_files/admin.py:439
+#: media_files/admin.py:440
 msgid "Videos"
 msgstr "Videos"
 
-#: media_files/admin.py:482
+#: media_files/admin.py:483
 msgid "Scan task queued successfully"
 msgstr "Scan-Aufgabe erfolgreich in die Warteschlange gestellt"
 
-#: media_files/admin.py:484 media_files/admin_commands.py:180
+#: media_files/admin.py:485 media_files/admin_commands.py:180
 #: media_files/templates/admin/media_files/storagelocation/change_list.html:103
 msgid "Task ID"
 msgstr "Aufgaben-ID"
 
-#: media_files/admin.py:486
+#: media_files/admin.py:487
 msgid "The scan is running in the background. Check task results for progress."
 msgstr ""
 "Der Scan läuft im Hintergrund. Überprüfen Sie die Aufgabenergebnisse für den "
 "Fortschritt."
 
-#: media_files/admin.py:488 media_files/admin_commands.py:184
+#: media_files/admin.py:489 media_files/admin_commands.py:184
 msgid "View Task Results"
 msgstr "Aufgabenergebnisse anzeigen"
 
-#: media_files/admin.py:504 media_files/admin.py:524
+#: media_files/admin.py:505 media_files/admin.py:525
 msgid "Storage location #{} not found"
 msgstr "Speicherort #{} nicht gefunden"
 
-#: media_files/admin.py:509
+#: media_files/admin.py:510
 msgid "Error queueing scan task: {}"
 msgstr "Fehler beim Einreihen der Scan-Aufgabe: {}"
 
-#: media_files/admin.py:551
+#: media_files/admin.py:552
 msgid "Scan Options - {}"
 msgstr "Scan-Optionen - {}"
 
-#: media_files/admin.py:572
+#: media_files/admin.py:573
 msgid "Error queueing scan task for {}: {}"
 msgstr "Fehler beim Einreihen der Scan-Aufgabe für {}: {}"
 
-#: media_files/admin.py:597
+#: media_files/admin.py:598
 msgid "Scan tasks queued for"
 msgstr "Scan-Aufgaben in die Warteschlange gestellt für"
 
-#: media_files/admin.py:599
+#: media_files/admin.py:600
 msgid "storage location(s)"
 msgstr "Speicherort(e)"
 
-#: media_files/admin.py:603
+#: media_files/admin.py:604
 msgid "Scan selected storage locations"
 msgstr "Ausgewählte Speicherorte scannen"
 
-#: media_files/admin.py:618
+#: media_files/admin.py:619
 msgid "Test connection to storage"
 msgstr "Verbindung zum Speicher testen"
 
-#: media_files/admin.py:622
+#: media_files/admin.py:623
 msgid "Has Duplicates"
 msgstr "Hat Duplikate"
 
-#: media_files/admin.py:627
+#: media_files/admin.py:628
 msgid "Yes - has duplicates"
 msgstr "Ja – hat Duplikate"
 
-#: media_files/admin.py:628
+#: media_files/admin.py:629
 msgid "No - unique"
 msgstr "Nein – eindeutig"
 
-#: media_files/admin.py:650
+#: media_files/admin.py:651
 msgid "Version Type"
 msgstr "Versionstyp"
 
-#: media_files/admin.py:655
+#: media_files/admin.py:656
 msgid "Primary versions"
 msgstr "Primärversionen"
 
-#: media_files/admin.py:656
+#: media_files/admin.py:657
 msgid "Duplicate versions"
 msgstr "Duplizierte Versionen"
 
-#: media_files/admin.py:784
+#: media_files/admin.py:785
 msgid "Archive Cleanup"
 msgstr "Archivbereinigung"
 
-#: media_files/admin.py:789
+#: media_files/admin.py:790
 msgid "Archive primary (keep)"
 msgstr "Primäre archivieren (behalten)"
 
-#: media_files/admin.py:790
+#: media_files/admin.py:791
 msgid "Archive duplicates"
 msgstr "Duplikate archivieren"
 
-#: media_files/admin.py:844 media_files/admin.py:1720 media_files/models.py:248
+#: media_files/admin.py:845 media_files/admin.py:1721 media_files/models.py:248
 msgid "FPS"
 msgstr "FPS"
 
-#: media_files/admin.py:849
+#: media_files/admin.py:850
 msgid "25 fps (Broadcast Standard)"
 msgstr "25 fps (Sende-Standard)"
 
-#: media_files/admin.py:850
+#: media_files/admin.py:851
 #, fuzzy
 #| msgid "Not 25 fps (⚠ Warning)"
 msgid "Not 25 fps (Warning)"
 msgstr "Nicht 25 fps (⚠ Warnung)"
 
-#: media_files/admin.py:851
+#: media_files/admin.py:852
 msgid "FPS not set"
 msgstr "FPS nicht gesetzt"
 
-#: media_files/admin.py:887 media_files/models.py:92 media_files/models.py:346
+#: media_files/admin.py:888 media_files/models.py:92 media_files/models.py:346
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: media_files/admin.py:913
+#: media_files/admin.py:914
 msgid "Basic Information"
 msgstr "Grundlegende Informationen"
 
-#: media_files/admin.py:919 media_files/admin.py:2257
+#: media_files/admin.py:920 media_files/admin.py:2258
 #: media_files/templates/admin/media_files/videofile/change_form.html:67
 #: media_files/templates/admin/media_files/videofile/change_list.html:70
 #: media_files/templates/admin/video_player.html:5
@@ -235,32 +235,32 @@ msgstr "Grundlegende Informationen"
 msgid "Video Player"
 msgstr "Videoplayer"
 
-#: media_files/admin.py:922
+#: media_files/admin.py:923
 msgid "File Properties"
 msgstr "Dateieigenschaften"
 
-#: media_files/admin.py:928
+#: media_files/admin.py:929
 msgid "Video Properties"
 msgstr "Videoeigenschaften"
 
-#: media_files/admin.py:937
+#: media_files/admin.py:938
 msgid "Audio Properties"
 msgstr "Audioeigenschaften"
 
-#: media_files/admin.py:943
+#: media_files/admin.py:944
 #: media_files/templates/admin/system_management.html:886
 msgid "Duplicate Management"
 msgstr "Duplikateverwaltung"
 
-#: media_files/admin.py:947
+#: media_files/admin.py:948
 msgid "Timestamps"
 msgstr "Zeitstempel"
 
-#: media_files/admin.py:954
+#: media_files/admin.py:955
 msgid "Add Video File"
 msgstr "Videodatei hinzufügen"
 
-#: media_files/admin.py:957
+#: media_files/admin.py:958
 msgid ""
 "Choose a storage location, then either:<br>• <strong>Upload a file</strong> "
 "- File will be saved to the storage location<br>• <strong>Specify a path</"
@@ -273,11 +273,11 @@ msgstr ""
 "referenzieren<br><br><strong>Wichtig:</strong> Der Dateiname muss mit einer "
 "Zahl beginnen (z.B. 12345_title.mp4)"
 
-#: media_files/admin.py:992
+#: media_files/admin.py:993
 msgid "Transcode HEVC to H.264 (browser compatible)"
 msgstr "HEVC zu H.264 transkodieren (browserkompatibel)"
 
-#: media_files/admin.py:1021
+#: media_files/admin.py:1022
 #, python-brace-format
 msgid ""
 "Queued {count} video(s) for HEVC→H.264 transcoding. Check File Operations "
@@ -286,17 +286,17 @@ msgstr ""
 "{count} Video(s) für die HEVC→H.264-Transkodierung in die Warteschlange "
 "gestellt. Überprüfen Sie den Fortschritt unter Dateivorgänge."
 
-#: media_files/admin.py:1030
+#: media_files/admin.py:1031
 #, python-brace-format
 msgid "Skipped {count} video(s) - already browser compatible."
 msgstr "{count} Video(s) übersprungen – bereits browserkompatibel."
 
-#: media_files/admin.py:1034
+#: media_files/admin.py:1035
 msgid "Render video (default presets)"
 msgstr "Video rendern (Standard-Voreinstellungen)"
 
-#: media_files/admin.py:1047 media_files/admin.py:1222
-#: media_files/admin.py:1461
+#: media_files/admin.py:1048 media_files/admin.py:1223
+#: media_files/admin.py:1462
 msgid ""
 "Video overlay rendering is disabled. Set "
 "VIDEO_OVERLAY_RENDERING_ENABLED=true to enable it."
@@ -304,73 +304,73 @@ msgstr ""
 "Video-Overlay-Rendering ist deaktiviert. Setzen Sie "
 "VIDEO_OVERLAY_RENDERING_ENABLED=true, um es zu aktivieren."
 
-#: media_files/admin.py:1062 media_files/admin.py:1238
+#: media_files/admin.py:1063 media_files/admin.py:1239
 #, python-brace-format
 msgid "Failed to load presets: {err}"
 msgstr "Laden der Voreinstellungen fehlgeschlagen: {err}"
 
-#: media_files/admin.py:1071
+#: media_files/admin.py:1072
 #: media_files/management/commands/render_video_preset.py:231
 #, python-brace-format
 msgid "Intro clip not found: {p}"
 msgstr "Intro-Clip nicht gefunden: {p}"
 
-#: media_files/admin.py:1074
+#: media_files/admin.py:1075
 #: media_files/management/commands/render_video_preset.py:233
 #, python-brace-format
 msgid "Outro clip not found: {p}"
 msgstr "Outro-Clip nicht gefunden: {p}"
 
-#: media_files/admin.py:1200 media_files/admin.py:1353
+#: media_files/admin.py:1201 media_files/admin.py:1354
 #, python-brace-format
 msgid "Rendered successfully: {n}"
 msgstr "{n} erfolgreich gerendert"
 
-#: media_files/admin.py:1206 media_files/admin.py:1359
+#: media_files/admin.py:1207 media_files/admin.py:1360
 #, python-brace-format
 msgid "Failed: {n}"
 msgstr "{n} fehlgeschlagen"
 
-#: media_files/admin.py:1210
+#: media_files/admin.py:1211
 msgid "Render preview (10s)"
 msgstr "Vorschau rendern (10s)"
 
-#: media_files/admin.py:1363
+#: media_files/admin.py:1364
 msgid "Delete selected records without video"
 msgstr "Ausgewählte Einträge ohne Video löschen"
 
-#: media_files/admin.py:1419
+#: media_files/admin.py:1420
 msgid "Deleted {} record(s) without video files"
 msgstr "{} Eintrag/Einträge ohne Videodateien gelöscht"
 
-#: media_files/admin.py:1425 media_files/admin.py:3132
+#: media_files/admin.py:1426 media_files/admin.py:3133
 msgid "{} file(s) could not be checked (storage may be read-only)"
 msgstr ""
 "{} Datei(en) konnten nicht geprüft werden (Speicher ist möglicherweise "
 "schreibgeschützt)"
 
-#: media_files/admin.py:1431
+#: media_files/admin.py:1432
 msgid "No files could be checked"
 msgstr "Keine Datei konnte geprüft werden"
 
-#: media_files/admin.py:1437 media_files/admin.py:3144
+#: media_files/admin.py:1438 media_files/admin.py:3145
 msgid "All checked files exist on disk"
 msgstr "Alle geprüften Dateien sind auf dem Datenträger vorhanden"
 
-#: media_files/admin.py:1443 media_files/admin.py:3150
+#: media_files/admin.py:1444 media_files/admin.py:3151
 msgid "{} error(s) occurred"
 msgstr "{} Fehler aufgetreten"
 
-#: media_files/admin.py:1447
+#: media_files/admin.py:1448
 msgid "Render with intro/outro and full overlays"
 msgstr "Mit Intro/Outro und vollständigen Overlays rendern"
 
-#: media_files/admin.py:1474
+#: media_files/admin.py:1475
 #, python-brace-format
 msgid "Failed to load encode preset: {err}"
 msgstr "Laden des Kodierungsvoreinstellungsprofils fehlgeschlagen: {err}"
 
-#: media_files/admin.py:1542
+#: media_files/admin.py:1543
 #, python-brace-format
 msgid ""
 "Intro/outro files not found: {files}.\n"
@@ -391,7 +391,7 @@ msgstr ""
 "\n"
 "Dateien sind dann im Container unter /app/media/intro_outro/ verfügbar."
 
-#: media_files/admin.py:1652
+#: media_files/admin.py:1653
 #, python-brace-format
 msgid ""
 "Started rendering with intro/outro and full overlays: {n} video(s). You can "
@@ -400,19 +400,19 @@ msgstr ""
 "Rendern mit Intro/Outro und vollständigen Overlays für {n} Video(s) "
 "gestartet. Den Fortschritt können Sie unter Dateivorgänge verfolgen."
 
-#: media_files/admin.py:1658
+#: media_files/admin.py:1659
 #, python-brace-format
 msgid "Failed to start rendering: {n}"
 msgstr "Starten des Renderings fehlgeschlagen: {n}"
 
-#: media_files/admin.py:1689
+#: media_files/admin.py:1690
 #: media_files/templates/admin/media_files/videofile/change_form.html:74
 #: media_files/templates/admin/media_files/videofile/change_list.html:80
 #: media_files/templates/admin/video_player.html:27
 msgid "Size"
 msgstr "Größe"
 
-#: media_files/admin.py:1701 media_files/models.py:168
+#: media_files/admin.py:1702 media_files/models.py:168
 #: media_files/templates/admin/media_files/videofile/change_form.html:73
 #: media_files/templates/admin/media_files/videofile/change_list.html:79
 #: media_files/templates/admin/video_player.html:26
@@ -420,190 +420,190 @@ msgstr "Größe"
 msgid "Duration"
 msgstr "Dauer"
 
-#: media_files/admin.py:1714
+#: media_files/admin.py:1715
 msgid "FPS is not 25 - not suitable for broadcast"
 msgstr "FPS ist nicht 25 – nicht für die Ausstrahlung geeignet"
 
-#: media_files/admin.py:1728
+#: media_files/admin.py:1729
 msgid "Video Bitrate (kbps)"
 msgstr "Video-Bitrate (kbps)"
 
-#: media_files/admin.py:1736
+#: media_files/admin.py:1737
 msgid "Audio Bitrate (kbps)"
 msgstr "Audio-Bitrate (kbps)"
 
-#: media_files/admin.py:1745 media_files/models.py:199
+#: media_files/admin.py:1746 media_files/models.py:199
 #: media_files/templates/media_files/render_video_admin.html:412
 msgid "License"
 msgstr "Freistellung"
 
-#: media_files/admin.py:1757
+#: media_files/admin.py:1758
 msgid "Preview clip (not a version)"
 msgstr ""
 
-#: media_files/admin.py:1764
+#: media_files/admin.py:1765
 msgid "Unique - no duplicates"
 msgstr "Einzigartig – keine Duplikate"
 
-#: media_files/admin.py:1774
+#: media_files/admin.py:1775
 msgid "{} version(s) in same storage"
 msgstr "{} Version(en) im selben Speicherort"
 
-#: media_files/admin.py:1776
+#: media_files/admin.py:1777
 msgid "{} version(s) in other storages"
 msgstr "{} Version(en) in anderen Speicherorten"
 
-#: media_files/admin.py:1786 media_files/admin.py:1817
-#: media_files/admin.py:1825 media_files/admin.py:1835
-#: media_files/admin.py:1854 media_files/admin.py:1863
+#: media_files/admin.py:1787 media_files/admin.py:1818
+#: media_files/admin.py:1826 media_files/admin.py:1836
+#: media_files/admin.py:1855 media_files/admin.py:1864
 msgid "versions total"
 msgstr "Versionen insgesamt"
 
-#: media_files/admin.py:1815 media_files/admin.py:1942
-#: media_files/admin.py:2025
+#: media_files/admin.py:1816 media_files/admin.py:1943
+#: media_files/admin.py:2026
 msgid "ARCHIVE PRIMARY"
 msgstr "ARCHIV HAUPTVERSION"
 
-#: media_files/admin.py:1823 media_files/admin.py:1935
-#: media_files/admin.py:2027
+#: media_files/admin.py:1824 media_files/admin.py:1936
+#: media_files/admin.py:2028
 msgid "ARCHIVE DUPLICATE"
 msgstr "ARCHIV DUPLIKAT"
 
-#: media_files/admin.py:1833 media_files/admin.py:1949
-#: media_files/admin.py:2029
+#: media_files/admin.py:1834 media_files/admin.py:1950
+#: media_files/admin.py:2030
 msgid "ARCHIVE VERSION"
 msgstr "ARCHIV VERSION"
 
-#: media_files/admin.py:1861 media_files/admin.py:2042
+#: media_files/admin.py:1862 media_files/admin.py:2043
 msgid "DUPLICATE"
 msgstr "DUPLIKAT"
 
-#: media_files/admin.py:1868 media_files/admin.py:1890
-#: media_files/admin.py:1903 media_files/admin.py:1907
+#: media_files/admin.py:1869 media_files/admin.py:1891
+#: media_files/admin.py:1904 media_files/admin.py:1908
 #, fuzzy
 #| msgid "Error queueing task"
 msgid "Error determining status"
 msgstr "Fehler beim Einreihen der Aufgabe"
 
-#: media_files/admin.py:1870
+#: media_files/admin.py:1871
 msgid "Versions"
 msgstr "Versionen"
 
-#: media_files/admin.py:1880
+#: media_files/admin.py:1881
 #, fuzzy
 #| msgid "Preview"
 msgid "Preview clip"
 msgstr "Vorschau"
 
-#: media_files/admin.py:1881
+#: media_files/admin.py:1882
 msgid "Not linked to license; not counted as a version."
 msgstr ""
 
-#: media_files/admin.py:1956
+#: media_files/admin.py:1957
 msgid "DUPLICATE VERSION"
 msgstr "DUPLIKATVERSION"
 
-#: media_files/admin.py:1961
+#: media_files/admin.py:1962
 msgid "Duplicate Status"
 msgstr "Duplikatstatus"
 
-#: media_files/admin.py:1975
+#: media_files/admin.py:1976
 msgid "This record is a preview clip (not linked to license). Full versions:"
 msgstr ""
 
-#: media_files/admin.py:1980
+#: media_files/admin.py:1981
 msgid "No other versions"
 msgstr "Keine weiteren Versionen"
 
-#: media_files/admin.py:1982
+#: media_files/admin.py:1983
 msgid "No full versions for this number."
 msgstr ""
 
-#: media_files/admin.py:2054
+#: media_files/admin.py:2055
 msgid "Created"
 msgstr "Erstellt"
 
-#: media_files/admin.py:2071
+#: media_files/admin.py:2072
 msgid "All Versions"
 msgstr "Alle Versionen"
 
-#: media_files/admin.py:2087 media_files/admin.py:2101
+#: media_files/admin.py:2088 media_files/admin.py:2102
 msgid "Player"
 msgstr "Player"
 
-#: media_files/admin.py:2126
+#: media_files/admin.py:2127
 msgid "File path (Linux)"
 msgstr "Dateipfad (Linux)"
 
-#: media_files/admin.py:2127
+#: media_files/admin.py:2128
 msgid "File path (Windows UNC)"
 msgstr "Dateipfad (Windows UNC)"
 
-#: media_files/admin.py:2139
+#: media_files/admin.py:2140
 #: media_files/templates/admin/media_files/videofile/change_form.html:92
 #: media_files/templates/media_files/render_video_admin.html:406
 msgid "Render Video with Overlays"
 msgstr "Video mit Overlays rendern"
 
-#: media_files/admin.py:2255 media_files/admin.py:2277
+#: media_files/admin.py:2256 media_files/admin.py:2278
 msgid "Video not available"
 msgstr "Video nicht verfügbar"
 
-#: media_files/admin.py:2265 media_files/admin.py:2345
+#: media_files/admin.py:2266 media_files/admin.py:2346
 msgid "Video not found"
 msgstr "Video nicht gefunden"
 
-#: media_files/admin.py:2268 media_files/admin.py:2348
+#: media_files/admin.py:2269 media_files/admin.py:2349
 msgid "Error: {}"
 msgstr "Fehler: {}"
 
-#: media_files/admin.py:2286
+#: media_files/admin.py:2287
 msgid "Video file not found"
 msgstr "Videodatei nicht gefunden"
 
-#: media_files/admin.py:2364
+#: media_files/admin.py:2365
 msgid "No PLAYOUT storage configured"
 msgstr "Kein PLAYOUT-Speicher konfiguriert"
 
-#: media_files/admin.py:2396
+#: media_files/admin.py:2397
 msgid "Copy to playout storage"
 msgstr "In das Playout-Speicher verschieben"
 
-#: media_files/admin.py:2445
+#: media_files/admin.py:2446
 msgid "Update metadata"
 msgstr "Metadaten aktualisieren"
 
-#: media_files/admin.py:2476
+#: media_files/admin.py:2477
 msgid "Verify file integrity"
 msgstr "Dateiintegrität überprüfen"
 
-#: media_files/admin.py:2478
+#: media_files/admin.py:2479
 msgid "Mark selected as primary version"
 msgstr "Ausgewählte als Hauptversion markieren"
 
-#: media_files/admin.py:2494
+#: media_files/admin.py:2495
 msgid ""
 "Multiple videos selected for number {}. Please select only one per number."
 msgstr ""
 "Mehrere Videos für Nummer {} ausgewählt. Bitte wählen Sie nur eines pro "
 "Nummer aus."
 
-#: media_files/admin.py:2516
+#: media_files/admin.py:2517
 msgid "Marked {} video(s) as primary version"
 msgstr "{} Video(s) als Hauptversion markiert"
 
-#: media_files/admin.py:2520
+#: media_files/admin.py:2521
 msgid "Delete duplicate versions (keep best quality)"
 msgstr "Duplizierte Versionen löschen (beste Qualität behalten)"
 
-#: media_files/admin.py:2563
+#: media_files/admin.py:2564
 #, fuzzy
 #| msgid "Delete duplicate versions (keep best quality)"
 msgid "Delete archive duplicate versions (keep best archive)"
 msgstr "Archiv-Duplikatversionen löschen (bestes Archiv behalten)"
 
-#: media_files/admin.py:2569 media_files/admin.py:2918
-#: media_files/admin.py:2966
+#: media_files/admin.py:2570 media_files/admin.py:2919
+#: media_files/admin.py:2967
 msgid ""
 "Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion "
 "to prevent data loss."
@@ -611,32 +611,32 @@ msgstr ""
 "Löschen von Videos aus dem ARCHIV-Speicher ist nicht möglich. Archiv ist für "
 "das Löschen schreibgeschützt, um Datenverlust zu verhindern."
 
-#: media_files/admin.py:2604
+#: media_files/admin.py:2605
 msgid "Deleted {} archive duplicate(s), kept {} archive primary version(s)."
 msgstr "{} Archiv-Duplikat(e) gelöscht, {} Archiv-Hauptversion(en) behalten."
 
-#: media_files/admin.py:2610 media_files/admin.py:2956
-#: media_files/admin.py:3004
+#: media_files/admin.py:2611 media_files/admin.py:2957
+#: media_files/admin.py:3005
 msgid "Skipped {} number(s) with no archive duplicates."
 msgstr "{} Nummer(n) übersprungen, keine Archiv-Duplikate vorhanden."
 
-#: media_files/admin.py:2614
+#: media_files/admin.py:2615
 msgid "Preview archive cleanup (keep best archive)"
 msgstr "Vorschau Archivbereinigung (bestes Archiv behalten)"
 
-#: media_files/admin.py:2649
+#: media_files/admin.py:2650
 msgid "Preview archive cleanup (keep newest archive)"
 msgstr "Vorschau Archivbereinigung (neueste Archivversion behalten)"
 
-#: media_files/admin.py:2684
+#: media_files/admin.py:2685
 msgid "Preview archive cleanup (keep largest archive file)"
 msgstr "Vorschau Archivbereinigung (größte Archivdatei behalten)"
 
-#: media_files/admin.py:2774
+#: media_files/admin.py:2775
 msgid "You do not have permission to delete videos."
 msgstr "Sie haben keine Berechtigung, Videos zu löschen."
 
-#: media_files/admin.py:2868
+#: media_files/admin.py:2869
 #, python-format
 msgid ""
 "Force delete completed: deleted %(records)d record(s), deleted %(files)d "
@@ -645,37 +645,37 @@ msgstr ""
 "Erzwingtes Löschen abgeschlossen: %(records)d Datensatz/Datensätze gelöscht, "
 "%(files)d Datei(en) gelöscht, %(numbers)d Nummer(n) betroffen."
 
-#: media_files/admin.py:2878
+#: media_files/admin.py:2879
 #, python-format
 msgid "Force delete encountered %(count)d error(s). Check logs for details."
 msgstr ""
 "Beim Erzwingen des Löschens sind %(count)d Fehler aufgetreten. Details "
 "finden Sie in den Protokollen."
 
-#: media_files/admin.py:2882
+#: media_files/admin.py:2883
 msgid ""
 "Force delete archive duplicates (keep best archive) [requires confirmation]"
 msgstr ""
 "Archiv-Duplikate erzwingen löschen (bestes Archiv behalten) [benötigt "
 "Bestätigung]"
 
-#: media_files/admin.py:2889
+#: media_files/admin.py:2890
 msgid "Force delete ARCHIVE duplicates (keep best archive)"
 msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (bestes Archiv behalten)"
 
-#: media_files/admin.py:2892
+#: media_files/admin.py:2893
 msgid ""
 "Force delete archive duplicates (keep newest archive) [requires confirmation]"
 msgstr ""
 "Archiv-Duplikate erzwingen löschen (neueste Archivversion behalten) "
 "[benötigt Bestätigung]"
 
-#: media_files/admin.py:2899
+#: media_files/admin.py:2900
 msgid "Force delete ARCHIVE duplicates (keep newest archive)"
 msgstr ""
 "Erzwingtes Löschen von ARCHIV-Duplikaten (neueste Archivversion behalten)"
 
-#: media_files/admin.py:2902
+#: media_files/admin.py:2903
 msgid ""
 "Force delete archive duplicates (keep largest archive file) [requires "
 "confirmation]"
@@ -683,48 +683,48 @@ msgstr ""
 "Archiv-Duplikate erzwingen löschen (größte Archivdatei behalten) [benötigt "
 "Bestätigung]"
 
-#: media_files/admin.py:2909
+#: media_files/admin.py:2910
 msgid "Force delete ARCHIVE duplicates (keep largest archive file)"
 msgstr "Erzwingtes Löschen von ARCHIV-Duplikaten (größte Archivdatei behalten)"
 
-#: media_files/admin.py:2912
+#: media_files/admin.py:2913
 msgid "Delete archive duplicate versions (keep newest archive)"
 msgstr "Archiv-Duplikatversionen löschen (neueste Archivversion behalten)"
 
-#: media_files/admin.py:2950
+#: media_files/admin.py:2951
 msgid "Deleted {} archive duplicate(s), kept {} newest archive version(s)."
 msgstr ""
 "{} Archiv-Duplikat(e) gelöscht, {} neueste(r) Archivversion(en) behalten."
 
-#: media_files/admin.py:2960
+#: media_files/admin.py:2961
 msgid "Delete archive duplicate versions (keep largest archive file)"
 msgstr "Archiv-Duplikatversionen löschen (größte Archivdatei behalten)"
 
-#: media_files/admin.py:2998
+#: media_files/admin.py:2999
 msgid "Deleted {} archive duplicate(s), kept {} largest archive file(s)."
 msgstr "{} Archiv-Duplikat(e) gelöscht, {} größte Archivdatei(en) behalten."
 
-#: media_files/admin.py:3008
+#: media_files/admin.py:3009
 msgid "Move to archive storage"
 msgstr "In Archivspeicher verschieben"
 
-#: media_files/admin.py:3061
+#: media_files/admin.py:3062
 msgid "Cleanup records for files missing from disk"
 msgstr "Datensätze für auf dem Datenträger fehlende Dateien bereinigen"
 
-#: media_files/admin.py:3126
+#: media_files/admin.py:3127
 msgid "Deleted {} record(s) for files missing from disk"
 msgstr ""
 "{} Datensatz/Datensätze für auf dem Datenträger fehlende Dateien gelöscht"
 
-#: media_files/admin.py:3138
+#: media_files/admin.py:3139
 msgid ""
 "No files to check (all selected files are already marked as unavailable)"
 msgstr ""
 "Keine Dateien zu überprüfen (alle ausgewählten Dateien sind bereits als "
 "nicht verfügbar markiert)"
 
-#: media_files/admin.py:3246
+#: media_files/admin.py:3247
 msgid ""
 "Cannot delete videos from ARCHIVE storage. Archive is read-only for deletion "
 "to prevent data loss. You can read and copy videos from archive, but "
@@ -734,32 +734,32 @@ msgstr ""
 "für das Löschen schreibgeschützt, um Datenverlust zu verhindern. Sie können "
 "Videos aus dem Archiv lesen und kopieren, aber das Löschen ist deaktiviert."
 
-#: media_files/admin.py:3339
+#: media_files/admin.py:3340
 #, python-brace-format
 msgid "Video record deleted. Could not delete physical file: {error}"
 msgstr ""
 "Videoeintrag gelöscht. Physische Datei konnte nicht entfernt werden: {error}"
 
-#: media_files/admin.py:3345
+#: media_files/admin.py:3346
 msgid ""
 "Video record deleted. Could not check file status (storage may be read-only)."
 msgstr ""
 "Videoeintrag gelöscht. Dateistatus konnte nicht geprüft werden (Speicher ist "
 "möglicherweise schreibgeschützt)."
 
-#: media_files/admin.py:3351
+#: media_files/admin.py:3352
 msgid "Video record and physical file deleted successfully."
 msgstr "Videoeintrag und physische Datei erfolgreich gelöscht."
 
-#: media_files/admin.py:3357
+#: media_files/admin.py:3358
 msgid "Video record deleted (file was already removed from disk)"
 msgstr "Videoeintrag gelöscht (Datei war bereits vom Datenträger entfernt)"
 
-#: media_files/admin.py:3363
+#: media_files/admin.py:3364
 msgid "Video record deleted."
 msgstr "Videoeintrag gelöscht."
 
-#: media_files/admin.py:3391
+#: media_files/admin.py:3392
 #, python-format
 msgid ""
 "Cannot delete %(count)d video(s) from ARCHIVE storage. Archive is read-only "
@@ -771,15 +771,15 @@ msgstr ""
 "Sie können Videos aus dem Archiv lesen und kopieren, aber das Löschen ist "
 "deaktiviert."
 
-#: media_files/admin.py:3490
+#: media_files/admin.py:3491
 msgid "Error deleting video {}: {}"
 msgstr "Fehler beim Löschen des Videos {}: {}"
 
-#: media_files/admin.py:3501
+#: media_files/admin.py:3502
 msgid "Unexpected error during deletion: {}"
 msgstr "Unerwarteter Fehler beim Löschen: {}"
 
-#: media_files/admin.py:3509
+#: media_files/admin.py:3510
 msgid ""
 "{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could "
 "not be deleted from disk."
@@ -787,7 +787,7 @@ msgstr ""
 "{} Videoeintrag/Einträge gelöscht. {} Datei(en) von Datenträger gelöscht. {} "
 "Datei(en) konnten nicht vom Datenträger gelöscht werden."
 
-#: media_files/admin.py:3517
+#: media_files/admin.py:3518
 msgid ""
 "{} video record(s) deleted. {} file(s) deleted from disk. {} file(s) could "
 "not be checked (storage may be read-only)."
@@ -796,30 +796,30 @@ msgstr ""
 "Datei(en) konnten nicht überprüft werden (Speicher ist möglicherweise "
 "schreibgeschützt)."
 
-#: media_files/admin.py:3525
+#: media_files/admin.py:3526
 msgid "{} video record(s) deleted (files were already removed from disk)"
 msgstr ""
 "{} Videoeintrag/Einträge gelöscht (Dateien waren bereits vom Datenträger "
 "entfernt)"
 
-#: media_files/admin.py:3531
+#: media_files/admin.py:3532
 msgid "{} video record(s) and {} physical file(s) deleted successfully."
 msgstr ""
 "{} Videoeintrag/Einträge und {} physische Datei(en) erfolgreich gelöscht."
 
-#: media_files/admin.py:3537
+#: media_files/admin.py:3538
 msgid "{} video record(s) deleted."
 msgstr "{} Videoeintrag/Einträge gelöscht."
 
-#: media_files/admin.py:3581
+#: media_files/admin.py:3582
 msgid "Execution"
 msgstr "Ausführung"
 
-#: media_files/admin.py:3584 media_files/models.py:636
+#: media_files/admin.py:3585 media_files/models.py:636
 msgid "Details"
 msgstr "Details"
 
-#: media_files/admin.py:3609 media_files/admin.py:3610
+#: media_files/admin.py:3610 media_files/admin.py:3611
 #: media_files/admin_commands.py:203
 #: media_files/templates/admin/system_management.html:419
 msgid "System Management"
@@ -1559,6 +1559,7 @@ msgid "Move"
 msgstr "Verschieben"
 
 #: media_files/models.py:573
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:25
 #: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:50
 msgid "Delete"
 msgstr "Löschen"
@@ -2107,6 +2108,89 @@ msgstr "Abbrechen"
 msgid "Start Scan"
 msgstr "Scan starten"
 
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:22
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:6
+#: media_files/templates/media_files/render_video_admin.html:397
+msgid "Home"
+msgstr "Start"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:43
+msgid "Insufficient permissions"
+msgstr ""
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:48
+#, fuzzy, python-format
+#| msgid ""
+#| "Deleting the selected %(objects_name)s would result in deleting related "
+#| "objects, but your account doesn't have permission to delete the following "
+#| "types of objects:"
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would result in deleting "
+"related objects, but your account doesn't have permission to delete the "
+"following types of objects:"
+msgstr ""
+"Das Löschen der ausgewählten %(objects_name)s würde zum Löschen verknüpfter "
+"Objekte führen, aber Ihr Konto hat keine Genehmigung zum Löschen der "
+"folgenden Objekttypen:"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:55
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:79
+msgid "Go back"
+msgstr ""
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:66
+#, fuzzy
+#| msgid "Confirm and delete"
+msgid "Cannot delete"
+msgstr "Genehmigen und löschen"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:71
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:94
+#, fuzzy
+#| msgid "Objects"
+msgid "Object"
+msgstr "Objekte"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:72
+#, fuzzy, python-format
+#| msgid ""
+#| "Deleting the selected %(objects_name)s would require deleting the "
+#| "following protected related objects:"
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
+"following protected related objects:"
+msgstr ""
+"Das Löschen der ausgewählten %(objects_name)s erfordert das Löschen der "
+"folgenden geschützten verknüpften Objekte:"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:89
+#, fuzzy
+#| msgid "Confirm and delete"
+msgid "Confirm deletion"
+msgstr "Genehmigen und löschen"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:95
+#, fuzzy, python-format
+#| msgid ""
+#| "Are you sure you want to delete the selected %(objects_name)s? All of the "
+#| "following objects and their related items will be deleted:"
+msgid ""
+"Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
+"All of the following related items will be deleted:"
+msgstr ""
+"Sind Sie sicher, dass Sie die ausgewählten %(objects_name)s löschen möchten? "
+"Alle unten aufgeführten Objekte und dazugehörigen Einträge werden gelöscht:"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:105
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:56
+msgid "No, take me back"
+msgstr "Nein, zurück"
+
+#: media_files/templates/admin/media_files/storagelocation/delete_confirmation.html:106
+#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:55
+msgid "Yes, I'm sure"
+msgstr "Ja, ich bin sicher"
+
 #: media_files/templates/admin/media_files/videofile/change_form.html:72
 #: media_files/templates/admin/media_files/videofile/change_list.html:78
 #: media_files/templates/admin/video_player.html:25
@@ -2143,11 +2227,6 @@ msgstr "Videodatei nicht verfügbar. Pfad prüfen:"
 #: media_files/templates/media_files/render_video_admin.html:411
 msgid "File"
 msgstr "Datei"
-
-#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:6
-#: media_files/templates/media_files/render_video_admin.html:397
-msgid "Home"
-msgstr "Start"
 
 #: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:9
 #: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:14
@@ -2190,14 +2269,6 @@ msgstr "Übersicht"
 #: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:40
 msgid "Objects"
 msgstr "Objekte"
-
-#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:55
-msgid "Yes, I'm sure"
-msgstr "Ja, ich bin sicher"
-
-#: media_files/templates/admin/media_files/videofile/delete_selected_confirmation.html:56
-msgid "No, take me back"
-msgstr "Nein, zurück"
 
 #: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:9
 msgid "Danger zone"
