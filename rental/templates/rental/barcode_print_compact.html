@@ -1,0 +1,50 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>{% trans "Compact Barcode Labels" %} — OK Tools</title>
+  <style>
+    /* Print-only styles */
+    @media print {
+      @page { size: A4; margin: 5mm; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .no-print { display: none !important; }
+      .label-grid { display: grid; grid-template-columns: repeat(4, 40mm); gap: 3mm; justify-content: center; }
+      .label { width: 40mm; height: 15mm; border: 0.5px solid #ddd; padding: 1mm;
+               display: flex; flex-direction: column; align-items: center; justify-content: center;
+               page-break-inside: avoid; break-inside: avoid; }
+      .label svg { max-width: 36mm; max-height: 8mm; }
+      .label .num { font-family: 'JetBrains Mono', monospace; font-size: 7px; font-weight: 600; margin-top: 0.5mm; }
+    }
+    /* Screen styles */
+    @media screen {
+      body { font-family: 'Inter', sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+      .no-print { margin-bottom: 20px; display: flex; gap: 10px; }
+      .no-print button { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+      .btn-print { background: #2563eb; color: white; }
+      .btn-back { background: #e5e7eb; color: #333; }
+      .label-grid { display: grid; grid-template-columns: repeat(4, 40mm); gap: 3mm; justify-content: center; padding: 10mm; }
+      .label { width: 40mm; height: 15mm; border: 0.5px solid #ddd; padding: 1mm;
+               display: flex; flex-direction: column; align-items: center; justify-content: center;
+               background: white; }
+      .label svg { max-width: 36mm; max-height: 8mm; }
+      .label .num { font-family: 'JetBrains Mono', monospace; font-size: 7px; font-weight: 600; margin-top: 0.5mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <button class="btn-print" onclick="window.print()">{% trans "Print" %}</button>
+    <button class="btn-back" onclick="window.history.back()">{% trans "Back" %}</button>
+  </div>
+  <div class="label-grid">
+    {% for item in items %}
+    <div class="label">
+      {{ item.barcode_svg|safe }}
+      <div class="num">{{ item.inventory_number }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

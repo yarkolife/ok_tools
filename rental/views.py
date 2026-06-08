@@ -4323,12 +4323,17 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
     """
     Print barcode labels for selected inventory items.
 
-    GET /rental/barcode/print/?ids=1,2,3
+    GET /rental/barcode/print/?ids=1,2,3&format=compact
     Renders a page with barcode SVGs for the given inventory item IDs.
     Returns 400 if the ids parameter is missing or empty.
+    Supports format parameter: 'standard' (default) or 'compact'
     """
 
-    template_name = 'rental/barcode_print.html'
+    def get_template_names(self):
+        format_param = self.request.GET.get('format', 'standard')
+        if format_param == 'compact':
+            return ['rental/barcode_print_compact.html']
+        return ['rental/barcode_print.html']
 
     def dispatch(self, request, *args, **kwargs):
         ids_param = request.GET.get('ids', '')

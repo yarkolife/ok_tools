@@ -4446,11 +4446,17 @@ msgstr "Barcode scannen"
 msgid "Scan or type inventory number…"
 msgstr "Scannen oder Inventarnummer eingeben…"
 
-msgid "Progress"
-msgstr "Fortschritt"
-
 msgid "returned"
 msgstr "zurückgegeben"
+
+msgid "Print Barcodes"
+msgstr "Barcodes drucken"
+
+msgid "Barcode Labels"
+msgstr "Barcode-Etiketten"
+
+msgid "Open in new tab"
+msgstr "In neuem Tab öffnen"
 
 #, fuzzy
 #~| msgid "Issued"

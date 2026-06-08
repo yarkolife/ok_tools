@@ -13,7 +13,6 @@ from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import RelatedOnlyFieldListFilter
-from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -84,23 +83,10 @@ class LocationAdmin(admin.ModelAdmin):
     ordering = ("parent__id", "name")
 
 
-def print_barcodes(modeladmin, request, queryset):
-    ids = ','.join(str(obj.id) for obj in queryset)
-    try:
-        url = reverse('rental:barcode_print') + f'?ids={ids}'
-    except Exception:
-        url = f'/rental/barcode/print/?ids={ids}'
-    return HttpResponseRedirect(url)
-
-
-print_barcodes.short_description = _('Print Barcodes')
-
-
 @admin.register(InventoryItem)
 class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface for InventoryItem."""
 
-    actions = ['print_barcodes']
     change_list_template = 'admin/inventory_item_change_list.html'
     resource_class = InventoryResource
     readonly_fields = ('reserved_quantity', 'rented_quantity')
@@ -122,6 +108,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         'status', 'available_for_rent',
     ]
     autocomplete_fields = ('manufacturer', 'category', 'owner', 'location')
+    actions = ['print_barcodes_action']
     
     fieldsets = (
         (_('Identification'), {
@@ -171,6 +158,21 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
                     choice for choice in original_choices if choice[0] != InventoryItem.STATUS_RENTED
                 ]
         return form
+
+    def print_barcodes_action(self, request, queryset):
+        ids = ','.join(str(obj.id) for obj in queryset)
+        try:
+            url = reverse('rental:barcode_print') + f'?ids={ids}'
+        except Exception:
+            url = f'/rental/barcode/print/?ids={ids}'
+        
+        from django.template.response import TemplateResponse
+        return TemplateResponse(request, 'admin/inventory/barcode_modal.html', {
+            'barcode_url': url,
+            'items_count': queryset.count()
+        })
+
+    print_barcodes_action.short_description = _('Barcodes drucken')
 
 
 @admin.register(Manufacturer)
