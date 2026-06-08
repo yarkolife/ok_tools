@@ -88,10 +88,14 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
     # Static files
+    # NOTE: Avoid 'immutable' unless ALL static URLs use content-hashed filenames
+    # (e.g. Django's ManifestStaticFilesStorage). Non-hashed paths like
+    # /static/rental/js/wizard.jsx would be cached for the full expiry with no
+    # way to bust the cache, hiding deployed changes from users for weeks.
     location /static/ {
         alias /var/www/static/;
-        expires 30d;
-        add_header Cache-Control "public, immutable";
+        expires 1h;
+        add_header Cache-Control "public, max-age=3600";
     }
 
     # Media files

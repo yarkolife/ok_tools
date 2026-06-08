@@ -400,20 +400,27 @@ STATIC_URL = "/static/"
 MEDIA_ROOT = get_env('MEDIA_ROOT', default='media/')
 MEDIA_URL = "/media/"
 
-# ManifestStaticFilesStorage is recommended in production, to prevent outdatedhttp://localhost:8000/
-# JavaScript / CSS assets being served from cache (e.g. after a Wagtail upgrade).
-# See
-# https://docs.djangoproject.com/en/3.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
-# Allow overriding storage backend from environment variable
+# Django 5+: use STORAGES['staticfiles'] instead of the deprecated STATICFILES_STORAGE.
+# ManifestStaticFilesStorage produces content-hashed URLs (e.g. wizard.jsx) to prevent
+# stale browser cache. Allow overriding the backend via STATIC_STORAGE_BACKEND env var.
 _static_storage_backend = get_env('STATIC_STORAGE_BACKEND', default=None)
 if _static_storage_backend:
-    STATICFILES_STORAGE = _static_storage_backend
+    _default_staticfiles_backend = _static_storage_backend
 else:
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+    _default_staticfiles_backend = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": _default_staticfiles_backend,
+    },
+}
 
 # WhiteNoise configuration for serving static files
 # Only apply WhiteNoise settings when using WhiteNoise storage
-if 'whitenoise' in STATICFILES_STORAGE.lower():
+if 'whitenoise' in _default_staticfiles_backend.lower():
     WHITENOISE_USE_FINDERS = True  # Allow WhiteNoise to find files during development
     WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in debug mode
 
