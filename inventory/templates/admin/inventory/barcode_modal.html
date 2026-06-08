@@ -10,13 +10,18 @@
       <h2 style="margin: 0; font-size: 18px;">{% trans "Barcode Labels" %} ({{ items_count }} {% trans "items" %})</h2>
       <button onclick="closeBarcodeModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
     </div>
-    <div style="padding: 16px 20px; border-bottom: 1px solid #eee; display: flex; gap: 10px;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #eee; display: flex; gap: 10px; align-items: center;">
       <button onclick="window.open('{{ barcode_url }}', '_blank')" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
         {% trans "Open in new tab" %}
       </button>
       <button onclick="printBarcodes()" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">
         {% trans "Print" %}
       </button>
+      <div style="flex: 1;"></div>
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
+        <input type="checkbox" id="compact-format" onchange="toggleCompactFormat()">
+        <span>{% trans "Compact format" %} (40mm × 15mm)</span>
+      </label>
       <button onclick="closeBarcodeModal()" style="padding: 8px 16px; background: #e5e7eb; color: #333; border: none; border-radius: 4px; cursor: pointer;">
         {% trans "Close" %}
       </button>
@@ -30,42 +35,67 @@
 </div>
 
 <script>
-const barcodeUrl = '{{ barcode_url }}';
+const baseUrl = '{{ barcode_url }}';
+let currentUrl = baseUrl;
 
 // Load barcode content via fetch
-fetch(barcodeUrl)
-  .then(response => response.text())
-  .then(html => {
-    // Parse the HTML and extract just the label-grid content
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const labelGrid = doc.querySelector('.label-grid');
-    
-    if (labelGrid) {
-      // Copy styles from the loaded page
-      const styles = doc.querySelectorAll('style');
-      const contentDiv = document.getElementById('barcode-content');
+function loadBarcodes(url) {
+  currentUrl = url;
+  const contentDiv = document.getElementById('barcode-content');
+  contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Loading..." %}</div>';
+  
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      // Parse the HTML and extract just the label-grid content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const labelGrid = doc.querySelector('.label-grid');
       
-      // Add styles to current page
-      styles.forEach(style => {
-        const styleEl = document.createElement('style');
-        styleEl.textContent = style.textContent;
-        document.head.appendChild(styleEl);
-      });
-      
-      // Set content
-      contentDiv.innerHTML = '';
-      contentDiv.appendChild(labelGrid);
-    } else {
-      document.getElementById('barcode-content').innerHTML = 
-        '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Failed to load barcodes" %}</div>';
-    }
-  })
-  .catch(error => {
-    console.error('Error loading barcodes:', error);
-    document.getElementById('barcode-content').innerHTML = 
-      '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Error loading barcodes" %}</div>';
-  });
+      if (labelGrid) {
+        // Copy styles from the loaded page
+        const styles = doc.querySelectorAll('style');
+        
+        // Remove old barcode styles
+        document.querySelectorAll('style[data-barcode]').forEach(s => s.remove());
+        
+        // Add new styles to current page
+        styles.forEach(style => {
+          const styleEl = document.createElement('style');
+          styleEl.setAttribute('data-barcode', 'true');
+          styleEl.textContent = style.textContent;
+          document.head.appendChild(styleEl);
+        });
+        
+        // Set content
+        contentDiv.innerHTML = '';
+        contentDiv.appendChild(labelGrid.cloneNode(true));
+      } else {
+        contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Failed to load barcodes" %}</div>';
+      }
+    })
+    .catch(error => {
+      console.error('Error loading barcodes:', error);
+      contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Error loading barcodes" %}</div>';
+    });
+}
+
+// Toggle compact format
+function toggleCompactFormat() {
+  const isCompact = document.getElementById('compact-format').checked;
+  const url = new URL(baseUrl, window.location.origin);
+  
+  if (isCompact) {
+    url.searchParams.set('format', 'compact');
+  } else {
+    url.searchParams.delete('format');
+  }
+  
+  loadBarcodes(url.toString());
+}
+
+// Initial load
+loadBarcodes(baseUrl);
 
 function closeBarcodeModal() {
   document.getElementById('barcode-modal-overlay').style.display = 'none';

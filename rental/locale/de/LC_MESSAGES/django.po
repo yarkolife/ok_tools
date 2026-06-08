@@ -4458,6 +4458,9 @@ msgstr "Barcode-Etiketten"
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"
 
+msgid "Compact format"
+msgstr "Kompaktformat"
+
 msgid "Loading..."
 msgstr "Laden..."
 
