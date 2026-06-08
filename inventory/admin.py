@@ -13,6 +13,8 @@ from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import RelatedOnlyFieldListFilter
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
@@ -82,10 +84,23 @@ class LocationAdmin(admin.ModelAdmin):
     ordering = ("parent__id", "name")
 
 
+def print_barcodes(modeladmin, request, queryset):
+    ids = ','.join(str(obj.id) for obj in queryset)
+    try:
+        url = reverse('rental:barcode_print') + f'?ids={ids}'
+    except Exception:
+        url = f'/rental/barcode/print/?ids={ids}'
+    return HttpResponseRedirect(url)
+
+
+print_barcodes.short_description = _('Print Barcodes')
+
+
 @admin.register(InventoryItem)
 class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface for InventoryItem."""
 
+    actions = ['print_barcodes']
     change_list_template = 'admin/inventory_item_change_list.html'
     resource_class = InventoryResource
     readonly_fields = ('reserved_quantity', 'rented_quantity')
