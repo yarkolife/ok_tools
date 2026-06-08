@@ -4458,6 +4458,15 @@ msgstr "Barcode-Etiketten"
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"
 
+msgid "Loading..."
+msgstr "Laden..."
+
+msgid "Failed to load barcodes"
+msgstr "Barcodes konnten nicht geladen werden"
+
+msgid "Error loading barcodes"
+msgstr "Fehler beim Laden der Barcodes"
+
 #, fuzzy
 #~| msgid "Issued"
 #~ msgid "Issued on"
