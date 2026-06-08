@@ -43,6 +43,7 @@ from .views import remove_item_from_rental
 from .views import report_issue
 from .views import send_reminder
 from .views import swap_rental_item
+from .views import api_barcode_lookup
 from .views import api_cancel_rental
 from .views import api_confirm_rental
 from .views import api_check_room_availability
@@ -168,6 +169,7 @@ urlpatterns = [
     path('api/inventory-calendar/', api_inventory_calendar, name='api_inventory_calendar'),
     path('api/create-equipment-set/', api_create_equipment_set, name='api_create_equipment_set'),
     path('api/search-inventory/', api_search_inventory_items, name='api_search_inventory'),
+    path('api/barcode/lookup/', api_barcode_lookup, name='api_barcode_lookup'),
     path('api/rental/inventory/', api_inventory_search, name='api_inventory_search'),
     path('api/rental/users/', api_users_search, name='api_users_search'),
     path('api/rental/check-availability/', api_availability_check, name='api_availability_check'),

@@ -4101,6 +4101,32 @@ def api_search_inventory_items(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required
+@staff_member_required
+def api_barcode_lookup(request):
+    num = request.GET.get('num', '').strip()
+    if not num:
+        return JsonResponse({'error': _('Missing required parameter: num')}, status=400)
+
+    from inventory.models import InventoryItem
+
+    item = InventoryItem.objects.filter(
+        inventory_number__exact=num,
+        available_for_rent=True,
+    ).first()
+
+    if not item:
+        return JsonResponse({'error': _('Item not found')}, status=404)
+
+    return JsonResponse({
+        'id': item.id,
+        'inventory_number': item.inventory_number or '',
+        'description': item.description or '',
+        'quantity': item.quantity or 0,
+        'status': item.status or 'unknown',
+    })
+
+
 class PrintFormView(StaffRequiredMixin, TemplateView):
     """
     Unified print form view for any organization.
