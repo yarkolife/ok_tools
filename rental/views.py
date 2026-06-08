@@ -4343,7 +4343,9 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
             [int(i.strip()) for i in ids_param.split(',') if i.strip()]
         except ValueError:
             return HttpResponseBadRequest(_('Invalid item id format'))
-        return super().dispatch(request, *args, **kwargs)
+        response = super().dispatch(request, *args, **kwargs)
+        response['X-Frame-Options'] = 'SAMEORIGIN'
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
