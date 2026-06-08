@@ -2383,6 +2383,7 @@ class RentalReturnView(StaffRequiredMixin, TemplateView):
             context['urls_json'] = {
                 'submit_return': reverse('rental:api_return_rental_items'),
                 'detail': reverse('rental:rental_detail', args=[rental.pk]),
+                'scan_return': reverse('rental:api_scan_return_item'),
             }
             context['i18n_strings'] = _i18n_bundle()
         except RentalRequest.DoesNotExist:
