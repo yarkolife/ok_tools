@@ -1,4 +1,5 @@
 from .views import AccessDeniedView
+from .views import BarcodePrintView
 from .views import CreateSigningSessionView
 from .views import EquipmentSetItemViewSet
 from .views import EquipmentSetViewSet
@@ -82,6 +83,7 @@ from .views import api_reset_rental_system
 from .views import api_return_items
 from .views import api_return_rental_items
 from .views import api_save_template
+from .views import api_scan_return_item
 from .views import api_search_inventory_items
 from .views import api_search_users
 from .views import api_user_active_items
@@ -170,6 +172,7 @@ urlpatterns = [
     path('api/create-equipment-set/', api_create_equipment_set, name='api_create_equipment_set'),
     path('api/search-inventory/', api_search_inventory_items, name='api_search_inventory'),
     path('api/barcode/lookup/', api_barcode_lookup, name='api_barcode_lookup'),
+    path('api/scan-return/', api_scan_return_item, name='api_scan_return_item'),
     path('api/rental/inventory/', api_inventory_search, name='api_inventory_search'),
     path('api/rental/users/', api_users_search, name='api_users_search'),
     path('api/rental/check-availability/', api_availability_check, name='api_availability_check'),
@@ -211,6 +214,7 @@ urlpatterns = [
     path('print/msa/<int:rental_id>/', print_form_msa_redirect, name='print_form_msa'),
     path('print/okmq/<int:rental_id>/', print_form_okmq_redirect, name='print_form_okmq'),
     path('print/pick-list/<int:rental_id>/', PrintPickListView.as_view(), name='print_pick_list'),
+    path('barcode/print/', BarcodePrintView.as_view(), name='barcode_print'),
     path('api/rental/<int:rental_id>/print-info/', api_get_rental_print_info, name='api_rental_print_info'),
 
     # Signature URLs

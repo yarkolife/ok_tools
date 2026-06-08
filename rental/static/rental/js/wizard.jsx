@@ -71,6 +71,21 @@ function snapToWorkingHours(date, workingHours) {
   return d;
 }
 
+function beep(freq, dur) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'square';
+    gain.gain.value = 0.1;
+    osc.start();
+    osc.stop(ctx.currentTime + dur / 1000);
+  } catch (e) {}
+}
+
 /* ===== Root ===== */
 function WizardScreen({ initial }) {
   // initial = {
@@ -1213,9 +1228,14 @@ function StepReview({ user, period, cart, rooms, project, setProject, purpose, s
 function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod }) {
   const [scan, setScan] = React.useState('');
   const [busy, setBusy] = React.useState(false);
+  const [feedback, setFeedback] = React.useState(null);
+  const debounceRef = React.useRef(null);
 
   const addByScan = async () => {
     if (!scan.trim()) return;
+    if (debounceRef.current) return;
+    debounceRef.current = setTimeout(() => { debounceRef.current = null; }, 300);
+    setBusy(true);
     try {
       const params = new URLSearchParams({ num: scan.trim() });
       if (user && user.id) params.append('user_id', user.id);
@@ -1225,11 +1245,24 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
       const hit = data.items?.[0];
       if (hit) {
         setCart(c => c.some(x => x.id === hit.id) ? c : [...c, { ...hit, qty: 1 }]);
+        beep(800, 100);
+        setFeedback('success');
+        setTimeout(() => setFeedback(null), 500);
       } else {
+        beep(300, 200);
+        setFeedback('error');
+        setTimeout(() => setFeedback(null), 500);
         alert(t('err.scan_not_found', 'Inventory code not found: ') + scan);
       }
-    } catch (e) { alert(e.message); }
-    setScan('');
+    } catch (e) {
+      beep(300, 200);
+      setFeedback('error');
+      setTimeout(() => setFeedback(null), 500);
+      alert(e.message);
+    } finally {
+      setBusy(false);
+      setScan('');
+    }
   };
 
   const issueNow = async () => {
@@ -1243,6 +1276,12 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
       window.location = r.detail_url;
     } catch (e) { alert(e.message); setBusy(false); }
   };
+
+  const scanInputStyle = feedback === 'success'
+    ? { borderColor: 'oklch(0.7 0.2 140)', boxShadow: '0 0 0 2px oklch(0.7 0.2 140 / 0.3)' }
+    : feedback === 'error'
+    ? { borderColor: 'oklch(0.6 0.2 25)', boxShadow: '0 0 0 2px oklch(0.6 0.2 25 / 0.3)' }
+    : {};
 
   return (
     <div>
@@ -1270,7 +1309,9 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
             <div className="muted tiny mb-1" style={{textTransform: 'uppercase', fontWeight: 600}}>{t('wiz.scan','Scan')}</div>
             <div className="input-group input-group-sm">
               <span className="input-group-text"><i className="fas fa-barcode"></i></span>
-              <input className="form-control" placeholder="INV-…"
+              <input className="form-control" placeholder="INV-…" autoFocus
+                     style={scanInputStyle}
+                     disabled={busy}
                      value={scan} onChange={e => setScan(e.target.value)}
                      onKeyDown={e => e.key === 'Enter' && addByScan()} />
             </div>
