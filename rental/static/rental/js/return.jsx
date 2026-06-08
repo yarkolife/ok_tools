@@ -4,6 +4,21 @@
    Depends on: shared.jsx (cls, fmtDateShort, apiPost, t, Avatar)
    ========================================================= */
 
+function beep(freq, dur) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'square';
+    gain.gain.value = 0.1;
+    osc.start();
+    osc.stop(ctx.currentTime + dur / 1000);
+  } catch (e) {}
+}
+
 function ReturnScreen({ rental, items, urls }) {
   const [returns, setReturns] = React.useState(() =>
     items.map(i => ({
@@ -26,9 +41,39 @@ function ReturnScreen({ rental, items, urls }) {
   const [flagAudit, setFlagAudit] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
 
+  const [scanValue, setScanValue] = React.useState('');
+  const [scanBusy, setScanBusy] = React.useState(false);
+  const [scanFeedback, setScanFeedback] = React.useState(null);
+  const scanDebounce = React.useRef(null);
+
   const setRet = (id, patch) => setReturns(xs => xs.map(x => x.id === id ? { ...x, ...patch } : x));
   const checkAll = () => setReturns(xs => xs.map(x => ({ ...x, qtyReturned: x.total, condition: x.condition || 'ok' })));
   const clearAll = () => setReturns(xs => xs.map(x => ({ ...x, qtyReturned: 0, condition: null, issue: '' })));
+
+  const handleScan = async () => {
+    if (!scanValue.trim() || scanDebounce.current) return;
+    scanDebounce.current = setTimeout(() => { scanDebounce.current = null; }, 300);
+    setScanBusy(true);
+    try {
+      const data = await apiPost(urls.scan_return, {
+        rental_id: rental.id,
+        inventory_number: scanValue.trim(),
+      });
+      const idx = returns.findIndex(r => r.id === data.rental_item_id);
+      if (idx >= 0) {
+        setRet(data.rental_item_id, { qtyReturned: data.quantity_returned });
+      }
+      beep(800, 100);
+      setScanFeedback('success');
+      setTimeout(() => setScanFeedback(null), 500);
+    } catch (e) {
+      beep(300, 200);
+      setScanFeedback('error');
+      setTimeout(() => setScanFeedback(null), 500);
+    }
+    setScanValue('');
+    setScanBusy(false);
+  };
 
   const checkedCount = returns.filter(x => x.qtyReturned >= x.total).length;
   const totalCount = returns.length;
@@ -60,6 +105,38 @@ function ReturnScreen({ rental, items, urls }) {
 
   return (
     <>
+      <div className="surface p-3 mb-3"
+           style={{
+             border: `2px solid ${scanFeedback === 'success' ? 'oklch(0.65 0.18 145)' : scanFeedback === 'error' ? 'oklch(0.55 0.18 28)' : 'var(--line)'}`,
+             transition: 'border-color 0.2s ease',
+           }}>
+        <div className="d-flex align-items-center" style={{gap: 12, flexWrap: 'wrap'}}>
+          <div style={{flex: 1, minWidth: 220}}>
+            <label className="form-label mb-1" style={{fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em'}}>
+              {t('ret.scan_barcode', 'Scan Barcode')}
+            </label>
+            <div className="input-group input-group-sm">
+              <span className="input-group-text"><i className="fas fa-barcode"></i></span>
+              <input type="text" className="form-control"
+                     autoFocus
+                     disabled={scanBusy}
+                     value={scanValue}
+                     onChange={e => { setScanValue(e.target.value); if (e.target.value.includes('\n') || e.target.value.includes('\r')) handleScan(); }}
+                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleScan(); } }}
+                     placeholder={t('ret.scan_ph', 'Scan or type inventory number…')} />
+            </div>
+          </div>
+          <div className="text-end" style={{minWidth: 120}}>
+            <div className="muted tiny" style={{textTransform: 'uppercase', letterSpacing: '.04em', fontWeight: 600}}>
+              {t('ret.progress', 'Progress')}
+            </div>
+            <div style={{fontWeight: 600, fontVariantNumeric: 'tabular-nums', fontSize: 16}}>
+              {checkedCount}/{totalCount} {t('ret.returned', 'returned')}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Summary bar */}
       <div className="action-bar" style={{background: 'oklch(0.97 0.03 240)', borderColor: 'oklch(0.88 0.06 240)'}}>
         <div className="primary-cta">
