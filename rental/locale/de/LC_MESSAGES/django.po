@@ -4430,6 +4430,28 @@ msgstr ""
 msgid "The selected end time is outside the configured working hours."
 msgstr "Die gewählte Endzeit liegt außerhalb der konfigurierten Arbeitszeiten."
 
+# Barcode scanning translations
+msgid "Scan"
+msgstr "Scannen"
+
+msgid "Scan or enter an inventory code above to add items."
+msgstr "Scannen oder geben Sie oben einen Inventarcode ein, um Artikel hinzuzufügen."
+
+msgid "Inventory code not found: "
+msgstr "Inventarcode nicht gefunden: "
+
+msgid "Scan Barcode"
+msgstr "Barcode scannen"
+
+msgid "Scan or type inventory number…"
+msgstr "Scannen oder Inventarnummer eingeben…"
+
+msgid "Progress"
+msgstr "Fortschritt"
+
+msgid "returned"
+msgstr "zurückgegeben"
+
 #, fuzzy
 #~| msgid "Issued"
 #~ msgid "Issued on"
