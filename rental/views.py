@@ -22,6 +22,7 @@ from .serializers import RentalItemSerializer
 from .serializers import RentalRequestSerializer
 from .serializers import RentalTransactionSerializer
 from .services import RentalService
+from .services.barcode_service import BarcodeService
 from .services.rental_email import send_issued_confirmation_email
 from .services.rental_email import send_reminder_email
 from .services.rental_email import send_return_receipt_email
@@ -71,6 +72,7 @@ import uuid
 import xml.etree.ElementTree as ET
 from django.core.cache import cache
 from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseNotFound
 from django.views.generic import View
@@ -2381,6 +2383,7 @@ class RentalReturnView(StaffRequiredMixin, TemplateView):
             context['urls_json'] = {
                 'submit_return': reverse('rental:api_return_rental_items'),
                 'detail': reverse('rental:rental_detail', args=[rental.pk]),
+                'scan_return': reverse('rental:api_scan_return_item'),
             }
             context['i18n_strings'] = _i18n_bundle()
         except RentalRequest.DoesNotExist:
@@ -4101,6 +4104,99 @@ def api_search_inventory_items(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required
+@staff_member_required
+def api_barcode_lookup(request):
+    num = request.GET.get('num', '').strip()
+    if not num:
+        return JsonResponse({'error': _('Missing required parameter: num')}, status=400)
+
+    from inventory.models import InventoryItem
+
+    item = InventoryItem.objects.filter(
+        inventory_number__exact=num,
+        available_for_rent=True,
+    ).first()
+
+    if not item:
+        return JsonResponse({'error': _('Item not found')}, status=404)
+
+    return JsonResponse({
+        'id': item.id,
+        'inventory_number': item.inventory_number or '',
+        'description': item.description or '',
+        'quantity': item.quantity or 0,
+        'status': item.status or 'unknown',
+    })
+
+
+@login_required
+@staff_member_required
+def api_scan_return_item(request):
+    """
+    Scan a barcode to increment the return count for a rental item.
+
+    POST /rental/api/scan-return/
+    Body: {"rental_id": int, "inventory_number": str}
+    Returns updated rental item details with completion status.
+    """
+    logger = logging.getLogger(__name__)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'error': _('Invalid JSON body')}, status=400)
+
+    rental_id = data.get('rental_id')
+    inventory_number = data.get('inventory_number')
+
+    if not rental_id or not inventory_number:
+        return JsonResponse(
+            {'error': _('Missing required fields: rental_id and inventory_number')},
+            status=400,
+        )
+
+    rental = RentalRequest.objects.filter(
+        id=rental_id,
+        status='issued',
+    ).first()
+
+    if not rental:
+        return JsonResponse(
+            {'error': _('Rental not found or not in issued status')},
+            status=400,
+        )
+
+    rental_item = RentalItem.objects.filter(
+        rental_request=rental,
+        inventory_item__inventory_number=inventory_number,
+    ).select_related('inventory_item').first()
+
+    if not rental_item:
+        return JsonResponse(
+            {'error': _('Item not found in this rental')},
+            status=404,
+        )
+
+    if rental_item.quantity_returned >= rental_item.quantity_issued:
+        return JsonResponse(
+            {'error': _('All issued quantities have already been returned')},
+            status=400,
+        )
+
+    rental_item.quantity_returned += 1
+    rental_item.save()
+
+    return JsonResponse({
+        'rental_item_id': rental_item.id,
+        'inventory_number': rental_item.inventory_item.inventory_number,
+        'description': rental_item.inventory_item.description or rental_item.inventory_item.inventory_number,
+        'quantity_issued': rental_item.quantity_issued,
+        'quantity_returned': rental_item.quantity_returned,
+        'complete': rental_item.quantity_returned >= rental_item.quantity_issued,
+    })
+
+
 class PrintFormView(StaffRequiredMixin, TemplateView):
     """
     Unified print form view for any organization.
@@ -4220,6 +4316,60 @@ class PrintPickListView(StaffRequiredMixin, TemplateView):
         except Exception as e:
             context['error'] = _('Error loading rental: {error}').format(error=str(e))
 
+        return context
+
+
+class BarcodePrintView(StaffRequiredMixin, TemplateView):
+    """
+    Print barcode labels for selected inventory items.
+
+    GET /rental/barcode/print/?ids=1,2,3&format=compact
+    Renders a page with barcode SVGs for the given inventory item IDs.
+    Returns 400 if the ids parameter is missing or empty.
+    Supports format parameter: 'standard' (default) or 'compact'
+    """
+
+    def get_template_names(self):
+        format_param = self.request.GET.get('format', 'standard')
+        if format_param == 'compact':
+            return ['rental/barcode_print_compact.html']
+        return ['rental/barcode_print.html']
+
+    def dispatch(self, request, *args, **kwargs):
+        ids_param = request.GET.get('ids', '')
+        if not ids_param.strip():
+            return HttpResponseBadRequest(_('Missing required parameter: ids'))
+        try:
+            [int(i.strip()) for i in ids_param.split(',') if i.strip()]
+        except ValueError:
+            return HttpResponseBadRequest(_('Invalid item id format'))
+        response = super().dispatch(request, *args, **kwargs)
+        response['X-Frame-Options'] = 'SAMEORIGIN'
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids_param = self.request.GET.get('ids', '')
+        item_ids = [int(i.strip()) for i in ids_param.split(',') if i.strip()]
+
+        items = InventoryItem.objects.filter(
+            id__in=item_ids,
+        ).select_related('category', 'location')
+
+        items_data = []
+        for item in items:
+            try:
+                barcode_svg = BarcodeService.generate_svg(item.inventory_number)
+            except (ValueError, Exception):
+                barcode_svg = ''
+            items_data.append({
+                'id': item.id,
+                'inventory_number': item.inventory_number,
+                'description': item.description,
+                'barcode_svg': barcode_svg,
+            })
+
+        context['items'] = items_data
         return context
 
 

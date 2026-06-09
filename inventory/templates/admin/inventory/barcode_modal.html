@@ -1,0 +1,234 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .barcode-modal {
+        display: flex;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+        align-items: center;
+        justify-content: center;
+    }
+    .barcode-modal-content {
+        background-color: #fefefe;
+        margin: 2% auto;
+        padding: 0;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 960px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .barcode-modal-header {
+        background: #417690;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    .barcode-modal-header h2 {
+        margin: 0;
+        font-size: 18px;
+    }
+    .barcode-modal-close {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .barcode-modal-close:hover {
+        opacity: 0.7;
+    }
+    .barcode-modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    .barcode-modal-footer {
+        padding: 12px 20px;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    .barcode-modal-footer .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .barcode-modal-footer .btn-primary {
+        background: #417690;
+        color: white;
+    }
+    .barcode-modal-footer .btn-primary:hover {
+        background: #2e5266;
+    }
+    .barcode-modal-footer .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .barcode-modal-footer .btn-secondary:hover {
+        background: #545b62;
+    }
+    .barcode-modal-footer .btn-outline-primary {
+        background: transparent;
+        color: #417690;
+        border: 1px solid #417690;
+    }
+    .barcode-modal-footer .btn-outline-primary:hover {
+        background: #417690;
+        color: white;
+    }
+    .barcode-format-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        background: #f8f9fa;
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        user-select: none;
+    }
+    .barcode-loading {
+        text-align: center;
+        padding: 60px;
+        color: #6c757d;
+        font-size: 14px;
+    }
+    .barcode-error {
+        text-align: center;
+        padding: 60px;
+        color: #dc3545;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block title %}{% trans "Barcode Labels" %}{% endblock %}
+
+{% block content %}
+<div id="barcodeModal" class="barcode-modal">
+    <div class="barcode-modal-content">
+        <div class="barcode-modal-header">
+            <h2>
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                </svg>
+                {% trans "Barcode Labels" %}
+                <span style="font-weight:400;opacity:.8;font-size:13px;margin-left:8px;">({{ items_count }} {% trans "items" %})</span>
+            </h2>
+            <span class="barcode-modal-close" onclick="closeBarcodeModal()">&times;</span>
+        </div>
+        <div class="barcode-modal-body">
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+                <strong style="font-size:14px;">{% trans "Format selection" %}</strong>
+                <label class="barcode-format-label">
+                    <input type="checkbox" id="compact-format" onchange="toggleCompactFormat()">
+                    <span>{% trans "Compact format" %}</span>
+                    <span style="color:#6c757d;font-size:11px;">(40mm × 15mm)</span>
+                </label>
+            </div>
+            <div id="barcode-content">
+                <div class="barcode-loading">{% trans "Loading..." %}</div>
+            </div>
+        </div>
+        <div class="barcode-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeBarcodeModal()">{% trans "Cancel" %}</button>
+            <div style="flex:1;"></div>
+            <button type="button" class="btn btn-outline-primary" onclick="window.open(currentUrl, '_blank')">
+                {% trans "Open in new tab" %}
+            </button>
+            <button type="button" class="btn btn-primary" onclick="printBarcodes()">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom;">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"></path><rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                {% trans "Print" %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const baseUrl = '{{ barcode_url }}';
+let currentUrl = baseUrl;
+
+function loadBarcodes(url) {
+    currentUrl = url;
+    const div = document.getElementById('barcode-content');
+    div.innerHTML = '<div class="barcode-loading">{% trans "Loading..." %}</div>';
+    fetch(url)
+        .then(r => r.text())
+        .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const grid = doc.querySelector('.label-grid');
+            if (grid) {
+                document.querySelectorAll('style[data-barcode]').forEach(s => s.remove());
+                doc.querySelectorAll('style').forEach(s => {
+                    const el = document.createElement('style');
+                    el.setAttribute('data-barcode', 'true');
+                    el.textContent = s.textContent;
+                    document.head.appendChild(el);
+                });
+                div.innerHTML = '';
+                div.appendChild(grid.cloneNode(true));
+            } else {
+                div.innerHTML = '<div class="barcode-error">{% trans "Failed to load barcodes" %}</div>';
+            }
+        })
+        .catch(() => {
+            div.innerHTML = '<div class="barcode-error">{% trans "Error loading barcodes" %}</div>';
+        });
+}
+
+function toggleCompactFormat() {
+    const url = new URL(baseUrl, window.location.origin);
+    if (document.getElementById('compact-format').checked) {
+        url.searchParams.set('format', 'compact');
+    } else {
+        url.searchParams.delete('format');
+    }
+    loadBarcodes(url.toString());
+}
+
+loadBarcodes(baseUrl);
+
+function closeBarcodeModal() {
+    document.getElementById('barcodeModal').style.display = 'none';
+    window.location.href = '{% url "admin:inventory_inventoryitem_changelist" %}';
+}
+
+function printBarcodes() {
+    const w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html><head><title>{% trans "Print Barcodes" %}</title>');
+    document.querySelectorAll('style[data-barcode]').forEach(s => w.document.write(s.outerHTML));
+    w.document.write('</head><body>' + document.getElementById('barcode-content').innerHTML + '</body></html>');
+    w.document.close();
+    w.print();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBarcodeModal(); });
+document.getElementById('barcodeModal').addEventListener('click', function(e) { if (e.target === this) closeBarcodeModal(); });
+</script>
+{% endblock %}
