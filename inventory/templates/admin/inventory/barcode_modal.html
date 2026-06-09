@@ -5,31 +5,58 @@
 
 {% block content %}
 <div id="barcode-modal-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
-  <div id="barcode-modal" style="background: white; border-radius: 8px; width: 90%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-    <div style="padding: 16px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-      <h2 style="margin: 0; font-size: 18px;">{% trans "Barcode Labels" %} ({{ items_count }} {% trans "items" %})</h2>
-      <button onclick="closeBarcodeModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+  <div class="modal-content" style="width: 90%; max-width: 960px; max-height: 90vh; display: flex; flex-direction: column; border: none; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+    <div class="modal-header" style="background:#417690;color:#fff; border-radius: 8px 8px 0 0;">
+      <h5 class="modal-title">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+        </svg>
+        {% trans "Barcode Labels" %}
+        <span style="font-weight: 400; opacity: 0.8; font-size: 13px; margin-left: 8px;">({{ items_count }} {% trans "items" %})</span>
+      </h5>
+      <button type="button" class="btn-close btn-close-white" aria-label="{% trans "Close" %}" onclick="closeBarcodeModal()"></button>
     </div>
-    <div style="padding: 16px 20px; border-bottom: 1px solid #eee; display: flex; gap: 10px; align-items: center;">
-      <button onclick="window.open('{{ barcode_url }}', '_blank')" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+
+    <div class="modal-body" style="padding: 20px;">
+      <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+        <div style="flex: 1;">
+          <strong style="font-size: 14px;">{% trans "Format selection" %}</strong>
+        </div>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; background: #f8f9fa; padding: 6px 14px; border-radius: 6px; border: 1px solid #dee2e6;">
+          <input type="checkbox" id="compact-format" onchange="toggleCompactFormat()">
+          <span>{% trans "Compact format" %}</span>
+          <span style="color: #6c757d; font-size: 11px;">(40mm × 15mm)</span>
+        </label>
+      </div>
+
+      <div id="barcode-content" style="min-height: 300px; background: #fff;">
+        <div style="text-align: center; padding: 60px; color: #6c757d;">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: 0 auto 12px; opacity: 0.4;">
+            <line x1="1" y1="1" x2="5" y2="1"></line><line x1="1" y1="4" x2="3" y2="4"></line><line x1="1" y1="7" x2="5" y2="7"></line>
+            <line x1="7" y1="1" x2="9" y2="1"></line><line x1="7" y1="4" x2="11" y2="4"></line><line x1="8" y1="7" x2="10" y2="7"></line>
+            <line x1="13" y1="1" x2="17" y2="1"></line><line x1="14" y1="4" x2="16" y2="4"></line><line x1="13" y1="7" x2="17" y2="7"></line>
+            <line x1="19" y1="2" x2="23" y2="2"></line><line x1="19" y1="5" x2="21" y2="5"></line><line x1="19" y1="8" x2="23" y2="8"></line>
+          </svg>
+          {% trans "Loading..." %}
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="border-top: 1px solid #dee2e6; padding: 12px 20px; display: flex; gap: 8px;">
+      <button type="button" class="btn btn-secondary" onclick="closeBarcodeModal()">{% trans "Cancel" %}</button>
+      <div style="flex: 1;"></div>
+      <button type="button" class="btn btn-outline-primary" onclick="window.open(currentUrl, '_blank')">
         {% trans "Open in new tab" %}
       </button>
-      <button onclick="printBarcodes()" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      <button type="button" class="btn btn-primary" onclick="printBarcodes()">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"></path><rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
         {% trans "Print" %}
       </button>
-      <div style="flex: 1;"></div>
-      <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
-        <input type="checkbox" id="compact-format" onchange="toggleCompactFormat()">
-        <span>{% trans "Compact format" %} (40mm × 15mm)</span>
-      </label>
-      <button onclick="closeBarcodeModal()" style="padding: 8px 16px; background: #e5e7eb; color: #333; border: none; border-radius: 4px; cursor: pointer;">
-        {% trans "Close" %}
-      </button>
-    </div>
-    <div id="barcode-content" style="flex: 1; overflow: auto; padding: 20px;">
-      <div style="text-align: center; padding: 40px; color: #666;">
-        {% trans "Loading..." %}
-      </div>
     </div>
   </div>
 </div>
@@ -38,63 +65,48 @@
 const baseUrl = '{{ barcode_url }}';
 let currentUrl = baseUrl;
 
-// Load barcode content via fetch
 function loadBarcodes(url) {
   currentUrl = url;
   const contentDiv = document.getElementById('barcode-content');
-  contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Loading..." %}</div>';
-  
+  contentDiv.innerHTML = '<div style="text-align: center; padding: 60px; color: #6c757d;">{% trans "Loading..." %}</div>';
+
   fetch(url)
     .then(response => response.text())
     .then(html => {
-      // Parse the HTML and extract just the label-grid content
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       const labelGrid = doc.querySelector('.label-grid');
-      
+
       if (labelGrid) {
-        // Copy styles from the loaded page
-        const styles = doc.querySelectorAll('style');
-        
-        // Remove old barcode styles
         document.querySelectorAll('style[data-barcode]').forEach(s => s.remove());
-        
-        // Add new styles to current page
-        styles.forEach(style => {
+        doc.querySelectorAll('style').forEach(style => {
           const styleEl = document.createElement('style');
           styleEl.setAttribute('data-barcode', 'true');
           styleEl.textContent = style.textContent;
           document.head.appendChild(styleEl);
         });
-        
-        // Set content
         contentDiv.innerHTML = '';
         contentDiv.appendChild(labelGrid.cloneNode(true));
       } else {
-        contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Failed to load barcodes" %}</div>';
+        contentDiv.innerHTML = '<div style="text-align: center; padding: 60px; color: #dc3545;">{% trans "Failed to load barcodes" %}</div>';
       }
     })
     .catch(error => {
-      console.error('Error loading barcodes:', error);
-      contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">{% trans "Error loading barcodes" %}</div>';
+      contentDiv.innerHTML = '<div style="text-align: center; padding: 60px; color: #dc3545;">{% trans "Error loading barcodes" %}</div>';
     });
 }
 
-// Toggle compact format
 function toggleCompactFormat() {
   const isCompact = document.getElementById('compact-format').checked;
   const url = new URL(baseUrl, window.location.origin);
-  
   if (isCompact) {
     url.searchParams.set('format', 'compact');
   } else {
     url.searchParams.delete('format');
   }
-  
   loadBarcodes(url.toString());
 }
 
-// Initial load
 loadBarcodes(baseUrl);
 
 function closeBarcodeModal() {
@@ -105,31 +117,21 @@ function closeBarcodeModal() {
 function printBarcodes() {
   const content = document.getElementById('barcode-content');
   const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>{% trans "Print Barcodes" %}</title>
-        ${document.head.innerHTML.match(/<style[^>]*>[\s\S]*?<\/style>/g)?.join('') || ''}
-      </head>
-      <body>${content.innerHTML}</body>
-    </html>
-  `);
+  printWindow.document.write('<!DOCTYPE html><html><head><title>{% trans "Print Barcodes" %}</title>');
+  document.querySelectorAll('style[data-barcode]').forEach(style => {
+    printWindow.document.write(style.outerHTML);
+  });
+  printWindow.document.write('</head><body>' + content.innerHTML + '</body></html>');
   printWindow.document.close();
   printWindow.print();
 }
 
-// Close modal on Escape key
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeBarcodeModal();
-  }
+  if (e.key === 'Escape') { closeBarcodeModal(); }
 });
 
-// Close modal when clicking outside
 document.getElementById('barcode-modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) {
-    closeBarcodeModal();
-  }
+  if (e.target === this) { closeBarcodeModal(); }
 });
 </script>
 {% endblock %}

@@ -4461,6 +4461,9 @@ msgstr "In neuem Tab öffnen"
 msgid "Compact format"
 msgstr "Kompaktformat"
 
+msgid "Format selection"
+msgstr "Format-Auswahl"
+
 msgid "Loading..."
 msgstr "Laden..."
 
