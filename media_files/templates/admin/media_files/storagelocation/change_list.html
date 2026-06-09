@@ -69,6 +69,68 @@ function closeModal() {
     setTimeout(() => { allowModalClose = false; }, 50);
 }
 
+function showResultModal(title, htmlContent, isSuccess) {
+    const modal = document.getElementById('resultModal');
+    const header = modal.querySelector('.modal-header');
+    const body = modal.querySelector('.modal-body');
+    const footer = modal.querySelector('.modal-footer');
+
+    // Set header color based on type
+    header.style.background = isSuccess ? '#417690' : '#dc3545';
+    header.style.color = '#fff';
+
+    // Set title
+    modal.querySelector('.modal-title').innerHTML = title;
+
+    // Set body - render HTML directly
+    body.innerHTML = htmlContent;
+
+    // Show footer with OK button
+    footer.innerHTML = '<button type="button" class="btn btn-primary" onclick="closeResultModal()">OK</button>';
+
+    // Show modal
+    const el = document.getElementById('resultModal');
+    if (!resultModalInstance) {
+        resultModalInstance = new bootstrap.Modal(el, { backdrop: true, keyboard: true });
+    }
+    resultModalInstance.show();
+}
+
+let resultModalInstance = null;
+
+function closeResultModal() {
+    if (resultModalInstance) resultModalInstance.hide();
+}
+
+let pendingTaskResultsUrl = null;
+
+function showTaskResultsConfirm() {
+    const modal = document.getElementById('resultModal');
+    const header = modal.querySelector('.modal-header');
+    const body = modal.querySelector('.modal-body');
+    const footer = modal.querySelector('.modal-footer');
+
+    header.style.background = '#417690';
+    header.style.color = '#fff';
+    modal.querySelector('.modal-title').innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> {% trans "Task Results" %}';
+    body.innerHTML = '<p>{% trans "Open task results page?" %}</p>';
+    footer.innerHTML =
+        '<button type="button" class="btn btn-secondary" onclick="closeResultModal()">{% trans "Cancel" %}</button>' +
+        '<button type="button" class="btn btn-primary" onclick="openTaskResults()">{% trans "Open" %}</button>';
+
+    if (!resultModalInstance) {
+        resultModalInstance = new bootstrap.Modal(modal, { backdrop: true, keyboard: true });
+    }
+    resultModalInstance.show();
+}
+
+function openTaskResults() {
+    if (pendingTaskResultsUrl) {
+        window.open(pendingTaskResultsUrl, '_blank');
+    }
+    closeResultModal();
+}
+
 function submitScan() {
     const form = document.getElementById('scan-form');
     const storageId = document.getElementById('storage-id').value;
@@ -97,36 +159,38 @@ function submitScan() {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            // Show success message with task info
-            let message = data.message;
-            if (data.task_id) {
-                message += '\n\n{% trans "Task ID" %}: ' + data.task_id;
-            }
-            if (data.task_results_url) {
-                message += '\n\n{% trans "Check task results for progress" %}';
-            }
-            alert(message);
-            
-            // Optionally open task results in new tab
-            if (data.task_results_url && confirm('{% trans "Open task results page?" %}')) {
-                window.open(data.task_results_url, '_blank');
-            }
-            
+            // Close the scan options modal
             closeModal();
-            // Reload page to show updated video counts after task completes
-            // Note: Task runs in background, so counts may not update immediately
-            setTimeout(() => location.reload(), 2000);
+
+            // Show success result in a styled modal with HTML content
+            pendingTaskResultsUrl = data.task_results_url || null;
+            showResultModal(
+                '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> {% trans "Success" %}',
+                data.message,
+                true
+            );
+
+            // Reload page after a delay so counts update
+            setTimeout(() => location.reload(), 3000);
         } else {
-            alert('{% trans "Error" %}: ' + (data.message || '{% trans "Unknown error" %}'));
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
+            showResultModal(
+                '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> {% trans "Error" %}',
+                '<p>' + (data.message || '{% trans "Unknown error" %}') + '</p>',
+                false
+            );
         }
     })
     .catch(err => {
         console.error('Error:', err);
-        alert('{% trans "Error occurred during scanning. Please try again." %}');
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
+        showResultModal(
+            '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> {% trans "Error" %}',
+            '<p>{% trans "Error occurred during scanning. Please try again." %}</p>',
+            false
+        );
     });
 }
 
@@ -215,6 +279,22 @@ window.addEventListener('DOMContentLoaded', function() {
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">{% trans "Cancel" %}</button>
         <button type="button" class="btn btn-primary" onclick="submitScan()" id="start-scan-btn"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> {% trans "Start Scan" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Result Modal (Bootstrap 5) -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:#417690;color:#fff;">
+        <h5 class="modal-title"></h5>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeResultModal()"></button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
       </div>
     </div>
   </div>

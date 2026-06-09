@@ -610,6 +610,7 @@
       var totalUsedTime = 0;
       var currentPos = blockStart; // start from block beginning
       var outsideBlockCount = 0; // Count videos outside block
+      var previousEnd = 0; // Track previous video end for gap display
 
       for (var i = 0; i < videoItems.length; i++) {
         var item = videoItems[i];
@@ -618,7 +619,50 @@
         if (item.end <= blockStart || item.start >= blockEnd) {
           // Video is completely outside the block
           outsideBlockCount++;
+          
+          // Show gap between previous video and this one (if any)
+          if (i > 0 && item.start > previousEnd) {
+            var gapDuration = item.start - previousEnd;
+            var gapMins = Math.floor(gapDuration / 60);
+            var gapSecs = gapDuration % 60;
+            var gapFormatted = gapMins + ':' + gapSecs.toString().padStart(2, '0');
+            
+            var gapClass = gapDuration >= 300 ? 'gap-row-large' : 'gap-row-small';
+            var gapLabel = gapDuration >= 300 ? '⬇ ' + gettext('Large gap') : '⬇ ' + gettext('Gap');
+            var gapSuffix = gapDuration >= 300 ? ' ' + gettext('free (can add video)') : ' ' + gettext('free');
+            
+            var gapRow = '<tr class="gap-row ' + gapClass + '">' +
+              '<td colspan="2" style="text-align:center; font-weight: bold;">' + gapLabel + '</td>' +
+              '<td colspan="5" style="text-align:center;">' + gapFormatted + gapSuffix + '</td>' +
+              '<td></td>' +
+              '</tr>';
+            
+            item.$row.before(gapRow);
+          }
+          
+          previousEnd = item.end;
           continue;
+        }
+
+        // Show gap between previous video and this one (if any)
+        // Only show if there was a previous event (previousEnd > 0)
+        if (previousEnd > 0 && item.start > previousEnd) {
+          var gapDuration = item.start - previousEnd;
+          var gapMins = Math.floor(gapDuration / 60);
+          var gapSecs = gapDuration % 60;
+          var gapFormatted = gapMins + ':' + gapSecs.toString().padStart(2, '0');
+          
+          var gapClass = gapDuration >= 300 ? 'gap-row-large' : 'gap-row-small';
+          var gapLabel = gapDuration >= 300 ? '⬇ ' + gettext('Large gap') : '⬇ ' + gettext('Gap');
+          var gapSuffix = gapDuration >= 300 ? ' ' + gettext('free (can add video)') : ' ' + gettext('free');
+          
+          var gapRow = '<tr class="gap-row ' + gapClass + '">' +
+            '<td colspan="2" style="text-align:center; font-weight: bold;">' + gapLabel + '</td>' +
+            '<td colspan="5" style="text-align:center;">' + gapFormatted + gapSuffix + '</td>' +
+            '<td></td>' +
+            '</tr>';
+          
+          item.$row.before(gapRow);
         }
 
         // Clamp video to block boundaries (video may partially overlap)
@@ -626,44 +670,10 @@
         var videoEnd = Math.min(item.end, blockEnd);
         var videoInBlockDuration = videoEnd - videoStart;
 
-        // Calculate gap before this video (only within block)
-        var gapStart = currentPos;
-        var gapEnd = videoStart;
-        var gapDuration = gapEnd - gapStart;
-
-        if (gapDuration > 0) {
-          if (gapDuration < 300) { // gap < 5 minutes (300 seconds)
-            // Small gap - show in light blue
-            const gapMins = Math.floor(gapDuration / 60);
-            const gapSecs = gapDuration % 60;
-            const gapFormatted = gapMins + ':' + gapSecs.toString().padStart(2, '0');
-            
-            const gapRow = '<tr class="gap-row gap-row-small">' +
-              '<td colspan="2" style="text-align:center; font-weight: bold;">⬇ ' + gettext('Gap') + '</td>' +
-              '<td colspan="5" style="text-align:center;">' + gapFormatted + ' ' + gettext('free') + '</td>' +
-              '<td></td>' +
-              '</tr>';
-            
-            item.$row.before(gapRow);
-          } else {
-            // Large gap >= 5 min - show in yellow/orange
-            const gapMins = Math.floor(gapDuration / 60);
-            const gapSecs = gapDuration % 60;
-            const gapFormatted = gapMins + ':' + gapSecs.toString().padStart(2, '0');
-            
-            const gapRow = '<tr class="gap-row gap-row-large">' +
-              '<td colspan="2" style="text-align:center; font-weight: bold;">⬇ ' + gettext('Large gap') + '</td>' +
-              '<td colspan="5" style="text-align:center;">' + gapFormatted + ' ' + gettext('free (can add video)') + '</td>' +
-              '<td></td>' +
-              '</tr>';
-            
-            item.$row.before(gapRow);
-          }
-        }
-
         // Add video time (only the part within block)
         totalUsedTime += videoInBlockDuration;
         currentPos = videoEnd;
+        previousEnd = item.end;
       }
 
       // Check if any video extends beyond the block
@@ -1137,8 +1147,31 @@
         $input.removeClass('planning-input-error');
         clearInlineNotice();
         recalculateSchedule();
+        
+        // Auto-sort after time change
+        autoSortByTime();
       }
     });
+
+    // Auto-sort rows by time (without button click)
+    function autoSortByTime() {
+      let rows = $('#licenseTable tbody tr:not(.gap-row)').get();
+      rows.sort(function(a, b) {
+        let $aInput = $(a).find('input[type="time"]');
+        let $bInput = $(b).find('input[type="time"]');
+        let aTimeStr = getInternalTime($aInput);
+        let bTimeStr = getInternalTime($bInput);
+        let aSec = timeToSeconds(aTimeStr);
+        let bSec = timeToSeconds(bTimeStr);
+        return aSec - bSec;
+      });
+      $.each(rows, function(idx, row) {
+        $('#licenseTable tbody').append(row);
+      });
+      // Sync plannedItems with new order, but don't recalculate start times
+      syncPlannedItemsFromTable();
+      updateRemainingTime();
+    }
 
     // Align all start times to 0 or 5 minutes
     $('#alignToFiveMinutesBtn').on('click', function () {
@@ -1537,18 +1570,7 @@
 
     // Time sort button
     $('#sortByTimeBtn').on('click', function () {
-      let rows = $('#licenseTable tbody tr:not(.gap-row)').get();
-      rows.sort(function(a, b) {
-        let aTime = $(a).find('input[type="time"]').val();
-        let bTime = $(b).find('input[type="time"]').val();
-        return aTime.localeCompare(bTime);
-      });
-      $.each(rows, function(idx, row) {
-        $('#licenseTable tbody').append(row);
-      });
-      recalculateAllStartTimes();
-      syncPlannedItemsFromTable();
-      updateRemainingTime();
+      autoSortByTime();
     });
 
     // Synchronize plannedItems with the table
@@ -1738,12 +1760,14 @@
         var isPlanned = tdStatus === 'planned';
         var isDraft = tdStatus === 'draft';
         var isEmpty = tdStatus === 'empty';
+        var isOutside = tdStatus === 'outside';
 
         var statusOk = true;
         if (status === 'planned') statusOk = isPlanned;
         if (status === 'draft') statusOk = isDraft;
         if (status === 'comment') statusOk = hasComment;
         if (status === 'empty') statusOk = isEmpty;
+        if (status === 'outside') statusOk = isOutside;
 
         var queryOk = !query || cellText.indexOf(query) >= 0;
         var visible = statusOk && queryOk;

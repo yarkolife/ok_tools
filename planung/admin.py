@@ -92,9 +92,33 @@ class TagesPlanAdmin(admin.ModelAdmin):
         ):
             items = plan.json_plan.get("items", [])
             enriched_items = enrich_plan_items(items)
-            total = sum(
-                item.get("duration", 0) for item in enriched_items
-            )
+
+            # Calculate total duration within the block only
+            total = 0
+            outside_block_count = 0
+            for item in enriched_items:
+                start_str = item.get("start", "")
+                duration = item.get("duration", 0)
+                if not start_str or not duration:
+                    continue
+                # Parse start time to seconds
+                parts = start_str.split(":")
+                start_h = int(parts[0]) if len(parts) > 0 else 0
+                start_m = int(parts[1]) if len(parts) > 1 else 0
+                start_s = int(parts[2]) if len(parts) > 2 else 0
+                item_start_sec = start_h * 3600 + start_m * 60 + start_s
+                item_end_sec = item_start_sec + duration
+
+                # Check if item is completely outside block
+                if item_end_sec <= block_start_seconds or item_start_sec >= block_end_seconds:
+                    outside_block_count += 1
+                    continue
+
+                # Clamp to block boundaries
+                clamped_start = max(item_start_sec, block_start_seconds)
+                clamped_end = min(item_end_sec, block_end_seconds)
+                if clamped_end > clamped_start:
+                    total += clamped_end - clamped_start
 
             search_tokens = []
             for item in items:
@@ -138,6 +162,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                 "comment": plan.kommentar or "",
                 "search_text": " ".join(search_tokens).lower(),
                 "has_live": has_live,
+                "outside_block_count": outside_block_count,
             }
 
         # 2. forming weeks
@@ -154,6 +179,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                         "planned": False,
                         "comment": "",
                         "search_text": "",
+                        "outside_block_count": 0,
                     },
                 )
 
@@ -164,8 +190,10 @@ class TagesPlanAdmin(admin.ModelAdmin):
                 is_planned = bool(info.get("planned"))
                 is_draft = bool(info["draft"])
                 seconds = info["seconds"]
+                outside_block_count = info.get("outside_block_count", 0)
                 is_full = seconds >= max_block_seconds
                 is_partial = 0 < seconds < max_block_seconds
+                has_outside = outside_block_count > 0 and seconds == 0
 
                 # Determine background colors
                 if is_planned or (is_full and not is_draft):
@@ -174,15 +202,18 @@ class TagesPlanAdmin(admin.ModelAdmin):
                     cell_cls = "bg-info text-white"
                 elif is_partial:
                     cell_cls = "bg-warning"
+                elif has_outside:
+                    cell_cls = "bg-outside"
                 elif has_comment:
                     cell_cls = "bg-info"
                 else:
                     cell_cls = ""
 
-                # Determine icon flags
+                # Determine icon flags (multiple can be shown simultaneously)
                 show_check = is_planned or (is_full and not is_draft)
                 show_pencil = is_full and is_draft and not is_planned
                 show_clock = is_partial and not is_planned
+                show_outside = outside_block_count > 0
                 show_live = info.get("has_live", False)
 
                 # Strict status mapping for frontend filtering
@@ -190,6 +221,8 @@ class TagesPlanAdmin(admin.ModelAdmin):
                     data_status = "planned"
                 elif show_pencil or show_clock:
                     data_status = "draft"
+                elif show_outside:
+                    data_status = "outside"
                 elif has_comment:
                     data_status = "comment"
                 else:
@@ -206,6 +239,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
                         "show_check": show_check,
                         "show_pencil": show_pencil,
                         "show_clock": show_clock,
+                        "show_outside": show_outside,
                         "show_live": show_live,
                         "remaining_minutes": remaining_minutes if show_clock else 0,
                     }

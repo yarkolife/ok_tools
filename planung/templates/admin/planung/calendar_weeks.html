@@ -486,13 +486,14 @@
       <label for="calendarSearchInput" class="sr-only">{% trans "Search calendar" %}</label>
       <input type="text" id="calendarSearchInput" class="vTextField" placeholder="{% trans 'Search comment/license/date' %}" aria-label="{% trans 'Search comment/license/date' %}">
       <label for="calendarStatusFilter" class="sr-only">{% trans "Filter by status" %}</label>
-      <select id="calendarStatusFilter" class="vTextField">
-        <option value="all">{% trans "All statuses" %}</option>
-        <option value="planned">{% trans "Planned" %}</option>
-        <option value="draft">{% trans "Draft" %}</option>
-        <option value="comment">{% trans "Comment only" %}</option>
-        <option value="empty">{% trans "Empty" %}</option>
-      </select>
+<select id="calendarStatusFilter" class="vTextField">
+  <option value="all">{% trans "All statuses" %}</option>
+  <option value="planned">{% trans "Planned" %}</option>
+  <option value="draft">{% trans "Draft" %}</option>
+  <option value="comment">{% trans "Comment only" %}</option>
+  <option value="outside">{% trans "Outside block" %}</option>
+  <option value="empty">{% trans "Empty" %}</option>
+</select>
       {% if show_api_docs %}
       <button type="button" onclick="showPlayoutApiModal()" class="button" style="background: #007bff; color: white; margin-left: 8px;">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg> {% trans "API-Dokumentation" %}
@@ -545,11 +546,30 @@
 
   <section class="planning-status-legend" aria-label="{% trans 'Calendar status legend' %}">
     <strong>{% trans "Legend" %}:</strong>
-    <span class="status-badge status-badge--planned">{% trans "Planned" %}</span>
-    <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
-    <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
-    <span class="status-badge status-badge--empty">{% trans "Empty" %}</span>
-    <span class="status-badge status-badge--live">{% trans "Live broadcast" %}</span>
+    <span class="legend-item">
+      <svg class="icon-svg legend-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span class="status-badge status-badge--planned">{% trans "Planned" %}</span>
+    </span>
+    <span class="legend-item">
+      <svg class="icon-svg legend-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
+    </span>
+    <span class="legend-item">
+      <svg class="icon-svg legend-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
+    </span>
+    <span class="legend-item">
+      <svg class="icon-svg legend-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      <span class="status-badge status-badge--outside">{% trans "Outside block" %}</span>
+    </span>
+    <span class="legend-item">
+      <svg class="icon-svg legend-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <span class="status-badge status-badge--empty">{% trans "Empty" %}</span>
+    </span>
+    <span class="legend-item">
+      <svg class="icon-svg legend-icon" viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg>
+      <span class="status-badge status-badge--live">{% trans "Live broadcast" %}</span>
+    </span>
   </section>
 
   <div class="planning-calendar-table table-responsive">
@@ -580,41 +600,33 @@
                       data-date="{{ cell.iso }}"
                       data-search="{{ cell.search|default:'' }}"
                       data-has-comment="{{ cell.has_comment|yesno:'true,false' }}"
-                      aria-label="{{ cell.date|date:'d.m.Y' }} {% if cell.show_live %}{% trans 'Live broadcast' %}, {% endif %}{% if cell.data_status == 'planned' %}{% trans 'Planned' %}{% elif cell.data_status == 'draft' %}{% trans 'Draft' %}{% elif cell.data_status == 'comment' %}{% trans 'Comment' %}{% else %}{% trans 'Empty' %}{% endif %}">
+                      aria-label="{{ cell.date|date:'d.m.Y' }} {% if cell.show_live %}{% trans 'Live broadcast' %}, {% endif %}{% if cell.data_status == 'planned' %}{% trans 'Planned' %}{% elif cell.data_status == 'draft' %}{% trans 'Draft' %}{% elif cell.data_status == 'comment' %}{% trans 'Comment' %}{% elif cell.data_status == 'outside' %}{% trans 'Outside block' %}{% else %}{% trans 'Empty' %}{% endif %}">
                 {{ cell.date|date:"d.m" }}
                 <span class="date-cell-meta">
-{% if cell.show_live %}
-                  <span class="live-cell-badge" aria-hidden="true">
-                    <svg class="icon-svg" viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg>
-                  </span>
-{% endif %}
-                  {% if cell.show_check or cell.show_pencil or cell.show_clock or cell.has_comment %}
+                  {% if cell.show_check or cell.show_pencil or cell.show_clock or cell.has_comment or cell.show_outside or cell.show_live %}
                     <span class="icon-group">
                       {% if cell.show_check %}
-                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" title="{% trans 'Planned' %}"><polyline points="20 6 9 17 4 12"></polyline></svg>
                       {% endif %}
                       {% if cell.show_pencil %}
-                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" title="{% trans 'Draft' %}"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                       {% endif %}
                       {% if cell.show_clock %}
                         <span class="clock-wrap">
                           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                          <span class="clock-text">{{ cell.remaining_minutes }} {% trans 'min' %}</span>
+                          <span class="clock-text">{{ cell.remaining_minutes }}&nbsp;min</span>
                         </span>
                       {% endif %}
                       {% if cell.has_comment %}
-                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" title="{% trans 'Comment' %}"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                      {% endif %}
+                      {% if cell.show_outside %}
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" title="{% trans 'Outside block' %}"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      {% endif %}
+                      {% if cell.show_live %}
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round" title="{% trans 'Live broadcast' %}"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg>
                       {% endif %}
                     </span>
-                  {% endif %}
-                  {% if cell.data_status == 'planned' %}
-                    <span class="status-badge status-badge--planned">{% trans "Planned" %}</span>
-                  {% elif cell.data_status == 'draft' %}
-                    <span class="status-badge status-badge--draft">{% trans "Draft" %}</span>
-                  {% elif cell.data_status == 'comment' %}
-                    <span class="status-badge status-badge--comment">{% trans "Comment" %}</span>
-                  {% else %}
-                    <span class="status-badge status-badge--empty">{% trans "Empty" %}</span>
                   {% endif %}
                 </span>
               </button>

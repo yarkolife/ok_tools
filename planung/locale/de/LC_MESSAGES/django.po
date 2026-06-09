@@ -935,7 +935,7 @@ msgstr ""
 
 #: planung/templates/admin/planung/calendar_weeks.html:652
 msgid "Outside block"
-msgstr ""
+msgstr "Außerhalb des Blocks"
 
 #: planung/templates/admin/planung/calendar_weeks.html:653
 msgid "Large gaps"
