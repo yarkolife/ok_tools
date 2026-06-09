@@ -57,18 +57,8 @@
     <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
             integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
             crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
-            integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
-            crossorigin="anonymous"></script>
-
-    <script type="text/babel" src="{% static 'rental/js/shared.jsx' %}"></script>
-    <script type="text/babel" src="{% static 'rental/js/equipment_sets.jsx' %}"></script>
-    <script type="text/babel">
-    (() => {
-      const initial = JSON.parse(document.getElementById('sets-initial').textContent);
-      ReactDOM.createRoot(document.getElementById('sets-root'))
-              .render(<EquipmentSetsScreen initial={initial} />);
-    })();
-    </script>
+    <script src="{% static 'rental/js/build/shared.js' %}"></script>
+    <script src="{% static 'rental/js/build/equipment_sets.js' %}"></script>
+    <script src="{% static 'rental/js/build/entries/sets-entry.js' %}"></script>
 </body>
 </html>

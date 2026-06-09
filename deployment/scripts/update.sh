@@ -1143,6 +1143,31 @@ if [ "$MIGRATION_NEEDED" != true ]; then
     docker compose down
 fi
 
+# Build JSX assets before Docker build
+print_info "Building JSX assets..."
+if ! command -v npm &> /dev/null; then
+    print_warning "npm not found — installing Node.js (one-time setup)..."
+    if command -v apt-get &> /dev/null; then
+        apt-get update -qq && apt-get install -y -qq nodejs npm 2>&1 | tail -1
+    elif command -v yum &> /dev/null; then
+        yum install -y nodejs npm 2>&1 | tail -1
+    elif command -v apk &> /dev/null; then
+        apk add --no-cache nodejs npm 2>&1 | tail -1
+    else
+        print_error "Cannot install Node.js automatically — unknown package manager"
+        print_info "Install Node.js manually, then re-run update.sh"
+        exit 1
+    fi
+    print_success "Node.js installed"
+fi
+cd "$PROJECT_DIR"
+if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules" ]; then
+    print_info "Installing Node.js dependencies..."
+    npm ci
+fi
+npm run build:js
+print_success "JSX assets built successfully"
+
 # Rebuild Docker images
 # Interactive choice: use cache (faster) or rebuild without cache (clean)
 echo ""

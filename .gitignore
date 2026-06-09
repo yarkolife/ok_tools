@@ -168,3 +168,8 @@ deployment/servers/
 !deployment/servers/env.example
 ok_tools/static/img/logo.png
 ok_tools/static/img/favicon.ico
+
+# Node.js
+node_modules/
+package-lock.json
+rental/static/rental/js/build/

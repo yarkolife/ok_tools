@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+2026-06-10 (Version 4.19.0)
+===========================
+
+* **rental: Replace in-browser Babel JSX compilation with esbuild pre-compilation**
+  * Switched JSX compilation from @babel/standalone (in-browser) to esbuild (build-time), eliminating the Babel in-browser transformer warning and reducing page load overhead
+  * Extracted inline `<script type="text/babel">` render blocks into separate entry-point JSX files under `rental/static/rental/js/entries/`
+  * Added `package.json` with esbuild as dev dependency; `npm run build:js` produces minified JS in `rental/static/rental/js/build/`
+  * Updated all 5 rental templates to load pre-compiled `.js` instead of `.jsx`
+  * Integrated JSX build step into `deployment/scripts/update.sh` — runs `npm ci && npm run build:js` before Docker image build; auto-installs Node.js if absent
+  * Fixed `.dockerignore` to allow `rental/static/rental/js/build/` into the Docker image (was blocked by generic `build/` rule)
+  * Added `rental/static/rental/js/build/` to `.gitignore` — compiled assets are generated at deploy time, not committed
+
 2026-06-10 (Version 4.18.0)
 ===========================
 

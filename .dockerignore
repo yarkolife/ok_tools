@@ -19,7 +19,8 @@ __pycache__/
 *.egg
 *.egg-info/
 dist/
-build/
+/build/
+!rental/static/rental/js/build/
 
 # IDE / OS files
 .idea/
