@@ -3161,10 +3161,8 @@ msgid "The day is closed"
 msgstr "Der Tag ist geschlossen"
 
 #: rental/views.py:391
-#, fuzzy
-#| msgid "Please draw a signature first."
 msgid "Please set dates and times in step 2 first."
-msgstr "Bitte zeichnen Sie zuerst eine Unterschrift."
+msgstr "Bitte legen Sie zuerst Datum und Uhrzeit in Schritt 2 fest."
 
 #: rental/views.py:392
 #, fuzzy

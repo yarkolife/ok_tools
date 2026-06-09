@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-06-10 (Version 4.18.0)
+===========================
+
+* **rental: Support per-room dates and separate Nextcloud events**
+  * Enabled per-room date selection in the rental wizard — each room can have different start/end dates within a single reservation
+  * Switched room picker UI from RoomCheckPanel to RoomDateTimeForm for individual date customization
+  * Refactored Nextcloud Calendar sync to create separate CalDAV events per room rental instead of one shared event
+  * Updated event deletion to handle per-room Nextcloud events individually
+  * Fixed German translation for "Please set dates and times in step 2 first"
+
 2026-06-06 (Version 4.17.0)
 ===========================
 

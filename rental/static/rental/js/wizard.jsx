@@ -610,10 +610,12 @@ function RoomPicker({ rooms, setRooms, options, initial, period }) {
               </div>
 
               {isExpanded && !booked && (
-                <RoomCheckPanel
+                <RoomDateTimeForm
                   room={r}
-                  period={period}
                   wh={wh}
+                  period={period}
+                  getTimeSlots={getTimeSlots}
+                  getDefaultTimes={getDefaultTimes}
                   checking={checking[r.id]}
                   result={result}
                   onCheck={(sd, st, ed, et) => checkAvailability(r.id, sd, st, ed, et)}
