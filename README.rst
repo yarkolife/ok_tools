@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.19.0
+**Current Version**: 4.20.0
 **Last Updated**: June 2026
 
 Features
@@ -36,6 +36,8 @@ Features
   - Multiple storage location support (Archive, Playout, Custom)
   - Automatic video file scanning and metadata extraction (ffprobe)
   - Video rendering with customizable presets and overlays
+  - Async standard video rendering via Celery using a plain 1080p25 / 9000 kbps preset without overlays, intro, or outro
+  - Rendered ``_vN`` files are automatically promoted to primary version after successful render; preview renders are excluded
   - Storage location tracking with UNC path support
   - License-to-video file linking and synchronization
   - Checksum calculation (SHA256) for file integrity
@@ -59,6 +61,7 @@ Features
   - Optional periodic playout check for files that exist in playout but are still missing metadata
   - Optional playout schedule import and DRF-token-protected playout API endpoints for external playout integrations
   - Optional anchor renderer integration for planned days: waits for playout copy readiness, queues preview rendering asynchronously, exposes task status polling, and names the output file from a configurable pattern
+  - Anchor placeholder rules support ``live``, ``title_prefix``, and ``title_contains`` / ``contains`` matching for configurable fallback videos
 
 - **Contributions Management** - Handle user contributions and submissions
   - DISA import from Excel files (XLSX/XLS format support)
@@ -159,6 +162,7 @@ Features
   - File operation cleanup
   - Inventory import processing
   - Rental expiration checks
+  - Automatic rental return reminders
   - Database backup automation
 
 - **Monitoring & Metrics** - Prometheus integration for application performance monitoring and metrics collection

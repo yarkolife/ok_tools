@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-06-10 (Version 4.20.0)
+===========================
+
+* **rental, planung, media_files: Async rendering pipeline and anchor placeholder rules**
+  * Registered the Celery task wrapper for automatic return reminders so the existing periodic task executes correctly in workers
+  * Changed the media file admin action "Video rendern (Standard-Voreinstellungen)" to queue an async Celery render using the standard plain 1080p25 / 9000 kbps preset without overlays, intro, or outro
+  * Added a plain FFmpeg encode path for standard renders and kept overlay / intro-outro rendering in the separate dedicated admin action
+  * Promoted successfully rendered `_vN` output files to the primary video version automatically; preview renders remain excluded
+  * Added `title_contains` / `contains` support for Planung anchor placeholder rules and updated the German admin help text
+
 2026-06-10 (Version 4.19.0)
 ===========================
 
