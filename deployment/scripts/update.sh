@@ -1147,17 +1147,36 @@ fi
 print_info "Building JSX assets..."
 if ! command -v npm &> /dev/null; then
     print_warning "npm not found — installing Node.js (one-time setup)..."
+    PKG_INSTALL_PREFIX=""
+    if [ "$(id -u)" -ne 0 ]; then
+        if command -v sudo &> /dev/null; then
+            PKG_INSTALL_PREFIX="sudo"
+        else
+            print_error "Cannot install Node.js automatically without root privileges or sudo"
+            print_info "Install Node.js/npm manually, then re-run update.sh"
+            exit 1
+        fi
+    fi
+
     if command -v apt-get &> /dev/null; then
-        apt-get update -qq && apt-get install -y -qq nodejs npm 2>&1 | tail -1
+        $PKG_INSTALL_PREFIX apt-get update -qq
+        $PKG_INSTALL_PREFIX apt-get install -y -qq nodejs npm
     elif command -v yum &> /dev/null; then
-        yum install -y nodejs npm 2>&1 | tail -1
+        $PKG_INSTALL_PREFIX yum install -y nodejs npm
     elif command -v apk &> /dev/null; then
-        apk add --no-cache nodejs npm 2>&1 | tail -1
+        $PKG_INSTALL_PREFIX apk add --no-cache nodejs npm
     else
         print_error "Cannot install Node.js automatically — unknown package manager"
         print_info "Install Node.js manually, then re-run update.sh"
         exit 1
     fi
+
+    if ! command -v npm &> /dev/null; then
+        print_error "Node.js/npm installation completed but npm is still not available"
+        print_info "Install Node.js/npm manually, then re-run update.sh"
+        exit 1
+    fi
+
     print_success "Node.js installed"
 fi
 cd "$PROJECT_DIR"
