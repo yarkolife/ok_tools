@@ -380,11 +380,14 @@ msgstr "Anchor-Platzhalterregeln"
 
 #: planung/models.py:206
 msgid ""
-"List of rules. Supported match values: live, title_prefix. Each rule needs a "
-"video path; title_prefix rules also need prefix."
+"List of rules. Supported match values: live, title_prefix, title_contains. "
+"Each rule needs a video path; title_prefix rules also need prefix; "
+"title_contains rules also need contains."
 msgstr ""
-"Liste von Regeln. Unterstützte match-Werte: live, title_prefix. Jede Regel "
-"benötigt einen Videopfad; title_prefix-Regeln benötigen zusätzlich prefix."
+"Liste von Regeln. Unterstützte match-Werte: live, title_prefix, "
+"title_contains. Jede Regel benötigt einen Videopfad; title_prefix-Regeln "
+"benötigen zusätzlich prefix; title_contains-Regeln benötigen zusätzlich "
+"contains."
 
 #: planung/models.py:214
 msgid "Webhook HMAC secret"
