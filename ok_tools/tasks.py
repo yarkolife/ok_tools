@@ -205,3 +205,16 @@ def run_cleanup_signing_sessions_task():
     except Exception as e:
         logger.error(f"Error occurred during cleanup of old signing sessions task: {e}")
         raise
+
+
+@shared_task(name='ok_tools.tasks.send_return_reminders_task')
+def send_return_reminders_task():
+    """Celery task to send automatic return reminders for issued rentals."""
+    logger.info("Starting send return reminders task.")
+
+    try:
+        call_command('send_return_reminders')
+        logger.info("Send return reminders task completed successfully.")
+    except Exception as e:
+        logger.error(f"Error occurred during send return reminders task: {e}")
+        raise
