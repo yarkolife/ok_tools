@@ -1146,8 +1146,19 @@ fi
 # Build JSX assets before Docker build
 print_info "Building JSX assets..."
 NPM_RUNNER="npm"
-if command -v npm &> /dev/null; then
-    print_info "Using host npm"
+if command -v npm &> /dev/null && command -v node &> /dev/null; then
+    NODE_MAJOR_VERSION=$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo "0")
+    if [ "$NODE_MAJOR_VERSION" -ge 18 ] 2>/dev/null; then
+        print_info "Using host npm"
+    elif command -v docker &> /dev/null; then
+        print_warning "Host Node.js is too old for the JSX build — using Dockerized Node.js"
+        NODE_IMAGE="node:20-bookworm-slim"
+        NPM_RUNNER="docker run --rm -u $(id -u):$(id -g) -v $PROJECT_DIR:/app -w /app $NODE_IMAGE npm"
+    else
+        print_error "Host Node.js must be version 18 or newer for the JSX build"
+        print_info "Upgrade Node.js/npm or install Docker, then re-run update.sh"
+        exit 1
+    fi
 elif command -v docker &> /dev/null; then
     print_warning "npm not found — using Dockerized Node.js for JSX build"
     NODE_IMAGE="node:20-bookworm-slim"
@@ -1160,7 +1171,12 @@ fi
 cd "$PROJECT_DIR"
 if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules" ]; then
     print_info "Installing Node.js dependencies..."
-    $NPM_RUNNER ci
+    if [ -f "package-lock.json" ] || [ -f "npm-shrinkwrap.json" ]; then
+        $NPM_RUNNER ci
+    else
+        print_warning "No package lockfile found — using npm install"
+        $NPM_RUNNER install
+    fi
 fi
 $NPM_RUNNER run build:js
 print_success "JSX assets built successfully"
