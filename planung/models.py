@@ -203,8 +203,9 @@ class PlanungConfig(models.Model):
         blank=True,
         verbose_name=_("Anchor placeholder rules"),
         help_text=_(
-            "List of rules. Supported match values: live, title_prefix. "
-            "Each rule needs a video path; title_prefix rules also need prefix."
+            "List of rules. Supported match values: live, title_prefix, title_contains. "
+            "Each rule needs a video path; title_prefix rules also need prefix; "
+            "title_contains rules also need contains."
         ),
     )
     webhook_hmac_secret = models.CharField(

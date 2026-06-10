@@ -1198,3 +1198,316 @@ def test__anchor_render__endpoint_still_409_when_no_placeholder_exists(client, s
     body = response.json()
     assert body["error"] == "videos_still_copying"
     assert body["missing"] == [99999]
+
+
+# -- title_contains placeholder tests ----------------------------------------
+
+
+def test__anchor_render__payload_resolves_title_contains_placeholder():
+    """title_contains rule matches a title containing the substring."""
+    config = PlanungConfig(
+        anchor_placeholder_rules=[
+            {
+                "match": "title_contains",
+                "video": "playout/placeholder/paulusgemeinde.mp4",
+                "contains": "Paulusgemeinde",
+            },
+        ],
+        anchor_default_placeholder_video="playout/placeholder/default.mp4",
+    )
+    plan_items = [
+        {
+            "start": "18:00:00",
+            "duration": 20,
+            "title": "Gottesdienst in der Paulusgemeinde in Halle",
+        },
+    ]
+
+    payload, rejected = build_anchor_payload(
+        plan_date=date(2026, 6, 8),
+        plan_items=plan_items,
+        output_name="test.mp4",
+        config=config,
+    )
+
+    assert rejected == []
+    assert payload["beitraege"][0]["video"] == "playout/placeholder/paulusgemeinde.mp4"
+
+
+def test__anchor_render__payload_title_contains_does_not_match_unrelated_title():
+    """title_contains rule does not match a title that does not contain the substring."""
+    config = PlanungConfig(
+        anchor_placeholder_rules=[
+            {
+                "match": "title_contains",
+                "video": "playout/placeholder/paulusgemeinde.mp4",
+                "contains": "Paulusgemeinde",
+            },
+        ],
+        anchor_default_placeholder_video="playout/placeholder/default.mp4",
+    )
+    plan_items = [
+        {
+            "start": "18:00:00",
+            "duration": 20,
+            "title": "Totally unrelated show",
+        },
+    ]
+
+    payload, rejected = build_anchor_payload(
+        plan_date=date(2026, 6, 8),
+        plan_items=plan_items,
+        output_name="test.mp4",
+        config=config,
+    )
+
+    assert rejected == []
+    assert payload["beitraege"][0]["video"] == "playout/placeholder/default.mp4"
+
+
+def test__anchor_render__payload_title_contains_ignores_empty_contains():
+    """title_contains rule with empty contains value falls through to default."""
+    config = PlanungConfig(
+        anchor_placeholder_rules=[
+            {
+                "match": "title_contains",
+                "video": "playout/placeholder/paulusgemeinde.mp4",
+                "contains": "",
+            },
+        ],
+        anchor_default_placeholder_video="playout/placeholder/default.mp4",
+    )
+    plan_items = [
+        {
+            "start": "18:00:00",
+            "duration": 20,
+            "title": "Gottesdienst in der Paulusgemeinde in Halle",
+        },
+    ]
+
+    payload, rejected = build_anchor_payload(
+        plan_date=date(2026, 6, 8),
+        plan_items=plan_items,
+        output_name="test.mp4",
+        config=config,
+    )
+
+    assert payload["beitraege"][0]["video"] == "playout/placeholder/default.mp4"
+
+
+def test__anchor_render__payload_title_contains_accepts_alias_contains_match():
+    """match='contains' (alias) resolves the same as match='title_contains'."""
+    config = PlanungConfig(
+        anchor_placeholder_rules=[
+            {
+                "match": "contains",
+                "video": "playout/placeholder/paulusgemeinde.mp4",
+                "contains": "Paulusgemeinde",
+            },
+        ],
+        anchor_default_placeholder_video="playout/placeholder/default.mp4",
+    )
+    plan_items = [
+        {
+            "start": "18:00:00",
+            "duration": 20,
+            "title": "Gottesdienst in der Paulusgemeinde in Halle",
+        },
+    ]
+
+    payload, rejected = build_anchor_payload(
+        plan_date=date(2026, 6, 8),
+        plan_items=plan_items,
+        output_name="test.mp4",
+        config=config,
+    )
+
+    assert payload["beitraege"][0]["video"] == "playout/placeholder/paulusgemeinde.mp4"
+
+
+def test__anchor_render__payload_title_contains_strips_whitespace():
+    """title_contains rule trims whitespace from the contains value."""
+    config = PlanungConfig(
+        anchor_placeholder_rules=[
+            {
+                "match": "title_contains",
+                "video": "playout/placeholder/paulusgemeinde.mp4",
+                "contains": "  Paulusgemeinde  ",
+            },
+        ],
+        anchor_default_placeholder_video="playout/placeholder/default.mp4",
+    )
+    plan_items = [
+        {
+            "start": "18:00:00",
+            "duration": 20,
+            "title": "Gottesdienst in der Paulusgemeinde in Halle",
+        },
+    ]
+
+    payload, rejected = build_anchor_payload(
+        plan_date=date(2026, 6, 8),
+        plan_items=plan_items,
+        output_name="test.mp4",
+        config=config,
+    )
+
+    assert payload["beitraege"][0]["video"] == "playout/placeholder/paulusgemeinde.mp4"
+
+
+@pytest.mark.django_db
+def test__anchor_render__wait_for_copy_resolves_title_contains_placeholder_without_source(
+    verified_profile,
+):
+    """Missing title_contains number with no source VideoFile resolves via placeholder."""
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Gottesdienst in der Paulusgemeinde in Halle",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {
+            "match": "title_contains",
+            "video": "playout/placeholder/paulusgemeinde.mp4",
+            "contains": "in der Paulusgemeinde in Halle",
+        },
+    ]
+    config.save()
+
+    TagesPlan.objects.create(
+        datum=date(2026, 6, 15),
+        json_plan={
+            "items": [
+                {
+                    "number": license_obj.number,
+                    "title": "Gottesdienst in der Paulusgemeinde in Halle",
+                },
+            ],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    result = _wait_for_copy_in_chain(date(2026, 6, 15), timeout_seconds=1)
+
+    assert result["ready"] is True
+    assert result["missing"] == []
+    assert license_obj.number in result["ready_numbers"]
+
+
+@pytest.mark.django_db
+def test__check_plan_copy_state__resolves_title_contains_placeholder_rule(verified_profile):
+    """Missing PLAYOUT numbers resolve to ready when title_contains placeholder rule matches."""
+    from planung.views import _check_plan_copy_state
+
+    license_obj = License.objects.create(
+        profile=verified_profile,
+        category=default_category(),
+        title="Gottesdienst in der Paulusgemeinde in Halle",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {
+            "match": "title_contains",
+            "video": "playout/placeholder/paulusgemeinde.mp4",
+            "contains": "in der Paulusgemeinde in Halle",
+        },
+    ]
+    config.save()
+
+    plan = TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [
+                {
+                    "start": "19:00:00",
+                    "duration": 20,
+                    "title": "Gottesdienst in der Paulusgemeinde in Halle",
+                    "number": license_obj.number,
+                },
+            ],
+            "draft": False,
+            "planned": True,
+        },
+    )
+
+    state = _check_plan_copy_state(plan)
+    assert state["status"] == "ready"
+    assert state["ready"] == [license_obj.number]
+    assert state["missing"] == []
+
+
+@pytest.mark.django_db
+def test__anchor_render__endpoint_proceeds_when_title_contains_placeholder_resolves(client, staff_user):
+    """Endpoint returns 202, not 409, when a missing title_contains item has a matching placeholder."""
+    client.force_login(staff_user)
+    license_obj = License.objects.create(
+        profile=staff_user.profile,
+        category=default_category(),
+        title="Gottesdienst in der Paulusgemeinde in Halle",
+        description="Description",
+        duration=timedelta(minutes=30),
+        further_persons="",
+        repetitions_allowed=True,
+        media_authority_exchange_allowed=False,
+        youth_protection_necessary=False,
+        store_in_ok_media_library=False,
+        confirmed=True,
+    )
+    config = PlanungConfig.get_config()
+    config.anchor_placeholder_rules = [
+        {
+            "match": "title_contains",
+            "video": "playout/placeholder/paulusgemeinde.mp4",
+            "contains": "in der Paulusgemeinde in Halle",
+        },
+    ]
+    config.save()
+
+    TagesPlan.objects.create(
+        datum="2026-06-08",
+        json_plan={
+            "items": [
+                {
+                    "start": "19:00:00",
+                    "duration": 20,
+                    "title": "Gottesdienst in der Paulusgemeinde in Halle",
+                    "number": license_obj.number,
+                },
+            ],
+            "draft": False,
+            "planned": True,
+        },
+    )
+    celery_result = Mock(id="contains-placeholder-task")
+    chain_mock = Mock(delay=Mock(return_value=celery_result))
+
+    with patch("planung.views.anchor_render_chain", chain_mock):
+        response = client.post(
+            "/api/planning/anchor/render/",
+            data=json.dumps({"date": "2026-06-08"}),
+            content_type="application/json",
+        )
+
+    assert response.status_code == 202
+    body = response.json()
+    assert body["status"] == "queued"
+    assert body["task_id"] == "contains-placeholder-task"
+    chain_mock.delay.assert_called_once()

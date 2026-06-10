@@ -165,6 +165,10 @@ def _placeholder_video(
             prefix = str(rule.get("prefix") or rule.get("title_prefix") or "").strip()
             if prefix and title.startswith(prefix):
                 return video
+        if match in {"contains", "title_contains"}:
+            contains = str(rule.get("contains") or rule.get("title_contains") or "").strip()
+            if contains and contains in title:
+                return video
 
     return str(config.anchor_default_placeholder_video or "").strip()
 
