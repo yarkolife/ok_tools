@@ -10,7 +10,7 @@ CHANGELOG
   * Added a plain FFmpeg encode path for standard renders and kept overlay / intro-outro rendering in the separate dedicated admin action
   * Promoted successfully rendered `_vN` output files to the primary video version automatically; preview renders remain excluded
   * Added `title_contains` / `contains` support for Planung anchor placeholder rules and updated the German admin help text
-  * Fixed the production update script Node.js/npm bootstrap so missing npm is installed with privileges when available and failures stop the update before the JSX build step
+  * Fixed the production update script JSX build bootstrap so missing host npm falls back to a Dockerized Node.js runner instead of relying on system package repositories
 
 2026-06-10 (Version 4.19.0)
 ===========================

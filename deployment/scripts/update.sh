@@ -1145,46 +1145,24 @@ fi
 
 # Build JSX assets before Docker build
 print_info "Building JSX assets..."
-if ! command -v npm &> /dev/null; then
-    print_warning "npm not found — installing Node.js (one-time setup)..."
-    PKG_INSTALL_PREFIX=""
-    if [ "$(id -u)" -ne 0 ]; then
-        if command -v sudo &> /dev/null; then
-            PKG_INSTALL_PREFIX="sudo"
-        else
-            print_error "Cannot install Node.js automatically without root privileges or sudo"
-            print_info "Install Node.js/npm manually, then re-run update.sh"
-            exit 1
-        fi
-    fi
-
-    if command -v apt-get &> /dev/null; then
-        $PKG_INSTALL_PREFIX apt-get update -qq
-        $PKG_INSTALL_PREFIX apt-get install -y -qq nodejs npm
-    elif command -v yum &> /dev/null; then
-        $PKG_INSTALL_PREFIX yum install -y nodejs npm
-    elif command -v apk &> /dev/null; then
-        $PKG_INSTALL_PREFIX apk add --no-cache nodejs npm
-    else
-        print_error "Cannot install Node.js automatically — unknown package manager"
-        print_info "Install Node.js manually, then re-run update.sh"
-        exit 1
-    fi
-
-    if ! command -v npm &> /dev/null; then
-        print_error "Node.js/npm installation completed but npm is still not available"
-        print_info "Install Node.js/npm manually, then re-run update.sh"
-        exit 1
-    fi
-
-    print_success "Node.js installed"
+NPM_RUNNER="npm"
+if command -v npm &> /dev/null; then
+    print_info "Using host npm"
+elif command -v docker &> /dev/null; then
+    print_warning "npm not found — using Dockerized Node.js for JSX build"
+    NODE_IMAGE="node:20-bookworm-slim"
+    NPM_RUNNER="docker run --rm -u $(id -u):$(id -g) -v $PROJECT_DIR:/app -w /app $NODE_IMAGE npm"
+else
+    print_error "npm is not installed and Docker is not available for the Node.js fallback"
+    print_info "Install Node.js/npm manually, then re-run update.sh"
+    exit 1
 fi
 cd "$PROJECT_DIR"
 if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules" ]; then
     print_info "Installing Node.js dependencies..."
-    npm ci
+    $NPM_RUNNER ci
 fi
-npm run build:js
+$NPM_RUNNER run build:js
 print_success "JSX assets built successfully"
 
 # Rebuild Docker images
