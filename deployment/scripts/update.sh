@@ -1153,7 +1153,7 @@ if command -v npm &> /dev/null && command -v node &> /dev/null; then
     elif command -v docker &> /dev/null; then
         print_warning "Host Node.js is too old for the JSX build — using Dockerized Node.js"
         NODE_IMAGE="node:20-bookworm-slim"
-        NPM_RUNNER="docker run --rm -u $(id -u):$(id -g) -v $PROJECT_DIR:/app -w /app $NODE_IMAGE npm"
+        NPM_RUNNER="docker run --rm -u $(id -u):$(id -g) -v $PROJECT_DIR:/app -w /app -e npm_config_cache=/tmp/.npm $NODE_IMAGE npm"
     else
         print_error "Host Node.js must be version 18 or newer for the JSX build"
         print_info "Upgrade Node.js/npm or install Docker, then re-run update.sh"
@@ -1162,7 +1162,7 @@ if command -v npm &> /dev/null && command -v node &> /dev/null; then
 elif command -v docker &> /dev/null; then
     print_warning "npm not found — using Dockerized Node.js for JSX build"
     NODE_IMAGE="node:20-bookworm-slim"
-    NPM_RUNNER="docker run --rm -u $(id -u):$(id -g) -v $PROJECT_DIR:/app -w /app $NODE_IMAGE npm"
+    NPM_RUNNER="docker run --rm -u $(id -u):$(id -g) -v $PROJECT_DIR:/app -w /app -e npm_config_cache=/tmp/.npm $NODE_IMAGE npm"
 else
     print_error "npm is not installed and Docker is not available for the Node.js fallback"
     print_info "Install Node.js/npm manually, then re-run update.sh"
