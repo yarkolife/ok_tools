@@ -1181,6 +1181,8 @@ fi
 $NPM_RUNNER run build:js
 print_success "JSX assets built successfully"
 
+cd "$PRODUCTION_DIR"
+
 # Rebuild Docker images
 # Interactive choice: use cache (faster) or rebuild without cache (clean)
 echo ""
