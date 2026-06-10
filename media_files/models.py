@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 import logging
+import re
 
 
 logger = logging.getLogger('django')
@@ -432,6 +433,26 @@ class VideoFile(models.Model):
         """Get all full versions of this video (including self); excludes preview clips."""
         return self._versions_queryset().order_by('-total_bitrate', '-created_at')
 
+    def set_as_primary(self):
+        """Mark this video as primary version (manual override).
+
+        Clears manual primary flag from all other versions with the same number,
+        then sets it on this video. Mirrors the admin action
+        'Ausgewählte als Hauptversion markieren'.
+        """
+        VideoFile.objects.filter(
+            number=self.number,
+        ).exclude(
+            id=self.id,
+        ).update(is_manual_primary=False)
+
+        self.is_manual_primary = True
+        self.save(update_fields=['is_manual_primary'])
+
+    def has_version_suffix(self):
+        """Return True for rendered version filenames ending with _vN."""
+        return bool(re.search(r'_v\d+$', self.filename.rsplit('.', 1)[0]))
+
     def is_primary_version(self):
         """Check if this is the primary (best quality) version."""
         versions = self.get_all_versions()
@@ -781,4 +802,3 @@ class MediaFilesConfig(models.Model):
         """Get the singleton config instance, create if doesn't exist."""
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
-

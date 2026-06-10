@@ -1483,6 +1483,53 @@ def render_with_overlays_on_main_edges(
         return RenderArtifacts(output_mp4=str(out_path))
 
 
+def render_plain_encode(
+    *,
+    main_video: str,
+    output_mp4: str,
+    encode: EncodePreset,
+) -> RenderArtifacts:
+    """
+    Render a plain encode without overlays or intro/outro clips.
+
+    Single-pass transcode using the given encode preset.
+    """
+    out_path = Path(output_mp4)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    source_fps = _source_fps(main_video)
+    is_vfr = _source_is_vfr(main_video)
+    if is_vfr:
+        logger.info("VFR detected for %s, keeping fps filter", main_video)
+
+    vf = _base_video_filters(encode, source_fps=source_fps, is_vfr=is_vfr)
+    cmd: List[str] = ["ffmpeg", "-y", "-i", main_video]
+
+    has_audio = _has_audio(main_video)
+    if not has_audio:
+        cmd.extend(
+            [
+                "-f",
+                "lavfi",
+                "-i",
+                f"anullsrc=channel_layout=stereo:sample_rate={encode.audio_sample_rate}",
+            ]
+        )
+
+    cmd.extend(["-vf", vf])
+    cmd.extend(["-map", "0:v:0"])
+    if has_audio:
+        cmd.extend(["-map", "0:a?"])
+    else:
+        cmd.extend(["-map", "1:a"])
+
+    cmd.extend(_encode_args(encode))
+    cmd.extend(["-shortest", str(out_path)])
+    _run(cmd, timeout=_render_timeout(_duration_seconds(main_video)))
+
+    return RenderArtifacts(output_mp4=str(out_path))
+
+
 def render_preview_overlays_on_main_edges(
     *,
     main_video: str,

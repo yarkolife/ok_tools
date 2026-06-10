@@ -263,17 +263,65 @@ def render_video_task(operation_id):
         elements = details.get("elements", {})
         styles = details.get("styles", {})
         overlay_texts = details.get("overlay_texts", {})
-        
+        plain_encode = details.get("plain_encode", False)
+
         # Get source video
         source_video = VideoFile.objects.get(id=source_video_id)
         new_video = operation.video_file
-        
+
+        if plain_encode:
+            from tools.rendering.presets import load_encode_preset
+            from media_files.rendering.ffmpeg import render_plain_encode
+            from media_files.utils import extract_video_metadata_fast
+
+            encode = load_encode_preset(encode_name)
+            source_path = Path(source_video.full_path)
+            abs_out = Path(new_video.storage_location.path) / new_video.file_path
+
+            if not source_path.exists() or not source_path.is_file():
+                raise FileNotFoundError(f"Source video file not found: {source_video.full_path}")
+
+            abs_out.parent.mkdir(parents=True, exist_ok=True)
+
+            logger.info("Plain encode: %s -> %s (encode=%s)", source_path, abs_out, encode.name)
+            render_plain_encode(
+                main_video=str(source_path),
+                output_mp4=str(abs_out),
+                encode=encode,
+            )
+
+            with transaction.atomic():
+                metadata = extract_video_metadata_fast(str(abs_out))
+                new_video.format = metadata.get('format', '')
+                new_video.duration = metadata.get('duration')
+                new_video.file_size = os.path.getsize(str(abs_out))
+                new_video.has_video = metadata.get('has_video', False)
+                new_video.video_codec = metadata.get('video_codec', '')
+                new_video.fps = metadata.get('fps')
+                new_video.width = metadata.get('width')
+                new_video.height = metadata.get('height')
+                new_video.has_audio = metadata.get('has_audio', False)
+                new_video.audio_codec = metadata.get('audio_codec', '')
+                new_video.audio_channels = metadata.get('audio_channels')
+                new_video.total_bitrate = metadata.get('total_bitrate')
+                new_video.is_available = True
+                new_video.save()
+
+                if not is_preview and new_video.has_version_suffix():
+                    new_video.set_as_primary()
+
+                operation.status = "SUCCESS"
+                operation.save(update_fields=["status"])
+
+            logger.info("Successfully rendered plain encode for operation_id=%s, video_id=%s", operation_id, new_video.id)
+            return
+
         # Get license
         if license_number:
             license_obj = License.objects.get(number=int(license_number))
         else:
             license_obj = License.objects.get(number=source_video.number)
-        
+
         # Build overlays - import here to avoid circular imports
         from tools.rendering.presets import (
             load_style_preset_from_db,
@@ -824,7 +872,10 @@ def render_video_task(operation_id):
             new_video.total_bitrate = metadata.get('total_bitrate')
             new_video.is_available = True
             new_video.save()
-            
+
+            if not is_preview and new_video.has_version_suffix():
+                new_video.set_as_primary()
+
             operation.status = "SUCCESS"
             operation.save(update_fields=["status"])
         
@@ -1061,7 +1112,10 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
             new_video.is_available = True
             new_video.last_scanned = timezone.now()
             new_video.save()
-            
+
+            if new_video.has_version_suffix():
+                new_video.set_as_primary()
+
             operation.status = 'SUCCESS'
             operation.save()
         

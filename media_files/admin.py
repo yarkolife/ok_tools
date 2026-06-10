@@ -1034,90 +1034,48 @@ class VideoFileAdmin(admin.ModelAdmin):
 
     @admin.action(description=_('Render video (default presets)'))
     def render_default_preset_action(self, request, queryset):
-        """
-        Render selected videos using default presets.
-
-        This is intentionally minimal. For full control, use the management command
-        `python manage.py render_video_preset ...`.
-        """
-        from media_files.config import get_video_overlay_rendering_enabled
-        if not get_video_overlay_rendering_enabled():
-            self.message_user(
-                request,
-                _(
-                    "Video overlay rendering is disabled. Set VIDEO_OVERLAY_RENDERING_ENABLED=true to enable it."
-                ),
-                level=messages.ERROR,
-            )
-            return
-
-        style_name = "overlay_only_center_left_v1"
         encode_name = "1080p25_9000k"
 
         try:
-            style = load_style_preset(style_name)
             encode = load_encode_preset(encode_name)
         except Exception as e:
             self.message_user(
                 request,
-                _("Failed to load presets: {err}").format(err=str(e)),
+                _("Failed to load encode preset: {err}").format(err=str(e)),
                 level=messages.ERROR,
             )
-            return
-
-        intro_clip = resolve_preset_asset_path(style.intro_clip) if style.intro_clip else None
-        outro_clip = resolve_preset_asset_path(style.outro_clip) if style.outro_clip else None
-
-        if intro_clip and not os.path.exists(intro_clip):
-            self.message_user(request, _("Intro clip not found: {p}").format(p=intro_clip), level=messages.ERROR)
-            return
-        if outro_clip and not os.path.exists(outro_clip):
-            self.message_user(request, _("Outro clip not found: {p}").format(p=outro_clip), level=messages.ERROR)
             return
 
         rendered = 0
         failed = 0
 
         for source in queryset:
-            license_obj = source.get_license()
-            if not license_obj:
-                failed += 1
-                continue
-
             logger.info(
-                "Rendering video %s with presets style=%s encode=%s (intro=%s outro=%s)",
+                "Queuing plain encode for %s with encode=%s",
                 source.full_path,
-                style.name,
                 encode.name,
-                bool(intro_clip),
-                bool(outro_clip),
             )
 
             storage_root = Path(source.storage_location.path)
             source_rel_path = Path(source.file_path)
-            rel_dir = source_rel_path.parent  # Same directory as source
+            rel_dir = source_rel_path.parent
             src_stem = Path(source.filename).stem
-            
-            # Base filename with version suffix (_v1, _v2, etc.)
+
             base_stem = src_stem
             base_suffix = ".mp4"
-            
+
             def is_path_taken(candidate_rel: Path) -> bool:
-                """Check if path is taken (exists in DB or filesystem)."""
                 cand_str = str(candidate_rel).replace("\\", "/")
-                # Check database
                 if VideoFile.objects.filter(
                     storage_location=source.storage_location,
                     file_path=cand_str
                 ).exists():
                     return True
-                # Check filesystem
                 abs_candidate = storage_root / candidate_rel
                 if abs_candidate.exists():
                     return True
                 return False
-            
-            # Find first available version starting from _v1
+
             version = 1
             while version < 1000:
                 candidate_name = f"{base_stem}_v{version}{base_suffix}"
@@ -1129,7 +1087,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 logger.error("Could not find a free output filename for %s (too many versions exist)", source.full_path)
                 failed += 1
                 continue
-            
+
             abs_out = storage_root / rel_out
             abs_out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1138,7 +1096,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 filename=abs_out.name,
                 file_path=str(rel_out).replace("\\", "/"),
                 storage_location=source.storage_location,
-                is_available=True,
+                is_available=False,
             )
 
             operation = FileOperation.objects.create(
@@ -1150,61 +1108,44 @@ class VideoFileAdmin(admin.ModelAdmin):
                 status="IN_PROGRESS",
                 details={
                     "source_video_id": source.id,
-                    "style": style.name,
                     "encode": encode.name,
-                    "intro_clip": intro_clip,
-                    "outro_clip": outro_clip,
+                    "use_intro_outro": False,
+                    "preview": False,
+                    "plain_encode": True,
+                    "elements": {},
+                    "styles": {},
+                    "overlay_texts": {},
                 },
             )
 
             try:
-                ctx = build_template_context(license_obj)
-                if intro_clip and outro_clip:
-                    render_with_intro_outro(
-                        intro_video=intro_clip,
-                        main_video=source.full_path,
-                        outro_video=outro_clip,
-                        output_mp4=str(abs_out),
-                        encode=encode,
-                        intro_layers=style.intro_overlays,
-                        outro_layers=style.outro_overlays,
-                        ctx=ctx,
-                    )
-                else:
-                    render_with_overlays_on_main_edges(
-                        main_video=source.full_path,
-                        output_mp4=str(abs_out),
-                        encode=encode,
-                        intro_layers=style.intro_overlays,
-                        outro_layers=style.outro_overlays,
-                        ctx=ctx,
-                        segment_duration=style.segment_duration,
-                    )
-                _apply_metadata(new_video, str(abs_out))
-                new_video.save()
-                operation.status = "SUCCESS"
-                operation.save(update_fields=["status"])
-                logger.info("Rendered output: %s (VideoFile id=%s)", str(abs_out), new_video.id)
+                from media_files.tasks import render_video_task
+                render_video_task.delay(operation.id)
+                logger.info(
+                    "Queued plain encode for %s (operation_id=%s)",
+                    source.full_path,
+                    operation.id,
+                )
                 rendered += 1
-            except FfmpegError as e:
+            except Exception as e:
                 failed += 1
                 new_video.is_available = False
                 new_video.save(update_fields=["is_available"])
                 operation.status = "FAILED"
                 operation.error_message = str(e)
                 operation.save(update_fields=["status", "error_message"])
-                logger.error("Render failed for %s: %s", source.full_path, str(e))
+                logger.error("Failed to queue plain encode for %s: %s", source.full_path, str(e))
 
         if rendered:
             self.message_user(
                 request,
-                _("Rendered successfully: {n}").format(n=rendered),
+                _("Queued plain encoding: {n} video(s). Track progress in File Operations / Task Results.").format(n=rendered),
                 level=messages.SUCCESS,
             )
         if failed:
             self.message_user(
                 request,
-                _("Failed: {n}").format(n=failed),
+                _("Failed to queue encoding: {n}").format(n=failed),
                 level=messages.WARNING,
             )
 
