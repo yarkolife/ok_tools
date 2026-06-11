@@ -172,6 +172,7 @@
           <form method="post" action="{{ r.issue_url }}" onclick="event.stopPropagation()"
                 style="display:inline">
             {% csrf_token %}
+            <input type="hidden" name="next" value="{{ current_path }}">
             <button type="submit" class="btn btn-ghost btn-sm">
               <i class="fas fa-play me-1"></i>{% trans "Issue" %}
             </button>

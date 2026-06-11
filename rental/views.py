@@ -47,6 +47,7 @@ from django.urls import NoReverseMatch
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
@@ -897,7 +898,7 @@ class RentalListView(StaffRequiredMixin, ListView):
             issue_url = None
             if derived_status == 'reserved':
                 try:
-                    issue_url = reverse('rental:api_issue_from_reservation', args=[rental.pk])
+                    issue_url = reverse('rental:mark_issued', args=[rental.pk])
                 except NoReverseMatch:
                     issue_url = ''
 
@@ -919,6 +920,7 @@ class RentalListView(StaffRequiredMixin, ListView):
 
         base_queryset = RentalRequest.objects.all()
         context['rentals'] = rentals
+        context['current_path'] = self.request.get_full_path()
         context['counts'] = {
             'all': base_queryset.count(),
             'reserved': base_queryset.filter(status='reserved').count(),
@@ -2431,11 +2433,24 @@ def extend_rental(request, rental_id):
 def mark_issued(request, rental_id):
     if request.method != 'POST':
         return JsonResponse({'error': _('Method not allowed')}, status=405)
+    next_url = request.POST.get('next')
+    redirect_after_post = next_url and url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+    )
     rental = get_object_or_404(RentalRequest, id=rental_id)
     if rental.status not in ['draft', 'reserved']:
-        return JsonResponse({'error': _('Only draft or reserved rentals can be issued')}, status=400)
+        error_message = _('Only draft or reserved rentals can be issued')
+        if redirect_after_post:
+            messages.error(request, error_message)
+            return redirect(next_url)
+        return JsonResponse({'error': error_message}, status=400)
     if rental.items.count() == 0 and rental.room_rentals.count() > 0:
-        return JsonResponse({'error': _('Room-only rentals cannot be issued. Reservations expire automatically.')}, status=400)
+        error_message = _('Room-only rentals cannot be issued. Reservations expire automatically.')
+        if redirect_after_post:
+            messages.error(request, error_message)
+            return redirect(next_url)
+        return JsonResponse({'error': error_message}, status=400)
     with transaction.atomic():
         rental.status = 'issued'
         rental.actual_start_date = rental.actual_start_date or timezone.now()
@@ -2451,6 +2466,9 @@ def mark_issued(request, rental_id):
                 performed_by=request.user,
             )
     send_issued_confirmation_email(rental_request=rental)
+    if redirect_after_post:
+        messages.success(request, _('Rental marked as issued.'))
+        return redirect(next_url)
     return JsonResponse({'ok': True, 'success': True})
 
 
