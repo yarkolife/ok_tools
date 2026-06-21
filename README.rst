@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.21.0
+**Current Version**: 4.22.0
 **Last Updated**: 21 June 2026
 
 Features

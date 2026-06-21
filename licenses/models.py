@@ -266,6 +266,22 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         default=False,
     )
 
+    confirmed_at = models.DateTimeField(
+        _('Confirmed at'),
+        blank=True,
+        null=True,
+        help_text=_('Timestamp when the license was confirmed (Genehmigt).'),
+    )
+
+    confirmed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('Confirmed by'),
+        help_text=_('Staff member who confirmed (Genehmigt) this license.'),
+    )
+
     is_screen_board = models.BooleanField(
         _('Screen Board'),
         blank=False,
@@ -515,6 +531,68 @@ class LicensesConfig(models.Model):
             'Media Authorities (Offene Kanäle/Bürgermedien). Empty = send to all. '
             'Use to restrict to "our" organisation(s) only.'
         ),
+    )
+
+    # Freistellung (exemption) print form configuration
+    freistellung_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Freistellung enabled'),
+        help_text=_('Enable freistellung-specific text overlays and staff signature in the generated PDF.'),
+    )
+
+    freistellung_city = models.CharField(
+        max_length=255,
+        default='',
+        blank=True,
+        verbose_name=_('Freistellung city'),
+        help_text=_('City name for "Ort, Datum" in the Freistellung print form.'),
+    )
+
+    freistellung_signature_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('Freistellung signature user'),
+        help_text=_(
+            'Staff member whose signature appears on the Freistellung print form. '
+            'When this user confirms a license, their signature is added to the PDF.'
+        ),
+    )
+
+    freistellung_signature_text = models.CharField(
+        max_length=500,
+        default='Im Auftrag des Vorstands der Medienanstalt Sachsen-Anhalt',
+        blank=True,
+        verbose_name=_('Freistellung signature text'),
+        help_text=_('Text below the signature on the Freistellung print form.'),
+    )
+
+    freistellung_sendezeit_no_protection = models.CharField(
+        max_length=500,
+        default='Sendezeit gem. JMStV zu beachten: Nein',
+        blank=True,
+        verbose_name=_('Sendezeit text (no youth protection)'),
+        help_text=_('Text for "Sendezeit gem. JMStV zu beachten" when no youth protection is needed.'),
+    )
+
+    freistellung_sendezeit_with_protection = models.CharField(
+        max_length=500,
+        default='Sendezeit gem. JMStV zu beachten: Ja\nSendezeit ab 22:00 Uhr',
+        blank=True,
+        verbose_name=_('Sendezeit text (with youth protection)'),
+        help_text=_(
+            'Text for "Sendezeit gem. JMStV zu beachten" and "Sendezeit ab" '
+            'when youth protection is needed. Use \\n for line break.'
+        ),
+    )
+
+    freistellung_sendezeit_time = models.CharField(
+        max_length=20,
+        default='22:00',
+        blank=True,
+        verbose_name=_('Sendezeit time'),
+        help_text=_('Time for "Sendezeit ab ___ Uhr" in the Freistellung print form (e.g. 22:00).'),
     )
 
     class Meta:

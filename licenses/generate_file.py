@@ -150,10 +150,22 @@ def _signature_points_to_image(signature_points, width=1000, height=375):
 
 
 def _svg_signature_to_image(signature_svg):
-    """Convert SVG signature to RGBA image using cairosvg if available."""
+    """Convert SVG signature to RGBA image using cairosvg if available.
+
+    Accepts raw SVG XML or a data:image/svg+xml;base64,... URL.
+    """
     if not signature_svg or not isinstance(signature_svg, str):
         return None
-    if '<svg' not in signature_svg:
+
+    svg_data = signature_svg
+    if signature_svg.startswith('data:image/svg+xml;base64,'):
+        try:
+            encoded = signature_svg.split(',', 1)[1]
+            svg_data = base64.b64decode(encoded).decode('utf-8')
+        except Exception:
+            return None
+
+    if '<svg' not in svg_data:
         return None
 
     try:
@@ -162,13 +174,25 @@ def _svg_signature_to_image(signature_svg):
         return None
 
     try:
-        png_bytes = svg2png(bytestring=signature_svg.encode('utf-8'))
+        png_bytes = svg2png(bytestring=svg_data.encode('utf-8'))
         image = Image.open(io.BytesIO(png_bytes))
         if image.mode != 'RGBA':
             image = image.convert('RGBA')
         return image
     except Exception:
         return None
+
+
+def _resolve_staff_signature_image(user):
+    """Return best available staff signature image for a user."""
+    if not user:
+        return None
+
+    image = _svg_signature_to_image(getattr(user, 'staff_signature_svg', None))
+    if image:
+        return image
+
+    return _signature_points_to_image(getattr(user, 'staff_signature_points', None))
 
 
 def _resolve_signature_image(lr):
@@ -279,6 +303,19 @@ def _build_license_pdf_bytes(lr: License) -> bytes:
     # Get license creation date (fallback to today if not set)
     license_date = lr.created_at.date() if lr.created_at else date.today()
 
+    # Load Freistellung config
+    from .models import LicensesConfig
+    config = LicensesConfig.get_config()
+
+    # Use confirmed_at date for Freistellung if available, otherwise creation date
+    if config.freistellung_enabled and lr.confirmed_at:
+        freistellung_date = lr.confirmed_at.date()
+    else:
+        freistellung_date = license_date
+
+    # Use configured city for Freistellung if set, otherwise profile city
+    freistellung_city = config.freistellung_city if config.freistellung_enabled and config.freistellung_city else profile.city
+
     fields = [
         ('name', f'{val(profile.first_name)} {val(profile.last_name)}'),
         ('street', f'{val(profile.street)} {val(profile.house_number)}'),
@@ -295,8 +332,17 @@ def _build_license_pdf_bytes(lr: License) -> bytes:
         ('store_in_ok_media_library', choose(lr.store_in_ok_media_library)),
         ('youth_protection_necessary', choose(lr.youth_protection_necessary)),
         ('youth_protection_category', str(lr.youth_protection_category)),
-        ('city_date_member', f'{val(profile.city)} {license_date.strftime(settings.DATE_INPUT_FORMATS)}')
+        ('city_date_member', f'{val(freistellung_city)} {freistellung_date.strftime(settings.DATE_INPUT_FORMATS)}')
     ]
+
+    # Fill Freistellung approval fields only when enabled in config
+    if config.freistellung_enabled:
+        fields.extend([
+            ('Gruppieren7', '0' if lr.confirmed else '1'),
+            ('Gruppieren8', '1' if lr.youth_protection_necessary else '0'),
+            ('Uhrzeit hh:mm', config.freistellung_sendezeit_time if lr.youth_protection_necessary else ''),
+            ('Ort / Datum', f'{val(freistellung_city)} {freistellung_date.strftime(settings.DATE_INPUT_FORMATS)}'),
+        ])
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         fdf = forge_fdf("", fields, [], [], [])
@@ -364,8 +410,62 @@ def _build_license_pdf_bytes(lr: License) -> bytes:
         # Draw frame and license number on page 2
         draw2.rectangle([frame_x1, frame_y1, frame_x2, frame_y2], outline=(0, 0, 0, 255), width=int(round(2 * scale)))
         draw2.text((x_pos, y_pos), license_number_text, fill=(0, 0, 0, 255), font=font)
-        
-        # Add signature if present (SVG/points preferred, legacy PNG fallback)
+
+        # Freistellung staff signature overlay (if enabled in config)
+        if config.freistellung_enabled:
+            overlay_font_size = int(round(14 * scale))
+            try:
+                overlay_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", overlay_font_size)
+            except (OSError, IOError):
+                try:
+                    overlay_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", overlay_font_size)
+                except (OSError, IOError):
+                    overlay_font = ImageFont.load_default()
+
+            right_margin = int(round(360 * scale))
+            staff_sig_y = int(round(720 * scale))
+
+            # Staff member signature overlay (right side of Ort / Datum row)
+            # Use the user who confirmed the license, fall back to configured user
+            staff_user = lr.confirmed_by or config.freistellung_signature_user
+            if staff_user:
+                staff_name = staff_user.get_full_name() or staff_user.username or ''
+                staff_sig_img = _resolve_staff_signature_image(staff_user)
+
+                if staff_sig_img:
+                    try:
+                        bbox = staff_sig_img.getbbox()
+                        if bbox:
+                            staff_sig_img = staff_sig_img.crop(bbox)
+                        staff_sig_img = _enhance_signature_visibility(staff_sig_img)
+                        sig_w, sig_h = staff_sig_img.size
+                        max_w = int(round(160 * scale))
+                        max_h = int(round(40 * scale))
+                        if sig_w > max_w or sig_h > max_h:
+                            ratio = min(max_w / sig_w, max_h / sig_h)
+                            staff_sig_img = staff_sig_img.resize(
+                                (max(1, int(sig_w * ratio)), max(1, int(sig_h * ratio))),
+                                Image.Resampling.LANCZOS,
+                            )
+                        sig_w, sig_h = staff_sig_img.size
+                        paste_x = right_margin + int(round(120 * scale)) - sig_w
+                        paste_y = staff_sig_y
+                        page2.paste(staff_sig_img, (paste_x, paste_y), staff_sig_img)
+
+                        if staff_name:
+                            name_width = draw2.textbbox((0, 0), staff_name, font=overlay_font)[2]
+                            name_x = right_margin + int(round(120 * scale)) - name_width
+                            name_y = staff_sig_y + sig_h + int(round(4 * scale))
+                            draw2.text((name_x, name_y), staff_name, fill=(0, 0, 0, 255), font=overlay_font)
+                    except Exception as e:
+                        print(f'Staff signature rendering failed: {e}')
+                elif staff_name:
+                    # No SVG signature yet; draw name only as placeholder
+                    name_width = draw2.textbbox((0, 0), staff_name, font=overlay_font)[2]
+                    name_x = right_margin + int(round(120 * scale)) - name_width
+                    draw2.text((name_x, staff_sig_y), staff_name, fill=(0, 0, 0, 255), font=overlay_font)
+
+        # Add applicant signature if present (SVG/points preferred, legacy PNG fallback)
         signature_img = _resolve_signature_image(lr)
         if signature_img:
             try:

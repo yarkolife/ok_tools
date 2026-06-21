@@ -1239,9 +1239,13 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 continue
 
             obj.confirmed = value
-            # in case we need to do further actions when a license is
-            # confirmed later
-            obj.save(update_fields=['confirmed'])
+            if value:
+                obj.confirmed_at = timezone.now()
+                obj.confirmed_by = request.user
+            else:
+                obj.confirmed_at = None
+                obj.confirmed_by = None
+            obj.save(update_fields=['confirmed', 'confirmed_at', 'confirmed_by'])
             updated += 1
 
         return updated
@@ -1270,6 +1274,18 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         self.exclude = None
 
         return result
+
+    def save_model(self, request, obj, form, change):
+        """Set confirmed_at when a license is confirmed via the single-edit form."""
+        if change and obj.confirmed:
+            old = License.objects.only('confirmed').get(pk=obj.pk)
+            if not old.confirmed:
+                obj.confirmed_at = timezone.now()
+                obj.confirmed_by = request.user
+        elif change and not obj.confirmed:
+            obj.confirmed_at = None
+            obj.confirmed_by = None
+        super().save_model(request, obj, form, change)
 
     def response_change(self, request, obj: License):
         """Add Print license and Sync duration buttons to change view."""
@@ -2107,6 +2123,10 @@ class LicensesConfigForm(forms.ModelForm):
             self.instance.notification_media_authority_names or []
             if self.instance.pk else []
         )
+        if 'freistellung_signature_user' in self.fields:
+            self.fields['freistellung_signature_user'].queryset = (
+                self.fields['freistellung_signature_user'].queryset.filter(is_staff=True)
+            )
 
     def clean_notification_media_authority_names(self):
         value = self.cleaned_data.get('notification_media_authority_names') or []
@@ -2118,6 +2138,7 @@ class LicensesConfigAdmin(admin.ModelAdmin):
     """Admin interface for LicensesConfig model."""
 
     form = LicensesConfigForm
+    autocomplete_fields = ['freistellung_signature_user']
 
     def has_add_permission(self, request):
         """Only one config instance allowed."""
@@ -2136,5 +2157,16 @@ class LicensesConfigAdmin(admin.ModelAdmin):
         }),
         (_('Screen Board Settings'), {
             'fields': ('screen_board_duration',),
+        }),
+        (_('Freistellung Print Form'), {
+            'fields': (
+                'freistellung_enabled',
+                'freistellung_city',
+                'freistellung_signature_user',
+                'freistellung_signature_text',
+                'freistellung_sendezeit_no_protection',
+                'freistellung_sendezeit_with_protection',
+                'freistellung_sendezeit_time',
+            ),
         }),
     )

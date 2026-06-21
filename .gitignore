@@ -175,5 +175,9 @@ package-lock.json
 rental/static/rental/js/build/
 
 # Oh My OpenAgent workspace
+.omo
 .omo/
 .sisyphus/
+
+# Stray debug artifacts
+response.html

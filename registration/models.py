@@ -57,6 +57,20 @@ class OKUser(AbstractUser):
     REQUIRED_FIELDS = []
     objects = UserManager()
 
+    staff_signature_svg = models.TextField(
+        _('Staff signature SVG'),
+        blank=True,
+        null=True,
+        help_text=_('SVG path data of the staff member\'s hand-drawn signature for Freistellung PDF.'),
+    )
+    staff_signature_points = models.JSONField(
+        _('Staff signature points'),
+        blank=True,
+        null=True,
+        default=None,
+        help_text=_('Biometric stroke points for re-editing the signature on the canvas.'),
+    )
+
     def __str__(self) -> str:
         """Represent OKUser by e-mail address."""
         return self.email

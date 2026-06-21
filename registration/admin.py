@@ -37,8 +37,23 @@ User = get_user_model()
 admin.site.unregister(Group)
 
 
+class UserAdminForm(forms.ModelForm):
+    """Form for User with hidden signature fields."""
+
+    class Meta:
+        model = User
+        fields = '__all__'
+        widgets = {
+            'staff_signature_svg': forms.HiddenInput(),
+            'staff_signature_points': forms.HiddenInput(),
+        }
+
+
 class UserAdmin(BaseUserAdmin):
     """How should the user be shown on the admin site."""
+
+    form = UserAdminForm
+    change_form_template = 'admin/registration/okuser/change_form.html'
 
     fieldsets = (
         (_('E-Mail address'), {
@@ -56,7 +71,21 @@ class UserAdmin(BaseUserAdmin):
         (_('Staff'), {
             'fields': ('is_staff',)
         }),
+        (_('Staff signature'), {
+            'fields': ('staff_signature_svg', 'staff_signature_points'),
+            'description': _('Draw the staff member\'s signature below. It appears on Freistellung PDFs when this user confirms a license.'),
+        }),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        """Hide the staff signature fieldset for non-staff users."""
+        fieldsets = list(super().get_fieldsets(request, obj))
+        if obj is None or not obj.is_staff:
+            fieldsets = [
+                fs for fs in fieldsets
+                if fs[0] != _('Staff signature')
+            ]
+        return fieldsets
     add_fieldsets = (
         (_('E-Mail address'), {
             'fields': ('email',)
@@ -70,7 +99,7 @@ class UserAdmin(BaseUserAdmin):
     )
     list_display = ['email', 'last_login', 'is_superuser', 'is_staff']
     ordering = ['email']
-    search_fields = ['email']
+    search_fields = ['email', 'profile__first_name', 'profile__last_name']
 
 
 admin.site.register(User, UserAdmin)

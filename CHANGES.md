@@ -1,6 +1,22 @@
 CHANGELOG
 =========
 
+2026-06-21 (Version 4.22.0)
+==========================
+
+* **licenses: Freistellung print form with staff signature overlay**
+  * Added `License.confirmed_at` (DateTimeField) and `License.confirmed_by` (FK to user) to track when and by whom a license was confirmed
+  * `LicenseAdmin` bulk confirm action and `save_model` now populate `confirmed_at`/`confirmed_by`; unconfirm clears them
+  * Added `LicensesConfig` Freistellung fields: `freistellung_enabled`, `freistellung_city`, `freistellung_signature_user`, `freistellung_signature_text`, `freistellung_sendezeit_no_protection`, `freistellung_sendezeit_with_protection`, `freistellung_sendezeit_time`
+  * `LicensesConfigAdmin` exposes a "Freistellung Print Form" fieldset and uses autocomplete for the signature user (filtered to staff)
+  * PDF generator fills Freistellung-specific form fields (`Gruppieren7/8`, `Uhrzeit`, `Ort / Datum`) and overlays the confirming staff member's signature on page 2 when enabled
+  * `_svg_signature_to_image` now accepts `data:image/svg+xml;base64,...` URLs in addition to raw SVG
+
+* **registration: Staff signature canvas on user admin**
+  * Added `OKUser.staff_signature_svg` (TextField) and `OKUser.staff_signature_points` (JSONField) for per-staff signatures reused on Freistellung PDFs
+  * Custom `UserAdminForm` renders signature fields as hidden inputs; new `change_form.html` provides a signature_pad canvas plus QR-sign panel for staff users only
+  * `get_fieldsets` hides the Staff signature section for non-staff users; `search_fields` extended to profile first/last name
+
 2026-06-21 (Version 4.21.0)
 ===========================
 

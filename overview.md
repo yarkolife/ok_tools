@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Freistellung print form with staff signature overlay**: Licenses track `confirmed_at`/`confirmed_by`, the LicensesConfig admin exposes Freistellung text, city, sendezeit, and signature-user settings, and the license PDF overlays the confirming staff member's signature on page 2 when the feature is enabled. Staff users can draw or QR-sign a reusable signature on their user admin page.
 - **Django 6 upgrade and dependency refresh**: Upgraded Django from 5.2.7 to 6.0.6, refreshed django-stubs, djangorestframework, django-filter, django-celery-beat, django-celery-results, django-bootstrap-datepicker-plus, asgiref, and many patch/minor Python packages. Docker images rebuilt and migrations verified.
 - **Rental return reminders and booking tools**: Rental administrators can configure automatic return reminder emails for issued rentals, manage equipment sets from the rental UI, and use expanded room calendar views for week and month scheduling.
 - **Playout metadata import from planning**: The planning "Plan!" action can now POST allowlisted media metadata by filename to an external playout import endpoint configured in the Planning Configuration admin UI, with an optional periodic check for playout files missing metadata.
