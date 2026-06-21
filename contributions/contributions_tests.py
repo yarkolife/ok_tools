@@ -211,7 +211,7 @@ def test__contributions__disa_import__validate__1(browser):
 
     with _open('valid.xlsx') as file:
         browser.getControl(
-            'DISA export file').add_file(file, XLSX_CT, 'test.xlsx')
+            name='file').add_file(file, XLSX_CT, 'test.xlsx')
 
     browser.getControl(name='_save').click()
 
@@ -335,7 +335,7 @@ def test__contributions__admin__1(browser, db, license):
         # select all disaimports
         browser.getControl(name='_selected_action').controls[i].click()
     browser.getControl('Action').value = 'import_files'
-    browser.getControl('Go').click()
+    browser.getControl(name='index').click()
 
     assert '3 files successfully imported.' in browser.contents
     assert Contribution.objects.filter()

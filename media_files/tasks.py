@@ -940,6 +940,7 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
     import subprocess
     from pathlib import Path
     from django.contrib.auth import get_user_model
+    from media_files.rendering.ffmpeg import LOUDNORM_FILTER
     
     User = get_user_model()
     user = User.objects.get(id=user_id) if user_id else None
@@ -1052,6 +1053,7 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
             '-b:a', f'{encode.audio_bitrate_k}k',
             '-ar', str(encode.audio_sample_rate),
             '-ac', str(encode.audio_channels),
+            '-af', LOUDNORM_FILTER,
             '-movflags', '+faststart',  # Enable streaming
             str(output_path),
         ]

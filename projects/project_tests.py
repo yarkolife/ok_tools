@@ -107,8 +107,7 @@ def test__projects__admin__ProjectResource__1(browser, project_dict):
     browser.open(A_PROJ_URL)
 
     browser.follow('Export')
-    browser.getControl('csv').click()
-    browser.getControl('Submit').click()
+    browser.getForm(index=0).submit()
 
     assert browser.headers['Content-Type'] == 'text/csv'
     assert str(s1) in str(browser.contents)
@@ -122,8 +121,8 @@ def test__projects__admin__ProjectResource__2(browser, project_dict):
     browser.open(A_PROJ_URL)
 
     browser.follow('Export')
-    browser.getControl('csv').click()
-    browser.getControl('Submit').click()
+    browser.getControl(name='format').value = '0'
+    browser.getForm(index=0).submit()
 
     assert browser.headers['Content-Type'] == 'text/csv'
     export = str(browser.contents)

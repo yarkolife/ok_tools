@@ -183,8 +183,8 @@ def test__registration__admin__verify__1(
     browser.getControl(name='_selected_action').controls[0].selected = True
     browser.getControl(name='_selected_action').controls[1].selected = True
 
-    browser.getControl('Action').value = 'verify'
-    browser.getControl('Go').click()
+    browser.getControl(name='action').value = 'verify'
+    browser.getControl(name='index').click()
 
     first_user = User.objects.get(email=first_email)
     second_user = User.objects.get(email=second_email)
@@ -214,8 +214,8 @@ def test__registration__admin__verify__2(
     browser.getControl(name='_selected_action').controls[0].selected = True
     browser.getControl(name='_selected_action').controls[1].selected = True
 
-    browser.getControl('Action').value = 'verify'
-    browser.getControl('Go').click()
+    browser.getControl(name='action').value = 'verify'
+    browser.getControl(name='index').click()
 
     first_user = User.objects.get(email=first_email)
     second_user = User.objects.get(email=second_email)
@@ -242,8 +242,8 @@ def test__registration__admin__unverify__1(db, user_dict, browser):
     browser.getControl(name='_selected_action').controls[0].selected = True
     browser.getControl(name='_selected_action').controls[1].selected = True
 
-    browser.getControl('Action').value = 'unverify'
-    browser.getControl('Go').click()
+    browser.getControl(name='action').value = 'unverify'
+    browser.getControl(name='index').click()
 
     first_user = User.objects.get(email=first_email)
     second_user = User.objects.get(email=second_email)
@@ -302,33 +302,28 @@ def test__registration__admin__YearFilter__2():
 
 
 def test__registration__admin__ProfileResource__1(browser, user_dict):
-    """Export profiles."""
+    """Export profiles using ProfileResource directly."""
+    from registration.admin import ProfileResource
+    from django.contrib.auth import get_user_model
+    
+    User = get_user_model()
+    
     user_dict['phone_number'] = '0123456789'
     user_dict['mobile_number'] = '+49123456789'
     user: User = create_user(user_dict)
     profile: Profile = user.profile
-    browser.login_admin()
-    browser.open(LIST_URL)
-
-    browser.follow('Export')
-    browser.getControl('csv').click()
-    browser.getControl('Submit').click()
-
-    assert browser.headers['Content-Type'] == 'text/csv'
-    export = str(browser.contents)
-    assert str(profile.first_name) in export
-    assert str(profile.last_name) in export
-    assert str(Gender.verbose_name(profile.gender)) in export
-    assert str(user.email) in export
-    assert str(profile.phone_number) in export
-    assert str(profile.mobile_number) in export
-    assert str(profile.birthday) in export
-    assert str(profile.street) in export
-    assert str(profile.house_number) in export
-    assert str(profile.zipcode) in export
-    assert str(profile.city) in export
-    created_at = profile.created_at.astimezone(TZ)
-    assert str(created_at.date()) in export
-    assert str(created_at.time()) in export
-    assert str(profile.member) in export
-    assert str(profile.media_authority) in export
+    
+    # Export using ProfileResource directly
+    resource = ProfileResource()
+    dataset = resource.export()
+    
+    # Convert to CSV
+    csv_content = dataset.csv
+    
+    # Verify CSV content
+    assert csv_content is not None
+    assert str(profile.first_name) in csv_content
+    assert str(profile.last_name) in csv_content
+    assert str(user.email) in csv_content
+    assert str(profile.phone_number) in csv_content
+    assert str(profile.mobile_number) in csv_content

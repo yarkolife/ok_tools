@@ -24,6 +24,20 @@ import pytest
 import zope.testbrowser.browser
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _patch_postgresql_flush():
+    """Patch PostgreSQL flush to always use CASCADE to avoid FK constraint errors."""
+    from django.db.backends.postgresql import operations
+    original_sql_flush = operations.DatabaseOperations.sql_flush
+
+    def patched_sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        return original_sql_flush(
+            self, style, tables, reset_sequences=reset_sequences, allow_cascade=True
+        )
+
+    operations.DatabaseOperations.sql_flush = patched_sql_flush
+
+
 @pytest.fixture(scope="function")
 def browser(transactional_db, admin_user):
     """Get a ``zope.testbrowser`` Browser instance.

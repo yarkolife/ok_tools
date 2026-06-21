@@ -1,3 +1,13 @@
+/* Django 6+: remove underlines from admin navigation, menu, and list links */
+#container a,
+#container a:link,
+#container a:visited,
+#container a:hover,
+#container a:active,
+#container a:focus {
+    text-decoration: none !important;
+}
+
 .model-videofile .field-filename {
     word-wrap: break-word;
     word-break: break-all;

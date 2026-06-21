@@ -102,10 +102,16 @@ class ProfileResource(resources.ModelResource):
     comment = _f('comment', _('comment'))
 
     class Meta:
-        """Define meta properties for the Project export."""
+        """Define meta properties for the Profile export."""
 
         model = Profile
-        fields = []
+        fields = [
+            'id', 'first_name', 'last_name', 'gender', 'email',
+            'phone_number', 'mobile_number', 'ausweisnummer', 'birthday',
+            'street', 'house_number', 'zipcode', 'city', 'created_at',
+            'member', 'media_authority', 'comment'
+        ]
+        export_order = fields
 
     def dehydrate_created_at(self, profile: Profile):
         """Export the created_at datetime object in the current time zone."""

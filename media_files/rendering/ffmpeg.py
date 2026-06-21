@@ -25,6 +25,12 @@ logger = logging.getLogger(__name__)
 _DEFAULT_RENDER_TIMEOUT_SECONDS = 21600
 _DEFAULT_RENDER_TIMEOUT_FACTOR = 3.0
 
+# EBU R128 loudness normalization filter for TV broadcast standard.
+# Target: -23 LUFS integrated, -1 dBTP true peak, 11 LU loudness range.
+# Applied as a single-pass dynamic loudnorm during audio re-encoding.
+# See: https://ffmpeg.org/ffmpeg-filters.html#loudnorm
+LOUDNORM_FILTER = "loudnorm=I=-23:TP=-1:LRA=11"
+
 
 class FfmpegError(RuntimeError):
     """Raised when ffmpeg execution fails."""
@@ -1208,6 +1214,8 @@ def _encode_args(p: EncodePreset) -> List[str]:
         str(p.audio_sample_rate),
         "-ac",
         str(p.audio_channels),
+        "-af",
+        LOUDNORM_FILTER,
     ]
 
 

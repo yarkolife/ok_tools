@@ -157,7 +157,7 @@ class ProgramResource(resources.ModelResource):
     # https://github.com/django-import-export/django-import-export/blob/32279cec9ea0383d2fba69954f8c556d3b332617/import_export/resources.py#L920
     def export(self, queryset=None, *args, **kwargs):
         """Export a program resource and add screen boards if necessary - OPTIMIZED VERSION."""
-        self.before_export(queryset, *args, **kwargs)
+        self.before_export(queryset, **kwargs)
 
         # only fill gaps with more than one minute waiting time
         TOLERANCE = datetime.timedelta(minutes=1)
@@ -169,6 +169,7 @@ class ProgramResource(resources.ModelResource):
         queryset = queryset.select_related('license', 'license__profile').order_by('broadcast_date')
 
         data = tablib.Dataset()
+        data.headers = [field.column_name for field in self.get_export_fields()]
 
         prev_contr = None
         for obj in queryset.iterator(chunk_size=1000):
@@ -212,7 +213,7 @@ class ProgramResource(resources.ModelResource):
         # merge consecutive Info block rows without crossing midnight
         data = self._merge_info_blocks(data)
 
-        self.after_export(queryset, data, *args, **kwargs)
+        self.after_export(queryset, data, **kwargs)
 
         return data
 
@@ -404,7 +405,7 @@ class ContributionResource(resources.ModelResource):
             if license_primary_dates.get(obj.license_id) == obj.broadcast_date:
                 data.append(self.export_resource(obj))
         
-        self.after_export(queryset, data, *args, **kwargs)
+        self.after_export(queryset, data, **kwargs)
         return data
 
     def _f(field, name=None):

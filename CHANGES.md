@@ -1,6 +1,40 @@
 CHANGELOG
 =========
 
+2026-06-21 (Version 4.21.0)
+===========================
+
+* **deps: Upgrade to Django 6.0.6 and refresh Python/Node dependencies**
+  * Upgraded Django from 5.2.7 to 6.0.6
+  * Upgraded django-stubs and django-stubs-ext to 6.0.5 for Django 6 compatibility
+  * Upgraded djangorestframework to 3.17.1, django-filter to 25.2, django-celery-beat to 2.9.0, django-celery-results to 2.6.0
+  * Upgraded django-bootstrap-datepicker-plus to 6.0.0 and asgiref to 3.11.1 for Django 6 compatibility
+  * Refreshed patch/minor dependencies across the full stack (pytest, celery, crispy-forms, psycopg2, zope, etc.)
+  * Restored Django admin link styling by linking `css/admin/custom_admin.css` in `admin/base_site.html` and removing text underlines introduced in Django 6
+
+* **registration: Phone number validation on register and profile forms**
+  * Added German phone number regex validation (+49/0049/0 prefix, 8-15 digits) to `UserDataForm` and `ProfileForm`
+  * Fixed swapped phone_number / mobile_number fields in `RegisterView` (bug introduced in Django 6 migration)
+  * Added comprehensive test coverage for valid and invalid phone/mobile number cases
+
+* **media_files: EBU R128 loudness normalization for broadcast encoding**
+  * Applied FFmpeg `loudnorm=I=-23:TP=-1:LRA=11` filter to all audio encodes (standard and HEVC→H.264 transcode paths)
+  * Ensures compliance with TV broadcast loudness standard (EBU R128)
+
+* **deployment: Database readiness check in production entrypoint**
+  * Added explicit Django DB connection loop (30 retries, 2s interval) before migrations in `entrypoint.production.sh`
+  * Added `start_period: 30s` to PostgreSQL healthcheck in both Docker Compose production configs
+
+* **tests: Django 6 and zope.testbrowser 8 compatibility fixes**
+  * Updated admin action form controls from `browser.getControl('Go')` to `browser.getControl(name='index')` across all test modules
+  * Fixed export form submissions to use `browser.getForm(index=0).submit()` instead of `browser.getControl('Submit').click()`
+  * Updated license tests for German locale text assertions and redirect-based auth (Django 6 no longer raises 404 for unauthenticated views)
+  * Converted email/password-reset tests from zope.testbrowser to Django test Client for reliability
+  * Fixed `ProfileResource` export test to use direct resource export instead of brittle admin UI interaction
+
+* **admin: ProfileResource export field definitions**
+  * Defined explicit `fields` list and `export_order` on `ProfileResource` (Django import-export 4.4+ compatibility)
+
 2026-06-10 (Version 4.20.0)
 ===========================
 

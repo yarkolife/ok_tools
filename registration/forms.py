@@ -14,9 +14,37 @@ from django.db.models import Q
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 import logging
+import re
 
 
 logger = logging.getLogger('django')
+
+# German phone number regex pattern
+# Allows: +49, 0049, or 0 prefix; spaces, dashes, dots; area codes and numbers
+PHONE_NUMBER_PATTERN = re.compile(
+    r'^(\+49|0049|0)?[\s\-\.]?'
+    r'(\(?\d{2,5}\)?[\s\-\.]?)'
+    r'\d{3,}[\s\-\.]?\d*$'
+)
+
+def validate_phone_number(value: str, field_name: str) -> str:
+    """Validate German phone number format."""
+    if not value:
+        return value
+    # Remove all non-digit characters except + for validation
+    cleaned = re.sub(r'[^\d+]', '', value)
+    # Check if it matches basic German phone patterns
+    if not (cleaned.startswith('+49') or cleaned.startswith('0049') or cleaned.startswith('0')):
+        raise forms.ValidationError(
+            _('Enter a valid phone number starting with +49, 0049, or 0.')
+        )
+    # Check length (German numbers are typically 10-12 digits including area code)
+    digits_only = re.sub(r'\D', '', value)
+    if len(digits_only) < 8 or len(digits_only) > 15:
+        raise forms.ValidationError(
+            _('Enter a valid phone number with 8-15 digits.')
+        )
+    return value
 
 
 class UserDataForm(forms.ModelForm):
@@ -44,6 +72,16 @@ class UserDataForm(forms.ModelForm):
             'phone_data_sharing_allowed',  # Admin-only field
             'email_data_sharing_allowed',  # Admin-only field
         )
+
+    def clean_phone_number(self):
+        """Validate phone number format."""
+        value = self.cleaned_data.get('phone_number')
+        return validate_phone_number(value, 'phone_number')
+
+    def clean_mobile_number(self):
+        """Validate mobile number format."""
+        value = self.cleaned_data.get('mobile_number')
+        return validate_phone_number(value, 'mobile_number')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -105,6 +143,16 @@ class ProfileForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'gender', 'phone_number',
                   'mobile_number', 'street', 'house_number',
                   'zipcode', 'city')
+
+    def clean_phone_number(self):
+        """Validate phone number format."""
+        value = self.cleaned_data.get('phone_number')
+        return validate_phone_number(value, 'phone_number')
+
+    def clean_mobile_number(self):
+        """Validate mobile number format."""
+        value = self.cleaned_data.get('mobile_number')
+        return validate_phone_number(value, 'mobile_number')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
