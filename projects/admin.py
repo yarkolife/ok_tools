@@ -202,7 +202,32 @@ class ProjectResource(resources.ModelResource):
         """Define meta properties for the Project export."""
 
         model = Project
-        fields = []
+        fields = (
+            'title',
+            'topic',
+            'description',
+            'date',
+            'duration',
+            'external_venue',
+            'jugendmedienschutz',
+            'target_group',
+            'project_category',
+            'project_leader',
+            'bis_6',
+            'bis_10',
+            'bis_14',
+            'bis_18',
+            'bis_34',
+            'bis_50',
+            'bis_65',
+            'ueber_65',
+            'no_age',
+            'female',
+            'male',
+            'diverse',
+            'no_gender',
+            'supervisors',
+        )
         name = _('Projects')
 
 

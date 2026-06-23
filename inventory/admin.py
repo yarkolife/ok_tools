@@ -215,7 +215,13 @@ class AuditLogResource(ModelResource):
         """Meta options for AuditLogResource."""
 
         model = AuditLog
-        fields = []
+        fields = (
+            'model_name',
+            'object_id',
+            'action',
+            'changes',
+            'timestamp',
+        )
 
 
 @admin.register(AuditLog)

@@ -408,7 +408,25 @@ class LicenseResource(resources.ModelResource):
         """Define meta properties for the License export."""
 
         model = License
-        fields = []
+        fields = (
+            'number',
+            'title',
+            'subtitle',
+            'description',
+            'profile',
+            'profile_id',
+            'further_persons',
+            'duration',
+            'category',
+            'suggested_date',
+            'suggested_time',
+            'repetition_allowed',
+            'exchange',
+            'youth_protection',
+            'media_library',
+            'screen_board',
+            'created_at',
+        )
 
 
 class YearFilter(admin.SimpleListFilter):

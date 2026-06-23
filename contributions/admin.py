@@ -362,7 +362,19 @@ class ProgramResource(resources.ModelResource):
 
         name = _('Program')
         model = Contribution
-        fields = []
+        fields = (
+            'broadcast_date',
+            'broadcast_start_time',
+            'broadcast_end_time',
+            'title',
+            'subtitle',
+            'description',
+            'credits',
+            'contribution',
+            'category',
+            'store_in_ok_media_library',
+            'number',
+        )
 
 
 class ContributionResource(resources.ModelResource):
@@ -441,7 +453,17 @@ class ContributionResource(resources.ModelResource):
 
         name = _('Data export')
         model = Contribution
-        fields = []
+        fields = (
+            'number',
+            'title',
+            'subtitle',
+            'broadcast_date',
+            'broadcast_time',
+            'profile',
+            'profile_id',
+            'duration',
+            'live',
+        )
 
 
 class MediathekExportForm(forms.Form):
@@ -672,7 +694,14 @@ class MediathekResource(resources.ModelResource):
 
         name = _('Mediathek import')
         model = Contribution
-        fields = []
+        fields = (
+            'license_number',
+            'title',
+            'subtitle',
+            'profile',
+            'broadcast_datetime',
+            'video_path',
+        )
 
 
 class WeekFilter(admin.SimpleListFilter):
