@@ -1296,6 +1296,15 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             operation.save()
             return False, message
         
+        # Primary status is meaningful only in ARCHIVE (the permanent source of
+        # truth). PLAYOUT is a temporary playing slot, so copies there never
+        # carry the manual-primary flag. CUSTOM is a staging area whose files
+        # get auto-deleted after archiving.
+        propagate_primary = (
+            source_video.is_manual_primary
+            and destination_storage.storage_type == 'ARCHIVE'
+        )
+
         # Create new VideoFile record with all metadata
         new_video = VideoFile.objects.create(
             number=source_video.number,
@@ -1303,6 +1312,7 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             file_path=file_path,
             storage_location=destination_storage,
             is_available=True,
+            is_manual_primary=propagate_primary,
             format=source_video.format,
             file_size=source_video.file_size,
             duration=source_video.duration,
@@ -1330,7 +1340,17 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             total_bitrate=source_video.total_bitrate,
             last_scanned=timezone.now(),
         )
-        
+
+        # In ARCHIVE: the freshly copied primary must be the only primary there,
+        # so clear the flag from other versions of the same number in this
+        # storage. Scoped per-storage (not global) because the same primary may
+        # be copied to several storages in one plan run.
+        if propagate_primary:
+            VideoFile.objects.filter(
+                number=new_video.number,
+                storage_location=new_video.storage_location,
+            ).exclude(id=new_video.id).update(is_manual_primary=False)
+
         # Update operation with new video reference
         operation.video_file = new_video
         operation.status = 'SUCCESS'
@@ -1571,10 +1591,18 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
     
     for number in video_numbers:
         try:
-            # Use smart source selection
-            source_video, selection_reason = select_best_source_video(number)
-            
-            if not source_video:
+            # All source versions for this number (CUSTOM + ARCHIVE); PLAYOUT is a
+            # destination and preview clips are not full versions, both excluded.
+            source_versions = list(VideoFile.objects.filter(
+                number=number,
+                is_available=True,
+            ).exclude(
+                storage_location__storage_type='PLAYOUT'
+            ).exclude(
+                is_preview=True
+            ).select_related('storage_location'))
+
+            if not source_versions:
                 # Video not found is a NON-CRITICAL error - it may not be uploaded yet
                 logger.warning(f"Video {number}: Not found in source storages (CUSTOM/ARCHIVE)")
                 warnings += 1
@@ -1583,82 +1611,125 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                     'message': 'Not found in CUSTOM or ARCHIVE storage'
                 })
                 continue
-            
-            logger.info(
-                f"Video {number}: Selected source from {source_video.storage_location.name} "
-                f"({source_video.storage_location.storage_type}) - {selection_reason}"
-            )
-            
-            # Preserve initially selected source for all copy targets.
-            # This keeps CUSTOM -> PLAYOUT direct when CUSTOM was selected,
-            # while still supporting ARCHIVE-only flows.
-            initial_source_video = source_video
 
-            # Save original source info for potential deletion from CUSTOM
-            original_source_type = source_video.storage_location.storage_type
-            original_source_id = source_video.id
-            
-            # Step 1: Copy to archive if needed
-            archive_copy_success = False
+            # Select the PRIMARY version for playout. Priority:
+            #   1. Manually marked primary (is_manual_primary) - set after render
+            #   2. is_primary_version() algorithm (bitrate/storage/recency)
+            #   3. select_best_source_video() as last-resort fallback
+            primary_video = next(
+                (v for v in source_versions if v.is_manual_primary), None
+            )
+            if primary_video is None:
+                for v in source_versions:
+                    try:
+                        if v.is_primary_version():
+                            primary_video = v
+                            break
+                    except Exception:
+                        logger.debug(
+                            f"Video {number}: is_primary_version() failed for video {v.id}",
+                            exc_info=True,
+                        )
+            if primary_video is None:
+                primary_video, selection_reason = select_best_source_video(number)
+                logger.info(
+                    f"Video {number}: No primary marked, using best source "
+                    f"{primary_video.filename if primary_video else 'N/A'} - {selection_reason}"
+                )
+            else:
+                logger.info(
+                    f"Video {number}: Selected PRIMARY {primary_video.filename} "
+                    f"from {primary_video.storage_location.name} "
+                    f"({primary_video.storage_location.storage_type})"
+                )
+
+            if primary_video is None:
+                warnings += 1
+                operation_details['warnings'].append({
+                    'number': number,
+                    'message': 'No primary version could be selected'
+                })
+                continue
+
+            # Step 1: Copy ALL source versions to archive.
+            # Each version is copied only if its filename is not already in the
+            # archive, so a rendered "_v1" primary lands alongside an existing
+            # 50fps master without overwriting or skipping it.
+            archive_copy_success = True
+            archived_custom_ids = []
             if archive_storage:
-                archive_exists = VideoFile.objects.filter(
-                    number=number,
-                    storage_location=archive_storage,
-                    is_available=True
-                ).exists()
-                
-                if not archive_exists:
-                    # Copy to archive
+                for version in source_versions:
+                    if version.storage_location == archive_storage:
+                        continue
+                    already_archived = VideoFile.objects.filter(
+                        number=number,
+                        storage_location=archive_storage,
+                        filename=version.filename,
+                        is_available=True,
+                    ).exists()
+                    if already_archived:
+                        logger.debug(
+                            f"Video {number}: {version.filename} already in archive, skipping"
+                        )
+                        continue
                     success, msg = _copy_video_to_storage(
-                        initial_source_video, archive_storage, user,
-                        destination_subfolder=None
+                        version, archive_storage, user, destination_subfolder=None
                     )
                     if success:
                         copied_to_archive += 1
-                        archive_copy_success = True
-                        logger.info(f"Video {number}: ✓ Copied to archive")
+                        if version.storage_location.storage_type == 'CUSTOM':
+                            archived_custom_ids.append(version.id)
+                        logger.info(
+                            f"Video {number}: \u2713 Copied {version.filename} to archive"
+                        )
                     else:
-                        logger.error(f"Video {number}: ✗ Failed to copy to archive: {msg}")
+                        logger.error(
+                            f"Video {number}: \u2717 Failed to copy {version.filename} to archive: {msg}"
+                        )
                         errors += 1
                         operation_details['errors'].append({
                             'number': number,
-                            'message': f'Archive copy failed: {msg}'
+                            'message': f'Archive copy failed for {version.filename}: {msg}'
                         })
-                else:
-                    archive_copy_success = True  # Already exists, consider as success
-                    logger.debug(f"Video {number}: Already in archive, skipping")
+                        archive_copy_success = False
             else:
                 archive_copy_success = True  # Archive copy not required
-            
-            # Step 2: Copy to playout in weekly folder
+
+            # Step 2: Copy PRIMARY to playout (weekly folder).
+            # The existence check is filename-aware so a previously copied
+            # non-primary version in the same week does not block the primary.
             playout_copy_success = False
             if playout_storage:
-                # Check if already exists in this week folder (or root if no weekly folders)
                 if week_folder:
                     playout_exists = VideoFile.objects.filter(
                         number=number,
                         storage_location=playout_storage,
                         file_path__startswith=week_folder,
-                        is_available=True
+                        filename=primary_video.filename,
+                        is_available=True,
                     ).exists()
                 else:
                     playout_exists = VideoFile.objects.filter(
                         number=number,
                         storage_location=playout_storage,
-                        is_available=True
+                        filename=primary_video.filename,
+                        is_available=True,
                     ).exists()
-                
+
                 if not playout_exists:
                     success, msg = _copy_video_to_storage(
-                        initial_source_video, playout_storage, user,
+                        primary_video, playout_storage, user,
                         destination_subfolder=week_folder
                     )
                     if success:
                         copied_to_playout += 1
                         playout_copy_success = True
-                        logger.info(f"Video {number}: ✓ Copied to playout/{week_folder or 'root'}")
+                        logger.info(
+                            f"Video {number}: \u2713 Copied PRIMARY {primary_video.filename} "
+                            f"to playout/{week_folder or 'root'}"
+                        )
                     else:
-                        logger.error(f"Video {number}: ✗ Failed to copy to playout: {msg}")
+                        logger.error(f"Video {number}: \u2717 Failed to copy PRIMARY to playout: {msg}")
                         errors += 1
                         operation_details['errors'].append({
                             'number': number,
@@ -1666,38 +1737,54 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                         })
                 else:
                     playout_copy_success = True  # Already exists, consider as success
-                    logger.debug(f"Video {number}: Already in playout/{week_folder or 'root'}, skipping")
+                    logger.debug(
+                        f"Video {number}: PRIMARY already in playout/{week_folder or 'root'}, skipping"
+                    )
                     skipped += 1
             else:
                 playout_copy_success = True  # Playout copy not required
                 skipped += 1
-            
-            # Step 3: Delete from CUSTOM if source was CUSTOM and all copies succeeded
+
+            # Step 3: Delete CUSTOM source versions that were archived and
+            # (when playout is configured) the primary was played out.
+            # CUSTOM is treated as a staging area: once a version is safely in
+            # the archive it can be removed from CUSTOM.
             auto_delete_enabled = getattr(settings, 'VIDEO_AUTO_DELETE_FROM_CUSTOM', True)
-            if (auto_delete_enabled 
-                and original_source_type == 'CUSTOM'
-                and archive_copy_success 
-                and playout_copy_success):
-                
-                # Find CUSTOM source video (may have been updated, so reload)
-                try:
-                    custom_source = VideoFile.objects.filter(
-                        id=original_source_id,
-                        storage_location__storage_type='CUSTOM',
-                        is_available=True
-                    ).first()
-                    
-                    if custom_source:
+            if (
+                auto_delete_enabled
+                and archive_copy_success
+                and playout_copy_success
+                and archived_custom_ids
+            ):
+                for custom_id in archived_custom_ids:
+                    try:
+                        custom_source = VideoFile.objects.filter(
+                            id=custom_id,
+                            storage_location__storage_type='CUSTOM',
+                            is_available=True,
+                        ).first()
+                        if not custom_source:
+                            logger.debug(
+                                f"Video {number}: CUSTOM source {custom_id} already deleted or not found"
+                            )
+                            continue
                         delete_success, delete_msg = _delete_source_from_custom(custom_source, user)
                         if delete_success:
-                            logger.info(f"Video {number}: ✓ Deleted from CUSTOM storage (moved to archive/playout)")
+                            logger.info(
+                                f"Video {number}: \u2713 Deleted {custom_source.filename} "
+                                f"from CUSTOM (archived+played)"
+                            )
                         else:
-                            logger.warning(f"Video {number}: ⚠ Failed to delete from CUSTOM: {delete_msg}")
-                    else:
-                        logger.debug(f"Video {number}: CUSTOM source already deleted or not found")
-                except Exception as e:
-                    logger.error(f"Video {number}: Error deleting from CUSTOM: {str(e)}", exc_info=True)
-                
+                            logger.warning(
+                                f"Video {number}: \u26a0 Failed to delete {custom_source.filename} "
+                                f"from CUSTOM: {delete_msg}"
+                            )
+                    except Exception as e:
+                        logger.error(
+                            f"Video {number}: Error deleting CUSTOM source {custom_id}: {str(e)}",
+                            exc_info=True,
+                        )
+
         except Exception as e:
             logger.error(f"Video {number}: ERROR - {str(e)}", exc_info=True)
             errors += 1

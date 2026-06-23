@@ -665,12 +665,17 @@ def check_duplicate_before_copy(source_video, destination_storage):
     """
     from .models import VideoFile
     
+    # Match by number AND filename so that different versions of the same
+    # number (e.g. a rendered "_v1" primary and the original 50fps master) can
+    # coexist in one storage location. A true duplicate is the same file
+    # (same number + same filename) copied into the same storage again.
     existing = VideoFile.objects.filter(
         number=source_video.number,
+        filename=source_video.filename,
         storage_location=destination_storage,
         is_available=True
     ).first()
-    
+
     if not existing:
         return False, None, "No duplicate"
     

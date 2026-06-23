@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-06-24 (Version 4.23.0)
+==========================
+
+* **media_files: Fix auto-copy to use primary version for playout, all versions for archive**
+  * `copy_videos_for_plan` now selects the PRIMARY version (manual flag -> `is_primary_version()` -> best-source fallback) and copies only it to PLAYOUT
+  * All source versions (CUSTOM + ARCHIVE) are copied to ARCHIVE, each skipped only if its filename already exists there
+  * `is_manual_primary` flag propagates to the archive copy only (PLAYOUT copies stay non-primary since playout is a temporary playing slot)
+  * `check_duplicate_before_copy` now matches by number AND filename, allowing different versions of the same number to coexist in one storage
+  * Auto-delete from CUSTOM extended to all CUSTOM versions that were successfully archived
+  * Added `media_files/auto_copy_tests.py` with 7 tests covering primary selection, archive-all, playout-primary-only, flag propagation, dup check, and auto-delete
+
 2026-06-21 (Version 4.22.0)
 ==========================
 
