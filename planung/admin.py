@@ -14,6 +14,8 @@ from django.urls import path
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.utils.html import format_html
+from django.utils.html import format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
 from planung.services.plan_service import enrich_plan_items
@@ -282,9 +284,9 @@ class TagesPlanAdmin(admin.ModelAdmin):
         Used as a status column in the admin list view.
         """
         if obj.json_plan.get("draft", False):
-            return format_html('<svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" width="18" height="18" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>')
+            return mark_safe('<svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" width="18" height="18" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>')
         else:
-            return format_html('<svg viewBox="0 0 24 24" fill="none" stroke="#0074D9" stroke-width="2.5" width="18" height="18" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>')
+            return mark_safe('<svg viewBox="0 0 24 24" fill="none" stroke="#0074D9" stroke-width="2.5" width="18" height="18" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>')
     is_draft.short_description = _("Draft?")
 
     def show_items(self, obj):
@@ -323,13 +325,13 @@ class TagesPlanAdmin(admin.ModelAdmin):
             try:
                 lic = License.objects.get(number=number)
                 url = f"/admin/licenses/license/{lic.id}/change/"
-                link = f'<a href="{url}">{number} – {lic.title}</a>'
+                link = format_html('<a href="{}">{} – {}</a>', url, number, lic.title)
                 
                 # Get author from license if not in item
                 if not author_name and lic.profile:
                     author_name = f"{lic.profile.first_name or ''} {lic.profile.last_name or ''}".strip()
             except License.DoesNotExist:
-                link = f"{number} ({_('not found')})"
+                link = format_html('{} ({})', number, _('not found'))
 
             # Format duration as MM:SS
             duration_seconds = item.get('duration', 0)
@@ -337,25 +339,30 @@ class TagesPlanAdmin(admin.ModelAdmin):
             duration_secs = duration_seconds % 60
             duration_formatted = f"{duration_mins}:{duration_secs:02d}"
 
-            rows.append(
-                "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
-                    item.get('start'),
-                    link,
-                    author_name or "-",
-                    duration_formatted,
-                )
-            )
+            rows.append((
+                item.get('start'),
+                link,
+                author_name or "-",
+                duration_formatted,
+            ))
 
-        table = (
+        return format_html(
             "<table style='width:100%;border-collapse:collapse;'>"
-            f"<tr><th style='border-bottom:1px solid #ccc;'>{_('Start')}</th>"
-            f"<th style='border-bottom:1px solid #ccc;'>{_('License')}</th>"
-            f"<th style='border-bottom:1px solid #ccc;'>{_('Author')}</th>"
-            f"<th style='border-bottom:1px solid #ccc;'>{_('Duration')}</th></tr>"
-            + "".join(rows)
-            + "</table>"
+            "<tr><th style='border-bottom:1px solid #ccc;'>{}</th>"
+            "<th style='border-bottom:1px solid #ccc;'>{}</th>"
+            "<th style='border-bottom:1px solid #ccc;'>{}</th>"
+            "<th style='border-bottom:1px solid #ccc;'>{}</th></tr>"
+            "{}</table>",
+            _('Start'),
+            _('License'),
+            _('Author'),
+            _('Duration'),
+            format_html_join(
+                '',
+                '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>',
+                rows,
+            ),
         )
-        return format_html(table)
 
     preview_plan.short_description = _("Planned items (preview)")
 

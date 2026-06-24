@@ -23,6 +23,7 @@ from django_admin_listfilter_dropdown.filters import DropdownFilter
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from import_export.forms import ExportForm
 from ok_tools.datetime import TZ
 from registration.signals import signal
 import datetime
@@ -228,6 +229,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
     """How should the profile be shown on the admin site."""
 
     resource_classes = [ProfileResource]
+    export_form_class = ExportForm
 
     change_form_template = 'admin/registration_change_form_edit.html'
 

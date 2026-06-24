@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from import_export.forms import ExportForm
 # from rangefilter.filters import DateRangeFilter
 import datetime
 import logging
@@ -266,6 +267,7 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface definitions for Projects."""
 
     resource_classes = [ProjectResource]
+    export_form_class = ExportForm
     change_list_template = 'admin/change_list_ics_export.html'
 
     list_display = (

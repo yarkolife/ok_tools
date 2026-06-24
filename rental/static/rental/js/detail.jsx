@@ -48,11 +48,15 @@ function SignatureModal({ urls, onClose, onSigned }) {
       pollRef.current = setInterval(async () => {
         try {
           const sd = await apiGet(`/rental/sign-session/${data.token}/status/?consume=1`);
-          if (sd.status === 'SIGNED') {
+          const normalizedStatus = String(sd.status || '').toLowerCase();
+          if (normalizedStatus === 'signed') {
             clearInterval(pollRef.current);
-            onSigned();
-          } else if (sd.status === 'EXPIRED') {
+            pollRef.current = null;
+            setSignSessionStatus('signed');
+            setTimeout(onSigned, 1800);
+          } else if (normalizedStatus === 'expired') {
             clearInterval(pollRef.current);
+            pollRef.current = null;
             setSignSessionStatus('expired');
           }
         } catch (e) {
@@ -152,7 +156,13 @@ function SignatureModal({ urls, onClose, onSigned }) {
           <>
             <h5 style={{margin:'0 0 8px',fontSize:16,fontWeight:600}}>{t('sig.qr_title', 'Sign with phone')}</h5>
             <p className="muted" style={{fontSize:13,margin:'0 0 16px'}}>{t('sig.scan_qr', 'Scan the QR code with your phone to sign')}</p>
-            {signSessionStatus === 'expired' ? (
+            {signSessionStatus === 'signed' ? (
+              <div style={{textAlign:'center',padding:24,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:8}}>
+                <i className="fas fa-circle-check" style={{fontSize:34,color:'#15803d',marginBottom:10}}></i>
+                <p style={{fontWeight:700,margin:'0 0 4px',color:'#166534'}}>{t('sig.received_title', 'Signature received')}</p>
+                <p className="muted tiny" style={{margin:0}}>{t('sig.received_desc', 'The phone signature was transferred to this rental. The page will update automatically.')}</p>
+              </div>
+            ) : signSessionStatus === 'expired' ? (
               <div style={{textAlign:'center',padding:24}}>
                 <i className="fas fa-clock" style={{fontSize:32,color:'var(--ink-4)',marginBottom:8}}></i>
                 <p>{t('sig.expired', 'Signing session expired. Please try again.')}</p>

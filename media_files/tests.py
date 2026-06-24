@@ -5,9 +5,13 @@ import tempfile
 from datetime import timedelta
 from pathlib import Path
 
+from django.contrib.admin.sites import AdminSite
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
+from .admin import VideoFileAdmin
 from .models import StorageLocation, VideoFile, FileOperation
 from .utils import (
     extract_number_from_filename,
@@ -207,6 +211,61 @@ class VideoFileModelTests(TestCase):
 
         self.assertTrue(older_high.is_primary_version())
         self.assertFalse(newer_low.is_primary_version())
+
+
+class VideoFileAdminDisplayTests(TestCase):
+    def setUp(self):
+        self.storage = StorageLocation.objects.create(
+            name="Admin Display Storage",
+            storage_type="ARCHIVE",
+            path="/tmp/admin-display/",
+            is_active=True,
+        )
+        self.video = VideoFile.objects.create(
+            number=99901,
+            filename="99901_admin_display.mp4",
+            storage_location=self.storage,
+            file_path="99901_admin_display.mp4",
+            is_available=True,
+        )
+        self.admin = VideoFileAdmin(VideoFile, AdminSite())
+
+    def test_fps_display_handles_missing_fps_without_format_html_error(self):
+        self.video.fps = None
+
+        rendered = self.admin.fps_display(self.video)
+
+        self.assertIn('—', str(rendered))
+
+    def test_duplicate_status_display_handles_unique_video(self):
+        rendered = self.admin.duplicate_status_display(self.video)
+
+        self.assertIn('Unique', str(rendered))
+
+    def test_all_versions_display_handles_multiple_versions(self):
+        VideoFile.objects.create(
+            number=self.video.number,
+            filename="99901_admin_display_v2.mp4",
+            storage_location=self.storage,
+            file_path="99901_admin_display_v2.mp4",
+            is_available=True,
+            total_bitrate=7_000_000,
+        )
+
+        rendered = self.admin.all_versions_display(self.video)
+
+        self.assertIn('99901_admin_display', str(rendered))
+
+    def test_changelist_handles_missing_fps(self):
+        user = get_user_model().objects.create_superuser(
+            email='media-admin@example.com',
+            password='testpassword',
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('admin:media_files_videofile_changelist'))
+
+        self.assertEqual(response.status_code, 200)
 
 
 class FileOperationModelTests(TestCase):

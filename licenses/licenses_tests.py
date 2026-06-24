@@ -1398,3 +1398,76 @@ def test__licenses__tasks__send_license_notification_email__subject_translated_t
 
     assert len(mail_outbox) == 1
     assert f'Sendetermine verfügbar für Freistellung #{license_obj.number}' in mail_outbox[0].subject
+
+
+def test__licenses__admin__LicenseAdmin__unconfirm_preserves_metadata(
+        browser, user, license):
+    """Unconfirming a confirmed license preserves confirmed_at/confirmed_by."""
+    original_at = timezone.now()
+    license.confirmed = True
+    license.confirmed_at = original_at
+    license.confirmed_by = user
+    license.save(update_fields=[
+        'confirmed', 'confirmed_at', 'confirmed_by',
+    ])
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+    browser.getControl(name='_selected_action').controls[0].selected = True
+    browser.getControl('Action').value = 'unconfirm'
+    browser.getControl(name='index').click()
+
+    assert '1 License was successfully unconfirmed.' in browser.contents
+    lr = License.objects.get(id=license.id)
+    assert not lr.confirmed
+    assert lr.confirmed_at == original_at
+    assert lr.confirmed_by == user
+
+
+def test__licenses__admin__LicenseAdmin__reconfirm_preserves_original_metadata(
+        browser, user, license):
+    """Reconfirming preserves the original confirmed_at/confirmed_by."""
+    original_at = timezone.now()
+    license.confirmed = True
+    license.confirmed_at = original_at
+    license.confirmed_by = user
+    license.save(update_fields=[
+        'confirmed', 'confirmed_at', 'confirmed_by',
+    ])
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+    browser.getControl(name='_selected_action').controls[0].selected = True
+    browser.getControl('Action').value = 'unconfirm'
+    browser.getControl(name='index').click()
+
+    lr = License.objects.get(id=license.id)
+    assert not lr.confirmed
+    assert lr.confirmed_at == original_at
+
+    browser.open(A_LICENSE_URL)
+    browser.getControl(name='_selected_action').controls[0].selected = True
+    browser.getControl('Action').value = 'confirm'
+    browser.getControl(name='index').click()
+
+    assert '1 License was successfully confirmed.' in browser.contents
+    lr = License.objects.get(id=license.id)
+    assert lr.confirmed
+    assert lr.confirmed_at == original_at
+    assert lr.confirmed_by == user
+
+
+def test__licenses__admin__LicenseAdmin__first_confirm_fills_metadata(
+        browser, user, license):
+    """First-time confirmation fills confirmed_at and confirmed_by."""
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+    browser.getControl(name='_selected_action').controls[0].selected = True
+    browser.getControl('Action').value = 'confirm'
+    browser.getControl(name='index').click()
+
+    assert '1 License was successfully confirmed.' in browser.contents
+    lr = License.objects.get(id=license.id)
+    assert lr.confirmed
+    assert lr.confirmed_at is not None
+    assert lr.confirmed_by is not None

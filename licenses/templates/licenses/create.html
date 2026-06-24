@@ -1177,7 +1177,7 @@
                     }
                     setCreateSigningMethod('draw');
                     showCreateQrSyncedAlert(true);
-                    createPreSessionStatus.innerHTML = '<span class="text-success">{% trans "Signature synchronized from phone." %}</span>';
+                    createPreSessionStatus.innerHTML = '<span class="text-success">{% trans "Signature received from phone and synchronized here." %}</span>';
                 } else if (data.status === 'expired') {
                     if (createSessionPollTimer) {
                         clearInterval(createSessionPollTimer);

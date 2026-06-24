@@ -86,6 +86,11 @@ html, body {
   text-decoration: none;
   cursor: pointer;
 }
+.page a,
+.page a:hover,
+.page a:focus {
+  text-decoration: none !important;
+}
 .page-nav .nav-link i { width: 14px; text-align: center; color: var(--ink-3); font-size: 12px; }
 .page-nav .nav-link:hover { background: #fff; color: var(--ink); }
 .page-nav .nav-link.active {

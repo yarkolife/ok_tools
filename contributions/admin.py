@@ -15,6 +15,7 @@ from django.utils.translation import ngettext as _p
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from import_export.forms import ExportForm
 from ok_tools.datetime import TZ
 from registration.models import MediaAuthority
 # from rangefilter.filters import DateTimeRangeFilter
@@ -812,6 +813,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     """How should the Contribution be shown on the admin site."""
 
     resource_classes = [ProgramResource, ContributionResource, MediathekResource]
+    export_form_class = ExportForm
     export_template_name = 'admin/export.html'
     change_list_template = 'admin/contributions/contribution/change_list.html'
     

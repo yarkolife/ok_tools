@@ -169,7 +169,11 @@
                 if (!response.ok || !data.success) {
                     throw new Error(data.error || '{% trans "Failed to submit signature." %}');
                 }
-                submitStatus.innerHTML = '<div class="alert alert-success">{% trans "Signature submitted successfully. You can close this page." %}</div>';
+                signaturePad.off();
+                canvas.style.pointerEvents = 'none';
+                clearButton.disabled = true;
+                submitButton.disabled = true;
+                submitStatus.innerHTML = '<div class="alert alert-success"><strong>{% trans "Signature sent." %}</strong><br>{% trans "The main browser has been notified and will show the received signature automatically. You can close this page." %}</div>';
             } catch (error) {
                 const errorMessage = error && error.message ? error.message : String(error);
                 submitStatus.innerHTML = `<div class="alert alert-danger">${errorMessage}</div>`;

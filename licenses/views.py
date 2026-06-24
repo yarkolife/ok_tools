@@ -221,7 +221,10 @@ def _render_svg_to_png_data_url(signature_svg):
     except Exception:
         return None
 
-    png_bytes = svg2png(bytestring=signature_svg.encode('utf-8'))
+    try:
+        png_bytes = svg2png(bytestring=signature_svg.encode('utf-8'))
+    except Exception:
+        return None
     encoded = base64.b64encode(png_bytes).decode('ascii')
     return f'data:image/png;base64,{encoded}'
 

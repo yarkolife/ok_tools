@@ -16,9 +16,11 @@ from django.contrib.admin import RelatedOnlyFieldListFilter
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.html import format_html_join
 from django.utils.translation import gettext as _
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from import_export.forms import ExportForm
 from import_export.resources import ModelResource
 from import_export.widgets import DateWidget
 
@@ -89,6 +91,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
 
     change_list_template = 'admin/inventory_item_change_list.html'
     resource_class = InventoryResource
+    export_form_class = ExportForm
     readonly_fields = ('reserved_quantity', 'rented_quantity')
     list_display = (
         'inventory_number', 'description', 'serial_number', 'manufacturer', 'category', 'location', 'quantity',
@@ -229,6 +232,7 @@ class AuditLogAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface for AuditLog."""
 
     resource_class = AuditLogResource
+    export_form_class = ExportForm
     list_display = (
         'get_inventory_number',
         'action',
@@ -298,7 +302,7 @@ class InventoryImportAdmin(admin.ModelAdmin):
         if not obj.error_log:
             return _('-')
         errors = obj.error_log.split('\n')
-        error_list = ''.join(f'<li>{error}</li>' for error in errors)
+        error_list = format_html_join('', '<li>{}</li>', ((error,) for error in errors))
         download_link = ''
         if obj.error_log_file:
             download_link = format_html(
@@ -310,7 +314,7 @@ class InventoryImportAdmin(admin.ModelAdmin):
             '<div style="max-height: 300px; overflow-y: auto; '
             'border: 1px solid #ccc; background: #fafafa; padding: 8px;">'
             '<ul style="margin:0; padding-left:20px;">{}</ul></div>{}',
-            format_html(error_list),
+            error_list,
             download_link
         )
     get_error_log_display.short_description = _('Error Log')
@@ -405,7 +409,7 @@ class InspectionImportAdmin(admin.ModelAdmin):
         if not obj.error_log:
             return _('-')
         errors = obj.error_log.split('\n')
-        error_list = ''.join(f'<li>{error}</li>' for error in errors)
+        error_list = format_html_join('', '<li>{}</li>', ((error,) for error in errors))
         download_link = ''
         if obj.error_log_file:
             download_link = format_html(
@@ -417,7 +421,7 @@ class InspectionImportAdmin(admin.ModelAdmin):
             '<div style="max-height: 300px; overflow-y: auto; '
             'border: 1px solid #ccc; background: #fafafa; padding: 8px;">'
             '<ul style="margin:0; padding-left:20px;">{}</ul></div>{}',
-            format_html(error_list),
+            error_list,
             download_link
         )
     get_error_log_display.short_description = _('Error Log')

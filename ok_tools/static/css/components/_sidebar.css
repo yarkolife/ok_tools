@@ -85,11 +85,16 @@
   align-items: center;
   padding: var(--space-3) var(--space-4);
   color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
+  text-decoration: none !important;
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
   transition: all var(--transition-fast);
   position: relative;
   font-weight: var(--font-weight-medium);
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a:focus {
+  text-decoration: none !important;
 }
 
 /* Collapsed state - icons only */
@@ -143,7 +148,6 @@
 .sidebar-nav a:hover {
   background: var(--sidebar-hover);
   color: white;
-  text-decoration: none;
 }
 
 /* Icons in navigation items */

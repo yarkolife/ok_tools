@@ -188,6 +188,45 @@ def test__licenses__SigningSessionStatusView__consume_deletes_signed_session(cli
 
 
 @pytest.mark.django_db
+def test__licenses__SigningSessionStatusView__consume_returns_payload_before_delete(client, user, license):
+    client.force_login(user)
+
+    create_url = reverse('licenses:create_sign_session', kwargs={'pk': license.pk})
+    token = client.post(create_url).json()['token']
+    signature_points = [
+        {
+            'points': [
+                {'x': 5, 'y': 7, 'time': 11, 'pressure': 0.4},
+                {'x': 8, 'y': 13, 'time': 12, 'pressure': 0.7},
+            ]
+        }
+    ]
+    signature_metadata = {'source': 'phone', 'screen': 'mobile'}
+    signature_svg = '<svg xmlns="http://www.w3.org/2000/svg"><path d="M5 7 L8 13"/></svg>'
+    submit_url = reverse('licenses:sign_session_submit', kwargs={'token': token})
+    submit_response = client.post(submit_url, data={
+        'signature_svg': signature_svg,
+        'signature_points': json.dumps(signature_points),
+        'signature_metadata': json.dumps(signature_metadata),
+        'signature_method': 'qr_phone',
+    })
+    assert submit_response.status_code == 200
+
+    status_url = reverse('licenses:sign_session_status', kwargs={'token': token})
+    consume_response = client.get(f'{status_url}?consume=1')
+
+    assert consume_response.status_code == 200
+    data = consume_response.json()
+    assert data['status'] == SigningSessionStatus.SIGNED
+    assert data['signature_svg'] == signature_svg
+    assert data['signature_points'] == signature_points
+    assert data['signature_metadata'] == signature_metadata
+    assert data['signature_method'] == 'qr_phone'
+    assert data['signed_at'] is not None
+    assert SigningSession.objects.filter(token=token).exists() is False
+
+
+@pytest.mark.django_db
 def test__licenses__SubmitSigningSessionView__rate_limit(client, user, license):
     client.force_login(user)
 

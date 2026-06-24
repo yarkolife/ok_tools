@@ -486,6 +486,8 @@ def _i18n_bundle():
         'sig.retry': _('Retry'),
         'sig.auto_check': _('Status will update automatically'),
         'sig.waiting': _('Waiting for signature…'),
+        'sig.received_title': _('Signature received'),
+        'sig.received_desc': _('The phone signature was transferred to this rental. The page will update automatically.'),
         'sig.signed': _('Signed'),
         'sig.draw_empty': _('Please draw a signature first.'),
         'confirm.mark_issued': _('Mark this rental as issued?'),
@@ -6218,7 +6220,10 @@ def _render_svg_to_png_data_url(signature_svg):
     except Exception:
         return None
 
-    png_bytes = svg2png(bytestring=signature_svg.encode('utf-8'))
+    try:
+        png_bytes = svg2png(bytestring=signature_svg.encode('utf-8'))
+    except Exception:
+        return None
     encoded = base64.b64encode(png_bytes).decode('ascii')
     return f'data:image/png;base64,{encoded}'
 

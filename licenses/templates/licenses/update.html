@@ -640,7 +640,7 @@
                         signaturePad.fromData(data.signature_points);
                         saveSignature();
                     }
-                    sessionStatus.innerHTML = '<span class="text-success">{% trans "Signature synchronized from phone." %}</span>';
+                    sessionStatus.innerHTML = '<span class="text-success">{% trans "Signature received from phone and synchronized here." %}</span>';
                 } else if (data.status === 'expired') {
                     if (sessionPollTimer) {
                         clearInterval(sessionPollTimer);

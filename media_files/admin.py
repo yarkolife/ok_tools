@@ -1645,7 +1645,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     def fps_display(self, obj):
         """Display FPS with warning if not 25."""
         if obj.fps is None:
-            return format_html('<span style="color: #999;">—</span>')
+            return mark_safe('<span style="color: #999;">—</span>')
         
         fps_value = float(obj.fps)
         fps_formatted = f"{fps_value:.2f}"
@@ -1823,7 +1823,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 _('Not linked to license; not counted as a version.'),
             )
         if not obj.has_duplicates:
-            return format_html('<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> Unique (no duplicates)</span>')
+            return mark_safe('<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> Unique (no duplicates)</span>')
 
         try:
             is_primary = obj.is_primary_version()
@@ -1917,7 +1917,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 _('This record is a preview clip (not linked to license). Full versions:'),
             )
         else:
-            intro = format_html('')
+            intro = ''
         if all_versions.count() <= 1 and not getattr(obj, 'is_preview', False):
             return format_html('<span style="color: #6c757d;">{}</span>', _('No other versions'))
         if all_versions.count() == 0 and getattr(obj, 'is_preview', False):
@@ -2005,7 +2005,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                     f'{status}<br><a href="{url}">{info}</a></div>'
                 )
         
-        body = format_html(''.join(html_parts))
+        body = mark_safe(''.join(html_parts))
         if getattr(obj, 'is_preview', False) and intro:
             return format_html('{} {}', intro, body)
         return body

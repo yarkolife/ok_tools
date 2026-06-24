@@ -1,6 +1,33 @@
 CHANGELOG
 =========
 
+2026-06-24 (Version 4.23.1)
+==========================
+
+* **rental: Fix QR signature flow blocked by case-sensitivity mismatch**
+  * `rental/static/rental/js/detail.jsx` compared the poll status to uppercase `'SIGNED'` while the backend returns lowercase `'signed'`, so the main browser stayed on "Waiting for signature…" forever; status is now matched case-insensitively
+  * After the phone submits, the main browser shows an explicit "Signature received" state (~1.8s) before reloading, then the Signed badge appears and the request-signature button is hidden
+* **rental,licenses: Improve mobile QR signature UX**
+  * Phone sign page blocks the canvas, Clear and Submit buttons after submit and shows "Signature sent. The main browser has been notified…"
+  * Admin and Licenses sign panels now display "Signature received from phone and synchronized here."
+* **licenses,rental: Guard SVG→PNG legacy rendering against size-less SVG**
+  * `_render_svg_to_png_data_url` no longer 500s when `cairosvg.svg2png` cannot render an SVG without intrinsic dimensions; it falls back to `None` like the other failure paths
+* **licenses: Preserve original confirmed_at/confirmed_by across unconfirm/reconfirm**
+  * `LicenseAdmin` bulk actions and `save_model` now only fill `confirmed_at`/`confirmed_by` on first confirmation and keep the originals on reconfirm; unconfirm no longer wipes the audit fields so events after a reconfirm keep the first confirmation metadata
+* **licenses: Remove unused `LicensesConfig` Freistellung fields from admin fieldset**
+  * Fieldset now exposes only `freistellung_city`; the other flags are managed via settings/migration and were causing stale display in the admin
+* **admin: Switch raw-SVG/HTML admin displays to `mark_safe` / `format_html_join`**
+  * Eliminates `format_html` double-escaping for inline SVGs and error-log `<li>` lists across `licenses`, `media_files`, `inventory`, `planung`, `projects`, `registration`, `contributions`
+* **admin: Declare explicit `export_form_class = ExportForm` on ExportMixin admins**
+  * Avoids import-export deprecation warnings across `contributions`, `inventory`, `licenses`
+* **ui: Force `text-decoration: none` on sidebar and rental page-nav links**
+  * Resolves stray underlines that appeared on hover/focus in the sidebar and rental page navigation
+* **tests: Add QR signature status-consume and rental sign-session coverage**
+  * New `rental/tests/test_signature.py` covers create/submit/poll/consume for rental signing sessions
+  * `licenses/signature_features_tests.py` gains a `consume_returns_payload_before_delete` case
+  * `licenses/licenses_tests.py` gains three LicenseAdmin confirm/unconfirm/reconfirm metadata tests
+  * `media_files/tests.py` gains `VideoFileAdminDisplayTests` covering fps/duplicate/versions displays and the changelist
+
 2026-06-24 (Version 4.23.0)
 ==========================
 

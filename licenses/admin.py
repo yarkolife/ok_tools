@@ -22,6 +22,7 @@ from django.utils.translation import ngettext as _p
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
+from import_export.forms import ExportForm
 from ok_tools.datetime import TZ
 from registration.models import MediaAuthority
 from registration.models import Profile
@@ -738,6 +739,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     form = LicenseAdminForm
     resource_classes = [LicenseResource]
+    export_form_class = ExportForm
 
     change_form_template = 'admin/licenses_change_form_edit.html'
     change_list_template = 'admin/licenses/license/change_list.html'
@@ -949,7 +951,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     _('Search for Video')
                 )
         except Exception as e:
-            return format_html('<span style="color: #999;">-</span>')
+            return mark_safe('<span style="color: #999;">-</span>')
     
     video_file_info.short_description = _('Video File')
 
@@ -1068,7 +1070,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 _('No video')
             )
         except Exception:
-            return format_html('<span style="color: #999;">-</span>')
+            return mark_safe('<span style="color: #999;">-</span>')
 
     video_status.short_description = _('Video')
     
@@ -1257,13 +1259,17 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 continue
 
             obj.confirmed = value
+            update_fields = ['confirmed']
+
             if value:
-                obj.confirmed_at = timezone.now()
-                obj.confirmed_by = request.user
-            else:
-                obj.confirmed_at = None
-                obj.confirmed_by = None
-            obj.save(update_fields=['confirmed', 'confirmed_at', 'confirmed_by'])
+                if not obj.confirmed_at:
+                    obj.confirmed_at = timezone.now()
+                    update_fields.append('confirmed_at')
+                if not obj.confirmed_by:
+                    obj.confirmed_by = request.user
+                    update_fields.append('confirmed_by')
+
+            obj.save(update_fields=update_fields)
             updated += 1
 
         return updated
@@ -1294,15 +1300,15 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         return result
 
     def save_model(self, request, obj, form, change):
-        """Set confirmed_at when a license is confirmed via the single-edit form."""
-        if change and obj.confirmed:
-            old = License.objects.only('confirmed').get(pk=obj.pk)
-            if not old.confirmed:
-                obj.confirmed_at = timezone.now()
-                obj.confirmed_by = request.user
-        elif change and not obj.confirmed:
-            obj.confirmed_at = None
-            obj.confirmed_by = None
+        if change:
+            old = License.objects.only(
+                'confirmed', 'confirmed_at', 'confirmed_by',
+            ).get(pk=obj.pk)
+            if not old.confirmed and obj.confirmed:
+                if not obj.confirmed_at:
+                    obj.confirmed_at = timezone.now()
+                if not obj.confirmed_by:
+                    obj.confirmed_by = request.user
         super().save_model(request, obj, form, change)
 
     def response_change(self, request, obj: License):
@@ -2177,14 +2183,6 @@ class LicensesConfigAdmin(admin.ModelAdmin):
             'fields': ('screen_board_duration',),
         }),
         (_('Freistellung Print Form'), {
-            'fields': (
-                'freistellung_enabled',
-                'freistellung_city',
-                'freistellung_signature_user',
-                'freistellung_signature_text',
-                'freistellung_sendezeit_no_protection',
-                'freistellung_sendezeit_with_protection',
-                'freistellung_sendezeit_time',
-            ),
+            'fields': ('freistellung_city',),
         }),
     )
