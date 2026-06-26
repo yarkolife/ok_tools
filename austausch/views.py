@@ -556,8 +556,7 @@ def export_to_server_step2(request):
                 'store_in_ok_media_library': lic.store_in_ok_media_library,
                 'has_pdf': _license_has_pdf(lic, config),
                 'has_cover': _license_has_cover(lic.number, cover_dir),
-                'cover_url': reverse(
-                    'admin:licenses_license_cover_candidates', args=[lic.number]),
+                'cover_url': (reverse('admin:licenses_license_cover_candidates', args=[lic.number]) if cover_enabled else None),
                 'video_url': video_url,
             })
     else:
@@ -583,8 +582,7 @@ def export_to_server_step2(request):
                 'store_in_ok_media_library': lic.store_in_ok_media_library,
                 'has_pdf': _license_has_pdf(lic, config),
                 'has_cover': _license_has_cover(lic.number, cover_dir),
-                'cover_url': reverse(
-                    'admin:licenses_license_cover_candidates', args=[lic.number]),
+                'cover_url': (reverse('admin:licenses_license_cover_candidates', args=[lic.number]) if cover_enabled else None),
                 'video_url': video_url,
             })
 

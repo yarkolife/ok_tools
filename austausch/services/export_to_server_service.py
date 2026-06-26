@@ -469,11 +469,18 @@ class ExportToServerService:
         # block below can upload it. Failure here must never fail the export.
         if self.config.upload_thumbnail_enabled and self.config.thumbnail_storage_path:
             try:
+                import dataclasses
                 from media_files.covers.config import get_cover_config
                 from media_files.covers.service import generate_cover
                 cover_config = get_cover_config()
                 if cover_config.enabled:
-                    generate_cover(video_file, config=cover_config)
+                    # Write into the export hand-off dir (where _find_thumbnail
+                    # looks) regardless of the configured cover output dir, and
+                    # always produce one canonical cover even for 'all' rules.
+                    handoff_config = dataclasses.replace(
+                        cover_config, output_dir=self.config.thumbnail_storage_path)
+                    generate_cover(video_file, force=True, config=handoff_config,
+                                   force_single=True)
             except Exception:
                 logger.exception('Cover generation failed for license %s', number)
 

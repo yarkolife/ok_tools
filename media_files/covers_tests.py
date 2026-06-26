@@ -297,6 +297,71 @@ class OverlayRuleTest(TestCase):
         self.assertIsNone(resolve_overlay_rule(CoverData(title='Nichts', number=1)))
 
 
+class HandoffTest(TestCase):
+    """generate_cover output location and force_single behavior (export hook)."""
+
+    def _setup(self, mode):
+        import os
+        import tempfile
+        from PIL import Image
+        from media_files.models import (
+            CoverOverlay, CoverOverlayRule, StorageLocation, VideoFile)
+
+        from django.conf import settings
+
+        out = tempfile.mkdtemp(prefix='handoff_')
+        # FileField.path must resolve inside MEDIA_ROOT, so store the overlay
+        # image there (the output dir can be anywhere).
+        overlays_dir = os.path.join(settings.MEDIA_ROOT, 'cover_overlays')
+        os.makedirs(overlays_dir, exist_ok=True)
+        ov_rel = 'cover_overlays/handoff_test.png'
+        Image.new('RGBA', (8, 8), (0, 0, 0, 0)).save(
+            os.path.join(settings.MEDIA_ROOT, ov_rel))
+        overlay = CoverOverlay.objects.create(name='A', pool='p', image=ov_rel)
+        rule = CoverOverlayRule.objects.create(
+            name='r', scope='channel', pool='p', selection_mode=mode)
+        rule.overlays.set([overlay])
+        storage = StorageLocation.objects.create(
+            name='S', storage_type='CUSTOM', path=out)
+        vf = VideoFile.objects.create(
+            number=99001, filename='v.mp4', storage_location=storage,
+            file_path='v.mp4', is_available=True)
+        return out, vf
+
+    def test_force_single_writes_canonical_even_for_all_rule(self):
+        import os
+        from unittest.mock import patch
+        from PIL import Image
+        from media_files.covers import service
+
+        out, vf = self._setup('all')
+        with patch.object(service.frames, 'extract_background',
+                          return_value=Image.new('RGB', (1280, 720), (20, 20, 20))):
+            path = service.generate_cover(
+                vf, config=_test_config(output_dir=out), force_single=True)
+
+        self.assertTrue(path.endswith('99001_cover.jpg'))
+        self.assertTrue(os.path.isfile(os.path.join(out, '99001_cover.jpg')))
+        vf.refresh_from_db()
+        self.assertEqual(vf.thumbnail, path)
+
+    def test_all_mode_without_force_single_makes_candidates_only(self):
+        import os
+        from unittest.mock import patch
+        from PIL import Image
+        from media_files.covers import service
+
+        out, vf = self._setup('all')
+        with patch.object(service.frames, 'extract_frames',
+                          return_value=[Image.new('RGB', (1280, 720), (20, 20, 20))]):
+            service.generate_cover_candidates(vf, config=_test_config(output_dir=out))
+
+        # No canonical cover; variants live under candidates/.
+        self.assertFalse(os.path.isfile(os.path.join(out, '99001_cover.jpg')))
+        self.assertTrue(os.path.isfile(
+            os.path.join(out, 'candidates', '99001', 'v1.jpg')))
+
+
 class GetCoverConfigTest(TestCase):
     """Loading CoverConfig from the MediaFilesConfig singleton."""
 

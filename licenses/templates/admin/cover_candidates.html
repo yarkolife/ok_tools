@@ -110,7 +110,13 @@
       {% endfor %}
     </div>
   {% else %}
-    <p>{% blocktrans %}Keine Kandidaten gefunden. Erzeugen Sie zuerst Cover im Modus „Alle“.{% endblocktrans %}</p>
+    <h2>{% trans "Varianten übernehmen" %}</h2>
+    <p>{% blocktrans %}Noch keine Varianten erzeugt.{% endblocktrans %}</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="kind" value="generate">
+      <button type="submit" class="button default">{% trans "Cover-Varianten erzeugen" %}</button>
+    </form>
   {% endif %}
 
   <p style="margin-top:18px;">

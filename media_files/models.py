@@ -791,13 +791,22 @@ class MediaFilesConfig(models.Model):
         help_text=_('Erzeugt automatisch Cover-Bilder (Thumbnails) aus einem '
                     'Videobild sowie Lizenz-Metadaten und Branding.')
     )
+    cover_logo = models.ImageField(
+        upload_to='cover_branding/',
+        blank=True,
+        null=True,
+        verbose_name=_('Cover-Logo'),
+        help_text=_('Logo (PNG mit Transparenz), das auf die Cover gezeichnet '
+                    'wird — hier direkt hochladen. Leer lassen, um das '
+                    'mitgelieferte Standardlogo zu verwenden.')
+    )
     cover_logo_path = models.CharField(
         max_length=500,
         blank=True,
-        verbose_name=_('Cover-Logo-Pfad'),
-        help_text=_('Absoluter Pfad zum Logo (PNG mit Transparenz), das auf die '
-                    'Cover gezeichnet wird. Leer lassen, um das mitgelieferte '
-                    'Standardlogo zu verwenden.')
+        verbose_name=_('Cover-Logo-Pfad (manuell)'),
+        help_text=_('Optionaler absoluter Server-Pfad als Alternative zum '
+                    'Upload. Wird nur verwendet, wenn oben kein Logo hochgeladen '
+                    'ist.')
     )
     cover_title_font_path = models.CharField(
         max_length=500,

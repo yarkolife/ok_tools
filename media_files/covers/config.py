@@ -137,9 +137,10 @@ def get_cover_config() -> CoverConfig:
     cfg = MediaFilesConfig.get_config()
     output_dir = _resolve_output_dir(cfg)
 
+    uploaded_logo = cfg.cover_logo.path if cfg.cover_logo else None
     return CoverConfig(
         enabled=bool(cfg.cover_enabled),
-        logo_path=_first_existing(cfg.cover_logo_path, DEFAULT_LOGO_PATH),
+        logo_path=_first_existing(uploaded_logo, cfg.cover_logo_path, DEFAULT_LOGO_PATH),
         title_font_path=_first_existing(cfg.cover_title_font_path, DEFAULT_TITLE_FONT),
         body_font_path=_first_existing(cfg.cover_body_font_path, DEFAULT_BODY_FONT),
         category_colors=dict(cfg.cover_category_colors or {}),

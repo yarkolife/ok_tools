@@ -67,13 +67,16 @@ def _build_cover_data(video_file, license_obj) -> CoverData:
     )
 
 
-def generate_cover(video_file, force=False, config=None):
+def generate_cover(video_file, force=False, config=None, force_single=False):
     """Generate a cover for a single ``VideoFile``.
 
     Args:
         video_file: The ``VideoFile`` providing the background frame.
         force: Regenerate even if a cover path is already recorded.
         config: Optional pre-loaded :class:`CoverConfig` (for batch runs).
+        force_single: Always produce one canonical cover, even when the matched
+            overlay rule is in ``all`` mode (used by automated paths such as the
+            export hook where there is no operator to choose a variant).
 
     Returns:
         The absolute path of the written cover, or ``None`` on skip/failure.
@@ -99,8 +102,9 @@ def generate_cover(video_file, force=False, config=None):
     if rule:
         pool_overlays = overlays_for_rule(rule)
         if pool_overlays:
+            mode = 'random' if force_single else rule.selection_mode
             return _generate_with_overlays(
-                video_file, data, config, background, pool_overlays, rule.selection_mode)
+                video_file, data, config, background, pool_overlays, mode)
         logger.warning('Cover: overlay rule %r has no graphics; using layout template.',
                        rule.name)
 

@@ -1553,6 +1553,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
         if request.method == 'POST':
             kind = request.POST.get('kind', 'variant')
+            if kind == 'generate':
+                return self._cover_generate_candidates(request, number, config)
             if kind == 'frame':
                 return self._cover_pick_frame(request, number, config)
             if kind == 'timecode':
@@ -1574,17 +1576,6 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             return redirect('admin:licenses_license_changelist')
 
         cdir = candidates_dir(config.output_dir, number)
-        # Generate on first visit so a direct link (e.g. from the export
-        # wizard) produces variants without a separate action.
-        if not glob.glob(os.path.join(cdir, 'v*.jpg')):
-            from media_files.covers.service import generate_cover_candidates_for_license
-            license_obj = License.objects.filter(number=number).first()
-            if license_obj:
-                try:
-                    generate_cover_candidates_for_license(license_obj, config=config)
-                except Exception:
-                    logger.exception('Cover candidate generation failed for %s', number)
-
         media_root = os.path.abspath(str(settings.MEDIA_ROOT))
 
         def media_url(path):
@@ -1669,6 +1660,27 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         self.message_user(
             request, _('Frame zu diesem Zeitpunkt konnte nicht erzeugt werden.'),
             messages.ERROR)
+        return redirect(request.path)
+
+    def _cover_generate_candidates(self, request, number, config):
+        """Generate the overlay variants on operator request (explicit POST)."""
+        from django.shortcuts import redirect
+        from media_files.covers.service import generate_cover_candidates_for_license
+
+        license_obj = License.objects.filter(number=number).first()
+        sheet = None
+        if license_obj:
+            try:
+                sheet = generate_cover_candidates_for_license(license_obj, config=config)
+            except Exception:
+                logger.exception('Cover candidate generation failed for %s', number)
+        if sheet:
+            self.message_user(request, _('Varianten erzeugt.'), messages.SUCCESS)
+        else:
+            self.message_user(
+                request,
+                _('Keine Grafik-Pool-Regel trifft zu (oder kein Video/Pool).'),
+                messages.WARNING)
         return redirect(request.path)
 
     def _cover_pick_frame(self, request, number, config):
