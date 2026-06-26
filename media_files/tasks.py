@@ -1,16 +1,16 @@
 """Celery tasks for the media_files app."""
 
-import os
-from pathlib import Path
-
 from celery import shared_task
 from django.core.management import call_command
 from django.db import transaction
 from django.utils import timezone
-import logging
-
-from media_files.models import FileOperation, VideoFile
 from licenses.models import License
+from media_files.models import FileOperation
+from media_files.models import VideoFile
+from pathlib import Path
+import logging
+import os
+
 
 logger = logging.getLogger(__name__)
 
@@ -270,9 +270,9 @@ def render_video_task(operation_id):
         new_video = operation.video_file
 
         if plain_encode:
-            from tools.rendering.presets import load_encode_preset
             from media_files.rendering.ffmpeg import render_plain_encode
             from media_files.utils import extract_video_metadata_fast
+            from tools.rendering.presets import load_encode_preset
 
             encode = load_encode_preset(encode_name)
             source_path = Path(source_video.full_path)
@@ -323,21 +323,19 @@ def render_video_task(operation_id):
             license_obj = License.objects.get(number=source_video.number)
 
         # Build overlays - import here to avoid circular imports
-        from tools.rendering.presets import (
-            load_style_preset_from_db,
-            load_style_preset,
-            load_encode_preset,
-        )
-        from media_files.rendering.templates import build_template_context
-        from media_files.rendering.ffmpeg import (
-            render_with_intro_outro,
-            render_with_overlays_on_main_edges,
-            render_preview_overlays_on_main_edges,
-            FfmpegError,
-        )
         from django.apps import apps
         from django.conf import settings as django_settings
+        from media_files.rendering.ffmpeg import FfmpegError
+        from media_files.rendering.ffmpeg import \
+            render_preview_overlays_on_main_edges
+        from media_files.rendering.ffmpeg import render_with_intro_outro
+        from media_files.rendering.ffmpeg import \
+            render_with_overlays_on_main_edges
+        from media_files.rendering.templates import build_template_context
         from media_files.utils import extract_video_metadata_fast
+        from tools.rendering.presets import load_encode_preset
+        from tools.rendering.presets import load_style_preset
+        from tools.rendering.presets import load_style_preset_from_db
 
         VideoPresetModel = None
         try:
@@ -937,10 +935,10 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
     Returns:
         Dictionary with operation result
     """
-    import subprocess
-    from pathlib import Path
     from django.contrib.auth import get_user_model
     from media_files.rendering.ffmpeg import LOUDNORM_FILTER
+    from pathlib import Path
+    import subprocess
     
     User = get_user_model()
     user = User.objects.get(id=user_id) if user_id else None
@@ -1045,6 +1043,7 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
             '-c:v', encode.vcodec,
             '-preset', encode.x264_preset,
             '-profile:v', encode.x264_profile,
+            '-level:v', '4.1',
             '-b:v', f'{encode.video_bitrate_k}k',
             '-maxrate', f'{int(encode.video_bitrate_k * 1.5)}k',
             '-bufsize', f'{encode.video_bitrate_k * 2}k',
@@ -1182,11 +1181,10 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
     Returns:
         Tuple of (success: bool, message: str)
     """
-    from media_files.models import VideoFile, FileOperation
-    from media_files.utils import (
-        copy_file_with_progress,
-        check_duplicate_before_copy,
-    )
+    from media_files.models import FileOperation
+    from media_files.models import VideoFile
+    from media_files.utils import check_duplicate_before_copy
+    from media_files.utils import copy_file_with_progress
     from pathlib import Path
     import os
     
@@ -1245,10 +1243,8 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
         # Determine if checksum verification is needed.
         # Use module config (DB-backed) with env fallbacks to keep behavior consistent
         # with admin-configurable settings.
-        from media_files.config import (
-            get_video_copy_verify_checksum,
-            get_video_copy_use_md5_for_archive,
-        )
+        from media_files.config import get_video_copy_use_md5_for_archive
+        from media_files.config import get_video_copy_verify_checksum
         verify_checksum = get_video_copy_verify_checksum()
         use_md5_for_archive = get_video_copy_use_md5_for_archive()
         
@@ -1492,12 +1488,14 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
         Dictionary with operation results
     """
     from datetime import date
-    from pathlib import Path
-    from django.utils import timezone
-    from django.contrib.auth import get_user_model
     from django.conf import settings
-    from media_files.models import StorageLocation, VideoFile, FileOperation
+    from django.contrib.auth import get_user_model
+    from django.utils import timezone
+    from media_files.models import FileOperation
+    from media_files.models import StorageLocation
+    from media_files.models import VideoFile
     from media_files.utils import select_best_source_video
+    from pathlib import Path
     
     User = get_user_model()
     user = User.objects.get(id=user_id) if user_id else None
@@ -1505,12 +1503,10 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
     logger.info(f"[AUTO-COPY] Starting auto-copy for plan date {plan_date}, {len(video_numbers)} videos")
     
     # Get storage locations
-    from media_files.config import (
-        get_video_auto_copy_to_archive,
-        get_video_auto_copy_to_playout,
-        get_video_default_playout_storage_name,
-        get_video_default_playout_storage_path,
-    )
+    from media_files.config import get_video_auto_copy_to_archive
+    from media_files.config import get_video_auto_copy_to_playout
+    from media_files.config import get_video_default_playout_storage_name
+    from media_files.config import get_video_default_playout_storage_path
     
     archive_storage = None
     if get_video_auto_copy_to_archive():

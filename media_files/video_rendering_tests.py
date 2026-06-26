@@ -1,12 +1,14 @@
 """Tests for video rendering presets and helpers."""
 
-import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import override_settings
-
-from tools.rendering.presets import load_encode_preset, load_style_preset
-from media_files.rendering.templates import build_template_context, render_text_template
+from media_files.rendering.ffmpeg import _encode_args
+from media_files.rendering.templates import build_template_context
+from media_files.rendering.templates import render_text_template
+from tools.rendering.presets import load_encode_preset
+from tools.rendering.presets import load_style_preset
+import pytest
 
 
 @pytest.mark.django_db
@@ -33,6 +35,14 @@ def test_load_presets_smoke():
     style2 = load_style_preset("overlay_only_center_left_v1")
     assert style2.intro_clip is None
     assert style2.outro_clip is None
+
+
+def test_encode_args_force_h264_level_4_1():
+    encode = load_encode_preset("1080p25_9000k")
+
+    args = _encode_args(encode)
+
+    assert args[args.index("-level:v") + 1] == "4.1"
 
 
 @pytest.mark.django_db

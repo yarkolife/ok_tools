@@ -1,33 +1,34 @@
 """Celery tasks for licenses module."""
 
-from datetime import date
-from datetime import datetime
-import logging
-from pathlib import Path
-
-from celery import shared_task
-from django.conf import settings
-from django.db import transaction
-from django.db.models import Q
-from django.urls import reverse
-from django.utils import translation
-from django.utils import timezone
-
-from registration.email import send_mail
-
-from .models import LicensesConfig, License, NextcloudVideoFile, LicenseNotificationEvent, LicenseNotificationEventType
+from .models import License
+from .models import LicenseNotificationEvent
+from .models import LicenseNotificationEventType
+from .models import LicensesConfig
+from .models import NextcloudVideoFile
 from .services.nextcloud_service import NextcloudService
 from .services.peertube_service import compute_lookup_eta
 from .services.peertube_service import compute_publish_time_for_license
 from .services.peertube_service import find_video_by_number_in_channel
 from .services.peertube_service import peertube_watch_url
 from .services.peertube_service import resolve_peertube_endpoint
+from celery import shared_task
+from datetime import date
+from datetime import datetime
+from django.conf import settings
+from django.db import transaction
+from django.db.models import Q
+from django.urls import reverse
+from django.utils import timezone
+from django.utils import translation
+from pathlib import Path
+from registration.email import send_mail
+import logging
 
 
 logger = logging.getLogger('django')
 
 
-@shared_task(name='licenses.tasks.download_nextcloud_video_file_to_storage', bind=True, max_retries=3)
+@shared_task(name='licenses.tasks.download_nextcloud_video_file_to_storage', queue='download', bind=True, max_retries=3)
 def download_nextcloud_video_file_to_storage(self, nextcloud_video_file_id: int, download_dir: str | None = None) -> str:
     """
     Download a Nextcloud video to local storage.
@@ -107,7 +108,8 @@ def _create_videofile_after_download(
     if not license_number:
         return
 
-    from media_files.models import StorageLocation, VideoFile
+    from media_files.models import StorageLocation
+    from media_files.models import VideoFile
 
     resolved = Path(local_path).resolve()
     if not resolved.exists():

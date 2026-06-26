@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.24.0
-**Last Updated**: 21 June 2026
+**Current Version**: 4.25.0
+**Last Updated**: 26 June 2026
 
 Features
 ========
@@ -384,6 +384,8 @@ See the ``deployment/configs/`` directory for ready-to-use environment file temp
 - Celery and Celery Beat (for background task processing)
 
 All dependencies are automatically installed in Docker containers during deployment. The application uses Python 3.12+ and Django 5.2.7 inside the container.
+
+Production deployments run separate Celery workers for general tasks, video/audio rendering, and Nextcloud downloads. The download worker listens on the ``download`` queue with concurrency ``1`` by default, so long file transfers do not block quick background jobs.
 
 Tests
 =====

@@ -1,17 +1,22 @@
 from __future__ import annotations
-
-import subprocess
-from unittest.mock import patch
-
 from django.test import SimpleTestCase
-
 from tools.services.video_generator import VideoGenerator
 from tools.services.video_generator import VideoGeneratorError
+from unittest.mock import patch
+import subprocess
 
 
 class VideoGeneratorValidationTest(SimpleTestCase):
     def setUp(self):
         self.generator = VideoGenerator.__new__(VideoGenerator)
+
+    def test_video_encoder_args_force_h264_level_4_1(self):
+        self.generator.video_bitrate = "5000k"
+        self.generator.gop = 50
+
+        args = self.generator.video_encoder_args("libx264")
+
+        self.assertEqual(args[args.index("-level:v") + 1], "4.1")
 
     @patch.object(VideoGenerator, "_resolve_binary_path", return_value="/usr/bin/ffmpeg")
     @patch("tools.services.video_generator.subprocess.run")

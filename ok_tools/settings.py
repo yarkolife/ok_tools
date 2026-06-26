@@ -783,6 +783,20 @@ else:
 # Celery Configuration Options
 CELERY_TIMEZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_ROUTES = {
+    # Network downloads are intentionally isolated so one or more long Nextcloud
+    # transfers cannot occupy the general-purpose worker pool.
+    'austausch.tasks.download_exchange_files': {'queue': 'download'},
+    'licenses.tasks.download_nextcloud_video_file_to_storage': {'queue': 'download'},
+    # CPU/FFmpeg-heavy tasks stay on the render worker pool.
+    'media_files.tasks.render_video_task': {'queue': 'render'},
+    'tools.tasks.analyze_audio_normalize_job': {'queue': 'render'},
+    'tools.tasks.cleanup_old_audio_normalize_jobs_task': {'queue': 'render'},
+    'tools.tasks.cleanup_old_projects_task': {'queue': 'render'},
+    'tools.tasks.cleanup_old_video_render_operations_task': {'queue': 'render'},
+    'tools.tasks.generate_slideshow': {'queue': 'render'},
+    'tools.tasks.normalize_audio': {'queue': 'render'},
+}
 # Allow overriding time limits via environment variables
 CELERY_TASK_TIME_LIMIT = get_env('CELERY_TASK_TIME_LIMIT', default=30 * 60, cast=int)  # 30 minutes default
 CELERY_TASK_SOFT_TIME_LIMIT = get_env('CELERY_TASK_SOFT_TIME_LIMIT', default=25 * 60, cast=int)  # 25 minutes default

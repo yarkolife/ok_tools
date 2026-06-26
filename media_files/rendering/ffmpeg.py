@@ -1,7 +1,18 @@
 """ffmpeg rendering pipeline: intro/main/outro + concat."""
 
 from __future__ import annotations
-
+from .presets import EncodePreset
+from .presets import OverlayLayer
+from .presets import resolve_preset_asset_path
+from .templates import TemplateContext
+from .templates import render_text_template
+from dataclasses import dataclass
+from django.utils.translation import gettext as _
+from media_files.utils import extract_video_metadata
+from pathlib import Path
+from typing import List
+from typing import Optional
+from typing import Tuple
 import logging
 import math
 import os
@@ -9,16 +20,7 @@ import shlex
 import subprocess
 import tempfile
 import time
-from dataclasses import dataclass
-from pathlib import Path
-from typing import List, Optional, Tuple
 
-from django.utils.translation import gettext as _
-
-from media_files.utils import extract_video_metadata
-
-from .presets import EncodePreset, OverlayLayer, resolve_preset_asset_path
-from .templates import TemplateContext, render_text_template
 
 logger = logging.getLogger(__name__)
 
@@ -656,7 +658,10 @@ def _segment_filter_complex(
             Using an image overlay avoids FFmpeg drawtext last-glyph clipping.
             Returns (width, height) of the generated PNG.
             """
-            from PIL import Image, ImageColor, ImageDraw, ImageFont
+            from PIL import Image
+            from PIL import ImageColor
+            from PIL import ImageDraw
+            from PIL import ImageFont
 
             # Parse color like "white" or "white@0.8" or "#RRGGBB"
             color_spec = (font_color or "white").split("@", 1)[0].strip()
@@ -738,6 +743,7 @@ def _segment_filter_complex(
         )
         
         import re
+
         # Clean and split into lines.
         # IMPORTANT: Do not aggressively strip "unknown" characters here, as it can
         # delete valid letters at line ends. We only remove control / zero-width chars.
@@ -1196,6 +1202,8 @@ def _encode_args(p: EncodePreset) -> List[str]:
         p.x264_preset,
         "-profile:v",
         p.x264_profile,
+        "-level:v",
+        "4.1",
         "-pix_fmt",
         p.pix_fmt,
         "-b:v",

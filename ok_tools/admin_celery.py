@@ -121,6 +121,67 @@ def _get_task_display_name(task_name):
     return TASK_DISPLAY_NAMES.get(task_name, task_name.rsplit('.', 1)[-1].replace('_', ' ').title())
 
 
+def _replace_list_filter(list_filter, field_name, replacement):
+    """Replace a model field list filter with a custom filter class."""
+    filters = []
+    replaced = False
+    for item in list_filter:
+        item_field_name = item[0] if isinstance(item, tuple) else item
+        if item_field_name == field_name:
+            if not replaced:
+                filters.append(replacement)
+                replaced = True
+            continue
+        filters.append(item)
+    if not replaced:
+        filters.append(replacement)
+    return tuple(filters)
+
+
+class ReadableTaskNameFilter(admin.SimpleListFilter):
+    """TaskResult task filter using user-facing task names."""
+
+    title = _('Task')
+    parameter_name = 'task_name__exact'
+
+    def lookups(self, request, model_admin):
+        task_names = (
+            model_admin.get_queryset(request)
+            .exclude(task_name='')
+            .values_list('task_name', flat=True)
+            .distinct()
+        )
+        choices = ((task_name, _get_task_display_name(task_name)) for task_name in task_names if task_name)
+        return sorted(choices, key=lambda choice: str(choice[1]).casefold())
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(task_name=self.value())
+        return queryset
+
+
+class ReadablePeriodicTaskFilter(admin.SimpleListFilter):
+    """PeriodicTask task filter using user-facing task names."""
+
+    title = _('Task')
+    parameter_name = 'task__exact'
+
+    def lookups(self, request, model_admin):
+        task_names = (
+            model_admin.get_queryset(request)
+            .exclude(task='')
+            .values_list('task', flat=True)
+            .distinct()
+        )
+        choices = ((task_name, _get_task_display_name(task_name)) for task_name in task_names if task_name)
+        return sorted(choices, key=lambda choice: str(choice[1]).casefold())
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(task=self.value())
+        return queryset
+
+
 def _loads_json(value):
     if not value:
         return None
@@ -420,6 +481,9 @@ class PeriodicTaskAdmin(BasePeriodicTaskAdmin):
     # Get base readonly_fields and extend it
     base_readonly_fields = getattr(BasePeriodicTaskAdmin, 'readonly_fields', ())
     readonly_fields = tuple(base_readonly_fields) + ('last_run_info', 'task_results_link')
+
+    base_list_filter = getattr(BasePeriodicTaskAdmin, 'list_filter', ())
+    list_filter = _replace_list_filter(base_list_filter, 'task', ReadablePeriodicTaskFilter)
     
     def last_run_info(self, obj):
         """Display last run information."""
@@ -582,7 +646,11 @@ try:
         """Custom admin for TaskResult with better filtering and display."""
         
         base_list_filter = getattr(BaseTaskResultAdmin, 'list_filter', ())
-        list_filter = tuple(base_list_filter) + ('task_name', 'status', 'date_created')
+        list_filter = _replace_list_filter(
+            tuple(base_list_filter) + ('task_name', 'status', 'date_created'),
+            'task_name',
+            ReadableTaskNameFilter,
+        )
         
         base_search_fields = getattr(BaseTaskResultAdmin, 'search_fields', ())
         search_fields = list(base_search_fields) + ['task_name']

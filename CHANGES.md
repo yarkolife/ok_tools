@@ -1,9 +1,17 @@
 CHANGELOG
 =========
 
-2026-06-26 (Version 4.24.0)
+2026-06-26 (Version 4.25.0)
 ==========================
 
+* **celery: Isolate long Nextcloud downloads**
+  * Added a dedicated `download` queue and production `celery_download_worker` with concurrency `1` by default
+  * Routed Austausch exchange-file downloads and license Nextcloud video downloads to the `download` queue so long transfers no longer occupy the general-purpose worker pool
+  * Updated deployment override generation so NAS/custom mounts are also applied to the download worker
+* **admin: Make Celery task filters readable**
+  * TaskResult and PeriodicTask admin filters now use the same human-readable task labels as the task-name columns while preserving the original query parameters
+* **media_files,tools: Force H.264 Level 4.1**
+  * FFmpeg render, slideshow generation, and HEVC-to-H.264 transcode commands now pass `-level:v 4.1` explicitly to avoid encoder auto-selection of higher H.264 levels
 * **tools: Add Reel Studio integration (external OKMQ reel renderer)**
   * New tool at `/tools/reel-studio/` to generate AI hooks and render short vertical reels via the external renderer (`/api/hook`, `/api/cta`, `/api/reel`); all calls run async through Celery tasks with `AsyncResult` polling (no gunicorn-blocking sync calls)
   * New client `tools/services/okmq_reel.py` reads config from `ToolsConfig` and encapsulates the `hook_type` (snake) → `hookType` (camel) mapping

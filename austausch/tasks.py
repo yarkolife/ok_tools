@@ -1,20 +1,22 @@
 """Celery tasks for Austausch module."""
 
-from celery import shared_task
-from django.utils import timezone
-from django.contrib.auth import get_user_model
-from django.conf import settings
-from datetime import timedelta
-import os
-import logging
-
-from .models import ExchangeItem, ExchangeConfig, ExchangeImport
-from .services.nextcloud_exchange_service import NextcloudExchangeService
-from .services.import_service import ImportService
+from .models import ExchangeConfig
+from .models import ExchangeImport
+from .models import ExchangeItem
 from .services.export_to_server_service import ExportToServerService
+from .services.import_service import ImportService
+from .services.nextcloud_exchange_service import NextcloudExchangeService
+from celery import shared_task
+from datetime import timedelta
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 from licenses.models import License
 from licenses.services.peertube_service import compute_lookup_eta
 from licenses.services.peertube_service import compute_publish_time_for_license
+import logging
+import os
+
 
 logger = logging.getLogger('django')
 
@@ -312,7 +314,7 @@ def sync_exchange_folders_task(self):
     return result
 
 
-@shared_task(name='austausch.tasks.download_exchange_files', bind=True, max_retries=3)
+@shared_task(name='austausch.tasks.download_exchange_files', queue='download', bind=True, max_retries=3)
 def download_exchange_files_task(self, import_record_id):
     """
     Download files from Nextcloud after license creation.

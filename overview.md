@@ -572,6 +572,9 @@ python manage.py runserver
 # Terminal 2: Celery worker
 celery -A ok_tools worker -l info
 
+# Optional: isolate long downloads from quick tasks
+celery -A ok_tools worker -l info -Q download --concurrency=1
+
 # Terminal 3: Celery beat (for scheduled tasks)
 celery -A ok_tools beat -l info
 ```

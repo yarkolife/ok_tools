@@ -1,18 +1,18 @@
 """Video generator service for slideshow creation."""
 
+from django.conf import settings
+from pathlib import Path
+from tools.models import SlideshowProject
+from tools.models import ToolsConfig
+from tools.utils import resolve_tools_file_path
+from typing import Callable
+from typing import List
+from typing import Optional
 import logging
 import os
 import random
 import shutil
 import subprocess
-from pathlib import Path
-from typing import Callable
-from typing import List
-from typing import Optional
-
-from django.conf import settings
-from tools.models import SlideshowProject, ToolsConfig
-from tools.utils import resolve_tools_file_path
 
 
 logger = logging.getLogger("django")

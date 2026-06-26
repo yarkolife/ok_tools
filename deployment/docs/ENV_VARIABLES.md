@@ -751,6 +751,14 @@ This document provides comprehensive reference for all environment variables use
 - **Example:** `CELERY_RESULT_BACKEND=redis://redis:6379/0`
 - **Notes:** Use `redis:6379/0` when using Docker Compose
 
+### CELERY_DOWNLOAD_WORKER_CONCURRENCY
+- **Description:** Number of parallel processes for the dedicated `download` queue worker
+- **Type:** Integer
+- **Required:** No
+- **Default:** `1`
+- **Example:** `CELERY_DOWNLOAD_WORKER_CONCURRENCY=1`
+- **Notes:** Keep this at `1` to prevent multiple long Nextcloud downloads from occupying general-purpose Celery workers.
+
 ### OKTOOLS_RENDER_TIMEOUT_SECONDS
 - **Description:** Base timeout for FFmpeg render subprocesses (seconds)
 - **Type:** Integer
