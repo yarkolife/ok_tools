@@ -3596,21 +3596,30 @@ def cover_generation_enabled():
 class CoverFeatureGateMixin:
     """Hide/disable a cover-related admin unless cover generation is enabled."""
 
+    @staticmethod
+    def _enabled(request):
+        """Cache the feature flag on the request (several hooks call it)."""
+        cached = getattr(request, '_cover_feature_enabled', None)
+        if cached is None:
+            cached = cover_generation_enabled()
+            request._cover_feature_enabled = cached
+        return cached
+
     def has_module_permission(self, request):
         """Hide from the admin index when the feature is off."""
-        return cover_generation_enabled() and super().has_module_permission(request)
+        return self._enabled(request) and super().has_module_permission(request)
 
     def has_view_permission(self, request, obj=None):
-        return cover_generation_enabled() and super().has_view_permission(request, obj)
+        return self._enabled(request) and super().has_view_permission(request, obj)
 
     def has_add_permission(self, request):
-        return cover_generation_enabled() and super().has_add_permission(request)
+        return self._enabled(request) and super().has_add_permission(request)
 
     def has_change_permission(self, request, obj=None):
-        return cover_generation_enabled() and super().has_change_permission(request, obj)
+        return self._enabled(request) and super().has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        return cover_generation_enabled() and super().has_delete_permission(request, obj)
+        return self._enabled(request) and super().has_delete_permission(request, obj)
 
 
 @admin.register(CoverTemplate)
