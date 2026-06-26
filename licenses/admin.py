@@ -1185,6 +1185,23 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'pick_cover_variant_action',
     ]
 
+    @staticmethod
+    def _cover_enabled():
+        """True if cover generation is enabled in MediaFilesConfig."""
+        try:
+            from media_files.models import MediaFilesConfig
+            return MediaFilesConfig.get_config().cover_enabled
+        except Exception:
+            return False
+
+    def get_actions(self, request):
+        """Hide cover actions when cover generation is disabled."""
+        actions = super().get_actions(request)
+        if not self._cover_enabled():
+            actions.pop('generate_cover_action', None)
+            actions.pop('pick_cover_variant_action', None)
+        return actions
+
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
         'created_at',
@@ -1465,6 +1482,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         from media_files.covers import frames as frames_mod
         from media_files.covers.config import get_cover_config
 
+        if not self._cover_enabled():
+            raise Http404
         try:
             seconds = float(request.GET.get('t', 0))
         except (TypeError, ValueError):
@@ -1521,6 +1540,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             candidates_dir, frames_dir, load_manifest, promote_variant)
         from media_files.models import VideoFile
 
+        if not self._cover_enabled():
+            self.message_user(
+                request, _('Cover-Generierung ist deaktiviert.'), messages.WARNING)
+            return redirect('admin:licenses_license_changelist')
+
         config = get_cover_config()
         if not config.output_dir:
             self.message_user(
@@ -1550,6 +1574,17 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             return redirect('admin:licenses_license_changelist')
 
         cdir = candidates_dir(config.output_dir, number)
+        # Generate on first visit so a direct link (e.g. from the export
+        # wizard) produces variants without a separate action.
+        if not glob.glob(os.path.join(cdir, 'v*.jpg')):
+            from media_files.covers.service import generate_cover_candidates_for_license
+            license_obj = License.objects.filter(number=number).first()
+            if license_obj:
+                try:
+                    generate_cover_candidates_for_license(license_obj, config=config)
+                except Exception:
+                    logger.exception('Cover candidate generation failed for %s', number)
+
         media_root = os.path.abspath(str(settings.MEDIA_ROOT))
 
         def media_url(path):

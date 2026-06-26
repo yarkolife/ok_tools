@@ -3585,8 +3585,36 @@ class MediaFilesConfigAdmin(admin.ModelAdmin):
         return False
 
 
+def cover_generation_enabled():
+    """Return True if cover generation is switched on in MediaFilesConfig."""
+    try:
+        return MediaFilesConfig.get_config().cover_enabled
+    except Exception:
+        return False
+
+
+class CoverFeatureGateMixin:
+    """Hide/disable a cover-related admin unless cover generation is enabled."""
+
+    def has_module_permission(self, request):
+        """Hide from the admin index when the feature is off."""
+        return cover_generation_enabled() and super().has_module_permission(request)
+
+    def has_view_permission(self, request, obj=None):
+        return cover_generation_enabled() and super().has_view_permission(request, obj)
+
+    def has_add_permission(self, request):
+        return cover_generation_enabled() and super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        return cover_generation_enabled() and super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return cover_generation_enabled() and super().has_delete_permission(request, obj)
+
+
 @admin.register(CoverTemplate)
-class CoverTemplateAdmin(admin.ModelAdmin):
+class CoverTemplateAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
     """Admin interface for editor-configurable cover template rules."""
 
     list_display = ['priority', 'name', 'scope', 'match_pattern', 'template', 'is_active']
@@ -3634,7 +3662,7 @@ class CoverOverlayForm(forms.ModelForm):
 
 
 @admin.register(CoverOverlay)
-class CoverOverlayAdmin(admin.ModelAdmin):
+class CoverOverlayAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
     """Admin for uploadable graphic overlays (PNG/SVG) grouped into pools."""
 
     form = CoverOverlayForm
@@ -3658,7 +3686,7 @@ class CoverOverlayAdmin(admin.ModelAdmin):
 
 
 @admin.register(CoverOverlayRule)
-class CoverOverlayRuleAdmin(admin.ModelAdmin):
+class CoverOverlayRuleAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
     """Admin for pattern -> overlay-pool rules."""
 
     list_display = ['priority', 'name', 'scope', 'match_pattern', 'pool', 'selection_mode', 'is_active']

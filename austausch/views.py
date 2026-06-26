@@ -181,6 +181,26 @@ def _license_has_pdf(license_obj, config):
     return _find_pdf_in_paths(license_obj.number, paths) is not None
 
 
+def _cover_settings():
+    """Return (enabled, output_dir) for cover generation; ('', '') if off."""
+    try:
+        from media_files.models import MediaFilesConfig
+        if not MediaFilesConfig.get_config().cover_enabled:
+            return False, ''
+        from media_files.covers.config import get_cover_config
+        return True, get_cover_config().output_dir
+    except Exception:
+        return False, ''
+
+
+def _license_has_cover(number, cover_output_dir):
+    """Return True if a canonical cover file exists for this license number."""
+    if not cover_output_dir:
+        return False
+    import os
+    return os.path.isfile(os.path.join(cover_output_dir, f'{number}_cover.jpg'))
+
+
 def _format_duration(td):
     """Format timedelta as H:MM:SS or M:SS."""
     if td is None:
@@ -495,6 +515,7 @@ def export_to_server_step2(request):
     from contributions.models import ContributionManager
 
     config = ExchangeConfig.get_config()
+    cover_enabled, cover_dir = _cover_settings()
     already_exported = _get_already_exported_license_numbers()
     items = []
     if mode == 'contributions':
@@ -534,6 +555,9 @@ def export_to_server_step2(request):
                 'exchange_outside_saxony_anhalt': lic.media_authority_exchange_allowed_other_states,
                 'store_in_ok_media_library': lic.store_in_ok_media_library,
                 'has_pdf': _license_has_pdf(lic, config),
+                'has_cover': _license_has_cover(lic.number, cover_dir),
+                'cover_url': reverse(
+                    'admin:licenses_license_cover_candidates', args=[lic.number]),
                 'video_url': video_url,
             })
     else:
@@ -558,6 +582,9 @@ def export_to_server_step2(request):
                 'exchange_outside_saxony_anhalt': lic.media_authority_exchange_allowed_other_states,
                 'store_in_ok_media_library': lic.store_in_ok_media_library,
                 'has_pdf': _license_has_pdf(lic, config),
+                'has_cover': _license_has_cover(lic.number, cover_dir),
+                'cover_url': reverse(
+                    'admin:licenses_license_cover_candidates', args=[lic.number]),
                 'video_url': video_url,
             })
 
@@ -574,6 +601,7 @@ def export_to_server_step2(request):
         'mode': mode,
         'items': items,
         'all_ids': ids,
+        'cover_enabled': cover_enabled,
     })
 
 

@@ -194,6 +194,7 @@
                   <th class="short-header" title="{% translate 'Exchange between Open Channels/Citizen Media outside Saxony-Anhalt allowed' %}">{% translate "Exchange Other" %}</th>
                   <th class="short-header" title="{% translate 'Store in OK media library' %}">{% translate "OK Lib" %}</th>
                   <th class="short-header" title="{% translate 'Has PDF' %}">{% translate "PDF" %}</th>
+                  {% if cover_enabled %}<th class="short-header" title="{% translate 'Cover image (optional)' %}">{% translate "Cover" %}</th>{% endif %}
                   <th>{% translate "Video" %}</th>
                 </tr>
               </thead>
@@ -210,10 +211,11 @@
                   <td>{% if item.exchange_outside_saxony_anhalt %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
                   <td>{% if item.store_in_ok_media_library %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
                   <td>{% if item.has_pdf %}<span class="bool-icon bool-true" title="{% translate 'Yes' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %}</td>
+                  {% if cover_enabled %}<td>{% if item.has_cover %}<span class="bool-icon bool-true" title="{% translate 'Cover present' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>{% else %}<span class="bool-icon bool-false" title="{% translate 'No cover yet (optional)' %}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>{% endif %} <a href="{{ item.cover_url }}" target="_blank" rel="noopener" class="export-link">{% translate "Erzeugen / wählen" %}</a></td>{% endif %}
                   <td>{% if item.video_url %}<a href="{{ item.video_url }}" target="_blank" rel="noopener" class="export-link">{% translate "Video" %}</a>{% else %}—{% endif %}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="11">{% translate "No items." %}</td></tr>
+                <tr><td colspan="{% if cover_enabled %}12{% else %}11{% endif %}">{% translate "No items." %}</td></tr>
                 {% endfor %}
               </tbody>
             </table>

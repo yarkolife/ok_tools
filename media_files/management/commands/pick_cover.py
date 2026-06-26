@@ -27,6 +27,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Execute the command."""
         config = get_cover_config()
+        if not config.enabled:
+            self.stderr.write(self.style.ERROR(
+                'Cover generation is disabled (cover_enabled).'))
+            return
         if not config.output_dir:
             self.stderr.write(self.style.ERROR('No cover output directory configured.'))
             return
