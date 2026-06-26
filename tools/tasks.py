@@ -635,3 +635,25 @@ def normalize_audio_task(self, job_id):
     except Exception as e:
         logger.error("Unexpected error in audio normalize for job %s: %s", job_id, e, exc_info=True)
         raise self.retry(exc=e, countdown=30)
+
+
+# ---- Reel Studio (external OKMQ reel renderer) ----------------------------
+@shared_task(name='tools.tasks.okmq_generate_hooks', bind=True)
+def okmq_generate_hooks_task(self, *, title, hook_type, description=None,
+                             category=None, location=None, date=None, n=5):
+    """Generate hook candidates (result lands in the Celery result backend)."""
+    from .services import okmq_reel
+    return okmq_reel.generate_hooks(
+        title, hook_type=hook_type, description=description, category=category,
+        location=location, date=date, n=n,
+    )
+
+
+@shared_task(name='tools.tasks.okmq_render_reel', bind=True)
+def okmq_render_reel_task(self, *, payload):
+    """Render a reel (start + poll) and return the final status dict.
+
+    On render error/timeout the client raises -> task = FAILURE.
+    """
+    from .services import okmq_reel
+    return okmq_reel.render_reel_blocking(**payload)

@@ -1,0 +1,263 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load i18n %}
+
+{% comment %}
+OKMQ Reel Studio -- operator form. Talks to the tools API views:
+  POST tools:api_reel_hooks  -> task_id (hook candidates)
+  GET  tools:api_reel_cta    -> CTA options
+  POST tools:api_reel_render -> task_id (reel render)
+  GET  tools:api_reel_task   -> polling
+Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
+{% endcomment %}
+
+{% block title %}{% trans 'Reel Studio' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'tools:index' %}">{% trans 'Tools' %}</a>
+    &rsaquo; {% trans 'Reel Studio' %}
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  :root { --rs-teal:#064d61; --rs-teal2:#0a6178; }
+  .rs-wrap { max-width: 880px; padding: 16px; }
+  .rs-wrap fieldset.module { border:1px solid #cdd8dc; border-radius:10px; margin:0 0 18px; padding:16px 18px; }
+  .rs-wrap legend { color: var(--rs-teal); font-weight:700; padding:0 6px; font-size:15px; }
+  .rs-wrap label { display:block; font-weight:600; margin:10px 0 4px; font-size:13px; }
+  .rs-wrap input, .rs-wrap select, .rs-wrap textarea {
+      width:100%; padding:9px 11px; border:1px solid #b9c6cc; border-radius:8px; font-size:14px; box-sizing:border-box; }
+  .rs-wrap select {
+      height:auto; min-height:42px; line-height:1.4; padding-right:32px;
+      background-color:#fff; }
+  .rs-wrap select option { padding:6px 4px; font-size:14px; line-height:1.6; }
+  .rs-row { display:flex; gap:14px; flex-wrap:wrap; } .rs-row > div { flex:1; min-width:180px; }
+  .rs-wrap button { background:var(--rs-teal); color:#fff; border:0; border-radius:8px; padding:11px 18px; font-weight:700; cursor:pointer; }
+  .rs-wrap button:disabled { opacity:.5; cursor:default; }
+  .rs-wrap button.sec { background:#fff; color:var(--rs-teal); border:2px solid var(--rs-teal); }
+  .rs-cand { border:1px solid #cdd8dc; border-radius:8px; padding:10px 12px; margin:8px 0; cursor:pointer; display:flex; gap:10px; align-items:flex-start; }
+  .rs-cand.sel { border-color:var(--rs-teal); background:#eef6f8; }
+  .rs-cand b { display:block; } .rs-cand small { color:#5a6b71; }
+  .rs-status { padding:10px 12px; border-radius:8px; background:#eef6f8; margin-top:10px; font-size:14px; }
+  .rs-status.err { background:#fdecec; color:#9b2222; }
+  .rs-status.ok { background:#e9f7ee; color:#1c6b38; }
+  .rs-muted { color:#5a6b71; font-size:13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rs-wrap">
+<h1>{% trans 'Reel Studio' %}</h1>
+{% csrf_token %}
+
+<fieldset class="module">
+  <legend>1 · {% trans 'Contribution' %}</legend>
+  <label>{% trans 'Video (path from share root or URL)' %} *</label>
+  <input id="video" value="{{ prefill.video }}" placeholder="playout/000_Sendungen/2026_KW_24/18587_Beitrag.mp4">
+
+  {% if stream_url and browser_compatible %}
+  <div class="rs-player">
+    <video id="rs-video" src="{{ stream_url }}" controls preload="metadata"
+           style="max-width:640px;width:100%;border:1px solid #ccc;border-radius:6px;background:#000;margin-top:10px;"></video>
+    <div style="margin-top:8px;">
+      {% trans 'Current position' %}: <strong id="rs-tc-label">0:00</strong>{% if video_duration %} / {{ video_duration }} s{% endif %}
+      <button type="button" id="rs-use-time" class="sec" style="margin-left:12px;padding:6px 12px;">
+        {% trans 'Use this second as start' %}</button>
+    </div>
+  </div>
+  {% elif stream_url %}
+  <p class="rs-muted" style="margin-top:8px;">
+    {% trans 'Preview not available (codec not browser-compatible). Enter the start second manually.' %}</p>
+  {% endif %}
+
+  <div class="rs-row">
+    <div><label>{% trans 'Author' %}</label><input id="autor" value="{{ prefill.autor }}" placeholder="Klaus Treuter"></div>
+    <div><label>{% trans 'Output filename' %} *</label><input id="output_name" value="{{ prefill.output_name }}" placeholder="18590_Reel_260629"></div>
+  </div>
+  <div class="rs-row">
+    <div><label>{% trans 'TV day' %}</label><input id="se_tag" value="{{ prefill.se_tag }}" placeholder="Montag"></div>
+    <div><label>{% trans 'TV time' %}</label><input id="se_uhr" value="{{ prefill.se_uhr }}" placeholder="18:00"></div>
+  </div>
+  <div class="rs-row">
+    <div>
+      <label>{% trans 'Start mode' %}</label>
+      <select id="startmode">
+        <option value="auto">{% trans 'Auto (middle of video)' %}</option>
+        <option value="manual">{% trans 'Manual (second)' %}</option>
+        <option value="zero">{% trans 'From start' %}</option>
+      </select>
+    </div>
+    <div><label>{% trans 'Video duration (s) – for Auto' %}</label><input id="dauer" type="number" value="{{ prefill.dauer }}" placeholder="620"></div>
+    <div><label>{% trans 'Start second – for Manual' %}</label><input id="startsec" type="number" placeholder="312"></div>
+  </div>
+</fieldset>
+
+<fieldset class="module">
+  <legend>2 · {% trans 'Hook (AI)' %}</legend>
+  <div class="rs-row">
+    <div><label>{% trans 'Title' %} *</label><input id="title" value="{{ prefill.title }}" placeholder="Festumzug Merseburg 2026"></div>
+    <div><label>{% trans 'Location' %}</label><input id="location" value="{{ prefill.location }}" placeholder="Merseburg"></div>
+  </div>
+  <label>{% trans 'Description' %}</label>
+  <textarea id="description" rows="2" placeholder="Der Festumzug zum Schlossfest …">{{ prefill.description }}</textarea>
+  <div class="rs-row">
+    <div>
+      <label>{% trans 'Hook type (= scenario)' %} *</label>
+      <select id="hook_type">
+        <option value="frage">Frage</option>
+        <option value="intrige">Intrige</option>
+        <option value="kontrast">Kontrast</option>
+        <option value="naehe">Lokale Nähe</option>
+        <option value="emotion">Emotion</option>
+      </select>
+    </div>
+    <div><label>{% trans 'Number of variants' %}</label><input id="n" type="number" value="5" min="1" max="8"></div>
+  </div>
+  <p><button id="btnHooks" class="sec" type="button">{% trans 'Generate hooks' %}</button>
+     <span class="rs-muted">({% trans 'takes ~30–60 s' %})</span></p>
+  <div id="hookStatus"></div>
+  <div id="cands"></div>
+</fieldset>
+
+<fieldset class="module">
+  <legend>3 · {% trans 'Closing CTA' %}</legend>
+  <label>{% trans 'CTA text' %}</label>
+  <select id="cta"><option value="">{% trans 'Automatic (matching hook type)' %}</option></select>
+  <label style="margin-top:12px;"><input type="checkbox" id="med_on" style="width:auto" checked>
+    {% trans 'Show mediathek badge' %}</label>
+</fieldset>
+
+<p><button id="btnRender" type="button" disabled>{% trans 'Render reel' %}</button></p>
+<div id="renderStatus"></div>
+</div>
+
+<script>
+const RS = {
+  hooks:  "{% url 'tools:api_reel_hooks' %}",
+  cta:    "{% url 'tools:api_reel_cta' %}",
+  render: "{% url 'tools:api_reel_render' %}",
+  task:   (id) => "{% url 'tools:api_reel_task' 'TASK_ID' %}".replace('TASK_ID', id),
+  medZ1:  "{{ reel_mediathek_zeile1|default:''|escapejs }}",
+  medZ2:  "{{ reel_mediathek_zeile2|default:''|escapejs }}",
+};
+const $ = id => document.getElementById(id);
+const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
+let selectedHook = null;
+
+// Inline video player: track current time, let the operator capture it as the start second.
+(function(){
+  const video = $('rs-video');
+  if(!video) return;
+  const label = $('rs-tc-label');
+  const btn = $('rs-use-time');
+  const fmt = t => { t=Math.floor(t||0); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); };
+  video.addEventListener('timeupdate', () => { if(label) label.textContent = fmt(video.currentTime); });
+  if(btn) btn.addEventListener('click', () => {
+    const sec = Math.max(0, video.currentTime || 0);
+    $('startsec').value = sec.toFixed(2);
+    $('startmode').value = 'manual';
+    if(label) label.textContent = fmt(sec);
+  });
+})();
+
+async function api(url, opts={}){
+  opts.headers = Object.assign({'Content-Type':'application/json','X-CSRFToken':CSRF}, opts.headers||{});
+  const r = await fetch(url, opts);
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(data.error || ('HTTP '+r.status));
+  return data;
+}
+async function pollTask(taskId){
+  while(true){
+    const s = await api(RS.task(taskId));
+    if(s.state==='done')  return s.result;
+    if(s.state==='error') throw new Error(s.error||'Fehler');
+    await new Promise(r=>setTimeout(r,3000));
+  }
+}
+function setStatus(el, msg, cls=''){ el.innerHTML = msg ? `<div class="rs-status ${cls}">${msg}</div>` : ''; }
+
+// Load CTA options per hook type
+async function loadCta(){
+  const sel = $('cta'); const cur = sel.value;
+  try{
+    const data = await api(`${RS.cta}?hook_type=${$('hook_type').value}`);
+    sel.innerHTML = '<option value="">{% trans "Automatic (matching hook type)" %}</option>';
+    (data.options||[]).forEach((o,i)=>{
+      const opt = document.createElement('option');
+      opt.value = i; opt.dataset.z1 = o.zeile1; opt.dataset.z2 = o.zeile2;
+      opt.textContent = `${o.zeile1} — ${o.zeile2}`;
+      sel.appendChild(opt);
+    });
+    sel.value = cur;
+  }catch(e){ /* still optional */ }
+}
+$('hook_type').addEventListener('change', loadCta);
+loadCta();
+
+// Generate hooks
+$('btnHooks').addEventListener('click', async () => {
+  if(!$('title').value){ setStatus($('hookStatus'),'{% trans "Title required" %}','err'); return; }
+  $('btnHooks').disabled = true; $('cands').innerHTML=''; selectedHook=null; $('btnRender').disabled=true;
+  setStatus($('hookStatus'),'{% trans "Generating hooks …" %}');
+  try{
+    const {task_id} = await api(RS.hooks, {method:'POST', body: JSON.stringify({
+      title:$('title').value, hook_type:$('hook_type').value, location:$('location').value||null,
+      description:$('description').value||null, n:parseInt($('n').value||'5',10)
+    })});
+    const cands = await pollTask(task_id);
+    setStatus($('hookStatus'), `${cands.length} {% trans "variants — choose one:" %}`, 'ok');
+    cands.forEach(c => {
+      const div = document.createElement('div'); div.className='rs-cand';
+      div.innerHTML = `<input type="radio" name="hook" style="width:auto"><span><b></b><small></small></span>`;
+      div.querySelector('b').textContent = c.zeile1;
+      div.querySelector('small').textContent = c.zeile2;
+      div.onclick = () => {
+        document.querySelectorAll('.rs-cand').forEach(x=>x.classList.remove('sel'));
+        div.classList.add('sel'); div.querySelector('input').checked=true;
+        selectedHook = {zeile1:c.zeile1, zeile2:c.zeile2}; $('btnRender').disabled=false;
+      };
+      $('cands').appendChild(div);
+    });
+  }catch(e){ setStatus($('hookStatus'), '{% trans "Error" %}: '+e.message, 'err'); }
+  finally{ $('btnHooks').disabled=false; }
+});
+
+// Render reel
+$('btnRender').addEventListener('click', async () => {
+  if(!selectedHook){ return; }
+  if(!$('video').value || !$('output_name').value){
+    setStatus($('renderStatus'),'{% trans "Video and output filename required" %}','err'); return; }
+
+  let startFrom = null;
+  const mode = $('startmode').value;
+  if(mode==='manual') startFrom = parseFloat($('startsec').value||'0');
+  else if(mode==='auto' && $('dauer').value) startFrom = Math.max(0, parseFloat($('dauer').value)/2 - 7.5);
+  else if(mode==='zero') startFrom = 0;
+
+  const ctaOpt = $('cta').selectedOptions[0];
+  const cta = ctaOpt && ctaOpt.value!=='' ? {zeile1:ctaOpt.dataset.z1, zeile2:ctaOpt.dataset.z2} : null;
+
+  const body = {
+    video:$('video').value, hook:selectedHook, hook_type:$('hook_type').value,
+    output_name:$('output_name').value, autor:$('autor').value||null,
+    start_from_seconds:startFrom, cta:cta,
+    mediathek: $('med_on').checked ? {zeile1:RS.medZ1, zeile2:RS.medZ2} : null,
+    sendetermin: ($('se_tag').value && $('se_uhr').value) ? {tag:$('se_tag').value, uhrzeit:$('se_uhr').value} : null
+  };
+  $('btnRender').disabled=true;
+  setStatus($('renderStatus'),'{% trans "Reel is rendering … (~90–150 s)" %}');
+  try{
+    const {task_id} = await api(RS.render, {method:'POST', body: JSON.stringify(body)});
+    const res = await pollTask(task_id);
+    setStatus($('renderStatus'), `{% trans "Done" %}: <b></b>`, 'ok');
+    $('renderStatus').querySelector('b').textContent = res.file || '';
+  }catch(e){ setStatus($('renderStatus'), '{% trans "Error" %}: '+e.message, 'err'); }
+  finally{ $('btnRender').disabled=false; }
+});
+</script>
+{% endblock %}

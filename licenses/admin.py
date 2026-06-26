@@ -1226,6 +1226,45 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             actions.pop('create_reel_action', None)
         return actions
 
+    @staticmethod
+    def _reel_sendetermin(license_obj):
+        """Find broadcast day (German) and time from the planning data.
+
+        Picks the latest plan (by date) that contains this license; if several
+        items match within it, the last one wins. Returns (tag, uhrzeit) or
+        ('', '').
+        """
+        try:
+            from planung.models import TagesPlan
+        except Exception:
+            return '', ''
+
+        weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
+                    'Freitag', 'Samstag', 'Sonntag']
+        # Match by license_id first, fall back to the license number.
+        for key, value in (('license_id', license_obj.id),
+                           ('number', license_obj.number)):
+            plans = (
+                TagesPlan.objects
+                .filter(json_plan__items__contains=[{key: value}])
+                .order_by('-datum')
+            )
+            plan = plans.first()
+            if not plan:
+                continue
+            matches = [
+                it for it in (plan.json_plan or {}).get('items', [])
+                if isinstance(it, dict) and it.get(key) == value
+            ]
+            if not matches:
+                continue
+            item = matches[-1]  # last value if several
+            # German format: "Samstag, 27.06."
+            tag = f"{weekdays[plan.datum.weekday()]}, {plan.datum:%d.%m.}"
+            uhr = (item.get('start') or '')[:5]  # "18:00:00" -> "18:00"
+            return tag, uhr
+        return '', ''
+
     def _reel_studio_url(self, license_obj):
         """Build the Reel Studio URL prefilled from a license, or '' if unavailable."""
         from django.utils.http import urlencode
@@ -1251,13 +1290,26 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if license_obj.duration:
             duration = str(int(license_obj.duration.total_seconds()))
 
+        autor = ''
+        if license_obj.profile_id:
+            autor = str(license_obj.profile).strip()
+
+        se_tag, se_uhr = self._reel_sendetermin(license_obj)
+
         params = {
             'video': video_path,
             'title': license_obj.title or '',
             'output_name': output_name,
+            'autor': autor,
             'description': license_obj.description or '',
             'dauer': duration,
+            'se_tag': se_tag,
+            'se_uhr': se_uhr,
         }
+        # Pass the video id so the Reel Studio can show an inline player for
+        # picking the start second manually.
+        if video_file is not None and getattr(video_file, 'id', None):
+            params['video_id'] = video_file.id
         return f"{reverse('tools:reel_studio')}?{urlencode(params)}"
 
     @admin.action(description=_('Reel im Reel-Studio erstellen'))

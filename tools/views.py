@@ -33,6 +33,14 @@ def _media_files_available() -> bool:
     )
 
 
+def _reel_studio_configured() -> bool:
+    """True if the Reel Studio is enabled and configured in ToolsConfig."""
+    try:
+        return ToolsConfig.get_config().is_reel_configured()
+    except Exception:
+        return False
+
+
 class ToolsIndexView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
     """Tools landing page (catalog)."""
 
@@ -52,6 +60,7 @@ class ToolsIndexView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['tools_enabled'] = True
         context["media_files_enabled"] = _media_files_available()
+        context["reel_studio_enabled"] = _reel_studio_configured()
         return context
 
 
@@ -288,6 +297,67 @@ class VideoRenderSelectView(UserPassesTestMixin, LoginRequiredMixin, TemplateVie
         context["subtitle_styles"] = []
         context["broadcast_styles"] = []
         context["authority_styles"] = []
+        return context
+
+
+class ReelStudioView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
+    """Reel Studio: operator form for the external OKMQ reel renderer."""
+
+    template_name = "tools/reel_studio.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.is_staff
+
+    def dispatch(self, request, *args, **kwargs):
+        check_tools_enabled()
+        if not _reel_studio_configured():
+            raise Http404(_("Reel Studio is not enabled"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        config = ToolsConfig.get_config()
+        get = self.request.GET
+        prefill = {
+            "video": get.get("video", ""),
+            "title": get.get("title", ""),
+            "output_name": get.get("output_name", ""),
+            "autor": get.get("autor", ""),
+            "location": get.get("location", ""),
+            "description": get.get("description", ""),
+            "dauer": get.get("dauer", ""),
+            "se_tag": get.get("se_tag", ""),
+            "se_uhr": get.get("se_uhr", ""),
+        }
+
+        # Optional inline video player to pick the start second manually.
+        context["stream_url"] = None
+        context["browser_compatible"] = False
+        context["video_duration"] = None
+        video_id = get.get("video_id")
+        if video_id and _media_files_available():
+            try:
+                from media_files.models import VideoFile
+                video_file = VideoFile.objects.filter(id=video_id).first()
+            except Exception:
+                video_file = None
+            if video_file:
+                context["stream_url"] = reverse(
+                    "admin:media_files_videofile_stream", args=[video_file.id])
+                context["browser_compatible"] = bool(
+                    getattr(video_file, "is_browser_compatible", False))
+                if video_file.duration:
+                    context["video_duration"] = int(
+                        video_file.duration.total_seconds())
+                # Fill in path/duration from the file when not given explicitly.
+                if not prefill["video"]:
+                    prefill["video"] = getattr(video_file, "file_path", "") or ""
+                if not prefill["dauer"] and context["video_duration"]:
+                    prefill["dauer"] = str(context["video_duration"])
+
+        context["prefill"] = prefill
+        context["reel_mediathek_zeile1"] = config.reel_default_mediathek_zeile1
+        context["reel_mediathek_zeile2"] = config.reel_default_mediathek_zeile2
         return context
 
 

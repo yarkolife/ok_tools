@@ -20,6 +20,9 @@ urlpatterns = [
     path('audio-normalize/new/', views.AudioNormalizeView.as_view(), name='audio_normalize_new'),
     path('audio-normalize/<int:job_id>/', views.AudioNormalizeJobDetailView.as_view(), name='audio_normalize_job_detail'),
 
+    # Reel studio tool (external OKMQ reel renderer)
+    path('reel-studio/', views.ReelStudioView.as_view(), name='reel_studio'),
+
     # Video render tool (select + deep link)
     path('video-render/', views.VideoRenderSelectView.as_view(), name='video_render_select'),
     path('video-render/<int:video_id>/', views.VideoRenderView.as_view(), name='video_render'),
@@ -63,6 +66,12 @@ urlpatterns = [
     path('api/audio-normalize/<int:job_id>/stream-output/', api.StreamOutputView.as_view(), name='api_audio_stream_output'),
     path('api/audio-normalize/<int:job_id>/download/', api.DownloadNormalizedView.as_view(), name='api_audio_download'),
     path('api/audio-normalize/<int:job_id>/', api.DeleteAudioJobView.as_view(), name='api_audio_delete'),
+
+    # Reel studio API
+    path('api/reels/hooks/', api.ReelHooksView.as_view(), name='api_reel_hooks'),
+    path('api/reels/cta/', api.ReelCtaView.as_view(), name='api_reel_cta'),
+    path('api/reels/render/', api.ReelRenderView.as_view(), name='api_reel_render'),
+    path('api/reels/tasks/<str:task_id>/', api.ReelTaskStatusView.as_view(), name='api_reel_task'),
 
     # Video render API
     path('api/video-render/search/', api.VideoRenderSearchView.as_view(), name='api_video_render_search'),

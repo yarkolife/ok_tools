@@ -2199,3 +2199,135 @@ class DeleteAudioJobView(APIView):
 
         job.delete()
         return Response({'status': 'success', 'message': _('Job deleted')}, status=status.HTTP_200_OK)
+
+
+# ===========================================================================
+# Reel Studio (external OKMQ reel renderer)
+# ===========================================================================
+def _require_reel_configured():
+    """Ensure the Reel Studio is enabled and configured, else 404."""
+    if not ToolsConfig.get_config().is_reel_configured():
+        raise Http404(_("Reel Studio is not enabled"))
+
+
+def _reel_task_status(task_id: str) -> dict:
+    """Map a Celery task state to the JSON the frontend polls for."""
+    from celery.result import AsyncResult
+    res = AsyncResult(task_id)
+    if res.successful():
+        return {"task_id": task_id, "state": "done", "result": res.result}
+    if res.failed():
+        return {"task_id": task_id, "state": "error", "error": str(res.info)}
+    return {"task_id": task_id, "state": "running"}
+
+
+class ReelHooksView(APIView):
+    """POST /api/reels/hooks/ -> {task_id}. Then poll the task (result = candidates)."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def dispatch(self, request, *args, **kwargs):
+        check_tools_enabled()
+        _require_reel_configured()
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        from .services.okmq_reel import HOOK_TYPES
+        from .tasks import okmq_generate_hooks_task
+
+        _require_staff(request)
+        body = request.data or {}
+        if not body.get("title") or body.get("hook_type") not in HOOK_TYPES:
+            return Response(
+                {"error": _("title and a valid hook_type are required")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        task = okmq_generate_hooks_task.delay(
+            title=body["title"], hook_type=body["hook_type"],
+            description=body.get("description"), category=body.get("category"),
+            location=body.get("location"), date=body.get("date"),
+            n=int(body.get("n", 5)),
+        )
+        return Response({"task_id": task.id, "state": "running"}, status=status.HTTP_202_ACCEPTED)
+
+
+class ReelCtaView(APIView):
+    """GET /api/reels/cta/?hook_type=naehe -> curated CTA texts (synchronous, fast)."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def dispatch(self, request, *args, **kwargs):
+        check_tools_enabled()
+        _require_reel_configured()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        from .services import okmq_reel
+
+        _require_staff(request)
+        try:
+            data = okmq_reel.list_cta(request.GET.get("hook_type") or None)
+        except okmq_reel.OkmqError as e:
+            return Response({"error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class ReelRenderView(APIView):
+    """POST /api/reels/render/ -> {task_id} (async reel render)."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def dispatch(self, request, *args, **kwargs):
+        check_tools_enabled()
+        _require_reel_configured()
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        from .services.okmq_reel import HOOK_TYPES
+        from .tasks import okmq_render_reel_task
+
+        _require_staff(request)
+        body = request.data or {}
+        required = ("video", "hook", "hook_type", "output_name")
+        if any(not body.get(k) for k in required):
+            return Response(
+                {"error": _("required: %(fields)s") % {"fields": ", ".join(required)}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if body["hook_type"] not in HOOK_TYPES:
+            return Response(
+                {"error": _("invalid hook_type")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        payload = {
+            "video": body["video"],
+            "hook": body["hook"],                       # {"zeile1","zeile2"}
+            "hook_type": body["hook_type"],
+            "output_name": body["output_name"],
+            "autor": body.get("autor"),
+            "start_from_seconds": body.get("start_from_seconds"),
+            "cta": body.get("cta"),                     # omit -> server default per type
+            "mediathek": body.get("mediathek"),
+            "sendetermin": body.get("sendetermin"),     # {"tag","uhrzeit"}
+        }
+        task = okmq_render_reel_task.delay(payload=payload)
+        return Response({"task_id": task.id, "state": "running"}, status=status.HTTP_202_ACCEPTED)
+
+
+class ReelTaskStatusView(APIView):
+    """GET /api/reels/tasks/<task_id>/ -> polling for hook OR reel task."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def dispatch(self, request, *args, **kwargs):
+        check_tools_enabled()
+        _require_reel_configured()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, task_id):
+        _require_staff(request)
+        return Response(_reel_task_status(task_id), status=status.HTTP_200_OK)

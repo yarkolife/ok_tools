@@ -155,6 +155,21 @@ class ToolsConfigAdmin(admin.ModelAdmin):
                 'ARNNDN Model Path: default path to RNN model (.rnnn) for AI-based denoising. System automatically detects and uses recommended models (std.rnnn, bd.rnnn, lq.rnnn) from tools/rnn_models/ directory. Leave empty to use FFT-based denoising.'
             ),
         }),
+        (_('Reel Studio'), {
+            'fields': (
+                'reel_studio_enabled',
+                'reel_render_url',
+                'reel_render_api_key',
+                'reel_render_timeout',
+                'reel_output_name_pattern',
+                'reel_default_mediathek_zeile1',
+                'reel_default_mediathek_zeile2',
+            ),
+            'description': _(
+                'External OKMQ reel renderer. The tool card, page and license admin action '
+                'are only shown when "Reel Studio enabled" is on AND URL + API key are set.'
+            ),
+        }),
     )
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

@@ -929,7 +929,59 @@ class ToolsConfig(models.Model):
         verbose_name=_('ARNNDN Model Path'),
         help_text=_('Default path to RNN model file (.rnnn) for neural network denoising (arnndn filter). System automatically detects and uses recommended models (std.rnnn, bd.rnnn, lq.rnnn) from tools/rnn_models/ directory. Leave empty to use FFT-based denoising (afftdn).')
     )
-    
+
+    # Reel Studio (external OKMQ reel renderer)
+    reel_studio_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Reel Studio enabled'),
+        help_text=_(
+            'Master switch for the Reel Studio tool. When off, the tool card, page '
+            'and the license admin action are hidden and disabled.'
+        ),
+    )
+    reel_render_url = models.URLField(
+        blank=True,
+        default='',
+        verbose_name=_('Reel render URL'),
+        help_text=_('Base URL of the external reel renderer, e.g. http://192.168.122.14:8011'),
+    )
+    reel_render_api_key = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_('Reel render API key'),
+        help_text=_('Sent as X-API-Key header to the reel renderer.'),
+    )
+    reel_render_timeout = models.PositiveIntegerField(
+        default=30,
+        verbose_name=_('Reel render timeout (seconds)'),
+        help_text=_('HTTP read timeout for reel render/start requests.'),
+    )
+    reel_output_name_pattern = models.CharField(
+        max_length=255,
+        blank=True,
+        default='{number}_Programmvorschau_Reel_{date:%y%m%d}',
+        verbose_name=_('Reel output filename pattern'),
+        help_text=_(
+            'Python format string with {number} and {date} used to prefill the output '
+            'name, e.g. {number}_Programmvorschau_Reel_{date:%y%m%d}.'
+        ),
+    )
+    reel_default_mediathek_zeile1 = models.CharField(
+        max_length=255,
+        blank=True,
+        default='Mehr Beiträge aus deiner Region.',
+        verbose_name=_('Reel mediathek line 1'),
+        help_text=_('Default first line of the mediathek badge.'),
+    )
+    reel_default_mediathek_zeile2 = models.CharField(
+        max_length=255,
+        blank=True,
+        default='Jetzt in der Mediathek — lokalmedial.de',
+        verbose_name=_('Reel mediathek line 2'),
+        help_text=_('Default second line of the mediathek badge.'),
+    )
+
     class Meta:
         verbose_name = _('Tools Configuration')
         verbose_name_plural = _('Tools Configuration')
@@ -962,6 +1014,14 @@ class ToolsConfig(models.Model):
         if s and getattr(s, 'path', None):
             return (s.path or '').rstrip('/\\')
         return (self.output_path or '').strip().rstrip('/\\')
+
+    def is_reel_configured(self) -> bool:
+        """Return whether the Reel Studio can be used (enabled + URL + key)."""
+        return bool(
+            self.reel_studio_enabled
+            and self.reel_render_url
+            and self.reel_render_api_key
+        )
 
 
 class AudioNormalizeJob(models.Model):

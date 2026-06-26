@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+2026-06-26 (Version 4.24.0)
+==========================
+
+* **tools: Add Reel Studio integration (external OKMQ reel renderer)**
+  * New tool at `/tools/reel-studio/` to generate AI hooks and render short vertical reels via the external renderer (`/api/hook`, `/api/cta`, `/api/reel`); all calls run async through Celery tasks with `AsyncResult` polling (no gunicorn-blocking sync calls)
+  * New client `tools/services/okmq_reel.py` reads config from `ToolsConfig` and encapsulates the `hook_type` (snake) → `hookType` (camel) mapping
+  * `ToolsConfig` gains `reel_studio_enabled` + URL/API key/timeout/output-name pattern/mediathek defaults; `is_reel_configured()` gates the tool card, page and license admin action (mirrors the `cover_enabled` pattern)
+  * AJAX endpoints `api/reels/{hooks,cta,render,tasks}/` (staff-only, 404 when the service is not configured)
+  * Operator page (admin look) with an inline video player to pick the start second manually when opened with `video_id`
+* **licenses: Add "Reel erstellen" admin action and per-object button**
+  * Bulk action + button on the license change page open the Reel Studio prefilled (video path, title, output name, author from profile, and TV day/date + time looked up from the latest `planung` plan containing the license)
+  * Hidden when the reel service is not configured
+* **i18n: German translations for all new Reel Studio strings**
+
 2026-06-24 (Version 4.23.1)
 ==========================
 

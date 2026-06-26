@@ -140,6 +140,38 @@
             </div>
         </div>
 
+        {% if reel_studio_enabled %}
+        <div class="tool-card" onclick="window.location.href='{% url 'tools:reel_studio' %}'">
+            <div class="tool-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="reelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0a6178;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#11998e;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Vertical reel frame with sprocket holes and play button -->
+                    <rect x="6" y="2" width="12" height="20" rx="2.5" fill="url(#reelGrad)"/>
+                    <rect x="7.5" y="4" width="1.4" height="1.4" rx="0.3" fill="#fff" opacity="0.85"/>
+                    <rect x="15.1" y="4" width="1.4" height="1.4" rx="0.3" fill="#fff" opacity="0.85"/>
+                    <rect x="7.5" y="18.6" width="1.4" height="1.4" rx="0.3" fill="#fff" opacity="0.85"/>
+                    <rect x="15.1" y="18.6" width="1.4" height="1.4" rx="0.3" fill="#fff" opacity="0.85"/>
+                    <circle cx="12" cy="12" r="4" fill="#fff" opacity="0.95"/>
+                    <path d="M10.8 9.8 L10.8 14.2 L14.4 12 Z" fill="url(#reelGrad)"/>
+                </svg>
+            </div>
+            <div class="tool-title">{% trans 'Reel Studio' %}</div>
+            <div class="tool-description">
+                {% trans 'Generate AI hooks and render short vertical reels for social media via the external OKMQ reel renderer' %}
+            </div>
+            <div class="tool-actions">
+                <a href="{% url 'tools:reel_studio' %}" class="button default" onclick="event.stopPropagation();">
+                    {% trans 'New Reel' %}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
         {% if media_files_enabled %}
         <div class="tool-card" onclick="window.location.href='{% url 'tools:video_render_jobs' %}'">
             <div class="tool-icon">
