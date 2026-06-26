@@ -143,6 +143,40 @@ copy_as_new_if_changed() {
     return 0
 }
 
+apply_required_compose_service_update() {
+    local service_name="$1"
+    local compose_file="$PRODUCTION_DIR/docker-compose.yml"
+    local new_compose_file="$PRODUCTION_DIR/docker-compose.yml.new"
+
+    if [ "${OKTOOLS_KEEP_EXISTING_COMPOSE:-0}" = "1" ]; then
+        print_warning "OKTOOLS_KEEP_EXISTING_COMPOSE=1 set; not auto-applying compose changes for $service_name"
+        return 0
+    fi
+
+    if [ ! -f "$new_compose_file" ]; then
+        return 0
+    fi
+
+    if [ ! -f "$compose_file" ]; then
+        return 0
+    fi
+
+    if ! grep -qE "^[[:space:]]{2}${service_name}:" "$new_compose_file"; then
+        return 0
+    fi
+
+    if grep -qE "^[[:space:]]{2}${service_name}:" "$compose_file"; then
+        return 0
+    fi
+
+    local backup_file="$compose_file.backup.$(date +%Y%m%d_%H%M%S)"
+    print_warning "Current docker-compose.yml is missing required service: $service_name"
+    print_info "Backing up current docker-compose.yml to $(basename "$backup_file")"
+    cp "$compose_file" "$backup_file"
+    mv "$new_compose_file" "$compose_file"
+    print_success "Applied updated docker-compose.yml with required service: $service_name"
+}
+
 # Function to validate .env file (from install.sh)
 validate_env_file() {
     local env_file="$1"
@@ -905,6 +939,8 @@ else
     copy_as_new_if_changed "deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml" "docker-compose.yml"
 fi
 
+apply_required_compose_service_update "celery_download_worker"
+
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
 cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
 
@@ -1018,6 +1054,7 @@ if [ -f "$ENV_FILE" ]; then
     add_env_var_if_missing "I18N_DATE_FORMAT" "%d.%m.%Y"
     add_env_var_if_missing "CELERY_BROKER_URL" "redis://redis:6379/0"
     add_env_var_if_missing "CELERY_RESULT_BACKEND" "redis://redis:6379/0"
+    add_env_var_if_missing "CELERY_DOWNLOAD_WORKER_CONCURRENCY" "1"
     add_env_var_if_missing "CELERY_BEAT_EXPIRE_RENTALS" "*/30 * * * *"
     add_env_var_if_missing "CELERY_BEAT_CLEANUP_BACKUPS" "0 2 * * *"
     add_env_var_if_missing "CELERY_BEAT_BACKUP_DB" "0 3 * * *"
