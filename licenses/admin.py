@@ -1181,6 +1181,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'search_videos_for_licenses',
         'clear_mediathek_url_action',
         'refresh_mediathek_url_action',
+        'generate_cover_action',
+        'pick_cover_variant_action',
     ]
 
     list_filter = [
@@ -1222,6 +1224,44 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             '%d Licenses were successfully unconfirmed.',
             updated
         ) % updated, messages.SUCCESS)
+
+    @admin.action(description=_('Cover-Bild erzeugen / neu erzeugen'))
+    def generate_cover_action(self, request, queryset):
+        """Generate cover images for the selected licenses."""
+        from media_files.covers.config import get_cover_config
+        from media_files.covers.service import generate_cover_for_license
+
+        config = get_cover_config()
+        if not config.output_dir:
+            self.message_user(
+                request,
+                _('Kein Cover-Ausgabeverzeichnis konfiguriert. Bitte in der '
+                  'Mediendateien-Konfiguration einen Cover-Speicherort wählen '
+                  'oder den austausch-Thumbnail-Pfad setzen.'),
+                messages.ERROR)
+            return
+
+        generated = skipped = failed = 0
+        for license_obj in queryset:
+            try:
+                path = generate_cover_for_license(
+                    license_obj, force=True, config=config)
+            except Exception:
+                failed += 1
+                logger.exception(
+                    'Cover generation failed for license %s', license_obj.number)
+                continue
+            if path:
+                generated += 1
+            else:
+                skipped += 1
+
+        self.message_user(
+            request,
+            _('Cover: %(generated)d erzeugt, %(skipped)d übersprungen, '
+              '%(failed)d fehlgeschlagen.') % {
+                'generated': generated, 'skipped': skipped, 'failed': failed},
+            messages.SUCCESS if not failed else messages.WARNING)
 
     @admin.action(description=_('Create a copy of selected licenses'))
     def duplicate_license(self, request, queryset):
@@ -1394,8 +1434,232 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 self.admin_site.admin_view(self.clear_mediathek_view),
                 name='licenses_license_clear_mediathek',
             ),
+            path(
+                'cover-candidates/<int:number>/',
+                self.admin_site.admin_view(self.cover_candidates_view),
+                name='licenses_license_cover_candidates',
+            ),
+            path(
+                'cover-frame/<int:number>/',
+                self.admin_site.admin_view(self.cover_frame_view),
+                name='licenses_license_cover_frame',
+            ),
         ]
         return custom_urls + urls
+
+    def _primary_video_for_number(self, number):
+        """Return the primary VideoFile for a number, or None."""
+        from media_files.covers.service import _pick_video
+        from media_files.models import VideoFile
+        vids = list(VideoFile.objects.filter(number=number).exclude(is_preview=True))
+        return _pick_video(vids) if vids else None
+
+    def cover_frame_view(self, request, number):
+        """Return a JPEG frame extracted at ?t=<seconds>.
+
+        Server-side preview used when the browser cannot play the codec
+        (e.g. HEVC) and the native video scrubber is unavailable.
+        """
+        from django.http import Http404, HttpResponse
+
+        from media_files.covers import frames as frames_mod
+        from media_files.covers.config import get_cover_config
+
+        try:
+            seconds = float(request.GET.get('t', 0))
+        except (TypeError, ValueError):
+            seconds = 0
+        video_file = self._primary_video_for_number(number)
+        if not video_file:
+            raise Http404
+        image = frames_mod.extract_frame_at(
+            video_file.full_path, seconds, size=get_cover_config().size)
+        if image is None:
+            raise Http404
+        response = HttpResponse(content_type='image/jpeg')
+        image.save(response, format='JPEG', quality=80)
+        return response
+
+    @admin.action(description=_('Cover-Varianten erzeugen & auswählen…'))
+    def pick_cover_variant_action(self, request, queryset):
+        """Generate overlay variants for one license, then open the gallery."""
+        from django.shortcuts import redirect
+        from media_files.covers.service import generate_cover_candidates_for_license
+
+        if queryset.count() != 1:
+            self.message_user(
+                request, _('Bitte genau eine Lizenz auswählen.'), messages.WARNING)
+            return
+        license_obj = queryset.first()
+        try:
+            sheet = generate_cover_candidates_for_license(license_obj)
+        except Exception:
+            logger.exception('Cover variant generation failed for %s', license_obj.number)
+            sheet = None
+        if not sheet:
+            self.message_user(
+                request,
+                _('Keine Grafik-Pool-Regel trifft zu (oder kein Video/Pool). '
+                  'Es wurden keine Varianten erzeugt.'),
+                messages.WARNING)
+            return
+        return redirect(
+            'admin:licenses_license_cover_candidates', number=license_obj.number)
+
+    def cover_candidates_view(self, request, number):
+        """Show generated cover candidates and let the operator pick one."""
+        import glob
+        import os
+        import re
+
+        from django.conf import settings
+        from django.shortcuts import redirect
+        from django.template.response import TemplateResponse
+
+        from media_files.covers.config import get_cover_config
+        from media_files.covers.storage import (
+            candidates_dir, frames_dir, load_manifest, promote_variant)
+        from media_files.models import VideoFile
+
+        config = get_cover_config()
+        if not config.output_dir:
+            self.message_user(
+                request, _('Kein Cover-Ausgabeverzeichnis konfiguriert.'), messages.ERROR)
+            return redirect('admin:licenses_license_changelist')
+
+        if request.method == 'POST':
+            kind = request.POST.get('kind', 'variant')
+            if kind == 'frame':
+                return self._cover_pick_frame(request, number, config)
+            if kind == 'timecode':
+                return self._cover_pick_timecode(request, number, config)
+            variant = int(request.POST.get('variant', 0))
+            try:
+                path = promote_variant(number, variant, config.output_dir)
+            except FileNotFoundError:
+                self.message_user(
+                    request, _('Variante nicht gefunden.'), messages.ERROR)
+                return redirect(request.path)
+            VideoFile.objects.filter(number=number).exclude(
+                is_preview=True).update(thumbnail=path)
+            self.message_user(
+                request,
+                _('Variante %(v)d als Cover für %(n)s übernommen.') % {
+                    'v': variant, 'n': number},
+                messages.SUCCESS)
+            return redirect('admin:licenses_license_changelist')
+
+        cdir = candidates_dir(config.output_dir, number)
+        media_root = os.path.abspath(str(settings.MEDIA_ROOT))
+
+        def media_url(path):
+            ap = os.path.abspath(path)
+            if ap.startswith(media_root):
+                rel = os.path.relpath(ap, media_root).replace('\\', '/')
+                return settings.MEDIA_URL + rel
+            return None
+
+        manifest = load_manifest(number, config.output_dir)
+        items = []
+        for p in sorted(glob.glob(os.path.join(cdir, 'v*.jpg'))):
+            match = re.search(r'v(\d+)\.jpg$', os.path.basename(p))
+            if not match:
+                continue
+            idx = int(match.group(1))
+            items.append({'variant': idx, 'url': media_url(p), 'path': p,
+                          'name': manifest.get(str(idx), '')})
+
+        frames = []
+        fdir = frames_dir(config.output_dir, number)
+        for p in glob.glob(os.path.join(fdir, 'f*.jpg')):
+            match = re.search(r'f(\d+)\.jpg$', os.path.basename(p))
+            if match:
+                frames.append({'index': int(match.group(1)), 'url': media_url(p)})
+        frames.sort(key=lambda f: f['index'])
+
+        from django.urls import reverse
+
+        video_file = self._primary_video_for_number(number)
+        duration = 0
+        license_obj = License.objects.filter(number=number).first()
+        if license_obj and license_obj.duration:
+            duration = int(license_obj.duration.total_seconds())
+        if not duration and video_file and video_file.duration:
+            duration = int(video_file.duration.total_seconds())
+
+        stream_url = None
+        browser_compatible = False
+        if video_file:
+            stream_url = reverse(
+                'admin:media_files_videofile_stream', args=[video_file.id])
+            browser_compatible = video_file.is_browser_compatible
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title=_('Cover-Variante auswählen — %(n)s') % {'n': number},
+            number=number,
+            items=items,
+            frames=frames,
+            duration=duration,
+            stream_url=stream_url,
+            browser_compatible=browser_compatible,
+        )
+        return TemplateResponse(request, 'admin/cover_candidates.html', context)
+
+    def _cover_pick_timecode(self, request, number, config):
+        """Extract a frame at an exact timecode and regenerate variants on it."""
+        from django.shortcuts import redirect
+
+        from media_files.covers import frames as frames_mod
+        from media_files.covers.service import generate_cover_candidates_for_license
+
+        try:
+            seconds = float(request.POST.get('seconds', 0))
+        except (TypeError, ValueError):
+            seconds = 0
+        license_obj = License.objects.filter(number=number).first()
+        video_file = self._primary_video_for_number(number)
+        if license_obj and video_file:
+            background = frames_mod.extract_frame_at(
+                video_file.full_path, seconds, size=config.size)
+            if background is not None:
+                generate_cover_candidates_for_license(
+                    license_obj, config=config, background=background)
+                self.message_user(
+                    request,
+                    _('Zeitpunkt %(s)d s übernommen — Varianten neu erzeugt.') % {
+                        's': int(seconds)},
+                    messages.SUCCESS)
+                return redirect(request.path)
+        self.message_user(
+            request, _('Frame zu diesem Zeitpunkt konnte nicht erzeugt werden.'),
+            messages.ERROR)
+        return redirect(request.path)
+
+    def _cover_pick_frame(self, request, number, config):
+        """Regenerate variants from a chosen frame, then reload the gallery."""
+        import os
+
+        from django.shortcuts import redirect
+        from PIL import Image
+
+        from media_files.covers.service import generate_cover_candidates_for_license
+        from media_files.covers.storage import frames_dir
+
+        frame = int(request.POST.get('frame', 0))
+        fpath = os.path.join(frames_dir(config.output_dir, number), f'f{frame}.jpg')
+        license_obj = License.objects.filter(number=number).first()
+        if os.path.isfile(fpath) and license_obj:
+            background = Image.open(fpath).convert('RGB')
+            generate_cover_candidates_for_license(
+                license_obj, config=config, background=background)
+            self.message_user(
+                request,
+                _('Frame %(f)d übernommen — Varianten neu erzeugt.') % {'f': frame},
+                messages.SUCCESS)
+        else:
+            self.message_user(request, _('Frame nicht gefunden.'), messages.ERROR)
+        return redirect(request.path)
 
     def refresh_mediathek_view(self, request, license_id):
         """Queue mediathek URL refresh for one license from admin change view."""

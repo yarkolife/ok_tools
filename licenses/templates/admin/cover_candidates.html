@@ -1,0 +1,120 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main">
+
+  {% if frames %}
+    <h2>{% trans "Frame aus dem Video wählen" %}</h2>
+    <p>{% blocktrans %}Ein anderer Frame erzeugt alle Varianten neu auf diesem Standbild.{% endblocktrans %}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
+      {% for f in frames %}
+        <form method="post" style="margin:0;">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="frame">
+          <input type="hidden" name="frame" value="{{ f.index }}">
+          <button type="submit" title="{% trans 'Diesen Frame verwenden' %}"
+                  style="padding:0;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:none;">
+            <img src="{{ f.url }}" alt="frame {{ f.index }}" style="width:220px;height:auto;display:block;border-radius:5px;">
+          </button>
+        </form>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if stream_url and browser_compatible %}
+    <h2>{% trans "Genauer Zeitpunkt" %}</h2>
+    <p>{% blocktrans %}Spulen Sie im Video zum gewünschten Moment und übernehmen Sie das aktuelle Bild — die Varianten werden darauf neu erzeugt.{% endblocktrans %}</p>
+    <div style="margin-bottom:24px;">
+      <video id="tc-video" src="{{ stream_url }}" controls preload="metadata"
+             style="max-width:640px;width:100%;border:1px solid #ccc;border-radius:6px;background:#000;"></video>
+      <div style="margin-top:10px;">
+        {% trans "Aktuelle Position" %}: <strong id="tc-label">0:00</strong>
+        <form method="post" style="display:inline;margin-left:12px;">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="timecode">
+          <input type="hidden" name="seconds" id="tc-seconds" value="0">
+          <button type="submit" class="button default">{% trans "Aktuelles Bild übernehmen" %}</button>
+        </form>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var video = document.getElementById('tc-video');
+      var label = document.getElementById('tc-label');
+      var secs = document.getElementById('tc-seconds');
+      function fmt(s) { s = Math.floor(s); var m = Math.floor(s / 60), x = s % 60; return m + ':' + (x < 10 ? '0' : '') + x; }
+      video.addEventListener('timeupdate', function () {
+        label.textContent = fmt(video.currentTime);
+        secs.value = video.currentTime.toFixed(2);
+      });
+    })();
+    </script>
+  {% elif duration %}
+    <h2>{% trans "Genauer Zeitpunkt" %}</h2>
+    <p>{% blocktrans %}Der Codec dieses Videos ist nicht browser-tauglich — der Frame wird serverseitig erzeugt. Regler bewegen, Vorschau prüfen, übernehmen.{% endblocktrans %}</p>
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:24px;">
+      <div>
+        <input type="range" id="tc-range" min="0" max="{{ duration }}" value="0" step="1" style="width:480px;">
+        <div style="margin-top:6px;">{% trans "Zeitpunkt" %}: <strong id="tc-label">0:00</strong> / {{ duration }} s</div>
+        <form method="post" style="margin-top:10px;">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="timecode">
+          <input type="hidden" name="seconds" id="tc-seconds" value="0">
+          <button type="submit" class="button default">{% trans "Diesen Zeitpunkt verwenden" %}</button>
+        </form>
+      </div>
+      <div>
+        <img id="tc-preview" src="{% url 'admin:licenses_license_cover_frame' number %}?t=0"
+             alt="preview" style="width:360px;height:auto;border:1px solid #ccc;border-radius:6px;background:#eee;">
+      </div>
+    </div>
+    <script>
+    (function () {
+      var base = "{% url 'admin:licenses_license_cover_frame' number %}";
+      var range = document.getElementById('tc-range');
+      var label = document.getElementById('tc-label');
+      var secs = document.getElementById('tc-seconds');
+      var preview = document.getElementById('tc-preview');
+      function fmt(s) { var m = Math.floor(s / 60), x = s % 60; return m + ':' + (x < 10 ? '0' : '') + x; }
+      function update() { label.textContent = fmt(+range.value); secs.value = range.value; }
+      function load() { preview.src = base + '?t=' + range.value + '&_=' + Date.now(); }
+      range.addEventListener('input', update);
+      range.addEventListener('change', function () { update(); load(); });
+      update();
+    })();
+    </script>
+  {% endif %}
+
+  {% if items %}
+    <h2>{% trans "Variante übernehmen" %}</h2>
+    <p>{% blocktrans %}Wählen Sie die gewünschte Cover-Variante. Die übrigen bleiben im Kandidatenordner.{% endblocktrans %}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:18px;margin-top:12px;">
+      {% for item in items %}
+        <div style="border:1px solid #ccc;border-radius:6px;padding:10px;width:340px;">
+          {% if item.url %}
+            <img src="{{ item.url }}" alt="v{{ item.variant }}" style="width:100%;height:auto;display:block;border-radius:4px;">
+          {% else %}
+            <code style="font-size:11px;word-break:break-all;">{{ item.path }}</code>
+          {% endif %}
+          <div style="margin-top:6px;font-weight:bold;">
+            {{ item.name|default:"" }} <span style="color:#888;font-weight:normal;">(v{{ item.variant }})</span>
+          </div>
+          <form method="post" style="margin-top:8px;text-align:center;">
+            {% csrf_token %}
+            <input type="hidden" name="kind" value="variant">
+            <input type="hidden" name="variant" value="{{ item.variant }}">
+            <button type="submit" class="button default">{% trans "Als Cover übernehmen" %}</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>{% blocktrans %}Keine Kandidaten gefunden. Erzeugen Sie zuerst Cover im Modus „Alle“.{% endblocktrans %}</p>
+  {% endif %}
+
+  <p style="margin-top:18px;">
+    <a href="{% url 'admin:licenses_license_changelist' %}" class="button">{% trans "Zurück" %}</a>
+  </p>
+</div>
+{% endblock %}

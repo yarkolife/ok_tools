@@ -19,7 +19,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
 
-from .models import StorageLocation, VideoFile, FileOperation, MediaFilesConfig, POSITION_PRESET_CHOICES
+from .models import StorageLocation, VideoFile, FileOperation, MediaFilesConfig, CoverTemplate, CoverOverlay, CoverOverlayRule, POSITION_PRESET_CHOICES
 from .utils import verify_file_integrity, extract_video_metadata, extract_video_metadata_fast, extract_number_from_filename, calculate_checksum, copy_file_with_progress, copy_video_to_playout
 from media_files.management.commands.render_video_preset import _apply_metadata
 from media_files.rendering.ffmpeg import (
@@ -3583,3 +3583,88 @@ class MediaFilesConfigAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """Prevent deletion of config."""
         return False
+
+
+@admin.register(CoverTemplate)
+class CoverTemplateAdmin(admin.ModelAdmin):
+    """Admin interface for editor-configurable cover template rules."""
+
+    list_display = ['priority', 'name', 'scope', 'match_pattern', 'template', 'is_active']
+    list_display_links = ['name']
+    list_editable = ['priority', 'is_active']
+    list_filter = ['scope', 'template', 'is_active']
+    search_fields = ['name', 'match_pattern']
+    ordering = ['priority', 'id']
+
+
+class CoverRegionWidget(forms.Textarea):
+    """JSON widget augmented with a visual drag/resize text-area picker."""
+
+    class Media:
+        js = ['media_files/cover_region_picker.js']
+        css = {'all': ['media_files/cover_region_picker.css']}
+
+    def render(self, name, value, attrs=None, renderer=None):
+        """Wrap the JSON textarea in a picker container holding the image URL."""
+        base = super().render(name, value, attrs, renderer)
+        image_url = self.attrs.get('data-image-url', '')
+        return format_html(
+            '<div class="cover-region-picker" data-image-url="{}" '
+            'data-native-w="1280" data-native-h="720">{}</div>',
+            image_url, base)
+
+
+class CoverOverlayForm(forms.ModelForm):
+    """Form wiring the visual picker and passing the saved image URL to it."""
+
+    class Meta:
+        model = CoverOverlay
+        fields = '__all__'
+        widgets = {
+            'text_area': CoverRegionWidget(),
+            'logo_area': forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        """Expose the uploaded image URL to the picker widget."""
+        super().__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk and instance.image:
+            self.fields['text_area'].widget.attrs['data-image-url'] = instance.image.url
+
+
+@admin.register(CoverOverlay)
+class CoverOverlayAdmin(admin.ModelAdmin):
+    """Admin for uploadable graphic overlays (PNG/SVG) grouped into pools."""
+
+    form = CoverOverlayForm
+    list_display = ['name', 'pool', 'preview', 'use_video_frame', 'draw_logo', 'is_active']
+    list_display_links = ['name']
+    list_editable = ['is_active']
+    list_filter = ['pool', 'is_active', 'use_video_frame']
+    search_fields = ['name', 'pool']
+    readonly_fields = ['preview']
+
+    @admin.display(description=_('Vorschau'))
+    def preview(self, obj):
+        """Small inline preview of the uploaded overlay."""
+        if obj.image and not obj.image.name.lower().endswith('.svg'):
+            return format_html(
+                '<img src="{}" style="height:60px;background:#ddd;border:1px solid #ccc"/>',
+                obj.image.url)
+        if obj.image:
+            return format_html('<a href="{}">SVG</a>', obj.image.url)
+        return '-'
+
+
+@admin.register(CoverOverlayRule)
+class CoverOverlayRuleAdmin(admin.ModelAdmin):
+    """Admin for pattern -> overlay-pool rules."""
+
+    list_display = ['priority', 'name', 'scope', 'match_pattern', 'pool', 'selection_mode', 'is_active']
+    list_display_links = ['name']
+    list_editable = ['priority', 'is_active']
+    list_filter = ['scope', 'selection_mode', 'is_active']
+    search_fields = ['name', 'match_pattern', 'pool']
+    ordering = ['priority', 'id']
+    filter_horizontal = ['overlays']
