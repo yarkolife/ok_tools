@@ -187,8 +187,10 @@ def generate_cover_candidates(video_file, config=None, background=None):
     and uses the best-scoring frame by default. When ``background`` is given
     (operator chose a frame) the strip is left untouched and that frame is used.
 
-    Returns the contact-sheet path, or ``None`` if no overlay-pool rule matches
-    or the pool is empty.
+    When a graphic-overlay rule matches, every overlay in its set is rendered.
+    Otherwise it falls back to a single code-template cover (Base/Journal/…) so
+    the gallery always offers at least one variant. Returns the contact-sheet
+    path, or ``None`` only if no usable frame could be produced.
     """
     from media_files.covers.templates.overlay import OverlayCover
 
@@ -197,11 +199,7 @@ def generate_cover_candidates(video_file, config=None, background=None):
     data = _build_cover_data(video_file, license_obj)
 
     rule = resolve_overlay_rule(data)
-    if not rule:
-        return None
-    pool_overlays = overlays_for_rule(rule)
-    if not pool_overlays:
-        return None
+    pool_overlays = overlays_for_rule(rule) if rule else []
 
     if background is None:
         strip = frames.extract_frames(
@@ -214,11 +212,23 @@ def generate_cover_candidates(video_file, config=None, background=None):
             background = frames.extract_background(
                 video_file.full_path, duration_seconds=data.duration_seconds, size=config.size)
 
-    images = [OverlayCover(ov).render(background, data, config) for ov in pool_overlays]
+    if pool_overlays:
+        images = [OverlayCover(ov).render(background, data, config) for ov in pool_overlays]
+        names = [ov.name for ov in pool_overlays]
+    else:
+        # No graphic rule -> offer the resolved code-template cover as the one
+        # candidate, which needs a real frame to draw on.
+        if background is None:
+            logger.warning('Cover: no frame and no overlay rule for %s.', data.number)
+            return None
+        template, theme = resolve_template(data, config)
+        images = [template.render(background, data, config, theme=theme)]
+        names = [f'Standard ({template.name})']
+
     storage.save_variants(images, data.number, config.output_dir)
     storage.save_manifest(
         data.number, config.output_dir,
-        {str(i): ov.name for i, ov in enumerate(pool_overlays, start=1)})
+        {str(i): name for i, name in enumerate(names, start=1)})
     return storage.build_contact_sheet(images, data.number, config.output_dir)
 
 

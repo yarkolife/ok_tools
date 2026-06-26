@@ -923,12 +923,23 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                         render_url,
                         _('Render Video with Overlays')
                     )
+
+                # Reel Studio button (only when the reel service is configured)
+                reel_button = ''
+                if video_file.is_available and self._reel_enabled():
+                    reel_button = format_html(
+                        '<br><a href="{}" class="button" style="padding: 8px 16px; background: #0a6178; color: white; '
+                        'text-decoration: none; border-radius: 4px; margin-top: 5px; display: inline-block;">'
+                        '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="6" y="2" width="12" height="20" rx="2"></rect><circle cx="12" cy="12" r="3"></circle></svg> {}</a>',
+                        self._reel_studio_url(obj),
+                        _('Reel erstellen')
+                    )
                 
                 return format_html(
                     '{} <a href="{}">{}</a><br>'
                     '<span style="color: #666;">{}</span><br>'
                     '<span class="badge badge-{}">{}</span> • <span style="color: #666;">{}</span>'
-                    '{}{}',
+                    '{}{}{}',
                     icon,
                     url,
                     video_file.filename,
@@ -937,7 +948,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                     status_text,
                     video_file.storage_location.name if video_file.storage_location else '-',
                     duration_warning,
-                    render_button
+                    render_button,
+                    reel_button
                 )
             else:
                 search_url = reverse('admin:licenses_license_search_video', args=[obj.id])
@@ -1183,6 +1195,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         'refresh_mediathek_url_action',
         'generate_cover_action',
         'pick_cover_variant_action',
+        'create_reel_action',
     ]
 
     @staticmethod
@@ -1194,13 +1207,69 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         except Exception:
             return False
 
+    @staticmethod
+    def _reel_enabled():
+        """True if the Reel Studio is enabled and configured in ToolsConfig."""
+        try:
+            from tools.models import ToolsConfig
+            return ToolsConfig.get_config().is_reel_configured()
+        except Exception:
+            return False
+
     def get_actions(self, request):
-        """Hide cover actions when cover generation is disabled."""
+        """Hide cover and reel actions when the respective feature is disabled."""
         actions = super().get_actions(request)
         if not self._cover_enabled():
             actions.pop('generate_cover_action', None)
             actions.pop('pick_cover_variant_action', None)
+        if not self._reel_enabled():
+            actions.pop('create_reel_action', None)
         return actions
+
+    def _reel_studio_url(self, license_obj):
+        """Build the Reel Studio URL prefilled from a license, or '' if unavailable."""
+        from django.utils.http import urlencode
+        from tools.models import ToolsConfig
+
+        config = ToolsConfig.get_config()
+        try:
+            video_file = license_obj.get_video_file()
+        except Exception:
+            video_file = None
+
+        # Best-effort: file_path is relative to its StorageLocation; the operator
+        # adjusts it to the renderer's share root if needed.
+        video_path = getattr(video_file, 'file_path', '') or ''
+
+        try:
+            output_name = (config.reel_output_name_pattern or '').format(
+                number=license_obj.number, date=timezone.now())
+        except Exception:
+            output_name = ''
+
+        duration = ''
+        if license_obj.duration:
+            duration = str(int(license_obj.duration.total_seconds()))
+
+        params = {
+            'video': video_path,
+            'title': license_obj.title or '',
+            'output_name': output_name,
+            'description': license_obj.description or '',
+            'dauer': duration,
+        }
+        return f"{reverse('tools:reel_studio')}?{urlencode(params)}"
+
+    @admin.action(description=_('Reel im Reel-Studio erstellen'))
+    def create_reel_action(self, request, queryset):
+        """Open the Reel Studio prefilled for a single selected license."""
+        if queryset.count() != 1:
+            self.message_user(
+                request,
+                _('Bitte genau eine Lizenz auswählen, um ein Reel zu erstellen.'),
+                messages.WARNING)
+            return None
+        return HttpResponseRedirect(self._reel_studio_url(queryset.first()))
 
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
@@ -1518,8 +1587,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if not sheet:
             self.message_user(
                 request,
-                _('Keine Grafik-Pool-Regel trifft zu (oder kein Video/Pool). '
-                  'Es wurden keine Varianten erzeugt.'),
+                _('Kein zugängliches Video gefunden oder es konnte kein '
+                  'Standbild erzeugt werden. Es wurden keine Varianten erzeugt.'),
                 messages.WARNING)
             return
         return redirect(
@@ -1679,7 +1748,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         else:
             self.message_user(
                 request,
-                _('Keine Grafik-Pool-Regel trifft zu (oder kein Video/Pool).'),
+                _('Kein zugängliches Video gefunden oder es konnte kein '
+                  'Standbild erzeugt werden.'),
                 messages.WARNING)
         return redirect(request.path)
 

@@ -361,6 +361,32 @@ class HandoffTest(TestCase):
         self.assertTrue(os.path.isfile(
             os.path.join(out, 'candidates', '99001', 'v1.jpg')))
 
+    def test_candidates_fall_back_to_code_template_without_rule(self):
+        import os
+        import tempfile
+        from unittest.mock import patch
+        from PIL import Image
+        from media_files.models import StorageLocation, VideoFile
+        from media_files.covers import service
+        from media_files.covers.storage import load_manifest
+
+        out = tempfile.mkdtemp(prefix='fallback_')
+        storage = StorageLocation.objects.create(
+            name='S2', storage_type='CUSTOM', path=out)
+        vf = VideoFile.objects.create(
+            number=99002, filename='v.mp4', storage_location=storage,
+            file_path='v.mp4', is_available=True)
+        # No CoverOverlayRule exists -> code-template fallback candidate.
+        with patch.object(service.frames, 'extract_frames',
+                          return_value=[Image.new('RGB', (1280, 720), (20, 20, 20))]):
+            sheet = service.generate_cover_candidates(
+                vf, config=_test_config(output_dir=out))
+
+        self.assertIsNotNone(sheet)
+        self.assertTrue(os.path.isfile(
+            os.path.join(out, 'candidates', '99002', 'v1.jpg')))
+        self.assertTrue(load_manifest(99002, out)['1'].startswith('Standard'))
+
 
 class GetCoverConfigTest(TestCase):
     """Loading CoverConfig from the MediaFilesConfig singleton."""
