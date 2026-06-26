@@ -1816,3 +1816,28 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
         raise RuntimeError(json.dumps(result, ensure_ascii=False))
 
     return result
+
+
+@shared_task(name="media_files.tasks.run_generate_covers")
+def run_generate_covers_task(**kwargs):
+    """Run the generate_covers management command.
+
+    Accepts the same options as the command: number, all, missing_only,
+    force, limit.
+    """
+    logger.info("Starting generate_covers task...")
+
+    args = []
+    if kwargs.get("number") is not None:
+        args.extend(["--number", str(kwargs["number"])])
+    if kwargs.get("all"):
+        args.append("--all")
+    if kwargs.get("missing_only"):
+        args.append("--missing-only")
+    if kwargs.get("force"):
+        args.append("--force")
+    if kwargs.get("limit"):
+        args.extend(["--limit", str(kwargs["limit"])])
+
+    call_command("generate_covers", *args)
+    logger.info("Finished generate_covers task.")

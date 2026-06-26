@@ -465,6 +465,18 @@ class ExportToServerService:
         if not self._write_pdf_to_destination(pdf_source, remote_base_path, pdf_remote_name):
             return ('failure', item_id, 'PDF upload failed')
 
+        # Auto-generate a cover into the hand-off directory so the thumbnail
+        # block below can upload it. Failure here must never fail the export.
+        if self.config.upload_thumbnail_enabled and self.config.thumbnail_storage_path:
+            try:
+                from media_files.covers.config import get_cover_config
+                from media_files.covers.service import generate_cover
+                cover_config = get_cover_config()
+                if cover_config.enabled:
+                    generate_cover(video_file, config=cover_config)
+            except Exception:
+                logger.exception('Cover generation failed for license %s', number)
+
         # Thumbnail
         if self.config.upload_thumbnail_enabled and self.config.thumbnail_storage_path:
             thumb_local = _find_thumbnail(number, self.config.thumbnail_storage_path)
