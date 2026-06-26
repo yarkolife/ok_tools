@@ -783,7 +783,80 @@ class MediaFilesConfig(models.Model):
         verbose_name=_('Transcode Encoding Preset'),
         help_text=_('Default encoding preset for transcoding (e.g., "1080p25_9000k")')
     )
-    
+
+    # --- Cover / thumbnail auto-generation ---
+    cover_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Cover-Generierung aktiviert'),
+        help_text=_('Erzeugt automatisch Cover-Bilder (Thumbnails) aus einem '
+                    'Videobild sowie Lizenz-Metadaten und Branding.')
+    )
+    cover_logo_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Cover-Logo-Pfad'),
+        help_text=_('Absoluter Pfad zum Logo (PNG mit Transparenz), das auf die '
+                    'Cover gezeichnet wird. Leer lassen, um das mitgelieferte '
+                    'Standardlogo zu verwenden.')
+    )
+    cover_title_font_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Cover-Schriftart Titel'),
+        help_text=_('Absoluter Pfad zu einer .ttf-Schrift für Überschriften. '
+                    'Leer lassen, um die mitgelieferte Standardschrift (Roboto-Bold) '
+                    'zu verwenden.')
+    )
+    cover_body_font_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Cover-Schriftart Fließtext'),
+        help_text=_('Absoluter Pfad zu einer .ttf-Schrift für Fließtext (Autor, '
+                    'Untertitel). Leer lassen, um die mitgelieferte Standardschrift '
+                    '(Roboto-Regular) zu verwenden.')
+    )
+    cover_category_colors = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_('Cover-Kategoriefarben'),
+        help_text=_('Optionale Zuordnung von Kategoriename zu Akzentfarbe (Hex), z. B. '
+                    '{"Magazin": "#E6007E"}. Nicht gelistete Kategorien verwenden eine '
+                    'Standardpalette.')
+    )
+    cover_template_rules = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_('Cover-Vorlagenregeln'),
+        help_text=_('Optionale Zuordnung von Kategoriename zu Cover-Vorlage, z. B. '
+                    '{"Trailer": "trailer"}. Verfügbar: base, journal, trailer. '
+                    'Nicht gelistete Kategorien verwenden die Vorlage "base".')
+    )
+    cover_output_storage = models.ForeignKey(
+        StorageLocation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='cover_output_configs',
+        verbose_name=_('Cover-Speicherort'),
+        help_text=_('Verbundener Speicherort, in den die Cover geschrieben werden. '
+                    'Bevorzugt gegenüber einem manuellen Pfad.')
+    )
+    cover_output_subdir = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Cover-Unterordner'),
+        help_text=_('Optionaler Unterordner innerhalb des gewählten Speicherorts '
+                    '(z. B. "covers").')
+    )
+    cover_output_dir = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Cover-Ausgabeverzeichnis (manuell)'),
+        help_text=_('Manueller Pfad als Alternative zum Speicherort. Wird nur '
+                    'verwendet, wenn kein Cover-Speicherort gewählt ist. Leer lassen, '
+                    'um den Thumbnail-Pfad des austausch-Exports zu verwenden.')
+    )
+
     class Meta:
         verbose_name = _('Media Files Configuration')
         verbose_name_plural = _('Media Files Configuration')
@@ -802,3 +875,230 @@ class MediaFilesConfig(models.Model):
         """Get the singleton config instance, create if doesn't exist."""
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+
+class CoverTemplate(models.Model):
+    """Editor-configurable rule selecting a cover template (no code needed).
+
+    Rules are evaluated by priority (ascending); the first active rule whose
+    pattern matches wins. ``scope`` decides what the pattern is matched
+    against. A blank pattern with scope ``channel`` acts as a default rule.
+    """
+
+    SCOPE_CHOICES = [
+        ('series', _('Serie (Regex auf Titel)')),
+        ('category', _('Kategorie (Regex auf Kategoriename)')),
+        ('channel', _('Kanal-Standard (trifft immer zu)')),
+    ]
+    TEMPLATE_CHOICES = [
+        ('base', _('Basis')),
+        ('journal', _('Journal (große Folgennummer)')),
+        ('trailer', _('Trailer (cineastisch)')),
+    ]
+
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('Name'),
+        help_text=_('Sprechende Bezeichnung für diese Regel.'),
+    )
+    scope = models.CharField(
+        max_length=20,
+        choices=SCOPE_CHOICES,
+        default='category',
+        verbose_name=_('Geltungsbereich'),
+    )
+    match_pattern = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Suchmuster'),
+        help_text=_('Regulärer Ausdruck. Bei "Serie" wird gegen den Lizenztitel '
+                    'geprüft, bei "Kategorie" gegen den Kategorienamen. Für eine '
+                    'Kanal-Standardregel leer lassen.'),
+    )
+    template = models.CharField(
+        max_length=20,
+        choices=TEMPLATE_CHOICES,
+        default='base',
+        verbose_name=_('Vorlage'),
+    )
+    theme = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_('Theme-Überschreibungen'),
+        help_text=_('Optionale Überschreibungen, z. B. {"accent": "#FF6B00", '
+                    '"background_style": "cinematic"}. background_style: '
+                    'bottom, bottom_left oder cinematic.'),
+    )
+    priority = models.IntegerField(
+        default=100,
+        verbose_name=_('Priorität'),
+        help_text=_('Kleinere Zahlen werden zuerst ausgewertet (höhere Priorität).'),
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_('Aktiv'),
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """Meta options for CoverTemplate."""
+
+        verbose_name = _('Cover-Vorlagenregel')
+        verbose_name_plural = _('Cover-Vorlagenregeln')
+        ordering = ['priority', 'id']
+
+    def __str__(self):
+        """Return string representation."""
+        return f'{self.priority}: {self.name} ({self.get_template_display()})'
+
+
+class CoverOverlay(models.Model):
+    """An uploadable graphic overlay (PNG/SVG) composited onto a cover.
+
+    Overlays are grouped into pools (e.g. "podcast"); a CoverOverlayRule maps a
+    title/category pattern to a pool. The overlay's ``text_area`` defines where
+    the title/author are drawn so text never lands on the artwork.
+    """
+
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('Name'),
+    )
+    pool = models.CharField(
+        max_length=100,
+        db_index=True,
+        verbose_name=_('Pool'),
+        help_text=_('Gruppenname, z. B. "podcast". Eine Regel ordnet ein '
+                    'Suchmuster diesem Pool zu.'),
+    )
+    image = models.FileField(
+        upload_to='cover_overlays/',
+        verbose_name=_('Grafik (PNG/SVG)'),
+        help_text=_('Transparentes PNG oder SVG, 16:9 (z. B. 1280×720).'),
+    )
+    text_area = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_('Textbereich'),
+        help_text=_('Optional, wo Titel/Autor gezeichnet werden, z. B. '
+                    '{"x": 56, "y": 470, "w": 1168, "h": 180, "align": "left", '
+                    '"color": "#FFFFFF"}. Leer = unten zentriert.'),
+    )
+    logo_area = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_('Logo-Bereich'),
+        help_text=_('Optional, Position/Größe des Logos, z. B. '
+                    '{"x": 950, "y": 40, "w": 260}. Leer = oben rechts.'),
+    )
+    accent = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_('Akzentfarbe'),
+        help_text=_('Optionaler Hex-Wert, z. B. "#E6007E".'),
+    )
+    use_video_frame = models.BooleanField(
+        default=True,
+        verbose_name=_('Videobild verwenden'),
+        help_text=_('Aus: Grafik auf einfarbigem Hintergrund statt auf einem '
+                    'Videobild (für vollflächige Designs).'),
+    )
+    darken_frame = models.BooleanField(
+        default=True,
+        verbose_name=_('Videobild abdunkeln'),
+        help_text=_('Unteren Bildbereich abdunkeln, damit Text lesbar bleibt.'),
+    )
+    draw_logo = models.BooleanField(
+        default=True,
+        verbose_name=_('Logo zeichnen'),
+        help_text=_('Aus, wenn die Grafik bereits ein Logo enthält.'),
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_('Aktiv'),
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        """Meta options for CoverOverlay."""
+
+        verbose_name = _('Cover-Grafik')
+        verbose_name_plural = _('Cover-Grafiken')
+        ordering = ['pool', 'name']
+
+    def __str__(self):
+        """Return string representation."""
+        return f'{self.pool} / {self.name}'
+
+
+class CoverOverlayRule(models.Model):
+    """Maps a title/category pattern to an overlay pool and selection mode."""
+
+    SCOPE_CHOICES = CoverTemplate.SCOPE_CHOICES
+    MODE_CHOICES = [
+        ('random', _('Zufällig (ein stabiler Treffer pro Nummer)')),
+        ('all', _('Alle (Varianten + Kontaktbogen zur Auswahl)')),
+    ]
+
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('Name'),
+    )
+    scope = models.CharField(
+        max_length=20,
+        choices=SCOPE_CHOICES,
+        default='series',
+        verbose_name=_('Geltungsbereich'),
+    )
+    match_pattern = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Suchmuster'),
+        help_text=_('Regulärer Ausdruck, z. B. "Podcast". Bei "Serie" gegen den '
+                    'Titel, bei "Kategorie" gegen den Kategorienamen.'),
+    )
+    pool = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Pool'),
+        help_text=_('Cover-Grafik-Pool (Gruppenname). Wird verwendet, wenn unten '
+                    'keine konkreten Grafiken ausgewählt sind.'),
+    )
+    overlays = models.ManyToManyField(
+        CoverOverlay,
+        blank=True,
+        related_name='rules',
+        verbose_name=_('Grafiken (konkret)'),
+        help_text=_('Konkrete Grafiken für diese Regel. Wenn gesetzt, hat dies '
+                    'Vorrang vor dem Pool — so kann dieselbe Grafik in mehreren '
+                    'Regeln vorkommen (z. B. 1, 3, 5 für Podcasts; 2, 3 für Familie).'),
+    )
+    selection_mode = models.CharField(
+        max_length=10,
+        choices=MODE_CHOICES,
+        default='random',
+        verbose_name=_('Auswahlmodus'),
+    )
+    priority = models.IntegerField(
+        default=50,
+        verbose_name=_('Priorität'),
+        help_text=_('Kleinere Zahlen zuerst. Grafikregeln gehen Vorlagenregeln vor.'),
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_('Aktiv'),
+    )
+
+    class Meta:
+        """Meta options for CoverOverlayRule."""
+
+        verbose_name = _('Cover-Grafikregel')
+        verbose_name_plural = _('Cover-Grafikregeln')
+        ordering = ['priority', 'id']
+
+    def __str__(self):
+        """Return string representation."""
+        return f'{self.priority}: {self.name} -> {self.pool} ({self.selection_mode})'
