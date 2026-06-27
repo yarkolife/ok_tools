@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-06-26 (Version 4.25.1)
+==========================
+
+* **tools: Reel Studio — share-relative video paths, model warm-up, longer timeout**
+  * Video paths now carry the renderer share prefix (`playout/` = Sendedaten, `archive/` = FilmArchiv) derived from the file's StorageLocation, instead of a bare filename
+  * `ReelStudioView` triggers a best-effort, non-blocking model warm-up (`/api/hook/warmup`) on page open so the first hook generation is warm
+  * `ToolsConfig.reel_render_timeout` default raised 30 → 360 (and applied to hook requests) so a cold AI model is not cut off before the renderer responds
+  * Note: gunicorn `timeout` should be >= 360 on the server (config file is deployment-managed; set `GUNICORN_TIMEOUT=360`)
+
 2026-06-26 (Version 4.25.0)
 ==========================
 

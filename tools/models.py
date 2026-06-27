@@ -953,9 +953,13 @@ class ToolsConfig(models.Model):
         help_text=_('Sent as X-API-Key header to the reel renderer.'),
     )
     reel_render_timeout = models.PositiveIntegerField(
-        default=30,
+        default=360,
         verbose_name=_('Reel render timeout (seconds)'),
-        help_text=_('HTTP read timeout for reel render/start requests.'),
+        help_text=_(
+            'HTTP read timeout for reel render/start and hook requests. Must be '
+            'generous (e.g. 360) so a cold AI model is not cut off before the '
+            'renderer responds.'
+        ),
     )
     reel_output_name_pattern = models.CharField(
         max_length=255,

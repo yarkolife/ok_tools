@@ -109,12 +109,14 @@ def generate_hooks(
     location: str | None = None,
     date: str | None = None,
     n: int = 5,
-    read_timeout: float = 200,
+    read_timeout: float | None = None,
 ) -> list[dict]:
     """Return n hook variants [{zeile1, zeile2, short_title}, ...] for hook_type.
 
-    Slow (cold 7B model up to ~180 s) -> call in the background.
+    Slow (cold 7B model up to ~180 s) -> call in the background. Uses the
+    configured reel timeout (should be generous, e.g. 360 s) unless overridden.
     """
+    timeout = read_timeout if read_timeout is not None else _timeout()
     payload: dict = {"title": title, "n": n, "hook_type": hook_type}
     for k, v in (
         ("description", description),
@@ -124,7 +126,61 @@ def generate_hooks(
     ):
         if v:
             payload[k] = v
-    return _post("/api/hook", payload, read_timeout).get("candidates", [])
+    return _post("/api/hook", payload, timeout).get("candidates", [])
+
+
+def warmup(read_timeout: float = 5) -> bool:
+    """Best-effort: trigger model warm-up so the first hook call is warm.
+
+    Errors are swallowed (the renderer may be unreachable or lack the endpoint).
+    """
+    base = _base_url()
+    if not base:
+        return False
+    try:
+        _session.post(
+            base + "/api/hook/warmup", headers=_headers(), timeout=(3, read_timeout))
+        return True
+    except requests.RequestException:
+        return False
+
+
+def share_prefix_for(storage_location) -> str:
+    """Pick the renderer share prefix for a StorageLocation.
+
+    Rule: ``playout/`` = //192.168.88.2/Sendedaten, ``archive/`` = FilmArchiv.
+    Detection order: share name in unc_path/path (most reliable), then
+    storage_type, then default ``playout``.
+    """
+    if storage_location is None:
+        return "playout"
+    hay = "{} {}".format(
+        getattr(storage_location, "unc_path", "") or "",
+        getattr(storage_location, "path", "") or "",
+    ).lower()
+    if "filmarchiv" in hay or "archiv" in hay:
+        return "archive"
+    if "sendedaten" in hay or "playout" in hay:
+        return "playout"
+    storage_type = (getattr(storage_location, "storage_type", "") or "").upper()
+    return {"PLAYOUT": "playout", "ARCHIVE": "archive"}.get(storage_type, "playout")
+
+
+def share_relative_path(file_path, storage_location=None) -> str:
+    """Build a path relative to the renderer's CIFS share root.
+
+    ``file_path`` is relative to its StorageLocation root. http(s) URLs and
+    paths that already carry a share prefix are returned unchanged.
+    """
+    if not file_path:
+        return ""
+    fp = str(file_path)
+    if fp.startswith(("http://", "https://")):
+        return fp
+    fp = fp.replace("\\", "/").lstrip("/")
+    if fp.split("/", 1)[0] in ("playout", "archive"):
+        return fp
+    return f"{share_prefix_for(storage_location)}/{fp}"
 
 
 # ---- 2. CTA selection (dropdown) ------------------------------------------

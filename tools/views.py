@@ -312,7 +312,21 @@ class ReelStudioView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
         check_tools_enabled()
         if not _reel_studio_configured():
             raise Http404(_("Reel Studio is not enabled"))
+        self._warm_reel_model()
         return super().dispatch(request, *args, **kwargs)
+
+    @staticmethod
+    def _warm_reel_model():
+        """Best-effort, non-blocking model warm-up while the operator edits.
+
+        Runs in a daemon thread so the page is not delayed; errors are ignored.
+        """
+        import threading
+        from .services import okmq_reel
+        try:
+            threading.Thread(target=okmq_reel.warmup, daemon=True).start()
+        except Exception:
+            pass
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -351,7 +365,10 @@ class ReelStudioView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
                         video_file.duration.total_seconds())
                 # Fill in path/duration from the file when not given explicitly.
                 if not prefill["video"]:
-                    prefill["video"] = getattr(video_file, "file_path", "") or ""
+                    from .services.okmq_reel import share_relative_path
+                    prefill["video"] = share_relative_path(
+                        getattr(video_file, "file_path", ""),
+                        getattr(video_file, "storage_location", None))
                 if not prefill["dauer"] and context["video_duration"]:
                     prefill["dauer"] = str(context["video_duration"])
 

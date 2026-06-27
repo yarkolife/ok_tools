@@ -1276,9 +1276,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         except Exception:
             video_file = None
 
-        # Best-effort: file_path is relative to its StorageLocation; the operator
-        # adjusts it to the renderer's share root if needed.
-        video_path = getattr(video_file, 'file_path', '') or ''
+        # Build a path relative to the renderer's share root
+        # (playout/ = Sendedaten, archive/ = FilmArchiv).
+        from tools.services.okmq_reel import share_relative_path
+        video_path = share_relative_path(
+            getattr(video_file, 'file_path', ''),
+            getattr(video_file, 'storage_location', None))
 
         try:
             output_name = (config.reel_output_name_pattern or '').format(
