@@ -1265,6 +1265,44 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             return tag, uhr
         return '', ''
 
+    @staticmethod
+    def _reel_video_file(license_obj):
+        """Pick the best video file for a reel: prefer playout, then archive.
+
+        Falls back to the license's primary video file when no copy can be
+        ranked (e.g. a single custom-storage file).
+        """
+        from tools.services.okmq_reel import share_prefix_for
+        try:
+            from media_files.models import VideoFile
+            candidates = list(
+                VideoFile.objects
+                .filter(number=license_obj.number, is_available=True)
+                .select_related('storage_location')
+            )
+        except Exception:
+            candidates = []
+
+        primary = None
+        try:
+            primary = license_obj.get_video_file()
+        except Exception:
+            primary = None
+        if primary and primary not in candidates and primary.is_available:
+            candidates.append(primary)
+        if not candidates:
+            return primary
+
+        # playout (0) before archive (1) before anything else (2); newest first.
+        rank = {'playout': 0, 'archive': 1}
+
+        def sort_key(vf):
+            prefix = share_prefix_for(getattr(vf, 'storage_location', None))
+            return (rank.get(prefix, 2), -(vf.id or 0))
+
+        candidates.sort(key=sort_key)
+        return candidates[0]
+
     def _reel_studio_url(self, license_obj):
         """Build the Reel Studio URL prefilled from a license, or '' if unavailable."""
         from django.utils.http import urlencode
@@ -1272,7 +1310,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
         config = ToolsConfig.get_config()
         try:
-            video_file = license_obj.get_video_file()
+            video_file = self._reel_video_file(license_obj)
         except Exception:
             video_file = None
 

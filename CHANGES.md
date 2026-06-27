@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2026-06-26 (Version 4.25.2)
+==========================
+
+* **licenses: Reel Studio picks the playout video copy, then archive**
+  * `LicenseAdmin._reel_video_file` ranks a license's available video files by share (playout before archive before other), newest first, and uses it for both the prefilled path and the inline player; falls back to the primary video file
+
 2026-06-26 (Version 4.25.1)
 ==========================
 
