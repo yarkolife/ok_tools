@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-06-26 (Version 4.26.0)
+==========================
+
+* **tools: Reel Studio — broadcast-date filenames and reel preview/download**
+  * Output filename now uses the broadcast date from `planung` (latest plan containing the license) instead of today; falls back to today when unplanned
+  * Finished reels can be viewed and downloaded: new `reel_output_stream` view (HTTP Range + `?download=1`) and a player with View/Download links after rendering
+  * `ToolsConfig` gains `reel_output_storage` (defaults to the first Playout storage) and `reel_output_subdir` (`003_Programmvorschau`); `resolve_reel_output_file` resolves the rendered file safely
+  * Requires the playout share to be mounted in the web container for preview/download
+* **i18n: German translations for the new strings**
+
 2026-06-26 (Version 4.25.2)
 ==========================
 

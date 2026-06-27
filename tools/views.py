@@ -726,6 +726,81 @@ def _media_root_abs() -> Path:
     return (base_dir / media_root).resolve()
 
 
+def _serve_file_with_range(request, abs_path: Path, as_attachment: bool = False,
+                           download_name: str | None = None):
+    """Serve a file with HTTP Range support (for HTML5 video seeking)."""
+    size = abs_path.stat().st_size
+    content_type, _enc = mimetypes.guess_type(str(abs_path))
+    content_type = content_type or "application/octet-stream"
+
+    range_header = request.headers.get("Range") or request.META.get("HTTP_RANGE")
+    if not range_header:
+        resp = FileResponse(
+            open(abs_path, "rb"), content_type=content_type,
+            as_attachment=as_attachment, filename=download_name or abs_path.name)
+        resp["Accept-Ranges"] = "bytes"
+        resp["Content-Length"] = str(size)
+        return resp
+
+    m = re.match(r"^bytes=(\d*)-(\d*)$", range_header.strip())
+    if not m:
+        resp = HttpResponse(status=416)
+        resp["Content-Range"] = f"bytes */{size}"
+        return resp
+    start_s, end_s = m.groups()
+    if start_s == "":
+        suffix_len = int(end_s or 0)
+        if suffix_len <= 0:
+            resp = HttpResponse(status=416)
+            resp["Content-Range"] = f"bytes */{size}"
+            return resp
+        start, end = max(0, size - suffix_len), size - 1
+    else:
+        start = int(start_s)
+        end = int(end_s) if end_s else size - 1
+    if start < 0 or start >= size or end < start:
+        resp = HttpResponse(status=416)
+        resp["Content-Range"] = f"bytes */{size}"
+        return resp
+    end = min(end, size - 1)
+    length = end - start + 1
+
+    def iterator(path: Path, offset: int, count: int, chunk_size: int = 1024 * 512):
+        with open(path, "rb") as f:
+            f.seek(offset)
+            remaining = count
+            while remaining > 0:
+                data = f.read(min(chunk_size, remaining))
+                if not data:
+                    break
+                remaining -= len(data)
+                yield data
+
+    resp = StreamingHttpResponse(
+        iterator(abs_path, start, length), status=206, content_type=content_type)
+    resp["Accept-Ranges"] = "bytes"
+    resp["Content-Range"] = f"bytes {start}-{end}/{size}"
+    resp["Content-Length"] = str(length)
+    return resp
+
+
+def reel_output_stream(request, filename: str):
+    """Stream (or download) a finished reel from the output storage."""
+    check_tools_enabled()
+    if not request.user.is_authenticated or not request.user.is_staff:
+        raise Http404("Not found")
+    if not _reel_studio_configured():
+        raise Http404("Not found")
+
+    config = ToolsConfig.get_config()
+    abs_path = config.resolve_reel_output_file(filename)
+    if abs_path is None:
+        raise Http404(_("Rendered reel not found"))
+
+    as_attachment = request.GET.get("download") in ("1", "true", "yes")
+    return _serve_file_with_range(request, abs_path, as_attachment=as_attachment)
+
+
 def tools_media_stream(request, relpath: str):
     """
     Stream a file from MEDIA_ROOT or mounted storage with HTTP Range support.

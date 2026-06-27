@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Reel studio tool (external OKMQ reel renderer)
     path('reel-studio/', views.ReelStudioView.as_view(), name='reel_studio'),
+    path('reel-studio/output/<str:filename>/', views.reel_output_stream, name='reel_output_stream'),
 
     # Video render tool (select + deep link)
     path('video-render/', views.VideoRenderSelectView.as_view(), name='video_render_select'),

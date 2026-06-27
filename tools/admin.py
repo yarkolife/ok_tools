@@ -164,6 +164,8 @@ class ToolsConfigAdmin(admin.ModelAdmin):
                 'reel_output_name_pattern',
                 'reel_default_mediathek_zeile1',
                 'reel_default_mediathek_zeile2',
+                'reel_output_storage',
+                'reel_output_subdir',
             ),
             'description': _(
                 'External OKMQ reel renderer. The tool card, page and license admin action '
@@ -178,6 +180,7 @@ class ToolsConfigAdmin(admin.ModelAdmin):
             'output_path_storage',
             'audio_normalize_input_storage',
             'audio_normalize_output_storage',
+            'reel_output_storage',
         )
         if db_field.name in storage_fields:
             try:

@@ -141,6 +141,7 @@ const RS = {
   cta:    "{% url 'tools:api_reel_cta' %}",
   render: "{% url 'tools:api_reel_render' %}",
   task:   (id) => "{% url 'tools:api_reel_task' 'TASK_ID' %}".replace('TASK_ID', id),
+  output: (name) => "{% url 'tools:reel_output_stream' 'FILENAME' %}".replace('FILENAME', encodeURIComponent(name)),
   medZ1:  "{{ reel_mediathek_zeile1|default:''|escapejs }}",
   medZ2:  "{{ reel_mediathek_zeile2|default:''|escapejs }}",
 };
@@ -228,6 +229,23 @@ $('btnHooks').addEventListener('click', async () => {
 });
 
 // Render reel
+function showRenderResult(res){
+  const file = (res && res.file) || '';
+  const el = $('renderStatus');
+  if(!file){ setStatus(el, '{% trans "Done" %}', 'ok'); return; }
+  const url = RS.output(file);
+  el.innerHTML =
+    `<div class="rs-status ok">{% trans "Done" %}: <b></b>`
+    + `<div style="margin-top:8px;">`
+    + `<a href="${url}" target="_blank" class="button">{% trans "View" %}</a> `
+    + `<a href="${url}?download=1" class="button">{% trans "Download" %}</a>`
+    + `</div>`
+    + `<video src="${url}" controls preload="metadata" `
+    + `style="max-width:360px;width:100%;margin-top:10px;border-radius:6px;background:#000;"></video>`
+    + `</div>`;
+  el.querySelector('b').textContent = file;
+}
+
 $('btnRender').addEventListener('click', async () => {
   if(!selectedHook){ return; }
   if(!$('video').value || !$('output_name').value){
@@ -254,8 +272,7 @@ $('btnRender').addEventListener('click', async () => {
   try{
     const {task_id} = await api(RS.render, {method:'POST', body: JSON.stringify(body)});
     const res = await pollTask(task_id);
-    setStatus($('renderStatus'), `{% trans "Done" %}: <b></b>`, 'ok');
-    $('renderStatus').querySelector('b').textContent = res.file || '';
+    showRenderResult(res);
   }catch(e){ setStatus($('renderStatus'), '{% trans "Error" %}: '+e.message, 'err'); }
   finally{ $('btnRender').disabled=false; }
 });

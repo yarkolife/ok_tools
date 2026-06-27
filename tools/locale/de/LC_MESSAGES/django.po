@@ -3394,6 +3394,25 @@ msgstr "Dateivorgang"
 msgid "Sendeverantwortung"
 msgstr "Sendeverantwortung"
 
+msgid "Reel output storage"
+msgstr "Reel-Ausgabespeicher"
+
+msgid ""
+"Storage location where the renderer writes finished reels. When empty, the "
+"first Playout storage is used. Needed for preview/download."
+msgstr ""
+"Speicherort, an den der Renderer fertige Reels schreibt. Wenn leer, wird der"
+" erste Playout-Speicher verwendet. Nötig für Vorschau/Download."
+
+msgid "Reel output subdirectory"
+msgstr "Reel-Ausgabe-Unterverzeichnis"
+
+msgid "Subdirectory inside the output storage where reels are written."
+msgstr "Unterverzeichnis im Ausgabespeicher, in das Reels geschrieben werden."
+
+msgid "Rendered reel not found"
+msgstr "Gerendertes Reel nicht gefunden"
+
 #~ msgid "Invert overlay text color (white ↔ black)"
 #~ msgstr "Textfarbe der Overlays invertieren (weiß ↔ schwarz)"
 

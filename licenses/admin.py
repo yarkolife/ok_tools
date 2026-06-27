@@ -1227,29 +1227,27 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         return actions
 
     @staticmethod
-    def _reel_sendetermin(license_obj):
-        """Find broadcast day (German) and time from the planning data.
+    def _reel_plan_info(license_obj):
+        """Find the broadcast plan entry for a license.
 
         Picks the latest plan (by date) that contains this license; if several
-        items match within it, the last one wins. Returns (tag, uhrzeit) or
-        ('', '').
+        items match within it, the last one wins. Returns (date, start_time) as
+        (date|None, "HH:MM").
         """
         try:
             from planung.models import TagesPlan
         except Exception:
-            return '', ''
+            return None, ''
 
-        weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
-                    'Freitag', 'Samstag', 'Sonntag']
         # Match by license_id first, fall back to the license number.
         for key, value in (('license_id', license_obj.id),
                            ('number', license_obj.number)):
-            plans = (
+            plan = (
                 TagesPlan.objects
                 .filter(json_plan__items__contains=[{key: value}])
                 .order_by('-datum')
+                .first()
             )
-            plan = plans.first()
             if not plan:
                 continue
             matches = [
@@ -1259,11 +1257,20 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             if not matches:
                 continue
             item = matches[-1]  # last value if several
-            # German format: "Samstag, 27.06."
-            tag = f"{weekdays[plan.datum.weekday()]}, {plan.datum:%d.%m.}"
             uhr = (item.get('start') or '')[:5]  # "18:00:00" -> "18:00"
-            return tag, uhr
-        return '', ''
+            return plan.datum, uhr
+        return None, ''
+
+    @classmethod
+    def _reel_sendetermin(cls, license_obj):
+        """German broadcast day+date and time, e.g. ('Samstag, 27.06.', '18:00')."""
+        plan_date, uhr = cls._reel_plan_info(license_obj)
+        if not plan_date:
+            return '', ''
+        weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
+                    'Freitag', 'Samstag', 'Sonntag']
+        tag = f"{weekdays[plan_date.weekday()]}, {plan_date:%d.%m.}"
+        return tag, uhr
 
     @staticmethod
     def _reel_video_file(license_obj):
@@ -1321,9 +1328,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             getattr(video_file, 'file_path', ''),
             getattr(video_file, 'storage_location', None))
 
+        # Use the broadcast date for the filename (not today), fall back to now.
+        plan_date, _plan_uhr = self._reel_plan_info(license_obj)
+        name_date = plan_date or timezone.now()
         try:
             output_name = (config.reel_output_name_pattern or '').format(
-                number=license_obj.number, date=timezone.now())
+                number=license_obj.number, date=name_date)
         except Exception:
             output_name = ''
 

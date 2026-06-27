@@ -985,6 +985,25 @@ class ToolsConfig(models.Model):
         verbose_name=_('Reel mediathek line 2'),
         help_text=_('Default second line of the mediathek badge.'),
     )
+    reel_output_storage = models.ForeignKey(
+        'media_files.StorageLocation',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name=_('Reel output storage'),
+        help_text=_(
+            'Storage location where the renderer writes finished reels. When empty, '
+            'the first Playout storage is used. Needed for preview/download.'
+        ),
+    )
+    reel_output_subdir = models.CharField(
+        max_length=255,
+        blank=True,
+        default='003_Programmvorschau',
+        verbose_name=_('Reel output subdirectory'),
+        help_text=_('Subdirectory inside the output storage where reels are written.'),
+    )
 
     class Meta:
         verbose_name = _('Tools Configuration')
@@ -1026,6 +1045,51 @@ class ToolsConfig(models.Model):
             and self.reel_render_url
             and self.reel_render_api_key
         )
+
+    def get_reel_output_base(self) -> str:
+        """Return the base path where finished reels are written, or ''.
+
+        Uses ``reel_output_storage`` if set, otherwise the first Playout
+        StorageLocation. Used to preview/download rendered reels.
+        """
+        storage = self.reel_output_storage
+        if storage and getattr(storage, 'path', None):
+            return storage.path.rstrip('/\\')
+        try:
+            from media_files.models import StorageLocation
+            playout = (
+                StorageLocation.objects
+                .filter(storage_type='PLAYOUT', is_active=True)
+                .order_by('name')
+                .first()
+            )
+            if playout and playout.path:
+                return playout.path.rstrip('/\\')
+        except Exception:
+            pass
+        return ''
+
+    def resolve_reel_output_file(self, filename: str):
+        """Resolve a rendered reel filename to an existing absolute Path or None."""
+        from pathlib import Path
+        base = self.get_reel_output_base()
+        if not base or not filename:
+            return None
+        # Use the basename only -- never trust caller-supplied subpaths.
+        safe_name = Path(str(filename).replace('\\', '/')).name
+        if not safe_name:
+            return None
+        base_path = Path(base).resolve()
+        subdir = (self.reel_output_subdir or '').strip('/\\')
+        candidate = (base_path / subdir / safe_name).resolve() if subdir \
+            else (base_path / safe_name).resolve()
+        try:
+            candidate.relative_to(base_path)
+        except ValueError:
+            return None
+        if candidate.exists() and candidate.is_file():
+            return candidate
+        return None
 
 
 class AudioNormalizeJob(models.Model):
