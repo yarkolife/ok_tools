@@ -87,6 +87,9 @@ Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
 
   <div class="rs-row">
     <div><label>{% trans 'Author' %}</label><input id="autor" value="{{ prefill.autor }}" placeholder="Klaus Treuter"></div>
+    <div><label>{% trans 'Show (kicker, optional)' %}</label><input id="sendung" value="{{ prefill.sendung }}" placeholder="Merseburg Report"></div>
+  </div>
+  <div class="rs-row">
     <div><label>{% trans 'Output filename' %} *</label><input id="output_name" value="{{ prefill.output_name }}" placeholder="18590_Reel_260629"></div>
   </div>
   <div class="rs-row">
@@ -330,6 +333,7 @@ $('btnRender').addEventListener('click', async () => {
   const body = {
     video:$('video').value, hook:selectedHook, hook_type:$('hook_type').value,
     output_name:$('output_name').value, autor:$('autor').value||null,
+    titel:$('title').value||null, sendung:$('sendung').value||null,
     start_from_seconds:startFrom, cta:cta,
     mediathek: $('med_on').checked ? {zeile1:RS.medZ1, zeile2:RS.medZ2} : null,
     sendetermin: ($('se_tag').value && $('se_uhr').value) ? {tag:$('se_tag').value, uhrzeit:$('se_uhr').value} : null

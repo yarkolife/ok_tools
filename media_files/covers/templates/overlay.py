@@ -46,6 +46,51 @@ class OverlayCover:
         max_size = max(72, min(112, title_height // 3))
         return title_height, max_lines, max_size
 
+    @staticmethod
+    def _line_height(draw, font, stroke):
+        """Return the actual rendered line height including stroke."""
+        box = draw.textbbox((0, 0), 'Ag', font=font, stroke_width=stroke)
+        return box[3] - box[1]
+
+    def _fit_text_block(self, draw, title, secondary, config, width, height, stroke):
+        """Fit title and secondary text into the exact selected text box."""
+        _, max_lines, max_size = self._title_layout(height, bool(secondary))
+        size = max_size
+        while size >= 8:
+            font = renderer.load_font(config.title_font_path, size)
+            lines = renderer._wrap_text(draw, title, font, width)
+            if len(lines) > max_lines:
+                size -= 2
+                continue
+            if any(
+                draw.textbbox((0, 0), line, font=font, stroke_width=stroke)[2] > width
+                for line in lines
+            ):
+                size -= 2
+                continue
+
+            line_h = self._line_height(draw, font, stroke)
+            line_step = max(1, int(line_h * 1.12))
+            block_h = line_h + max(0, len(lines) - 1) * line_step
+            sfont = None
+            if secondary:
+                sfont_size = max(8, min(30, int(size * 0.45)))
+                sfont = renderer.load_font(config.body_font_path, sfont_size)
+                sbox = draw.textbbox((0, 0), secondary, font=sfont,
+                                     stroke_width=stroke)
+                block_h += 6 + (sbox[3] - sbox[1])
+                if sbox[2] - sbox[0] > width:
+                    size -= 2
+                    continue
+
+            if block_h <= height:
+                return font, lines, line_step, sfont
+            size -= 2
+
+        font = renderer.load_font(config.title_font_path, 8)
+        return font, renderer._wrap_text(draw, title, font, width), (
+            max(1, int(self._line_height(draw, font, stroke) * 1.12))), None
+
     def render(self, background, data: CoverData, config: CoverConfig, theme=None):
         """Compose and return the final RGB cover image."""
         width, height = config.size
@@ -72,32 +117,29 @@ class OverlayCover:
         # Light text gets a stroke for legibility; dark text none.
         stroke = 3 if sum(fill) > 380 else 0
 
-        if data.title:
+        if data.title and getattr(self.overlay, 'draw_title', True):
             secondary = data.author or data.subtitle
-            title_height, max_lines, max_size = self._title_layout(
-                h, bool(secondary))
-            font, lines = renderer.fit_text(
-                draw, data.title, config.title_font_path,
-                max_width=w, max_height=title_height, max_size=max_size,
-                min_size=18, max_lines=max_lines)
-            line_h = draw.textbbox((0, 0), 'Ag', font=font)[3]
-            block_h = int(line_h * 1.18)
+            font, lines, line_step, sfont = self._fit_text_block(
+                draw, data.title, secondary, config, w, h, stroke)
             ty = y
             for line in lines:
                 tx = x
                 if align == 'center':
-                    lw = draw.textbbox((0, 0), line, font=font)[2]
+                    lw = draw.textbbox(
+                        (0, 0), line, font=font, stroke_width=stroke)[2]
                     tx = x + (w - lw) // 2
                 renderer.draw_text_with_stroke(
                     draw, (tx, ty), line, font, fill=fill,
                     stroke_width=stroke)
-                ty += block_h
+                ty += line_step
 
             if secondary:
-                sfont = renderer.load_font(config.body_font_path, 30)
+                sfont = sfont or renderer.load_font(config.body_font_path, 14)
                 sx = x
                 if align == 'center':
-                    sw = draw.textbbox((0, 0), secondary, font=sfont)[2]
+                    sw = draw.textbbox(
+                        (0, 0), secondary, font=sfont,
+                        stroke_width=stroke)[2]
                     sx = x + (w - sw) // 2
                 renderer.draw_text_with_stroke(
                     draw, (sx, ty + 6), secondary, sfont, fill=fill,

@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-06-28 (Version 4.28.0)
+==========================
+
+* **tools: Send title and optional kicker in the reel beitrag**
+  * `/api/reel` now receives `beitrag.titel` (shown title) and an optional `beitrag.sendung` (kicker); Reel Studio adds a "Sendung (Kicker)" field and the license action prefills it from the category
+* **media_files: Cover overlay "draw title" toggle**
+  * `CoverOverlay.draw_title` lets an overlay skip the license title (e.g. when the graphic already contains text or the cover type renders without a title); migration 0029
+
 2026-06-28 (Version 4.27.0)
 ==========================
 

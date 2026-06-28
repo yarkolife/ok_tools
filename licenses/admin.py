@@ -1350,12 +1350,17 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         if license_obj.profile_id:
             autor = str(license_obj.profile).strip()
 
+        sendung = ''
+        if license_obj.category_id:
+            sendung = (getattr(license_obj.category, 'name', '') or '').strip()
+
         se_tag, se_uhr = self._reel_sendetermin(license_obj)
 
         params = {
             'title': license_obj.title or '',
             'output_name': output_name,
             'autor': autor,
+            'sendung': sendung,
             'description': license_obj.description or '',
             'dauer': duration,
             'se_tag': se_tag,

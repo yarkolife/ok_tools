@@ -2308,6 +2308,8 @@ class ReelRenderView(APIView):
             "hook_type": body["hook_type"],
             "output_name": body["output_name"],
             "autor": body.get("autor"),
+            "titel": body.get("titel"),                 # shown title (beitrag.titel)
+            "sendung": body.get("sendung"),             # optional kicker
             "start_from_seconds": body.get("start_from_seconds"),
             "cta": body.get("cta"),                     # omit -> server default per type
             "mediathek": body.get("mediathek"),

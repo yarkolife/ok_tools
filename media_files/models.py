@@ -1024,6 +1024,12 @@ class CoverOverlay(models.Model):
         verbose_name=_('Logo zeichnen'),
         help_text=_('Aus, wenn die Grafik bereits ein Logo enthält.'),
     )
+    draw_title = models.BooleanField(
+        default=True,
+        verbose_name=_('Titel zeichnen'),
+        help_text=_('Aus, wenn die Grafik bereits Text enthält oder dieser '
+                    'Cover-Typ ohne Lizenz-Titel gerendert werden soll.'),
+    )
     is_active = models.BooleanField(
         default=True,
         verbose_name=_('Aktiv'),

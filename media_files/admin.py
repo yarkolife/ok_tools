@@ -3677,10 +3677,12 @@ class CoverOverlayAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
     """Admin for uploadable graphic overlays (PNG/SVG) grouped into pools."""
 
     form = CoverOverlayForm
-    list_display = ['name', 'pool', 'preview', 'use_video_frame', 'draw_logo', 'is_active']
+    list_display = [
+        'name', 'pool', 'preview', 'use_video_frame', 'draw_title',
+        'draw_logo', 'is_active']
     list_display_links = ['name']
     list_editable = ['is_active']
-    list_filter = ['pool', 'is_active', 'use_video_frame']
+    list_filter = ['pool', 'is_active', 'use_video_frame', 'draw_title']
     search_fields = ['name', 'pool']
     readonly_fields = ['preview']
 

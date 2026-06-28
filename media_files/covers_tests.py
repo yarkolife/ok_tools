@@ -188,6 +188,31 @@ class RenderSmokeTest(SimpleTestCase):
             self._assert_cover(
                 OverlayCover(overlay).render(_synthetic_bg(), data, _test_config()))
 
+    def test_overlay_can_disable_title_rendering(self):
+        import tempfile
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from PIL import Image
+        from media_files.covers.templates.overlay import OverlayCover
+
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+            Image.new('RGBA', (1280, 720), (0, 0, 0, 0)).save(tmp.name)
+            overlay = SimpleNamespace(
+                image=SimpleNamespace(path=tmp.name, name=tmp.name),
+                text_area={'x': 60, 'y': 80, 'w': 420, 'h': 220,
+                           'align': 'left', 'color': '#FFFFFF'},
+                logo_area=None,
+                accent='', use_video_frame=True, darken_frame=False,
+                draw_logo=False, draw_title=False)
+            data = CoverData(title='Should not be drawn', author='Host', number=3)
+
+            with patch('media_files.covers.renderer.draw_text_with_stroke') as mocked:
+                self._assert_cover(
+                    OverlayCover(overlay).render(
+                        _synthetic_bg(), data, _test_config()))
+
+            mocked.assert_not_called()
+
     def test_overlay_text_layout_uses_tall_regions(self):
         from types import SimpleNamespace
         from media_files.covers.templates.overlay import OverlayCover
@@ -201,6 +226,28 @@ class RenderSmokeTest(SimpleTestCase):
         self.assertGreater(tall_height, short_height)
         self.assertGreater(tall_lines, short_lines)
         self.assertGreater(tall_size, short_size)
+
+    def test_overlay_text_block_fits_selected_region_height(self):
+        from types import SimpleNamespace
+        from media_files.covers.templates.overlay import OverlayCover
+
+        image = Image.new('RGB', (1280, 720), (0, 0, 0))
+        draw = ImageDraw.Draw(image)
+        cover = OverlayCover(SimpleNamespace(text_area={}))
+        title = ('Merseburg Report Grün ist Leben Nr. 2 2006 mit weiteren '
+                 'Informationen')
+        secondary = 'OK Merseburg'
+        height = 220
+
+        font, lines, line_step, sfont = cover._fit_text_block(
+            draw, title, secondary, _test_config(), 420, height, 3)
+
+        line_h = cover._line_height(draw, font, 3)
+        block_h = line_h + max(0, len(lines) - 1) * line_step
+        sbox = draw.textbbox((0, 0), secondary, font=sfont, stroke_width=3)
+        block_h += 6 + (sbox[3] - sbox[1])
+
+        self.assertLessEqual(block_h, height)
 
     def test_fit_text_keeps_long_words_inside_width(self):
         image = Image.new('RGB', (1280, 720), (0, 0, 0))

@@ -342,6 +342,7 @@ class ReelStudioView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
             "dauer": get.get("dauer", ""),
             "se_tag": get.get("se_tag", ""),
             "se_uhr": get.get("se_uhr", ""),
+            "sendung": get.get("sendung", ""),
         }
 
         # Optional inline video player to pick the start second manually.

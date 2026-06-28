@@ -235,6 +235,8 @@ def start_reel(
     hook_type: str,        # frage|intrige|kontrast|naehe|emotion|sachlich
     output_name: str,
     autor: str | None = None,
+    titel: str | None = None,                   # shown title -> beitrag.titel
+    sendung: str | None = None,                 # optional kicker -> beitrag.sendung
     start_from_seconds: float | None = None,   # auto_start_seconds(...) OR manual second
     cta: dict | None = None,                    # omit -> server default per hook_type
     mediathek: dict | None = None,              # {"zeile1","zeile2"} optional
@@ -243,6 +245,10 @@ def start_reel(
 ) -> str:
     """Enqueue a reel into the render queue and return the job_id immediately (async)."""
     beitrag: dict = {"video": video}
+    if titel:
+        beitrag["titel"] = titel
+    if sendung:
+        beitrag["sendung"] = sendung
     if autor:
         beitrag["autor"] = autor
     if start_from_seconds is not None:

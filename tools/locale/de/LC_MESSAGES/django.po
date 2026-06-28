@@ -69,8 +69,8 @@ msgstr "Reel-Studio"
 
 #: admin.py:169
 msgid ""
-"External reel renderer. The tool card, page and license admin action "
-"are only shown when \"Reel Studio enabled\" is on AND URL + API key are set."
+"External reel renderer. The tool card, page and license admin action are "
+"only shown when \"Reel Studio enabled\" is on AND URL + API key are set."
 msgstr ""
 "Externer Reel-Renderer. Werkzeug-Kachel, Seite und Lizenz-Admin-Aktion "
 "werden nur angezeigt, wenn „Reel-Studio aktiviert“ an ist UND URL + API-"
@@ -3412,6 +3412,9 @@ msgstr "Unterverzeichnis im Ausgabespeicher, in das Reels geschrieben werden."
 
 msgid "Rendered reel not found"
 msgstr "Gerendertes Reel nicht gefunden"
+
+msgid "Show (kicker, optional)"
+msgstr "Sendung (Kicker, optional)"
 
 #~ msgid "Invert overlay text color (white ↔ black)"
 #~ msgstr "Textfarbe der Overlays invertieren (weiß ↔ schwarz)"
