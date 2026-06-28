@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-06-28 (Version 4.27.0)
+==========================
+
+* **tools,licenses,media_files: Improve Reel Studio media selection**
+  * Reel Studio now offers Media Files number search and accepts the `sachlich` hook type.
+  * License admin Reel Studio actions ignore generated reel files when choosing the source video and omit `video` prefill when no full source exists.
+  * Finished reels are registered as `VideoFile.is_preview=True`, and storage scans classify `*_Reel_*` files as preview clips so they do not count as full versions.
+
 2026-06-26 (Version 4.26.1)
 ==========================
 

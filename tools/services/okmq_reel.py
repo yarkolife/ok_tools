@@ -21,7 +21,7 @@ import time
 
 import requests
 
-HOOK_TYPES = {"frage", "intrige", "kontrast", "naehe", "emotion"}
+HOOK_TYPES = {"frage", "intrige", "kontrast", "naehe", "emotion", "sachlich"}
 REEL_SECONDS = 15  # fixed reel length (engine)
 
 _session = requests.Session()
@@ -232,7 +232,7 @@ def start_reel(
     *,
     video: str,
     hook: dict,            # {"zeile1": "...", "zeile2": "..."} -- chosen hook variant
-    hook_type: str,        # frage|intrige|kontrast|naehe|emotion
+    hook_type: str,        # frage|intrige|kontrast|naehe|emotion|sachlich
     output_name: str,
     autor: str | None = None,
     start_from_seconds: float | None = None,   # auto_start_seconds(...) OR manual second

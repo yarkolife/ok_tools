@@ -1,13 +1,14 @@
 """Tests for the Reel Studio integration (OKMQ reel renderer)."""
 
-from unittest import mock
-
 from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
-
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from tools.models import ToolsConfig
 from tools.services import okmq_reel
+from unittest import mock
 
 
 def _configure_reel(**overrides):
@@ -61,6 +62,8 @@ class ReelStudioViewTest(TestCase):
         _configure_reel()
         resp = self.client.get(reverse('tools:reel_studio'))
         self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id="mediaNumber"')
+        self.assertContains(resp, 'searchMediaByNumber()')
 
     def test_prefill_from_query(self):
         _configure_reel()
@@ -107,6 +110,17 @@ class ReelApiTest(TestCase):
         self.assertEqual(resp.status_code, 202)
         self.assertEqual(resp.json()['task_id'], 'task-123')
         delay.assert_called_once()
+
+    @mock.patch('tools.tasks.okmq_generate_hooks_task.delay')
+    def test_hooks_accepts_sachlich_type(self, delay):
+        delay.return_value = mock.Mock(id='task-sachlich')
+        resp = self.client.post(
+            reverse('tools:api_reel_hooks'),
+            data={'title': 'T', 'hook_type': 'sachlich'},
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 202)
+        _, kwargs = delay.call_args
+        self.assertEqual(kwargs['hook_type'], 'sachlich')
 
     def test_render_requires_fields(self):
         resp = self.client.post(
@@ -176,6 +190,31 @@ class OkmqReelClientTest(TestCase):
         session.get.side_effect = requests.RequestException('boom')
         with self.assertRaises(okmq_reel.OkmqError):
             okmq_reel.list_cta('frage')
+
+
+@override_settings(TOOLS_ENABLED=True, MEDIA_FILES_ENABLED=True)
+class ReelRenderRecordTest(TestCase):
+    """Rendered reels are registered as non-version preview clips."""
+
+    def test_record_rendered_reel_marks_video_as_preview(self):
+        from media_files.models import StorageLocation
+        from media_files.models import VideoFile
+        from tools.tasks import _record_rendered_reel_video
+
+        with TemporaryDirectory() as tmpdir:
+            storage = StorageLocation.objects.create(
+                name='Reel Output',
+                storage_type='PLAYOUT',
+                path=tmpdir,
+                is_active=True)
+            Path(tmpdir, '18480_Reel_260627.mp4').write_bytes(b'reel')
+            _configure_reel(reel_output_storage=storage)
+
+            _record_rendered_reel_video({}, {'file': '18480_Reel_260627.mp4'})
+
+            video = VideoFile.objects.get(number=18480)
+            self.assertTrue(video.is_preview)
+            self.assertEqual(video.filename, '18480_Reel_260627.mp4')
 
 
 @override_settings(TOOLS_ENABLED=True)

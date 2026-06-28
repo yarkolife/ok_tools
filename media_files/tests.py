@@ -1,23 +1,24 @@
 """Tests for media files module."""
 
-import os
-import tempfile
+from .admin import VideoFileAdmin
+from .models import FileOperation
+from .models import StorageLocation
+from .models import VideoFile
+from .utils import calculate_checksum
+from .utils import extract_number_from_filename
+from .utils import is_reel_filename
+from .utils import scan_directory
 from datetime import timedelta
-from pathlib import Path
-
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-
-from .admin import VideoFileAdmin
-from .models import StorageLocation, VideoFile, FileOperation
-from .utils import (
-    extract_number_from_filename,
-    scan_directory,
-    calculate_checksum,
-)
+from pathlib import Path
+from types import SimpleNamespace
+import os
+import tempfile
 
 
 class ExtractNumberFromFilenameTests(TestCase):
@@ -52,6 +53,110 @@ class ExtractNumberFromFilenameTests(TestCase):
         filename = "video_12345_test.mp4"
         result = extract_number_from_filename(filename)
         self.assertIsNone(result)
+
+
+class ReelFilenameTests(TestCase):
+    """Tests for generated reel file detection."""
+
+    def test_detects_reel_segment(self):
+        self.assertTrue(is_reel_filename("18480_Reel_260627.mp4"))
+        self.assertTrue(is_reel_filename("18480_Programmvorschau_Reel_260627.mp4"))
+
+    def test_does_not_detect_full_sendung(self):
+        self.assertFalse(is_reel_filename("18480_Campusfernsehen_Sendedatei.mp4"))
+
+
+class ReelSourceSelectionTests(TestCase):
+    """Tests for License admin Reel Studio source selection."""
+
+    def setUp(self):
+        self.playout = StorageLocation.objects.create(
+            name="Playout",
+            storage_type="PLAYOUT",
+            path="/tmp/playout/",
+            is_active=True,
+        )
+        self.archive = StorageLocation.objects.create(
+            name="Archive",
+            storage_type="ARCHIVE",
+            path="/tmp/archive/",
+            is_active=True,
+        )
+
+    def test_reel_source_ignores_reel_files(self):
+        from licenses.admin import LicenseAdmin
+
+        number = 18480
+        VideoFile.objects.create(
+            number=number,
+            filename="18480_Reel_260627.mp4",
+            storage_location=self.playout,
+            file_path="18480_Reel_260627.mp4",
+            is_available=True,
+            width=1080,
+            height=1920,
+        )
+        playout_full = VideoFile.objects.create(
+            number=number,
+            filename="18480_Campusfernsehen_Sendedatei.mp4",
+            storage_location=self.playout,
+            file_path="18480_Campusfernsehen_Sendedatei.mp4",
+            is_available=True,
+            width=1920,
+            height=1080,
+        )
+        VideoFile.objects.create(
+            number=number,
+            filename="18480_Campusfernsehen_Sendedatei.mp4",
+            storage_location=self.archive,
+            file_path="18480_Campusfernsehen_Sendedatei.mp4",
+            is_available=True,
+            width=1920,
+            height=1080,
+        )
+        license_obj = SimpleNamespace(number=number, get_video_file=lambda: None)
+
+        self.assertEqual(LicenseAdmin._reel_video_file(license_obj), playout_full)
+
+    def test_reel_source_returns_none_for_reel_only_number(self):
+        from licenses.admin import LicenseAdmin
+
+        number = 18481
+        VideoFile.objects.create(
+            number=number,
+            filename="18481_Reel_260627.mp4",
+            storage_location=self.playout,
+            file_path="18481_Reel_260627.mp4",
+            is_available=True,
+        )
+        license_obj = SimpleNamespace(number=number, get_video_file=lambda: None)
+
+        self.assertIsNone(LicenseAdmin._reel_video_file(license_obj))
+
+
+class ScanVideoStorageReelTests(TestCase):
+    """Tests for scan-time reel classification."""
+
+    def test_scan_marks_reel_file_as_preview(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            storage = StorageLocation.objects.create(
+                name="Reel Playout",
+                storage_type="PLAYOUT",
+                path=tmpdir,
+                is_active=True,
+                scan_enabled=True,
+            )
+            Path(tmpdir, "18480_Reel_260627.mp4").write_bytes(b"not-a-real-video")
+
+            call_command(
+                "scan_video_storage",
+                "--storage-id",
+                str(storage.id),
+                "--skip-metadata",
+            )
+
+            video = VideoFile.objects.get(number=18480)
+            self.assertTrue(video.is_preview)
 
 
 class StorageLocationModelTests(TestCase):

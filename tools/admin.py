@@ -168,7 +168,7 @@ class ToolsConfigAdmin(admin.ModelAdmin):
                 'reel_output_subdir',
             ),
             'description': _(
-                'External OKMQ reel renderer. The tool card, page and license admin action '
+                'External reel renderer. The tool card, page and license admin action '
                 'are only shown when "Reel Studio enabled" is on AND URL + API key are set.'
             ),
         }),

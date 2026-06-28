@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Reel Studio media selection and preview registration**: Reel Studio can search Media Files by number, supports the `sachlich` hook type, ignores generated reels when prefilling a license source video, and records finished reels as preview clips so they are not treated as full video versions.
 - **Freistellung print form with staff signature overlay**: Licenses track `confirmed_at`/`confirmed_by`, the LicensesConfig admin exposes Freistellung text, city, sendezeit, and signature-user settings, and the license PDF overlays the confirming staff member's signature on page 2 when the feature is enabled. Staff users can draw or QR-sign a reusable signature on their user admin page.
 - **Django 6 upgrade and dependency refresh**: Upgraded Django from 5.2.7 to 6.0.6, refreshed django-stubs, djangorestframework, django-filter, django-celery-beat, django-celery-results, django-bootstrap-datepicker-plus, asgiref, and many patch/minor Python packages. Docker images rebuilt and migrations verified.
 - **Rental return reminders and booking tools**: Rental administrators can configure automatic return reminder emails for issued rentals, manage equipment sets from the rental UI, and use expanded room calendar views for week and month scheduling.

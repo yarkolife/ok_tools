@@ -14,9 +14,9 @@ from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext as _p
 from import_export import resources
@@ -24,9 +24,9 @@ from import_export.admin import ExportMixin
 from import_export.fields import Field
 from import_export.forms import ExportForm
 from ok_tools.datetime import TZ
+from rangefilter.filters import DateTimeRangeFilter
 from registration.models import MediaAuthority
 from registration.models import Profile
-from rangefilter.filters import DateTimeRangeFilter
 
 
 try:
@@ -74,12 +74,11 @@ class TranslatedDateTimeRangeFilter(DateTimeRangeFilter):
         self.title = "Erstellt am"
 
 
+from austausch.services.metadata_normalizer import normalize_exchange_metadata
+from difflib import SequenceMatcher
 import datetime
 import json
 import logging
-from difflib import SequenceMatcher
-
-from austausch.services.metadata_normalizer import normalize_exchange_metadata
 
 
 logger = logging.getLogger('django')
@@ -554,7 +553,7 @@ class HasVideoFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         """Filter licenses by video file presence and availability."""
         from django.conf import settings
-        
+
         # Skip filtering if media_files module is disabled
         if not getattr(settings, 'MEDIA_FILES_ENABLED', False):
             return queryset
@@ -1009,9 +1008,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         download; 2) NextcloudVideoFile (☁️) if no local; 3) No video. This avoids
         showing the NC icon when the video is already in media_files and playable.
         """
+        from django.conf import settings
         from django.urls import reverse
         from django.utils.html import format_html
-        from django.conf import settings
 
         if not obj.pk:
             return '-'
@@ -1279,26 +1278,39 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         Falls back to the license's primary video file when no copy can be
         ranked (e.g. a single custom-storage file).
         """
+        from media_files.utils import is_reel_filename
         from tools.services.okmq_reel import share_prefix_for
+
+        def is_full_source(vf):
+            return (
+                vf is not None
+                and bool(getattr(vf, 'is_available', False))
+                and not bool(getattr(vf, 'is_preview', False))
+                and not is_reel_filename(getattr(vf, 'filename', '') or '')
+                and not is_reel_filename(getattr(vf, 'file_path', '') or '')
+            )
+
         try:
             from media_files.models import VideoFile
             candidates = list(
                 VideoFile.objects
                 .filter(number=license_obj.number, is_available=True)
+                .exclude(is_preview=True)
                 .select_related('storage_location')
             )
         except Exception:
             candidates = []
+        candidates = [vf for vf in candidates if is_full_source(vf)]
 
         primary = None
         try:
             primary = license_obj.get_video_file()
         except Exception:
             primary = None
-        if primary and primary not in candidates and primary.is_available:
+        if is_full_source(primary) and primary not in candidates:
             candidates.append(primary)
         if not candidates:
-            return primary
+            return None
 
         # playout (0) before archive (1) before anything else (2); newest first.
         rank = {'playout': 0, 'archive': 1}
@@ -1321,13 +1333,6 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         except Exception:
             video_file = None
 
-        # Build a path relative to the renderer's share root
-        # (playout/ = Sendedaten, archive/ = FilmArchiv).
-        from tools.services.okmq_reel import share_relative_path
-        video_path = share_relative_path(
-            getattr(video_file, 'file_path', ''),
-            getattr(video_file, 'storage_location', None))
-
         # Use the broadcast date for the filename (not today), fall back to now.
         plan_date, _plan_uhr = self._reel_plan_info(license_obj)
         name_date = plan_date or timezone.now()
@@ -1348,7 +1353,6 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         se_tag, se_uhr = self._reel_sendetermin(license_obj)
 
         params = {
-            'video': video_path,
             'title': license_obj.title or '',
             'output_name': output_name,
             'autor': autor,
@@ -1357,9 +1361,15 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             'se_tag': se_tag,
             'se_uhr': se_uhr,
         }
-        # Pass the video id so the Reel Studio can show an inline player for
-        # picking the start second manually.
         if video_file is not None and getattr(video_file, 'id', None):
+            # Build a path relative to the renderer's share root
+            # (playout/ = Sendedaten, archive/ = FilmArchiv).
+            from tools.services.okmq_reel import share_relative_path
+            params['video'] = share_relative_path(
+                getattr(video_file, 'file_path', ''),
+                getattr(video_file, 'storage_location', None))
+            # Pass the video id so the Reel Studio can show an inline player for
+            # picking the start second manually.
             params['video_id'] = video_file.id
         return f"{reverse('tools:reel_studio')}?{urlencode(params)}"
 
@@ -1557,6 +1567,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         
         if '_download_pdf' in request.POST:
             from .generate_file import normalize_filename
+
             # Generate filename: Nummer_Titel.pdf
             title_normalized = normalize_filename(obj.title) if obj.title else 'Untitled'
             filename = f"{obj.number}_{title_normalized}.pdf"
@@ -1649,8 +1660,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         Server-side preview used when the browser cannot play the codec
         (e.g. HEVC) and the native video scrubber is unavailable.
         """
-        from django.http import Http404, HttpResponse
-
+        from django.http import Http404
+        from django.http import HttpResponse
         from media_files.covers import frames as frames_mod
         from media_files.covers.config import get_cover_config
 
@@ -1675,7 +1686,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     def pick_cover_variant_action(self, request, queryset):
         """Generate overlay variants for one license, then open the gallery."""
         from django.shortcuts import redirect
-        from media_files.covers.service import generate_cover_candidates_for_license
+        from media_files.covers.service import \
+            generate_cover_candidates_for_license
 
         if queryset.count() != 1:
             self.message_user(
@@ -1699,18 +1711,18 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     def cover_candidates_view(self, request, number):
         """Show generated cover candidates and let the operator pick one."""
-        import glob
-        import os
-        import re
-
         from django.conf import settings
         from django.shortcuts import redirect
         from django.template.response import TemplateResponse
-
         from media_files.covers.config import get_cover_config
-        from media_files.covers.storage import (
-            candidates_dir, frames_dir, load_manifest, promote_variant)
+        from media_files.covers.storage import candidates_dir
+        from media_files.covers.storage import frames_dir
+        from media_files.covers.storage import load_manifest
+        from media_files.covers.storage import promote_variant
         from media_files.models import VideoFile
+        import glob
+        import os
+        import re
 
         if not self._cover_enabled():
             self.message_user(
@@ -1807,9 +1819,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     def _cover_pick_timecode(self, request, number, config):
         """Extract a frame at an exact timecode and regenerate variants on it."""
         from django.shortcuts import redirect
-
         from media_files.covers import frames as frames_mod
-        from media_files.covers.service import generate_cover_candidates_for_license
+        from media_files.covers.service import \
+            generate_cover_candidates_for_license
 
         try:
             seconds = float(request.POST.get('seconds', 0))
@@ -1837,7 +1849,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     def _cover_generate_candidates(self, request, number, config):
         """Generate the overlay variants on operator request (explicit POST)."""
         from django.shortcuts import redirect
-        from media_files.covers.service import generate_cover_candidates_for_license
+        from media_files.covers.service import \
+            generate_cover_candidates_for_license
 
         license_obj = License.objects.filter(number=number).first()
         sheet = None
@@ -1858,13 +1871,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     def _cover_pick_frame(self, request, number, config):
         """Regenerate variants from a chosen frame, then reload the gallery."""
-        import os
-
-        from django.shortcuts import redirect
         from PIL import Image
-
-        from media_files.covers.service import generate_cover_candidates_for_license
+        from django.shortcuts import redirect
+        from media_files.covers.service import \
+            generate_cover_candidates_for_license
         from media_files.covers.storage import frames_dir
+        import os
 
         frame = int(request.POST.get('frame', 0))
         fpath = os.path.join(frames_dir(config.output_dir, number), f'f{frame}.jpg')
@@ -1883,9 +1895,8 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     def refresh_mediathek_view(self, request, license_id):
         """Queue mediathek URL refresh for one license from admin change view."""
-        from django.shortcuts import redirect
-
         from .tasks import refresh_license_mediathek_url
+        from django.shortcuts import redirect
 
         license_obj = get_object_or_404(License, pk=license_id)
         refresh_license_mediathek_url.delay(
@@ -1921,12 +1932,11 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     def rescan_mediathek_view(self, request):
         """Render and process admin form to trigger mediathek rescan by period."""
+        from .tasks import rescan_mediathek_links_for_period
         from datetime import date
         from django.shortcuts import redirect
         from django.shortcuts import render
         from django.utils import timezone
-
-        from .tasks import rescan_mediathek_links_for_period
 
         if request.method == 'POST':
             form = MediathekRescanPeriodForm(request.POST)
@@ -1967,9 +1977,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     
     def search_video_view(self, request, license_id):
         """Search for video matching this license number."""
-        from django.shortcuts import redirect
         from django.contrib import messages
         from django.core.management import call_command
+        from django.shortcuts import redirect
         from io import StringIO
         from media_files.models import VideoFile
         
@@ -2127,9 +2137,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
     
     def import_json_view(self, request):
         """Import License from JSON file."""
-        from django.template.response import TemplateResponse
         from django.shortcuts import redirect
-        
+        from django.template.response import TemplateResponse
+
         # Handle duplicate confirmation
         if request.method == 'POST' and '_confirm_import' in request.POST:
             # Get license data from session
@@ -2545,8 +2555,8 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
 
     def download_to_storage_view(self, request, video_id: int):
         """Enqueue download of a single Nextcloud video to local storage."""
-        from django.contrib import messages
         from .tasks import download_nextcloud_video_file_to_storage
+        from django.contrib import messages
 
         video = get_object_or_404(NextcloudVideoFile, pk=video_id)
         if video.is_deleted:
@@ -2572,8 +2582,8 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
 
     def download_selected_videos_to_storage(self, request, queryset):
         """Enqueue download of selected Nextcloud videos to local storage."""
-        from django.contrib import messages
         from .tasks import download_nextcloud_video_file_to_storage
+        from django.contrib import messages
 
         queued = 0
         skipped = 0
@@ -2601,6 +2611,8 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
 
 # Only register if Nextcloud is enabled
 from django.conf import settings
+
+
 if settings.NEXTCLOUD_ENABLED:
     admin.site.register(NextcloudVideoFile, NextcloudVideoFileAdmin)
 

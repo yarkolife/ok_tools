@@ -58,6 +58,17 @@ Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
   <legend>1 · {% trans 'Contribution' %}</legend>
   <label>{% trans 'Video (path from share root or URL)' %} *</label>
   <input id="video" value="{{ prefill.video }}" placeholder="playout/000_Sendungen/2026_KW_24/18587_Beitrag.mp4">
+  <div class="rs-row" style="margin-top:10px;">
+    <div style="min-width: 240px; max-width: 360px;">
+      <label for="mediaNumber">{% trans 'Media number' %}</label>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input id="mediaNumber" type="text" inputmode="numeric" placeholder="17150" style="width:130px; flex:0 0 130px;">
+        <button type="button" class="sec" onclick="searchMediaByNumber()" style="padding:9px 14px;">{% trans 'Search' %}</button>
+      </div>
+      <div class="rs-muted" style="margin-top:6px;">{% trans 'Find an existing video file by number (from Media Files).' %}</div>
+      <div id="mediaSearchResults" style="margin-top:10px; display:none;"></div>
+    </div>
+  </div>
 
   {% if stream_url and browser_compatible %}
   <div class="rs-player">
@@ -113,6 +124,7 @@ Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
         <option value="kontrast">Kontrast</option>
         <option value="naehe">Lokale Nähe</option>
         <option value="emotion">Emotion</option>
+        <option value="sachlich">Sachlich (redaktionell)</option>
       </select>
     </div>
     <div><label>{% trans 'Number of variants' %}</label><input id="n" type="number" value="5" min="1" max="8"></div>
@@ -181,6 +193,61 @@ async function pollTask(taskId){
   }
 }
 function setStatus(el, msg, cls=''){ el.innerHTML = msg ? `<div class="rs-status ${cls}">${msg}</div>` : ''; }
+
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function reelStudioSelectUrl(videoId){
+  const params = new URLSearchParams();
+  params.set('video_id', videoId);
+  ['title', 'output_name', 'autor', 'location', 'description', 'se_tag', 'se_uhr'].forEach(id => {
+    const value = ($(id)?.value || '').trim();
+    if(value) params.set(id, value);
+  });
+  return `{% url 'tools:reel_studio' %}?${params.toString()}`;
+}
+
+async function searchMediaByNumber(){
+  const n = ($('mediaNumber').value || '').trim();
+  const out = $('mediaSearchResults');
+  if(!n || !/^[0-9]+$/.test(n)){
+    out.style.display = 'block';
+    out.innerHTML = '<div class="rs-muted">{% trans "Please enter a valid number." %}</div>';
+    return;
+  }
+  out.style.display = 'block';
+  out.innerHTML = '<div class="rs-muted">{% trans "Searching..." %}</div>';
+  try{
+    const resp = await fetch(`/tools/api/video-render/search/?number=${encodeURIComponent(n)}`, {
+      headers: {'Accept':'application/json'}
+    });
+    const data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || ('HTTP '+resp.status));
+    const items = data.results || [];
+    if(!items.length){
+      out.innerHTML = '<div class="rs-muted">{% trans "No videos found." %}</div>';
+      return;
+    }
+    out.innerHTML = items.map(v => {
+      const selectUrl = reelStudioSelectUrl(v.id);
+      return `
+        <div style="padding:10px; border:1px solid #cdd8dc; border-radius:8px; margin-bottom:10px; background:#fff;">
+          <div style="font-weight:700;">#${escapeHtml(v.number)} — ${escapeHtml(v.filename)}</div>
+          <div class="rs-muted">${escapeHtml(v.storage_location || '')}</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+            <a class="button" href="${selectUrl}">{% trans "Select" %}</a>
+            <a class="button" href="${escapeHtml(v.admin_url)}" target="_blank">{% trans "Admin" %}</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }catch(e){
+    out.innerHTML = `<div class="rs-muted">{% trans "Error:" %} ${escapeHtml(e.message)}</div>`;
+  }
+}
 
 // Load CTA options per hook type
 async function loadCta(){

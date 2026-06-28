@@ -1,5 +1,12 @@
 """Utility functions for media files management."""
 
+from datetime import datetime
+from datetime import timedelta
+from django.utils import timezone
+from pathlib import Path
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 import hashlib
 import json
 import logging
@@ -7,11 +14,6 @@ import os
 import re
 import shutil
 import subprocess
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, Optional, Tuple
-
-from django.utils import timezone
 
 
 logger = logging.getLogger('django')
@@ -34,6 +36,12 @@ def extract_number_from_filename(filename: str) -> Optional[int]:
     if match:
         return int(match.group(1))
     return None
+
+
+def is_reel_filename(filename: str) -> bool:
+    """Return True for generated social reel files, which are not full versions."""
+    stem = Path(filename or '').stem.lower()
+    return bool(re.search(r'(^|_)reel($|_)', stem))
 
 
 def scan_directory(storage_location, supported_formats=None) -> list:
@@ -517,7 +525,9 @@ def generate_thumbnail_from_http_url(
         # ffmpeg supports http://user:pass@host/path format
         # Need to URL-encode username and password to handle special characters
         if auth:
-            from urllib.parse import urlparse, urlunparse, quote
+            from urllib.parse import quote
+            from urllib.parse import urlparse
+            from urllib.parse import urlunparse
             parsed = urlparse(http_url)
             # URL-encode username and password to handle special characters like @, :, etc.
             encoded_username = quote(auth[0], safe='')
@@ -587,8 +597,8 @@ def generate_thumbnail_from_http_range(
     Returns:
         True if successful, False otherwise
     """
-    import tempfile
     import requests
+    import tempfile
     
     try:
         # Ensure output directory exists
@@ -664,7 +674,7 @@ def check_duplicate_before_copy(source_video, destination_storage):
         Tuple of (is_duplicate: bool, existing_video: VideoFile or None, message: str)
     """
     from .models import VideoFile
-    
+
     # Match by number AND filename so that different versions of the same
     # number (e.g. a rendered "_v1" primary and the original 50fps master) can
     # coexist in one storage location. A true duplicate is the same file
@@ -707,10 +717,10 @@ def select_best_source_video(number, recent_days=None):
     Returns:
         Tuple of (VideoFile or None, reason: str)
     """
+    from .models import VideoFile
     from datetime import timedelta
     from django.conf import settings
-    from .models import VideoFile
-    
+
     # Get recent_days from config if not provided
     if recent_days is None:
         from media_files.config import get_video_source_preference_custom_days
@@ -838,7 +848,8 @@ def copy_video_to_playout(video_file, destination_storage, user=None):
     Returns:
         Tuple of (success: bool, message: str)
     """
-    from .models import VideoFile, FileOperation
+    from .models import FileOperation
+    from .models import VideoFile
     
     try:
         # Check if file already exists at destination
@@ -925,7 +936,8 @@ def move_video_to_archive(video_file, archive_storage=None, user=None):
     Returns:
         Tuple of (success: bool, message: str)
     """
-    from .models import StorageLocation, FileOperation
+    from .models import FileOperation
+    from .models import StorageLocation
     
     if not archive_storage:
         archive_storage = StorageLocation.objects.filter(
@@ -1088,4 +1100,3 @@ def extract_video_metadata_fast(file_path: str) -> Dict:
         return extract_video_metadata(file_path, fast_mode=False)
     
     return metadata
-

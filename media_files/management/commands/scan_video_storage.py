@@ -1,19 +1,20 @@
 """Management command to scan video storage and update database."""
 
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
+from django.utils import timezone
+from media_files.models import FileOperation
+from media_files.models import StorageLocation
+from media_files.models import VideoFile
+from media_files.utils import calculate_checksum
+from media_files.utils import extract_number_from_filename
+from media_files.utils import extract_video_metadata
+from media_files.utils import extract_video_metadata_fast
+from media_files.utils import get_file_modified_time
+from media_files.utils import is_reel_filename
+from media_files.utils import scan_directory
 import logging
 import os
-from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
-
-from media_files.models import StorageLocation, VideoFile, FileOperation
-from media_files.utils import (
-    scan_directory,
-    extract_number_from_filename,
-    extract_video_metadata,
-    extract_video_metadata_fast,
-    calculate_checksum,
-    get_file_modified_time,
-)
 
 
 logger = logging.getLogger('django')
@@ -175,6 +176,7 @@ class Command(BaseCommand):
                     try:
                         # Extract number from filename
                         number = extract_number_from_filename(filename)
+                        is_reel = is_reel_filename(filename)
                         
                         if not number:
                             self.stdout.write(
@@ -193,11 +195,13 @@ class Command(BaseCommand):
                             defaults={
                                 'filename': filename,
                                 'is_available': True,
+                                'is_preview': is_reel,
                             }
                         )
                         
                         # Initialize file_changed flag
                         file_changed = False
+                        video_file.is_preview = is_reel
                         
                         if created:
                             total_created += 1
@@ -358,4 +362,3 @@ class Command(BaseCommand):
             )
         if total_errors > 0:
             self.stdout.write(self.style.ERROR(f'Errors: {total_errors}'))
-

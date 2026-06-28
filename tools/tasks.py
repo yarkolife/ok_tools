@@ -1,20 +1,85 @@
 """Celery tasks for Tools module."""
 
-import logging
-from pathlib import Path
-from datetime import timedelta
-
+from .models import AudioNormalizeJob
+from .models import SlideshowAudio
+from .models import SlideshowMedia
+from .models import SlideshowProject
+from .models import ToolsConfig
+from .services.audio_normalizer import AudioNormalizerError
+from .services.audio_normalizer import AudioNormalizerService
+from .services.video_generator import VideoGenerator
+from .services.video_generator import VideoGeneratorError
+from .utils import resolve_tools_file_path
+from .utils import resolve_tools_output_path
 from celery import shared_task
+from datetime import timedelta
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
+from pathlib import Path
+import logging
 
-from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
-from .services.audio_normalizer import AudioNormalizerError, AudioNormalizerService
-from .services.video_generator import VideoGenerator, VideoGeneratorError
-from .utils import resolve_tools_file_path, resolve_tools_output_path
 
 logger = logging.getLogger('django')
+
+
+def _record_rendered_reel_video(_payload: dict, result: dict) -> None:
+    """Register a finished reel as a preview clip in media_files, when available."""
+    if not getattr(settings, 'MEDIA_FILES_ENABLED', False):
+        return
+
+    filename = Path(str((result or {}).get('file') or '')).name
+    if not filename:
+        return
+
+    try:
+        from media_files.models import StorageLocation
+        from media_files.models import VideoFile
+        from media_files.utils import extract_number_from_filename
+        from media_files.utils import is_reel_filename
+    except Exception:
+        return
+
+    number = extract_number_from_filename(filename)
+    if not number:
+        return
+
+    config = ToolsConfig.get_config()
+    storage = config.reel_output_storage
+    if not storage:
+        storage = (
+            StorageLocation.objects
+            .filter(storage_type='PLAYOUT', is_active=True)
+            .order_by('name')
+            .first()
+        )
+    if not storage or not getattr(storage, 'path', None):
+        return
+
+    subdir = (config.reel_output_subdir or '').strip('/\\')
+    rel_path = str(Path(subdir) / filename) if subdir else filename
+    abs_path = Path(storage.path) / rel_path
+    file_exists = abs_path.exists() and abs_path.is_file()
+
+    video, _created = VideoFile.objects.get_or_create(
+        number=number,
+        storage_location=storage,
+        file_path=rel_path,
+        defaults={
+            'filename': filename,
+            'is_available': file_exists,
+            'is_preview': True,
+        },
+    )
+    video.filename = filename
+    video.is_preview = True
+    video.is_available = file_exists
+    if file_exists:
+        video.file_size = abs_path.stat().st_size
+    if not is_reel_filename(filename):
+        logger.warning("Registered reel output without reel-like filename: %s", filename)
+    video.save()
+
 
 def _media_root_abs() -> Path:
     media_root = Path(getattr(settings, "MEDIA_ROOT", "media/"))
@@ -656,4 +721,6 @@ def okmq_render_reel_task(self, *, payload):
     On render error/timeout the client raises -> task = FAILURE.
     """
     from .services import okmq_reel
-    return okmq_reel.render_reel_blocking(**payload)
+    result = okmq_reel.render_reel_blocking(**payload)
+    _record_rendered_reel_video(payload, result)
+    return result

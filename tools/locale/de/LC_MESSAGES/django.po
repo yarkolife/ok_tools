@@ -69,10 +69,10 @@ msgstr "Reel-Studio"
 
 #: admin.py:169
 msgid ""
-"External OKMQ reel renderer. The tool card, page and license admin action "
+"External reel renderer. The tool card, page and license admin action "
 "are only shown when \"Reel Studio enabled\" is on AND URL + API key are set."
 msgstr ""
-"Externer OKMQ-Reel-Renderer. Werkzeug-Kachel, Seite und Lizenz-Admin-Aktion "
+"Externer Reel-Renderer. Werkzeug-Kachel, Seite und Lizenz-Admin-Aktion "
 "werden nur angezeigt, wenn „Reel-Studio aktiviert“ an ist UND URL + API-"
 "Schlüssel gesetzt sind."
 
@@ -2547,10 +2547,10 @@ msgstr "Meine Aufträge"
 #: templates/tools/index.html:165
 msgid ""
 "Generate AI hooks and render short vertical reels for social media via the "
-"external OKMQ reel renderer"
+"external reel renderer"
 msgstr ""
 "KI-Hooks generieren und kurze vertikale Reels für Social Media über den "
-"externen OKMQ-Reel-Renderer rendern"
+"externen Reel-Renderer rendern"
 
 #: templates/tools/index.html:169
 msgid "New Reel"
