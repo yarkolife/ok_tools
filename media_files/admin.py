@@ -3667,7 +3667,9 @@ class CoverOverlayForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk and instance.image:
-            self.fields['text_area'].widget.attrs['data-image-url'] = instance.image.url
+            self.fields['text_area'].widget.attrs['data-image-url'] = reverse(
+                'admin:media_files_coveroverlay_image',
+                args=[instance.pk])
 
 
 @admin.register(CoverOverlay)
@@ -3682,16 +3684,51 @@ class CoverOverlayAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
     search_fields = ['name', 'pool']
     readonly_fields = ['preview']
 
+    def get_urls(self):
+        """Add an admin-protected image endpoint for files outside MEDIA_ROOT."""
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:object_id>/image/',
+                self.admin_site.admin_view(self.image_view),
+                name='media_files_coveroverlay_image',
+            ),
+        ]
+        return custom_urls + urls
+
+    def image_view(self, request, object_id):
+        """Stream the uploaded overlay file from disk for admin previews."""
+        import mimetypes
+        import os
+
+        from django.http import FileResponse, Http404
+
+        try:
+            obj = self.get_queryset(request).get(pk=object_id)
+        except CoverOverlay.DoesNotExist:
+            raise Http404
+        if not self.has_view_permission(request, obj) or not obj.image:
+            raise Http404
+        try:
+            image_path = obj.image.path
+        except (NotImplementedError, ValueError):
+            raise Http404
+        if not os.path.isfile(image_path):
+            raise Http404
+        content_type = mimetypes.guess_type(image_path)[0] or 'application/octet-stream'
+        return FileResponse(open(image_path, 'rb'), content_type=content_type)
+
     @admin.display(description=_('Vorschau'))
     def preview(self, obj):
         """Small inline preview of the uploaded overlay."""
+        if not obj.pk or not obj.image:
+            return '-'
+        image_url = reverse('admin:media_files_coveroverlay_image', args=[obj.pk])
         if obj.image and not obj.image.name.lower().endswith('.svg'):
             return format_html(
                 '<img src="{}" style="height:60px;background:#ddd;border:1px solid #ccc"/>',
-                obj.image.url)
-        if obj.image:
-            return format_html('<a href="{}">SVG</a>', obj.image.url)
-        return '-'
+                image_url)
+        return format_html('<a href="{}">SVG</a>', image_url)
 
 
 @admin.register(CoverOverlayRule)
