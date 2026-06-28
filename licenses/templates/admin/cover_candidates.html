@@ -92,11 +92,8 @@
     <div style="display:flex;flex-wrap:wrap;gap:18px;margin-top:12px;">
       {% for item in items %}
         <div style="border:1px solid #ccc;border-radius:6px;padding:10px;width:340px;">
-          {% if item.url %}
-            <img src="{{ item.url }}" alt="v{{ item.variant }}" style="width:100%;height:auto;display:block;border-radius:4px;">
-          {% else %}
-            <code style="font-size:11px;word-break:break-all;">{{ item.path }}</code>
-          {% endif %}
+          <img src="{{ item.url }}" alt="v{{ item.variant }}" style="width:100%;height:auto;display:block;border-radius:4px;">
+
           <div style="margin-top:6px;font-weight:bold;">
             {{ item.name|default:"" }} <span style="color:#888;font-weight:normal;">(v{{ item.variant }})</span>
           </div>

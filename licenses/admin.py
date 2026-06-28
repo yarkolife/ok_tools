@@ -1644,8 +1644,35 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 self.admin_site.admin_view(self.cover_frame_view),
                 name='licenses_license_cover_frame',
             ),
+            path(
+                'cover-image/<int:number>/<str:kind>/<int:idx>/',
+                self.admin_site.admin_view(self.cover_image_view),
+                name='licenses_license_cover_image',
+            ),
         ]
         return custom_urls + urls
+
+    def cover_image_view(self, request, number, kind, idx):
+        """Stream a candidate/frame image from disk (works outside MEDIA_ROOT)."""
+        import os
+
+        from django.http import FileResponse, Http404
+
+        from media_files.covers.config import get_cover_config
+        from media_files.covers.storage import candidates_dir, frames_dir
+
+        if not self._cover_enabled():
+            raise Http404
+        output_dir = get_cover_config().output_dir
+        if kind == 'frame':
+            path = os.path.join(frames_dir(output_dir, number), f'f{idx}.jpg')
+        elif kind == 'variant':
+            path = os.path.join(candidates_dir(output_dir, number), f'v{idx}.jpg')
+        else:
+            raise Http404
+        if not os.path.isfile(path):
+            raise Http404
+        return FileResponse(open(path, 'rb'), content_type='image/jpeg')
 
     def _primary_video_for_number(self, number):
         """Return the primary VideoFile for a number, or None."""
@@ -1711,7 +1738,6 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     def cover_candidates_view(self, request, number):
         """Show generated cover candidates and let the operator pick one."""
-        from django.conf import settings
         from django.shortcuts import redirect
         from django.template.response import TemplateResponse
         from media_files.covers.config import get_cover_config
@@ -1759,15 +1785,15 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 messages.SUCCESS)
             return redirect('admin:licenses_license_changelist')
 
-        cdir = candidates_dir(config.output_dir, number)
-        media_root = os.path.abspath(str(settings.MEDIA_ROOT))
+        from django.urls import reverse
 
-        def media_url(path):
-            ap = os.path.abspath(path)
-            if ap.startswith(media_root):
-                rel = os.path.relpath(ap, media_root).replace('\\', '/')
-                return settings.MEDIA_URL + rel
-            return None
+        cdir = candidates_dir(config.output_dir, number)
+
+        def image_url(kind, idx):
+            # Stream via an admin view so it works even when the cover output
+            # dir is outside MEDIA_ROOT (e.g. a NAS playout path).
+            return reverse('admin:licenses_license_cover_image',
+                           args=[number, kind, idx])
 
         manifest = load_manifest(number, config.output_dir)
         items = []
@@ -1776,7 +1802,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             if not match:
                 continue
             idx = int(match.group(1))
-            items.append({'variant': idx, 'url': media_url(p), 'path': p,
+            items.append({'variant': idx, 'url': image_url('variant', idx), 'path': p,
                           'name': manifest.get(str(idx), '')})
 
         frames = []
@@ -1784,10 +1810,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
         for p in glob.glob(os.path.join(fdir, 'f*.jpg')):
             match = re.search(r'f(\d+)\.jpg$', os.path.basename(p))
             if match:
-                frames.append({'index': int(match.group(1)), 'url': media_url(p)})
+                idx = int(match.group(1))
+                frames.append({'index': idx, 'url': image_url('frame', idx)})
         frames.sort(key=lambda f: f['index'])
-
-        from django.urls import reverse
 
         video_file = self._primary_video_for_number(number)
         duration = 0
