@@ -187,6 +187,20 @@ class RenderSmokeTest(SimpleTestCase):
             self._assert_cover(
                 OverlayCover(overlay).render(_synthetic_bg(), data, _test_config()))
 
+    def test_overlay_text_layout_uses_tall_regions(self):
+        from types import SimpleNamespace
+        from media_files.covers.templates.overlay import OverlayCover
+
+        overlay = SimpleNamespace(text_area={})
+        cover = OverlayCover(overlay)
+
+        short_height, short_lines, short_size = cover._title_layout(120, True)
+        tall_height, tall_lines, tall_size = cover._title_layout(420, True)
+
+        self.assertGreater(tall_height, short_height)
+        self.assertGreater(tall_lines, short_lines)
+        self.assertGreater(tall_size, short_size)
+
 
 class ResolverTest(TestCase):
     """Template resolution with DB-backed CoverTemplate rules."""

@@ -38,6 +38,14 @@ class OverlayCover:
         color = area.get('color', '#FFFFFF')
         return x, y, w, h, align, color
 
+    def _title_layout(self, height, has_secondary):
+        """Return title layout limits adapted to the selected text box."""
+        reserved = 42 if has_secondary else 0
+        title_height = max(80, height - reserved)
+        max_lines = max(3, min(8, title_height // 54))
+        max_size = max(80, min(112, title_height // 3))
+        return title_height, max_lines, max_size
+
     def render(self, background, data: CoverData, config: CoverConfig, theme=None):
         """Compose and return the final RGB cover image."""
         width, height = config.size
@@ -65,9 +73,13 @@ class OverlayCover:
         stroke = 3 if sum(fill) > 380 else 0
 
         if data.title:
+            secondary = data.author or data.subtitle
+            title_height, max_lines, max_size = self._title_layout(
+                h, bool(secondary))
             font, lines = renderer.fit_text(
                 draw, data.title, config.title_font_path,
-                max_width=w, max_height=h, max_size=80, min_size=34, max_lines=3)
+                max_width=w, max_height=title_height, max_size=max_size,
+                min_size=34, max_lines=max_lines)
             line_h = draw.textbbox((0, 0), 'Ag', font=font)[3]
             block_h = int(line_h * 1.18)
             ty = y
@@ -81,7 +93,6 @@ class OverlayCover:
                     stroke_width=stroke)
                 ty += block_h
 
-            secondary = data.author or data.subtitle
             if secondary:
                 sfont = renderer.load_font(config.body_font_path, 30)
                 sx = x
