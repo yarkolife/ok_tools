@@ -208,15 +208,17 @@ class RenderSmokeTest(SimpleTestCase):
 
         font, lines = renderer.fit_text(
             draw,
-            'Resilienzstrategien gleichstellungspolitischer Akteur*innen',
+            'Resilienzstrategien gleichstellungspolitischer Akteur*innen - '
+            'Erfahrungen aus Ostachsen',
             str(DEFAULT_TITLE_FONT),
             max_width=420,
-            max_height=360,
+            max_height=384,
             max_size=112,
-            min_size=24,
-            max_lines=8)
+            min_size=18,
+            max_lines=12)
 
-        self.assertLessEqual(len(lines), 8)
+        self.assertIn('Ostachsen', lines)
+        self.assertLessEqual(len(lines), 12)
         for line in lines:
             self.assertLessEqual(renderer._text_size(draw, line, font)[0], 420)
 

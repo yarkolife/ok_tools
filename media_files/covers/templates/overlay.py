@@ -40,10 +40,10 @@ class OverlayCover:
 
     def _title_layout(self, height, has_secondary):
         """Return title layout limits adapted to the selected text box."""
-        reserved = 42 if has_secondary else 0
+        reserved = 36 if has_secondary else 0
         title_height = max(80, height - reserved)
-        max_lines = max(3, min(8, title_height // 54))
-        max_size = max(80, min(112, title_height // 3))
+        max_lines = max(3, min(14, title_height // 30))
+        max_size = max(72, min(112, title_height // 3))
         return title_height, max_lines, max_size
 
     def render(self, background, data: CoverData, config: CoverConfig, theme=None):
@@ -79,7 +79,7 @@ class OverlayCover:
             font, lines = renderer.fit_text(
                 draw, data.title, config.title_font_path,
                 max_width=w, max_height=title_height, max_size=max_size,
-                min_size=34, max_lines=max_lines)
+                min_size=18, max_lines=max_lines)
             line_h = draw.textbbox((0, 0), 'Ag', font=font)[3]
             block_h = int(line_h * 1.18)
             ty = y
