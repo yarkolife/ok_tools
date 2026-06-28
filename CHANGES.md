@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2026-06-26 (Version 4.26.1)
+==========================
+
+* **tools: Fix reel source path dropping storage subfolders**
+  * `share_relative_path` now derives the path inside the CIFS share from the StorageLocation UNC (`\\host\Share\000_Sendungen` -> `000_Sendungen`) and builds `<prefix>/<storage subpath>/<file_path>`, so playout videos keep folders like `000_Sendungen` (e.g. `playout/000_Sendungen/2026_KW_27/...`) instead of being sent as `playout/2026_KW_27/...`; archive paths (storage at share root) are unchanged
+
 2026-06-26 (Version 4.26.0)
 ==========================
 

@@ -166,11 +166,32 @@ def share_prefix_for(storage_location) -> str:
     return {"PLAYOUT": "playout", "ARCHIVE": "archive"}.get(storage_type, "playout")
 
 
+def _storage_in_share_subpath(storage_location) -> str:
+    """Return the StorageLocation path *inside* its CIFS share, e.g. for
+    ``\\\\192.168.88.2\\Sendedaten\\000_Sendungen`` -> ``000_Sendungen``.
+
+    The share root is ``\\\\host\\Share``; everything after it is the subpath.
+    Derived from the UNC path (the only reliable source of the share layout).
+    """
+    if storage_location is None:
+        return ""
+    unc = (getattr(storage_location, "unc_path", "") or "").strip()
+    if not unc:
+        return ""
+    parts = [p for p in unc.replace("\\", "/").split("/") if p]
+    # parts = [host, share, <subpath...>]
+    if len(parts) <= 2:
+        return ""
+    return "/".join(parts[2:])
+
+
 def share_relative_path(file_path, storage_location=None) -> str:
     """Build a path relative to the renderer's CIFS share root.
 
-    ``file_path`` is relative to its StorageLocation root. http(s) URLs and
-    paths that already carry a share prefix are returned unchanged.
+    ``playout/`` = //192.168.88.2/Sendedaten, ``archive/`` = FilmArchiv. The
+    result is ``<prefix>/<storage subpath inside the share>/<file_path>`` so
+    that folders carried by the StorageLocation itself (e.g. 000_Sendungen) are
+    not dropped. http(s) URLs and already-prefixed paths are returned unchanged.
     """
     if not file_path:
         return ""
@@ -180,7 +201,11 @@ def share_relative_path(file_path, storage_location=None) -> str:
     fp = fp.replace("\\", "/").lstrip("/")
     if fp.split("/", 1)[0] in ("playout", "archive"):
         return fp
-    return f"{share_prefix_for(storage_location)}/{fp}"
+    prefix = share_prefix_for(storage_location)
+    subpath = _storage_in_share_subpath(storage_location)
+    if subpath:
+        return f"{prefix}/{subpath}/{fp}"
+    return f"{prefix}/{fp}"
 
 
 # ---- 2. CTA selection (dropdown) ------------------------------------------
