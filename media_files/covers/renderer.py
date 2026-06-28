@@ -49,15 +49,33 @@ def _wrap_text(draw, text, font, max_width) -> list:
     words = text.split()
     if not words:
         return []
-    lines, current = [], words[0]
-    for word in words[1:]:
-        candidate = f'{current} {word}'
-        if _text_size(draw, candidate, font)[0] <= max_width:
-            current = candidate
-        else:
-            lines.append(current)
-            current = word
-    lines.append(current)
+
+    def chunks_for_word(word):
+        if _text_size(draw, word, font)[0] <= max_width:
+            return [word]
+        chunks, current = [], ''
+        for char in word:
+            candidate = current + char
+            if current and _text_size(draw, candidate, font)[0] > max_width:
+                chunks.append(current)
+                current = char
+            else:
+                current = candidate
+        if current:
+            chunks.append(current)
+        return chunks
+
+    lines, current = [], ''
+    for word in words:
+        for chunk in chunks_for_word(word):
+            candidate = chunk if not current else f'{current} {chunk}'
+            if not current or _text_size(draw, candidate, font)[0] <= max_width:
+                current = candidate
+            else:
+                lines.append(current)
+                current = chunk
+    if current:
+        lines.append(current)
     return lines
 
 
@@ -73,6 +91,9 @@ def fit_text(draw, text, font_path, max_width, max_height, max_size,
         font = load_font(font_path, size)
         lines = _wrap_text(draw, text, font, max_width)
         if len(lines) <= max_lines:
+            if any(_text_size(draw, line, font)[0] > max_width for line in lines):
+                size -= 4
+                continue
             line_h = _text_size(draw, 'Ag', font)[1]
             total_h = int(line_h * 1.2 * len(lines))
             if total_h <= max_height:

@@ -6,9 +6,10 @@ from the database use TestCase.
 """
 
 from django.test import SimpleTestCase, TestCase
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from media_files.covers import variations
+from media_files.covers import renderer
 from media_files.covers.config import (
     CoverConfig,
     DEFAULT_BODY_FONT,
@@ -200,6 +201,24 @@ class RenderSmokeTest(SimpleTestCase):
         self.assertGreater(tall_height, short_height)
         self.assertGreater(tall_lines, short_lines)
         self.assertGreater(tall_size, short_size)
+
+    def test_fit_text_keeps_long_words_inside_width(self):
+        image = Image.new('RGB', (1280, 720), (0, 0, 0))
+        draw = ImageDraw.Draw(image)
+
+        font, lines = renderer.fit_text(
+            draw,
+            'Resilienzstrategien gleichstellungspolitischer Akteur*innen',
+            str(DEFAULT_TITLE_FONT),
+            max_width=420,
+            max_height=360,
+            max_size=112,
+            min_size=24,
+            max_lines=8)
+
+        self.assertLessEqual(len(lines), 8)
+        for line in lines:
+            self.assertLessEqual(renderer._text_size(draw, line, font)[0], 420)
 
 
 class ResolverTest(TestCase):
