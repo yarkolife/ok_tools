@@ -759,6 +759,14 @@ This document provides comprehensive reference for all environment variables use
 - **Example:** `CELERY_DOWNLOAD_WORKER_CONCURRENCY=1`
 - **Notes:** Keep this at `1` to prevent multiple long Nextcloud downloads from occupying general-purpose Celery workers.
 
+### CELERY_ANCHOR_RENDER_WORKER_CONCURRENCY
+- **Description:** Number of parallel processes for the dedicated `anchor_render` queue worker
+- **Type:** Integer
+- **Required:** No
+- **Default:** `1`
+- **Example:** `CELERY_ANCHOR_RENDER_WORKER_CONCURRENCY=1`
+- **Notes:** Keep this at `1` unless the external renderer can safely handle multiple programme preview chains at once.
+
 ### OKTOOLS_RENDER_TIMEOUT_SECONDS
 - **Description:** Base timeout for FFmpeg render subprocesses (seconds)
 - **Type:** Integer

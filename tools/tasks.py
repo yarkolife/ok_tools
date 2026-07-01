@@ -12,15 +12,227 @@ from .services.video_generator import VideoGeneratorError
 from .utils import resolve_tools_file_path
 from .utils import resolve_tools_output_path
 from celery import shared_task
+from datetime import date
+from datetime import datetime
 from datetime import timedelta
+from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.core.signing import TimestampSigner
+from django.urls import reverse
 from django.utils import timezone
+from django.utils import translation
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
+from urllib.parse import urlencode
 import logging
 
 
 logger = logging.getLogger('django')
+
+
+def _safe_site_base_url() -> str:
+    return (getattr(settings, 'SITE_BASE_URL', '') or '').rstrip('/')
+
+
+def _absolute_url(path: str) -> str:
+    base = _safe_site_base_url()
+    if not base:
+        return ''
+    if not path.startswith('/'):
+        path = f'/{path}'
+    return f'{base}{path}'
+
+
+def _reel_public_download_url(filename: str) -> str:
+    token = TimestampSigner(salt='tools.reel_public_output').sign(filename)
+    path = reverse('tools:reel_public_output_stream', args=[filename])
+    return _absolute_url(f'{path}?{urlencode({"token": token})}')
+
+
+def _time_sort_key(value: str) -> tuple[int, int, int]:
+    parts = str(value or '').split(':')
+    try:
+        hour = int(parts[0]) if len(parts) > 0 and parts[0] != '' else 99
+        minute = int(parts[1]) if len(parts) > 1 and parts[1] != '' else 59
+        second = int(parts[2]) if len(parts) > 2 and parts[2] != '' else 59
+    except (TypeError, ValueError):
+        return (99, 59, 59)
+    return (hour, minute, second)
+
+
+def _display_time(value: str) -> str:
+    value = str(value or '').strip()
+    return value[:5] if len(value) >= 5 else value
+
+
+def _profile_name(profile) -> str:
+    if not profile:
+        return ''
+    return f'{profile.first_name or ""} {profile.last_name or ""}'.strip()
+
+
+def _license_tags(license_obj) -> list[str]:
+    raw_tags = getattr(license_obj, 'tags', None) if license_obj else None
+    if isinstance(raw_tags, list):
+        return [str(tag).strip() for tag in raw_tags if str(tag).strip()]
+    if isinstance(raw_tags, str):
+        return [tag.strip() for tag in raw_tags.split(',') if tag.strip()]
+    return []
+
+
+def _today_plan_matches(target_date: date, numbers: set[int]) -> dict[int, list[dict]]:
+    if not (
+        getattr(settings, 'PLANUNG_ENABLED', False)
+        and apps.is_installed('planung')
+    ):
+        return {}
+    try:
+        from planung.models import TagesPlan
+    except Exception:
+        return {}
+
+    plan = TagesPlan.objects.filter(datum=target_date).first()
+    if not plan:
+        return {}
+
+    matches: dict[int, list[dict]] = {}
+    plan_data = plan.json_plan or {}
+    for position, item in enumerate(plan_data.get('items', []) or []):
+        if not isinstance(item, dict):
+            continue
+        try:
+            number = int(item.get('number'))
+        except (TypeError, ValueError):
+            continue
+        if number not in numbers:
+            continue
+        entry = item.copy()
+        entry['_position'] = position
+        matches.setdefault(number, []).append(entry)
+
+    for number, entries in matches.items():
+        entries.sort(key=lambda item: (_time_sort_key(item.get('start') or ''), item.get('_position', 0)))
+    return matches
+
+
+def _today_reel_videos(target_date: date) -> list:
+    if not (
+        getattr(settings, 'MEDIA_FILES_ENABLED', False)
+        and apps.is_installed('media_files')
+    ):
+        return []
+    try:
+        from media_files.models import VideoFile
+        from media_files.utils import is_reel_filename
+    except Exception:
+        return []
+
+    date_marker = target_date.strftime('%y%m%d')
+    videos = []
+    queryset = (
+        VideoFile.objects
+        .filter(is_preview=True, is_available=True)
+        .select_related('storage_location')
+        .order_by('-id')
+    )
+    seen: set[tuple[int, str]] = set()
+    for video in queryset:
+        filename = Path(str(video.filename or video.file_path or '')).name
+        if not filename or date_marker not in filename:
+            continue
+        if not (
+            is_reel_filename(filename)
+            or is_reel_filename(getattr(video, 'file_path', '') or '')
+        ):
+            continue
+        key = (int(video.number), filename)
+        if key in seen:
+            continue
+        seen.add(key)
+        videos.append(video)
+    return videos
+
+
+def build_daily_reel_reminder_context(target_date: date | None = None) -> dict:
+    """Build the email context for today's sorted reel reminder."""
+    target_date = target_date or timezone.localdate()
+    videos = _today_reel_videos(target_date)
+    numbers = {int(video.number) for video in videos if video.number}
+    plan_matches = _today_plan_matches(target_date, numbers)
+
+    licenses_by_number = {}
+    if numbers:
+        try:
+            from licenses.models import License
+            licenses = License.objects.filter(number__in=numbers).select_related('profile')
+            licenses_by_number = {int(license_obj.number): license_obj for license_obj in licenses}
+        except Exception:
+            licenses_by_number = {}
+
+    reels = []
+    for video in videos:
+        number = int(video.number)
+        license_obj = licenses_by_number.get(number)
+        matches = plan_matches.get(number, [])
+        first_match = matches[0] if matches else {}
+        start_time = _display_time(first_match.get('start') or '')
+        other_times = [
+            _display_time(item.get('start') or '')
+            for item in matches[1:]
+            if _display_time(item.get('start') or '')
+        ]
+
+        sender_responsible = (
+            str(first_match.get('sender_responsible') or '').strip()
+            or str(first_match.get('author') or '').strip()
+            or _profile_name(getattr(license_obj, 'profile', None))
+        )
+        title = (
+            getattr(license_obj, 'title', '') if license_obj else ''
+        ) or str(first_match.get('title') or '').strip() or video.filename
+
+        warnings = []
+        if not matches:
+            warnings.append(
+                _('No planning entry was found for this day. Please check the broadcast time or the reel.')
+            )
+        if other_times:
+            warnings.append(
+                _('This license has additional broadcast times on this day.')
+            )
+        if not license_obj:
+            warnings.append(_('No license was found for this reel number.'))
+
+        filename = Path(str(video.filename or video.file_path)).name
+        reels.append({
+            'number': number,
+            'filename': filename,
+            'title': title,
+            'sender_responsible': sender_responsible,
+            'start_time': start_time,
+            'other_times': other_times,
+            'tags': _license_tags(license_obj),
+            'mediathek_url': getattr(license_obj, 'mediathek_url', '') or '',
+            'download_url': _reel_public_download_url(filename),
+            'warnings': warnings,
+            'sort_key': (
+                0 if start_time else 1,
+                _time_sort_key(start_time),
+                number,
+                filename,
+            ),
+        })
+
+    reels.sort(key=lambda item: item['sort_key'])
+    for item in reels:
+        item.pop('sort_key', None)
+
+    return {
+        'date': target_date,
+        'reels': reels,
+        'reel_count': len(reels),
+    }
 
 
 def _record_rendered_reel_video(_payload: dict, result: dict) -> None:
@@ -724,3 +936,57 @@ def okmq_render_reel_task(self, *, payload):
     result = okmq_reel.render_reel_blocking(**payload)
     _record_rendered_reel_video(payload, result)
     return result
+
+
+@shared_task(name='tools.tasks.send_daily_reel_reminder')
+def send_daily_reel_reminder(target_date_iso=None):
+    """Send one daily email with today's Reel Studio output links."""
+    check_tools_enabled()
+
+    config = ToolsConfig.get_config()
+    if not (
+        config.is_reel_configured()
+        and config.reel_reminder_enabled
+        and config.reel_reminder_recipient_email
+    ):
+        return {'status': 'skipped', 'reason': 'not_configured'}
+
+    if target_date_iso:
+        try:
+            target_date = datetime.strptime(str(target_date_iso), '%Y-%m-%d').date()
+        except ValueError:
+            return {'status': 'error', 'reason': 'invalid_date'}
+    else:
+        target_date = timezone.localdate()
+
+    context = build_daily_reel_reminder_context(target_date)
+    if not context['reels']:
+        return {'status': 'skipped', 'reason': 'no_reels', 'date': target_date.isoformat()}
+
+    try:
+        from registration.email import send_mail
+
+        from_email = (
+            getattr(settings, 'DEFAULT_FROM_EMAIL', '')
+            or getattr(settings, 'EMAIL_HOST_USER', '')
+            or ''
+        )
+        language = (getattr(settings, 'LANGUAGE_CODE', 'de') or 'de').split('-')[0]
+        with translation.override(language):
+            send_mail(
+                subject_template_name='email/daily_reel_reminder_subject.txt',
+                email_template_name='email/daily_reel_reminder_body.txt',
+                html_email_template_name='email/daily_reel_reminder_body.html',
+                context=context,
+                from_email=from_email,
+                to_email=config.reel_reminder_recipient_email,
+            )
+    except Exception:
+        logger.exception('Failed to send daily reel reminder for %s', target_date)
+        return {'status': 'error', 'reason': 'send_failed', 'date': target_date.isoformat()}
+
+    return {
+        'status': 'sent',
+        'date': target_date.isoformat(),
+        'reel_count': context['reel_count'],
+    }

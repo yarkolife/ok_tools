@@ -940,6 +940,8 @@ else
 fi
 
 apply_required_compose_service_update "celery_download_worker"
+apply_required_compose_service_update "celery_copy_worker"
+apply_required_compose_service_update "celery_anchor_render_worker"
 
 cp -f deployment/production.Dockerfile "$PRODUCTION_DIR/"
 cp -f deployment/entrypoint.production.sh "$PRODUCTION_DIR/"
@@ -1055,6 +1057,8 @@ if [ -f "$ENV_FILE" ]; then
     add_env_var_if_missing "CELERY_BROKER_URL" "redis://redis:6379/0"
     add_env_var_if_missing "CELERY_RESULT_BACKEND" "redis://redis:6379/0"
     add_env_var_if_missing "CELERY_DOWNLOAD_WORKER_CONCURRENCY" "1"
+    add_env_var_if_missing "CELERY_COPY_WORKER_CONCURRENCY" "1"
+    add_env_var_if_missing "CELERY_ANCHOR_RENDER_WORKER_CONCURRENCY" "1"
     add_env_var_if_missing "CELERY_BEAT_EXPIRE_RENTALS" "*/30 * * * *"
     add_env_var_if_missing "CELERY_BEAT_CLEANUP_BACKUPS" "0 2 * * *"
     add_env_var_if_missing "CELERY_BEAT_BACKUP_DB" "0 3 * * *"

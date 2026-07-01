@@ -166,6 +166,9 @@ class ToolsConfigAdmin(admin.ModelAdmin):
                 'reel_default_mediathek_zeile2',
                 'reel_output_storage',
                 'reel_output_subdir',
+                'reel_reminder_enabled',
+                'reel_reminder_recipient_email',
+                'reel_reminder_time',
             ),
             'description': _(
                 'External reel renderer. The tool card, page and license admin action '

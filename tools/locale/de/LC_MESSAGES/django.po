@@ -3580,3 +3580,80 @@ msgstr "Sendung (Kicker, optional)"
 
 #~ msgid "No matching files found under MEDIA_ROOT."
 #~ msgstr "Keine passenden Dateien unter MEDIA_ROOT gefunden."
+
+msgid "Daily reel reminder enabled"
+msgstr "Tägliche Reel-Erinnerung aktiviert"
+
+msgid "Send one daily email with today's reel download links."
+msgstr "Sendet täglich eine E-Mail mit den Download-Links für die heutigen Reels."
+
+msgid "Daily reel reminder recipient"
+msgstr "Empfänger der täglichen Reel-Erinnerung"
+
+msgid "Email address that receives the daily reel reminder."
+msgstr "E-Mail-Adresse, die die tägliche Reel-Erinnerung erhält."
+
+msgid "Daily reel reminder time"
+msgstr "Uhrzeit der täglichen Reel-Erinnerung"
+
+msgid "Local time when Celery Beat should send the daily reminder."
+msgstr "Lokale Uhrzeit, zu der Celery Beat die tägliche Erinnerung senden soll."
+
+msgid "Tools: send daily reel reminder"
+msgstr "Tools: tägliche Reel-Erinnerung senden"
+
+msgid "Reel reminder for today: %(counter)s reel"
+msgid_plural "Reel reminder for today: %(counter)s reels"
+msgstr[0] "Reel-Erinnerung für heute: %(counter)s Reel"
+msgstr[1] "Reel-Erinnerung für heute: %(counter)s Reels"
+
+msgid "Please do not forget to publish today's stories for %(date)s:"
+msgstr "Bitte heute nicht vergessen, die Storys für %(date)s zu veröffentlichen:"
+
+msgid "Broadcast responsibility"
+msgstr "Sendeverantwortung"
+
+msgid "Additional broadcast times"
+msgstr "Weitere Sendezeiten"
+
+msgid "Note"
+msgstr "Hinweis"
+
+msgid "Reel download"
+msgstr "Reel-Download"
+
+msgid "No planning entry was found for this day. Please check the broadcast time or the reel."
+msgstr "Für diesen Tag wurde kein Planungseintrag gefunden. Bitte Sendezeit oder Reel prüfen."
+
+msgid "This license has additional broadcast times on this day."
+msgstr "Diese Freistellung hat an diesem Tag weitere Sendezeiten."
+
+msgid "No license was found for this reel number."
+msgstr "Für diese Reel-Nummer wurde keine Freistellung gefunden."
+
+msgid "Custom hook variant"
+msgstr "Eigene Hook-Variante"
+
+msgid "First hook line"
+msgstr "Erste Hook-Zeile"
+
+msgid "Second hook line"
+msgstr "Zweite Hook-Zeile"
+
+msgid "Use custom hook"
+msgstr "Eigenen Hook verwenden"
+
+msgid "Copy selected hook as base"
+msgstr "Ausgewählten Hook als Grundlage kopieren"
+
+msgid "You can combine parts from generated hooks and use your own final version."
+msgstr "Sie können Teile aus generierten Hooks kombinieren und Ihre eigene finale Version verwenden."
+
+msgid "Copy parts from generated hooks, edit them here, and the custom variant will be used for rendering."
+msgstr "Kopieren Sie Teile aus generierten Hooks, bearbeiten Sie sie hier, und die eigene Variante wird fürs Rendering verwendet."
+
+msgid "Both custom hook lines are required."
+msgstr "Beide Zeilen des eigenen Hooks sind erforderlich."
+
+msgid "Custom hook selected."
+msgstr "Eigener Hook ausgewählt."

@@ -1,0 +1,20 @@
+{% load i18n %}
+<p>{% blocktranslate with date=date|date:"d.m.Y" %}Please do not forget to publish today's stories for {{ date }}:{% endblocktranslate %}</p>
+
+{% for reel in reels %}
+  <hr>
+  <p>
+    <strong>{% if reel.start_time %}{{ reel.start_time }} - {% endif %}{{ reel.title }}</strong><br>
+    #{{ reel.number }}
+  </p>
+  <p>
+    {% trans "Broadcast responsibility" %}: {{ reel.sender_responsible|default:"-" }}<br>
+    {% if reel.other_times %}{% trans "Additional broadcast times" %}: {{ reel.other_times|join:", " }}<br>{% endif %}
+    {% for warning in reel.warnings %}{% trans "Note" %}: {{ warning }}<br>{% endfor %}
+    {% if reel.tags %}{% trans "Tags" %}: {{ reel.tags|join:", " }}{% endif %}
+  </p>
+  <p>
+    {% trans "Reel download" %}: <a href="{{ reel.download_url }}">{{ reel.download_url }}</a><br>
+    {% if reel.mediathek_url %}{% trans "Mediathek" %}: <a href="{{ reel.mediathek_url }}">{{ reel.mediathek_url }}</a>{% endif %}
+  </p>
+{% endfor %}

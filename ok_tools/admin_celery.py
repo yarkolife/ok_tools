@@ -31,6 +31,7 @@ TASK_DISPLAY_NAMES = {
     'austausch.tasks.export_to_server': _('Export broadcasts to server'),
     'austausch.tasks.import_exchange_item': _('Import exchange item'),
     'austausch.tasks.sync_exchange_folders': _('Synchronize exchange folders'),
+    'celery.backend_cleanup': _('Clean up Celery task results'),
     'licenses.tasks.download_nextcloud_video_file_to_storage': _('Download Nextcloud video to storage'),
     'licenses.tasks.refresh_license_mediathek_url': _('Refresh media library link'),
     'licenses.tasks.rescan_mediathek_links_for_period': _('Rescan media library links'),
@@ -53,13 +54,38 @@ TASK_DISPLAY_NAMES = {
     'ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task': _('Clean up deleted Nextcloud videos'),
     'ok_tools.tasks.run_cleanup_signing_sessions_task': _('Clean up old signing sessions'),
     'ok_tools.tasks.run_expire_room_rentals_task': _('Expire outdated room rentals'),
+    'ok_tools.tasks.send_return_reminders_task': _('Send return reminders'),
+    'planung.tasks.anchor_render_chain': _('Anchor Render Chain'),
+    'planung.tasks.poll_anchor_render_job': _('Poll anchor render job'),
     'planung.tasks.sync_playout_missing_media': _('Synchronize missing playout media'),
     'tools.tasks.analyze_audio_normalize_job': _('Analyze audio for normalization'),
     'tools.tasks.cleanup_old_audio_normalize_jobs_task': _('Clean up old audio normalization jobs'),
     'tools.tasks.cleanup_old_projects_task': _('Clean up old slideshow projects'),
     'tools.tasks.cleanup_old_video_render_operations_task': _('Clean up old video render operations'),
+    'tools.tasks.send_daily_reel_reminder': _('Send daily reel reminder'),
     'tools.tasks.generate_slideshow': _('Generate slideshow video'),
     'tools.tasks.normalize_audio': _('Normalize audio'),
+}
+
+PERIODIC_TASK_NAMES = {
+    'auto_scan': 'media_files.tasks.run_auto_scan',
+    'celery.backend_cleanup': 'celery.backend_cleanup',
+    'cleanup_deleted_nextcloud_videos': 'ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task',
+    'cleanup_missing_files': 'media_files.tasks.run_cleanup_missing_files',
+    'cleanup_old_audio_normalize_jobs': 'tools.tasks.cleanup_old_audio_normalize_jobs_task',
+    'cleanup_old_backups': 'ok_tools.tasks.cleanup_old_backups_task',
+    'cleanup_old_file_operations': 'media_files.tasks.run_cleanup_old_file_operations',
+    'cleanup_old_tool_projects': 'tools.tasks.cleanup_old_projects_task',
+    'cleanup_old_video_render_operations': 'tools.tasks.cleanup_old_video_render_operations_task',
+    'cleanup_signing_sessions': 'ok_tools.tasks.run_cleanup_signing_sessions_task',
+    'expire_rentals': 'ok_tools.tasks.run_expire_room_rentals_task',
+    'link_orphan_licenses': 'media_files.tasks.run_link_orphan_licenses',
+    'run_backup_db': 'ok_tools.tasks.run_backup_db_task',
+    'send_return_reminders': 'ok_tools.tasks.send_return_reminders_task',
+    'sync_exchange_folders': 'austausch.tasks.sync_exchange_folders',
+    'sync_licenses_videos': 'media_files.tasks.run_sync_licenses_videos',
+    'sync_playout_missing_media': 'planung.tasks.sync_playout_missing_media',
+    'update_video_metadata': 'media_files.tasks.run_update_video_metadata',
 }
 
 TASK_STATUS_NAMES = {
@@ -121,6 +147,13 @@ def _get_task_display_name(task_name):
     return TASK_DISPLAY_NAMES.get(task_name, task_name.rsplit('.', 1)[-1].replace('_', ' ').title())
 
 
+def _get_periodic_task_display_name(periodic_task_name, task_name=None):
+    """Return a user-facing PeriodicTask name while keeping the stored name unchanged."""
+    if not periodic_task_name:
+        return _('Unknown periodic task')
+    return _get_task_display_name(task_name or PERIODIC_TASK_NAMES.get(periodic_task_name, periodic_task_name))
+
+
 def _replace_list_filter(list_filter, field_name, replacement):
     """Replace a model field list filter with a custom filter class."""
     filters = []
@@ -136,6 +169,22 @@ def _replace_list_filter(list_filter, field_name, replacement):
     if not replaced:
         filters.append(replacement)
     return tuple(filters)
+
+
+def _replace_list_display(list_display, field_name, replacement):
+    """Replace a ModelAdmin list_display field with a computed display method."""
+    display = []
+    replaced = False
+    for item in list_display:
+        if item == field_name:
+            if not replaced:
+                display.append(replacement)
+                replaced = True
+            continue
+        display.append(item)
+    if not replaced:
+        display.insert(0, replacement)
+    return tuple(display)
 
 
 class ReadableTaskNameFilter(admin.SimpleListFilter):
@@ -157,6 +206,32 @@ class ReadableTaskNameFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(task_name=self.value())
+        return queryset
+
+
+class ReadablePeriodicTaskNameFilter(admin.SimpleListFilter):
+    """TaskResult periodic task filter using user-facing periodic task names."""
+
+    title = _('Periodic Task Name')
+    parameter_name = 'periodic_task_name'
+
+    def lookups(self, request, model_admin):
+        periodic_task_names = (
+            model_admin.get_queryset(request)
+            .exclude(periodic_task_name='')
+            .values_list('periodic_task_name', flat=True)
+            .distinct()
+        )
+        choices = (
+            (periodic_task_name, _get_periodic_task_display_name(periodic_task_name))
+            for periodic_task_name in periodic_task_names
+            if periodic_task_name
+        )
+        return sorted(choices, key=lambda choice: str(choice[1]).casefold())
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(periodic_task_name=self.value())
         return queryset
 
 
@@ -475,8 +550,12 @@ class PeriodicTaskAdmin(BasePeriodicTaskAdmin):
     
     # Get base list_display and extend it
     base_list_display = getattr(BasePeriodicTaskAdmin, 'list_display', ('name', 'task', 'enabled'))
-    # Convert to list, extend, then convert back to tuple (Django expects tuple)
-    list_display = tuple(list(base_list_display) + ['last_run_info', 'task_results_link'])
+    # Convert to list, replace raw name, extend, then convert back to tuple (Django expects tuple)
+    list_display = tuple(
+        list(_replace_list_display(base_list_display, 'name', 'readable_periodic_task_name')) +
+        ['last_run_info', 'task_results_link']
+    )
+    list_display_links = ('readable_periodic_task_name',)
     
     # Get base readonly_fields and extend it
     base_readonly_fields = getattr(BasePeriodicTaskAdmin, 'readonly_fields', ())
@@ -484,6 +563,12 @@ class PeriodicTaskAdmin(BasePeriodicTaskAdmin):
 
     base_list_filter = getattr(BasePeriodicTaskAdmin, 'list_filter', ())
     list_filter = _replace_list_filter(base_list_filter, 'task', ReadablePeriodicTaskFilter)
+
+    def readable_periodic_task_name(self, obj):
+        """Display the periodic task name in a way staff users can understand."""
+        return _get_periodic_task_display_name(obj.name, obj.task)
+    readable_periodic_task_name.short_description = _('Name')
+    readable_periodic_task_name.admin_order_field = 'name'
     
     def last_run_info(self, obj):
         """Display last run information."""
@@ -647,9 +732,13 @@ try:
         
         base_list_filter = getattr(BaseTaskResultAdmin, 'list_filter', ())
         list_filter = _replace_list_filter(
-            tuple(base_list_filter) + ('task_name', 'status', 'date_created'),
-            'task_name',
-            ReadableTaskNameFilter,
+            _replace_list_filter(
+                tuple(base_list_filter) + ('task_name', 'periodic_task_name', 'status', 'date_created'),
+                'task_name',
+                ReadableTaskNameFilter,
+            ),
+            'periodic_task_name',
+            ReadablePeriodicTaskNameFilter,
         )
         
         base_search_fields = getattr(BaseTaskResultAdmin, 'search_fields', ())
@@ -660,10 +749,11 @@ try:
             'readable_status',
             'readable_progress',
             'date_done',
-            'periodic_task_name',
+            'readable_periodic_task_name',
         )
         readonly_fields = tuple(getattr(BaseTaskResultAdmin, 'readonly_fields', ())) + (
             'readable_task_name',
+            'readable_periodic_task_name',
             'readable_status',
             'readable_progress',
             'readable_parameters',
@@ -673,6 +763,7 @@ try:
             (_('Overview'), {
                 'fields': (
                     'readable_task_name',
+                    'readable_periodic_task_name',
                     'readable_status',
                     'readable_progress',
                     'readable_parameters',
@@ -707,10 +798,17 @@ try:
         readable_task_name.short_description = _('Task')
         readable_task_name.admin_order_field = 'task_name'
 
+        def readable_periodic_task_name(self, obj):
+            """Display the periodic task name in a way staff users can understand."""
+            return _get_periodic_task_display_name(obj.periodic_task_name, obj.task_name)
+        readable_periodic_task_name.short_description = _('Periodic Task Name')
+        readable_periodic_task_name.admin_order_field = 'periodic_task_name'
+
         def get_readonly_fields(self, request, obj=None):
             """Keep computed fields readonly with django-celery-results edits disabled."""
             custom_fields = (
                 'readable_task_name',
+                'readable_periodic_task_name',
                 'readable_status',
                 'readable_progress',
                 'readable_parameters',

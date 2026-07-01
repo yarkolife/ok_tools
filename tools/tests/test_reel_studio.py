@@ -1,9 +1,17 @@
 """Tests for the Reel Studio integration (OKMQ reel renderer)."""
 
+from datetime import date
+from datetime import time
+from datetime import timedelta
+from django.apps import apps
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
+from licenses.models import default_category
+from ok_tools.testing import create_license
+from ok_tools.testing import create_user
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from tools.models import ToolsConfig
@@ -63,6 +71,10 @@ class ReelStudioViewTest(TestCase):
         resp = self.client.get(reverse('tools:reel_studio'))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'id="mediaNumber"')
+        self.assertContains(resp, 'id="customHookBuilder"')
+        self.assertContains(resp, 'id="custom_hook_zeile1"')
+        self.assertContains(resp, 'id="custom_hook_zeile2"')
+        self.assertNotContains(resp, 'id="btnUseCustomHook"')
         self.assertContains(resp, 'searchMediaByNumber()')
 
     def test_prefill_from_query(self):
@@ -72,6 +84,102 @@ class ReelStudioViewTest(TestCase):
             {'video': 'playout/x.mp4', 'title': 'My Title'})
         self.assertEqual(resp.context['prefill']['video'], 'playout/x.mp4')
         self.assertEqual(resp.context['prefill']['title'], 'My Title')
+
+    @override_settings(MEDIA_FILES_ENABLED=True, PLANUNG_ENABLED=True)
+    def test_prefill_from_selected_video_license_and_plan(self):
+        if not apps.is_installed('media_files'):
+            self.skipTest('media_files app is not installed')
+        if not apps.is_installed('planung'):
+            self.skipTest('planung app is not installed')
+
+        from media_files.models import StorageLocation
+        from media_files.models import VideoFile
+        from planung.models import TagesPlan
+
+        _configure_reel()
+        producer = create_user(
+            {
+                'email': 'producer@example.com',
+                'first_name': 'Klaus',
+                'last_name': 'Treuter',
+                'gender': 'm',
+                'phone_number': '',
+                'mobile_number': '',
+                'birthday': '01.01.1980',
+                'street': 'Main',
+                'house_number': '1',
+                'zipcode': '12345',
+                'city': 'Merseburg',
+            },
+            verified=True,
+        )
+        category = default_category()
+        category_name = str(category.name)
+        license_obj = create_license(
+            producer.profile,
+            {
+                'category': category,
+                'title': 'Festumzug Merseburg 2026',
+                'subtitle': 'Merseburg Report',
+                'description': 'Der Festumzug zum Schlossfest.',
+                'further_persons': '',
+                'duration': timedelta(minutes=20),
+                'suggested_date': None,
+                'repetitions_allowed': True,
+                'media_authority_exchange_allowed': True,
+                'youth_protection_necessary': False,
+                'store_in_ok_media_library': True,
+            },
+        )
+        storage = StorageLocation.objects.create(
+            name='Playout',
+            storage_type='PLAYOUT',
+            path='/tmp',
+            is_active=True,
+        )
+        video = VideoFile.objects.create(
+            number=license_obj.number,
+            filename=f'{license_obj.number}_Beitrag.mp4',
+            storage_location=storage,
+            file_path=f'2026_KW_24/{license_obj.number}_Beitrag.mp4',
+            duration=timedelta(minutes=21),
+            license=license_obj,
+        )
+        TagesPlan.objects.create(
+            datum=date(2026, 2, 10),
+            json_plan={
+                'items': [
+                    {
+                        'number': license_obj.number,
+                        'start': '18:30:00',
+                        'duration': 1200,
+                    },
+                ],
+            },
+        )
+
+        resp = self.client.get(reverse('tools:reel_studio'), {'video_id': video.id})
+
+        prefill = resp.context['prefill']
+        self.assertEqual(prefill['title'], 'Festumzug Merseburg 2026')
+        self.assertEqual(prefill['sendung'], category_name)
+        self.assertEqual(prefill['autor'], 'Klaus Treuter')
+        self.assertEqual(prefill['description'], 'Der Festumzug zum Schlossfest.')
+        self.assertEqual(prefill['se_tag'], 'Dienstag, 10.02.')
+        self.assertEqual(prefill['se_uhr'], '18:30')
+        self.assertEqual(prefill['output_name'], f'{license_obj.number}_Programmvorschau_Reel_260210')
+        self.assertEqual(prefill['dauer'], '1260')
+
+        lookup = self.client.get(
+            reverse('tools:api_reel_license_prefill', args=[license_obj.number]))
+        self.assertEqual(lookup.status_code, 200)
+        lookup_prefill = lookup.json()['prefill']
+        self.assertEqual(lookup_prefill['title'], 'Festumzug Merseburg 2026')
+        self.assertEqual(lookup_prefill['sendung'], category_name)
+        self.assertEqual(lookup_prefill['se_tag'], 'Dienstag, 10.02.')
+        self.assertEqual(lookup_prefill['se_uhr'], '18:30')
+        self.assertEqual(lookup_prefill['dauer'], '1260')
+        self.assertEqual(lookup_prefill['video_id'], video.id)
 
     def test_index_card_hidden_when_disabled(self):
         resp = self.client.get(reverse('tools:index'))
@@ -215,6 +323,167 @@ class ReelRenderRecordTest(TestCase):
             video = VideoFile.objects.get(number=18480)
             self.assertTrue(video.is_preview)
             self.assertEqual(video.filename, '18480_Reel_260627.mp4')
+
+
+@override_settings(
+    TOOLS_ENABLED=True,
+    MEDIA_FILES_ENABLED=True,
+    PLANUNG_ENABLED=True,
+    SITE_BASE_URL='https://portal.example',
+    LANGUAGE_CODE='de',
+)
+class DailyReelReminderTest(TestCase):
+    """Daily reel reminder email uses planning metadata and schedule order."""
+
+    def setUp(self):
+        if not apps.is_installed('media_files'):
+            self.skipTest('media_files app is not installed')
+        if not apps.is_installed('planung'):
+            self.skipTest('planung app is not installed')
+
+        from media_files.models import StorageLocation
+
+        self.storage = StorageLocation.objects.create(
+            name='Reel Output',
+            storage_type='PLAYOUT',
+            path='/tmp',
+            is_active=True,
+        )
+        _configure_reel(
+            reel_output_storage=self.storage,
+            reel_reminder_enabled=True,
+            reel_reminder_recipient_email='social@example.com',
+            reel_reminder_time=time(9, 15),
+        )
+
+    def _license(self, email, title, tags=None, mediathek_url=''):
+        producer = create_user(
+            {
+                'email': email,
+                'first_name': 'Ada',
+                'last_name': 'Lovelace',
+                'gender': 'f',
+                'phone_number': '',
+                'mobile_number': '',
+                'birthday': '01.01.1980',
+                'street': 'Main',
+                'house_number': '1',
+                'zipcode': '12345',
+                'city': 'Merseburg',
+            },
+            verified=True,
+        )
+        license_obj = create_license(
+            producer.profile,
+            {
+                'category': default_category(),
+                'title': title,
+                'subtitle': '',
+                'description': 'Description',
+                'further_persons': '',
+                'duration': timedelta(minutes=20),
+                'suggested_date': None,
+                'repetitions_allowed': True,
+                'media_authority_exchange_allowed': True,
+                'youth_protection_necessary': False,
+                'store_in_ok_media_library': True,
+            },
+        )
+        license_obj.tags = tags or []
+        license_obj.mediathek_url = mediathek_url
+        license_obj.save(update_fields=['tags', 'mediathek_url'])
+        return license_obj
+
+    def _reel_video(self, license_obj, filename):
+        from media_files.models import VideoFile
+
+        return VideoFile.objects.create(
+            number=license_obj.number,
+            filename=filename,
+            storage_location=self.storage,
+            file_path=filename,
+            license=None,
+            is_preview=True,
+            is_available=True,
+        )
+
+    def test_context_sorts_by_first_planning_time_and_keeps_other_times(self):
+        from planung.models import TagesPlan
+        from tools.tasks import build_daily_reel_reminder_context
+
+        plan_date = date(2026, 7, 4)
+        first = self._license(
+            'first@example.com',
+            'First Title',
+            tags=['Tag A', 'Tag B'],
+            mediathek_url='https://lokalmedial.example/w/first',
+        )
+        second = self._license('second@example.com', 'Second Title')
+        self._reel_video(first, f'{first.number}_Reel_260704.mp4')
+        self._reel_video(second, f'{second.number}_Reel_260704.mp4')
+        TagesPlan.objects.create(
+            datum=plan_date,
+            json_plan={
+                'items': [
+                    {'number': second.number, 'start': '09:30:00'},
+                    {'number': first.number, 'start': '11:00:00'},
+                    {
+                        'number': first.number,
+                        'start': '08:00:00',
+                        'sender_responsible': 'Plan Sender',
+                    },
+                ],
+            },
+        )
+
+        context = build_daily_reel_reminder_context(plan_date)
+
+        self.assertEqual([item['number'] for item in context['reels']], [first.number, second.number])
+        self.assertEqual(context['reels'][0]['start_time'], '08:00')
+        self.assertEqual(context['reels'][0]['other_times'], ['11:00'])
+        self.assertEqual(context['reels'][0]['title'], 'First Title')
+        self.assertEqual(context['reels'][0]['sender_responsible'], 'Plan Sender')
+        self.assertEqual(context['reels'][0]['tags'], ['Tag A', 'Tag B'])
+        self.assertEqual(context['reels'][0]['mediathek_url'], 'https://lokalmedial.example/w/first')
+        self.assertIn('token=', context['reels'][0]['download_url'])
+
+    def test_context_warns_when_reel_has_no_planning_entry(self):
+        from tools.tasks import build_daily_reel_reminder_context
+
+        plan_date = date(2026, 7, 4)
+        license_obj = self._license('missing-plan@example.com', 'Missing Plan')
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+
+        context = build_daily_reel_reminder_context(plan_date)
+
+        self.assertEqual(context['reels'][0]['start_time'], '')
+        self.assertIn('Sendezeit oder Reel prüfen', str(context['reels'][0]['warnings'][0]))
+
+    def test_task_sends_email_with_links_after_tags(self):
+        from planung.models import TagesPlan
+        from tools.tasks import send_daily_reel_reminder
+
+        plan_date = date(2026, 7, 4)
+        license_obj = self._license(
+            'email-order@example.com',
+            'Email Order',
+            tags=['Selbstbestimmung'],
+            mediathek_url='https://lokalmedial.example/w/order',
+        )
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+        TagesPlan.objects.create(
+            datum=plan_date,
+            json_plan={'items': [{'number': license_obj.number, 'start': '09:00:00'}]},
+        )
+
+        result = send_daily_reel_reminder(plan_date.isoformat())
+
+        self.assertEqual(result['status'], 'sent')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['social@example.com'])
+        body = mail.outbox[0].body
+        self.assertLess(body.index('Tags:'), body.index('Reel-Download:'))
+        self.assertLess(body.index('Reel-Download:'), body.index('Mediathek:'))
 
 
 @override_settings(TOOLS_ENABLED=True)

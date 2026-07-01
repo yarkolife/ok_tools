@@ -1,11 +1,13 @@
 """Models for the Tools module."""
 
+from datetime import time
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
+import json
 import uuid
 
 
@@ -382,6 +384,7 @@ class SlideshowMedia(models.Model):
     def get_file_url(self):
         """Get file URL, handling mounted storage paths."""
         from django.urls import reverse
+
         # Use tools_media_stream for files that might be in mounted storage
         return reverse('tools:media_stream', args=[self.file.name])
     
@@ -460,6 +463,7 @@ class SlideshowAudio(models.Model):
     def get_file_url(self):
         """Get file URL, handling mounted storage paths."""
         from django.urls import reverse
+
         # Use tools_media_stream for files that might be in mounted storage
         return reverse('tools:media_stream', args=[self.file.name])
 
@@ -802,6 +806,8 @@ class VideoEncodePreset(models.Model):
 
 class ToolsConfig(models.Model):
     """Configuration for tools module (singleton)."""
+
+    REEL_REMINDER_TASK_NAME = 'tools.tasks.send_daily_reel_reminder'
     
     # Storage paths
     storage_path_storage = models.ForeignKey(
@@ -1004,6 +1010,22 @@ class ToolsConfig(models.Model):
         verbose_name=_('Reel output subdirectory'),
         help_text=_('Subdirectory inside the output storage where reels are written.'),
     )
+    reel_reminder_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Daily reel reminder enabled'),
+        help_text=_('Send one daily email with today\'s reel download links.'),
+    )
+    reel_reminder_recipient_email = models.EmailField(
+        blank=True,
+        default='',
+        verbose_name=_('Daily reel reminder recipient'),
+        help_text=_('Email address that receives the daily reel reminder.'),
+    )
+    reel_reminder_time = models.TimeField(
+        default=time(9, 0),
+        verbose_name=_('Daily reel reminder time'),
+        help_text=_('Local time when Celery Beat should send the daily reminder.'),
+    )
 
     class Meta:
         verbose_name = _('Tools Configuration')
@@ -1017,6 +1039,7 @@ class ToolsConfig(models.Model):
         """Ensure only one config instance exists."""
         self.pk = 1
         super().save(*args, **kwargs)
+        self.sync_reel_reminder_periodic_task()
     
     @classmethod
     def get_config(cls):
@@ -1090,6 +1113,38 @@ class ToolsConfig(models.Model):
         if candidate.exists() and candidate.is_file():
             return candidate
         return None
+
+    def sync_reel_reminder_periodic_task(self) -> None:
+        """Create/update the Celery Beat task controlled by the reel settings."""
+        try:
+            from django_celery_beat.models import CrontabSchedule
+            from django_celery_beat.models import PeriodicTask
+
+            if not self.reel_reminder_enabled or not self.reel_reminder_recipient_email:
+                PeriodicTask.objects.filter(task=self.REEL_REMINDER_TASK_NAME).update(enabled=False)
+                return
+
+            reminder_time = self.reel_reminder_time or time(9, 0)
+            schedule, _created = CrontabSchedule.objects.get_or_create(
+                minute=str(reminder_time.minute),
+                hour=str(reminder_time.hour),
+                day_of_month='*',
+                month_of_year='*',
+                day_of_week='*',
+                timezone=getattr(settings, 'TIME_ZONE', 'UTC'),
+            )
+            PeriodicTask.objects.update_or_create(
+                name=str(_('Tools: send daily reel reminder')),
+                defaults={
+                    'task': self.REEL_REMINDER_TASK_NAME,
+                    'crontab': schedule,
+                    'enabled': True,
+                    'kwargs': json.dumps({}),
+                },
+            )
+        except Exception:
+            # Configuration must remain saveable during setup and migrations.
+            return
 
 
 class AudioNormalizeJob(models.Model):

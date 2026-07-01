@@ -1,7 +1,9 @@
 """URL configuration for Tools module."""
 
+from . import api
+from . import views
 from django.urls import path
-from . import views, api
+
 
 app_name = 'tools'
 
@@ -23,6 +25,7 @@ urlpatterns = [
     # Reel studio tool (external OKMQ reel renderer)
     path('reel-studio/', views.ReelStudioView.as_view(), name='reel_studio'),
     path('reel-studio/output/<str:filename>/', views.reel_output_stream, name='reel_output_stream'),
+    path('reel-studio/public-output/<str:filename>/', views.reel_public_output_stream, name='reel_public_output_stream'),
 
     # Video render tool (select + deep link)
     path('video-render/', views.VideoRenderSelectView.as_view(), name='video_render_select'),
@@ -69,6 +72,7 @@ urlpatterns = [
     path('api/audio-normalize/<int:job_id>/', api.DeleteAudioJobView.as_view(), name='api_audio_delete'),
 
     # Reel studio API
+    path('api/reel-studio/license/<int:number>/', views.reel_license_prefill, name='api_reel_license_prefill'),
     path('api/reels/hooks/', api.ReelHooksView.as_view(), name='api_reel_hooks'),
     path('api/reels/cta/', api.ReelCtaView.as_view(), name='api_reel_cta'),
     path('api/reels/render/', api.ReelRenderView.as_view(), name='api_reel_render'),

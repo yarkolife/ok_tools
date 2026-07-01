@@ -1,21 +1,43 @@
 """Views for Tools module."""
 
+from .models import AudioNormalizeJob
+from .models import SlideshowAudio
+from .models import SlideshowMedia
+from .models import SlideshowProject
+from .models import ToolsConfig
+from .services.audio_normalizer import PresetError
+from .services.audio_normalizer import load_audio_presets
+from .utils import resolve_tools_output_path
+from django.apps import apps
+from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.exceptions import ImproperlyConfigured
+from django.core.signing import BadSignature
+from django.core.signing import SignatureExpired
+from django.core.signing import TimestampSigner
+from django.http import FileResponse
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import JsonResponse
+from django.http import StreamingHttpResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.http import urlencode
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_GET
+from django.views.generic import DetailView
+from django.views.generic import ListView
+from django.views.generic import TemplateView
+from pathlib import Path
 import mimetypes
 import re
-from pathlib import Path
 
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import ImproperlyConfigured
-from django.http import Http404, StreamingHttpResponse, FileResponse, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import ListView, DetailView, TemplateView
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 
-from .models import AudioNormalizeJob, SlideshowProject, SlideshowMedia, SlideshowAudio, ToolsConfig
-from .utils import resolve_tools_output_path
-from .services.audio_normalizer import load_audio_presets, PresetError
+REEL_PUBLIC_LINK_MAX_AGE_SECONDS = 60 * 60 * 24
 
 
 def check_tools_enabled():
@@ -39,6 +61,170 @@ def _reel_studio_configured() -> bool:
         return ToolsConfig.get_config().is_reel_configured()
     except Exception:
         return False
+
+
+def _reel_plan_info(license_obj):
+    """Return the latest TagesPlan match as (date|None, item|None)."""
+    if not (
+        getattr(settings, "PLANUNG_ENABLED", False)
+        and apps.is_installed("planung")
+    ):
+        return None, None
+
+    try:
+        from planung.models import TagesPlan
+    except Exception:
+        return None, None
+
+    matchers = (
+        ("license_id", getattr(license_obj, "id", None)),
+        ("number", getattr(license_obj, "number", None)),
+    )
+    for key, value in matchers:
+        if value is None:
+            continue
+        for plan in TagesPlan.objects.order_by("-datum"):
+            plan_data = plan.json_plan or {}
+            matches = [
+                item for item in plan_data.get("items", [])
+                if isinstance(item, dict) and item.get(key) == value
+            ]
+            if matches:
+                return plan.datum, matches[-1]
+            for item in plan_data.get("items", []):
+                try:
+                    if key == "number" and int(item.get(key)) == int(value):
+                        return plan.datum, item
+                except (TypeError, ValueError):
+                    continue
+    return None, None
+
+
+def _reel_sendetermin(license_obj):
+    """German broadcast day+date and time, e.g. ('Samstag, 27.06.', '18:00')."""
+    plan_date, item = _reel_plan_info(license_obj)
+    if not plan_date:
+        return "", ""
+    weekdays = [
+        "Montag",
+        "Dienstag",
+        "Mittwoch",
+        "Donnerstag",
+        "Freitag",
+        "Samstag",
+        "Sonntag",
+    ]
+    uhr = ((item or {}).get("start") or "")[:5]
+    return f"{weekdays[plan_date.weekday()]}, {plan_date:%d.%m.}", uhr
+
+
+def _reel_video_file(license_obj):
+    """Pick the best source video for Reel Studio."""
+    if not _media_files_available():
+        return None
+    try:
+        from media_files.models import VideoFile
+        from media_files.utils import is_reel_filename
+        from tools.services.okmq_reel import share_prefix_for
+    except Exception:
+        return None
+
+    def is_full_source(vf):
+        return (
+            vf is not None
+            and bool(getattr(vf, "is_available", False))
+            and not bool(getattr(vf, "is_preview", False))
+            and not is_reel_filename(getattr(vf, "filename", "") or "")
+            and not is_reel_filename(getattr(vf, "file_path", "") or "")
+        )
+
+    candidates = list(
+        VideoFile.objects
+        .filter(number=license_obj.number, is_available=True)
+        .exclude(is_preview=True)
+        .select_related("storage_location")
+    )
+    candidates = [vf for vf in candidates if is_full_source(vf)]
+
+    try:
+        primary = license_obj.get_video_file()
+    except Exception:
+        primary = None
+    if is_full_source(primary) and primary not in candidates:
+        candidates.append(primary)
+    if not candidates:
+        return None
+
+    rank = {"playout": 0, "archive": 1}
+
+    def sort_key(vf):
+        prefix = share_prefix_for(getattr(vf, "storage_location", None))
+        return (rank.get(prefix, 2), -(vf.id or 0))
+
+    candidates.sort(key=sort_key)
+    return candidates[0]
+
+
+def _reel_output_name(config, number: int, plan_date) -> str:
+    """Build the default reel output filename from the configured pattern."""
+    pattern = config.reel_output_name_pattern or "{number}_Programmvorschau_Reel_{date:%y%m%d}"
+    try:
+        return pattern.format(number=number, date=plan_date)
+    except Exception:
+        return f"{number}_Programmvorschau_Reel_{plan_date:%y%m%d}"
+
+
+def _reel_license_prefill(license_obj, config) -> dict:
+    """Build the same Reel Studio prefill fields as the license admin action."""
+    plan_date, _item = _reel_plan_info(license_obj)
+    name_date = plan_date or timezone.now()
+    se_tag, se_uhr = _reel_sendetermin(license_obj)
+
+    duration = ""
+    if license_obj.duration:
+        duration = str(int(license_obj.duration.total_seconds()))
+
+    autor = ""
+    if license_obj.profile_id:
+        autor = str(license_obj.profile).strip()
+
+    sendung = ""
+    if license_obj.category_id:
+        sendung = str(getattr(license_obj.category, "name", "") or "").strip()
+
+    prefill = {
+        "title": license_obj.title or "",
+        "output_name": _reel_output_name(config, license_obj.number, name_date),
+        "autor": autor,
+        "sendung": sendung,
+        "description": license_obj.description or "",
+        "dauer": duration,
+        "se_tag": se_tag,
+        "se_uhr": se_uhr,
+    }
+    video_file = _reel_video_file(license_obj)
+    if video_file is not None and getattr(video_file, "id", None):
+        from tools.services.okmq_reel import share_relative_path
+        prefill["video"] = share_relative_path(
+            getattr(video_file, "file_path", ""),
+            getattr(video_file, "storage_location", None),
+        )
+        prefill["video_id"] = video_file.id
+    return prefill
+
+
+def _prefill_reel_from_license(prefill: dict, license_obj, config) -> None:
+    """Apply license-derived defaults without overriding explicit query params."""
+    if not license_obj:
+        return
+    for key, value in _reel_license_prefill(license_obj, config).items():
+        if value and key in prefill and not prefill.get(key):
+            prefill[key] = value
+
+
+def _prefill_reel_from_video(prefill: dict, video_file, config) -> None:
+    """Fill Reel Studio defaults from a selected VideoFile's license."""
+    _prefill_reel_from_license(prefill, video_file.get_license(), config)
 
 
 class ToolsIndexView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
@@ -321,8 +507,8 @@ class ReelStudioView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
 
         Runs in a daemon thread so the page is not delayed; errors are ignored.
         """
-        import threading
         from .services import okmq_reel
+        import threading
         try:
             threading.Thread(target=okmq_reel.warmup, daemon=True).start()
         except Exception:
@@ -372,11 +558,35 @@ class ReelStudioView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
                         getattr(video_file, "storage_location", None))
                 if not prefill["dauer"] and context["video_duration"]:
                     prefill["dauer"] = str(context["video_duration"])
+                _prefill_reel_from_video(prefill, video_file, config)
 
         context["prefill"] = prefill
         context["reel_mediathek_zeile1"] = config.reel_default_mediathek_zeile1
         context["reel_mediathek_zeile2"] = config.reel_default_mediathek_zeile2
         return context
+
+
+@require_GET
+@staff_member_required
+def reel_license_prefill(request, number: int):
+    """Return Reel Studio prefill data for a license number."""
+    check_tools_enabled()
+    if not _reel_studio_configured():
+        raise Http404(_("Reel Studio is not enabled"))
+
+    try:
+        from licenses.models import License
+    except Exception:
+        raise Http404(_("License module is not available"))
+
+    license_obj = get_object_or_404(
+        License.objects.select_related("profile", "category"),
+        number=number,
+    )
+    prefill = _reel_license_prefill(license_obj, ToolsConfig.get_config())
+    params = {k: v for k, v in prefill.items() if v}
+    url = f"{reverse('tools:reel_studio')}?{urlencode(params)}"
+    return JsonResponse({"prefill": prefill, "url": url})
 
 
 class VideoRenderView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
@@ -395,14 +605,12 @@ class VideoRenderView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         from django.db.models import Q
-        from tools.rendering.presets import (
-            list_encode_presets,
-            list_style_presets,
-            load_style_preset,
-            load_style_preset_from_db,
-        )
-        from tools.models import VideoPreset
         from media_files.models import VideoFile
+        from tools.models import VideoPreset
+        from tools.rendering.presets import list_encode_presets
+        from tools.rendering.presets import list_style_presets
+        from tools.rendering.presets import load_style_preset
+        from tools.rendering.presets import load_style_preset_from_db
 
         context = super().get_context_data(**kwargs)
 
@@ -800,6 +1008,32 @@ def reel_output_stream(request, filename: str):
 
     as_attachment = request.GET.get("download") in ("1", "true", "yes")
     return _serve_file_with_range(request, abs_path, as_attachment=as_attachment)
+
+
+def reel_public_output_stream(request, filename: str):
+    """Stream a finished reel through a signed 24-hour public download URL."""
+    check_tools_enabled()
+    if not _reel_studio_configured():
+        raise Http404("Not found")
+
+    token = request.GET.get("token", "")
+    signer = TimestampSigner(salt="tools.reel_public_output")
+    try:
+        signed_filename = signer.unsign(
+            token,
+            max_age=REEL_PUBLIC_LINK_MAX_AGE_SECONDS,
+        )
+    except (BadSignature, SignatureExpired):
+        raise Http404("Not found")
+    if signed_filename != filename:
+        raise Http404("Not found")
+
+    config = ToolsConfig.get_config()
+    abs_path = config.resolve_reel_output_file(filename)
+    if abs_path is None:
+        raise Http404(_("Rendered reel not found"))
+
+    return _serve_file_with_range(request, abs_path, as_attachment=True)
 
 
 def tools_media_stream(request, relpath: str):

@@ -784,8 +784,9 @@ else:
 CELERY_TIMEZONE = get_env('TIME_ZONE', default='Europe/Berlin')
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_ROUTES = {
-    # Network downloads are intentionally isolated so one or more long Nextcloud
-    # transfers cannot occupy the general-purpose worker pool.
+    # Network downloads are intentionally isolated so long Nextcloud transfers
+    # cannot occupy the general-purpose worker pool. The download worker runs
+    # with concurrency=1 to avoid parallel downloads over the same connection.
     'austausch.tasks.download_exchange_files': {'queue': 'download'},
     'licenses.tasks.download_nextcloud_video_file_to_storage': {'queue': 'download'},
     # CPU/FFmpeg-heavy tasks stay on the render worker pool.
@@ -796,6 +797,14 @@ CELERY_TASK_ROUTES = {
     'tools.tasks.cleanup_old_video_render_operations_task': {'queue': 'render'},
     'tools.tasks.generate_slideshow': {'queue': 'render'},
     'tools.tasks.normalize_audio': {'queue': 'render'},
+    # Copying planned videos is storage-heavy but should not block downloads,
+    # renders, or scans. Keep it on its own serial worker.
+    'media_files.tasks.copy_videos_for_plan': {'queue': 'copy'},
+    # Anchor rendering is handled by an external renderer environment. Keep the
+    # wait/render/poll chain away from local workers unless they explicitly
+    # consume the anchor_render queue.
+    'planung.tasks.anchor_render_chain': {'queue': 'anchor_render'},
+    'planung.tasks.poll_anchor_render_job': {'queue': 'anchor_render'},
 }
 # Allow overriding time limits via environment variables
 CELERY_TASK_TIME_LIMIT = get_env('CELERY_TASK_TIME_LIMIT', default=30 * 60, cast=int)  # 30 minutes default

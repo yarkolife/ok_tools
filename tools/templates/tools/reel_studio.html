@@ -42,6 +42,8 @@ Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
   .rs-cand { border:1px solid #cdd8dc; border-radius:8px; padding:10px 12px; margin:8px 0; cursor:pointer; display:flex; gap:10px; align-items:flex-start; }
   .rs-cand.sel { border-color:var(--rs-teal); background:#eef6f8; }
   .rs-cand b { display:block; } .rs-cand small { color:#5a6b71; }
+  .rs-custom-hook { border:1px dashed #9bb0b8; border-radius:8px; padding:12px; margin-top:12px; background:#fbfdfe; display:none; }
+  .rs-custom-hook.sel { border-style:solid; border-color:var(--rs-teal); background:#eef6f8; }
   .rs-status { padding:10px 12px; border-radius:8px; background:#eef6f8; margin-top:10px; font-size:14px; }
   .rs-status.err { background:#fdecec; color:#9b2222; }
   .rs-status.ok { background:#e9f7ee; color:#1c6b38; }
@@ -136,6 +138,16 @@ Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
      <span class="rs-muted">({% trans 'takes ~30–60 s' %})</span></p>
   <div id="hookStatus"></div>
   <div id="cands"></div>
+  <div id="customHookBuilder" class="rs-custom-hook">
+    <label>{% trans 'Custom hook variant' %}</label>
+    <div class="rs-row">
+      <div><input id="custom_hook_zeile1" placeholder="{% trans 'First hook line' %}"></div>
+      <div><input id="custom_hook_zeile2" placeholder="{% trans 'Second hook line' %}"></div>
+    </div>
+    <div class="rs-muted" style="margin-top:8px;">
+      {% trans 'Copy parts from generated hooks, edit them here, and the custom variant will be used for rendering.' %}
+    </div>
+  </div>
 </fieldset>
 
 <fieldset class="module">
@@ -157,12 +169,14 @@ const RS = {
   render: "{% url 'tools:api_reel_render' %}",
   task:   (id) => "{% url 'tools:api_reel_task' 'TASK_ID' %}".replace('TASK_ID', id),
   output: (name) => "{% url 'tools:reel_output_stream' 'FILENAME' %}".replace('FILENAME', encodeURIComponent(name)),
+  licensePrefill: (number) => "{% url 'tools:api_reel_license_prefill' 0 %}".replace('/0/', `/${encodeURIComponent(number)}/`),
   medZ1:  "{{ reel_mediathek_zeile1|default:''|escapejs }}",
   medZ2:  "{{ reel_mediathek_zeile2|default:''|escapejs }}",
 };
 const $ = id => document.getElementById(id);
 const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
 let selectedHook = null;
+let selectedHookSource = null;
 
 // Inline video player: track current time, let the operator capture it as the start second.
 (function(){
@@ -197,6 +211,16 @@ async function pollTask(taskId){
 }
 function setStatus(el, msg, cls=''){ el.innerHTML = msg ? `<div class="rs-status ${cls}">${msg}</div>` : ''; }
 
+function setSelectedHook(hook, source, selectedEl=null){
+  selectedHook = hook;
+  selectedHookSource = source;
+  document.querySelectorAll('.rs-cand').forEach(x=>x.classList.remove('sel'));
+  const customBuilder = $('customHookBuilder');
+  if(customBuilder) customBuilder.classList.toggle('sel', source === 'custom');
+  if(selectedEl) selectedEl.classList.add('sel');
+  $('btnRender').disabled = !selectedHook;
+}
+
 function escapeHtml(value){
   return String(value ?? '').replace(/[&<>"']/g, ch => ({
     '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
@@ -206,11 +230,22 @@ function escapeHtml(value){
 function reelStudioSelectUrl(videoId){
   const params = new URLSearchParams();
   params.set('video_id', videoId);
-  ['title', 'output_name', 'autor', 'location', 'description', 'se_tag', 'se_uhr'].forEach(id => {
+  ['title', 'output_name', 'autor', 'sendung', 'location', 'description', 'dauer', 'se_tag', 'se_uhr'].forEach(id => {
     const value = ($(id)?.value || '').trim();
     if(value) params.set(id, value);
   });
   return `{% url 'tools:reel_studio' %}?${params.toString()}`;
+}
+
+function applyLicensePrefill(prefill){
+  if(!prefill) return;
+  ['video', 'title', 'output_name', 'autor', 'sendung', 'description', 'dauer', 'se_tag', 'se_uhr'].forEach(id => {
+    const el = $(id);
+    const value = prefill[id];
+    if(el && value !== undefined && value !== null && String(value).trim() !== ''){
+      el.value = value;
+    }
+  });
 }
 
 async function searchMediaByNumber(){
@@ -223,6 +258,19 @@ async function searchMediaByNumber(){
   }
   out.style.display = 'block';
   out.innerHTML = '<div class="rs-muted">{% trans "Searching..." %}</div>';
+  let licensePrefill = null;
+  try{
+    const prefillResp = await fetch(RS.licensePrefill(n), {
+      headers: {'Accept':'application/json'}
+    });
+    const prefillData = await prefillResp.json().catch(()=>({}));
+    if(prefillResp.ok){
+      licensePrefill = prefillData;
+      applyLicensePrefill(prefillData.prefill);
+    }
+  }catch(e){
+    licensePrefill = null;
+  }
   try{
     const resp = await fetch(`/tools/api/video-render/search/?number=${encodeURIComponent(n)}`, {
       headers: {'Accept':'application/json'}
@@ -231,7 +279,9 @@ async function searchMediaByNumber(){
     if(!resp.ok) throw new Error(data.error || ('HTTP '+resp.status));
     const items = data.results || [];
     if(!items.length){
-      out.innerHTML = '<div class="rs-muted">{% trans "No videos found." %}</div>';
+      out.innerHTML = licensePrefill
+        ? '<div class="rs-muted">{% trans "License data loaded, but no videos found." %}</div>'
+        : '<div class="rs-muted">{% trans "No videos found." %}</div>';
       return;
     }
     out.innerHTML = items.map(v => {
@@ -270,10 +320,25 @@ async function loadCta(){
 $('hook_type').addEventListener('change', loadCta);
 loadCta();
 
+function syncCustomHook(){
+  const zeile1 = ($('custom_hook_zeile1').value || '').trim();
+  const zeile2 = ($('custom_hook_zeile2').value || '').trim();
+  if(zeile1 && zeile2){
+    setSelectedHook({zeile1, zeile2}, 'custom');
+  }
+}
+
+$('custom_hook_zeile1').addEventListener('input', syncCustomHook);
+$('custom_hook_zeile2').addEventListener('input', syncCustomHook);
+
 // Generate hooks
 $('btnHooks').addEventListener('click', async () => {
   if(!$('title').value){ setStatus($('hookStatus'),'{% trans "Title required" %}','err'); return; }
-  $('btnHooks').disabled = true; $('cands').innerHTML=''; selectedHook=null; $('btnRender').disabled=true;
+  $('btnHooks').disabled = true; $('cands').innerHTML=''; selectedHook=null; selectedHookSource=null; $('btnRender').disabled=true;
+  $('customHookBuilder').style.display = 'none';
+  $('customHookBuilder').classList.remove('sel');
+  $('custom_hook_zeile1').value = '';
+  $('custom_hook_zeile2').value = '';
   setStatus($('hookStatus'),'{% trans "Generating hooks …" %}');
   try{
     const {task_id} = await api(RS.hooks, {method:'POST', body: JSON.stringify({
@@ -282,15 +347,15 @@ $('btnHooks').addEventListener('click', async () => {
     })});
     const cands = await pollTask(task_id);
     setStatus($('hookStatus'), `${cands.length} {% trans "variants — choose one:" %}`, 'ok');
+    $('customHookBuilder').style.display = 'block';
     cands.forEach(c => {
       const div = document.createElement('div'); div.className='rs-cand';
       div.innerHTML = `<input type="radio" name="hook" style="width:auto"><span><b></b><small></small></span>`;
       div.querySelector('b').textContent = c.zeile1;
       div.querySelector('small').textContent = c.zeile2;
       div.onclick = () => {
-        document.querySelectorAll('.rs-cand').forEach(x=>x.classList.remove('sel'));
-        div.classList.add('sel'); div.querySelector('input').checked=true;
-        selectedHook = {zeile1:c.zeile1, zeile2:c.zeile2}; $('btnRender').disabled=false;
+        div.querySelector('input').checked=true;
+        setSelectedHook({zeile1:c.zeile1, zeile2:c.zeile2}, 'generated', div);
       };
       $('cands').appendChild(div);
     });

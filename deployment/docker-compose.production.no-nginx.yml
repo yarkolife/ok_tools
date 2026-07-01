@@ -183,6 +183,82 @@ services:
       start_period: 40s
       retries: 3
 
+  celery_copy_worker:
+    build:
+      context: ../ok_tools
+      dockerfile: deployment/production.Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    container_name: oktools_celery_copy_worker
+    user: app
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: ok_tools.settings
+      PYTHONPATH: /app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./data/static:/app/staticfiles
+      - ./data/media:/app/media
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+      # Additional mounts (NAS, custom volumes) can be added via docker-compose.override.yml
+      # Run: ./deployment/scripts/generate-override.sh to generate override file from .env
+    entrypoint: ["/app/deployment/entrypoint.celery.sh"]
+    command: celery -A ok_tools worker --loglevel=info --queues=copy --concurrency=${CELERY_COPY_WORKER_CONCURRENCY:-1}
+    restart: unless-stopped
+    networks:
+      - oktools-network
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep -E '[c]elery.*worker.*copy' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+
+  celery_anchor_render_worker:
+    build:
+      context: ../ok_tools
+      dockerfile: deployment/production.Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    container_name: oktools_celery_anchor_render_worker
+    user: app
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: ok_tools.settings
+      PYTHONPATH: /app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./data/static:/app/staticfiles
+      - ./data/media:/app/media
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+      # Additional mounts (NAS, custom volumes) can be added via docker-compose.override.yml
+      # Run: ./deployment/scripts/generate-override.sh to generate override file from .env
+    entrypoint: ["/app/deployment/entrypoint.celery.sh"]
+    command: celery -A ok_tools worker --loglevel=info --queues=anchor_render --concurrency=${CELERY_ANCHOR_RENDER_WORKER_CONCURRENCY:-1}
+    restart: unless-stopped
+    networks:
+      - oktools-network
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep -E '[c]elery.*worker.*anchor_render' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+
   celery_beat:
     build:
       context: ../ok_tools

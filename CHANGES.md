@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-07-01 (Version 4.29.0)
+==========================
+
+* **tools: Send daily Reel Studio reminder emails**
+  * Added configurable daily reminder emails with signed 24-hour public download links for generated reels.
+  * Prefill Reel Studio from license and planning metadata, including source video, broadcast date, and broadcast time.
+* **deployment: Isolate copy and anchor render Celery queues**
+  * Routed video copy jobs and anchor render chains to dedicated `copy` and `anchor_render` queues.
+  * Added production worker services and environment variables for copy and anchor render concurrency.
+
 2026-06-28 (Version 4.28.0)
 ==========================
 

@@ -5222,3 +5222,6 @@ msgstr "Willkommen zurück, %(name)s!"
 
 #~ msgid "Video file"
 #~ msgstr "Videodatei"
+
+msgid "Send daily reel reminder"
+msgstr "Tägliche Reel-Erinnerung senden"

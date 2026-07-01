@@ -34,7 +34,7 @@ def sync_playout_missing_media(page_size: int | None = None) -> dict[str, Any]:
     }
 
 
-@shared_task(name="planung.tasks.poll_anchor_render_job", bind=True)
+@shared_task(name="planung.tasks.poll_anchor_render_job", bind=True, queue="anchor_render")
 def poll_anchor_render_job(
     self,
     job_id: str,
@@ -264,7 +264,7 @@ def _resolve_placeholder_missing(
             ready_numbers.add(n)
 
 
-@shared_task(name="planung.tasks.anchor_render_chain", bind=True)
+@shared_task(name="planung.tasks.anchor_render_chain", bind=True, queue="anchor_render")
 def anchor_render_chain(
     self,
     plan_date_str: str,

@@ -6,15 +6,17 @@ Covers the primary-version selection and the lifecycle:
   CUSTOM sources are auto-deleted once archived + played out.
 """
 
+from datetime import date
+from django.test import TestCase
+from media_files.models import MediaFilesConfig
+from media_files.models import StorageLocation
+from media_files.models import VideoFile
+from media_files.tasks import _copy_video_to_storage
+from media_files.tasks import copy_videos_for_plan
+from pathlib import Path
+from unittest.mock import patch
 import shutil
 import tempfile
-from datetime import date
-from pathlib import Path
-
-from django.test import TestCase
-
-from media_files.models import MediaFilesConfig, StorageLocation, VideoFile
-from media_files.tasks import copy_videos_for_plan
 
 
 def _make_video(storage, number, filename, *, is_manual_primary=False,
@@ -223,8 +225,8 @@ class CopyVideosForPlanTests(TestCase):
 
     def test_primary_selection_falls_back_to_algorithm(self):
         """Without a manual flag, is_primary_version() picks the source."""
-        from django.utils import timezone
         from datetime import timedelta
+        from django.utils import timezone
 
         # Two CUSTOM versions, neither manually marked. The newer acceptable
         # one (>= 80% of max bitrate) wins per is_primary_version() rules.
@@ -261,3 +263,58 @@ class CopyVideosForPlanTests(TestCase):
         self.assertEqual(result["errors"], 0)
         self.assertEqual(result["copied_to_archive"], 0)
         self.assertEqual(result["copied_to_playout"], 0)
+
+    def test_repeated_run_treats_existing_copies_as_skipped(self):
+        """Running the same plan twice should not fail on existing targets."""
+        _make_video(
+            self.custom, 18676, "18676_Teil_1_v1.mp4",
+            is_manual_primary=True, total_bitrate=4_000_000,
+        )
+
+        first_result = self._run([18676])
+        second_result = self._run([18676])
+
+        self.assertEqual(first_result["errors"], 0)
+        self.assertEqual(second_result["errors"], 0)
+        self.assertEqual(second_result["copied_to_archive"], 0)
+        self.assertEqual(second_result["copied_to_playout"], 0)
+        self.assertGreaterEqual(second_result["skipped"], 1)
+
+    def test_duplicate_running_task_returns_skip_result(self):
+        """A matching active lock should skip the duplicate task."""
+        with patch("django.core.cache.cache.add", return_value=False):
+            result = self._run([18676])
+
+        self.assertTrue(result["task_skipped"])
+        self.assertEqual(result["reason"], "same task already running")
+        self.assertEqual(result["skipped"], 1)
+        self.assertEqual(result["errors"], 0)
+
+    def test_copy_helper_treats_existing_exact_record_as_success(self):
+        """The final VideoFile insert is idempotent for the unique target key."""
+        source = _make_video(
+            self.custom, 18676, "18676_Teil_1_v1.mp4",
+            is_manual_primary=True, total_bitrate=4_000_000,
+        )
+        _make_video(
+            self.archive, 18676, "18676_Teil_1_v1.mp4",
+            is_manual_primary=True, total_bitrate=4_000_000,
+            content=b"different already copied content",
+        )
+
+        with patch(
+            "media_files.utils.check_duplicate_before_copy",
+            return_value=(False, None, "No duplicate"),
+        ):
+            success, message = _copy_video_to_storage(source, self.archive, user=None)
+
+        self.assertTrue(success)
+        self.assertEqual(message, "Video already exists")
+        self.assertEqual(
+            VideoFile.objects.filter(
+                number=18676,
+                storage_location=self.archive,
+                file_path="18676_Teil_1_v1.mp4",
+            ).count(),
+            1,
+        )

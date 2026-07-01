@@ -1301,41 +1301,52 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
             and destination_storage.storage_type == 'ARCHIVE'
         )
 
-        # Create new VideoFile record with all metadata
-        new_video = VideoFile.objects.create(
+        video_defaults = {
+            'filename': source_video.filename,
+            'is_available': True,
+            'is_manual_primary': propagate_primary,
+            'format': source_video.format,
+            'file_size': source_video.file_size,
+            'duration': source_video.duration,
+            'checksum': source_video.checksum,
+            'has_video': source_video.has_video,
+            'has_audio': source_video.has_audio,
+            'video_codec': source_video.video_codec,
+            'video_codec_long': source_video.video_codec_long,
+            'video_profile': source_video.video_profile,
+            'video_bitrate': source_video.video_bitrate,
+            'video_bitrate_mode': source_video.video_bitrate_mode,
+            'audio_codec': source_video.audio_codec,
+            'audio_codec_long': source_video.audio_codec_long,
+            'audio_bitrate': source_video.audio_bitrate,
+            'audio_sample_rate': source_video.audio_sample_rate,
+            'audio_channels': source_video.audio_channels,
+            'width': source_video.width,
+            'height': source_video.height,
+            'fps': source_video.fps,
+            'aspect_ratio': source_video.aspect_ratio,
+            'pixel_format': source_video.pixel_format,
+            'color_space': source_video.color_space,
+            'color_range': source_video.color_range,
+            'chroma_subsampling': source_video.chroma_subsampling,
+            'total_bitrate': source_video.total_bitrate,
+            'last_scanned': timezone.now(),
+        }
+        new_video, created = VideoFile.objects.get_or_create(
             number=source_video.number,
-            filename=source_video.filename,
-            file_path=file_path,
             storage_location=destination_storage,
-            is_available=True,
-            is_manual_primary=propagate_primary,
-            format=source_video.format,
-            file_size=source_video.file_size,
-            duration=source_video.duration,
-            checksum=source_video.checksum,
-            has_video=source_video.has_video,
-            has_audio=source_video.has_audio,
-            video_codec=source_video.video_codec,
-            video_codec_long=source_video.video_codec_long,
-            video_profile=source_video.video_profile,
-            video_bitrate=source_video.video_bitrate,
-            video_bitrate_mode=source_video.video_bitrate_mode,
-            audio_codec=source_video.audio_codec,
-            audio_codec_long=source_video.audio_codec_long,
-            audio_bitrate=source_video.audio_bitrate,
-            audio_sample_rate=source_video.audio_sample_rate,
-            audio_channels=source_video.audio_channels,
-            width=source_video.width,
-            height=source_video.height,
-            fps=source_video.fps,
-            aspect_ratio=source_video.aspect_ratio,
-            pixel_format=source_video.pixel_format,
-            color_space=source_video.color_space,
-            color_range=source_video.color_range,
-            chroma_subsampling=source_video.chroma_subsampling,
-            total_bitrate=source_video.total_bitrate,
-            last_scanned=timezone.now(),
+            file_path=file_path,
+            defaults=video_defaults,
         )
+        if not created:
+            operation.video_file = new_video
+            operation.status = 'SUCCESS'
+            operation.save()
+            logger.info(
+                f"VideoFile record already exists for video {new_video.number} "
+                f"in {destination_storage.name}: {new_video.file_path}"
+            )
+            return True, "Video already exists"
 
         # In ARCHIVE: the freshly copied primary must be the only primary there,
         # so clear the flag from other versions of the same number in this
@@ -1472,8 +1483,49 @@ def _delete_source_from_custom(source_video, user):
         return False, error_msg
 
 
-@shared_task(name="media_files.tasks.copy_videos_for_plan")
+def _copy_videos_for_plan_lock_key(video_numbers, plan_date):
+    """Return a stable cache key for the auto-copy task arguments."""
+    sorted_numbers = ','.join(map(str, sorted(video_numbers)))
+    return f"copy_videos_for_plan:{plan_date}:{sorted_numbers}"
+
+
+def _copy_result_already_exists(message):
+    """Return True when a copy helper result represents an idempotent skip."""
+    return 'already exists' in message.lower()
+
+
+@shared_task(name="media_files.tasks.copy_videos_for_plan", queue="copy")
 def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
+    """Run auto-copy unless an identical plan copy task is already active."""
+    from django.conf import settings
+    from django.core.cache import cache
+    import uuid
+
+    lock_key = _copy_videos_for_plan_lock_key(video_numbers, plan_date)
+    lock_token = uuid.uuid4().hex
+    lock_timeout = getattr(settings, 'VIDEO_AUTO_COPY_TASK_LOCK_TIMEOUT', 60 * 60)
+    lock_acquired = cache.add(lock_key, lock_token, timeout=lock_timeout)
+    if not lock_acquired:
+        logger.info("[AUTO-COPY] Skipping duplicate running task: %s", lock_key)
+        return {
+            'task_skipped': True,
+            'reason': 'same task already running',
+            'copied_to_archive': 0,
+            'copied_to_playout': 0,
+            'skipped': len(video_numbers),
+            'warnings': 0,
+            'errors': 0,
+            'details': {'errors': [], 'warnings': []},
+        }
+
+    try:
+        return _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=user_id)
+    finally:
+        if cache.get(lock_key) == lock_token:
+            cache.delete(lock_key)
+
+
+def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
     """
     Automatically copy videos to archive and playout storage when planning.
     
@@ -1672,12 +1724,24 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                         version, archive_storage, user, destination_subfolder=None
                     )
                     if success:
-                        copied_to_archive += 1
-                        if version.storage_location.storage_type == 'CUSTOM':
+                        already_exists = _copy_result_already_exists(msg)
+                        if already_exists:
+                            skipped += 1
+                            warnings += 1
+                            operation_details['warnings'].append({
+                                'number': number,
+                                'message': f'Archive copy skipped for {version.filename}: {msg}'
+                            })
+                            logger.info(
+                                f"Video {number}: {version.filename} already in archive, skipping"
+                            )
+                        else:
+                            copied_to_archive += 1
+                            logger.info(
+                                f"Video {number}: copied {version.filename} to archive"
+                            )
+                        if version.storage_location.storage_type == 'CUSTOM' and not already_exists:
                             archived_custom_ids.append(version.id)
-                        logger.info(
-                            f"Video {number}: \u2713 Copied {version.filename} to archive"
-                        )
                     else:
                         logger.error(
                             f"Video {number}: \u2717 Failed to copy {version.filename} to archive: {msg}"
@@ -1718,12 +1782,24 @@ def copy_videos_for_plan(video_numbers, plan_date, user_id=None):
                         destination_subfolder=week_folder
                     )
                     if success:
-                        copied_to_playout += 1
                         playout_copy_success = True
-                        logger.info(
-                            f"Video {number}: \u2713 Copied PRIMARY {primary_video.filename} "
-                            f"to playout/{week_folder or 'root'}"
-                        )
+                        if _copy_result_already_exists(msg):
+                            skipped += 1
+                            warnings += 1
+                            operation_details['warnings'].append({
+                                'number': number,
+                                'message': f'Playout copy skipped: {msg}'
+                            })
+                            logger.info(
+                                f"Video {number}: PRIMARY already in "
+                                f"playout/{week_folder or 'root'}, skipping"
+                            )
+                        else:
+                            copied_to_playout += 1
+                            logger.info(
+                                f"Video {number}: copied PRIMARY {primary_video.filename} "
+                                f"to playout/{week_folder or 'root'}"
+                            )
                     else:
                         logger.error(f"Video {number}: \u2717 Failed to copy PRIMARY to playout: {msg}")
                         errors += 1
