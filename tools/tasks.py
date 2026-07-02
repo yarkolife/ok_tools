@@ -29,6 +29,9 @@ import logging
 
 
 logger = logging.getLogger('django')
+REEL_REMINDER_MISSING_URL_ATTEMPTS = 6
+REEL_REMINDER_MISSING_URL_RETRIES = REEL_REMINDER_MISSING_URL_ATTEMPTS - 1
+REEL_REMINDER_MISSING_URL_RETRY_DELAYS = (300, 600, 900, 900, 900)
 
 
 def _safe_site_base_url() -> str:
@@ -48,6 +51,11 @@ def _reel_public_download_url(filename: str) -> str:
     token = TimestampSigner(salt='tools.reel_public_output').sign(filename)
     path = reverse('tools:reel_public_output_stream', args=[filename])
     return _absolute_url(f'{path}?{urlencode({"token": token})}')
+
+
+def _reel_reminder_missing_url_countdown(retry_number: int) -> int:
+    index = max(0, min(retry_number, len(REEL_REMINDER_MISSING_URL_RETRY_DELAYS) - 1))
+    return REEL_REMINDER_MISSING_URL_RETRY_DELAYS[index]
 
 
 def _time_sort_key(value: str) -> tuple[int, int, int]:
@@ -79,6 +87,55 @@ def _license_tags(license_obj) -> list[str]:
     if isinstance(raw_tags, str):
         return [tag.strip() for tag in raw_tags.split(',') if tag.strip()]
     return []
+
+
+def _try_refresh_mediathek_url(license_obj) -> str:
+    """Try one immediate PeerTube lookup for a missing Mediathek URL."""
+    if not license_obj or getattr(license_obj, 'mediathek_url', ''):
+        return getattr(license_obj, 'mediathek_url', '') or ''
+    try:
+        from django.db import transaction
+        from licenses.services.peertube_service import \
+            find_video_by_number_in_channel
+        from licenses.services.peertube_service import peertube_watch_url
+        from licenses.services.peertube_service import \
+            resolve_peertube_endpoint
+        from licenses.tasks import _get_org_channel
+        from licenses.tasks import _get_peertube_target_channel
+
+        endpoint = resolve_peertube_endpoint(
+            target_channel=_get_peertube_target_channel(license_obj),
+            organization_channel=_get_org_channel(),
+        )
+        video = find_video_by_number_in_channel(
+            endpoint.base_url,
+            endpoint.channel_handle,
+            str(license_obj.number),
+        )
+        if not video:
+            logger.info(
+                'Mediathek URL not found during reel reminder lookup for license %s',
+                license_obj.number,
+            )
+            return ''
+
+        watch_url = peertube_watch_url(endpoint.base_url, video)
+        with transaction.atomic():
+            license_obj.mediathek_url = watch_url
+            license_obj.mediathek_url_updated_at = timezone.now()
+            license_obj.save(update_fields=['mediathek_url', 'mediathek_url_updated_at'])
+        logger.info(
+            'Updated mediathek URL during reel reminder lookup for license %s: %s',
+            license_obj.number,
+            watch_url,
+        )
+        return watch_url
+    except Exception:
+        logger.exception(
+            'Failed mediathek URL lookup during reel reminder for license %s',
+            getattr(license_obj, 'number', None),
+        )
+        return ''
 
 
 def _today_plan_matches(target_date: date, numbers: set[int]) -> dict[int, list[dict]]:
@@ -154,7 +211,11 @@ def _today_reel_videos(target_date: date) -> list:
     return videos
 
 
-def build_daily_reel_reminder_context(target_date: date | None = None) -> dict:
+def build_daily_reel_reminder_context(
+    target_date: date | None = None,
+    *,
+    refresh_missing_mediathek: bool = False,
+) -> dict:
     """Build the email context for today's sorted reel reminder."""
     target_date = target_date or timezone.localdate()
     videos = _today_reel_videos(target_date)
@@ -169,6 +230,11 @@ def build_daily_reel_reminder_context(target_date: date | None = None) -> dict:
             licenses_by_number = {int(license_obj.number): license_obj for license_obj in licenses}
         except Exception:
             licenses_by_number = {}
+
+    if refresh_missing_mediathek:
+        for license_obj in licenses_by_number.values():
+            if not getattr(license_obj, 'mediathek_url', ''):
+                _try_refresh_mediathek_url(license_obj)
 
     reels = []
     for video in videos:
@@ -203,6 +269,8 @@ def build_daily_reel_reminder_context(target_date: date | None = None) -> dict:
             )
         if not license_obj:
             warnings.append(_('No license was found for this reel number.'))
+        if license_obj and not getattr(license_obj, 'mediathek_url', ''):
+            warnings.append(_('No Mediathek URL is available yet. Please check the publication link.'))
 
         filename = Path(str(video.filename or video.file_path)).name
         reels.append({
@@ -938,8 +1006,12 @@ def okmq_render_reel_task(self, *, payload):
     return result
 
 
-@shared_task(name='tools.tasks.send_daily_reel_reminder')
-def send_daily_reel_reminder(target_date_iso=None):
+@shared_task(
+    name='tools.tasks.send_daily_reel_reminder',
+    bind=True,
+    max_retries=REEL_REMINDER_MISSING_URL_RETRIES,
+)
+def send_daily_reel_reminder(self, target_date_iso=None):
     """Send one daily email with today's Reel Studio output links."""
     check_tools_enabled()
 
@@ -959,9 +1031,37 @@ def send_daily_reel_reminder(target_date_iso=None):
     else:
         target_date = timezone.localdate()
 
-    context = build_daily_reel_reminder_context(target_date)
+    context = build_daily_reel_reminder_context(
+        target_date,
+        refresh_missing_mediathek=True,
+    )
     if not context['reels']:
         return {'status': 'skipped', 'reason': 'no_reels', 'date': target_date.isoformat()}
+
+    missing_mediathek_numbers = [
+        reel['number']
+        for reel in context['reels']
+        if not reel.get('mediathek_url')
+    ]
+    if missing_mediathek_numbers:
+        if self.request.retries >= self.max_retries:
+            logger.error(
+                'Daily reel reminder sent for %s although Mediathek URLs are still missing for licenses: %s',
+                target_date,
+                missing_mediathek_numbers,
+            )
+        else:
+            countdown = _reel_reminder_missing_url_countdown(self.request.retries)
+            logger.info(
+                'Daily reel reminder delayed for %s; missing Mediathek URLs for licenses %s. Retrying in %s seconds.',
+                target_date,
+                missing_mediathek_numbers,
+                countdown,
+            )
+            raise self.retry(
+                exc=RuntimeError('Mediathek URL missing for daily reel reminder'),
+                countdown=countdown,
+            )
 
     try:
         from registration.email import send_mail
@@ -989,4 +1089,5 @@ def send_daily_reel_reminder(target_date_iso=None):
         'status': 'sent',
         'date': target_date.isoformat(),
         'reel_count': context['reel_count'],
+        'missing_mediathek_numbers': missing_mediathek_numbers,
     }

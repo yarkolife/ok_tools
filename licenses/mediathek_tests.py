@@ -1,16 +1,16 @@
-import datetime
-
-import pytest
-from django.utils import timezone
-
 from contributions.models import Contribution
+from django.utils import timezone
 from licenses.services.peertube_service import compute_lookup_eta
 from licenses.services.peertube_service import compute_publish_time_for_license
 from licenses.services.peertube_service import find_video_by_number_in_channel
 from licenses.services.peertube_service import normalize_channel_handle
 from licenses.services.peertube_service import parse_target_channel
 from licenses.services.peertube_service import resolve_peertube_endpoint
+from licenses.tasks import rescan_mediathek_links_from_contributions
+from licenses.tasks import rescan_mediathek_links_from_planung
 from planung.models import TagesPlan
+import datetime
+import pytest
 
 
 @pytest.mark.django_db
@@ -111,3 +111,57 @@ def test__licenses__peertube_service__find_video_uses_normalized_handle(monkeypa
     assert video.get('shortUUID') == 'short-1'
     assert '/api/v1/video-channels/okmq/videos' in calls
     assert '/api/v1/video-channels/okmq%40lokalmedial.de/videos' not in calls
+
+
+@pytest.mark.django_db
+def test__licenses__tasks__rescan_mediathek_links_from_planung_queues_missing_url(license, monkeypatch):
+    """Planning periodic task queues refreshes for planned licenses without mediathek URL."""
+    calls = []
+
+    def _fake_apply_async(args=None, kwargs=None, eta=None):
+        calls.append({'args': args, 'kwargs': kwargs, 'eta': eta})
+
+    monkeypatch.setattr('licenses.tasks.refresh_license_mediathek_url.apply_async', _fake_apply_async)
+    license.store_in_ok_media_library = True
+    license.mediathek_url = ''
+    license.save(update_fields=['store_in_ok_media_library', 'mediathek_url'])
+    TagesPlan.objects.create(
+        datum=timezone.localdate(),
+        json_plan={
+            'items': [{'number': license.number, 'start': '18:00'}],
+            'draft': False,
+            'planned': True,
+        },
+    )
+
+    result = rescan_mediathek_links_from_planung()
+
+    assert result['source'] == 'planung'
+    assert result['queued_count'] == 1
+    assert calls[0]['args'] == [license.number]
+    assert calls[0]['kwargs'] == {'force': True, 'send_notification_email': False}
+
+
+@pytest.mark.django_db
+def test__licenses__tasks__rescan_mediathek_links_from_contributions_skips_existing_url(license, monkeypatch):
+    """Contribution periodic task does not queue licenses that already have mediathek URL."""
+    calls = []
+
+    def _fake_apply_async(args=None, kwargs=None, eta=None):
+        calls.append({'args': args, 'kwargs': kwargs, 'eta': eta})
+
+    monkeypatch.setattr('licenses.tasks.refresh_license_mediathek_url.apply_async', _fake_apply_async)
+    license.store_in_ok_media_library = True
+    license.mediathek_url = 'https://lokalmedial.de/w/existing'
+    license.save(update_fields=['store_in_ok_media_library', 'mediathek_url'])
+    Contribution.objects.create(
+        license=license,
+        broadcast_date=timezone.now(),
+        live=False,
+    )
+
+    result = rescan_mediathek_links_from_contributions()
+
+    assert result['source'] == 'contributions'
+    assert result['queued_count'] == 0
+    assert calls == []

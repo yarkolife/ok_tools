@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-07-02 (Version 4.30.0)
+==========================
+
+* **licenses: Periodic Mediathek URL refresh**
+  * Added separate daily Celery beat tasks for planning and contribution broadcast data to queue missing Mediathek URL refreshes.
+  * Registered the tasks with `setup_periodic_tasks` and German admin display names.
+* **tools: Reel reminder Mediathek URL handling**
+  * Reel reminder emails now retry missing Mediathek URLs for up to one hour before sending with a visible warning.
+
 2026-07-01 (Version 4.29.0)
 ==========================
 

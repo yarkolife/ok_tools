@@ -34,6 +34,8 @@ TASK_DISPLAY_NAMES = {
     'celery.backend_cleanup': _('Clean up Celery task results'),
     'licenses.tasks.download_nextcloud_video_file_to_storage': _('Download Nextcloud video to storage'),
     'licenses.tasks.refresh_license_mediathek_url': _('Refresh media library link'),
+    'licenses.tasks.rescan_mediathek_links_from_contributions': _('Rescan media library links from contributions'),
+    'licenses.tasks.rescan_mediathek_links_from_planung': _('Rescan media library links from planning'),
     'licenses.tasks.rescan_mediathek_links_for_period': _('Rescan media library links'),
     'licenses.tasks.send_license_notification_email': _('Send license notification email'),
     'media_files.tasks.copy_videos_for_plan': _('Copy videos for broadcast plan'),

@@ -356,6 +356,18 @@ class DailyReelReminderTest(TestCase):
             reel_reminder_time=time(9, 15),
         )
 
+    def test_missing_mediathek_retry_window_is_one_hour(self):
+        from tools.tasks import REEL_REMINDER_MISSING_URL_RETRIES
+        from tools.tasks import _reel_reminder_missing_url_countdown
+
+        delays = [
+            _reel_reminder_missing_url_countdown(retry_number)
+            for retry_number in range(REEL_REMINDER_MISSING_URL_RETRIES)
+        ]
+
+        self.assertEqual(delays, [300, 600, 900, 900, 900])
+        self.assertEqual(sum(delays), 3600)
+
     def _license(self, email, title, tags=None, mediathek_url=''):
         producer = create_user(
             {
@@ -484,6 +496,95 @@ class DailyReelReminderTest(TestCase):
         body = mail.outbox[0].body
         self.assertLess(body.index('Tags:'), body.index('Reel-Download:'))
         self.assertLess(body.index('Reel-Download:'), body.index('Mediathek:'))
+
+    @mock.patch('tools.tasks._try_refresh_mediathek_url')
+    def test_task_refreshes_missing_mediathek_url_before_email(self, refresh_url):
+        from planung.models import TagesPlan
+        from tools.tasks import send_daily_reel_reminder
+
+        def set_url(license_obj):
+            license_obj.mediathek_url = 'https://lokalmedial.example/w/refreshed'
+            return license_obj.mediathek_url
+
+        refresh_url.side_effect = set_url
+        plan_date = date(2026, 7, 4)
+        license_obj = self._license(
+            'refresh-missing@example.com',
+            'Refresh Missing',
+            tags=['Mediathek'],
+            mediathek_url='',
+        )
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+        TagesPlan.objects.create(
+            datum=plan_date,
+            json_plan={'items': [{'number': license_obj.number, 'start': '09:00:00'}]},
+        )
+
+        result = send_daily_reel_reminder(plan_date.isoformat())
+
+        self.assertEqual(result['status'], 'sent')
+        refresh_url.assert_called_once()
+        self.assertIn('https://lokalmedial.example/w/refreshed', mail.outbox[0].body)
+
+    @mock.patch('tools.tasks._try_refresh_mediathek_url')
+    def test_task_retries_and_does_not_email_without_mediathek_url(self, refresh_url):
+        from planung.models import TagesPlan
+        from tools.tasks import send_daily_reel_reminder
+
+        refresh_url.return_value = ''
+        plan_date = date(2026, 7, 4)
+        license_obj = self._license(
+            'missing-url@example.com',
+            'Missing URL',
+            tags=['Mediathek'],
+            mediathek_url='',
+        )
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+        TagesPlan.objects.create(
+            datum=plan_date,
+            json_plan={'items': [{'number': license_obj.number, 'start': '09:00:00'}]},
+        )
+
+        with self.assertRaises(RuntimeError):
+            send_daily_reel_reminder(plan_date.isoformat())
+
+        self.assertEqual(len(mail.outbox), 0)
+
+    @mock.patch('tools.tasks._try_refresh_mediathek_url')
+    def test_task_eventually_sends_email_without_mediathek_url(self, refresh_url):
+        from planung.models import TagesPlan
+        from tools.tasks import REEL_REMINDER_MISSING_URL_RETRIES
+        from tools.tasks import send_daily_reel_reminder
+
+        refresh_url.return_value = ''
+        plan_date = date(2026, 7, 4)
+        license_obj = self._license(
+            'missing-url-final@example.com',
+            'Missing URL Final',
+            tags=['Mediathek'],
+            mediathek_url='',
+        )
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+        TagesPlan.objects.create(
+            datum=plan_date,
+            json_plan={'items': [{'number': license_obj.number, 'start': '09:00:00'}]},
+        )
+
+        with mock.patch.object(
+            send_daily_reel_reminder.request,
+            'retries',
+            REEL_REMINDER_MISSING_URL_RETRIES,
+            create=True,
+        ):
+            result = send_daily_reel_reminder(plan_date.isoformat())
+
+        self.assertEqual(result['status'], 'sent')
+        self.assertEqual(result['missing_mediathek_numbers'], [license_obj.number])
+        self.assertEqual(len(mail.outbox), 1)
+        body = mail.outbox[0].body
+        self.assertIn('Missing URL Final', body)
+        self.assertIn('Es ist noch keine Mediathek-URL verfügbar', body)
+        self.assertNotIn('Mediathek: http', body)
 
 
 @override_settings(TOOLS_ENABLED=True)

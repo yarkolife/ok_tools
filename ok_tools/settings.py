@@ -860,6 +860,16 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'media_files.tasks.run_sync_licenses_videos',
         'schedule': parse_crontab_env('CELERY_BEAT_SYNC_LICENSES_VIDEOS', '0 4 * * *'),
     },
+    'rescan_mediathek_links_from_planung': {
+        'task': 'licenses.tasks.rescan_mediathek_links_from_planung',
+        'schedule': parse_crontab_env('CELERY_BEAT_RESCAN_MEDIATHEK_PLANUNG', '15 8 * * *'),
+        'kwargs': {'days_back': 2, 'days_forward': 0},
+    },
+    'rescan_mediathek_links_from_contributions': {
+        'task': 'licenses.tasks.rescan_mediathek_links_from_contributions',
+        'schedule': parse_crontab_env('CELERY_BEAT_RESCAN_MEDIATHEK_CONTRIBUTIONS', '45 8 * * *'),
+        'kwargs': {'days_back': 14, 'days_forward': 0},
+    },
     'update_video_metadata': {
         'task': 'media_files.tasks.run_update_video_metadata',
         'schedule': parse_crontab_env('CELERY_BEAT_UPDATE_VIDEO_METADATA', '0 1 1 * *'),

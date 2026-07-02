@@ -14,6 +14,7 @@ from .services.peertube_service import resolve_peertube_endpoint
 from celery import shared_task
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
@@ -507,51 +508,53 @@ def _collect_license_numbers_from_planung(start_date: date, end_date: date) -> s
     return numbers
 
 
-@shared_task(name='licenses.tasks.rescan_mediathek_links_for_period')
-def rescan_mediathek_links_for_period(
-    start_date_iso: str,
-    end_date_iso: str,
-    only_store_in_ok_media_library: bool = True,
-    requested_by_user_id: int | None = None,
-) -> dict:
-    """Queue per-license mediathek URL refresh tasks for selected period."""
-    start_date = _parse_iso_date(start_date_iso)
-    end_date = _parse_iso_date(end_date_iso)
-    if not start_date or not end_date or start_date > end_date:
-        raise ValueError('Invalid date range')
-
-    numbers: set[int] = set()
-
+def _collect_license_numbers_from_contributions(start_date: date, end_date: date) -> set[int]:
+    """Collect license numbers from Contribution broadcast dates for date range."""
     try:
         from contributions.models import Contribution
-
-        contribution_numbers = Contribution.objects.filter(
-            broadcast_date__date__gte=start_date,
-            broadcast_date__date__lte=end_date,
-        ).values_list('license__number', flat=True)
-        numbers.update(int(n) for n in contribution_numbers if n is not None)
     except (ImportError, RuntimeError, ModuleNotFoundError):
-        pass
+        return set()
 
-    numbers.update(_collect_license_numbers_from_planung(start_date, end_date))
+    contribution_numbers = Contribution.objects.filter(
+        broadcast_date__date__gte=start_date,
+        broadcast_date__date__lte=end_date,
+    ).values_list('license__number', flat=True)
+    return {int(number) for number in contribution_numbers if number is not None}
 
+
+def _queue_mediathek_refreshes_for_numbers(
+    *,
+    numbers: set[int],
+    start_date: date,
+    end_date: date,
+    source: str,
+    only_store_in_ok_media_library: bool = True,
+    missing_only: bool = False,
+    requested_by_user_id: int | None = None,
+) -> dict:
+    """Queue per-license mediathek URL refresh tasks for collected license numbers."""
     if not numbers:
         logger.info(
-            'Mediathek period rescan: no license numbers found for %s..%s',
-            start_date_iso,
-            end_date_iso,
+            'Mediathek %s rescan: no license numbers found for %s..%s',
+            source,
+            start_date.isoformat(),
+            end_date.isoformat(),
         )
         return {
             'queued_count': 0,
-            'start_date': start_date_iso,
-            'end_date': end_date_iso,
+            'source': source,
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat(),
             'only_store_in_ok_media_library': bool(only_store_in_ok_media_library),
+            'missing_only': bool(missing_only),
             'requested_by_user_id': requested_by_user_id,
         }
 
     filters = Q(number__in=list(numbers))
     if only_store_in_ok_media_library:
         filters &= Q(store_in_ok_media_library=True)
+    if missing_only:
+        filters &= Q(mediathek_url__isnull=True) | Q(mediathek_url='')
 
     license_numbers = list(
         License.objects.filter(filters).values_list('number', flat=True)
@@ -572,17 +575,89 @@ def rescan_mediathek_links_for_period(
         queued_count += 1
 
     logger.info(
-        'Mediathek period rescan queued: %s licenses, range=%s..%s, requested_by=%s',
+        'Mediathek %s rescan queued: %s licenses, range=%s..%s, requested_by=%s',
+        source,
         queued_count,
-        start_date_iso,
-        end_date_iso,
+        start_date.isoformat(),
+        end_date.isoformat(),
         requested_by_user_id,
     )
 
     return {
         'queued_count': queued_count,
-        'start_date': start_date_iso,
-        'end_date': end_date_iso,
+        'source': source,
+        'start_date': start_date.isoformat(),
+        'end_date': end_date.isoformat(),
         'only_store_in_ok_media_library': bool(only_store_in_ok_media_library),
+        'missing_only': bool(missing_only),
         'requested_by_user_id': requested_by_user_id,
     }
+
+
+@shared_task(name='licenses.tasks.rescan_mediathek_links_for_period')
+def rescan_mediathek_links_for_period(
+    start_date_iso: str,
+    end_date_iso: str,
+    only_store_in_ok_media_library: bool = True,
+    requested_by_user_id: int | None = None,
+) -> dict:
+    """Queue per-license mediathek URL refresh tasks for selected period."""
+    start_date = _parse_iso_date(start_date_iso)
+    end_date = _parse_iso_date(end_date_iso)
+    if not start_date or not end_date or start_date > end_date:
+        raise ValueError('Invalid date range')
+
+    numbers = _collect_license_numbers_from_contributions(start_date, end_date)
+    numbers.update(_collect_license_numbers_from_planung(start_date, end_date))
+
+    return _queue_mediathek_refreshes_for_numbers(
+        numbers=numbers,
+        start_date=start_date,
+        end_date=end_date,
+        source='period',
+        only_store_in_ok_media_library=only_store_in_ok_media_library,
+        missing_only=False,
+        requested_by_user_id=requested_by_user_id,
+    )
+
+
+@shared_task(name='licenses.tasks.rescan_mediathek_links_from_planung')
+def rescan_mediathek_links_from_planung(
+    days_back: int = 2,
+    days_forward: int = 0,
+    only_store_in_ok_media_library: bool = True,
+) -> dict:
+    """Queue mediathek URL refreshes for planned broadcasts without a stored URL."""
+    today = timezone.localdate()
+    start_date = today - timedelta(days=max(0, int(days_back)))
+    end_date = today + timedelta(days=max(0, int(days_forward)))
+    numbers = _collect_license_numbers_from_planung(start_date, end_date)
+    return _queue_mediathek_refreshes_for_numbers(
+        numbers=numbers,
+        start_date=start_date,
+        end_date=end_date,
+        source='planung',
+        only_store_in_ok_media_library=only_store_in_ok_media_library,
+        missing_only=True,
+    )
+
+
+@shared_task(name='licenses.tasks.rescan_mediathek_links_from_contributions')
+def rescan_mediathek_links_from_contributions(
+    days_back: int = 14,
+    days_forward: int = 0,
+    only_store_in_ok_media_library: bool = True,
+) -> dict:
+    """Queue mediathek URL refreshes for Contribution broadcasts without a stored URL."""
+    today = timezone.localdate()
+    start_date = today - timedelta(days=max(0, int(days_back)))
+    end_date = today + timedelta(days=max(0, int(days_forward)))
+    numbers = _collect_license_numbers_from_contributions(start_date, end_date)
+    return _queue_mediathek_refreshes_for_numbers(
+        numbers=numbers,
+        start_date=start_date,
+        end_date=end_date,
+        source='contributions',
+        only_store_in_ok_media_library=only_store_in_ok_media_library,
+        missing_only=True,
+    )

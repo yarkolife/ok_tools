@@ -2885,14 +2885,22 @@ msgid "Refresh media library link"
 msgstr "Mediathek-Link aktualisieren"
 
 #: ok_tools/admin_celery.py:36
+msgid "Rescan media library links from contributions"
+msgstr "Mediathek-Links aus Beiträgen erneut prüfen"
+
+#: ok_tools/admin_celery.py:37
+msgid "Rescan media library links from planning"
+msgstr "Mediathek-Links aus der Planung erneut prüfen"
+
+#: ok_tools/admin_celery.py:38
 msgid "Rescan media library links"
 msgstr "Mediathek-Links erneut prüfen"
 
-#: ok_tools/admin_celery.py:37
+#: ok_tools/admin_celery.py:39
 msgid "Send license notification email"
 msgstr "Freistellungs-Benachrichtigung per E-Mail senden"
 
-#: ok_tools/admin_celery.py:38
+#: ok_tools/admin_celery.py:40
 msgid "Copy videos for broadcast plan"
 msgstr "Videos für den Sendeplan kopieren"
 

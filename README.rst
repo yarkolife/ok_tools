@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.29.0
-**Last Updated**: 1 July 2026
+**Current Version**: 4.30.0
+**Last Updated**: 2 July 2026
 
 Features
 ========
@@ -28,6 +28,7 @@ Features
   - Video upload support
   - Metadata export for planning systems
   - Automated email notification when a published video is available in the Mediathek (with direct link)
+  - Periodic Mediathek URL refresh from planning and contribution broadcast data
   - License-to-video file synchronization
   - Tag-based categorization
   - Planning system integration with time extraction

@@ -3631,6 +3631,9 @@ msgstr "Diese Freistellung hat an diesem Tag weitere Sendezeiten."
 msgid "No license was found for this reel number."
 msgstr "Für diese Reel-Nummer wurde keine Freistellung gefunden."
 
+msgid "No Mediathek URL is available yet. Please check the publication link."
+msgstr "Es ist noch keine Mediathek-URL verfügbar. Bitte den Veröffentlichungslink prüfen."
+
 msgid "Custom hook variant"
 msgstr "Eigene Hook-Variante"
 

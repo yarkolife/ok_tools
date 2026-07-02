@@ -5,11 +5,13 @@ This command migrates tasks from CELERY_BEAT_SCHEDULE to django-celery-beat
 PeriodicTask model, making them visible and manageable in Django admin.
 """
 
-from django.core.management.base import BaseCommand
-from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSchedule
-from django.utils import timezone
-from django.conf import settings
 from celery.schedules import crontab
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from django_celery_beat.models import CrontabSchedule
+from django_celery_beat.models import IntervalSchedule
+from django_celery_beat.models import PeriodicTask
 from ok_tools.settings import get_env
 import json
 
@@ -51,6 +53,8 @@ class Command(BaseCommand):
             'auto_scan': ('CELERY_BEAT_AUTO_SCAN', '0 */2 * * *'),
             'link_orphan_licenses': ('CELERY_BEAT_LINK_ORPHAN_LICENSES', '0 3 * * *'),
             'sync_licenses_videos': ('CELERY_BEAT_SYNC_LICENSES_VIDEOS', '0 4 * * *'),
+            'rescan_mediathek_links_from_planung': ('CELERY_BEAT_RESCAN_MEDIATHEK_PLANUNG', '15 8 * * *'),
+            'rescan_mediathek_links_from_contributions': ('CELERY_BEAT_RESCAN_MEDIATHEK_CONTRIBUTIONS', '45 8 * * *'),
             'update_video_metadata': ('CELERY_BEAT_UPDATE_VIDEO_METADATA', '0 1 1 * *'),
             'cleanup_old_file_operations': ('CELERY_BEAT_CLEANUP_OLD_FILE_OPERATIONS', '0 1 * * 0'),
             'cleanup_missing_files': ('CELERY_BEAT_CLEANUP_MISSING_FILES', '0 5 * * 0'),
@@ -160,4 +164,3 @@ class Command(BaseCommand):
                 f'\nSummary: Created: {created_count}, Updated: {updated_count}, Skipped: {skipped_count}'
             )
         )
-
