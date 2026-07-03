@@ -1,17 +1,17 @@
 from .forms import RentalIssueForm
 from .forms import RentalRequestAdminForm
 from .forms import RentalTransactionForm
-from .working_hours import validate_working_hours_period
 from .models import EquipmentSet
 from .models import EquipmentSetItem
+from .models import RentalConfig
 from .models import RentalIssue
 from .models import RentalItem
 from .models import RentalProcessProxy
 from .models import RentalRequest
-from .models import RentalConfig
 from .models import RentalTransaction
 from .models import Room
 from .models import RoomRental
+from .working_hours import validate_working_hours_period
 from django import forms
 from django.contrib import admin
 from django.contrib.admin import AdminSite
@@ -98,10 +98,21 @@ class RentalRequestAdmin(admin.ModelAdmin):
     )
     search_fields = ("project_name", "purpose", "user__email", "created_by__email")
     inlines = [RentalItemInline, RoomRentalInline]
-    readonly_fields = ("created_at", "updated_at", "has_signature_display")
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+        "has_signature_display",
+        "auto_return_reminder_sent_at",
+    )
     fieldsets = (
         (_('Meta'), {
-            'fields': ("status", "created_at", "updated_at", "has_signature_display"),
+            'fields': (
+                "status",
+                "created_at",
+                "updated_at",
+                "has_signature_display",
+                "auto_return_reminder_sent_at",
+            ),
         }),
         (_('Actors'), {
             'fields': ("user", "created_by"),

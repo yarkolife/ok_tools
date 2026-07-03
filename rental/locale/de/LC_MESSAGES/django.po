@@ -1106,6 +1106,14 @@ msgstr "Automatische Rückgabe-Erinnerungen"
 msgid "Enable automatic return reminder emails for issued rentals"
 msgstr "Automatische Rückgabe-Erinnerungen für ausgegebene Ausleihen aktivieren"
 
+#: rental/models.py:132
+msgid "Automatic return reminder sent at"
+msgstr "Automatische Rückgabe-Erinnerung gesendet am"
+
+#: rental/models.py:133
+msgid "When the automatic return reminder email was sent."
+msgstr "Zeitpunkt, zu dem die automatische Rückgabe-Erinnerung per E-Mail gesendet wurde."
+
 #: rental/models.py:942
 msgid "Reminder Hours Before Return"
 msgstr "Erinnerungsstunden vor Rückgabe"

@@ -1,10 +1,15 @@
+from datetime import date
+from datetime import datetime
+from datetime import time
 from django.conf import settings
 from django.db import models
-from django.utils.translation import gettext_lazy as _
-from typing import List, Dict, Any, Optional, Union
 from django.db.models.query import QuerySet
-from datetime import datetime, date
-from datetime import time
+from django.utils.translation import gettext_lazy as _
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 import uuid
 
 
@@ -121,6 +126,12 @@ class RentalRequest(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    auto_return_reminder_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Automatic return reminder sent at'),
+        help_text=_('When the automatic return reminder email was sent.'),
+    )
 
     class Meta:
         """Django model metadata for ``RentalRequest``."""
@@ -179,7 +190,8 @@ class RentalRequest(models.Model):
     def get_available_inventory(self) -> QuerySet:
         """Get available inventory for rental considering user rights."""
         from django.db.models import Q
-        from rental.services.inventory_service_interface import inventory_service
+        from rental.services.inventory_service_interface import \
+            inventory_service
 
         # Get available items through the service interface
         available_items_data = inventory_service.get_available_items(user_id=self.user.id)

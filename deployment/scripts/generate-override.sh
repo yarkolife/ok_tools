@@ -85,6 +85,25 @@ declare -A service_volumes
 # Services that may need extra configuration generated from .env (beyond volume mounts)
 declare -A service_extras
 
+# Services that need access to NAS-backed media paths by default.
+MEDIA_SERVICES=(
+    "web"
+    "celery_worker"
+    "celery_download_worker"
+    "celery_render_worker"
+    "celery_copy_worker"
+    "celery_anchor_render_worker"
+)
+
+CELERY_SERVICES=(
+    "celery_worker"
+    "celery_download_worker"
+    "celery_render_worker"
+    "celery_copy_worker"
+    "celery_anchor_render_worker"
+    "celery_beat"
+)
+
 # Helper: add build args for UID/GID alignment if configured
 add_uid_gid_build_args() {
     local service_name="$1"
@@ -132,10 +151,9 @@ if [ -n "${NAS_MOUNT_PATH:-}" ]; then
     print_info "Adding NAS mount: ${NAS_MOUNT_PATH} -> /mnt/nas (${NAS_MODE})"
     
     # Add to services that may need access to NAS-backed media paths
-    add_volume_to_service "web" "$NAS_MOUNT_PATH" "/mnt/nas" "$NAS_MODE"
-    add_volume_to_service "celery_worker" "$NAS_MOUNT_PATH" "/mnt/nas" "$NAS_MODE"
-    add_volume_to_service "celery_download_worker" "$NAS_MOUNT_PATH" "/mnt/nas" "$NAS_MODE"
-    add_volume_to_service "celery_render_worker" "$NAS_MOUNT_PATH" "/mnt/nas" "$NAS_MODE"
+    for service in "${MEDIA_SERVICES[@]}"; do
+        add_volume_to_service "$service" "$NAS_MOUNT_PATH" "/mnt/nas" "$NAS_MODE"
+    done
 else
     print_info "NAS_MOUNT_PATH not set - skipping NAS mount"
 fi
@@ -151,7 +169,7 @@ for i in {1..10}; do
     MOUNT_PATH="${!MOUNT_PATH_VAR:-}"
     MOUNT_CONTAINER="${!MOUNT_CONTAINER_VAR:-}"
     MOUNT_MODE="${!MOUNT_MODE_VAR:-ro}"
-    MOUNT_SERVICES="${!MOUNT_SERVICES_VAR:-web,celery_worker,celery_download_worker,celery_render_worker}"
+    MOUNT_SERVICES="${!MOUNT_SERVICES_VAR:-$(IFS=,; echo "${MEDIA_SERVICES[*]}")}"
     
     if [ -n "$MOUNT_PATH" ] && [ -n "$MOUNT_CONTAINER" ]; then
         MOUNT_COUNT=$((MOUNT_COUNT + 1))
@@ -172,16 +190,14 @@ fi
 
 # Always consider UID/GID build args (permission alignment for bind mounts)
 add_uid_gid_build_args "web"
-add_uid_gid_build_args "celery_worker"
-add_uid_gid_build_args "celery_download_worker"
-add_uid_gid_build_args "celery_render_worker"
-add_uid_gid_build_args "celery_beat"
+for service in "${CELERY_SERVICES[@]}"; do
+    add_uid_gid_build_args "$service"
+done
 
 # Always consider Celery entrypoint (safe even if permissions are already correct)
-add_celery_entrypoint "celery_worker"
-add_celery_entrypoint "celery_download_worker"
-add_celery_entrypoint "celery_render_worker"
-add_celery_entrypoint "celery_beat"
+for service in "${CELERY_SERVICES[@]}"; do
+    add_celery_entrypoint "$service"
+done
 
 # Write the override file
 # This file may contain both volume mounts AND other server-specific overrides (e.g. UID/GID build args)

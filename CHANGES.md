@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-07-03 (Version 4.31.0)
+==========================
+
+* **rental: Persist automatic return reminder state**
+  * Added `RentalRequest.auto_return_reminder_sent_at` so scheduled return reminders are sent once per issued rental.
+  * Reset the marker when reminder delivery fails so the next scheduled run can retry.
+* **licenses: Stop periodic Mediathek not-found retries**
+  * Periodic Mediathek refresh jobs now skip Celery retries when PeerTube has no matching video yet.
+* **deployment: Include dedicated Celery workers in media mounts**
+  * Updated generated override defaults so NAS and custom media mounts include copy, render, download, and anchor render workers.
+
 2026-07-02 (Version 4.30.0)
 ==========================
 

@@ -40,7 +40,7 @@ NAS_MOUNT_MODE=ro
 CUSTOM_MOUNT_1_PATH=/mnt/storage1
 CUSTOM_MOUNT_1_CONTAINER_PATH=/mnt/storage1
 CUSTOM_MOUNT_1_MODE=ro
-CUSTOM_MOUNT_1_SERVICES=web,celery_worker
+CUSTOM_MOUNT_1_SERVICES=web,celery_worker,celery_download_worker,celery_render_worker,celery_copy_worker,celery_anchor_render_worker
 
 CUSTOM_MOUNT_2_PATH=/mnt/storage2
 CUSTOM_MOUNT_2_CONTAINER_PATH=/mnt/storage2
@@ -54,7 +54,7 @@ CUSTOM_MOUNT_2_SERVICES=web
 - `CUSTOM_MOUNT_N_PATH`: Host path for custom mount #N
 - `CUSTOM_MOUNT_N_CONTAINER_PATH`: Path inside container
 - `CUSTOM_MOUNT_N_MODE`: Mount mode (`ro` or `rw`)
-- `CUSTOM_MOUNT_N_SERVICES`: Comma-separated list of services (e.g., `web,celery_worker`)
+- `CUSTOM_MOUNT_N_SERVICES`: Comma-separated list of services (e.g., `web,celery_worker,celery_copy_worker`)
 
 **Note:** Leave variables empty or unset if you don't need that mount.
 
@@ -167,4 +167,3 @@ The script will warn if the host path doesn't exist, but will still create the o
 - The override file is **not tracked in git** (in `.gitignore`)
 - Docker Compose automatically uses `docker-compose.override.yml` if it exists
 - Multiple custom mounts are supported (up to 10 via `CUSTOM_MOUNT_1` through `CUSTOM_MOUNT_10`)
-

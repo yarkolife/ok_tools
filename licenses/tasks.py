@@ -394,6 +394,7 @@ def refresh_license_mediathek_url(
     license_number: int,
     force: bool = False,
     send_notification_email: bool = True,
+    retry_not_found: bool = True,
 ) -> dict:
     """Refresh mediathek watch URL for one license by PeerTube videoNumber."""
     try:
@@ -447,7 +448,7 @@ def refresh_license_mediathek_url(
         raise self.retry(exc=exc, countdown=countdown)
 
     if not video:
-        if self.request.retries < self.max_retries:
+        if retry_not_found and self.request.retries < self.max_retries:
             countdown = min(7200, 300 * (2 ** self.request.retries))
             raise self.retry(exc=RuntimeError('PeerTube video not found yet'), countdown=countdown)
         return {
@@ -569,7 +570,11 @@ def _queue_mediathek_refreshes_for_numbers(
             eta = compute_lookup_eta(publish_time)
         refresh_license_mediathek_url.apply_async(
             args=[int(license_number)],
-            kwargs={'force': True, 'send_notification_email': False},
+            kwargs={
+                'force': True,
+                'send_notification_email': False,
+                'retry_not_found': False,
+            },
             eta=eta,
         )
         queued_count += 1

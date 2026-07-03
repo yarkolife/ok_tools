@@ -9,6 +9,7 @@ from licenses.services.peertube_service import resolve_peertube_endpoint
 from licenses.tasks import rescan_mediathek_links_from_contributions
 from licenses.tasks import rescan_mediathek_links_from_planung
 from planung.models import TagesPlan
+from types import SimpleNamespace
 import datetime
 import pytest
 
@@ -139,7 +140,11 @@ def test__licenses__tasks__rescan_mediathek_links_from_planung_queues_missing_ur
     assert result['source'] == 'planung'
     assert result['queued_count'] == 1
     assert calls[0]['args'] == [license.number]
-    assert calls[0]['kwargs'] == {'force': True, 'send_notification_email': False}
+    assert calls[0]['kwargs'] == {
+        'force': True,
+        'send_notification_email': False,
+        'retry_not_found': False,
+    }
 
 
 @pytest.mark.django_db
@@ -165,3 +170,31 @@ def test__licenses__tasks__rescan_mediathek_links_from_contributions_skips_exist
     assert result['source'] == 'contributions'
     assert result['queued_count'] == 0
     assert calls == []
+
+
+@pytest.mark.django_db
+def test__licenses__tasks__refresh_mediathek_url_can_skip_not_found_retry(license, monkeypatch):
+    """Periodic refreshes can stop immediately when PeerTube has no matching video."""
+    from licenses.tasks import refresh_license_mediathek_url
+
+    monkeypatch.setattr(
+        'licenses.tasks.resolve_peertube_endpoint',
+        lambda **kwargs: SimpleNamespace(base_url='https://lokalmedial.de', channel_handle='okmq'),
+    )
+    monkeypatch.setattr('licenses.tasks.find_video_by_number_in_channel', lambda *args, **kwargs: None)
+    license.store_in_ok_media_library = True
+    license.mediathek_url = ''
+    license.save(update_fields=['store_in_ok_media_library', 'mediathek_url'])
+
+    result = refresh_license_mediathek_url(
+        license.number,
+        force=True,
+        send_notification_email=False,
+        retry_not_found=False,
+    )
+
+    assert result == {
+        'license_number': license.number,
+        'updated': False,
+        'reason': 'not_found',
+    }

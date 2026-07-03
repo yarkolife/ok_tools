@@ -5,13 +5,10 @@ All strings use Django i18n; translation.activate('de') is called before render.
 """
 
 from __future__ import annotations
-
 from django.conf import settings
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
-
 from registration.email import send_mail
-
 import logging
 
 
@@ -19,13 +16,11 @@ logger = logging.getLogger('django')
 
 
 def _get_org_context():
-    from registration.organization_config import (
-        get_organization_email,
-        get_organization_phone,
-        get_organization_address,
-        get_organization_website,
-        get_organization_name,
-    )
+    from registration.organization_config import get_organization_address
+    from registration.organization_config import get_organization_email
+    from registration.organization_config import get_organization_name
+    from registration.organization_config import get_organization_phone
+    from registration.organization_config import get_organization_website
     return {
         'ok_email': get_organization_email(),
         'ok_phone': get_organization_phone(),
@@ -87,11 +82,11 @@ def send_issued_confirmation_email(*, rental_request) -> None:
         translation.deactivate()
 
 
-def send_reminder_email(*, rental_request) -> None:
+def send_reminder_email(*, rental_request) -> bool:
     user_email = getattr(rental_request.user, "email", None)
     if not user_email:
         logger.warning("No email for user %s, skipping reminder (rental_id=%s)", rental_request.user.pk, rental_request.id)
-        return
+        return False
 
     contact_email = getattr(settings, "OK_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", "") or ""
 
@@ -140,8 +135,10 @@ def send_reminder_email(*, rental_request) -> None:
             attachments=attachments,
         )
         logger.info("Reminder sent to %s (rental_id=%s, status=%s)", user_email, rental_request.id, rental_request.status)
+        return True
     except Exception:
         logger.exception("Failed to send reminder to %s (rental_id=%s)", user_email, rental_request.id)
+        return False
     finally:
         translation.deactivate()
 
