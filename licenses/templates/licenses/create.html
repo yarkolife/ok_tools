@@ -370,10 +370,7 @@
                 <i class="bi bi-qr-code me-2"></i>{% trans 'Sign with phone (QR)' %}
             </h6>
             <p class="text-muted small mb-3">{% trans 'Scan the QR code and sign on your phone. The signature will sync to the canvas here.' %}</p>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="create-pre-sign-session-button">
-                <i class="bi bi-phone me-1"></i>{% trans 'Generate QR Session' %}
-            </button>
-            <div id="create-pre-sign-session-status" class="small text-muted mt-2"></div>
+            <div id="create-pre-sign-session-status" class="small text-muted mt-2">{% trans 'Preparing QR signing session...' %}</div>
             <div class="row mt-3" id="create-pre-sign-session-panel" style="display: none;">
                 <div class="col-md-4">
                     <img id="create-pre-sign-session-qr" class="img-fluid border rounded p-2 bg-white" alt="QR">
@@ -416,7 +413,7 @@
                             <div class="signature-guide" aria-hidden="true"></div>
                             <canvas id="signature-pad" class="signature-canvas" height="150"></canvas>
                         </div>
-                        <div class="mt-3 mb-3 d-flex justify-content-between align-items-center">
+                        <div class="mt-3 mb-3 signature-clear-row">
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="clear-signature">
                                 <i class="bi bi-eraser me-1"></i>{% trans 'Clear Signature' %}
                             </button>
@@ -661,6 +658,13 @@
         line-height: 1.35;
     }
 
+    .signature-clear-row {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
     .dashboard-card .card-header .card-subtitle {
         display: block;
         margin-bottom: 0.85rem !important;
@@ -677,9 +681,9 @@
         }
 
         .dashboard-card .card-header .card-title {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
             gap: 0.45rem;
             margin-bottom: 0.75rem !important;
         }
@@ -690,6 +694,11 @@
 
         .dashboard-card .card-header .card-subtitle {
             margin-bottom: 0.75rem !important;
+        }
+
+        .signature-clear-row {
+            align-items: center;
+            text-align: center;
         }
     }
 
@@ -1084,7 +1093,6 @@
         }
 
         const durationField = document.getElementById('id_duration');
-        const createPreSessionButton = document.getElementById('create-pre-sign-session-button');
         const createPreSessionStatus = document.getElementById('create-pre-sign-session-status');
         const createPreSessionPanel = document.getElementById('create-pre-sign-session-panel');
         const createPreSessionQr = document.getElementById('create-pre-sign-session-qr');
@@ -1102,6 +1110,7 @@
         let createSessionPollTimer = null;
         let selectedCreateSignMethod = allowQrSign ? 'qr' : 'draw';
         let activeCreateSessionToken = '';
+        let isCreatingCreateSession = false;
 
         function showCreateQrSyncedAlert(show) {
             if (createQrSyncedAlert) {
@@ -1125,13 +1134,16 @@
             }
             if (createSigningChoiceStatus) {
                 if (method === 'qr') {
-                    createSigningChoiceStatus.textContent = '{% trans "QR method selected (recommended). Generate a QR session and sign on your phone before submitting." %}';
+                    createSigningChoiceStatus.textContent = '{% trans "QR method selected (recommended). Scan the QR code and sign on your phone before submitting." %}';
                 } else {
                     createSigningChoiceStatus.textContent = '{% trans "Draw signature directly in the box above." %}';
                 }
             }
             if (method === 'draw' && createSignatureController) {
                 createSignatureController.resizeCanvas();
+            }
+            if (method === 'qr' && typeof ensureCreateSignSession === 'function') {
+                ensureCreateSignSession();
             }
         }
 
@@ -1183,6 +1195,10 @@
                         clearInterval(createSessionPollTimer);
                         createSessionPollTimer = null;
                     }
+                    activeCreateSessionToken = '';
+                    if (createSigningSessionTokenInput) {
+                        createSigningSessionTokenInput.value = '';
+                    }
                     createPreSessionStatus.innerHTML = '<span class="text-warning">{% trans "Signing session expired." %}</span>';
                 } else {
                     createPreSessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
@@ -1192,60 +1208,64 @@
                     clearInterval(createSessionPollTimer);
                     createSessionPollTimer = null;
                 }
+                activeCreateSessionToken = '';
+                if (createSigningSessionTokenInput) {
+                    createSigningSessionTokenInput.value = '';
+                }
                 createPreSessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
             }
         }
 
-        function setupCreateQrSigningPreSubmit() {
-            if (!allowQrSign || !createPreSessionButton || !createPreSessionStatus || !createPreSessionPanel) {
+        async function ensureCreateSignSession() {
+            if (!allowQrSign || !createPreSessionStatus || !createPreSessionPanel || activeCreateSessionToken || isCreatingCreateSession) {
                 return;
             }
 
-            createPreSessionButton.onclick = async function() {
-                createPreSessionButton.disabled = true;
-                createPreSessionStatus.innerHTML = '<span class="text-muted">{% trans "Creating signing session..." %}</span>';
-                createPreSessionPanel.style.display = 'none';
-                showCreateQrSyncedAlert(false);
+            isCreatingCreateSession = true;
+            createPreSessionStatus.innerHTML = '<span class="text-muted">{% trans "Creating signing session..." %}</span>';
+            createPreSessionPanel.style.display = 'none';
+            showCreateQrSyncedAlert(false);
 
-                try {
-                    const response = await fetch(`/licenses/sign-session/create/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        },
-                    });
-                    const data = await response.json();
-                    if (!response.ok || !data.success) {
-                        throw new Error(data.error || '{% trans "Failed to create signing session." %}');
-                    }
-
-                    activeCreateSessionToken = data.token;
-                    if (createSigningSessionTokenInput) {
-                        createSigningSessionTokenInput.value = data.token;
-                    }
-                    createPreSessionPanel.style.display = 'flex';
-                    createPreSessionQr.src = data.qr_url;
-                    createPreSessionLink.textContent = data.sign_url;
-                    createPreSessionLink.href = data.sign_url;
-                    createPreSessionExpiry.textContent = `{% trans "Expires at:" %} ${new Date(data.expires_at).toLocaleString()}`;
-                    createPreSessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
-
-                    if (createSessionPollTimer) {
-                        clearInterval(createSessionPollTimer);
-                    }
-                    createSessionPollTimer = setInterval(function() {
-                        pollCreateSignSession(data.token);
-                    }, 2500);
-                    pollCreateSignSession(data.token);
-                } catch (error) {
-                    createPreSessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
-                } finally {
-                    createPreSessionButton.disabled = false;
+            try {
+                const response = await fetch(`/licenses/sign-session/create/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || '{% trans "Failed to create signing session." %}');
                 }
-            };
-        }
 
-        setupCreateQrSigningPreSubmit();
+                activeCreateSessionToken = data.token;
+                if (createSigningSessionTokenInput) {
+                    createSigningSessionTokenInput.value = data.token;
+                }
+                createPreSessionPanel.style.display = 'flex';
+                createPreSessionQr.src = data.qr_url;
+                createPreSessionLink.textContent = data.sign_url;
+                createPreSessionLink.href = data.sign_url;
+                createPreSessionExpiry.textContent = `{% trans "Expires at:" %} ${new Date(data.expires_at).toLocaleString()}`;
+                createPreSessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
+
+                if (createSessionPollTimer) {
+                    clearInterval(createSessionPollTimer);
+                }
+                createSessionPollTimer = setInterval(function() {
+                    pollCreateSignSession(data.token);
+                }, 2500);
+                pollCreateSignSession(data.token);
+            } catch (error) {
+                activeCreateSessionToken = '';
+                if (createSigningSessionTokenInput) {
+                    createSigningSessionTokenInput.value = '';
+                }
+                createPreSessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
+            } finally {
+                isCreatingCreateSession = false;
+            }
+        }
 
         if (durationField) {
             durationField.addEventListener('input', function (e) {

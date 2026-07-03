@@ -118,10 +118,12 @@
                                 title="{% trans 'View' %}">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            {% if not license.confirmed %}
                             <a href="{% url 'licenses:update' license.id %}" class="btn btn-sm btn-outline-secondary"
                                 title="{% trans 'Edit' %}">
                                 <i class="bi bi-pencil"></i>
                             </a>
+                            {% endif %}
                             <a href="{% url 'licenses:print' license.id %}" class="btn btn-sm btn-outline-info"
                                 title="{% trans 'Print PDF' %}" target="_blank">
                                 <i class="bi bi-printer"></i>

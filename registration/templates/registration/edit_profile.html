@@ -17,8 +17,8 @@
         </div>
         {% endif %}
     </div>
-    <div class="col-md-4 text-end">
-        <a href="{% url 'registration:print_registration' %}" class="btn btn-outline-secondary">
+    <div class="col-md-4 text-end profile-print-action">
+        <a href="{% url 'registration:print_registration' %}" class="btn btn-outline-secondary profile-print-button">
             <i class="bi bi-printer me-2"></i>{% trans "Print Registration Form" %}
         </a>
     </div>
@@ -214,13 +214,13 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="row">
+    <div class="row profile-form-actions-row">
         <div class="col-12">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between profile-form-actions">
                 <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-2"></i>{% trans "Back to Dashboard" %}
                 </a>
-                <div>
+                <div class="profile-submit-actions">
                     <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
                         <i class="bi bi-arrow-clockwise me-2"></i>{% trans "Reset" %}
                     </button>
@@ -232,6 +232,80 @@
         </div>
     </div>
 </form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media (max-width: 767.98px) {
+    .profile-print-action {
+        text-align: center !important;
+        margin-top: 0.75rem;
+    }
+
+    .profile-print-button {
+        font-size: 0.875rem;
+        padding: 0.45rem 0.7rem;
+        max-width: 100%;
+        white-space: normal;
+        line-height: 1.25;
+    }
+
+    #profile-form .card-header {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+        padding: 1rem;
+    }
+
+    #profile-form .card-title {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.5rem;
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 0 !important;
+        line-height: 1.25;
+    }
+
+    #profile-form .card-title i {
+        flex: 0 0 auto;
+    }
+
+    #profile-form .card-title .me-2 {
+        margin-right: 0 !important;
+    }
+
+    #profile-form .card-subtitle {
+        display: block;
+        width: 100%;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        line-height: 1.35;
+    }
+
+    .profile-form-actions {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center !important;
+        gap: 0.75rem;
+    }
+
+    .profile-submit-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .profile-form-actions .btn,
+    .profile-submit-actions .btn {
+        width: min(100%, 280px);
+        margin-right: 0 !important;
+    }
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}

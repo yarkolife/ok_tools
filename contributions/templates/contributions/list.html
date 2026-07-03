@@ -250,6 +250,51 @@
 .stats-card:hover {
     transform: translateY(-2px);
 }
+
+@media (max-width: 767.98px) {
+    #groupedView .dashboard-card > .card-header .row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    #groupedView .dashboard-card > .card-header .col,
+    #groupedView .dashboard-card > .card-header .col-auto {
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #groupedView .dashboard-card > .card-header .card-title {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.5rem;
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 0.35rem !important;
+        line-height: 1.25;
+    }
+
+    #groupedView .dashboard-card > .card-header .card-title i {
+        flex: 0 0 auto;
+        margin-right: 0 !important;
+    }
+
+    #groupedView .dashboard-card > .card-header .card-subtitle {
+        display: block;
+        width: 100%;
+        margin-bottom: 0 !important;
+        line-height: 1.35;
+    }
+
+    #groupedView .dashboard-card > .card-header .col-auto .d-flex {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+}
 </style>
 {% endblock %}
 

@@ -2495,22 +2495,13 @@ msgstr ""
 
 #: templates/licenses/update.html:7 templates/licenses/update.html:8
 #: templates/licenses/update.html:14
-#, fuzzy
-#| msgid "License"
 msgid "Edit License"
-msgstr "Freistellung"
+msgstr "Freistellung bearbeiten"
 
 #: templates/licenses/update.html:15
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "    Edit %(object)s:\n"
-#| "    "
+#, python-format
 msgid "Edit %(object)s"
-msgstr ""
-"\n"
-"    %(object)s bearbeiten:\n"
-"    "
+msgstr "%(object)s bearbeiten"
 
 #: templates/licenses/update.html:19 templates/licenses/update.html:232
 msgid "Back to overview"
@@ -2529,16 +2520,12 @@ msgstr ""
 "    "
 
 #: templates/licenses/update.html:37
-#, fuzzy
-#| msgid "File Information"
 msgid "License Information"
-msgstr "Dateiinformationen"
+msgstr "Freistellungsinformationen"
 
 #: templates/licenses/update.html:39
-#, fuzzy
-#| msgid "Upload a JSON file with license data"
 msgid "Update the license details"
-msgstr "JSON-Datei mit Freistellungsdaten hochladen"
+msgstr "Freistellungsdaten aktualisieren"
 
 #: templates/licenses/update.html:62
 msgid "Upload a video file to Nextcloud (optional)"

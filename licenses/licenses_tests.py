@@ -207,6 +207,20 @@ def test__licenses__views__UpdateLicensesView__4(browser, license):
             datetime.timedelta(seconds=settings.SCREEN_BOARD_DURATION))  # Using settings for backward compatibility in tests
 
 
+def test__licenses__views__UpdateLicensesView__hides_service_fields(browser, license):
+    """The user edit page does not expose confirmation or admin-only fields."""
+    browser.login()
+    browser.open(edit_url(license.id))
+
+    assert 'id_confirmed_at' not in browser.contents
+    assert 'name="confirmed_at"' not in browser.contents
+    assert 'id_confirmed_by' not in browser.contents
+    assert 'name="confirmed_by"' not in browser.contents
+    assert 'id_infoblock' not in browser.contents
+    assert 'name="infoblock"' not in browser.contents
+    assert 'create-sign-session-button' not in browser.contents
+
+
 def test__licenses__views__CreateLicenseView__1(browser, user):
     """A logged in user can access the create site."""
     browser.login()

@@ -30,23 +30,389 @@
     <form method="post" id="license-form">
         {% csrf_token %}
 
-        <div class="card shadow-sm border-0 mb-4" id="license-info-card">
-            <div class="card-header bg-transparent border-bottom">
-                <h5 class="card-title mb-1">
-                    <i class="bi bi-file-text text-primary me-2"></i>
-                    {% trans 'License Information' %}
+        <div class="dashboard-card mb-4" id="license-info-card">
+            <div class="card-header" style="padding: 1.5rem;">
+                <h5 class="card-title" style="margin-bottom: 0.75rem;">
+                    <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                    {% trans 'Basic Information' %}
                 </h5>
-                <p class="card-subtitle">{% trans 'Update the license details' %}</p>
+                <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Title, description and category of the license' %}</p>
             </div>
             <div class="card-body">
-                <div class="row g-3">
-                    {% for field in form %}
-                    {% if field.name != 'signature' and field.name != 'signature_svg' and field.name != 'signature_points' and field.name != 'signature_metadata' and field.name != 'signature_method' and field.name != 'signature_signed_at' and field.name != 'video_file' %}
-                    <div class="col-12 col-lg-6">
-                        {{ field|as_crispy_field }}
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-type-bold me-1"></i>{{ form.title.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.title.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                    {% endfor %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.subtitle.id_for_label }}" class="form-label">
+                            <i class="bi bi-type me-1"></i>{{ form.subtitle.label }}
+                        </label>
+                        {{ form.subtitle }}
+                        {% if form.subtitle.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.subtitle.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">
+                            <i class="bi bi-tags me-1"></i>{{ form.category.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.category.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            <i class="bi bi-card-text me-1"></i>{{ form.description.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.description.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="{{ form.further_persons.id_for_label }}" class="form-label">
+                            <i class="bi bi-people me-1"></i>{{ form.further_persons.label }}
+                        </label>
+                        {{ form.further_persons }}
+                        {% if form.further_persons.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.further_persons.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">{% trans 'Additional involved persons (optional)' %}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="{{ form.tags.id_for_label }}" class="form-label">
+                            <i class="bi bi-hash me-1"></i>{{ form.tags.label }}
+                        </label>
+                        {{ form.tags }}
+                        {% if form.tags.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.tags.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">{% trans 'Enter tags separated by commas (maximum 4 tags)' %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card mb-4">
+            <div class="card-header" style="padding: 1.5rem;">
+                <h5 class="card-title" style="margin-bottom: 0.75rem;">
+                    <i class="bi bi-broadcast text-success me-2"></i>
+                    {% trans 'Media Settings' %}
+                </h5>
+                <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Duration, broadcast date and repetitions' %}</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.duration.id_for_label }}" class="form-label">
+                            <i class="bi bi-clock me-1"></i>{{ form.duration.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.duration }}
+                        {% if form.duration.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.duration.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">{% trans 'Format: hh:mm:ss or mm:ss' %}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.suggested_date.id_for_label }}" class="form-label">
+                            <i class="bi bi-calendar-event me-1"></i>{{ form.suggested_date.label }}
+                        </label>
+                        {{ form.suggested_date }}
+                        {% if form.suggested_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.suggested_date.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.repetitions_allowed.id_for_label }}" class="form-label">
+                            <i class="bi bi-arrow-repeat me-1"></i>{{ form.repetitions_allowed.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.repetitions_allowed }}
+                        {% if form.repetitions_allowed.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.repetitions_allowed.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "After the premiere, your contribution will be repeated at various times during the week according to the broadcast schedule. Additional repeats are also possible after a year and later." %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.store_in_ok_media_library.id_for_label }}" class="form-label">
+                            <i class="bi bi-archive me-1"></i>{{ form.store_in_ok_media_library.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.store_in_ok_media_library }}
+                        {% if form.store_in_ok_media_library.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.store_in_ok_media_library.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Your video will be stored in the media library and will be available for viewers to watch at any time." %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card mb-4">
+            <div class="card-header" style="padding: 1.5rem;">
+                <h5 class="card-title" style="margin-bottom: 0.75rem;">
+                    <i class="bi bi-share text-info me-2"></i>
+                    {% trans 'Exchange Settings' %}
+                </h5>
+                <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Permissions for exchange between citizen media' %}</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.media_authority_exchange_allowed.id_for_label }}" class="form-label">
+                            <i class="bi bi-building me-1"></i>{{ form.media_authority_exchange_allowed.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.media_authority_exchange_allowed }}
+                        {% if form.media_authority_exchange_allowed.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.media_authority_exchange_allowed.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Your video can be used by other Open Channels and community media in Saxony-Anhalt for their broadcasts." %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.media_authority_exchange_allowed_other_states.id_for_label }}"
+                            class="form-label">
+                            <i class="bi bi-globe me-1"></i>{{ form.media_authority_exchange_allowed_other_states.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.media_authority_exchange_allowed_other_states }}
+                        {% if form.media_authority_exchange_allowed_other_states.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.media_authority_exchange_allowed_other_states.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Your video can be used by Open Channels and community media in other German federal states for their broadcasts." %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card mb-4">
+            <div class="card-header" style="padding: 1.5rem;">
+                <h5 class="card-title" style="margin-bottom: 0.75rem;">
+                    <i class="bi bi-gear text-warning me-2"></i>
+                    {% trans 'Special Settings' %}
+                </h5>
+                <p class="card-subtitle" style="margin-bottom: 0;">{% trans 'Special settings and youth protection' %}</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="{{ form.youth_protection_necessary.id_for_label }}" class="form-label">
+                            <i class="bi bi-shield-exclamation me-1"></i>{{ form.youth_protection_necessary.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.youth_protection_necessary }}
+                        {% if form.youth_protection_necessary.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.youth_protection_necessary.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans 'Select "Yes" if your video contains content that may be unsuitable for children (e.g., violence, shocking images, offensive language).' %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.is_screen_board.id_for_label }}" class="form-label">
+                            <i class="bi bi-display me-1"></i>{{ form.is_screen_board.label }}
+                        </label>
+                        <div class="form-check">
+                            {{ form.is_screen_board }}
+                            <label class="form-check-label" for="{{ form.is_screen_board.id_for_label }}">
+                                {% trans 'Screen board (duration will be set automatically)' %}
+                            </label>
+                        </div>
+                        {% if form.is_screen_board.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.is_screen_board.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.is_live.id_for_label }}" class="form-label">
+                            <i class="bi bi-broadcast-pin text-danger me-1"></i>{{ form.is_live.label }}
+                        </label>
+                        <div class="form-check">
+                            {{ form.is_live }}
+                            <label class="form-check-label" for="{{ form.is_live.id_for_label }}">
+                                {% trans 'Live broadcast (no repetitions, exchange, or mediathek)' %}
+                            </label>
+                        </div>
+                        {% if form.is_live.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.is_live.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="row" id="youth-protection-category-row" style="display: none;">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.youth_protection_category.id_for_label }}" class="form-label">
+                            <i class="bi bi-shield-check me-1"></i>{{ form.youth_protection_category.label }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.youth_protection_category }}
+                        {% if form.youth_protection_category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.youth_protection_category.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4" id="signature-method-card">
+            <div class="card-header bg-transparent border-bottom">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-pen text-dark me-2"></i>
+                    {% trans 'Signature Method' %}
+                </h5>
+                <p class="card-subtitle mb-0">{% trans 'Choose one method. QR signing is recommended for the best handwriting quality.' %}</p>
+            </div>
+            <div class="card-body">
+                <div class="signature-method-buttons" role="group" aria-label="signature-method-selector-update">
+                    <button type="button" class="btn btn-outline-primary signature-method-btn" id="choose-draw-signing-button-update">
+                        <svg class="signature-method-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M3 21h6l11-11a2.2 2.2 0 0 0-3.1-3.1L6 18v3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M14.5 6.5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>{% trans 'Sign Here Now' %}</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary signature-method-btn" id="choose-qr-signing-button-update">
+                        <svg class="signature-method-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
+                            <path d="M14 14h3v3h-3zM17 17h4M14 20h3M20 14v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>{% trans 'Sign with Phone (QR)' %}</span>
+                    </button>
+                </div>
+                <div id="update-signing-choice-status" class="small text-muted mt-2"></div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4" id="qr-sign-card">
+            <div class="card-header bg-transparent border-bottom">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-qr-code text-primary me-2"></i>
+                    {% trans 'Sign with phone (QR)' %}
+                </h5>
+                <p class="card-subtitle mb-0">{% trans 'Open signing page on your phone and sync signature back here.' %}</p>
+            </div>
+            <div class="card-body">
+                <div id="sign-session-status" class="text-muted small">{% trans 'Preparing QR signing session...' %}</div>
+                <div class="row mt-3" id="sign-session-panel" style="display: none;">
+                    <div class="col-md-4">
+                        <img id="sign-session-qr" class="img-fluid border rounded p-2 bg-white" alt="QR">
+                    </div>
+                    <div class="col-md-8">
+                        <p class="mb-2 fw-semibold">{% trans 'Scan QR and sign on your phone.' %}</p>
+                        <p class="mb-2 small"><a href="#" id="sign-session-link" target="_blank" rel="noopener"></a></p>
+                        <p class="mb-0 small text-muted" id="sign-session-expiry"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature Section (at the bottom, before buttons) -->
+        <div class="card shadow-sm border-0 mb-4" id="draw-sign-card">
+            <div class="card-header bg-transparent border-bottom">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-pen text-dark me-2"></i>
+                    {% trans 'Signature' %}
+                </h5>
+                <p class="card-subtitle">{% trans 'Please sign here' %}</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <!-- Instruction with icon -->
+                        <div class="mb-2 d-flex align-items-center">
+                            <i class="bi bi-arrow-right-circle text-primary me-2" style="font-size: 1.2rem;"></i>
+                            <span class="fw-bold">{% trans 'Sign here' %}</span>
+                        </div>
+                        <div class="signature-wrapper border rounded p-3 bg-light">
+                            <div class="signature-pad-container bg-white">
+                                <div class="signature-guide" aria-hidden="true"></div>
+                                <canvas id="signature-pad" class="signature-canvas" height="150"></canvas>
+                            </div>
+                            <div class="mt-3 mb-3 signature-clear-row">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="clear-signature">
+                                    <i class="bi bi-eraser me-1"></i>{% trans 'Clear Signature' %}
+                                </button>
+                                <div class="text-muted small">
+                                    {% trans 'Please sign in the box above.' %}
+                                </div>
+                            </div>
+                            <div class="d-none">
+                                {{ form.signature }}
+                                {{ form.signature_svg }}
+                                {{ form.signature_points }}
+                                {{ form.signature_metadata }}
+                                {{ form.signature_method }}
+                                {{ form.signature_signed_at }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,114 +490,11 @@
         </div>
         {% endif %}
 
-        <div class="card shadow-sm border-0 mb-4" id="signature-method-card">
-            <div class="card-header bg-transparent border-bottom">
-                <h5 class="card-title mb-1">
-                    <i class="bi bi-pen text-dark me-2"></i>
-                    {% trans 'Signature Method' %}
-                </h5>
-                <p class="card-subtitle mb-0">{% trans 'Choose one method. QR signing is recommended for the best handwriting quality.' %}</p>
-            </div>
-            <div class="card-body">
-                <div class="signature-method-buttons" role="group" aria-label="signature-method-selector-update">
-                    <button type="button" class="btn btn-outline-primary signature-method-btn" id="choose-draw-signing-button-update">
-                        <svg class="signature-method-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M3 21h6l11-11a2.2 2.2 0 0 0-3.1-3.1L6 18v3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                            <path d="M14.5 6.5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                        <span>{% trans 'Sign Here Now' %}</span>
-                    </button>
-                    <button type="button" class="btn btn-outline-primary signature-method-btn" id="choose-qr-signing-button-update">
-                        <svg class="signature-method-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
-                            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
-                            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"></rect>
-                            <path d="M14 14h3v3h-3zM17 17h4M14 20h3M20 14v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                        <span>{% trans 'Sign with Phone (QR)' %}</span>
-                    </button>
-                </div>
-                <div id="update-signing-choice-status" class="small text-muted mt-2"></div>
-            </div>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4" id="qr-sign-card">
-            <div class="card-header bg-transparent border-bottom">
-                <h5 class="card-title mb-1">
-                    <i class="bi bi-qr-code text-primary me-2"></i>
-                    {% trans 'Sign with phone (QR)' %}
-                </h5>
-                <p class="card-subtitle mb-0">{% trans 'Open signing page on your phone and sync signature back here.' %}</p>
-            </div>
-            <div class="card-body">
-                <div class="d-flex flex-wrap gap-3 align-items-start">
-                    <button type="button" class="btn btn-outline-primary" id="create-sign-session-button">
-                        <i class="bi bi-phone me-2"></i>{% trans 'Generate QR Session' %}
-                    </button>
-                    <div id="sign-session-status" class="text-muted small"></div>
-                </div>
-                <div class="row mt-3" id="sign-session-panel" style="display: none;">
-                    <div class="col-md-4">
-                        <img id="sign-session-qr" class="img-fluid border rounded p-2 bg-white" alt="QR">
-                    </div>
-                    <div class="col-md-8">
-                        <p class="mb-2 fw-semibold">{% trans 'Scan QR and sign on your phone.' %}</p>
-                        <p class="mb-2 small"><a href="#" id="sign-session-link" target="_blank" rel="noopener"></a></p>
-                        <p class="mb-0 small text-muted" id="sign-session-expiry"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Signature Section (at the bottom, before buttons) -->
-        <div class="card shadow-sm border-0 mb-4" id="draw-sign-card">
-            <div class="card-header bg-transparent border-bottom">
-                <h5 class="card-title mb-1">
-                    <i class="bi bi-pen text-dark me-2"></i>
-                    {% trans 'Signature' %}
-                </h5>
-                <p class="card-subtitle">{% trans 'Please sign here' %}</p>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8 offset-md-2">
-                        <!-- Instruction with icon -->
-                        <div class="mb-2 d-flex align-items-center">
-                            <i class="bi bi-arrow-right-circle text-primary me-2" style="font-size: 1.2rem;"></i>
-                            <span class="fw-bold">{% trans 'Sign here' %}</span>
-                        </div>
-                        <div class="signature-wrapper border rounded p-3 bg-light">
-                            <div class="signature-pad-container bg-white">
-                                <div class="signature-guide" aria-hidden="true"></div>
-                                <canvas id="signature-pad" class="signature-canvas" height="150"></canvas>
-                            </div>
-                            <div class="mt-3 mb-3 d-flex justify-content-between align-items-center">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="clear-signature">
-                                    <i class="bi bi-eraser me-1"></i>{% trans 'Clear Signature' %}
-                                </button>
-                                <div class="text-muted small">
-                                    {% trans 'Please sign in the box above.' %}
-                                </div>
-                            </div>
-                            <div class="d-none">
-                                {{ form.signature }}
-                                {{ form.signature_svg }}
-                                {{ form.signature_points }}
-                                {{ form.signature_metadata }}
-                                {{ form.signature_method }}
-                                {{ form.signature_signed_at }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex flex-wrap justify-content-between gap-2">
+        <div class="d-flex flex-wrap justify-content-between gap-2 license-update-actions">
             <a href="{% url 'licenses:licenses' %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>{% trans 'Back to overview' %}
             </a>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-2 license-update-submit-actions">
                 <button type="submit" class="btn btn-primary" id="save-button">
                     <i class="bi bi-check-lg me-2"></i>{% trans 'Save' %}
                 </button>
@@ -246,9 +509,66 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'licenses/css/tags_input.css' %}">
 <style>
-    #div_id_youth_protection_category {
+    #div_id_youth_protection_category,
+    #youth-protection-category-row {
         display: none;
         /* Initially hide the row */
+    }
+
+    #license-form,
+    #license-form .dashboard-card,
+    #license-form .card,
+    #license-form .card-body,
+    #license-form .card-header,
+    #license-form .form-label,
+    #license-form .form-text,
+    #license-form .card-subtitle,
+    #license-form .form-check-label {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    #license-form .form-control,
+    #license-form .form-select,
+    #license-form select,
+    #license-form textarea,
+    #license-form input {
+        max-width: 100%;
+    }
+
+    #license-form .form-control {
+        border-radius: 8px;
+        border: 1px solid #e3e6f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    #license-form .form-control:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+    }
+
+    #license-form .form-select {
+        border-radius: 8px;
+        border: 1px solid #e3e6f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #license-form .form-select:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+    }
+
+    #license-form .form-check-input:checked {
+        background-color: #5e72e4;
+        border-color: #5e72e4;
+    }
+
+    #license-form .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
     }
 
     /* Signature canvas styling */
@@ -267,6 +587,13 @@
 
     .signature-wrapper {
         background-color: #f8f9fa;
+    }
+
+    .signature-clear-row {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
 
     /* Visual guide only (must NOT be saved into the canvas) */
@@ -321,6 +648,55 @@
     }
 
     @media (max-width: 767.98px) {
+        .container-fluid.py-4 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+
+        #license-form .dashboard-card,
+        #license-form .card {
+            overflow: hidden;
+        }
+
+        #license-form .card-header {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.35rem;
+            padding: 1rem !important;
+        }
+
+        #license-form .card-title {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 0.5rem;
+            line-height: 1.25;
+            width: 100%;
+            min-width: 0;
+            margin-bottom: 0 !important;
+        }
+
+        #license-form .card-title i {
+            flex: 0 0 auto;
+        }
+
+        #license-form .card-title .me-2 {
+            margin-right: 0 !important;
+        }
+
+        #license-form .card-subtitle {
+            display: block;
+            width: 100%;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            line-height: 1.35;
+        }
+
+        #license-form .card-body {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
         .signature-method-buttons {
             display: grid;
             grid-template-columns: 1fr;
@@ -329,6 +705,25 @@
 
         .signature-method-btn {
             width: 100%;
+        }
+
+        .license-update-actions,
+        .license-update-submit-actions {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center !important;
+            width: 100%;
+        }
+
+        .license-update-actions > .btn,
+        .license-update-submit-actions > .btn {
+            width: min(100%, 280px);
+            text-align: center;
+        }
+
+        .signature-clear-row {
+            align-items: center;
+            text-align: center;
         }
     }
 
@@ -391,6 +786,10 @@
                     resizeSignatureCanvas();
                 });
             }
+
+            if (method === 'qr' && typeof ensureSignSession === 'function') {
+                ensureSignSession();
+            }
         }
 
         if (signatureMethodCard) {
@@ -408,15 +807,9 @@
             });
         }
 
-        if (allowQrSign) {
-            setUpdateSigningMethod('qr');
-        } else {
-            setUpdateSigningMethod('draw');
-        }
-
         // Youth protection toggle
         const youthProtectionField = document.getElementById("id_youth_protection_necessary");
-        const youthCategoryRow = document.getElementById("div_id_youth_protection_category");
+        const youthCategoryRow = document.getElementById("youth-protection-category-row") || document.getElementById("div_id_youth_protection_category");
 
         function toggleYouthCategoryRow() {
             if (youthProtectionField.value === "1" || youthProtectionField.value === "true") {
@@ -441,22 +834,23 @@
             const mediathekField = document.getElementById('id_store_in_ok_media_library');
 
             if (isLiveField && isLiveField.checked) {
-                // Set all related fields to "No" and disable them
+                // Set related fields to "No" for live broadcasts, but keep
+                // them editable on the user update page.
                 if (repetitionsField) {
                     repetitionsField.value = '0';  // "No" for BooleanSelectOnly
-                    repetitionsField.disabled = true;
+                    repetitionsField.disabled = false;
                 }
                 if (exchangeSAField) {
                     exchangeSAField.value = '0';
-                    exchangeSAField.disabled = true;
+                    exchangeSAField.disabled = false;
                 }
                 if (exchangeOtherField) {
                     exchangeOtherField.value = '0';
-                    exchangeOtherField.disabled = true;
+                    exchangeOtherField.disabled = false;
                 }
                 if (mediathekField) {
                     mediathekField.value = '0';
-                    mediathekField.disabled = true;
+                    mediathekField.disabled = false;
                 }
             } else {
                 // Re-enable fields
@@ -603,13 +997,14 @@
         }
 
         // QR signing session
-        const createSessionButton = document.getElementById('create-sign-session-button');
         const sessionPanel = document.getElementById('sign-session-panel');
         const sessionQrImage = document.getElementById('sign-session-qr');
         const sessionLink = document.getElementById('sign-session-link');
         const sessionStatus = document.getElementById('sign-session-status');
         const sessionExpiry = document.getElementById('sign-session-expiry');
         let sessionPollTimer = null;
+        let activeSignSessionToken = null;
+        let isCreatingSignSession = false;
 
         async function pollSignSession(token) {
             try {
@@ -646,6 +1041,7 @@
                         clearInterval(sessionPollTimer);
                         sessionPollTimer = null;
                     }
+                    activeSignSessionToken = null;
                     sessionStatus.innerHTML = '<span class="text-warning">{% trans "Signing session expired." %}</span>';
                 } else {
                     sessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
@@ -655,52 +1051,65 @@
                     clearInterval(sessionPollTimer);
                     sessionPollTimer = null;
                 }
+                activeSignSessionToken = null;
                 sessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
             }
         }
 
-        if (createSessionButton && allowQrSign) {
-            createSessionButton.addEventListener('click', async function() {
-                const currentUrl = window.location.href;
-                const match = currentUrl.match(/\/licenses\/(\d+)\/update\//);
-                if (!match) {
-                    return;
-                }
-                const licenseId = match[1];
-                createSessionButton.disabled = true;
+        async function ensureSignSession() {
+            if (!allowQrSign || activeSignSessionToken || isCreatingSignSession) {
+                return;
+            }
+
+            const currentUrl = window.location.href;
+            const match = currentUrl.match(/\/licenses\/(\d+)\/update\//);
+            if (!match) {
+                return;
+            }
+            const licenseId = match[1];
+            isCreatingSignSession = true;
+            if (sessionStatus) {
                 sessionStatus.textContent = '{% trans "Creating signing session..." %}';
+            }
 
-                try {
-                    const response = await fetch(`/licenses/${licenseId}/sign-session/create/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        },
-                    });
-                    const data = await response.json();
-                    if (!response.ok || !data.success) {
-                        throw new Error(data.error || '{% trans "Failed to create signing session." %}');
-                    }
-                    sessionPanel.style.display = 'flex';
-                    sessionQrImage.src = data.qr_url;
-                    sessionLink.textContent = data.sign_url;
-                    sessionLink.href = data.sign_url;
-                    sessionExpiry.textContent = `{% trans "Expires at:" %} ${new Date(data.expires_at).toLocaleString()}`;
-                    sessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
-
-                    if (sessionPollTimer) {
-                        clearInterval(sessionPollTimer);
-                    }
-                    sessionPollTimer = setInterval(function() {
-                        pollSignSession(data.token);
-                    }, 2500);
-                    pollSignSession(data.token);
-                } catch (error) {
-                    sessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
-                } finally {
-                    createSessionButton.disabled = false;
+            try {
+                const response = await fetch(`/licenses/${licenseId}/sign-session/create/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || '{% trans "Failed to create signing session." %}');
                 }
-            });
+                activeSignSessionToken = data.token;
+                sessionPanel.style.display = 'flex';
+                sessionQrImage.src = data.qr_url;
+                sessionLink.textContent = data.sign_url;
+                sessionLink.href = data.sign_url;
+                sessionExpiry.textContent = `{% trans "Expires at:" %} ${new Date(data.expires_at).toLocaleString()}`;
+                sessionStatus.innerHTML = '<span class="text-info">{% trans "Waiting for phone signature..." %}</span>';
+
+                if (sessionPollTimer) {
+                    clearInterval(sessionPollTimer);
+                }
+                sessionPollTimer = setInterval(function() {
+                    pollSignSession(data.token);
+                }, 2500);
+                pollSignSession(data.token);
+            } catch (error) {
+                activeSignSessionToken = null;
+                sessionStatus.innerHTML = `<span class="text-danger">${error.message}</span>`;
+            } finally {
+                isCreatingSignSession = false;
+            }
+        }
+
+        if (allowQrSign) {
+            setUpdateSigningMethod('qr');
+        } else {
+            setUpdateSigningMethod('draw');
         }
 
          // Handle form submission to open print page in new window

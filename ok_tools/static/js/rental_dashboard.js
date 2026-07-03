@@ -1042,7 +1042,7 @@ const status = (rental.status || '').toLowerCase();
 
         createItemCardHTML(item) {
             const html = `
-                <div class="item-card p-3 w-100 h-100 d-flex flex-column border rounded bg-white" data-item-id="${item.id}" style="min-height: 150px; border: 1px solid #dee2e6 !important;">
+                <div class="item-card p-3 w-100 h-100 d-flex flex-column border rounded" data-item-id="${item.id}" style="min-height: 150px;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h6 class="mb-1">${this.escapeHtml(item.description || item.inventory_number || gettext('Unknown'))}</h6>
                         <span class="badge bg-success status-badge">${gettext('Available')}</span>

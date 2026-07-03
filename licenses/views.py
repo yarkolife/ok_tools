@@ -561,6 +561,14 @@ class UpdateLicensesView(generic.edit.UpdateView):
     model = License
     template_name = 'licenses/update.html'
     success_url = reverse_lazy('licenses:licenses')
+    hidden_user_fields = (
+        'profile',
+        'confirmed',
+        'confirmed_at',
+        'confirmed_by',
+        'infoblock',
+        'number',
+    )
 
     def get_success_url(self) -> str:
         """Show a message to confirm the update."""
@@ -594,6 +602,24 @@ class UpdateLicensesView(generic.edit.UpdateView):
             ).first()
 
         return context
+
+    def get_form(self, form_class=None):
+        """Remove service-only fields from the user edit form."""
+        form = super().get_form(form_class)
+
+        for field_name in self.hidden_user_fields:
+            form.fields.pop(field_name, None)
+
+        for field in form.fields.values():
+            if hasattr(field.widget, 'attrs'):
+                if hasattr(field.widget, 'input_type') and field.widget.input_type == 'checkbox':
+                    field.widget.attrs.update({'class': 'form-check-input'})
+                elif hasattr(field.widget, 'choices') or 'Select' in str(type(field.widget)):
+                    field.widget.attrs.update({'class': 'form-select'})
+                else:
+                    field.widget.attrs.update({'class': 'form-control'})
+
+        return form
 
     def post(self, request, *args, **kwargs) -> http.HttpResponse:
         """Show error message for editing confirmed Licenses."""
@@ -1083,9 +1109,6 @@ class DetailsLicensesView(generic.detail.DetailView):
             ).first()
         
         return context
-
-
-
 
 @method_decorator(login_required, name='dispatch')
 class DeleteLicenseView(generic.DeleteView):
