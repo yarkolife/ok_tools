@@ -611,6 +611,11 @@ class Room(models.Model):
         """Return human-readable representation."""
         return self.name
 
+    @property
+    def primary_image(self):
+        """Return the first room image, or ``None`` if there is none."""
+        return self.images.first()
+
     def is_available_for_time(self, start_date: datetime, end_date: datetime, exclude_rental_request: Optional[int] = None) -> bool:
         """Check if the room is available for the specified time.
 
@@ -701,6 +706,45 @@ class Room(models.Model):
                     conflicts.append(rental)
 
         return conflicts
+
+
+class RoomImage(models.Model):
+    """A photo of a room, uploaded via the admin."""
+
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.CASCADE,
+        related_name='images',
+        verbose_name=_('Room'),
+    )
+    image = models.ImageField(
+        upload_to='room_photos/',
+        verbose_name=_('Image'),
+    )
+    caption = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Caption'),
+    )
+    sort_order = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_('Sort order'),
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Created at'),
+    )
+
+    class Meta:
+        """Django model metadata for ``RoomImage``."""
+
+        verbose_name = _('Room photo')
+        verbose_name_plural = _('Room photos')
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        """Return human-readable representation."""
+        return f'{self.room.name} — {self.caption or self.image.name}'
 
 
 class RoomRental(models.Model):
@@ -942,6 +986,17 @@ class RentalConfig(models.Model):
         default=604800,
         verbose_name=_('Approval Token Max Age (seconds)'),
         help_text=_('Token expiration time for approve/deny links in seconds')
+    )
+
+    show_item_photos = models.BooleanField(
+        default=False,
+        verbose_name=_('Show item photos'),
+        help_text=_('Show inventory item photos on the rental process and dashboard pages')
+    )
+    show_room_photos = models.BooleanField(
+        default=False,
+        verbose_name=_('Show room photos'),
+        help_text=_('Show room photos on the rental process page')
     )
 
     auto_reminder_enabled = models.BooleanField(

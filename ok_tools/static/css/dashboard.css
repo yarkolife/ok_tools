@@ -674,24 +674,41 @@ body {
 }
 
 .quantity-controls .input-group {
-    max-width: 120px;
+    max-width: 132px;
     display: inline-flex;
     flex-wrap: nowrap;
-    width: 120px;
+    width: 132px;
 }
 
 .quantity-controls .form-control {
     text-align: center;
     border-left: 0;
     border-right: 0;
-    flex: 0 0 42px;
-    min-width: 42px;
+    flex: 0 0 50px;
+    min-width: 50px;
+    height: 32px;
+    padding: 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 30px;
+    /* Hide the native number spinner so the digit is not clipped */
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.quantity-controls .form-control::-webkit-outer-spin-button,
+.quantity-controls .form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .quantity-controls .btn {
     border-radius: 0;
     flex: 0 0 39px;
     width: 39px;
+    height: 32px;
+    padding: 0;
+    line-height: 30px;
 }
 
 .quantity-controls .qty-minus {

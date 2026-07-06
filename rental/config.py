@@ -20,6 +20,28 @@ def get_rental_user_request_requires_approval():
         return str(value).lower() in ('true', '1', 'yes', 'on')
 
 
+def get_rental_show_item_photos():
+    """Get whether to show inventory item photos on rental frontends."""
+    try:
+        from .models import RentalConfig
+        config = RentalConfig.get_config()
+        return config.show_item_photos
+    except Exception:
+        value = os.getenv('RENTAL_SHOW_ITEM_PHOTOS', 'false')
+        return str(value).lower() in ('true', '1', 'yes', 'on')
+
+
+def get_rental_show_room_photos():
+    """Get whether to show room photos on rental frontends."""
+    try:
+        from .models import RentalConfig
+        config = RentalConfig.get_config()
+        return config.show_room_photos
+    except Exception:
+        value = os.getenv('RENTAL_SHOW_ROOM_PHOTOS', 'false')
+        return str(value).lower() in ('true', '1', 'yes', 'on')
+
+
 def get_rental_site_base_url():
     """Get site base URL for rental approval links."""
     try:

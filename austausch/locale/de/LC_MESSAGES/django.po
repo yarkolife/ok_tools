@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-05 23:51+0200\n"
+"POT-Creation-Date: 2026-07-06 20:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1006,7 +1006,7 @@ msgstr ""
 "Schritt 1: Modus und Filter auswählen."
 
 #: austausch/templates/austausch/export_to_server_step1.html:205
-#: austausch/views.py:489
+#: austausch/views.py:509
 msgid "View last export result"
 msgstr "Letztes Exportergebnis anzeigen"
 
@@ -1058,18 +1058,18 @@ msgid "All"
 msgstr "Alle"
 
 #: austausch/templates/austausch/export_to_server_step1.html:269
-#: austausch/templates/austausch/export_to_server_step2.html:209
 #: austausch/templates/austausch/export_to_server_step2.html:210
 #: austausch/templates/austausch/export_to_server_step2.html:211
 #: austausch/templates/austausch/export_to_server_step2.html:212
+#: austausch/templates/austausch/export_to_server_step2.html:213
 msgid "Yes"
 msgstr "Ja"
 
 #: austausch/templates/austausch/export_to_server_step1.html:270
-#: austausch/templates/austausch/export_to_server_step2.html:209
 #: austausch/templates/austausch/export_to_server_step2.html:210
 #: austausch/templates/austausch/export_to_server_step2.html:211
 #: austausch/templates/austausch/export_to_server_step2.html:212
+#: austausch/templates/austausch/export_to_server_step2.html:213
 msgid "No"
 msgstr "Nein"
 
@@ -1167,24 +1167,46 @@ msgid "PDF"
 msgstr "PDF"
 
 #: austausch/templates/austausch/export_to_server_step2.html:197
-#: austausch/templates/austausch/export_to_server_step2.html:213
+msgid "Cover image (optional)"
+msgstr ""
+
+#: austausch/templates/austausch/export_to_server_step2.html:197
+msgid "Cover"
+msgstr ""
+
+#: austausch/templates/austausch/export_to_server_step2.html:198
+#: austausch/templates/austausch/export_to_server_step2.html:215
 #: austausch/templates/austausch/feed.html:163
 msgid "Video"
 msgstr "Video"
 
-#: austausch/templates/austausch/export_to_server_step2.html:216
+#: austausch/templates/austausch/export_to_server_step2.html:214
+msgid "Cover present"
+msgstr ""
+
+#: austausch/templates/austausch/export_to_server_step2.html:214
+#, fuzzy
+#| msgid "Schedule for (optional)"
+msgid "No cover yet (optional)"
+msgstr "Geplant für (optional)"
+
+#: austausch/templates/austausch/export_to_server_step2.html:214
+msgid "Erzeugen / wählen"
+msgstr ""
+
+#: austausch/templates/austausch/export_to_server_step2.html:218
 msgid "No items."
 msgstr "Keine Elemente."
 
-#: austausch/templates/austausch/export_to_server_step2.html:223
+#: austausch/templates/austausch/export_to_server_step2.html:225
 msgid "Schedule for (optional)"
 msgstr "Geplant für (optional)"
 
-#: austausch/templates/austausch/export_to_server_step2.html:225
+#: austausch/templates/austausch/export_to_server_step2.html:227
 msgid "Leave empty to start upload immediately."
 msgstr "Leer lassen, um den Upload sofort zu starten."
 
-#: austausch/templates/austausch/export_to_server_step2.html:229
+#: austausch/templates/austausch/export_to_server_step2.html:231
 msgid "Start upload"
 msgstr "Upload starten"
 
@@ -1403,11 +1425,11 @@ msgstr ""
 "Das Austausch-Modul ist deaktiviert. Setzen Sie AUSTAUSCH_ENABLED=true, um "
 "es zu aktivieren."
 
-#: austausch/views.py:339
+#: austausch/views.py:359
 msgid "Enter at least one license number."
 msgstr "Geben Sie mindestens eine Freistellungsnummer ein."
 
-#: austausch/views.py:344 austausch/views.py:375
+#: austausch/views.py:364 austausch/views.py:395
 msgid ""
 "No licenses match: Default Media Authority (when set) and at least one of "
 "Exchange SA, Exchange outside SA, or In OK-Mediathek required."
@@ -1416,22 +1438,22 @@ msgstr ""
 "(falls gesetzt) und mindestens eine der Optionen Austausch SA, Austausch "
 "außerhalb SA oder In OK-Mediathek sind erforderlich."
 
-#: austausch/views.py:351
+#: austausch/views.py:371
 msgid "All entered license numbers were already successfully exported."
 msgstr ""
 "Alle eingegebenen Freistellungsnummern wurden bereits erfolgreich exportiert."
 
-#: austausch/views.py:359
+#: austausch/views.py:379
 msgid "Date from and Date to are required for Planung mode."
 msgstr "Für den Planung-Modus sind „Datum von“ und „Datum bis“ erforderlich."
 
-#: austausch/views.py:363
+#: austausch/views.py:383
 msgid "No license numbers found in Planung for the selected date range."
 msgstr ""
 "Für den ausgewählten Datumsbereich wurden in der Planung keine "
 "Freistellungsnummern gefunden."
 
-#: austausch/views.py:368
+#: austausch/views.py:388
 msgid ""
 "No items to export: all licenses in Planung for this range are repeats "
 "(premiere was before the selected date range)."
@@ -1440,41 +1462,41 @@ msgstr ""
 "diesen Bereich sind Wiederholungen (Premiere lag vor dem ausgewählten "
 "Datumsbereich)."
 
-#: austausch/views.py:382
+#: austausch/views.py:402
 msgid "All license numbers from Planung were already successfully exported."
 msgstr ""
 "Alle Freistellungsnummern aus der Planung wurden bereits erfolgreich "
 "exportiert."
 
-#: austausch/views.py:399
+#: austausch/views.py:419
 msgid "Date from and Date to are required for contributions mode."
 msgstr "Für den Beitragsmodus sind „Datum von“ und „Datum bis“ erforderlich."
 
-#: austausch/views.py:403
+#: austausch/views.py:423
 msgid "No contributions match the selected filters."
 msgstr "Keine Beiträge entsprechen den ausgewählten Filtern."
 
-#: austausch/views.py:416
+#: austausch/views.py:436
 msgid "All matching contributions were already successfully exported."
 msgstr "Alle passenden Beiträge wurden bereits erfolgreich exportiert."
 
-#: austausch/views.py:455
+#: austausch/views.py:475
 msgid "Select at least one item to export."
 msgstr "Bitte wählen Sie mindestens ein Element zum Exportieren aus."
 
-#: austausch/views.py:477
+#: austausch/views.py:497
 msgid "Export to server has been scheduled."
 msgstr "Der Server-Export wurde eingeplant."
 
-#: austausch/views.py:486
+#: austausch/views.py:506
 msgid "Export to server has been started in the background. "
 msgstr "Der Server-Export wurde im Hintergrund gestartet. "
 
-#: austausch/views.py:487
+#: austausch/views.py:507
 msgid "You can view the result when ready: "
 msgstr "Sie können das Ergebnis anzeigen, sobald es bereit ist: "
 
-#: austausch/views.py:569
+#: austausch/views.py:594
 msgid ""
 "No items to export: all selected were already successfully exported or have "
 "no video/PDF."

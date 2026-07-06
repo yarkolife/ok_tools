@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+2026-07-06 (Version 4.32.0)
+==========================
+
+* **inventory: Item photos from a mounted folder**
+  * Added ``InventoryImageConfig`` (singleton) to point at a mounted photos folder (an existing Media Files ``StorageLocation`` or a manual path) and ``InventoryItemImage`` to index photos found under ``<base>/<inventory_number>/``.
+  * Added a ``scan_inventory_images`` management command and periodic Celery task that index images, generate cached JPEG thumbnails (Pillow), and detect missing files; thumbnails can be cached under ``MEDIA_ROOT`` or beside the originals.
+  * Admin change page shows a photo gallery with an SVG placeholder; staff-only views serve originals and thumbnails from outside ``MEDIA_ROOT`` with path-traversal protection.
+* **rental: Item and room photos on the frontend**
+  * ``RentalConfig`` gained ``show_item_photos`` and ``show_room_photos`` toggles (default off).
+  * Item search payloads (rental process wizard and user dashboard) include thumbnail and full-image URLs; photos render inside existing card layouts with a click-to-enlarge lightbox.
+  * Added ``RoomImage`` with admin upload/inline; room photos display in the rental process room picker.
+  * Dashboard quantity controls are hidden for single-quantity items and made legible for multi-quantity items.
+* **chore: Fixed inventory import FileField storage migration drift**
+  * ``tmp_import_storage`` is now a callable so migrations no longer bake the environment-specific ``gettempdir()`` path.
+
 2026-07-03 (Version 4.31.0)
 ==========================
 

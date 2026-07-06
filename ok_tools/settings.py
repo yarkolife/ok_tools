@@ -852,6 +852,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'media_files.tasks.run_auto_scan',
         'schedule': parse_crontab_env('CELERY_BEAT_AUTO_SCAN', '0 */2 * * *'),
     },
+    'scan_inventory_images': {
+        'task': 'inventory.tasks.run_scan_inventory_images',
+        'schedule': parse_crontab_env('CELERY_BEAT_SCAN_INVENTORY_IMAGES', '30 */6 * * *'),
+    },
     'link_orphan_licenses': {
         'task': 'media_files.tasks.run_link_orphan_licenses',
         'schedule': parse_crontab_env('CELERY_BEAT_LINK_ORPHAN_LICENSES', '0 3 * * *'),

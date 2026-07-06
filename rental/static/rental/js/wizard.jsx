@@ -8,6 +8,25 @@
 
 /* ===== Helpers ===== */
 
+// Open a full-screen lightbox showing an enlarged image. Click or Esc closes.
+function openImageLightbox(url) {
+  if (!url) return;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);' +
+    'display:flex;align-items:center;justify-content:center;z-index:20000;' +
+    'cursor:zoom-out;padding:24px;';
+  const img = document.createElement('img');
+  img.src = url;
+  img.style.cssText = 'max-width:92vw;max-height:92vh;border-radius:8px;' +
+    'box-shadow:0 8px 40px rgba(0,0,0,.5);';
+  overlay.appendChild(img);
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  overlay.addEventListener('click', close);
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(overlay);
+}
+
 // Round a date up to the next :00 or :30
 function _roundUp(d) {
   const m = d.getMinutes();
@@ -432,9 +451,18 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
                      className={cls('item-row', chosen && 'selected', !canChoose && !chosen && 'unavailable')}
                      onClick={() => canChoose && addItem(item)}>
                   <input type="checkbox" className="form-check-input" checked={chosen} readOnly disabled={!canChoose && !chosen} />
-                  <div>
-                    <div className="name">{item.name}</div>
-                    <div className="num">{item.num} · <span className="muted">{item.loc}</span></div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: 8, minWidth: 0}}>
+                    {item.thumbnail_url && (
+                      <img src={item.thumbnail_url} alt="" loading="lazy"
+                           title={t('wiz.enlarge_photo', 'Click to enlarge')}
+                           onClick={e => { e.stopPropagation(); openImageLightbox(item.image_url || item.thumbnail_url); }}
+                           style={{width: 34, height: 34, objectFit: 'cover', borderRadius: 6,
+                                   border: '1px solid var(--line)', flexShrink: 0, cursor: 'zoom-in'}} />
+                    )}
+                    <div style={{minWidth: 0}}>
+                      <div className="name">{item.name}</div>
+                      <div className="num">{item.num} · <span className="muted">{item.loc}</span></div>
+                    </div>
                   </div>
                   <div className="meta">{item.qty.avail}/{item.qty.total} {t('wiz.available', 'available')}</div>
                   <div>
@@ -588,8 +616,11 @@ function RoomPicker({ rooms, setRooms, options, initial, period }) {
             <div key={r.id} className="col-md-6">
               <div className={cls('user-card', booked && 'selected')}
                    style={{gridTemplateColumns: '36px 1fr auto', cursor: 'pointer'}}>
-                <span className="av" style={{width: 36, height: 36, fontSize: 14}} onClick={() => toggleExpand(r)}>
-                  <i className="fas fa-door-open"></i>
+                <span className="av" style={{width: 36, height: 36, fontSize: 14, overflow: 'hidden', padding: 0}} onClick={() => toggleExpand(r)}>
+                  {r.image_url
+                    ? <img src={r.image_url} alt="" loading="lazy"
+                           style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                    : <i className="fas fa-door-open"></i>}
                 </span>
                 <div onClick={() => toggleExpand(r)}>
                   <div className="name">{r.name}</div>

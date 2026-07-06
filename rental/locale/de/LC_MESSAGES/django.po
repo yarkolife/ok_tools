@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 20:53+0200\n"
+"POT-Creation-Date: 2026-07-06 21:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,351 +18,355 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: rental/admin.py:103
+#: admin.py:109
 msgid "Meta"
 msgstr "Meta"
 
-#: rental/admin.py:106
+#: admin.py:118
 msgid "Actors"
 msgstr "Akteure"
 
-#: rental/admin.py:109
-#: rental/templates/email/rental_return_receipt_body.html:14
-#: rental/templates/rental/admin_return.html:65
-#: rental/templates/rental/rental_stats.html:1100 rental/views.py:334
+#: admin.py:121 templates/email/rental_return_receipt_body.html:14
+#: templates/rental/admin_return.html:65
+#: templates/rental/rental_stats.html:1100 views.py:338
 msgid "Project"
 msgstr "Projekt"
 
-#: rental/admin.py:112
+#: admin.py:124
 msgid "Dates"
 msgstr "Daten"
 
-#: rental/admin.py:115 rental/admin.py:209 rental/models.py:79
-#: rental/models.py:258 rental/models.py:414 rental/models.py:488
-#: rental/models.py:726 rental/templates/rental/print_pick_list.html:119
+#: admin.py:127 admin.py:221 models.py:84 models.py:270 models.py:426
+#: models.py:500 models.py:782 templates/rental/print_pick_list.html:119
 msgid "Notes"
 msgstr "Notizen"
 
-#: rental/admin.py:127
+#: admin.py:139
 msgid "Yes"
 msgstr ""
 
-#: rental/admin.py:132
+#: admin.py:144
 msgid "No"
 msgstr ""
 
-#: rental/admin.py:135 rental/models.py:83
-#: rental/templates/admin/rental/rentalrequest/change_form.html:351
-#: rental/templates/rental/print_form_msa.html:415
-#: rental/templates/rental/print_form_okmq.html:416
-#: rental/templates/rental/print_pick_list.html:176
-#: rental/templates/rental/print_pick_list.html:181
+#: admin.py:147 models.py:88
+#: templates/admin/rental/rentalrequest/change_form.html:351
+#: templates/rental/print_form_msa.html:415
+#: templates/rental/print_form_okmq.html:416
+#: templates/rental/print_pick_list.html:176
+#: templates/rental/print_pick_list.html:181
 msgid "Signature"
 msgstr ""
 
-#: rental/admin.py:145
+#: admin.py:157
 msgid "Digital signature is present"
 msgstr ""
 
-#: rental/admin.py:150
+#: admin.py:162
 #, fuzzy
 #| msgid "Could not save signature."
 msgid "No digital signature"
 msgstr "Unterschrift konnte nicht gespeichert werden."
 
-#: rental/admin.py:153
-#: rental/templates/admin/rental/rentalrequest/change_form.html:345
-#: rental/templates/rental/sign_session.html:14 rental/views.py:470
+#: admin.py:165 templates/admin/rental/rentalrequest/change_form.html:345
+#: templates/rental/sign_session.html:14 views.py:474
 msgid "Digital Signature"
 msgstr ""
 
-#: rental/admin.py:203
+#: admin.py:215
 msgid "Quantities"
 msgstr "Mengen"
 
-#: rental/admin.py:206
+#: admin.py:218
 msgid "Return Information"
 msgstr "Rückgabeinformationen"
 
-#: rental/admin.py:235 rental/views.py:602
+#: admin.py:247 views.py:608
 msgid "days overdue"
 msgstr "Tage überfällig"
 
-#: rental/admin.py:240 rental/templates/rental/_sidebar.html:40
-#: rental/templates/rental/_status_pill.html:17
-#: rental/templates/rental/list.html:74 rental/views.py:274 rental/views.py:613
+#: admin.py:252 templates/rental/_sidebar.html:40
+#: templates/rental/_status_pill.html:17 templates/rental/list.html:74
+#: views.py:277 views.py:619
 msgid "Overdue"
 msgstr "Überfällig"
 
-#: rental/admin.py:244
+#: admin.py:256
 #, fuzzy
 #| msgid "End time"
 msgid "On time"
 msgstr "Endzeit"
 
-#: rental/admin.py:246
+#: admin.py:258
 #, fuzzy
 #| msgid "Overdue Rentals"
 msgid "Overdue Status"
 msgstr "Überfällige Ausleihen"
 
-#: rental/admin.py:280 rental/admin.py:282 rental/models.py:360
+#: admin.py:292 admin.py:294 models.py:372
 #, fuzzy
 #| msgid "Equipment set"
 msgid "Equipment sets"
 msgstr "Gerätesatz"
 
-#: rental/admin.py:287 rental/models.py:17
-#: rental/templates/rental/print_pick_list.html:106
-#: rental/templates/rental/rental_detail.html:110
-#: rental/templates/rental/rental_stats.html:1101 rental/views.py:158
-#: rental/views.py:282 rental/views.py:296 rental/views.py:1088
+#: admin.py:299 models.py:22 templates/rental/print_pick_list.html:106
+#: templates/rental/rental_detail.html:110
+#: templates/rental/rental_stats.html:1101 views.py:161 views.py:285
+#: views.py:300 views.py:1104
 #, fuzzy
 #| msgid "Users"
 msgid "User"
 msgstr "Nutzer"
 
-#: rental/admin.py:292 rental/models.py:23 rental/models.py:346
-#: rental/models.py:826
+#: admin.py:304 models.py:28 models.py:358 models.py:882
 #, fuzzy
 #| msgid "Created"
 msgid "Created by"
 msgstr "Erstellt"
 
-#: rental/admin.py:294 rental/models.py:27
-#: rental/templates/rental/print_pick_list.html:105 rental/views.py:335
+#: admin.py:306 models.py:32 templates/rental/print_pick_list.html:105
+#: views.py:339
 #, fuzzy
 #| msgid "Project"
 msgid "Project name"
 msgstr "Projekt"
 
-#: rental/admin.py:295 rental/models.py:30 rental/views.py:338
+#: admin.py:307 models.py:35 views.py:342
 msgid "Purpose"
 msgstr ""
 
-#: rental/admin.py:296 rental/models.py:34 rental/models.py:715
-#: rental/templates/rental/print_pick_list.html:107
+#: admin.py:308 models.py:39 models.py:771
+#: templates/rental/print_pick_list.html:107
 #, fuzzy
 #| msgid "Actual start date"
 msgid "Requested start date"
 msgstr "Tatsächliches Startdatum"
 
-#: rental/admin.py:297 rental/models.py:37 rental/models.py:721
-#: rental/templates/rental/print_pick_list.html:108
+#: admin.py:309 models.py:42 models.py:777
+#: templates/rental/print_pick_list.html:108
 #, fuzzy
 #| msgid "Request Notes:"
 msgid "Requested end date"
 msgstr "Anmerkungen zur Anfrage:"
 
-#: rental/admin.py:324
+#: admin.py:336
 #, fuzzy, python-format
 #| msgid "Rental requests"
 msgid "Rental request created: %s"
 msgstr "Ausleihanfragen"
 
-#: rental/admin.py:331 rental/templates/admin/rental/rent_sets_form.html:5
+#: admin.py:343 templates/admin/rental/rent_sets_form.html:5
 #, fuzzy
 #| msgid "Create rental from sets"
 msgid "Create rental from equipment sets"
 msgstr "Ausleihe aus Gerätesätzen erstellen"
 
-#: rental/admin.py:381
-msgid "Capacity & Location"
-msgstr ""
+#: admin.py:388
+msgid "Preview"
+msgstr "Vorschau"
 
-#: rental/admin.py:390 rental/models.py:337 rental/models.py:538
-#: rental/models.py:586 rental/models.py:819
-#: rental/templates/rental/print_pick_list.html:115
-#: rental/templates/rental/rental_stats.html:1172
-#: rental/templates/rental/rental_stats.html:1221
-#: rental/templates/rental/rental_stats.html:1331 rental/views.py:539
-#: rental/views.py:635
+#: admin.py:414
+msgid "Capacity & Location"
+msgstr "Kapazität & Standort"
+
+#: admin.py:423 admin.py:534
+msgid "Photos"
+msgstr "Fotos"
+
+#: admin.py:432 models.py:349 models.py:550 models.py:598 models.py:875
+#: templates/rental/print_pick_list.html:115
+#: templates/rental/rental_stats.html:1172
+#: templates/rental/rental_stats.html:1221
+#: templates/rental/rental_stats.html:1331 views.py:545 views.py:641
 msgid "Description"
 msgstr "Beschreibung"
 
-#: rental/admin.py:409
+#: admin.py:451
 #, fuzzy
 #| msgid "Set Details"
 msgid "Details"
 msgstr "Set-Details"
 
-#: rental/admin.py:430 rental/models.py:62 rental/models.py:1134
-#: rental/templates/rental/admin_return.html:67
-#: rental/templates/rental/inventory_calendar_day.html:70
-#: rental/templates/rental/list.html:115
-#: rental/templates/rental/rental_stats.html:1102
-#: rental/templates/rental/rental_stats.html:1178
-#: rental/templates/rental/rental_stats.html:1223
+#: admin.py:472 models.py:67 models.py:1201
+#: templates/rental/admin_return.html:67
+#: templates/rental/inventory_calendar_day.html:70
+#: templates/rental/list.html:115 templates/rental/rental_stats.html:1102
+#: templates/rental/rental_stats.html:1178
+#: templates/rental/rental_stats.html:1223
 #, fuzzy
 #| msgid "All Status"
 msgid "Status"
 msgstr "Alle Status"
 
-#: rental/admin.py:437
+#: admin.py:479
 #, fuzzy
 #| msgid "Rental items"
 msgid "Rental dates"
 msgstr "Ausleihartikel"
 
-#: rental/admin.py:476
+#: admin.py:518
 msgid "Approval workflow"
 msgstr ""
 
-#: rental/admin.py:485
+#: admin.py:527
 msgid "Automatic Reminders"
 msgstr "Automatische Erinnerungen"
 
-#: rental/admin.py:490
+#: admin.py:532
 msgid "Send automatic return reminder emails before the return deadline."
 msgstr "Automatische Rückgabe-Erinnerungen vor dem Rückgabetermin senden."
 
-#: rental/admin.py:492 rental/views.py:303
+#: admin.py:539
+msgid "Show item and room photos on the rental frontend pages."
+msgstr "Artikel- und Raumfotos auf den Ausleih-Frontend-Seiten anzeigen."
+
+#: admin.py:541 views.py:307
 msgid "Working hours"
 msgstr "Arbeitszeiten"
 
-#: rental/admin.py:502
+#: admin.py:551
 msgid "Leave both fields empty to mark a day as closed."
 msgstr ""
 
-#: rental/admin.py:504
+#: admin.py:553
 msgid "Organization Access"
 msgstr "Organisationszugriff"
 
-#: rental/apps.py:10 rental/templates/rental/rental_detail.html:127
+#: apps.py:10 templates/rental/rental_detail.html:127
 msgid "Rental"
 msgstr "Ausleihe"
 
-#: rental/email_approval_views.py:33
+#: email_approval_views.py:33
 msgid "Invalid or expired link"
 msgstr "Ungültiger oder abgelaufener Link"
 
-#: rental/email_approval_views.py:34
+#: email_approval_views.py:34
 msgid "This approval link is invalid or has expired."
 msgstr "Dieser Genehmigungslink ist ungültig oder abgelaufen."
 
-#: rental/email_approval_views.py:45
+#: email_approval_views.py:45
 msgid "Invalid link"
 msgstr "Ungültiger Link"
 
-#: rental/email_approval_views.py:46
+#: email_approval_views.py:46
 msgid "This approval link does not match the request."
 msgstr "Dieser Genehmigungslink stimmt nicht mit der Anfrage überein."
 
-#: rental/email_approval_views.py:57 rental/views.py:3425
+#: email_approval_views.py:57 views.py:3458
 msgid "Invalid action"
 msgstr "Ungültige Aktion"
 
-#: rental/email_approval_views.py:58
+#: email_approval_views.py:58
 msgid "Unsupported approval action."
 msgstr "Nicht unterstützte Genehmigungsaktion."
 
-#: rental/email_approval_views.py:72
+#: email_approval_views.py:72
 msgid "Nothing to do"
 msgstr "Nichts zu tun"
 
-#: rental/email_approval_views.py:73
+#: email_approval_views.py:73
 msgid "This request has already been processed."
 msgstr "Diese Anfrage wurde bereits bearbeitet."
 
-#: rental/email_approval_views.py:96
+#: email_approval_views.py:96
 msgid "Approved"
 msgstr "Genehmigt"
 
-#: rental/email_approval_views.py:97
+#: email_approval_views.py:97
 msgid "The request has been approved and reserved."
 msgstr "Die Anfrage wurde genehmigt und reserviert."
 
-#: rental/email_approval_views.py:120
+#: email_approval_views.py:120
 msgid "Declined"
 msgstr "Abgelehnt"
 
-#: rental/email_approval_views.py:121
+#: email_approval_views.py:121
 msgid "The request has been declined."
 msgstr "Die Anfrage wurde abgelehnt."
 
-#: rental/forms.py:36
+#: forms.py:36
 msgid "Requested end date must be after start date."
 msgstr "Das gewünschte Enddatum muss nach dem Startdatum liegen."
 
-#: rental/forms.py:62 rental/serializers.py:109
+#: forms.py:62 serializers.py:109
 msgid "Quantity must be positive."
 msgstr "Erinnerungsstunden müssen positiv sein."
 
-#: rental/forms.py:67 rental/serializers.py:114
+#: forms.py:67 serializers.py:114
 msgid "Inventory item not found."
 msgstr "Inventarartikel nicht gefunden."
 
-#: rental/forms.py:82
+#: forms.py:82
 msgid "Cannot reserve more than requested amount."
 msgstr "Kann nicht mehr als die angefragte Menge reservieren."
 
-#: rental/forms.py:84 rental/serializers.py:121
+#: forms.py:84 serializers.py:121
 msgid "Not enough items available to reserve."
 msgstr "Nicht genügend Artikel verfügbar zum Reservieren."
 
-#: rental/forms.py:89 rental/serializers.py:124
+#: forms.py:89 serializers.py:124
 msgid "Cannot issue more than requested."
 msgstr "Kann nicht mehr als angefragt herausgeben."
 
-#: rental/forms.py:91 rental/serializers.py:126
+#: forms.py:91 serializers.py:126
 msgid "Cannot issue more than reserved."
 msgstr "Kann nicht mehr als reserviert herausgeben."
 
-#: rental/forms.py:96
+#: forms.py:96
 msgid "Cannot return more than outstanding issued quantity."
 msgstr "Kann nicht mehr zurückgeben als die ausstehende ausgegebene Menge."
 
-#: rental/forms.py:99 rental/serializers.py:132
+#: forms.py:99 serializers.py:132
 msgid "Cannot cancel more than reserved."
 msgstr "Kann nicht mehr stornieren als reserviert."
 
-#: rental/forms.py:119
+#: forms.py:119
 msgid "Description is required for the selected issue type."
 msgstr "Für den ausgewählten Ausgabetyp ist eine Beschreibung erforderlich."
 
-#: rental/management/commands/expire_room_rentals.py:19
+#: management/commands/expire_room_rentals.py:19
 msgid ""
 "Automatically expire room rentals and create corresponding transactions."
 msgstr ""
 "Raumausleihen automatisch ablaufen lassen und entsprechende Vorgänge "
 "erstellen."
 
-#: rental/management/commands/expire_room_rentals.py:26
-#: rental/management/commands/fix_missing_issue_transactions.py:30
-#: rental/management/commands/fix_quantity_issued.py:29
+#: management/commands/expire_room_rentals.py:26
+#: management/commands/fix_missing_issue_transactions.py:30
+#: management/commands/fix_quantity_issued.py:29
 msgid "Show what would be done without applying changes"
 msgstr "Zeigt, was gemacht würde, ohne Änderungen zu übernehmen"
 
-#: rental/management/commands/expire_room_rentals.py:31
-#: rental/management/commands/fix_missing_issue_transactions.py:35
-#: rental/management/commands/fix_quantity_issued.py:34
+#: management/commands/expire_room_rentals.py:31
+#: management/commands/fix_missing_issue_transactions.py:35
+#: management/commands/fix_quantity_issued.py:34
 msgid "Verbose output"
 msgstr "Ausführliche Ausgabe"
 
-#: rental/management/commands/expire_room_rentals.py:68
+#: management/commands/expire_room_rentals.py:68
 msgid "📊 Found {} expired room rentals"
 msgstr "📊 {} abgelaufene Raumausleihen gefunden"
 
-#: rental/management/commands/expire_room_rentals.py:77
+#: management/commands/expire_room_rentals.py:77
 msgid "🔴 {} expired room reservations (will be auto-returned)"
 msgstr ""
 "🔴 {} abgelaufene Raumreservierungen (werden automatisch zurückgegeben)"
 
-#: rental/management/commands/expire_room_rentals.py:82
+#: management/commands/expire_room_rentals.py:82
 msgid "🟡 {} expired room rentals (will be returned)"
 msgstr "🟡 {} abgelaufene Raumausleihen (werden zurückgegeben)"
 
-#: rental/management/commands/expire_room_rentals.py:86
+#: management/commands/expire_room_rentals.py:86
 msgid "📋 Details of expired rentals:"
 msgstr "📋 Details zu abgelaufenen Ausleihen:"
 
-#: rental/management/commands/expire_room_rentals.py:90
+#: management/commands/expire_room_rentals.py:90
 msgid "  • {} - {} ({}) - Expired: {}"
 msgstr "  • {} - {} ({}) - Abgelaufen: {}"
 
-#: rental/management/commands/expire_room_rentals.py:101
-#: rental/management/commands/fix_missing_issue_transactions.py:124
-#: rental/management/commands/fix_quantity_issued.py:123
+#: management/commands/expire_room_rentals.py:101
+#: management/commands/fix_missing_issue_transactions.py:124
+#: management/commands/fix_quantity_issued.py:123
 msgid ""
 "\n"
 "⚠️  In test mode, changes are not applied"
@@ -370,7 +374,7 @@ msgstr ""
 "\n"
 "⚠️  Im Testmodus werden Änderungen nicht angewendet"
 
-#: rental/management/commands/expire_room_rentals.py:106
+#: management/commands/expire_room_rentals.py:106
 msgid ""
 "\n"
 "🔄 Applying changes..."
@@ -378,15 +382,15 @@ msgstr ""
 "\n"
 "🔄 Änderungen werden übernommen..."
 
-#: rental/management/commands/expire_room_rentals.py:121
+#: management/commands/expire_room_rentals.py:121
 msgid "Automatic return of expired room reservation: {}"
 msgstr "Automatische Rückgabe der abgelaufenen Raumreservierung: {}"
 
-#: rental/management/commands/expire_room_rentals.py:141
+#: management/commands/expire_room_rentals.py:141
 msgid "Automatic return of expired room rental: {}"
 msgstr "Automatische Rückgabe der abgelaufenen Raumausleihe: {}"
 
-#: rental/management/commands/expire_room_rentals.py:158
+#: management/commands/expire_room_rentals.py:158
 msgid ""
 "\n"
 "✅ Successfully processed {} expired room rentals"
@@ -394,7 +398,7 @@ msgstr ""
 "\n"
 "✅ {} abgelaufene Raumausleihen erfolgreich verarbeitet"
 
-#: rental/management/commands/expire_room_rentals.py:163
+#: management/commands/expire_room_rentals.py:163
 msgid ""
 "Automatic expiration of expired room rentals: processed {} rentals, auto-"
 "returned reservations: {}, returned rentals: {}"
@@ -402,11 +406,11 @@ msgstr ""
 "Automatisches Ablaufen abgelaufener Raumausleihen: {} Ausleihen verarbeitet, "
 "automatisch zurückgegebene Reservierungen: {}, zurückgegebene Ausleihen: {}"
 
-#: rental/management/commands/expire_room_rentals.py:177
+#: management/commands/expire_room_rentals.py:177
 msgid "Error during automatic expiration of expired room rentals: {}"
 msgstr "Fehler beim automatischen Ablaufen abgelaufener Raumausleihen: {}"
 
-#: rental/management/commands/expire_room_rentals.py:181
+#: management/commands/expire_room_rentals.py:181
 msgid ""
 "\n"
 "🎉 Automatic expiration of expired room rentals completed!"
@@ -414,12 +418,12 @@ msgstr ""
 "\n"
 "🎉 Automatisches Ablaufen abgelaufener Raumausleihen abgeschlossen!"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:23
+#: management/commands/fix_missing_issue_transactions.py:23
 msgid "Create missing issue transactions for rental items."
 msgstr "Fehlende Ausgabebuchungen für Ausleihartikel erstellen."
 
-#: rental/management/commands/fix_missing_issue_transactions.py:104
-#: rental/management/commands/fix_quantity_issued.py:102
+#: management/commands/fix_missing_issue_transactions.py:104
+#: management/commands/fix_quantity_issued.py:102
 msgid ""
 "\n"
 "📋 Items to fix:"
@@ -427,18 +431,18 @@ msgstr ""
 "\n"
 "📋 Zu korrigierende Artikel:"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:109
+#: management/commands/fix_missing_issue_transactions.py:109
 #, python-brace-format
 msgid "  • Rental #{rental_id}, Item #{item_id} ({inventory_number}): {reason}"
 msgstr ""
 "  • Ausleihe #{rental_id}, Artikel #{item_id} ({inventory_number}): {reason}"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:119
-#: rental/management/commands/fix_quantity_issued.py:118
+#: management/commands/fix_missing_issue_transactions.py:119
+#: management/commands/fix_quantity_issued.py:118
 msgid "  ... and {} more items"
 msgstr "  ... und {} weitere Artikel"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:129
+#: management/commands/fix_missing_issue_transactions.py:129
 msgid ""
 "\n"
 "🔄 Creating missing issue transactions..."
@@ -446,11 +450,11 @@ msgstr ""
 "\n"
 "🔄 Fehlende Ausgabebuchungen werden erstellt..."
 
-#: rental/management/commands/fix_missing_issue_transactions.py:148
+#: management/commands/fix_missing_issue_transactions.py:148
 msgid "Created automatically to fix missing issue transaction"
 msgstr "Automatisch erstellt, um fehlende Ausgabebuchung zu korrigieren"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:155
+#: management/commands/fix_missing_issue_transactions.py:155
 #, python-brace-format
 msgid ""
 "  ✅ Created issue transaction for Rental #{rental_id}, Item #{item_id}: "
@@ -459,7 +463,7 @@ msgstr ""
 "  ✅ Ausgabebuchung für Ausleihe #{rental_id}, Artikel #{item_id} erstellt: "
 "{quantity} Stück"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:165
+#: management/commands/fix_missing_issue_transactions.py:165
 msgid ""
 "\n"
 "✅ Successfully created {} issue transactions"
@@ -467,15 +471,15 @@ msgstr ""
 "\n"
 "✅ Erfolgreich {} Ausgabebuchungen erstellt"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:171
+#: management/commands/fix_missing_issue_transactions.py:171
 msgid "Created missing issue transactions: created {} transactions"
 msgstr "Fehlende Ausgabebuchungen erstellt: {} Buchungen angelegt"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:179
+#: management/commands/fix_missing_issue_transactions.py:179
 msgid "Error during creation of missing issue transactions: {}"
 msgstr "Fehler beim Erstellen fehlender Ausgabebuchungen: {}"
 
-#: rental/management/commands/fix_missing_issue_transactions.py:183
+#: management/commands/fix_missing_issue_transactions.py:183
 msgid ""
 "\n"
 "🎉 Fix of missing issue transactions completed!"
@@ -483,15 +487,15 @@ msgstr ""
 "\n"
 "🎉 Korrektur der fehlenden Ausgabebuchungen abgeschlossen!"
 
-#: rental/management/commands/fix_quantity_issued.py:22
+#: management/commands/fix_quantity_issued.py:22
 msgid "Fix quantity_issued for rental items based on transactions."
 msgstr "Ausgegebene Menge der Ausleihartikel anhand der Buchungen korrigieren."
 
-#: rental/management/commands/fix_quantity_issued.py:39
+#: management/commands/fix_quantity_issued.py:39
 msgid "Fix all items, not just those with incorrect values"
 msgstr "Alle Artikel korrigieren, nicht nur jene mit falschen Werten"
 
-#: rental/management/commands/fix_quantity_issued.py:106
+#: management/commands/fix_quantity_issued.py:106
 #, python-brace-format
 msgid ""
 "  • Rental #{rental_id}, Item #{item_id} ({inventory_number}): "
@@ -500,7 +504,7 @@ msgstr ""
 "  • Ausleihe #{rental_id}, Artikel #{item_id} ({inventory_number}): "
 "aktuell={current}, korrekt={correct}, Differenz={diff}"
 
-#: rental/management/commands/fix_quantity_issued.py:128
+#: management/commands/fix_quantity_issued.py:128
 msgid ""
 "\n"
 "🔄 Applying fixes..."
@@ -508,13 +512,13 @@ msgstr ""
 "\n"
 "🔄 Korrekturen werden angewendet..."
 
-#: rental/management/commands/fix_quantity_issued.py:148
+#: management/commands/fix_quantity_issued.py:148
 #, python-brace-format
 msgid "  ✅ Fixed Rental #{rental_id}, Item #{item_id}: {old} → {new}"
 msgstr ""
 "  ✅ Ausleihe #{rental_id}, Artikel #{item_id} korrigiert: {old} → {new}"
 
-#: rental/management/commands/fix_quantity_issued.py:159
+#: management/commands/fix_quantity_issued.py:159
 msgid ""
 "\n"
 "✅ Successfully fixed {} rental items"
@@ -522,11 +526,11 @@ msgstr ""
 "\n"
 "✅ Erfolgreich {} Ausleihartikel korrigiert"
 
-#: rental/management/commands/fix_quantity_issued.py:163
+#: management/commands/fix_quantity_issued.py:163
 msgid "📊 Total correction: {} units"
 msgstr "📊 Gesamtkorrektur: {} Einheiten"
 
-#: rental/management/commands/fix_quantity_issued.py:168
+#: management/commands/fix_quantity_issued.py:168
 msgid ""
 "Fixed quantity_issued for rental items: fixed {} items, total correction: {} "
 "units"
@@ -534,11 +538,11 @@ msgstr ""
 "Ausgegebene Menge bei Ausleihartikeln korrigiert: {} Artikel korrigiert, "
 "Gesamtkorrektur: {} Einheiten"
 
-#: rental/management/commands/fix_quantity_issued.py:179
+#: management/commands/fix_quantity_issued.py:179
 msgid "Error during fix of quantity_issued: {}"
 msgstr "Fehler bei der Korrektur der ausgegebenen Menge: {}"
 
-#: rental/management/commands/fix_quantity_issued.py:183
+#: management/commands/fix_quantity_issued.py:183
 msgid ""
 "\n"
 "🎉 Fix of quantity_issued completed!"
@@ -546,543 +550,560 @@ msgstr ""
 "\n"
 "🎉 Korrektur der ausgegebenen Menge abgeschlossen!"
 
-#: rental/management/commands/send_return_reminders.py:15
+#: management/commands/send_return_reminders.py:14
 msgid "Send automatic return reminders for issued rentals."
 msgstr "Automatische Rückgabe-Erinnerungen für ausgegebene Ausleihen senden."
 
-#: rental/management/commands/send_return_reminders.py:20
+#: management/commands/send_return_reminders.py:19
 msgid "Auto-reminders are disabled."
 msgstr "Automatische Erinnerungen sind deaktiviert."
 
-#: rental/management/commands/send_return_reminders.py:25
+#: management/commands/send_return_reminders.py:24
 #, fuzzy
 #| msgid "Quantity must be positive."
 msgid "Auto-reminder hours must be positive."
 msgstr "Erinnerungsstunden müssen positiv sein."
 
-#: rental/management/commands/send_return_reminders.py:46
+#: management/commands/send_return_reminders.py:61
 msgid "Auto-reminders sent: {} rental(s)"
 msgstr "Automatische Erinnerungen gesendet: {} Ausleihe(n)"
 
-#: rental/models.py:42
+#: models.py:47
 msgid "Actual start date"
 msgstr "Tatsächliches Startdatum"
 
-#: rental/models.py:47
+#: models.py:52
 msgid "Actual end date"
 msgstr "Tatsächliches Enddatum"
 
-#: rental/models.py:51 rental/templates/rental/_status_pill.html:9
-#: rental/views.py:270 rental/views.py:609
+#: models.py:56 templates/rental/_status_pill.html:9 views.py:273 views.py:615
 msgid "Draft"
 msgstr "Entwurf"
 
-#: rental/models.py:52 rental/templates/rental/_status_pill.html:11
-#: rental/templates/rental/inventory_calendar_day.html:55
-#: rental/templates/rental/list.html:62
-#: rental/templates/rental/rental_stats.html:976
-#: rental/templates/rental/rental_stats.html:1068
-#: rental/templates/rental/rental_stats.html:1158
-#: rental/templates/rental/rental_stats.html:1176
-#: rental/templates/rental/user_rental_detail.html:26 rental/views.py:271
-#: rental/views.py:325 rental/views.py:406 rental/views.py:601
-#: rental/views.py:610 rental/views.py:2291 rental/views.py:2296
-#: rental/views_api.py:123
+#: models.py:57 templates/rental/_status_pill.html:11
+#: templates/rental/inventory_calendar_day.html:55
+#: templates/rental/list.html:62 templates/rental/rental_stats.html:976
+#: templates/rental/rental_stats.html:1068
+#: templates/rental/rental_stats.html:1158
+#: templates/rental/rental_stats.html:1176
+#: templates/rental/user_rental_detail.html:26 views.py:274 views.py:329
+#: views.py:410 views.py:607 views.py:616 views.py:2307 views.py:2312
+#: views_api.py:139
 msgid "Reserved"
 msgstr "Reserviert"
 
-#: rental/models.py:53 rental/templates/rental/_status_pill.html:13
-#: rental/templates/rental/inventory_calendar_day.html:56
-#: rental/templates/rental/list.html:68
-#: rental/templates/rental/rental_stats.html:980
-#: rental/templates/rental/rental_stats.html:1069
-#: rental/templates/rental/user_rental_detail.html:27 rental/views.py:272
-#: rental/views.py:404 rental/views.py:611 rental/views.py:2297
-#: rental/views_api.py:121
+#: models.py:58 templates/rental/_status_pill.html:13
+#: templates/rental/inventory_calendar_day.html:56
+#: templates/rental/list.html:68 templates/rental/rental_stats.html:980
+#: templates/rental/rental_stats.html:1069
+#: templates/rental/user_rental_detail.html:27 views.py:275 views.py:408
+#: views.py:617 views.py:2313 views_api.py:137
 msgid "Issued"
 msgstr "Ausgegeben"
 
-#: rental/models.py:54 rental/templates/rental/_status_pill.html:15
-#: rental/templates/rental/list.html:80
-#: rental/templates/rental/rental_stats.html:1070
-#: rental/templates/rental/user_rental_detail.html:28 rental/views.py:273
-#: rental/views.py:407 rental/views.py:425 rental/views.py:612
-#: rental/views.py:2298
+#: models.py:59 templates/rental/_status_pill.html:15
+#: templates/rental/list.html:80 templates/rental/rental_stats.html:1070
+#: templates/rental/user_rental_detail.html:28 views.py:276 views.py:411
+#: views.py:429 views.py:618 views.py:2314
 msgid "Returned"
 msgstr "Zurückgegeben"
 
-#: rental/models.py:55 rental/templates/rental/_status_pill.html:19
-#: rental/templates/rental/rental_stats.html:1071
-#: rental/templates/rental/user_rental_detail.html:29 rental/views.py:275
-#: rental/views.py:614
+#: models.py:60 templates/rental/_status_pill.html:19
+#: templates/rental/rental_stats.html:1071
+#: templates/rental/user_rental_detail.html:29 views.py:278 views.py:620
 msgid "Cancelled"
 msgstr "Storniert"
 
-#: rental/models.py:56 rental/templates/rental/_status_pill.html:21
-#: rental/views.py:599 rental/views.py:615 rental/views.py:2299
+#: models.py:61 templates/rental/_status_pill.html:21 views.py:605 views.py:621
+#: views.py:2315
 msgid "Closed"
 msgstr "Geschlossen"
 
-#: rental/models.py:66 rental/templates/rental/rental_stats.html:1077
-#: rental/templates/rental/user_rental_detail.html:41 rental/views.py:312
-#: rental/views.py:457 rental/views.py:565
+#: models.py:71 templates/rental/rental_stats.html:1077
+#: templates/rental/user_rental_detail.html:41 views.py:316 views.py:461
+#: views.py:571
 msgid "Equipment"
 msgstr "Gerät"
 
-#: rental/models.py:67 rental/models.py:444 rental/models.py:594
-#: rental/models.py:706 rental/templates/rental/user_rental_detail.html:86
+#: models.py:72 models.py:456 models.py:606 models.py:718 models.py:762
+#: templates/rental/user_rental_detail.html:86
 msgid "Room"
 msgstr "Raum"
 
-#: rental/models.py:68
+#: models.py:73
 msgid "Equipment and Room"
 msgstr "Gerät und Raum"
 
-#: rental/models.py:74
+#: models.py:79
 msgid "Rental type"
 msgstr "Ausleihtyp"
 
-#: rental/models.py:75
+#: models.py:80
 msgid "Type of rental: equipment, room, or both"
 msgstr "Art der Ausleihe: Gerät, Raum oder beides"
 
-#: rental/models.py:86
+#: models.py:91
 msgid "Base64 encoded signature image"
 msgstr ""
 
-#: rental/models.py:89 rental/models.py:1145
+#: models.py:94 models.py:1212
 msgid "Signature SVG"
 msgstr ""
 
-#: rental/models.py:92
+#: models.py:97
 msgid "Primary SVG signature data"
 msgstr ""
 
-#: rental/models.py:95 rental/models.py:1150
+#: models.py:100 models.py:1217
 msgid "Signature points"
 msgstr ""
 
-#: rental/models.py:99
+#: models.py:104
 msgid "Biometric signature stroke points (x,y,time,pressure)."
 msgstr ""
 
-#: rental/models.py:102 rental/models.py:1156
+#: models.py:107 models.py:1223
 msgid "Signature metadata"
 msgstr ""
 
-#: rental/models.py:106
+#: models.py:111
 msgid "Signature metadata such as device, user-agent, and capture details."
 msgstr ""
 
-#: rental/models.py:109 rental/models.py:1162
+#: models.py:114 models.py:1229
 msgid "Signature method"
 msgstr ""
 
-#: rental/models.py:113
+#: models.py:118
 msgid "Signature input method (mouse, touch, stylus, qr_phone)."
 msgstr ""
 
-#: rental/models.py:116
+#: models.py:121
 msgid "Signature signed at"
 msgstr ""
 
-#: rental/models.py:119
+#: models.py:124
 msgid "When the digital signature was captured."
 msgstr ""
 
-#: rental/models.py:128 rental/models.py:228 rental/models.py:701
-#: rental/models.py:1114 rental/views.py:2701
+#: models.py:132
+msgid "Automatic return reminder sent at"
+msgstr "Automatische Rückgabe-Erinnerung gesendet am"
+
+#: models.py:133
+msgid "When the automatic return reminder email was sent."
+msgstr ""
+"Zeitpunkt, zu dem die automatische Rückgabe-Erinnerung per E-Mail gesendet "
+"wurde."
+
+#: models.py:139 models.py:240 models.py:757 models.py:1181 views.py:2734
 msgid "Rental request"
 msgstr "Ausleihanfrage"
 
-#: rental/models.py:129
+#: models.py:140
 msgid "Rental requests"
 msgstr "Ausleihanfragen"
 
-#: rental/models.py:218
+#: models.py:230
 msgid "No rooms"
 msgstr "Keine Räume"
 
-#: rental/models.py:233 rental/models.py:402
-#: rental/templates/rental/print_pick_list.html:116
+#: models.py:245 models.py:414 templates/rental/print_pick_list.html:116
 msgid "Inventory item"
 msgstr "Inventargegenstand"
 
-#: rental/models.py:234
+#: models.py:246
 msgid "Search by number, description, manufacturer"
 msgstr "Suche nach Nummer, Beschreibung, Hersteller"
 
-#: rental/models.py:238 rental/templates/rental/user_rental_detail.html:50
+#: models.py:250 templates/rental/user_rental_detail.html:50
 msgid "Quantity requested"
 msgstr "Angeforderte Menge"
 
-#: rental/models.py:242 rental/templates/rental/user_rental_detail.html:51
+#: models.py:254 templates/rental/user_rental_detail.html:51
 msgid "Quantity issued"
 msgstr "Ausgegebene Menge"
 
-#: rental/models.py:246 rental/templates/rental/user_rental_detail.html:52
+#: models.py:258 templates/rental/user_rental_detail.html:52
 msgid "Quantity returned"
 msgstr "Zurückgegebene Menge"
 
-#: rental/models.py:252
+#: models.py:264
 msgid "Actual return date"
 msgstr "Tatsächliches Rückgabedatum"
 
-#: rental/models.py:253
+#: models.py:265
 msgid "Date when the item was actually returned (auto-filled on return)"
 msgstr ""
 "Datum, an dem der Artikel tatsächlich zurückgegeben wurde (wird bei der "
 "Rückgabe automatisch ausgefüllt)"
 
-#: rental/models.py:262
+#: models.py:274
 msgid "Pick list checked"
 msgstr "Packliste geprueft"
 
-#: rental/models.py:266
+#: models.py:278
 msgid "Pick list note"
 msgstr "Packlisten-Notiz"
 
-#: rental/models.py:272 rental/models.py:435 rental/models.py:523
+#: models.py:284 models.py:447 models.py:535
 msgid "Rental item"
 msgstr "Ausleihartikel"
 
-#: rental/models.py:273
+#: models.py:285
 msgid "Rental items"
 msgstr "Ausleihartikel"
 
-#: rental/models.py:333 rental/templates/rental/rental_stats.html:1220
-#: rental/templates/rental/rental_stats.html:1327 rental/views.py:633
+#: models.py:345 templates/rental/rental_stats.html:1220
+#: templates/rental/rental_stats.html:1327 views.py:639
 msgid "Name"
 msgstr "Name"
 
-#: rental/models.py:341
+#: models.py:353
 msgid "Is template"
 msgstr "Ist Vorlage"
 
-#: rental/models.py:350
+#: models.py:362
 msgid "Is active"
 msgstr "Ist aktiv"
 
-#: rental/models.py:359 rental/models.py:397
+#: models.py:371 models.py:409
 msgid "Equipment set"
 msgstr "Gerätesatz"
 
-#: rental/models.py:406 rental/models.py:461 rental/models.py:866
-#: rental/templates/rental/print_pick_list.html:118
-#: rental/templates/rental/rental_stats.html:1360
+#: models.py:418 models.py:473 models.py:922
+#: templates/rental/print_pick_list.html:118
+#: templates/rental/rental_stats.html:1360
 msgid "Quantity"
 msgstr "Menge"
 
-#: rental/models.py:410
+#: models.py:422
 msgid "Is required"
 msgstr "Ist erforderlich"
 
-#: rental/models.py:420
+#: models.py:432
 msgid "Equipment set item"
 msgstr "Gerätesatz-Beitrag"
 
-#: rental/models.py:421
+#: models.py:433
 msgid "Equipment set items"
 msgstr "Gerätesatz-Beiträge"
 
-#: rental/models.py:450
+#: models.py:462
 msgid "Reserve"
 msgstr "Reservieren"
 
-#: rental/models.py:451 rental/templates/rental/list.html:176
+#: models.py:463 templates/rental/list.html:177
 msgid "Issue"
 msgstr "Ausgeben"
 
-#: rental/models.py:452 rental/templates/rental/_sidebar.html:17
-#: rental/templates/rental/admin_return.html:10
-#: rental/templates/rental/admin_return.html:102
-#: rental/templates/rental/list.html:169
-#: rental/templates/rental/rental_return.html:43
-#: rental/templates/rental/rental_stats.html:1105 rental/views.py:585
+#: models.py:464 templates/rental/_sidebar.html:17
+#: templates/rental/admin_return.html:10 templates/rental/admin_return.html:102
+#: templates/rental/list.html:169 templates/rental/rental_return.html:43
+#: templates/rental/rental_stats.html:1105 views.py:591
 msgid "Return"
 msgstr "Rückgabe"
 
-#: rental/models.py:453 rental/templates/rental/rental_stats.html:1374
-#: rental/templates/rental/rental_stats.html:1397 rental/views.py:362
-#: rental/views.py:530 rental/views.py:644
+#: models.py:465 templates/rental/rental_stats.html:1374
+#: templates/rental/rental_stats.html:1397 views.py:366 views.py:536
+#: views.py:650
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: rental/models.py:458
+#: models.py:470
 msgid "Transaction type"
 msgstr "Transaktionsart"
 
-#: rental/models.py:467
+#: models.py:479
 msgid "Performed by"
 msgstr "Durchgeführt von"
 
-#: rental/models.py:471
+#: models.py:483
 msgid "Performed at"
 msgstr "Durchgeführt am"
 
-#: rental/models.py:475
+#: models.py:487
 msgid "Excellent"
 msgstr "Ausgezeichnet"
 
-#: rental/models.py:476
+#: models.py:488
 msgid "Good"
 msgstr "Gut"
 
-#: rental/models.py:477
+#: models.py:489
 msgid "Fair"
 msgstr "Befriedigend"
 
-#: rental/models.py:478
+#: models.py:490
 msgid "Poor"
 msgstr "Schlecht"
 
-#: rental/models.py:484 rental/views.py:426
+#: models.py:496 views.py:430
 msgid "Condition"
 msgstr "Zustand"
 
-#: rental/models.py:494
+#: models.py:506
 msgid "Rental transaction"
 msgstr "Ausleihvorgang"
 
-#: rental/models.py:495
+#: models.py:507
 msgid "Rental transactions"
 msgstr "Ausleihvorgänge"
 
-#: rental/models.py:511
+#: models.py:523
 msgid "Either item or room must be specified"
 msgstr "Entweder Artikel oder Raum muss angegeben werden"
 
-#: rental/models.py:513
+#: models.py:525
 msgid "Cannot specify both item and room simultaneously"
 msgstr "Es kann nicht gleichzeitig ein Artikel und ein Raum angegeben werden"
 
-#: rental/models.py:527
+#: models.py:539
 msgid "Damaged"
 msgstr "Beschädigt"
 
-#: rental/models.py:528
+#: models.py:540
 msgid "Missing"
 msgstr "Fehlend"
 
-#: rental/models.py:529
+#: models.py:541
 msgid "Late Return"
 msgstr "Verspätete Rückgabe"
 
-#: rental/models.py:530 rental/views.py:2281 rental/views.py:2667
+#: models.py:542 views.py:2297 views.py:2700
 msgid "Other"
 msgstr "Sonstiges"
 
-#: rental/models.py:535
+#: models.py:547
 msgid "Issue type"
 msgstr "Problemtyp"
 
-#: rental/models.py:542 rental/views.py:431 rental/views.py:531
+#: models.py:554 views.py:435 views.py:537
 msgid "Minor"
 msgstr "Geringfügig"
 
-#: rental/models.py:543 rental/views.py:532
+#: models.py:555 views.py:538
 msgid "Major"
 msgstr "Gravierend"
 
-#: rental/models.py:544 rental/views.py:533
+#: models.py:556 views.py:539
 msgid "Critical"
 msgstr "Kritisch"
 
-#: rental/models.py:549 rental/views.py:538
+#: models.py:561 views.py:544
 msgid "Severity"
 msgstr "Schweregrad"
 
-#: rental/models.py:555
+#: models.py:567
 msgid "Reported by"
 msgstr "Gemeldet von"
 
-#: rental/models.py:559
+#: models.py:571
 msgid "Reported at"
 msgstr "Gemeldet am"
 
-#: rental/models.py:563
+#: models.py:575
 msgid "Resolved"
 msgstr "Gelöst"
 
-#: rental/models.py:567
+#: models.py:579
 msgid "Resolution notes"
 msgstr "Lösungsnotizen"
 
-#: rental/models.py:573
+#: models.py:585
 msgid "Rental issue"
 msgstr "Ausleihproblem"
 
-#: rental/models.py:574
+#: models.py:586
 msgid "Rental issues"
 msgstr "Ausleihprobleme"
 
-#: rental/models.py:585
+#: models.py:597
 msgid "Room name"
 msgstr "Raumname"
 
-#: rental/models.py:587
+#: models.py:599
 msgid "Capacity"
 msgstr "Kapazität"
 
-#: rental/models.py:588 rental/templates/rental/print_pick_list.html:117
-#: rental/templates/rental/rental_stats.html:1174 rental/views.py:497
+#: models.py:600 templates/rental/print_pick_list.html:117
+#: templates/rental/rental_stats.html:1174 views.py:503
 msgid "Location"
 msgstr "Standort"
 
-#: rental/models.py:589 rental/models.py:794
-#: rental/templates/rental/rental_stats.html:1338
+#: models.py:601 models.py:850 templates/rental/rental_stats.html:1338
 msgid "Active"
 msgstr "Aktiv"
 
-#: rental/models.py:595 rental/templates/rental/_sidebar.html:30
-#: rental/templates/rental/rental_stats.html:1078
-#: rental/templates/rental/user_rental_detail.html:78 rental/views.py:313
-#: rental/views.py:347 rental/views.py:458 rental/views.py:566
+#: models.py:607 templates/rental/_sidebar.html:30
+#: templates/rental/rental_stats.html:1078
+#: templates/rental/user_rental_detail.html:78 views.py:317 views.py:351
+#: views.py:462 views.py:572
 msgid "Rooms"
 msgstr "Räume"
 
-#: rental/models.py:709
+#: models.py:722
+msgid "Image"
+msgstr "Bild"
+
+#: models.py:727
+msgid "Caption"
+msgstr "Bildunterschrift"
+
+#: models.py:731
+msgid "Sort order"
+msgstr "Sortierreihenfolge"
+
+#: models.py:735 models.py:887 models.py:1250
+msgid "Created at"
+msgstr "Erstellt am"
+
+#: models.py:741
+msgid "Room photo"
+msgstr "Raumfoto"
+
+#: models.py:742
+msgid "Room photos"
+msgstr "Raumfotos"
+
+#: models.py:765
 msgid "Number of people"
 msgstr "Anzahl der Personen"
 
-#: rental/models.py:710
+#: models.py:766
 msgid "Number of people using the room"
 msgstr "Anzahl der Personen, die den Raum nutzen"
 
-#: rental/models.py:716
+#: models.py:772
 msgid ""
 "Room rental start date. If not specified, uses rental request start date."
 msgstr ""
 "Startdatum der Raumausleihe. Falls nicht angegeben, wird das Startdatum der "
 "Ausleihanfrage verwendet."
 
-#: rental/models.py:722
+#: models.py:778
 msgid "Room rental end date. If not specified, uses rental request end date."
 msgstr ""
 "Enddatum der Raumausleihe. Falls nicht angegeben, wird das Enddatum der "
 "Ausleihanfrage verwendet."
 
-#: rental/models.py:727
+#: models.py:783
 msgid "Additional notes for room rental"
 msgstr "Zusätzliche Hinweise zur Raumausleihe"
 
-#: rental/models.py:732
+#: models.py:788
 msgid "Nextcloud Event URL"
 msgstr "Nextcloud-Ereignis-URL"
 
-#: rental/models.py:733
+#: models.py:789
 msgid "URL of the event in Nextcloud Calendar (for CalDAV sync)"
 msgstr ""
 "URL des Ereignisses im Nextcloud-Kalender (für CalDAV-Synchronisierung)"
 
-#: rental/models.py:739
+#: models.py:795
 msgid "Room rental"
 msgstr "Raumausleihe"
 
-#: rental/models.py:740
+#: models.py:796
 msgid "Room rentals"
 msgstr "Raumausleihen"
 
-#: rental/models.py:790 rental/models.py:1104
+#: models.py:846 models.py:1171
 msgid "Expired"
 msgstr "Abgelaufen"
 
-#: rental/models.py:792
+#: models.py:848
 msgid "Expiring soon"
 msgstr "Läuft bald ab"
 
-#: rental/models.py:804 rental/models.py:805
+#: models.py:860 models.py:861
 msgid "Rental Process"
 msgstr "Ausleihprozess"
 
-#: rental/models.py:813
+#: models.py:869
 msgid "Template Name"
 msgstr "Vorlagenname"
 
-#: rental/models.py:814
+#: models.py:870
 msgid ""
 "Name of the equipment template (e.g., \"Concert Setup\", \"Workshop "
 "Equipment\")"
 msgstr ""
 "Name der Gerätevorlage (z. B. \"Konzertaufbau\", \"Workshop-Ausrüstung\")"
 
-#: rental/models.py:820
+#: models.py:876
 msgid "Optional description of what this template is used for"
 msgstr "Optionale Beschreibung, wofür diese Vorlage verwendet wird"
 
-#: rental/models.py:831 rental/models.py:1183
-msgid "Created at"
-msgstr "Erstellt am"
-
-#: rental/models.py:836
+#: models.py:892
 msgid "Updated at"
 msgstr "Aktualisiert am"
 
-#: rental/models.py:840
+#: models.py:896
 msgid "Equipment Template"
 msgstr "Gerätevorlage"
 
-#: rental/models.py:841
+#: models.py:897
 msgid "Equipment Templates"
 msgstr "Gerätevorlagen"
 
-#: rental/models.py:855
+#: models.py:911
 msgid "Template"
 msgstr "Vorlage"
 
-#: rental/models.py:861
+#: models.py:917
 msgid "Inventory Item"
 msgstr "Inventargegenstand"
 
-#: rental/models.py:867
+#: models.py:923
 msgid "Default quantity for this item in the template"
 msgstr "Standardmenge für diesen Artikel in der Vorlage"
 
-#: rental/models.py:871
+#: models.py:927
 msgid "Template Item"
 msgstr "Vorlagenartikel"
 
-#: rental/models.py:872
+#: models.py:928
 msgid "Template Items"
 msgstr "Vorlagenartikel"
 
-#: rental/models.py:897
+#: models.py:953
 msgid "User Request Requires Approval"
 msgstr "Nutzeranfrage erfordert Genehmigung"
 
-#: rental/models.py:898
+#: models.py:954
 msgid "Enable email-based approval workflow for user-created rental requests"
 msgstr ""
 "E-Mail-basierter Genehmigungsworkflow für nutzererstellte Ausleihanfragen "
 "aktivieren"
 
-#: rental/models.py:905
+#: models.py:961
 msgid "Site Base URL"
 msgstr "Basis-URL der Website"
 
-#: rental/models.py:906
+#: models.py:962
 msgid ""
 "Base URL for approval links in emails (must match your production domain)"
 msgstr ""
 "Basis-URL für Genehmigungslinks in E-Mails (muss mit Ihrer Produktionsdomäne "
 "übereinstimmen)"
 
-#: rental/models.py:914
+#: models.py:970
 msgid "Rental Request URL Template"
 msgstr "URL-Vorlage für Ausleihanfragen"
 
-#: rental/models.py:915
+#: models.py:971
 #, python-brace-format
 msgid "User-facing rental request URL template (use {rental_id} placeholder)"
 msgstr ""
 "URL-Vorlage für benutzerorientierte Ausleihanfragen (Platzhalter {rental_id} "
 "verwenden)"
 
-#: rental/models.py:923
+#: models.py:979
 msgid "Approval Recipient Emails"
 msgstr "E-Mail-Adressen für Genehmigungsbenachrichtigungen"
 
-#: rental/models.py:924
+#: models.py:980
 msgid ""
 "Comma-separated list of admin email addresses to notify (optional, if empty "
 "all staff users will be notified)"
@@ -1090,182 +1111,193 @@ msgstr ""
 "Kommagetrennte Liste der Admin-E-Mail-Adressen zur Benachrichtigung "
 "(optional, wenn leer, werden alle Mitarbeitenden benachrichtigt)"
 
-#: rental/models.py:931
+#: models.py:987
 msgid "Approval Token Max Age (seconds)"
 msgstr "Maximales Alter des Genehmigungs-Tokens (Sekunden)"
 
-#: rental/models.py:932
+#: models.py:988
 msgid "Token expiration time for approve/deny links in seconds"
 msgstr "Token-Ablaufzeit für Genehmigen-/Ablehnen-Links in Sekunden"
 
-#: rental/models.py:937
+#: models.py:993
+msgid "Show item photos"
+msgstr "Artikelfotos anzeigen"
+
+#: models.py:994
+msgid "Show inventory item photos on the rental process and dashboard pages"
+msgstr ""
+"Fotos der Inventarartikel auf den Ausleihvorgang- und Dashboard-Seiten "
+"anzeigen"
+
+#: models.py:998
+msgid "Show room photos"
+msgstr "Raumfotos anzeigen"
+
+#: models.py:999
+msgid "Show room photos on the rental process page"
+msgstr "Raumfotos auf der Ausleihvorgang-Seite anzeigen"
+
+#: models.py:1004
 msgid "Automatic Return Reminders"
 msgstr "Automatische Rückgabe-Erinnerungen"
 
-#: rental/models.py:938
+#: models.py:1005
 msgid "Enable automatic return reminder emails for issued rentals"
-msgstr "Automatische Rückgabe-Erinnerungen für ausgegebene Ausleihen aktivieren"
+msgstr ""
+"Automatische Rückgabe-Erinnerungen für ausgegebene Ausleihen aktivieren"
 
-#: rental/models.py:132
-msgid "Automatic return reminder sent at"
-msgstr "Automatische Rückgabe-Erinnerung gesendet am"
-
-#: rental/models.py:133
-msgid "When the automatic return reminder email was sent."
-msgstr "Zeitpunkt, zu dem die automatische Rückgabe-Erinnerung per E-Mail gesendet wurde."
-
-#: rental/models.py:942
+#: models.py:1009
 msgid "Reminder Hours Before Return"
 msgstr "Erinnerungsstunden vor Rückgabe"
 
-#: rental/models.py:943
+#: models.py:1010
 msgid "Send reminder this many hours before the requested return date"
 msgstr "Erinnerung so viele Stunden vor dem gewünschten Rückgabetermin senden"
 
-#: rental/models.py:950
+#: models.py:1017
 msgid "Monday opening time"
 msgstr "Montag Öffnungszeit"
 
-#: rental/models.py:956
+#: models.py:1023
 msgid "Monday closing time"
 msgstr "Montag Schließzeit"
 
-#: rental/models.py:962
+#: models.py:1029
 msgid "Tuesday opening time"
 msgstr "Dienstag Öffnungszeit"
 
-#: rental/models.py:968
+#: models.py:1035
 msgid "Tuesday closing time"
 msgstr "Dienstag Schließzeit"
 
-#: rental/models.py:974
+#: models.py:1041
 msgid "Wednesday opening time"
 msgstr "Mittwoch Öffnungszeit"
 
-#: rental/models.py:980
+#: models.py:1047
 msgid "Wednesday closing time"
 msgstr "Mittwoch Schließzeit"
 
-#: rental/models.py:986
+#: models.py:1053
 msgid "Thursday opening time"
 msgstr "Donnerstag Öffnungszeit"
 
-#: rental/models.py:992
+#: models.py:1059
 msgid "Thursday closing time"
 msgstr "Donnerstag Schließzeit"
 
-#: rental/models.py:998
+#: models.py:1065
 msgid "Friday opening time"
 msgstr "Freitag Öffnungszeit"
 
-#: rental/models.py:1004
+#: models.py:1071
 msgid "Friday closing time"
 msgstr "Freitag Schließzeit"
 
-#: rental/models.py:1009
+#: models.py:1076
 msgid "Saturday opening time"
 msgstr "Samstag Öffnungszeit"
 
-#: rental/models.py:1014
+#: models.py:1081
 msgid "Saturday closing time"
 msgstr "Samstag Schließzeit"
 
-#: rental/models.py:1019
+#: models.py:1086
 msgid "Sunday opening time"
 msgstr "Sonntag Öffnungszeit"
 
-#: rental/models.py:1024
+#: models.py:1091
 msgid "Sunday closing time"
 msgstr "Sonntag Schließzeit"
 
-#: rental/models.py:1031
+#: models.py:1098
 msgid "User organizations"
 msgstr "Nutzerorganisationen"
 
-#: rental/models.py:1037
+#: models.py:1104
 msgid "Member organizations"
 msgstr "Mitgliedsorganisationen"
 
-#: rental/models.py:1043
+#: models.py:1110
 msgid "Employee organizations"
 msgstr "Mitarbeiterorganisationen"
 
-#: rental/models.py:1047 rental/models.py:1048 rental/models.py:1052
+#: models.py:1114 models.py:1115 models.py:1119
 msgid "Rental Configuration"
 msgstr "Ausleih-Konfiguration"
 
-#: rental/models.py:1068
+#: models.py:1135
 msgid "Please set both opening and closing time or leave both empty."
 msgstr ""
 "Bitte setzen Sie sowohl Öffnungs- als auch Schließzeit oder lassen Sie beide "
 "Felder leer."
 
-#: rental/models.py:1070
+#: models.py:1137
 msgid "Opening time must be before closing time."
 msgstr "Die Öffnungszeit muss vor der Schließzeit liegen."
 
-#: rental/models.py:1102
+#: models.py:1169
 msgid "Pending"
 msgstr "Ausstehend"
 
-#: rental/models.py:1103 rental/views.py:486
+#: models.py:1170 views.py:492
 #, fuzzy
 #| msgid "Sign In"
 msgid "Signed"
 msgstr "Anmelden"
 
-#: rental/models.py:1122 rental/templates/rental/rental_stats.html:1173
+#: models.py:1189 templates/rental/rental_stats.html:1173
 msgid "Owner"
 msgstr "Eigentümer"
 
-#: rental/models.py:1127
+#: models.py:1194
 msgid "Token"
 msgstr ""
 
-#: rental/models.py:1141
+#: models.py:1208
 #, fuzzy
 #| msgid "Expired"
 msgid "Expires at"
 msgstr "Abgelaufen"
 
-#: rental/models.py:1168
+#: models.py:1235
 #, fuzzy
 #| msgid "Sign In"
 msgid "Signer IP"
 msgstr "Anmelden"
 
-#: rental/models.py:1173
+#: models.py:1240
 msgid "Signer user agent"
 msgstr ""
 
-#: rental/models.py:1178
+#: models.py:1245
 #, fuzzy
 #| msgid "Sign In"
 msgid "Signed at"
 msgstr "Anmelden"
 
-#: rental/models.py:1189
+#: models.py:1256
 #, fuzzy
 #| msgid "Rentals pagination"
 msgid "Rental Signing Session"
 msgstr "Ausleihen-Seitenumbruch"
 
-#: rental/models.py:1190
+#: models.py:1257
 #, fuzzy
 #| msgid "Rentals pagination"
 msgid "Rental Signing Sessions"
 msgstr "Ausleihen-Seitenumbruch"
 
-#: rental/serializers.py:119
+#: serializers.py:119
 msgid "Cannot reserve more than requested."
 msgstr "Es kann nicht mehr reserviert werden als angefordert."
 
-#: rental/serializers.py:129
+#: serializers.py:129
 msgid "Cannot return more than outstanding issued."
 msgstr ""
 "Es kann nicht mehr zurückgegeben werden, als noch offen ausgegeben wurde."
 
-#: rental/services/nextcloud_calendar_service.py:23
+#: services/nextcloud_calendar_service.py:23
 msgid ""
 "Nextcloud Calendar integration is disabled. Set "
 "NEXTCLOUD_CALENDAR_ENABLED=true to enable."
@@ -1273,7 +1305,7 @@ msgstr ""
 "Die Integration des Nextcloud-Kalenders ist deaktiviert. Setzen Sie "
 "NEXTCLOUD_CALENDAR_ENABLED=true, um sie zu aktivieren."
 
-#: rental/services/nextcloud_calendar_service.py:59
+#: services/nextcloud_calendar_service.py:59
 msgid ""
 "caldav library is required for Nextcloud Calendar integration. Install it "
 "with: pip install caldav"
@@ -1281,7 +1313,7 @@ msgstr ""
 "Die caldav-Bibliothek wird für die Integration des Nextcloud-Kalenders "
 "benötigt. Installieren Sie sie mit: pip install caldav"
 
-#: rental/services/nextcloud_calendar_service.py:73
+#: services/nextcloud_calendar_service.py:73
 #, python-brace-format
 msgid ""
 "Failed to import caldav library due to icalendar compatibility issue: {error}"
@@ -1289,80 +1321,80 @@ msgstr ""
 "Fehler beim Import der caldav-Bibliothek wegen einer Inkompatibilität mit "
 "icalendar: {error}"
 
-#: rental/services/nextcloud_calendar_service.py:86
+#: services/nextcloud_calendar_service.py:86
 msgid "NEXTCLOUD_CALDAV_BASE_URL is required for Calendar integration"
 msgstr "NEXTCLOUD_CALDAV_BASE_URL ist für die Kalenderintegration erforderlich"
 
-#: rental/services/nextcloud_calendar_service.py:90
+#: services/nextcloud_calendar_service.py:90
 msgid ""
 "NEXTCLOUD_CALENDAR_USERNAME and NEXTCLOUD_CALENDAR_PASSWORD are required"
 msgstr ""
 "NEXTCLOUD_CALENDAR_USERNAME und NEXTCLOUD_CALENDAR_PASSWORD sind erforderlich"
 
-#: rental/services/nextcloud_calendar_service.py:104
+#: services/nextcloud_calendar_service.py:104
 #, python-brace-format
 msgid "Failed to connect to Nextcloud CalDAV server: {error}"
 msgstr "Verbindung zum Nextcloud-CalDAV-Server fehlgeschlagen: {error}"
 
-#: rental/services/nextcloud_calendar_service.py:312
+#: services/nextcloud_calendar_service.py:295
 #, python-brace-format
 msgid "OK-Tools Booking #{booking_id}"
 msgstr "OK-Tools Buchung Nr. {booking_id}"
 
-#: rental/services/nextcloud_calendar_service.py:313
+#: services/nextcloud_calendar_service.py:296
 #, python-brace-format
 msgid "User: {user_name} ({email})"
 msgstr "Nutzer: {user_name} ({email})"
 
-#: rental/services/nextcloud_calendar_service.py:314
+#: services/nextcloud_calendar_service.py:299
 #, python-brace-format
 msgid "Project: {project}"
 msgstr "Projekt: {project}"
 
-#: rental/services/nextcloud_calendar_service.py:315
+#: services/nextcloud_calendar_service.py:300
 #, python-brace-format
 msgid "Purpose: {purpose}"
 msgstr "Zweck: {purpose}"
 
-#: rental/services/nextcloud_calendar_service.py:323
-msgid "Rooms and People:"
+#: services/nextcloud_calendar_service.py:301
+#, python-brace-format
+msgid "Room: {room} ({people_count} people)"
 msgstr ""
 
-#: rental/services/nextcloud_calendar_service.py:326
+#: services/nextcloud_calendar_service.py:309
 msgid "Request Notes:"
 msgstr "Anmerkungen zur Anfrage:"
 
-#: rental/services/rental_service.py:296
+#: services/rental_service.py:296
 msgid "Project name is required"
 msgstr "Projektname ist erforderlich"
 
-#: rental/services/rental_service.py:298
+#: services/rental_service.py:298
 msgid "Purpose is required"
 msgstr "Zweck ist erforderlich"
 
-#: rental/services/rental_service.py:306
+#: services/rental_service.py:306
 msgid "Start date and end date are required"
 msgstr "Start- und Enddatum sind erforderlich"
 
-#: rental/services/rental_service.py:335 rental/views.py:2412
-#: rental/views.py:5668
+#: services/rental_service.py:335 views.py:2429 views.py:5871
 msgid "Invalid date format"
 msgstr "Ungültiges Datumsformat"
 
-#: rental/services/rental_service.py:344 rental/working_hours.py:127
+#: services/rental_service.py:344 working_hours.py:127
 msgid "End date must be after start date"
 msgstr "Enddatum muss nach dem Startdatum liegen"
 
-#: rental/services/rental_service.py:352 rental/views.py:330
+#: services/rental_service.py:352 views.py:334
 msgid "Please select at least one item or room"
 msgstr "Bitte wählen Sie mindestens einen Beitrag oder Raum aus"
 
-#: rental/services/rental_service.py:411
+#: services/rental_service.py:411
 msgid "User does not have access to one or more selected items"
 msgstr ""
 "Der Nutzer hat keinen Zugriff auf einen oder mehrere ausgewählte Beiträge"
 
-#: rental/services/rental_service.py:425
+#: services/rental_service.py:425
 #, python-brace-format
 msgid ""
 "Item is not available for the selected period. Available: {available}, "
@@ -1371,198 +1403,197 @@ msgstr ""
 "Beitrag ist im gewählten Zeitraum nicht verfügbar. Verfügbar: {available}, "
 "angefragt: {requested}"
 
-#: rental/services/rental_service.py:461
+#: services/rental_service.py:461
 msgid "Room not found"
 msgstr "Raum nicht gefunden"
 
-#: rental/services/rental_service.py:505
+#: services/rental_service.py:505
 #, python-brace-format
 msgid "Room \"{room_name}\" is not available for the selected period"
 msgstr "Raum \"{room_name}\" ist im gewählten Zeitraum nicht verfügbar"
 
-#: rental/services/rental_service.py:995
+#: services/rental_service.py:995
 msgid "Only draft, reserved or issued rentals can be cancelled"
 msgstr ""
 "Nur Entwürfe, reservierte oder ausgegebene Ausleihen können storniert werden"
 
-#: rental/services/rental_service.py:1008
+#: services/rental_service.py:1008
 msgid "Cancelled reserved quantity via admin interface"
 msgstr "Reservierte Menge über die Admin-Oberfläche storniert"
 
-#: rental/services/rental_service.py:1019
+#: services/rental_service.py:1019
 msgid "Returned issued quantity due to cancellation via admin interface"
 msgstr ""
 "Ausgegebene Menge aufgrund einer Stornierung über die Admin-Oberfläche "
 "zurückgegeben"
 
-#: rental/services/rental_service.py:1029
+#: services/rental_service.py:1029
 #, python-brace-format
 msgid "Rental request {rental_id} has been cancelled successfully"
 msgstr "Leihanfrage {rental_id} wurde erfolgreich storniert"
 
-#: rental/templates/admin/rental/equipment_set_change_list.html:7
+#: templates/admin/rental/equipment_set_change_list.html:7
 msgid "Create rental from sets"
 msgstr "Ausleihe aus Gerätesätzen erstellen"
 
-#: rental/templates/admin/rental/equipment_set_change_list.html:10
-#: rental/templates/admin/rental/rentalrequest/change_list.html:7
+#: templates/admin/rental/equipment_set_change_list.html:10
+#: templates/admin/rental/rentalrequest/change_list.html:7
 msgid "Open rental process"
 msgstr "Ausleihvorgang öffnen"
 
-#: rental/templates/admin/rental/rent_sets_form.html:12
+#: templates/admin/rental/rent_sets_form.html:12
 msgid "Create"
 msgstr "Erstellen"
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:179
+#: templates/admin/rental/rentalrequest/change_form.html:179
 #, fuzzy
 #| msgid "Could not create signing session: "
 msgid "Failed to check signing session."
 msgstr "Signiersitzung konnte nicht erstellt werden: "
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:189
-msgid "Signature synchronized from phone."
+#: templates/admin/rental/rentalrequest/change_form.html:189
+msgid "Signature received from phone and synchronized here."
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:197
-#: rental/views.py:6259
+#: templates/admin/rental/rentalrequest/change_form.html:197 views.py:6465
 msgid "Signing session expired."
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:201
-#: rental/templates/admin/rental/rentalrequest/change_form.html:268
+#: templates/admin/rental/rentalrequest/change_form.html:201
+#: templates/admin/rental/rentalrequest/change_form.html:268
 msgid "Waiting for phone signature..."
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:244
+#: templates/admin/rental/rentalrequest/change_form.html:244
 #, fuzzy
 #| msgid "Could not create signing session: "
 msgid "Creating signing session..."
 msgstr "Signiersitzung konnte nicht erstellt werden: "
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:256
+#: templates/admin/rental/rentalrequest/change_form.html:256
 #, fuzzy
 #| msgid "Could not create signing session: "
 msgid "Failed to create signing session."
 msgstr "Signiersitzung konnte nicht erstellt werden: "
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:265
+#: templates/admin/rental/rentalrequest/change_form.html:265
 #, fuzzy
 #| msgid "Expired"
 msgid "Expires at:"
 msgstr "Abgelaufen"
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:349
+#: templates/admin/rental/rentalrequest/change_form.html:349
 msgid "Existing signature:"
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:355
+#: templates/admin/rental/rentalrequest/change_form.html:355
 msgid "Draw or use QR to replace the existing signature."
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:365
+#: templates/admin/rental/rentalrequest/change_form.html:365
 msgid "Sign Here Now"
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:374
+#: templates/admin/rental/rentalrequest/change_form.html:374
 msgid "Sign with Phone (QR)"
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:385
-#: rental/templates/rental/sign_session.html:38
+#: templates/admin/rental/rentalrequest/change_form.html:385
+#: templates/rental/sign_session.html:38
 #, fuzzy
 #| msgid "Clear Filters"
 msgid "Clear Signature"
 msgstr "Filter zurücksetzen"
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:387
+#: templates/admin/rental/rentalrequest/change_form.html:387
 msgid "Please sign in the box above."
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:392
+#: templates/admin/rental/rentalrequest/change_form.html:392
 msgid ""
 "Scan the QR code and sign on your phone. The signature will sync to the "
 "canvas here."
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:394
+#: templates/admin/rental/rentalrequest/change_form.html:394
 msgid "Generate QR Session"
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:399
+#: templates/admin/rental/rentalrequest/change_form.html:399
 msgid "QR Code"
 msgstr ""
 
-#: rental/templates/admin/rental/rentalrequest/change_form.html:401
+#: templates/admin/rental/rentalrequest/change_form.html:401
 msgid "Scan QR and sign on your phone."
 msgstr ""
 
-#: rental/templates/email/rental_request_approval_body.html:2
+#: templates/email/rental_request_approval_body.html:2
 #, python-format
 msgid "A new rental request needs approval in %(ok_name)s (ID: %(rental_id)s)."
 msgstr ""
 "Eine neue Leihanfrage benötigt Genehmigung in %(ok_name)s (ID: "
 "%(rental_id)s)."
 
-#: rental/templates/email/rental_request_approval_body.html:5
-#: rental/templates/email/rental_request_approval_body.txt:5
-#: rental/templates/email/rental_request_approval_subject.txt:5
+#: templates/email/rental_request_approval_body.html:5
+#: templates/email/rental_request_approval_body.txt:5
+#: templates/email/rental_request_approval_subject.txt:5
 #, python-format
 msgid "Name: %(first_name)s %(last_name)s"
 msgstr "Name: %(first_name)s %(last_name)s"
 
-#: rental/templates/email/rental_request_approval_body.html:9
+#: templates/email/rental_request_approval_body.html:9
 #, python-format
 msgid "Email: %(user_email)s"
 msgstr "E-Mail: %(user_email)s"
 
-#: rental/templates/email/rental_request_approval_body.html:10
-#: rental/templates/email/rental_request_approved_body.html:7
-#: rental/templates/email/rental_request_approved_body.txt:7
-#: rental/templates/email/rental_request_declined_body.html:7
-#: rental/templates/email/rental_request_declined_body.txt:7
-#: rental/templates/email/rental_request_pending_body.html:7
-#: rental/templates/email/rental_request_pending_body.txt:7
-#: rental/templates/email/rental_return_receipt_body.txt:6
+#: templates/email/rental_request_approval_body.html:10
+#: templates/email/rental_request_approved_body.html:7
+#: templates/email/rental_request_approved_body.txt:7
+#: templates/email/rental_request_declined_body.html:7
+#: templates/email/rental_request_declined_body.txt:7
+#: templates/email/rental_request_pending_body.html:7
+#: templates/email/rental_request_pending_body.txt:7
+#: templates/email/rental_return_receipt_body.txt:6
 #, python-format
 msgid "Project: %(project_name)s"
 msgstr "Projekt: %(project_name)s"
 
-#: rental/templates/email/rental_request_approval_body.html:11
-#: rental/templates/email/rental_request_approved_body.html:8
-#: rental/templates/email/rental_request_approved_body.txt:8
-#: rental/templates/email/rental_request_declined_body.html:8
-#: rental/templates/email/rental_request_declined_body.txt:8
-#: rental/templates/email/rental_request_pending_body.html:8
-#: rental/templates/email/rental_request_pending_body.txt:8
+#: templates/email/rental_request_approval_body.html:11
+#: templates/email/rental_request_approved_body.html:8
+#: templates/email/rental_request_approved_body.txt:8
+#: templates/email/rental_request_declined_body.html:8
+#: templates/email/rental_request_declined_body.txt:8
+#: templates/email/rental_request_pending_body.html:8
+#: templates/email/rental_request_pending_body.txt:8
 #, python-format
 msgid "Purpose: %(purpose)s"
 msgstr "Zweck: %(purpose)s"
 
-#: rental/templates/email/rental_request_approval_body.html:12
-#: rental/templates/email/rental_request_approved_body.html:9
-#: rental/templates/email/rental_request_approved_body.txt:9
-#: rental/templates/email/rental_request_declined_body.html:9
-#: rental/templates/email/rental_request_declined_body.txt:9
-#: rental/templates/email/rental_request_pending_body.html:9
-#: rental/templates/email/rental_request_pending_body.txt:9
+#: templates/email/rental_request_approval_body.html:12
+#: templates/email/rental_request_approved_body.html:9
+#: templates/email/rental_request_approved_body.txt:9
+#: templates/email/rental_request_declined_body.html:9
+#: templates/email/rental_request_declined_body.txt:9
+#: templates/email/rental_request_pending_body.html:9
+#: templates/email/rental_request_pending_body.txt:9
 #, python-format
 msgid "Period: %(start)s – %(end)s"
 msgstr "Zeitraum: %(start)s – %(end)s"
 
-#: rental/templates/email/rental_request_approval_body.html:15
+#: templates/email/rental_request_approval_body.html:15
 msgid "View:"
 msgstr "Ansehen:"
 
-#: rental/templates/email/rental_request_approval_body.html:16
+#: templates/email/rental_request_approval_body.html:16
 msgid "Approve:"
 msgstr "Genehmigen:"
 
-#: rental/templates/email/rental_request_approval_body.html:17
+#: templates/email/rental_request_approval_body.html:17
 msgid "Decline:"
 msgstr "Ablehnen:"
 
-#: rental/templates/email/rental_request_approval_body.txt:2
-#: rental/templates/email/rental_request_approval_subject.txt:2
+#: templates/email/rental_request_approval_body.txt:2
+#: templates/email/rental_request_approval_subject.txt:2
 #, fuzzy, python-format
 #| msgid ""
 #| "A new rental request needs approval in %(ok_name)s (ID: %(rental_id)s)."
@@ -1571,58 +1602,58 @@ msgstr ""
 "Eine neue Leihanfrage benötigt Genehmigung in %(ok_name)s (ID: "
 "%(rental_id)s)."
 
-#: rental/templates/email/rental_request_approval_body.txt:7
-#: rental/templates/email/rental_request_approval_subject.txt:7
+#: templates/email/rental_request_approval_body.txt:7
+#: templates/email/rental_request_approval_subject.txt:7
 #, fuzzy, python-format
 #| msgid "Email: %(user_email)s"
 msgid "E-Mail: %(user_email)s"
 msgstr "E-Mail: %(user_email)s"
 
-#: rental/templates/email/rental_request_approval_body.txt:8
-#: rental/templates/email/rental_request_approval_subject.txt:8
-#: rental/templates/email/rental_request_reminder_body.txt:7
+#: templates/email/rental_request_approval_body.txt:8
+#: templates/email/rental_request_approval_subject.txt:8
+#: templates/email/rental_request_reminder_body.txt:7
 #, fuzzy, python-format
 #| msgid "Project: %(project_name)s"
 msgid "Projekt: %(project_name)s"
 msgstr "Projekt: %(project_name)s"
 
-#: rental/templates/email/rental_request_approval_body.txt:9
-#: rental/templates/email/rental_request_approval_subject.txt:9
+#: templates/email/rental_request_approval_body.txt:9
+#: templates/email/rental_request_approval_subject.txt:9
 #, fuzzy, python-format
 #| msgid "Purpose: %(purpose)s"
 msgid "Zweck: %(purpose)s"
 msgstr "Zweck: %(purpose)s"
 
-#: rental/templates/email/rental_request_approval_body.txt:10
-#: rental/templates/email/rental_request_approval_subject.txt:10
-#: rental/templates/email/rental_request_reminder_body.txt:8
+#: templates/email/rental_request_approval_body.txt:10
+#: templates/email/rental_request_approval_subject.txt:10
+#: templates/email/rental_request_reminder_body.txt:8
 #, fuzzy, python-format
 #| msgid "Period: %(start)s – %(end)s"
 msgid "Zeitraum: %(start)s – %(end)s"
 msgstr "Zeitraum: %(start)s – %(end)s"
 
-#: rental/templates/email/rental_request_approval_body.txt:12
-#: rental/templates/email/rental_request_approval_subject.txt:12
+#: templates/email/rental_request_approval_body.txt:12
+#: templates/email/rental_request_approval_subject.txt:12
 msgid "Ansehen:"
 msgstr ""
 
-#: rental/templates/email/rental_request_approval_body.txt:13
-#: rental/templates/email/rental_request_approval_subject.txt:13
+#: templates/email/rental_request_approval_body.txt:13
+#: templates/email/rental_request_approval_subject.txt:13
 msgid "Genehmigen:"
 msgstr ""
 
-#: rental/templates/email/rental_request_approval_body.txt:14
-#: rental/templates/email/rental_request_approval_subject.txt:14
+#: templates/email/rental_request_approval_body.txt:14
+#: templates/email/rental_request_approval_subject.txt:14
 msgid "Ablehnen:"
 msgstr ""
 
-#: rental/templates/email/rental_request_approved_body.html:2
-#: rental/templates/email/rental_request_approved_body.txt:2
+#: templates/email/rental_request_approved_body.html:2
+#: templates/email/rental_request_approved_body.txt:2
 msgid "Status: Approved ✓"
 msgstr "Status: Genehmigt ✓"
 
-#: rental/templates/email/rental_request_approved_body.html:4
-#: rental/templates/email/rental_request_approved_body.txt:4
+#: templates/email/rental_request_approved_body.html:4
+#: templates/email/rental_request_approved_body.txt:4
 #, python-format
 msgid ""
 "Your rental request #%(rental_id)s in %(ok_name)s has been approved and is "
@@ -1631,79 +1662,79 @@ msgstr ""
 "Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde genehmigt und "
 "ist jetzt reserviert."
 
-#: rental/templates/email/rental_request_approved_body.html:13
-#: rental/templates/email/rental_request_approved_body.txt:12
-#: rental/templates/email/rental_request_declined_body.html:13
-#: rental/templates/email/rental_request_declined_body.txt:12
-#: rental/templates/email/rental_request_pending_body.html:13
-#: rental/templates/email/rental_request_pending_body.txt:12
+#: templates/email/rental_request_approved_body.html:13
+#: templates/email/rental_request_approved_body.txt:12
+#: templates/email/rental_request_declined_body.html:13
+#: templates/email/rental_request_declined_body.txt:12
+#: templates/email/rental_request_pending_body.html:13
+#: templates/email/rental_request_pending_body.txt:12
 msgid "Open your request:"
 msgstr "Öffne deine Anfrage:"
 
-#: rental/templates/email/rental_request_approved_body.html:17
-#: rental/templates/email/rental_request_approved_body.txt:16
-#: rental/templates/email/rental_request_declined_body.html:17
-#: rental/templates/email/rental_request_declined_body.txt:16
-#: rental/templates/email/rental_request_pending_body.html:17
-#: rental/templates/email/rental_request_pending_body.txt:16
+#: templates/email/rental_request_approved_body.html:17
+#: templates/email/rental_request_approved_body.txt:16
+#: templates/email/rental_request_declined_body.html:17
+#: templates/email/rental_request_declined_body.txt:16
+#: templates/email/rental_request_pending_body.html:17
+#: templates/email/rental_request_pending_body.txt:16
 #, python-format
 msgid "Items (%(items_total)s total):"
 msgstr "Beiträge (%(items_total)s insgesamt):"
 
-#: rental/templates/email/rental_request_approved_body.html:26
-#: rental/templates/email/rental_request_approved_body.txt:23
-#: rental/templates/email/rental_request_declined_body.html:26
-#: rental/templates/email/rental_request_declined_body.txt:23
-#: rental/templates/email/rental_request_pending_body.html:26
-#: rental/templates/email/rental_request_pending_body.txt:23
+#: templates/email/rental_request_approved_body.html:26
+#: templates/email/rental_request_approved_body.txt:23
+#: templates/email/rental_request_declined_body.html:26
+#: templates/email/rental_request_declined_body.txt:23
+#: templates/email/rental_request_pending_body.html:26
+#: templates/email/rental_request_pending_body.txt:23
 #, python-format
 msgid "Rooms (%(rooms_total)s total):"
 msgstr "Räume (%(rooms_total)s insgesamt):"
 
-#: rental/templates/email/rental_request_approved_body.html:30
-#: rental/templates/email/rental_request_approved_body.txt:25
-#: rental/templates/email/rental_request_declined_body.html:30
-#: rental/templates/email/rental_request_declined_body.txt:25
-#: rental/templates/email/rental_request_pending_body.html:30
-#: rental/templates/email/rental_request_pending_body.txt:25
+#: templates/email/rental_request_approved_body.html:30
+#: templates/email/rental_request_approved_body.txt:25
+#: templates/email/rental_request_declined_body.html:30
+#: templates/email/rental_request_declined_body.txt:25
+#: templates/email/rental_request_pending_body.html:30
+#: templates/email/rental_request_pending_body.txt:25
 msgid "people"
 msgstr "Personen"
 
-#: rental/templates/email/rental_request_approved_body.html:37
-#: rental/templates/email/rental_request_approved_body.txt:30
+#: templates/email/rental_request_approved_body.html:37
+#: templates/email/rental_request_approved_body.txt:30
 msgid "Your rental is confirmed. You can proceed with your project."
 msgstr "Deine Ausleihe ist genehmigt. Du kannst mit deinem Projekt fortfahren."
 
-#: rental/templates/email/rental_request_approved_body.html:39
-#: rental/templates/email/rental_request_approved_body.txt:33
-#: rental/templates/email/rental_request_declined_body.html:44
-#: rental/templates/email/rental_request_declined_body.txt:39
-#: rental/templates/email/rental_request_pending_body.html:39
-#: rental/templates/email/rental_request_pending_body.txt:33
+#: templates/email/rental_request_approved_body.html:39
+#: templates/email/rental_request_approved_body.txt:33
+#: templates/email/rental_request_declined_body.html:44
+#: templates/email/rental_request_declined_body.txt:39
+#: templates/email/rental_request_pending_body.html:39
+#: templates/email/rental_request_pending_body.txt:33
 #, python-format
 msgid "Please reference request #%(rental_id)s in any communication."
 msgstr "Bitte gib die Anfrage-Nr. %(rental_id)s bei jeder Kommunikation an."
 
-#: rental/templates/email/rental_request_approved_subject.txt:1
+#: templates/email/rental_request_approved_subject.txt:1
 #, python-format
 msgid "Ausleihe #%(rental_id)s wurde genehmigt"
 msgstr ""
 
-#: rental/templates/email/rental_request_declined_body.html:2
-#: rental/templates/email/rental_request_declined_body.txt:2
+#: templates/email/rental_request_declined_body.html:2
+#: templates/email/rental_request_declined_body.txt:2
 msgid "Status: Declined ✗"
 msgstr "Status: Abgelehnt ✗"
 
-#: rental/templates/email/rental_request_declined_body.html:4
-#: rental/templates/email/rental_request_declined_body.txt:4
+#: templates/email/rental_request_declined_body.html:4
+#: templates/email/rental_request_declined_body.txt:4
 #, python-format
 msgid "Your rental request #%(rental_id)s in %(ok_name)s has been declined."
 msgstr "Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde abgelehnt."
 
-#: rental/templates/email/rental_request_declined_body.html:38
-#: rental/templates/email/rental_request_declined_body.html:41
-#: rental/templates/email/rental_request_declined_body.txt:31
-#: rental/templates/email/rental_request_declined_body.txt:35
+#: templates/email/rental_request_declined_body.html:38
+#: templates/email/rental_request_declined_body.html:41
+#: templates/email/rental_request_declined_body.txt:31
+#: templates/email/rental_request_declined_body.txt:35
 #, python-format
 msgid ""
 "If you have questions or would like to submit a revised request, please "
@@ -1712,27 +1743,27 @@ msgstr ""
 "Wenn du Fragen hast oder eine überarbeitete Anfrage einreichen möchtest, "
 "wende dich bitte an die Verwaltung von %(ok_name)s."
 
-#: rental/templates/email/rental_request_declined_body.html:39
-#: rental/templates/email/rental_request_declined_body.txt:33
+#: templates/email/rental_request_declined_body.html:39
+#: templates/email/rental_request_declined_body.txt:33
 msgid "Contact:"
 msgstr "Kontakt:"
 
-#: rental/templates/email/rental_request_declined_subject.txt:1
+#: templates/email/rental_request_declined_subject.txt:1
 #, python-format
 msgid "Ausleihe #%(rental_id)s wurde abgelehnt"
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:8
-#: rental/templates/email/rental_request_issued_body.txt:1
-#: rental/templates/email/rental_request_reminder_body.html:6
-#: rental/templates/email/rental_request_reminder_body.txt:1
+#: templates/email/rental_request_issued_body.html:8
+#: templates/email/rental_request_issued_body.txt:1
+#: templates/email/rental_request_reminder_body.html:6
+#: templates/email/rental_request_reminder_body.txt:1
 #, fuzzy, python-format
 #| msgid "Email: %(user_email)s"
 msgid "Hallo %(user_name)s,"
 msgstr "E-Mail: %(user_email)s"
 
-#: rental/templates/email/rental_request_issued_body.html:10
-#: rental/templates/email/rental_request_issued_body.txt:3
+#: templates/email/rental_request_issued_body.html:10
+#: templates/email/rental_request_issued_body.txt:3
 #, fuzzy, python-format
 #| msgid ""
 #| "Your rental request #%(rental_id)s in %(ok_name)s has been submitted and "
@@ -1744,100 +1775,100 @@ msgstr ""
 "Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde eingereicht und "
 "wartet auf Genehmigung."
 
-#: rental/templates/email/rental_request_issued_body.html:12
-#: rental/templates/email/rental_request_reminder_body.html:10
-#: rental/templates/email/rental_request_reminder_body.txt:6
+#: templates/email/rental_request_issued_body.html:12
+#: templates/email/rental_request_reminder_body.html:10
+#: templates/email/rental_request_reminder_body.txt:6
 msgid "Ausleihdetails"
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:14
-#: rental/templates/email/rental_request_reminder_body.html:12
+#: templates/email/rental_request_issued_body.html:14
+#: templates/email/rental_request_reminder_body.html:12
 #, fuzzy
 #| msgid "Project"
 msgid "Projekt"
 msgstr "Projekt"
 
-#: rental/templates/email/rental_request_issued_body.html:15
-#: rental/templates/email/rental_request_reminder_body.html:13
+#: templates/email/rental_request_issued_body.html:15
+#: templates/email/rental_request_reminder_body.html:13
 msgid "Zeitraum"
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:17
-#: rental/templates/email/rental_request_reminder_body.html:15
+#: templates/email/rental_request_issued_body.html:17
+#: templates/email/rental_request_reminder_body.html:15
 msgid "Ausgegeben am"
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:22
-#: rental/templates/email/rental_request_issued_body.txt:6
-#: rental/templates/email/rental_request_reminder_body.html:20
+#: templates/email/rental_request_issued_body.html:22
+#: templates/email/rental_request_issued_body.txt:6
+#: templates/email/rental_request_reminder_body.html:20
 #, fuzzy, python-format
 #| msgid "Items (%(items_total)s total):"
 msgid "Equipment (%(items_total)s Geräte):"
 msgstr "Beiträge (%(items_total)s insgesamt):"
 
-#: rental/templates/email/rental_request_issued_body.html:31
-#: rental/templates/email/rental_request_issued_body.txt:13
-#: rental/templates/email/rental_request_reminder_body.html:25
+#: templates/email/rental_request_issued_body.html:31
+#: templates/email/rental_request_issued_body.txt:13
+#: templates/email/rental_request_reminder_body.html:25
 #, fuzzy, python-format
 #| msgid "Rooms (%(rooms_total)s total):"
 msgid "Räume (%(rooms_total)s):"
 msgstr "Räume (%(rooms_total)s insgesamt):"
 
-#: rental/templates/email/rental_request_issued_body.html:39
-#: rental/templates/email/rental_request_issued_body.txt:19
+#: templates/email/rental_request_issued_body.html:39
+#: templates/email/rental_request_issued_body.txt:19
 msgid ""
 "Bitte gehe sorgfältig mit dem Equipment um und gib es rechtzeitig zurück."
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:41
-#: rental/templates/email/rental_request_issued_body.txt:22
+#: templates/email/rental_request_issued_body.html:41
+#: templates/email/rental_request_issued_body.txt:22
 #, python-format
 msgid "Rückgabe bis: %(end)s"
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:44
-#: rental/templates/email/rental_request_issued_body.txt:25
+#: templates/email/rental_request_issued_body.html:44
+#: templates/email/rental_request_issued_body.txt:25
 msgid "Bei Fragen kontaktiere uns bitte."
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:45
-#: rental/templates/email/rental_request_issued_body.txt:26
-#: rental/templates/email/rental_request_reminder_body.html:31
-#: rental/templates/email/rental_request_reminder_body.txt:30
+#: templates/email/rental_request_issued_body.html:45
+#: templates/email/rental_request_issued_body.txt:26
+#: templates/email/rental_request_reminder_body.html:31
+#: templates/email/rental_request_reminder_body.txt:30
 #, fuzzy, python-format
 #| msgid "Email: %(user_email)s"
 msgid "E-Mail: %(contact_email)s"
 msgstr "E-Mail: %(user_email)s"
 
-#: rental/templates/email/rental_request_issued_body.html:46
-#: rental/templates/email/rental_request_issued_body.txt:27
-#: rental/templates/email/rental_request_reminder_body.html:32
-#: rental/templates/email/rental_request_reminder_body.txt:31
+#: templates/email/rental_request_issued_body.html:46
+#: templates/email/rental_request_issued_body.txt:27
+#: templates/email/rental_request_reminder_body.html:32
+#: templates/email/rental_request_reminder_body.txt:31
 #, python-format
 msgid "Tel: %(ok_phone)s"
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_body.html:48
-#: rental/templates/email/rental_request_issued_body.txt:29
-#: rental/templates/email/rental_request_reminder_body.html:34
-#: rental/templates/email/rental_request_reminder_body.txt:33
+#: templates/email/rental_request_issued_body.html:48
+#: templates/email/rental_request_issued_body.txt:29
+#: templates/email/rental_request_reminder_body.html:34
+#: templates/email/rental_request_reminder_body.txt:33
 #, python-format
 msgid "Web: %(ok_website)s"
 msgstr ""
 
-#: rental/templates/email/rental_request_issued_subject.txt:1
+#: templates/email/rental_request_issued_subject.txt:1
 #, fuzzy, python-format
 #| msgid "Rental request #%(rental_id)s has been declined"
 msgid "Ausleihe #%(rental_id)s — zur Abholung bereit"
 msgstr "Ausleihanfrage Nr. %(rental_id)s wurde abgelehnt"
 
-#: rental/templates/email/rental_request_pending_body.html:2
-#: rental/templates/email/rental_request_pending_body.txt:2
+#: templates/email/rental_request_pending_body.html:2
+#: templates/email/rental_request_pending_body.txt:2
 msgid "Status: Pending approval"
 msgstr "Status: Genehmigung ausstehend"
 
-#: rental/templates/email/rental_request_pending_body.html:4
-#: rental/templates/email/rental_request_pending_body.txt:4
+#: templates/email/rental_request_pending_body.html:4
+#: templates/email/rental_request_pending_body.txt:4
 #, python-format
 msgid ""
 "Your rental request #%(rental_id)s in %(ok_name)s has been submitted and is "
@@ -1846,66 +1877,66 @@ msgstr ""
 "Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde eingereicht und "
 "wartet auf Genehmigung."
 
-#: rental/templates/email/rental_request_pending_body.html:37
-#: rental/templates/email/rental_request_pending_body.txt:30
+#: templates/email/rental_request_pending_body.html:37
+#: templates/email/rental_request_pending_body.txt:30
 msgid ""
 "You will receive an email notification once your request has been reviewed."
 msgstr ""
 "Du erhältst eine E-Mail-Benachrichtigung, sobald deine Anfrage geprüft wurde."
 
-#: rental/templates/email/rental_request_pending_subject.txt:1
+#: templates/email/rental_request_pending_subject.txt:1
 #, python-format
 msgid "Ausleihe #%(rental_id)s wartet auf Genehmigung"
 msgstr ""
 
-#: rental/templates/email/rental_request_reminder_body.html:8
-#: rental/templates/email/rental_request_reminder_body.txt:3
+#: templates/email/rental_request_reminder_body.html:8
+#: templates/email/rental_request_reminder_body.txt:3
 #, python-format
 msgid ""
 "Erinnerung: Ihre Ausleihe #%(rental_id)s im %(ok_name)s läuft bald ab. Bitte "
 "geben Sie das Equipment rechtzeitig zurück."
 msgstr ""
 
-#: rental/templates/email/rental_request_reminder_body.html:29
-#: rental/templates/email/rental_request_reminder_body.txt:27
+#: templates/email/rental_request_reminder_body.html:29
+#: templates/email/rental_request_reminder_body.txt:27
 msgid "Bitte geben Sie das Equipment vollständig und unbeschädigt zurück."
 msgstr ""
 
-#: rental/templates/email/rental_request_reminder_body.html:30
-#: rental/templates/email/rental_request_reminder_body.txt:29
+#: templates/email/rental_request_reminder_body.html:30
+#: templates/email/rental_request_reminder_body.txt:29
 msgid "Bei Fragen kontaktieren Sie uns bitte."
 msgstr ""
 
-#: rental/templates/email/rental_request_reminder_body.txt:10
+#: templates/email/rental_request_reminder_body.txt:10
 #, python-format
 msgid "Ausgegeben am: %(actual_start)s"
 msgstr ""
 
-#: rental/templates/email/rental_request_reminder_body.txt:14
+#: templates/email/rental_request_reminder_body.txt:14
 #, fuzzy, python-format
 #| msgid "Items (%(items_total)s total):"
 msgid "Equipment (%(items_total)s Gegenstände):"
 msgstr "Beiträge (%(items_total)s insgesamt):"
 
-#: rental/templates/email/rental_request_reminder_body.txt:21
+#: templates/email/rental_request_reminder_body.txt:21
 #, fuzzy, python-format
 #| msgid "Rooms (%(rooms_total)s total):"
 msgid "Räume (%(rooms_total)s gesamt):"
 msgstr "Räume (%(rooms_total)s insgesamt):"
 
-#: rental/templates/email/rental_request_reminder_subject.txt:1
+#: templates/email/rental_request_reminder_subject.txt:1
 #, python-format
 msgid "Erinnerung: Ausleihe #%(rental_id)s"
 msgstr ""
 
-#: rental/templates/email/rental_return_receipt_body.html:8
-#: rental/templates/email/rental_return_receipt_body.txt:1
+#: templates/email/rental_return_receipt_body.html:8
+#: templates/email/rental_return_receipt_body.txt:1
 #, python-format
 msgid "Hello %(user_name)s,"
 msgstr ""
 
-#: rental/templates/email/rental_return_receipt_body.html:10
-#: rental/templates/email/rental_return_receipt_body.txt:3
+#: templates/email/rental_return_receipt_body.html:10
+#: templates/email/rental_return_receipt_body.txt:3
 #, fuzzy, python-format
 #| msgid "Your rental request #%(rental_id)s in %(ok_name)s has been declined."
 msgid ""
@@ -1913,129 +1944,125 @@ msgid ""
 "%(ok_name)s."
 msgstr "Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde abgelehnt."
 
-#: rental/templates/email/rental_return_receipt_body.html:12
-#: rental/templates/email/rental_return_receipt_body.txt:5
+#: templates/email/rental_return_receipt_body.html:12
+#: templates/email/rental_return_receipt_body.txt:5
 msgid "Rental Details"
 msgstr "Ausleihdetails"
 
-#: rental/templates/email/rental_return_receipt_body.html:15
+#: templates/email/rental_return_receipt_body.html:15
 #, fuzzy
 #| msgid "Returned"
 msgid "Returned on"
 msgstr "Zurückgegeben"
 
-#: rental/templates/email/rental_return_receipt_body.html:19
-#: rental/templates/email/rental_return_receipt_body.txt:10
+#: templates/email/rental_return_receipt_body.html:19
+#: templates/email/rental_return_receipt_body.txt:10
 #, fuzzy
 #| msgid "Returned Rentals"
 msgid "Returned equipment"
 msgstr "Zurückgegebene Ausleihen"
 
-#: rental/templates/email/rental_return_receipt_body.html:27
+#: templates/email/rental_return_receipt_body.html:27
 #, fuzzy
 #| msgid "Return date"
 msgid "Return note"
 msgstr "Rückgabedatum"
 
-#: rental/templates/email/rental_return_receipt_body.html:29
-#: rental/templates/email/rental_return_receipt_body.txt:18
+#: templates/email/rental_return_receipt_body.html:29
+#: templates/email/rental_return_receipt_body.txt:18
 msgid "Thank you for returning the equipment."
 msgstr ""
 
-#: rental/templates/email/rental_return_receipt_body.html:30
-#: rental/templates/email/rental_return_receipt_body.txt:19
+#: templates/email/rental_return_receipt_body.html:30
+#: templates/email/rental_return_receipt_body.txt:19
 #, fuzzy, python-format
 #| msgid "Email: %(user_email)s"
 msgid "E-mail: %(contact_email)s"
 msgstr "E-Mail: %(user_email)s"
 
-#: rental/templates/email/rental_return_receipt_body.txt:7
+#: templates/email/rental_return_receipt_body.txt:7
 #, fuzzy, python-format
 #| msgid "Returned on time"
 msgid "Returned on: %(returned_at)s"
 msgstr "Pünktlich zurückgegeben"
 
-#: rental/templates/email/rental_return_receipt_body.txt:16
+#: templates/email/rental_return_receipt_body.txt:16
 #, fuzzy, python-format
 #| msgid "Return Items"
 msgid "Return note: %(note)s"
 msgstr "Beiträge zurückgeben"
 
-#: rental/templates/email/rental_return_receipt_subject.txt:1
+#: templates/email/rental_return_receipt_subject.txt:1
 #, fuzzy, python-format
 #| msgid "Rental request #%(rental_id)s has been declined"
 msgid "Rental request #%(rental_id)s — return receipt"
 msgstr "Ausleihanfrage Nr. %(rental_id)s wurde abgelehnt"
 
-#: rental/templates/rental/_sidebar.html:4
+#: templates/rental/_sidebar.html:4
 msgid "Workflows"
 msgstr "Workflows"
 
-#: rental/templates/rental/_sidebar.html:7
-#: rental/templates/rental/admin_rental_process.html:10
-#: rental/templates/rental/list.html:46
+#: templates/rental/_sidebar.html:7
+#: templates/rental/admin_rental_process.html:10 templates/rental/list.html:46
 msgid "New rental"
 msgstr "Neue Ausleihe"
 
-#: rental/templates/rental/_sidebar.html:12
-#: rental/templates/rental/list.html:39
+#: templates/rental/_sidebar.html:12 templates/rental/list.html:39
 msgid "All rentals"
 msgstr "Alle Ausleihen"
 
-#: rental/templates/rental/_sidebar.html:22
+#: templates/rental/_sidebar.html:22
 msgid "Views"
 msgstr "Ansichten"
 
-#: rental/templates/rental/_sidebar.html:24
-#: rental/templates/rental/rental_stats.html:1179
+#: templates/rental/_sidebar.html:24 templates/rental/rental_stats.html:1179
 msgid "Calendar"
 msgstr "Kalender"
 
-#: rental/templates/rental/_sidebar.html:27
-#: rental/templates/rental/room_calendar_day.html:8
-#: rental/templates/rental/room_calendar_day.html:117
-#: rental/templates/rental/room_calendar_month.html:8
-#: rental/templates/rental/room_calendar_month.html:43
-#: rental/templates/rental/room_calendar_week.html:8
-#: rental/templates/rental/room_calendar_week.html:51
+#: templates/rental/_sidebar.html:27 templates/rental/room_calendar_day.html:8
+#: templates/rental/room_calendar_day.html:117
+#: templates/rental/room_calendar_month.html:8
+#: templates/rental/room_calendar_month.html:43
+#: templates/rental/room_calendar_week.html:8
+#: templates/rental/room_calendar_week.html:51
 msgid "Room Calendar"
 msgstr "Raumkalender"
 
-#: rental/templates/rental/_sidebar.html:29
+#: templates/rental/_sidebar.html:29
 msgid "Inventory"
 msgstr "Inventar"
 
-#: rental/templates/rental/_sidebar.html:32
-#: rental/templates/rental/admin_equipment_sets.html:10
-#: rental/templates/rental/admin_equipment_sets.html:38
-#: rental/templates/rental/rental_stats.html:1042
-#: rental/templates/rental/rental_stats.html:1206
+#: templates/rental/_sidebar.html:32
+#: templates/rental/admin_equipment_sets.html:10
+#: templates/rental/admin_equipment_sets.html:38
+#: templates/rental/rental_stats.html:1042
+#: templates/rental/rental_stats.html:1206
 msgid "Equipment Sets"
 msgstr "Ausrüstungssets"
 
-#: rental/templates/rental/_sidebar.html:34
+#: templates/rental/_sidebar.html:34
 msgid "Users"
 msgstr "Nutzer"
 
-#: rental/templates/rental/_sidebar.html:37
+#: templates/rental/_sidebar.html:37
 msgid "Attention"
 msgstr "Achtung"
 
-#: rental/templates/rental/_sidebar.html:44
+#: templates/rental/_sidebar.html:44
 msgid "Due today"
 msgstr "Heute fällig"
 
-#: rental/templates/rental/_sidebar.html:48
-#: rental/templates/rental/user_rental_detail.html:30
+#: templates/rental/_sidebar.html:48
+#: templates/rental/user_rental_detail.html:30
 msgid "Pending approval"
 msgstr "Genehmigung ausstehend"
 
-#: rental/templates/rental/access_denied.html:11
-#: rental/templates/rental/access_denied.html:22
+#: templates/rental/access_denied.html:11
+#: templates/rental/access_denied.html:22
 msgid "Access Denied"
 msgstr ""
 
-#: rental/templates/rental/access_denied.html:24
+#: templates/rental/access_denied.html:24
 #, fuzzy
 #| msgid ""
 #| "You do not have permission to access this page. Only staff have access."
@@ -2044,594 +2071,593 @@ msgstr ""
 "Sie haben keine Berechtigung, auf diese Seite zuzugreifen. Nur Mitarbeitende "
 "haben Zugriff."
 
-#: rental/templates/rental/access_denied.html:28
+#: templates/rental/access_denied.html:28
 #, fuzzy
 #| msgid "Sign In"
 msgid "Sign In"
 msgstr "Anmelden"
 
-#: rental/templates/rental/access_denied.html:31
+#: templates/rental/access_denied.html:31
 msgid "To Admin Page"
 msgstr ""
 
-#: rental/templates/rental/access_denied.html:36
+#: templates/rental/access_denied.html:36
 msgid "Only employees have access to rental functions."
 msgstr ""
 
-#: rental/templates/rental/admin_equipment_sets.html:22
-#: rental/templates/rental/admin_rental_process.html:22
-#: rental/templates/rental/admin_return.html:22
-#: rental/templates/rental/inventory_calendar_day.html:19
-#: rental/templates/rental/inventory_calendar_week.html:19
-#: rental/templates/rental/list.html:22
-#: rental/templates/rental/rental_detail.html:22
-#: rental/templates/rental/rental_return.html:22
-#: rental/templates/rental/room_calendar_day.html:106
-#: rental/templates/rental/room_calendar_month.html:32
-#: rental/templates/rental/room_calendar_week.html:40
+#: templates/rental/admin_equipment_sets.html:22
+#: templates/rental/admin_rental_process.html:22
+#: templates/rental/admin_return.html:22
+#: templates/rental/inventory_calendar_day.html:19
+#: templates/rental/inventory_calendar_week.html:19
+#: templates/rental/list.html:22 templates/rental/rental_detail.html:22
+#: templates/rental/rental_return.html:22
+#: templates/rental/room_calendar_day.html:106
+#: templates/rental/room_calendar_month.html:32
+#: templates/rental/room_calendar_week.html:40
 msgid "Rental Management"
 msgstr "Ausleihverwaltung"
 
-#: rental/templates/rental/admin_equipment_sets.html:26
-#: rental/templates/rental/admin_return.html:26
-#: rental/templates/rental/inventory_calendar_day.html:21
-#: rental/templates/rental/inventory_calendar_week.html:21
-#: rental/templates/rental/list.html:26
-#: rental/templates/rental/rental_detail.html:26
-#: rental/templates/rental/rental_return.html:26
-#: rental/templates/rental/room_calendar_day.html:108
-#: rental/templates/rental/room_calendar_month.html:34
-#: rental/templates/rental/room_calendar_week.html:42
+#: templates/rental/admin_equipment_sets.html:26
+#: templates/rental/admin_return.html:26
+#: templates/rental/inventory_calendar_day.html:21
+#: templates/rental/inventory_calendar_week.html:21
+#: templates/rental/list.html:26 templates/rental/rental_detail.html:26
+#: templates/rental/rental_return.html:26
+#: templates/rental/room_calendar_day.html:108
+#: templates/rental/room_calendar_month.html:34
+#: templates/rental/room_calendar_week.html:42
 msgid "Back to Administration"
 msgstr "Zurück zur Verwaltung"
 
-#: rental/templates/rental/admin_equipment_sets.html:39
+#: templates/rental/admin_equipment_sets.html:39
 msgid "Create and manage reusable equipment combinations"
 msgstr "Wiederverwendbare Gerätekombinationen erstellen und verwalten"
 
-#: rental/templates/rental/admin_equipment_sets.html:45
-#: rental/templates/rental/admin_rental_process.html:40 rental/views.py:411
-#: rental/views.py:579
+#: templates/rental/admin_equipment_sets.html:45
+#: templates/rental/admin_rental_process.html:40 views.py:415 views.py:585
 msgid "Loading…"
 msgstr "Wird geladen…"
 
-#: rental/templates/rental/admin_rental_process.html:26
+#: templates/rental/admin_rental_process.html:26
 msgid "Zurück zur Verwaltung"
 msgstr ""
 
-#: rental/templates/rental/admin_return.html:39
-#: rental/templates/rental/rental_return.html:10
-#: rental/templates/rental/rental_return.html:47
+#: templates/rental/admin_return.html:39 templates/rental/rental_return.html:10
+#: templates/rental/rental_return.html:47
 msgid "Process return"
 msgstr "Rückgabe bearbeiten"
 
-#: rental/templates/rental/admin_return.html:40
+#: templates/rental/admin_return.html:40
 msgid "Find user, pick their active rental, return equipment"
 msgstr "Nutzer finden, aktive Ausleihe auswählen, Geräte zurücknehmen"
 
-#: rental/templates/rental/admin_return.html:47
+#: templates/rental/admin_return.html:47
 msgid "Active rentals"
 msgstr "Aktive Ausleihen"
 
-#: rental/templates/rental/admin_return.html:58 rental/views.py:509
-#: rental/views.py:529 rental/views.py:545 rental/views.py:593
+#: templates/rental/admin_return.html:58 views.py:515 views.py:535 views.py:551
+#: views.py:599
 msgid "Change user"
 msgstr "Nutzer wechseln"
 
-#: rental/templates/rental/admin_return.html:64
-#: rental/templates/rental/list.html:112
+#: templates/rental/admin_return.html:64 templates/rental/list.html:112
 msgid "Rental ID"
 msgstr "Ausleih-ID"
 
-#: rental/templates/rental/admin_return.html:66
-#: rental/templates/rental/inventory_calendar_day.html:72
-#: rental/templates/rental/rental_stats.html:1104
-#: rental/templates/rental/user_rental_detail.html:88 rental/views.py:302
+#: templates/rental/admin_return.html:66
+#: templates/rental/inventory_calendar_day.html:72
+#: templates/rental/rental_stats.html:1104
+#: templates/rental/user_rental_detail.html:88 views.py:306
 msgid "Period"
 msgstr "Zeitraum"
 
-#: rental/templates/rental/admin_return.html:68
-#: rental/templates/rental/list.html:116
-#: rental/templates/rental/rental_stats.html:1222 rental/views.py:346
+#: templates/rental/admin_return.html:68 templates/rental/list.html:116
+#: templates/rental/rental_stats.html:1222 views.py:350
 msgid "Items"
 msgstr "Artikel"
 
-#: rental/templates/rental/admin_return.html:81
-#: rental/templates/rental/list.html:132
+#: templates/rental/admin_return.html:81 templates/rental/list.html:132
 msgid "Untitled"
 msgstr ""
 
-#: rental/templates/rental/admin_return.html:91
-#: rental/templates/rental/list.html:155
+#: templates/rental/admin_return.html:91 templates/rental/list.html:155
 #, python-format
 msgid "%(days)s day late"
 msgid_plural "%(days)s days late"
 msgstr[0] ""
 msgstr[1] ""
 
-#: rental/templates/rental/admin_return.html:97
-#: rental/templates/rental/list.html:162
+#: templates/rental/admin_return.html:97 templates/rental/list.html:162
 msgid "room"
 msgstr "Raum"
 
-#: rental/templates/rental/admin_return.html:115
+#: templates/rental/admin_return.html:115
 msgid "No active rentals for this user."
 msgstr "Keine aktiven Ausleihen für diesen Nutzer."
 
-#: rental/templates/rental/admin_return.html:126
+#: templates/rental/admin_return.html:126
 msgid "Search user by name or email…"
 msgstr "Nutzer nach Name oder E-Mail suchen…"
 
-#: rental/templates/rental/admin_return.html:130
+#: templates/rental/admin_return.html:130
 msgid "Search"
 msgstr "Suchen"
 
-#: rental/templates/rental/admin_return.html:155
+#: templates/rental/admin_return.html:155
 msgid "No users found."
 msgstr "Keine Nutzer gefunden."
 
-#: rental/templates/rental/admin_return.html:158
+#: templates/rental/admin_return.html:158
 msgid "Users with active rentals"
 msgstr "Nutzer mit aktiven Ausleihen"
 
-#: rental/templates/rental/email_approval_result.html:13
+#: templates/rental/barcode_print.html:6
+msgid "Barcode Labels"
+msgstr "Barcode-Etiketten"
+
+#: templates/rental/barcode_print.html:40
+#: templates/rental/barcode_print_compact.html:38
+#: templates/rental/print_pick_list.html:97
+msgid "Print"
+msgstr "Drucken"
+
+#: templates/rental/barcode_print.html:41
+#: templates/rental/barcode_print_compact.html:39 views.py:364 views.py:593
+msgid "Back"
+msgstr "Zurück"
+
+#: templates/rental/barcode_print_compact.html:6
+#, fuzzy
+#| msgid "Barcode Labels"
+msgid "Compact Barcode Labels"
+msgstr "Barcode-Etiketten"
+
+#: templates/rental/email_approval_result.html:13
 msgid "You can close this page now."
 msgstr "Sie können diese Seite jetzt schließen."
 
-#: rental/templates/rental/inventory_calendar_day.html:8
-#: rental/templates/rental/inventory_calendar_day.html:30
-#: rental/templates/rental/inventory_calendar_week.html:8
-#: rental/templates/rental/inventory_calendar_week.html:30
+#: templates/rental/inventory_calendar_day.html:8
+#: templates/rental/inventory_calendar_day.html:30
+#: templates/rental/inventory_calendar_week.html:8
+#: templates/rental/inventory_calendar_week.html:30
 msgid "Inventory Calendar"
 msgstr "Inventarkalender"
 
-#: rental/templates/rental/inventory_calendar_day.html:34
-#: rental/templates/rental/list.html:101
-#: rental/templates/rental/room_calendar_day.html:121
+#: templates/rental/inventory_calendar_day.html:34
+#: templates/rental/list.html:101 templates/rental/room_calendar_day.html:121
 msgid "Today"
 msgstr "Heute"
 
-#: rental/templates/rental/inventory_calendar_day.html:35
-#: rental/templates/rental/inventory_calendar_week.html:31
-#: rental/templates/rental/rental_stats.html:57
-#: rental/templates/rental/rental_stats.html:961
-#: rental/templates/rental/room_calendar_day.html:122
-#: rental/templates/rental/room_calendar_month.html:48
-#: rental/templates/rental/room_calendar_week.html:52
+#: templates/rental/inventory_calendar_day.html:35
+#: templates/rental/inventory_calendar_week.html:31
+#: templates/rental/rental_stats.html:57 templates/rental/rental_stats.html:961
+#: templates/rental/room_calendar_day.html:122
+#: templates/rental/room_calendar_month.html:48
+#: templates/rental/room_calendar_week.html:52
 msgid "Week"
 msgstr "Woche"
 
-#: rental/templates/rental/inventory_calendar_day.html:43
+#: templates/rental/inventory_calendar_day.html:43
 msgid "Equipment status"
 msgstr "Gerätestatus"
 
-#: rental/templates/rental/inventory_calendar_day.html:44
+#: templates/rental/inventory_calendar_day.html:44
 msgid "item(s)"
 msgstr "Artikel"
 
-#: rental/templates/rental/inventory_calendar_day.html:49
+#: templates/rental/inventory_calendar_day.html:49
 msgid "Search item or number…"
 msgstr "Artikel oder Nummer suchen…"
 
-#: rental/templates/rental/inventory_calendar_day.html:53
+#: templates/rental/inventory_calendar_day.html:53
 msgid "All statuses"
 msgstr "Alle Status"
 
-#: rental/templates/rental/inventory_calendar_day.html:54
-#: rental/templates/rental/inventory_calendar_day.html:83
-#: rental/templates/rental/rental_stats.html:972
-#: rental/templates/rental/rental_stats.html:1157 rental/views.py:318
-#: rental/views.py:379 rental/views.py:393 rental/views.py:1666
-#: rental/views.py:5050
+#: templates/rental/inventory_calendar_day.html:54
+#: templates/rental/inventory_calendar_day.html:83
+#: templates/rental/rental_stats.html:972
+#: templates/rental/rental_stats.html:1157 views.py:322 views.py:383
+#: views.py:397 views.py:1682 views.py:5253
 #, fuzzy
 #| msgid "Available Items"
 msgid "Available"
 msgstr "Verfügbare Artikel"
 
-#: rental/templates/rental/inventory_calendar_day.html:59
+#: templates/rental/inventory_calendar_day.html:59
 msgid "Sort: Status"
 msgstr "Sortierung: Status"
 
-#: rental/templates/rental/inventory_calendar_day.html:60
+#: templates/rental/inventory_calendar_day.html:60
 msgid "Sort: Name"
 msgstr "Sortierung: Name"
 
-#: rental/templates/rental/inventory_calendar_day.html:61
+#: templates/rental/inventory_calendar_day.html:61
 msgid "Sort: Category"
 msgstr "Sortierung: Kategorie"
 
-#: rental/templates/rental/inventory_calendar_day.html:68
-#: rental/templates/rental/rental_stats.html:1359
-#: rental/templates/rental/user_rental_detail.html:49 rental/views.py:424
+#: templates/rental/inventory_calendar_day.html:68
+#: templates/rental/rental_stats.html:1359
+#: templates/rental/user_rental_detail.html:49 views.py:428
 msgid "Item"
 msgstr "Artikel"
 
-#: rental/templates/rental/inventory_calendar_day.html:69
-#: rental/templates/rental/rental_stats.html:1175
+#: templates/rental/inventory_calendar_day.html:69
+#: templates/rental/rental_stats.html:1175
 msgid "Category"
 msgstr "Kategorie"
 
-#: rental/templates/rental/inventory_calendar_day.html:71
+#: templates/rental/inventory_calendar_day.html:71
 msgid "Rental / User"
 msgstr "Ausleihe / Nutzer"
 
-#: rental/templates/rental/inventory_calendar_day.html:110
+#: templates/rental/inventory_calendar_day.html:110
 msgid "No items match your filters."
 msgstr "Keine Artikel entsprechen Ihren Filtern."
 
-#: rental/templates/rental/inventory_calendar_week.html:34
-#: rental/templates/rental/rental_stats.html:56
-#: rental/templates/rental/room_calendar_month.html:47
-#: rental/templates/rental/room_calendar_week.html:55
+#: templates/rental/inventory_calendar_week.html:34
+#: templates/rental/rental_stats.html:56
+#: templates/rental/room_calendar_month.html:47
+#: templates/rental/room_calendar_week.html:55
 msgid "Day"
 msgstr ""
 
-#: rental/templates/rental/inventory_calendar_week.html:48
+#: templates/rental/inventory_calendar_week.html:48
 msgid "Select a day above to view detailed availability."
 msgstr ""
 "Wählen Sie oben einen Tag aus, um die detaillierte Verfügbarkeit anzuzeigen."
 
-#: rental/templates/rental/list.html:10
-#: rental/templates/rental/rental_detail.html:39
-#: rental/templates/rental/rental_return.html:39
+#: templates/rental/list.html:10 templates/rental/rental_detail.html:39
+#: templates/rental/rental_return.html:39
 msgid "Rentals"
 msgstr "Ausleihen"
 
-#: rental/templates/rental/list.html:40
+#: templates/rental/list.html:40
 msgid "Active, scheduled and historical rentals"
 msgstr "Aktive, geplante und historische Ausleihen"
 
-#: rental/templates/rental/list.html:43
+#: templates/rental/list.html:43
 msgid "Export"
 msgstr "Exportieren"
 
-#: rental/templates/rental/list.html:56 rental/views.py:987
-#: rental/views_api.py:83
+#: templates/rental/list.html:56 views.py:998 views_api.py:84
 msgid "All"
 msgstr "Alle"
 
-#: rental/templates/rental/list.html:90
+#: templates/rental/list.html:90
 msgid "Search by project, user, rental ID…"
 msgstr "Nach Projekt, Nutzer, Ausleih-ID suchen…"
 
-#: rental/templates/rental/list.html:94
+#: templates/rental/list.html:94
 msgid "All users"
 msgstr "Alle Nutzer"
 
-#: rental/templates/rental/list.html:95
+#: templates/rental/list.html:95
 msgid "Students only"
 msgstr "Nur Studierende"
 
-#: rental/templates/rental/list.html:96
+#: templates/rental/list.html:96
 msgid "Staff only"
 msgstr "Nur Mitarbeitende"
 
-#: rental/templates/rental/list.html:99
+#: templates/rental/list.html:99
 msgid "This month"
 msgstr "Diesen Monat"
 
-#: rental/templates/rental/list.html:100
+#: templates/rental/list.html:100
 msgid "Last 7 days"
 msgstr "Letzte 7 Tage"
 
-#: rental/templates/rental/list.html:104
+#: templates/rental/list.html:104
 msgid "Apply"
 msgstr "Anwenden"
 
-#: rental/templates/rental/list.html:107
+#: templates/rental/list.html:107
 msgid "shown"
 msgstr "angezeigt"
 
-#: rental/templates/rental/list.html:113
+#: templates/rental/list.html:113
 msgid "Project / User"
 msgstr "Projekt / Nutzer"
 
-#: rental/templates/rental/list.html:114
+#: templates/rental/list.html:114
 msgid "Time"
 msgstr "Zeit"
 
-#: rental/templates/rental/list.html:192
+#: templates/rental/list.html:193
 msgid "No rentals match these filters."
 msgstr "Keine Ausleihen entsprechen diesen Filtern."
 
-#: rental/templates/rental/print_form_msa.html:405
-#: rental/templates/rental/print_form_okmq.html:406
-#: rental/templates/rental/print_pick_list.html:167
+#: templates/rental/print_form_msa.html:405
+#: templates/rental/print_form_okmq.html:406
+#: templates/rental/print_pick_list.html:167
 msgid "Digital signature"
 msgstr ""
 
-#: rental/templates/rental/print_form_msa.html:408
-#: rental/templates/rental/print_form_msa.html:410
-#: rental/templates/rental/print_form_okmq.html:409
-#: rental/templates/rental/print_form_okmq.html:411
-#: rental/templates/rental/print_pick_list.html:171
-#: rental/templates/rental/print_pick_list.html:173
+#: templates/rental/print_form_msa.html:408
+#: templates/rental/print_form_msa.html:410
+#: templates/rental/print_form_okmq.html:409
+#: templates/rental/print_form_okmq.html:411
+#: templates/rental/print_pick_list.html:171
+#: templates/rental/print_pick_list.html:173
 msgid "Digitally signed"
 msgstr ""
 
-#: rental/templates/rental/print_pick_list.html:7
-#: rental/templates/rental/print_pick_list.html:103
+#: templates/rental/print_pick_list.html:7
+#: templates/rental/print_pick_list.html:103
 msgid "Pick list"
 msgstr "Packliste"
 
-#: rental/templates/rental/print_pick_list.html:93
+#: templates/rental/print_pick_list.html:93
 msgid "Error"
 msgstr ""
 
-#: rental/templates/rental/print_pick_list.html:97
-msgid "Print"
-msgstr "Drucken"
-
-#: rental/templates/rental/print_pick_list.html:98
+#: templates/rental/print_pick_list.html:98
 msgid "Check all"
 msgstr "Alle abhaken"
 
-#: rental/templates/rental/print_pick_list.html:99
+#: templates/rental/print_pick_list.html:99
 msgid "Reset all"
 msgstr "Alles zuruecksetzen"
 
-#: rental/templates/rental/print_pick_list.html:114
-#: rental/templates/rental/print_pick_list.html:135
+#: templates/rental/print_pick_list.html:114
+#: templates/rental/print_pick_list.html:135
 msgid "Checked"
 msgstr "Geprueft"
 
-#: rental/templates/rental/print_pick_list.html:149 rental/views.py:434
+#: templates/rental/print_pick_list.html:149 views.py:438
 msgid "Add note"
 msgstr "Notiz hinzufuegen"
 
-#: rental/templates/rental/print_pick_list.html:156
+#: templates/rental/print_pick_list.html:156
 msgid "No printable items in this rental found."
 msgstr ""
 
-#: rental/templates/rental/print_pick_list.html:214
+#: templates/rental/print_pick_list.html:214
 msgid "Saving..."
 msgstr "Speichert..."
 
-#: rental/templates/rental/print_pick_list.html:231
+#: templates/rental/print_pick_list.html:231
 msgid "Saved"
 msgstr "Gespeichert"
 
-#: rental/templates/rental/print_pick_list.html:233
+#: templates/rental/print_pick_list.html:233
 msgid "Save failed"
 msgstr "Speichern fehlgeschlagen"
 
-#: rental/templates/rental/print_slip_select.html:7
-#: rental/templates/rental/print_slip_select.html:81
-#: rental/templates/rental/rental_detail.html:50
-#: rental/templates/rental/rental_detail.html:60
+#: templates/rental/print_slip_select.html:7
+#: templates/rental/print_slip_select.html:81
+#: templates/rental/rental_detail.html:50
+#: templates/rental/rental_detail.html:60
 msgid "Print slip"
 msgstr "Beleg drucken"
 
-#: rental/templates/rental/print_slip_select.html:82
+#: templates/rental/print_slip_select.html:82
 #, python-format
 msgid "Rental #%(id)s — select print form:"
 msgstr ""
 
-#: rental/templates/rental/print_slip_select.html:89
+#: templates/rental/print_slip_select.html:89
 msgid "Opens in new tab"
 msgstr ""
 
-#: rental/templates/rental/print_slip_select.html:93
+#: templates/rental/print_slip_select.html:93
 #, fuzzy
 #| msgid "Not enough items available to reserve."
 msgid "No print forms available for this rental."
 msgstr "Nicht genügend Artikel verfügbar zum Reservieren."
 
-#: rental/templates/rental/rental_detail.html:10
-#: rental/templates/rental/rental_detail.html:45 rental/views.py:2700
+#: templates/rental/rental_detail.html:10
+#: templates/rental/rental_detail.html:45 views.py:2733
 msgid "Untitled rental"
 msgstr "Unbenannte Ausleihe"
 
-#: rental/templates/rental/rental_detail.html:65
+#: templates/rental/rental_detail.html:65
 msgid "Print pick list"
 msgstr "Packliste drucken"
 
-#: rental/templates/rental/rental_detail.html:69
+#: templates/rental/rental_detail.html:69
 msgid "Duplicate"
 msgstr "Duplizieren"
 
-#: rental/templates/rental/rental_detail.html:119
+#: templates/rental/rental_detail.html:119
 msgid "Role"
 msgstr "Rolle"
 
-#: rental/templates/rental/rental_detail.html:120
+#: templates/rental/rental_detail.html:120
 msgid "Past rentals"
 msgstr "bisherige Ausleihen"
 
-#: rental/templates/rental/rental_detail.html:121
+#: templates/rental/rental_detail.html:121
 msgid "Phone"
 msgstr "Telefon"
 
-#: rental/templates/rental/rental_detail.html:122
+#: templates/rental/rental_detail.html:122
 msgid "Email"
 msgstr "E-Mail"
 
-#: rental/templates/rental/rental_detail.html:129
+#: templates/rental/rental_detail.html:129
 msgid "ID"
 msgstr "ID"
 
-#: rental/templates/rental/rental_detail.html:130 rental/views.py:344
-#: rental/views.py:600
+#: templates/rental/rental_detail.html:130 views.py:348 views.py:606
 msgid "Pickup"
 msgstr "Abholung"
 
-#: rental/templates/rental/rental_detail.html:131 rental/views.py:343
+#: templates/rental/rental_detail.html:131 views.py:347
 msgid "Return by"
 msgstr "Rückgabe bis"
 
-#: rental/templates/rental/rental_detail.html:132
+#: templates/rental/rental_detail.html:132
 msgid "Issued by"
 msgstr "Ausgegeben von"
 
-#: rental/templates/rental/rental_detail.html:133
-#: rental/templates/rental/rental_stats.html:1103
-#: rental/templates/rental/rental_stats.html:1224 rental/views.py:2290
-#: rental/views.py:2295
+#: templates/rental/rental_detail.html:133
+#: templates/rental/rental_stats.html:1103
+#: templates/rental/rental_stats.html:1224 views.py:2306 views.py:2311
 msgid "Created"
 msgstr "Erstellt"
 
-#: rental/templates/rental/rental_detail.html:138
+#: templates/rental/rental_detail.html:138
 msgid "Internal note"
 msgstr "Interne Notiz"
 
-#: rental/templates/rental/rental_detail.html:140
+#: templates/rental/rental_detail.html:140
 msgid "No internal note."
 msgstr "Keine interne Notiz."
 
-#: rental/templates/rental/rental_detail.html:146
+#: templates/rental/rental_detail.html:146
 msgid "Save note"
 msgstr "Notiz speichern"
 
-#: rental/templates/rental/rental_stats.html:12
+#: templates/rental/rental_stats.html:12
 msgid "Rental Statistics"
 msgstr "Ausleihstatistiken"
 
-#: rental/templates/rental/rental_stats.html:49
+#: templates/rental/rental_stats.html:49
 msgid "Back to Rental Process"
 msgstr "Zurück zum Ausleihprozess"
 
-#: rental/templates/rental/rental_stats.html:53
+#: templates/rental/rental_stats.html:53
 msgid "Rental Statistics & Administration"
 msgstr "Ausleihstatistiken & Verwaltung"
 
-#: rental/templates/rental/rental_stats.html:56
-#: rental/templates/rental/rental_stats.html:891
+#: templates/rental/rental_stats.html:56 templates/rental/rental_stats.html:891
 msgid "Inventory calendar (day)"
 msgstr "Inventarkalender (Tag)"
 
-#: rental/templates/rental/rental_stats.html:57
-#: rental/templates/rental/rental_stats.html:923
+#: templates/rental/rental_stats.html:57 templates/rental/rental_stats.html:923
 msgid "Inventory calendar (week)"
 msgstr "Inventarkalender (Woche)"
 
-#: rental/templates/rental/rental_stats.html:60
-#: rental/templates/rental/rental_stats.html:1048
+#: templates/rental/rental_stats.html:60
+#: templates/rental/rental_stats.html:1048
 msgid "Administration"
 msgstr "Verwaltung"
 
-#: rental/templates/rental/rental_stats.html:896
-#: rental/templates/rental/rental_stats.html:928
+#: templates/rental/rental_stats.html:896
+#: templates/rental/rental_stats.html:928
 msgid "Search by number or name..."
 msgstr "Suche nach Nummer oder Name..."
 
-#: rental/templates/rental/rental_stats.html:901
-#: rental/templates/rental/rental_stats.html:933 rental/views.py:557
+#: templates/rental/rental_stats.html:901
+#: templates/rental/rental_stats.html:933 views.py:563
 msgid "Free"
 msgstr "Frei"
 
-#: rental/templates/rental/rental_stats.html:902
-#: rental/templates/rental/rental_stats.html:934 rental/views.py:558
+#: templates/rental/rental_stats.html:902
+#: templates/rental/rental_stats.html:934 views.py:564
 msgid "Occupied"
 msgstr "Belegt"
 
-#: rental/templates/rental/rental_stats.html:962
-#: rental/templates/rental/room_calendar_day.html:123
-#: rental/templates/rental/room_calendar_week.html:56
+#: templates/rental/rental_stats.html:962
+#: templates/rental/room_calendar_day.html:123
+#: templates/rental/room_calendar_week.html:56
 msgid "Month"
 msgstr "Monat"
 
-#: rental/templates/rental/rental_stats.html:1001
+#: templates/rental/rental_stats.html:1001
 msgid "Total Rentals"
 msgstr "Gesamte Ausleihen"
 
-#: rental/templates/rental/rental_stats.html:1007
+#: templates/rental/rental_stats.html:1007
 msgid "Active Rentals"
 msgstr "Aktive Ausleihen"
 
-#: rental/templates/rental/rental_stats.html:1013
+#: templates/rental/rental_stats.html:1013
 msgid "Users with Rentals"
 msgstr "Nutzer mit Ausleihen"
 
-#: rental/templates/rental/rental_stats.html:1019
+#: templates/rental/rental_stats.html:1019
 msgid "Available Items"
 msgstr "Verfügbare Artikel"
 
-#: rental/templates/rental/rental_stats.html:1030
-#: rental/templates/rental/rental_stats.html:1061
+#: templates/rental/rental_stats.html:1030
+#: templates/rental/rental_stats.html:1061
 msgid "All Rentals"
 msgstr "Alle Ausleihen"
 
-#: rental/templates/rental/rental_stats.html:1036
-#: rental/templates/rental/rental_stats.html:1137
+#: templates/rental/rental_stats.html:1036
+#: templates/rental/rental_stats.html:1137
 msgid "Inventory Status"
 msgstr "Inventarstatus"
 
-#: rental/templates/rental/rental_stats.html:1067
-#: rental/templates/rental/rental_stats.html:1156
+#: templates/rental/rental_stats.html:1067
+#: templates/rental/rental_stats.html:1156
 msgid "All Status"
 msgstr "Alle Status"
 
-#: rental/templates/rental/rental_stats.html:1076
+#: templates/rental/rental_stats.html:1076
 msgid "All Types"
 msgstr "Alle Typen"
 
-#: rental/templates/rental/rental_stats.html:1079
+#: templates/rental/rental_stats.html:1079
 msgid "Mixed"
 msgstr "Gemischt"
 
-#: rental/templates/rental/rental_stats.html:1083
+#: templates/rental/rental_stats.html:1083
 msgid "Search user..."
 msgstr "Nutzer suchen..."
 
-#: rental/templates/rental/rental_stats.html:1086
+#: templates/rental/rental_stats.html:1086
 msgid "Automatic expiration of room reservations and rentals"
 msgstr "Automatisches Ablaufdatum für Raumreservierungen und Ausleihvorgänge"
 
-#: rental/templates/rental/rental_stats.html:1087
+#: templates/rental/rental_stats.html:1087
 msgid "Expire Rooms"
 msgstr "Räume ablaufen lassen"
 
-#: rental/templates/rental/rental_stats.html:1106
+#: templates/rental/rental_stats.html:1106
 msgid "Items/Rooms"
 msgstr "Artikel/Räume"
 
-#: rental/templates/rental/rental_stats.html:1112
-#: rental/templates/rental/rental_stats.html:1185
+#: templates/rental/rental_stats.html:1112
+#: templates/rental/rental_stats.html:1185
 msgid "Loading data..."
 msgstr "Lade Daten..."
 
-#: rental/templates/rental/rental_stats.html:1144
+#: templates/rental/rental_stats.html:1144
 msgid "Search by number or description"
 msgstr "Suche nach Nummer oder Beschreibung"
 
-#: rental/templates/rental/rental_stats.html:1149
+#: templates/rental/rental_stats.html:1149
 msgid "All Owners"
 msgstr "Alle Eigentümer"
 
-#: rental/templates/rental/rental_stats.html:1159
-#: rental/templates/rental/rental_stats.html:1177
+#: templates/rental/rental_stats.html:1159
+#: templates/rental/rental_stats.html:1177
 msgid "Rented"
 msgstr "Verliehen"
 
-#: rental/templates/rental/rental_stats.html:1171
+#: templates/rental/rental_stats.html:1171
 msgid "Inventory No."
 msgstr "Inventarnummer"
 
-#: rental/templates/rental/rental_stats.html:1210
+#: templates/rental/rental_stats.html:1210
 msgid "Create New Set"
 msgstr "Neues Set erstellen"
 
-#: rental/templates/rental/rental_stats.html:1225
+#: templates/rental/rental_stats.html:1225
 msgid "Actions"
 msgstr "Aktionen"
 
-#: rental/templates/rental/rental_stats.html:1231
+#: templates/rental/rental_stats.html:1231
 msgid "Loading sets..."
 msgstr "Sets werden geladen..."
 
-#: rental/templates/rental/rental_stats.html:1244
+#: templates/rental/rental_stats.html:1244
 msgid "Set Details"
 msgstr "Set-Details"
 
-#: rental/templates/rental/rental_stats.html:1247
+#: templates/rental/rental_stats.html:1247
 msgid "Select a set to see details"
 msgstr "Wähle ein Set, um Details zu sehen"
 
-#: rental/templates/rental/rental_stats.html:1262
+#: templates/rental/rental_stats.html:1262
 msgid "Information"
 msgstr "Informationen"
 
-#: rental/templates/rental/rental_stats.html:1265
+#: templates/rental/rental_stats.html:1265
 msgid ""
 "These administration functions allow you to reset or clean up the entire "
 "rental system."
@@ -2639,619 +2665,623 @@ msgstr ""
 "Diese Verwaltungsfunktionen ermöglichen es Ihnen, das gesamte Ausleihsystem "
 "zurückzusetzen oder zu bereinigen."
 
-#: rental/templates/rental/rental_stats.html:1269
+#: templates/rental/rental_stats.html:1269
 msgid "Warning"
 msgstr "Warnung"
 
-#: rental/templates/rental/rental_stats.html:1269
+#: templates/rental/rental_stats.html:1269
 msgid "These actions cannot be undone. Make sure you have a backup."
 msgstr ""
 "Diese Aktionen können nicht rückgängig gemacht werden. Stellen Sie sicher, "
 "dass Sie eine Sicherung haben."
 
-#: rental/templates/rental/rental_stats.html:1272
+#: templates/rental/rental_stats.html:1272
 msgid "Available Actions"
 msgstr "Verfügbare Aktionen"
 
-#: rental/templates/rental/rental_stats.html:1274
-#: rental/templates/rental/rental_stats.html:1288
+#: templates/rental/rental_stats.html:1274
+#: templates/rental/rental_stats.html:1288
 msgid "Reset Inventory Quantities"
 msgstr "Inventarmengen zurücksetzen"
 
-#: rental/templates/rental/rental_stats.html:1274
+#: templates/rental/rental_stats.html:1274
 msgid "Sets all reserved_quantity and rented_quantity to 0"
 msgstr "Setzt alle reservierten und verliehenen Mengen auf 0"
 
-#: rental/templates/rental/rental_stats.html:1275
-#: rental/templates/rental/rental_stats.html:1292
+#: templates/rental/rental_stats.html:1275
+#: templates/rental/rental_stats.html:1292
 msgid "Cancel Active Rentals"
 msgstr "Aktive Ausleihen stornieren"
 
-#: rental/templates/rental/rental_stats.html:1275
+#: templates/rental/rental_stats.html:1275
 msgid "Cancels all active rentals and resets inventory quantities"
 msgstr ""
 "Bricht alle aktiven Ausleihvorgänge ab und setzt die Inventarmengen zurück"
 
-#: rental/templates/rental/rental_stats.html:1276
-#: rental/templates/rental/rental_stats.html:1296
+#: templates/rental/rental_stats.html:1276
+#: templates/rental/rental_stats.html:1296
 msgid "Delete All Data"
 msgstr "Alle Daten löschen"
 
-#: rental/templates/rental/rental_stats.html:1276
+#: templates/rental/rental_stats.html:1276
 msgid "Deletes ALL rental data and resets inventory"
 msgstr "Löscht ALLE Ausleihdaten und setzt das Inventar zurück"
 
-#: rental/templates/rental/rental_stats.html:1284
+#: templates/rental/rental_stats.html:1284
 msgid "Danger Zone"
 msgstr "Gefahrenzone"
 
-#: rental/templates/rental/rental_stats.html:1300
+#: templates/rental/rental_stats.html:1300
 msgid "Confirmation code required"
 msgstr "Bestätigungscode erforderlich"
 
-#: rental/templates/rental/rental_stats.html:1318 rental/views.py:632
+#: templates/rental/rental_stats.html:1318 views.py:638
 msgid "Create Equipment Set"
 msgstr "Gerätesatz erstellen"
 
-#: rental/templates/rental/rental_stats.html:1344
+#: templates/rental/rental_stats.html:1344
 msgid "Add Items"
 msgstr "Artikel hinzufügen"
 
-#: rental/templates/rental/rental_stats.html:1346
+#: templates/rental/rental_stats.html:1346
 msgid "Search items..."
 msgstr "Artikel suchen..."
 
-#: rental/templates/rental/rental_stats.html:1349
+#: templates/rental/rental_stats.html:1349
 msgid "Enter a search term..."
 msgstr "Suchbegriff eingeben..."
 
-#: rental/templates/rental/rental_stats.html:1354
+#: templates/rental/rental_stats.html:1354
 msgid "Set Contents"
 msgstr "Set-Inhalte"
 
-#: rental/templates/rental/rental_stats.html:1361
+#: templates/rental/rental_stats.html:1361
 msgid "Action"
 msgstr "Aktion"
 
-#: rental/templates/rental/rental_stats.html:1366
+#: templates/rental/rental_stats.html:1366
 msgid "No items added"
 msgstr "Keine Artikel hinzugefügt"
 
-#: rental/templates/rental/rental_stats.html:1375
+#: templates/rental/rental_stats.html:1375
 msgid "Save Set"
 msgstr "Set speichern"
 
-#: rental/templates/rental/rental_stats.html:1386
+#: templates/rental/rental_stats.html:1386
 msgid "Confirmation Required"
 msgstr "Bestätigung erforderlich"
 
-#: rental/templates/rental/rental_stats.html:1392
+#: templates/rental/rental_stats.html:1392
 msgid "Enter"
 msgstr "Eingeben"
 
-#: rental/templates/rental/rental_stats.html:1392
+#: templates/rental/rental_stats.html:1392
 msgid "to continue"
 msgstr "um fortzufahren"
 
-#: rental/templates/rental/rental_stats.html:1398 rental/views.py:328
-#: rental/views.py:515
+#: templates/rental/rental_stats.html:1398 views.py:332 views.py:521
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: rental/templates/rental/room_calendar_month.html:91
+#: templates/rental/room_calendar_month.html:91
 msgid "No rooms configured. Add rooms in admin."
 msgstr ""
 
-#: rental/templates/rental/sign_session.html:5
-#: rental/templates/rental/sign_session.html:6
+#: templates/rental/sign_session.html:5 templates/rental/sign_session.html:6
 #, fuzzy
 #| msgid "Rental Management"
 msgid "Sign Rental Agreement"
 msgstr "Ausleihverwaltung"
 
-#: rental/templates/rental/sign_session.html:16
+#: templates/rental/sign_session.html:16
 msgid "Please sign below and submit your signature."
 msgstr ""
 
-#: rental/templates/rental/sign_session.html:18
+#: templates/rental/sign_session.html:18
 #, fuzzy
 #| msgid "This approval link is invalid or has expired."
 msgid "This signing session is invalid or expired."
 msgstr "Dieser Genehmigungslink ist ungültig oder abgelaufen."
 
-#: rental/templates/rental/sign_session.html:41
+#: templates/rental/sign_session.html:41
 msgid "Submit Signature"
 msgstr ""
 
-#: rental/templates/rental/sign_session.html:48
+#: templates/rental/sign_session.html:48
 msgid "Please request a new signing session from the rental page."
 msgstr ""
 
-#: rental/templates/rental/sign_session.html:155
+#: templates/rental/sign_session.html:155
 msgid "Please provide a signature first."
 msgstr ""
 
-#: rental/templates/rental/sign_session.html:160
+#: templates/rental/sign_session.html:160
 msgid "Submitting signature..."
 msgstr ""
 
-#: rental/templates/rental/sign_session.html:170
+#: templates/rental/sign_session.html:170
 #, fuzzy
 #| msgid "Could not save signature."
 msgid "Failed to submit signature."
 msgstr "Unterschrift konnte nicht gespeichert werden."
 
-#: rental/templates/rental/sign_session.html:172
-msgid "Signature submitted successfully. You can close this page."
+#: templates/rental/sign_session.html:176
+#, fuzzy
+#| msgid "Reminder sent."
+msgid "Signature sent."
+msgstr "Erinnerung gesendet."
+
+#: templates/rental/sign_session.html:176
+msgid ""
+"The main browser has been notified and will show the received signature "
+"automatically. You can close this page."
 msgstr ""
 
-#: rental/templates/rental/user_rental_detail.html:4
-#: rental/templates/rental/user_rental_detail.html:5
+#: templates/rental/user_rental_detail.html:4
+#: templates/rental/user_rental_detail.html:5
 msgid "Your rental request"
 msgstr "Ihre Ausleihanfrage"
 
-#: rental/templates/rental/user_rental_detail.html:41 rental/views.py:288
-#: rental/views.py:414 rental/views.py:464 rental/views.py:572
+#: templates/rental/user_rental_detail.html:41 views.py:291 views.py:418
+#: views.py:468 views.py:578
 msgid "items"
 msgstr "Artikel"
 
-#: rental/templates/rental/user_rental_detail.html:71
+#: templates/rental/user_rental_detail.html:71
 msgid "No equipment items."
 msgstr "Keine Geräteartikel."
 
-#: rental/templates/rental/user_rental_detail.html:78 rental/views.py:289
+#: templates/rental/user_rental_detail.html:78 views.py:292
 msgid "rooms"
 msgstr "Räume"
 
-#: rental/templates/rental/user_rental_detail.html:87
+#: templates/rental/user_rental_detail.html:87
 msgid "People"
 msgstr "Personen"
 
-#: rental/templates/rental/user_rental_detail.html:105
+#: templates/rental/user_rental_detail.html:105
 msgid "No rooms."
 msgstr "Keine Räume."
 
-#: rental/views.py:154 rental/views.py:1081
+#: views.py:157 views.py:1097
 msgid "Staff"
 msgstr "Mitarbeitende"
 
-#: rental/views.py:156 rental/views.py:1085
+#: views.py:159 views.py:1101
 msgid "Member"
 msgstr "Mitglied"
 
-#: rental/views.py:277 rental/views.py:363
+#: views.py:280 views.py:367
 msgid "Create rental"
 msgstr "Ausleihe erstellen"
 
-#: rental/views.py:278
+#: views.py:281
 msgid "Reserve items and rooms for a user"
 msgstr "Artikel und Räume für einen Nutzer reservieren"
 
-#: rental/views.py:279
+#: views.py:282
 msgid "Guided"
 msgstr "Geführt"
 
-#: rental/views.py:280
+#: views.py:283
 msgid "Quick"
 msgstr "Schnell"
 
-#: rental/views.py:281
+#: views.py:284
 msgid "Step"
 msgstr "Schritt"
 
-#: rental/views.py:283
+#: views.py:286
 msgid "Time & conflicts"
 msgstr "Zeit & Konflikte"
 
-#: rental/views.py:284 rental/views.py:584
+#: views.py:287 views.py:590
 msgid "Items & rooms"
 msgstr "Artikel & Räume"
 
-#: rental/views.py:285 rental/views.py:332
+#: views.py:288 views.py:336
 msgid "Review & confirm"
 msgstr "Überprüfen & Bestätigen"
 
-#: rental/views.py:286
+#: views.py:289
 msgid "Not selected"
 msgstr "Nicht ausgewählt"
 
-#: rental/views.py:287
+#: views.py:290
 msgid "Skipped (rooms only)"
 msgstr "Übersprungen (nur Räume)"
 
-#: rental/views.py:290
+#: views.py:293
+msgid "Click to enlarge"
+msgstr "Zum Vergrößern klicken"
+
+#: views.py:294
 msgid "Send confirmation"
 msgstr "Bestätigung senden"
 
-#: rental/views.py:292
+#: views.py:296
 msgid "Who is this rental for?"
 msgstr "Für wen ist diese Ausleihe?"
 
-#: rental/views.py:293
+#: views.py:297
 msgid "Pick an existing user or create a new account."
 msgstr ""
 "Wählen Sie einen bestehenden Nutzer aus oder erstellen Sie ein neues Konto."
 
-#: rental/views.py:294
+#: views.py:298
 msgid "Search by name, email, student ID…"
 msgstr "Suche nach Name, E-Mail, Matrikelnummer…"
 
-#: rental/views.py:295
+#: views.py:299
 msgid "New user"
 msgstr "Neuer Nutzer"
 
-#: rental/views.py:297
+#: views.py:301
 msgid "Please select a user first"
 msgstr "Bitte wählen Sie zuerst einen Nutzer aus"
 
-#: rental/views.py:298 rental/views.py:583
+#: views.py:302 views.py:589
 msgid "past rentals"
 msgstr "bisherige Ausleihen"
 
-#: rental/views.py:300
+#: views.py:304
 msgid "When do you need it?"
 msgstr "Wann benötigen Sie es?"
 
-#: rental/views.py:301
+#: views.py:305
 msgid "Select a date range. Working hours are shown below."
 msgstr ""
 "Wählen Sie einen Zeitraum aus. Die Arbeitszeiten sind unten aufgeführt."
 
-#: rental/views.py:304
+#: views.py:308
 msgid "availability"
 msgstr "Verfügbarkeit"
 
-#: rental/views.py:305
+#: views.py:309
 msgid "Please select start and end dates"
 msgstr "Bitte wählen Sie Start- und Enddatum aus"
 
-#: rental/views.py:306
+#: views.py:310
 msgid "The selected day is closed."
 msgstr "Der gewählte Tag ist geschlossen."
 
-#: rental/views.py:307
+#: views.py:311
 msgid "Outside configured working hours."
 msgstr "Außerhalb der konfigurierten Arbeitszeiten."
 
-#: rental/views.py:308 rental/views_api.py:366 rental/views_api.py:491
-#: rental/views_api.py:571
+#: views.py:312 views_api.py:393 views_api.py:518 views_api.py:598
 msgid "End date must be after start date."
 msgstr "Das Enddatum muss nach dem Startdatum liegen."
 
-#: rental/views.py:309
+#: views.py:313
 msgid "Room-only rental"
 msgstr "Nur-Raum-Ausleihe"
 
-#: rental/views.py:310
+#: views.py:314
 msgid "Each room has its own time slot. You can skip this step."
 msgstr ""
 "Jeder Raum hat sein eigenes Zeitfenster. Sie können diesen Schritt "
 "überspringen."
 
-#: rental/views.py:314
+#: views.py:318
 msgid "Select equipment to rent."
 msgstr "Wählen Sie die Ausrüstung aus."
 
-#: rental/views.py:315
+#: views.py:319
 msgid "Select rooms to reserve."
 msgstr "Wählen Sie Räume aus."
 
-#: rental/views.py:316
+#: views.py:320
 msgid "Search items…"
 msgstr "Artikel suchen…"
 
-#: rental/views.py:317
+#: views.py:321
 msgid "in"
 msgstr "in"
 
-#: rental/views.py:319
+#: views.py:323
 msgid "No items match your search."
 msgstr "Keine Artikel entsprechen Ihrer Suche."
 
-#: rental/views.py:320
+#: views.py:324
 msgid "Tap + to add items."
 msgstr "Tippen Sie auf +, um Artikel hinzuzufügen."
 
-#: rental/views.py:321 rental/views.py:478
+#: views.py:325 views.py:482
 msgid "Clear"
 msgstr "Löschen"
 
-#: rental/views.py:322
+#: views.py:326
 msgid "of"
 msgstr "von"
 
-#: rental/views.py:323
+#: views.py:327
 msgid "free"
 msgstr "frei"
 
-#: rental/views.py:324
+#: views.py:328
 msgid "per room"
 msgstr "pro Raum"
 
-#: rental/views.py:326
+#: views.py:330
 msgid "Scan item"
 msgstr "Artikel scannen"
 
-#: rental/views.py:327
+#: views.py:331
 msgid "Scan barcode to add item"
 msgstr "Barcode scannen, um Artikel hinzuzufügen"
 
-#: rental/views.py:329
+#: views.py:333
 msgid "No items or rooms selected"
 msgstr "Keine Artikel oder Räume ausgewählt"
 
-#: rental/views.py:333
+#: views.py:337
 msgid "Check your selection and submit."
 msgstr "Prüfen Sie Ihre Auswahl und senden Sie sie ab."
 
-#: rental/views.py:336
+#: views.py:340
 #, fuzzy
 #| msgid "Please enter a set name."
 msgid "Required — please enter a project name"
 msgstr "Bitte geben Sie einen Set-Namen ein."
 
-#: rental/views.py:337
+#: views.py:341
 #, fuzzy
 #| msgid "Please select at least one item or room"
 msgid "Please select at least one item or room."
 msgstr "Bitte wählen Sie mindestens einen Beitrag oder Raum aus"
 
-#: rental/views.py:339
+#: views.py:343
 msgid "What is this rental for?"
 msgstr "Wofür ist diese Ausleihe?"
 
-#: rental/views.py:340
+#: views.py:344
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
-#: rental/views.py:341
+#: views.py:345
 msgid "Send email notification to user"
 msgstr "E-Mail-Benachrichtigung an Nutzer senden"
 
-#: rental/views.py:342
+#: views.py:346
 msgid "Reserved until"
 msgstr "Reserviert bis"
 
-#: rental/views.py:345
+#: views.py:349
 msgid "Returns"
 msgstr "Rückgaben"
 
-#: rental/views.py:348
+#: views.py:352
 msgid "What do you need?"
 msgstr "Was benötigen Sie?"
 
-#: rental/views.py:349
+#: views.py:353
 msgid "Total"
 msgstr "Gesamt"
 
-#: rental/views.py:350
+#: views.py:354
 msgid "Your booking"
 msgstr "Ihre Buchung"
 
-#: rental/views.py:351
+#: views.py:355
 msgid "Add items"
 msgstr "Artikel hinzufügen"
 
-#: rental/views.py:352
+#: views.py:356
 msgid "Add rooms"
 msgstr "Räume hinzufügen"
 
-#: rental/views.py:354 rental/views.py:2746
+#: views.py:358 views.py:2779
 msgid "Quick rental"
 msgstr "Schnellausleihe"
 
-#: rental/views.py:355
+#: views.py:359
 msgid "Today / Tomorrow"
 msgstr "Heute / Morgen"
 
-#: rental/views.py:356
+#: views.py:360
 msgid "Next 7 days"
 msgstr "Nächste 7 Tage"
 
-#: rental/views.py:357
+#: views.py:361
 msgid "Afternoon"
 msgstr "Nachmittag"
 
-#: rental/views.py:358
+#: views.py:362
 msgid "Weekend"
 msgstr "Wochenende"
 
-#: rental/views.py:360 rental/views.py:587
-msgid "Back"
-msgstr "Zurück"
-
-#: rental/views.py:361 rental/views.py:588
+#: views.py:365 views.py:594
 msgid "Next"
 msgstr "Weiter"
 
-#: rental/views.py:364 rental/views.py:524
+#: views.py:368 views.py:530
 msgid "Issue now"
 msgstr "Jetzt ausgeben"
 
-#: rental/views.py:365 rental/views.py:642
+#: views.py:369 views.py:648
 msgid "Creating…"
 msgstr "Wird erstellt…"
 
-#: rental/views.py:367 rental/views.py:641
+#: views.py:371 views.py:647
 msgid "Selected items"
 msgstr "Ausgewählte Artikel"
 
-#: rental/views.py:369
+#: views.py:373
 #, fuzzy
 #| msgid "Could not create rental: "
 msgid "Could not create rental: "
 msgstr "Ausleihe konnte nicht erstellt werden: "
 
-#: rental/views.py:370
+#: views.py:374
 msgid "Could not extend rental: "
 msgstr "Ausleihe konnte nicht verlängert werden: "
 
-#: rental/views.py:371
+#: views.py:375
 #, fuzzy
 #| msgid "Could not change period: "
 msgid "Could not change user: "
 msgstr "Zeitraum konnte nicht geändert werden: "
 
-#: rental/views.py:372
+#: views.py:376
 msgid "Could not change period: "
 msgstr "Zeitraum konnte nicht geändert werden: "
 
-#: rental/views.py:373
+#: views.py:377
 #, fuzzy
 #| msgid "Could not create signing session: "
 msgid "Could not create signing session: "
 msgstr "Signiersitzung konnte nicht erstellt werden: "
 
-#: rental/views.py:374 rental/views.py:6114
+#: views.py:378 views.py:6320
 #, fuzzy
 #| msgid "Could not save signature."
 msgid "Failed to save signature."
 msgstr "Unterschrift konnte nicht gespeichert werden."
 
-#: rental/views.py:375
+#: views.py:379
 #, fuzzy
 #| msgid "Could not add items: "
 msgid "Could not swap item: "
 msgstr "Artikel konnten nicht hinzugefügt werden: "
 
-#: rental/views.py:376 rental/views.py:456
+#: views.py:380 views.py:460
 msgid "Could not add items: "
 msgstr "Artikel konnten nicht hinzugefügt werden: "
 
-#: rental/views.py:377
+#: views.py:381 views.py:4152
 msgid "Item not found"
 msgstr "Artikel nicht gefunden"
 
-#: rental/views.py:380
+#: views.py:384
 msgid "Check availability"
 msgstr "Verfügbarkeit prüfen"
 
-#: rental/views.py:381
+#: views.py:385
 msgid "Error checking availability"
 msgstr "Fehler beim Prüfen der Verfügbarkeit"
 
-#: rental/views.py:382
+#: views.py:386
 msgid "Day is closed"
 msgstr "Der Tag ist geschlossen"
 
-#: rental/views.py:383 rental/views.py:562
+#: views.py:387 views.py:568
 msgid "End date"
 msgstr "Enddatum"
 
-#: rental/views.py:384 rental/views.py:563
+#: views.py:388 views.py:569
 msgid "End time"
 msgstr "Endzeit"
 
-#: rental/views.py:385
+#: views.py:389
 msgid "Not available"
 msgstr "Nicht verfügbar"
 
-#: rental/views.py:386
+#: views.py:390
 msgid "Open"
 msgstr "Offen"
 
-#: rental/views.py:387
+#: views.py:391
 msgid "Remove"
 msgstr "Entfernen"
 
-#: rental/views.py:388
+#: views.py:392
 msgid "Reserve room"
 msgstr "Raum reservieren"
 
-#: rental/views.py:389 rental/views.py:396
+#: views.py:393 views.py:400
 msgid "Restricted"
 msgstr "Eingeschränkt"
 
-#: rental/views.py:390
+#: views.py:394
 #, fuzzy
 #| msgid "Day is closed"
 msgid "The day is closed"
 msgstr "Der Tag ist geschlossen"
 
-#: rental/views.py:391
+#: views.py:395
 msgid "Please set dates and times in step 2 first."
 msgstr "Bitte legen Sie zuerst Datum und Uhrzeit in Schritt 2 fest."
 
-#: rental/views.py:392
+#: views.py:396
 #, fuzzy
 #| msgid "Check availability"
 msgid "Checking availability…"
 msgstr "Verfügbarkeit prüfen"
 
-#: rental/views.py:394 rental/views.py:395
+#: views.py:398 views.py:399
 #, fuzzy
 #| msgid "Check availability"
 msgid "Could not check availability"
 msgstr "Verfügbarkeit prüfen"
 
-#: rental/views.py:397 rental/views.py:560
+#: views.py:401 views.py:566
 msgid "Start date"
 msgstr "Startdatum"
 
-#: rental/views.py:398 rental/views.py:561
+#: views.py:402 views.py:567
 msgid "Start time"
 msgstr "Startzeit"
 
-#: rental/views.py:399 rental/views.py:402 rental/views.py:564
-#: rental/views_api.py:125
+#: views.py:403 views.py:406 views.py:570 views_api.py:141
 msgid "Booked"
 msgstr "Gebucht"
 
-#: rental/views.py:400 rental/views.py:578
+#: views.py:404 views.py:584
 #, fuzzy
 #| msgid "Close this rental?"
 msgid "No rooms booked in this rental."
 msgstr "Diese Ausleihe schließen?"
 
-#: rental/views.py:403
+#: views.py:407
 msgid "In stock"
 msgstr "Auf Lager"
 
-#: rental/views.py:405
+#: views.py:409
 msgid "Out"
 msgstr "Nicht verfügbar"
 
-#: rental/views.py:409
+#: views.py:413
 msgid "From"
 msgstr "Von"
 
-#: rental/views.py:410
+#: views.py:414
 msgid "To"
 msgstr "Bis"
 
-#: rental/views.py:412
+#: views.py:416
 msgid "Could not submit return: "
 msgstr "Rückgabe konnte nicht eingereicht werden: "
 
-#: rental/views.py:413
+#: views.py:417
 msgid "returning"
 msgstr "zurückzugeben"
 
-#: rental/views.py:415
+#: views.py:419
 msgid "Progress"
 msgstr "Fortschritt"
 
-#: rental/views.py:416
+#: views.py:420
 msgid "checked"
 msgstr "geprüft"
 
-#: rental/views.py:417 rental/views.py:459 rental/views.py:567
+#: views.py:421 views.py:463 views.py:573
 msgid "Issues"
 msgstr "Probleme"
 
-#: rental/views.py:418
+#: views.py:422
 msgid "Due by"
 msgstr "Fällig am"
 
-#: rental/views.py:419 rental/views.py:525
+#: views.py:423 views.py:531
 msgid "Complete return"
 msgstr "Rückgabe abschließen"
 
-#: rental/views.py:420
+#: views.py:424
 msgid "Equipment returning"
 msgstr "Geräterückgabe"
 
-#: rental/views.py:421
+#: views.py:425
 msgid ""
 "Tick off items as the user hands them back. Mark condition if something's "
 "not right."
@@ -3259,84 +3289,84 @@ msgstr ""
 "Haken Sie Artikel ab, wenn der Nutzer sie zurückgibt. Markieren Sie den "
 "Zustand, wenn etwas nicht in Ordnung ist."
 
-#: rental/views.py:422 rental/views.py:527
+#: views.py:426 views.py:533
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: rental/views.py:423 rental/views.py:526
+#: views.py:427 views.py:532
 msgid "All returned, all OK"
 msgstr "Alles zurückgegeben, alles OK"
 
-#: rental/views.py:427
+#: views.py:431
 msgid "Issue note"
 msgstr "Problemnotiz"
 
-#: rental/views.py:428 rental/views.py:607
+#: views.py:432 views.py:613
 msgid "issued"
 msgstr "ausgegeben"
 
-#: rental/views.py:429 rental/views.py:608
+#: views.py:433 views.py:614
 msgid "back"
 msgstr "zurück"
 
-#: rental/views.py:430
+#: views.py:434
 msgid "OK"
 msgstr "OK"
 
-#: rental/views.py:432
+#: views.py:436
 msgid "Damage"
 msgstr "Schaden"
 
-#: rental/views.py:433
+#: views.py:437
 msgid "Logged"
 msgstr "Protokolliert"
 
-#: rental/views.py:435
+#: views.py:439
 msgid "Log issue for"
 msgstr "Problem erfassen für"
 
-#: rental/views.py:436
+#: views.py:440
 msgid "Describe what's wrong…"
 msgstr "Beschreiben Sie das Problem…"
 
-#: rental/views.py:437
+#: views.py:441
 msgid "Charge user (recoverable damage)"
 msgstr "Nutzer belasten (behebbarer Schaden)"
 
-#: rental/views.py:438
+#: views.py:442
 msgid "Hold item out of pool until reviewed"
 msgstr "Artikel bis zur Prüfung aus dem Bestand nehmen"
 
-#: rental/views.py:439
+#: views.py:443
 msgid "Return note (internal)"
 msgstr "Rückgabenotiz (intern)"
 
-#: rental/views.py:440
+#: views.py:444
 msgid "Anything to remember for next time?"
 msgstr "Etwas für das nächste Mal merken?"
 
-#: rental/views.py:441
+#: views.py:445
 msgid "Email return receipt to user"
 msgstr "Rückgabebeleg per E-Mail an Nutzer senden"
 
-#: rental/views.py:442
+#: views.py:446
 msgid "Close rental after return"
 msgstr "Ausleihe nach Rückgabe schließen"
 
-#: rental/views.py:443
+#: views.py:447
 msgid "Flag for inventory audit"
 msgstr "Für Inventarprüfung markieren"
 
-#: rental/views.py:444
+#: views.py:448
 msgid "Checked: the user receives a return receipt by email."
 msgstr "Aktiviert: Der Nutzer erhält einen Rückgabebeleg per E-Mail."
 
-#: rental/views.py:445
+#: views.py:449
 msgid "Unchecked: the return is saved without sending a receipt email."
 msgstr ""
 "Deaktiviert: Die Rückgabe wird gespeichert, ohne eine Beleg-E-Mail zu senden."
 
-#: rental/views.py:446
+#: views.py:450
 msgid ""
 "Checked: after all issued items are back, the rental is closed immediately "
 "and no separate Close rental step is needed."
@@ -3344,7 +3374,7 @@ msgstr ""
 "Aktiviert: Sobald alle ausgegebenen Artikel zurück sind, wird die Ausleihe "
 "sofort geschlossen und kein separater Schritt zum Schließen ist nötig."
 
-#: rental/views.py:447
+#: views.py:451
 msgid ""
 "Unchecked: the rental stays returned, so staff can review it and close it "
 "later."
@@ -3352,13 +3382,13 @@ msgstr ""
 "Deaktiviert: Die Ausleihe bleibt als zurückgegeben markiert, damit "
 "Mitarbeitende sie prüfen und später schließen können."
 
-#: rental/views.py:448
+#: views.py:452
 msgid "Checked: an inventory audit issue is created for each returned item."
 msgstr ""
 "Aktiviert: Für jeden zurückgegebenen Artikel wird ein Inventarprüfproblem "
 "erstellt."
 
-#: rental/views.py:449
+#: views.py:453
 msgid ""
 "Unchecked: no audit issue is created unless an item condition note is "
 "entered."
@@ -3366,726 +3396,737 @@ msgstr ""
 "Deaktiviert: Es wird kein Prüfproblem erstellt, außer es wird eine "
 "Zustandsnotiz zum Artikel eingetragen."
 
-#: rental/views.py:450
+#: views.py:454
 msgid "What these options do"
 msgstr "Was diese Optionen bewirken"
 
-#: rental/views.py:451
+#: views.py:455
 msgid "Add items to rental"
 msgstr "Artikel zur Ausleihe hinzufügen"
 
-#: rental/views.py:452 rental/views.py:542
+#: views.py:456 views.py:548
 msgid "Search inventory…"
 msgstr "Inventar suchen…"
 
-#: rental/views.py:453
+#: views.py:457
 msgid "No available items found"
 msgstr "Keine verfügbaren Artikel gefunden"
 
-#: rental/views.py:454
+#: views.py:458
 msgid "selected"
 msgstr "ausgewählt"
 
-#: rental/views.py:455
+#: views.py:459
 msgid "Add selected items"
 msgstr "Ausgewählte Artikel hinzufügen"
 
-#: rental/views.py:460 rental/views.py:568
+#: views.py:464 views.py:574
 msgid "History"
 msgstr "Verlauf"
 
-#: rental/views.py:461 rental/views.py:462 rental/views.py:569
-#: rental/views.py:570 rental/views.py:616
+#: views.py:465 views.py:466 views.py:575 views.py:576 views.py:622
 msgid "Sets"
 msgstr "Sets"
 
-#: rental/views.py:463 rental/views.py:571 rental/views.py:622
+#: views.py:467 views.py:577 views.py:628
 msgid "No equipment sets available."
 msgstr "Keine Gerätesets verfügbar."
 
-#: rental/views.py:465 rental/views.py:573 rental/views.py:639
+#: views.py:469 views.py:579 views.py:645
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: rental/views.py:466 rental/views.py:574
+#: views.py:470 views.py:580
 #, fuzzy
 #| msgid "Add items to rental"
 msgid "Add all items from set to rental?"
 msgstr "Artikel zur Ausleihe hinzufügen"
 
-#: rental/views.py:467 rental/views.py:575 rental/views.py:617
-#: rental/views.py:623
+#: views.py:471 views.py:581 views.py:623 views.py:629
 msgid "Could not load equipment sets."
 msgstr "Gerätesets konnten nicht geladen werden."
 
-#: rental/views.py:468 rental/views.py:576
+#: views.py:472 views.py:582
 #, fuzzy
 #| msgid "Asset notes"
 msgid "This set has no items."
 msgstr "Inventarnotizen"
 
-#: rental/views.py:469 rental/views.py:577
+#: views.py:473 views.py:583
 #, fuzzy
 #| msgid "Could not add items: "
 msgid "Could not add set"
 msgstr "Artikel konnten nicht hinzugefügt werden: "
 
-#: rental/views.py:471
+#: views.py:475
 msgid "Choose a signing method. Drawing directly is recommended for tablets."
 msgstr ""
 "Wählen Sie eine Signaturmethode. Direktes Zeichnen wird für Tablets "
 "empfohlen."
 
-#: rental/views.py:472
+#: views.py:476
 msgid "Draw here"
 msgstr "Hier zeichnen"
 
-#: rental/views.py:473
+#: views.py:477
 msgid "Draw directly on this device"
 msgstr "Direkt auf diesem Gerät zeichnen"
 
-#: rental/views.py:474
+#: views.py:478
 msgid "Sign with phone"
 msgstr "Mit Telefon unterschreiben"
 
-#: rental/views.py:475
+#: views.py:479
 msgid "Scan QR code with your phone"
 msgstr "QR-Code mit Ihrem Telefon scannen"
 
-#: rental/views.py:476
+#: views.py:480
 msgid "Draw your signature"
 msgstr "Ihre Unterschrift zeichnen"
 
-#: rental/views.py:477
+#: views.py:481
 msgid "Sign below using your finger or stylus."
 msgstr "Unterschreiben Sie unten mit Finger oder Stift."
 
-#: rental/views.py:479
+#: views.py:483
 msgid "Submit signature"
 msgstr "Unterschrift absenden"
 
-#: rental/views.py:480
+#: views.py:484
 msgid "Saving…"
 msgstr "Wird gespeichert…"
 
-#: rental/views.py:481
+#: views.py:485
 msgid "Scan the QR code with your phone to sign"
 msgstr "Scannen Sie den QR-Code mit Ihrem Telefon zum Unterschreiben"
 
-#: rental/views.py:482
+#: views.py:486
 msgid "Signing session expired. Please try again."
 msgstr "Die Signatursitzung ist abgelaufen. Bitte versuchen Sie es erneut."
 
-#: rental/views.py:483
+#: views.py:487
 msgid "Retry"
 msgstr "Erneut versuchen"
 
-#: rental/views.py:484
+#: views.py:488
 msgid "Status will update automatically"
 msgstr "Der Status wird automatisch aktualisiert"
 
-#: rental/views.py:485
+#: views.py:489
 msgid "Waiting for signature…"
 msgstr "Warten auf Unterschrift…"
 
-#: rental/views.py:487
+#: views.py:490
+msgid "Signature received"
+msgstr ""
+
+#: views.py:491
+msgid ""
+"The phone signature was transferred to this rental. The page will update "
+"automatically."
+msgstr ""
+
+#: views.py:493
 msgid "Please draw a signature first."
 msgstr "Bitte zeichnen Sie zuerst eine Unterschrift."
 
-#: rental/views.py:488
+#: views.py:494
 msgid "Mark this rental as issued?"
 msgstr "Diese Ausleihe als ausgegeben markieren?"
 
-#: rental/views.py:489
+#: views.py:495
 msgid "Cancel this rental?"
 msgstr "Diese Ausleihe stornieren?"
 
-#: rental/views.py:490
+#: views.py:496
 msgid "Close this rental?"
 msgstr "Diese Ausleihe schließen?"
 
-#: rental/views.py:491
+#: views.py:497
 msgid "Remove this item from the rental?"
 msgstr "Diesen Artikel aus der Ausleihe entfernen?"
 
-#: rental/views.py:492
+#: views.py:498
 msgid "Confirm this rental? It will become reserved."
 msgstr "Diese Ausleihe bestätigen? Sie wird reserviert."
 
-#: rental/views.py:493
+#: views.py:499
 msgid "Extend return deadline"
 msgstr "Rückgabefrist verlängern"
 
-#: rental/views.py:494
+#: views.py:500
 msgid "from"
 msgstr "von"
 
-#: rental/views.py:495
+#: views.py:501
 msgid "to"
 msgstr "bis"
 
-#: rental/views.py:496
+#: views.py:502
 msgid "Reason (shown to user)…"
 msgstr "Grund (für den Nutzer sichtbar)…"
 
-#: rental/views.py:498
+#: views.py:504
 msgid "Owner dept."
 msgstr "Besitzende Abteilung"
 
-#: rental/views.py:499
+#: views.py:505
 msgid "Issued at"
 msgstr "Ausgegeben am"
 
-#: rental/views.py:500
+#: views.py:506
 msgid "Asset notes"
 msgstr "Inventarnotizen"
 
-#: rental/views.py:501 rental/views.py:521
+#: views.py:507 views.py:527
 msgid "Swap unit"
 msgstr "Gerät tauschen"
 
-#: rental/views.py:502 rental/views.py:518
+#: views.py:508 views.py:524
 msgid "Remove from rental"
 msgstr "Aus der Ausleihe entfernen"
 
-#: rental/views.py:503 rental/views.py:519 rental/views.py:537
+#: views.py:509 views.py:525 views.py:543
 msgid "Report issue"
 msgstr "Problem melden"
 
-#: rental/views.py:504
+#: views.py:510
 msgid "Mark issued"
 msgstr "Als ausgegeben markieren"
 
-#: rental/views.py:505
+#: views.py:511
 msgid "Request signature"
 msgstr "Unterschrift anfordern"
 
-#: rental/views.py:506
+#: views.py:512
 msgid "Extend"
 msgstr "Verlängern"
 
-#: rental/views.py:507
+#: views.py:513
 msgid "Start return"
 msgstr "Rückgabe starten"
 
-#: rental/views.py:508 rental/views.py:592
+#: views.py:514 views.py:598
 msgid "Edit items"
 msgstr "Artikel bearbeiten"
 
-#: rental/views.py:510 rental/views.py:594
+#: views.py:516 views.py:600
 msgid "Edit period"
 msgstr "Zeitraum bearbeiten"
 
-#: rental/views.py:511 rental/views.py:595
+#: views.py:517 views.py:601
 msgid "Resend confirmation"
 msgstr "Bestätigung erneut senden"
 
-#: rental/views.py:512 rental/views.py:596
+#: views.py:518 views.py:602
 msgid "Export as PDF"
 msgstr "Als PDF exportieren"
 
-#: rental/views.py:513 rental/views.py:597
+#: views.py:519 views.py:603
 msgid "Cancel rental"
 msgstr "Ausleihe stornieren"
 
-#: rental/views.py:514
+#: views.py:520
 msgid "Close rental"
 msgstr "Ausleihe schließen"
 
-#: rental/views.py:516
+#: views.py:522
 msgid "Send reminder"
 msgstr "Erinnerung senden"
 
-#: rental/views.py:517
+#: views.py:523
 msgid "Add item"
 msgstr "Artikel hinzufügen"
 
-#: rental/views.py:520 rental/views.py:536
+#: views.py:526 views.py:542
 msgid "Log issue"
 msgstr "Problem erfassen"
 
-#: rental/views.py:522
+#: views.py:528
 msgid "Confirm swap"
 msgstr "Tausch bestätigen"
 
-#: rental/views.py:523
+#: views.py:529
 msgid "Save period"
 msgstr "Zeitraum speichern"
 
-#: rental/views.py:528
+#: views.py:534
 msgid "Submit"
 msgstr "Absenden"
 
-#: rental/views.py:534
+#: views.py:540
 msgid ""
 "Issues are logged during return — they don't affect item availability until "
 "closed."
 msgstr ""
 
-#: rental/views.py:535
+#: views.py:541
 #, fuzzy
 #| msgid "Log issue for"
 msgid "No issues logged."
 msgstr "Problem erfassen für"
 
-#: rental/views.py:540
+#: views.py:546
 #, fuzzy
 #| msgid "Describe what's wrong…"
 msgid "Describe the issue…"
 msgstr "Beschreiben Sie das Problem…"
 
-#: rental/views.py:541
+#: views.py:547
 #, fuzzy
 #| msgid "Swap unit"
 msgid "Swap"
 msgstr "Gerät tauschen"
 
-#: rental/views.py:543
+#: views.py:549
 #, fuzzy
 #| msgid "No users found."
 msgid "No items found"
 msgstr "Keine Nutzer gefunden."
 
-#: rental/views.py:544
+#: views.py:550
 #, fuzzy
 #| msgid "Available Items"
 msgid "Unavailable"
 msgstr "Verfügbare Artikel"
 
-#: rental/views.py:546
+#: views.py:552
 #, fuzzy
 #| msgid "Search user by name or email…"
 msgid "Search by name, email…"
 msgstr "Nutzer nach Name oder E-Mail suchen…"
 
-#: rental/views.py:547
+#: views.py:553
 #, fuzzy
 #| msgid "No users found."
 msgid "No users found"
 msgstr "Keine Nutzer gefunden."
 
-#: rental/views.py:548
+#: views.py:554
 msgid "Type at least 2 characters to search"
 msgstr "Geben Sie mindestens 2 Zeichen ein, um zu suchen"
 
-#: rental/views.py:549
+#: views.py:555
 #, fuzzy
 #| msgid "Edit period"
 msgid "Edit rental period"
 msgstr "Zeitraum bearbeiten"
 
-#: rental/views.py:550
+#: views.py:556
 msgid "Pickup date"
 msgstr "Abholdatum"
 
-#: rental/views.py:551
+#: views.py:557
 #, fuzzy
 #| msgid "Return due"
 msgid "Return date"
 msgstr "Rückgabe fällig"
 
-#: rental/views.py:552
+#: views.py:558
 msgid "Both dates are required."
 msgstr "Beide Daten sind erforderlich."
 
-#: rental/views.py:553
+#: views.py:559
 #, fuzzy
 #| msgid "Saved"
 msgid "Save"
 msgstr "Gespeichert"
 
-#: rental/views.py:554
+#: views.py:560
 #, fuzzy
 #| msgid "Add rooms"
 msgid "Add room"
 msgstr "Räume hinzufügen"
 
-#: rental/views.py:555
+#: views.py:561
 #, fuzzy
 #| msgid "Add Room to Rental"
 msgid "Add room to rental"
 msgstr "Raum zur Ausleihe hinzufügen"
 
-#: rental/views.py:556
+#: views.py:562
 #, fuzzy
 #| msgid "Not available"
 msgid "No rooms available."
 msgstr "Nicht verfügbar"
 
-#: rental/views.py:559
+#: views.py:565
 #, fuzzy
 #| msgid "Remove this item from the rental?"
 msgid "Remove this room from the rental?"
 msgstr "Diesen Artikel aus der Ausleihe entfernen?"
 
-#: rental/views.py:580
+#: views.py:586
 #, fuzzy
 #| msgid "Could not create rental: "
 msgid "Could not update room"
 msgstr "Ausleihe konnte nicht erstellt werden: "
 
-#: rental/views.py:581
+#: views.py:587
 #, fuzzy
 #| msgid "Could not create rental: "
 msgid "Could not remove room"
 msgstr "Ausleihe konnte nicht erstellt werden: "
 
-#: rental/views.py:582
+#: views.py:588
 #, fuzzy
 #| msgid "Could not add items: "
 msgid "Could not add room"
 msgstr "Artikel konnten nicht hinzugefügt werden: "
 
-#: rental/views.py:586
+#: views.py:592
 #, fuzzy
 #| msgid "Time & conflicts"
 msgid "Conflicts"
 msgstr "Zeit & Konflikte"
 
-#: rental/views.py:589
+#: views.py:595
 msgid "Confirm & send"
 msgstr "Bestätigen & senden"
 
-#: rental/views.py:590
+#: views.py:596
 msgid "Sending…"
 msgstr "Wird gesendet…"
 
-#: rental/views.py:591 rental/views.py:603
+#: views.py:597 views.py:609
 msgid "Reminder sent."
 msgstr "Erinnerung gesendet."
 
-#: rental/views.py:598
+#: views.py:604
 msgid "Return due"
 msgstr "Rückgabe fällig"
 
-#: rental/views.py:604
+#: views.py:610
 msgid "Total:"
 msgstr "Gesamt:"
 
-#: rental/views.py:605
+#: views.py:611
 msgid "units issued"
 msgstr "Einheiten ausgegeben"
 
-#: rental/views.py:606
+#: views.py:612
 msgid "req"
 msgstr "angef."
 
-#: rental/views.py:618 rental/views.py:624
+#: views.py:624 views.py:630
 msgid "sets"
 msgstr "Sets"
 
-#: rental/views.py:619
+#: views.py:625
 msgid "Add set"
 msgstr "Set hinzufügen"
 
-#: rental/views.py:620
+#: views.py:626
 msgid "Adding…"
 msgstr "Hinzufügen…"
 
-#: rental/views.py:621
+#: views.py:627
 msgid "Could not add equipment set."
 msgstr "Geräteset konnte nicht hinzugefügt werden."
 
-#: rental/views.py:625
+#: views.py:631
 msgid "Hide form"
 msgstr "Formular ausblenden"
 
-#: rental/views.py:626
+#: views.py:632
 msgid "New set"
 msgstr "Neues Set"
 
-#: rental/views.py:627
+#: views.py:633
 #, python-brace-format
 msgid "Delete set \"{name}\"?"
 msgstr "Set \"{name}\" löschen?"
 
-#: rental/views.py:628
+#: views.py:634
 msgid "Could not delete set: "
 msgstr "Set konnte nicht gelöscht werden: "
 
-#: rental/views.py:629
+#: views.py:635
 msgid "Please enter a set name."
 msgstr "Bitte geben Sie einen Set-Namen ein."
 
-#: rental/views.py:630
+#: views.py:636
 msgid "Please add at least one item."
 msgstr "Bitte fügen Sie mindestens einen Artikel hinzu."
 
-#: rental/views.py:631
+#: views.py:637
 msgid "Could not create set."
 msgstr "Set konnte nicht erstellt werden."
 
-#: rental/views.py:634
+#: views.py:640
 msgid "e.g. Podcast Kit"
 msgstr "z.B. Podcast-Kit"
 
-#: rental/views.py:636
+#: views.py:642
 msgid "Optional description…"
 msgstr "Optionale Beschreibung…"
 
-#: rental/views.py:637
+#: views.py:643
 msgid "Search inventory items"
 msgstr "Inventarartikel suchen"
 
-#: rental/views.py:638
+#: views.py:644
 msgid "Type to search by name, number, or manufacturer…"
 msgstr "Suche nach Name, Nummer oder Hersteller…"
 
-#: rental/views.py:640
+#: views.py:646
 msgid "No items found."
 msgstr "Keine Artikel gefunden."
 
-#: rental/views.py:643
+#: views.py:649
 msgid "Create set"
 msgstr "Set erstellen"
 
-#: rental/views.py:645
+#: views.py:651
 msgid "No equipment sets yet."
 msgstr "Noch keine Gerätesets."
 
-#: rental/views.py:646
+#: views.py:652
 msgid "Create your first set using the button above."
 msgstr "Erstellen Sie Ihr erstes Set mit der Schaltfläche oben."
 
-#: rental/views.py:826
+#: views.py:832
 msgid "You must log in to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zugreifen zu können."
 
-#: rental/views.py:832
+#: views.py:838
 msgid "You do not have permission to access this page. Only staff have access."
 msgstr ""
 "Sie haben keine Berechtigung, auf diese Seite zuzugreifen. Nur Mitarbeitende "
 "haben Zugriff."
 
-#: rental/views.py:1083
+#: views.py:1099
 msgid "All items"
 msgstr "Alle Artikel"
 
-#: rental/views.py:1123 rental/views.py:4769
+#: views.py:1139 views.py:4949
 msgid "User profile not found"
 msgstr "Nutzerprofil nicht gefunden"
 
-#: rental/views.py:1276 rental/views.py:1308 rental/views.py:1431
-#: rental/views.py:1864 rental/views.py:1898 rental/views.py:1940
-#: rental/views.py:2403 rental/views.py:2430 rental/views.py:2458
-#: rental/views.py:2469 rental/views.py:2501 rental/views.py:2544
-#: rental/views.py:2559 rental/views.py:2569 rental/views.py:2580
-#: rental/views.py:2697 rental/views.py:2743 rental/views.py:2909
-#: rental/views.py:3375 rental/views.py:3911 rental/views.py:3963
-#: rental/views.py:4231 rental/views.py:5351 rental/views.py:5462
-#: rental/views.py:5616 rental/views.py:5645 rental/views.py:5831
-#: rental/views_api.py:439 rental/views_api.py:524 rental/views_api.py:598
+#: views.py:1292 views.py:1324 views.py:1447 views.py:1880 views.py:1914
+#: views.py:1956 views.py:2420 views.py:2447 views.py:2491 views.py:2502
+#: views.py:2534 views.py:2577 views.py:2592 views.py:2602 views.py:2613
+#: views.py:2730 views.py:2776 views.py:2942 views.py:3408 views.py:3944
+#: views.py:3996 views.py:4411 views.py:5554 views.py:5665 views.py:5819
+#: views.py:5848 views.py:6034 views_api.py:466 views_api.py:551
+#: views_api.py:625
 msgid "Method not allowed"
 msgstr "Methode nicht erlaubt"
 
-#: rental/views.py:1593 rental/views.py:4987
+#: views.py:1609 views.py:5190
 msgid "Location not specified"
 msgstr "Ort nicht angegeben"
 
-#: rental/views.py:1594 rental/views.py:4988
+#: views.py:1610 views.py:5191
 msgid "No category"
 msgstr "Keine Kategorie"
 
-#: rental/views.py:1677 rental/views.py:4485 rental/views.py:5411
+#: views.py:1693 views.py:4665 views.py:5614
 msgid "Unknown user"
 msgstr "Unbekannter Nutzer"
 
-#: rental/views.py:1696 rental/views.py:1698 rental/views.py:4503
-#: rental/views.py:4508 rental/views.py:5430 rental/views.py:5432
+#: views.py:1712 views.py:1714 views.py:4683 views.py:4688 views.py:5633
+#: views.py:5635
 #, python-brace-format
 msgid "User #{user_id}"
 msgstr "Nutzer Nr. {user_id}"
 
-#: rental/views.py:1704
+#: views.py:1720
 #, python-brace-format
 msgid "Not available - Conflicts: {conflicts}"
 msgstr "Nicht verfügbar – Konflikte: {conflicts}"
 
-#: rental/views.py:1708
+#: views.py:1724
 #, python-brace-format
 msgid " and {count} more"
 msgstr " und {count} weitere"
 
-#: rental/views.py:1871 rental/views.py:1905
+#: views.py:1887 views.py:1921
 msgid "Rental ID is required"
 msgstr "Ausleih-ID ist erforderlich"
 
-#: rental/views.py:1909
+#: views.py:1925
 msgid "Only draft requests can be confirmed"
 msgstr "Nur Entwurfsanfragen können bestätigt werden"
 
-#: rental/views.py:1957
+#: views.py:1973
 msgid "Rental ID and items are required"
 msgstr "Ausleih-ID und Ausleihen sind erforderlich"
 
-#: rental/views.py:1967
+#: views.py:1983
 msgid "Only active rentals can have returns"
 msgstr "Nur aktive Ausleihen können zurückgegeben werden"
 
-#: rental/views.py:1989
+#: views.py:2005
 msgid "Marked as recoverable damage charge."
 msgstr ""
 
-#: rental/views.py:1991
+#: views.py:2007
 msgid "Hold item out of the rental pool until reviewed."
 msgstr ""
 
-#: rental/views.py:2054
+#: views.py:2070
 msgid "Inventory audit requested during return processing."
 msgstr ""
 
-#: rental/views.py:2092
+#: views.py:2108
 msgid "Items returned successfully"
 msgstr "Ausleihen erfolgreich zurückgegeben"
 
-#: rental/views.py:2387
+#: views.py:2404
 #, fuzzy
 #| msgid "Rental request"
 msgid "Rental request not found"
 msgstr "Ausleihanfrage"
 
-#: rental/views.py:2407
+#: views.py:2424
 #, fuzzy
 #| msgid "Project name is required"
 msgid "New end date is required"
 msgstr "Projektname ist erforderlich"
 
-#: rental/views.py:2418 rental/views.py:2926
+#: views.py:2435 views.py:2959
 #, fuzzy
 #| msgid "Only active rentals can have returns"
 msgid "Only active rentals can be extended"
 msgstr "Nur aktive Ausleihen können zurückgegeben werden"
 
-#: rental/views.py:2420 rental/views.py:2968
+#: views.py:2437 views.py:3001
 #, fuzzy
 #| msgid "End date must be after start date"
 msgid "New end date must be after current end date"
 msgstr "Enddatum muss nach dem Startdatum liegen"
 
-#: rental/views.py:2422 rental/views.py:2981
+#: views.py:2439 views.py:3014
 msgid "The rental cannot be extended to the selected end date."
 msgstr ""
 
-#: rental/views.py:2433
+#: views.py:2455
 #, fuzzy
 #| msgid "Only draft, reserved or issued rentals can be cancelled"
 msgid "Only draft or reserved rentals can be issued"
 msgstr ""
 "Nur Entwürfe, reservierte oder ausgegebene Ausleihen können storniert werden"
 
-#: rental/views.py:2435
+#: views.py:2461
 msgid "Room-only rentals cannot be issued. Reservations expire automatically."
 msgstr ""
 
-#: rental/views.py:2462
+#: views.py:2482
+#, fuzzy
+#| msgid "Rental issue"
+msgid "Rental marked as issued."
+msgstr "Ausleihproblem"
+
+#: views.py:2495
 #, fuzzy
 #| msgid "Could not create rental: "
 msgid "Could not cancel rental"
 msgstr "Ausleihe konnte nicht erstellt werden: "
 
-#: rental/views.py:2475 rental/views.py:2508
+#: views.py:2508 views.py:2541 views.py:4178
 #, fuzzy
 #| msgid "Invalid JSON data"
 msgid "Invalid JSON body"
 msgstr "Ungültige JSON-Daten"
 
-#: rental/views.py:2478
+#: views.py:2511
 #, fuzzy
 #| msgid "Purpose is required"
 msgid "item_id is required"
 msgstr "Zweck ist erforderlich"
 
-#: rental/views.py:2483
+#: views.py:2516
 msgid "Cannot remove items from issued, overdue, or returned rentals"
 msgstr ""
 
-#: rental/views.py:2486 rental/views.py:2519 rental/views_api.py:390
+#: views.py:2519 views.py:2552 views_api.py:417
 msgid "Cannot modify items after rental is signed"
 msgstr ""
 
-#: rental/views.py:2491 rental/views.py:2524
+#: views.py:2524 views.py:2557
 #, fuzzy
 #| msgid "Inventory item not found"
 msgid "Rental item not found"
 msgstr "Ausleihartikel nicht gefunden"
 
-#: rental/views.py:2511
+#: views.py:2544
 #, fuzzy
 #| msgid "Rental ID and new end date are required"
 msgid "current_item_id and new_inventory_item_id are required"
 msgstr "Ausleih-ID und neues Enddatum sind erforderlich"
 
-#: rental/views.py:2516
+#: views.py:2549
 msgid "Cannot swap items after issuance"
 msgstr ""
 
-#: rental/views.py:2533
+#: views.py:2566
 #, fuzzy
 #| msgid "Inventory item not found"
 msgid "Inventory item not found or not available"
 msgstr "Ausleihartikel nicht gefunden"
 
-#: rental/views.py:2547
+#: views.py:2580
 msgid "Issued rentals must be returned before closing"
 msgstr ""
 
-#: rental/views.py:2549
+#: views.py:2582
 msgid "Room-only rentals are closed automatically."
 msgstr ""
 
-#: rental/views.py:2562
+#: views.py:2595
 msgid "Reminder queued"
 msgstr ""
 
-#: rental/views.py:2657
+#: views.py:2690
 #, fuzzy
 #| msgid "Room is not available for the selected period."
 msgid "No print form available for this rental."
 msgstr "Raum ist für den ausgewählten Zeitraum nicht verfügbar."
 
-#: rental/views.py:2730
+#: views.py:2763
 #, fuzzy
 #| msgid "Could not create rental: "
 msgid "Could not create rental"
 msgstr "Ausleihe konnte nicht erstellt werden: "
 
-#: rental/views.py:2747
+#: views.py:2780
 #, fuzzy
 #| msgid "Quantity issued"
 msgid "Quick issue"
 msgstr "Ausgegebene Menge"
 
-#: rental/views.py:2765
+#: views.py:2798
 #, fuzzy
 #| msgid "Could not create rental: "
 msgid "Could not issue rental"
 msgstr "Ausleihe konnte nicht erstellt werden: "
 
-#: rental/views.py:2917
+#: views.py:2950
 msgid "Rental ID and new end date are required"
 msgstr "Ausleih-ID und neues Enddatum sind erforderlich"
 
-#: rental/views.py:2958
+#: views.py:2991
 msgid "Invalid date format. Please use YYYY-MM-DDTHH:MM or ISO format"
 msgstr ""
 "Ungültiges Datumsformat. Bitte verwenden Sie JJJJ-MM-TTSS:MM oder das ISO-"
 "Format"
 
-#: rental/views.py:2978
+#: views.py:3011
 #, python-brace-format
 msgid "Invalid date format: {error}"
 msgstr "Ungültiges Datumsformat: {error}"
 
-#: rental/views.py:2985
+#: views.py:3018
 #, python-brace-format
 msgid "Rental request {rental_id} has been extended until {end_date}"
 msgstr "Ausleihanfrage {rental_id} wurde bis {end_date} verlängert"
 
-#: rental/views.py:3384
+#: views.py:3417
 msgid "Invalid confirmation code"
 msgstr "Ungültiger Bestätigungscode"
 
-#: rental/views.py:3401
+#: views.py:3434
 msgid ""
 "All rental data has been reset (inventory quantities reset not supported "
 "through API)"
@@ -4093,11 +4134,11 @@ msgstr ""
 "Alle Ausleihdaten wurden zurückgesetzt (Rücksetzung der Ausleihmengen über "
 "die API nicht unterstützt)"
 
-#: rental/views.py:3406
+#: views.py:3439
 msgid "Inventory quantities reset not supported through API"
 msgstr "Ausleihmengen-Reset über API nicht unterstützt"
 
-#: rental/views.py:3422
+#: views.py:3455
 #, python-brace-format
 msgid ""
 "{count} active rentals have been cancelled (inventory quantities reset not "
@@ -4106,91 +4147,129 @@ msgstr ""
 "{count} aktive Ausleihen wurden storniert (Ausleihmengen-Reset über API "
 "nicht unterstützt)"
 
-#: rental/views.py:3938
+#: views.py:3971
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully created."
 msgstr "Ausrünstungsset \"{name}\" wurde erfolgreich erstellt."
 
-#: rental/views.py:3974
+#: views.py:4007
 #, python-brace-format
 msgid "Equipment Set \"{name}\" was successfully deleted."
 msgstr "Ausrüstungsset \"{name}\" wurde erfolgreich gelöscht."
 
-#: rental/views.py:4165 rental/views.py:4221
+#: views.py:4142
+#, fuzzy
+#| msgid "Missing required parameters"
+msgid "Missing required parameter: num"
+msgstr "Erforderliche Parameter fehlen"
+
+#: views.py:4185
+msgid "Missing required fields: rental_id and inventory_number"
+msgstr ""
+
+#: views.py:4196
+msgid "Rental not found or not in issued status"
+msgstr ""
+
+#: views.py:4207
+#, fuzzy
+#| msgid "Close this rental?"
+msgid "Item not found in this rental"
+msgstr "Diese Ausleihe schließen?"
+
+#: views.py:4213
+#, fuzzy
+#| msgid "This request has already been processed."
+msgid "All issued quantities have already been returned"
+msgstr "Diese Anfrage wurde bereits bearbeitet."
+
+#: views.py:4291 views.py:4347
 #, python-brace-format
 msgid "Error loading rental: {error}"
 msgstr "Fehler beim Laden der Ausleihe: {error}"
 
-#: rental/views.py:4319
+#: views.py:4371
+#, fuzzy
+#| msgid "Missing required parameters"
+msgid "Missing required parameter: ids"
+msgstr "Erforderliche Parameter fehlen"
+
+#: views.py:4375
+#, fuzzy
+#| msgid "Invalid date format"
+msgid "Invalid item id format"
+msgstr "Ungültiges Datumsformat"
+
+#: views.py:4499
 msgid "Only POST method allowed"
 msgstr "Nur POST-Methode erlaubt"
 
-#: rental/views.py:4361
+#: views.py:4541
 msgid "Automatic expiration of room rentals completed"
 msgstr "Automatisches Auslaufen der Raumausleihen abgeschlossen"
 
-#: rental/views.py:4372
+#: views.py:4552
 #, python-brace-format
 msgid "Error executing command: {error}"
 msgstr "Fehler beim Ausführen des Befehls: {error}"
 
-#: rental/views.py:4512
+#: views.py:4692
 msgid "No project"
 msgstr "Kein Projekt"
 
-#: rental/views.py:5055
+#: views.py:5258
 msgid "Not available for selected period"
 msgstr "Für den ausgewählten Zeitraum nicht verfügbar"
 
-#: rental/views.py:5361 rental/views.py:5658
+#: views.py:5564 views.py:5861
 msgid "Missing required parameters"
 msgstr "Erforderliche Parameter fehlen"
 
-#: rental/views.py:5374
+#: views.py:5577
 msgid "Invalid date/time format"
 msgstr "Ungültiges Datums-/Zeitformat"
 
-#: rental/views.py:5402
+#: views.py:5605
 msgid "Room is available for the selected period."
 msgstr "Raum ist für den ausgewählten Zeitraum verfügbar."
 
-#: rental/views.py:5441
+#: views.py:5644
 msgid "Room is not available for the selected period."
 msgstr "Raum ist für den ausgewählten Zeitraum nicht verfügbar."
 
-#: rental/views.py:5472
+#: views.py:5675
 msgid "Template name is required"
 msgstr "Vorlagenname ist erforderlich"
 
-#: rental/views.py:5475
+#: views.py:5678
 msgid "At least one item is required"
 msgstr "Mindestens eine Ausleihe ist erforderlich"
 
-#: rental/views.py:5480
+#: views.py:5683
 msgid "Template with this name already exists"
 msgstr "Eine Vorlage mit diesem Namen existiert bereits"
 
-#: rental/views.py:5502
+#: views.py:5705
 msgid "Invalid inventory item ID"
 msgstr "Ungültige Ausleihartikel-ID"
 
-#: rental/views.py:5509
+#: views.py:5712
 msgid "Template saved successfully"
 msgstr "Vorlage erfolgreich gespeichert"
 
-#: rental/views.py:5513
+#: views.py:5716
 msgid "Invalid JSON data"
 msgstr "Ungültige JSON-Daten"
 
-#: rental/views.py:5627
+#: views.py:5830
 msgid "Template deleted successfully"
 msgstr "Vorlage erfolgreich gelöscht"
 
-#: rental/views.py:5681
+#: views.py:5884
 msgid "Rental must be in draft or reserved status to issue"
 msgstr "Ausleihe muss im Status 'Entwurf' oder 'reserviert' zum Ausleihen sein"
 
-#: rental/views.py:5687
+#: views.py:5890
 msgid ""
 "Cannot issue rental with only rooms. Equipment is required to change status "
 "from reserved to issued."
@@ -4198,11 +4277,11 @@ msgstr ""
 "Ausleihen mit nur Räumen können nicht ausgeliehen werden. Es wird Ausrüstung "
 "benötigt, um den Status von 'reserviert' auf 'ausgeliehen' zu ändern."
 
-#: rental/views.py:5697
+#: views.py:5900
 msgid "Invalid user ID"
 msgstr "Ungültige Nutzer-ID"
 
-#: rental/views.py:5729
+#: views.py:5932
 #, python-brace-format
 msgid ""
 "Item \"{item_description}\" is not available in requested quantity. "
@@ -4211,11 +4290,11 @@ msgstr ""
 "Ausleihe \"{item_description}\" ist in der angeforderten Menge nicht "
 "verfügbar. Verfügbar: {available}, angefordert: {requested}"
 
-#: rental/views.py:5764
+#: views.py:5967
 msgid "Inventory item not found"
 msgstr "Ausleihartikel nicht gefunden"
 
-#: rental/views.py:5776
+#: views.py:5979
 #, python-brace-format
 msgid ""
 "Item \"{item_description}\" is not available for the selected period. "
@@ -4224,260 +4303,257 @@ msgstr ""
 "Ausleihe \"{item_description}\" ist für den ausgewählten Zeitraum nicht "
 "verfügbar. Verfügbar: {available}, angefordert: {requested}"
 
-#: rental/views.py:5812
+#: views.py:6015
 msgid "Rental successfully issued from reservation"
 msgstr "Ausleihe erfolgreich aus der Reservierung ausgeliehen"
 
-#: rental/views.py:6098 rental/views.py:6128 rental/views_api.py:300
-#: rental/views_api.py:340 rental/views_api.py:387 rental/views_api.py:444
-#: rental/views_api.py:529 rental/views_api.py:603
+#: views.py:6304 views.py:6334 views_api.py:327 views_api.py:367
+#: views_api.py:414 views_api.py:471 views_api.py:556 views_api.py:630
 #, fuzzy
 #| msgid "Rental request"
 msgid "Rental request not found."
 msgstr "Ausleihanfrage"
 
-#: rental/views.py:6101
+#: views.py:6307
 #, fuzzy
 #| msgid "Cannot issue more than requested."
 msgid "Cannot update a closed rental request."
 msgstr "Kann nicht mehr als angefragt herausgeben."
 
-#: rental/views.py:6131
+#: views.py:6337
 #, fuzzy
 #| msgid "Cannot issue more than requested."
 msgid "Cannot sign a closed rental request."
 msgstr "Kann nicht mehr als angefragt herausgeben."
 
-#: rental/views.py:6146
+#: views.py:6352
 #, fuzzy
 #| msgid "Could not create signing session: "
 msgid "Could not create signing session. Please try again."
 msgstr "Signiersitzung konnte nicht erstellt werden: "
 
-#: rental/views.py:6166 rental/views.py:6252
+#: views.py:6372 views.py:6458
 msgid "Signing session not found."
 msgstr ""
 
-#: rental/views.py:6172
+#: views.py:6378
 #, fuzzy
 #| msgid "Method not allowed"
 msgid "Not allowed."
 msgstr "Methode nicht erlaubt"
 
-#: rental/views.py:6247
+#: views.py:6453
 msgid "Too many requests. Please try again later."
 msgstr ""
 
-#: rental/views.py:6255
+#: views.py:6461
 msgid "Signing session is not active."
 msgstr ""
 
-#: rental/views_api.py:169
+#: views_api.py:193
 #, fuzzy
 #| msgid "Inventory item not found"
 msgid "Rental not found."
 msgstr "Ausleihartikel nicht gefunden"
 
-#: rental/views_api.py:173
+#: views_api.py:197
 msgid "Permission denied."
 msgstr ""
 
-#: rental/views_api.py:233 rental/views_api.py:311 rental/views_api.py:351
-#: rental/views_api.py:398 rental/views_api.py:452 rental/views_api.py:537
-#: rental/views_api.py:611
+#: views_api.py:260 views_api.py:338 views_api.py:378 views_api.py:425
+#: views_api.py:479 views_api.py:564 views_api.py:638
 #, fuzzy
 #| msgid "Invalid JSON data"
 msgid "Invalid JSON."
 msgstr "Ungültige JSON-Daten"
 
-#: rental/views_api.py:239
+#: views_api.py:266
 #, fuzzy
 #| msgid "Rental ID is required"
 msgid "A valid rental period is required."
 msgstr "Ausleih-ID ist erforderlich"
 
-#: rental/views_api.py:303 rental/views_api.py:343
+#: views_api.py:330 views_api.py:370
 msgid "Cannot modify rental after it is signed"
 msgstr ""
 
-#: rental/views_api.py:306 rental/views_api.py:346
+#: views_api.py:333 views_api.py:373
 msgid "Cannot modify rental in current status"
 msgstr ""
 
-#: rental/views_api.py:315
+#: views_api.py:342
 #, fuzzy
 #| msgid "Rental ID is required"
 msgid "User ID is required."
 msgstr "Ausleih-ID ist erforderlich"
 
-#: rental/views_api.py:320
+#: views_api.py:347
 #, fuzzy
 #| msgid "User profile not found"
 msgid "User not found."
 msgstr "Nutzerprofil nicht gefunden"
 
-#: rental/views_api.py:357
+#: views_api.py:384
 #, fuzzy
 #| msgid "Start date and end date are required"
 msgid "Both start and end dates are required."
 msgstr "Start- und Enddatum sind erforderlich"
 
-#: rental/views_api.py:363
+#: views_api.py:390
 #, fuzzy
 #| msgid "Invalid date format"
 msgid "Invalid date format."
 msgstr "Ungültiges Datumsformat"
 
-#: rental/views_api.py:393
+#: views_api.py:420
 msgid "Cannot add items in the current rental status"
 msgstr ""
 
-#: rental/views_api.py:421
+#: views_api.py:448
 #, fuzzy
 #| msgid "No items or rooms selected"
 msgid "No new items were selected."
 msgstr "Keine Artikel oder Räume ausgewählt"
 
-#: rental/views_api.py:425
+#: views_api.py:452
 #, fuzzy
 #| msgid "Room is not available for the selected period."
 msgid "Selected items are no longer available for this period."
 msgstr "Raum ist für den ausgewählten Zeitraum nicht verfügbar."
 
-#: rental/views_api.py:447
+#: views_api.py:474
 msgid "Cannot add rooms in the current rental status"
 msgstr ""
 
-#: rental/views_api.py:456
+#: views_api.py:483
 #, fuzzy
 #| msgid "Purpose is required"
 msgid "room_id is required"
 msgstr "Zweck ist erforderlich"
 
-#: rental/views_api.py:461
+#: views_api.py:488
 #, fuzzy
 #| msgid "Room not found"
 msgid "Room not found."
 msgstr "Raum nicht gefunden"
 
-#: rental/views_api.py:464
+#: views_api.py:491
 #, fuzzy
 #| msgid "Close this rental?"
 msgid "This room is already in the rental."
 msgstr "Diese Ausleihe schließen?"
 
-#: rental/views_api.py:480 rental/views_api.py:559
+#: views_api.py:507 views_api.py:586
 #, fuzzy
 #| msgid "Invalid date/time format"
 msgid "Invalid start date/time format."
 msgstr "Ungültiges Datums-/Zeitformat"
 
-#: rental/views_api.py:488 rental/views_api.py:567
+#: views_api.py:515 views_api.py:594
 #, fuzzy
 #| msgid "Invalid date/time format"
 msgid "Invalid end date/time format."
 msgstr "Ungültiges Datums-/Zeitformat"
 
-#: rental/views_api.py:495 rental/views_api.py:576
+#: views_api.py:522 views_api.py:603
 #, fuzzy
 #| msgid "Room is not available for the selected period."
 msgid "Room is not available for the selected time period."
 msgstr "Raum ist für den ausgewählten Zeitraum nicht verfügbar."
 
-#: rental/views_api.py:532
+#: views_api.py:559
 msgid "Cannot edit rooms in the current rental status"
 msgstr ""
 
-#: rental/views_api.py:541 rental/views_api.py:615
+#: views_api.py:568 views_api.py:642
 #, fuzzy
 #| msgid "Rental ID is required"
 msgid "room_rental_id is required"
 msgstr "Ausleih-ID ist erforderlich"
 
-#: rental/views_api.py:546 rental/views_api.py:620
+#: views_api.py:573 views_api.py:647
 #, fuzzy
 #| msgid "Inventory item not found"
 msgid "Room rental not found."
 msgstr "Ausleihartikel nicht gefunden"
 
-#: rental/views_api.py:606
+#: views_api.py:633
 msgid "Cannot remove rooms in the current rental status"
 msgstr ""
 
-#: rental/views_api.py:627
+#: views_api.py:654
 #, fuzzy, python-format
 #| msgid "Remove from rental"
 msgid "Room \"%s\" removed from rental."
 msgstr "Aus der Ausleihe entfernen"
 
-#: rental/working_hours.py:84
+#: working_hours.py:84
 #, python-brace-format
 msgid "{day} {start}-{end}"
 msgstr ""
 
-#: rental/working_hours.py:92
+#: working_hours.py:92
 msgid "No working hours configured"
 msgstr "Keine Arbeitszeiten konfiguriert"
 
-#: rental/working_hours.py:133
+#: working_hours.py:133
 msgid "The selected start day is closed."
 msgstr "Der gewählte Starttag ist geschlossen."
 
-#: rental/working_hours.py:136
+#: working_hours.py:136
 msgid "The selected end day is closed."
 msgstr "Der gewählte Endtag ist geschlossen."
 
-#: rental/working_hours.py:139
+#: working_hours.py:139
 msgid "The selected start time is outside the configured working hours."
 msgstr ""
 "Die gewählte Startzeit liegt außerhalb der konfigurierten Arbeitszeiten."
 
-#: rental/working_hours.py:142
+#: working_hours.py:142
 msgid "The selected end time is outside the configured working hours."
 msgstr "Die gewählte Endzeit liegt außerhalb der konfigurierten Arbeitszeiten."
 
 # Barcode scanning translations
-msgid "Scan"
-msgstr "Scannen"
+#~ msgid "Scan"
+#~ msgstr "Scannen"
 
-msgid "Scan or enter an inventory code above to add items."
-msgstr "Scannen oder geben Sie oben einen Inventarcode ein, um Artikel hinzuzufügen."
+#~ msgid "Scan or enter an inventory code above to add items."
+#~ msgstr ""
+#~ "Scannen oder geben Sie oben einen Inventarcode ein, um Artikel "
+#~ "hinzuzufügen."
 
-msgid "Inventory code not found: "
-msgstr "Inventarcode nicht gefunden: "
+#~ msgid "Inventory code not found: "
+#~ msgstr "Inventarcode nicht gefunden: "
 
-msgid "Scan Barcode"
-msgstr "Barcode scannen"
+#~ msgid "Scan Barcode"
+#~ msgstr "Barcode scannen"
 
-msgid "Scan or type inventory number…"
-msgstr "Scannen oder Inventarnummer eingeben…"
+#~ msgid "Scan or type inventory number…"
+#~ msgstr "Scannen oder Inventarnummer eingeben…"
 
-msgid "returned"
-msgstr "zurückgegeben"
+#~ msgid "returned"
+#~ msgstr "zurückgegeben"
 
-msgid "Print Barcodes"
-msgstr "Barcodes drucken"
+#~ msgid "Print Barcodes"
+#~ msgstr "Barcodes drucken"
 
-msgid "Barcode Labels"
-msgstr "Barcode-Etiketten"
+#~ msgid "Open in new tab"
+#~ msgstr "In neuem Tab öffnen"
 
-msgid "Open in new tab"
-msgstr "In neuem Tab öffnen"
+#~ msgid "Compact format"
+#~ msgstr "Kompaktformat"
 
-msgid "Compact format"
-msgstr "Kompaktformat"
+#~ msgid "Format selection"
+#~ msgstr "Format-Auswahl"
 
-msgid "Format selection"
-msgstr "Format-Auswahl"
+#~ msgid "Loading..."
+#~ msgstr "Laden..."
 
-msgid "Loading..."
-msgstr "Laden..."
+#~ msgid "Failed to load barcodes"
+#~ msgstr "Barcodes konnten nicht geladen werden"
 
-msgid "Failed to load barcodes"
-msgstr "Barcodes konnten nicht geladen werden"
-
-msgid "Error loading barcodes"
-msgstr "Fehler beim Laden der Barcodes"
+#~ msgid "Error loading barcodes"
+#~ msgstr "Fehler beim Laden der Barcodes"
 
 #, fuzzy
 #~| msgid "Issued"
@@ -4712,9 +4788,6 @@ msgstr "Fehler beim Laden der Barcodes"
 
 #~ msgid "First"
 #~ msgstr "Erste"
-
-#~ msgid "Previous"
-#~ msgstr "Vorherige"
 
 #~ msgid "Page"
 #~ msgstr "Seite"

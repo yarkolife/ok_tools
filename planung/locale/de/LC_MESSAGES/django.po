@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 20:53+0200\n"
+"POT-Creation-Date: 2026-07-06 20:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,81 +17,81 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: planung/admin.py:222
+#: planung/admin.py:258
 msgid "Mon"
 msgstr "Mo"
 
-#: planung/admin.py:223
+#: planung/admin.py:259
 msgid "Tue"
 msgstr "Di"
 
-#: planung/admin.py:224
+#: planung/admin.py:260
 msgid "Wed"
 msgstr "Mi"
 
-#: planung/admin.py:225
+#: planung/admin.py:261
 msgid "Thu"
 msgstr "Do"
 
-#: planung/admin.py:226
+#: planung/admin.py:262
 msgid "Fri"
 msgstr "Fr"
 
-#: planung/admin.py:227
+#: planung/admin.py:263
 msgid "Sat"
 msgstr "Sa"
 
-#: planung/admin.py:228
+#: planung/admin.py:264
 msgid "Sun"
 msgstr "So"
 
-#: planung/admin.py:232
+#: planung/admin.py:268
 msgid "Calendar Weeks – Broadcast Planning"
 msgstr "Kalenderwochen – Sendeplanung"
 
-#: planung/admin.py:254
+#: planung/admin.py:290
 msgid "Draft?"
 msgstr "Entwurf?"
 
-#: planung/admin.py:263
+#: planung/admin.py:299
 msgid "Planned items"
 msgstr "Geplante Beiträge"
 
-#: planung/admin.py:272 planung/templates/admin/planung/calendar_weeks.html:550
-#: planung/templates/admin/planung/calendar_weeks.html:583
-#: planung/templates/admin/planung/calendar_weeks.html:615
+#: planung/admin.py:308 planung/templates/admin/planung/calendar_weeks.html:559
+#: planung/templates/admin/planung/calendar_weeks.html:603
+#: planung/templates/admin/planung/calendar_weeks.html:621
 msgid "Comment"
 msgstr "Kommentar"
 
-#: planung/admin.py:298
+#: planung/admin.py:334
 msgid "not found"
 msgstr "nicht gefunden"
 
-#: planung/admin.py:317 planung/templates/admin/planung/calendar_weeks.html:674
+#: planung/admin.py:356 planung/templates/admin/planung/calendar_weeks.html:686
 msgid "Start"
 msgstr "Start"
 
-#: planung/admin.py:318
+#: planung/admin.py:357
 msgid "License"
 msgstr "Freistellung"
 
-#: planung/admin.py:319
+#: planung/admin.py:358
 msgid "Author"
 msgstr "Sendeverantwortung"
 
-#: planung/admin.py:320 planung/templates/admin/planung/calendar_weeks.html:679
+#: planung/admin.py:359 planung/templates/admin/planung/calendar_weeks.html:691
 msgid "Duration"
 msgstr "Dauer"
 
-#: planung/admin.py:326
+#: planung/admin.py:367
 msgid "Planned items (preview)"
 msgstr "Geplante Beiträge (Vorschau)"
 
-#: planung/admin.py:365
+#: planung/admin.py:406
 msgid "Playout Import"
 msgstr "Playout-Import"
 
-#: planung/admin.py:376
+#: planung/admin.py:417
 msgid ""
 "When configured, the Plan! action sends planned media metadata to the "
 "external playout import endpoint. The missing metadata settings can "
@@ -102,11 +102,11 @@ msgstr ""
 "können periodisch Playout nach Dateien abfragen, die noch Metadaten "
 "benötigen."
 
-#: planung/admin.py:381
+#: planung/admin.py:422
 msgid "Playout Schedule"
 msgstr "Playout-Sendeplan"
 
-#: planung/admin.py:386
+#: planung/admin.py:427
 msgid ""
 "When configured, the Plan! action also sends the day's broadcast schedule "
 "(day, start times, item kinds, filenames) to the external playout schedule "
@@ -116,11 +116,11 @@ msgstr ""
 "Startzeiten, Beitragstypen, Dateinamen) an den externen Playout-Sendeplan-"
 "Endpunkt."
 
-#: planung/admin.py:391
+#: planung/admin.py:432
 msgid "Anchor Render"
 msgstr "Anchor-Render"
 
-#: planung/admin.py:404
+#: planung/admin.py:445
 msgid ""
 "When configured, planned days can be sent to the external anchor renderer to "
 "create a programme preview video."
@@ -196,7 +196,7 @@ msgstr "Erstellen"
 msgid "Update"
 msgstr "Aktualisieren"
 
-#: planung/models.py:69 planung/templates/admin/planung/calendar_weeks.html:735
+#: planung/models.py:69 planung/templates/admin/planung/calendar_weeks.html:747
 msgid "Delete"
 msgstr "Löschen"
 
@@ -389,111 +389,111 @@ msgstr ""
 "benötigen zusätzlich prefix; title_contains-Regeln benötigen zusätzlich "
 "contains."
 
-#: planung/models.py:214
+#: planung/models.py:215
 msgid "Webhook HMAC secret"
 msgstr ""
 
-#: planung/models.py:215
+#: planung/models.py:216
 msgid "Shared secret for HMAC-SHA256 verification of incoming webhooks."
 msgstr ""
 
-#: planung/models.py:219 planung/models.py:220 planung/models.py:224
+#: planung/models.py:220 planung/models.py:221 planung/models.py:225
 msgid "Planning Configuration"
 msgstr "Planungskonfiguration"
 
-#: planung/models.py:308 planung/models.py:382
+#: planung/models.py:309 planung/models.py:383
 msgid "Inbound media"
 msgstr ""
 
-#: planung/models.py:309 planung/models.py:383
+#: planung/models.py:310 planung/models.py:384
 #, fuzzy
 #| msgid "Playout Schedule"
 msgid "Inbound schedule"
 msgstr "Playout-Sendeplan"
 
-#: planung/models.py:310 planung/models.py:384
+#: planung/models.py:311 planung/models.py:385
 #, fuzzy
 #| msgid "Submit air reports"
 msgid "Outbound air report"
 msgstr "Ausstrahlungsberichte übermitteln"
 
-#: planung/models.py:317
+#: planung/models.py:318
 msgid "External ID"
 msgstr ""
 
-#: planung/models.py:323
+#: planung/models.py:324
 msgid "Media filename"
 msgstr ""
 
-#: planung/models.py:328
+#: planung/models.py:329
 msgid "Scheduled start"
 msgstr ""
 
-#: planung/models.py:333
+#: planung/models.py:334
 #, fuzzy
 #| msgid "Start"
 msgid "Started at"
 msgstr "Start"
 
-#: planung/models.py:338
+#: planung/models.py:339
 msgid "Ended at"
 msgstr ""
 
-#: planung/models.py:342
+#: planung/models.py:343
 msgid "Used fallback"
 msgstr ""
 
-#: planung/models.py:348 planung/models.py:396
+#: planung/models.py:349 planung/models.py:397
 #, fuzzy
 #| msgid "Duration"
 msgid "Direction"
 msgstr "Dauer"
 
-#: planung/models.py:353
+#: planung/models.py:354
 msgid "Raw payload"
 msgstr ""
 
-#: planung/models.py:357 planung/models.py:405
+#: planung/models.py:358 planung/models.py:406
 msgid "Processed"
 msgstr ""
 
-#: planung/models.py:362 planung/models.py:411
+#: planung/models.py:363 planung/models.py:412
 #, fuzzy
 #| msgid "Create"
 msgid "Created at"
 msgstr "Erstellen"
 
-#: planung/models.py:366
+#: planung/models.py:367
 #, fuzzy
 #| msgid "Air Reports"
 msgid "Air report"
 msgstr "Ausstrahlungsberichte"
 
-#: planung/models.py:367
+#: planung/models.py:368
 #, fuzzy
 #| msgid "Air Reports"
 msgid "Air reports"
 msgstr "Ausstrahlungsberichte"
 
-#: planung/models.py:391
+#: planung/models.py:392
 msgid "Connector ID"
 msgstr ""
 
-#: planung/models.py:401
+#: planung/models.py:402
 msgid "Payload"
 msgstr ""
 
-#: planung/models.py:406
+#: planung/models.py:407
 msgid "Whether the webhook payload has been processed."
 msgstr ""
 
-#: planung/models.py:415
+#: planung/models.py:416
 #, fuzzy
 #| msgid "Incoming Webhook"
 msgid "Incoming webhook log"
 msgstr "Eingehender Webhook"
 
-#: planung/models.py:416
+#: planung/models.py:417
 #, fuzzy
 #| msgid "Incoming Webhook"
 msgid "Incoming webhook logs"
@@ -791,16 +791,16 @@ msgid "All statuses"
 msgstr "Alle Status"
 
 #: planung/templates/admin/planung/calendar_weeks.html:491
-#: planung/templates/admin/planung/calendar_weeks.html:548
-#: planung/templates/admin/planung/calendar_weeks.html:583
-#: planung/templates/admin/planung/calendar_weeks.html:611
+#: planung/templates/admin/planung/calendar_weeks.html:551
+#: planung/templates/admin/planung/calendar_weeks.html:603
+#: planung/templates/admin/planung/calendar_weeks.html:609
 msgid "Planned"
 msgstr "Geplant"
 
 #: planung/templates/admin/planung/calendar_weeks.html:492
-#: planung/templates/admin/planung/calendar_weeks.html:549
-#: planung/templates/admin/planung/calendar_weeks.html:583
-#: planung/templates/admin/planung/calendar_weeks.html:613
+#: planung/templates/admin/planung/calendar_weeks.html:555
+#: planung/templates/admin/planung/calendar_weeks.html:603
+#: planung/templates/admin/planung/calendar_weeks.html:612
 msgid "Draft"
 msgstr "Entwurf"
 
@@ -809,122 +809,126 @@ msgid "Comment only"
 msgstr "Nur Kommentar"
 
 #: planung/templates/admin/planung/calendar_weeks.html:494
-#: planung/templates/admin/planung/calendar_weeks.html:551
-#: planung/templates/admin/planung/calendar_weeks.html:583
-#: planung/templates/admin/planung/calendar_weeks.html:617
+#: planung/templates/admin/planung/calendar_weeks.html:563
+#: planung/templates/admin/planung/calendar_weeks.html:603
+#: planung/templates/admin/planung/calendar_weeks.html:624
+#: planung/templates/admin/planung/calendar_weeks.html:664
+msgid "Outside block"
+msgstr "Außerhalb des Blocks"
+
+#: planung/templates/admin/planung/calendar_weeks.html:495
+#: planung/templates/admin/planung/calendar_weeks.html:567
+#: planung/templates/admin/planung/calendar_weeks.html:603
 msgid "Empty"
 msgstr "Leer"
 
-#: planung/templates/admin/planung/calendar_weeks.html:498
+#: planung/templates/admin/planung/calendar_weeks.html:499
 msgid "API-Dokumentation"
 msgstr "API-Dokumentation"
 
-#: planung/templates/admin/planung/calendar_weeks.html:506
+#: planung/templates/admin/planung/calendar_weeks.html:507
 msgid "Current Week"
 msgstr "Aktuelle Woche"
 
-#: planung/templates/admin/planung/calendar_weeks.html:506
-#: planung/templates/admin/planung/calendar_weeks.html:516
-#: planung/templates/admin/planung/calendar_weeks.html:526
-#: planung/templates/admin/planung/calendar_weeks.html:536
-#: planung/templates/admin/planung/calendar_weeks.html:571
+#: planung/templates/admin/planung/calendar_weeks.html:507
+#: planung/templates/admin/planung/calendar_weeks.html:517
+#: planung/templates/admin/planung/calendar_weeks.html:527
+#: planung/templates/admin/planung/calendar_weeks.html:537
+#: planung/templates/admin/planung/calendar_weeks.html:591
 msgid "CW"
 msgstr "KW"
-
-#: planung/templates/admin/planung/calendar_weeks.html:508
-#: planung/templates/admin/planung/calendar_weeks.html:518
-#: planung/templates/admin/planung/calendar_weeks.html:528
-#: planung/templates/admin/planung/calendar_weeks.html:538
-msgid "Planned days"
-msgstr "Geplante Tage"
 
 #: planung/templates/admin/planung/calendar_weeks.html:509
 #: planung/templates/admin/planung/calendar_weeks.html:519
 #: planung/templates/admin/planung/calendar_weeks.html:529
 #: planung/templates/admin/planung/calendar_weeks.html:539
-msgid "Total time"
-msgstr "Gesamtzeit"
+msgid "Planned days"
+msgstr "Geplante Tage"
 
 #: planung/templates/admin/planung/calendar_weeks.html:510
 #: planung/templates/admin/planung/calendar_weeks.html:520
 #: planung/templates/admin/planung/calendar_weeks.html:530
 #: planung/templates/admin/planung/calendar_weeks.html:540
-msgid "Fill rate"
-msgstr "Füllrate"
+msgid "Total time"
+msgstr "Gesamtzeit"
 
 #: planung/templates/admin/planung/calendar_weeks.html:511
 #: planung/templates/admin/planung/calendar_weeks.html:521
 #: planung/templates/admin/planung/calendar_weeks.html:531
 #: planung/templates/admin/planung/calendar_weeks.html:541
+msgid "Fill rate"
+msgstr "Füllrate"
+
+#: planung/templates/admin/planung/calendar_weeks.html:512
+#: planung/templates/admin/planung/calendar_weeks.html:522
+#: planung/templates/admin/planung/calendar_weeks.html:532
+#: planung/templates/admin/planung/calendar_weeks.html:542
 msgid "Licenses"
 msgstr "Freistellungen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:516
+#: planung/templates/admin/planung/calendar_weeks.html:517
 msgid "Next Week"
 msgstr "Nächste Woche"
 
-#: planung/templates/admin/planung/calendar_weeks.html:526
+#: planung/templates/admin/planung/calendar_weeks.html:527
 msgid "Week After Next"
 msgstr "Übernächste Woche"
 
-#: planung/templates/admin/planung/calendar_weeks.html:536
+#: planung/templates/admin/planung/calendar_weeks.html:537
 msgid "3 Weeks Ahead"
 msgstr "3 Wochen voraus"
 
-#: planung/templates/admin/planung/calendar_weeks.html:546
+#: planung/templates/admin/planung/calendar_weeks.html:547
 msgid "Calendar status legend"
 msgstr "Legende der Kalenderstatus"
 
-#: planung/templates/admin/planung/calendar_weeks.html:547
+#: planung/templates/admin/planung/calendar_weeks.html:548
 msgid "Legend"
 msgstr "Legende"
 
-#: planung/templates/admin/planung/calendar_weeks.html:552
-#: planung/templates/admin/planung/calendar_weeks.html:583
+#: planung/templates/admin/planung/calendar_weeks.html:571
+#: planung/templates/admin/planung/calendar_weeks.html:603
+#: planung/templates/admin/planung/calendar_weeks.html:627
 msgid "Live broadcast"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:556
+#: planung/templates/admin/planung/calendar_weeks.html:576
 msgid "Planning calendar weeks"
 msgstr "Planungs-Kalenderwochen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:557
+#: planung/templates/admin/planung/calendar_weeks.html:577
 msgid "Calendar with planning status by day"
 msgstr "Kalender mit Planungsstatus pro Tag"
 
-#: planung/templates/admin/planung/calendar_weeks.html:560
+#: planung/templates/admin/planung/calendar_weeks.html:580
 msgid "Week"
 msgstr "Woche"
 
-#: planung/templates/admin/planung/calendar_weeks.html:573
+#: planung/templates/admin/planung/calendar_weeks.html:593
 #, fuzzy
 #| msgid "Current Week"
 msgid "Current"
 msgstr "Aktuelle Woche"
 
-#: planung/templates/admin/planung/calendar_weeks.html:602
-msgid "min"
-msgstr "Min"
-
-#: planung/templates/admin/planung/calendar_weeks.html:639
-#: planung/templates/admin/planung/calendar_weeks.html:742
-#: planung/templates/admin/planung/calendar_weeks.html:764
+#: planung/templates/admin/planung/calendar_weeks.html:651
+#: planung/templates/admin/planung/calendar_weeks.html:754
+#: planung/templates/admin/planung/calendar_weeks.html:776
 msgid "Close"
 msgstr "Schließen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:644
+#: planung/templates/admin/planung/calendar_weeks.html:656
 msgid "Broadcast block"
 msgstr "Sendeblock"
 
-#: planung/templates/admin/planung/calendar_weeks.html:645
+#: planung/templates/admin/planung/calendar_weeks.html:657
 msgid "Full available"
 msgstr "Voll verfügbar"
 
-#: planung/templates/admin/planung/calendar_weeks.html:646
+#: planung/templates/admin/planung/calendar_weeks.html:658
 msgid "Large gaps (≥5 min) can be filled with videos"
 msgstr "Große Lücken (≥5 Min.) können mit Videos gefüllt werden"
 
-#: planung/templates/admin/planung/calendar_weeks.html:647
+#: planung/templates/admin/planung/calendar_weeks.html:659
 msgid ""
 "You can manually set any time (including 00:00 and times outside the block) "
 "by editing the start time field"
@@ -932,144 +936,140 @@ msgstr ""
 "Sie können jede Zeit manuell einstellen (einschließlich 00:00 und Zeiten "
 "außerhalb des Blocks), indem Sie das Startzeitfeld bearbeiten."
 
-#: planung/templates/admin/planung/calendar_weeks.html:651
+#: planung/templates/admin/planung/calendar_weeks.html:663
 msgid "Items"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:652
-msgid "Outside block"
-msgstr "Außerhalb des Blocks"
-
-#: planung/templates/admin/planung/calendar_weeks.html:653
+#: planung/templates/admin/planung/calendar_weeks.html:665
 msgid "Large gaps"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:654
+#: planung/templates/admin/planung/calendar_weeks.html:666
 msgid "Overlaps"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:660
+#: planung/templates/admin/planung/calendar_weeks.html:672
 msgid "Enter license number..."
 msgstr "Freistellungsnummer eingeben..."
 
-#: planung/templates/admin/planung/calendar_weeks.html:663
+#: planung/templates/admin/planung/calendar_weeks.html:675
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:665
+#: planung/templates/admin/planung/calendar_weeks.html:677
 msgid "Align all start times to 0 or 5 minutes"
 msgstr "Alle Startzeiten auf 0 oder 5 Minuten ausrichten"
 
-#: planung/templates/admin/planung/calendar_weeks.html:667
+#: planung/templates/admin/planung/calendar_weeks.html:679
 msgid "Align to 5 min"
 msgstr "Auf 5 Min. ausrichten"
 
-#: planung/templates/admin/planung/calendar_weeks.html:675
+#: planung/templates/admin/planung/calendar_weeks.html:687
 msgid "End"
 msgstr "Ende"
 
-#: planung/templates/admin/planung/calendar_weeks.html:676
+#: planung/templates/admin/planung/calendar_weeks.html:688
 msgid "Number"
 msgstr "Nummer"
 
-#: planung/templates/admin/planung/calendar_weeks.html:677
+#: planung/templates/admin/planung/calendar_weeks.html:689
 msgid "Title"
 msgstr "Titel"
 
-#: planung/templates/admin/planung/calendar_weeks.html:678
+#: planung/templates/admin/planung/calendar_weeks.html:690
 msgid "Sendeverantwortung"
 msgstr "Sendeverantwortung"
 
-#: planung/templates/admin/planung/calendar_weeks.html:680
+#: planung/templates/admin/planung/calendar_weeks.html:692
 msgid "Actions"
 msgstr "Aktionen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:689
+#: planung/templates/admin/planung/calendar_weeks.html:701
 msgid "Comment or notes:"
 msgstr "Kommentar oder Notizen:"
 
-#: planung/templates/admin/planung/calendar_weeks.html:695
+#: planung/templates/admin/planung/calendar_weeks.html:707
 msgid "Preparation actions"
 msgstr "Vorbereitungsaktionen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:697
+#: planung/templates/admin/planung/calendar_weeks.html:709
 msgid "Select template"
 msgstr "Vorlage auswählen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:701
+#: planung/templates/admin/planung/calendar_weeks.html:713
 msgid "Apply template"
 msgstr "Vorlage anwenden"
 
-#: planung/templates/admin/planung/calendar_weeks.html:705
+#: planung/templates/admin/planung/calendar_weeks.html:717
 msgid "Copy from date"
 msgstr "Von Datum kopieren"
 
-#: planung/templates/admin/planung/calendar_weeks.html:707
-#: planung/templates/admin/planung/calendar_weeks.html:709
+#: planung/templates/admin/planung/calendar_weeks.html:719
+#: planung/templates/admin/planung/calendar_weeks.html:721
 msgid "Sort by time"
 msgstr "Nach Zeit sortieren"
 
-#: planung/templates/admin/planung/calendar_weeks.html:713
+#: planung/templates/admin/planung/calendar_weeks.html:725
 msgid "Export action"
 msgstr "Exportaktion"
 
-#: planung/templates/admin/planung/calendar_weeks.html:716
+#: planung/templates/admin/planung/calendar_weeks.html:728
 msgid "Export JSON"
 msgstr "JSON exportieren"
 
-#: planung/templates/admin/planung/calendar_weeks.html:718
+#: planung/templates/admin/planung/calendar_weeks.html:730
 msgid "Send media metadata to playout"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:720
+#: planung/templates/admin/planung/calendar_weeks.html:732
 msgid "Send metadata"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:722
+#: planung/templates/admin/planung/calendar_weeks.html:734
 msgid "Send schedule to playout"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:724
+#: planung/templates/admin/planung/calendar_weeks.html:736
 msgid "Send schedule"
 msgstr ""
 
-#: planung/templates/admin/planung/calendar_weeks.html:726
+#: planung/templates/admin/planung/calendar_weeks.html:738
 msgid "Render programme preview"
 msgstr "Programmvorschau rendern"
 
-#: planung/templates/admin/planung/calendar_weeks.html:728
+#: planung/templates/admin/planung/calendar_weeks.html:740
 msgid "Render preview"
 msgstr "Vorschau rendern"
 
-#: planung/templates/admin/planung/calendar_weeks.html:732
+#: planung/templates/admin/planung/calendar_weeks.html:744
 msgid "Danger actions"
 msgstr "Gefährliche Aktionen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:739
+#: planung/templates/admin/planung/calendar_weeks.html:751
 msgid "Primary actions"
 msgstr "Primäre Aktionen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:746
+#: planung/templates/admin/planung/calendar_weeks.html:758
 msgid "Save"
 msgstr "Speichern"
 
-#: planung/templates/admin/planung/calendar_weeks.html:750
+#: planung/templates/admin/planung/calendar_weeks.html:762
 msgid "Plan!"
 msgstr "Planen!"
 
-#: planung/templates/admin/planung/calendar_weeks.html:763
+#: planung/templates/admin/planung/calendar_weeks.html:775
 msgid "Confirm action"
 msgstr "Aktion bestätigen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:768
+#: planung/templates/admin/planung/calendar_weeks.html:780
 msgid "Enter value"
 msgstr "Wert eingeben"
 
-#: planung/templates/admin/planung/calendar_weeks.html:772
+#: planung/templates/admin/planung/calendar_weeks.html:784
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: planung/templates/admin/planung/calendar_weeks.html:773
+#: planung/templates/admin/planung/calendar_weeks.html:785
 msgid "Confirm"
 msgstr "Bestätigen"
 
@@ -1128,6 +1128,9 @@ msgstr "Tag zuerst planen"
 #: planung/views.py:505
 msgid "User profile is missing"
 msgstr "Benutzerprofil fehlt"
+
+#~ msgid "min"
+#~ msgstr "Min"
 
 #~ msgid "Time Off"
 #~ msgstr "Freizeit"

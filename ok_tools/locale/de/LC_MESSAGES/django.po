@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OK Tools 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 20:53+0200\n"
+"POT-Creation-Date: 2026-07-06 21:05+0200\n"
 "PO-Revision-Date: 2026-01-28 12:00+0100\n"
 "Last-Translator: OK Tools Team\n"
 "Language-Team: German\n"
@@ -15,148 +15,148 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: contributions/admin.py:33
+#: contributions/admin.py:34
 msgid "Broadcast date"
 msgstr "Sendedatum"
 
-#: contributions/admin.py:55 contributions/admin.py:450
-#: contributions/templates/admin/export.html:32 projects/admin.py:49
+#: contributions/admin.py:56 contributions/admin.py:474
+#: contributions/templates/admin/export.html:32 projects/admin.py:50
 msgid "Date from"
 msgstr "Datum von"
 
-#: contributions/admin.py:57 contributions/admin.py:62 projects/admin.py:51
-#: projects/admin.py:56
+#: contributions/admin.py:58 contributions/admin.py:63 projects/admin.py:52
+#: projects/admin.py:57
 msgid "From"
 msgstr "Von"
 
-#: contributions/admin.py:60 projects/admin.py:54
+#: contributions/admin.py:61 projects/admin.py:55
 msgid "Time from"
 msgstr "Zeit von"
 
-#: contributions/admin.py:65 contributions/admin.py:455
-#: contributions/templates/admin/export.html:37 projects/admin.py:59
+#: contributions/admin.py:66 contributions/admin.py:479
+#: contributions/templates/admin/export.html:37 projects/admin.py:60
 msgid "Date to"
 msgstr "Datum bis"
 
-#: contributions/admin.py:67 contributions/admin.py:72 projects/admin.py:61
-#: projects/admin.py:66
+#: contributions/admin.py:68 contributions/admin.py:73 projects/admin.py:62
+#: projects/admin.py:67
 msgid "To"
 msgstr "Bis"
 
-#: contributions/admin.py:70 projects/admin.py:64
+#: contributions/admin.py:71 projects/admin.py:65
 msgid "Time to"
 msgstr "Zeit bis"
 
-#: contributions/admin.py:137 contributions/api.py:43
+#: contributions/admin.py:138 contributions/api.py:43
 msgid "Info block"
 msgstr "Infoblock"
 
-#: contributions/admin.py:223 contributions/admin.py:417
+#: contributions/admin.py:225 contributions/admin.py:431
 #: contributions/models.py:90
 #: contributions/templates/contributions/list.html:155
 msgid "Broadcast Date"
 msgstr "Sendedatum"
 
-#: contributions/admin.py:224
+#: contributions/admin.py:226
 msgid "Start Time"
 msgstr "Startzeit"
 
-#: contributions/admin.py:225
+#: contributions/admin.py:227
 msgid "End Time"
 msgstr "Endzeit"
 
-#: contributions/admin.py:226 contributions/admin.py:415
-#: contributions/admin.py:642 contributions/admin.py:937
-#: contributions/templates/contributions/list.html:154 projects/admin.py:171
-#: registration/models.py:285
+#: contributions/admin.py:228 contributions/admin.py:429
+#: contributions/admin.py:666 contributions/admin.py:969
+#: contributions/templates/contributions/list.html:154 projects/admin.py:172
+#: registration/models.py:299
 msgid "Title"
 msgstr "Titel"
 
-#: contributions/admin.py:227 contributions/admin.py:416
-#: contributions/admin.py:643 contributions/admin.py:942
+#: contributions/admin.py:229 contributions/admin.py:430
+#: contributions/admin.py:667 contributions/admin.py:974
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: contributions/admin.py:228
+#: contributions/admin.py:230
 #: contributions/templates/admin/contributions/contribution/change_list.html:100
-#: inventory/admin.py:29 inventory/models.py:31 inventory/models.py:48
-#: inventory/models.py:64 inventory/models.py:191 projects/admin.py:173
-#: projects/models.py:143 registration/models.py:559
+#: inventory/admin.py:55 inventory/models.py:31 inventory/models.py:48
+#: inventory/models.py:64 inventory/models.py:191 projects/admin.py:174
+#: projects/models.py:143 registration/models.py:573
 msgid "Description"
 msgstr "Beschreibung"
 
-#: contributions/admin.py:229
+#: contributions/admin.py:231
 msgid "Credits"
 msgstr "Mitwirkende"
 
-#: contributions/admin.py:231
-#: contributions/templates/contributions/list.html:157 inventory/admin.py:32
-#: inventory/admin.py:103 inventory/models.py:69 inventory/models.py:212
+#: contributions/admin.py:233
+#: contributions/templates/contributions/list.html:157 inventory/admin.py:58
+#: inventory/admin.py:130 inventory/models.py:69 inventory/models.py:212
 #: inventory/templates/inventory/list.html:68
 msgid "Category"
 msgstr "Kategorie"
 
-#: contributions/admin.py:232 contributions/admin.py:471
+#: contributions/admin.py:234 contributions/admin.py:495
 #: contributions/templates/admin/export.html:59
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: contributions/admin.py:233 contributions/admin.py:953
+#: contributions/admin.py:235 contributions/admin.py:985
 msgid "Number"
 msgstr "Nummer"
 
-#: contributions/admin.py:292 contributions/api.py:260
+#: contributions/admin.py:294 contributions/api.py:260
 msgid "A contribution by {}"
 msgstr "Ein Beitrag von {}"
 
-#: contributions/admin.py:362
+#: contributions/admin.py:364
 msgid "Program"
 msgstr "Programm"
 
-#: contributions/admin.py:414 contributions/admin.py:641
+#: contributions/admin.py:428 contributions/admin.py:665
 msgid "License number"
 msgstr "Freistellungsnummer"
 
-#: contributions/admin.py:418
+#: contributions/admin.py:432
 msgid "Broadcast Time"
 msgstr "Sendezeit"
 
-#: contributions/admin.py:419 contributions/admin.py:644
-#: contributions/admin.py:879 registration/models.py:253
-#: registration/templates/navbar.html:119 ok_tools/templates/base.html:66
-#: ok_tools/templates/dashboard.html:64
+#: contributions/admin.py:433 contributions/admin.py:668
+#: contributions/admin.py:911 ok_tools/templates/base.html:66
+#: ok_tools/templates/dashboard.html:64 registration/models.py:267
+#: registration/templates/navbar.html:119
 msgid "Profile"
 msgstr "Profil"
 
-#: contributions/admin.py:420
+#: contributions/admin.py:434
 msgid "Profile ID"
 msgstr "Profil-ID"
 
-#: contributions/admin.py:421
-#: contributions/templates/contributions/list.html:156 projects/admin.py:175
+#: contributions/admin.py:435
+#: contributions/templates/contributions/list.html:156 projects/admin.py:176
 #: projects/models.py:155
 msgid "Duration"
 msgstr "Dauer"
 
-#: contributions/admin.py:422
+#: contributions/admin.py:436
 #: contributions/templates/contributions/list.html:106
 #: contributions/templates/contributions/list.html:184 ok_tools/views.py:193
 msgid "Live"
 msgstr "Live"
 
-#: contributions/admin.py:441
+#: contributions/admin.py:455
 msgid "Data export"
 msgstr "Datenexport"
 
-#: contributions/admin.py:460 contributions/admin.py:886
-#: contributions/templates/admin/export.html:42 registration/admin.py:101
-#: registration/models.py:80 registration/models.py:108
-#: registration/models.py:209
+#: contributions/admin.py:484 contributions/admin.py:918
+#: contributions/templates/admin/export.html:42 registration/admin.py:131
+#: registration/models.py:94 registration/models.py:122
+#: registration/models.py:223
 msgid "Media Authority"
 msgstr "Offener Kanal/Bürgermedium"
 
-#: contributions/admin.py:463 contributions/admin.py:467
-#: contributions/admin.py:472 contributions/admin.py:477
+#: contributions/admin.py:487 contributions/admin.py:491
+#: contributions/admin.py:496 contributions/admin.py:501
 #: contributions/templates/admin/export.html:44
 #: contributions/templates/admin/export.html:53
 #: contributions/templates/admin/export.html:61
@@ -164,129 +164,130 @@ msgstr "Offener Kanal/Bürgermedium"
 msgid "All"
 msgstr "Alle"
 
-#: contributions/admin.py:466 contributions/templates/admin/export.html:51
-#: registration/models.py:220
+#: contributions/admin.py:490 contributions/templates/admin/export.html:51
+#: registration/models.py:234
 msgid "Global Producer"
 msgstr "Globaler Produzent"
 
-#: contributions/admin.py:467 contributions/admin.py:472
-#: contributions/admin.py:477 contributions/admin.py:729
+#: contributions/admin.py:491 contributions/admin.py:496
+#: contributions/admin.py:501 contributions/admin.py:760
 #: contributions/templates/admin/export.html:54
 #: contributions/templates/admin/export.html:62
-#: contributions/templates/admin/export.html:70 inventory/models.py:581
-#: inventory/models.py:582 ok_tools/admin_celery.py:193
+#: contributions/templates/admin/export.html:70 inventory/models.py:747
+#: inventory/models.py:748 ok_tools/admin_celery.py:331
 msgid "Yes"
 msgstr "Ja"
 
-#: contributions/admin.py:467 contributions/admin.py:472
-#: contributions/admin.py:477 contributions/admin.py:730
+#: contributions/admin.py:491 contributions/admin.py:496
+#: contributions/admin.py:501 contributions/admin.py:761
 #: contributions/templates/admin/export.html:55
 #: contributions/templates/admin/export.html:63
-#: contributions/templates/admin/export.html:71 inventory/models.py:581
-#: inventory/models.py:582 ok_tools/admin_celery.py:193
+#: contributions/templates/admin/export.html:71 inventory/models.py:747
+#: inventory/models.py:748 ok_tools/admin_celery.py:331
 msgid "No"
 msgstr "Nein"
 
-#: contributions/admin.py:476 contributions/templates/admin/export.html:67
+#: contributions/admin.py:500 contributions/templates/admin/export.html:67
 msgid "Has video"
 msgstr "Hat Video"
 
-#: contributions/admin.py:645
+#: contributions/admin.py:669
 msgid "Broadcast date and time"
 msgstr "Sendedatum und -zeit"
 
-#: contributions/admin.py:646
+#: contributions/admin.py:670
 msgid "Video path (Windows)"
 msgstr "Videopfad (Windows)"
 
-#: contributions/admin.py:672
+#: contributions/admin.py:696
 msgid "Mediathek import"
 msgstr "Mediathek-Import"
 
-#: contributions/admin.py:680
+#: contributions/admin.py:711
 msgid "Broadcast week"
 msgstr "Sendewoche"
 
-#: contributions/admin.py:686
+#: contributions/admin.py:717
 msgid "In this week"
 msgstr "In dieser Woche"
 
-#: contributions/admin.py:687
+#: contributions/admin.py:718
 msgid "Until next week"
 msgstr "Bis nächste Woche"
 
-#: contributions/admin.py:688
+#: contributions/admin.py:719
 msgid "Until week after next"
 msgstr "Bis übernächste Woche"
 
-#: contributions/admin.py:723
+#: contributions/admin.py:754
 msgid "Primary Contribution"
 msgstr "Hauptbeitrag"
 
-#: contributions/admin.py:754
+#: contributions/admin.py:785
 msgid "Broadcast year"
 msgstr "Sendejahr"
 
-#: contributions/admin.py:760 projects/admin.py:219 registration/admin.py:170
+#: contributions/admin.py:791 projects/admin.py:245 registration/admin.py:206
 msgid "This year"
 msgstr "Dieses Jahr"
 
-#: contributions/admin.py:761 projects/admin.py:220 registration/admin.py:171
+#: contributions/admin.py:792 projects/admin.py:246 registration/admin.py:207
 msgid "Last year"
 msgstr "Letztes Jahr"
 
-#: contributions/admin.py:828
+#: contributions/admin.py:860
 msgid "Date from and Date to are required for Mediathek export."
 msgstr "Datum von und Datum bis sind für den Mediathek-Export erforderlich."
 
-#: contributions/admin.py:876
+#: contributions/admin.py:908
 msgid "Title, Subtitle, Number"
 msgstr "Titel, Untertitel, Nummer"
 
-#: contributions/admin.py:880 contributions/models.py:84
+#: contributions/admin.py:912 contributions/models.py:84
 msgid "License"
 msgstr "Freistellung"
 
-#: contributions/admin.py:890
+#: contributions/admin.py:922
 msgid "Broadcast Information"
 msgstr "Sendeinformationen"
 
-#: contributions/admin.py:893
+#: contributions/admin.py:925
 msgid "Contribution Status"
 msgstr "Beitragsstatus"
 
-#: contributions/admin.py:896
+#: contributions/admin.py:928
 msgid "Automatically determined based on broadcast date."
 msgstr "Wird automatisch anhand des Sendedatums bestimmt."
 
-#: contributions/admin.py:931
+#: contributions/admin.py:963
 msgid "Is primary"
 msgstr "Ist Hauptbeitrag"
 
-#: contributions/admin.py:947 inventory/models.py:527 registration/models.py:67
-#: registration/models.py:149 ok_tools/templates/rental_dashboard.html:43
+#: contributions/admin.py:979 inventory/models.py:693
+#: ok_tools/templates/rental_dashboard.html:43 registration/models.py:81
+#: registration/models.py:163
 msgid "User"
 msgstr "Nutzer"
 
-#: contributions/admin.py:977
+#: contributions/admin.py:1009
 msgid "Import selected DISA exports."
 msgstr "Ausgewählte DISA-Exporte importieren."
 
-#: contributions/admin.py:988
+#: contributions/admin.py:1020
 #, python-format
 msgid "%d file successfully imported."
 msgid_plural "%d files successfully imported."
 msgstr[0] "%d Datei erfolgreich importiert."
 msgstr[1] "%d Dateien erfolgreich importiert."
 
-#: contributions/admin.py:1007
+#: contributions/admin.py:1039
 #, python-format
 msgid "\"%(obj)s\" successfully imported."
 msgstr "\"%(obj)s\" erfolgreich importiert."
 
 #: contributions/apps.py:10 contributions/models.py:118
-#: registration/templates/navbar.html:163 ok_tools/templates/base.html:82
-#: ok_tools/templates/dashboard.html:211 ok_tools/templates/dashboard.html:333
+#: ok_tools/templates/base.html:82 ok_tools/templates/dashboard.html:211
+#: ok_tools/templates/dashboard.html:333 registration/templates/navbar.html:163
 msgid "Contributions"
 msgstr "Beiträge"
 
@@ -366,11 +367,11 @@ msgstr "Importieren ab Datum"
 msgid "Only import contributions from this date onwards."
 msgstr "Nur Beiträge ab diesem Datum importieren."
 
-#: contributions/models.py:153 inventory/models.py:355 inventory/models.py:735
+#: contributions/models.py:153 inventory/models.py:521 inventory/models.py:901
 msgid "Imported"
 msgstr "Importiert"
 
-#: contributions/models.py:157 inventory/models.py:357 inventory/models.py:737
+#: contributions/models.py:157 inventory/models.py:523 inventory/models.py:903
 msgid "Just marking the file as imported does not import the file!"
 msgstr "Das Markieren der Datei als importiert importiert die Datei nicht!"
 
@@ -410,7 +411,7 @@ msgid "Parameter"
 msgstr "Parameter"
 
 #: contributions/templates/admin/contributions/contribution/change_list.html:99
-#: registration/models.py:296
+#: registration/models.py:310
 msgid "Type"
 msgstr "Typ"
 
@@ -610,12 +611,12 @@ msgstr ""
 msgid "Create first license"
 msgstr "Erste Freistellung erstellen"
 
-#: contributions/templates/contributions/list.html:158 inventory/admin.py:35
-#: inventory/admin.py:271 inventory/admin.py:378 inventory/models.py:227
-#: inventory/models.py:573 inventory/templates/inventory/list.html:78
+#: contributions/templates/contributions/list.html:158 inventory/admin.py:61
+#: inventory/admin.py:375 inventory/admin.py:482 inventory/models.py:227
+#: inventory/models.py:739 inventory/templates/inventory/list.html:78
 #: inventory/templates/inventory/list.html:160
-#: inventory/tests/test_models.py:353 ok_tools/admin_celery.py:109
-#: ok_tools/admin_celery.py:664 ok_tools/admin_celery.py:745
+#: inventory/tests/test_models.py:353 ok_tools/admin_celery.py:137
+#: ok_tools/admin_celery.py:832 ok_tools/admin_celery.py:913
 #: ok_tools/templates/dashboard.html:246
 #: ok_tools/templates/rental_dashboard.html:96
 msgid "Status"
@@ -625,146 +626,191 @@ msgstr "Status"
 msgid "Actions"
 msgstr "Aktionen"
 
-#: contributions/templates/contributions/list.html:268
+#: contributions/templates/contributions/list.html:313
 msgid "Card view"
 msgstr "Kartenansicht"
 
-#: contributions/templates/contributions/list.html:273
+#: contributions/templates/contributions/list.html:318
 msgid "Table view"
 msgstr "Tabellenansicht"
 
 #: htmlcov/d_bfd9e7db70bf35f3_forms_py.html:162
-#: htmlcov/z_bfd9e7db70bf35f3_forms_py.html:162
+#: htmlcov/z_bfd9e7db70bf35f3_forms_py.html:200
 #: registration/templates/registration/print_registration.html:29
 msgid "Print registration form"
 msgstr "Registrierungsformular drucken"
 
-#: inventory/admin.py:28 inventory/admin.py:232 inventory/models.py:186
+#: inventory/admin.py:42
+msgid "No photos"
+msgstr "Keine Fotos"
+
+#: inventory/admin.py:54 inventory/admin.py:336 inventory/models.py:186
 msgid "Inventory Number"
 msgstr "Inventarnummer"
 
-#: inventory/admin.py:30 inventory/models.py:197
+#: inventory/admin.py:56 inventory/models.py:197
 msgid "Serial Number"
 msgstr "Seriennummer"
 
-#: inventory/admin.py:31 inventory/admin.py:102 inventory/models.py:36
-#: inventory/models.py:204 inventory/models.py:670
+#: inventory/admin.py:57 inventory/admin.py:129 inventory/models.py:36
+#: inventory/models.py:204 inventory/models.py:836
 msgid "Manufacturer"
 msgstr "Hersteller"
 
-#: inventory/admin.py:33 inventory/admin.py:105 inventory/models.py:148
-#: inventory/models.py:218 inventory/models.py:574
+#: inventory/admin.py:59 inventory/admin.py:132 inventory/models.py:148
+#: inventory/models.py:218 inventory/models.py:740
 #: inventory/templates/inventory/list.html:88
 #: inventory/templates/inventory/list.html:172
 msgid "Location"
 msgstr "Standort"
 
-#: inventory/admin.py:34 inventory/models.py:221 inventory/models.py:572
+#: inventory/admin.py:60 inventory/models.py:221 inventory/models.py:738
 #: inventory/tests/test_models.py:352
 msgid "Quantity"
 msgstr "Menge"
 
-#: inventory/admin.py:36 inventory/admin.py:104 inventory/models.py:234
-#: inventory/models.py:570
+#: inventory/admin.py:62 inventory/admin.py:131 inventory/models.py:234
+#: inventory/models.py:736
 msgid "Owner"
 msgstr "Eigentümer"
 
-#: inventory/admin.py:37 inventory/models.py:240
+#: inventory/admin.py:63 inventory/models.py:240
 msgid "Inventory Number Owner"
 msgstr "Inventarnummer des Eigentümers"
 
-#: inventory/admin.py:41 inventory/models.py:246
+#: inventory/admin.py:67 inventory/models.py:246
 msgid "Purchase Date"
 msgstr "Kaufdatum"
 
-#: inventory/admin.py:112
+#: inventory/admin.py:147
 msgid "Identification"
 msgstr "Identifikation"
 
-#: inventory/admin.py:115
+#: inventory/admin.py:150
 msgid "Classification"
 msgstr "Klassifikation"
 
-#: inventory/admin.py:118
+#: inventory/admin.py:153
 msgid "Ownership & Inventory"
 msgstr "Eigentum & Inventar"
 
-#: inventory/admin.py:121
+#: inventory/admin.py:156
 msgid "Quantity & Availability"
 msgstr "Menge & Verfügbarkeit"
 
-#: inventory/admin.py:123
+#: inventory/admin.py:158
 msgid "Reserved and rented quantities are calculated automatically."
 msgstr "Reservierte und verliehene Mengen werden automatisch berechnet."
 
-#: inventory/admin.py:125
+#: inventory/admin.py:160
 msgid "Purchase Information"
 msgstr "Kaufinformationen"
 
-#: inventory/admin.py:191 inventory/models.py:506
+#: inventory/admin.py:164 inventory/admin.py:186
+msgid "Photos"
+msgstr "Fotos"
+
+#: inventory/admin.py:167
+msgid ""
+"Photos are read from the mounted folder configured in Inventory Photo "
+"Settings, in a sub-folder named after the inventory number."
+msgstr ""
+"Fotos werden aus dem eingebundenen Ordner gelesen, der in den Inventar-Foto-"
+"Einstellungen konfiguriert ist, in einem nach der Inventarnummer benannten "
+"Unterordner."
+
+#: inventory/admin.py:190
+msgid "Save the item first to see photos."
+msgstr "Speichern Sie den Artikel zuerst, um Fotos zu sehen."
+
+#: inventory/admin.py:221
+msgid "Rescan photos from mounted folder"
+msgstr "Fotos aus eingebundenem Ordner neu einlesen"
+
+#: inventory/admin.py:226
+msgid "Photo rescan complete."
+msgstr "Foto-Neueinlesen abgeschlossen."
+
+#: inventory/admin.py:255
+msgid "Barcodes drucken"
+msgstr ""
+
+#: inventory/admin.py:288 inventory/models.py:672
 msgid "Model Name"
 msgstr "Modellname"
 
-#: inventory/admin.py:192 inventory/models.py:510
+#: inventory/admin.py:289 inventory/models.py:676
 msgid "Object ID"
 msgstr "Objekt-ID"
 
-#: inventory/admin.py:193 inventory/models.py:515
+#: inventory/admin.py:290 inventory/models.py:681
 msgid "Action"
 msgstr "Aktion"
 
-#: inventory/admin.py:194 inventory/admin.py:238 inventory/models.py:520
+#: inventory/admin.py:291 inventory/admin.py:342 inventory/models.py:686
 msgid "Changes"
 msgstr "Änderungen"
 
-#: inventory/admin.py:195 inventory/models.py:531
+#: inventory/admin.py:292 inventory/models.py:697
 msgid "Timestamp"
 msgstr "Zeitstempel"
 
-#: inventory/admin.py:276 inventory/admin.py:383
+#: inventory/admin.py:380 inventory/admin.py:487
 msgid "-"
 msgstr "-"
 
-#: inventory/admin.py:284 inventory/admin.py:391
+#: inventory/admin.py:388 inventory/admin.py:495
 msgid "Download Error Log File"
 msgstr "Fehlerprotokoll-Datei herunterladen"
 
-#: inventory/admin.py:293 inventory/admin.py:400 inventory/models.py:378
-#: inventory/models.py:753
+#: inventory/admin.py:397 inventory/admin.py:504 inventory/models.py:544
+#: inventory/models.py:919
 msgid "Error Log"
 msgstr "Fehlerprotokoll"
 
-#: inventory/admin.py:295
+#: inventory/admin.py:399
 msgid "Import selected inventory files"
 msgstr "Ausgewählte Inventardateien importieren"
 
-#: inventory/admin.py:306
+#: inventory/admin.py:410
 #, python-format
 msgid "Import task for %(file)s has been started. Task ID: %(task_id)s"
 msgstr "Importvorgang für %(file)s wurde gestartet. Vorgangs-ID: %(task_id)s"
 
-#: inventory/admin.py:314
+#: inventory/admin.py:418
 msgid "Import selected inventory files synchronously"
 msgstr "Ausgewählte Inventardateien synchron importieren"
 
-#: inventory/admin.py:332
+#: inventory/admin.py:436
 #, python-format
 msgid "Successfully imported %(created)s items. %(skipped)s items skipped."
 msgstr ""
 "%(created)s Elemente erfolgreich importiert. %(skipped)s Elemente "
 "übersprungen."
 
-#: inventory/admin.py:402
+#: inventory/admin.py:506
 msgid "Import selected inspection files"
 msgstr "Ausgewählte Prüfungsdateien importieren"
 
-#: inventory/admin.py:420
+#: inventory/admin.py:524
 #, python-format
 msgid ""
 "Successfully imported %(created)s inspections. %(skipped)s items skipped."
 msgstr ""
 "%(created)s Prüfungen erfolgreich importiert. %(skipped)s Elemente "
 "übersprungen."
+
+#: inventory/admin.py:596
+msgid "Resolved photos folder"
+msgstr "Aufgelöster Fotoordner"
+
+#: inventory/admin.py:600
+msgid "Save to resolve the folder."
+msgstr "Speichern, um den Ordner aufzulösen."
+
+#: inventory/admin.py:605
+msgid "Not configured or directory does not exist."
+msgstr "Nicht konfiguriert oder Verzeichnis existiert nicht."
 
 #: inventory/apps.py:10 inventory/inventory_import.py:18
 #: inventory/services/inventory_service.py:30
@@ -773,7 +819,7 @@ msgstr ""
 msgid "Inventory"
 msgstr "Inventar"
 
-#: inventory/forms.py:10 inventory/models.py:655
+#: inventory/forms.py:10 inventory/models.py:821
 msgid "Inspection Number"
 msgstr "Prüfnummer"
 
@@ -874,7 +920,7 @@ msgstr "Zeile"
 
 #: inventory/inspection_import.py:247 inventory/inventory_import.py:289
 #: inventory/services/inventory_service.py:897
-#: inventory/services/inventory_service.py:1146 ok_tools/admin_celery.py:93
+#: inventory/services/inventory_service.py:1146 ok_tools/admin_celery.py:121
 msgid "Error"
 msgstr "Fehler"
 
@@ -1003,7 +1049,7 @@ msgid "Failed to update item %(inventory_number)s: %(error)s"
 msgstr "Fehler beim Aktualisieren des Elements %(inventory_number)s: %(error)s"
 
 #: inventory/models.py:30 inventory/models.py:47 inventory/models.py:63
-#: inventory/models.py:133
+#: inventory/models.py:133 ok_tools/admin_celery.py:572
 msgid "Name"
 msgstr "Name"
 
@@ -1011,7 +1057,7 @@ msgstr "Name"
 msgid "Manufacturers"
 msgstr "Hersteller"
 
-#: inventory/models.py:53 projects/admin.py:300 registration/admin.py:233
+#: inventory/models.py:53 projects/admin.py:327 registration/admin.py:270
 msgid "Organization"
 msgstr "Organisation"
 
@@ -1061,7 +1107,7 @@ msgstr "Kaufpreis"
 msgid "Date Added"
 msgstr "Hinzugefügt am"
 
-#: inventory/models.py:261 inventory/models.py:571
+#: inventory/models.py:261 inventory/models.py:737
 msgid "Available for Rental"
 msgstr "Für Verleih verfügbar"
 
@@ -1079,7 +1125,7 @@ msgstr "Reservierte Menge"
 msgid "Rented Quantity"
 msgstr "Verliehene Menge"
 
-#: inventory/models.py:288 inventory/models.py:667
+#: inventory/models.py:288 inventory/models.py:435 inventory/models.py:833
 msgid "Inventory Item"
 msgstr "Inventarartikel"
 
@@ -1091,191 +1137,292 @@ msgstr "Inventarartikel"
 msgid "Not specified"
 msgstr "Nicht angegeben"
 
-#: inventory/models.py:324 inventory/models.py:411 inventory/models.py:704
+#: inventory/models.py:332
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: inventory/models.py:333
+msgid "Enable scanning and display of inventory item photos."
+msgstr "Scannen und Anzeige von Inventarartikel-Fotos aktivieren."
+
+#: inventory/models.py:338
+msgid "Media Files storage location"
+msgstr "Media-Files-Speicherort"
+
+#: inventory/models.py:340
+msgid ""
+"Use an existing storage location from the Media Files module. Takes "
+"precedence over the manual path below."
+msgstr ""
+"Einen vorhandenen Speicherort aus dem Media-Files-Modul verwenden. Hat "
+"Vorrang vor dem manuellen Pfad unten."
+
+#: inventory/models.py:347
+msgid "Photos folder"
+msgstr "Fotoordner"
+
+#: inventory/models.py:349
+msgid ""
+"Absolute path to the mounted folder that holds one sub-folder per inventory "
+"number (e.g. /mnt/inventory_photos/)."
+msgstr ""
+"Absoluter Pfad zum eingebundenen Ordner, der einen Unterordner pro "
+"Inventarnummer enthält (z. B. /mnt/inventory_photos/)."
+
+#: inventory/models.py:356
+msgid "Supported image formats"
+msgstr "Unterstützte Bildformate"
+
+#: inventory/models.py:357
+msgid "Comma-separated list of image file extensions to scan."
+msgstr "Kommagetrennte Liste der zu scannenden Bilddateiendungen."
+
+#: inventory/models.py:361
+msgid "Store thumbnails next to originals"
+msgstr "Vorschaubilder neben den Originalen speichern"
+
+#: inventory/models.py:363
+msgid ""
+"Store generated thumbnails in a \".thumbnails\" sub-folder next to the "
+"photos (requires a writable folder). When disabled, they are cached under "
+"MEDIA_ROOT. Falls back to MEDIA_ROOT if the folder is not writable."
+msgstr ""
+"Erzeugte Vorschaubilder in einem Unterordner \".thumbnails\" neben den Fotos "
+"speichern (erfordert einen beschreibbaren Ordner). Wenn deaktiviert, werden "
+"sie unter MEDIA_ROOT zwischengespeichert. Fällt auf MEDIA_ROOT zurück, wenn "
+"der Ordner nicht beschreibbar ist."
+
+#: inventory/models.py:373 inventory/models.py:374 inventory/models.py:378
+msgid "Inventory Photo Settings"
+msgstr "Inventar-Foto-Einstellungen"
+
+#: inventory/models.py:439
+msgid "Filename"
+msgstr "Dateiname"
+
+#: inventory/models.py:443
+msgid "Relative Path"
+msgstr "Relativer Pfad"
+
+#: inventory/models.py:444
+msgid "Path relative to the configured photos folder."
+msgstr "Pfad relativ zum konfigurierten Fotoordner."
+
+#: inventory/models.py:449
+msgid "File Size (bytes)"
+msgstr "Dateigröße (Bytes)"
+
+#: inventory/models.py:453 inventory/templates/inventory/list.html:41
+#: inventory/templates/inventory/list.html:81
+#: inventory/templates/inventory/list.html:162
+msgid "Available"
+msgstr "Verfügbar"
+
+#: inventory/models.py:454
+msgid "Whether the file is physically present on disk."
+msgstr "Ob die Datei physisch auf dem Datenträger vorhanden ist."
+
+#: inventory/models.py:459
+msgid "Last Scanned"
+msgstr "Zuletzt gescannt"
+
+#: inventory/models.py:463
+msgid "Created at"
+msgstr "Erstellt am"
+
+#: inventory/models.py:469
+msgid "Inventory Item Photo"
+msgstr "Inventarartikel-Foto"
+
+#: inventory/models.py:470
+msgid "Inventory Item Photos"
+msgstr "Inventarartikel-Fotos"
+
+#: inventory/models.py:490 inventory/models.py:577 inventory/models.py:870
 #: ok_tools/views.py:162
 msgid "Pending"
 msgstr "Ausstehend"
 
-#: inventory/models.py:325 inventory/models.py:412 inventory/models.py:705
+#: inventory/models.py:491 inventory/models.py:578 inventory/models.py:871
 msgid "In Progress"
 msgstr "In Bearbeitung"
 
-#: inventory/models.py:326 inventory/models.py:413 inventory/models.py:706
-#: ok_tools/admin_celery.py:73 ok_tools/admin_celery.py:77
-#: ok_tools/admin_celery.py:85 ok_tools/views.py:162
+#: inventory/models.py:492 inventory/models.py:579 inventory/models.py:872
+#: ok_tools/admin_celery.py:101 ok_tools/admin_celery.py:105
+#: ok_tools/admin_celery.py:113 ok_tools/views.py:162
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#: inventory/models.py:327 inventory/models.py:414 inventory/models.py:707
+#: inventory/models.py:493 inventory/models.py:580 inventory/models.py:873
 msgid "Completed with Errors"
 msgstr "Abgeschlossen mit Fehlern"
 
-#: inventory/models.py:328 inventory/models.py:415 inventory/models.py:708
-#: ok_tools/admin_celery.py:66 ok_tools/admin_celery.py:80
-#: ok_tools/admin_celery.py:97 ok_tools/admin_celery.py:751
+#: inventory/models.py:494 inventory/models.py:581 inventory/models.py:874
+#: ok_tools/admin_celery.py:94 ok_tools/admin_celery.py:108
+#: ok_tools/admin_celery.py:125 ok_tools/admin_celery.py:919
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
-#: inventory/models.py:339
+#: inventory/models.py:505
 msgid "Inventory file"
 msgstr "Inventardatei"
 
-#: inventory/models.py:351 inventory/models.py:731
+#: inventory/models.py:517 inventory/models.py:897
 msgid "Import Status"
 msgstr "Importstatus"
 
-#: inventory/models.py:362 inventory/models.py:742
+#: inventory/models.py:528 inventory/models.py:908
 msgid "Items Created"
 msgstr "Erstellte Elemente"
 
-#: inventory/models.py:367 inventory/models.py:747
+#: inventory/models.py:533 inventory/models.py:913
 msgid "Items Skipped"
 msgstr "Übersprungene Elemente"
 
-#: inventory/models.py:372
+#: inventory/models.py:538
 msgid "Items Updated"
 msgstr "Aktualisierte Elemente"
 
-#: inventory/models.py:383 inventory/models.py:758
+#: inventory/models.py:549 inventory/models.py:924
 msgid "Import Date"
 msgstr "Importdatum"
 
-#: inventory/models.py:389 inventory/models.py:764
+#: inventory/models.py:555 inventory/models.py:930
 msgid "Completed Date"
 msgstr "Abschlussdatum"
 
-#: inventory/models.py:396 inventory/models.py:771
+#: inventory/models.py:562 inventory/models.py:937
 msgid "Error Log File"
 msgstr "Fehlerprotokolldatei"
 
-#: inventory/models.py:403
+#: inventory/models.py:569
 msgid "Task ID"
 msgstr "Aufgaben-ID"
 
-#: inventory/models.py:404
+#: inventory/models.py:570
 msgid "Celery task ID for asynchronous processing"
 msgstr "Celery-Aufgaben-ID für asynchrone Verarbeitung"
 
-#: inventory/models.py:410
+#: inventory/models.py:576
 msgid "Not Started"
 msgstr "Nicht gestartet"
 
-#: inventory/models.py:416
+#: inventory/models.py:582
 msgid "Retry"
 msgstr "Erneut versuchen"
 
-#: inventory/models.py:417
+#: inventory/models.py:583
 msgid "Revoked"
 msgstr "Widerrufen"
 
-#: inventory/models.py:420
+#: inventory/models.py:586
 msgid "Celery Status"
 msgstr "Celery-Status"
 
-#: inventory/models.py:426
+#: inventory/models.py:592
 msgid "Inventory Import"
 msgstr "Inventarimport"
 
-#: inventory/models.py:427
+#: inventory/models.py:593
 msgid "Inventory Imports"
 msgstr "Inventarimporte"
 
-#: inventory/models.py:436 inventory/models.py:787
+#: inventory/models.py:602 inventory/models.py:953
 msgid "No file provided."
 msgstr "Keine Datei bereitgestellt."
 
-#: inventory/models.py:499
+#: inventory/models.py:665
 msgid "Created"
 msgstr "Erstellt"
 
-#: inventory/models.py:500
+#: inventory/models.py:666
 msgid "Updated"
 msgstr "Aktualisiert"
 
-#: inventory/models.py:501
+#: inventory/models.py:667
 msgid "Deleted"
 msgstr "Gelöscht"
 
-#: inventory/models.py:537
+#: inventory/models.py:703
 msgid "Audit Log"
 msgstr "Audit-Log"
 
-#: inventory/models.py:538
+#: inventory/models.py:704
 msgid "Audit Logs"
 msgstr "Audit-Logs"
 
-#: inventory/models.py:543
+#: inventory/models.py:709
 #, python-format
 msgid "%(number)s %(action)s by %(user)s at %(timestamp)s"
 msgstr "%(number)s %(action)s von %(user)s am %(timestamp)s"
 
-#: inventory/models.py:561
+#: inventory/models.py:727
 #, python-format
 msgid "Deleted item (ID: %(id)s)"
 msgstr "Gelöschtes Objekt (ID: %(id)s)"
 
-#: inventory/models.py:567
+#: inventory/models.py:733
 msgid "No changes recorded."
 msgstr "Keine Änderungen protokolliert."
 
-#: inventory/models.py:586
+#: inventory/models.py:752
 #, python-format
 msgid "%(field)s: %(old)s → %(new)s"
 msgstr "%(field)s: %(old)s → %(new)s"
 
-#: inventory/models.py:648
+#: inventory/models.py:814
 msgid "Whole device"
 msgstr "Gesamtes Gerät"
 
-#: inventory/models.py:649
+#: inventory/models.py:815
 msgid "Power cable"
 msgstr "Netzkabel"
 
-#: inventory/models.py:650
+#: inventory/models.py:816
 msgid "Power supply unit"
 msgstr "Netzteil"
 
-#: inventory/models.py:656
+#: inventory/models.py:822
 msgid "Number assigned by the inspection company"
 msgstr "Nummer, die von der Prüfgesellschaft zugewiesen wurde"
 
-#: inventory/models.py:671
+#: inventory/models.py:837
 msgid "Device Type"
 msgstr "Gerätetyp"
 
-#: inventory/models.py:672
+#: inventory/models.py:838
 msgid "Room"
 msgstr "Raum"
 
-#: inventory/models.py:678
+#: inventory/models.py:844
 msgid "Target Part"
 msgstr "Prüfteil"
 
-#: inventory/models.py:680
+#: inventory/models.py:846
 msgid "Inspection Date"
 msgstr "Prüfungsdatum"
 
-#: inventory/models.py:685
+#: inventory/models.py:851
 msgid "Result / Comment"
 msgstr "Ergebnis / Kommentar"
 
-#: inventory/models.py:691
+#: inventory/models.py:857
 msgid "Inspection"
 msgstr "Prüfung"
 
-#: inventory/models.py:692
+#: inventory/models.py:858
 msgid "Inspections"
 msgstr "Prüfungen"
 
-#: inventory/models.py:719
+#: inventory/models.py:885
 msgid "Inspection file"
 msgstr "Prüfungsdatei"
 
-#: inventory/models.py:777
+#: inventory/models.py:943
 msgid "Inspection Import"
 msgstr "Prüfungsimport"
 
-#: inventory/models.py:778
+#: inventory/models.py:944
 msgid "Inspection Imports"
 msgstr "Prüfungsimporte"
 
@@ -1297,6 +1444,63 @@ msgstr "Der Datenexport wird alle Inventargegenstände enthalten."
 msgid "Import"
 msgstr "Importieren"
 
+#: inventory/templates/admin/inventory/barcode_modal.html:126
+#: inventory/templates/admin/inventory/barcode_modal.html:139
+msgid "Barcode Labels"
+msgstr ""
+
+#: inventory/templates/admin/inventory/barcode_modal.html:140
+#, fuzzy
+#| msgid "Items"
+msgid "items"
+msgstr "Elemente"
+
+#: inventory/templates/admin/inventory/barcode_modal.html:146
+#, fuzzy
+#| msgid "Last Inspection"
+msgid "Format selection"
+msgstr "Letzte Prüfung"
+
+#: inventory/templates/admin/inventory/barcode_modal.html:149
+#, fuzzy
+#| msgid "Contact Information"
+msgid "Compact format"
+msgstr "Kontaktinformationen"
+
+#: inventory/templates/admin/inventory/barcode_modal.html:154
+#: inventory/templates/admin/inventory/barcode_modal.html:180
+#: ok_tools/templates/rental_dashboard.html:101
+msgid "Loading..."
+msgstr "Wird geladen..."
+
+#: inventory/templates/admin/inventory/barcode_modal.html:158
+#, fuzzy
+#| msgid "Canceled"
+msgid "Cancel"
+msgstr "Abgebrochen"
+
+#: inventory/templates/admin/inventory/barcode_modal.html:161
+msgid "Open in new tab"
+msgstr ""
+
+#: inventory/templates/admin/inventory/barcode_modal.html:167
+msgid "Print"
+msgstr ""
+
+#: inventory/templates/admin/inventory/barcode_modal.html:197
+msgid "Failed to load barcodes"
+msgstr ""
+
+#: inventory/templates/admin/inventory/barcode_modal.html:201
+#, fuzzy
+#| msgid "Error loading dates"
+msgid "Error loading barcodes"
+msgstr "Fehler beim Laden der Daten"
+
+#: inventory/templates/admin/inventory/barcode_modal.html:224
+msgid "Print Barcodes"
+msgstr ""
+
 #: inventory/templates/inventory/list.html:12
 msgid "Manage your equipment and inventory items"
 msgstr "Verwalten Sie Ihre Ausrüstung und Inventargegenstände"
@@ -1308,12 +1512,6 @@ msgstr "Gegenstand hinzufügen"
 #: inventory/templates/inventory/list.html:32
 msgid "Total Items"
 msgstr "Gesamtanzahl der Gegenstände"
-
-#: inventory/templates/inventory/list.html:41
-#: inventory/templates/inventory/list.html:81
-#: inventory/templates/inventory/list.html:162
-msgid "Available"
-msgstr "Verfügbar"
 
 #: inventory/templates/inventory/list.html:59
 #: inventory/templates/inventory/list.html:83
@@ -1390,7 +1588,7 @@ msgstr "Bearbeiten"
 msgid "Delete"
 msgstr "Löschen"
 
-#: inventory/templates/inventory/list.html:168 ok_tools/admin_celery.py:655
+#: inventory/templates/inventory/list.html:168 ok_tools/admin_celery.py:823
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -1446,1377 +1644,6 @@ msgstr "Letzte"
 msgid "Are you sure you want to delete this inventory item?"
 msgstr "Sind Sie sicher, dass Sie diesen Inventargegenstand löschen möchten?"
 
-#: projects/admin.py:172 projects/models.py:136
-msgid "Topic"
-msgstr "Thema"
-
-#: projects/admin.py:174 projects/models.py:149
-#: ok_tools/templates/dashboard.html:245
-msgid "Date"
-msgstr "Datum"
-
-#: projects/admin.py:176 projects/models.py:162
-msgid "External venue"
-msgstr "Externer Veranstaltungsort"
-
-#: projects/admin.py:177 projects/models.py:168
-msgid "Jugendmedienschutz"
-msgstr "Jugendmedienschutz"
-
-#: projects/admin.py:178 projects/models.py:95 projects/models.py:108
-#: projects/models.py:184
-msgid "Target group"
-msgstr "Zielgruppe"
-
-#: projects/admin.py:179 projects/models.py:67 projects/models.py:80
-#: projects/models.py:191
-msgid "Project category"
-msgstr "Projektkategorie"
-
-#: projects/admin.py:180 projects/admin.py:269 projects/models.py:30
-#: projects/models.py:199
-msgid "Project leader"
-msgstr "Projektleiter"
-
-#: projects/admin.py:181 projects/models.py:209
-msgid "bis 6 Jahre"
-msgstr "bis 6 Jahre"
-
-#: projects/admin.py:182 projects/models.py:215
-msgid "7-10 Jahre"
-msgstr "7-10 Jahre"
-
-#: projects/admin.py:183 projects/models.py:221
-msgid "11-14 Jahre"
-msgstr "11-14 Jahre"
-
-#: projects/admin.py:184 projects/models.py:227
-msgid "15-18 Jahre"
-msgstr "15-18 Jahre"
-
-#: projects/admin.py:185 projects/models.py:233
-msgid "19-34 Jahre"
-msgstr "19-34 Jahre"
-
-#: projects/admin.py:186 projects/models.py:239
-msgid "35-50 Jahre"
-msgstr "35-50 Jahre"
-
-#: projects/admin.py:187 projects/models.py:245
-msgid "51-65 Jahre"
-msgstr "51-65 Jahre"
-
-#: projects/admin.py:188 projects/models.py:251
-msgid "über 65 Jahre"
-msgstr "über 65 Jahre"
-
-#: projects/admin.py:189 projects/admin.py:193 projects/models.py:257
-#: projects/models.py:276
-msgid "ohne Angabe"
-msgstr "ohne Angabe"
-
-#: projects/admin.py:190 projects/models.py:264
-msgid "weiblich"
-msgstr "weiblich"
-
-#: projects/admin.py:191 projects/models.py:270
-msgid "männlich"
-msgstr "männlich"
-
-#: projects/admin.py:192 projects/models.py:282 registration/models.py:124
-#: registration/registration_tests.py:576
-msgid "diverse"
-msgstr "divers"
-
-#: projects/admin.py:206 projects/apps.py:10 projects/models.py:315
-msgid "Projects"
-msgstr "Projekte"
-
-#: projects/admin.py:212
-msgid "start year"
-msgstr "Startjahr"
-
-#: projects/admin.py:264
-msgid "title, topic, description"
-msgstr "Titel, Thema, Beschreibung"
-
-#: projects/admin.py:267
-msgid "Target Group"
-msgstr "Zielgruppe"
-
-#: projects/admin.py:268
-msgid "Project Category"
-msgstr "Projektkategorie"
-
-#: projects/admin.py:288 registration/admin.py:223 registration/admin.py:362
-#: registration/admin.py:457
-msgid "Basic Information"
-msgstr "Grundinformationen"
-
-#: projects/admin.py:291
-msgid "Schedule & Details"
-msgstr "Zeitplan & Details"
-
-#: projects/admin.py:308
-msgid "Participants by Age"
-msgstr "Teilnehmer nach Alter"
-
-#: projects/admin.py:320
-msgid ""
-"Enter the number of participants in each age group. Total must match gender "
-"totals."
-msgstr ""
-"Geben Sie die Anzahl der Teilnehmer in jeder Altersgruppe ein. Die "
-"Gesamtsumme muss mit der Summe nach Geschlecht übereinstimmen."
-
-#: projects/admin.py:322
-msgid "Participants by Gender"
-msgstr "Teilnehmer nach Geschlecht"
-
-#: projects/admin.py:329
-msgid ""
-"Enter the number of participants by gender. Total must match age group "
-"totals."
-msgstr ""
-"Geben Sie die Teilnehmerzahl nach Geschlecht ein. Die Gesamtsumme muss mit "
-"der Summe nach Altersgruppen übereinstimmen."
-
-#: projects/admin.py:335
-msgid "Create a copy of selected projects"
-msgstr "Erstellen Sie eine Kopie der ausgewählten Projekte"
-
-#: projects/admin.py:356
-#, python-format
-msgid "%(count)d project copy was successfully created."
-msgstr "%(count)d Projektkopie wurde erfolgreich erstellt."
-
-#: projects/admin.py:357
-#, python-format
-msgid "%(count)d project copies were successfully created."
-msgstr "%(count)d Projektkopien wurden erfolgreich erstellt."
-
-#: projects/ics_export.py:21
-#, python-format
-msgid "Dauer: %(duration)s"
-msgstr "Dauer: %(duration)s"
-
-#: projects/ics_export.py:34
-msgid "projects.ics"
-msgstr "projekte.ics"
-
-#: projects/models.py:17 projects/models.py:42
-msgid "Full name"
-msgstr "Vollständiger Name"
-
-#: projects/models.py:31
-msgid "Project leaders"
-msgstr "Projektleiter"
-
-#: projects/models.py:55
-msgid "Media education supervisor"
-msgstr "Medienpädagogische Leitung"
-
-#: projects/models.py:56 projects/models.py:205
-msgid "Media education supervisors"
-msgstr "Medienpädagogische Leitungen"
-
-#: projects/models.py:81
-msgid "Project categories"
-msgstr "Projektkategorien"
-
-#: projects/models.py:109
-msgid "Target groups"
-msgstr "Zielgruppen"
-
-#: projects/models.py:117 projects/models.py:122
-msgid "Not Selected"
-msgstr "Nicht ausgewählt"
-
-#: projects/models.py:129
-msgid "Project title"
-msgstr "Projekttitel"
-
-#: projects/models.py:156
-msgid "Format: hh:mm:ss or mm:ss"
-msgstr "Format: hh:mm:ss oder mm:ss"
-
-#: projects/models.py:174
-msgid "Democracy project"
-msgstr "Demokratieprojekt"
-
-#: projects/models.py:299
-#, python-format
-msgid ""
-"The sum of participants by age (%(age)s) does not match the sum of "
-"participants by gender (%(gender)s). Please correct your data."
-msgstr ""
-"Die Summe der Teilnehmer nach Alter (%(age)s) stimmt nicht mit der Summe der "
-"Teilnehmer nach Geschlecht (%(gender)s) überein. Bitte korrigieren Sie Ihre "
-"Angaben."
-
-#: projects/models.py:314
-msgid "Project"
-msgstr "Projekt"
-
-#: projects/templates/admin/change_list_ics_export_item.html:3
-msgid "Export dates"
-msgstr "Daten exportieren"
-
-#: registration/admin.py:44 registration/admin.py:61
-msgid "E-Mail address"
-msgstr "E-Mail-Adresse"
-
-#: registration/admin.py:47 registration/admin.py:64
-msgid "Password"
-msgstr "Passwort"
-
-#: registration/admin.py:50
-msgid "Admin"
-msgstr "Admin"
-
-#: registration/admin.py:53
-msgid "permissions"
-msgstr "Berechtigungen"
-
-#: registration/admin.py:56 registration/admin.py:67
-msgid "Staff"
-msgstr "Mitarbeiter"
-
-#: registration/admin.py:86
-msgid "ID"
-msgstr "ID"
-
-#: registration/admin.py:87 registration/models.py:153
-msgid "first name"
-msgstr "Vorname"
-
-#: registration/admin.py:88 registration/models.py:155
-msgid "last name"
-msgstr "Nachname"
-
-#: registration/admin.py:89 registration/models.py:158
-msgid "gender"
-msgstr "Geschlecht"
-
-#: registration/admin.py:90 registration/models.py:55
-msgid "email address"
-msgstr "E-Mail-Adresse"
-
-#: registration/admin.py:91 registration/models.py:167
-msgid "phone number"
-msgstr "Telefonnummer"
-
-#: registration/admin.py:92 registration/models.py:170
-msgid "mobile number"
-msgstr "Handynummer"
-
-#: registration/admin.py:93 registration/models.py:174
-msgid "ID document number"
-msgstr "Ausweisnummer"
-
-#: registration/admin.py:94 registration/models.py:180
-msgid "birthday"
-msgstr "Geburtstag"
-
-#: registration/admin.py:95 registration/models.py:183
-msgid "street"
-msgstr "Straße"
-
-#: registration/admin.py:96 registration/models.py:185
-msgid "house number"
-msgstr "Hausnummer"
-
-#: registration/admin.py:97 registration/models.py:187
-msgid "zipcode"
-msgstr "Postleitzahl"
-
-#: registration/admin.py:98 registration/models.py:189
-msgid "city"
-msgstr "Stadt"
-
-#: registration/admin.py:99 registration/models.py:200
-msgid "created at"
-msgstr "Erstellt am"
-
-#: registration/admin.py:100 registration/models.py:213
-msgid "member"
-msgstr "Mitglied"
-
-#: registration/admin.py:102 registration/models.py:228
-msgid "comment"
-msgstr "Kommentar"
-
-#: registration/admin.py:124
-msgid "birthmonth"
-msgstr "Geburtsmonat"
-
-#: registration/admin.py:130
-msgid "January"
-msgstr "Januar"
-
-#: registration/admin.py:131
-msgid "February"
-msgstr "Februar"
-
-#: registration/admin.py:132
-msgid "March"
-msgstr "März"
-
-#: registration/admin.py:133
-msgid "April"
-msgstr "April"
-
-#: registration/admin.py:134
-msgid "May"
-msgstr "Mai"
-
-#: registration/admin.py:135
-msgid "June"
-msgstr "Juni"
-
-#: registration/admin.py:136
-msgid "July"
-msgstr "Juli"
-
-#: registration/admin.py:137
-msgid "August"
-msgstr "August"
-
-#: registration/admin.py:138
-msgid "September"
-msgstr "September"
-
-#: registration/admin.py:139
-msgid "October"
-msgstr "Oktober"
-
-#: registration/admin.py:140
-msgid "November"
-msgstr "November"
-
-#: registration/admin.py:141
-msgid "December"
-msgstr "Dezember"
-
-#: registration/admin.py:163
-msgid "created year"
-msgstr "Erstellungsjahr"
-
-#: registration/admin.py:212
-msgid "e-mail, first name, last name"
-msgstr "E-Mail, Vorname, Nachname"
-
-#: registration/admin.py:226 registration/admin.py:460
-#: registration/templates/registration/edit_profile.html:115
-#: ok_tools/templates/guest_welcome.html:109
-msgid "Contact Information"
-msgstr "Kontaktinformationen"
-
-#: registration/admin.py:229
-msgid "ID Document"
-msgstr "Ausweisdokument"
-
-#: registration/admin.py:236
-msgid "Data Sharing Permissions"
-msgstr "Datenfreigabeberechtigungen"
-
-#: registration/admin.py:239
-msgid "Admin-only: Permissions for sharing data with third parties"
-msgstr "Nur für Admins: Berechtigungen zur Weitergabe von Daten an Dritte"
-
-#: registration/admin.py:241
-msgid "Additional Information"
-msgstr "Weitere Informationen"
-
-#: registration/admin.py:276
-msgid "Verify selected profiles"
-msgstr "Ausgewählte Profile genehmigen"
-
-#: registration/admin.py:281
-#, python-format
-msgid "%d profile was successfully verified."
-msgid_plural "%d profiles were successfully verified."
-msgstr[0] "%d Profil wurde erfolgreich genehmigt."
-msgstr[1] "%d Profile wurden erfolgreich genehmigt."
-
-#: registration/admin.py:286
-msgid "Unverify selected profiles"
-msgstr "Genehmigung der ausgewählten Profile aufheben"
-
-#: registration/admin.py:291
-#, python-format
-msgid "%d profile was successfully unverified."
-msgid_plural "%d profiles were successfully unverified."
-msgstr[0] "Bei %d Profil wurde die Genehmigung aufgehoben."
-msgstr[1] "Bei %d Profilen wurde die Genehmigung aufgehoben."
-
-#: registration/admin.py:365
-msgid "Display Settings"
-msgstr "Anzeigeeinstellungen"
-
-#: registration/admin.py:368
-msgid "Metadata"
-msgstr "Metadaten"
-
-#: registration/admin.py:430
-msgid ""
-"Select PDF template file from files/ directory. Only .pdf files are shown."
-msgstr ""
-"Wählen Sie eine PDF-Vorlagendatei aus dem Verzeichnis files/. Es werden "
-"nur .pdf-Dateien angezeigt."
-
-#: registration/admin.py:463
-msgid "Regulatory & Ownership"
-msgstr "Regulierung & Trägerschaft"
-
-#: registration/admin.py:466
-msgid "Broadcasting Schedule"
-msgstr "Sendeplan"
-
-#: registration/admin.py:469
-msgid "Integration"
-msgstr "Integration"
-
-#: registration/admin.py:472
-msgid "Legal Texts (Optional)"
-msgstr "Rechtstexte (optional)"
-
-#: registration/apps.py:39
-msgid "Registration"
-msgstr "Registrierung"
-
-#: registration/forms.py:25 registration/forms.py:89
-msgid "Email address"
-msgstr "E-Mail-Adresse"
-
-#: registration/forms.py:69
-msgid ""
-"Your profile is already verified. To change further data please contact an "
-"employee."
-msgstr ""
-"Ihr Profil ist bereits genehmigt. Um weitere Daten zu ändern, wenden Sie "
-"sich bitte an einen Mitarbeiter."
-
-#: registration/forms.py:73
-msgid "Submit changes"
-msgstr "Änderungen speichern"
-
-#: registration/forms.py:91
-msgid "I have read the privacy agreement and accept it."
-msgstr "Ich habe die Datenschutzerklärung gelesen und akzeptiere sie."
-
-#: registration/forms.py:94
-msgid "I have read the usage agreement and accept it."
-msgstr "Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie."
-
-#: registration/forms.py:97
-msgid "Birthday"
-msgstr "Geburtstag"
-
-#: registration/forms.py:135 registration/templates/navbar.html:180
-#: ok_tools/templates/base.html:173 ok_tools/templates/guest_welcome.html:85
-msgid "Register"
-msgstr "Registrieren"
-
-#: registration/forms.py:146 registration/forms.py:158
-msgid "Please accept our "
-msgstr "Bitte akzeptieren Sie unsere "
-
-#: registration/forms.py:148
-msgid "privacy policy"
-msgstr "Datenschutzerklärung"
-
-#: registration/forms.py:160
-msgid "usage policy"
-msgstr "Nutzungsbedingungen"
-
-#: registration/models.py:18
-msgid "The given email must be set"
-msgstr "Die angegebene E-Mail-Adresse muss angegeben werden"
-
-#: registration/models.py:36
-msgid "Superuser must have is_staff=True."
-msgstr "Superuser muss is_staff=True haben."
-
-#: registration/models.py:38
-msgid "Superuser must have is_superuser=True."
-msgstr "Superuser muss is_superuser=True haben."
-
-#: registration/models.py:68
-msgid "Users"
-msgstr "Nutzer"
-
-#: registration/models.py:86
-msgid "Full Name"
-msgstr "Vollständiger Name"
-
-#: registration/models.py:90
-msgid "Full name of the media authority (e.g., \"Offener Kanal Dessau\")"
-msgstr "Vollständiger Name der Medienanstalt (z. B. \"Offener Kanal Dessau\")"
-
-#: registration/models.py:93
-msgid "Target Channel"
-msgstr "Zielkanal"
-
-#: registration/models.py:98
-msgid "Target channel identifier (e.g., \"@ok_dessau@lokalmedial.de\")"
-msgstr "Zielkanal-Kennung (z. B. \"@ok_dessau@lokalmedial.de\")"
-
-#: registration/models.py:109
-msgid "Media Authorities"
-msgstr "Offene Kanäle/Bürgermedien"
-
-#: registration/models.py:121 registration/registration_tests.py:577
-msgid "not given"
-msgstr "nicht angegeben"
-
-#: registration/models.py:122 registration/registration_tests.py:574
-msgid "male"
-msgstr "männlich"
-
-#: registration/models.py:123 registration/registration_tests.py:575
-msgid "female"
-msgstr "weiblich"
-
-#: registration/models.py:175
-msgid "ID document number (passport, ID card, etc.)"
-msgstr "Ausweisdokumentnummer (Reisepass, Personalausweis usw.)"
-
-#: registration/models.py:193
-msgid "verified"
-msgstr "genehmigt"
-
-#: registration/models.py:195
-msgid "The profile data was verified by showing the ID to an employee."
-msgstr ""
-"Die Profildaten wurden durch Vorzeigen des Ausweises gegenüber einem "
-"Mitarbeitenden genehmigt."
-
-#: registration/models.py:224
-msgid "Global producer status for the profile."
-msgstr "Globaler Produzentenstatus für das Profil."
-
-#: registration/models.py:235
-msgid "Phone data sharing allowed"
-msgstr "Telefon-Datenfreigabe erlaubt"
-
-#: registration/models.py:237
-msgid "Permission to share phone number with third parties"
-msgstr "Erlaubnis zur Weitergabe der Telefonnummer an Dritte"
-
-#: registration/models.py:241
-msgid "Email data sharing allowed"
-msgstr "E-Mail-Datenfreigabe erlaubt"
-
-#: registration/models.py:243
-msgid "Permission to share email address with third parties"
-msgstr "Erlaubnis zur Weitergabe der E-Mail-Adresse an Dritte"
-
-#: registration/models.py:254
-msgid "Profiles"
-msgstr "Profile"
-
-#: registration/models.py:265
-msgid "Information"
-msgstr "Information"
-
-#: registration/models.py:266
-msgid "Success"
-msgstr "Erfolg"
-
-#: registration/models.py:267
-msgid "Warning"
-msgstr "Warnung"
-
-#: registration/models.py:268
-msgid "Danger"
-msgstr "Gefahr"
-
-#: registration/models.py:272
-msgid "Info Circle"
-msgstr "Informationssymbol"
-
-#: registration/models.py:273
-msgid "Check Circle"
-msgstr "Prüfsymbol"
-
-#: registration/models.py:274
-msgid "Exclamation Triangle"
-msgstr "Ausrufezeichendreieck"
-
-#: registration/models.py:275
-msgid "Exclamation Circle"
-msgstr "Ausrufezeichen-Kreis"
-
-#: registration/models.py:276
-msgid "Clock"
-msgstr "Uhr"
-
-#: registration/models.py:277
-msgid "Bell"
-msgstr "Glocke"
-
-#: registration/models.py:278
-msgid "Broadcast"
-msgstr "Sendung"
-
-#: registration/models.py:279
-msgid "Star"
-msgstr "Stern"
-
-#: registration/models.py:280
-msgid "Gear"
-msgstr "Zahnrad"
-
-#: registration/models.py:281
-msgid "Shield Check"
-msgstr "Schild mit Häkchen"
-
-#: registration/models.py:287
-msgid "Short title for the notification"
-msgstr "Kurztitel für die Benachrichtigung"
-
-#: registration/models.py:291
-msgid "Message"
-msgstr "Nachricht"
-
-#: registration/models.py:292
-msgid "Main notification text"
-msgstr "Hauptbenachrichtigungstext"
-
-#: registration/models.py:300
-msgid "Notification type determines color and style"
-msgstr "Der Benachrichtigungstyp bestimmt Farbe und Stil"
-
-#: registration/models.py:304
-msgid "Icon"
-msgstr "Icon"
-
-#: registration/models.py:308
-msgid "Bootstrap Icons icon name"
-msgstr "Bootstrap Icons-Name"
-
-#: registration/models.py:312 ok_tools/templates/dashboard.html:45
-msgid "Active"
-msgstr "Aktiv"
-
-#: registration/models.py:314
-msgid "Only active notifications are displayed to users"
-msgstr "Nur aktive Benachrichtigungen werden Nutzer:innen angezeigt"
-
-#: registration/models.py:318
-msgid "Priority"
-msgstr "Priorität"
-
-#: registration/models.py:320
-msgid "Higher priority notifications appear first (1-10)"
-msgstr "Benachrichtigungen mit höherer Priorität erscheinen zuerst (1–10)"
-
-#: registration/models.py:324
-msgid "Start Date"
-msgstr "Startdatum"
-
-#: registration/models.py:326
-msgid "When to start showing this notification"
-msgstr "Ab wann diese Benachrichtigung angezeigt werden soll"
-
-#: registration/models.py:330
-msgid "End Date"
-msgstr "Enddatum"
-
-#: registration/models.py:333
-msgid "When to stop showing this notification (optional)"
-msgstr "Bis wann diese Benachrichtigung angezeigt werden soll (optional)"
-
-#: registration/models.py:337
-msgid "Created At"
-msgstr "Erstellt am"
-
-#: registration/models.py:346
-msgid "Created By"
-msgstr "Erstellt von"
-
-#: registration/models.py:347
-msgid "Admin who created this notification (auto-filled)"
-msgstr ""
-"Administrator, der diese Benachrichtigung erstellt hat (wird automatisch "
-"ausgefüllt)"
-
-#: registration/models.py:357
-msgid "Notification"
-msgstr "Benachrichtigung"
-
-#: registration/models.py:358 ok_tools/templates/dashboard.html:174
-msgid "Notifications"
-msgstr "Benachrichtigungen"
-
-#: registration/models.py:381
-msgid "Registration Form PDF"
-msgstr "Registrierungsformular-PDF"
-
-#: registration/models.py:382
-msgid "PDF template file for registration form (must be in files/ directory)"
-msgstr ""
-"PDF-Vorlagendatei für das Registrierungsformular (muss im Verzeichnis files/ "
-"liegen)"
-
-#: registration/models.py:429
-msgid "PDF"
-msgstr "PDF"
-
-#: registration/models.py:430
-msgid "HTML"
-msgstr "HTML"
-
-#: registration/models.py:431
-msgid "TEXT"
-msgstr "TEXT"
-
-#: registration/models.py:437
-msgid "Registration Form Type"
-msgstr "Registrierungsformular-Typ"
-
-#: registration/models.py:438
-msgid "Type of registration form to generate"
-msgstr "Art des zu generierenden Registrierungsformulars"
-
-#: registration/models.py:442 registration/models.py:443
-#: registration/models.py:447 ok_tools/admin.py:51
-msgid "Registration Configuration"
-msgstr "Registrierungskonfiguration"
-
-#: registration/models.py:465
-msgid "Baden-Württemberg"
-msgstr ""
-
-#: registration/models.py:466
-msgid "Bayern"
-msgstr ""
-
-#: registration/models.py:467
-#, fuzzy
-#| msgid "verliehen"
-msgid "Berlin"
-msgstr "verliehen"
-
-#: registration/models.py:468
-msgid "Brandenburg"
-msgstr ""
-
-#: registration/models.py:469
-msgid "Bremen"
-msgstr ""
-
-#: registration/models.py:470
-msgid "Hamburg"
-msgstr ""
-
-#: registration/models.py:471
-msgid "Hessen"
-msgstr ""
-
-#: registration/models.py:472
-msgid "Mecklenburg-Vorpommern"
-msgstr ""
-
-#: registration/models.py:473
-msgid "Niedersachsen"
-msgstr ""
-
-#: registration/models.py:474
-msgid "Nordrhein-Westfalen"
-msgstr ""
-
-#: registration/models.py:475
-msgid "Rheinland-Pfalz"
-msgstr ""
-
-#: registration/models.py:476
-msgid "Saarland"
-msgstr ""
-
-#: registration/models.py:477
-msgid "Sachsen"
-msgstr ""
-
-#: registration/models.py:478
-msgid "Sachsen-Anhalt"
-msgstr ""
-
-#: registration/models.py:479
-msgid "Schleswig-Holstein"
-msgstr ""
-
-#: registration/models.py:480
-msgid "Thüringen"
-msgstr ""
-
-#: registration/models.py:511
-msgid "Organization Name"
-msgstr "Organisationsname"
-
-#: registration/models.py:512
-msgid "Full name of the organization"
-msgstr "Vollständiger Name der Organisation"
-
-#: registration/models.py:518
-msgid "Short Name"
-msgstr "Kurzname"
-
-#: registration/models.py:519
-msgid "Short name of the organization"
-msgstr "Kurzname der Organisation"
-
-#: registration/models.py:526 ok_tools/templates/base.html:100
-msgid "Website"
-msgstr "Webseite"
-
-#: registration/models.py:527
-msgid "Organization website URL"
-msgstr "URL der Organisationswebseite"
-
-#: registration/models.py:533
-msgid "Email"
-msgstr "E-Mail"
-
-#: registration/models.py:534
-msgid "Contact email address"
-msgstr "Kontakt-E-Mail-Adresse"
-
-#: registration/models.py:540
-msgid "Phone"
-msgstr "Telefon"
-
-#: registration/models.py:541
-msgid "Contact phone number"
-msgstr "Kontakt-Telefonnummer"
-
-#: registration/models.py:547
-msgid "Fax"
-msgstr "Fax"
-
-#: registration/models.py:548
-msgid "Fax number"
-msgstr "Faxnummer"
-
-#: registration/models.py:553
-msgid "Address"
-msgstr "Adresse"
-
-#: registration/models.py:554
-msgid "Organization address (multiline)"
-msgstr "Adresse der Organisation (mehrzeilig)"
-
-#: registration/models.py:560
-msgid "Welcome message or organization description"
-msgstr "Begrüßungstext oder Beschreibung der Organisation"
-
-#: registration/models.py:567
-msgid "Large logo"
-msgstr "Großes Logo"
-
-#: registration/models.py:568
-msgid "Large logo displayed in the expanded sidebar"
-msgstr "Großes Logo für die ausgeklappte Seitenleiste"
-
-#: registration/models.py:575
-msgid "Small logo"
-msgstr "Kleines Logo"
-
-#: registration/models.py:576
-msgid "Square logo or SVG displayed in the collapsed sidebar"
-msgstr "Quadratisches Logo oder SVG für die eingeklappte Seitenleiste"
-
-#: registration/models.py:581
-msgid "Opening Hours"
-msgstr "Öffnungszeiten"
-
-#: registration/models.py:582
-msgid "Opening hours (multiline)"
-msgstr "Öffnungszeiten (mehrzeilig)"
-
-#: registration/models.py:589
-msgid "State Media Institution"
-msgstr "Landesmedienanstalt"
-
-#: registration/models.py:590
-msgid "Regulatory institution code (MSA, LFK, BLM, etc.)"
-msgstr "Kürzel der Landesmedienanstalt (MSA, LFK, BLM, etc.)"
-
-#: registration/models.py:596
-msgid "Organization Owner"
-msgstr "Träger"
-
-#: registration/models.py:597
-msgid "Owner/operator identifier (matches MediaAuthority name)"
-msgstr "Träger/Betreiber-Kennung (entspricht MediaAuthority-Name)"
-
-#: registration/models.py:604
-msgid "Bundesland"
-msgstr ""
-
-#: registration/models.py:605
-msgid ""
-"German federal state written to exchange metadata; code is generated "
-"automatically"
-msgstr ""
-
-#: registration/models.py:612
-msgid "Bundesland Code"
-msgstr ""
-
-#: registration/models.py:613
-msgid "Two-letter federal state code written to exchange metadata"
-msgstr ""
-
-#: registration/models.py:619
-msgid "Broadcast Start Time"
-msgstr "Sendestart"
-
-#: registration/models.py:620
-msgid "Default broadcast start time"
-msgstr "Standard-Startzeit der Ausstrahlung"
-
-#: registration/models.py:625
-msgid "Broadcast End Time"
-msgstr "Sendeende"
-
-#: registration/models.py:626
-msgid "Default broadcast end time"
-msgstr "Standard-Endzeit der Ausstrahlung"
-
-#: registration/models.py:633
-msgid "PeerTube Channel"
-msgstr "PeerTube-Kanal"
-
-#: registration/models.py:634
-msgid "PeerTube channel identifier"
-msgstr "PeerTube-Kanalkennung"
-
-#: registration/models.py:640
-msgid "Privacy Policy (Datenschutz)"
-msgstr "Datenschutzerklärung"
-
-#: registration/models.py:641
-msgid "Privacy policy text"
-msgstr "Text der Datenschutzerklärung"
-
-#: registration/models.py:646
-msgid "Imprint (Impressum)"
-msgstr "Impressum"
-
-#: registration/models.py:647
-msgid "Legal imprint text"
-msgstr "Impressumstext"
-
-#: registration/models.py:652
-msgid "Terms and Conditions (AGB)"
-msgstr "AGB"
-
-#: registration/models.py:653
-msgid "Terms and conditions text"
-msgstr "AGB-Text"
-
-#: registration/models.py:657 registration/models.py:658
-#: registration/models.py:662 ok_tools/admin.py:47
-msgid "Organization Configuration"
-msgstr "Organisationskonfiguration"
-
-#: registration/organization_config.py:16
-msgid "Open Channel Merseburg-Querfurt e.V."
-msgstr "Offener Kanal Merseburg-Querfurt e.V."
-
-#: registration/organization_config.py:27
-msgid "OK Merseburg"
-msgstr "OK Merseburg"
-
-#: registration/print.py:151
-msgid "registration_form.txt"
-msgstr "registrierungsformular.txt"
-
-#: registration/print.py:282 registration/views.py:170
-msgid "registration_form.pdf"
-msgstr "registrierungsformular.pdf"
-
-#: registration/templates/admin/registration_change_form_edit.html:8
-msgid "Print application"
-msgstr "Antrag drucken"
-
-#: registration/templates/email/confirm_verification_body.html:3
-#, python-format
-msgid ""
-"\n"
-"Hello %(first_name)s,\n"
-msgstr ""
-"\n"
-"Hallo %(first_name)s,\n"
-
-#: registration/templates/email/confirm_verification_body.html:7
-msgid ""
-"\n"
-"We have received your application and verified your data. Your account is "
-"now fully activated.\n"
-msgstr ""
-"\n"
-"Wir haben Ihren Antrag erhalten und Ihre Daten genehmigt. Ihr Konto ist nun "
-"vollständig aktiviert.\n"
-
-#: registration/templates/email/confirm_verification_body.html:11
-msgid ""
-"\n"
-"You can now login and file a license.\n"
-msgstr ""
-"\n"
-"Sie können sich jetzt einloggen und eine Freistellung beantragen.\n"
-
-#: registration/templates/email/confirm_verification_body.html:20
-#: registration/templates/registration/password_reset_email.html:19
-#: registration/templates/registration/password_set_email_customized.html:16
-#, python-format
-msgid ""
-"\n"
-"Have a great day,\n"
-"\n"
-"The %(ok_name)s team\n"
-msgstr ""
-"\n"
-"Einen schönen Tag wünscht\n"
-"\n"
-"das %(ok_name)s-Team\n"
-
-#: registration/templates/email/confirm_verification_subject.txt:2
-#, python-format
-msgid ""
-"\n"
-"Your Account for %(ok_name)s has been verified\n"
-msgstr ""
-"\n"
-"Ihr Konto für %(ok_name)s wurde genehmigt\n"
-
-#: registration/templates/navbar.html:123
-#: registration/templates/registration/print_registration.html:32
-msgid "Edit user data"
-msgstr "Nutzerdaten bearbeiten"
-
-#: registration/templates/navbar.html:126
-#: registration/templates/registration/password_reset_confirm.html:16
-msgid "Change password"
-msgstr "Passwort ändern"
-
-#: registration/templates/navbar.html:131
-#: registration/templates/registration/edit_profile.html:22
-msgid "Print Registration Form"
-msgstr "Registrierungsformular drucken"
-
-#: registration/templates/navbar.html:136 ok_tools/templates/dashboard.html:151
-msgid "Privacy Policy"
-msgstr "Datenschutzerklärung"
-
-#: registration/templates/navbar.html:150 ok_tools/templates/base.html:74
-#: ok_tools/templates/dashboard.html:331
-msgid "Licenses"
-msgstr "Freistellungen"
-
-#: registration/templates/navbar.html:154 ok_tools/admin_celery.py:605
-msgid "Overview"
-msgstr "Übersicht"
-
-#: registration/templates/navbar.html:157
-msgid "Create license"
-msgstr "Freistellung erstellen"
-
-#: registration/templates/navbar.html:174 ok_tools/templates/base.html:109
-#: ok_tools/templates/base.html:165 ok_tools/templates/dashboard.html:156
-msgid "Logout"
-msgstr "Abmelden"
-
-#: registration/templates/navbar.html:186
-#: registration/templates/registration/login.html:6
-#: ok_tools/templates/base.html:174 ok_tools/templates/guest_welcome.html:82
-msgid "Login"
-msgstr "Anmelden"
-
-#: registration/templates/registration/edit_profile.html:5
-#: registration/templates/registration/edit_profile.html:6
-#: ok_tools/templates/dashboard.html:142
-msgid "Edit Profile"
-msgstr "Profil bearbeiten"
-
-#: registration/templates/registration/edit_profile.html:12
-msgid "Manage your personal data"
-msgstr "Verwalten Sie Ihre persönlichen Daten"
-
-#: registration/templates/registration/edit_profile.html:16
-msgid ""
-"Your profile is already verified. For changes to additional data, please "
-"contact an employee."
-msgstr ""
-"Ihr Profil ist bereits verifiziert. Für Änderungen an zusätzlichen Daten "
-"wenden Sie sich bitte an eine Mitarbeiterin oder einen Mitarbeiter."
-
-#: registration/templates/registration/edit_profile.html:36
-msgid "Personal Information"
-msgstr "Persönliche Informationen"
-
-#: registration/templates/registration/edit_profile.html:38
-msgid "Basic information about you"
-msgstr "Grundlegende Informationen über Sie"
-
-#: registration/templates/registration/edit_profile.html:117
-msgid "Phone numbers for contact"
-msgstr "Telefonnummern für die Kontaktaufnahme"
-
-#: registration/templates/registration/edit_profile.html:132
-msgid "Landline number"
-msgstr "Festnetznummer"
-
-#: registration/templates/registration/edit_profile.html:145
-msgid "Mobile number"
-msgstr "Mobilnummer"
-
-#: registration/templates/registration/edit_profile.html:156
-#, fuzzy
-#| msgid "License Information"
-msgid "Address Information"
-msgstr "Freistellungsinformationen"
-
-#: registration/templates/registration/edit_profile.html:158
-msgid "Your residential address"
-msgstr "Ihre Wohnadresse"
-
-#: registration/templates/registration/edit_profile.html:221
-msgid "Back to Dashboard"
-msgstr "Zurück zum Dashboard"
-
-#: registration/templates/registration/edit_profile.html:225
-#: ok_tools/templates/rental_dashboard.html:216
-msgid "Reset"
-msgstr "Zurücksetzen"
-
-#: registration/templates/registration/edit_profile.html:228
-msgid "Confirm Changes"
-msgstr "Änderungen bestätigen"
-
-#: registration/templates/registration/edit_profile.html:240
-#, fuzzy
-#| msgid "Are you sure you want to run this task now?"
-msgid "Are you sure you want to reset all changes?"
-msgstr "Sind Sie sicher, dass Sie diese Aufgabe jetzt ausführen möchten?"
-
-#: registration/templates/registration/login.html:16
-msgid "Welcome Back"
-msgstr "Willkommen zurück"
-
-#: registration/templates/registration/login.html:17
-msgid "Sign in to your account"
-msgstr "Melden Sie sich bei Ihrem Konto an"
-
-#: registration/templates/registration/login.html:25
-msgid "Sign In"
-msgstr "Anmelden"
-
-#: registration/templates/registration/login.html:28
-msgid "Forgot Password?"
-msgstr "Passwort vergessen?"
-
-#: registration/templates/registration/login.html:34
-msgid "Don't have an account?"
-msgstr "Haben Sie noch kein Konto?"
-
-#: registration/templates/registration/login.html:35
-msgid "Register here"
-msgstr "Hier registrieren"
-
-#: registration/templates/registration/password_reset_complete.html:5
-#: registration/templates/registration/password_reset_complete.html:8
-msgid "Password reset complete"
-msgstr "Passwort zurückgesetzt"
-
-#: registration/templates/registration/password_reset_complete.html:9
-msgid "Your new password has been set. You can log in now:"
-msgstr "Ihr neues Passwort wurde gesetzt. Sie können sich jetzt anmelden:"
-
-#: registration/templates/registration/password_reset_complete.html:9
-msgid "log in page"
-msgstr "Anmeldeseite"
-
-#: registration/templates/registration/password_reset_confirm.html:6
-msgid "Enter new password"
-msgstr "Neues Passwort eingeben"
-
-#: registration/templates/registration/password_reset_confirm.html:12
-msgid "Set a new password!"
-msgstr "Neues Passwort festlegen!"
-
-#: registration/templates/registration/password_reset_confirm.html:21
-msgid ""
-"The password reset link was invalid, possibly because it has already been "
-"used.  Please request a new password reset."
-msgstr ""
-"Der Link zum Zurücksetzen des Passworts war ungültig, möglicherweise wurde "
-"er bereits benutzt. Bitte fordern Sie einen neuen Link zum Zurücksetzen des "
-"Passworts an."
-
-#: registration/templates/registration/password_reset_done.html:5
-msgid "Email Sent"
-msgstr "E-Mail gesendet"
-
-#: registration/templates/registration/password_reset_done.html:8
-msgid "Check your inbox."
-msgstr "Überprüfen Sie Ihren Posteingang."
-
-#: registration/templates/registration/password_reset_done.html:9
-msgid ""
-"If your given email is registered, we've emailed you instructions for "
-"setting your password. You should receive the email shortly!"
-msgstr ""
-"Wenn Ihre angegebene E-Mail-Adresse registriert ist, haben wir Ihnen "
-"Anweisungen zum Festlegen Ihres Passworts per E-Mail gesendet. Sie sollten "
-"die E-Mail in Kürze erhalten!"
-
-#: registration/templates/registration/password_reset_done.html:11
-msgid "Home"
-msgstr "Startseite"
-
-#: registration/templates/registration/password_reset_done.html:12
-msgid "Log In"
-msgstr "Anmelden"
-
-#: registration/templates/registration/password_reset_email.html:3
-#, python-format
-msgid ""
-"\n"
-"Hallo%(first_name)s,\n"
-msgstr ""
-"\n"
-"Hallo %(first_name)s,\n"
-
-#: registration/templates/registration/password_reset_email.html:7
-#, python-format
-msgid ""
-"\n"
-"You're receiving this email because you requested a password change for your "
-"user account at %(ok_name)s.\n"
-"Please go to the following page and choose a new password:\n"
-msgstr ""
-"\n"
-"Sie erhalten diese E-Mail, weil Sie eine Passwortänderung für Ihr "
-"Nutzerkonto bei %(ok_name)s angefordert haben.\n"
-"Bitte gehen Sie auf die folgende Seite und wählen Sie ein neues Passwort:\n"
-
-#: registration/templates/registration/password_reset_email.html:15
-#, python-format
-msgid ""
-"\n"
-"Your username, in case you’ve forgotten: %(user.get_username)s\n"
-msgstr ""
-"\n"
-"Ihr Nutzername, falls Sie ihn vergessen haben: %(user.get_username)s\n"
-
-#: registration/templates/registration/password_reset_form.html:7
-#: ok_tools/templates/dashboard.html:145
-msgid "Change Password"
-msgstr "Passwort ändern"
-
-#: registration/templates/registration/password_reset_form.html:8
-msgid ""
-"Enter your email address below, and we'll send you a link so you can set a "
-"new password."
-msgstr ""
-"Geben Sie unten Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, mit "
-"dem Sie ein neues Passwort festlegen können."
-
-#: registration/templates/registration/password_reset_form.html:13
-msgid "Send email"
-msgstr "E-Mail senden"
-
-#: registration/templates/registration/password_reset_subject.txt:2
-#, python-format
-msgid "Password reset for %(ok_name)s"
-msgstr "Passwortzurücksetzung für %(ok_name)s"
-
-#: registration/templates/registration/password_set_email_customized.html:3
-#, python-format
-msgid ""
-"\n"
-"Hallo %(first_name)s,\n"
-msgstr ""
-"\n"
-"Hallo %(first_name)s,\n"
-
-#: registration/templates/registration/password_set_email_customized.html:7
-#, python-format
-msgid ""
-"\n"
-"You're receiving this email because you've registered yourself at "
-"%(ok_name)s.\n"
-"Please go to the following page and set your password:\n"
-msgstr ""
-"\n"
-"Sie erhalten diese E-Mail, weil Sie sich bei %(ok_name)s registriert haben.\n"
-"Bitte gehen Sie auf die folgende Seite und legen Sie Ihr Passwort fest:\n"
-
-#: registration/templates/registration/password_set_subject_customized.txt:2
-#, python-format
-msgid "Welcome to the %(ok_name)s"
-msgstr "Willkommen bei %(ok_name)s"
-
-#: registration/templates/registration/print_registration.html:7
-msgid "User data for "
-msgstr "Nutzerdaten für "
-
-#: registration/templates/registration/print_registration.html:35
-msgid "Print template only"
-msgstr "Nur Vorlage drucken"
-
-#: registration/templates/registration/register.html:14
-msgid "Create Your Account"
-msgstr "Erstellen Sie Ihr Konto"
-
-#: registration/templates/registration/register.html:15
-msgid "Join our community and start creating amazing content"
-msgstr ""
-"Treten Sie unserer Community bei und beginnen Sie, großartige Inhalte zu "
-"erstellen"
-
-#: registration/templates/registration/register.html:21
-msgid "Already have an account?"
-msgstr "Sie haben bereits ein Konto?"
-
-#: registration/templates/registration/register.html:22
-msgid "Sign in here"
-msgstr "Hier anmelden"
-
-#: registration/templates/registration/user_created.html:6
-msgid "Welcome!"
-msgstr "Willkommen!"
-
-#: registration/templates/registration/user_created.html:9
-#, python-format
-msgid ""
-"\n"
-"You succesfully registered at %(OK_NAME)s. Shortly you will receive an email "
-"with a link. Use this link to set your password. After that you should be "
-"able to log in.\n"
-msgstr ""
-"\n"
-"Sie haben sich erfolgreich bei %(OK_NAME)s registriert. In Kürze erhalten "
-"Sie eine E-Mail mit einem Link. Benutzen Sie diesen Link, um Ihr Passwort "
-"festzulegen. Danach sollten Sie sich anmelden können.\n"
-
-#: registration/templates/registration/user_created.html:15
-msgid "Back to the start page"
-msgstr "Zurück zur Startseite"
-
-#: registration/views.py:53
-#, python-format
-msgid "There is no profile for %(user)s"
-msgstr "Es gibt kein Profil für %(user)s"
-
-#: registration/views.py:281
-msgid "Your profile was successfully updated."
-msgstr "Ihr Profil wurde erfolgreich aktualisiert."
-
 #: ok_tools/accessibility_views.py:28
 msgid "Please fill in all required fields."
 msgstr "Bitte füllen Sie alle Pflichtfelder aus."
@@ -2843,6 +1670,16 @@ msgstr ""
 #: ok_tools/templates/admin/configuration_index.html:11
 msgid "Configuration"
 msgstr "Konfiguration"
+
+#: ok_tools/admin.py:47 registration/models.py:671 registration/models.py:672
+#: registration/models.py:676
+msgid "Organization Configuration"
+msgstr "Organisationskonfiguration"
+
+#: ok_tools/admin.py:51 registration/models.py:456 registration/models.py:457
+#: registration/models.py:461
+msgid "Registration Configuration"
+msgstr "Registrierungskonfiguration"
 
 #: ok_tools/admin.py:101 ok_tools/templates/base.html:60
 msgid "Dashboard"
@@ -2877,473 +1714,514 @@ msgid "Synchronize exchange folders"
 msgstr "Austausch-Ordner synchronisieren"
 
 #: ok_tools/admin_celery.py:34
+#, fuzzy
+#| msgid "Clean up old backups"
+msgid "Clean up Celery task results"
+msgstr "Alte Backups bereinigen"
+
+#: ok_tools/admin_celery.py:35
 msgid "Download Nextcloud video to storage"
 msgstr "Nextcloud-Video in den Speicher herunterladen"
 
-#: ok_tools/admin_celery.py:35
+#: ok_tools/admin_celery.py:36
 msgid "Refresh media library link"
 msgstr "Mediathek-Link aktualisieren"
 
-#: ok_tools/admin_celery.py:36
+#: ok_tools/admin_celery.py:37
 msgid "Rescan media library links from contributions"
 msgstr "Mediathek-Links aus Beiträgen erneut prüfen"
 
-#: ok_tools/admin_celery.py:37
+#: ok_tools/admin_celery.py:38
 msgid "Rescan media library links from planning"
 msgstr "Mediathek-Links aus der Planung erneut prüfen"
 
-#: ok_tools/admin_celery.py:38
+#: ok_tools/admin_celery.py:39
 msgid "Rescan media library links"
 msgstr "Mediathek-Links erneut prüfen"
 
-#: ok_tools/admin_celery.py:39
+#: ok_tools/admin_celery.py:40
 msgid "Send license notification email"
 msgstr "Freistellungs-Benachrichtigung per E-Mail senden"
 
-#: ok_tools/admin_celery.py:40
+#: ok_tools/admin_celery.py:41
 msgid "Copy videos for broadcast plan"
 msgstr "Videos für den Sendeplan kopieren"
 
-#: ok_tools/admin_celery.py:39
+#: ok_tools/admin_celery.py:42
 msgid "Render video"
 msgstr "Video rendern"
 
-#: ok_tools/admin_celery.py:40
+#: ok_tools/admin_celery.py:43
 msgid "Run automatic media scan"
 msgstr "Automatischen Medienscan ausführen"
 
-#: ok_tools/admin_celery.py:41
+#: ok_tools/admin_celery.py:44
 msgid "Clean up duplicate media files"
 msgstr "Doppelte Mediendateien bereinigen"
 
-#: ok_tools/admin_celery.py:42
+#: ok_tools/admin_celery.py:45
 msgid "Clean up missing media files"
 msgstr "Fehlende Mediendateien bereinigen"
 
-#: ok_tools/admin_celery.py:43
+#: ok_tools/admin_celery.py:46
 msgid "Clean up old file operations"
 msgstr "Alte Dateioperationen bereinigen"
 
-#: ok_tools/admin_celery.py:44
+#: ok_tools/admin_celery.py:47
 msgid "Clean up playout storage"
 msgstr "Playout-Speicher bereinigen"
 
-#: ok_tools/admin_celery.py:45
+#: ok_tools/admin_celery.py:48
 msgid "Find duplicate media files"
 msgstr "Doppelte Mediendateien suchen"
 
-#: ok_tools/admin_celery.py:46
+#: ok_tools/admin_celery.py:49
 msgid "Link unassigned licenses"
 msgstr "Nicht zugeordnete Freistellungen verknüpfen"
 
-#: ok_tools/admin_celery.py:47
+#: ok_tools/admin_celery.py:50
 msgid "Scan video storage"
 msgstr "Videospeicher scannen"
 
-#: ok_tools/admin_celery.py:48
+#: ok_tools/admin_celery.py:51
 msgid "Synchronize licenses and videos"
 msgstr "Freistellungen und Videos synchronisieren"
 
-#: ok_tools/admin_celery.py:49
+#: ok_tools/admin_celery.py:52
 msgid "Update video metadata"
 msgstr "Video-Metadaten aktualisieren"
 
-#: ok_tools/admin_celery.py:50
+#: ok_tools/admin_celery.py:53
 msgid "Convert HEVC video to H.264"
 msgstr "HEVC-Video nach H.264 konvertieren"
 
-#: ok_tools/admin_celery.py:51
+#: ok_tools/admin_celery.py:54
 msgid "Clean up old backups"
 msgstr "Alte Backups bereinigen"
 
-#: ok_tools/admin_celery.py:52
+#: ok_tools/admin_celery.py:55
 msgid "Create database backup"
 msgstr "Datenbank-Backup erstellen"
 
-#: ok_tools/admin_celery.py:53
+#: ok_tools/admin_celery.py:56
 msgid "Clean up deleted Nextcloud videos"
 msgstr "Gelöschte Nextcloud-Videos bereinigen"
 
-#: ok_tools/admin_celery.py:54
+#: ok_tools/admin_celery.py:57
 msgid "Clean up old signing sessions"
 msgstr "Alte Signatur-Sitzungen bereinigen"
 
-#: ok_tools/admin_celery.py:55
+#: ok_tools/admin_celery.py:58
 msgid "Expire outdated room rentals"
 msgstr "Abgelaufene Raumverleihvorgänge beenden"
 
-#: ok_tools/admin_celery.py:56
+#: ok_tools/admin_celery.py:59
+#, fuzzy
+#| msgid "Send daily reel reminder"
+msgid "Send return reminders"
+msgstr "Tägliche Reel-Erinnerung senden"
+
+#: ok_tools/admin_celery.py:60
+msgid "Anchor Render Chain"
+msgstr ""
+
+#: ok_tools/admin_celery.py:61
+msgid "Poll anchor render job"
+msgstr ""
+
+#: ok_tools/admin_celery.py:62
 msgid "Synchronize missing playout media"
 msgstr "Fehlende Playout-Medien synchronisieren"
 
-#: ok_tools/admin_celery.py:57
+#: ok_tools/admin_celery.py:63
 msgid "Analyze audio for normalization"
 msgstr "Audio für Normalisierung analysieren"
 
-#: ok_tools/admin_celery.py:58
+#: ok_tools/admin_celery.py:64
 msgid "Clean up old audio normalization jobs"
 msgstr "Alte Audio-Normalisierungsaufträge bereinigen"
 
-#: ok_tools/admin_celery.py:59
+#: ok_tools/admin_celery.py:65
 msgid "Clean up old slideshow projects"
 msgstr "Alte Slideshow-Projekte bereinigen"
 
-#: ok_tools/admin_celery.py:60
+#: ok_tools/admin_celery.py:66
 msgid "Clean up old video render operations"
 msgstr "Alte Video-Render-Vorgänge bereinigen"
 
-#: ok_tools/admin_celery.py:61
+#: ok_tools/admin_celery.py:67
+msgid "Send daily reel reminder"
+msgstr "Tägliche Reel-Erinnerung senden"
+
+#: ok_tools/admin_celery.py:68
 msgid "Generate slideshow video"
 msgstr "Slideshow-Video erzeugen"
 
-#: ok_tools/admin_celery.py:62
+#: ok_tools/admin_celery.py:69
 msgid "Normalize audio"
 msgstr "Audio normalisieren"
 
-#: ok_tools/admin_celery.py:67
+#: ok_tools/admin_celery.py:95
 msgid "Waiting"
 msgstr "Wartet"
 
-#: ok_tools/admin_celery.py:68
+#: ok_tools/admin_celery.py:96
 msgid "In progress"
 msgstr "In Bearbeitung"
 
-#: ok_tools/admin_celery.py:69
+#: ok_tools/admin_celery.py:97
 msgid "Received"
 msgstr "Empfangen"
 
-#: ok_tools/admin_celery.py:70
+#: ok_tools/admin_celery.py:98
 msgid "Retrying"
 msgstr "Wird erneut versucht"
 
-#: ok_tools/admin_celery.py:71
+#: ok_tools/admin_celery.py:99
 msgid "Canceled"
 msgstr "Abgebrochen"
 
-#: ok_tools/admin_celery.py:72
+#: ok_tools/admin_celery.py:100
 msgid "Started"
 msgstr "Gestartet"
 
-#: ok_tools/admin_celery.py:78
+#: ok_tools/admin_celery.py:106
 msgid "Downloading"
 msgstr "Wird heruntergeladen"
 
-#: ok_tools/admin_celery.py:79
+#: ok_tools/admin_celery.py:107
 msgid "Exporting"
 msgstr "Wird exportiert"
 
-#: ok_tools/admin_celery.py:81
+#: ok_tools/admin_celery.py:109
 msgid "Importing"
 msgstr "Wird importiert"
 
-#: ok_tools/admin_celery.py:82
+#: ok_tools/admin_celery.py:110
 msgid "Processing"
 msgstr "Wird verarbeitet"
 
-#: ok_tools/admin_celery.py:83
+#: ok_tools/admin_celery.py:111
 msgid "Rendering"
 msgstr "Wird gerendert"
 
-#: ok_tools/admin_celery.py:84
+#: ok_tools/admin_celery.py:112
 msgid "Skipped"
 msgstr "Übersprungen"
 
-#: ok_tools/admin_celery.py:86
+#: ok_tools/admin_celery.py:114
 msgid "Uploading"
 msgstr "Wird hochgeladen"
 
-#: ok_tools/admin_celery.py:90
+#: ok_tools/admin_celery.py:118
 msgid "Current"
 msgstr "Aktuell"
 
-#: ok_tools/admin_celery.py:91
+#: ok_tools/admin_celery.py:119
 msgid "Current item ID"
 msgstr "Aktuelle Eintrags-ID"
 
-#: ok_tools/admin_celery.py:92
+#: ok_tools/admin_celery.py:120
 msgid "Details"
 msgstr "Details"
 
-#: ok_tools/admin_celery.py:94
+#: ok_tools/admin_celery.py:122
 msgid "Exception message"
 msgstr "Fehlermeldung"
 
-#: ok_tools/admin_celery.py:95
+#: ok_tools/admin_celery.py:123
 msgid "Exception module"
 msgstr "Fehlermodul"
 
-#: ok_tools/admin_celery.py:96
+#: ok_tools/admin_celery.py:124
 msgid "Exception type"
 msgstr "Fehlertyp"
 
-#: ok_tools/admin_celery.py:98
+#: ok_tools/admin_celery.py:126
 msgid "Failed entries"
 msgstr "Fehlgeschlagene Einträge"
 
-#: ok_tools/admin_celery.py:99
+#: ok_tools/admin_celery.py:127
 msgid "Job ID"
 msgstr "Auftrags-ID"
 
-#: ok_tools/admin_celery.py:100
+#: ok_tools/admin_celery.py:128
 msgid "Output file"
 msgstr "Ausgabedatei"
 
-#: ok_tools/admin_celery.py:101
+#: ok_tools/admin_celery.py:129
 msgid "External output path"
 msgstr "Externer Ausgabepfad"
 
-#: ok_tools/admin_celery.py:102 ok_tools/admin_celery.py:690
-#: ok_tools/admin_celery.py:760
+#: ok_tools/admin_celery.py:130 ok_tools/admin_celery.py:858
+#: ok_tools/admin_celery.py:928
 msgid "Progress"
 msgstr "Fortschritt"
 
-#: ok_tools/admin_celery.py:103
+#: ok_tools/admin_celery.py:131
 msgid "Reason"
 msgstr "Grund"
 
-#: ok_tools/admin_celery.py:104
+#: ok_tools/admin_celery.py:132
 msgid "Recommendations"
 msgstr "Empfehlungen"
 
-#: ok_tools/admin_celery.py:105 ok_tools/admin_celery.py:757
+#: ok_tools/admin_celery.py:133 ok_tools/admin_celery.py:925
 msgid "Report ID"
 msgstr "Berichts-ID"
 
-#: ok_tools/admin_celery.py:106 ok_tools/admin_celery.py:107
-#: ok_tools/admin_celery.py:754
+#: ok_tools/admin_celery.py:134 ok_tools/admin_celery.py:135
+#: ok_tools/admin_celery.py:922
 msgid "Skipped without PDF"
 msgstr "Ohne PDF übersprungen"
 
-#: ok_tools/admin_celery.py:108 ok_tools/admin_celery.py:781
+#: ok_tools/admin_celery.py:136 ok_tools/admin_celery.py:949
 msgid "Upload speed"
 msgstr "Upload-Geschwindigkeit"
 
-#: ok_tools/admin_celery.py:110 ok_tools/admin_celery.py:748
+#: ok_tools/admin_celery.py:138 ok_tools/admin_celery.py:916
 msgid "Successful"
 msgstr "Erfolgreich"
 
-#: ok_tools/admin_celery.py:111
+#: ok_tools/admin_celery.py:139
 msgid "Successful IDs"
 msgstr "Erfolgreiche IDs"
 
-#: ok_tools/admin_celery.py:112
+#: ok_tools/admin_celery.py:140
 msgid "Successful license numbers"
 msgstr "Erfolgreiche Freistellungsnummern"
 
-#: ok_tools/admin_celery.py:113
+#: ok_tools/admin_celery.py:141
 msgid "Total"
 msgstr "Gesamt"
 
-#: ok_tools/admin_celery.py:120
+#: ok_tools/admin_celery.py:148
 msgid "Unknown task"
 msgstr "Unbekannte Aufgabe"
 
-#: ok_tools/admin_celery.py:216
+#: ok_tools/admin_celery.py:155
+#, fuzzy
+#| msgid "Unknown task"
+msgid "Unknown periodic task"
+msgstr "Unbekannte Aufgabe"
+
+#: ok_tools/admin_celery.py:195 ok_tools/admin_celery.py:243
+#: ok_tools/admin_celery.py:800
+msgid "Task"
+msgstr "Aufgabe"
+
+#: ok_tools/admin_celery.py:217 ok_tools/admin_celery.py:806
+#, fuzzy
+#| msgid "Project Name"
+msgid "Periodic Task Name"
+msgstr "Projektname"
+
+#: ok_tools/admin_celery.py:354
 msgid "licenses"
 msgstr "Freistellungen"
 
-#: ok_tools/admin_celery.py:218
+#: ok_tools/admin_celery.py:356
 msgid "contributions"
 msgstr "Beiträge"
 
-#: ok_tools/admin_celery.py:219
+#: ok_tools/admin_celery.py:357
 msgid "unknown"
 msgstr "unbekannt"
 
-#: ok_tools/admin_celery.py:256
+#: ok_tools/admin_celery.py:394
 #, python-format
 msgid "User ID %(user_id)s"
 msgstr "Benutzer-ID %(user_id)s"
 
-#: ok_tools/admin_celery.py:261
+#: ok_tools/admin_celery.py:399
 #, python-format
 msgid "%(label)s (ID %(user_id)s)"
 msgstr "%(label)s (ID %(user_id)s)"
 
-#: ok_tools/admin_celery.py:279
+#: ok_tools/admin_celery.py:417
 #, python-format
 msgid "#%(number)s %(title)s"
 msgstr "#%(number)s %(title)s"
 
-#: ok_tools/admin_celery.py:285
+#: ok_tools/admin_celery.py:423
 #, python-format
 msgid "#%(number)s (not found)"
 msgstr "#%(number)s (nicht gefunden)"
 
-#: ok_tools/admin_celery.py:303
+#: ok_tools/admin_celery.py:441
 #, python-format
 msgid "#%(id)s - license %(number)s %(title)s"
 msgstr "#%(id)s - Freistellung %(number)s %(title)s"
 
-#: ok_tools/admin_celery.py:314
+#: ok_tools/admin_celery.py:452
 #, python-format
 msgid "#%(id)s (not found)"
 msgstr "#%(id)s (nicht gefunden)"
 
-#: ok_tools/admin_celery.py:321
+#: ok_tools/admin_celery.py:459
 #, python-format
 msgid "and %(count)s more"
 msgstr "und %(count)s weitere"
 
-#: ok_tools/admin_celery.py:330
+#: ok_tools/admin_celery.py:468
 msgid "No selected entries"
 msgstr "Keine ausgewählten Einträge"
 
-#: ok_tools/admin_celery.py:348
+#: ok_tools/admin_celery.py:486
 msgid "Run selected periodic tasks now"
 msgstr "Gewählte periodische Aufgaben jetzt ausführen"
 
-#: ok_tools/admin_celery.py:363 ok_tools/admin_celery.py:474
+#: ok_tools/admin_celery.py:501 ok_tools/admin_celery.py:625
 #, python-format
 msgid "Task \"%(task_name)s\" not found in Celery app."
 msgstr "Aufgabe \"%(task_name)s\" wurde in der Celery-App nicht gefunden."
 
-#: ok_tools/admin_celery.py:382
+#: ok_tools/admin_celery.py:520
 #, python-format
 msgid "Task \"%(task_name)s\" started. Task ID: %(task_id)s"
 msgstr "Aufgabe \"%(task_name)s\" gestartet. Aufgaben-ID: %(task_id)s"
 
-#: ok_tools/admin_celery.py:392 ok_tools/admin_celery.py:499
+#: ok_tools/admin_celery.py:530 ok_tools/admin_celery.py:650
 #, python-format
 msgid "Error running task \"%(task_name)s\": %(error)s"
 msgstr "Fehler beim Ausführen der Aufgabe \"%(task_name)s\": %(error)s"
 
-#: ok_tools/admin_celery.py:400
+#: ok_tools/admin_celery.py:538
 #, python-format
 msgid "%d task(s) started successfully."
 msgstr "%d Aufgabe(n) erfolgreich gestartet."
 
-#: ok_tools/admin_celery.py:402
+#: ok_tools/admin_celery.py:540
 #, python-format
 msgid "%d task(s) failed to start."
 msgstr "%d Aufgabe(n) konnten nicht gestartet werden."
 
-#: ok_tools/admin_celery.py:430
+#: ok_tools/admin_celery.py:581
 msgid "Total runs: {}"
 msgstr "Gesamtausführungen: {}"
 
-#: ok_tools/admin_celery.py:432
+#: ok_tools/admin_celery.py:583
 msgid "Never run"
 msgstr "Nie ausgeführt"
 
-#: ok_tools/admin_celery.py:433
+#: ok_tools/admin_celery.py:584
 msgid "Last Run"
 msgstr "Letzte Ausführung"
 
-#: ok_tools/admin_celery.py:438
+#: ok_tools/admin_celery.py:589
 msgid "No task specified"
 msgstr "Keine Aufgabe ausgewählt"
 
-#: ok_tools/admin_celery.py:445
+#: ok_tools/admin_celery.py:596
 msgid "No results yet"
 msgstr "Noch keine Ergebnisse"
 
-#: ok_tools/admin_celery.py:459
+#: ok_tools/admin_celery.py:610
 msgid "View Results"
 msgstr "Ergebnisse anzeigen"
 
-#: ok_tools/admin_celery.py:461
+#: ok_tools/admin_celery.py:612
 msgid "Last: {}"
 msgstr "Letzte: {}"
 
-#: ok_tools/admin_celery.py:461
+#: ok_tools/admin_celery.py:612
 msgid "N/A"
 msgstr "N/V"
 
-#: ok_tools/admin_celery.py:463
+#: ok_tools/admin_celery.py:614
 msgid "Task Results"
 msgstr "Aufgabenergebnisse"
 
-#: ok_tools/admin_celery.py:491
+#: ok_tools/admin_celery.py:642
 #, python-format
 msgid "Task \"%(task_name)s\" started successfully. Task ID: %(task_id)s"
 msgstr ""
 "Aufgabe \"%(task_name)s\" erfolgreich gestartet. Aufgaben-ID: %(task_id)s"
 
-#: ok_tools/admin_celery.py:617
+#: ok_tools/admin_celery.py:765 registration/templates/navbar.html:154
+msgid "Overview"
+msgstr "Übersicht"
+
+#: ok_tools/admin_celery.py:778
 msgid "Technical details"
 msgstr "Technische Details"
 
-#: ok_tools/admin_celery.py:639
-msgid "Task"
-msgstr "Aufgabe"
-
-#: ok_tools/admin_celery.py:681 ok_tools/admin_celery.py:760
+#: ok_tools/admin_celery.py:849 ok_tools/admin_celery.py:928
 #, python-format
 msgid "%(progress)s%% complete"
 msgstr "%(progress)s %% abgeschlossen"
 
-#: ok_tools/admin_celery.py:683 ok_tools/admin_celery.py:764
-#: ok_tools/admin_celery.py:770
+#: ok_tools/admin_celery.py:851 ok_tools/admin_celery.py:932
+#: ok_tools/admin_celery.py:938
 #, python-format
 msgid "%(current)s of %(total)s"
 msgstr "%(current)s von %(total)s"
 
-#: ok_tools/admin_celery.py:687 ok_tools/admin_celery.py:781
+#: ok_tools/admin_celery.py:855 ok_tools/admin_celery.py:949
 #, python-format
 msgid "%(speed)s Mbit/s"
 msgstr "%(speed)s Mbit/s"
 
-#: ok_tools/admin_celery.py:698
+#: ok_tools/admin_celery.py:866
 msgid "Export type"
 msgstr "Exporttyp"
 
-#: ok_tools/admin_celery.py:699
+#: ok_tools/admin_celery.py:867
 msgid "Selected entries"
 msgstr "Ausgewählte Einträge"
 
-#: ok_tools/admin_celery.py:700
+#: ok_tools/admin_celery.py:868
 msgid "Linked entries"
 msgstr "Verknüpfte Einträge"
 
-#: ok_tools/admin_celery.py:703
+#: ok_tools/admin_celery.py:871
 msgid "Started by"
 msgstr "Gestartet von"
 
-#: ok_tools/admin_celery.py:707
+#: ok_tools/admin_celery.py:875
 msgid "No parameters"
 msgstr "Keine Parameter"
 
-#: ok_tools/admin_celery.py:715
+#: ok_tools/admin_celery.py:883
 #, python-format
 msgid "Argument %(number)s"
 msgstr "Argument %(number)s"
 
-#: ok_tools/admin_celery.py:719
+#: ok_tools/admin_celery.py:887
 msgid "Arguments"
 msgstr "Argumente"
 
-#: ok_tools/admin_celery.py:727
+#: ok_tools/admin_celery.py:895
 msgid "Named arguments"
 msgstr "Benannte Argumente"
 
-#: ok_tools/admin_celery.py:729
+#: ok_tools/admin_celery.py:897
 msgid "Parameters"
 msgstr "Parameter"
 
-#: ok_tools/admin_celery.py:764
+#: ok_tools/admin_celery.py:932
 msgid "Uploaded chunks"
 msgstr "Hochgeladene Dateiteile"
 
-#: ok_tools/admin_celery.py:768
+#: ok_tools/admin_celery.py:936
 msgid "Meaning"
 msgstr "Bedeutung"
 
-#: ok_tools/admin_celery.py:768
+#: ok_tools/admin_celery.py:936
 msgid "The file is being uploaded in parts; this is the uploaded chunk count."
 msgstr ""
 "Die Datei wird in Teilen hochgeladen; dies ist die Anzahl der hochgeladenen "
 "Dateiteile."
 
-#: ok_tools/admin_celery.py:770
+#: ok_tools/admin_celery.py:938
 msgid "Processed entries"
 msgstr "Verarbeitete Einträge"
 
-#: ok_tools/admin_celery.py:776
+#: ok_tools/admin_celery.py:944
 msgid "Current entry"
 msgstr "Aktueller Eintrag"
 
-#: ok_tools/admin_celery.py:791
+#: ok_tools/admin_celery.py:959
 msgid "Result"
 msgstr "Ergebnis"
 
@@ -3404,7 +2282,7 @@ msgstr ""
 "✓ Erfolgreich {count} Konfiguration(en) migriert"
 
 #: ok_tools/templates/admin/base_site.html:6
-#: ok_tools/templates/admin/base_site.html:126
+#: ok_tools/templates/admin/base_site.html:127
 msgid "Administration interface"
 msgstr "Administrationsoberfläche"
 
@@ -3508,14 +2386,39 @@ msgstr "Navigationseinträge filtern"
 msgid "OK Tools Dashboard"
 msgstr "OK Tools Dashboard"
 
+#: ok_tools/templates/base.html:74 ok_tools/templates/dashboard.html:331
+#: registration/templates/navbar.html:150
+msgid "Licenses"
+msgstr "Freistellungen"
+
 #: ok_tools/templates/base.html:91 ok_tools/templates/dashboard.html:42
 #: ok_tools/templates/rental_dashboard.html:5
 msgid "Rental"
 msgstr "Ausleihe"
 
+#: ok_tools/templates/base.html:100 registration/models.py:540
+msgid "Website"
+msgstr "Webseite"
+
+#: ok_tools/templates/base.html:109 ok_tools/templates/base.html:165
+#: ok_tools/templates/dashboard.html:156 registration/templates/navbar.html:174
+msgid "Logout"
+msgstr "Abmelden"
+
 #: ok_tools/templates/base.html:134
 msgid "Toggle theme"
 msgstr ""
+
+#: ok_tools/templates/base.html:173 ok_tools/templates/guest_welcome.html:85
+#: registration/forms.py:183 registration/templates/navbar.html:180
+msgid "Register"
+msgstr "Registrieren"
+
+#: ok_tools/templates/base.html:174 ok_tools/templates/guest_welcome.html:82
+#: registration/templates/navbar.html:186
+#: registration/templates/registration/login.html:6
+msgid "Login"
+msgstr "Anmelden"
 
 #: ok_tools/templates/base.html:207
 msgid "Coming Soon!"
@@ -3557,6 +2460,10 @@ msgstr "Mein Dashboard"
 msgid "Your Licenses"
 msgstr "Ihre Freistellungen"
 
+#: ok_tools/templates/dashboard.html:45 registration/models.py:326
+msgid "Active"
+msgstr "Aktiv"
+
 #: ok_tools/templates/dashboard.html:46
 msgid "Returned"
 msgstr "Zurückgegeben"
@@ -3581,9 +2488,28 @@ msgstr "Mitglied"
 msgid "Quick Actions"
 msgstr "Schnellaktionen"
 
+#: ok_tools/templates/dashboard.html:142
+#: registration/templates/registration/edit_profile.html:5
+#: registration/templates/registration/edit_profile.html:6
+msgid "Edit Profile"
+msgstr "Profil bearbeiten"
+
+#: ok_tools/templates/dashboard.html:145
+#: registration/templates/registration/password_reset_form.html:7
+msgid "Change Password"
+msgstr "Passwort ändern"
+
 #: ok_tools/templates/dashboard.html:148
 msgid "Print Registration"
 msgstr "Registrierung drucken"
+
+#: ok_tools/templates/dashboard.html:151 registration/templates/navbar.html:136
+msgid "Privacy Policy"
+msgstr "Datenschutzerklärung"
+
+#: ok_tools/templates/dashboard.html:174 registration/models.py:372
+msgid "Notifications"
+msgstr "Benachrichtigungen"
 
 #: ok_tools/templates/dashboard.html:176
 msgid "Your important updates and alerts"
@@ -3616,6 +2542,11 @@ msgstr "Ihre neuesten Updates und Aktivitäten"
 #: ok_tools/templates/dashboard.html:244
 msgid "Activity"
 msgstr "Aktivität"
+
+#: ok_tools/templates/dashboard.html:245 projects/admin.py:175
+#: projects/models.py:149
+msgid "Date"
+msgstr "Datum"
 
 #: ok_tools/templates/dashboard.html:268
 msgid "No recent activities"
@@ -3756,6 +2687,12 @@ msgstr "Wählen Sie eine der obigen Optionen, um zu beginnen"
 msgid "About"
 msgstr "Über"
 
+#: ok_tools/templates/guest_welcome.html:109 registration/admin.py:263
+#: registration/admin.py:497
+#: registration/templates/registration/edit_profile.html:115
+msgid "Contact Information"
+msgstr "Kontaktinformationen"
+
 #: ok_tools/templates/guest_welcome.html:113
 msgid "Community Media Center"
 msgstr "Community Media Center"
@@ -3861,10 +2798,6 @@ msgstr "Elemente"
 msgid "Rooms"
 msgstr "Räume"
 
-#: ok_tools/templates/rental_dashboard.html:101
-msgid "Loading..."
-msgstr "Wird geladen..."
-
 #: ok_tools/templates/rental_dashboard.html:109
 msgid "2. Project Information"
 msgstr "2. Projektinformationen"
@@ -3918,6 +2851,11 @@ msgstr "Bestand durchsuchen..."
 #: ok_tools/templates/rental_dashboard.html:184
 msgid "All Owners"
 msgstr "Alle Besitzer"
+
+#: ok_tools/templates/rental_dashboard.html:216
+#: registration/templates/registration/edit_profile.html:225
+msgid "Reset"
+msgstr "Zurücksetzen"
 
 #: ok_tools/templates/rental_dashboard.html:221
 msgid "Show Sets"
@@ -4063,6 +3001,1405 @@ msgstr "Sie haben %(count)d Beiträge in dieser Woche"
 msgid "Welcome back, %(name)s!"
 msgstr "Willkommen zurück, %(name)s!"
 
+#: projects/admin.py:173 projects/models.py:136
+msgid "Topic"
+msgstr "Thema"
+
+#: projects/admin.py:177 projects/models.py:162
+msgid "External venue"
+msgstr "Externer Veranstaltungsort"
+
+#: projects/admin.py:178 projects/models.py:168
+msgid "Jugendmedienschutz"
+msgstr "Jugendmedienschutz"
+
+#: projects/admin.py:179 projects/models.py:95 projects/models.py:108
+#: projects/models.py:184
+msgid "Target group"
+msgstr "Zielgruppe"
+
+#: projects/admin.py:180 projects/models.py:67 projects/models.py:80
+#: projects/models.py:191
+msgid "Project category"
+msgstr "Projektkategorie"
+
+#: projects/admin.py:181 projects/admin.py:296 projects/models.py:30
+#: projects/models.py:199
+msgid "Project leader"
+msgstr "Projektleiter"
+
+#: projects/admin.py:182 projects/models.py:209
+msgid "bis 6 Jahre"
+msgstr "bis 6 Jahre"
+
+#: projects/admin.py:183 projects/models.py:215
+msgid "7-10 Jahre"
+msgstr "7-10 Jahre"
+
+#: projects/admin.py:184 projects/models.py:221
+msgid "11-14 Jahre"
+msgstr "11-14 Jahre"
+
+#: projects/admin.py:185 projects/models.py:227
+msgid "15-18 Jahre"
+msgstr "15-18 Jahre"
+
+#: projects/admin.py:186 projects/models.py:233
+msgid "19-34 Jahre"
+msgstr "19-34 Jahre"
+
+#: projects/admin.py:187 projects/models.py:239
+msgid "35-50 Jahre"
+msgstr "35-50 Jahre"
+
+#: projects/admin.py:188 projects/models.py:245
+msgid "51-65 Jahre"
+msgstr "51-65 Jahre"
+
+#: projects/admin.py:189 projects/models.py:251
+msgid "über 65 Jahre"
+msgstr "über 65 Jahre"
+
+#: projects/admin.py:190 projects/admin.py:194 projects/models.py:257
+#: projects/models.py:276
+msgid "ohne Angabe"
+msgstr "ohne Angabe"
+
+#: projects/admin.py:191 projects/models.py:264
+msgid "weiblich"
+msgstr "weiblich"
+
+#: projects/admin.py:192 projects/models.py:270
+msgid "männlich"
+msgstr "männlich"
+
+#: projects/admin.py:193 projects/models.py:282 registration/models.py:138
+#: registration/registration_tests.py:629
+msgid "diverse"
+msgstr "divers"
+
+#: projects/admin.py:232 projects/apps.py:10 projects/models.py:315
+msgid "Projects"
+msgstr "Projekte"
+
+#: projects/admin.py:238
+msgid "start year"
+msgstr "Startjahr"
+
+#: projects/admin.py:291
+msgid "title, topic, description"
+msgstr "Titel, Thema, Beschreibung"
+
+#: projects/admin.py:294
+msgid "Target Group"
+msgstr "Zielgruppe"
+
+#: projects/admin.py:295
+msgid "Project Category"
+msgstr "Projektkategorie"
+
+#: projects/admin.py:315 registration/admin.py:260 registration/admin.py:399
+#: registration/admin.py:494
+msgid "Basic Information"
+msgstr "Grundinformationen"
+
+#: projects/admin.py:318
+msgid "Schedule & Details"
+msgstr "Zeitplan & Details"
+
+#: projects/admin.py:335
+msgid "Participants by Age"
+msgstr "Teilnehmer nach Alter"
+
+#: projects/admin.py:347
+msgid ""
+"Enter the number of participants in each age group. Total must match gender "
+"totals."
+msgstr ""
+"Geben Sie die Anzahl der Teilnehmer in jeder Altersgruppe ein. Die "
+"Gesamtsumme muss mit der Summe nach Geschlecht übereinstimmen."
+
+#: projects/admin.py:349
+msgid "Participants by Gender"
+msgstr "Teilnehmer nach Geschlecht"
+
+#: projects/admin.py:356
+msgid ""
+"Enter the number of participants by gender. Total must match age group "
+"totals."
+msgstr ""
+"Geben Sie die Teilnehmerzahl nach Geschlecht ein. Die Gesamtsumme muss mit "
+"der Summe nach Altersgruppen übereinstimmen."
+
+#: projects/admin.py:362
+msgid "Create a copy of selected projects"
+msgstr "Erstellen Sie eine Kopie der ausgewählten Projekte"
+
+#: projects/admin.py:383
+#, python-format
+msgid "%(count)d project copy was successfully created."
+msgstr "%(count)d Projektkopie wurde erfolgreich erstellt."
+
+#: projects/admin.py:384
+#, python-format
+msgid "%(count)d project copies were successfully created."
+msgstr "%(count)d Projektkopien wurden erfolgreich erstellt."
+
+#: projects/ics_export.py:21
+#, python-format
+msgid "Dauer: %(duration)s"
+msgstr "Dauer: %(duration)s"
+
+#: projects/ics_export.py:34
+msgid "projects.ics"
+msgstr "projekte.ics"
+
+#: projects/models.py:17 projects/models.py:42
+msgid "Full name"
+msgstr "Vollständiger Name"
+
+#: projects/models.py:31
+msgid "Project leaders"
+msgstr "Projektleiter"
+
+#: projects/models.py:55
+msgid "Media education supervisor"
+msgstr "Medienpädagogische Leitung"
+
+#: projects/models.py:56 projects/models.py:205
+msgid "Media education supervisors"
+msgstr "Medienpädagogische Leitungen"
+
+#: projects/models.py:81
+msgid "Project categories"
+msgstr "Projektkategorien"
+
+#: projects/models.py:109
+msgid "Target groups"
+msgstr "Zielgruppen"
+
+#: projects/models.py:117 projects/models.py:122
+msgid "Not Selected"
+msgstr "Nicht ausgewählt"
+
+#: projects/models.py:129
+msgid "Project title"
+msgstr "Projekttitel"
+
+#: projects/models.py:156
+msgid "Format: hh:mm:ss or mm:ss"
+msgstr "Format: hh:mm:ss oder mm:ss"
+
+#: projects/models.py:174
+msgid "Democracy project"
+msgstr "Demokratieprojekt"
+
+#: projects/models.py:299
+#, python-format
+msgid ""
+"The sum of participants by age (%(age)s) does not match the sum of "
+"participants by gender (%(gender)s). Please correct your data."
+msgstr ""
+"Die Summe der Teilnehmer nach Alter (%(age)s) stimmt nicht mit der Summe der "
+"Teilnehmer nach Geschlecht (%(gender)s) überein. Bitte korrigieren Sie Ihre "
+"Angaben."
+
+#: projects/models.py:314
+msgid "Project"
+msgstr "Projekt"
+
+#: projects/templates/admin/change_list_ics_export_item.html:3
+msgid "Export dates"
+msgstr "Daten exportieren"
+
+#: registration/admin.py:60 registration/admin.py:91
+msgid "E-Mail address"
+msgstr "E-Mail-Adresse"
+
+#: registration/admin.py:63 registration/admin.py:94
+msgid "Password"
+msgstr "Passwort"
+
+#: registration/admin.py:66
+msgid "Admin"
+msgstr "Admin"
+
+#: registration/admin.py:69
+msgid "permissions"
+msgstr "Berechtigungen"
+
+#: registration/admin.py:72 registration/admin.py:97
+msgid "Staff"
+msgstr "Mitarbeiter"
+
+#: registration/admin.py:75 registration/admin.py:87
+msgid "Staff signature"
+msgstr ""
+
+#: registration/admin.py:77
+msgid ""
+"Draw the staff member's signature below. It appears on Freistellung PDFs "
+"when this user confirms a license."
+msgstr ""
+
+#: registration/admin.py:116
+msgid "ID"
+msgstr "ID"
+
+#: registration/admin.py:117 registration/models.py:167
+msgid "first name"
+msgstr "Vorname"
+
+#: registration/admin.py:118 registration/models.py:169
+msgid "last name"
+msgstr "Nachname"
+
+#: registration/admin.py:119 registration/models.py:172
+msgid "gender"
+msgstr "Geschlecht"
+
+#: registration/admin.py:120 registration/models.py:55
+msgid "email address"
+msgstr "E-Mail-Adresse"
+
+#: registration/admin.py:121 registration/models.py:181
+msgid "phone number"
+msgstr "Telefonnummer"
+
+#: registration/admin.py:122 registration/models.py:184
+msgid "mobile number"
+msgstr "Handynummer"
+
+#: registration/admin.py:123 registration/models.py:188
+msgid "ID document number"
+msgstr "Ausweisnummer"
+
+#: registration/admin.py:124 registration/models.py:194
+msgid "birthday"
+msgstr "Geburtstag"
+
+#: registration/admin.py:125 registration/models.py:197
+msgid "street"
+msgstr "Straße"
+
+#: registration/admin.py:126 registration/models.py:199
+msgid "house number"
+msgstr "Hausnummer"
+
+#: registration/admin.py:127 registration/models.py:201
+msgid "zipcode"
+msgstr "Postleitzahl"
+
+#: registration/admin.py:128 registration/models.py:203
+msgid "city"
+msgstr "Stadt"
+
+#: registration/admin.py:129 registration/models.py:214
+msgid "created at"
+msgstr "Erstellt am"
+
+#: registration/admin.py:130 registration/models.py:227
+msgid "member"
+msgstr "Mitglied"
+
+#: registration/admin.py:132 registration/models.py:242
+msgid "comment"
+msgstr "Kommentar"
+
+#: registration/admin.py:160
+msgid "birthmonth"
+msgstr "Geburtsmonat"
+
+#: registration/admin.py:166
+msgid "January"
+msgstr "Januar"
+
+#: registration/admin.py:167
+msgid "February"
+msgstr "Februar"
+
+#: registration/admin.py:168
+msgid "March"
+msgstr "März"
+
+#: registration/admin.py:169
+msgid "April"
+msgstr "April"
+
+#: registration/admin.py:170
+msgid "May"
+msgstr "Mai"
+
+#: registration/admin.py:171
+msgid "June"
+msgstr "Juni"
+
+#: registration/admin.py:172
+msgid "July"
+msgstr "Juli"
+
+#: registration/admin.py:173
+msgid "August"
+msgstr "August"
+
+#: registration/admin.py:174
+msgid "September"
+msgstr "September"
+
+#: registration/admin.py:175
+msgid "October"
+msgstr "Oktober"
+
+#: registration/admin.py:176
+msgid "November"
+msgstr "November"
+
+#: registration/admin.py:177
+msgid "December"
+msgstr "Dezember"
+
+#: registration/admin.py:199
+msgid "created year"
+msgstr "Erstellungsjahr"
+
+#: registration/admin.py:249
+msgid "e-mail, first name, last name"
+msgstr "E-Mail, Vorname, Nachname"
+
+#: registration/admin.py:266
+msgid "ID Document"
+msgstr "Ausweisdokument"
+
+#: registration/admin.py:273
+msgid "Data Sharing Permissions"
+msgstr "Datenfreigabeberechtigungen"
+
+#: registration/admin.py:276
+msgid "Admin-only: Permissions for sharing data with third parties"
+msgstr "Nur für Admins: Berechtigungen zur Weitergabe von Daten an Dritte"
+
+#: registration/admin.py:278
+msgid "Additional Information"
+msgstr "Weitere Informationen"
+
+#: registration/admin.py:313
+msgid "Verify selected profiles"
+msgstr "Ausgewählte Profile genehmigen"
+
+#: registration/admin.py:318
+#, python-format
+msgid "%d profile was successfully verified."
+msgid_plural "%d profiles were successfully verified."
+msgstr[0] "%d Profil wurde erfolgreich genehmigt."
+msgstr[1] "%d Profile wurden erfolgreich genehmigt."
+
+#: registration/admin.py:323
+msgid "Unverify selected profiles"
+msgstr "Genehmigung der ausgewählten Profile aufheben"
+
+#: registration/admin.py:328
+#, python-format
+msgid "%d profile was successfully unverified."
+msgid_plural "%d profiles were successfully unverified."
+msgstr[0] "Bei %d Profil wurde die Genehmigung aufgehoben."
+msgstr[1] "Bei %d Profilen wurde die Genehmigung aufgehoben."
+
+#: registration/admin.py:402
+msgid "Display Settings"
+msgstr "Anzeigeeinstellungen"
+
+#: registration/admin.py:405
+msgid "Metadata"
+msgstr "Metadaten"
+
+#: registration/admin.py:467
+msgid ""
+"Select PDF template file from files/ directory. Only .pdf files are shown."
+msgstr ""
+"Wählen Sie eine PDF-Vorlagendatei aus dem Verzeichnis files/. Es werden "
+"nur .pdf-Dateien angezeigt."
+
+#: registration/admin.py:500
+msgid "Regulatory & Ownership"
+msgstr "Regulierung & Trägerschaft"
+
+#: registration/admin.py:503
+msgid "Broadcasting Schedule"
+msgstr "Sendeplan"
+
+#: registration/admin.py:506
+msgid "Integration"
+msgstr "Integration"
+
+#: registration/admin.py:509
+msgid "Legal Texts (Optional)"
+msgstr "Rechtstexte (optional)"
+
+#: registration/apps.py:39
+msgid "Registration"
+msgstr "Registrierung"
+
+#: registration/forms.py:39
+msgid "Enter a valid phone number starting with +49, 0049, or 0."
+msgstr ""
+
+#: registration/forms.py:45
+#, fuzzy
+#| msgid "Enter a valid domain name."
+msgid "Enter a valid phone number with 8-15 digits."
+msgstr "Geben Sie einen gültigen Domainnamen ein."
+
+#: registration/forms.py:53 registration/forms.py:127
+msgid "Email address"
+msgstr "E-Mail-Adresse"
+
+#: registration/forms.py:107
+msgid ""
+"Your profile is already verified. To change further data please contact an "
+"employee."
+msgstr ""
+"Ihr Profil ist bereits genehmigt. Um weitere Daten zu ändern, wenden Sie "
+"sich bitte an einen Mitarbeiter."
+
+#: registration/forms.py:111
+msgid "Submit changes"
+msgstr "Änderungen speichern"
+
+#: registration/forms.py:129
+msgid "I have read the privacy agreement and accept it."
+msgstr "Ich habe die Datenschutzerklärung gelesen und akzeptiere sie."
+
+#: registration/forms.py:132
+msgid "I have read the usage agreement and accept it."
+msgstr "Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie."
+
+#: registration/forms.py:135
+msgid "Birthday"
+msgstr "Geburtstag"
+
+#: registration/forms.py:194 registration/forms.py:206
+msgid "Please accept our "
+msgstr "Bitte akzeptieren Sie unsere "
+
+#: registration/forms.py:196
+msgid "privacy policy"
+msgstr "Datenschutzerklärung"
+
+#: registration/forms.py:208
+msgid "usage policy"
+msgstr "Nutzungsbedingungen"
+
+#: registration/models.py:18
+msgid "The given email must be set"
+msgstr "Die angegebene E-Mail-Adresse muss angegeben werden"
+
+#: registration/models.py:36
+msgid "Superuser must have is_staff=True."
+msgstr "Superuser muss is_staff=True haben."
+
+#: registration/models.py:38
+msgid "Superuser must have is_superuser=True."
+msgstr "Superuser muss is_superuser=True haben."
+
+#: registration/models.py:61
+msgid "Staff signature SVG"
+msgstr ""
+
+#: registration/models.py:64
+msgid ""
+"SVG path data of the staff member's hand-drawn signature for Freistellung "
+"PDF."
+msgstr ""
+
+#: registration/models.py:67
+msgid "Staff signature points"
+msgstr ""
+
+#: registration/models.py:71
+msgid "Biometric stroke points for re-editing the signature on the canvas."
+msgstr ""
+
+#: registration/models.py:82
+msgid "Users"
+msgstr "Nutzer"
+
+#: registration/models.py:100
+msgid "Full Name"
+msgstr "Vollständiger Name"
+
+#: registration/models.py:104
+msgid "Full name of the media authority (e.g., \"Offener Kanal Dessau\")"
+msgstr "Vollständiger Name der Medienanstalt (z. B. \"Offener Kanal Dessau\")"
+
+#: registration/models.py:107
+msgid "Target Channel"
+msgstr "Zielkanal"
+
+#: registration/models.py:112
+msgid "Target channel identifier (e.g., \"@ok_dessau@lokalmedial.de\")"
+msgstr "Zielkanal-Kennung (z. B. \"@ok_dessau@lokalmedial.de\")"
+
+#: registration/models.py:123
+msgid "Media Authorities"
+msgstr "Offene Kanäle/Bürgermedien"
+
+#: registration/models.py:135 registration/registration_tests.py:630
+msgid "not given"
+msgstr "nicht angegeben"
+
+#: registration/models.py:136 registration/registration_tests.py:627
+msgid "male"
+msgstr "männlich"
+
+#: registration/models.py:137 registration/registration_tests.py:628
+msgid "female"
+msgstr "weiblich"
+
+#: registration/models.py:189
+msgid "ID document number (passport, ID card, etc.)"
+msgstr "Ausweisdokumentnummer (Reisepass, Personalausweis usw.)"
+
+#: registration/models.py:207
+msgid "verified"
+msgstr "genehmigt"
+
+#: registration/models.py:209
+msgid "The profile data was verified by showing the ID to an employee."
+msgstr ""
+"Die Profildaten wurden durch Vorzeigen des Ausweises gegenüber einem "
+"Mitarbeitenden genehmigt."
+
+#: registration/models.py:238
+msgid "Global producer status for the profile."
+msgstr "Globaler Produzentenstatus für das Profil."
+
+#: registration/models.py:249
+msgid "Phone data sharing allowed"
+msgstr "Telefon-Datenfreigabe erlaubt"
+
+#: registration/models.py:251
+msgid "Permission to share phone number with third parties"
+msgstr "Erlaubnis zur Weitergabe der Telefonnummer an Dritte"
+
+#: registration/models.py:255
+msgid "Email data sharing allowed"
+msgstr "E-Mail-Datenfreigabe erlaubt"
+
+#: registration/models.py:257
+msgid "Permission to share email address with third parties"
+msgstr "Erlaubnis zur Weitergabe der E-Mail-Adresse an Dritte"
+
+#: registration/models.py:268
+msgid "Profiles"
+msgstr "Profile"
+
+#: registration/models.py:279
+msgid "Information"
+msgstr "Information"
+
+#: registration/models.py:280
+msgid "Success"
+msgstr "Erfolg"
+
+#: registration/models.py:281
+msgid "Warning"
+msgstr "Warnung"
+
+#: registration/models.py:282
+msgid "Danger"
+msgstr "Gefahr"
+
+#: registration/models.py:286
+msgid "Info Circle"
+msgstr "Informationssymbol"
+
+#: registration/models.py:287
+msgid "Check Circle"
+msgstr "Prüfsymbol"
+
+#: registration/models.py:288
+msgid "Exclamation Triangle"
+msgstr "Ausrufezeichendreieck"
+
+#: registration/models.py:289
+msgid "Exclamation Circle"
+msgstr "Ausrufezeichen-Kreis"
+
+#: registration/models.py:290
+msgid "Clock"
+msgstr "Uhr"
+
+#: registration/models.py:291
+msgid "Bell"
+msgstr "Glocke"
+
+#: registration/models.py:292
+msgid "Broadcast"
+msgstr "Sendung"
+
+#: registration/models.py:293
+msgid "Star"
+msgstr "Stern"
+
+#: registration/models.py:294
+msgid "Gear"
+msgstr "Zahnrad"
+
+#: registration/models.py:295
+msgid "Shield Check"
+msgstr "Schild mit Häkchen"
+
+#: registration/models.py:301
+msgid "Short title for the notification"
+msgstr "Kurztitel für die Benachrichtigung"
+
+#: registration/models.py:305
+msgid "Message"
+msgstr "Nachricht"
+
+#: registration/models.py:306
+msgid "Main notification text"
+msgstr "Hauptbenachrichtigungstext"
+
+#: registration/models.py:314
+msgid "Notification type determines color and style"
+msgstr "Der Benachrichtigungstyp bestimmt Farbe und Stil"
+
+#: registration/models.py:318
+msgid "Icon"
+msgstr "Icon"
+
+#: registration/models.py:322
+msgid "Bootstrap Icons icon name"
+msgstr "Bootstrap Icons-Name"
+
+#: registration/models.py:328
+msgid "Only active notifications are displayed to users"
+msgstr "Nur aktive Benachrichtigungen werden Nutzer:innen angezeigt"
+
+#: registration/models.py:332
+msgid "Priority"
+msgstr "Priorität"
+
+#: registration/models.py:334
+msgid "Higher priority notifications appear first (1-10)"
+msgstr "Benachrichtigungen mit höherer Priorität erscheinen zuerst (1–10)"
+
+#: registration/models.py:338
+msgid "Start Date"
+msgstr "Startdatum"
+
+#: registration/models.py:340
+msgid "When to start showing this notification"
+msgstr "Ab wann diese Benachrichtigung angezeigt werden soll"
+
+#: registration/models.py:344
+msgid "End Date"
+msgstr "Enddatum"
+
+#: registration/models.py:347
+msgid "When to stop showing this notification (optional)"
+msgstr "Bis wann diese Benachrichtigung angezeigt werden soll (optional)"
+
+#: registration/models.py:351
+msgid "Created At"
+msgstr "Erstellt am"
+
+#: registration/models.py:360
+msgid "Created By"
+msgstr "Erstellt von"
+
+#: registration/models.py:361
+msgid "Admin who created this notification (auto-filled)"
+msgstr ""
+"Administrator, der diese Benachrichtigung erstellt hat (wird automatisch "
+"ausgefüllt)"
+
+#: registration/models.py:371
+msgid "Notification"
+msgstr "Benachrichtigung"
+
+#: registration/models.py:395
+msgid "Registration Form PDF"
+msgstr "Registrierungsformular-PDF"
+
+#: registration/models.py:396
+msgid "PDF template file for registration form (must be in files/ directory)"
+msgstr ""
+"PDF-Vorlagendatei für das Registrierungsformular (muss im Verzeichnis files/ "
+"liegen)"
+
+#: registration/models.py:443
+msgid "PDF"
+msgstr "PDF"
+
+#: registration/models.py:444
+msgid "HTML"
+msgstr "HTML"
+
+#: registration/models.py:445
+msgid "TEXT"
+msgstr "TEXT"
+
+#: registration/models.py:451
+msgid "Registration Form Type"
+msgstr "Registrierungsformular-Typ"
+
+#: registration/models.py:452
+msgid "Type of registration form to generate"
+msgstr "Art des zu generierenden Registrierungsformulars"
+
+#: registration/models.py:479
+msgid "Baden-Württemberg"
+msgstr ""
+
+#: registration/models.py:480
+msgid "Bayern"
+msgstr ""
+
+#: registration/models.py:481
+#, fuzzy
+#| msgid "verliehen"
+msgid "Berlin"
+msgstr "verliehen"
+
+#: registration/models.py:482
+msgid "Brandenburg"
+msgstr ""
+
+#: registration/models.py:483
+msgid "Bremen"
+msgstr ""
+
+#: registration/models.py:484
+msgid "Hamburg"
+msgstr ""
+
+#: registration/models.py:485
+msgid "Hessen"
+msgstr ""
+
+#: registration/models.py:486
+msgid "Mecklenburg-Vorpommern"
+msgstr ""
+
+#: registration/models.py:487
+msgid "Niedersachsen"
+msgstr ""
+
+#: registration/models.py:488
+msgid "Nordrhein-Westfalen"
+msgstr ""
+
+#: registration/models.py:489
+msgid "Rheinland-Pfalz"
+msgstr ""
+
+#: registration/models.py:490
+msgid "Saarland"
+msgstr ""
+
+#: registration/models.py:491
+msgid "Sachsen"
+msgstr ""
+
+#: registration/models.py:492
+msgid "Sachsen-Anhalt"
+msgstr ""
+
+#: registration/models.py:493
+msgid "Schleswig-Holstein"
+msgstr ""
+
+#: registration/models.py:494
+msgid "Thüringen"
+msgstr ""
+
+#: registration/models.py:525
+msgid "Organization Name"
+msgstr "Organisationsname"
+
+#: registration/models.py:526
+msgid "Full name of the organization"
+msgstr "Vollständiger Name der Organisation"
+
+#: registration/models.py:532
+msgid "Short Name"
+msgstr "Kurzname"
+
+#: registration/models.py:533
+msgid "Short name of the organization"
+msgstr "Kurzname der Organisation"
+
+#: registration/models.py:541
+msgid "Organization website URL"
+msgstr "URL der Organisationswebseite"
+
+#: registration/models.py:547
+msgid "Email"
+msgstr "E-Mail"
+
+#: registration/models.py:548
+msgid "Contact email address"
+msgstr "Kontakt-E-Mail-Adresse"
+
+#: registration/models.py:554
+msgid "Phone"
+msgstr "Telefon"
+
+#: registration/models.py:555
+msgid "Contact phone number"
+msgstr "Kontakt-Telefonnummer"
+
+#: registration/models.py:561
+msgid "Fax"
+msgstr "Fax"
+
+#: registration/models.py:562
+msgid "Fax number"
+msgstr "Faxnummer"
+
+#: registration/models.py:567
+msgid "Address"
+msgstr "Adresse"
+
+#: registration/models.py:568
+msgid "Organization address (multiline)"
+msgstr "Adresse der Organisation (mehrzeilig)"
+
+#: registration/models.py:574
+msgid "Welcome message or organization description"
+msgstr "Begrüßungstext oder Beschreibung der Organisation"
+
+#: registration/models.py:581
+msgid "Large logo"
+msgstr "Großes Logo"
+
+#: registration/models.py:582
+msgid "Large logo displayed in the expanded sidebar"
+msgstr "Großes Logo für die ausgeklappte Seitenleiste"
+
+#: registration/models.py:589
+msgid "Small logo"
+msgstr "Kleines Logo"
+
+#: registration/models.py:590
+msgid "Square logo or SVG displayed in the collapsed sidebar"
+msgstr "Quadratisches Logo oder SVG für die eingeklappte Seitenleiste"
+
+#: registration/models.py:595
+msgid "Opening Hours"
+msgstr "Öffnungszeiten"
+
+#: registration/models.py:596
+msgid "Opening hours (multiline)"
+msgstr "Öffnungszeiten (mehrzeilig)"
+
+#: registration/models.py:603
+msgid "State Media Institution"
+msgstr "Landesmedienanstalt"
+
+#: registration/models.py:604
+msgid "Regulatory institution code (MSA, LFK, BLM, etc.)"
+msgstr "Kürzel der Landesmedienanstalt (MSA, LFK, BLM, etc.)"
+
+#: registration/models.py:610
+msgid "Organization Owner"
+msgstr "Träger"
+
+#: registration/models.py:611
+msgid "Owner/operator identifier (matches MediaAuthority name)"
+msgstr "Träger/Betreiber-Kennung (entspricht MediaAuthority-Name)"
+
+#: registration/models.py:618
+msgid "Bundesland"
+msgstr ""
+
+#: registration/models.py:619
+msgid ""
+"German federal state written to exchange metadata; code is generated "
+"automatically"
+msgstr ""
+
+#: registration/models.py:626
+msgid "Bundesland Code"
+msgstr ""
+
+#: registration/models.py:627
+msgid "Two-letter federal state code written to exchange metadata"
+msgstr ""
+
+#: registration/models.py:633
+msgid "Broadcast Start Time"
+msgstr "Sendestart"
+
+#: registration/models.py:634
+msgid "Default broadcast start time"
+msgstr "Standard-Startzeit der Ausstrahlung"
+
+#: registration/models.py:639
+msgid "Broadcast End Time"
+msgstr "Sendeende"
+
+#: registration/models.py:640
+msgid "Default broadcast end time"
+msgstr "Standard-Endzeit der Ausstrahlung"
+
+#: registration/models.py:647
+msgid "PeerTube Channel"
+msgstr "PeerTube-Kanal"
+
+#: registration/models.py:648
+msgid "PeerTube channel identifier"
+msgstr "PeerTube-Kanalkennung"
+
+#: registration/models.py:654
+msgid "Privacy Policy (Datenschutz)"
+msgstr "Datenschutzerklärung"
+
+#: registration/models.py:655
+msgid "Privacy policy text"
+msgstr "Text der Datenschutzerklärung"
+
+#: registration/models.py:660
+msgid "Imprint (Impressum)"
+msgstr "Impressum"
+
+#: registration/models.py:661
+msgid "Legal imprint text"
+msgstr "Impressumstext"
+
+#: registration/models.py:666
+msgid "Terms and Conditions (AGB)"
+msgstr "AGB"
+
+#: registration/models.py:667
+msgid "Terms and conditions text"
+msgstr "AGB-Text"
+
+#: registration/organization_config.py:16
+msgid "Open Channel Merseburg-Querfurt e.V."
+msgstr "Offener Kanal Merseburg-Querfurt e.V."
+
+#: registration/organization_config.py:27
+msgid "OK Merseburg"
+msgstr "OK Merseburg"
+
+#: registration/print.py:151
+msgid "registration_form.txt"
+msgstr "registrierungsformular.txt"
+
+#: registration/print.py:282 registration/views.py:170
+msgid "registration_form.pdf"
+msgstr "registrierungsformular.pdf"
+
+#: registration/templates/admin/registration/okuser/change_form.html:108
+msgid "Signature"
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:112
+msgid "Draw Signature"
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:115
+msgid "Sign with Phone (QR)"
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:125
+msgid "Clear"
+msgstr "Löschen"
+
+#: registration/templates/admin/registration/okuser/change_form.html:128
+msgid "Delete Signature"
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:131
+msgid "Sign above using your mouse or stylus"
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:139
+msgid ""
+"Scan the QR code and sign on your phone. The signature will sync to the "
+"canvas."
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:148
+#, fuzzy
+#| msgid "Generate slideshow video"
+msgid "Generate QR Session"
+msgstr "Slideshow-Video erzeugen"
+
+#: registration/templates/admin/registration/okuser/change_form.html:151
+msgid "Scan QR code and sign on your phone..."
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:152
+msgid "Signature synchronized!"
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:153
+msgid "Session expired."
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:160
+msgid "Scan QR code and sign on your phone."
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:243
+#, fuzzy
+#| msgid "Loading sets..."
+msgid "Creating session..."
+msgstr "Lade Sets..."
+
+#: registration/templates/admin/registration/okuser/change_form.html:273
+msgid "Expires:"
+msgstr ""
+
+#: registration/templates/admin/registration/okuser/change_form.html:391
+#, fuzzy
+#| msgid "Are you sure you want to delete this inventory item?"
+msgid "Are you sure you want to delete the signature?"
+msgstr "Sind Sie sicher, dass Sie diesen Inventargegenstand löschen möchten?"
+
+#: registration/templates/admin/registration_change_form_edit.html:8
+msgid "Print application"
+msgstr "Antrag drucken"
+
+#: registration/templates/email/confirm_verification_body.html:3
+#, python-format
+msgid ""
+"\n"
+"Hello %(first_name)s,\n"
+msgstr ""
+"\n"
+"Hallo %(first_name)s,\n"
+
+#: registration/templates/email/confirm_verification_body.html:7
+msgid ""
+"\n"
+"We have received your application and verified your data. Your account is "
+"now fully activated.\n"
+msgstr ""
+"\n"
+"Wir haben Ihren Antrag erhalten und Ihre Daten genehmigt. Ihr Konto ist nun "
+"vollständig aktiviert.\n"
+
+#: registration/templates/email/confirm_verification_body.html:11
+msgid ""
+"\n"
+"You can now login and file a license.\n"
+msgstr ""
+"\n"
+"Sie können sich jetzt einloggen und eine Freistellung beantragen.\n"
+
+#: registration/templates/email/confirm_verification_body.html:20
+#: registration/templates/registration/password_reset_email.html:19
+#: registration/templates/registration/password_set_email_customized.html:16
+#, python-format
+msgid ""
+"\n"
+"Have a great day,\n"
+"\n"
+"The %(ok_name)s team\n"
+msgstr ""
+"\n"
+"Einen schönen Tag wünscht\n"
+"\n"
+"das %(ok_name)s-Team\n"
+
+#: registration/templates/email/confirm_verification_subject.txt:2
+#, python-format
+msgid ""
+"\n"
+"Your Account for %(ok_name)s has been verified\n"
+msgstr ""
+"\n"
+"Ihr Konto für %(ok_name)s wurde genehmigt\n"
+
+#: registration/templates/navbar.html:123
+#: registration/templates/registration/print_registration.html:32
+msgid "Edit user data"
+msgstr "Nutzerdaten bearbeiten"
+
+#: registration/templates/navbar.html:126
+#: registration/templates/registration/password_reset_confirm.html:16
+msgid "Change password"
+msgstr "Passwort ändern"
+
+#: registration/templates/navbar.html:131
+#: registration/templates/registration/edit_profile.html:22
+msgid "Print Registration Form"
+msgstr "Registrierungsformular drucken"
+
+#: registration/templates/navbar.html:157
+msgid "Create license"
+msgstr "Freistellung erstellen"
+
+#: registration/templates/registration/edit_profile.html:12
+msgid "Manage your personal data"
+msgstr "Verwalten Sie Ihre persönlichen Daten"
+
+#: registration/templates/registration/edit_profile.html:16
+msgid ""
+"Your profile is already verified. For changes to additional data, please "
+"contact an employee."
+msgstr ""
+"Ihr Profil ist bereits verifiziert. Für Änderungen an zusätzlichen Daten "
+"wenden Sie sich bitte an eine Mitarbeiterin oder einen Mitarbeiter."
+
+#: registration/templates/registration/edit_profile.html:36
+msgid "Personal Information"
+msgstr "Persönliche Informationen"
+
+#: registration/templates/registration/edit_profile.html:38
+msgid "Basic information about you"
+msgstr "Grundlegende Informationen über Sie"
+
+#: registration/templates/registration/edit_profile.html:117
+msgid "Phone numbers for contact"
+msgstr "Telefonnummern für die Kontaktaufnahme"
+
+#: registration/templates/registration/edit_profile.html:132
+msgid "Landline number"
+msgstr "Festnetznummer"
+
+#: registration/templates/registration/edit_profile.html:145
+msgid "Mobile number"
+msgstr "Mobilnummer"
+
+#: registration/templates/registration/edit_profile.html:156
+#, fuzzy
+#| msgid "License Information"
+msgid "Address Information"
+msgstr "Freistellungsinformationen"
+
+#: registration/templates/registration/edit_profile.html:158
+msgid "Your residential address"
+msgstr "Ihre Wohnadresse"
+
+#: registration/templates/registration/edit_profile.html:221
+msgid "Back to Dashboard"
+msgstr "Zurück zum Dashboard"
+
+#: registration/templates/registration/edit_profile.html:228
+msgid "Confirm Changes"
+msgstr "Änderungen bestätigen"
+
+#: registration/templates/registration/edit_profile.html:314
+#, fuzzy
+#| msgid "Are you sure you want to run this task now?"
+msgid "Are you sure you want to reset all changes?"
+msgstr "Sind Sie sicher, dass Sie diese Aufgabe jetzt ausführen möchten?"
+
+#: registration/templates/registration/login.html:16
+msgid "Welcome Back"
+msgstr "Willkommen zurück"
+
+#: registration/templates/registration/login.html:17
+msgid "Sign in to your account"
+msgstr "Melden Sie sich bei Ihrem Konto an"
+
+#: registration/templates/registration/login.html:25
+msgid "Sign In"
+msgstr "Anmelden"
+
+#: registration/templates/registration/login.html:28
+msgid "Forgot Password?"
+msgstr "Passwort vergessen?"
+
+#: registration/templates/registration/login.html:34
+msgid "Don't have an account?"
+msgstr "Haben Sie noch kein Konto?"
+
+#: registration/templates/registration/login.html:35
+msgid "Register here"
+msgstr "Hier registrieren"
+
+#: registration/templates/registration/password_reset_complete.html:5
+#: registration/templates/registration/password_reset_complete.html:8
+msgid "Password reset complete"
+msgstr "Passwort zurückgesetzt"
+
+#: registration/templates/registration/password_reset_complete.html:9
+msgid "Your new password has been set. You can log in now:"
+msgstr "Ihr neues Passwort wurde gesetzt. Sie können sich jetzt anmelden:"
+
+#: registration/templates/registration/password_reset_complete.html:9
+msgid "log in page"
+msgstr "Anmeldeseite"
+
+#: registration/templates/registration/password_reset_confirm.html:6
+msgid "Enter new password"
+msgstr "Neues Passwort eingeben"
+
+#: registration/templates/registration/password_reset_confirm.html:12
+msgid "Set a new password!"
+msgstr "Neues Passwort festlegen!"
+
+#: registration/templates/registration/password_reset_confirm.html:21
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr ""
+"Der Link zum Zurücksetzen des Passworts war ungültig, möglicherweise wurde "
+"er bereits benutzt. Bitte fordern Sie einen neuen Link zum Zurücksetzen des "
+"Passworts an."
+
+#: registration/templates/registration/password_reset_done.html:5
+msgid "Email Sent"
+msgstr "E-Mail gesendet"
+
+#: registration/templates/registration/password_reset_done.html:8
+msgid "Check your inbox."
+msgstr "Überprüfen Sie Ihren Posteingang."
+
+#: registration/templates/registration/password_reset_done.html:9
+msgid ""
+"If your given email is registered, we've emailed you instructions for "
+"setting your password. You should receive the email shortly!"
+msgstr ""
+"Wenn Ihre angegebene E-Mail-Adresse registriert ist, haben wir Ihnen "
+"Anweisungen zum Festlegen Ihres Passworts per E-Mail gesendet. Sie sollten "
+"die E-Mail in Kürze erhalten!"
+
+#: registration/templates/registration/password_reset_done.html:11
+msgid "Home"
+msgstr "Startseite"
+
+#: registration/templates/registration/password_reset_done.html:12
+msgid "Log In"
+msgstr "Anmelden"
+
+#: registration/templates/registration/password_reset_email.html:3
+#, python-format
+msgid ""
+"\n"
+"Hallo%(first_name)s,\n"
+msgstr ""
+"\n"
+"Hallo %(first_name)s,\n"
+
+#: registration/templates/registration/password_reset_email.html:7
+#, python-format
+msgid ""
+"\n"
+"You're receiving this email because you requested a password change for your "
+"user account at %(ok_name)s.\n"
+"Please go to the following page and choose a new password:\n"
+msgstr ""
+"\n"
+"Sie erhalten diese E-Mail, weil Sie eine Passwortänderung für Ihr "
+"Nutzerkonto bei %(ok_name)s angefordert haben.\n"
+"Bitte gehen Sie auf die folgende Seite und wählen Sie ein neues Passwort:\n"
+
+#: registration/templates/registration/password_reset_email.html:15
+#, python-format
+msgid ""
+"\n"
+"Your username, in case you’ve forgotten: %(user.get_username)s\n"
+msgstr ""
+"\n"
+"Ihr Nutzername, falls Sie ihn vergessen haben: %(user.get_username)s\n"
+
+#: registration/templates/registration/password_reset_form.html:8
+msgid ""
+"Enter your email address below, and we'll send you a link so you can set a "
+"new password."
+msgstr ""
+"Geben Sie unten Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, mit "
+"dem Sie ein neues Passwort festlegen können."
+
+#: registration/templates/registration/password_reset_form.html:13
+msgid "Send email"
+msgstr "E-Mail senden"
+
+#: registration/templates/registration/password_reset_subject.txt:2
+#, python-format
+msgid "Password reset for %(ok_name)s"
+msgstr "Passwortzurücksetzung für %(ok_name)s"
+
+#: registration/templates/registration/password_set_email_customized.html:3
+#, python-format
+msgid ""
+"\n"
+"Hallo %(first_name)s,\n"
+msgstr ""
+"\n"
+"Hallo %(first_name)s,\n"
+
+#: registration/templates/registration/password_set_email_customized.html:7
+#, python-format
+msgid ""
+"\n"
+"You're receiving this email because you've registered yourself at "
+"%(ok_name)s.\n"
+"Please go to the following page and set your password:\n"
+msgstr ""
+"\n"
+"Sie erhalten diese E-Mail, weil Sie sich bei %(ok_name)s registriert haben.\n"
+"Bitte gehen Sie auf die folgende Seite und legen Sie Ihr Passwort fest:\n"
+
+#: registration/templates/registration/password_set_subject_customized.txt:2
+#, python-format
+msgid "Welcome to the %(ok_name)s"
+msgstr "Willkommen bei %(ok_name)s"
+
+#: registration/templates/registration/print_registration.html:7
+msgid "User data for "
+msgstr "Nutzerdaten für "
+
+#: registration/templates/registration/print_registration.html:35
+msgid "Print template only"
+msgstr "Nur Vorlage drucken"
+
+#: registration/templates/registration/register.html:14
+msgid "Create Your Account"
+msgstr "Erstellen Sie Ihr Konto"
+
+#: registration/templates/registration/register.html:15
+msgid "Join our community and start creating amazing content"
+msgstr ""
+"Treten Sie unserer Community bei und beginnen Sie, großartige Inhalte zu "
+"erstellen"
+
+#: registration/templates/registration/register.html:21
+msgid "Already have an account?"
+msgstr "Sie haben bereits ein Konto?"
+
+#: registration/templates/registration/register.html:22
+msgid "Sign in here"
+msgstr "Hier anmelden"
+
+#: registration/templates/registration/user_created.html:6
+msgid "Welcome!"
+msgstr "Willkommen!"
+
+#: registration/templates/registration/user_created.html:9
+#, python-format
+msgid ""
+"\n"
+"You succesfully registered at %(OK_NAME)s. Shortly you will receive an email "
+"with a link. Use this link to set your password. After that you should be "
+"able to log in.\n"
+msgstr ""
+"\n"
+"Sie haben sich erfolgreich bei %(OK_NAME)s registriert. In Kürze erhalten "
+"Sie eine E-Mail mit einem Link. Benutzen Sie diesen Link, um Ihr Passwort "
+"festzulegen. Danach sollten Sie sich anmelden können.\n"
+
+#: registration/templates/registration/user_created.html:15
+msgid "Back to the start page"
+msgstr "Zurück zur Startseite"
+
+#: registration/views.py:53
+#, python-format
+msgid "There is no profile for %(user)s"
+msgstr "Es gibt kein Profil für %(user)s"
+
+#: registration/views.py:281
+msgid "Your profile was successfully updated."
+msgstr "Ihr Profil wurde erfolgreich aktualisiert."
+
 #, python-format
 #~ msgid " By %(filter_title)s "
 #~ msgstr " Nach %(filter_title)s "
@@ -4155,9 +4492,6 @@ msgstr "Willkommen zurück, %(name)s!"
 
 #~ msgid "Enter a valid value."
 #~ msgstr "Geben Sie einen gültigen Wert ein."
-
-#~ msgid "Enter a valid domain name."
-#~ msgstr "Geben Sie einen gültigen Domainnamen ein."
 
 #~ msgid "Enter a valid URL."
 #~ msgstr "Geben Sie eine gültige URL ein."
@@ -4687,9 +5021,6 @@ msgstr "Willkommen zurück, %(name)s!"
 #~ "%(datetime)s konnte in der Zeitzone %(current_timezone)s nicht "
 #~ "interpretiert werden; sie ist möglicherweise nicht eindeutig oder "
 #~ "existiert nicht."
-
-#~ msgid "Clear"
-#~ msgstr "Löschen"
 
 #~ msgid "Currently"
 #~ msgstr "Aktuell"
@@ -5230,6 +5561,3 @@ msgstr "Willkommen zurück, %(name)s!"
 
 #~ msgid "Video file"
 #~ msgstr "Videodatei"
-
-msgid "Send daily reel reminder"
-msgstr "Tägliche Reel-Erinnerung senden"

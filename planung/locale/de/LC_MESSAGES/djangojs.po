@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-15 23:36+0100\n"
+"POT-Creation-Date: 2026-07-06 21:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,251 +17,399 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: planung/static/planung/js/calendar_weeks.js:62
+msgid "Confirm action"
+msgstr "Aktion bestätigen"
+
+#: planung/static/planung/js/calendar_weeks.js:76
+msgid "Enter value"
+msgstr "Wert eingeben"
+
+#: planung/static/planung/js/calendar_weeks.js:82
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: planung/static/planung/js/calendar_weeks.js:313
 msgid "Manual time setting (can be outside block)"
 msgstr "Manuelle Zeiteinstellung (kann außerhalb des Blocks sein)"
 
+#: planung/static/planung/js/calendar_weeks.js:316
+#: planung/static/planung/js/calendar_weeks.js:519
+#: planung/static/planung/js/calendar_weeks.js:939
 msgid "Video starts in second half of minute (30-59 seconds)"
 msgstr "Video startet in der zweiten Hälfte der Minute (30-59 Sekunden)"
 
+#: planung/static/planung/js/calendar_weeks.js:327
+#: planung/static/planung/js/calendar_weeks.js:329
 msgid "Outside broadcast block"
 msgstr "Außerhalb des Sendeblocks"
 
+#: planung/static/planung/js/calendar_weeks.js:352
+#: planung/static/planung/js/calendar_weeks.js:414
+#: planung/static/planung/js/calendar_weeks.js:577
+#: planung/static/planung/js/calendar_weeks.js:1297
+#: planung/static/planung/js/calendar_weeks.js:1652
 msgid "day"
 msgstr "Tag"
 
+#: planung/static/planung/js/calendar_weeks.js:428
+#: planung/static/planung/js/calendar_weeks.js:429
+msgid "Validation failed"
+msgstr "Validierung fehlgeschlagen"
+
+#: planung/static/planung/js/calendar_weeks.js:480
+#: planung/static/planung/js/calendar_weeks.js:893
 msgid "View Contributions"
 msgstr "Beiträge anzeigen"
 
+#: planung/static/planung/js/calendar_weeks.js:599
 msgid "Full available"
 msgstr "Voll verfügbar"
 
-msgid "Gap"
-msgstr "Lücke"
-
-msgid "free"
-msgstr "frei"
-
+#: planung/static/planung/js/calendar_weeks.js:631
+#: planung/static/planung/js/calendar_weeks.js:656
 msgid "Large gap"
 msgstr "Große Lücke"
 
+#: planung/static/planung/js/calendar_weeks.js:631
+#: planung/static/planung/js/calendar_weeks.js:656
+msgid "Gap"
+msgstr "Lücke"
+
+#: planung/static/planung/js/calendar_weeks.js:632
+#: planung/static/planung/js/calendar_weeks.js:657
 msgid "free (can add video)"
 msgstr "frei (Beitrag kann hinzugefügt werden)"
 
+#: planung/static/planung/js/calendar_weeks.js:632
+#: planung/static/planung/js/calendar_weeks.js:657
+msgid "free"
+msgstr "frei"
+
+#: planung/static/planung/js/calendar_weeks.js:719
 msgid "Block filled (video extends beyond)"
 msgstr "Block gefüllt (Beitrag überschreitet die Dauer)"
 
+#: planung/static/planung/js/calendar_weeks.js:722
 msgid "Overplanned by %(time)s!"
 msgstr "Überplant um %(time)s!"
 
+#: planung/static/planung/js/calendar_weeks.js:725
 msgid "Still %(time)s free"
 msgstr "Noch %(time)s frei"
 
+#: planung/static/planung/js/calendar_weeks.js:731
 msgid "%(count)s broadcast(s) outside block"
 msgstr "%(count)s Sendung(en) außerhalb des Blocks"
 
+#: planung/static/planung/js/calendar_weeks.js:770
+msgid "Items"
+msgstr "Elemente"
+
+#: planung/static/planung/js/calendar_weeks.js:771
+msgid "Outside block"
+msgstr "Außerhalb des Blocks"
+
+#: planung/static/planung/js/calendar_weeks.js:773
+msgid "Large gaps"
+msgstr "Große Lücken"
+
+#: planung/static/planung/js/calendar_weeks.js:775
+msgid "Overlaps"
+msgstr "Überlappungen"
+
+#: planung/static/planung/js/calendar_weeks.js:959
 msgid "License not found or not confirmed"
 msgstr "Freistellung nicht gefunden oder nicht genehmigt"
 
+#: planung/static/planung/js/calendar_weeks.js:1131
 msgid ""
 "Start time would cause overlap with another video. Adjusted to %(time)s."
 msgstr ""
 "Startzeit würde eine Überlappung mit einem anderen Beitrag verursachen. "
 "Angepasst auf %(time)s."
 
-msgid "⚠️ Date is missing."
-msgstr "⚠️ Datum fehlt."
-
-msgid "Draft saved successfully."
-msgstr "Entwurf erfolgreich gespeichert."
-
-msgid "Error saving the draft."
-msgstr "Fehler beim Speichern des Entwurfs."
-
-msgid "Plan saved successfully!"
-msgstr "Plan erfolgreich gespeichert!"
-
-msgid "Error saving the plan. Please try again."
-msgstr "Fehler beim Speichern des Plans. Bitte versuchen Sie es erneut."
-
-msgid "Delete plan for this day?"
-msgstr "Plan für diesen Tag löschen?"
-
-msgid "Plan deleted!"
-msgstr "Plan gelöscht!"
-
-msgid "Error deleting the plan."
-msgstr "Fehler beim Löschen des Plans."
-
-msgid "Validation failed"
-msgstr "Validierung fehlgeschlagen"
-
-msgid "Enter source date (YYYY-MM-DD)"
-msgstr "Quelldatum eingeben (JJJJ-MM-TT)"
-
-msgid "Plan copied successfully."
-msgstr "Plan erfolgreich kopiert."
-
-msgid "Error copying plan."
-msgstr "Fehler beim Kopieren des Plans."
-
-msgid "Please select a template."
-msgstr "Bitte wählen Sie eine Vorlage aus."
-
-msgid "Template applied successfully."
-msgstr "Vorlage erfolgreich angewendet."
-
-msgid "Error applying template."
-msgstr "Fehler beim Anwenden der Vorlage."
-
-msgid "Items"
-msgstr "Elemente"
-
-msgid "Outside block"
-msgstr "Außerhalb des Blocks"
-
-msgid "Large gaps"
-msgstr "Große Lücken"
-
-msgid "Overlaps"
-msgstr "Überlappungen"
-
+#: planung/static/planung/js/calendar_weeks.js:1336
+#: planung/static/planung/js/calendar_weeks.js:1435
+#: planung/static/planung/js/calendar_weeks.js:1444
+#: planung/static/planung/js/calendar_weeks.js:1478
+#: planung/static/planung/js/calendar_weeks.js:1532
+#: planung/static/planung/js/calendar_weeks.js:1867
+#: planung/static/planung/js/calendar_weeks.js:1899
+#: planung/static/planung/js/calendar_weeks.js:1937
 msgid "Date is missing."
 msgstr "Datum fehlt."
 
-msgid "Confirm action"
-msgstr "Aktion bestätigen"
+#: planung/static/planung/js/calendar_weeks.js:1398
+msgid "Draft saved successfully."
+msgstr "Entwurf erfolgreich gespeichert."
 
-msgid "Enter value"
-msgstr "Wert eingeben"
+#: planung/static/planung/js/calendar_weeks.js:1402
+msgid "Error saving the draft."
+msgstr "Fehler beim Speichern des Entwurfs."
 
-msgid "Confirm"
-msgstr "Bestätigen"
+#: planung/static/planung/js/calendar_weeks.js:1420
+msgid "Plan saved successfully!"
+msgstr "Plan erfolgreich gespeichert!"
 
+#: planung/static/planung/js/calendar_weeks.js:1427
+msgid "Error saving the plan. Please try again."
+msgstr "Fehler beim Speichern des Plans. Bitte versuchen Sie es erneut."
+
+#: planung/static/planung/js/calendar_weeks.js:1448
 msgid "Copy plan"
 msgstr "Plan kopieren"
 
-msgid "Source date (YYYY-MM-DD)"
+#: planung/static/planung/js/calendar_weeks.js:1449
+#, fuzzy
+#| msgid "Select a day first"
+msgid "Select source date"
+msgstr "Zuerst einen Tag auswählen"
+
+#: planung/static/planung/js/calendar_weeks.js:1452
+#, fuzzy
+#| msgid "Source date (YYYY-MM-DD)"
+msgid "Source date"
 msgstr "Quelldatum (JJJJ-MM-TT)"
 
-msgid "Send metadata"
-msgstr "Metadaten senden"
+#: planung/static/planung/js/calendar_weeks.js:1453
+msgid "Copy from date"
+msgstr ""
 
-msgid "Send schedule"
-msgstr "Sendeplan senden"
+#: planung/static/planung/js/calendar_weeks.js:1464
+msgid "Plan copied successfully."
+msgstr "Plan erfolgreich kopiert."
 
-msgid "Send media metadata to playout"
-msgstr "Medienmetadaten an Playout senden"
+#: planung/static/planung/js/calendar_weeks.js:1468
+msgid "Error copying plan."
+msgstr "Fehler beim Kopieren des Plans."
 
-msgid "Send schedule to playout"
-msgstr "Sendeplan an Playout senden"
+#: planung/static/planung/js/calendar_weeks.js:1482
+msgid "Please select a template."
+msgstr "Bitte wählen Sie eine Vorlage aus."
 
-msgid "Playout metadata failed: "
-msgstr "Playout-Metadaten fehlgeschlagen: "
+#: planung/static/planung/js/calendar_weeks.js:1492
+msgid "Template applied successfully."
+msgstr "Vorlage erfolgreich angewendet."
 
-msgid "Playout metadata sent. Matched: "
-msgstr "Playout-Metadaten gesendet. Zugeordnet: "
+#: planung/static/planung/js/calendar_weeks.js:1496
+msgid "Error applying template."
+msgstr "Fehler beim Anwenden der Vorlage."
 
-msgid "Playout metadata sent."
-msgstr "Playout-Metadaten gesendet."
+#: planung/static/planung/js/calendar_weeks.js:1536
+#, fuzzy
+#| msgid "Delete plan for this day?"
+msgid "Delete plan"
+msgstr "Plan für diesen Tag löschen?"
 
-msgid "Playout metadata request failed."
-msgstr "Playout-Metadaten-Anfrage fehlgeschlagen."
+#: planung/static/planung/js/calendar_weeks.js:1537
+msgid "Delete plan for this day?"
+msgstr "Plan für diesen Tag löschen?"
 
-msgid "Playout schedule failed: "
-msgstr "Playout-Sendeplan fehlgeschlagen: "
+#: planung/static/planung/js/calendar_weeks.js:1539
+msgid "Delete"
+msgstr ""
 
-msgid "Playout schedule sent. Created: "
-msgstr "Playout-Sendeplan gesendet. Erstellt: "
+#: planung/static/planung/js/calendar_weeks.js:1548
+msgid "Plan deleted!"
+msgstr "Plan gelöscht!"
 
-msgid "Playout schedule sent."
-msgstr "Playout-Sendeplan gesendet."
+#: planung/static/planung/js/calendar_weeks.js:1554
+msgid "Error deleting the plan."
+msgstr "Fehler beim Löschen des Plans."
 
-msgid "Playout schedule request failed."
-msgstr "Playout-Sendeplan-Anfrage fehlgeschlagen."
-
-msgid "Plan the day first"
-msgstr "Tag zuerst planen"
-
+#: planung/static/planung/js/calendar_weeks.js:1833
+#: planung/static/planung/js/calendar_weeks.js:1834
+#: planung/static/planung/js/calendar_weeks.js:1835
 msgid "Select a day first"
 msgstr "Zuerst einen Tag auswählen"
 
-msgid "No plan for this day"
-msgstr "Kein Plan für diesen Tag"
+#: planung/static/planung/js/calendar_weeks.js:1845
+msgid "Send media metadata to playout"
+msgstr "Medienmetadaten an Playout senden"
 
+#: planung/static/planung/js/calendar_weeks.js:1846
+msgid "Send schedule to playout"
+msgstr "Sendeplan an Playout senden"
+
+#: planung/static/planung/js/calendar_weeks.js:1847
 msgid "Render programme preview"
 msgstr "Programmvorschau rendern"
 
-msgid "Render programme preview again?"
-msgstr "Programmvorschau erneut rendern?"
+#: planung/static/planung/js/calendar_weeks.js:1849
+#: planung/static/planung/js/calendar_weeks.js:1850
+#: planung/static/planung/js/calendar_weeks.js:1851
+msgid "Plan the day first"
+msgstr "Tag zuerst planen"
 
-msgid "A programme preview video already exists for this day. Recreate it and overwrite the existing output file?"
-msgstr "Für diesen Tag existiert bereits eine Programmvorschau. Erneut rendern und die vorhandene Ausgabedatei überschreiben?"
+#: planung/static/planung/js/calendar_weeks.js:1855
+#: planung/static/planung/js/calendar_weeks.js:1856
+#: planung/static/planung/js/calendar_weeks.js:1857
+msgid "No plan for this day"
+msgstr "Kein Plan für diesen Tag"
 
-msgid "Recreate"
-msgstr "Neu erstellen"
+#: planung/static/planung/js/calendar_weeks.js:1880
+msgid "Playout metadata failed: "
+msgstr "Playout-Metadaten fehlgeschlagen: "
 
-msgid "Programme preview render failed: "
-msgstr "Rendern der Programmvorschau fehlgeschlagen: "
+#: planung/static/planung/js/calendar_weeks.js:1882
+msgid "Playout metadata sent. Matched: "
+msgstr "Playout-Metadaten gesendet. Zugeordnet: "
 
-msgid "Programme preview render queued: "
-msgstr "Rendern der Programmvorschau eingereiht: "
+#: planung/static/planung/js/calendar_weeks.js:1884
+msgid "Playout metadata sent."
+msgstr "Playout-Metadaten gesendet."
 
-msgid "Programme preview render queued."
-msgstr "Rendern der Programmvorschau eingereiht."
+#: planung/static/planung/js/calendar_weeks.js:1888
+msgid "Playout metadata request failed."
+msgstr "Playout-Metadaten-Anfrage fehlgeschlagen."
 
-msgid "Programme preview render task queued: "
-msgstr "Render-Aufgabe für die Programmvorschau eingereiht: "
+#: planung/static/planung/js/calendar_weeks.js:1912
+msgid "Playout schedule failed: "
+msgstr "Playout-Sendeplan fehlgeschlagen: "
 
+#: planung/static/planung/js/calendar_weeks.js:1914
+#, fuzzy
+#| msgid "Playout schedule sent. Created: "
+msgid "Playout schedule sent. Placeholders: "
+msgstr "Playout-Sendeplan gesendet. Erstellt: "
+
+#: planung/static/planung/js/calendar_weeks.js:1916
+msgid "Playout schedule sent. Created: "
+msgstr "Playout-Sendeplan gesendet. Erstellt: "
+
+#: planung/static/planung/js/calendar_weeks.js:1918
+msgid "Playout schedule sent."
+msgstr "Playout-Sendeplan gesendet."
+
+#: planung/static/planung/js/calendar_weeks.js:1922
+msgid "Playout schedule request failed."
+msgstr "Playout-Sendeplan-Anfrage fehlgeschlagen."
+
+#: planung/static/planung/js/calendar_weeks.js:1950
+msgid ""
+"Programme preview render started. You can close this window — it continues "
+"in the background."
+msgstr ""
+"Rendern der Programmvorschau gestartet. Sie können dieses Fenster schließen "
+"— es läuft im Hintergrund weiter."
+
+#: planung/static/planung/js/calendar_weeks.js:1953
 msgid "Programme preview render task queued."
 msgstr "Render-Aufgabe für die Programmvorschau eingereiht."
 
-msgid "Celery task: "
-msgstr "Celery-Aufgabe: "
-
-msgid "Programme preview render completed: "
-msgstr "Rendern der Programmvorschau abgeschlossen: "
-
-msgid "Programme preview status polling timed out."
-msgstr "Statusabfrage der Programmvorschau ist abgelaufen."
-
-msgid "Programme preview status request failed."
-msgstr "Statusanfrage für die Programmvorschau fehlgeschlagen."
-
-msgid "Programme preview render request failed."
-msgstr "Render-Anfrage für die Programmvorschau fehlgeschlagen."
-
-msgid "Programme preview render started. You can close this window — it continues in the background."
-msgstr "Rendern der Programmvorschau gestartet. Sie können dieses Fenster schließen — es läuft im Hintergrund weiter."
-
-msgid "Videos are still being copied to the playout storage. Retrying in 30 seconds..."
-msgstr "Videos werden noch in den Playout-Speicher kopiert. Erneuter Versuch in 30 Sekunden..."
-
-msgid "Video copy failed. Please check the plan and try again."
-msgstr "Videokopie fehlgeschlagen. Bitte überprüfen Sie den Plan und versuchen Sie es erneut."
-
-msgid "Programme preview render is taking too long. Check the Celery task results in the admin panel."
-msgstr "Das Rendern der Programmvorschau dauert zu lange. Überprüfen Sie die Celery-Aufgabenergebnisse im Admin-Bereich."
-
+#: planung/static/planung/js/calendar_weeks.js:1961
 msgid "Missing: "
 msgstr "Fehlend: "
 
-msgid "Video copy failed. Check the Celery task result for details."
-msgstr "Videokopie fehlgeschlagen. Überprüfen Sie das Celery-Aufgabenergebnis für Details."
+#: planung/static/planung/js/calendar_weeks.js:1963
+msgid ""
+"Videos are still being copied to the playout storage. Retrying in 30 "
+"seconds..."
+msgstr ""
+"Videos werden noch in den Playout-Speicher kopiert. Erneuter Versuch in 30 "
+"Sekunden..."
 
+#: planung/static/planung/js/calendar_weeks.js:1973
+msgid "Render programme preview again?"
+msgstr "Programmvorschau erneut rendern?"
+
+#: planung/static/planung/js/calendar_weeks.js:1974
+msgid ""
+"A programme preview video already exists for this day. Recreate it and "
+"overwrite the existing output file?"
+msgstr ""
+"Für diesen Tag existiert bereits eine Programmvorschau. Erneut rendern und "
+"die vorhandene Ausgabedatei überschreiben?"
+
+#: planung/static/planung/js/calendar_weeks.js:1975
+msgid "Recreate"
+msgstr "Neu erstellen"
+
+#: planung/static/planung/js/calendar_weeks.js:1985
+msgid "Programme preview render request failed."
+msgstr "Render-Anfrage für die Programmvorschau fehlgeschlagen."
+
+#: planung/static/planung/js/calendar_weeks.js:1994
+msgid ""
+"Programme preview render is taking too long. Check the Celery task results "
+"in the admin panel."
+msgstr ""
+"Das Rendern der Programmvorschau dauert zu lange. Überprüfen Sie die Celery-"
+"Aufgabenergebnisse im Admin-Bereich."
+
+#: planung/static/planung/js/calendar_weeks.js:2007
+#: planung/static/planung/js/calendar_weeks.js:2016
+msgid "Programme preview render failed: "
+msgstr "Rendern der Programmvorschau fehlgeschlagen: "
+
+#: planung/static/planung/js/calendar_weeks.js:2009
+#: planung/static/planung/js/calendar_weeks.js:2011
+msgid "Programme preview render completed: "
+msgstr "Rendern der Programmvorschau abgeschlossen: "
+
+#: planung/static/planung/js/calendar_weeks.js:2033
+msgid "Video copy failed. Check the Celery task result for details."
+msgstr ""
+"Videokopie fehlgeschlagen. Überprüfen Sie das Celery-Aufgabenergebnis für "
+"Details."
+
+#: planung/static/planung/js/calendar_weeks.js:2034
 msgid "Task ID: "
 msgstr "Aufgaben-ID: "
 
+#: planung/static/planung/js/calendar_weeks.js:2037
+msgid "Video copy failed. Please check the plan and try again."
+msgstr ""
+"Videokopie fehlgeschlagen. Bitte überprüfen Sie den Plan und versuchen Sie "
+"es erneut."
+
+#: planung/static/planung/js/calendar_weeks.js:2040
 msgid "Ready: "
 msgstr "Bereit: "
 
+#: planung/static/planung/js/calendar_weeks.js:2043
 msgid "Missing/Failed: "
 msgstr "Fehlend/Fehlgeschlagen: "
 
+#: planung/static/planung/js/calendar_weeks.js:2065
 msgid "Video copy failed"
 msgstr "Videokopie fehlgeschlagen"
 
+#: planung/static/planung/js/calendar_weeks.js:2072
 msgid "Render anyway"
 msgstr "Trotzdem rendern"
 
+#: planung/static/planung/js/calendar_weeks.js:2089
 msgid "Render anyway with the current files?"
 msgstr "Trotzdem mit den vorhandenen Dateien rendern?"
+
+#~ msgid "⚠️ Date is missing."
+#~ msgstr "⚠️ Datum fehlt."
+
+#~ msgid "Enter source date (YYYY-MM-DD)"
+#~ msgstr "Quelldatum eingeben (JJJJ-MM-TT)"
+
+#~ msgid "Send metadata"
+#~ msgstr "Metadaten senden"
+
+#~ msgid "Send schedule"
+#~ msgstr "Sendeplan senden"
+
+#~ msgid "Programme preview render queued: "
+#~ msgstr "Rendern der Programmvorschau eingereiht: "
+
+#~ msgid "Programme preview render queued."
+#~ msgstr "Rendern der Programmvorschau eingereiht."
+
+#~ msgid "Programme preview render task queued: "
+#~ msgstr "Render-Aufgabe für die Programmvorschau eingereiht: "
+
+#~ msgid "Celery task: "
+#~ msgstr "Celery-Aufgabe: "
+
+#~ msgid "Programme preview status polling timed out."
+#~ msgstr "Statusabfrage der Programmvorschau ist abgelaufen."
+
+#~ msgid "Programme preview status request failed."
+#~ msgstr "Statusanfrage für die Programmvorschau fehlgeschlagen."

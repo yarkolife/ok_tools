@@ -3,21 +3,44 @@ from .models import AuditLog
 from .models import Category
 from .models import Inspection
 from .models import InspectionImport
+from .models import InventoryImageConfig
 from .models import InventoryImport
 from .models import InventoryItem
+from .models import InventoryItemImage
 from .models import Location
 from .models import Manufacturer
 from .models import Organization
 from .services import InventoryService
 from admin_auto_filters.filters import AutocompleteFilterFactory
+from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import RelatedOnlyFieldListFilter
+from django.core.management import call_command
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.html import format_html_join
 from django.utils.translation import gettext as _
+
+
+# Inline SVG shown in the admin when an item has no photos.
+def no_photo_placeholder():
+    """Return the translated "no photos" SVG placeholder as safe HTML."""
+    return format_html(
+        '<svg width="220" height="160" viewBox="0 0 220 160" '
+        'xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{label}">'
+        '<rect width="220" height="160" rx="8" fill="#f0f0f0" stroke="#d0d0d0"/>'
+        '<g fill="none" stroke="#b0b0b0" stroke-width="3">'
+        '<rect x="70" y="58" width="80" height="56" rx="6"/>'
+        '<circle cx="110" cy="86" r="16"/>'
+        '<path d="M86 58l8-12h32l8 12"/>'
+        '</g>'
+        '<text x="110" y="138" text-anchor="middle" font-family="sans-serif" '
+        'font-size="13" fill="#999">{label}</text>'
+        '</svg>',
+        label=_('No photos'),
+    )
 from import_export.admin import ExportMixin
 from import_export.fields import Field
 from import_export.forms import ExportForm
@@ -111,8 +134,15 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         'status', 'available_for_rent',
     ]
     autocomplete_fields = ('manufacturer', 'category', 'owner', 'location')
-    actions = ['print_barcodes_action']
-    
+    actions = ['print_barcodes_action', 'rescan_photos_action']
+
+    def get_readonly_fields(self, request, obj=None):
+        """Return readonly fields depending on item status."""
+        fields = self.readonly_fields + ('photo_gallery',)
+        if obj and obj.status == InventoryItem.STATUS_RENTED:
+            fields = fields + ('status',)
+        return fields
+
     fieldsets = (
         (_('Identification'), {
             'fields': ('inventory_number', 'description', 'serial_number')
@@ -131,25 +161,72 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
             'fields': ('purchase_date', 'purchase_cost'),
             'classes': ('collapse',),
         }),
+        (_('Photos'), {
+            'fields': ('photo_gallery',),
+            'description': _(
+                'Photos are read from the mounted folder configured in '
+                'Inventory Photo Settings, in a sub-folder named after the '
+                'inventory number.'
+            ),
+        }),
     )
-    
+
     inlines = [InspectionInline]
 
     # PERFORMANCE OPTIMIZATION: Reduce N+1 queries in list view
     def get_queryset(self, request):
         """Optimize queryset with select_related for foreign keys."""
         return super().get_queryset(request).select_related(
-            'manufacturer', 
-            'category', 
-            'location', 
+            'manufacturer',
+            'category',
+            'location',
             'owner'
+        ).prefetch_related('images')
+
+    @admin.display(description=_('Photos'))
+    def photo_gallery(self, obj):
+        """Render a gallery of item photos or a placeholder if none exist."""
+        if obj is None or not obj.pk:
+            return _('Save the item first to see photos.')
+
+        images = [img for img in obj.images.all() if img.is_available]
+        if not images:
+            return no_photo_placeholder()
+
+        # Uniform tiles: fixed 150x150 box, thumbnail cropped to fill via
+        # object-fit:cover. The lightweight thumbnail loads in the gallery; the
+        # full-size original opens on click.
+        thumbs = format_html_join(
+            '',
+            '<a href="{}" target="_blank" rel="noopener" title="{}" '
+            'style="display:block;width:150px;height:150px;border:1px solid #ccc;'
+            'border-radius:6px;overflow:hidden;background:#fafafa;">'
+            '<img src="{}" loading="lazy" alt="{}" '
+            'style="width:100%;height:100%;object-fit:cover;display:block;"></a>',
+            (
+                (
+                    reverse('inventory:item_image', args=[img.id]),
+                    img.filename,
+                    reverse('inventory:item_image_thumb', args=[img.id]),
+                    img.filename,
+                )
+                for img in images
+            ),
+        )
+        return format_html(
+            '<div style="display:flex;flex-wrap:wrap;gap:10px;">{}</div>',
+            thumbs,
         )
 
-    def get_readonly_fields(self, request, obj=None):
-        """Return readonly fields depending on item status."""
-        if obj and obj.status == InventoryItem.STATUS_RENTED:
-            return self.readonly_fields + ('status',)
-        return self.readonly_fields
+    @admin.action(description=_('Rescan photos from mounted folder'))
+    def rescan_photos_action(self, request, queryset):
+        """Rescan the configured photos folder and reindex all images."""
+        try:
+            call_command('scan_inventory_images')
+            self.message_user(request, _('Photo rescan complete.'))
+        except Exception as e:
+            self.message_user(
+                request, f'Photo rescan failed: {e}', level=messages.ERROR)
 
     def get_form(self, request, obj=None, **kwargs):
         """Customize form fields for InventoryItem."""
@@ -451,3 +528,99 @@ class InspectionImportAdmin(admin.ModelAdmin):
                 )
             except Exception as e:
                 self.message_user(request, f'Error importing {import_obj.file.name}: {str(e)}', level=messages.ERROR)
+
+
+class InventoryImageConfigForm(forms.ModelForm):
+    """Config form that offers a dropdown of media_files storage locations."""
+
+    class Meta:
+        """Meta options for InventoryImageConfigForm."""
+
+        model = InventoryImageConfig
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        """Replace the raw id field with a labelled dropdown when possible."""
+        super().__init__(*args, **kwargs)
+        from django.apps import apps
+        if not apps.is_installed('media_files'):
+            # media_files is disabled; hide the reference field entirely.
+            self.fields.pop('media_storage_location_id', None)
+            return
+        StorageLocation = apps.get_model('media_files', 'StorageLocation')
+        choices = [('', '---------')] + [
+            (s.id, f'{s.name} — {s.path}')
+            for s in StorageLocation.objects.filter(is_active=True)
+        ]
+        self.fields['media_storage_location_id'] = forms.TypedChoiceField(
+            choices=choices,
+            coerce=int,
+            empty_value=None,
+            required=False,
+            label=self.fields['media_storage_location_id'].label,
+            help_text=self.fields['media_storage_location_id'].help_text,
+        )
+
+
+@admin.register(InventoryImageConfig)
+class InventoryImageConfigAdmin(admin.ModelAdmin):
+    """Singleton admin for inventory photo settings."""
+
+    form = InventoryImageConfigForm
+    fields = (
+        'enabled',
+        'media_storage_location_id',
+        'base_path',
+        'supported_formats',
+        'thumbnails_beside_originals',
+        'resolved_folder',
+    )
+    readonly_fields = ('resolved_folder',)
+
+    def get_fields(self, request, obj=None):
+        """Hide the storage-location field when media_files is disabled."""
+        fields = list(super().get_fields(request, obj))
+        from django.apps import apps
+        if not apps.is_installed('media_files'):
+            fields = [f for f in fields if f != 'media_storage_location_id']
+        return fields
+
+    def has_add_permission(self, request):
+        """Only one config instance allowed."""
+        return not InventoryImageConfig.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of the config."""
+        return False
+
+    @admin.display(description=_('Resolved photos folder'))
+    def resolved_folder(self, obj):
+        """Show the effective base directory and whether it exists."""
+        if obj is None or not obj.pk:
+            return _('Save to resolve the folder.')
+        base_dir = obj.get_base_dir()
+        if base_dir is None:
+            return format_html(
+                '<span style="color:#c00;">{}</span>',
+                _('Not configured or directory does not exist.')
+            )
+        return format_html('<code>{}</code>', str(base_dir))
+
+
+@admin.register(InventoryItemImage)
+class InventoryItemImageAdmin(admin.ModelAdmin):
+    """Admin interface for indexed inventory item photos."""
+
+    list_display = (
+        'filename', 'item', 'is_available', 'file_size', 'last_scanned')
+    list_filter = ('is_available',)
+    search_fields = (
+        'filename', 'relative_path', 'item__inventory_number')
+    readonly_fields = (
+        'item', 'filename', 'relative_path', 'file_size',
+        'is_available', 'last_scanned', 'created_at')
+    ordering = ('item', 'filename')
+
+    def has_add_permission(self, request):
+        """Records are created by the scan, not manually."""
+        return False

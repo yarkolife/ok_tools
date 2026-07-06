@@ -9,6 +9,25 @@ const interpolate = window.interpolate || function (format, obj) {
     ));
 };
 
+// Open a full-screen lightbox showing an enlarged image. Click or Esc closes.
+function openImageLightbox(url) {
+    if (!url) return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);' +
+        'display:flex;align-items:center;justify-content:center;z-index:20000;' +
+        'cursor:zoom-out;padding:24px;';
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'max-width:92vw;max-height:92vh;border-radius:8px;' +
+        'box-shadow:0 8px 40px rgba(0,0,0,.5);';
+    overlay.appendChild(img);
+    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(overlay);
+}
+
 // Rental Dashboard JavaScript - English Translation
 document.addEventListener('DOMContentLoaded', function() {
     class RentalDashboard {
@@ -1044,7 +1063,10 @@ const status = (rental.status || '').toLowerCase();
             const html = `
                 <div class="item-card p-3 w-100 h-100 d-flex flex-column border rounded" data-item-id="${item.id}" style="min-height: 150px;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="mb-1">${this.escapeHtml(item.description || item.inventory_number || gettext('Unknown'))}</h6>
+                        <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                            ${item.thumbnail_url ? `<img src="${item.thumbnail_url}" alt="" loading="lazy" class="item-thumb" title="${gettext('Click to enlarge')}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #dee2e6; flex-shrink: 0; cursor: zoom-in;">` : ''}
+                            <h6 class="mb-1">${this.escapeHtml(item.description || item.inventory_number || gettext('Unknown'))}</h6>
+                        </div>
                         <span class="badge bg-success status-badge">${gettext('Available')}</span>
                     </div>
                     <div class="d-flex align-items-center text-muted small mb-1">
@@ -1053,13 +1075,14 @@ const status = (rental.status || '').toLowerCase();
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-auto">
                         <small class="text-muted">${gettext('Owner')}: ${this.escapeHtml(item.owner || gettext('-'))}</small>
+                        ${(item.available_quantity || 1) > 1 ? `
                         <div class="quantity-controls">
                             <div class="input-group input-group-sm">
                                 <button class="btn btn-outline-secondary qty-minus" type="button">-</button>
-                                <input type="number" class="form-control text-center qty-input" value="1" min="1" max="${item.available_quantity || 1}">
+                                <input type="number" class="form-control text-center qty-input" value="1" min="1" max="${item.available_quantity}">
                                 <button class="btn btn-outline-secondary qty-plus" type="button">+</button>
                             </div>
-                        </div>
+                        </div>` : ''}
                     </div>
                 </div>`;
             return html;
@@ -1074,10 +1097,19 @@ const status = (rental.status || '').toLowerCase();
 
         bindItemCardEvents(card, item) {
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.quantity-controls')) {
+                if (!e.target.closest('.quantity-controls') && !e.target.closest('.item-thumb')) {
                     this.toggleItem(item);
                 }
             });
+
+            // Enlarge photo on thumbnail click (without selecting the card)
+            const thumb = card.querySelector('.item-thumb');
+            if (thumb) {
+                thumb.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openImageLightbox(item.image_url || item.thumbnail_url);
+                });
+            }
 
             // Quantity controls
             const qtyMinus = card.querySelector('.qty-minus');
@@ -1105,7 +1137,7 @@ const status = (rental.status || '').toLowerCase();
 
             const idx = this.selectedItems.findIndex(x => x.inventory_id === item.id);
             const qtyInput = card.querySelector('.qty-input');
-            const quantity = parseInt(qtyInput.value) || 1;
+            const quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
 
             if (idx >= 0) {
                 this.selectedItems.splice(idx, 1);

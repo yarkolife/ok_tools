@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Inventory item photos and rental frontend gallery**: Inventory items can display photos read from a configurable mounted folder (organized per inventory number), indexed by a periodic scan with cached thumbnails and an SVG placeholder. When enabled in the Rental configuration, item photos appear on the rental process wizard and the user dashboard with a click-to-enlarge lightbox, and rooms support admin-uploaded photos shown on the rental process page.
 - **Mediathek URL automation and Reel reminders**: Added daily periodic tasks that queue Mediathek URL refreshes from planning and contribution broadcast data, and made Reel reminder emails retry missing Mediathek URLs for up to one hour before sending with an explicit warning.
 - **Reel Studio media selection and preview registration**: Reel Studio can search Media Files by number, supports the `sachlich` hook type, ignores generated reels when prefilling a license source video, and records finished reels as preview clips so they are not treated as full video versions.
 - **Freistellung print form with staff signature overlay**: Licenses track `confirmed_at`/`confirmed_by`, the LicensesConfig admin exposes Freistellung text, city, sendezeit, and signature-user settings, and the license PDF overlays the confirming staff member's signature on page 2 when the feature is enabled. Staff users can draw or QR-sign a reusable signature on their user admin page.

@@ -10,6 +10,7 @@ from .models import RentalProcessProxy
 from .models import RentalRequest
 from .models import RentalTransaction
 from .models import Room
+from .models import RoomImage
 from .models import RoomRental
 from .working_hours import validate_working_hours_period
 from django import forms
@@ -376,14 +377,35 @@ class RentalIssueAdmin(admin.ModelAdmin):
     readonly_fields = ("reported_at",)
 
 
+class RoomImageInline(admin.TabularInline):
+    """Inline admin for room photos with a small preview."""
+
+    model = RoomImage
+    extra = 1
+    fields = ('image', 'preview', 'caption', 'sort_order')
+    readonly_fields = ('preview',)
+
+    @admin.display(description=_('Preview'))
+    def preview(self, obj):
+        """Return a small thumbnail of the uploaded image."""
+        if obj and obj.image:
+            return format_html(
+                '<img src="{}" style="height:80px;width:80px;object-fit:cover;'
+                'border-radius:6px;border:1px solid #ccc;">',
+                obj.image.url,
+            )
+        return '—'
+
+
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     """Admin interface for room management."""
 
-    list_display = ['name', 'capacity', 'location', 'is_active', 'description_short']
+    list_display = ['name', 'capacity', 'location', 'is_active', 'photo_count', 'description_short']
     list_filter = ['is_active', 'location']
     search_fields = ['name', 'description', 'location']
     ordering = ['name']
+    inlines = [RoomImageInline]
 
     fieldsets = (
         (None, {
@@ -393,6 +415,15 @@ class RoomAdmin(admin.ModelAdmin):
             'fields': ('capacity', 'location'),
         }),
     )
+
+    def get_queryset(self, request):
+        """Prefetch images to avoid N+1 in the list view."""
+        return super().get_queryset(request).prefetch_related('images')
+
+    @admin.display(description=_('Photos'))
+    def photo_count(self, obj):
+        """Return the number of photos attached to the room."""
+        return obj.images.count()
 
 
     def description_short(self, obj):
@@ -499,6 +530,13 @@ class RentalConfigAdmin(admin.ModelAdmin):
                 'auto_reminder_hours_before',
             ),
             'description': _('Send automatic return reminder emails before the return deadline.'),
+        }),
+        (_('Photos'), {
+            'fields': (
+                'show_item_photos',
+                'show_room_photos',
+            ),
+            'description': _('Show item and room photos on the rental frontend pages.'),
         }),
         (_('Working hours'), {
             'fields': (

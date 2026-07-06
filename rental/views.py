@@ -290,6 +290,7 @@ def _i18n_bundle():
         'wiz.skipped_rooms': _('Skipped (rooms only)'),
         'wiz.items': _('items'),
         'wiz.rooms': _('rooms'),
+        'wiz.enlarge_photo': _('Click to enlarge'),
         'wiz.send_confirm': _('Send confirmation'),
         # Wizard - step 1 user
         'wiz.who': _('Who is this rental for?'),
@@ -969,7 +970,11 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
         """
         context = super().get_context_data(**kwargs)
         users = get_initial_rental_process_users()
+        from .config import get_rental_show_room_photos
+        show_room_photos = get_rental_show_room_photos()
         active_rooms = Room.objects.filter(is_active=True).order_by('name')
+        if show_room_photos:
+            active_rooms = active_rooms.prefetch_related('images')
         categories = Category.objects.all().order_by('name')
         
         # Use the inventory service to get available items
@@ -1005,6 +1010,11 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'name': room.name,
                     'sub': room.description or '',
                     'free': room.is_active,
+                    'image_url': (
+                        room.primary_image.image.url
+                        if show_room_photos and room.primary_image
+                        else None
+                    ),
                 } for room in active_rooms],
                 'defaults': {
                     'from': '',
@@ -5077,7 +5087,30 @@ def api_get_user_inventory_simple(request, user_id):
                 'available_quantity': available_qty,
                 'total_quantity': item.get('quantity', 0),
             })
-    
+
+    # Attach item photo thumbnails (first available image per item) when the
+    # feature is enabled. Uses one batched query to avoid N+1.
+    from .config import get_rental_show_item_photos
+    if get_rental_show_item_photos() and filtered_inventory:
+        from django.urls import reverse
+        from inventory.models import InventoryItemImage
+        item_ids = [row['id'] for row in filtered_inventory]
+        thumb_map = {}
+        for img in InventoryItemImage.objects.filter(
+            item_id__in=item_ids, is_available=True
+        ).order_by('item_id', 'filename'):
+            thumb_map.setdefault(img.item_id, img.id)
+        for row in filtered_inventory:
+            image_id = thumb_map.get(row['id'])
+            row['thumbnail_url'] = (
+                reverse('inventory:item_image_thumb', args=[image_id])
+                if image_id else None
+            )
+            row['image_url'] = (
+                reverse('inventory:item_image', args=[image_id])
+                if image_id else None
+            )
+
     return JsonResponse({'inventory': filtered_inventory})
 
 

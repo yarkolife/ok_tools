@@ -19,9 +19,17 @@ import os
 
 logger = logging.getLogger('django')
 
-tmp_import_storage = FileSystemStorage(
-    location=os.path.join(gettempdir(), "inventory_import")
-)
+
+def tmp_import_storage():
+    """Return storage for temporary import file uploads.
+
+    Defined as a callable so migrations serialize a reference to this function
+    instead of baking in the absolute ``gettempdir()`` path, which varies per
+    environment and would otherwise cause perpetual no-op migrations.
+    """
+    return FileSystemStorage(
+        location=os.path.join(gettempdir(), "inventory_import")
+    )
 
 
 class Manufacturer(models.Model):
@@ -315,6 +323,172 @@ class InventoryItem(ExportModelOperationsMixin('inventory_item'), models.Model):
                 for field in self._meta.fields
             })
         super().save(*args, **kwargs)
+
+
+class InventoryImageConfig(models.Model):
+    """Singleton configuration for inventory item photos.
+
+    Photos live in a mounted folder (like ``media_files`` videos). The base
+    folder can either reference an existing ``media_files.StorageLocation``
+    (soft reference by id, since that app is optional) or be a manually
+    entered absolute path. Each item's photos live in a sub-folder named after
+    its ``inventory_number`` (e.g. ``OK-000001``).
+    """
+
+    enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('Enabled'),
+        help_text=_('Enable scanning and display of inventory item photos.')
+    )
+    media_storage_location_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_('Media Files storage location'),
+        help_text=_(
+            'Use an existing storage location from the Media Files module. '
+            'Takes precedence over the manual path below.'
+        )
+    )
+    base_path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Photos folder'),
+        help_text=_(
+            'Absolute path to the mounted folder that holds one sub-folder '
+            'per inventory number (e.g. /mnt/inventory_photos/).'
+        )
+    )
+    supported_formats = models.CharField(
+        max_length=200,
+        default='jpg,jpeg,png,gif,webp,bmp',
+        verbose_name=_('Supported image formats'),
+        help_text=_('Comma-separated list of image file extensions to scan.')
+    )
+    thumbnails_beside_originals = models.BooleanField(
+        default=False,
+        verbose_name=_('Store thumbnails next to originals'),
+        help_text=_(
+            'Store generated thumbnails in a ".thumbnails" sub-folder next to '
+            'the photos (requires a writable folder). When disabled, they are '
+            'cached under MEDIA_ROOT. Falls back to MEDIA_ROOT if the folder '
+            'is not writable.'
+        )
+    )
+
+    class Meta:
+        """Meta options for InventoryImageConfig."""
+
+        verbose_name = _('Inventory Photo Settings')
+        verbose_name_plural = _('Inventory Photo Settings')
+
+    def __str__(self):
+        """Return human readable label."""
+        return str(_('Inventory Photo Settings'))
+
+    @classmethod
+    def get_config(cls):
+        """Return the singleton config, creating a default row if missing."""
+        config = cls.objects.first()
+        if config is None:
+            config = cls.objects.create()
+        return config
+
+    def _storage_location_path(self):
+        """Return the path of the linked media_files StorageLocation, if any."""
+        if not self.media_storage_location_id:
+            return None
+        from django.apps import apps
+        if not apps.is_installed('media_files'):
+            return None
+        try:
+            StorageLocation = apps.get_model('media_files', 'StorageLocation')
+            storage = StorageLocation.objects.filter(
+                pk=self.media_storage_location_id
+            ).first()
+        except Exception:
+            return None
+        return storage.path if storage else None
+
+    def get_base_dir(self):
+        """Return the resolved base directory as a ``Path`` or ``None``.
+
+        Prefers the linked media_files storage location, then the manual
+        ``base_path``. Returns ``None`` when nothing is configured or the
+        resolved directory does not exist.
+        """
+        raw = self._storage_location_path() or self.base_path
+        if not raw:
+            return None
+        path = Path(raw)
+        if not path.is_dir():
+            return None
+        return path
+
+    def get_extensions(self):
+        """Return the set of lowercase image extensions (without dot)."""
+        return {
+            ext.strip().lstrip('.').lower()
+            for ext in (self.supported_formats or '').split(',')
+            if ext.strip()
+        }
+
+
+class InventoryItemImage(models.Model):
+    """A single photo of an inventory item discovered by the folder scan."""
+
+    item = models.ForeignKey(
+        InventoryItem,
+        on_delete=models.CASCADE,
+        related_name='images',
+        verbose_name=_('Inventory Item')
+    )
+    filename = models.CharField(
+        max_length=500,
+        verbose_name=_('Filename')
+    )
+    relative_path = models.CharField(
+        max_length=1000,
+        verbose_name=_('Relative Path'),
+        help_text=_('Path relative to the configured photos folder.')
+    )
+    file_size = models.BigIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_('File Size (bytes)')
+    )
+    is_available = models.BooleanField(
+        default=True,
+        verbose_name=_('Available'),
+        help_text=_('Whether the file is physically present on disk.')
+    )
+    last_scanned = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Last Scanned')
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Created at')
+    )
+
+    class Meta:
+        """Meta options for InventoryItemImage."""
+
+        verbose_name = _('Inventory Item Photo')
+        verbose_name_plural = _('Inventory Item Photos')
+        unique_together = (('item', 'relative_path'),)
+        ordering = ['filename']
+
+    def __str__(self):
+        """Return the relative path as string representation."""
+        return self.relative_path
+
+    def abs_path(self):
+        """Return the absolute filesystem path or ``None`` if unresolved."""
+        base_dir = InventoryImageConfig.get_config().get_base_dir()
+        if base_dir is None:
+            return None
+        return base_dir / self.relative_path
 
 
 class InventoryImport(models.Model):

@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models import Count
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
@@ -93,7 +94,22 @@ def _serialize_categories_for_queryset(queryset):
     return categories
 
 
-def _serialize_inventory_item(item, start_at=None, end_at=None):
+def _item_photo_urls(item):
+    """Return (thumbnail_url, full_url) for the first available item photo.
+
+    Both are ``None`` when there is no photo. Iterates ``item.images.all()``
+    so a prefetched cache avoids extra queries.
+    """
+    for image in item.images.all():
+        if image.is_available:
+            return (
+                reverse('inventory:item_image_thumb', args=[image.id]),
+                reverse('inventory:item_image', args=[image.id]),
+            )
+    return (None, None)
+
+
+def _serialize_inventory_item(item, start_at=None, end_at=None, include_photo=False):
     total = item.quantity or 0
     if start_at and end_at:
         available = RentalService.get_available_quantity_for_period(item.pk, start_at, end_at)
@@ -124,7 +140,7 @@ def _serialize_inventory_item(item, start_at=None, end_at=None):
         else:
             status_label = str(_('Booked'))
     category = item.category.name if item.category else ''
-    return {
+    data = {
         'id': item.pk,
         'name': item.description or '',
         'num': item.inventory_number or '',
@@ -140,6 +156,9 @@ def _serialize_inventory_item(item, start_at=None, end_at=None):
         'status_label': status_label,
         'conflict': available <= 0,
     }
+    if include_photo:
+        data['thumbnail_url'], data['image_url'] = _item_photo_urls(item)
+    return data
 
 
 @login_required
@@ -153,6 +172,9 @@ def api_inventory_search(request):
     rental_id = request.GET.get('rental_id', '').strip()
     user_id = request.GET.get('user_id', '').strip()
 
+    from .config import get_rental_show_item_photos
+    show_photos = get_rental_show_item_photos()
+
     base_queryset = InventoryItem.objects.select_related(
         'category',
         'location',
@@ -160,6 +182,8 @@ def api_inventory_search(request):
     ).filter(
         available_for_rent=True,
     )
+    if show_photos:
+        base_queryset = base_queryset.prefetch_related('images')
 
     filter_user = None
     if rental_id:
@@ -193,7 +217,10 @@ def api_inventory_search(request):
     if inventory_number:
         queryset = queryset.filter(inventory_number__iexact=inventory_number)
 
-    items = [_serialize_inventory_item(item, start_at, end_at) for item in queryset.order_by('inventory_number')[:80]]
+    items = [
+        _serialize_inventory_item(item, start_at, end_at, include_photo=show_photos)
+        for item in queryset.order_by('inventory_number')[:80]
+    ]
     return JsonResponse({'items': items, 'categories': categories})
 
 
