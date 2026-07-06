@@ -491,6 +491,32 @@ class InventoryItemImage(models.Model):
         return base_dir / self.relative_path
 
 
+@receiver(post_save, sender=InventoryImageConfig)
+def sync_scan_inventory_images_task(sender, instance, **kwargs):
+    """Enable/disable the periodic photo scan to match the config toggle.
+
+    The Celery beat entry ``scan_inventory_images`` is toggled in step with
+    ``InventoryImageConfig.enabled`` so beat stops dispatching the task
+    entirely when photo scanning is switched off.
+    """
+    try:
+        from django_celery_beat.models import PeriodicTask
+    except Exception:
+        return
+    try:
+        for task in PeriodicTask.objects.filter(name='scan_inventory_images'):
+            if task.enabled != instance.enabled:
+                task.enabled = instance.enabled
+                # save() (not update()) so beat's change tracker is bumped.
+                task.save(update_fields=['enabled'])
+    except Exception:
+        # Beat table may be missing (e.g. during migrations); ignore.
+        logger.debug(
+            'Could not sync scan_inventory_images periodic task',
+            exc_info=True,
+        )
+
+
 class InventoryImport(models.Model):
     """Model representing the inventory import."""
 
