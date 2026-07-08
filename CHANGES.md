@@ -85,6 +85,15 @@ CHANGELOG
 2026-06-26 (Version 4.26.0)
 ==========================
 
+* **media_files: Cover / thumbnail generation subsystem**
+  * New `media_files.covers` package builds 16:9 cover images (`{number}_cover.jpg`) from a video frame plus license metadata (title, author, category, episode number); entry point `generate_cover` / `generate_cover_for_license`, resolver picks a template + theme, renderer composites the result.
+  * `CoverTemplate` (**Cover-Vorlagenregeln**) — admin rules selecting a template (`base`, `journal`, `trailer`) by series (regex on title), category (regex on category name), or channel default, evaluated by priority with optional theme overrides.
+  * `CoverOverlay` (**Cover-Grafiken**) — uploadable PNG/SVG overlays grouped into pools, with configurable text/logo areas, accent color, and per-overlay toggles (`use_video_frame`, `darken_frame`, `draw_logo`, `draw_title`).
+  * `CoverOverlayRule` (**Cover-Grafikregeln**) — map a title/category pattern to an overlay pool or explicit graphics, in `random` (one stable pick per number) or `all` (variants + contact sheet) mode; graphic rules take precedence over template rules.
+  * `MediaFilesConfig` gains cover fields (`cover_enabled`, logo, title/body fonts, category colors, template rules, output storage/subdir/dir); migrations 0022–0027.
+  * License admin actions "Cover-Bild erzeugen / neu erzeugen" and "Cover-Varianten erzeugen & auswählen…" with a candidate variant gallery and frame/timecode picker; all gated behind `cover_enabled`.
+  * Wired into the Austausch export-to-server flow: a cover is auto-generated into the export hand-off (thumbnail) directory so exchanged content always ships with a thumbnail.
+  * New `generate_covers` (bulk) and `pick_cover` (promote a candidate) management commands; German translations for all new strings.
 * **tools: Reel Studio — broadcast-date filenames and reel preview/download**
   * Output filename now uses the broadcast date from `planung` (latest plan containing the license) instead of today; falls back to today when unplanned
   * Finished reels can be viewed and downloaded: new `reel_output_stream` view (HTTP Range + `?download=1`) and a player with View/Download links after rendering

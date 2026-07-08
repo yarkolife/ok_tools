@@ -46,6 +46,13 @@ Features
   - Automatic orphan license linking
   - Video preset management (database and JSON-based)
   - Background task processing for scanning and metadata updates
+  - **Cover / Thumbnail Generation** - Automatically build 16:9 cover images (``{number}_cover.jpg``) from a video frame and license metadata (title, author, category, episode number)
+    - Editor-configurable templates (Base, Journal with a large episode number, cinematic Trailer) with per-category accent colors and theme overrides
+    - **Cover-Vorlagenregeln** (``CoverTemplate``) - admin rules that pick a template by series (regex on title), category (regex on category name), or a channel-wide default, evaluated by priority
+    - **Cover-Grafiken** (``CoverOverlay``) - uploadable PNG/SVG graphic overlays grouped into pools, with configurable text/logo areas and per-overlay toggles (use video frame, darken frame, draw logo, draw title)
+    - **Cover-Grafikregeln** (``CoverOverlayRule``) - map a title/category pattern to an overlay pool or explicit graphics, with random (one stable pick per number) or all (variant + contact-sheet selection) modes; graphic rules take precedence over template rules
+    - Per-license admin actions to generate/regenerate a cover or produce candidate variants and pick one (frame, timecode, or variant), gated behind the ``cover_enabled`` configuration flag
+    - Configurable logo, title/body fonts, category colors, and output storage location in the Media Files Configuration
 
 - **Planning Tools** - Calendar weeks and scheduling functionality with time extraction
   - Daily broadcast plan management (TagesPlan)
@@ -94,6 +101,8 @@ Features
   - Exchange feed view for staff members
   - Configurable sync schedule via Celery Beat
   - Support for multiple exchange folders and channels
+  - Export to server (``/austausch/feed/``): upload video, PDF, JSON and optional thumbnail to Nextcloud WebDAV via a step-by-step wizard and Celery task
+  - Auto-generates a cover thumbnail into the export hand-off directory during export when cover generation is enabled, so exchanged content always ships with a thumbnail
   - Optional module (enabled via AUSTAUSCH_ENABLED setting)
 
 - **Tools Module** - Utility tools for content creation and processing
@@ -495,6 +504,8 @@ Media Files::
     - cleanup_old_file_operations - Cleanup old FileOperation records
     - find_duplicates - Find duplicate video files
     - cleanup_duplicates - Cleanup duplicate video files
+    - generate_covers - Generate cover images ({number}_cover.jpg) in bulk (--number/--all/--missing-only/--force/--limit)
+    - pick_cover - Promote a reviewed candidate variant to the canonical cover (--number/--variant)
 
 Rental::
     - expire_room_rentals - Expire room rentals and generate transactions

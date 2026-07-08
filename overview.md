@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Cover / thumbnail generation for videos**: The `media_files.covers` package builds 16:9 cover images (`{number}_cover.jpg`) from a video frame plus license metadata. Selection is driven by editor-configurable admin rules — **Cover-Vorlagenregeln** (`CoverTemplate`) choose a template (Base / Journal / Trailer) by series, category, or channel default; **Cover-Grafiken** (`CoverOverlay`) are uploadable PNG/SVG overlays grouped into pools with text/logo areas; **Cover-Grafikregeln** (`CoverOverlayRule`) map a title/category pattern to a pool or explicit graphics in random or all-variants mode (graphic rules win over template rules). Licenses expose admin actions to generate/regenerate a cover or pick a candidate variant, gated behind `cover_enabled`. When exporting to the exchange server via `/austausch/feed/`, a cover is auto-generated into the export hand-off directory so exchanged content ships with a thumbnail. Bulk `generate_covers` and `pick_cover` management commands are also available.
 - **Inventory item photos and rental frontend gallery**: Inventory items can display photos read from a configurable mounted folder (organized per inventory number), indexed by a periodic scan with cached thumbnails and an SVG placeholder. When enabled in the Rental configuration, item photos appear on the rental process wizard and the user dashboard with a click-to-enlarge lightbox, and rooms support admin-uploaded photos shown on the rental process page.
 - **Mediathek URL automation and Reel reminders**: Added daily periodic tasks that queue Mediathek URL refreshes from planning and contribution broadcast data, and made Reel reminder emails retry missing Mediathek URLs for up to one hour before sending with an explicit warning.
 - **Reel Studio media selection and preview registration**: Reel Studio can search Media Files by number, supports the `sachlich` hook type, ignores generated reels when prefilling a license source video, and records finished reels as preview clips so they are not treated as full video versions.
@@ -262,6 +263,7 @@ graph TB
   - Archive and playout path management
   - Duplicate detection
   - Auto-scanning and copying
+  - Cover/thumbnail generation (`covers` package) with editor-configurable templates, graphic overlays, and selection rules
 
 #### `planung`
 - **Purpose**: Planning and scheduling
