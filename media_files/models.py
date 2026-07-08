@@ -784,6 +784,18 @@ class MediaFilesConfig(models.Model):
         help_text=_('Default encoding preset for transcoding (e.g., "1080p25_9000k")')
     )
 
+    # Default encoding preset for the render actions (standard/preview/
+    # intro-outro). Drives the output bitrate via the selected preset.
+    render_encode_preset = models.CharField(
+        max_length=100,
+        default='1080p25_9000k',
+        blank=True,
+        verbose_name=_('Render Encoding Preset'),
+        help_text=_('Encoding preset used by the "Render video" admin actions '
+                    '(e.g., "1080p25_9000k"). The bitrate comes from the '
+                    'selected preset (tools.VideoEncodePreset or JSON).')
+    )
+
     # --- Cover / thumbnail auto-generation ---
     cover_enabled = models.BooleanField(
         default=False,

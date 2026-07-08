@@ -1034,7 +1034,8 @@ class VideoFileAdmin(admin.ModelAdmin):
 
     @admin.action(description=_('Render video (default presets)'))
     def render_default_preset_action(self, request, queryset):
-        encode_name = "1080p25_9000k"
+        from media_files.config import get_render_encode_preset
+        encode_name = get_render_encode_preset()
 
         try:
             encode = load_encode_preset(encode_name)
@@ -1168,7 +1169,8 @@ class VideoFileAdmin(admin.ModelAdmin):
             return
 
         style_name = "overlay_only_center_left_v1"
-        encode_name = "1080p25_9000k"
+        from media_files.config import get_render_encode_preset
+        encode_name = get_render_encode_preset()
         preview_seconds = 5.0
 
         try:
@@ -1406,7 +1408,8 @@ class VideoFileAdmin(admin.ModelAdmin):
             )
             return
 
-        encode_name = "1080p25_9000k"
+        from media_files.config import get_render_encode_preset
+        encode_name = get_render_encode_preset()
 
         try:
             encode = load_encode_preset(encode_name)

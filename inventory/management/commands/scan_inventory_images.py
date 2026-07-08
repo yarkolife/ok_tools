@@ -1,8 +1,15 @@
 """Scan the mounted photos folder and index inventory item images.
 
-Photos are expected under ``<base_dir>/<inventory_number>/`` where the
-sub-folder name matches an :class:`InventoryItem.inventory_number`. Every image
-file with a supported extension is upserted into
+Two layouts are supported side by side:
+
+* ``<base_dir>/<inventory_number>/photo.jpg`` -- a sub-folder named after an
+  :class:`InventoryItem.inventory_number` holding one or more photos.
+* ``<base_dir>/<inventory_number>.jpg`` -- a photo placed directly in the base
+  folder whose filename (without extension) equals the inventory number.
+  Multiple photos of the same item use an ``_`` suffix, e.g.
+  ``<inventory_number>_1.jpg``, ``<inventory_number>_2.jpg``.
+
+Every image file with a supported extension is upserted into
 :class:`InventoryItemImage`. Records whose files disappeared are marked
 unavailable (or removed with ``--prune``).
 """
@@ -60,54 +67,39 @@ class Command(BaseCommand):
             InventoryItem.objects.values_list('inventory_number', 'id')
         )
 
-        created = 0
-        updated = 0
-        thumbs = 0
-        seen_ids = set()
+        self.created = 0
+        self.updated = 0
+        self.thumbs = 0
+        self.seen_ids = set()
 
-        for sub in sorted(base_dir.iterdir()):
-            if not sub.is_dir():
-                continue
-            item_id = items_by_number.get(sub.name)
-            if item_id is None:
-                self.stdout.write(
-                    f'  skip: no item for folder "{sub.name}"')
-                continue
-
-            for file in sorted(sub.iterdir()):
-                if not file.is_file():
+        for entry in sorted(base_dir.iterdir()):
+            if entry.is_dir():
+                # Layout A: <base>/<inventory_number>/photo.jpg
+                item_id = items_by_number.get(entry.name)
+                if item_id is None:
+                    self.stdout.write(
+                        f'  skip: no item for folder "{entry.name}"')
                     continue
-                if file.suffix.lstrip('.').lower() not in extensions:
+                for file in sorted(entry.iterdir()):
+                    if not file.is_file():
+                        continue
+                    if file.suffix.lstrip('.').lower() not in extensions:
+                        continue
+                    self._index_file(
+                        item_id, f'{entry.name}/{file.name}', file, now)
+            elif entry.is_file():
+                # Layout B: <base>/<inventory_number>[_suffix].jpg
+                if entry.suffix.lstrip('.').lower() not in extensions:
                     continue
-
-                relative_path = f'{sub.name}/{file.name}'
-                try:
-                    file_size = file.stat().st_size
-                except OSError:
-                    file_size = None
-
-                obj, was_created = InventoryItemImage.objects.update_or_create(
-                    item_id=item_id,
-                    relative_path=relative_path,
-                    defaults={
-                        'filename': file.name,
-                        'file_size': file_size,
-                        'is_available': True,
-                        'last_scanned': now,
-                    },
-                )
-                seen_ids.add(obj.id)
-                if was_created:
-                    created += 1
-                else:
-                    updated += 1
-
-                # Build/refresh the cached thumbnail for fast, uniform display.
-                if ensure_thumbnail(obj) is not None:
-                    thumbs += 1
+                item_id = self._match_root_file(entry.stem, items_by_number)
+                if item_id is None:
+                    self.stdout.write(
+                        f'  skip: no item for file "{entry.name}"')
+                    continue
+                self._index_file(item_id, entry.name, entry, now)
 
         # Handle records whose files were not seen this run.
-        stale = InventoryItemImage.objects.exclude(id__in=seen_ids)
+        stale = InventoryItemImage.objects.exclude(id__in=self.seen_ids)
         for image in stale:
             delete_thumbnail(image)
         if prune:
@@ -118,6 +110,51 @@ class Command(BaseCommand):
                 is_available=False)
 
         self.stdout.write(self.style.SUCCESS(
-            f'Scan complete: {created} created, {updated} updated, '
-            f'{thumbs} thumbnails, '
+            f'Scan complete: {self.created} created, {self.updated} updated, '
+            f'{self.thumbs} thumbnails, '
             f'{missing} {"pruned" if prune else "marked unavailable"}.'))
+
+    @staticmethod
+    def _match_root_file(stem, items_by_number):
+        """Resolve an item id from a base-folder filename stem.
+
+        Tries the full stem first (``OK-000001``), then strips ``_`` suffixes
+        from the right one at a time (``OK-000001_1`` -> ``OK-000001``) so
+        multiple photos of one item are all attributed to it. Returns the item
+        id or ``None`` when no inventory number matches.
+        """
+        candidate = stem
+        while True:
+            item_id = items_by_number.get(candidate)
+            if item_id is not None:
+                return item_id
+            if '_' not in candidate:
+                return None
+            candidate = candidate.rsplit('_', 1)[0]
+
+    def _index_file(self, item_id, relative_path, file, now):
+        """Upsert one image file and refresh its thumbnail."""
+        try:
+            file_size = file.stat().st_size
+        except OSError:
+            file_size = None
+
+        obj, was_created = InventoryItemImage.objects.update_or_create(
+            item_id=item_id,
+            relative_path=relative_path,
+            defaults={
+                'filename': file.name,
+                'file_size': file_size,
+                'is_available': True,
+                'last_scanned': now,
+            },
+        )
+        self.seen_ids.add(obj.id)
+        if was_created:
+            self.created += 1
+        else:
+            self.updated += 1
+
+        # Build/refresh the cached thumbnail for fast, uniform display.
+        if ensure_thumbnail(obj) is not None:
+            self.thumbs += 1

@@ -2181,7 +2181,14 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
                 'seat': str(room_rental.people_count) if room_rental.people_count else '—',
             }
             for room_rental in rental.room_rentals.select_related('room')
-            for room_start, room_end in [(room_rental.get_start_date(), room_rental.get_end_date())]
+            for _rs, _re in [(room_rental.get_start_date(), room_rental.get_end_date())]
+            # Convert the UTC-aware stored datetimes to the local timezone so
+            # the displayed/edited times match what was booked (input is
+            # interpreted as local on save via make_aware).
+            for room_start, room_end in [(
+                timezone.localtime(_rs) if _rs else None,
+                timezone.localtime(_re) if _re else None,
+            )]
         ]
         context['issues_json'] = [
             {

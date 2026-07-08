@@ -411,8 +411,10 @@ def _build_license_pdf_bytes(lr: License) -> bytes:
         draw2.rectangle([frame_x1, frame_y1, frame_x2, frame_y2], outline=(0, 0, 0, 255), width=int(round(2 * scale)))
         draw2.text((x_pos, y_pos), license_number_text, fill=(0, 0, 0, 255), font=font)
 
-        # Freistellung staff signature overlay (if enabled in config)
-        if config.freistellung_enabled:
+        # Freistellung staff signature overlay: only for an approved
+        # (genehmigt) Freistellung. A non-approved one (nicht Genehmigung)
+        # must not carry the confirming staff member's signature.
+        if config.freistellung_enabled and lr.confirmed:
             overlay_font_size = int(round(14 * scale))
             try:
                 overlay_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", overlay_font_size)

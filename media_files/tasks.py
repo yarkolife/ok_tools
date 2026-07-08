@@ -961,29 +961,23 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
         
         # Get encoding preset
         from media_files.config import get_transcode_encode_preset
-        from tools.rendering.presets import load_encode_preset
-        
+        from tools.rendering.presets import EncodePreset, load_encode_preset
+
         preset_name = encode_preset or get_transcode_encode_preset()
-        
+
         try:
             encode = load_encode_preset(preset_name)
         except Exception as e:
             logger.warning(f"Failed to load preset {preset_name}, using defaults: {e}")
-            # Fallback to basic settings
-            encode = type('Encode', (), {
-                'width': source_video.width or 1920,
-                'height': source_video.height or 1080,
-                'fps': int(source_video.fps or 25),
-                'vcodec': 'libx264',
-                'acodec': 'aac',
-                'video_bitrate_k': 9000,
-                'audio_bitrate_k': 192,
-                'audio_sample_rate': 48000,
-                'audio_channels': 2,
-                'pix_fmt': 'yuv420p',
-                'x264_preset': 'medium',
-                'x264_profile': 'high',
-            })()
+            # Fallback to the EncodePreset dataclass defaults (single source of
+            # truth for bitrate/audio), only overriding the source dimensions.
+            encode = EncodePreset(
+                name=f'{preset_name}-fallback',
+                width=source_video.width or 1920,
+                height=source_video.height or 1080,
+                fps=int(source_video.fps or 25),
+                x264_preset='medium',
+            )
         
         # Build output path
         source_path = Path(source_video.full_path)

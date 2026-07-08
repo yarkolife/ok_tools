@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+2026-07-08 (Version 4.33.0)
+==========================
+
+* **media_files: Configurable render encoding preset**
+  * Added ``MediaFilesConfig.render_encode_preset`` so the "Render video" admin actions (standard, preview, intro/outro) no longer hardcode ``1080p25_9000k``; the output bitrate now follows the selected preset (``tools.VideoEncodePreset`` row or JSON), independent of the HEVC transcode preset.
+  * Consolidated the HEVC transcode fallback to the ``EncodePreset`` dataclass defaults instead of a duplicated literal dict, removing the stray hardcoded bitrate.
+  * Added German translations for the new config strings.
+* **inventory: Index photos placed directly in the base folder**
+  * ``scan_inventory_images`` now also indexes photos named after the inventory number directly under ``<base>/`` (e.g. ``OK-000001.png``), with an ``_`` suffix for multiple photos (``OK-000001_1.png``), alongside the existing ``<base>/<inventory_number>/`` layout.
+* **rental: Fix room booking times shown without timezone**
+  * Room booking start/end times on the rental detail page are now converted to the local timezone before display, matching how input is interpreted on save.
+* **licenses: Skip staff signature for non-approved Freistellung**
+  * The confirming staff member's signature is only overlaid on an approved (genehmigt) Freistellung, not on a non-approved one.
+
 2026-07-06 (Version 4.32.0)
 ==========================
 

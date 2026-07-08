@@ -191,6 +191,20 @@ def get_transcode_encode_preset():
             return config.transcode_encode_preset
     except Exception:
         pass
-    
+
     # Fallback to env variable
     return os.getenv('VIDEO_TRANSCODE_ENCODE_PRESET', '1080p25_9000k')
+
+
+def get_render_encode_preset():
+    """Get the encoding preset used by the render admin actions."""
+    try:
+        from .models import MediaFilesConfig
+        config = MediaFilesConfig.get_config()
+        if config.render_encode_preset:
+            return config.render_encode_preset
+    except Exception:
+        pass
+
+    # Fallback to env variable, then the historical default preset name.
+    return os.getenv('VIDEO_RENDER_ENCODE_PRESET', '1080p25_9000k')

@@ -1790,6 +1790,20 @@ msgstr "Transkodierungs-Preset"
 msgid "Default encoding preset for transcoding (e.g., \"1080p25_9000k\")"
 msgstr "Standard-Encoding-Preset für Transkodierung (z. B. \"1080p25_9000k\")"
 
+#: media_files/models.py:798
+msgid "Render Encoding Preset"
+msgstr "Render-Encoding-Preset"
+
+#: media_files/models.py:801
+msgid ""
+"Encoding preset used by the \"Render video\" admin actions (e.g., "
+"\"1080p25_9000k\"). The bitrate comes from the selected preset "
+"(tools.VideoEncodePreset or JSON)."
+msgstr ""
+"Encoding-Preset für die \"Video rendern\"-Admin-Aktionen (z. B. "
+"\"1080p25_9000k\"). Die Bitrate stammt aus dem gewählten Preset "
+"(tools.VideoEncodePreset oder JSON)."
+
 #: media_files/models.py:790
 msgid "Cover-Generierung aktiviert"
 msgstr ""
