@@ -309,7 +309,11 @@ class ExportToServerService:
             'success_license_numbers': [],
             'failed': [],
             'skipped_no_pdf': [],
+            # License numbers whose cover was auto-generated because none existed.
+            'covers_generated': [],
         }
+        # Per-item cover outcome ('existing'|'generated'|None), keyed by license number.
+        self._cover_status_by_number: Dict[int, Optional[str]] = {}
         if not self._validate_destination(selected_ids, report):
             return report
 
@@ -325,17 +329,23 @@ class ExportToServerService:
                     report['success_count'] += 1
                     report['success_ids'].append(out_id)
                     # Record the license number for duplicate prevention
+                    license_number = None
                     if mode == 'contributions':
                         # Get license number from contribution
                         from contributions.models import Contribution
                         contribution = Contribution.objects.filter(pk=item_id).first()
                         if contribution and contribution.license:
-                            report['success_license_numbers'].append(contribution.license.number)
-                            self._record_exported_license(contribution.license.number)
+                            license_number = contribution.license.number
+                            report['success_license_numbers'].append(license_number)
+                            self._record_exported_license(license_number)
                     else:
                         # mode == 'licenses', item_id is already the license number
+                        license_number = out_id
                         report['success_license_numbers'].append(out_id)
                         self._record_exported_license(out_id)
+                    # Flag items whose cover had to be auto-generated (none existed).
+                    if self._cover_status_by_number.get(license_number) == 'generated':
+                        report['covers_generated'].append(license_number)
                 elif status == 'skipped_no_pdf':
                     report['skipped_no_pdf_count'] += 1
                     report['skipped_no_pdf'].append(out_id)
@@ -465,31 +475,70 @@ class ExportToServerService:
         if not self._write_pdf_to_destination(pdf_source, remote_base_path, pdf_remote_name):
             return ('failure', item_id, 'PDF upload failed')
 
-        # Auto-generate a cover into the hand-off directory so the thumbnail
-        # block below can upload it. Failure here must never fail the export.
+        # Cover / thumbnail: prefer the already-created canonical cover; only
+        # auto-generate one when none exists (and record that it was missing).
         if self.config.upload_thumbnail_enabled and self.config.thumbnail_storage_path:
-            try:
-                import dataclasses
-                from media_files.covers.config import get_cover_config
-                from media_files.covers.service import generate_cover
-                cover_config = get_cover_config()
-                if cover_config.enabled:
-                    # Write into the export hand-off dir (where _find_thumbnail
-                    # looks) regardless of the configured cover output dir, and
-                    # always produce one canonical cover even for 'all' rules.
-                    handoff_config = dataclasses.replace(
-                        cover_config, output_dir=self.config.thumbnail_storage_path)
-                    generate_cover(video_file, force=True, config=handoff_config,
-                                   force_single=True)
-            except Exception:
-                logger.exception('Cover generation failed for license %s', number)
-
-        # Thumbnail
-        if self.config.upload_thumbnail_enabled and self.config.thumbnail_storage_path:
-            thumb_local = _find_thumbnail(number, self.config.thumbnail_storage_path)
-            if thumb_local and os.path.isfile(thumb_local):
-                thumb_remote_name = os.path.basename(thumb_local)
-                self._upload_or_copy_file(thumb_local, remote_base_path, thumb_remote_name)
+            self._cover_status_by_number[number] = self._export_cover(
+                video_file, number, remote_base_path)
 
         logger.info('Exported license %s to %s', number, remote_base_path)
         return ('success', item_id, None)
+
+    def _export_cover(self, video_file, number, remote_base_path) -> Optional[str]:
+        """Upload the cover for a license and report how it was obtained.
+
+        Prefers the already-created canonical cover (``{number}_cover.jpg`` in
+        the configured cover output dir — the same file step2 shows as "Cover
+        present"). Only when none exists does it auto-generate one into the
+        export hand-off dir. Cover problems must never fail the export.
+
+        Returns ``'existing'``, ``'generated'`` or ``None`` (no cover uploaded).
+        """
+        try:
+            from media_files.covers.config import get_cover_config
+            cover_config = get_cover_config()
+        except Exception:
+            logger.exception('Could not load cover config for license %s', number)
+            cover_config = None
+
+        thumb_local = None
+        cover_status = None
+
+        # 1. Prefer an already-created canonical cover.
+        if cover_config and cover_config.output_dir:
+            existing = os.path.join(cover_config.output_dir, f'{number}_cover.jpg')
+            if os.path.isfile(existing):
+                thumb_local = existing
+                cover_status = 'existing'
+
+        # 2. None exists -> auto-generate one into the export hand-off dir.
+        if thumb_local is None and cover_config and cover_config.enabled:
+            try:
+                import dataclasses
+                from media_files.covers.service import generate_cover
+                # Write into the export hand-off dir regardless of the
+                # configured output dir, and always produce one canonical
+                # cover even for 'all' rules.
+                handoff_config = dataclasses.replace(
+                    cover_config, output_dir=self.config.thumbnail_storage_path)
+                generated = generate_cover(video_file, force=True,
+                                           config=handoff_config, force_single=True)
+                if generated and os.path.isfile(generated):
+                    thumb_local = generated
+                    cover_status = 'generated'
+            except Exception:
+                logger.exception('Cover generation failed for license %s', number)
+
+        # 3. Fall back to any image already present in the hand-off dir.
+        if thumb_local is None:
+            found = _find_thumbnail(number, self.config.thumbnail_storage_path)
+            if found and os.path.isfile(found):
+                thumb_local = found
+
+        if thumb_local and os.path.isfile(thumb_local):
+            thumb_remote_name = os.path.basename(thumb_local)
+            try:
+                self._upload_or_copy_file(thumb_local, remote_base_path, thumb_remote_name)
+            except Exception:
+                logger.exception('Cover upload failed for license %s', number)
+        return cover_status

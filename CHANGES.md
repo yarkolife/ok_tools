@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-07-12 (Version 4.34.0)
+==========================
+
+* **austausch: Reuse existing cover on export to server**
+  * Export to server now prefers the already-created canonical cover (``{number}_cover.jpg`` in the cover output dir, the same file shown as "Cover present" on export step 2) and only auto-generates one into the hand-off directory when none exists, instead of always regenerating.
+  * Cover load/generation/upload problems can no longer fail an otherwise-successful export (cover is optional).
+  * The export result page reports licenses whose cover was auto-generated (no cover existed) via a new counter card and an ID list; ``ExportToServerRun.details`` carries ``covers_generated``.
+  * Fixed the result page reloading endlessly after completion: the progress bar and its polling script now render only while the run is not yet finished.
+
 2026-07-08 (Version 4.33.0)
 ==========================
 

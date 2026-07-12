@@ -69,7 +69,7 @@
   }
   .export-stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
   }
@@ -93,6 +93,11 @@
     background: #f8d7da;
     border-color: #f5c6cb;
     color: #721c24;
+  }
+  .export-stat-card.cover {
+    background: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
   }
   .export-stat-card .stat-value {
     font-size: 32px;
@@ -331,6 +336,10 @@
         <div class="stat-value">{{ run.failure_count }}</div>
         <div class="stat-label">{% translate "Failed" %}</div>
       </div>
+      <div class="export-stat-card cover">
+        <div class="stat-value">{{ run.details.covers_generated|length }}</div>
+        <div class="stat-label">{% translate "Cover generated" %}</div>
+      </div>
     </div>
 
     {% if run.details %}
@@ -344,6 +353,12 @@
           <h2>{% translate "Skipped – no PDF (IDs)" %}</h2>
           <p>{% translate "These items were not uploaded because no PDF was found (no signature and no file in fallback paths)." %}</p>
           <div class="id-list">{{ run.details.skipped_no_pdf|join:", " }}</div>
+        {% endif %}
+
+        {% if run.details.covers_generated %}
+          <h2>{% translate "Cover auto-generated (no cover existed)" %}</h2>
+          <p>{% translate "These licenses had no cover, so one was generated automatically during export." %}</p>
+          <div class="id-list">{{ run.details.covers_generated|join:", " }}</div>
         {% endif %}
 
         {% if run.details.failed %}
@@ -366,8 +381,8 @@
       </div>
     {% endif %}
 
-    {# Progress tracking for running tasks - show if task_id exists #}
-    {% if task_id %}
+    {# Progress tracking for running tasks - only while the run is not finished #}
+    {% if task_id and not run.completed_at %}
     <div class="progress-container" id="export-progress">
       <div class="progress-header">
         <span class="progress-title">{% translate "Export Progress" %}</span>
@@ -394,7 +409,7 @@
   </div>
 </div>
 
-{% if task_id %}
+{% if task_id and not run.completed_at %}
 <script>
 (function() {
   const taskId = '{{ task_id }}';

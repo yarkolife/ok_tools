@@ -541,6 +541,7 @@ def export_to_server_task(self, selected_ids, mode, user_id=None):
             'success_license_numbers': report.get('success_license_numbers', []),
             'failed': report['failed'],
             'skipped_no_pdf': report['skipped_no_pdf'],
+            'covers_generated': report.get('covers_generated', []),
         }
         run.completed_at = timezone.now()
         run.save()
