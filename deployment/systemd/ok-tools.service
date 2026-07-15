@@ -1,0 +1,36 @@
+[Unit]
+Description=OK Tools production stack (Docker Compose)
+Documentation=https://github.com/OKMQ/ok_tools
+# The stack needs the Docker daemon and the network to be up first.
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+#
+# Host bind-mount paths (NAS / custom mounts declared in .env) must be mounted
+# BEFORE the containers start, otherwise Docker creates empty local dirs on top
+# of the mount point and the app writes into the wrong place.
+#
+# The concrete dependency line is NOT hard-coded here, because the paths are
+# host-specific. install-systemd.sh generates it from .env into the drop-in
+#   /etc/systemd/system/ok-tools.service.d/10-mounts.conf
+# as, for example:
+#   [Unit]
+#   RequiresMountsFor=/mnt/nas /mnt/austausch_export
+#
+# RequiresMountsFor= is preferred over listing *.mount units by hand: systemd
+# resolves the needed mount (and automount) units itself and waits for them.
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=__PRODUCTION_DIR__
+# docker-compose.override.yml (mounts, UID/GID) is picked up automatically
+# because it sits next to docker-compose.yml in WorkingDirectory.
+ExecStart=__DOCKER_BIN__ compose up -d --remove-orphans
+ExecStop=__DOCKER_BIN__ compose down
+ExecReload=__DOCKER_BIN__ compose up -d --remove-orphans
+# Image pulls / builds on first boot can take a while.
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

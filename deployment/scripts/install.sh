@@ -1188,6 +1188,23 @@ EOF
 chmod +x "$PRODUCTION_DIR"/*.sh 2>/dev/null
 print_success "Management scripts created"
 
+# Optional: install systemd unit so the stack auto-starts on boot, after its
+# NAS/custom bind-mount host paths are mounted (RequiresMountsFor from .env).
+if [ -t 0 ]; then
+    echo ""
+    read -r -p "Install systemd unit to auto-start the stack on boot? [y/N] " INSTALL_SYSTEMD
+    if [[ "$INSTALL_SYSTEMD" =~ ^[Yy]$ ]]; then
+        print_info "Installing systemd unit (requires sudo)..."
+        if PRODUCTION_DIR="$PRODUCTION_DIR" sudo -E bash "$SCRIPT_DIR/install-systemd.sh"; then
+            print_success "systemd unit installed and enabled"
+        else
+            print_warning "Failed to install systemd unit (you can run it later: sudo $SCRIPT_DIR/install-systemd.sh)"
+        fi
+    else
+        print_info "Skipping systemd unit. Install later with: sudo $SCRIPT_DIR/install-systemd.sh"
+    fi
+fi
+
 echo ""
 print_header "Installation Complete!"
 echo "Production directory: $PRODUCTION_DIR"
