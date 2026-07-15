@@ -644,6 +644,7 @@ function RoomPicker({ rooms, setRooms, options, initial, period }) {
                 <RoomDateTimeForm
                   room={r}
                   wh={wh}
+                  initial={initial}
                   period={period}
                   getTimeSlots={getTimeSlots}
                   getDefaultTimes={getDefaultTimes}
@@ -662,72 +663,70 @@ function RoomPicker({ rooms, setRooms, options, initial, period }) {
   );
 }
 
-function RoomCheckPanel({ room, period, wh, checking, result, onCheck, onConfirm, onCancel }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const startDate = period?.from ? period.from.slice(0, 10) : today;
-  const startTime = period?.from ? period.from.slice(11, 16) : '';
-  const endDate = period?.to ? period.to.slice(0, 10) : today;
-  const endTime = period?.to ? period.to.slice(11, 16) : '';
-  const [checked, setChecked] = React.useState(false);
+/* Day strip for one room: shows which slots are taken and which are free, so
+   a free window can be picked without trial and error. Reuses the room
+   schedule API that also backs the Raumkalender page. */
+function RoomDayStrip({ initial, roomId, date, startTime, endTime }) {
+  const [slots, setSlots] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    if (startDate && startTime && endDate && endTime) {
-      onCheck(startDate, startTime, endDate, endTime);
-      setChecked(true);
-    }
-  }, [room.id]);
+    if (!date) { setSlots([]); return; }
+    let cancelled = false;
+    setLoading(true);
+    apiGet(`${initial.urls.room_schedule}?start_date=${date}&end_date=${date}`)
+      .then(d => {
+        if (cancelled) return;
+        const room = (d.rooms || []).find(r => r.id === roomId);
+        setSlots(room?.schedule?.[0]?.slots || []);
+      })
+      .catch(() => { if (!cancelled) setSlots([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [roomId, date]);
 
-  const startDayIdx = startDate ? (new Date(startDate + 'T00:00:00').getDay() === 0 ? 6 : new Date(startDate + 'T00:00:00').getDay() - 1) : -1;
-  const startDayHours = wh[String(startDayIdx)];
-  const dayClosed = startDayHours && !startDayHours.enabled;
-  const canConfirm = result && result.is_available;
+  if (!date || (!loading && slots.length === 0)) return null;
+
+  const inSelection = (time) =>
+    startTime && endTime && time >= startTime && time < endTime;
 
   return (
-    <div style={{padding: '10px 12px', borderTop: '1px solid var(--line)', background: 'var(--bg-sub, #f8f9fa)', borderRadius: '0 0 8px 8px'}}>
-      <div className="tiny muted" style={{marginBottom: 10}}>
-        {startDate} {startTime} – {endDate} {endTime}
+    <div style={{marginTop: 10}}>
+      <div className="tiny muted" style={{marginBottom: 4}}>
+        {t('room.day_overview', 'Day overview')}
+        {loading && <span className="ms-2">{t('loading', 'Loading…')}</span>}
       </div>
-
-      {dayClosed ? (
-        <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginBottom: 6}}>
-          <i className="fas fa-triangle-exclamation me-1"></i>{t('room.day_closed', 'The day is closed')}
-        </div>
-      ) : !startDate || !startTime || !endDate || !endTime ? (
-        <div className="tiny muted" style={{marginBottom: 6}}>
-          {t('room.need_period', 'Please set dates and times in step 2 first.')}
-        </div>
-      ) : !checked || checking ? (
-        <div className="tiny muted" style={{marginBottom: 6}}>
-          <i className="fas fa-spinner fa-spin me-1"></i>{t('room.checking', 'Checking availability…')}
-        </div>
-      ) : result ? (
-        result.is_available ? (
-          <div className="tiny" style={{color: 'oklch(0.5 0.15 150)', marginBottom: 6}}>
-            <i className="fas fa-check-circle me-1"></i>{result.message || t('room.available', 'Available')}
-          </div>
-        ) : (
-          <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginBottom: 6}}>
-            <i className="fas fa-times-circle me-1"></i>{result.message || t('room.not_available', 'Not available')}
-          </div>
-        )
-      ) : (
-        <div className="tiny muted" style={{marginBottom: 6}}>
-          {t('room.check_failed', 'Could not check availability')}
-        </div>
-      )}
-
-      <div style={{display: 'flex', gap: 6, justifyContent: 'flex-end'}}>
-        <button className="btn btn-ghost btn-sm" onClick={onCancel}>{t('btn.cancel', 'Cancel')}</button>
-        <button className="btn btn-primary btn-sm" disabled={!canConfirm}
-                onClick={() => onConfirm(startDate, startTime, endDate, endTime)}>
-          <i className="fas fa-plus me-1"></i>{t('room.reserve', 'Reserve room')}
-        </button>
+      <div style={{display: 'flex', gap: 1, height: 20, borderRadius: 4, overflow: 'hidden'}}>
+        {slots.map((s, i) => {
+          const busy = s.status === 'occupied';
+          const picked = inSelection(s.time);
+          const tip = busy
+            ? `${s.time} · ${s.info?.start_time}–${s.info?.end_time} · ${s.info?.user_name || ''} ${s.info?.project ? '(' + s.info.project + ')' : ''}`.trim()
+            : `${s.time} · ${t('room.free', 'free')}`;
+          return (
+            <div key={i} title={tip}
+                 style={{
+                   flex: 1,
+                   background: busy ? 'oklch(0.72 0.15 28)' : 'oklch(0.88 0.09 145)',
+                   outline: picked ? '2px solid var(--ink-2, #333)' : 'none',
+                   outlineOffset: -2,
+                 }} />
+          );
+        })}
+      </div>
+      <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 2}} className="tiny muted">
+        <span>{slots[0]?.time}</span>
+        <span>{slots[slots.length - 1]?.time}</span>
+      </div>
+      <div className="tiny muted" style={{marginTop: 4, display: 'flex', gap: 12}}>
+        <span><span style={{display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: 'oklch(0.88 0.09 145)', marginRight: 4}}></span>{t('room.free', 'free')}</span>
+        <span><span style={{display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: 'oklch(0.72 0.15 28)', marginRight: 4}}></span>{t('room.busy', 'booked')}</span>
       </div>
     </div>
   );
 }
 
-function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, checking, result, onCheck, onConfirm, onCancel }) {
+function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, checking, result, onCheck, onConfirm, onCancel, initial }) {
   const today = new Date().toISOString().slice(0, 10);
   const periodStart = period?.from ? period.from.slice(0, 10) : today;
   const periodEnd = period?.to ? period.to.slice(0, 10) : today;
@@ -800,9 +799,22 @@ function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, che
         </div>
       )}
 
+      {!dayClosed && (
+        <RoomDayStrip initial={initial} roomId={room.id} date={startDate}
+                      startTime={startTime} endTime={endTime} />
+      )}
+
       {result && !result.is_available && (
         <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginTop: 6}}>
           <i className="fas fa-triangle-exclamation me-1"></i>{result.message || t('room.not_available', 'Room is not available for this period.')}
+          {result.conflicts && result.conflicts.length > 0 && (
+            <div style={{marginTop: 4}}>
+              <strong>{t('room.booked_at', 'Already booked:')}</strong>
+              <ul style={{margin: '2px 0 0', paddingLeft: 18}}>
+                {result.conflicts.map((c, i) => <li key={i}>{c}</li>)}
+              </ul>
+            </div>
+          )}
         </div>
       )}
       {result && result.is_available && (
@@ -1040,7 +1052,9 @@ function StepTime({ initial, period, setPeriod, cart }) {
     }
   };
 
-  // Pull real conflict data whenever period or cart changes.
+  // Pull real conflict data whenever period or cart changes. Rooms are not
+  // covered here: each room carries its own time slot, picked inline in the
+  // room step, so this step is skipped for room-only rentals.
   React.useEffect(() => {
     if (!period.from || !period.to || cart.length === 0) { setConflicts([]); return; }
     setLoading(true);
@@ -1154,7 +1168,7 @@ function StepTime({ initial, period, setPeriod, cart }) {
                   {(row.ranges || []).map((r, j) => (
                     <div key={j} className="timeline-block"
                          style={{left: `${r.left}%`, width: `${r.width}%`}}
-                         title={r.label}>{r.label}</div>
+                         title={r.title || r.label}>{r.label}</div>
                   ))}
                 </div>
               </React.Fragment>

@@ -2,6 +2,7 @@ from .models import InventoryItem
 from .models import Location
 from .models import Manufacturer
 from .models import Organization
+from .services import InventoryService
 from datetime import datetime
 from django.contrib import messages
 from django.core.files import File
@@ -21,9 +22,7 @@ IGNORED_PREFIXES = [_('Test'), _('Sample')]
 
 def _check_inventory_number(inventory_number: str) -> bool:
     """Check if the inventory number is valid."""
-    if not re.match(r'^OK-\d+', inventory_number):
-        return False
-    return True
+    return InventoryService.is_valid_inventory_number(inventory_number)
 
 
 def _create_or_skip(model, field_name, value, row_number, request):

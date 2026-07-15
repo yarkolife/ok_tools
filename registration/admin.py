@@ -240,6 +240,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
         'birthday',
         'verified',
         'member',
+        'rental_only',
         'created_at',
     ]
     autocomplete_fields = ['okuser', 'media_authority']
@@ -252,6 +253,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
         BirthmonthFilter,
         ('media_authority__name', DropdownFilter),
         'member',
+        'rental_only',
         YearFilter,
     ]
     actions = ['verify', 'unverify']
@@ -268,7 +270,10 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         (_('Organization'), {
-            'fields': ('media_authority', 'member', 'global_producer', 'verified')
+            'fields': ('media_authority', 'member', 'rental_only',
+                       'global_producer', 'verified'),
+            'description': _('A profile is either a member or rental only, '
+                             'not both.')
         }),
         (_('Data Sharing Permissions'), {
             'fields': ('phone_data_sharing_allowed', 'email_data_sharing_allowed'),

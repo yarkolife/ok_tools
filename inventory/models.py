@@ -173,6 +173,60 @@ class Location(models.Model):
         return " -> ".join(reversed(parts))
 
 
+class InventorySeries(models.Model):
+    """A configured inventory number series and what it stands for.
+
+    An inventory number is a series prefix followed by a zero-padded running
+    number (``OK-000001``, ``INV-0042``). Series are configured here rather
+    than hard-coded, so every installation can define its own and document
+    what each one means. Import validation and the "copy" admin action both
+    read this table.
+    """
+
+    prefix = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name=_("Prefix"),
+        help_text=_(
+            'Leading part of the inventory number, including the separator '
+            '(e.g. "OK-").'
+        )
+    )
+    description = models.CharField(
+        max_length=255,
+        verbose_name=_("Meaning"),
+        help_text=_(
+            'What this series stands for, e.g. "Equipment owned by the OK".'
+        )
+    )
+    padding = models.PositiveSmallIntegerField(
+        default=6,
+        verbose_name=_("Number width"),
+        help_text=_(
+            'Digits the running number is padded to (6 gives OK-000001).'
+        )
+    )
+    active = models.BooleanField(
+        default=True,
+        verbose_name=_("Active"),
+        help_text=_(
+            'Inactive series are rejected on import and are not used to '
+            'generate new numbers.'
+        )
+    )
+
+    class Meta:
+        """Meta options for InventorySeries."""
+
+        verbose_name = _("Inventory Number Series")
+        verbose_name_plural = _("Inventory Number Series")
+        ordering = ['prefix']
+
+    def __str__(self):
+        """Return the prefix together with its meaning."""
+        return f"{self.prefix} — {self.description}"
+
+
 class InventoryItem(ExportModelOperationsMixin('inventory_item'), models.Model):
     """Model representing an inventory item."""
 
@@ -268,6 +322,12 @@ class InventoryItem(ExportModelOperationsMixin('inventory_item'), models.Model):
         default=False,
         verbose_name=_("Available for Rental"),
         help_text=_("Check if this item is available for rental.")
+    )
+    notes = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_("Notes"),
+        help_text=_("Free text about this item, e.g. defects or accessories.")
     )
     reserved_quantity = models.PositiveIntegerField(
         default=0,

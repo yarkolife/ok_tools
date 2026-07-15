@@ -307,16 +307,15 @@ class DirectInventoryService(InventoryServiceInterface):
                 if user.is_staff:
                     # No filtering needed - staff can access all items
                     pass
-                elif hasattr(user, 'profile') and user.profile and user.profile.member:
-                    # Member filtering
-                    config = RentalConfig.get_config()
-                    orgs = config.member_organizations.all()
+                else:
+                    orgs = RentalConfig.get_organizations_for(user)
+                    profile = getattr(user, 'profile', None)
                     if orgs.exists():
                         query = query.filter(
                             owner__isnull=False,
                             owner__in=orgs
                         )
-                    else:
+                    elif profile and profile.member:
                         # Fallback to hardcoded behavior
                         state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
                         organization_owner = getattr(settings, 'ORGANIZATION_OWNER', 'OKMQ')
@@ -324,17 +323,10 @@ class DirectInventoryService(InventoryServiceInterface):
                             owner__isnull=False,
                             owner__name__in=[state_institution, organization_owner]
                         )
-                else:
-                    # Regular confirmed user filtering
-                    config = RentalConfig.get_config()
-                    orgs = config.user_organizations.all()
-                    if orgs.exists():
-                        query = query.filter(
-                            owner__isnull=False,
-                            owner__in=orgs
-                        )
                     else:
-                        # Fallback to hardcoded behavior
+                        # Fallback to hardcoded behavior. A rental-only profile
+                        # without its own organizations lands here too, i.e. it
+                        # is treated like a regular confirmed user.
                         state_institution = getattr(settings, 'STATE_MEDIA_INSTITUTION', 'MSA')
                         query = query.filter(
                             owner__isnull=False,

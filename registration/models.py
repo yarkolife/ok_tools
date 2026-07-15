@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, gettext
@@ -230,6 +231,16 @@ class Profile(ExportModelOperationsMixin('profile'), models.Model):
         null=False,
     )
 
+    rental_only = models.BooleanField(
+        _('rental only'),
+        default=False,
+        blank=False,
+        null=False,
+        help_text=_('The profile may only rent equipment. Mutually exclusive '
+                    'with member: a profile is either a member or rental '
+                    'only, never both.')
+    )
+
     global_producer = models.BooleanField(
         _('Global Producer'),
         default=False,
@@ -260,6 +271,16 @@ class Profile(ExportModelOperationsMixin('profile'), models.Model):
     def __str__(self):
         """Represent Profile by first and last name."""
         return f'{self.first_name} {self.last_name}'
+
+    def clean(self):
+        """Reject profiles that are member and rental only at once."""
+        super().clean()
+        if self.member and self.rental_only:
+            raise ValidationError({
+                'rental_only': _(
+                    'A profile is either a member or rental only, not both.'
+                ),
+            })
 
     class Meta:
         """Define the message IDs."""

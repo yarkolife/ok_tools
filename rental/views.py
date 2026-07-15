@@ -1,6 +1,7 @@
 from datetime import datetime
 from datetime import timedelta
 from django.conf import settings
+from .formatting import format_booked_period
 from .models import EquipmentSet
 from .models import EquipmentSetItem
 from .models import RentalIssue
@@ -381,9 +382,13 @@ def _i18n_bundle():
         'err.scan_not_found': _('Item not found'),
         # Room
         'room.available': _('Available'),
+        'room.booked_at': _('Already booked:'),
+        'room.busy': _('booked'),
         'room.check': _('Check availability'),
         'room.check_error': _('Error checking availability'),
         'room.day_closed': _('Day is closed'),
+        'room.day_overview': _('Day overview'),
+        'room.free': _('free'),
         'room.end_date': _('End date'),
         'room.end_time': _('End time'),
         'room.not_available': _('Not available'),
@@ -1030,6 +1035,7 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'users_search': reverse('rental:api_users_search'),
                     'availability_check': reverse('rental:api_availability_check'),
                     'room_availability_check': reverse('rental:api_check_room_availability'),
+                    'room_schedule': reverse('rental:api_room_schedule'),
                     'new_user': reverse('admin:registration_okuser_add'),
                     'equipment_sets': reverse('rental:api_equipment_sets_available'),
                     'equipment_set_details': reverse('rental:api_equipment_set_details', kwargs={'set_id': 0}),
@@ -5643,7 +5649,12 @@ def api_check_room_availability(request):
 
                 project = conflict.rental_request.project_name
                 status = conflict.rental_request.get_status_display()
-                conflict_info.append(f"{user_name} ({project}) - {status}")
+                # Lead with the period: the point of this list is to tell the
+                # user *when* the room is taken, so they can pick a free slot.
+                period = format_booked_period(
+                    conflict.get_start_date(), conflict.get_end_date())
+                conflict_info.append(
+                    f"{period} · {user_name} ({project}) - {status}")
 
             return JsonResponse({
                 'success': True,

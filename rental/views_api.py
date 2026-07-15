@@ -1,5 +1,6 @@
 from datetime import timedelta
 from .models import RentalItem, RentalRequest
+from .formatting import format_booked_period
 from .models import Room, RoomRental
 from .services import RentalService
 from django.conf import settings
@@ -52,13 +53,7 @@ def _item_location_label(item):
 
 def _apply_inventory_access_filter(queryset, target):
     from rental.models import RentalConfig
-    config = RentalConfig.get_config()
-    if target.is_staff:
-        orgs = config.employee_organizations.all()
-    elif hasattr(target, 'profile') and target.profile and target.profile.member:
-        orgs = config.member_organizations.all()
-    else:
-        orgs = config.user_organizations.all()
+    orgs = RentalConfig.get_organizations_for(target)
 
     if orgs.exists():
         return queryset.filter(owner__in=orgs)
@@ -299,10 +294,17 @@ def api_availability_check(request):
             end_at = rental.requested_end_date
             conflict = start_at < selected_to and end_at > selected_from
             user_label = rental.user.get_full_name() or rental.user.email
+            period_label = format_booked_period(start_at, end_at)
             ranges.append({
                 'left': pct(start_at),
                 'width': max(0, pct(end_at) - pct(start_at)),
-                'label': f'R-{rental.created_at:%y%m}-{rental.pk:04d} · {user_label}',
+                # The bar clips its text (white-space: nowrap; overflow: hidden),
+                # so it shows when, and the tooltip carries the full detail.
+                'label': period_label,
+                'title': (
+                    f'R-{rental.created_at:%y%m}-{rental.pk:04d} · '
+                    f'{user_label} · {period_label}'
+                ),
                 'conflict': conflict,
             })
         rows.append({

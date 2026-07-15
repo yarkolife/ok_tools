@@ -22,8 +22,8 @@ import csv
 import re
 
 from ..models import (
-    InventoryItem, Location, Manufacturer, Organization, Category,
-    InventoryImport, Inspection, InspectionImport, AuditLog
+    InventoryItem, InventorySeries, Location, Manufacturer, Organization,
+    Category, InventoryImport, Inspection, InspectionImport, AuditLog
 )
 
 logger = logging.getLogger('django')
@@ -103,7 +103,98 @@ class InventoryService:
             return InventoryItem.objects.get(inventory_number=inventory_number)
         except InventoryItem.DoesNotExist:
             return None
-    
+
+    # Trailing digits are the running number, everything before them is the
+    # series prefix. Used for numbers whose series is not configured, so that
+    # "TEST-EMAIL-001" or "OK-000456/1" still stay on their own sequence.
+    _NUMBER_PATTERN = re.compile(r'^(?P<prefix>.*?)(?P<digits>\d+)$')
+
+    @staticmethod
+    def match_series(inventory_number: str) -> Optional[InventorySeries]:
+        """
+        Return the active series an inventory number belongs to.
+
+        Args:
+            inventory_number: Number to look up
+
+        Returns:
+            InventorySeries or None: Longest matching active series, if any
+        """
+        number = inventory_number or ''
+        best = None
+        for series in InventorySeries.objects.filter(active=True):
+            if not number.startswith(series.prefix):
+                continue
+            # Longest prefix wins, so "INV-SUB-" beats "INV-" for its numbers.
+            if best is None or len(series.prefix) > len(best.prefix):
+                best = series
+        return best
+
+    @staticmethod
+    def is_valid_inventory_number(inventory_number: str) -> bool:
+        """
+        Check that a number belongs to a configured series and has digits.
+
+        Args:
+            inventory_number: Number to validate
+
+        Returns:
+            bool: True if valid, False otherwise
+        """
+        number = inventory_number or ''
+        series = InventoryService.match_series(number)
+        if series is None:
+            return False
+        return bool(re.match(r'^\d+', number[len(series.prefix):]))
+
+    @staticmethod
+    def generate_next_inventory_number(source_number: str) -> str:
+        """
+        Return the next free inventory number in the source number's series.
+
+        Args:
+            source_number: Number to derive the series and zero-padding from
+
+        Returns:
+            str: An inventory number that is not taken yet
+        """
+        next_value = None
+        series = InventoryService.match_series(source_number)
+        if series is not None:
+            prefix = series.prefix
+            width = series.padding
+        else:
+            # Series is not configured - fall back to the number's own shape.
+            match = InventoryService._NUMBER_PATTERN.match(source_number or '')
+            if match:
+                prefix = match.group('prefix')
+                width = len(match.group('digits'))
+            else:
+                # Nothing to increment - open a sub-sequence under the number.
+                prefix = f'{source_number}-'
+                width = 1
+                next_value = 1
+
+        taken = set(
+            InventoryItem.objects
+            .filter(inventory_number__startswith=prefix)
+            .values_list('inventory_number', flat=True)
+        )
+
+        if next_value is None:
+            highest = 0
+            for number in taken:
+                # startswith also matches longer prefixes (e.g. "OK-000456/1"
+                # for prefix "OK-"), so only count the same series.
+                other = InventoryService._NUMBER_PATTERN.match(number)
+                if other and other.group('prefix') == prefix:
+                    highest = max(highest, int(other.group('digits')))
+            next_value = highest + 1
+
+        while f'{prefix}{next_value:0{width}d}' in taken:
+            next_value += 1
+        return f'{prefix}{next_value:0{width}d}'
+
     @staticmethod
     def create_inventory_item(
         inventory_number: str,
@@ -632,16 +723,14 @@ class InventoryService:
     def _check_inventory_number(inventory_number: str) -> bool:
         """
         Check if the inventory number is valid.
-        
+
         Args:
             inventory_number: Inventory number to check
-            
+
         Returns:
             bool: True if valid, False otherwise
         """
-        if not re.match(r'^OK-\d+', inventory_number):
-            return False
-        return True
+        return InventoryService.is_valid_inventory_number(inventory_number)
     
     @staticmethod
     def _create_or_skip(model, field_name: str, value: str, row_number: int, request):

@@ -8,6 +8,16 @@
     text-decoration: none !important;
 }
 
+/* Django's changelists.css sets `white-space: nowrap` on changelist headers, so
+   a long verbose_name ("Inventarnummer des Eigentümers") sets the column's
+   minimum width and tables with many columns overflow the viewport. Wrapping
+   at spaces is enough; do NOT add overflow-wrap: anywhere here - it counts as a
+   soft wrap opportunity for min-content, which collapses columns to one
+   character per line. */
+#changelist table thead th {
+    white-space: normal;
+}
+
 .model-videofile .field-filename {
     word-wrap: break-word;
     word-break: break-all;
@@ -16,12 +26,13 @@
 
 /* Mobile table text wrapping overrides for admin */
 @media (max-width: 767.98px) {
-    /* Force text wrapping in admin result list tables */
+    /* Force text wrapping in admin result list tables. break-word, not
+       anywhere: the latter counts as a soft wrap opportunity for min-content
+       and lets the table collapse columns to one character per line. */
     #result_list td,
     #result_list th {
         white-space: normal !important;
-        overflow-wrap: anywhere !important;
-        word-break: break-word !important;
+        overflow-wrap: break-word !important;
     }
 
     /* Override Bootstrap's text-nowrap class in admin */
@@ -39,8 +50,7 @@
     .field-license_name,
     .field-license_restriction {
         white-space: normal !important;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        overflow-wrap: break-word;
         line-height: 1.4;
     }
 
@@ -63,7 +73,9 @@
     }
 }
 
-/* General text wrapping improvements */
+/* General text wrapping improvements. break-word, not anywhere: anywhere is a
+   soft wrap opportunity for min-content, which lets a table collapse these
+   columns to one character per line. */
 .field-permissions,
 .field-restrictions,
 .field-description,
@@ -72,6 +84,5 @@
 .field-title,
 .field-license_name,
 .field-license_restriction {
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: break-word;
 }

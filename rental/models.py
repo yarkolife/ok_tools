@@ -1109,6 +1109,36 @@ class RentalConfig(models.Model):
         related_name='rental_config_employee',
         verbose_name=_("Employee organizations"),
     )
+    rental_only_organizations = models.ManyToManyField(
+        'inventory.Organization',
+        blank=True,
+        related_name='rental_config_rental_only',
+        verbose_name=_("Rental only organizations"),
+    )
+
+    @classmethod
+    def get_organizations_for(cls, user):
+        """
+        Return the organizations whose items the given user may rent.
+
+        Profile.member and Profile.rental_only are mutually exclusive, so the
+        order of those two branches cannot matter in practice.
+
+        Args:
+            user: The user to resolve the organizations for
+
+        Returns:
+            QuerySet: Organizations gating this user, possibly empty
+        """
+        config = cls.get_config()
+        if user.is_staff:
+            return config.employee_organizations.all()
+        profile = getattr(user, 'profile', None)
+        if profile and profile.member:
+            return config.member_organizations.all()
+        if profile and profile.rental_only:
+            return config.rental_only_organizations.all()
+        return config.user_organizations.all()
 
     class Meta:
         verbose_name = _('Rental Configuration')

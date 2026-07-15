@@ -53,13 +53,7 @@ class RentalService:
         if not item.available_for_rent or item.status != 'in_stock':
             return False
 
-        config = RentalConfig.get_config()
-        if user.is_staff:
-            orgs = config.employee_organizations.all()
-        elif hasattr(user, 'profile') and user.profile and user.profile.member:
-            orgs = config.member_organizations.all()
-        else:
-            orgs = config.user_organizations.all()
+        orgs = RentalConfig.get_organizations_for(user)
 
         if orgs.exists():
             return bool(item.owner_id and orgs.filter(id=item.owner_id).exists())

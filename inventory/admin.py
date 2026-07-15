@@ -7,6 +7,7 @@ from .models import InventoryImageConfig
 from .models import InventoryImport
 from .models import InventoryItem
 from .models import InventoryItemImage
+from .models import InventorySeries
 from .models import Location
 from .models import Manufacturer
 from .models import Organization
@@ -17,6 +18,8 @@ from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import RelatedOnlyFieldListFilter
 from django.core.management import call_command
+from django.db import IntegrityError
+from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -108,6 +111,17 @@ class LocationAdmin(admin.ModelAdmin):
     ordering = ("parent__id", "name")
 
 
+@admin.register(InventorySeries)
+class InventorySeriesAdmin(admin.ModelAdmin):
+    """Admin interface for InventorySeries."""
+
+    list_display = ('prefix', 'description', 'padding', 'active')
+    list_editable = ('description', 'padding', 'active')
+    search_fields = ('prefix', 'description')
+    list_filter = ('active',)
+    ordering = ('prefix',)
+
+
 @admin.register(InventoryItem)
 class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     """Admin interface for InventoryItem."""
@@ -117,7 +131,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     export_form_class = ExportForm
     readonly_fields = ('reserved_quantity', 'rented_quantity')
     list_display = (
-        'inventory_number', 'description', 'serial_number', 'manufacturer', 'category', 'location', 'quantity',
+        'inventory_number', 'description', 'category', 'location', 'quantity',
         'status', 'owner', 'inventory_number_owner', 'available_for_rent'
     )
     search_fields = [
@@ -134,7 +148,77 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         'status', 'available_for_rent',
     ]
     autocomplete_fields = ('manufacturer', 'category', 'owner', 'location')
-    actions = ['print_barcodes_action', 'rescan_photos_action']
+    # Newest first, so freshly added or copied items are visible right away
+    # instead of sorting to the last page by inventory number. date_added is a
+    # DateField, so id breaks ties between items added on the same day.
+    ordering = ('-date_added', '-id')
+    actions = ['copy_items_action', 'print_barcodes_action', 'rescan_photos_action']
+
+    # Not carried over to a copy: identity, the booking counters and the status,
+    # which describe the source item only. Photos are deliberately absent too -
+    # they are indexed from a folder named after the inventory number, so the
+    # copy gets its own once scan_inventory_images runs. Inspections belong to
+    # the physical item that was inspected and are not copied either.
+    COPY_EXCLUDED_FIELDS = frozenset({
+        'id', 'inventory_number', 'date_added', 'status',
+        'reserved_quantity', 'rented_quantity',
+    })
+
+    @admin.action(
+        description=_('Copy selected inventory items'),
+        permissions=['add'],
+    )
+    def copy_items_action(self, request, queryset):
+        """Duplicate each selected item under a fresh inventory number."""
+        created = []
+        for item in queryset.order_by('inventory_number'):
+            values = {
+                field.name: getattr(item, field.name)
+                for field in InventoryItem._meta.fields
+                if field.name not in self.COPY_EXCLUDED_FIELDS
+            }
+            # Another copy may take the number between generating and saving,
+            # so retry on the unique constraint rather than failing the batch.
+            for _attempt in range(5):
+                number = InventoryService.generate_next_inventory_number(
+                    item.inventory_number)
+                try:
+                    with transaction.atomic():
+                        InventoryItem.objects.create(
+                            inventory_number=number, **values)
+                except IntegrityError:
+                    continue
+                created.append(number)
+                break
+            else:
+                self.message_user(
+                    request,
+                    _('Could not find a free inventory number for %(number)s.')
+                    % {'number': item.inventory_number},
+                    level=messages.ERROR,
+                )
+
+        if created:
+            self.message_user(
+                request,
+                _('%(count)d item(s) copied: %(numbers)s. The copies are in '
+                  'stock and have no reservations.') % {
+                    'count': len(created),
+                    'numbers': self._format_numbers(created),
+                },
+                level=messages.SUCCESS,
+            )
+
+    @staticmethod
+    def _format_numbers(numbers, limit=10):
+        """Join numbers for a message, trimming long lists to a summary."""
+        if len(numbers) <= limit:
+            return ', '.join(numbers)
+        rest = len(numbers) - limit
+        return _('%(numbers)s and %(count)d more') % {
+            'numbers': ', '.join(numbers[:limit]),
+            'count': rest,
+        }
 
     def get_readonly_fields(self, request, obj=None):
         """Return readonly fields depending on item status."""
@@ -160,6 +244,9 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         (_('Purchase Information'), {
             'fields': ('purchase_date', 'purchase_cost'),
             'classes': ('collapse',),
+        }),
+        (_('Notes'), {
+            'fields': ('notes',),
         }),
         (_('Photos'), {
             'fields': ('photo_gallery',),

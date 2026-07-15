@@ -512,7 +512,8 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
 class RentalConfigAdmin(admin.ModelAdmin):
     """Admin interface for RentalConfig model."""
 
-    filter_horizontal = ['user_organizations', 'member_organizations', 'employee_organizations']
+    filter_horizontal = ['user_organizations', 'member_organizations',
+                         'employee_organizations', 'rental_only_organizations']
 
     fieldsets = (
         (_('Approval workflow'), {
@@ -551,13 +552,18 @@ class RentalConfigAdmin(admin.ModelAdmin):
             'description': _('Leave both fields empty to mark a day as closed.'),
         }),
         (_('Organization Access'), {
-            'fields': ('user_organizations', 'member_organizations', 'employee_organizations'),
+            'fields': ('user_organizations', 'member_organizations',
+                       'employee_organizations', 'rental_only_organizations'),
+            'description': _('Leave a list empty to fall back to the default '
+                             'organizations for that user type.'),
         }),
     )
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         formfield = super().formfield_for_manytomany(db_field, request, **kwargs)
-        if db_field.name in ('user_organizations', 'member_organizations', 'employee_organizations'):
+        if db_field.name in ('user_organizations', 'member_organizations',
+                             'employee_organizations',
+                             'rental_only_organizations'):
             formfield.widget.can_add_related = False
             formfield.widget.can_change_related = False
             formfield.widget.can_delete_related = False
