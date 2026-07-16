@@ -23,7 +23,7 @@ import re
 
 from ..models import (
     InventoryItem, InventorySeries, Location, Manufacturer, Organization,
-    Category, InventoryImport, Inspection, InspectionImport, AuditLog
+    Category, Inspection, AuditLog
 )
 
 logger = logging.getLogger('django')
@@ -366,66 +366,6 @@ class InventoryService:
         return Location.objects.get_or_create_by_path(path_str)
     
     @staticmethod
-    def validate_inventory_file(file) -> None:
-        """
-        Validate an inventory import file.
-        
-        Args:
-            file: The file to validate
-            
-        Raises:
-            ValidationError: If the file is invalid
-        """
-        validate_inventory_import(file)
-    
-    @staticmethod
-    def import_inventory_data(request, file, import_obj: InventoryImport) -> Dict[str, Union[int, str]]:
-        """
-        Import inventory data from a file.
-        
-        Args:
-            request: Django request object
-            file: The file to import
-            import_obj: InventoryImport object for tracking
-            
-        Returns:
-            Dict: Import results with created, skipped counts and error log
-        """
-        return inventory_import(request, file, import_obj)
-    
-    @staticmethod
-    def validate_inspection_file(file) -> None:
-        """
-        Validate an inspection import file.
-        
-        Args:
-            file: The file to validate
-            
-        Raises:
-            ValidationError: If the file is invalid
-        """
-        validate_inspection_import(file)
-    
-    @staticmethod
-    def import_inspection_data(
-        request, 
-        file, 
-        import_obj: InspectionImport
-    ) -> Dict[str, Union[int, str]]:
-        """
-        Import inspection data from a file.
-        
-        Args:
-            request: Django request object
-            file: The file to import
-            import_obj: InspectionImport object for tracking
-            
-        Returns:
-            Dict: Import results with created, skipped counts and error log
-        """
-        return inspection_import(request, file, import_obj)
-    
-    @staticmethod
     def create_inspection(
         inspection_number: str,
         inventory_item: Optional[InventoryItem] = None,
@@ -716,6 +656,10 @@ class InventoryService:
         Returns:
             Dataset: Export dataset ready for response
         """
+        # Imported here rather than at module level: inventory/admin.py imports
+        # InventoryService, so a module-level import would be circular.
+        from ..admin import InventoryResource
+
         resource = InventoryResource()
         return resource.export()
     
