@@ -86,9 +86,14 @@ class TestProjectsWidget(TestCase):
         self.widget._get_filtered_projects = Mock(return_value=mock_filtered_projects)
         
         mock_filtered_projects.count.return_value = 100
-        mock_filtered_projects.filter.return_value.count.return_value = 20  # external venue
-        mock_filtered_projects.filter.return_value.count.return_value = 10  # jugendmedienschutz
-        mock_filtered_projects.filter.return_value.count.return_value = 5  # democracy
+        # Each characteristic is a separate .filter().count() call, so return a
+        # distinct queryset per .filter() call (side_effect), not one shared
+        # return_value that the three assignments just kept overwriting.
+        mock_external = Mock(); mock_external.count.return_value = 20
+        mock_jugend = Mock(); mock_jugend.count.return_value = 10
+        mock_democracy = Mock(); mock_democracy.count.return_value = 5
+        mock_filtered_projects.filter.side_effect = [
+            mock_external, mock_jugend, mock_democracy]
         
         # Mock aggregation for participants
         mock_filtered_projects.aggregate.side_effect = [
@@ -290,9 +295,14 @@ class TestProjectsWidget(TestCase):
         self.widget._get_filtered_projects = Mock(return_value=mock_filtered_projects)
         
         mock_filtered_projects.count.return_value = 100
-        mock_filtered_projects.filter.return_value.count.return_value = 20  # external venue
-        mock_filtered_projects.filter.return_value.count.return_value = 10  # jugendmedienschutz
-        mock_filtered_projects.filter.return_value.count.return_value = 5  # democracy
+        # Each characteristic is a separate .filter().count() call, so return a
+        # distinct queryset per .filter() call (side_effect), not one shared
+        # return_value that the three assignments just kept overwriting.
+        mock_external = Mock(); mock_external.count.return_value = 20
+        mock_jugend = Mock(); mock_jugend.count.return_value = 10
+        mock_democracy = Mock(); mock_democracy.count.return_value = 5
+        mock_filtered_projects.filter.side_effect = [
+            mock_external, mock_jugend, mock_democracy]
         
         result = self.widget.get_project_characteristics()
         
@@ -340,8 +350,9 @@ class TestProjectsWidget(TestCase):
     
     def test_get_filtered_projects_with_custom_date_range(self):
         """Test getting filtered projects with custom date range"""
-        # Create a request with custom date range
-        request = self.factory.get('/dashboard/?start_date=2023-01-01&end_date=2023-01-31')
+        # days=all skips the default 30-day filter, isolating the date-range
+        # filter this test is about (otherwise two .filter() calls stack).
+        request = self.factory.get('/dashboard/?days=all&start_date=2023-01-01&end_date=2023-01-31')
         
         widget = ProjectsWidget(request)
         # Mock Project.objects.all() to return a mock queryset

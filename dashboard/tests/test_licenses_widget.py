@@ -305,9 +305,14 @@ class TestLicensesWidget(TestCase):
         mock_youth_not_necessary.count.return_value = 85  # youth protection not necessary
         mock_youth_unknown = Mock()
         mock_youth_unknown.count.return_value = 5  # youth protection unknown
-        mock_filtered_queryset.filter.return_value = mock_youth_necessary
-        mock_filtered_queryset.filter.return_value = mock_youth_not_necessary
-        mock_filtered_queryset.filter.return_value = mock_youth_unknown
+        # Each youth-protection category is a separate .filter() call, so the
+        # mock must return a different queryset per call (side_effect), not the
+        # same one — using return_value three times just kept the last.
+        mock_filtered_queryset.filter.side_effect = [
+            mock_youth_necessary,
+            mock_youth_not_necessary,
+            mock_youth_unknown,
+        ]
         
         # Mock the values and annotate for categories
         mock_values_queryset = Mock()

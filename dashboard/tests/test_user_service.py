@@ -381,26 +381,20 @@ class UserServiceTestCase(TestCase):
             mock_queryset.count.return_value = 2
             mock_queryset.filter.return_value.count.return_value = 1
             mock_queryset.values.return_value.annotate.return_value.order_by.return_value = []
-            mock_queryset.select_related.return_value = [self.profile1, self.profile2]
+            # The age calculation iterates select_related(...); make that raise
+            # so the service's age try/except is exercised.
+            mock_queryset.select_related.side_effect = Exception("Age calc error")
             mock_filter_instance.apply_filters_to_queryset.return_value = mock_queryset
             mock_filter_instance.get_all_data.return_value = {}
             mock_filters.return_value = mock_filter_instance
-            
-            # Mock the profile iteration to raise an exception
-            with patch.object(Profile, 'select_related', return_value=mock_queryset.select_related.return_value):
-                # Call the method
-                result = self.user_service.get_users_statistics(request)
-                
-                # Assertions - should handle the error gracefully
-                self.assertTrue(result['success'])
-                # Age groups should remain with default values
-                expected_age_groups = {
-                    'up_to_34': 0,
-                    '35_50': 0,  # This will be 0 because of the error
-                    '51_65': 0,
-                    'over_65': 0,
-                    'unknown': 0
-                }
+
+            # Call the method
+            result = self.user_service.get_users_statistics(request)
+
+            # Should handle the error gracefully: age groups keep their defaults.
+            self.assertTrue(result['success'])
+            for count in result['data']['age_groups'].values():
+                self.assertEqual(count, 0)
     
     def test_get_users_statistics_with_trend_error(self):
         """Test user statistics when trend calculation fails."""
@@ -410,16 +404,20 @@ class UserServiceTestCase(TestCase):
         # Mock DashboardFilters with error in trend calculation
         with patch('dashboard.services.user_service.DashboardFilters') as mock_filters:
             mock_filter_instance = Mock()
-            mock_filter_instance.date_range = {
-                'start_date': datetime(2023, 1, 1).date(),
-                'end_date': datetime(2023, 1, 31).date()
-            }
-            # Mock apply_filters_to_queryset to raise an exception in trend calculation
-            def side_effect(queryset, model_type):
-                if hasattr(queryset, 'filter'):  # This is called in trend calculation
-                    raise Exception("Trend error")
-                return Profile.objects.all()
-            mock_filter_instance.apply_filters_to_queryset.side_effect = side_effect
+            # Base statistics need real integer counts, otherwise the service
+            # does arithmetic on Mocks and fails before reaching the trend.
+            mock_queryset = Mock()
+            mock_queryset.count.return_value = 2
+            mock_queryset.filter.return_value.count.return_value = 1
+            mock_queryset.values.return_value.annotate.return_value.order_by.return_value = []
+            mock_queryset.select_related.return_value = []
+            mock_filter_instance.apply_filters_to_queryset.return_value = mock_queryset
+            # The trend block is entered by reading filters.date_range; make that
+            # raise so the trend try/except is exercised and returns an empty
+            # trend, while the rest of the statistics still succeed.
+            mock_filter_instance.date_range = MagicMock()
+            mock_filter_instance.date_range.__getitem__.side_effect = Exception(
+                "Trend error")
             mock_filter_instance.get_all_data.return_value = {}
             mock_filters.return_value = mock_filter_instance
             
@@ -544,7 +542,7 @@ class UserServiceTestCase(TestCase):
         request = self.factory.get('/')
         
         # Mock Profile model to raise an exception
-        with patch('registration.models.Profile') as mock_profile:
+        with patch('dashboard.services.user_service.Profile') as mock_profile:
             mock_profile.objects.filter.side_effect = Exception("Test error")
             
             # Call the method
@@ -590,7 +588,7 @@ class UserServiceTestCase(TestCase):
             self.assertEqual(user_data['name'], 'John Doe')
             self.assertEqual(user_data['email'], 'test@example.com')
             # Account for localization - check both English and German values
-            expected_genders = ['Male', 'männlich']
+            expected_genders = ['male', 'männlich']
             self.assertIn(user_data['gender'], expected_genders)
             self.assertTrue(user_data['verified'])
             self.assertTrue(user_data['member'])

@@ -24,6 +24,12 @@ import pytest
 import zope.testbrowser.browser
 
 
+# Django management commands named test_* (e.g. rental's
+# `test_nextcloud_calendar`) match the test_*.py python_files pattern but
+# are not pytest tests.
+collect_ignore_glob = ['*/management/commands/test_*.py']
+
+
 @pytest.fixture(scope="session", autouse=True)
 def _patch_postgresql_flush():
     """Patch PostgreSQL flush to always use CASCADE to avoid FK constraint errors."""

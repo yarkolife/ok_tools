@@ -113,7 +113,7 @@ class TestCheckAlertsCommand(TestCase):
     def test_populate_funnel_data_command_success(self, mock_funnel_tracker, mock_random):
         """Test populate_funnel_data command runs successfully."""
         # Mock random functions
-        mock_random.choice.return_value = 'M'
+        mock_random.choice.side_effect = lambda seq: seq[0]
         mock_random.randint.return_value = 25
         mock_random.sample.return_value = []
         mock_random.random.return_value = 0.5
@@ -133,7 +133,7 @@ class TestCheckAlertsCommand(TestCase):
     def test_populate_funnel_data_command_with_defaults(self, mock_funnel_tracker, mock_random):
         """Test populate_funnel_data command with default parameters."""
         # Mock random functions
-        mock_random.choice.return_value = 'F'
+        mock_random.choice.side_effect = lambda seq: seq[0]
         mock_random.randint.return_value = 30
         mock_random.sample.return_value = []
         mock_random.random.return_value = 0.3

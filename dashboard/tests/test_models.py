@@ -175,12 +175,12 @@ class UserJourneyModelTest(TestCase):
         journey, created = UserJourney.objects.get_or_create(
             user=unique_user,
             stage=UserJourneyStage.RENTAL_REQUESTED,
-            defaults={'rental_request': unique_rental_request}
+            defaults={'rental_request_id': unique_rental_request.id}
         )
-        
+
         self.assertEqual(journey.user, unique_user)
         self.assertEqual(journey.stage, UserJourneyStage.RENTAL_REQUESTED)
-        self.assertEqual(journey.rental_request, unique_rental_request)
+        self.assertEqual(journey.rental_request_id, unique_rental_request.id)
     
     def test_user_journey_with_contribution(self):
         """Test creating a user journey with contribution."""
@@ -212,12 +212,12 @@ class UserJourneyModelTest(TestCase):
         journey, created = UserJourney.objects.get_or_create(
             user=unique_user,
             stage=UserJourneyStage.CONTRIBUTION_CREATED,
-            defaults={'contribution': unique_contribution}
+            defaults={'contribution_id': unique_contribution.id}
         )
-        
+
         self.assertEqual(journey.user, unique_user)
         self.assertEqual(journey.stage, UserJourneyStage.CONTRIBUTION_CREATED)
-        self.assertEqual(journey.contribution, unique_contribution)
+        self.assertEqual(journey.contribution_id, unique_contribution.id)
     
     def test_unique_constraint(self):
         """Test that a user can only have one instance of each stage."""
