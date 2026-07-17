@@ -20,6 +20,13 @@ class SetupOrganizationsCommandTest(TestCase):
     @patch('django.conf.settings.OK_NAME', 'Test Organization')
     def test_command_creates_organizations_with_custom_settings(self):
         """Test that command creates organizations using custom settings."""
+        # The command reads names from OrganizationConfig, not settings.
+        from registration.models import OrganizationConfig
+        config = OrganizationConfig.get_config()
+        config.state_media_institution = 'MSA_TEST'
+        config.organization_owner = 'OKMQ_TEST'
+        config.name = 'Test Organization'
+        config.save()
         # Run the command
         out = StringIO()
         call_command('setup_organizations', stdout=out)
@@ -59,19 +66,27 @@ class SetupOrganizationsCommandTest(TestCase):
         self.assertEqual(org_state.description, 'State Media Institution: MSA')
 
         org_owner = Organization.objects.get(name='OKMQ')
-        self.assertEqual(org_owner.description, 'Offener Kanal Merseburg-Querfurt e.V.')
+        self.assertEqual(org_owner.description, 'Open Channel Merseburg-Querfurt e.V.')
 
         # Verify output contains success messages
         output = out.getvalue()
         self.assertIn('✓ Created MediaAuthority: OKMQ', output)
         self.assertIn('✓ Created Organization: MSA', output)
-        self.assertIn('✓ Created Organization: OKMQ (Offener Kanal Merseburg-Querfurt e.V.)', output)
+        self.assertIn('✓ Created Organization: OKMQ (Open Channel Merseburg-Querfurt e.V.)', output)
 
     @patch('django.conf.settings.STATE_MEDIA_INSTITUTION', 'MSA_EXISTING')
     @patch('django.conf.settings.ORGANIZATION_OWNER', 'OKMQ_EXISTING')
     @patch('django.conf.settings.OK_NAME', 'Existing Organization')
     def test_command_handles_existing_organizations(self):
         """Test that command handles existing organizations correctly."""
+        # The command reads the names from OrganizationConfig (not settings),
+        # so point it at these organizations.
+        from registration.models import OrganizationConfig
+        config = OrganizationConfig.get_config()
+        config.state_media_institution = 'MSA_EXISTING'
+        config.organization_owner = 'OKMQ_EXISTING'
+        config.name = 'Existing Organization'
+        config.save()
         # Create organizations manually first
         MediaAuthority.objects.create(name='OKMQ_EXISTING')
         Organization.objects.create(name='MSA_EXISTING', description='State Media Institution: MSA_EXISTING')
@@ -104,6 +119,13 @@ class SetupOrganizationsCommandTest(TestCase):
     @patch('django.conf.settings.OK_NAME', 'No Override Organization')
     def test_command_does_not_update_description_if_same(self):
         """Test that command doesn't update description if it's already correct."""
+        # The command reads the owner name from OrganizationConfig (not
+        # settings), so point it at this organization.
+        from registration.models import OrganizationConfig
+        config = OrganizationConfig.get_config()
+        config.organization_owner = 'OKMQ_NO_OVERRIDE'
+        config.name = 'No Override Organization'
+        config.save()
         # Create organization with correct description
         Organization.objects.create(name='OKMQ_NO_OVERRIDE', description='No Override Organization')
 
