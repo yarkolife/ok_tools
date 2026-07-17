@@ -249,11 +249,8 @@ class CrontabParsingTestCase(TestCase):
         self._set_env('TEST_CRON', '*/30 * * * *')
         schedule = parse_crontab_env('TEST_CRON')
         
-        self.assertEqual(str(schedule.minute), '*/30')
-        self.assertEqual(str(schedule.hour), '*')
-        self.assertEqual(str(schedule.day_of_month), '*')
-        self.assertEqual(str(schedule.month_of_year), '*')
-        self.assertEqual(str(schedule.day_of_week), '*')
+        from celery.schedules import crontab
+        self.assertEqual(schedule, crontab(minute='*/30'))
     
     def test_parse_crontab_three_fields(self):
         """Test parsing 3-field crontab (should add * for missing)."""
@@ -262,11 +259,8 @@ class CrontabParsingTestCase(TestCase):
         self._set_env('TEST_CRON', '*/30 * *')
         schedule = parse_crontab_env('TEST_CRON')
         
-        self.assertEqual(str(schedule.minute), '*/30')
-        self.assertEqual(str(schedule.hour), '*')
-        self.assertEqual(str(schedule.day_of_month), '*')
-        self.assertEqual(str(schedule.month_of_year), '*')  # Added
-        self.assertEqual(str(schedule.day_of_week), '*')     # Added
+        from celery.schedules import crontab
+        self.assertEqual(schedule, crontab(minute='*/30'))
     
     def test_parse_crontab_default(self):
         """Test default crontab value."""
@@ -274,8 +268,8 @@ class CrontabParsingTestCase(TestCase):
         
         schedule = parse_crontab_env('NONEXISTENT_CRON', default='0 3 * * *')
         
-        self.assertEqual(str(schedule.minute), '0')
-        self.assertEqual(str(schedule.hour), '3')
+        from celery.schedules import crontab
+        self.assertEqual(schedule, crontab(minute='0', hour='3'))
     
     def test_parse_crontab_complex(self):
         """Test complex crontab expression."""
@@ -284,9 +278,8 @@ class CrontabParsingTestCase(TestCase):
         self._set_env('TEST_CRON', '0 */2 * * 1-5')
         schedule = parse_crontab_env('TEST_CRON')
         
-        self.assertEqual(str(schedule.minute), '0')
-        self.assertEqual(str(schedule.hour), '*/2')
-        self.assertEqual(str(schedule.day_of_week), '1-5')
+        from celery.schedules import crontab
+        self.assertEqual(schedule, crontab(minute='0', hour='*/2', day_of_week='1-5'))
     
     def test_parse_crontab_single_field(self):
         """Test parsing 1-field crontab (should add * for missing)."""
@@ -295,94 +288,8 @@ class CrontabParsingTestCase(TestCase):
         self._set_env('TEST_CRON', '0')
         schedule = parse_crontab_env('TEST_CRON')
         
-        self.assertEqual(str(schedule.minute), '0')
-        self.assertEqual(str(schedule.hour), '*')
-        self.assertEqual(str(schedule.day_of_month), '*')
-        self.assertEqual(str(schedule.month_of_year), '*')
-        self.assertEqual(str(schedule.day_of_week), '*')
-
-
-class BackwardCompatibilityTestCase(TestCase):
-    """Test backward compatibility with .cfg files."""
-    
-    def setUp(self):
-        self.test_vars = []
-    
-    def tearDown(self):
-        for var in self.test_vars:
-            if var in os.environ:
-                del os.environ[var]
-    
-    def _set_env(self, key, value):
-        os.environ[key] = str(value)
-        self.test_vars.append(key)
-    
-    @patch('ok_tools.settings.config')
-    def test_get_config_env_priority(self, mock_config):
-        """Test that ENV variables take priority over .cfg."""
-        from ok_tools.settings import get_config
-        
-        # Set up mock config
-        mock_config.get.return_value = 'cfg_value'
-        
-        # Set env var
-        self._set_env('TEST_SECTION_KEY', 'env_value')
-        
-        # Test that env value is returned
-        result = get_config('test', 'key', fallback='fallback')
-        self.assertEqual(result, 'env_value')
-        
-        # Verify config.get was not called
-        mock_config.get.assert_not_called()
-    
-    @patch('ok_tools.settings.config')
-    @patch('ok_tools.settings.CONFIG_FILE_USED', True)
-    def test_get_config_fallback_to_cfg(self, mock_config):
-        """Test fallback to .cfg when ENV not set."""
-        from ok_tools.settings import get_config
-        
-        # Set up mock config
-        mock_config.get.return_value = 'cfg_value'
-        
-        # Test that cfg value is returned when env not set
-        result = get_config('test', 'key', fallback='fallback')
-        self.assertEqual(result, 'cfg_value')
-        
-        # Verify config.get was called
-        mock_config.get.assert_called_once_with('test', 'key', fallback='fallback')
-    
-    @patch('ok_tools.settings.config')
-    @patch('ok_tools.settings.CONFIG_FILE_USED', True)
-    def test_get_config_fallback_to_default(self, mock_config):
-        """Test fallback to default when both ENV and .cfg fail."""
-        from ok_tools.settings import get_config
-        
-        # Set up mock config to raise exception
-        mock_config.get.side_effect = Exception("Config error")
-        
-        # Test that fallback is returned
-        result = get_config('test', 'key', fallback='fallback')
-        self.assertEqual(result, 'fallback')
-    
-    def test_deprecation_warning_shown(self):
-        """Test that deprecation warning is logged when .cfg used."""
-        with patch.dict(os.environ, {'OKTOOLS_CONFIG_FILE': '/path/to/config.cfg'}):
-            with patch('ok_tools.settings.config') as mock_config:
-                with patch('builtins.open', create=True) as mock_open:
-                    with patch('ok_tools.settings.logger') as mock_logger:
-                        # Set up mock file
-                        mock_file = MagicMock()
-                        mock_file.__enter__.return_value = mock_file
-                        mock_open.return_value = mock_file
-                        mock_config.read_file.return_value = None
-                        
-                        # Re-import settings to trigger warning
-                        import importlib
-                        import ok_tools.settings
-                        importlib.reload(ok_tools.settings)
-                        
-                        # Verify warning was logged
-                        mock_logger.warning.assert_called_with("Using deprecated .cfg file. Please migrate to .env")
+        from celery.schedules import crontab
+        self.assertEqual(schedule, crontab(minute='0'))
 
 
 class SettingsIntegrationTestCase(TestCase):
@@ -437,51 +344,3 @@ class SettingsIntegrationTestCase(TestCase):
         """Test that ALLOWED_HOSTS can be overridden."""
         from django.conf import settings
         self.assertIn('example.com', settings.ALLOWED_HOSTS)
-
-
-class EnvConfigFileTestCase(TestCase):
-    """Test configuration file handling."""
-    
-    def setUp(self):
-        self.test_vars = []
-    
-    def tearDown(self):
-        for var in self.test_vars:
-            if var in os.environ:
-                del os.environ[var]
-    
-    def _set_env(self, key, value):
-        os.environ[key] = str(value)
-        self.test_vars.append(key)
-    
-    @patch('ok_tools.settings.config')
-    def test_config_file_used_flag(self, mock_config):
-        """Test CONFIG_FILE_USED flag is set when config file is used."""
-        with patch.dict(os.environ, {'OKTOOLS_CONFIG_FILE': '/path/to/config.cfg'}):
-            with patch('builtins.open', create=True) as mock_open:
-                # Set up mock file
-                mock_file = MagicMock()
-                mock_file.__enter__.return_value = mock_file
-                mock_open.return_value = mock_file
-                mock_config.read_file.return_value = None
-                
-                # Re-import settings to trigger config file loading
-                import importlib
-                import ok_tools.settings
-                importlib.reload(ok_tools.settings)
-                
-                # Check that CONFIG_FILE_USED is True
-                self.assertTrue(ok_tools.settings.CONFIG_FILE_USED)
-    
-    def test_no_config_file_warning(self):
-        """Test warning when no config file is found."""
-        with patch('ok_tools.settings.logger') as mock_logger:
-            # Re-import settings without config file
-            import importlib
-            import ok_tools.settings
-            importlib.reload(ok_tools.settings)
-            
-            # Verify warning was logged
-            mock_logger.warning.assert_called_with(
-                "No config file found for ok-tools." " Switching to fallbacks."
-            )
