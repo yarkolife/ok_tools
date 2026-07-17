@@ -43,7 +43,14 @@ def create_rental_request(user, created_by, status='returned'):
 class DummyView(StaffRequiredMixin):
     """Minimal subclass to exercise StaffRequiredMixin.handle_no_permission."""
     def __init__(self, user):
-        self.request = SimpleNamespace(user=user)
+        # handle_no_permission adds a message, which needs a real HttpRequest
+        # with a message store, not a bare SimpleNamespace.
+        from django.test import RequestFactory
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        self.request = RequestFactory().get('/')
+        self.request.user = user
+        setattr(self.request, 'session', {})
+        setattr(self.request, '_messages', FallbackStorage(self.request))
 
 
 @pytest.mark.django_db
@@ -145,7 +152,7 @@ def test__rental__mixins__StaffRequiredMixin__nonstaff_redirects_access_denied()
     response = view.handle_no_permission()
     assert response.status_code == 302
     # Expect redirect to rental:access_denied
-    assert "access_denied" in response.url
+    assert "access-denied" in response.url
 
 
 @pytest.mark.django_db
@@ -158,7 +165,7 @@ def test__rental__views__api_create_rental_user__method_not_allowed():
     request.user = user
     response = api_create_rental_user(request)
     assert response.status_code == 405
-    data = response.json()
+    data = json.loads(response.content)
     assert data["error"] == "Method not allowed"
 
 
@@ -180,8 +187,8 @@ def test__rental__views__api_create_rental_user__success():
         instance.create_rental_request.return_value = {"success": True, "id": 42}
         response = api_create_rental_user(request)
         assert response.status_code == 200
-        assert response.json()["success"] is True
-        assert response.json()["id"] == 42
+        assert json.loads(response.content)["success"] is True
+        assert json.loads(response.content)["id"] == 42
         instance.create_rental_request.assert_called_once()
 
 
@@ -203,7 +210,7 @@ def test__rental__views__api_create_rental_user__service_error():
         instance.create_rental_request.return_value = {"success": False, "error": "Invalid"}
         response = api_create_rental_user(request)
         assert response.status_code == 400
-        assert response.json()["error"] == "Invalid"
+        assert json.loads(response.content)["error"] == "Invalid"
 
 
 @pytest.mark.django_db
@@ -215,7 +222,7 @@ def test__rental__views__api_create_rental__method_not_allowed():
     request.user = staff
     response = api_create_rental(request)
     assert response.status_code == 405
-    assert response.json()["error"] == "Method not allowed"
+    assert json.loads(response.content)["error"] == "Method not allowed"
 
 
 @pytest.mark.django_db
@@ -237,8 +244,8 @@ def test__rental__views__api_create_rental__success():
         instance.create_rental_request.return_value = {"success": True, "id": 99}
         response = api_create_rental(request)
         assert response.status_code == 200
-        assert response.json()["success"] is True
-        assert response.json()["id"] == 99
+        assert json.loads(response.content)["success"] is True
+        assert json.loads(response.content)["id"] == 99
         instance.create_rental_request.assert_called_once()
 
 
@@ -261,7 +268,7 @@ def test__rental__views__api_create_rental__service_error():
         instance.create_rental_request.return_value = {"success": False, "error": "Bad"}
         response = api_create_rental(request)
         assert response.status_code == 400
-        assert response.json()["error"] == "Bad"
+        assert json.loads(response.content)["error"] == "Bad"
 
 
 @pytest.mark.django_db
@@ -273,7 +280,7 @@ def test__rental__views__api_cancel_rental__missing_id():
     request.user = staff
     response = api_cancel_rental(request)
     assert response.status_code == 400
-    assert response.json()["error"] == "Rental ID is required"
+    assert json.loads(response.content)["error"] == "Rental ID is required"
 
 
 @pytest.mark.django_db
@@ -285,7 +292,7 @@ def test__rental__views__api_get_staff_users__method_not_allowed():
     request.user = staff
     response = api_get_staff_users(request)
     assert response.status_code == 405
-    assert response.json()["error"] == "Method not allowed"
+    assert json.loads(response.content)["error"] == "Method not allowed"
 
 
 @pytest.mark.django_db
@@ -301,7 +308,7 @@ def test__rental__views__api_get_staff_users__returns_list():
     request.user = staff
     response = api_get_staff_users(request)
     assert response.status_code == 200
-    data = response.json()
+    data = json.loads(response.content)
     assert data["success"] is True
     assert isinstance(data["users"], list)
     # At least the two created staff users should be present (names may be emails)
@@ -362,7 +369,7 @@ def test__rental__views__api_create_rental_user__exception_results_400():
         instance.create_rental_request.side_effect = Exception("boom")
         response = api_create_rental_user(request)
         assert response.status_code == 400
-        assert "boom" in response.json()["error"]
+        assert "boom" in json.loads(response.content)["error"]
 
 
 @pytest.mark.django_db
@@ -386,7 +393,7 @@ def test__rental__views__api_create_rental__exception_results_400():
         instance.create_rental_request.side_effect = Exception("boom")
         response = api_create_rental(request)
         assert response.status_code == 400
-        assert "boom" in response.json()["error"]
+        assert "boom" in json.loads(response.content)["error"]
 
 
 @pytest.mark.django_db
@@ -405,7 +412,7 @@ def test__rental__views__api_get_filter_options_user__returns_data():
          patch("rental.views.inventory_service.get_item_categories", return_value=[{"name": "Camera"}]):
         response = api_get_filter_options_user(request)
         assert response.status_code == 200
-        data = response.json()
+        data = json.loads(response.content)
         assert "owners" in data and data["owners"] == [{"name": "MSA"}]
         assert "locations" in data and data["locations"] == [{"name": "HQ", "full_path": "HQ"}]
         assert "categories" in data and data["categories"] == [{"name": "Camera"}]
@@ -427,7 +434,7 @@ def test__rental__views__api_get_filter_options__returns_data():
          patch("rental.views.inventory_service.get_item_categories", return_value=[{"name": "Audio"}]):
         response = api_get_filter_options(request)
         assert response.status_code == 200
-        data = response.json()
+        data = json.loads(response.content)
         assert data["owners"] == [{"name": "OKMQ"}]
         assert data["locations"] == [{"name": "Studio", "full_path": "HQ/Studio"}]
         assert data["categories"] == [{"name": "Audio"}]
@@ -445,7 +452,7 @@ def test__rental__views__api_save_template__method_not_allowed():
 
     response = api_save_template(request)
     assert response.status_code == 405
-    assert response.json()["error"] == "Method not allowed"
+    assert json.loads(response.content)["error"] == "Method not allowed"
 
 
 @pytest.mark.django_db
@@ -460,7 +467,7 @@ def test__rental__views__api_save_template__invalid_json():
 
     response = api_save_template(request)
     assert response.status_code == 400
-    assert response.json()["error"] == "Invalid JSON data"
+    assert json.loads(response.content)["error"] == "Invalid JSON data"
 
 
 @pytest.mark.django_db
@@ -479,6 +486,6 @@ def test__rental__views__api_cancel_rental__success():
         instance.cancel_rental.return_value = {"success": True, "message": "cancelled"}
         response = api_cancel_rental(request)
         assert response.status_code == 200
-        data = response.json()
+        data = json.loads(response.content)
         assert data["success"] is True
         assert data["message"]

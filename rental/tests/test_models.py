@@ -526,7 +526,7 @@ class RentalTransactionModelTest(TestCase):
         self.assertEqual(transaction.notes, 'Test transaction')
         self.assertIsNotNone(transaction.performed_at)
         # Account for localization - German strings
-        expected_values = ['Issue 1 → Test Item [OK-001] x2', 'Ausgeben 1 → Test Item [OK-01] x2']
+        expected_values = ['Issue 1 → Test Item [OK-01] x2', 'Ausgeben 1 → Test Item [OK-01] x2']
         self.assertIn(str(transaction), expected_values)
     
     def test_rental_transaction_creation_with_room(self):

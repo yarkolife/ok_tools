@@ -16,7 +16,6 @@ class ExpireRoomRentalsCommandTest(TestCase):
         """Set up test data."""
         User = get_user_model()
         self.admin_user = User.objects.create_superuser(
-            username='admin',
             email='admin@example.com',
             password='admin'
         )
@@ -34,6 +33,8 @@ class ExpireRoomRentalsCommandTest(TestCase):
         
         # Create a reserved rental that has expired
         self.expired_reservation_request = RentalRequest.objects.create(
+            user=self.admin_user,
+            created_by=self.admin_user,
             project_name='Expired Reservation',
             status='reserved',
             requested_start_date=self.now - timedelta(days=2),
@@ -41,11 +42,14 @@ class ExpireRoomRentalsCommandTest(TestCase):
         )
         self.expired_reservation = RoomRental.objects.create(
             room=self.room,
+            people_count=1,
             rental_request=self.expired_reservation_request
         )
 
         # Create an issued rental that has expired
         self.expired_issued_request = RentalRequest.objects.create(
+            user=self.admin_user,
+            created_by=self.admin_user,
             project_name='Expired Issued Rental',
             status='issued',
             requested_start_date=self.now - timedelta(days=2),
@@ -53,11 +57,14 @@ class ExpireRoomRentalsCommandTest(TestCase):
         )
         self.expired_issued_rental = RoomRental.objects.create(
             room=self.room,
+            people_count=1,
             rental_request=self.expired_issued_request
         )
 
         # Create a current reservation that has not expired
         self.current_reservation_request = RentalRequest.objects.create(
+            user=self.admin_user,
+            created_by=self.admin_user,
             project_name='Current Reservation',
             status='reserved',
             requested_start_date=self.now + timedelta(days=1),
@@ -65,6 +72,7 @@ class ExpireRoomRentalsCommandTest(TestCase):
         )
         self.current_reservation = RoomRental.objects.create(
             room=self.room,
+            people_count=1,
             rental_request=self.current_reservation_request
         )
 

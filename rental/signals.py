@@ -103,25 +103,26 @@ def update_inventory_quantities(sender, instance: RentalTransaction, created, **
         handle_rental_cancelled_event
     )
 
-    # Check if we're running tests to avoid Celery connection issues
+    # Update rental item quantities locally. This must always run - including
+    # under tests - so it is kept out of the test-gated Celery block below.
+    if instance.transaction_type == 'issue':
+        rental_item.quantity_issued = (rental_item.quantity_issued or 0) + qty
+        rental_item.save(update_fields=['quantity_issued'])
+    elif instance.transaction_type == 'return':
+        rental_item.quantity_returned = (rental_item.quantity_returned or 0) + qty
+        rental_item.save(update_fields=['quantity_returned'])
+
+    # Celery dispatch is skipped during tests/migrations to avoid broker
+    # connection issues; only the asynchronous events are gated, not the
+    # local quantity bookkeeping above.
     import sys
-    if 'pytest' in sys.modules or 'test' in sys.argv or 'migrate' in sys.argv:
-        # Skip Celery tasks during tests
-        pass
-    else:
-        # Trigger asynchronous events based on transaction type
+    if not ('pytest' in sys.modules or 'test' in sys.argv or 'migrate' in sys.argv):
         if instance.transaction_type == 'reserve':
             handle_rental_created_event.delay(item_id, qty, user_id)
         elif instance.transaction_type == 'issue':
             handle_rental_issued_event.delay(item_id, qty, user_id)
-            # Update rental item quantities locally
-            rental_item.quantity_issued = (rental_item.quantity_issued or 0) + qty
-            rental_item.save(update_fields=['quantity_issued'])
         elif instance.transaction_type == 'return':
             handle_rental_returned_event.delay(item_id, qty, user_id)
-            # Update rental item quantities locally
-            rental_item.quantity_returned = (rental_item.quantity_returned or 0) + qty
-            rental_item.save(update_fields=['quantity_returned'])
         elif instance.transaction_type == 'cancel':
             handle_rental_cancelled_event.delay(item_id, qty, user_id)
 

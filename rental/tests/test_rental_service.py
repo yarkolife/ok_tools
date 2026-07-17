@@ -426,10 +426,13 @@ class RentalServiceTestCase(TestCase):
         start_date = timezone.now() + timedelta(days=5)
         end_date = timezone.now() + timedelta(days=7)
         
+        # Old positional API: (user, created_by, project_name, ...); the first
+        # three params are named data_or_user/created_by_or_user/... so they
+        # must be passed positionally, not by the old keyword names.
         result = self.rental_service.create_rental_request(
-            user=self.user,
-            created_by=self.admin_user,
-            project_name='New Project',
+            self.user,
+            self.admin_user,
+            'New Project',
             purpose='New Purpose',
             start_date=start_date,
             end_date=end_date,
