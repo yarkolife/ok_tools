@@ -109,10 +109,14 @@ class InventoryAPIPermissionTest(APITestCase):
             category=self.category,
             location=self.location
         )
-    
+
+        # The API requires authentication (DRF default IsAuthenticated), so
+        # authenticate as a member by default; individual tests override this.
+        self.client.force_authenticate(user=self.member_user)
+
     def test_member_user_inventory_access(self):
         """Test that member users can access state and organization items."""
-        self.client.login(email='member@example.com', password='testpass123')
+        self.client.force_authenticate(user=self.member_user)
         
         # Include user_id in the request to simulate proper API usage
         url = reverse('inventory:inventoryitem-list') + f'?user_id={self.member_user.id}'
@@ -133,7 +137,7 @@ class InventoryAPIPermissionTest(APITestCase):
     
     def test_non_member_user_inventory_access(self):
         """Test that non-member users can only access state items."""
-        self.client.login(email='nonmember@example.com', password='testpass123')
+        self.client.force_authenticate(user=self.non_member_user)
         
         # Include user_id in the request to simulate proper API usage
         url = reverse('inventory:inventoryitem-list') + f'?user_id={self.non_member_user.id}'
@@ -153,23 +157,12 @@ class InventoryAPIPermissionTest(APITestCase):
         self.assertNotIn('OK-003', inventory_numbers)  # Other item
     
     def test_anonymous_user_inventory_access(self):
-        """Test that anonymous users get an empty queryset."""
+        """Test that anonymous users are denied (API requires authentication)."""
+        self.client.force_authenticate(user=None)
         url = reverse('inventory:inventoryitem-list')
         response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Handle both paginated and non-paginated responses
-        if isinstance(response.data, dict) and 'results' in response.data:
-            # Paginated response
-            # Anonymous users might see all items or get empty queryset depending on implementation
-            items_count = len(response.data['results'])
-        else:
-            # Non-paginated response
-            items_count = len(response.data)
-        
-        # The actual behavior depends on the API implementation
-        # For now, just check that we get a valid response
-        self.assertGreaterEqual(items_count, 0)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     
     def test_inventory_item_filters(self):
         """Test filtering options for inventory items."""
@@ -279,6 +272,9 @@ class CategoryAPITest(APITestCase):
     
     def setUp(self):
         """Set up test data."""
+        self.user = OKUser.objects.create_user(
+            email='categoryapi@example.com', password='testpass123')
+        self.client.force_authenticate(user=self.user)
         self.category1 = Category.objects.create(
             name='Electronics',
             description='Electronic devices'
@@ -314,6 +310,9 @@ class LocationAPITest(APITestCase):
     
     def setUp(self):
         """Set up test data."""
+        self.user = OKUser.objects.create_user(
+            email='locationapi@example.com', password='testpass123')
+        self.client.force_authenticate(user=self.user)
         self.location1 = Location.objects.create(name='Room A')
         self.location2 = Location.objects.create(name='Room B')
     
@@ -343,6 +342,9 @@ class OrganizationAPITest(APITestCase):
     
     def setUp(self):
         """Set up test data."""
+        self.user = OKUser.objects.create_user(
+            email='organizationapi@example.com', password='testpass123')
+        self.client.force_authenticate(user=self.user)
         self.org1 = Organization.objects.create(
             name='Organization A',
             description='First organization'
@@ -358,16 +360,14 @@ class OrganizationAPITest(APITestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Handle both paginated and non-paginated responses
+        # Handle both paginated and non-paginated responses. Don't assert an
+        # exact total: migrations seed default organizations, so only check
+        # that the two created here are listed.
         if isinstance(response.data, dict) and 'results' in response.data:
-            # Paginated response
-            self.assertEqual(len(response.data['results']), 2)
             org_names = [org['name'] for org in response.data['results']]
         else:
-            # Non-paginated response
-            self.assertEqual(len(response.data), 2)
             org_names = [org['name'] for org in response.data]
-        
+
         # Check that both organizations are in the response
         self.assertIn('Organization A', org_names)
         self.assertIn('Organization B', org_names)

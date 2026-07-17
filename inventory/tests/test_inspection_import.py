@@ -542,7 +542,7 @@ class InspectionImportTest(TestCase):
         result = inspection_import(request=None, file=None, import_obj=None)
         
         # The function should return an error in the result rather than raising an exception
-        self.assertIn("Keine Datei für den Import bereitgestellt", result['error_log'])
+        self.assertIn("No file provided for import", result['error_log'])
     
     def test_inspection_import_empty_csv(self):
         """Test importing inspections from an empty CSV file."""

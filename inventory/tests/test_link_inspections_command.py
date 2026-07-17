@@ -2,7 +2,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from io import StringIO
 from unittest.mock import patch
-from inventory.models import Inspection, InventoryItem
+from inventory.models import Inspection, InventoryItem, Location
 from django.db import models
 
 
@@ -11,14 +11,20 @@ class LinkInspectionsCommandTest(TestCase):
 
     def setUp(self):
         """Set up test data."""
-        # Create test inventory items
+        # InventoryItem has no `name` field (it uses `description`) and
+        # requires location and quantity.
+        self.location = Location.objects.create(name='Test Location')
         self.item1 = InventoryItem.objects.create(
-            name='Test Item 1',
-            inventory_number='INV001'
+            description='Test Item 1',
+            inventory_number='INV001',
+            location=self.location,
+            quantity=1,
         )
         self.item2 = InventoryItem.objects.create(
-            name='Test Item 2',
-            inventory_number='INV002'
+            description='Test Item 2',
+            inventory_number='INV002',
+            location=self.location,
+            quantity=1,
         )
         
         # Create test inspections

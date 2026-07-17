@@ -560,7 +560,7 @@ class InventoryServiceTestCase(TestCase):
         self.assertIn('error_log', result)
         # When no file is provided, the method should return 0 created items and an error in the log
         self.assertEqual(result['created'], 0)
-        self.assertIn('Keine Datei für den Import bereitgestellt', result['error_log'])
+        self.assertIn('No file provided for import', result['error_log'])
     
     def test_import_inspection_data_xlsx(self):
         """Test importing inspection data from XLSX file."""
