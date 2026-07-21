@@ -1,9 +1,11 @@
 """Tests for program API localization behavior."""
 
 from datetime import datetime
+from datetime import time
 
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 
 from ok_tools.datetime import TZ
 from ok_tools.testing import create_contribution
@@ -18,9 +20,13 @@ def test__contributions__api__program_schedule__returns_de_localized_user_fields
     contribution_dict,
 ):
     """Program API returns localized user-facing fields in German locale."""
+    # The API defaults to the program of the current day.
+    today = timezone.now().astimezone(TZ).date()
+
     # Regular contribution to verify localized credits text.
     regular_license = create_license(user.profile, license_dict)
-    contribution_dict["broadcast_date"] = datetime(2026, 2, 11, 22, 15, tzinfo=TZ)
+    contribution_dict["broadcast_date"] = datetime.combine(
+        today, time(22, 15), tzinfo=TZ)
     create_contribution(regular_license, contribution_dict)
 
     # Infoblock contribution to verify localized info block title.
@@ -30,7 +36,8 @@ def test__contributions__api__program_schedule__returns_de_localized_user_fields
     infoblock_license.infoblock = True
     infoblock_license.save(update_fields=["infoblock"])
 
-    contribution_dict["broadcast_date"] = datetime(2026, 2, 11, 23, 55, tzinfo=TZ)
+    contribution_dict["broadcast_date"] = datetime.combine(
+        today, time(23, 55), tzinfo=TZ)
     create_contribution(infoblock_license, contribution_dict)
 
     client.force_login(user)
@@ -61,7 +68,9 @@ def test__contributions__api__program_schedule__includes_mediathek_url_when_avai
     license_obj.mediathek_url = 'https://lokalmedial.de/w/test123'
     license_obj.save(update_fields=['mediathek_url'])
 
-    contribution_dict['broadcast_date'] = datetime(2026, 2, 12, 18, 0, tzinfo=TZ)
+    today = timezone.now().astimezone(TZ).date()
+    contribution_dict['broadcast_date'] = datetime.combine(
+        today, time(18, 0), tzinfo=TZ)
     create_contribution(license_obj, contribution_dict)
 
     client.force_login(user)

@@ -132,7 +132,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     readonly_fields = ('reserved_quantity', 'rented_quantity')
     list_display = (
         'inventory_number', 'description', 'category', 'location', 'quantity',
-        'status', 'owner', 'inventory_number_owner', 'available_for_rent'
+        'status', 'owner', 'photo_preview', 'available_for_rent'
     )
     search_fields = [
         'inventory_number', 'description', 'serial_number',
@@ -269,6 +269,44 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
             'location',
             'owner'
         ).prefetch_related('images')
+
+    def get_list_display(self, request):
+        """Show the photo column only while photos are enabled in settings.
+
+        When ``InventoryImageConfig.enabled`` is off, nothing scans or serves
+        photos, so the column would be an empty placeholder on every row.
+        """
+        list_display = super().get_list_display(request)
+        if InventoryImageConfig.get_config().enabled:
+            return list_display
+        return tuple(f for f in list_display if f != 'photo_preview')
+
+    @admin.display(description=_('Photo'))
+    def photo_preview(self, obj):
+        """Render the first photo as a small thumbnail for the list view.
+
+        Uses the prefetched ``images`` cache, so no extra query per row. The
+        full-size original opens on click, like in the rental process view.
+        """
+        image = next(
+            (img for img in obj.images.all() if img.is_available), None)
+        if image is None:
+            return format_html(
+                '<span style="display:inline-block;width:48px;height:48px;'
+                'border:1px dashed #ccc;border-radius:4px;background:#fafafa;" '
+                'title="{}"></span>',
+                _('No photos'),
+            )
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener" title="{}">'
+            '<img src="{}" loading="lazy" alt="{}" '
+            'style="width:48px;height:48px;object-fit:cover;display:block;'
+            'border:1px solid #ccc;border-radius:4px;"></a>',
+            reverse('inventory:item_image', args=[image.id]),
+            image.filename,
+            reverse('inventory:item_image_thumb', args=[image.id]),
+            image.filename,
+        )
 
     @admin.display(description=_('Photos'))
     def photo_gallery(self, obj):

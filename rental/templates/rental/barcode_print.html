@@ -5,18 +5,29 @@
   <meta charset="UTF-8">
   <title>{% trans "Barcode Labels" %} — OK Tools</title>
   <style>
+    /* A4 sheet: 3 labels of 50x30mm per row. Shared rules first, the media
+       blocks below only carry what print and screen really differ in. */
+    .label-grid { display: grid; grid-template-columns: repeat(3, 50mm); gap: 5mm; justify-content: center; }
+    .label { width: 50mm; height: 30mm; border: 1px dashed #ccc; padding: 2mm; box-sizing: border-box;
+             display: flex; flex-direction: column; align-items: center; justify-content: center;
+             overflow: hidden; font-family: 'Inter', Arial, sans-serif; }
+    .label svg { display: block; max-width: 45mm; max-height: 14mm; height: auto; }
+    /* Number and owner share a row so the location still fits on 30mm. */
+    .label .numrow { display: flex; align-items: baseline; gap: 2mm; max-width: 45mm; }
+    .label .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; margin-top: 1mm; }
+    .label .owner { font-size: 8px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+    .label .desc { font-size: 8px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45mm; }
+    /* Location paths can be long, so allow two lines and clip the rest. */
+    .label .loc { font-size: 6.5px; color: #666; text-align: center; max-width: 45mm; line-height: 1.15;
+                  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+                  overflow: hidden; }
+
     /* Print-only styles */
     @media print {
       @page { size: A4; margin: 10mm; }
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .no-print { display: none !important; }
-      .label-grid { display: grid; grid-template-columns: repeat(3, 50mm); gap: 5mm; justify-content: center; }
-      .label { width: 50mm; height: 30mm; border: 1px dashed #ccc; padding: 2mm;
-               display: flex; flex-direction: column; align-items: center; justify-content: center;
-               page-break-inside: avoid; break-inside: avoid; }
-      .label svg { max-width: 45mm; max-height: 18mm; }
-      .label .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; margin-top: 1mm; }
-      .label .desc { font-size: 7px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45mm; }
+      .label { page-break-inside: avoid; break-inside: avoid; }
     }
     /* Screen styles */
     @media screen {
@@ -25,13 +36,8 @@
       .no-print button { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
       .btn-print { background: #2563eb; color: white; }
       .btn-back { background: #e5e7eb; color: #333; }
-      .label-grid { display: grid; grid-template-columns: repeat(3, 50mm); gap: 5mm; justify-content: center; padding: 10mm; }
-      .label { width: 50mm; height: 30mm; border: 1px dashed #ccc; padding: 2mm;
-               display: flex; flex-direction: column; align-items: center; justify-content: center;
-               background: white; }
-      .label svg { max-width: 45mm; max-height: 18mm; }
-      .label .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; margin-top: 1mm; }
-      .label .desc { font-size: 7px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45mm; }
+      .label-grid { padding: 10mm; }
+      .label { background: white; }
     }
   </style>
 </head>
@@ -44,9 +50,15 @@
     {% for item in items %}
     <div class="label">
       {{ item.barcode_svg|safe }}
-      <div class="num">{{ item.inventory_number }}</div>
+      <div class="numrow">
+        <span class="num">{{ item.inventory_number }}</span>
+        {% if item.owner %}<span class="owner">{{ item.owner }}</span>{% endif %}
+      </div>
       {% if item.description and item.description != item.inventory_number %}
       <div class="desc">{{ item.description|truncatechars:30 }}</div>
+      {% endif %}
+      {% if item.location %}
+      <div class="loc">{{ item.location }}</div>
       {% endif %}
     </div>
     {% endfor %}

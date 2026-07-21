@@ -105,6 +105,40 @@ function ReturnScreen({ rental, items, urls }) {
 
   return (
     <>
+      {/* Scan panel: the border flashes green/red so the operator gets
+          feedback without looking away from the counter. */}
+      <div className="surface p-3 mb-3"
+           style={{
+             border: `2px solid ${scanFeedback === 'success' ? 'oklch(0.65 0.18 145)' : scanFeedback === 'error' ? 'oklch(0.55 0.18 28)' : 'var(--line)'}`,
+             transition: 'border-color 0.2s ease',
+           }}>
+        <div className="d-flex align-items-center" style={{gap: 12, flexWrap: 'wrap'}}>
+          <div style={{flex: 1, minWidth: 220}}>
+            <label className="form-label mb-1" style={{fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em'}}>
+              {t('ret.scan_barcode', 'Scan Barcode')}
+            </label>
+            <div className="input-group input-group-sm">
+              <span className="input-group-text"><i className="fas fa-barcode"></i></span>
+              <input type="text" className="form-control"
+                     autoFocus
+                     disabled={scanBusy}
+                     value={scanValue}
+                     onChange={e => { setScanValue(e.target.value); if (e.target.value.includes('\n') || e.target.value.includes('\r')) handleScan(); }}
+                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleScan(); } }}
+                     placeholder={t('ret.scan_ph', 'Scan or type inventory number…')} />
+            </div>
+          </div>
+          <div className="text-end" style={{minWidth: 120}}>
+            <div className="muted tiny" style={{textTransform: 'uppercase', letterSpacing: '.04em', fontWeight: 600}}>
+              {t('ret.progress', 'Progress')}
+            </div>
+            <div style={{fontWeight: 600, fontVariantNumeric: 'tabular-nums', fontSize: 16}}>
+              {checkedCount}/{totalCount} {t('ret.returned', 'returned')}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Summary bar */}
       <div className="action-bar" style={{background: 'oklch(0.97 0.03 240)', borderColor: 'oklch(0.88 0.06 240)'}}>
         <div className="primary-cta">

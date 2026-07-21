@@ -147,7 +147,9 @@ class LicenseMetadataSerializer(serializers.Serializer):
         # If no contribution found, fall back to TagesPlan
         # Use only_fields to reduce data transfer
         if TagesPlan is not None:
-            plans = TagesPlan.objects.only('datum', 'json_plan').all()
+            # Ordered so that the earliest planned broadcast wins when the
+            # license appears in more than one plan.
+            plans = TagesPlan.objects.only('datum', 'json_plan').order_by('datum')
             
             for plan in plans:
                 items = plan.json_plan.get('items', [])

@@ -114,11 +114,11 @@ def test__disa_import___prepare_contributions_for_batch_creation__no_license():
 
 
 @pytest.mark.django_db
-def test__disa_import___prepare_contributions_for_batch_creation__repetition_block_with_existing_primary():
+def test__disa_import___prepare_contributions_for_batch_creation__repetition_block_with_existing_primary(user):
     """Block repetitions when not allowed and primary already exists."""
     # Create a license that disallows repetitions
     lic = License.objects.create(
-        profile=None,  # minimal stub, actual model requires fields in fixtures elsewhere
+        profile=user.profile,
         title="Block Test",
         description="desc",
         duration=timezone.timedelta(minutes=1),
@@ -126,7 +126,6 @@ def test__disa_import___prepare_contributions_for_batch_creation__repetition_blo
         number=123,
     )
     # Create an existing contribution for that license (primary)
-    contrib_models = contrib_models  # alias to avoid shadowing
     contrib_models.Contribution.objects.create(
         license=lic,
         broadcast_date=timezone.now(),
@@ -159,11 +158,11 @@ def test__disa_import___prepare_contributions_for_batch_creation__repetition_blo
 
 
 @pytest.mark.django_db
-def test__disa_import___batch_create_contributions__fallback_on_error():
+def test__disa_import___batch_create_contributions__fallback_on_error(user):
     """bulk_create error should fall back to individual save, counting created entries."""
     # Create a license to attach contributions to
     lic = License.objects.create(
-        profile=None,
+        profile=user.profile,
         title="Create Test",
         description="desc",
         duration=timezone.timedelta(minutes=1),

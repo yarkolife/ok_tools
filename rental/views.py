@@ -4362,21 +4362,77 @@ class PrintPickListView(StaffRequiredMixin, TemplateView):
         return context
 
 
+"""Label layouts offered by :class:`BarcodePrintView`.
+
+``writer`` holds the ``SVGWriter`` options. Every layout prints the inventory
+number itself, so ``write_text`` stays off and python-barcode does not repeat
+it under the bars. ``width``/``height`` are the physical label size in mm and
+drive the roll stylesheet and its ``@page`` size.
+"""
+BARCODE_LABEL_FORMATS = {
+    'standard': {
+        'template': 'rental/barcode_print.html',
+        'writer': {
+            'module_width': 0.3,
+            'module_height': 12.0,
+            'quiet_zone': 2.0,
+            'write_text': False,
+        },
+    },
+    'compact': {
+        'template': 'rental/barcode_print_compact.html',
+        'writer': {
+            'module_width': 0.22,
+            'module_height': 7.0,
+            'quiet_zone': 1.0,
+            'write_text': False,
+        },
+    },
+    'roll_51x25': {
+        'template': 'rental/barcode_print_roll.html',
+        'writer': {
+            'module_width': 0.28,
+            'module_height': 9.0,
+            'quiet_zone': 1.5,
+            'write_text': False,
+        },
+        'width': 51,
+        'height': 25,
+    },
+    'roll_70x32': {
+        'template': 'rental/barcode_print_roll.html',
+        'writer': {
+            'module_width': 0.38,
+            'module_height': 11.0,
+            'quiet_zone': 2.0,
+            'write_text': False,
+        },
+        'width': 70,
+        'height': 32,
+    },
+}
+DEFAULT_BARCODE_LABEL_FORMAT = 'standard'
+
+
 class BarcodePrintView(StaffRequiredMixin, TemplateView):
     """
     Print barcode labels for selected inventory items.
 
-    GET /rental/barcode/print/?ids=1,2,3&format=compact
+    GET /rental/barcode/print/?ids=1,2,3&format=roll_51x25
     Renders a page with barcode SVGs for the given inventory item IDs.
     Returns 400 if the ids parameter is missing or empty.
-    Supports format parameter: 'standard' (default) or 'compact'
+    Supported formats are the keys of ``BARCODE_LABEL_FORMATS``; an unknown
+    value falls back to the A4 sheet layout.
     """
 
+    def get_label_format(self):
+        """Return the requested label format definition, or the default one."""
+        key = self.request.GET.get('format', DEFAULT_BARCODE_LABEL_FORMAT)
+        return BARCODE_LABEL_FORMATS.get(
+            key, BARCODE_LABEL_FORMATS[DEFAULT_BARCODE_LABEL_FORMAT])
+
     def get_template_names(self):
-        format_param = self.request.GET.get('format', 'standard')
-        if format_param == 'compact':
-            return ['rental/barcode_print_compact.html']
-        return ['rental/barcode_print.html']
+        return [self.get_label_format()['template']]
 
     def dispatch(self, request, *args, **kwargs):
         ids_param = request.GET.get('ids', '')
@@ -4397,22 +4453,28 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
 
         items = InventoryItem.objects.filter(
             id__in=item_ids,
-        ).select_related('category', 'location')
+        ).select_related('category', 'location', 'location__parent', 'owner')
 
+        label_format = self.get_label_format()
         items_data = []
         for item in items:
             try:
-                barcode_svg = BarcodeService.generate_svg(item.inventory_number)
+                barcode_svg = BarcodeService.generate_svg(
+                    item.inventory_number, **label_format['writer'])
             except (ValueError, Exception):
                 barcode_svg = ''
             items_data.append({
                 'id': item.id,
                 'inventory_number': item.inventory_number,
                 'description': item.description,
+                'location': str(item.location) if item.location else '',
+                'owner': item.owner.name if item.owner else '',
                 'barcode_svg': barcode_svg,
             })
 
         context['items'] = items_data
+        context['label_width'] = label_format.get('width')
+        context['label_height'] = label_format.get('height')
         return context
 
 

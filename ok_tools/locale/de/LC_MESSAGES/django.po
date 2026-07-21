@@ -1537,16 +1537,21 @@ msgid "items"
 msgstr "Elemente"
 
 #: inventory/templates/admin/inventory/barcode_modal.html:146
-#, fuzzy
-#| msgid "Last Inspection"
 msgid "Format selection"
-msgstr "Letzte Prüfung"
+msgstr "Formatauswahl"
 
-#: inventory/templates/admin/inventory/barcode_modal.html:149
-#, fuzzy
-#| msgid "Contact Information"
-msgid "Compact format"
-msgstr "Kontaktinformationen"
+#: inventory/templates/admin/inventory/barcode_modal.html:150
+msgid "A4 sheet"
+msgstr "A4-Bogen"
+
+#: inventory/templates/admin/inventory/barcode_modal.html:155
+msgid "A4 sheet, compact"
+msgstr "A4-Bogen, kompakt"
+
+#: inventory/templates/admin/inventory/barcode_modal.html:160
+#: inventory/templates/admin/inventory/barcode_modal.html:165
+msgid "Roll label"
+msgstr "Rollenetikett"
 
 #: inventory/templates/admin/inventory/barcode_modal.html:154
 #: inventory/templates/admin/inventory/barcode_modal.html:180
@@ -1562,25 +1567,23 @@ msgstr "Abgebrochen"
 
 #: inventory/templates/admin/inventory/barcode_modal.html:161
 msgid "Open in new tab"
-msgstr ""
+msgstr "In neuem Tab öffnen"
 
 #: inventory/templates/admin/inventory/barcode_modal.html:167
 msgid "Print"
-msgstr ""
+msgstr "Drucken"
 
 #: inventory/templates/admin/inventory/barcode_modal.html:197
 msgid "Failed to load barcodes"
-msgstr ""
+msgstr "Barcodes konnten nicht geladen werden"
 
 #: inventory/templates/admin/inventory/barcode_modal.html:201
-#, fuzzy
-#| msgid "Error loading dates"
 msgid "Error loading barcodes"
-msgstr "Fehler beim Laden der Daten"
+msgstr "Fehler beim Laden der Barcodes"
 
 #: inventory/templates/admin/inventory/barcode_modal.html:224
 msgid "Print Barcodes"
-msgstr ""
+msgstr "Barcodes drucken"
 
 #: inventory/templates/inventory/list.html:12
 msgid "Manage your equipment and inventory items"
@@ -6576,3 +6579,11 @@ msgstr "Beschreibung"
 #: venv/lib/python3.14/site-packages/zope/schema/tests/test__messageid.py:42
 msgid "test string"
 msgstr ""
+
+#: inventory/admin.py
+msgid "Photo"
+msgstr "Foto"
+
+#: rental/templates/rental/barcode_print_compact.html:6
+msgid "Compact Barcode Labels"
+msgstr "Barcode-Etiketten, kompakt"

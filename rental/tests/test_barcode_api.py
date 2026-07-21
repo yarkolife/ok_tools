@@ -6,7 +6,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from inventory.models import InventoryItem, Location
+from inventory.models import InventoryItem, Location, Organization
 from rental.models import RentalItem, RentalRequest
 
 User = get_user_model()
@@ -129,3 +129,66 @@ class BarcodeApiTests(TestCase):
             content_type='application/json',
         )
         self.assertEqual(resp.status_code, 400)
+
+
+class BarcodePrintViewTests(TestCase):
+    """Label sheet and roll layouts served by BarcodePrintView."""
+
+    def setUp(self):
+        self.client = Client()
+        self.staff = User.objects.create_user(
+            email='printstaff@example.com',
+            password='testpass',
+            is_staff=True,
+        )
+        self.client.force_login(self.staff)
+        shelf = Location.objects.get_or_create_by_path(
+            'Ausleihe -> Schrank 3 -> Regal 3')
+        self.owner = Organization.objects.create(name='OKMQ')
+        self.item = InventoryItem.objects.create(
+            inventory_number='OK-PRINT-1',
+            description='Shure SM58',
+            location=shelf,
+            owner=self.owner,
+            quantity=1,
+        )
+
+    def _print(self, label_format=None):
+        url = reverse('rental:barcode_print') + f'?ids={self.item.id}'
+        if label_format:
+            url += f'&format={label_format}'
+        return self.client.get(url)
+
+    def test_standard_label_shows_location_and_owner(self):
+        resp = self._print()
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'rental/barcode_print.html')
+        self.assertContains(resp, 'Ausleihe -&gt; Schrank 3 -&gt; Regal 3')
+        self.assertContains(resp, 'OKMQ')
+
+    def test_roll_formats_use_roll_template_and_page_size(self):
+        for label_format, size in (
+            ('roll_51x25', '51mm 25mm'),
+            ('roll_70x32', '70mm 32mm'),
+        ):
+            with self.subTest(label_format=label_format):
+                resp = self._print(label_format)
+                self.assertEqual(resp.status_code, 200)
+                self.assertTemplateUsed(resp, 'rental/barcode_print_roll.html')
+                self.assertContains(resp, f'size: {size}')
+                self.assertContains(resp, 'OK-PRINT-1')
+                self.assertContains(resp, 'OKMQ')
+
+    def test_barcode_svg_scales_and_never_repeats_the_number(self):
+        """Every layout prints the number once, below the bars, not inside."""
+        for label_format in (None, 'compact', 'roll_51x25', 'roll_70x32'):
+            with self.subTest(label_format=label_format):
+                html = self._print(label_format).content.decode()
+                self.assertIn('viewBox=', html)
+                self.assertNotIn('<text', html)
+                self.assertEqual(html.count('OK-PRINT-1'), 1)
+
+    def test_unknown_format_falls_back_to_standard(self):
+        resp = self._print('does-not-exist')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'rental/barcode_print.html')

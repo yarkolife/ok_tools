@@ -34,6 +34,16 @@ PWD_RESET_URL = f'{DOMAIN}{reverse_lazy("password_reset")}'
 PRIVACY_POLICY_URL = f'{DOMAIN}{reverse_lazy("privacy_policy")}'
 
 
+def _form_birthday(user_dict) -> str:
+    """Return the fixture birthday in a format the register form accepts.
+
+    The form parses the birthday with the active locale, so the localized
+    fixture format cannot be posted as is.
+    """
+    return datetime.datetime.strptime(
+        user_dict['birthday'], settings.DATE_INPUT_FORMATS).date().isoformat()
+
+
 def test__registration__views__RegisterView__1(browser, user_dict):
     """It is possible to register with an unused email address."""
     _register_user(browser, user_dict)
@@ -96,7 +106,7 @@ def test__registration__email__send_auth_mail__2(db, user_dict, mail_outbox):
             'gender': user_dict['gender'],
             'phone_number': user_dict['phone_number'] or '',
             'mobile_number': user_dict['mobile_number'] or '',
-            'birthday': '05.09.1989',
+            'birthday': _form_birthday(user_dict),
             'street': user_dict['street'],
             'house_number': user_dict['house_number'],
             'zipcode': user_dict['zipcode'],
@@ -121,7 +131,7 @@ def test__registration__email__send_auth_mail__3(db, user_dict, mail_outbox):
             'gender': user_dict['gender'],
             'phone_number': user_dict['phone_number'] or '',
             'mobile_number': user_dict['mobile_number'] or '',
-            'birthday': '05.09.1989',
+            'birthday': _form_birthday(user_dict),
             'street': user_dict['street'],
             'house_number': user_dict['house_number'],
             'zipcode': user_dict['zipcode'],
@@ -132,13 +142,16 @@ def test__registration__email__send_auth_mail__3(db, user_dict, mail_outbox):
     )
     assert 1 == len(mail_outbox)
     pw_url = _get_link_url_from_email(mail_outbox, AUTH_URL)
-    # Extract the token part from the URL
     # The URL format is: http://localhost:8000/profile/reset/<uid>/<token>/
-    # We need to follow the reset link and set the password
+    # Opening it stores the token in the session and redirects to the form.
     response = client.get(pw_url)
+    assert response.status_code == 302
+    set_password_url = response.url
+
+    response = client.get(set_password_url)
     assert response.status_code == 200
     # Submit the password
-    response = client.post(pw_url, {
+    response = client.post(set_password_url, {
         'new_password1': PWD,
         'new_password2': PWD,
     })
@@ -706,22 +719,25 @@ def test__registration__views__RegisterView__invalid_phone_numbers(browser, user
 @pytest.mark.django_db
 def test__registration__views__RegisterView__invalid_mobile_numbers(browser, user_dict):
     """Invalid mobile numbers are properly validated during registration."""
-    # Test various invalid mobile number formats
+    prefix_error = 'Enter a valid phone number starting with +49, 0049, or 0'
+    length_error = 'Enter a valid phone number with 8-15 digits'
+
+    # Invalid mobile number formats and the error each one triggers.
     invalid_mobile_numbers = [
-        '123',  # Too short
-        'abcdefgh',  # Non-numeric with letters
-        '+4912345678901234567890',  # Too long
-        '++491234567890',  # Double plus
-        '49-123-456-789',  # Invalid format
+        ('123', prefix_error),  # Too short, wrong prefix
+        ('abcdefgh', prefix_error),  # Non-numeric with letters
+        ('+4912345678901234567890', length_error),  # Too long
+        ('++491234567890', prefix_error),  # Double plus
+        ('49-123-456-789', prefix_error),  # Invalid format
     ]
-    
-    for invalid_mobile in invalid_mobile_numbers:
+
+    for invalid_mobile, expected_error in invalid_mobile_numbers:
         user_dict_copy = user_dict.copy()
         user_dict_copy['mobile_number'] = invalid_mobile
         
         browser.open(DOMAIN + reverse_lazy('registration:register'))
         
-        browser.getControl('Email').value = user_dict_copy['email'] + '_invalid_mobile'
+        browser.getControl('Email').value = 'invalid_mobile@example.com'
         browser.getControl('First name').value = user_dict_copy['first_name']
         browser.getControl('Last name').value = user_dict_copy['last_name']
         browser.getControl('Gender').value = user_dict_copy['gender']
@@ -736,8 +752,9 @@ def test__registration__views__RegisterView__invalid_mobile_numbers(browser, use
         browser.getControl(name='usage_agreement').controls[0].selected = True
         browser.getControl(name='submit').click()
         
-        # Should show validation error for invalid mobile number (German message)
-        assert 'Enter a valid phone number starting with +49, 0049, or 0' in browser.contents or 'Dieses Feld ist zwingend erforderlich' in browser.contents or 'This field is invalid' in browser.contents
+        # Should show the validation error matching the invalid number
+        assert expected_error in browser.contents, invalid_mobile
+        assert browser.url == REGISTER_URL
 
 
 @pytest.mark.django_db
@@ -787,7 +804,7 @@ def test__registration__views__RegisterView__missing_required_fields(browser, us
         if field != 'email':
             browser.getControl('Email').value = user_dict_copy['email']
         else:
-            browser.getControl('Email').value = 'test@example.com'
+            browser.getControl('Email').value = ''
             
         if field != 'first_name':
             browser.getControl('First name').value = user_dict_copy['first_name']

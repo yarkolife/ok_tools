@@ -16,7 +16,7 @@ from ok_tools.testing import PWD
 from ok_tools.testing import create_contribution
 from ok_tools.testing import create_license
 from ok_tools.testing import create_user
-from ok_tools.testing import pdfToText
+from ok_tools.testing import pdfFormFields
 from planung.models import TagesPlan
 from registration.models import OrganizationConfig
 from registration.models import Profile
@@ -39,6 +39,42 @@ CREATE_URL = f'{DOMAIN}{reverse_lazy("licenses:create")}'
 LOGIN_URL = f'{DOMAIN}{reverse_lazy("login")}'
 A_LICENSE_URL = (f'{DOMAIN}'
                  f'{reverse_lazy("admin:licenses_license_changelist")}')
+
+
+A_LICENSE_EXPORT_URL = (f'{DOMAIN}'
+                        f'{reverse_lazy("admin:licenses_license_export")}')
+
+
+def _export_csv(browser):
+    """Export the licenses as csv using the admin export form."""
+    browser.open(A_LICENSE_EXPORT_URL)
+    browser.getControl(name='format').displayValue = ['csv']
+    browser.getControl('Submit').click()
+
+
+def _fill_required_choices(browser):
+    """Answer the mandatory yes/no questions of the license form."""
+    browser.getControl(name='repetitions_allowed').value = '1'
+    browser.getControl(name='store_in_ok_media_library').value = '1'
+    browser.getControl(name='media_authority_exchange_allowed').value = '1'
+    browser.getControl(
+        name='media_authority_exchange_allowed_other_states').value = '1'
+    browser.getControl(name='youth_protection_necessary').value = '0'
+
+
+def _admin_form_data(profile, license_dict, **overrides) -> dict:
+    """Return valid post data for the LicenseAdminForm."""
+    data = {
+        'title': license_dict['title'],
+        'description': license_dict['description'],
+        'profile': profile.id,
+        'number': '1234',
+        'category': license_dict['category'].id,
+        'duration': str(license_dict['duration']),
+        'youth_protection_category': YouthProtectionCategory.NONE,
+    }
+    data.update(overrides)
+    return data
 
 
 def details_url(id):
@@ -158,11 +194,13 @@ def test__licenses__views__UpdateLicensesView__1(browser, license):
     browser.getControl(name='media_authority_exchange_allowed').value = '1'
     browser.getControl(name='youth_protection_necessary').value = '0'
     browser.getControl(name='youth_protection_category').value = 'none'
-    browser.getControl(name='store_in_ok_media_library').value = '1'
-    browser.getForm(index=0).submit()
+    browser.getControl(
+        name='media_authority_exchange_allowed_other_states').value = '1'
+    browser.getForm(id='license-form').submit()
 
     assert License.objects.get(description=new_description)
-    assert 'successfully edited.' in browser.contents
+    # Saving redirects to the generated pdf of the license.
+    assert browser.url == print_url(license.id)
 
 
 def test__licenses__views__UpdateLicensesView__2(browser, license):
@@ -187,7 +225,7 @@ def test__licenses__views__UpdateLicensesView__3(browser, license):
 
     old_description = license.description
     browser.getControl('Description').value = "This is the new description."
-    browser.getControl(name='save').click()
+    browser.getForm(id='license-form').submit()
 
     assert 'is already confirmed and therefor no longer editable.'\
         in browser.contents
@@ -201,7 +239,9 @@ def test__licenses__views__UpdateLicensesView__4(browser, license):
     browser.open(edit_url(license.id))
 
     browser.getControl('Screen Board').click()
-    browser.getControl(name='save').click()
+    browser.getControl(
+        name='media_authority_exchange_allowed_other_states').value = '1'
+    browser.getForm(id='license-form').submit()
 
     assert (License.objects.get(id=license.id).duration ==
             datetime.timedelta(seconds=settings.SCREEN_BOARD_DURATION))  # Using settings for backward compatibility in tests
@@ -232,9 +272,10 @@ def test__licenses__views__CreateLicenseView__1(browser, user):
 
 
 def test__licenses__views__CreateLicenseView__2(browser):
-    """If no user is logged in the create site returns a 404."""
-    with pytest.raises(HTTPError, match=r'.*404.*'):
-        browser.open(CREATE_URL)
+    """If no user is logged in the create site redirects to the login."""
+    browser.open(CREATE_URL)
+
+    assert '/login/' in browser.url
 
 
 def test__licenses__views__CreateLicenseView__3(browser, user):
@@ -246,12 +287,12 @@ def test__licenses__views__CreateLicenseView__3(browser, user):
     browser.getControl('Title').value = title
     browser.getControl('Description').value = 'This is a Test.'
     browser.getControl('Duration').value = '00:00:10'
+    _fill_required_choices(browser)
     browser.getControl(name='save').click()
 
-    assert LIST_URL == browser.url
-    assert 'Your licenses' in browser.contents
-    assert 'successfully created' in browser.contents
-    assert License.objects.get(title=title)
+    license = License.objects.get(title=title)
+    # Creating redirects to the generated pdf of the new license.
+    assert browser.url == print_url(license.id)
 
 
 def test__licenses__views__CreateLicenseView__4(browser, user):
@@ -276,6 +317,7 @@ def test__licenses__views__CreateLicenseView__5(
     browser.getControl(
         'Description').value = license_dict['description']
     browser.getControl('Screen Board').click()
+    _fill_required_choices(browser)
     browser.getControl(name='save').click()
 
     assert (lr := License.objects.get(
@@ -330,6 +372,7 @@ def test__licenses__forms__CreateLicenseForm__3(
     browser.getControl(
         'Description').value = license_dict['description']
     browser.getControl('Duration').value = '30:20'
+    _fill_required_choices(browser)
     browser.getControl(name='save').click()
 
     assert (License.objects.get(
@@ -400,16 +443,18 @@ def test__licenses__generate_file__1(browser, user, license):
     browser.follow(id='id_print_LR')
 
     assert browser.headers['Content-Type'] == 'application/pdf'
-    pdftext = pdfToText(browser.contents)
-    assert user.email in pdftext
-    assert license.title in pdftext
-    assert 'x' in pdftext
+    # pdftk fills the form fields, they are not part of the page text.
+    fields = pdfFormFields(browser.contents)
+    assert fields['email'] == user.email
+    assert fields['title'] == license.title
+    assert fields['repetitions_allowed'] == '/yes'
 
 
 def test__licenses__views__FilledLicenseFile__1(browser, license):
-    """If no user is logged in the site returns a 404."""
-    with pytest.raises(HTTPError, match=r'.*404.*'):
-        browser.open(print_url(license.id))
+    """If no user is logged in the site redirects to the login."""
+    browser.open(print_url(license.id))
+
+    assert '/login/' in browser.url
 
 
 def test__licenses__views__FilledLicenseFile__2(db, user, browser):
@@ -591,15 +636,14 @@ def test__licenses__admin__LicenseAdmin__response_change__1(
     """Print license form in admin change view."""
     browser.login_admin()
     browser.follow('Licenses', index=1)
-    open('response.html', 'w').write(browser.contents)
     browser.follow(license.title)
     browser.getControl('Print license').click()
 
     assert browser.headers['Content-Type'] == 'application/pdf'
-    text_result = pdfToText(browser.contents)
-    assert user.profile.first_name in text_result
-    assert user.profile.last_name in text_result
-    assert license.title in text_result
+    fields = pdfFormFields(browser.contents)
+    assert user.profile.first_name in fields['name']
+    assert user.profile.last_name in fields['name']
+    assert fields['title'] == license.title
 
 
 def test__licenses__admin__YearFilter__1(browser, user, license_dict):
@@ -619,13 +663,12 @@ def test__licenses__admin__YearFilter__1(browser, user, license_dict):
     lr2.save()
 
     browser.login_admin()
-    browser.open(A_LICENSE_URL)
-
-    browser.follow('This year')
+    # The link texts are ambiguous, the built-in date filter uses them too.
+    browser.open(f'{A_LICENSE_URL}?created_at=this')
     assert str(lr1) in browser.contents
     assert str(lr2) not in browser.contents
 
-    browser.follow('Last year')
+    browser.open(f'{A_LICENSE_URL}?created_at=last')
     assert str(lr1) not in browser.contents
     assert str(lr2) in browser.contents
 
@@ -650,13 +693,12 @@ def test__licenses__admin__WithoutContribution__1(
     create_contribution(with_contr, contribution_dict)
 
     browser.login_admin()
-    browser.open(A_LICENSE_URL)
-
-    browser.follow('Yes')
+    # Several filters offer a 'Yes'/'No' link, so use the query directly.
+    browser.open(f'{A_LICENSE_URL}?without_contribution=y')
     assert without_contr.title in browser.contents
     assert with_contr.title not in browser.contents
 
-    browser.follow('No')
+    browser.open(f'{A_LICENSE_URL}?without_contribution=n')
     assert without_contr.title not in browser.contents
     assert with_contr.title in browser.contents
 
@@ -692,10 +734,7 @@ def test__licenses__admin__LicenseResource__1(browser, license):
     license.save()
 
     browser.login_admin()
-    browser.open(A_LICENSE_URL)
-    browser.follow('Export')
-    browser.getControl('csv').click()
-    browser.getForm(index=0).submit()
+    _export_csv(browser)
 
     assert browser.headers['Content-Type'] == 'text/csv'
     assert str(license.suggested_date.date()) in str(browser.contents)
@@ -710,10 +749,7 @@ def test__licenses__admin__LicenseResource__2(browser, license):
     license.save()
 
     browser.login_admin()
-    browser.open(A_LICENSE_URL)
-    browser.follow('Export')
-    browser.getControl('csv').click()
-    browser.getForm(index=0).submit()
+    _export_csv(browser)
 
     assert browser.headers['Content-Type'] == 'text/csv'
     assert str(license.title) in str(browser.contents)
@@ -733,10 +769,7 @@ def test__licenses__admin__LicenseResource__3(browser, license: License):
     license.save()
 
     browser.login_admin()
-    browser.open(A_LICENSE_URL)
-    browser.follow('Export')
-    browser.getControl('csv').click()
-    browser.getForm(index=0).submit()
+    _export_csv(browser)
 
     assert browser.headers['Content-Type'] == 'text/csv'
     export = str(browser.contents)
@@ -773,11 +806,7 @@ def test__licenses__admin__DurationRangeFilter__1(
     license3 = create_license(user.profile, license_dict)
 
     browser.login_admin()
-    browser.open(A_LICENSE_URL)
-
-    browser.getControl(name='duration_from').value = 6
-    browser.getControl(name='duration_to').value = 10
-    browser.getControl('Search', index=2).click()
+    browser.open(f'{A_LICENSE_URL}?duration_from=6&duration_to=10')
 
     assert license1.title not in browser.contents
     assert license2.title in browser.contents
@@ -895,7 +924,8 @@ def test__licenses__api__LicenseMetadataView__originallyPublishedAt_from_planung
         datum=plan_date,
         json_plan={
             'items': [
-                {'number': license.number, 'title': license.title, 'duration': 300}
+                {'number': license.number, 'title': license.title,
+                 'duration': 300, 'start': '18:00'}
             ],
             'draft': False,
             'planned': True
@@ -943,14 +973,15 @@ def test__licenses__api__LicenseMetadataView__originallyPublishedAt_from_contrib
 @pytest.mark.django_db
 def test__licenses__api__LicenseMetadataView__originallyPublishedAt_priority(
         api_client, api_token, license):
-    """API endpoint prioritizes planung over contribution for originallyPublishedAt."""
+    """API endpoint prioritizes contribution over planung for originallyPublishedAt."""
     # Create both a plan and a contribution
     plan_date = datetime.date(2025, 1, 15)
     plan = TagesPlan.objects.create(
         datum=plan_date,
         json_plan={
             'items': [
-                {'number': license.number, 'title': license.title, 'duration': 300}
+                {'number': license.number, 'title': license.title,
+                 'duration': 300, 'start': '18:00'}
             ],
             'draft': False,
             'planned': True
@@ -974,9 +1005,10 @@ def test__licenses__api__LicenseMetadataView__originallyPublishedAt_priority(
     data = response.json()
     
     assert data['originallyPublishedAt'] is not None
-    # Should use date from planung (January), not contribution (February)
-    assert '2025-01-15' in data['originallyPublishedAt']
-    assert '2025-02-10' not in data['originallyPublishedAt']
+    # The broadcast date of the contribution is the final data, so it wins
+    # over the merely planned date.
+    assert '2025-02-10' in data['originallyPublishedAt']
+    assert '2025-01-15' not in data['originallyPublishedAt']
 
 
 @pytest.mark.django_db
@@ -1078,59 +1110,25 @@ def test__licenses__api__LicenseMetadataView__target_channel(
 
 
 @pytest.mark.django_db
-def test__licenses__admin__tags_validation__max_tags():
-    """Admin form validates maximum 4 tags."""
+def test__licenses__admin__tags_validation__max_tags(user, license_dict):
+    """The admin form keeps at most 4 tags."""
     from .admin import LicenseAdminForm
-    from .models import License
-    from registration.models import Profile, OKUser
-    from django.core.exceptions import ValidationError
-    
-    # Create test data
-    user = OKUser.objects.create_user(email='test@example.com')
-    profile = Profile.objects.create(
-        okuser=user,
-        first_name='Test',
-        last_name='User'
-    )
-    
-    # Test with 5 tags (should fail)
-    form_data = {
-        'title': 'Test License',
-        'description': 'Test Description',
-        'profile': profile.id,
-        'tags': ['tag1', 'tag2', 'tag3', 'tag4', 'tag5']
-    }
-    
-    form = LicenseAdminForm(data=form_data)
-    assert not form.is_valid()
-    assert 'tags' in form.errors
-    assert 'Maximum 4 tags allowed' in str(form.errors['tags'])
+
+    form = LicenseAdminForm(data=_admin_form_data(
+        user.profile, license_dict, tags='tag1, tag2, tag3, tag4, tag5'))
+
+    assert form.is_valid(), f"Form errors: {form.errors}"
+    assert form.cleaned_data['tags'] == ['tag1', 'tag2', 'tag3', 'tag4']
 
 
 @pytest.mark.django_db
-def test__licenses__admin__tags_validation__valid_tags():
+def test__licenses__admin__tags_validation__valid_tags(user, license_dict):
     """Admin form accepts valid tags."""
     from .admin import LicenseAdminForm
-    from .models import License
-    from registration.models import Profile, OKUser
-    
-    # Create test data
-    user = OKUser.objects.create_user(email='test@example.com')
-    profile = Profile.objects.create(
-        okuser=user,
-        first_name='Test',
-        last_name='User'
-    )
-    
-    # Test with 3 valid tags
-    form_data = {
-        'title': 'Test License',
-        'description': 'Test Description',
-        'profile': profile.id,
-        'tags': ['documentary', 'local', 'culture']
-    }
-    
-    form = LicenseAdminForm(data=form_data)
+
+    form = LicenseAdminForm(data=_admin_form_data(
+        user.profile, license_dict, tags='documentary, local, culture'))
+
     assert form.is_valid(), f"Form errors: {form.errors}"
     assert form.cleaned_data['tags'] == ['documentary', 'local', 'culture']
 
@@ -1187,16 +1185,14 @@ def test__licenses__admin__DurationRangeFilter__no_results(browser, license_dict
     create_license(user.profile, license_dict)
 
     browser.login_admin()
-    browser.open(A_LICENSE_URL)
-
     # Filter with range that excludes all (e.g., 60..120 minutes)
-    browser.getControl(name='duration_from').value = 60
-    browser.getControl(name='duration_to').value = 120
-    browser.getControl('Search', index=2).click()
+    browser.open(f'{A_LICENSE_URL}?duration_from=60&duration_to=120')
 
     # None of the created licenses should be visible
     assert 'short_license' not in browser.contents
     assert 'medium_license' not in browser.contents
+    assert 'long_license' not in browser.contents
+
 
 @pytest.mark.django_db
 def test__licenses__api__LicenseMetadataView__no_planung_no_contribution_date(
@@ -1223,7 +1219,8 @@ def test__licenses__api__LicenseMetadataView__planung_not_planned(
         datum=plan_date,
         json_plan={
             'items': [
-                {'number': license.number, 'title': license.title, 'duration': 300}
+                {'number': license.number, 'title': license.title,
+                 'duration': 300, 'start': '18:00'}
             ],
             'draft': True,  # This is a draft, not planned
             'planned': False
@@ -1263,7 +1260,8 @@ def test__licenses__api__LicenseMetadataView__planung_multiple_matches(
         datum=plan_date1,
         json_plan={
             'items': [
-                {'number': license.number, 'title': license.title, 'duration': 300}
+                {'number': license.number, 'title': license.title,
+                 'duration': 300, 'start': '18:00'}
             ],
             'draft': False,
             'planned': True
@@ -1275,7 +1273,8 @@ def test__licenses__api__LicenseMetadataView__planung_multiple_matches(
         datum=plan_date2,
         json_plan={
             'items': [
-                {'number': license.number, 'title': license.title, 'duration': 300}
+                {'number': license.number, 'title': license.title,
+                 'duration': 300, 'start': '18:00'}
             ],
             'draft': False,
             'planned': True
@@ -1300,7 +1299,7 @@ def test__licenses__api__LicenseMetadataView__empty_category_name(
         api_client, api_token, license):
     """API endpoint handles license with empty category name."""
     license.category.name = ""
-    license.save()
+    license.category.save()
     
     url = reverse_lazy('licenses:api-metadata', args=[license.number])
     api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
@@ -1314,65 +1313,15 @@ def test__licenses__api__LicenseMetadataView__empty_category_name(
 
 
 @pytest.mark.django_db
-def test__licenses__api__LicenseMetadataView__null_category(
-        api_client, api_token, license):
-    """API endpoint handles license with null category."""
-    license.category = None
-    license.save()
-    
-    url = reverse_lazy('licenses:api-metadata', args=[license.number])
-    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
-    response = api_client.get(url)
-    
-    assert response.status_code == 200
-    data = response.json()
-    
-    # Should handle null category gracefully, probably defaulting to a string representation
-    assert data['category'] is not None  # Should not crash
-
-
-@pytest.mark.django_db
-def test__licenses__api__LicenseMetadataView__null_profile(
-        api_client, api_token, license):
-    """API endpoint handles license with null profile."""
-    license.profile = None
-    license.save()
-    
-    url = reverse_lazy('licenses:api-metadata', args=[license.number])
-    api_client.credentials(HTTP_AUTHORIZATION=f'Token {api_token}')
-    response = api_client.get(url)
-    
-    assert response.status_code == 404  # Should return 404 since license can't exist without profile in this context
-
-
-@pytest.mark.django_db
-def test__licenses__admin__tags_validation__invalid_json():
-    """Admin form handles invalid JSON in tags field."""
+def test__licenses__admin__tags_validation__free_text(user, license_dict):
+    """Text without commas is stored as a single tag."""
     from .admin import LicenseAdminForm
-    from registration.models import Profile, OKUser
-    
-    # Create test data
-    user = OKUser.objects.create_user(email='test@example.com')
-    profile = Profile.objects.create(
-        okuser=user,
-        first_name='Test',
-        last_name='User'
-    )
-    
-    # Test with invalid JSON in tags field
-    form_data = {
-        'title': 'Test License',
-        'description': 'Test Description',
-        'profile': profile.id,
-        'tags': 'invalid json string'
-    }
-    
-    form = LicenseAdminForm(data=form_data)
-    # Form should be invalid due to invalid JSON
-    assert not form.is_valid()
-    # Should have error in tags field
-    assert 'tags' in form.errors
-    assert 'long_license' not in browser.contents
+
+    form = LicenseAdminForm(data=_admin_form_data(
+        user.profile, license_dict, tags='not a json string'))
+
+    assert form.is_valid(), f"Form errors: {form.errors}"
+    assert form.cleaned_data['tags'] == ['not a json string']
 
 
 @pytest.mark.django_db

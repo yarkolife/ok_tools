@@ -142,12 +142,27 @@
             <span class="barcode-modal-close" onclick="closeBarcodeModal()">&times;</span>
         </div>
         <div class="barcode-modal-body">
-            <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
                 <strong style="font-size:14px;">{% trans "Format selection" %}</strong>
                 <label class="barcode-format-label">
-                    <input type="checkbox" id="compact-format" onchange="toggleCompactFormat()">
-                    <span>{% trans "Compact format" %}</span>
-                    <span style="color:#6c757d;font-size:11px;">(40mm × 15mm)</span>
+                    <input type="radio" name="label-format" value="standard" checked onchange="selectFormat(this.value)">
+                    <span>{% trans "A4 sheet" %}</span>
+                    <span style="color:#6c757d;font-size:11px;">(50 × 30 mm)</span>
+                </label>
+                <label class="barcode-format-label">
+                    <input type="radio" name="label-format" value="compact" onchange="selectFormat(this.value)">
+                    <span>{% trans "A4 sheet, compact" %}</span>
+                    <span style="color:#6c757d;font-size:11px;">(40 × 15 mm)</span>
+                </label>
+                <label class="barcode-format-label">
+                    <input type="radio" name="label-format" value="roll_51x25" onchange="selectFormat(this.value)">
+                    <span>{% trans "Roll label" %}</span>
+                    <span style="color:#6c757d;font-size:11px;">(51 × 25 mm)</span>
+                </label>
+                <label class="barcode-format-label">
+                    <input type="radio" name="label-format" value="roll_70x32" onchange="selectFormat(this.value)">
+                    <span>{% trans "Roll label" %}</span>
+                    <span style="color:#6c757d;font-size:11px;">(70 × 32 mm)</span>
                 </label>
             </div>
             <div id="barcode-content">
@@ -202,10 +217,10 @@ function loadBarcodes(url) {
         });
 }
 
-function toggleCompactFormat() {
+function selectFormat(value) {
     const url = new URL(baseUrl, window.location.origin);
-    if (document.getElementById('compact-format').checked) {
-        url.searchParams.set('format', 'compact');
+    if (value && value !== 'standard') {
+        url.searchParams.set('format', value);
     } else {
         url.searchParams.delete('format');
     }

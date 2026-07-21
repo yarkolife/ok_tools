@@ -1,6 +1,29 @@
 CHANGELOG
 =========
 
+2026-07-21 (Version 4.35.0)
+==========================
+
+* **rental: Roll label formats for barcode printing**
+  * Added ``BARCODE_LABEL_FORMATS`` to ``BarcodePrintView``: the two A4 sheet layouts plus two thermal roll layouts (51 × 25 mm and 70 × 32 mm) rendered by the new ``barcode_print_roll.html`` template with a matching ``@page`` size.
+  * Each format carries its own ``SVGWriter`` options (module width/height, quiet zone); the inventory number is printed by the template, so python-barcode no longer repeats it under the bars.
+  * ``BarcodeService.generate_svg`` accepts writer options and adds a ``viewBox`` to the generated SVG, so a barcode scales into its CSS box instead of being cropped.
+  * Labels now also show location and owner; the admin barcode modal offers the four formats as radio buttons and got German translations.
+* **rental: Scan panel on the return screen**
+  * The return screen renders the barcode input with green/red border feedback and a returned/total progress counter, so an operator can work without looking away from the counter.
+* **inventory: Photo thumbnail column in the item list**
+  * The admin item list shows a photo thumbnail (linking to the full-size original) in place of ``inventory_number_owner``; the column is hidden while ``InventoryImageConfig`` is disabled and uses the prefetched images, so no extra query per row.
+* **inventory: ``link_inspections`` deprecated**
+  * The command is now a no-op that only reports the number of unlinked inspections: inspections are linked during import because the inventory number is the foreign key column itself.
+* **licenses: Deterministic broadcast date fallback**
+  * The ``TagesPlan`` fallback in ``LicenseMetadataSerializer`` is ordered by date, so the earliest planned broadcast wins when a license appears in more than one plan.
+* **projects: Explicit ICS content type**
+  * The ICS export sets ``text/calendar`` explicitly instead of relying on the host mime type database.
+* **chore: Test suite maintenance**
+  * Added ``pytest-timeout`` with a 300 s per-test timeout to guard against wedged database teardown hanging a run.
+  * Added an inventory ``conftest.py`` that restores the seeded default inventory number series, which transactional browser tests flush from a reused test database.
+  * Revived and fixed tests across contributions, inventory, licenses, projects, registration, rental and ok_tools; added ``pdfFormFields`` to ``ok_tools.testing`` for asserting on pdftk-filled acroform values.
+
 2026-07-12 (Version 4.34.0)
 ==========================
 

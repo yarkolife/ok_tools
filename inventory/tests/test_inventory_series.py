@@ -17,7 +17,7 @@ class InventorySeriesSeedTest(TestCase):
     """The default series must exist so import validation keeps working."""
 
     def test_ok_series_is_seeded(self):
-        """Test that the migration seeds the default OK- series."""
+        """Test that the default OK- series is available with its settings."""
         series = InventorySeries.objects.get(prefix='OK-')
         self.assertTrue(series.active)
         self.assertEqual(series.padding, 6)

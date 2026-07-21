@@ -17,6 +17,14 @@ import pytest
 
 
 A_PROJ_URL = f'{DOMAIN}{reverse_lazy("admin:projects_project_changelist")}'
+A_PROJ_EXPORT_URL = f'{DOMAIN}{reverse_lazy("admin:projects_project_export")}'
+
+
+def _export_csv(browser):
+    """Export the projects as csv using the admin export form."""
+    browser.open(A_PROJ_EXPORT_URL)
+    browser.getControl(name='format').displayValue = ['csv']
+    browser.getControl('Submit').click()
 
 
 def test__admin__1(browser):
@@ -104,10 +112,7 @@ def test__projects__admin__ProjectResource__1(browser, project_dict):
     create_project(project_dict, supervisors)
 
     browser.login_admin()
-    browser.open(A_PROJ_URL)
-
-    browser.follow('Export')
-    browser.getForm(index=0).submit()
+    _export_csv(browser)
 
     assert browser.headers['Content-Type'] == 'text/csv'
     assert str(s1) in str(browser.contents)
@@ -118,11 +123,7 @@ def test__projects__admin__ProjectResource__2(browser, project_dict):
     """Export all necessary data."""
     project: Project = create_project(project_dict)
     browser.login_admin()
-    browser.open(A_PROJ_URL)
-
-    browser.follow('Export')
-    browser.getControl(name='format').value = '0'
-    browser.getForm(index=0).submit()
+    _export_csv(browser)
 
     assert browser.headers['Content-Type'] == 'text/csv'
     export = str(browser.contents)

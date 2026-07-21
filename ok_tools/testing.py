@@ -31,6 +31,20 @@ def pdfToText(pdf) -> str:
     return "\n".join(page.extract_text() for page in reader.pages)
 
 
+def pdfFormFields(pdf) -> dict:
+    """Return the acroform field values of a pdf as a name to value dict.
+
+    Filled form fields are not part of the extracted page text, so use this
+    to check the data of a form that was filled by pdftk.
+    """
+    reader = PyPDF2.PdfReader(io.BytesIO(pdf))
+
+    return {
+        name: field.get('/V')
+        for name, field in (reader.get_fields() or {}).items()
+    }
+
+
 def create_user(
         user_dict, verified=False, is_staff=False, member=False) -> User:
     """Create a user with an unverified profile."""

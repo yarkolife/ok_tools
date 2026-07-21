@@ -31,4 +31,10 @@ def ics_export(queryset) -> FileResponse:
     ics_stream = io.BytesIO()
     ics_stream.write(c.to_ical())
     ics_stream.seek(0)
-    return FileResponse(ics_stream, filename=_('projects.ics'))
+    # The content type is set explicitly because guessing it from the file
+    # name depends on the mime type database of the host.
+    return FileResponse(
+        ics_stream,
+        filename=_('projects.ics'),
+        content_type='text/calendar',
+    )
