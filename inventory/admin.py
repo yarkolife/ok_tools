@@ -25,6 +25,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.html import format_html_join
 from django.utils.translation import gettext as _
+import json
 
 
 # Inline SVG shown in the admin when an item has no photos.
@@ -131,9 +132,9 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     export_form_class = ExportForm
 
     class Media:
-        """Photo links open in an overlay instead of a new tab."""
+        """Photos open in the shared carousel lightbox instead of a new tab."""
 
-        js = ('inventory/js/photo_lightbox.js',)
+        js = ('rental/js/lightbox.js',)
 
     readonly_fields = ('reserved_quantity', 'rented_quantity')
     list_display = (
@@ -294,27 +295,37 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         Uses the prefetched ``images`` cache, so no extra query per row. The
         full-size original opens on click, like in the rental process view.
         """
-        image = next(
-            (img for img in obj.images.all() if img.is_available), None)
-        if image is None:
+        images = [img for img in obj.images.all() if img.is_available]
+        if not images:
             return format_html(
                 '<span style="display:inline-block;width:48px;height:48px;'
                 'border:1px dashed #ccc;border-radius:4px;background:#fafafa;" '
                 'title="{}"></span>',
                 _('No photos'),
             )
+        first = images[0]
+        # The tile shows the first photo; the click opens all of them in the
+        # carousel lightbox (each slide previews small, links its original).
+        slides = json.dumps([
+            {
+                'src': reverse('inventory:item_image_preview', args=[img.id]),
+                'full': reverse('inventory:item_image', args=[img.id]),
+                'caption': img.filename,
+            }
+            for img in images
+        ])
         return format_html(
             '<a href="{}" target="_blank" rel="noopener" title="{}" '
-            'data-photo-lightbox="{}" data-original-label="{}">'
+            'data-lightbox="{}" data-lightbox-original-label="{}">'
             '<img src="{}" loading="lazy" alt="{}" '
             'style="width:48px;height:48px;object-fit:cover;display:block;'
             'border:1px solid #ccc;border-radius:4px;"></a>',
-            reverse('inventory:item_image', args=[image.id]),
-            image.filename,
-            reverse('inventory:item_image_preview', args=[image.id]),
+            reverse('inventory:item_image', args=[first.id]),
+            first.filename,
+            slides,
             _('Open original'),
-            reverse('inventory:item_image_thumb', args=[image.id]),
-            image.filename,
+            reverse('inventory:item_image_thumb', args=[first.id]),
+            first.filename,
         )
 
     @admin.display(description=_('Photos'))
@@ -328,12 +339,16 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
             return no_photo_placeholder()
 
         # Uniform tiles: fixed 150x150 box, thumbnail cropped to fill via
-        # object-fit:cover. The lightweight thumbnail loads in the gallery; a
-        # downscaled preview opens in the lightbox on click.
+        # object-fit:cover. The lightweight thumbnail loads in the gallery;
+        # clicking any tile opens the whole set in the carousel lightbox,
+        # starting at that photo (grouped by item).
+        group = 'inv-item-{}'.format(obj.pk)
+        original_label = _('Open original')
         thumbs = format_html_join(
             '',
             '<a href="{}" target="_blank" rel="noopener" title="{}" '
-            'data-photo-lightbox="{}" data-original-label="{}" '
+            'data-lightbox="{}" data-lightbox-full="{}" data-lightbox-caption="{}" '
+            'data-lightbox-group="{}" data-lightbox-original-label="{}" '
             'style="display:block;width:150px;height:150px;border:1px solid #ccc;'
             'border-radius:6px;overflow:hidden;background:#fafafa;">'
             '<img src="{}" loading="lazy" alt="{}" '
@@ -343,7 +358,10 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
                     reverse('inventory:item_image', args=[img.id]),
                     img.filename,
                     reverse('inventory:item_image_preview', args=[img.id]),
-                    _('Open original'),
+                    reverse('inventory:item_image', args=[img.id]),
+                    img.filename,
+                    group,
+                    original_label,
                     reverse('inventory:item_image_thumb', args=[img.id]),
                     img.filename,
                 )

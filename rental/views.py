@@ -1063,6 +1063,11 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                         if show_room_photos and room.primary_image
                         else None
                     ),
+                    'image_urls': (
+                        _room_photo_urls(room)
+                        if show_room_photos and room.primary_image
+                        else []
+                    ),
                 } for room in active_rooms],
                 'defaults': {
                     'from': '',
@@ -3206,12 +3211,24 @@ def _room_full_url(room):
     return reverse('rental:room_image', args=[image.pk]) if image else None
 
 
+def _room_photo_urls(room):
+    """Full-size URLs for all of a room's photos, in display order."""
+    return [reverse('rental:room_image', args=[img.pk])
+            for img in room.images.all()]
+
+
 def _item_full_url(item):
     """Full-size URL of an item's first available photo, or ``None``."""
     for image in item.images.all():
         if image.is_available:
             return reverse('inventory:item_image', args=[image.id])
     return None
+
+
+def _item_photo_urls(item):
+    """Full-size URLs for all available photos of an item, in filename order."""
+    return [reverse('inventory:item_image', args=[img.id])
+            for img in item.images.all() if img.is_available]
 
 
 def _room_thumbnail_path(room_image):
@@ -3289,7 +3306,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         items_data = []
         for item in items:
             thumb_url = _item_thumb_url(item)
-            full_url = _item_full_url(item)
+            photos_json = json.dumps(_item_photo_urls(item))
             active_rentals = item.rentalitem_set.filter(
                 rental_request__status__in=['reserved', 'issued'],
                 rental_request__requested_start_date__lt=day_end,
@@ -3303,7 +3320,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                         'name': item.description,
                         'num': item.inventory_number,
                         'thumb_url': thumb_url,
-                        'full_url': full_url,
+                        'photos_json': photos_json,
                         'category': item.category.name if item.category else '—',
                         'status': r.status,
                         'rental_id': f"R-{r.created_at.strftime('%y%m')}-{r.pk:04d}",
@@ -3316,7 +3333,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                     'name': item.description,
                     'num': item.inventory_number,
                     'thumb_url': thumb_url,
-                    'full_url': full_url,
+                    'photos_json': photos_json,
                     'category': item.category.name if item.category else '—',
                     'status': 'available',
                     'rental_id': None,
@@ -3427,7 +3444,7 @@ class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
             rooms_data.append({
                 'name': room.name,
                 'image_url': _room_thumb_url(room),
-                'image_full_url': _room_full_url(room),
+                'image_urls_json': json.dumps(_room_photo_urls(room)),
                 'days': days_data,
             })
 
@@ -3473,7 +3490,7 @@ class RoomCalendarMonthView(StaffRequiredMixin, TemplateView):
         for room in rooms:
             # Attributes consumed by the template for the thumbnail and zoom.
             room.image_url = _room_thumb_url(room)
-            room.image_full_url = _room_full_url(room)
+            room.image_urls_json = json.dumps(_room_photo_urls(room))
 
         month_start = timezone.make_aware(timezone.datetime.combine(
             month_days[0][0], timezone.datetime.min.time()
@@ -4953,6 +4970,7 @@ def api_get_room_schedule(request):
                 'location': room.location,
                 'image_url': _room_thumb_url(room),
                 'image_full_url': _room_full_url(room),
+                'image_urls': _room_photo_urls(room),
                 'schedule': schedule
             })
 

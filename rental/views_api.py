@@ -104,6 +104,12 @@ def _item_photo_urls(item):
     return (None, None)
 
 
+def _item_photo_urls_all(item):
+    """Return full-size URLs for every available photo of ``item``."""
+    return [reverse('inventory:item_image', args=[image.id])
+            for image in item.images.all() if image.is_available]
+
+
 def _serialize_inventory_item(item, start_at=None, end_at=None, include_photo=False):
     total = item.quantity or 0
     if start_at and end_at:
@@ -153,6 +159,7 @@ def _serialize_inventory_item(item, start_at=None, end_at=None, include_photo=Fa
     }
     if include_photo:
         data['thumbnail_url'], data['image_url'] = _item_photo_urls(item)
+        data['image_urls'] = _item_photo_urls_all(item)
     return data
 
 

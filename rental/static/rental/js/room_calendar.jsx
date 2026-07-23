@@ -165,7 +165,7 @@ function TimelineRow({ room }) {
           ? <img className="tl-room-photo" src={room.image_url} alt="" loading="lazy"
                  title={t('enlarge_photo', 'Click to enlarge')}
                  style={{cursor: 'zoom-in'}}
-                 onClick={() => window.openImageLightbox && window.openImageLightbox(room.image_full_url || room.image_url)} />
+                 onClick={() => window.openImageLightbox && window.openImageLightbox(room.image_urls && room.image_urls.length ? room.image_urls : (room.image_full_url || room.image_url))} />
           : <span className="tl-room-photo tl-room-photo-empty"><i className="fas fa-door-open"></i></span>}
         <div className="tl-room-meta">
           <span className="tl-room-name">{room.name}</span>

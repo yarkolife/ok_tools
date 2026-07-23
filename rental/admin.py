@@ -413,17 +413,29 @@ class RoomImageInline(admin.TabularInline):
 
     @admin.display(description=_('Preview'))
     def preview(self, obj):
-        """Return a small thumbnail of the uploaded image.
+        """Return a small thumbnail that opens the room's photo carousel.
 
         Served through the ``room_image`` view rather than ``obj.image.url``:
         in the split deployment nginx cannot reach the app's media folder, so
         the static ``/media/`` URL 404s (see ``rental.views.serve_room_image``).
+        Photos of the same room share a lightbox group, so a click pages
+        through them all.
         """
         if obj and obj.pk and obj.image:
+            full = reverse('rental:room_image', args=[obj.pk])
             return format_html(
+                '<a href="{}" target="_blank" rel="noopener" '
+                'data-lightbox="{}" data-lightbox-caption="{}" '
+                'data-lightbox-group="room-{}" title="{}">'
                 '<img src="{}?size=thumb" style="height:80px;width:80px;'
-                'object-fit:cover;border-radius:6px;border:1px solid #ccc;">',
-                reverse('rental:room_image', args=[obj.pk]),
+                'object-fit:cover;border-radius:6px;border:1px solid #ccc;'
+                'cursor:zoom-in;"></a>',
+                full,
+                full,
+                obj.caption or obj.image.name.rsplit('/', 1)[-1],
+                obj.room_id,
+                _('Click to enlarge'),
+                full,
             )
         return '—'
 
@@ -431,6 +443,11 @@ class RoomImageInline(admin.TabularInline):
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     """Admin interface for room management."""
+
+    class Media:
+        """Room photos open in the shared carousel lightbox."""
+
+        js = ('rental/js/lightbox.js',)
 
     list_display = ['name', 'capacity', 'location', 'is_active', 'photo_count', 'description_short']
     list_filter = ['is_active', 'location']

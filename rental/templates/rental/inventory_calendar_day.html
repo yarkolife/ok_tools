@@ -76,7 +76,7 @@
                             <div style="display:flex; align-items:center; gap:10px;">
                                 {% if item.thumb_url %}
                                 <img src="{{ item.thumb_url }}" alt="" loading="lazy"
-                                     data-lightbox="{{ item.full_url }}" title="{% trans 'Click to enlarge' %}"
+                                     data-lightbox='{{ item.photos_json }}' title="{% trans 'Click to enlarge' %}"
                                      style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line, #ccc);flex-shrink:0;cursor:zoom-in;">
                                 {% endif %}
                                 <div>

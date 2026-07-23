@@ -181,3 +181,6 @@ rental/static/rental/js/build/
 
 # Stray debug artifacts
 response.html
+
+# Local-only project notes
+PROJECT_MODULES_RU.md

@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-07-23 (Version 4.38.0)
+==========================
+
+* **rental/inventory: Carousel lightbox for multi-photo items and rooms**
+  * The photo lightbox now pages through all photos of an item or room with on-screen arrows, a counter, and Left/Right keys; a single photo behaves as before (no controls shown).
+  * Unified on one ``rental/js/lightbox.js`` (carousel, per-slide caption and "Original" link, JSON-array and ``data-lightbox-group`` support). The inventory admin's separate ``photo_lightbox.js`` was removed and both the inventory and room admin now load the shared script.
+  * Every surface passes the full photo list: inventory admin list column and change-form gallery, room admin inline, the rental process wizard (items and rooms), the room calendar day/week/month, and the inventory calendar day.
+
 2026-07-23 (Version 4.37.0)
 ==========================
 

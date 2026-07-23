@@ -8,23 +8,10 @@
 
 /* ===== Helpers ===== */
 
-// Open a full-screen lightbox showing an enlarged image. Click or Esc closes.
-function openImageLightbox(url) {
-  if (!url) return;
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);' +
-    'display:flex;align-items:center;justify-content:center;z-index:20000;' +
-    'cursor:zoom-out;padding:24px;';
-  const img = document.createElement('img');
-  img.src = url;
-  img.style.cssText = 'max-width:92vw;max-height:92vh;border-radius:8px;' +
-    'box-shadow:0 8px 40px rgba(0,0,0,.5);';
-  overlay.appendChild(img);
-  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
-  const onKey = (e) => { if (e.key === 'Escape') close(); };
-  overlay.addEventListener('click', close);
-  document.addEventListener('keydown', onKey);
-  document.body.appendChild(overlay);
+// Open the shared carousel lightbox (rental/js/lightbox.js). Accepts a single
+// URL or a list of URLs; falls back to a no-op if the script is not loaded.
+function openImageLightbox(images) {
+  if (window.openImageLightbox) window.openImageLightbox(images);
 }
 
 // Round a date up to the next :00 or :30
@@ -455,7 +442,7 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
                     {item.thumbnail_url && (
                       <img src={item.thumbnail_url} alt="" loading="lazy"
                            title={t('wiz.enlarge_photo', 'Click to enlarge')}
-                           onClick={e => { e.stopPropagation(); openImageLightbox(item.image_url || item.thumbnail_url); }}
+                           onClick={e => { e.stopPropagation(); openImageLightbox(item.image_urls && item.image_urls.length ? item.image_urls : (item.image_url || item.thumbnail_url)); }}
                            style={{width: 34, height: 34, objectFit: 'cover', borderRadius: 6,
                                    border: '1px solid var(--line)', flexShrink: 0, cursor: 'zoom-in'}} />
                     )}
@@ -620,7 +607,7 @@ function RoomPicker({ rooms, setRooms, options, initial, period }) {
                   {r.image_url
                     ? <img src={r.image_url} alt="" loading="lazy"
                            title={t('wiz.enlarge_photo', 'Click to enlarge')}
-                           onClick={e => { e.stopPropagation(); openImageLightbox(r.image_full_url || r.image_url); }}
+                           onClick={e => { e.stopPropagation(); openImageLightbox(r.image_urls && r.image_urls.length ? r.image_urls : (r.image_full_url || r.image_url)); }}
                            style={{width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in'}} />
                     : <i className="fas fa-door-open"></i>}
                 </span>

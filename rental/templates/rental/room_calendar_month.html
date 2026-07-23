@@ -61,7 +61,7 @@
                 <h6 style="display:flex; align-items:center; gap:8px;">
                     {% if room.image_url %}
                     <img src="{{ room.image_url }}" alt="" loading="lazy"
-                         data-lightbox="{{ room.image_full_url }}" title="{% trans 'Click to enlarge' %}"
+                         data-lightbox='{{ room.image_urls_json }}' title="{% trans 'Click to enlarge' %}"
                          style="width:28px;height:28px;object-fit:cover;border-radius:5px;border:1px solid var(--line, #ccc);cursor:zoom-in;">
                     {% else %}
                     <i class="fas fa-door-open muted"></i>
