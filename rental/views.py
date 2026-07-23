@@ -658,6 +658,13 @@ def _i18n_bundle():
         'sets.cancel': str(_('Cancel')),
         'sets.empty_title': str(_('No equipment sets yet.')),
         'sets.empty_desc': str(_('Create your first set using the button above.')),
+        # Room calendar (day timeline)
+        'auth_required': str(_('Please log in to view the schedule')),
+        'available': str(_('Available')),
+        'closed_day': str(_('Closed')),
+        'enlarge_photo': str(_('Click to enlarge')),
+        'error_loading': str(_('Failed to load room schedule')),
+        'no_rooms': str(_('No rooms found. Add rooms in admin.')),
     }
 
 
@@ -1047,8 +1054,12 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'sub': room.description or '',
                     'free': room.is_active,
                     'image_url': (
-                        reverse('rental:room_image',
-                                args=[room.primary_image.pk])
+                        _room_thumb_url(room)
+                        if show_room_photos and room.primary_image
+                        else None
+                    ),
+                    'image_full_url': (
+                        _room_full_url(room)
                         if show_room_photos and room.primary_image
                         else None
                     ),
@@ -3189,6 +3200,20 @@ def _room_thumb_url(room):
     return reverse('rental:room_image', args=[image.pk]) + '?size=thumb'
 
 
+def _room_full_url(room):
+    """Full-size URL for a room's primary image (for the zoom lightbox)."""
+    image = room.primary_image
+    return reverse('rental:room_image', args=[image.pk]) if image else None
+
+
+def _item_full_url(item):
+    """Full-size URL of an item's first available photo, or ``None``."""
+    for image in item.images.all():
+        if image.is_available:
+            return reverse('inventory:item_image', args=[image.id])
+    return None
+
+
 def _room_thumbnail_path(room_image):
     """Return the cache path for a room photo's small thumbnail."""
     from pathlib import Path
@@ -3264,6 +3289,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         items_data = []
         for item in items:
             thumb_url = _item_thumb_url(item)
+            full_url = _item_full_url(item)
             active_rentals = item.rentalitem_set.filter(
                 rental_request__status__in=['reserved', 'issued'],
                 rental_request__requested_start_date__lt=day_end,
@@ -3277,6 +3303,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                         'name': item.description,
                         'num': item.inventory_number,
                         'thumb_url': thumb_url,
+                        'full_url': full_url,
                         'category': item.category.name if item.category else '—',
                         'status': r.status,
                         'rental_id': f"R-{r.created_at.strftime('%y%m')}-{r.pk:04d}",
@@ -3289,6 +3316,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                     'name': item.description,
                     'num': item.inventory_number,
                     'thumb_url': thumb_url,
+                    'full_url': full_url,
                     'category': item.category.name if item.category else '—',
                     'status': 'available',
                     'rental_id': None,
@@ -3334,6 +3362,7 @@ class RoomCalendarDayView(StaffRequiredMixin, TemplateView):
         context['prev_day'] = day - timedelta(days=1)
         context['next_day'] = day + timedelta(days=1)
         context['sidebar_active'] = 'room_calendar'
+        context['i18n_strings'] = _i18n_bundle()
         _add_sidebar_counts(context)
         return context
 
@@ -3398,6 +3427,7 @@ class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
             rooms_data.append({
                 'name': room.name,
                 'image_url': _room_thumb_url(room),
+                'image_full_url': _room_full_url(room),
                 'days': days_data,
             })
 
@@ -3441,8 +3471,9 @@ class RoomCalendarMonthView(StaffRequiredMixin, TemplateView):
             .prefetch_related('images')
         )
         for room in rooms:
-            # Attribute consumed by the template for the room's thumbnail.
+            # Attributes consumed by the template for the thumbnail and zoom.
             room.image_url = _room_thumb_url(room)
+            room.image_full_url = _room_full_url(room)
 
         month_start = timezone.make_aware(timezone.datetime.combine(
             month_days[0][0], timezone.datetime.min.time()
@@ -4921,6 +4952,7 @@ def api_get_room_schedule(request):
                 'capacity': room.capacity,
                 'location': room.location,
                 'image_url': _room_thumb_url(room),
+                'image_full_url': _room_full_url(room),
                 'schedule': schedule
             })
 

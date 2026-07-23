@@ -6611,3 +6611,15 @@ msgstr "Nur Räume"
 #: rental/templates/rental/list.html
 msgid "Inventory only"
 msgstr "Nur Inventar"
+
+#: rental/views.py
+msgid "Please log in to view the schedule"
+msgstr "Bitte melden Sie sich an, um den Belegungsplan zu sehen"
+
+#: rental/views.py
+msgid "Failed to load room schedule"
+msgstr "Belegungsplan konnte nicht geladen werden"
+
+#: rental/views.py
+msgid "No rooms found. Add rooms in admin."
+msgstr "Keine Räume gefunden. Räume im Admin anlegen."

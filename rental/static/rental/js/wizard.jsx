@@ -619,7 +619,9 @@ function RoomPicker({ rooms, setRooms, options, initial, period }) {
                 <span className="av" style={{width: 36, height: 36, fontSize: 14, overflow: 'hidden', padding: 0}} onClick={() => toggleExpand(r)}>
                   {r.image_url
                     ? <img src={r.image_url} alt="" loading="lazy"
-                           style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                           title={t('wiz.enlarge_photo', 'Click to enlarge')}
+                           onClick={e => { e.stopPropagation(); openImageLightbox(r.image_full_url || r.image_url); }}
+                           style={{width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in'}} />
                     : <i className="fas fa-door-open"></i>}
                 </span>
                 <div onClick={() => toggleExpand(r)}>

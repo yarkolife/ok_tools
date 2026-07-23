@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-07-23 (Version 4.37.0)
+==========================
+
+* **rental: Zoom room and inventory photos across rental pages**
+  * Room photos now open in a full-screen lightbox everywhere, matching how inventory item photos already zoom: on the rental process wizard (room cards) and across the calendars.
+  * Added a shared ``rental/js/lightbox.js`` (``window.openImageLightbox`` plus a ``data-lightbox`` click delegation) used by the room calendar week/month and the inventory calendar day templates; the room calendar day timeline and the wizard call it from React.
+  * Views expose full-size image URLs (``image_full_url`` / ``full_url``) alongside the existing thumbnails, so a small tile loads the thumbnail and the lightbox loads the full image.
+* **rental: Localize the room calendar day page**
+  * ``RoomCalendarDayView`` now emits the ``rr-i18n`` bundle the shared JS reads, and the bundle gained the room-calendar keys, so the day timeline (and the zoom tooltip) render in German instead of English fallbacks.
+
 2026-07-23 (Version 4.36.0)
 ==========================
 

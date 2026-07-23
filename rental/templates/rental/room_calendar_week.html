@@ -63,7 +63,8 @@
                 <h6 style="font-size: 13px; margin: 0 0 10px; display:flex; align-items:center; gap:8px;">
                     {% if rd.image_url %}
                     <img src="{{ rd.image_url }}" alt="" loading="lazy"
-                         style="width:28px;height:28px;object-fit:cover;border-radius:5px;border:1px solid var(--line, #ccc);">
+                         data-lightbox="{{ rd.image_full_url }}" title="{% trans 'Click to enlarge' %}"
+                         style="width:28px;height:28px;object-fit:cover;border-radius:5px;border:1px solid var(--line, #ccc);cursor:zoom-in;">
                     {% else %}
                     <i class="fas fa-door-open muted"></i>
                     {% endif %}
@@ -95,5 +96,6 @@
             {% endfor %}
         </div>
     </div>
+    <script src="{% static 'rental/js/lightbox.js' %}"></script>
 </body>
 </html>
