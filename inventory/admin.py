@@ -129,6 +129,12 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
     change_list_template = 'admin/inventory_item_change_list.html'
     resource_class = InventoryResource
     export_form_class = ExportForm
+
+    class Media:
+        """Photo links open in an overlay instead of a new tab."""
+
+        js = ('inventory/js/photo_lightbox.js',)
+
     readonly_fields = ('reserved_quantity', 'rented_quantity')
     list_display = (
         'inventory_number', 'description', 'category', 'location', 'quantity',
@@ -298,12 +304,15 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
                 _('No photos'),
             )
         return format_html(
-            '<a href="{}" target="_blank" rel="noopener" title="{}">'
+            '<a href="{}" target="_blank" rel="noopener" title="{}" '
+            'data-photo-lightbox="{}" data-original-label="{}">'
             '<img src="{}" loading="lazy" alt="{}" '
             'style="width:48px;height:48px;object-fit:cover;display:block;'
             'border:1px solid #ccc;border-radius:4px;"></a>',
             reverse('inventory:item_image', args=[image.id]),
             image.filename,
+            reverse('inventory:item_image_preview', args=[image.id]),
+            _('Open original'),
             reverse('inventory:item_image_thumb', args=[image.id]),
             image.filename,
         )
@@ -319,11 +328,12 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
             return no_photo_placeholder()
 
         # Uniform tiles: fixed 150x150 box, thumbnail cropped to fill via
-        # object-fit:cover. The lightweight thumbnail loads in the gallery; the
-        # full-size original opens on click.
+        # object-fit:cover. The lightweight thumbnail loads in the gallery; a
+        # downscaled preview opens in the lightbox on click.
         thumbs = format_html_join(
             '',
             '<a href="{}" target="_blank" rel="noopener" title="{}" '
+            'data-photo-lightbox="{}" data-original-label="{}" '
             'style="display:block;width:150px;height:150px;border:1px solid #ccc;'
             'border-radius:6px;overflow:hidden;background:#fafafa;">'
             '<img src="{}" loading="lazy" alt="{}" '
@@ -332,6 +342,8 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
                 (
                     reverse('inventory:item_image', args=[img.id]),
                     img.filename,
+                    reverse('inventory:item_image_preview', args=[img.id]),
+                    _('Open original'),
                     reverse('inventory:item_image_thumb', args=[img.id]),
                     img.filename,
                 )

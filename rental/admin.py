@@ -377,6 +377,26 @@ class RentalIssueAdmin(admin.ModelAdmin):
     readonly_fields = ("reported_at",)
 
 
+class RoomImageClearableFileInput(forms.ClearableFileInput):
+    """File widget whose "Currently" link points at the ``room_image`` view.
+
+    Django's default links the current file to ``value.url`` (``/media/...``),
+    which 404s on the separate nginx VM. Routing it through the view keeps the
+    link working, consistent with the preview thumbnail.
+    """
+
+    template_name = 'rental/widgets/room_image_clearable.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        instance = getattr(value, 'instance', None)
+        pk = getattr(instance, 'pk', None)
+        if context['widget'].get('is_initial') and pk:
+            context['widget']['value_url'] = reverse(
+                'rental:room_image', args=[pk])
+        return context
+
+
 class RoomImageInline(admin.TabularInline):
     """Inline admin for room photos with a small preview."""
 
@@ -385,14 +405,25 @@ class RoomImageInline(admin.TabularInline):
     fields = ('image', 'preview', 'caption', 'sort_order')
     readonly_fields = ('preview',)
 
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        """Serve the image field's "Currently" link through the view."""
+        if db_field.name == 'image':
+            kwargs['widget'] = RoomImageClearableFileInput
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
     @admin.display(description=_('Preview'))
     def preview(self, obj):
-        """Return a small thumbnail of the uploaded image."""
-        if obj and obj.image:
+        """Return a small thumbnail of the uploaded image.
+
+        Served through the ``room_image`` view rather than ``obj.image.url``:
+        in the split deployment nginx cannot reach the app's media folder, so
+        the static ``/media/`` URL 404s (see ``rental.views.serve_room_image``).
+        """
+        if obj and obj.pk and obj.image:
             return format_html(
-                '<img src="{}" style="height:80px;width:80px;object-fit:cover;'
-                'border-radius:6px;border:1px solid #ccc;">',
-                obj.image.url,
+                '<img src="{}?size=thumb" style="height:80px;width:80px;'
+                'object-fit:cover;border-radius:6px;border:1px solid #ccc;">',
+                reverse('rental:room_image', args=[obj.pk]),
             )
         return '—'
 

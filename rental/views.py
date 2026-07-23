@@ -9,6 +9,7 @@ from .models import RentalItem
 from .models import RentalRequest
 from .models import RentalTransaction
 from .models import Room
+from .models import RoomImage
 from .models import RoomRental
 from .config import get_rental_working_hours
 from .config import get_rental_working_hours_summary_text
@@ -39,6 +40,7 @@ from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import Q
+from django.http import FileResponse
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -69,6 +71,7 @@ import json
 import base64
 import io
 import logging
+import mimetypes
 import qrcode
 import uuid
 import xml.etree.ElementTree as ET
@@ -881,6 +884,32 @@ class RentalListView(StaffRequiredMixin, ListView):
                 | Q(user__email__icontains=query)
             )
 
+        # User category, mirroring RentalConfig.get_organizations_for: staff are
+        # employees; otherwise the profile flags decide, defaulting to "user".
+        user_kind = self.request.GET.get('user_kind')
+        if user_kind == 'employee':
+            queryset = queryset.filter(user__is_staff=True)
+        elif user_kind == 'member':
+            queryset = queryset.filter(
+                user__is_staff=False, user__profile__member=True)
+        elif user_kind == 'rental_only':
+            queryset = queryset.filter(
+                user__is_staff=False,
+                user__profile__member=False,
+                user__profile__rental_only=True,
+            )
+        elif user_kind == 'user':
+            queryset = queryset.filter(user__is_staff=False).exclude(
+                user__profile__member=True).exclude(
+                user__profile__rental_only=True)
+
+        # Content type: rentals that include rooms or inventory items.
+        kind = self.request.GET.get('kind')
+        if kind == 'rooms':
+            queryset = queryset.filter(room_rentals__isnull=False).distinct()
+        elif kind == 'inventory':
+            queryset = queryset.filter(items__isnull=False).distinct()
+
         return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
@@ -938,6 +967,8 @@ class RentalListView(StaffRequiredMixin, ListView):
         }
         context['current_status'] = self.request.GET.get('status', '')
         context['current_q'] = self.request.GET.get('q', '')
+        context['current_user_kind'] = self.request.GET.get('user_kind', '')
+        context['current_kind'] = self.request.GET.get('kind', '')
         context['i18n_bundle'] = _i18n_bundle()
         context['is_paginated'] = True
         context['sidebar'] = {
@@ -1016,7 +1047,8 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                     'sub': room.description or '',
                     'free': room.is_active,
                     'image_url': (
-                        room.primary_image.image.url
+                        reverse('rental:room_image',
+                                args=[room.primary_image.pk])
                         if show_room_photos and room.primary_image
                         else None
                     ),
@@ -3132,6 +3164,66 @@ class EquipmentSetsAdminView(StaffRequiredMixin, TemplateView):
         return context
 
 
+def _item_thumb_url(item):
+    """Thumbnail URL of an item's first available photo, or ``None``.
+
+    Iterates the prefetched ``images`` cache so callers pay no extra query.
+    """
+    for image in item.images.all():
+        if image.is_available:
+            return reverse('inventory:item_image_thumb', args=[image.id])
+    return None
+
+
+def _room_thumb_url(room):
+    """Small-thumbnail URL for a room's primary image, or ``None``.
+
+    Points at the ``room_image`` view with ``?size=thumb`` so calendars load a
+    downscaled JPEG rather than the full-resolution original. Uses the same
+    staff-only view as the room admin, so it works even though nginx runs on a
+    separate VM.
+    """
+    image = room.primary_image
+    if not image:
+        return None
+    return reverse('rental:room_image', args=[image.pk]) + '?size=thumb'
+
+
+def _room_thumbnail_path(room_image):
+    """Return the cache path for a room photo's small thumbnail."""
+    from pathlib import Path
+    root = Path(settings.MEDIA_ROOT)
+    if not root.is_absolute():
+        root = Path(settings.BASE_DIR) / root
+    return root / 'room_thumbnails' / f'{room_image.pk}.jpg'
+
+
+def _ensure_room_thumbnail(room_image):
+    """Return an up-to-date thumbnail path for ``room_image`` or ``None``.
+
+    Reuses the inventory thumbnail generator (Pillow) and caches the result
+    under ``MEDIA_ROOT/room_thumbnails/``. Fails softly to ``None`` so the view
+    can fall back to the original.
+    """
+    from inventory.images import generate_thumbnail
+    from pathlib import Path
+    try:
+        source = Path(room_image.image.path)
+    except (ValueError, NotImplementedError):
+        return None
+    if not source.is_file():
+        return None
+    target = _room_thumbnail_path(room_image)
+    try:
+        fresh = (target.is_file()
+                 and target.stat().st_mtime >= source.stat().st_mtime)
+    except OSError:
+        fresh = False
+    if fresh:
+        return target
+    return target if generate_thumbnail(source, target) else None
+
+
 class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/inventory_calendar_day.html'
 
@@ -3161,7 +3253,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         items = InventoryItem.objects.filter(
             available_for_rent=True, status='in_stock'
         ).select_related('category', 'location').prefetch_related(
-            'rentalitem_set__rental_request'
+            'rentalitem_set__rental_request', 'images'
         )
         
         if search_query:
@@ -3171,18 +3263,20 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
         
         items_data = []
         for item in items:
+            thumb_url = _item_thumb_url(item)
             active_rentals = item.rentalitem_set.filter(
                 rental_request__status__in=['reserved', 'issued'],
                 rental_request__requested_start_date__lt=day_end,
                 rental_request__requested_end_date__gt=day_start,
             ).select_related('rental_request__user', 'rental_request__user__profile')
-            
+
             if active_rentals.exists():
                 for rental_item in active_rentals:
                     r = rental_item.rental_request
                     items_data.append({
                         'name': item.description,
                         'num': item.inventory_number,
+                        'thumb_url': thumb_url,
                         'category': item.category.name if item.category else '—',
                         'status': r.status,
                         'rental_id': f"R-{r.created_at.strftime('%y%m')}-{r.pk:04d}",
@@ -3194,6 +3288,7 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
                 items_data.append({
                     'name': item.description,
                     'num': item.inventory_number,
+                    'thumb_url': thumb_url,
                     'category': item.category.name if item.category else '—',
                     'status': 'available',
                     'rental_id': None,
@@ -3265,7 +3360,7 @@ class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
         monday = ref_day - timedelta(days=ref_day.weekday())
         week_days = [monday + timedelta(days=i) for i in range(7)]
 
-        rooms = Room.objects.filter(is_active=True).order_by('name')
+        rooms = Room.objects.filter(is_active=True).order_by('name').prefetch_related('images')
 
         week_start = timezone.make_aware(timezone.datetime.combine(week_days[0], timezone.datetime.min.time()))
         week_end = week_start + timedelta(days=7)
@@ -3302,6 +3397,7 @@ class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
                 })
             rooms_data.append({
                 'name': room.name,
+                'image_url': _room_thumb_url(room),
                 'days': days_data,
             })
 
@@ -3340,7 +3436,13 @@ class RoomCalendarMonthView(StaffRequiredMixin, TemplateView):
         context['prev_month'] = prev_month
         context['next_month'] = next_month
 
-        rooms = Room.objects.filter(is_active=True).order_by('name')
+        rooms = list(
+            Room.objects.filter(is_active=True).order_by('name')
+            .prefetch_related('images')
+        )
+        for room in rooms:
+            # Attribute consumed by the template for the room's thumbnail.
+            room.image_url = _room_thumb_url(room)
 
         month_start = timezone.make_aware(timezone.datetime.combine(
             month_days[0][0], timezone.datetime.min.time()
@@ -4362,6 +4464,34 @@ class PrintPickListView(StaffRequiredMixin, TemplateView):
         return context
 
 
+@staff_member_required
+def serve_room_image(request, image_id):
+    """Stream a room photo through Django instead of a static ``/media/`` URL.
+
+    In the split deployment nginx runs on a separate VM and cannot see the
+    application's ``MEDIA_ROOT``, so ``/media/room_photos/...`` 404s there. This
+    view is proxied to the app VM and reads the file locally, exactly like the
+    inventory item photos (see ``inventory.views.serve_item_image``). Restricted
+    to staff, matching every page where room photos appear.
+    """
+    room_image = get_object_or_404(RoomImage, pk=image_id)
+
+    # Calendars and admin previews ask for a small cached thumbnail so the page
+    # does not download full-resolution room photos for a 34px tile.
+    if request.GET.get('size') == 'thumb':
+        thumb = _ensure_room_thumbnail(room_image)
+        if thumb is not None:
+            return FileResponse(open(thumb, 'rb'), content_type='image/jpeg')
+
+    try:
+        fh = room_image.image.open('rb')
+    except (FileNotFoundError, ValueError):
+        raise Http404('Room image file not found.')
+
+    content_type, _enc = mimetypes.guess_type(room_image.image.name)
+    return FileResponse(fh, content_type=content_type or 'application/octet-stream')
+
+
 """Label layouts offered by :class:`BarcodePrintView`.
 
 ``writer`` holds the ``SVGWriter`` options. Every layout prints the inventory
@@ -4676,6 +4806,7 @@ def api_get_room_schedule(request):
             rooms = Room.objects.filter(id=room_id, is_active=True)
         else:
             rooms = Room.objects.filter(is_active=True)
+        rooms = rooms.prefetch_related('images')
 
         result = []
         for room in rooms:
@@ -4789,6 +4920,7 @@ def api_get_room_schedule(request):
                 'description': room.description,
                 'capacity': room.capacity,
                 'location': room.location,
+                'image_url': _room_thumb_url(room),
                 'schedule': schedule
             })
 

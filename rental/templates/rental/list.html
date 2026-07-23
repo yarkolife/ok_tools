@@ -49,31 +49,31 @@
 </div>
 
 <div class="stat-bar">
-  <a href="?{% if current_q %}q={{ current_q }}{% endif %}"
+  <a href="?{% if current_q %}q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
      class="stat-cell {% if not current_status %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.all }}</div>
     <div class="l">{% trans "All" %}</div>
   </a>
-  <a href="?status=reserved{% if current_q %}&q={{ current_q }}{% endif %}"
+  <a href="?status=reserved{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
      class="stat-cell {% if current_status == 'reserved' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.reserved }}</div>
     <div class="l"><span class="dot dot-blue"></span>{% trans "Reserved" %}</div>
   </a>
-  <a href="?status=issued{% if current_q %}&q={{ current_q }}{% endif %}"
+  <a href="?status=issued{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
      class="stat-cell {% if current_status == 'issued' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.issued }}</div>
     <div class="l"><span class="dot dot-amber"></span>{% trans "Issued" %}</div>
   </a>
-  <a href="?status=overdue{% if current_q %}&q={{ current_q }}{% endif %}"
+  <a href="?status=overdue{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
      class="stat-cell {% if current_status == 'overdue' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.overdue }}</div>
     <div class="l"><span class="dot dot-red"></span>{% trans "Overdue" %}</div>
   </a>
-  <a href="?status=returned{% if current_q %}&q={{ current_q }}{% endif %}"
+  <a href="?status=returned{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
      class="stat-cell {% if current_status == 'returned' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.returned }}</div>
@@ -90,15 +90,17 @@
              placeholder="{% trans 'Search by project, user, rental ID…' %}"
              value="{{ current_q|default:'' }}">
     </div>
-    <select class="form-select" name="user_kind" style="max-width:150px" onchange="this.form.submit()">
+    <select class="form-select" name="user_kind" style="max-width:160px" onchange="this.form.submit()">
       <option value="">{% trans "All users" %}</option>
-      <option value="student">{% trans "Students only" %}</option>
-      <option value="staff">{% trans "Staff only" %}</option>
+      <option value="user" {% if current_user_kind == 'user' %}selected{% endif %}>{% trans "Users" %}</option>
+      <option value="member" {% if current_user_kind == 'member' %}selected{% endif %}>{% trans "Members" %}</option>
+      <option value="employee" {% if current_user_kind == 'employee' %}selected{% endif %}>{% trans "Employees" %}</option>
+      <option value="rental_only" {% if current_user_kind == 'rental_only' %}selected{% endif %}>{% trans "Rental only" %}</option>
     </select>
-    <select class="form-select" name="range" style="max-width:170px" onchange="this.form.submit()">
-      <option value="month">{% trans "This month" %}</option>
-      <option value="week">{% trans "Last 7 days" %}</option>
-      <option value="today">{% trans "Today" %}</option>
+    <select class="form-select" name="kind" style="max-width:150px" onchange="this.form.submit()">
+      <option value="">{% trans "Rooms & inventory" %}</option>
+      <option value="rooms" {% if current_kind == 'rooms' %}selected{% endif %}>{% trans "Rooms only" %}</option>
+      <option value="inventory" {% if current_kind == 'inventory' %}selected{% endif %}>{% trans "Inventory only" %}</option>
     </select>
     <button type="submit" class="btn btn-ghost btn-sm">
       <i class="fas fa-filter me-1"></i>{% trans "Apply" %}

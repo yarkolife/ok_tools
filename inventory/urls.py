@@ -1,5 +1,6 @@
 from .views import export_inventory_items
 from .views import serve_item_image
+from .views import serve_item_image_preview
 from .views import serve_item_image_thumbnail
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -22,5 +23,6 @@ urlpatterns = [
     path('export/', export_inventory_items, name='export_inventory_items'),
     path('item-image/<int:image_id>/', serve_item_image, name='item_image'),
     path('item-image/<int:image_id>/thumb/', serve_item_image_thumbnail, name='item_image_thumb'),
+    path('item-image/<int:image_id>/preview/', serve_item_image_preview, name='item_image_preview'),
     path('api/', include(router.urls)),
 ]

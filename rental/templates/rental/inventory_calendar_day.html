@@ -73,9 +73,15 @@
                     </div>
                     {% for item in items %}
                         <div class="rental-row">
-                            <div>
-                                <div class="name" style="font-size:13px;font-weight:500">{{ item.name }}</div>
-                                <div class="muted tiny mono">{{ item.num }}</div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                {% if item.thumb_url %}
+                                <img src="{{ item.thumb_url }}" alt="" loading="lazy"
+                                     style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line, #ccc);flex-shrink:0;">
+                                {% endif %}
+                                <div>
+                                    <div class="name" style="font-size:13px;font-weight:500">{{ item.name }}</div>
+                                    <div class="muted tiny mono">{{ item.num }}</div>
+                                </div>
                             </div>
                             <div><span class="muted" style="font-size:12px">{{ item.category }}</span></div>
                             <div>

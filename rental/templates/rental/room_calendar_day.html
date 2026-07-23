@@ -40,7 +40,20 @@
         .tl-row:last-child { border-bottom: none; }
         .tl-row-label {
             width: 160px; flex-shrink: 0; padding-right: 12px;
-            display: flex; flex-direction: column; gap: 1px;
+            display: flex; flex-direction: row; align-items: center; gap: 8px;
+        }
+        .tl-room-meta {
+            min-width: 0; display: flex; flex-direction: column; gap: 1px;
+        }
+        .tl-room-photo {
+            width: 34px; height: 34px; flex-shrink: 0;
+            object-fit: cover; border-radius: 6px;
+            border: 1px solid var(--line, #d1d5db);
+        }
+        .tl-room-photo-empty {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--surface-2, #f3f4f6); color: var(--ink-5, #9ca3af);
+            font-size: 14px;
         }
         .tl-room-name {
             font-size: 13px; font-weight: 600; color: var(--ink-2, #1f2937);

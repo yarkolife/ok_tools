@@ -38,6 +38,7 @@ from .views import extend_rental
 from .views import mark_issued
 from .views import print_form_msa_redirect
 from .views import print_form_okmq_redirect
+from .views import serve_room_image
 from .views import print_slip
 from .views import quick_issue
 from .views import remove_item_from_rental
@@ -215,6 +216,7 @@ urlpatterns = [
     path('print/okmq/<int:rental_id>/', print_form_okmq_redirect, name='print_form_okmq'),
     path('print/pick-list/<int:rental_id>/', PrintPickListView.as_view(), name='print_pick_list'),
     path('barcode/print/', BarcodePrintView.as_view(), name='barcode_print'),
+    path('room-image/<int:image_id>/', serve_room_image, name='room_image'),
     path('api/rental/<int:rental_id>/print-info/', api_get_rental_print_info, name='api_rental_print_info'),
 
     # Signature URLs

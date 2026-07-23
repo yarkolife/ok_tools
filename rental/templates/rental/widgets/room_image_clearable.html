@@ -1,0 +1,9 @@
+{% comment %}
+Like Django's clearable_file_input, but the "Currently" link points at the
+room_image view (value_url) instead of value.url (/media/...), which 404s on
+the separate nginx VM. Falls back to value.url when no view URL is available.
+{% endcomment %}{% if widget.is_initial %}{{ widget.initial_text }}: <a href="{{ widget.value_url|default:widget.value.url }}" target="_blank" rel="noopener">{{ widget.value }}</a>{% if not widget.required %}
+<input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}{% if widget.attrs.checked %} checked{% endif %}>
+<label for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>{% endif %}<br>
+{{ widget.input_text }}:{% endif %}
+<input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>

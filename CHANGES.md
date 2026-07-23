@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+2026-07-23 (Version 4.36.0)
+==========================
+
+* **inventory: Photo lightbox and downscaled previews**
+  * Item photos in the admin (list column and change-form gallery) open in an in-page lightbox that preserves aspect ratio, instead of a new tab; a modifier/middle click still opens the full original.
+  * Added a ``preview`` image derivative (longest edge ~1600 px) served by ``serve_item_image_preview``; the lightbox loads it rather than the multi-megapixel original, so the modal opens fast. Thumbnail and preview are cached side by side.
+* **rental: Serve room photos through a view (nginx-on-another-VM fix)**
+  * Room photos are streamed by the staff-only ``serve_room_image`` view instead of a static ``/media/`` URL, which 404s when nginx runs on a separate VM without the app's media folder. The admin preview and the file widget's "Currently" link both go through the view.
+  * ``?size=thumb`` returns a cached, downscaled JPEG so calendars and previews do not download full-resolution room photos.
+* **rental: Photo previews across the calendars**
+  * The room calendar (day timeline, week and month) shows a room thumbnail next to each room; the inventory calendar day view shows an item thumbnail next to each item.
+* **rental: Working dashboard filters**
+  * The rental list filters now apply: a room/inventory content filter and a user-category filter whose categories (users, members, employees, rental-only) mirror ``RentalConfig.get_organizations_for``. Status tabs preserve the active filters; the dead date-range dropdown was removed.
+
 2026-07-21 (Version 4.35.0)
 ==========================
 

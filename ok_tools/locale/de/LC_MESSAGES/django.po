@@ -6587,3 +6587,27 @@ msgstr "Foto"
 #: rental/templates/rental/barcode_print_compact.html:6
 msgid "Compact Barcode Labels"
 msgstr "Barcode-Etiketten, kompakt"
+
+#: inventory/admin.py
+msgid "Open original"
+msgstr "Original öffnen"
+
+#: rental/templates/rental/list.html
+msgid "Employees"
+msgstr "Mitarbeiter"
+
+#: rental/templates/rental/list.html
+msgid "Rental only"
+msgstr "Nur Ausleihe"
+
+#: rental/templates/rental/list.html
+msgid "Rooms & inventory"
+msgstr "Räume & Inventar"
+
+#: rental/templates/rental/list.html
+msgid "Rooms only"
+msgstr "Nur Räume"
+
+#: rental/templates/rental/list.html
+msgid "Inventory only"
+msgstr "Nur Inventar"

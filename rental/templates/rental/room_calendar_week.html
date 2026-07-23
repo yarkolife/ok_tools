@@ -60,8 +60,14 @@
 
             {% for rd in rooms_data %}
             <div class="surface p-3 mb-3">
-                <h6 style="font-size: 13px; margin: 0 0 10px;">
-                    <i class="fas fa-door-open me-2 muted"></i>{{ rd.name }}
+                <h6 style="font-size: 13px; margin: 0 0 10px; display:flex; align-items:center; gap:8px;">
+                    {% if rd.image_url %}
+                    <img src="{{ rd.image_url }}" alt="" loading="lazy"
+                         style="width:28px;height:28px;object-fit:cover;border-radius:5px;border:1px solid var(--line, #ccc);">
+                    {% else %}
+                    <i class="fas fa-door-open muted"></i>
+                    {% endif %}
+                    {{ rd.name }}
                 </h6>
                 <div class="week-grid">
                     {% for day in rd.days %}

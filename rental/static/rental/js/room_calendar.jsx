@@ -161,9 +161,14 @@ function TimelineRow({ room }) {
   return (
     <div className="tl-row">
       <div className="tl-row-label">
-        <span className="tl-room-name">{room.name}</span>
-        {room.capacity > 0 && <span className="tl-room-cap">{room.capacity}<i className="fas fa-users" style={{marginLeft:3,fontSize:9}}></i></span>}
-        {room.location && <span className="tl-room-loc">{room.location}</span>}
+        {room.image_url
+          ? <img className="tl-room-photo" src={room.image_url} alt="" loading="lazy" />
+          : <span className="tl-room-photo tl-room-photo-empty"><i className="fas fa-door-open"></i></span>}
+        <div className="tl-room-meta">
+          <span className="tl-room-name">{room.name}</span>
+          {room.capacity > 0 && <span className="tl-room-cap">{room.capacity}<i className="fas fa-users" style={{marginLeft:3,fontSize:9}}></i></span>}
+          {room.location && <span className="tl-room-loc">{room.location}</span>}
+        </div>
       </div>
       <div className="tl-bar">
         {blocks.map((b, i) => (

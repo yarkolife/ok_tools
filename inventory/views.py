@@ -1,4 +1,5 @@
 from .admin import InventoryResource
+from .images import ensure_preview
 from .images import ensure_thumbnail
 from .models import InventoryImageConfig
 from .models import InventoryItemImage
@@ -67,3 +68,20 @@ def serve_item_image_thumbnail(request, image_id):
         return serve_item_image(request, image_id)
 
     return FileResponse(open(thumb_path, 'rb'), content_type='image/jpeg')
+
+
+@staff_member_required
+def serve_item_image_preview(request, image_id):
+    """Stream a downscaled preview for the lightbox.
+
+    Much lighter than the original (longest edge capped at ~1600px) yet sharp
+    on a full screen, so the modal opens quickly. Falls back to the original
+    when a preview cannot be produced.
+    """
+    image = get_object_or_404(InventoryItemImage, pk=image_id)
+
+    preview_path = ensure_preview(image)
+    if preview_path is None:
+        return serve_item_image(request, image_id)
+
+    return FileResponse(open(preview_path, 'rb'), content_type='image/jpeg')

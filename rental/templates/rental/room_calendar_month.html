@@ -58,7 +58,15 @@
 
             {% for room in rooms %}
             <div class="room-section">
-                <h6><i class="fas fa-door-open me-2 muted"></i>{{ room.name }}</h6>
+                <h6 style="display:flex; align-items:center; gap:8px;">
+                    {% if room.image_url %}
+                    <img src="{{ room.image_url }}" alt="" loading="lazy"
+                         style="width:28px;height:28px;object-fit:cover;border-radius:5px;border:1px solid var(--line, #ccc);">
+                    {% else %}
+                    <i class="fas fa-door-open muted"></i>
+                    {% endif %}
+                    {{ room.name }}
+                </h6>
                 <div class="month-grid">
                     {% for week in month_days %}
                         {% for d in week %}
