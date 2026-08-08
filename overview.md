@@ -785,7 +785,7 @@ For questions about the architecture or development setup, please refer to:
 - Deployment guides: `deployment/README.md`
 - Architecture reports: `architecture/` directory
 
-**Last Updated**: June 2026
+**Last Updated**: August 2026
 **Version**: 1.6
 
 ## API Documentation
