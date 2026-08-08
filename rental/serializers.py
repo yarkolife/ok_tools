@@ -207,4 +207,11 @@ class RentalRequestSerializer(serializers.ModelSerializer):
             'requested_start_date', 'requested_end_date', 'actual_start_date', 'actual_end_date',
             'status', 'notes', 'created_at', 'updated_at', 'total_items_count', 'items'
         )
-        read_only_fields = ('created_at', 'updated_at', 'total_items_count')
+        # ``created_by`` and ``status`` are deliberately not writable here:
+        # status transitions must go through the workflow endpoints
+        # (api_confirm_rental, mark_issued, api_return_rental_items, ...) so the
+        # matching RentalTransaction rows get written. Left writable, a borrower
+        # could PATCH their own reservation straight to "issued".
+        read_only_fields = (
+            'created_at', 'updated_at', 'total_items_count', 'created_by', 'status',
+        )

@@ -41,8 +41,11 @@ services:
         USER_UID: ${USER_UID:-1000}
         USER_GID: ${USER_GID:-1000}
     container_name: oktools_web
+    # Bound to loopback only: nginx reaches the app as web:8000 over the compose
+    # network, so publishing on 0.0.0.0 would just expose an HTTP port that
+    # bypasses TLS and every security header nginx adds.
     ports:
-      - "8010:8000"
+      - "127.0.0.1:8010:8000"
     env_file:
       - .env
     environment:

@@ -52,7 +52,6 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -75,6 +74,8 @@ import mimetypes
 import qrcode
 import uuid
 import xml.etree.ElementTree as ET
+from defusedxml.ElementTree import fromstring as defused_fromstring
+from defusedxml.common import DefusedXmlException
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
@@ -723,6 +724,35 @@ class RentalRequestViewSet(viewsets.ModelViewSet):
     search_fields = ['project_name', 'purpose']
     ordering_fields = ['created_at', 'requested_start_date']
 
+    def get_queryset(self):
+        """Restrict non-staff users to their own rental requests.
+
+        The permission class only checks that somebody is logged in, so without
+        this filter every authenticated user could read, edit and delete any
+        rental request by guessing its id.
+        """
+        queryset = super().get_queryset()
+        user = self.request.user
+        if user.is_staff:
+            return queryset
+        return queryset.filter(Q(user=user) | Q(created_by=user))
+
+    def perform_create(self, serializer):
+        """Pin ownership to the caller so a request cannot be filed for others."""
+        user = self.request.user
+        if user.is_staff:
+            serializer.save(created_by=user)
+        else:
+            serializer.save(user=user, created_by=user)
+
+    def perform_update(self, serializer):
+        """Stop a borrower from handing their rental over to someone else."""
+        user = self.request.user
+        if user.is_staff:
+            serializer.save()
+        else:
+            serializer.save(user=serializer.instance.user)
+
 
 class RentalItemViewSet(viewsets.ModelViewSet):
     """
@@ -739,6 +769,16 @@ class RentalItemViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['rental_request', 'inventory_item']
     search_fields = ['rental_request__project_name', 'inventory_item__inventory_number']
+
+    def get_queryset(self):
+        """Limit non-staff users to items belonging to their own rentals."""
+        queryset = super().get_queryset()
+        user = self.request.user
+        if user.is_staff:
+            return queryset
+        return queryset.filter(
+            Q(rental_request__user=user) | Q(rental_request__created_by=user)
+        )
 
 
 class RentalTransactionViewSet(viewsets.ModelViewSet):
@@ -771,6 +811,18 @@ class RentalIssueViewSet(viewsets.ModelViewSet):
     pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['issue_type', 'severity', 'resolved']
+
+    def get_queryset(self):
+        """Limit non-staff users to issues on their own rentals."""
+        queryset = super().get_queryset()
+        user = self.request.user
+        if user.is_staff:
+            return queryset
+        return queryset.filter(
+            Q(rental_item__rental_request__user=user)
+            | Q(rental_item__rental_request__created_by=user)
+            | Q(reported_by=user)
+        )
 
 
 class EquipmentSetViewSet(viewsets.ModelViewSet):
@@ -4027,16 +4079,13 @@ def api_inventory_calendar(request):
                 })
 
         return JsonResponse({'success': True, 'mode': mode, 'date': day.isoformat(), 'items': result})
-    except Exception as e:
-        import traceback
-        trace = traceback.format_exc()
-        try:
-            # Best-effort logging to console
-            print('Error in api_inventory_calendar:', e)
-            print(trace)
-        except Exception:
-            pass
-        return JsonResponse({'success': False, 'error': str(e), 'trace': trace}, status=500)
+    except Exception:
+        logger.exception('Error in api_inventory_calendar')
+        return JsonResponse({'success': False, 'error': _('Internal server error')}, status=500)
+
+
+@login_required
+@staff_member_required
 def api_get_all_equipment_sets(request):
     """
     Get all equipment sets for admin management.
@@ -4658,7 +4707,6 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
 
 @login_required
 @staff_member_required
-@csrf_exempt
 def api_update_pick_list(request, rental_id):
     if request.method != 'POST':
         return JsonResponse({'error': _('Method not allowed')}, status=405)
@@ -6096,6 +6144,8 @@ def api_delete_template(request, template_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required
+@staff_member_required
 def api_issue_from_reservation(request):
     """
     Issue a rental from reservation status with ability to adjust positions and dates.
@@ -6401,8 +6451,63 @@ def _is_sign_session_rate_limited(request, token):
     return False
 
 
+SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
+
+# Everything signature_pad's toSVG() emits, and nothing else. A blocklist does
+# not work here: the payload is rendered raw (``|safe``) on the admin change
+# form, and a list of forbidden strings always misses an event attribute
+# (onbegin, onmouseover, onclick, ...) or an encoded javascript: URL.
+SIGNATURE_SVG_ALLOWED_ELEMENTS = {
+    'svg': {'viewbox', 'width', 'height'},
+    'g': {'fill', 'stroke', 'stroke-width', 'transform'},
+    'path': {
+        'd', 'fill', 'stroke', 'stroke-width',
+        'stroke-linecap', 'stroke-linejoin', 'stroke-opacity',
+    },
+    'polyline': {
+        'points', 'fill', 'stroke', 'stroke-width',
+        'stroke-linecap', 'stroke-linejoin',
+    },
+    'line': {'x1', 'y1', 'x2', 'y2', 'stroke', 'stroke-width', 'stroke-linecap'},
+    'circle': {'cx', 'cy', 'r', 'fill', 'stroke', 'stroke-width'},
+    'rect': {'x', 'y', 'width', 'height', 'fill', 'stroke', 'stroke-width'},
+}
+
+
+def _local_tag_name(tag):
+    """Return the tag name without its ``{namespace}`` prefix, lowercased."""
+    if not isinstance(tag, str):
+        # Comments and processing instructions carry a callable as their tag.
+        return None
+    return tag.rsplit('}', 1)[-1].lower()
+
+
+def _sanitize_signature_element(element):
+    """Rebuild one element with only whitelisted children and attributes."""
+    name = _local_tag_name(element.tag)
+    allowed_attributes = SIGNATURE_SVG_ALLOWED_ELEMENTS.get(name)
+    if allowed_attributes is None:
+        return None
+
+    clean = ET.Element(f'{{{SVG_NAMESPACE}}}{name}')
+    for attribute, value in element.attrib.items():
+        # Namespaced attributes (xlink:href and friends) never survive: they
+        # are the classic carrier for javascript: URLs inside SVG.
+        if '}' in attribute or ':' in attribute:
+            continue
+        if attribute.lower() in allowed_attributes:
+            clean.set(attribute, value)
+
+    for child in element:
+        clean_child = _sanitize_signature_element(child)
+        if clean_child is not None:
+            clean.append(clean_child)
+
+    return clean
+
+
 def _sanitize_signature_svg(signature_svg):
-    """Validate and sanitize SVG signature payload."""
+    """Validate an SVG signature and return a rebuilt, whitelisted copy."""
     if signature_svg is None:
         return None
     if not isinstance(signature_svg, str):
@@ -6414,29 +6519,24 @@ def _sanitize_signature_svg(signature_svg):
     if len(signature_svg) > SIGNATURE_SVG_MAX_LENGTH:
         raise ValueError('signature_svg is too large')
 
-    lowered = signature_svg.lower()
-    blocked_patterns = [
-        '<script',
-        'javascript:',
-        'onload=',
-        'onerror=',
-        '<foreignobject',
-        '<iframe',
-        '<object',
-        '<embed',
-    ]
-    if any(pattern in lowered for pattern in blocked_patterns):
-        raise ValueError('signature_svg contains unsafe content')
-
     try:
-        root = ET.fromstring(signature_svg)
+        # defusedxml refuses entity expansion, so a signature cannot smuggle in
+        # an XXE payload or a billion-laughs bomb.
+        root = defused_fromstring(signature_svg)
+    except DefusedXmlException as e:
+        raise ValueError('signature_svg contains unsafe XML') from e
     except ET.ParseError as e:
         raise ValueError('signature_svg is not valid XML') from e
 
-    if not str(root.tag).lower().endswith('svg'):
+    if _local_tag_name(root.tag) != 'svg':
         raise ValueError('signature_svg root element must be <svg>')
 
-    return signature_svg
+    clean_root = _sanitize_signature_element(root)
+    if clean_root is None:
+        raise ValueError('signature_svg root element must be <svg>')
+
+    ET.register_namespace('', SVG_NAMESPACE)
+    return ET.tostring(clean_root, encoding='unicode')
 
 
 def _sanitize_signature_points(signature_points):
@@ -6554,6 +6654,19 @@ def _populate_signature_fields(rental_request, payload):
             rental_request.signature = rendered
 
 
+def _may_sign_rental_request(user, rental_request):
+    """Return True when ``user`` is allowed to sign this rental request.
+
+    A signature is the legal record that the borrower received the equipment,
+    so only staff (who hand it over) and the borrower themselves may write one.
+    Without this check any logged-in user could enumerate ``pk`` and forge or
+    wipe the signature on somebody else's rental.
+    """
+    if user.is_staff:
+        return True
+    return rental_request.user_id == user.id
+
+
 @method_decorator(login_required, name='dispatch')
 class SaveSignatureView(View):
     """Persist SVG/biometric signature payload for an existing rental request."""
@@ -6564,6 +6677,9 @@ class SaveSignatureView(View):
             rental_request = RentalRequest.objects.get(pk=rental_pk)
         except RentalRequest.DoesNotExist:
             return JsonResponse({'success': False, 'error': _('Rental request not found.')}, status=404)
+
+        if not _may_sign_rental_request(request.user, rental_request):
+            return JsonResponse({'success': False, 'error': _('Not allowed.')}, status=403)
 
         if rental_request.status in ('returned', 'cancelled', 'closed'):
             return JsonResponse({'success': False, 'error': _('Cannot update a closed rental request.')}, status=400)
@@ -6594,6 +6710,9 @@ class CreateSigningSessionView(View):
             rental_request = RentalRequest.objects.get(pk=rental_pk)
         except RentalRequest.DoesNotExist:
             return JsonResponse({'success': False, 'error': _('Rental request not found.')}, status=404)
+
+        if not _may_sign_rental_request(request.user, rental_request):
+            return JsonResponse({'success': False, 'error': _('Not allowed.')}, status=403)
 
         if rental_request.status in ('returned', 'cancelled', 'closed'):
             return JsonResponse({'success': False, 'error': _('Cannot sign a closed rental request.')}, status=400)

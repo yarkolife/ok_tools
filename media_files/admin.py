@@ -1993,21 +1993,42 @@ class VideoFileAdmin(admin.ModelAdmin):
             size = f'{v.file_size_mb} MB' if v.file_size_mb else '?'
             date = v.created_at.strftime('%Y-%m-%d') if v.created_at else '?'
             
-            info = (
-                f'<strong>{v.filename}</strong><br>'
-                f'{v.storage_location.name} • {format_info} • {resolution} • {bitrate} • {size}<br>'
-                f'<small style="color: #6c757d;">{_("Created")}: {date}</small>'
+            # format_html escapes every argument: filename and storage name come
+            # from scanning the video storage, so a file dropped on the NAS as
+            # `<img src=x onerror=...>.mp4` would otherwise run script in the
+            # admin. ``status`` is already a SafeString and passes through.
+            info = format_html(
+                '<strong>{}</strong><br>'
+                '{} • {} • {} • {} • {}<br>'
+                '<small style="color: #6c757d;">{}: {}</small>',
+                v.filename,
+                v.storage_location.name,
+                format_info,
+                resolution,
+                bitrate,
+                size,
+                _("Created"),
+                date,
             )
-            
+
             if is_current:
-                html_parts.append(f'<div style="padding: 8px; background: #e7f3ff; border-left: 3px solid #007bff; margin: 5px 0;">{status}<br>{info}</div>')
+                html_parts.append(format_html(
+                    '<div style="padding: 8px; background: #e7f3ff; '
+                    'border-left: 3px solid #007bff; margin: 5px 0;">{}<br>{}</div>',
+                    status,
+                    info,
+                ))
             else:
                 url = reverse('admin:media_files_videofile_change', args=[v.id])
-                html_parts.append(
-                    f'<div style="padding: 8px; background: #f8f9fa; border-left: 3px solid #dee2e6; margin: 5px 0;">'
-                    f'{status}<br><a href="{url}">{info}</a></div>'
-                )
-        
+                html_parts.append(format_html(
+                    '<div style="padding: 8px; background: #f8f9fa; '
+                    'border-left: 3px solid #dee2e6; margin: 5px 0;">'
+                    '{}<br><a href="{}">{}</a></div>',
+                    status,
+                    url,
+                    info,
+                ))
+
         body = mark_safe(''.join(html_parts))
         if getattr(obj, 'is_preview', False) and intro:
             return format_html('{} {}', intro, body)

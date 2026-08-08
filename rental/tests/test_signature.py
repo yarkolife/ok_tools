@@ -49,7 +49,7 @@ def _ensure_signature_columns(django_db_setup, django_db_blocker):
                 )
 
 
-def _create_rental_user(email='signature-borrower@example.com'):
+def _create_rental_user(email='signature-borrower@example.com', is_staff=True):
     user_dict = {
         'email': email,
         'first_name': 'Signature',
@@ -63,7 +63,7 @@ def _create_rental_user(email='signature-borrower@example.com'):
         'zipcode': '12345',
         'city': 'example-city',
     }
-    return create_user(user_dict, is_staff=True)
+    return create_user(user_dict, is_staff=is_staff)
 
 
 def _create_rental_request(user):
@@ -154,9 +154,119 @@ def test__rental__SigningSessionStatusView__consume_returns_payload_before_delet
     assert consume_response.status_code == 200
     data = consume_response.json()
     assert data['status'] == RentalSigningSessionStatus.SIGNED
-    assert data['signature_svg'] == signature_svg
+    # The sanitiser rebuilds the document from a whitelist instead of echoing
+    # the submitted string back, so compare the geometry rather than the bytes.
+    assert data['signature_svg'].startswith('<svg')
+    assert 'd="M5 7 L8 13"' in data['signature_svg']
     assert data['signature_points'] == signature_points
     assert data['signature_metadata'] == signature_metadata
     assert data['signature_method'] == 'qr_phone'
     assert data['signed_at'] is not None
     assert RentalSigningSession.objects.filter(token=token).exists() is False
+
+
+@pytest.mark.django_db
+def test__rental__SaveSignatureView__rejects_foreign_rental(client):
+    """A borrower must not be able to sign somebody else's rental request."""
+    owner = _create_rental_user('signature-owner@example.com', is_staff=False)
+    intruder = _create_rental_user('signature-intruder@example.com', is_staff=False)
+    rental_request = _create_rental_request(owner)
+    client.force_login(intruder)
+
+    url = reverse('rental:save_signature', kwargs={'pk': rental_request.pk})
+    response = client.post(url, data=json.dumps({
+        'signature_svg': '<svg xmlns="http://www.w3.org/2000/svg"><path d="M1 1 L3 3"/></svg>',
+    }), content_type='application/json')
+
+    assert response.status_code == 403
+    rental_request.refresh_from_db()
+    assert rental_request.has_any_signature() is False
+
+
+@pytest.mark.django_db
+def test__rental__SaveSignatureView__allows_own_rental(client):
+    """The borrower themselves may still sign their own rental request."""
+    owner = _create_rental_user('signature-self@example.com', is_staff=False)
+    rental_request = _create_rental_request(owner)
+    client.force_login(owner)
+
+    url = reverse('rental:save_signature', kwargs={'pk': rental_request.pk})
+    response = client.post(url, data=json.dumps({
+        'signature_svg': '<svg xmlns="http://www.w3.org/2000/svg"><path d="M1 1 L3 3"/></svg>',
+    }), content_type='application/json')
+
+    assert response.status_code == 200
+    rental_request.refresh_from_db()
+    assert rental_request.has_any_signature() is True
+
+
+@pytest.mark.django_db
+def test__rental__CreateSigningSessionView__rejects_foreign_rental(client):
+    """Opening a QR signing session for a foreign rental must be refused."""
+    owner = _create_rental_user('session-owner@example.com', is_staff=False)
+    intruder = _create_rental_user('session-intruder@example.com', is_staff=False)
+    rental_request = _create_rental_request(owner)
+    client.force_login(intruder)
+
+    url = reverse('rental:create_sign_session', kwargs={'pk': rental_request.pk})
+    response = client.post(url)
+
+    assert response.status_code == 403
+    assert RentalSigningSession.objects.filter(rental_request=rental_request).exists() is False
+
+
+@pytest.mark.parametrize('payload', [
+    # onbegin/onmouseover/onclick all slipped past the previous blocklist,
+    # which only knew about onload= and onerror=.
+    '<svg xmlns="http://www.w3.org/2000/svg">'
+    '<animate onbegin="alert(1)" attributeName="x" dur="1s"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg">'
+    '<rect onmouseover="alert(1)" width="9" height="9"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg">'
+    '<path d="M1 1" onclick="alert(1)"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+    '<a xlink:href="javascript:alert(1)"><rect width="9" height="9"/></a></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><foreignObject>'
+    '<body xmlns="http://www.w3.org/1999/xhtml">x</body></foreignObject></svg>',
+])
+def test__rental__sanitize_signature_svg__strips_active_content(payload):
+    """The signature is rendered with |safe, so nothing executable may survive."""
+    from rental.views import _sanitize_signature_svg
+
+    sanitized = _sanitize_signature_svg(payload).lower()
+
+    for marker in (
+        'alert', 'onbegin', 'onmouseover', 'onclick',
+        'javascript', 'script', 'foreignobject', 'xlink',
+    ):
+        assert marker not in sanitized
+
+
+def test__rental__sanitize_signature_svg__keeps_real_signature_geometry():
+    """A genuine signature_pad payload must survive sanitisation unharmed."""
+    from rental.views import _sanitize_signature_svg
+
+    payload = (
+        '<svg xmlns="http://www.w3.org/2000/svg" '
+        'xmlns:xlink="http://www.w3.org/1999/xlink" '
+        'viewBox="0 0 300 180" width="300" height="180">'
+        '<path fill="none" stroke="#111111" stroke-width="1.5" '
+        'stroke-linecap="round" d="M 10 10 L 40 60"/>'
+        '<circle r="1.2" cx="5" cy="5" fill="#111111"/></svg>'
+    )
+
+    sanitized = _sanitize_signature_svg(payload)
+
+    assert 'd="M 10 10 L 40 60"' in sanitized
+    assert 'viewBox="0 0 300 180"' in sanitized
+    assert 'stroke="#111111"' in sanitized
+    assert '<circle' in sanitized
+
+
+def test__rental__sanitize_signature_svg__rejects_non_svg_root():
+    """Anything whose root is not <svg> is refused outright."""
+    from rental.views import _sanitize_signature_svg
+
+    with pytest.raises(ValueError):
+        _sanitize_signature_svg('<html><body>x</body></html>')

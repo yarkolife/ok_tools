@@ -71,7 +71,11 @@ RUN if getent group app > /dev/null 2>&1; then \
 RUN chmod +x /app/deployment/entrypoint.production.sh
 RUN chmod +x /app/deployment/entrypoint.celery.sh
 
-
+# Drop root for every container built from this image (CIS Docker 4.1).
+# The entrypoints only need write access to /app, which is chowned above, and
+# gunicorn binds 8000, so no privileged port is involved. The celery services
+# already ran as this user via `user: app` in compose.
+USER app
 
 # Expose the correct port
 EXPOSE 8000

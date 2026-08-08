@@ -306,7 +306,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-use_secure_settings = get_env('USE_SECURE_SETTINGS', default=False, cast=bool)
+# Accept both spellings: configs/*.env.template ship USE_SECURE_SETTINGS while
+# deployment/scripts/install.sh and update.sh write DJANGO_USE_SECURE_SETTINGS.
+# Reading only the first left the whole block dead on script-installed hosts.
+# The unprefixed name wins when both are present.
+if os.getenv('USE_SECURE_SETTINGS') is not None:
+    use_secure_settings = get_env('USE_SECURE_SETTINGS', default=False, cast=bool)
+else:
+    use_secure_settings = get_env('DJANGO_USE_SECURE_SETTINGS', default=False, cast=bool)
 
 if use_secure_settings:
     CSRF_TRUSTED_ORIGINS = [f"https://{hosts}" for hosts in ALLOWED_HOSTS]
@@ -314,6 +321,22 @@ if use_secure_settings:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     CORS_ORIGIN_WHITELIST = [f"https://{hosts}" for hosts in ALLOWED_HOSTS]
     USE_X_FORWARDED_HOST = True
+    # The session cookie carries the login; without Secure it is sent in clear
+    # over any plain-HTTP request that reaches the app (e.g. the published
+    # container port that bypasses nginx).
+    # CSRF_COOKIE_HTTPONLY stays off on purpose: the fetch() callers read the
+    # csrftoken cookie from JavaScript to build the X-CSRFToken header.
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    # Escape hatch: a reverse proxy that does not forward X-Forwarded-Proto
+    # would turn the redirect into a loop, so it can be switched off without
+    # giving up the cookie flags above.
+    SECURE_SSL_REDIRECT = get_env('SECURE_SSL_REDIRECT', default=True, cast=bool)
+    # Docker's healthcheck talks plain HTTP to localhost:8000 and must not be
+    # redirected to a port that speaks no TLS.
+    SECURE_REDIRECT_EXEMPT = [r'^health/?$']
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

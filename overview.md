@@ -638,7 +638,7 @@ docker-compose exec web python manage.py createsuperuser
 - **Web Interface**: http://localhost:8000
 - **Admin Interface**: http://localhost:8000/admin
 - **API Documentation**: http://localhost:8000/api/
-- **Prometheus Metrics**: http://localhost:8000/prometheus/
+- **Prometheus Metrics**: http://localhost:8000/prometheus/ (production nginx restricts this path to private networks)
 
 ### Common Development Tasks
 

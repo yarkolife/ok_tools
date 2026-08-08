@@ -1,6 +1,26 @@
 CHANGELOG
 =========
 
+2026-08-09 (Version 4.39.0)
+==========================
+
+* **rental: Close unauthenticated and cross-user access on the rental endpoints**
+  * ``api_issue_from_reservation`` and ``api_get_all_equipment_sets`` were reachable without logging in; the first one moved a rental to ``issued``, wrote transactions and added items. Both now require staff, like every neighbouring endpoint.
+  * The DRF viewsets for rental requests, rental items and rental issues filter by owner: a non-staff account only sees its own records instead of every rental in the database.
+  * ``created_by`` and ``status`` became read-only on ``RentalRequestSerializer``, and ``perform_create``/``perform_update`` pin ownership, so a borrower can no longer promote a reservation to ``issued`` or hand it to another account. Status transitions stay with the workflow endpoints that also write the matching ``RentalTransaction`` rows.
+  * ``SaveSignatureView`` and ``CreateSigningSessionView`` now check that the caller is staff or the borrower; previously any logged-in user could forge or wipe the signature on any rental request by guessing its id.
+  * Removed ``@csrf_exempt`` from ``api_update_pick_list`` (the caller already sends ``X-CSRFToken``) and stopped returning tracebacks from ``api_inventory_calendar``.
+* **rental: Rebuild signature SVGs from a whitelist**
+  * ``_sanitize_signature_svg`` parsed the payload with a list of forbidden strings and stored the original text, which is rendered with ``|safe`` on the admin change form. Event attributes outside that list (``onbegin``, ``onmouseover``, ``onclick``) passed straight through.
+  * The payload is now parsed with ``defusedxml`` and rebuilt from an allowed set of elements and attributes covering what ``signature_pad.toSVG()`` emits, so nothing executable survives and XXE is blocked.
+* **media_files: Escape scanned filenames in the version admin**
+  * Filenames come from scanning the video storage and were interpolated into HTML with f-strings before ``mark_safe``. Switched to ``format_html``.
+* **deployment: Harden the production settings and container**
+  * Added ``SESSION_COOKIE_SECURE``, ``SESSION_COOKIE_HTTPONLY``, ``SECURE_SSL_REDIRECT`` (overridable, with ``/health`` exempt so the Docker healthcheck keeps working) and HSTS to the ``USE_SECURE_SETTINGS`` block. ``CSRF_COOKIE_HTTPONLY`` is deliberately left off because the frontend reads the token from the cookie.
+  * ``install.sh`` and ``update.sh`` write ``DJANGO_USE_SECURE_SETTINGS`` while settings read ``USE_SECURE_SETTINGS``, so the whole block was inactive on script-installed hosts. Both spellings are accepted now.
+  * ``production.Dockerfile`` gained ``USER app``: the web container ran as root while the celery services already dropped privileges. **Requires an image rebuild to take effect.**
+  * The web service publishes on ``127.0.0.1:8010`` instead of every interface, and nginx restricts ``/prometheus/`` to private networks.
+
 2026-07-23 (Version 4.38.0)
 ==========================
 

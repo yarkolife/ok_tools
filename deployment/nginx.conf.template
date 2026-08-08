@@ -128,6 +128,24 @@ server {
         proxy_http_version 1.1;
     }
 
+    # Prometheus metrics: never public. django_prometheus adds no access
+    # control of its own, and the payload lists every named URL pattern in the
+    # app plus per-model operation counters - a ready-made map for an attacker.
+    # Widen the allow list to your monitoring host if it is not on a private net.
+    location /prometheus/ {
+        allow 127.0.0.1;
+        allow 10.0.0.0/8;
+        allow 172.16.0.0/12;
+        allow 192.168.0.0/16;
+        deny all;
+
+        proxy_pass http://django;
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     # Rate limiting for sensitive endpoints
     location ~ ^/(admin|api)/ {
         limit_req zone=api burst=10 nodelay;
