@@ -2,6 +2,9 @@
 
 {% load i18n %}
 {% load static %}
+{% load notifications_tags %}
+
+{% block userlinks %}{% notifications_badge %}{{ block.super }}{% endblock %}
 
 {% block title %} {{ OK_NAME_SHORT}} | {% translate 'Administration interface' %} {% endblock %}
 

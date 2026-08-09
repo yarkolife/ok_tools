@@ -1,0 +1,227 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main" class="notifications-page">
+
+  <p class="notifications-toolbar">
+    <a href="{{ subscriptions_url }}" class="button">
+      {% translate "My subscriptions" %}
+    </a>
+    {% if can_configure %}
+      <a href="{% url 'admin:notifications_settings' %}" class="button">
+        {% translate "Notification settings" %}
+      </a>
+    {% endif %}
+  </p>
+
+  {% if not has_subscriptions %}
+    <p class="notifications-empty">
+      {% translate "You are not subscribed to any module yet." %}
+      <a href="{{ subscriptions_url }}">{% translate "Choose your modules" %}</a>
+    </p>
+  {% endif %}
+
+  <div class="module">
+    <h2>{% translate "Summary for today" %}</h2>
+    <div class="notifications-summary-body">
+      {% for group in expectations %}
+        <h3 class="notifications-group">{{ group.label }}</h3>
+        <ul class="notifications-list">
+          {% for item in group.items %}
+            <li>
+              {% if item.url %}<a href="{{ item.url }}">{{ item.message }}</a>
+              {% else %}{{ item.message }}{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% empty %}
+        <p class="notifications-empty">{% translate "Nothing is expected today." %}</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>
+      {% translate "Entries" %}
+      {% if shown_count %}<span class="notifications-count">{{ shown_count }}</span>{% endif %}
+      {% if has_filters %}
+        <span class="notifications-meta">
+          {% blocktranslate with total=total_action_count %}filtered from {{ total }}{% endblocktranslate %}
+        </span>
+      {% endif %}
+    </h2>
+
+    <p class="notifications-tabs">
+      <a href="?view=open" class="{% if view == 'open' %}selected{% endif %}">
+        {% translate "Open" %} <span class="notifications-meta">{{ counts.open }}</span>
+      </a>
+      <a href="?view=snoozed" class="{% if view == 'snoozed' %}selected{% endif %}">
+        {% translate "Postponed" %} <span class="notifications-meta">{{ counts.snoozed }}</span>
+      </a>
+      <a href="?view=handled" class="{% if view == 'handled' %}selected{% endif %}">
+        {% translate "Handled" %} <span class="notifications-meta">{{ counts.handled }}</span>
+      </a>
+      <a href="?view=all" class="{% if view == 'all' %}selected{% endif %}">
+        {% translate "Chronicle" %}
+        {% if new_count %}<span class="notifications-meta">+{{ new_count }}</span>{% endif %}
+      </a>
+    </p>
+
+    <div class="notifications-summary-body">
+      <form method="get" class="notifications-filters">
+        <label for="filter-module">{% translate "Module" %}</label>
+        <select name="module" id="filter-module">
+          <option value="">{% translate "All" %}</option>
+          {% for option in filter_modules %}
+            <option value="{{ option.value }}"
+                    {% if filters.module == option.value %}selected{% endif %}>{{ option.label }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="filter-type">{% translate "Event type" %}</label>
+        <select name="type" id="filter-type">
+          <option value="">{% translate "All" %}</option>
+          {% for option in filter_types %}
+            <option value="{{ option.value }}"
+                    {% if filters.type == option.value %}selected{% endif %}>{{ option.label }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="filter-older">{% translate "Older than (days)" %}</label>
+        <input type="number" name="older" id="filter-older" min="0" step="1"
+               value="{{ filters.older|default_if_none:'' }}">
+
+        <label for="filter-from">{% translate "From" %}</label>
+        <input type="date" name="date_from" id="filter-from"
+               value="{{ filters.date_from|date:'Y-m-d' }}">
+
+        <label for="filter-to">{% translate "To" %}</label>
+        <input type="date" name="date_to" id="filter-to"
+               value="{{ filters.date_to|date:'Y-m-d' }}">
+
+        <button type="submit" class="button">{% translate "Filter" %}</button>
+        {% if has_filters %}
+          <a href="{% url 'admin:notifications_feed' %}" class="button">{% translate "Reset" %}</a>
+        {% endif %}
+      </form>
+
+      {% if rows %}
+        <form method="post" id="notifications-bulk-form">
+          {% csrf_token %}
+          <input type="hidden" name="filter_query" value="{{ filter_query }}">
+          <input type="hidden" name="view" value="{{ view }}">
+
+          <div class="notifications-actions">
+            <label>
+              <input type="checkbox" id="notifications-toggle-all">
+              {% translate "Select all on this page" %}
+            </label>
+            <label class="notifications-select-all">
+              <input type="checkbox" name="select_all" value="1">
+              {% blocktranslate with count=shown_count %}Apply to all {{ count }} matching entries{% endblocktranslate %}
+            </label>
+
+            {% if view == 'handled' %}
+              <button type="submit" name="action" value="reopen" class="button">
+                {% translate "Reopen" %}
+              </button>
+            {% elif view == 'snoozed' %}
+              <button type="submit" name="action" value="wake" class="button">
+                {% translate "Show again now" %}
+              </button>
+              <button type="submit" name="action" value="done" class="button">
+                {% translate "Mark as handled" %}
+              </button>
+            {% else %}
+              <button type="submit" name="action" value="done" class="button">
+                {% translate "Mark as handled" %}
+              </button>
+              <button type="submit" name="action" value="snooze" class="button">
+                {% translate "Postpone until tomorrow" %}
+              </button>
+            {% endif %}
+
+            <button type="submit" name="action" value="suppress" class="button"
+                    data-confirm="{% translate 'These entries will never be reported again, for anyone. Continue?' %}">
+              {% translate "Never report again" %}
+            </button>
+          </div>
+
+          <ul class="notifications-list">
+            {% for row in rows %}
+              <li>
+                <label class="notifications-row">
+                  <input type="checkbox" name="event_ids" value="{{ row.event.id }}">
+                  <span>
+                    {% if row.event.url %}<a href="{{ row.event.url }}">{{ row.event.message }}</a>
+                    {% else %}{{ row.event.message }}{% endif %}
+                    <span class="notifications-meta">
+                      {{ row.event.label }} &middot; {{ row.event.occurred_at|date:"d.m.Y H:i" }}
+                      {% if row.status == 'handled' %}
+                        &middot; {% translate "handled" %}
+                      {% elif row.status == 'snoozed' %}
+                        &middot; {% blocktranslate with moment=row.item.snoozed_until|date:"d.m.Y H:i" %}postponed until {{ moment }}{% endblocktranslate %}
+                      {% elif is_chronicle and not row.status %}
+                        &middot; {% translate "for information" %}
+                      {% endif %}
+                    </span>
+                  </span>
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+        </form>
+
+        {% if page.paginator.num_pages > 1 %}
+          <p class="notifications-pagination">
+            {% if page.has_previous %}
+              <a href="?{{ filter_query }}&amp;page={{ page.previous_page_number }}">{% translate "Previous" %}</a>
+            {% endif %}
+            <span class="notifications-meta">
+              {% blocktranslate with number=page.number total=page.paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktranslate %}
+            </span>
+            {% if page.has_next %}
+              <a href="?{{ filter_query }}&amp;page={{ page.next_page_number }}">{% translate "Next" %}</a>
+            {% endif %}
+          </p>
+        {% endif %}
+      {% else %}
+        <p class="notifications-empty">
+          {% if view == 'handled' %}{% translate "Nothing has been handled yet." %}
+          {% elif view == 'snoozed' %}{% translate "Nothing is postponed." %}
+          {% elif view == 'all' %}{% translate "The chronicle is empty." %}
+          {% else %}{% translate "No open items." %}{% endif %}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var form = document.getElementById('notifications-bulk-form');
+    if (!form) {
+        return;
+    }
+    var toggle = document.getElementById('notifications-toggle-all');
+    var boxes = form.querySelectorAll('input[name="event_ids"]');
+    if (toggle) {
+        toggle.addEventListener('change', function () {
+            boxes.forEach(function (box) {
+                box.checked = toggle.checked;
+            });
+        });
+    }
+    form.addEventListener('submit', function (event) {
+        var button = event.submitter;
+        var question = button && button.getAttribute('data-confirm');
+        if (question && !window.confirm(question)) {
+            event.preventDefault();
+        }
+    });
+})();
+</script>
+{% endblock %}

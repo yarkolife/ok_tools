@@ -1,0 +1,66 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main" class="notifications-page">
+
+  <p class="notifications-toolbar">
+    <a href="{{ feed_url }}" class="button">{% translate "My notifications" %}</a>
+  </p>
+
+  <p class="help">
+    {% blocktranslate %}You only see event types your account may see anyway. A
+    subscription decides what reaches you, never what you have access to.{% endblocktranslate %}
+  </p>
+
+  <div class="module">
+    <h2>{% translate "Apply a ready-made set:" %}</h2>
+    <div class="notifications-summary-body">
+      <form method="post" class="notifications-presets">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="preset">
+        {% for name, label in presets %}
+          <button type="submit" name="preset" value="{{ name }}" class="button">{{ label }}</button>
+        {% endfor %}
+      </form>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="subscriptions">
+    {% for group in matrix %}
+      <div class="module">
+        <h2>
+          <label>
+            <input type="checkbox" name="modules" value="{{ group.module }}"
+                   {% if group.whole_module %}checked{% endif %}>
+            {{ group.module_label }}
+          </label>
+        </h2>
+        <div class="notifications-summary-body">
+          <ul class="notifications-list">
+            {% for entry in group.types %}
+              <li>
+                <label>
+                  <input type="checkbox" name="codes" value="{{ entry.code }}"
+                         {% if entry.subscribed and not group.whole_module %}checked{% endif %}>
+                  {{ entry.label }}
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% empty %}
+      <p class="notifications-empty">
+        {% translate "No event type is available for your account." %}
+      </p>
+    {% endfor %}
+    <p class="submit-row">
+      <button type="submit" class="default">{% translate "Save subscriptions" %}</button>
+    </p>
+  </form>
+
+</div>
+{% endblock %}

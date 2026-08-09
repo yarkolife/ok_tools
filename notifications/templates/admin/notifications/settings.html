@@ -1,0 +1,83 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main" class="notifications-page">
+
+  <p class="notifications-toolbar">
+    <a href="{% url 'admin:notifications_feed' %}" class="button">
+      {% translate "My notifications" %}
+    </a>
+    <a href="{{ config_url }}" class="button">
+      {% translate "Notification Configuration" %}
+    </a>
+    <a href="{{ stats_url }}" class="button">
+      {% translate "Notification statistics" %}
+    </a>
+  </p>
+
+  <p class="help">
+    {% blocktranslate %}A disabled check is not executed at all: it costs nothing and is
+    invisible to everyone. Switch off whatever this channel does not do.{% endblocktranslate %}
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    {% for group in groups %}
+      <div class="module">
+        <h2>{{ group.module_label }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{% translate "Enabled" %}</th>
+              <th scope="col">{% translate "Event type" %}</th>
+              <th scope="col">{% translate "Parameters" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in group.entries %}
+              <tr>
+                <td>
+                  <input type="checkbox" name="enabled" value="{{ entry.spec.code }}"
+                         {% if entry.enabled %}checked{% endif %}
+                         {% if not entry.available %}disabled{% endif %}>
+                </td>
+                <th scope="row">
+                  {{ entry.spec.label }}
+                  <br>
+                  <span class="notifications-meta">{{ entry.spec.code }}</span>
+                  {% if entry.spec.description %}
+                    <br><span class="help">{{ entry.spec.description }}</span>
+                  {% endif %}
+                  {% if not entry.available %}
+                    <br><span class="help">
+                      {% blocktranslate with flag=entry.spec.settings_flag %}Module disabled in settings ({{ flag }}).{% endblocktranslate %}
+                    </span>
+                  {% endif %}
+                </th>
+                <td>
+                  {% for param in entry.params %}
+                    <label for="{{ param.field }}">{{ param.label }}</label>
+                    <input type="number" id="{{ param.field }}" name="{{ param.field }}"
+                           value="{{ param.value }}" min="0" step="1">
+                    {% if param.help_text %}
+                      <span class="help">{{ param.help_text }}</span>
+                    {% endif %}
+                    <br>
+                  {% empty %}
+                    <span class="notifications-meta">&mdash;</span>
+                  {% endfor %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+    <p class="submit-row">
+      <button type="submit" class="default">{% translate "Save" %}</button>
+    </p>
+  </form>
+
+</div>
+{% endblock %}

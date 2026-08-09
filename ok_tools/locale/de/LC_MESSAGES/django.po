@@ -6623,3 +6623,15 @@ msgstr "Belegungsplan konnte nicht geladen werden"
 #: rental/views.py
 msgid "No rooms found. Add rooms in admin."
 msgstr "Keine Räume gefunden. Räume im Admin anlegen."
+
+#: registration/models.py
+msgid "Own Media Authority"
+msgstr "Eigener Offener Kanal"
+
+#: registration/models.py
+msgid ""
+"Which \"Offener Kanal\" this installation is. Used to tell own productions "
+"from material of other channels."
+msgstr ""
+"Welcher Offene Kanal diese Installation ist. Dient dazu, Eigenproduktionen "
+"von Material anderer Kanäle zu unterscheiden."

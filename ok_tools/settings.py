@@ -190,6 +190,9 @@ DASHBOARD_ENABLED = get_env('DASHBOARD_ENABLED', default=False, cast=bool)
 AUSTAUSCH_ENABLED = get_env('AUSTAUSCH_ENABLED', default=False, cast=bool)
 TOOLS_ENABLED = get_env('TOOLS_ENABLED', default=False, cast=bool)
 
+# Admin notifications: daily summary and event feed
+NOTIFICATIONS_ENABLED = get_env('NOTIFICATIONS_ENABLED', default=True, cast=bool)
+
 # Enforce dependencies for licenses-related modules
 if not LICENSES_ENABLED:
     CONTRIBUTIONS_ENABLED = False
@@ -228,6 +231,11 @@ if AUSTAUSCH_ENABLED:
 
 if TOOLS_ENABLED:
     INSTALLED_APPS.append("tools")
+
+# Notification system: daily summary and event feed inside the admin.
+# It has no module of its own -- it observes whichever modules are enabled.
+if NOTIFICATIONS_ENABLED:
+    INSTALLED_APPS.append("notifications")
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
@@ -944,3 +952,11 @@ CELERY_BEAT_SCHEDULE = {
         'kwargs': {'older_than_days': 30, 'keep_failed': True},
     },
 }
+
+if NOTIFICATIONS_ENABLED:
+    # The daily summary itself is scheduled from NotificationConfig.digest_time
+    # through django-celery-beat, so only the cleanup lives here.
+    CELERY_BEAT_SCHEDULE['cleanup_notification_events'] = {
+        'task': 'notifications.tasks.cleanup_old_events',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_NOTIFICATIONS', '30 3 * * *'),
+    }

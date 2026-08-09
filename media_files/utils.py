@@ -1100,3 +1100,125 @@ def extract_video_metadata_fast(file_path: str) -> Dict:
         return extract_video_metadata(file_path, fast_mode=False)
     
     return metadata
+
+
+# ---------------------------------------------------------------------------
+# Lookups shared by the notification checks, the reel reminder and the export
+# ---------------------------------------------------------------------------
+
+def numbers_with_video(numbers) -> set:
+    """Return the license numbers that have an available full video file."""
+    numbers = list(numbers or [])
+    if not numbers:
+        return set()
+    from media_files.models import VideoFile
+
+    return set(
+        VideoFile.objects
+        .filter(number__in=numbers, is_available=True, is_preview=False)
+        .values_list('number', flat=True)
+    )
+
+
+def numbers_with_reel(numbers) -> set:
+    """Return the license numbers that already have a rendered reel.
+
+    Reels are registered as preview clips; the filename carries the marker.
+    """
+    numbers = list(numbers or [])
+    if not numbers:
+        return set()
+    from media_files.models import VideoFile
+
+    found = set()
+    queryset = VideoFile.objects.filter(
+        number__in=numbers, is_preview=True).values_list(
+            'number', 'filename', 'file_path')
+    for number, filename, file_path in queryset:
+        if is_reel_filename(filename or '') or is_reel_filename(file_path or ''):
+            found.add(number)
+    return found
+
+
+def get_cover_output_dir() -> str:
+    """Return the directory holding the canonical covers, or an empty string."""
+    try:
+        from media_files.covers.config import get_cover_config
+
+        config = get_cover_config()
+        return config.output_dir if config.enabled else ''
+    except Exception:
+        logger.warning('Could not resolve the cover output directory',
+                       exc_info=True)
+        return ''
+
+
+def has_cover(number, cover_output_dir: Optional[str] = None) -> bool:
+    """Return whether a canonical cover file exists for a license number."""
+    directory = (
+        cover_output_dir if cover_output_dir is not None
+        else get_cover_output_dir()
+    )
+    if not directory:
+        return False
+    return os.path.isfile(os.path.join(directory, f'{number}_cover.jpg'))
+
+
+def numbers_with_cover(numbers) -> set:
+    """Return the license numbers that already have a cover image."""
+    numbers = list(numbers or [])
+    directory = get_cover_output_dir()
+    if not numbers or not directory:
+        return set()
+    return {number for number in numbers if has_cover(number, directory)}
+
+
+def get_target_encode_preset():
+    """Return the encoding preset that defines the expected video format.
+
+    The norm is whatever this channel transcodes to, so it is read from the
+    configured preset instead of being hard-coded.
+    """
+    from django.apps import apps
+
+    if not apps.is_installed('tools'):
+        return None
+    from media_files.models import MediaFilesConfig
+
+    VideoEncodePreset = apps.get_model('tools.VideoEncodePreset')
+    name = (MediaFilesConfig.get_config().transcode_encode_preset or '').strip()
+    if name:
+        preset = VideoEncodePreset.objects.filter(name=name).first()
+        if preset is not None:
+            return preset
+        logger.warning(
+            'Configured transcode preset %r does not exist', name)
+
+    # With a single preset there is nothing to guess; with several, the
+    # configured name is the only thing that can decide.
+    presets = list(VideoEncodePreset.objects.all()[:2])
+    return presets[0] if len(presets) == 1 else None
+
+
+def format_deviation(video, preset, fps_tolerance: float = 0.05) -> Dict:
+    """Return how a video deviates from the preset, or an empty dict.
+
+    ``fps`` is a float filled from ffprobe, which reports values like
+    24.999 or 25.000001 for material that is perfectly fine; comparing it
+    exactly would flag most of the archive.
+    """
+    if preset is None:
+        return {}
+    deviation = {}
+    if video.width and video.height and (
+            video.width != preset.width or video.height != preset.height):
+        deviation['resolution'] = {
+            'actual': f'{video.width}x{video.height}',
+            'expected': f'{preset.width}x{preset.height}',
+        }
+    if video.fps and abs(float(video.fps) - float(preset.fps)) > fps_tolerance:
+        deviation['fps'] = {
+            'actual': round(float(video.fps), 3),
+            'expected': preset.fps,
+        }
+    return deviation

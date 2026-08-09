@@ -1,4 +1,5 @@
 from __future__ import annotations
+from django.apps import apps as django_apps
 from django.contrib import admin
 from django.contrib.admin.sites import site as default_site
 from django.template.response import TemplateResponse
@@ -115,6 +116,60 @@ def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # typ
         from django.conf import settings
         if getattr(settings, 'DASHBOARD_ENABLED', False):
             app_list.insert(0, dashboard_app)
+
+        # Notifications: personal feed first, configuration for superusers.
+        # The app may already be in the list because of its admin models --
+        # in that case the custom pages are prepended to it.
+        if django_apps.is_installed('notifications'):
+            custom_models = [
+                {
+                    'name': _('My notifications'),
+                    'object_name': 'NotificationsFeed',
+                    'admin_url': reverse('admin:notifications_feed'),
+                    'add_url': None,
+                    'view_only': True,
+                },
+                {
+                    'name': _('My subscriptions'),
+                    'object_name': 'NotificationsSubscriptions',
+                    'admin_url': reverse('admin:notifications_subscriptions'),
+                    'add_url': None,
+                    'view_only': True,
+                },
+            ]
+            if request.user.is_superuser:
+                custom_models.append({
+                    'name': _('Notification settings'),
+                    'object_name': 'NotificationsSettings',
+                    'admin_url': reverse('admin:notifications_settings'),
+                    'add_url': None,
+                    'view_only': True,
+                })
+                custom_models.append({
+                    'name': _('Notification statistics'),
+                    'object_name': 'NotificationsStats',
+                    'admin_url': reverse('admin:notifications_stats'),
+                    'add_url': None,
+                    'view_only': True,
+                })
+
+            existing = next(
+                (app for app in app_list
+                 if app.get('app_label') == 'notifications'),
+                None,
+            )
+            if existing is not None:
+                existing['models'] = custom_models + existing.get('models', [])
+                app_list.remove(existing)
+                app_list.insert(0, existing)
+            else:
+                app_list.insert(0, {
+                    'name': _('Notifications'),
+                    'app_label': 'notifications',
+                    'app_url': reverse('admin:notifications_feed'),
+                    'has_module_perms': True,
+                    'models': custom_models,
+                })
         
         # Add Exchange Feed link to Austausch app if module is enabled
         if getattr(settings, 'AUSTAUSCH_ENABLED', False):
@@ -163,6 +218,34 @@ def _custom_get_urls(self: admin.AdminSite):  # type: ignore[override]
             name="configuration",
         ),
     ]
+    if django_apps.is_installed("notifications"):
+        from notifications.views import feed_view
+        from notifications.views import settings_view
+        from notifications.views import stats_view
+        from notifications.views import subscriptions_view
+
+        custom_urls += [
+            path(
+                "notifications/",
+                self.admin_view(feed_view),
+                name="notifications_feed",
+            ),
+            path(
+                "notifications/subscriptions/",
+                self.admin_view(subscriptions_view),
+                name="notifications_subscriptions",
+            ),
+            path(
+                "notifications/settings/",
+                self.admin_view(settings_view),
+                name="notifications_settings",
+            ),
+            path(
+                "notifications/stats/",
+                self.admin_view(stats_view),
+                name="notifications_stats",
+            ),
+        ]
     return custom_urls + urls
 
 

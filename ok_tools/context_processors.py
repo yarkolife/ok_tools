@@ -59,4 +59,5 @@ def module_flags(request):
         'DASHBOARD_ENABLED': getattr(settings, 'DASHBOARD_ENABLED', False),
         'AUSTAUSCH_ENABLED': getattr(settings, 'AUSTAUSCH_ENABLED', False),
         'TOOLS_ENABLED': getattr(settings, 'TOOLS_ENABLED', False),
+        'NOTIFICATIONS_ENABLED': getattr(settings, 'NOTIFICATIONS_ENABLED', False),
     }

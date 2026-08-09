@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.39.0
+**Current Version**: 4.40.0
 **Last Updated**: 9 August 2026
 
 Features
@@ -277,6 +277,19 @@ Features
   - Quick rental setup with equipment sets
   - Member-created equipment sets
   - Template-based equipment selection
+
+- **Admin Notifications** - Daily summary and event feed inside the Django admin
+  - Summary block on the admin start page: what is expected today and what happened
+  - Personal feed with action items that are closed individually
+  - Twenty-four event types: rental (hand-out, return, overdue, damage), licenses (confirmation, Nextcloud uploads, approved without a video), media files (new files, format deviating from the encoding preset, missing reel or cover, failed jobs, low disk space), exchange, planning (missing plan, entries without a video, missed broadcasts), registration, tools and system health
+  - Filters by module, event type, date range and age, with bulk actions on the selection or on everything matching the filter
+  - Three ways to close an entry: personally handled, postponed until tomorrow's summary, or never report this object again
+  - Adoption report (page and management command) showing whether the page is read and the items are closed, per event type and per staff member
+  - Per-module subscriptions with ready-made presets (Verleih, Redaktion, Technik, Verwaltung)
+  - Event types declared in code; the settings page is generated from that registry
+  - Every check can be switched off per channel, and a disabled check is not executed at all
+  - Visibility mirrors the admin: a subscription never widens access
+  - No emails and no polling — the page is the delivery
 
 
 Installation & Deployment

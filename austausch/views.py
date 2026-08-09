@@ -195,10 +195,9 @@ def _cover_settings():
 
 def _license_has_cover(number, cover_output_dir):
     """Return True if a canonical cover file exists for this license number."""
-    if not cover_output_dir:
-        return False
-    import os
-    return os.path.isfile(os.path.join(cover_output_dir, f'{number}_cover.jpg'))
+    from media_files.utils import has_cover
+
+    return has_cover(number, cover_output_dir)
 
 
 def _format_duration(td):

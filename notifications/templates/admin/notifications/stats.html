@@ -1,0 +1,158 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main" class="notifications-page">
+
+  <p class="notifications-toolbar">
+    <a href="{{ feed_url }}" class="button">{% translate "My notifications" %}</a>
+    <a href="{{ settings_url }}" class="button">{% translate "Notification settings" %}</a>
+  </p>
+
+  <form method="get" class="notifications-filters">
+    <label for="stats-days">{% translate "Observation window (days)" %}</label>
+    <input type="number" name="days" id="stats-days" min="1" step="1" value="{{ days }}">
+    <button type="submit" class="button">{% translate "Apply" %}</button>
+  </form>
+
+  <div class="module">
+    <h2>{% translate "Is the page being read?" %}</h2>
+    <div class="notifications-summary-body">
+      <ul class="notifications-list">
+        <li>
+          {% blocktranslate with count=summary.staff %}Staff accounts: {{ count }}{% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate with count=summary.with_subscriptions %}Subscribed to at least one module: {{ count }}{% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate with count=summary.ever_opened %}Opened the page at least once: {{ count }}{% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate with count=summary.opened_last_week %}Opened it in the last seven days: {{ count }}{% endblocktranslate %}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>{% translate "Are the items being closed?" %}</h2>
+    <div class="notifications-summary-body">
+      <ul class="notifications-list">
+        <li>
+          {% blocktranslate with count=summary.events days=summary.days %}Events in the last {{ days }} days: {{ count }}{% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate with count=summary.action_items %}Action items created: {{ count }}{% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate with count=summary.dismissed %}Marked as handled: {{ count }}{% endblocktranslate %}
+          {% if summary.closed_share is not None %}
+            <span class="notifications-meta">{{ summary.closed_share }}%</span>
+          {% endif %}
+        </li>
+        <li>
+          {% blocktranslate with count=summary.suppressed %}Permanently silenced: {{ count }}{% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate with enabled=summary.enabled_types total=summary.types %}Enabled event types: {{ enabled }} of {{ total }}{% endblocktranslate %}
+        </li>
+      </ul>
+      <p class="help">
+        {% blocktranslate %}A type with many silenced entries and few handled ones is
+        reporting the wrong thing. A type with no events at all over a long window is
+        either switched off or asks a question this channel does not have.{% endblocktranslate %}
+      </p>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>{% translate "Per event type" %}</h2>
+    <div class="notifications-summary-body notifications-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{% translate "Event type" %}</th>
+            <th scope="col">{% translate "Enabled" %}</th>
+            <th scope="col">{% translate "Events" %}</th>
+            <th scope="col">{% translate "Items" %}</th>
+            <th scope="col">{% translate "Handled" %}</th>
+            <th scope="col">{% translate "Open" %}</th>
+            <th scope="col">{% translate "Postponed" %}</th>
+            <th scope="col">{% translate "Silenced" %}</th>
+            <th scope="col">{% translate "Median hours to close" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in types %}
+            <tr>
+              <th scope="row">
+                {{ row.label }}
+                <br><span class="notifications-meta">{{ row.code }}</span>
+              </th>
+              <td>{% if row.enabled %}{% translate "yes" %}{% else %}{% translate "no" %}{% endif %}</td>
+              <td>{% if row.expectation %}<span class="notifications-meta">&mdash;</span>{% else %}{{ row.events }}{% endif %}</td>
+              <td>{{ row.items }}</td>
+              <td>
+                {{ row.dismissed }}
+                {% if row.closed_share is not None %}
+                  <span class="notifications-meta">{{ row.closed_share }}%</span>
+                {% endif %}
+              </td>
+              <td>{{ row.open }}</td>
+              <td>{{ row.snoozed }}</td>
+              <td>{{ row.suppressed }}</td>
+              <td>{% if row.median_hours is not None %}{{ row.median_hours }}{% else %}<span class="notifications-meta">&mdash;</span>{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="help">
+        {% blocktranslate %}Expectations are recomputed on every render and never stored,
+        so they have no event count.{% endblocktranslate %}
+      </p>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>{% translate "Per staff member" %}</h2>
+    <div class="notifications-summary-body notifications-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{% translate "Account" %}</th>
+            <th scope="col">{% translate "Subscriptions" %}</th>
+            <th scope="col">{% translate "Last opened" %}</th>
+            <th scope="col">{% translate "Open" %}</th>
+            <th scope="col">{% translate "Handled" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in users %}
+            <tr>
+              <th scope="row">
+                {{ row.email }}
+                {% if row.is_superuser %}<span class="notifications-meta">superuser</span>{% endif %}
+              </th>
+              <td>{{ row.subscriptions }}</td>
+              <td>
+                {% if row.last_seen_at %}
+                  {{ row.last_seen_at|date:"d.m.Y H:i" }}
+                  <span class="notifications-meta">
+                    {% blocktranslate with days=row.days_since %}{{ days }} days ago{% endblocktranslate %}
+                  </span>
+                {% else %}
+                  <span class="notifications-meta">{% translate "never" %}</span>
+                {% endif %}
+              </td>
+              <td>{{ row.open_items }}</td>
+              <td>{{ row.dismissed_items }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

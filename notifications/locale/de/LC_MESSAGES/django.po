@@ -1,0 +1,1081 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-09 12:21+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps.py:26 templates/notifications/badge.html:3
+#: templates/notifications/badge.html:9
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+#: event_types.py:28
+msgid "Equipment to hand out"
+msgstr "Technik zur Ausgabe"
+
+#: event_types.py:29
+msgid "Reserved equipment whose pick-up date is reached."
+msgstr "Reservierte Technik, deren Abholdatum erreicht ist."
+
+#: event_types.py:30 event_types.py:51
+#, python-brace-format
+msgid "{project_name} ({user})"
+msgstr "{project_name} ({user})"
+
+#: event_types.py:39 event_types.py:60 event_types.py:377 event_types.py:397
+msgid "Days ahead"
+msgstr "Tage im Voraus"
+
+#: event_types.py:41 event_types.py:62
+msgid "0 shows today only, 1 also shows tomorrow."
+msgstr "0 zeigt nur heute, 1 zeigt auch morgen."
+
+#: event_types.py:49
+msgid "Equipment due back"
+msgstr "Technik ist zur Rückgabe fällig"
+
+#: event_types.py:50
+msgid "Issued equipment whose return date is reached."
+msgstr "Ausgegebene Technik, deren Rückgabedatum erreicht ist."
+
+#: event_types.py:71
+msgid "Equipment overdue"
+msgstr "Technik überfällig"
+
+#: event_types.py:72
+msgid "Issued equipment that was not returned in time."
+msgstr "Ausgegebene Technik, die nicht rechtzeitig zurückgegeben wurde."
+
+#: event_types.py:73
+#, python-brace-format
+msgid "{project_name} ({user}), {days_late} days late"
+msgstr "{project_name} ({user}), {days_late} Tage überfällig"
+
+#: event_types.py:81
+msgid "Grace period (days)"
+msgstr "Karenzzeit (Tage)"
+
+#: event_types.py:83
+msgid "Report only after the return is this many days late."
+msgstr "Erst melden, wenn die Rückgabe so viele Tage überfällig ist."
+
+#: event_types.py:87
+msgid "Repeat every (days)"
+msgstr "Wiederholen alle (Tage)"
+
+#: event_types.py:89
+msgid "Raise the entry again after this many days."
+msgstr "Den Eintrag nach so vielen Tagen erneut melden."
+
+#: event_types.py:98
+msgid "Problem reported with rented equipment"
+msgstr "Problem mit ausgeliehener Technik gemeldet"
+
+#: event_types.py:99
+msgid "Somebody recorded damage or a defect on a rental."
+msgstr "Zu einer Ausleihe wurde ein Schaden oder Defekt erfasst."
+
+#: event_types.py:100
+#, python-brace-format
+msgid "{item}: {issue} ({severity})"
+msgstr "{item}: {issue} ({severity})"
+
+#: event_types.py:115
+msgid "New license waiting for confirmation"
+msgstr "Neue Sendeerlaubnis wartet auf Genehmigung"
+
+#: event_types.py:116
+msgid "A license was created and still needs to be confirmed."
+msgstr "Eine Sendeerlaubnis wurde angelegt und muss noch genehmigt werden."
+
+#: event_types.py:117 event_types.py:129 event_types.py:167
+#, python-brace-format
+msgid "License {number}: {title}"
+msgstr "Sendeerlaubnis {number}: {title}"
+
+#: event_types.py:127
+msgid "License unconfirmed for too long"
+msgstr "Sendeerlaubnis zu lange ohne Genehmigung"
+
+#: event_types.py:128
+msgid "The license has been waiting for confirmation for a while."
+msgstr "Die Sendeerlaubnis wartet schon eine Weile auf die Genehmigung."
+
+#: event_types.py:137 event_types.py:497
+msgid "Days to wait"
+msgstr "Wartetage"
+
+#: event_types.py:139
+msgid "Report a license once it has waited this many days."
+msgstr "Eine Sendeerlaubnis melden, sobald sie so viele Tage gewartet hat."
+
+#: event_types.py:149
+msgid "Uploaded video waiting to be downloaded"
+msgstr "Hochgeladenes Video wartet auf den Download"
+
+#: event_types.py:151
+msgid ""
+"An author uploaded a video to Nextcloud and it is not on a storage location "
+"yet."
+msgstr ""
+"Ein Autor hat ein Video zu Nextcloud hochgeladen und es liegt noch auf "
+"keinem Speicherort."
+
+#: event_types.py:153
+#, python-brace-format
+msgid "License {number}: {filename}"
+msgstr "Sendeerlaubnis {number}: {filename}"
+
+#: event_types.py:164
+msgid "Confirmed license without a video file"
+msgstr "Genehmigte Sendeerlaubnis ohne Videodatei"
+
+#: event_types.py:166
+msgid "The license is approved but has no video, so it cannot be planned."
+msgstr ""
+"Die Sendeerlaubnis ist genehmigt, hat aber kein Video und kann nicht geplant "
+"werden."
+
+#: event_types.py:175
+msgid "Confirmed within (days)"
+msgstr "Genehmigt innerhalb von (Tagen)"
+
+#: event_types.py:177
+msgid "Only look at licenses confirmed recently."
+msgstr "Nur kürzlich genehmigte Sendeerlaubnisse prüfen."
+
+#: event_types.py:190
+msgid "New video found"
+msgstr "Neues Video gefunden"
+
+#: event_types.py:191
+msgid "The storage scan picked up a video that nobody checked."
+msgstr ""
+"Der Speicher-Scan hat ein Video gefunden, das noch niemand geprüft hat."
+
+#: event_types.py:192 event_types.py:273
+#, python-brace-format
+msgid "{filename} ({storage})"
+msgstr "{filename} ({storage})"
+
+#: event_types.py:203
+msgid "Video format has to be converted"
+msgstr "Videoformat muss konvertiert werden"
+
+#: event_types.py:205
+msgid ""
+"Resolution or frame rate differ from the configured encoding preset, so the "
+"file has to be transcoded."
+msgstr ""
+"Auflösung oder Bildrate weichen vom konfigurierten Encoding-Preset ab, die "
+"Datei muss umgewandelt werden."
+
+#: event_types.py:207
+#, python-brace-format
+msgid "{filename}: {deviation}"
+msgstr "{filename}: {deviation}"
+
+#: event_types.py:215 event_types.py:281
+msgid "Added within (days)"
+msgstr "Hinzugefügt innerhalb von (Tagen)"
+
+#: event_types.py:217
+msgid "Only check files that appeared recently."
+msgstr "Nur kürzlich hinzugekommene Dateien prüfen."
+
+#: event_types.py:228
+msgid "Planned own production without a reel"
+msgstr "Geplante Eigenproduktion ohne Reel"
+
+#: event_types.py:230
+msgid "An own production is scheduled soon and no reel was rendered yet."
+msgstr ""
+"Eine Eigenproduktion läuft demnächst und es wurde noch kein Reel erzeugt."
+
+#: event_types.py:231 event_types.py:252
+#, python-brace-format
+msgid "{date}: {number} {title}"
+msgstr "{date}: {number} {title}"
+
+#: event_types.py:239 event_types.py:260
+msgid "Days before broadcast"
+msgstr "Tage vor der Ausstrahlung"
+
+#: event_types.py:241 event_types.py:262
+msgid "Warn this many days before the broadcast date."
+msgstr "So viele Tage vor dem Sendetermin warnen."
+
+#: event_types.py:249
+msgid "Planned own production without a cover"
+msgstr "Geplante Eigenproduktion ohne Cover"
+
+#: event_types.py:251
+msgid "An own production is scheduled soon and no cover image exists."
+msgstr "Eine Eigenproduktion läuft demnächst und es gibt noch kein Coverbild."
+
+#: event_types.py:271
+msgid "Video without a license"
+msgstr "Video ohne Sendeerlaubnis"
+
+#: event_types.py:272
+msgid "A video file could not be linked to any license."
+msgstr "Eine Videodatei konnte keiner Sendeerlaubnis zugeordnet werden."
+
+#: event_types.py:283
+msgid "Only report files that appeared recently."
+msgstr "Nur kürzlich hinzugekommene Dateien melden."
+
+#: event_types.py:291
+msgid "File operation failed"
+msgstr "Dateioperation fehlgeschlagen"
+
+#: event_types.py:292
+msgid "A render, transcode or copy job ended with an error."
+msgstr "Ein Render-, Umwandlungs- oder Kopierauftrag endete mit einem Fehler."
+
+#: event_types.py:293
+#, python-brace-format
+msgid "{operation}: {filename}"
+msgstr "{operation}: {filename}"
+
+#: event_types.py:303
+msgid "Storage is running out of space"
+msgstr "Speicherort läuft voll"
+
+#: event_types.py:304
+msgid "A storage location has little free space left."
+msgstr "Auf einem Speicherort ist nur noch wenig Platz frei."
+
+#: event_types.py:305
+#, python-format, python-brace-format
+msgid "{name}: {free_percent}% free ({free_gb} GB)"
+msgstr "{name}: {free_percent}% frei ({free_gb} GB)"
+
+#: event_types.py:313
+msgid "Warn below (%)"
+msgstr "Warnen unter (%)"
+
+#: event_types.py:315
+msgid "Report when less than this share of space is free."
+msgstr "Melden, wenn weniger als dieser Anteil frei ist."
+
+#: event_types.py:328
+msgid "Exchange import failed"
+msgstr "Austausch-Import fehlgeschlagen"
+
+#: event_types.py:329
+msgid "Downloading or importing exchange material did not work."
+msgstr ""
+"Das Herunterladen oder Importieren von Austauschmaterial hat nicht "
+"funktioniert."
+
+#: event_types.py:330
+#, python-brace-format
+msgid "{filename}: {error}"
+msgstr "{filename}: {error}"
+
+#: event_types.py:340
+msgid "New material in the exchange"
+msgstr "Neues Material im Austausch"
+
+#: event_types.py:341
+msgid "The exchange folder scan found material not imported yet."
+msgstr ""
+"Der Scan des Austauschordners hat noch nicht importiertes Material gefunden."
+
+#: event_types.py:342
+#, python-brace-format
+msgid "{title} ({channel})"
+msgstr "{title} ({channel})"
+
+#: event_types.py:350
+msgid "Discovered within (days)"
+msgstr "Gefunden innerhalb von (Tagen)"
+
+#: event_types.py:352
+msgid "Ignore material discovered longer ago than this."
+msgstr "Material ignorieren, das länger zurückliegt."
+
+#: event_types.py:366
+msgid "No broadcast plan"
+msgstr "Kein Sendeplan"
+
+#: event_types.py:367
+msgid "There is no plan for one of the next days, or it is empty."
+msgstr "Für einen der nächsten Tage gibt es keinen Plan oder er ist leer."
+
+#: event_types.py:368
+#, python-brace-format
+msgid "{date}"
+msgstr "{date}"
+
+#: event_types.py:379
+msgid "How many days ahead the plan has to exist."
+msgstr "Wie viele Tage im Voraus der Plan vorhanden sein muss."
+
+#: event_types.py:387
+msgid "Planned entry without a video file"
+msgstr "Geplanter Eintrag ohne Videodatei"
+
+#: event_types.py:388
+msgid "A number in the plan has no available video file."
+msgstr "Zu einer Nummer im Plan gibt es keine verfügbare Videodatei."
+
+#: event_types.py:389
+#, python-brace-format
+msgid "{date}, {start}: {number} {title}"
+msgstr "{date}, {start}: {number} {title}"
+
+#: event_types.py:399
+msgid "How far ahead the plan is checked for missing media."
+msgstr "Wie weit im Voraus der Plan auf fehlende Medien geprüft wird."
+
+#: event_types.py:408
+msgid "Scheduled entry did not go on air"
+msgstr "Geplanter Eintrag lief nicht"
+
+#: event_types.py:410
+msgid "The playout reported a scheduled start that never actually began."
+msgstr "Der Playout meldete einen geplanten Start, der nie begonnen hat."
+
+#: event_types.py:411
+#, python-brace-format
+msgid "{scheduled_at}: {filename}"
+msgstr "{scheduled_at}: {filename}"
+
+#: event_types.py:419
+msgid "Look back (days)"
+msgstr "Rückblick (Tage)"
+
+#: event_types.py:421
+msgid "How far back missed broadcasts are reported."
+msgstr "Wie weit zurück verpasste Ausstrahlungen gemeldet werden."
+
+#: event_types.py:435
+msgid "Render job finished"
+msgstr "Render-Auftrag abgeschlossen"
+
+#: event_types.py:436
+msgid "A slideshow or audio job you started has ended."
+msgstr "Ein von Ihnen gestarteter Slideshow- oder Audio-Auftrag ist beendet."
+
+#: event_types.py:437
+#, python-brace-format
+msgid "{job}: {status}"
+msgstr "{job}: {status}"
+
+#: event_types.py:451
+msgid "Background tasks are failing"
+msgstr "Hintergrundaufgaben schlagen fehl"
+
+#: event_types.py:453
+msgid ""
+"Celery recorded failed tasks, for example a database backup that did not run."
+msgstr ""
+"Celery hat fehlgeschlagene Aufgaben erfasst, zum Beispiel ein nicht "
+"ausgeführtes Datenbank-Backup."
+
+#: event_types.py:455
+#, python-brace-format
+msgid "{task}: {count} failures"
+msgstr "{task}: {count} Fehlschläge"
+
+#: event_types.py:462
+msgid "Look back (hours)"
+msgstr "Rückblick (Stunden)"
+
+#: event_types.py:464
+msgid "How far back failed tasks are counted."
+msgstr "Wie weit zurück fehlgeschlagene Aufgaben gezählt werden."
+
+#: event_types.py:477
+msgid "New registration waiting for verification"
+msgstr "Neue Registrierung wartet auf Überprüfung"
+
+#: event_types.py:478
+msgid "Somebody registered and the profile is not verified yet."
+msgstr "Jemand hat sich registriert und das Profil ist noch nicht überprüft."
+
+#: event_types.py:479 event_types.py:490
+#, python-brace-format
+msgid "{name} ({email})"
+msgstr "{name} ({email})"
+
+#: event_types.py:488
+msgid "Profile unverified for too long"
+msgstr "Profil zu lange nicht überprüft"
+
+#: event_types.py:489
+msgid "The profile has been waiting for verification for a while."
+msgstr "Das Profil wartet schon eine Weile auf die Überprüfung."
+
+#: event_types.py:499
+msgid "Report a profile once it has waited this many days."
+msgstr "Ein Profil melden, sobald es so viele Tage gewartet hat."
+
+#: models.py:22 models.py:171 templates/admin/notifications/feed.html:73
+msgid "Module"
+msgstr "Modul"
+
+#: models.py:27 models.py:175 models.py:203 models.py:264
+#: templates/admin/notifications/feed.html:82
+#: templates/admin/notifications/settings.html:33
+#: templates/admin/notifications/stats.html:75
+msgid "Event type"
+msgstr "Ereignistyp"
+
+#: models.py:30
+msgid "Code of the event type declared in the registry."
+msgstr "Code des im Registry deklarierten Ereignistyps."
+
+#: models.py:33
+msgid "Category"
+msgstr "Kategorie"
+
+#: models.py:39
+msgid "Occurred at"
+msgstr "Eingetreten am"
+
+#: models.py:48 models.py:212
+msgid "Content type"
+msgstr "Inhaltstyp"
+
+#: models.py:51 models.py:215
+msgid "Object id"
+msgstr "Objekt-ID"
+
+#: models.py:57
+msgid "Payload"
+msgstr "Nutzdaten"
+
+#: models.py:60
+msgid "Data used to render the message in the reader language."
+msgstr ""
+"Daten, aus denen der Text in der Sprache der Leserin oder des Lesers erzeugt "
+"wird."
+
+#: models.py:63
+msgid "Deduplication key"
+msgstr "Deduplizierungsschlüssel"
+
+#: models.py:66
+msgid "Prevents duplicates when a scan or a signal runs twice."
+msgstr "Verhindert Duplikate, wenn ein Scan oder ein Signal zweimal läuft."
+
+#: models.py:69 models.py:235
+msgid "Created at"
+msgstr "Erstellt am"
+
+#: models.py:74
+msgid "Notification event"
+msgstr "Benachrichtigungsereignis"
+
+#: models.py:75
+msgid "Notification events"
+msgstr "Benachrichtigungsereignisse"
+
+#: models.py:115 models.py:168 models.py:379
+msgid "User"
+msgstr "Benutzer"
+
+#: models.py:121
+msgid "Event"
+msgstr "Ereignis"
+
+#: models.py:124
+msgid "Read at"
+msgstr "Gelesen am"
+
+#: models.py:129
+msgid "Dismissed at"
+msgstr "Erledigt am"
+
+#: models.py:134
+msgid "Snoozed until"
+msgstr "Zurückgestellt bis"
+
+#: models.py:137
+msgid "Hidden from the list until this moment."
+msgstr "Bis zu diesem Zeitpunkt aus der Liste ausgeblendet."
+
+#: models.py:141
+msgid "User notification"
+msgstr "Benutzerbenachrichtigung"
+
+#: models.py:142
+msgid "User notifications"
+msgstr "Benutzerbenachrichtigungen"
+
+#: models.py:178
+msgid "Use * to subscribe to the whole module."
+msgstr "Mit * das gesamte Modul abonnieren."
+
+#: models.py:182
+msgid "Notification subscription"
+msgstr "Benachrichtigungsabonnement"
+
+#: models.py:183
+msgid "Notification subscriptions"
+msgstr "Benachrichtigungsabonnements"
+
+#: models.py:221
+msgid "Reason"
+msgstr "Grund"
+
+#: models.py:232
+msgid "Created by"
+msgstr "Erstellt von"
+
+#: models.py:240
+msgid "Notification suppression"
+msgstr "Benachrichtigungs-Ausblendung"
+
+#: models.py:241
+msgid "Notification suppressions"
+msgstr "Benachrichtigungs-Ausblendungen"
+
+#: models.py:269 models.py:300 templates/admin/notifications/settings.html:32
+#: templates/admin/notifications/stats.html:76
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: models.py:271
+msgid "When off, the check is not executed and nobody sees it."
+msgstr ""
+"Ist die Prüfung aus, wird sie gar nicht ausgeführt und niemand sieht sie."
+
+#: models.py:274 templates/admin/notifications/settings.html:34
+msgid "Parameters"
+msgstr "Parameter"
+
+#: models.py:280
+msgid "Notification event type"
+msgstr "Benachrichtigungs-Ereignistyp"
+
+#: models.py:281
+msgid "Notification event types"
+msgstr "Benachrichtigungs-Ereignistypen"
+
+#: models.py:302
+msgid "Master switch for the whole notification system."
+msgstr "Hauptschalter für das gesamte Benachrichtigungssystem."
+
+#: models.py:305
+msgid "Daily summary time"
+msgstr "Uhrzeit der Tagesübersicht"
+
+#: models.py:307
+msgid "When the day marker is built. Nothing is sent by email."
+msgstr "Wann die Tagesmarke erzeugt wird. Es wird nichts per E-Mail versendet."
+
+#: models.py:310
+msgid "Retention (days)"
+msgstr "Aufbewahrung (Tage)"
+
+#: models.py:312
+msgid "Events older than this are deleted by the cleanup task."
+msgstr "Ältere Ereignisse werden von der Aufräumaufgabe gelöscht."
+
+#: models.py:316 models.py:317 models.py:321
+#: templates/admin/notifications/settings.html:12
+msgid "Notification Configuration"
+msgstr "Benachrichtigungs-Konfiguration"
+
+#: models.py:356
+msgid "Notifications: build daily summary"
+msgstr "Benachrichtigungen: Tagesübersicht erzeugen"
+
+#: models.py:382
+msgid "Last seen at"
+msgstr "Zuletzt gesehen am"
+
+#: models.py:388
+msgid "Notification read state"
+msgstr "Benachrichtigungs-Lesestand"
+
+#: models.py:389
+msgid "Notification read states"
+msgstr "Benachrichtigungs-Lesestände"
+
+#: presets.py:14
+msgid "Verleih"
+msgstr "Verleih"
+
+#: presets.py:15
+msgid "Redaktion"
+msgstr "Redaktion"
+
+#: presets.py:16
+msgid "Technik"
+msgstr "Technik"
+
+#: presets.py:17
+msgid "Verwaltung"
+msgstr "Verwaltung"
+
+#: registry.py:26 templates/notifications/summary_block.html:31
+msgid "Action required"
+msgstr "Handlungsbedarf"
+
+#: registry.py:27
+msgid "For information"
+msgstr "Zur Kenntnis"
+
+#: registry.py:28
+msgid "Problem"
+msgstr "Störung"
+
+#: registry.py:36
+msgid "Rental"
+msgstr "Verleih"
+
+#: registry.py:37
+msgid "Licenses"
+msgstr "Sendeerlaubnisse"
+
+#: registry.py:38
+msgid "Media files"
+msgstr "Mediendateien"
+
+#: registry.py:39
+msgid "Exchange"
+msgstr "Austausch"
+
+#: registry.py:40
+msgid "Planning"
+msgstr "Planung"
+
+#: registry.py:41
+msgid "Registration"
+msgstr "Registrierung"
+
+#: registry.py:42
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#: registry.py:43
+msgid "System"
+msgstr "System"
+
+#: templates/admin/notifications/feed.html:9 views.py:251
+msgid "My subscriptions"
+msgstr "Meine Abonnements"
+
+#: templates/admin/notifications/feed.html:13
+#: templates/admin/notifications/stats.html:9 views.py:326
+msgid "Notification settings"
+msgstr "Benachrichtigungseinstellungen"
+
+#: templates/admin/notifications/feed.html:20
+#: templates/notifications/summary_block.html:12
+msgid "You are not subscribed to any module yet."
+msgstr "Sie haben noch kein Modul abonniert."
+
+#: templates/admin/notifications/feed.html:21
+#: templates/notifications/summary_block.html:13
+msgid "Choose your modules"
+msgstr "Module auswählen"
+
+#: templates/admin/notifications/feed.html:26
+#: templates/notifications/summary_block.html:5
+msgid "Summary for today"
+msgstr "Übersicht für heute"
+
+#: templates/admin/notifications/feed.html:39
+msgid "Nothing is expected today."
+msgstr "Für heute steht nichts an."
+
+#: templates/admin/notifications/feed.html:46
+msgid "Entries"
+msgstr "Einträge"
+
+#: templates/admin/notifications/feed.html:50
+#, python-format
+msgid "filtered from %(total)s"
+msgstr "gefiltert aus %(total)s"
+
+#: templates/admin/notifications/feed.html:57
+#: templates/admin/notifications/stats.html:80
+#: templates/admin/notifications/stats.html:126
+msgid "Open"
+msgstr "Offen"
+
+#: templates/admin/notifications/feed.html:60
+#: templates/admin/notifications/stats.html:81
+msgid "Postponed"
+msgstr "Zurückgestellt"
+
+#: templates/admin/notifications/feed.html:63
+#: templates/admin/notifications/stats.html:79
+#: templates/admin/notifications/stats.html:127
+msgid "Handled"
+msgstr "Erledigt"
+
+#: templates/admin/notifications/feed.html:66
+msgid "Chronicle"
+msgstr "Verlauf"
+
+#: templates/admin/notifications/feed.html:75
+#: templates/admin/notifications/feed.html:84
+msgid "All"
+msgstr "Alle"
+
+#: templates/admin/notifications/feed.html:91
+msgid "Older than (days)"
+msgstr "Älter als (Tage)"
+
+#: templates/admin/notifications/feed.html:95
+msgid "From"
+msgstr "Von"
+
+#: templates/admin/notifications/feed.html:99
+msgid "To"
+msgstr "Bis"
+
+#: templates/admin/notifications/feed.html:103
+msgid "Filter"
+msgstr "Filtern"
+
+#: templates/admin/notifications/feed.html:105
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: templates/admin/notifications/feed.html:118
+msgid "Select all on this page"
+msgstr "Alle auf dieser Seite auswählen"
+
+#: templates/admin/notifications/feed.html:122
+#, python-format
+msgid "Apply to all %(count)s matching entries"
+msgstr "Auf alle %(count)s gefilterten Einträge anwenden"
+
+#: templates/admin/notifications/feed.html:127
+msgid "Reopen"
+msgstr "Wieder öffnen"
+
+#: templates/admin/notifications/feed.html:131
+msgid "Show again now"
+msgstr "Jetzt wieder anzeigen"
+
+#: templates/admin/notifications/feed.html:134
+#: templates/admin/notifications/feed.html:138
+msgid "Mark as handled"
+msgstr "Als erledigt markieren"
+
+#: templates/admin/notifications/feed.html:141
+msgid "Postpone until tomorrow"
+msgstr "Bis morgen zurückstellen"
+
+#: templates/admin/notifications/feed.html:146
+msgid "These entries will never be reported again, for anyone. Continue?"
+msgstr "Diese Einträge werden nie wieder gemeldet, für niemanden. Fortfahren?"
+
+#: templates/admin/notifications/feed.html:147
+msgid "Never report again"
+msgstr "Nie wieder melden"
+
+#: templates/admin/notifications/feed.html:162
+msgid "handled"
+msgstr "erledigt"
+
+#: templates/admin/notifications/feed.html:164
+#, python-format
+msgid "postponed until %(moment)s"
+msgstr "zurückgestellt bis %(moment)s"
+
+#: templates/admin/notifications/feed.html:166
+msgid "for information"
+msgstr "zur Kenntnis"
+
+#: templates/admin/notifications/feed.html:179
+msgid "Previous"
+msgstr "Zurück"
+
+#: templates/admin/notifications/feed.html:182
+#, python-format
+msgid "Page %(number)s of %(total)s"
+msgstr "Seite %(number)s von %(total)s"
+
+#: templates/admin/notifications/feed.html:185
+msgid "Next"
+msgstr "Weiter"
+
+#: templates/admin/notifications/feed.html:191
+msgid "Nothing has been handled yet."
+msgstr "Es wurde noch nichts erledigt."
+
+#: templates/admin/notifications/feed.html:192
+msgid "Nothing is postponed."
+msgstr "Es ist nichts zurückgestellt."
+
+#: templates/admin/notifications/feed.html:193
+msgid "The chronicle is empty."
+msgstr "Der Verlauf ist leer."
+
+#: templates/admin/notifications/feed.html:194
+msgid "No open items."
+msgstr "Keine offenen Punkte."
+
+#: templates/admin/notifications/settings.html:9
+#: templates/admin/notifications/stats.html:8
+#: templates/admin/notifications/subscriptions.html:8 views.py:193
+msgid "My notifications"
+msgstr "Meine Benachrichtigungen"
+
+#: templates/admin/notifications/settings.html:15 views.py:350
+msgid "Notification statistics"
+msgstr "Benachrichtigungsstatistik"
+
+#: templates/admin/notifications/settings.html:20
+msgid ""
+"A disabled check is not executed at all: it costs nothing and is\n"
+"    invisible to everyone. Switch off whatever this channel does not do."
+msgstr ""
+"Eine deaktivierte Prüfung wird gar nicht ausgeführt: Sie kostet nichts und "
+"ist\n"
+"    für alle unsichtbar. Schalten Sie ab, was dieser Kanal nicht macht."
+
+#: templates/admin/notifications/settings.html:54
+#, python-format
+msgid "Module disabled in settings (%(flag)s)."
+msgstr "Modul in den Einstellungen deaktiviert (%(flag)s)."
+
+#: templates/admin/notifications/settings.html:78
+msgid "Save"
+msgstr "Speichern"
+
+#: templates/admin/notifications/stats.html:13
+msgid "Observation window (days)"
+msgstr "Beobachtungszeitraum (Tage)"
+
+#: templates/admin/notifications/stats.html:15
+msgid "Apply"
+msgstr "Anwenden"
+
+#: templates/admin/notifications/stats.html:19
+msgid "Is the page being read?"
+msgstr "Wird die Seite gelesen?"
+
+#: templates/admin/notifications/stats.html:23
+#, python-format
+msgid "Staff accounts: %(count)s"
+msgstr "Mitarbeiterkonten: %(count)s"
+
+#: templates/admin/notifications/stats.html:26
+#, python-format
+msgid "Subscribed to at least one module: %(count)s"
+msgstr "Mindestens ein Modul abonniert: %(count)s"
+
+#: templates/admin/notifications/stats.html:29
+#, python-format
+msgid "Opened the page at least once: %(count)s"
+msgstr "Seite mindestens einmal geöffnet: %(count)s"
+
+#: templates/admin/notifications/stats.html:32
+#, python-format
+msgid "Opened it in the last seven days: %(count)s"
+msgstr "In den letzten sieben Tagen geöffnet: %(count)s"
+
+#: templates/admin/notifications/stats.html:39
+msgid "Are the items being closed?"
+msgstr "Werden die Einträge abgearbeitet?"
+
+#: templates/admin/notifications/stats.html:43
+#, python-format
+msgid "Events in the last %(days)s days: %(count)s"
+msgstr "Ereignisse in den letzten %(days)s Tagen: %(count)s"
+
+#: templates/admin/notifications/stats.html:46
+#, python-format
+msgid "Action items created: %(count)s"
+msgstr "Erzeugte Aufgaben: %(count)s"
+
+#: templates/admin/notifications/stats.html:49
+#, python-format
+msgid "Marked as handled: %(count)s"
+msgstr "Als erledigt markiert: %(count)s"
+
+#: templates/admin/notifications/stats.html:55
+#, python-format
+msgid "Permanently silenced: %(count)s"
+msgstr "Dauerhaft ausgeblendet: %(count)s"
+
+#: templates/admin/notifications/stats.html:58
+#, python-format
+msgid "Enabled event types: %(enabled)s of %(total)s"
+msgstr "Aktivierte Ereignistypen: %(enabled)s von %(total)s"
+
+#: templates/admin/notifications/stats.html:62
+msgid ""
+"A type with many silenced entries and few handled ones is\n"
+"        reporting the wrong thing. A type with no events at all over a long "
+"window is\n"
+"        either switched off or asks a question this channel does not have."
+msgstr ""
+"Ein Typ mit vielen ausgeblendeten und wenigen erledigten Einträgen meldet\n"
+"        das Falsche. Ein Typ ganz ohne Ereignisse über einen langen Zeitraum "
+"ist\n"
+"        entweder abgeschaltet oder stellt eine Frage, die dieser Kanal nicht "
+"hat."
+
+#: templates/admin/notifications/stats.html:70
+msgid "Per event type"
+msgstr "Nach Ereignistyp"
+
+#: templates/admin/notifications/stats.html:77
+msgid "Events"
+msgstr "Ereignisse"
+
+#: templates/admin/notifications/stats.html:78
+msgid "Items"
+msgstr "Aufgaben"
+
+#: templates/admin/notifications/stats.html:82
+msgid "Silenced"
+msgstr "Ausgeblendet"
+
+#: templates/admin/notifications/stats.html:83
+msgid "Median hours to close"
+msgstr "Median Stunden bis erledigt"
+
+#: templates/admin/notifications/stats.html:93
+msgid "yes"
+msgstr "ja"
+
+#: templates/admin/notifications/stats.html:93
+msgid "no"
+msgstr "nein"
+
+#: templates/admin/notifications/stats.html:111
+msgid ""
+"Expectations are recomputed on every render and never stored,\n"
+"        so they have no event count."
+msgstr ""
+"Erwartungen werden bei jedem Aufruf neu berechnet und nie gespeichert,\n"
+"        daher haben sie keine Ereigniszahl."
+
+#: templates/admin/notifications/stats.html:118
+msgid "Per staff member"
+msgstr "Nach Mitarbeiterin oder Mitarbeiter"
+
+#: templates/admin/notifications/stats.html:123
+msgid "Account"
+msgstr "Konto"
+
+#: templates/admin/notifications/stats.html:124
+msgid "Subscriptions"
+msgstr "Abonnements"
+
+#: templates/admin/notifications/stats.html:125
+msgid "Last opened"
+msgstr "Zuletzt geöffnet"
+
+#: templates/admin/notifications/stats.html:142
+#, python-format
+msgid "%(days)s days ago"
+msgstr "vor %(days)s Tagen"
+
+#: templates/admin/notifications/stats.html:145
+msgid "never"
+msgstr "nie"
+
+#: templates/admin/notifications/subscriptions.html:12
+msgid ""
+"You only see event types your account may see anyway. A\n"
+"    subscription decides what reaches you, never what you have access to."
+msgstr ""
+"Sie sehen nur Ereignistypen, die Ihr Konto ohnehin sehen darf. Ein\n"
+"    Abonnement entscheidet, was Sie erreicht, nie worauf Sie Zugriff haben."
+
+#: templates/admin/notifications/subscriptions.html:17
+msgid "Apply a ready-made set:"
+msgstr "Fertigen Satz übernehmen:"
+
+#: templates/admin/notifications/subscriptions.html:57
+msgid "No event type is available for your account."
+msgstr "Für Ihr Konto ist kein Ereignistyp verfügbar."
+
+#: templates/admin/notifications/subscriptions.html:61
+msgid "Save subscriptions"
+msgstr "Abonnements speichern"
+
+#: templates/notifications/summary_block.html:45
+msgid "New"
+msgstr "Neu"
+
+#: templates/notifications/summary_block.html:60
+msgid "Nothing to report today."
+msgstr "Heute gibt es nichts zu melden."
+
+#: views.py:115
+#, python-format
+msgid "%(count)d entry marked as handled."
+msgid_plural "%(count)d entries marked as handled."
+msgstr[0] "%(count)d Eintrag als erledigt markiert."
+msgstr[1] "%(count)d Einträge als erledigt markiert."
+
+#: views.py:119 views.py:128 views.py:137 views.py:146 views.py:157
+msgid "Nothing was selected."
+msgstr "Es wurde nichts ausgewählt."
+
+#: views.py:124
+#, python-format
+msgid "%(count)d entry postponed until tomorrow."
+msgid_plural "%(count)d entries postponed until tomorrow."
+msgstr[0] "%(count)d Eintrag bis morgen zurückgestellt."
+msgstr[1] "%(count)d Einträge bis morgen zurückgestellt."
+
+#: views.py:133
+#, python-format
+msgid "%(count)d entry was reopened."
+msgid_plural "%(count)d entries were reopened."
+msgstr[0] "%(count)d Eintrag wurde wieder geöffnet."
+msgstr[1] "%(count)d Einträge wurden wieder geöffnet."
+
+#: views.py:142
+#, python-format
+msgid "%(count)d entry is shown again."
+msgid_plural "%(count)d entries are shown again."
+msgstr[0] "%(count)d Eintrag wird wieder angezeigt."
+msgstr[1] "%(count)d Einträge werden wieder angezeigt."
+
+#: views.py:150
+msgid "Silenced from the notification page"
+msgstr "Über die Benachrichtigungsseite ausgeblendet"
+
+#: views.py:153
+#, python-format
+msgid "%(count)d entry will no longer be reported."
+msgid_plural "%(count)d entries will no longer be reported."
+msgstr[0] "%(count)d Eintrag wird nicht mehr gemeldet."
+msgstr[1] "%(count)d Einträge werden nicht mehr gemeldet."
+
+#: views.py:239 views.py:246
+msgid "Subscriptions updated."
+msgstr "Abonnements aktualisiert."
+
+#: views.py:264
+msgid "Only superusers may configure notifications."
+msgstr "Nur Superuser dürfen Benachrichtigungen konfigurieren."
+
+#: views.py:290
+msgid "Notification settings saved."
+msgstr "Benachrichtigungseinstellungen gespeichert."
+
+#: views.py:341
+msgid "Only superusers may see the notification statistics."
+msgstr "Nur Superuser dürfen die Benachrichtigungsstatistik sehen."

@@ -662,6 +662,18 @@ class OrganizationConfig(models.Model):
     )
     
     # Integration
+    media_authority = models.ForeignKey(
+        MediaAuthority,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='organization_configs',
+        verbose_name=_('Own Media Authority'),
+        help_text=_(
+            'Which "Offener Kanal" this installation is. Used to tell own '
+            'productions from material of other channels.'),
+    )
+
     peertube_channel = models.CharField(
         max_length=255,
         blank=True,
