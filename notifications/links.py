@@ -39,6 +39,16 @@ def rental_process_url() -> str:
     return _reverse('rental:admin_rental_process')
 
 
+def rental_detail_url(rental_id) -> str:
+    """Return one rental request, falling back to the process overview."""
+    if not rental_id:
+        return rental_process_url()
+    try:
+        return reverse('rental:rental_detail', args=[rental_id])
+    except NoReverseMatch:
+        return rental_process_url()
+
+
 def exchange_feed_url(search: str = '', channel: str = '',
                       status: str = '') -> str:
     """Return the exchange feed, optionally filtered down to one item."""

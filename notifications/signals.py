@@ -71,6 +71,8 @@ def on_rental_issue_created(sender, instance, created, **kwargs):
     """Report damage or a defect somebody recorded on a rental."""
     if not created or getattr(instance, 'resolved', False):
         return
+    rental_item = getattr(instance, 'rental_item', None)
+    rental_id = getattr(rental_item, 'rental_request_id', None)
     emit_on_commit(
         'rental.issue_reported',
         obj=instance,
@@ -78,14 +80,14 @@ def on_rental_issue_created(sender, instance, created, **kwargs):
             'item': str(instance.rental_item),
             'issue': instance.get_issue_type_display(),
             'severity': instance.get_severity_display(),
-            'url': links.rental_process_url(),
+            'url': links.rental_detail_url(rental_id),
         },
     )
 
 
 def on_file_operation_saved(sender, instance, created, **kwargs):
     """Report a render, transcode or copy job that ended with an error."""
-    if instance.status != 'failed':
+    if str(instance.status).lower() != 'failed':
         return
     video = getattr(instance, 'video_file', None)
     emit_on_commit(

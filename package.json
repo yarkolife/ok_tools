@@ -1,10 +1,14 @@
 {
   "name": "ok_tools_v3",
   "private": true,
-  "description": "Community media center management — JSX build step for rental app",
+  "description": "Community media center management — JSX build step for interactive pages",
   "scripts": {
-    "build:js": "esbuild rental/static/rental/js/entries/*.jsx rental/static/rental/js/shared.jsx rental/static/rental/js/wizard.jsx rental/static/rental/js/equipment_sets.jsx rental/static/rental/js/detail.jsx rental/static/rental/js/return.jsx rental/static/rental/js/room_calendar.jsx --outdir=rental/static/rental/js/build/ --loader:.jsx=jsx --minify",
-    "watch:js": "esbuild rental/static/rental/js/entries/*.jsx rental/static/rental/js/shared.jsx rental/static/rental/js/wizard.jsx rental/static/rental/js/equipment_sets.jsx rental/static/rental/js/detail.jsx rental/static/rental/js/return.jsx rental/static/rental/js/room_calendar.jsx --outdir=rental/static/rental/js/build/ --loader:.jsx=jsx --watch"
+    "build:js": "npm run build:rental-js && npm run build:notifications-js",
+    "build:rental-js": "esbuild rental/static/rental/js/entries/*.jsx rental/static/rental/js/shared.jsx rental/static/rental/js/wizard.jsx rental/static/rental/js/equipment_sets.jsx rental/static/rental/js/detail.jsx rental/static/rental/js/return.jsx rental/static/rental/js/room_calendar.jsx --outdir=rental/static/rental/js/build/ --loader:.jsx=jsx --minify",
+    "build:notifications-js": "esbuild notifications/static/notifications/js/feed.jsx --outfile=notifications/static/notifications/js/build/feed.js --loader:.jsx=jsx --minify",
+    "watch:js": "npm run watch:rental-js & npm run watch:notifications-js",
+    "watch:rental-js": "esbuild rental/static/rental/js/entries/*.jsx rental/static/rental/js/shared.jsx rental/static/rental/js/wizard.jsx rental/static/rental/js/equipment_sets.jsx rental/static/rental/js/detail.jsx rental/static/rental/js/return.jsx rental/static/rental/js/room_calendar.jsx --outdir=rental/static/rental/js/build/ --loader:.jsx=jsx --watch",
+    "watch:notifications-js": "esbuild notifications/static/notifications/js/feed.jsx --outfile=notifications/static/notifications/js/build/feed.js --loader:.jsx=jsx --watch"
   },
   "devDependencies": {
     "esbuild": "^0.25.0"

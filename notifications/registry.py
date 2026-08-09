@@ -36,7 +36,7 @@ MODULE_LABELS: Dict[str, Any] = {
     'rental': _('Rental'),
     'licenses': _('Licenses'),
     'media_files': _('Media files'),
-    'austausch': _('Exchange'),
+    'austausch': _('Austausch'),
     'planung': _('Planning'),
     'registration': _('Registration'),
     'tools': _('Tools'),

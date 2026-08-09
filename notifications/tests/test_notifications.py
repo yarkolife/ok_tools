@@ -285,6 +285,10 @@ def test_snoozing_hides_an_item_until_tomorrow(db, synced, licenses_staff,
     assert postponed == 1
     assert selectors.action_count(licenses_staff) == 0
     assert selectors.snoozed_action_items(licenses_staff).count() == 1
+    assert selectors.snoozed_action_items(
+        licenses_staff, filters={'module': 'licenses'}).count() == 1
+    assert selectors.snoozed_action_items(
+        licenses_staff, filters={'module': 'rental'}).count() == 0
 
 
 def test_snooze_wakes_up_at_the_summary_time(db, synced, licenses_staff,
@@ -422,6 +426,37 @@ def test_subscriptions_live_on_their_own_page(db, synced, licenses_staff,
     assert set(
         Subscription.objects.filter(user=licenses_staff)
         .values_list('module', flat=True)) == {'rental'}
+
+
+def test_feed_exposes_rich_event_details_to_react(db, synced, licenses_staff,
+                                                  license, client):
+    """The React table receives the explanation and useful payload fields."""
+    licenses_staff.is_superuser = True
+    licenses_staff.save()
+    selectors.set_subscriptions(licenses_staff, ['licenses'], [])
+    event = emit(NEW_LICENSE, obj=license, payload={
+        'number': license.number,
+        'title': license.title,
+        'url': '/admin/licenses/license/',
+    })
+    client.force_login(licenses_staff)
+
+    response = client.get('/admin/notifications/')
+
+    assert response.status_code == 200
+    row = response.context_data['notifications_data']['rows'][0]
+    overview = response.context_data['notifications_data']['overviewRows']
+    assert row['id'] == event.pk
+    assert row['selectable'] is True
+    assert row['description']
+    assert row['url'] == '/admin/licenses/license/'
+    assert {detail['key'] for detail in row['details']} == {
+        'number', 'title'}
+    assert overview['action'][0]['id'] == event.pk
+    assert overview['new'][0]['id'] == event.pk
+    assert set(overview) == {
+        'expected', 'new', 'action', 'snoozed', 'problems'}
+    assert 'notifications/js/build/feed' in response.content.decode()
 
 
 def test_preset_subscribes_to_its_modules(db, synced, staff_user):

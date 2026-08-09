@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-09 12:21+0200\n"
+"POT-Creation-Date: 2026-08-09 18:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -427,14 +426,13 @@ msgstr "Das Profil wartet schon eine Weile auf die Überprüfung."
 msgid "Report a profile once it has waited this many days."
 msgstr "Ein Profil melden, sobald es so viele Tage gewartet hat."
 
-#: models.py:22 models.py:171 templates/admin/notifications/feed.html:73
+#: models.py:22 models.py:171 views.py:412
 msgid "Module"
 msgstr "Modul"
 
 #: models.py:27 models.py:175 models.py:203 models.py:264
-#: templates/admin/notifications/feed.html:82
 #: templates/admin/notifications/settings.html:33
-#: templates/admin/notifications/stats.html:75
+#: templates/admin/notifications/stats.html:75 views.py:413
 msgid "Event type"
 msgstr "Ereignistyp"
 
@@ -442,7 +440,7 @@ msgstr "Ereignistyp"
 msgid "Code of the event type declared in the registry."
 msgstr "Code des im Registry deklarierten Ereignistyps."
 
-#: models.py:33
+#: models.py:33 views.py:414
 msgid "Category"
 msgstr "Kategorie"
 
@@ -627,11 +625,11 @@ msgstr "Technik"
 msgid "Verwaltung"
 msgstr "Verwaltung"
 
-#: registry.py:26 templates/notifications/summary_block.html:31
+#: registry.py:26 templates/notifications/summary_block.html:31 views.py:407
 msgid "Action required"
 msgstr "Handlungsbedarf"
 
-#: registry.py:27
+#: registry.py:27 views.py:168 views.py:459
 msgid "For information"
 msgstr "Zur Kenntnis"
 
@@ -652,7 +650,7 @@ msgid "Media files"
 msgstr "Mediendateien"
 
 #: registry.py:39
-msgid "Exchange"
+msgid "Austausch"
 msgstr "Austausch"
 
 #: registry.py:40
@@ -671,172 +669,21 @@ msgstr "Werkzeuge"
 msgid "System"
 msgstr "System"
 
-#: templates/admin/notifications/feed.html:9 views.py:251
-msgid "My subscriptions"
-msgstr "Meine Abonnements"
+#: templates/admin/notifications/feed.html:8 views.py:402
+msgid "Notification center"
+msgstr "Benachrichtigungszentrale"
 
-#: templates/admin/notifications/feed.html:13
-#: templates/admin/notifications/stats.html:9 views.py:326
-msgid "Notification settings"
-msgstr "Benachrichtigungseinstellungen"
-
-#: templates/admin/notifications/feed.html:20
-#: templates/notifications/summary_block.html:12
-msgid "You are not subscribed to any module yet."
-msgstr "Sie haben noch kein Modul abonniert."
-
-#: templates/admin/notifications/feed.html:21
-#: templates/notifications/summary_block.html:13
-msgid "Choose your modules"
-msgstr "Module auswählen"
-
-#: templates/admin/notifications/feed.html:26
-#: templates/notifications/summary_block.html:5
-msgid "Summary for today"
-msgstr "Übersicht für heute"
-
-#: templates/admin/notifications/feed.html:39
-msgid "Nothing is expected today."
-msgstr "Für heute steht nichts an."
-
-#: templates/admin/notifications/feed.html:46
-msgid "Entries"
-msgstr "Einträge"
-
-#: templates/admin/notifications/feed.html:50
-#, python-format
-msgid "filtered from %(total)s"
-msgstr "gefiltert aus %(total)s"
-
-#: templates/admin/notifications/feed.html:57
-#: templates/admin/notifications/stats.html:80
-#: templates/admin/notifications/stats.html:126
-msgid "Open"
-msgstr "Offen"
-
-#: templates/admin/notifications/feed.html:60
-#: templates/admin/notifications/stats.html:81
-msgid "Postponed"
-msgstr "Zurückgestellt"
-
-#: templates/admin/notifications/feed.html:63
-#: templates/admin/notifications/stats.html:79
-#: templates/admin/notifications/stats.html:127
-msgid "Handled"
-msgstr "Erledigt"
-
-#: templates/admin/notifications/feed.html:66
-msgid "Chronicle"
-msgstr "Verlauf"
-
-#: templates/admin/notifications/feed.html:75
-#: templates/admin/notifications/feed.html:84
-msgid "All"
-msgstr "Alle"
-
-#: templates/admin/notifications/feed.html:91
-msgid "Older than (days)"
-msgstr "Älter als (Tage)"
-
-#: templates/admin/notifications/feed.html:95
-msgid "From"
-msgstr "Von"
-
-#: templates/admin/notifications/feed.html:99
-msgid "To"
-msgstr "Bis"
-
-#: templates/admin/notifications/feed.html:103
-msgid "Filter"
-msgstr "Filtern"
-
-#: templates/admin/notifications/feed.html:105
-msgid "Reset"
-msgstr "Zurücksetzen"
-
-#: templates/admin/notifications/feed.html:118
-msgid "Select all on this page"
-msgstr "Alle auf dieser Seite auswählen"
-
-#: templates/admin/notifications/feed.html:122
-#, python-format
-msgid "Apply to all %(count)s matching entries"
-msgstr "Auf alle %(count)s gefilterten Einträge anwenden"
-
-#: templates/admin/notifications/feed.html:127
-msgid "Reopen"
-msgstr "Wieder öffnen"
-
-#: templates/admin/notifications/feed.html:131
-msgid "Show again now"
-msgstr "Jetzt wieder anzeigen"
-
-#: templates/admin/notifications/feed.html:134
-#: templates/admin/notifications/feed.html:138
-msgid "Mark as handled"
-msgstr "Als erledigt markieren"
-
-#: templates/admin/notifications/feed.html:141
-msgid "Postpone until tomorrow"
-msgstr "Bis morgen zurückstellen"
-
-#: templates/admin/notifications/feed.html:146
-msgid "These entries will never be reported again, for anyone. Continue?"
-msgstr "Diese Einträge werden nie wieder gemeldet, für niemanden. Fortfahren?"
-
-#: templates/admin/notifications/feed.html:147
-msgid "Never report again"
-msgstr "Nie wieder melden"
-
-#: templates/admin/notifications/feed.html:162
-msgid "handled"
-msgstr "erledigt"
-
-#: templates/admin/notifications/feed.html:164
-#, python-format
-msgid "postponed until %(moment)s"
-msgstr "zurückgestellt bis %(moment)s"
-
-#: templates/admin/notifications/feed.html:166
-msgid "for information"
-msgstr "zur Kenntnis"
-
-#: templates/admin/notifications/feed.html:179
-msgid "Previous"
-msgstr "Zurück"
-
-#: templates/admin/notifications/feed.html:182
-#, python-format
-msgid "Page %(number)s of %(total)s"
-msgstr "Seite %(number)s von %(total)s"
-
-#: templates/admin/notifications/feed.html:185
-msgid "Next"
-msgstr "Weiter"
-
-#: templates/admin/notifications/feed.html:191
-msgid "Nothing has been handled yet."
-msgstr "Es wurde noch nichts erledigt."
-
-#: templates/admin/notifications/feed.html:192
-msgid "Nothing is postponed."
-msgstr "Es ist nichts zurückgestellt."
-
-#: templates/admin/notifications/feed.html:193
-msgid "The chronicle is empty."
-msgstr "Der Verlauf ist leer."
-
-#: templates/admin/notifications/feed.html:194
-msgid "No open items."
-msgstr "Keine offenen Punkte."
+#: templates/admin/notifications/feed.html:28
+msgid "Loading…"
+msgstr "Wird geladen…"
 
 #: templates/admin/notifications/settings.html:9
 #: templates/admin/notifications/stats.html:8
-#: templates/admin/notifications/subscriptions.html:8 views.py:193
+#: templates/admin/notifications/subscriptions.html:8 views.py:466
 msgid "My notifications"
 msgstr "Meine Benachrichtigungen"
 
-#: templates/admin/notifications/settings.html:15 views.py:350
+#: templates/admin/notifications/settings.html:15 views.py:602
 msgid "Notification statistics"
 msgstr "Benachrichtigungsstatistik"
 
@@ -857,6 +704,10 @@ msgstr "Modul in den Einstellungen deaktiviert (%(flag)s)."
 #: templates/admin/notifications/settings.html:78
 msgid "Save"
 msgstr "Speichern"
+
+#: templates/admin/notifications/stats.html:9 views.py:578
+msgid "Notification settings"
+msgstr "Benachrichtigungseinstellungen"
 
 #: templates/admin/notifications/stats.html:13
 msgid "Observation window (days)"
@@ -944,6 +795,20 @@ msgstr "Ereignisse"
 msgid "Items"
 msgstr "Aufgaben"
 
+#: templates/admin/notifications/stats.html:79
+#: templates/admin/notifications/stats.html:127 views.py:167 views.py:423
+msgid "Handled"
+msgstr "Erledigt"
+
+#: templates/admin/notifications/stats.html:80
+#: templates/admin/notifications/stats.html:126 views.py:165 views.py:422
+msgid "Open"
+msgstr "Offen"
+
+#: templates/admin/notifications/stats.html:81 views.py:166 views.py:408
+msgid "Postponed"
+msgstr "Zurückgestellt"
+
 #: templates/admin/notifications/stats.html:82
 msgid "Silenced"
 msgstr "Ausgeblendet"
@@ -976,7 +841,7 @@ msgstr "Nach Mitarbeiterin oder Mitarbeiter"
 msgid "Account"
 msgstr "Konto"
 
-#: templates/admin/notifications/stats.html:124
+#: templates/admin/notifications/stats.html:124 views.py:452
 msgid "Subscriptions"
 msgstr "Abonnements"
 
@@ -1013,6 +878,18 @@ msgstr "Für Ihr Konto ist kein Ereignistyp verfügbar."
 msgid "Save subscriptions"
 msgstr "Abonnements speichern"
 
+#: templates/notifications/summary_block.html:5
+msgid "Summary for today"
+msgstr "Übersicht für heute"
+
+#: templates/notifications/summary_block.html:12 views.py:442
+msgid "You are not subscribed to any module yet."
+msgstr "Sie haben noch kein Modul abonniert."
+
+#: templates/notifications/summary_block.html:13 views.py:443
+msgid "Choose your modules"
+msgstr "Module auswählen"
+
 #: templates/notifications/summary_block.html:45
 msgid "New"
 msgstr "Neu"
@@ -1021,61 +898,389 @@ msgstr "Neu"
 msgid "Nothing to report today."
 msgstr "Heute gibt es nichts zu melden."
 
-#: views.py:115
+#: views.py:39
+msgid "Channel"
+msgstr "Kanal"
+
+#: views.py:40
+msgid "Count"
+msgstr "Anzahl"
+
+#: views.py:41
+msgid "Created"
+msgstr "Erstellt"
+
+#: views.py:42
+msgid "Date"
+msgstr "Datum"
+
+#: views.py:43
+msgid "Days late"
+msgstr "Tage überfällig"
+
+#: views.py:44
+msgid "Difference"
+msgstr "Abweichung"
+
+#: views.py:45
+msgid "Discovered"
+msgstr "Entdeckt"
+
+#: views.py:46
+msgid "Due"
+msgstr "Fällig"
+
+#: views.py:47
+msgid "Email address"
+msgstr "E-Mail-Adresse"
+
+#: views.py:48
+msgid "Error"
+msgstr "Fehler"
+
+#: views.py:49
+msgid "File"
+msgstr "Datei"
+
+#: views.py:50
+msgid "Free space (GB)"
+msgstr "Freier Speicher (GB)"
+
+#: views.py:51
+msgid "Free space (%)"
+msgstr "Freier Speicher (%)"
+
+#: views.py:52
+msgid "Issue"
+msgstr "Problem"
+
+#: views.py:53
+msgid "Equipment"
+msgstr "Technik"
+
+#: views.py:54
+msgid "Job"
+msgstr "Auftrag"
+
+#: views.py:55
+msgid "Name"
+msgstr "Name"
+
+#: views.py:56
+msgid "Number"
+msgstr "Nummer"
+
+#: views.py:57
+msgid "Operation"
+msgstr "Vorgang"
+
+#: views.py:58
+msgid "Overdue"
+msgstr "Überfällig"
+
+#: views.py:59
+msgid "Project"
+msgstr "Projekt"
+
+#: views.py:60
+msgid "Scheduled for"
+msgstr "Geplant für"
+
+#: views.py:61
+msgid "Severity"
+msgstr "Schweregrad"
+
+#: views.py:62
+msgid "Start"
+msgstr "Beginn"
+
+#: views.py:63 views.py:425
+msgid "Status"
+msgstr "Status"
+
+#: views.py:64
+msgid "Storage"
+msgstr "Speicherort"
+
+#: views.py:65
+msgid "Task"
+msgstr "Aufgabe"
+
+#: views.py:66
+msgid "Title"
+msgstr "Titel"
+
+#: views.py:67
+msgid "Uploaded"
+msgstr "Hochgeladen"
+
+#: views.py:68
+msgid "Person"
+msgstr "Person"
+
+#: views.py:140
+msgid "Yes"
+msgstr "Ja"
+
+#: views.py:140
+msgid "No"
+msgstr "Nein"
+
+#: views.py:142
+msgid "Not specified"
+msgstr "Nicht angegeben"
+
+#: views.py:238
 #, python-format
 msgid "%(count)d entry marked as handled."
 msgid_plural "%(count)d entries marked as handled."
 msgstr[0] "%(count)d Eintrag als erledigt markiert."
 msgstr[1] "%(count)d Einträge als erledigt markiert."
 
-#: views.py:119 views.py:128 views.py:137 views.py:146 views.py:157
+#: views.py:242 views.py:251 views.py:260 views.py:269 views.py:280
 msgid "Nothing was selected."
 msgstr "Es wurde nichts ausgewählt."
 
-#: views.py:124
+#: views.py:247
 #, python-format
 msgid "%(count)d entry postponed until tomorrow."
 msgid_plural "%(count)d entries postponed until tomorrow."
 msgstr[0] "%(count)d Eintrag bis morgen zurückgestellt."
 msgstr[1] "%(count)d Einträge bis morgen zurückgestellt."
 
-#: views.py:133
+#: views.py:256
 #, python-format
 msgid "%(count)d entry was reopened."
 msgid_plural "%(count)d entries were reopened."
 msgstr[0] "%(count)d Eintrag wurde wieder geöffnet."
 msgstr[1] "%(count)d Einträge wurden wieder geöffnet."
 
-#: views.py:142
+#: views.py:265
 #, python-format
 msgid "%(count)d entry is shown again."
 msgid_plural "%(count)d entries are shown again."
 msgstr[0] "%(count)d Eintrag wird wieder angezeigt."
 msgstr[1] "%(count)d Einträge werden wieder angezeigt."
 
-#: views.py:150
+#: views.py:273
 msgid "Silenced from the notification page"
 msgstr "Über die Benachrichtigungsseite ausgeblendet"
 
-#: views.py:153
+#: views.py:276
 #, python-format
 msgid "%(count)d entry will no longer be reported."
 msgid_plural "%(count)d entries will no longer be reported."
 msgstr[0] "%(count)d Eintrag wird nicht mehr gemeldet."
 msgstr[1] "%(count)d Einträge werden nicht mehr gemeldet."
 
-#: views.py:239 views.py:246
+#: views.py:403
+msgid "Everything important for today at a glance."
+msgstr "Alles Wichtige für heute auf einen Blick."
+
+#: views.py:404
+msgid "Today's overview"
+msgstr "Heutige Übersicht"
+
+#: views.py:405
+msgid "Expected today"
+msgstr "Heute erwartet"
+
+#: views.py:406
+msgid "New since last visit"
+msgstr "Neu seit dem letzten Besuch"
+
+#: views.py:409
+msgid "Problems"
+msgstr "Probleme"
+
+#: views.py:410
+msgid "Search notifications…"
+msgstr "Benachrichtigungen suchen…"
+
+#: views.py:411
+msgid "Filters"
+msgstr "Filter"
+
+#: views.py:415
+msgid "Period"
+msgstr "Zeitraum"
+
+#: views.py:416
+msgid "From"
+msgstr "Von"
+
+#: views.py:417
+msgid "To"
+msgstr "Bis"
+
+#: views.py:418
+msgid "Older than (days)"
+msgstr "Älter als (Tage)"
+
+#: views.py:419
+msgid "Apply filters"
+msgstr "Filter anwenden"
+
+#: views.py:420
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: views.py:421
+msgid "All"
+msgstr "Alle"
+
+#: views.py:424
+msgid "Chronicle"
+msgstr "Verlauf"
+
+#: views.py:426
+msgid "Subject / object"
+msgstr "Betreff / Objekt"
+
+#: views.py:427
+msgid "Time"
+msgstr "Zeitpunkt"
+
+#: views.py:428
+msgid "State"
+msgstr "Zustand"
+
+#: views.py:429
+msgid "Actions"
+msgstr "Aktionen"
+
+#: views.py:430
+msgid "Select all on this page"
+msgstr "Alle auf dieser Seite auswählen"
+
+#: views.py:431
+msgid "Apply to all matching entries"
+msgstr "Auf alle passenden Einträge anwenden"
+
+#: views.py:432
+msgid "Mark as handled"
+msgstr "Als erledigt markieren"
+
+#: views.py:433
+msgid "Postpone until tomorrow"
+msgstr "Bis morgen zurückstellen"
+
+#: views.py:434
+msgid "Show again now"
+msgstr "Jetzt wieder anzeigen"
+
+#: views.py:435
+msgid "Reopen"
+msgstr "Wieder öffnen"
+
+#: views.py:436
+msgid "Never report again"
+msgstr "Nie wieder melden"
+
+#: views.py:438
+msgid "These entries will never be reported again, for anyone. Continue?"
+msgstr "Diese Einträge werden nie wieder gemeldet, für niemanden. Fortfahren?"
+
+#: views.py:439
+msgid "results"
+msgstr "Ergebnisse"
+
+#: views.py:440
+msgid "No notifications match this view."
+msgstr "Für diese Ansicht wurden keine Benachrichtigungen gefunden."
+
+#: views.py:444
+msgid "Close"
+msgstr "Schließen"
+
+#: views.py:445
+msgid "Today's expectations"
+msgstr "Heutige Erwartungen"
+
+#: views.py:446
+msgid "Nothing is expected today."
+msgstr "Für heute steht nichts an."
+
+#: views.py:447
+msgid "Open working screen"
+msgstr "Arbeitsansicht öffnen"
+
+#: views.py:448
+msgid "Details"
+msgstr "Details"
+
+#: views.py:449
+msgid "Description"
+msgstr "Beschreibung"
+
+#: views.py:450
+msgid "Notification"
+msgstr "Benachrichtigung"
+
+#: views.py:451
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: views.py:453
+msgid "Statistics"
+msgstr "Statistik"
+
+#: views.py:454
+msgid "Administration"
+msgstr "Verwaltung"
+
+#: views.py:455
+msgid "Previous"
+msgstr "Zurück"
+
+#: views.py:456
+msgid "Next"
+msgstr "Weiter"
+
+#: views.py:457
+msgid "Page"
+msgstr "Seite"
+
+#: views.py:458
+msgid "of"
+msgstr "von"
+
+#: views.py:460
+msgid "Postponed until"
+msgstr "Zurückgestellt bis"
+
+#: views.py
+msgid "Today"
+msgstr "Heute"
+
+#: views.py
+msgid "Expected"
+msgstr "Erwartet"
+
+#: views.py
+msgid "Showing overview:"
+msgstr "Übersicht angezeigt:"
+
+#: views.py
+msgid "Back to current view"
+msgstr "Zur aktuellen Ansicht"
+
+#: views.py:491 views.py:498
 msgid "Subscriptions updated."
 msgstr "Abonnements aktualisiert."
 
-#: views.py:264
+#: views.py:503
+msgid "My subscriptions"
+msgstr "Meine Abonnements"
+
+#: views.py:516
 msgid "Only superusers may configure notifications."
 msgstr "Nur Superuser dürfen Benachrichtigungen konfigurieren."
 
-#: views.py:290
+#: views.py:542
 msgid "Notification settings saved."
 msgstr "Benachrichtigungseinstellungen gespeichert."
 
-#: views.py:341
+#: views.py:593
 msgid "Only superusers may see the notification statistics."
 msgstr "Nur Superuser dürfen die Benachrichtigungsstatistik sehen."

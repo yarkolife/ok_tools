@@ -173,6 +173,7 @@ ok_tools/static/img/favicon.ico
 node_modules/
 package-lock.json
 rental/static/rental/js/build/
+notifications/static/notifications/js/build/
 
 # Oh My OpenAgent workspace
 .omo

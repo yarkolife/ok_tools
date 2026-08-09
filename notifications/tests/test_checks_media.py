@@ -296,9 +296,9 @@ def test_failed_operation_creates_a_problem_event(synced, storage):
         file_path='/tmp/playout/beitrag.mp4')
     with TestCase.captureOnCommitCallbacks(execute=True):
         FileOperation.objects.create(
-            video_file=video, operation_type='render', status='completed')
+            video_file=video, operation_type='RENDER', status='SUCCESS')
         FileOperation.objects.create(
-            video_file=video, operation_type='render', status='failed',
+            video_file=video, operation_type='RENDER', status='FAILED',
             error_message='ffmpeg exited with 1')
 
     events = NotificationEvent.objects.filter(

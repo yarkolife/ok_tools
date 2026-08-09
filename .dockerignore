@@ -21,6 +21,7 @@ __pycache__/
 dist/
 /build/
 !rental/static/rental/js/build/
+!notifications/static/notifications/js/build/
 
 # IDE / OS files
 .idea/

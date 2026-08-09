@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.40.0
+**Current Version**: 4.41.0
 **Last Updated**: 9 August 2026
 
 Features
@@ -165,6 +165,14 @@ Features
   - Filter system for date ranges and categories
   - Quick stats overview
   - System status monitoring
+
+- **Staff Notification Center** - Interactive daily work surface inside the admin
+  - Responsive React event table with rich payload details and a bottom detail drawer
+  - Clickable overview cards for live expectations, new events, open actions, postponed items, and problems
+  - Personal bulk actions to handle, postpone, reopen, or wake entries, plus explicit permanent suppression
+  - Object-specific working links for licenses, rentals, media files, exchange items, and planning dates
+  - Live expectations are recomputed from current module data and never persisted as stale events
+  - JSX bundle is built automatically by the production update script before ``collectstatic``
 
 - **Background Task Processing** - Asynchronous task execution with Celery for handling time-intensive operations
   - Video file scanning and metadata extraction

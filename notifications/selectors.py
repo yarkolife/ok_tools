@@ -163,7 +163,8 @@ def open_action_items(user, request=None,
     return exclude_suppressed(queryset, event_path='event')
 
 
-def snoozed_action_items(user, request=None):
+def snoozed_action_items(user, request=None,
+                          filters: Optional[Dict[str, Any]] = None):
     """Return the items that are currently postponed."""
     codes = [event_type.code for event_type in subscribed_types(user, request)]
     if not codes:
@@ -175,6 +176,7 @@ def snoozed_action_items(user, request=None):
                 event__event_type__in=codes)
         .select_related('event', 'event__content_type')
     )
+    queryset = apply_filters(queryset, filters or {}, prefix='event')
     return exclude_suppressed(queryset, event_path='event')
 
 

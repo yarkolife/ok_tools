@@ -56,10 +56,11 @@ def test_pickup_due_reports_reserved_rentals(synced, rental_request):
 
 
 def test_links_point_at_the_working_screens(synced, rental_request):
-    """Rental is operated on the process page, not on the change form."""
+    """A rental notification opens the affected request, not a list."""
     findings = run_check('rental.pickup_due_today')
 
-    assert findings[0].payload['url'] == '/rental/admin/rental-process/'
+    assert findings[0].payload['url'] == (
+        f'/rental/rental/{rental_request.pk}/')
     assert '/admin/rental/rentalrequest/' not in findings[0].payload['url']
 
 

@@ -64,7 +64,7 @@ def _rental_due(status: str, field: str, code: str,
                 'user': str(rental.user),
                 'due_at': moment.isoformat(),
                 'overdue': moment.date() < timezone.localdate(),
-                'url': links.rental_process_url(),
+                'url': links.rental_detail_url(rental.pk),
             },
         ))
     return findings
@@ -111,7 +111,7 @@ def check_return_overdue(params: Dict[str, int]) -> List[Finding]:
                 'project_name': rental.project_name,
                 'user': str(rental.user),
                 'days_late': days_late,
-                'url': links.rental_process_url(),
+                'url': links.rental_detail_url(rental.pk),
             },
         ))
     return findings

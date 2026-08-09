@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-08-09 (Version 4.41.0)
+==========================
+
+* **notifications: Interactive React notification center**
+  * Replaced the server-rendered feed with a responsive React work surface matching the rental process UI, including rich event rows, payload details, a bottom detail drawer and a prominent expectations panel.
+  * The five overview cards are interactive table filters for today's live expectations, new events, open actions, postponed items and problems. Expectations remain derived at render time and are exposed as read-only rows rather than stored events.
+  * Notification links now open the affected object or a narrowly filtered working screen. Rental entries open the specific request, exchange entries search for the exact file, and license/media/planning entries retain object- or date-specific targets.
+  * Added the notifications JSX target to the production build pipeline; generated bundles remain untracked, are included in the Docker build context and are collected with the other static assets during deployment.
+  * Corrected failed media-operation signal handling for the model's uppercase status values and expanded German UI translations and focused regression coverage.
+
 2026-08-09 (Version 4.40.0)
 ==========================
 
