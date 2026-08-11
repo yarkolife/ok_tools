@@ -12,6 +12,7 @@ from datetime import timedelta
 from django.apps import apps
 from django.db.models import Count
 from django.utils import timezone
+from notifications import config
 from notifications import links
 from notifications.registry import Finding
 from notifications.registry import scan_check
@@ -46,10 +47,15 @@ def _rental_due(status: str, field: str, code: str,
     """Shared body of the two rental expectation checks."""
     RentalRequest = apps.get_model('rental.RentalRequest')
     horizon = max(int(params.get('horizon_days', 0)), 0)
-    until = timezone.localdate() + timedelta(days=horizon)
+    today = timezone.localdate()
+    until = today + timedelta(days=horizon)
     queryset = (
         RentalRequest.objects
-        .filter(status=status, **{f'{field}__date__lte': until})
+        .filter(status=status, **{
+            f'{field}__date__gte': today,
+            f'{field}__date__lte': until,
+        })
+        .exclude(rental_type='room')
         .select_related('user')
         .order_by(field)
     )
@@ -82,6 +88,75 @@ def check_return_due(params: Dict[str, int]) -> List[Finding]:
     """Find issued rentals whose return date has been reached."""
     return _rental_due(
         'issued', 'requested_end_date', 'rental.return_due_today', params)
+
+
+@scan_check('rental.room_due_today')
+def check_room_due(params: Dict[str, int]) -> List[Finding]:
+    """Find today's confirmed room bookings requiring staff presence."""
+    RoomRental = apps.get_model('rental.RoomRental')
+    today = timezone.localdate()
+    now = timezone.now()
+    queryset = (
+        RoomRental.objects
+        .filter(rental_request__status__in=('reserved', 'issued'))
+        .select_related('room', 'rental_request__user')
+        .order_by('requested_start_date',
+                  'rental_request__requested_start_date')
+    )
+    findings = []
+    for room_rental in queryset:
+        start = room_rental.get_start_date()
+        end = room_rental.get_end_date()
+        if (start is None or end is None
+                or timezone.localdate(start) != today or end <= now):
+            continue
+        rental = room_rental.rental_request
+        local_start = timezone.localtime(start)
+        findings.append(Finding(
+            obj=room_rental,
+            dedup_key=(
+                f'rental.room_due_today|{room_rental.pk}'
+                f'|{local_start:%Y-%m-%d}'),
+            payload={
+                'room': room_rental.room.name,
+                'project_name': rental.project_name,
+                'user': str(rental.user),
+                'start': local_start.strftime('%H:%M'),
+                'due_at': local_start.isoformat(),
+                'url': links.rental_detail_url(rental.pk),
+            },
+        ))
+    return findings
+
+
+@scan_check('rental.pickup_overdue')
+def check_pickup_overdue(params: Dict[str, int]) -> List[Finding]:
+    """Find reservations whose agreed pick-up time has passed."""
+    RentalRequest = apps.get_model('rental.RentalRequest')
+    grace = max(int(params.get('grace_hours', 2)), 0)
+    now = timezone.now()
+    cutoff = now - timedelta(hours=grace)
+    queryset = (
+        RentalRequest.objects
+        .filter(status='reserved', requested_start_date__lt=cutoff)
+        .select_related('user')
+        .order_by('requested_start_date')
+    )
+    return [
+        Finding(
+            obj=rental,
+            dedup_key=f'rental.pickup_overdue|{rental.pk}',
+            payload={
+                'project_name': rental.project_name,
+                'user': str(rental.user),
+                'days_late': max((now - rental.requested_start_date).days, 0),
+                'due_at': timezone.localtime(
+                    rental.requested_start_date).isoformat(),
+                'url': links.rental_detail_url(rental.pk),
+            },
+        )
+        for rental in queryset
+    ]
 
 
 @scan_check('rental.return_overdue')
@@ -125,10 +200,19 @@ def check_return_overdue(params: Dict[str, int]) -> List[Finding]:
 def check_unconfirmed_aging(params: Dict[str, int]) -> List[Finding]:
     """Find licenses that have been waiting for confirmation too long."""
     License = apps.get_model('licenses.License')
-    cutoff = timezone.now() - timedelta(days=params.get('days', 7))
+    now = timezone.now()
+    cutoff = now - timedelta(days=params.get('days', 7))
+    oldest = now - timedelta(days=max(
+        int(params.get('lookback_days', 90)),
+        int(params.get('days', 7)),
+    ))
     queryset = (
         License.objects
-        .filter(confirmed=False, created_at__lt=cutoff)
+        .filter(
+            confirmed=False,
+            created_at__lt=cutoff,
+            created_at__gte=oldest,
+        )
         .select_related('profile')
         .order_by('created_at')
     )
@@ -163,7 +247,12 @@ def check_nextcloud_pending(params: Dict[str, int]) -> List[Finding]:
     NextcloudVideoFile = apps.get_model('licenses.NextcloudVideoFile')
     queryset = (
         NextcloudVideoFile.objects
-        .filter(user_uploaded=True, is_deleted=False)
+        .filter(
+            user_uploaded=True,
+            is_deleted=False,
+            license__confirmed=True,
+            license__is_live=False,
+        )
         .select_related('license')
         .order_by('uploaded_at')
     )
@@ -195,19 +284,49 @@ def check_nextcloud_pending(params: Dict[str, int]) -> List[Finding]:
 
 @scan_check('licenses.confirmed_without_video')
 def check_confirmed_without_video(params: Dict[str, int]) -> List[Finding]:
-    """Find approved licenses that still have no video file."""
+    """Find approved licenses still missing video after a quiet period."""
     if not apps.is_installed('media_files'):
         return []
     License = apps.get_model('licenses.License')
-    cutoff = timezone.now() - timedelta(days=params.get('days', 60))
+    now = timezone.now()
+    cutoff = now - timedelta(days=params.get('days', 60))
+    wait_cutoff = now - timedelta(days=max(
+        int(params.get('wait_days', 3)), 0))
     queryset = (
         License.objects
-        .filter(confirmed=True, confirmed_at__gte=cutoff)
+        .filter(
+            confirmed=True,
+            confirmed_at__gte=cutoff,
+            confirmed_at__lte=wait_cutoff,
+            is_live=False,
+        )
         .order_by('-confirmed_at')
     )
     licenses = list(queryset)
     with_video = _numbers_with_video(
         [item.number for item in licenses if item.number])
+    NextcloudVideoFile = apps.get_model('licenses.NextcloudVideoFile')
+    pending_upload_numbers = set(
+        NextcloudVideoFile.objects.filter(
+            license__in=licenses,
+            user_uploaded=True,
+            is_deleted=False,
+        ).values_list('license__number', flat=True)
+    )
+    planned_numbers = set()
+    if apps.is_installed('planung'):
+        from planung.selectors import planned_entries
+
+        horizon = max(int(config.get_params(
+            'planung.plan_missing_video').get('horizon_days', 3)), 0)
+        today = timezone.localdate()
+        dates = [today + timedelta(days=offset)
+                 for offset in range(horizon + 1)]
+        planned_numbers = {
+            entry['number'] for entry in planned_entries(dates)
+            if entry['plan'].json_plan.get('planned') is True
+            and entry['plan'].json_plan.get('draft') is not True
+        }
     return [
         Finding(
             obj=license_obj,
@@ -218,11 +337,15 @@ def check_confirmed_without_video(params: Dict[str, int]) -> List[Finding]:
             payload={
                 'number': license_obj.number,
                 'title': license_obj.title,
+                'confirmed': True,
+                'video_available': False,
                 'url': _admin_url(license_obj),
             },
         )
         for license_obj in licenses
-        if license_obj.number not in with_video
+        if (license_obj.number not in with_video
+            and license_obj.number not in pending_upload_numbers
+            and license_obj.number not in planned_numbers)
     ]
 
 
@@ -234,11 +357,17 @@ def check_confirmed_without_video(params: Dict[str, int]) -> List[Finding]:
 def check_orphan_video(params: Dict[str, int]) -> List[Finding]:
     """Find recent video files that could not be linked to a license."""
     VideoFile = apps.get_model('media_files.VideoFile')
+    storage_location_ids = params.get('storage_location_ids', [])
+    if not storage_location_ids:
+        return []
     cutoff = timezone.now() - timedelta(days=params.get('days', 30))
+    grace_cutoff = timezone.now() - timedelta(hours=max(
+        int(params.get('grace_hours', 24)), 0))
     queryset = (
         VideoFile.objects
         .filter(license__isnull=True, is_preview=False, is_available=True,
-                created_at__gte=cutoff)
+                created_at__gte=cutoff, created_at__lte=grace_cutoff,
+                storage_location_id__in=storage_location_ids)
         .select_related('storage_location')
         .order_by('-created_at')
     )
@@ -293,6 +422,30 @@ def check_storage_low(params: Dict[str, int]) -> List[Finding]:
     return findings
 
 
+@scan_check('media_files.storage_unavailable')
+def check_storage_unavailable(params: Dict[str, int]) -> List[Finding]:
+    """Find active storage locations whose paths cannot be read."""
+    StorageLocation = apps.get_model('media_files.StorageLocation')
+    findings = []
+    for storage in StorageLocation.objects.filter(is_active=True):
+        if not storage.path:
+            continue
+        try:
+            shutil.disk_usage(storage.path)
+        except OSError as error:
+            findings.append(Finding(
+                obj=storage,
+                dedup_key=f'media_files.storage_unavailable|{storage.pk}',
+                payload={
+                    'name': storage.name,
+                    'path': storage.path,
+                    'error': str(error)[:200],
+                    'url': _admin_url(storage),
+                },
+            ))
+    return findings
+
+
 @scan_check('media_files.format_mismatch')
 def check_format_mismatch(params: Dict[str, int]) -> List[Finding]:
     """Find recent videos whose format differs from the encoding preset."""
@@ -308,7 +461,12 @@ def check_format_mismatch(params: Dict[str, int]) -> List[Finding]:
     cutoff = timezone.now() - timedelta(days=params.get('days', 30))
     queryset = (
         VideoFile.objects
-        .filter(is_preview=False, is_available=True, created_at__gte=cutoff)
+        .filter(
+            license__isnull=False,
+            is_preview=False,
+            is_available=True,
+            created_at__gte=cutoff,
+        )
         .exclude(width__isnull=True)
         .select_related('storage_location')
         .order_by('-created_at')
@@ -350,7 +508,11 @@ def _own_planned_entries(horizon_days: int):
     today = timezone.localdate()
     dates = [today + timedelta(days=offset)
              for offset in range(0, horizon + 1)]
-    entries = planung_selectors.planned_entries(dates)
+    entries = [
+        entry for entry in planung_selectors.planned_entries(dates)
+        if entry['plan'].json_plan.get('planned') is True
+        and entry['plan'].json_plan.get('draft') is not True
+    ]
     if not entries:
         return [], set()
 
@@ -359,7 +521,15 @@ def _own_planned_entries(horizon_days: int):
         # The own media authority is not configured yet; answering would
         # mean reporting other channels' material as ours.
         return [], None
-    return [entry for entry in entries if entry['number'] in own], own
+    License = apps.get_model('licenses.License')
+    confirmed = set(
+        License.objects.filter(
+            number__in=own, confirmed=True, is_live=False)
+        .values_list('number', flat=True))
+    eligible = confirmed & _numbers_with_video(confirmed)
+    return [
+        entry for entry in entries if entry['number'] in eligible
+    ], eligible
 
 
 def _missing_asset_findings(code: str, entries, have_numbers) -> List[Finding]:
@@ -374,16 +544,23 @@ def _missing_asset_findings(code: str, entries, have_numbers) -> List[Finding]:
     for entry in entries:
         if entry['number'] in have_numbers:
             continue
+        payload = {
+            'date': entry['date'].strftime('%d.%m.%Y'),
+            'number': entry['number'],
+            'title': entry['title'],
+            'start': entry['start'],
+            'confirmed': True,
+            'video_available': True,
+            'url': links.planung_calendar_url(entry['date']),
+        }
+        if code == 'media_files.missing_reel':
+            payload['reel_available'] = False
+        else:
+            payload['cover_available'] = False
         findings.append(Finding(
             obj=licenses.get(entry['number']),
             dedup_key=f'{code}|{entry["date"]:%Y-%m-%d}|{entry["number"]}',
-            payload={
-                'date': entry['date'].strftime('%d.%m.%Y'),
-                'number': entry['number'],
-                'title': entry['title'],
-                'start': entry['start'],
-                'url': links.planung_calendar_url(entry['date']),
-            },
+            payload=payload,
         ))
     return findings
 
@@ -412,6 +589,40 @@ def check_missing_cover(params: Dict[str, int]) -> List[Finding]:
     return _missing_asset_findings(
         'media_files.missing_cover', entries,
         numbers_with_cover({entry['number'] for entry in entries}))
+
+
+@scan_check('media_files.reel_post_today')
+def check_reel_post_today(params: Dict[str, int]) -> List[Finding]:
+    """Find ready reels that somebody has to publish on the air date."""
+    from media_files.utils import numbers_with_reel
+
+    entries, own = _own_planned_entries(0)
+    if own is None or not entries:
+        return []
+    reel_numbers = numbers_with_reel(
+        {entry['number'] for entry in entries})
+    License = apps.get_model('licenses.License')
+    licenses = {
+        item.number: item for item in License.objects.filter(
+            number__in=reel_numbers)
+    }
+    return [
+        Finding(
+            obj=licenses.get(entry['number']),
+            dedup_key=(
+                f'media_files.reel_post_today|{entry["date"]:%Y-%m-%d}'
+                f'|{entry["number"]}'),
+            payload={
+                'date': entry['date'].strftime('%d.%m.%Y'),
+                'number': entry['number'],
+                'title': entry['title'],
+                'start': entry['start'],
+                'reel_available': True,
+                'url': links.planung_calendar_url(entry['date']),
+            },
+        )
+        for entry in entries if entry['number'] in reel_numbers
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -463,7 +674,10 @@ def check_plan_missing(params: Dict[str, int]) -> List[Finding]:
     findings = []
     for day in dates:
         plan = plans.get(day)
-        if plan is not None and planung_selectors.plan_items(plan):
+        if (plan is not None
+                and plan.json_plan.get('planned') is True
+                and plan.json_plan.get('draft') is not True
+                and planung_selectors.plan_items(plan)):
             continue
         findings.append(Finding(
             obj=plan,
@@ -485,13 +699,22 @@ def check_plan_missing_video(params: Dict[str, int]) -> List[Finding]:
     today = timezone.localdate()
     dates = [today + timedelta(days=offset)
              for offset in range(0, horizon + 1)]
-    entries = planung_selectors.planned_entries(dates)
+    entries = [
+        entry for entry in planung_selectors.planned_entries(dates)
+        if entry['plan'].json_plan.get('planned') is True
+        and entry['plan'].json_plan.get('draft') is not True
+    ]
+    License = apps.get_model('licenses.License')
+    live_numbers = set(
+        License.objects.filter(
+            number__in={entry['number'] for entry in entries}, is_live=True)
+        .values_list('number', flat=True))
     with_video = _numbers_with_video(
         {entry['number'] for entry in entries})
 
     findings = []
     for entry in entries:
-        if entry['number'] in with_video:
+        if entry['number'] in live_numbers or entry['number'] in with_video:
             continue
         findings.append(Finding(
             obj=entry['plan'],
@@ -509,15 +732,50 @@ def check_plan_missing_video(params: Dict[str, int]) -> List[Finding]:
     return findings
 
 
+@scan_check('planung.live_today')
+def check_live_today(params: Dict[str, int]) -> List[Finding]:
+    """Show committed live contributions in today's expectations."""
+    from planung import selectors as planung_selectors
+
+    today = timezone.localdate()
+    entries = [
+        entry for entry in planung_selectors.planned_entries([today])
+        if entry['plan'].json_plan.get('planned') is True
+        and entry['plan'].json_plan.get('draft') is not True
+    ]
+    License = apps.get_model('licenses.License')
+    live_licenses = {
+        license_obj.number: license_obj
+        for license_obj in License.objects.filter(
+            number__in={entry['number'] for entry in entries}, is_live=True)
+    }
+    return [
+        Finding(
+            obj=live_licenses[entry['number']],
+            payload={
+                'date': today.strftime('%d.%m.%Y'),
+                'start': entry['start'],
+                'number': entry['number'],
+                'title': entry['title'],
+                'live': True,
+                'url': links.planung_calendar_url(today),
+            },
+        )
+        for entry in entries if entry['number'] in live_licenses
+    ]
+
+
 @scan_check('planung.not_aired')
 def check_not_aired(params: Dict[str, int]) -> List[Finding]:
     """Find scheduled entries whose broadcast never started."""
     AirReport = apps.get_model('planung.AirReport')
     now = timezone.now()
     cutoff = now - timedelta(days=params.get('days', 3))
+    due_before = now - timedelta(minutes=max(
+        int(params.get('grace_minutes', 5)), 0))
     queryset = (
         AirReport.objects
-        .filter(started_at__isnull=True, scheduled_start__lt=now,
+        .filter(started_at__isnull=True, scheduled_start__lt=due_before,
                 scheduled_start__gte=cutoff)
         .order_by('-scheduled_start')
     )
@@ -582,10 +840,19 @@ def check_task_failures(params: Dict[str, int]) -> List[Finding]:
 def check_unverified_aging(params: Dict[str, int]) -> List[Finding]:
     """Find profiles that have been waiting for verification too long."""
     Profile = apps.get_model('registration.Profile')
-    cutoff = timezone.now() - timedelta(days=params.get('days', 14))
+    now = timezone.now()
+    cutoff = now - timedelta(days=params.get('days', 14))
+    oldest = now - timedelta(days=max(
+        int(params.get('lookback_days', 90)),
+        int(params.get('days', 14)),
+    ))
     queryset = (
         Profile.objects
-        .filter(verified=False, created_at__lt=cutoff)
+        .filter(
+            verified=False,
+            created_at__lt=cutoff,
+            created_at__gte=oldest,
+        )
         .select_related('okuser')
         .order_by('created_at')
     )

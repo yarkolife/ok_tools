@@ -94,6 +94,31 @@ def test_sync_keeps_administrator_decisions(db, synced):
     assert config.is_enabled(AGING) is False
 
 
+def test_settings_store_monitored_video_locations(
+        db, synced, licenses_staff, client):
+    """The JSON parameters keep the storage selections without a migration."""
+    from media_files.models import StorageLocation
+
+    licenses_staff.is_superuser = True
+    licenses_staff.save()
+    first = StorageLocation.objects.create(
+        name='Incoming', path='/tmp/incoming', storage_type='CUSTOM')
+    StorageLocation.objects.create(
+        name='Playout', path='/tmp/playout', storage_type='PLAYOUT')
+    client.force_login(licenses_staff)
+    enabled = list(NotificationEventTypeConfig.objects.filter(
+        enabled=True).values_list('code', flat=True))
+
+    response = client.post('/admin/notifications/settings/', {
+        'enabled': enabled,
+        'param__media_files.orphan_video__storage_location_ids': [first.pk],
+    })
+
+    assert response.status_code == 302
+    assert config.get_params('media_files.orphan_video')[
+        'storage_location_ids'] == [first.pk]
+
+
 def test_emit_is_idempotent(db, synced, license):
     """The same deduplication key must not create a second event."""
     first = emit(NEW_LICENSE, obj=license, payload={
@@ -180,6 +205,22 @@ def test_subscribing_backfills_open_action_items(db, synced, licenses_staff,
     selectors.set_subscriptions(licenses_staff, ['licenses'], [])
 
     assert UserNotification.objects.filter(user=licenses_staff).count() == 1
+
+
+def test_confirming_license_resolves_unconfirmed_action(
+        db, synced, licenses_staff, license):
+    """The old confirmation task must disappear when the process advances."""
+    selectors.set_subscriptions(licenses_staff, ['licenses'], [])
+    event = emit(NEW_LICENSE, obj=license, payload={
+        'number': license.number, 'title': license.title})
+    assert selectors.action_count(licenses_staff) == 1
+
+    license.__class__.objects.filter(pk=license.pk).update(
+        confirmed=True, confirmed_at=timezone.now())
+
+    assert selectors.action_count(licenses_staff) == 0
+    assert selectors.status_by_event(licenses_staff, [event]) == {
+        event.pk: 'resolved'}
 
 
 def test_non_staff_sees_nothing(db, synced, user):

@@ -4,6 +4,7 @@ Both pages are registered on the default admin site through
 ``ok_tools.admin``; they are ordinary admin views, not a separate site.
 """
 
+from django.apps import apps
 from django.contrib import messages
 from django.contrib.admin.sites import site as default_site
 from django.core.paginator import Paginator
@@ -37,6 +38,8 @@ PAGE_SIZE = 50
 
 PAYLOAD_LABELS = {
     'channel': _('Channel'),
+    'confirmed': _('Confirmed'),
+    'cover_available': _('Cover available'),
     'count': _('Count'),
     'created_at': _('Created'),
     'date': _('Date'),
@@ -52,20 +55,25 @@ PAYLOAD_LABELS = {
     'issue': _('Issue'),
     'item': _('Equipment'),
     'job': _('Job'),
+    'live': _('Live broadcast'),
     'name': _('Name'),
     'number': _('Number'),
     'operation': _('Operation'),
     'overdue': _('Overdue'),
+    'path': _('Path'),
     'project_name': _('Project'),
+    'reel_available': _('Reel available'),
     'scheduled_at': _('Scheduled for'),
     'severity': _('Severity'),
     'start': _('Start'),
     'status': _('Status'),
     'storage': _('Storage'),
+    'room': _('Room'),
     'task': _('Task'),
     'title': _('Title'),
     'uploaded_at': _('Uploaded'),
     'user': _('Person'),
+    'video_available': _('Video available'),
 }
 
 # The feed is not a separate list without actions: it is the "everything"
@@ -165,6 +173,7 @@ def _serialize_event(event, status='', item=None):
         'open': _('Open'),
         'snoozed': _('Postponed'),
         'handled': _('Handled'),
+        'resolved': _('Automatically resolved'),
         '': _('For information'),
     }
     occurred_at = timezone.localtime(event.occurred_at)
@@ -364,9 +373,7 @@ def feed_view(request):
     overview_open_items = selectors.open_action_items(user, request)
     overview_snoozed_items = selectors.snoozed_action_items(user, request)
     overview_handled_items = selectors.handled_action_items(user, request)
-    overview_problem_events = selectors.feed(
-        user, request, limit=0,
-        filters={'category': registry.CATEGORY_PROBLEM})
+    overview_problem_events = selectors.active_problem_events(user, request)
     overview_new_events = selectors.feed(
         user, request, limit=PAGE_SIZE, since=state.last_seen_at)
     counts = {
@@ -592,6 +599,12 @@ def settings_view(request):
             params = dict(row.params or {})
             for spec in event_type.params:
                 field = f'param__{event_type.code}__{spec.name}'
+                if spec.kind == 'storage_locations':
+                    params[spec.name] = [
+                        int(value) for value in request.POST.getlist(field)
+                        if value.isdigit()
+                    ]
+                    continue
                 raw = request.POST.get(field, '')
                 try:
                     params[spec.name] = int(raw)
@@ -604,6 +617,13 @@ def settings_view(request):
 
     stored = {
         row.code: row for row in NotificationEventTypeConfig.objects.all()}
+    storage_locations = []
+    if apps.is_installed('media_files'):
+        from media_files.models import StorageLocation
+
+        storage_locations = list(
+            StorageLocation.objects.filter(is_active=True).order_by(
+                'storage_type', 'name'))
     groups = []
     for module in registry.modules():
         entries = []
@@ -623,6 +643,16 @@ def settings_view(request):
                         'help_text': param.help_text,
                         'value': effective.get(param.name, param.default),
                         'field': f'param__{event_type.code}__{param.name}',
+                        'kind': param.kind,
+                        'choices': [
+                            {
+                                'value': location.pk,
+                                'label': str(location),
+                                'selected': location.pk in set(
+                                    effective.get(param.name, [])),
+                            }
+                            for location in storage_locations
+                        ] if param.kind == 'storage_locations' else [],
                     }
                     for param in event_type.params
                 ],

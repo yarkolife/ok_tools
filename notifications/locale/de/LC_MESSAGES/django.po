@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-09 18:14+0200\n"
+"POT-Creation-Date: 2026-08-11 19:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,111 +22,172 @@ msgstr ""
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
+#: event_types.py:26
+msgid "Rental request waiting for confirmation"
+msgstr "Verleihanfrage wartet auf Bestätigung"
+
 #: event_types.py:28
-msgid "Equipment to hand out"
-msgstr "Technik zur Ausgabe"
+msgid ""
+"A person submitted a rental request that a staff member has to review and "
+"confirm."
+msgstr ""
+"Eine Person hat eine Verleihanfrage gestellt, die von einem Mitarbeiter "
+"geprüft und bestätigt werden muss."
 
-#: event_types.py:29
-msgid "Reserved equipment whose pick-up date is reached."
-msgstr "Reservierte Technik, deren Abholdatum erreicht ist."
-
-#: event_types.py:30 event_types.py:51
+#: event_types.py:30 event_types.py:44 event_types.py:65
 #, python-brace-format
 msgid "{project_name} ({user})"
 msgstr "{project_name} ({user})"
 
-#: event_types.py:39 event_types.py:60 event_types.py:377 event_types.py:397
+#: event_types.py:42
+msgid "Equipment to hand out"
+msgstr "Technik zur Ausgabe"
+
+#: event_types.py:43
+msgid "Reserved equipment whose pick-up date is reached."
+msgstr "Reservierte Technik, deren Abholdatum erreicht ist."
+
+#: event_types.py:53 event_types.py:74 event_types.py:495 event_types.py:515
 msgid "Days ahead"
 msgstr "Tage im Voraus"
 
-#: event_types.py:41 event_types.py:62
+#: event_types.py:55 event_types.py:76
 msgid "0 shows today only, 1 also shows tomorrow."
 msgstr "0 zeigt nur heute, 1 zeigt auch morgen."
 
-#: event_types.py:49
+#: event_types.py:63
 msgid "Equipment due back"
 msgstr "Technik ist zur Rückgabe fällig"
 
-#: event_types.py:50
+#: event_types.py:64
 msgid "Issued equipment whose return date is reached."
 msgstr "Ausgegebene Technik, deren Rückgabedatum erreicht ist."
 
-#: event_types.py:71
-msgid "Equipment overdue"
-msgstr "Technik überfällig"
+#: event_types.py:84
+msgid "Rooms to open today"
+msgstr "Heute Räume öffnen"
 
-#: event_types.py:72
-msgid "Issued equipment that was not returned in time."
-msgstr "Ausgegebene Technik, die nicht rechtzeitig zurückgegeben wurde."
+#: event_types.py:86
+msgid "Confirmed room bookings that require somebody to be present."
+msgstr "Bestätigte Raumbuchungen, bei denen jemand vor Ort sein muss."
 
-#: event_types.py:73
+#: event_types.py:87
+#, python-brace-format
+msgid "{start}: {room} — {project_name} ({user})"
+msgstr "{start}: {room} — {project_name} ({user})"
+
+#: event_types.py:98
+msgid "Equipment was not picked up"
+msgstr "Technik wurde nicht abgeholt"
+
+#: event_types.py:100
+msgid ""
+"The agreed pick-up time has passed and the reservation still requires staff "
+"attention."
+msgstr ""
+"Der vereinbarte Abholzeitpunkt ist verstrichen und die Reservierung benötigt "
+"weiterhin die Aufmerksamkeit eines Mitarbeiters."
+
+#: event_types.py:102 event_types.py:124
 #, python-brace-format
 msgid "{project_name} ({user}), {days_late} days late"
 msgstr "{project_name} ({user}), {days_late} Tage überfällig"
 
-#: event_types.py:81
+#: event_types.py:110
+msgid "Grace period (hours)"
+msgstr "Karenzzeit (Stunden)"
+
+#: event_types.py:113
+msgid "Wait this long after the agreed pick-up before alerting."
+msgstr "So lange nach der vereinbarten Abholung bis zur Meldung warten."
+
+#: event_types.py:122
+msgid "Equipment overdue"
+msgstr "Technik überfällig"
+
+#: event_types.py:123
+msgid "Issued equipment that was not returned in time."
+msgstr "Ausgegebene Technik, die nicht rechtzeitig zurückgegeben wurde."
+
+#: event_types.py:132
 msgid "Grace period (days)"
 msgstr "Karenzzeit (Tage)"
 
-#: event_types.py:83
+#: event_types.py:134
 msgid "Report only after the return is this many days late."
 msgstr "Erst melden, wenn die Rückgabe so viele Tage überfällig ist."
 
-#: event_types.py:87
+#: event_types.py:138
 msgid "Repeat every (days)"
 msgstr "Wiederholen alle (Tage)"
 
-#: event_types.py:89
+#: event_types.py:140
 msgid "Raise the entry again after this many days."
 msgstr "Den Eintrag nach so vielen Tagen erneut melden."
 
-#: event_types.py:98
+#: event_types.py:149
 msgid "Problem reported with rented equipment"
 msgstr "Problem mit ausgeliehener Technik gemeldet"
 
-#: event_types.py:99
+#: event_types.py:150
 msgid "Somebody recorded damage or a defect on a rental."
 msgstr "Zu einer Ausleihe wurde ein Schaden oder Defekt erfasst."
 
-#: event_types.py:100
+#: event_types.py:151
 #, python-brace-format
 msgid "{item}: {issue} ({severity})"
 msgstr "{item}: {issue} ({severity})"
 
-#: event_types.py:115
+#: event_types.py:166
 msgid "New license waiting for confirmation"
 msgstr "Neue Sendeerlaubnis wartet auf Genehmigung"
 
-#: event_types.py:116
-msgid "A license was created and still needs to be confirmed."
-msgstr "Eine Sendeerlaubnis wurde angelegt und muss noch genehmigt werden."
+#: event_types.py:168
+msgid ""
+"Confirmation is the current blocker. The video and broadcast assets are "
+"checked only after this step is complete."
+msgstr ""
+"Die Genehmigung ist der aktuell blockierende Schritt. Video, Cover und Reel "
+"werden erst geprüft, wenn dieser Schritt abgeschlossen ist."
 
-#: event_types.py:117 event_types.py:129 event_types.py:167
+#: event_types.py:170 event_types.py:182 event_types.py:229
 #, python-brace-format
 msgid "License {number}: {title}"
 msgstr "Sendeerlaubnis {number}: {title}"
 
-#: event_types.py:127
+#: event_types.py:180
 msgid "License unconfirmed for too long"
 msgstr "Sendeerlaubnis zu lange ohne Genehmigung"
 
-#: event_types.py:128
+#: event_types.py:181
 msgid "The license has been waiting for confirmation for a while."
 msgstr "Die Sendeerlaubnis wartet schon eine Weile auf die Genehmigung."
 
-#: event_types.py:137 event_types.py:497
+#: event_types.py:190 event_types.py:652
 msgid "Days to wait"
 msgstr "Wartetage"
 
-#: event_types.py:139
+#: event_types.py:192
 msgid "Report a license once it has waited this many days."
 msgstr "Eine Sendeerlaubnis melden, sobald sie so viele Tage gewartet hat."
 
-#: event_types.py:149
+#: event_types.py:196 event_types.py:658
+msgid "Maximum pending age (days)"
+msgstr "Maximales Alter offener Einträge (Tage)"
+
+#: event_types.py:199 event_types.py:661
+msgid ""
+"Ignore legacy records older than this instead of turning the notification "
+"centre into an archive cleanup list."
+msgstr ""
+"Ältere Altdaten ignorieren, damit die Benachrichtigungszentrale nicht zur "
+"Liste für die Archivbereinigung wird."
+
+#: event_types.py:210
 msgid "Uploaded video waiting to be downloaded"
 msgstr "Hochgeladenes Video wartet auf den Download"
 
-#: event_types.py:151
+#: event_types.py:212
 msgid ""
 "An author uploaded a video to Nextcloud and it is not on a storage location "
 "yet."
@@ -134,48 +195,75 @@ msgstr ""
 "Ein Autor hat ein Video zu Nextcloud hochgeladen und es liegt noch auf "
 "keinem Speicherort."
 
-#: event_types.py:153
+#: event_types.py:214
 #, python-brace-format
 msgid "License {number}: {filename}"
 msgstr "Sendeerlaubnis {number}: {filename}"
 
-#: event_types.py:164
+#: event_types.py:225
 msgid "Confirmed license without a video file"
 msgstr "Genehmigte Sendeerlaubnis ohne Videodatei"
 
-#: event_types.py:166
-msgid "The license is approved but has no video, so it cannot be planned."
+#: event_types.py:227
+msgid ""
+"Confirmation is complete, but no available full video was found. Link or "
+"import the video before continuing the broadcast workflow."
 msgstr ""
-"Die Sendeerlaubnis ist genehmigt, hat aber kein Video und kann nicht geplant "
-"werden."
+"Die Genehmigung ist abgeschlossen, aber es wurde kein verfügbares "
+"vollständiges Video gefunden. Verknüpfen oder importieren Sie das Video, "
+"bevor der Sendeablauf fortgesetzt wird."
 
-#: event_types.py:175
+#: event_types.py:237
+msgid "Wait after confirmation (days)"
+msgstr "Wartezeit nach Genehmigung (Tage)"
+
+#: event_types.py:240
+msgid ""
+"Allow uploads and automatic indexing to finish before asking staff to follow "
+"up."
+msgstr ""
+"Uploads und automatische Indizierung abschließen lassen, bevor Mitarbeiter "
+"zur Nachverfolgung aufgefordert werden."
+
+#: event_types.py:245
 msgid "Confirmed within (days)"
 msgstr "Genehmigt innerhalb von (Tagen)"
 
-#: event_types.py:177
+#: event_types.py:247
 msgid "Only look at licenses confirmed recently."
 msgstr "Nur kürzlich genehmigte Sendeerlaubnisse prüfen."
 
-#: event_types.py:190
+#: event_types.py:260
 msgid "New video found"
 msgstr "Neues Video gefunden"
 
-#: event_types.py:191
+#: event_types.py:261
 msgid "The storage scan picked up a video that nobody checked."
 msgstr ""
 "Der Speicher-Scan hat ein Video gefunden, das noch niemand geprüft hat."
 
-#: event_types.py:192 event_types.py:273
+#: event_types.py:262 event_types.py:356
 #, python-brace-format
 msgid "{filename} ({storage})"
 msgstr "{filename} ({storage})"
 
-#: event_types.py:203
+#: event_types.py:350
+msgid "Storage locations to monitor"
+msgstr "Zu überwachende Speicherorte"
+
+#: event_types.py:353
+msgid ""
+"Only files in the selected locations are checked. No location means no "
+"unlinked-video notifications."
+msgstr ""
+"Nur Dateien in den ausgewählten Speicherorten werden geprüft. Ohne Auswahl "
+"werden keine Benachrichtigungen über nicht zugeordnete Videos erstellt."
+
+#: event_types.py:284
 msgid "Video format has to be converted"
 msgstr "Videoformat muss konvertiert werden"
 
-#: event_types.py:205
+#: event_types.py:286
 msgid ""
 "Resolution or frame rate differ from the configured encoding preset, so the "
 "file has to be transcoded."
@@ -183,256 +271,335 @@ msgstr ""
 "Auflösung oder Bildrate weichen vom konfigurierten Encoding-Preset ab, die "
 "Datei muss umgewandelt werden."
 
-#: event_types.py:207
+#: event_types.py:288
 #, python-brace-format
 msgid "{filename}: {deviation}"
 msgstr "{filename}: {deviation}"
 
-#: event_types.py:215 event_types.py:281
+#: event_types.py:296 event_types.py:371
 msgid "Added within (days)"
 msgstr "Hinzugefügt innerhalb von (Tagen)"
 
-#: event_types.py:217
+#: event_types.py:298
 msgid "Only check files that appeared recently."
 msgstr "Nur kürzlich hinzugekommene Dateien prüfen."
 
-#: event_types.py:228
+#: event_types.py:309
 msgid "Planned own production without a reel"
 msgstr "Geplante Eigenproduktion ohne Reel"
 
-#: event_types.py:230
-msgid "An own production is scheduled soon and no reel was rendered yet."
+#: event_types.py:311
+msgid ""
+"The license is confirmed, its full video is available and the own production "
+"is scheduled, but no reel was rendered yet."
 msgstr ""
-"Eine Eigenproduktion läuft demnächst und es wurde noch kein Reel erzeugt."
+"Die Sendeerlaubnis ist genehmigt, das vollständige Video ist verfügbar und "
+"die Eigenproduktion ist eingeplant, aber es wurde noch kein Reel erzeugt."
 
-#: event_types.py:231 event_types.py:252
+#: event_types.py:313 event_types.py:335
 #, python-brace-format
 msgid "{date}: {number} {title}"
 msgstr "{date}: {number} {title}"
 
-#: event_types.py:239 event_types.py:260
+#: event_types.py:321 event_types.py:343
 msgid "Days before broadcast"
 msgstr "Tage vor der Ausstrahlung"
 
-#: event_types.py:241 event_types.py:262
+#: event_types.py:323 event_types.py:345
 msgid "Warn this many days before the broadcast date."
 msgstr "So viele Tage vor dem Sendetermin warnen."
 
-#: event_types.py:249
+#: event_types.py:331
 msgid "Planned own production without a cover"
 msgstr "Geplante Eigenproduktion ohne Cover"
 
-#: event_types.py:251
-msgid "An own production is scheduled soon and no cover image exists."
-msgstr "Eine Eigenproduktion läuft demnächst und es gibt noch kein Coverbild."
+#: event_types.py:333
+msgid ""
+"The license is confirmed, its full video is available and the own production "
+"is scheduled, but no cover image exists."
+msgstr ""
+"Die Sendeerlaubnis ist genehmigt, das vollständige Video ist verfügbar und "
+"die Eigenproduktion ist eingeplant, aber es ist noch kein Cover vorhanden."
 
-#: event_types.py:271
+#: event_types.py:354
 msgid "Video without a license"
 msgstr "Video ohne Sendeerlaubnis"
 
-#: event_types.py:272
+#: event_types.py:355
 msgid "A video file could not be linked to any license."
 msgstr "Eine Videodatei konnte keiner Sendeerlaubnis zugeordnet werden."
 
-#: event_types.py:283
+#: event_types.py:364
+msgid "Automatic linking grace period (hours)"
+msgstr "Karenzzeit für automatische Zuordnung (Stunden)"
+
+#: event_types.py:367
+msgid "Alert only after automatic license linking had time to run."
+msgstr ""
+"Erst melden, nachdem die automatische Zuordnung Zeit zum Ausführen hatte."
+
+#: event_types.py:373
 msgid "Only report files that appeared recently."
 msgstr "Nur kürzlich hinzugekommene Dateien melden."
 
-#: event_types.py:291
+#: event_types.py:381
 msgid "File operation failed"
 msgstr "Dateioperation fehlgeschlagen"
 
-#: event_types.py:292
+#: event_types.py:382
 msgid "A render, transcode or copy job ended with an error."
 msgstr "Ein Render-, Umwandlungs- oder Kopierauftrag endete mit einem Fehler."
 
-#: event_types.py:293
+#: event_types.py:383
 #, python-brace-format
 msgid "{operation}: {filename}"
 msgstr "{operation}: {filename}"
 
-#: event_types.py:303
+#: event_types.py:393
 msgid "Storage is running out of space"
 msgstr "Speicherort läuft voll"
 
-#: event_types.py:304
+#: event_types.py:394
 msgid "A storage location has little free space left."
 msgstr "Auf einem Speicherort ist nur noch wenig Platz frei."
 
-#: event_types.py:305
+#: event_types.py:395
 #, python-format, python-brace-format
 msgid "{name}: {free_percent}% free ({free_gb} GB)"
 msgstr "{name}: {free_percent}% frei ({free_gb} GB)"
 
-#: event_types.py:313
+#: event_types.py:403
 msgid "Warn below (%)"
 msgstr "Warnen unter (%)"
 
-#: event_types.py:315
+#: event_types.py:405
 msgid "Report when less than this share of space is free."
 msgstr "Melden, wenn weniger als dieser Anteil frei ist."
 
-#: event_types.py:328
+#: event_types.py:413
+msgid "Storage is unavailable"
+msgstr "Speicherort ist nicht erreichbar"
+
+#: event_types.py:415
+msgid ""
+"An active storage location cannot be read and needs technical attention."
+msgstr ""
+"Ein aktiver Speicherort kann nicht gelesen werden und benötigt technische "
+"Aufmerksamkeit."
+
+#: event_types.py:417
+#, python-brace-format
+msgid "{name}: {path}"
+msgstr "{name}: {path}"
+
+#: event_types.py:427
+msgid "Post the reel today"
+msgstr "Reel heute veröffentlichen"
+
+#: event_types.py:429
+msgid ""
+"A reel is ready for a contribution airing today and has to be published "
+"manually."
+msgstr ""
+"Für einen heute ausgestrahlten Beitrag ist ein Reel fertig und muss manuell "
+"veröffentlicht werden."
+
+#: event_types.py:431 event_types.py:530
+#, python-brace-format
+msgid "{start}: {number} {title}"
+msgstr "{start}: {number} {title}"
+
+#: event_types.py:446
 msgid "Exchange import failed"
 msgstr "Austausch-Import fehlgeschlagen"
 
-#: event_types.py:329
+#: event_types.py:447
 msgid "Downloading or importing exchange material did not work."
 msgstr ""
 "Das Herunterladen oder Importieren von Austauschmaterial hat nicht "
 "funktioniert."
 
-#: event_types.py:330
+#: event_types.py:448
 #, python-brace-format
 msgid "{filename}: {error}"
 msgstr "{filename}: {error}"
 
-#: event_types.py:340
+#: event_types.py:458
 msgid "New material in the exchange"
 msgstr "Neues Material im Austausch"
 
-#: event_types.py:341
+#: event_types.py:459
 msgid "The exchange folder scan found material not imported yet."
 msgstr ""
 "Der Scan des Austauschordners hat noch nicht importiertes Material gefunden."
 
-#: event_types.py:342
+#: event_types.py:460
 #, python-brace-format
 msgid "{title} ({channel})"
 msgstr "{title} ({channel})"
 
-#: event_types.py:350
+#: event_types.py:468
 msgid "Discovered within (days)"
 msgstr "Gefunden innerhalb von (Tagen)"
 
-#: event_types.py:352
+#: event_types.py:470
 msgid "Ignore material discovered longer ago than this."
 msgstr "Material ignorieren, das länger zurückliegt."
 
-#: event_types.py:366
+#: event_types.py:484
 msgid "No broadcast plan"
 msgstr "Kein Sendeplan"
 
-#: event_types.py:367
+#: event_types.py:485
 msgid "There is no plan for one of the next days, or it is empty."
 msgstr "Für einen der nächsten Tage gibt es keinen Plan oder er ist leer."
 
-#: event_types.py:368
+#: event_types.py:486
 #, python-brace-format
 msgid "{date}"
 msgstr "{date}"
 
-#: event_types.py:379
+#: event_types.py:497
 msgid "How many days ahead the plan has to exist."
 msgstr "Wie viele Tage im Voraus der Plan vorhanden sein muss."
 
-#: event_types.py:387
+#: event_types.py:505
 msgid "Planned entry without a video file"
 msgstr "Geplanter Eintrag ohne Videodatei"
 
-#: event_types.py:388
+#: event_types.py:506
 msgid "A number in the plan has no available video file."
 msgstr "Zu einer Nummer im Plan gibt es keine verfügbare Videodatei."
 
-#: event_types.py:389
+#: event_types.py:507
 #, python-brace-format
 msgid "{date}, {start}: {number} {title}"
 msgstr "{date}, {start}: {number} {title}"
 
-#: event_types.py:399
+#: event_types.py:517
 msgid "How far ahead the plan is checked for missing media."
 msgstr "Wie weit im Voraus der Plan auf fehlende Medien geprüft wird."
 
-#: event_types.py:408
+#: event_types.py:526
+msgid "Live broadcast today"
+msgstr "Live-Beitrag heute"
+
+#: event_types.py:528
+msgid ""
+"A planned live contribution is streamed today and needs no video file, cover "
+"or reel."
+msgstr ""
+"Ein eingeplanter Live-Beitrag wird heute gestreamt und benötigt keine "
+"Videodatei, kein Cover und kein Reel."
+
+#: event_types.py:542
 msgid "Scheduled entry did not go on air"
 msgstr "Geplanter Eintrag lief nicht"
 
-#: event_types.py:410
+#: event_types.py:544
 msgid "The playout reported a scheduled start that never actually began."
 msgstr "Der Playout meldete einen geplanten Start, der nie begonnen hat."
 
-#: event_types.py:411
+#: event_types.py:545
 #, python-brace-format
 msgid "{scheduled_at}: {filename}"
 msgstr "{scheduled_at}: {filename}"
 
-#: event_types.py:419
+#: event_types.py:553
+msgid "Start grace period (minutes)"
+msgstr "Karenzzeit für Sendestart (Minuten)"
+
+#: event_types.py:556
+msgid "Allow a short playout delay before reporting a missed broadcast."
+msgstr "Eine kurze Playout-Verzögerung vor der Meldung zulassen."
+
+#: event_types.py:561
 msgid "Look back (days)"
 msgstr "Rückblick (Tage)"
 
-#: event_types.py:421
+#: event_types.py:563
 msgid "How far back missed broadcasts are reported."
 msgstr "Wie weit zurück verpasste Ausstrahlungen gemeldet werden."
 
-#: event_types.py:435
+#: event_types.py:577
 msgid "Render job finished"
 msgstr "Render-Auftrag abgeschlossen"
 
-#: event_types.py:436
+#: event_types.py:578
 msgid "A slideshow or audio job you started has ended."
 msgstr "Ein von Ihnen gestarteter Slideshow- oder Audio-Auftrag ist beendet."
 
-#: event_types.py:437
+#: event_types.py:579 event_types.py:592
 #, python-brace-format
 msgid "{job}: {status}"
 msgstr "{job}: {status}"
 
-#: event_types.py:451
+#: event_types.py:588
+msgid "Render job failed"
+msgstr "Render-Auftrag fehlgeschlagen"
+
+#: event_types.py:590
+msgid "A slideshow or audio job needs attention after ending with an error."
+msgstr ""
+"Ein Slideshow- oder Audio-Auftrag wurde mit einem Fehler beendet und "
+"benötigt Aufmerksamkeit."
+
+#: event_types.py:606
 msgid "Background tasks are failing"
 msgstr "Hintergrundaufgaben schlagen fehl"
 
-#: event_types.py:453
+#: event_types.py:608
 msgid ""
 "Celery recorded failed tasks, for example a database backup that did not run."
 msgstr ""
 "Celery hat fehlgeschlagene Aufgaben erfasst, zum Beispiel ein nicht "
 "ausgeführtes Datenbank-Backup."
 
-#: event_types.py:455
+#: event_types.py:610
 #, python-brace-format
 msgid "{task}: {count} failures"
 msgstr "{task}: {count} Fehlschläge"
 
-#: event_types.py:462
+#: event_types.py:617
 msgid "Look back (hours)"
 msgstr "Rückblick (Stunden)"
 
-#: event_types.py:464
+#: event_types.py:619
 msgid "How far back failed tasks are counted."
 msgstr "Wie weit zurück fehlgeschlagene Aufgaben gezählt werden."
 
-#: event_types.py:477
+#: event_types.py:632
 msgid "New registration waiting for verification"
 msgstr "Neue Registrierung wartet auf Überprüfung"
 
-#: event_types.py:478
+#: event_types.py:633
 msgid "Somebody registered and the profile is not verified yet."
 msgstr "Jemand hat sich registriert und das Profil ist noch nicht überprüft."
 
-#: event_types.py:479 event_types.py:490
+#: event_types.py:634 event_types.py:645
 #, python-brace-format
 msgid "{name} ({email})"
 msgstr "{name} ({email})"
 
-#: event_types.py:488
+#: event_types.py:643
 msgid "Profile unverified for too long"
 msgstr "Profil zu lange nicht überprüft"
 
-#: event_types.py:489
+#: event_types.py:644
 msgid "The profile has been waiting for verification for a while."
 msgstr "Das Profil wartet schon eine Weile auf die Überprüfung."
 
-#: event_types.py:499
+#: event_types.py:654
 msgid "Report a profile once it has waited this many days."
 msgstr "Ein Profil melden, sobald es so viele Tage gewartet hat."
 
-#: models.py:22 models.py:171 views.py:412
+#: models.py:22 models.py:171 views.py:476
 msgid "Module"
 msgstr "Modul"
 
 #: models.py:27 models.py:175 models.py:203 models.py:264
 #: templates/admin/notifications/settings.html:33
-#: templates/admin/notifications/stats.html:75 views.py:413
+#: templates/admin/notifications/stats.html:75 views.py:477
 msgid "Event type"
 msgstr "Ereignistyp"
 
@@ -440,7 +607,7 @@ msgstr "Ereignistyp"
 msgid "Code of the event type declared in the registry."
 msgstr "Code des im Registry deklarierten Ereignistyps."
 
-#: models.py:33 views.py:414
+#: models.py:33 views.py:478
 msgid "Category"
 msgstr "Kategorie"
 
@@ -625,11 +792,11 @@ msgstr "Technik"
 msgid "Verwaltung"
 msgstr "Verwaltung"
 
-#: registry.py:26 templates/notifications/summary_block.html:31 views.py:407
+#: registry.py:26 templates/notifications/summary_block.html:31 views.py:471
 msgid "Action required"
 msgstr "Handlungsbedarf"
 
-#: registry.py:27 views.py:168 views.py:459
+#: registry.py:27 views.py:177 views.py:523
 msgid "For information"
 msgstr "Zur Kenntnis"
 
@@ -669,7 +836,7 @@ msgstr "Werkzeuge"
 msgid "System"
 msgstr "System"
 
-#: templates/admin/notifications/feed.html:8 views.py:402
+#: templates/admin/notifications/feed.html:8 views.py:466
 msgid "Notification center"
 msgstr "Benachrichtigungszentrale"
 
@@ -679,11 +846,11 @@ msgstr "Wird geladen…"
 
 #: templates/admin/notifications/settings.html:9
 #: templates/admin/notifications/stats.html:8
-#: templates/admin/notifications/subscriptions.html:8 views.py:466
+#: templates/admin/notifications/subscriptions.html:8 views.py:533
 msgid "My notifications"
 msgstr "Meine Benachrichtigungen"
 
-#: templates/admin/notifications/settings.html:15 views.py:602
+#: templates/admin/notifications/settings.html:15 views.py:692
 msgid "Notification statistics"
 msgstr "Benachrichtigungsstatistik"
 
@@ -701,11 +868,15 @@ msgstr ""
 msgid "Module disabled in settings (%(flag)s)."
 msgstr "Modul in den Einstellungen deaktiviert (%(flag)s)."
 
-#: templates/admin/notifications/settings.html:78
+#: templates/admin/notifications/settings.html:70
+msgid "No active storage locations"
+msgstr "Keine aktiven Speicherorte vorhanden"
+
+#: templates/admin/notifications/settings.html:92
 msgid "Save"
 msgstr "Speichern"
 
-#: templates/admin/notifications/stats.html:9 views.py:578
+#: templates/admin/notifications/stats.html:9 views.py:668
 msgid "Notification settings"
 msgstr "Benachrichtigungseinstellungen"
 
@@ -796,16 +967,16 @@ msgid "Items"
 msgstr "Aufgaben"
 
 #: templates/admin/notifications/stats.html:79
-#: templates/admin/notifications/stats.html:127 views.py:167 views.py:423
+#: templates/admin/notifications/stats.html:127 views.py:175 views.py:487
 msgid "Handled"
 msgstr "Erledigt"
 
 #: templates/admin/notifications/stats.html:80
-#: templates/admin/notifications/stats.html:126 views.py:165 views.py:422
+#: templates/admin/notifications/stats.html:126 views.py:173 views.py:486
 msgid "Open"
 msgstr "Offen"
 
-#: templates/admin/notifications/stats.html:81 views.py:166 views.py:408
+#: templates/admin/notifications/stats.html:81 views.py:174 views.py:472
 msgid "Postponed"
 msgstr "Zurückgestellt"
 
@@ -841,7 +1012,7 @@ msgstr "Nach Mitarbeiterin oder Mitarbeiter"
 msgid "Account"
 msgstr "Konto"
 
-#: templates/admin/notifications/stats.html:124 views.py:452
+#: templates/admin/notifications/stats.html:124 views.py:516
 msgid "Subscriptions"
 msgstr "Abonnements"
 
@@ -882,11 +1053,11 @@ msgstr "Abonnements speichern"
 msgid "Summary for today"
 msgstr "Übersicht für heute"
 
-#: templates/notifications/summary_block.html:12 views.py:442
+#: templates/notifications/summary_block.html:12 views.py:506
 msgid "You are not subscribed to any module yet."
 msgstr "Sie haben noch kein Modul abonniert."
 
-#: templates/notifications/summary_block.html:13 views.py:443
+#: templates/notifications/summary_block.html:13 views.py:507
 msgid "Choose your modules"
 msgstr "Module auswählen"
 
@@ -898,389 +1069,421 @@ msgstr "Neu"
 msgid "Nothing to report today."
 msgstr "Heute gibt es nichts zu melden."
 
-#: views.py:39
+#: views.py:40
 msgid "Channel"
 msgstr "Kanal"
 
-#: views.py:40
+#: views.py:41
+msgid "Confirmed"
+msgstr "Genehmigt"
+
+#: views.py:42
+msgid "Cover available"
+msgstr "Cover vorhanden"
+
+#: views.py:43
 msgid "Count"
 msgstr "Anzahl"
 
-#: views.py:41
+#: views.py:44
 msgid "Created"
 msgstr "Erstellt"
 
-#: views.py:42
+#: views.py:45
 msgid "Date"
 msgstr "Datum"
 
-#: views.py:43
+#: views.py:46
 msgid "Days late"
 msgstr "Tage überfällig"
 
-#: views.py:44
+#: views.py:47
 msgid "Difference"
 msgstr "Abweichung"
 
-#: views.py:45
+#: views.py:48
 msgid "Discovered"
 msgstr "Entdeckt"
 
-#: views.py:46
+#: views.py:49
 msgid "Due"
 msgstr "Fällig"
 
-#: views.py:47
+#: views.py:50
 msgid "Email address"
 msgstr "E-Mail-Adresse"
 
-#: views.py:48
+#: views.py:51
 msgid "Error"
 msgstr "Fehler"
 
-#: views.py:49
+#: views.py:52
 msgid "File"
 msgstr "Datei"
 
-#: views.py:50
+#: views.py:53
 msgid "Free space (GB)"
 msgstr "Freier Speicher (GB)"
 
-#: views.py:51
+#: views.py:54
 msgid "Free space (%)"
 msgstr "Freier Speicher (%)"
 
-#: views.py:52
+#: views.py:55
 msgid "Issue"
 msgstr "Problem"
 
-#: views.py:53
+#: views.py:56
 msgid "Equipment"
 msgstr "Technik"
 
-#: views.py:54
+#: views.py:57
 msgid "Job"
 msgstr "Auftrag"
 
-#: views.py:55
+#: views.py:58
+msgid "Live broadcast"
+msgstr "Live-Beitrag"
+
+#: views.py:59
 msgid "Name"
 msgstr "Name"
 
-#: views.py:56
+#: views.py:60
 msgid "Number"
 msgstr "Nummer"
 
-#: views.py:57
+#: views.py:61
 msgid "Operation"
 msgstr "Vorgang"
 
-#: views.py:58
+#: views.py:62
 msgid "Overdue"
 msgstr "Überfällig"
 
-#: views.py:59
+#: views.py:63
+msgid "Path"
+msgstr "Pfad"
+
+#: views.py:64
 msgid "Project"
 msgstr "Projekt"
 
-#: views.py:60
+#: views.py:65
+msgid "Reel available"
+msgstr "Reel vorhanden"
+
+#: views.py:66
 msgid "Scheduled for"
 msgstr "Geplant für"
 
-#: views.py:61
+#: views.py:67
 msgid "Severity"
 msgstr "Schweregrad"
 
-#: views.py:62
+#: views.py:68
 msgid "Start"
 msgstr "Beginn"
 
-#: views.py:63 views.py:425
+#: views.py:69 views.py:489
 msgid "Status"
 msgstr "Status"
 
-#: views.py:64
+#: views.py:70
 msgid "Storage"
 msgstr "Speicherort"
 
-#: views.py:65
+#: views.py:71
+msgid "Room"
+msgstr "Raum"
+
+#: views.py:72
 msgid "Task"
 msgstr "Aufgabe"
 
-#: views.py:66
+#: views.py:73
 msgid "Title"
 msgstr "Titel"
 
-#: views.py:67
+#: views.py:74
 msgid "Uploaded"
 msgstr "Hochgeladen"
 
-#: views.py:68
+#: views.py:75
 msgid "Person"
 msgstr "Person"
 
-#: views.py:140
+#: views.py:76
+msgid "Video available"
+msgstr "Videodatei vorhanden"
+
+#: views.py:148
 msgid "Yes"
 msgstr "Ja"
 
-#: views.py:140
+#: views.py:148
 msgid "No"
 msgstr "Nein"
 
-#: views.py:142
+#: views.py:150
 msgid "Not specified"
 msgstr "Nicht angegeben"
 
-#: views.py:238
+#: views.py:176
+msgid "Automatically resolved"
+msgstr "Automatisch erledigt"
+
+#: views.py:261
+msgid "Today"
+msgstr "Heute"
+
+#: views.py:276 views.py:527
+msgid "Expected"
+msgstr "Erwartet"
+
+#: views.py:298
 #, python-format
 msgid "%(count)d entry marked as handled."
 msgid_plural "%(count)d entries marked as handled."
 msgstr[0] "%(count)d Eintrag als erledigt markiert."
 msgstr[1] "%(count)d Einträge als erledigt markiert."
 
-#: views.py:242 views.py:251 views.py:260 views.py:269 views.py:280
+#: views.py:302 views.py:311 views.py:320 views.py:329 views.py:340
 msgid "Nothing was selected."
 msgstr "Es wurde nichts ausgewählt."
 
-#: views.py:247
+#: views.py:307
 #, python-format
 msgid "%(count)d entry postponed until tomorrow."
 msgid_plural "%(count)d entries postponed until tomorrow."
 msgstr[0] "%(count)d Eintrag bis morgen zurückgestellt."
 msgstr[1] "%(count)d Einträge bis morgen zurückgestellt."
 
-#: views.py:256
+#: views.py:316
 #, python-format
 msgid "%(count)d entry was reopened."
 msgid_plural "%(count)d entries were reopened."
 msgstr[0] "%(count)d Eintrag wurde wieder geöffnet."
 msgstr[1] "%(count)d Einträge wurden wieder geöffnet."
 
-#: views.py:265
+#: views.py:325
 #, python-format
 msgid "%(count)d entry is shown again."
 msgid_plural "%(count)d entries are shown again."
 msgstr[0] "%(count)d Eintrag wird wieder angezeigt."
 msgstr[1] "%(count)d Einträge werden wieder angezeigt."
 
-#: views.py:273
+#: views.py:333
 msgid "Silenced from the notification page"
 msgstr "Über die Benachrichtigungsseite ausgeblendet"
 
-#: views.py:276
+#: views.py:336
 #, python-format
 msgid "%(count)d entry will no longer be reported."
 msgid_plural "%(count)d entries will no longer be reported."
 msgstr[0] "%(count)d Eintrag wird nicht mehr gemeldet."
 msgstr[1] "%(count)d Einträge werden nicht mehr gemeldet."
 
-#: views.py:403
+#: views.py:467
 msgid "Everything important for today at a glance."
 msgstr "Alles Wichtige für heute auf einen Blick."
 
-#: views.py:404
+#: views.py:468
 msgid "Today's overview"
 msgstr "Heutige Übersicht"
 
-#: views.py:405
+#: views.py:469
 msgid "Expected today"
 msgstr "Heute erwartet"
 
-#: views.py:406
+#: views.py:470
 msgid "New since last visit"
 msgstr "Neu seit dem letzten Besuch"
 
-#: views.py:409
+#: views.py:473
 msgid "Problems"
 msgstr "Probleme"
 
-#: views.py:410
+#: views.py:474
 msgid "Search notifications…"
 msgstr "Benachrichtigungen suchen…"
 
-#: views.py:411
+#: views.py:475
 msgid "Filters"
 msgstr "Filter"
 
-#: views.py:415
+#: views.py:479
 msgid "Period"
 msgstr "Zeitraum"
 
-#: views.py:416
+#: views.py:480
 msgid "From"
 msgstr "Von"
 
-#: views.py:417
+#: views.py:481
 msgid "To"
 msgstr "Bis"
 
-#: views.py:418
+#: views.py:482
 msgid "Older than (days)"
 msgstr "Älter als (Tage)"
 
-#: views.py:419
+#: views.py:483
 msgid "Apply filters"
 msgstr "Filter anwenden"
 
-#: views.py:420
+#: views.py:484
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: views.py:421
+#: views.py:485
 msgid "All"
 msgstr "Alle"
 
-#: views.py:424
+#: views.py:488
 msgid "Chronicle"
 msgstr "Verlauf"
 
-#: views.py:426
+#: views.py:490
 msgid "Subject / object"
 msgstr "Betreff / Objekt"
 
-#: views.py:427
+#: views.py:491
 msgid "Time"
 msgstr "Zeitpunkt"
 
-#: views.py:428
+#: views.py:492
 msgid "State"
 msgstr "Zustand"
 
-#: views.py:429
+#: views.py:493
 msgid "Actions"
 msgstr "Aktionen"
 
-#: views.py:430
+#: views.py:494
 msgid "Select all on this page"
 msgstr "Alle auf dieser Seite auswählen"
 
-#: views.py:431
+#: views.py:495
 msgid "Apply to all matching entries"
 msgstr "Auf alle passenden Einträge anwenden"
 
-#: views.py:432
+#: views.py:496
 msgid "Mark as handled"
 msgstr "Als erledigt markieren"
 
-#: views.py:433
+#: views.py:497
 msgid "Postpone until tomorrow"
 msgstr "Bis morgen zurückstellen"
 
-#: views.py:434
+#: views.py:498
 msgid "Show again now"
 msgstr "Jetzt wieder anzeigen"
 
-#: views.py:435
+#: views.py:499
 msgid "Reopen"
 msgstr "Wieder öffnen"
 
-#: views.py:436
+#: views.py:500
 msgid "Never report again"
 msgstr "Nie wieder melden"
 
-#: views.py:438
+#: views.py:502
 msgid "These entries will never be reported again, for anyone. Continue?"
 msgstr "Diese Einträge werden nie wieder gemeldet, für niemanden. Fortfahren?"
 
-#: views.py:439
+#: views.py:503
 msgid "results"
 msgstr "Ergebnisse"
 
-#: views.py:440
+#: views.py:504
 msgid "No notifications match this view."
 msgstr "Für diese Ansicht wurden keine Benachrichtigungen gefunden."
 
-#: views.py:444
+#: views.py:508
 msgid "Close"
 msgstr "Schließen"
 
-#: views.py:445
+#: views.py:509
 msgid "Today's expectations"
 msgstr "Heutige Erwartungen"
 
-#: views.py:446
+#: views.py:510
 msgid "Nothing is expected today."
 msgstr "Für heute steht nichts an."
 
-#: views.py:447
+#: views.py:511
 msgid "Open working screen"
 msgstr "Arbeitsansicht öffnen"
 
-#: views.py:448
+#: views.py:512
 msgid "Details"
 msgstr "Details"
 
-#: views.py:449
+#: views.py:513
 msgid "Description"
 msgstr "Beschreibung"
 
-#: views.py:450
+#: views.py:514
 msgid "Notification"
 msgstr "Benachrichtigung"
 
-#: views.py:451
+#: views.py:515
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: views.py:453
+#: views.py:517
 msgid "Statistics"
 msgstr "Statistik"
 
-#: views.py:454
+#: views.py:518
 msgid "Administration"
 msgstr "Verwaltung"
 
-#: views.py:455
+#: views.py:519
 msgid "Previous"
 msgstr "Zurück"
 
-#: views.py:456
+#: views.py:520
 msgid "Next"
 msgstr "Weiter"
 
-#: views.py:457
+#: views.py:521
 msgid "Page"
 msgstr "Seite"
 
-#: views.py:458
+#: views.py:522
 msgid "of"
 msgstr "von"
 
-#: views.py:460
+#: views.py:524
 msgid "Postponed until"
 msgstr "Zurückgestellt bis"
 
-#: views.py
-msgid "Today"
-msgstr "Heute"
-
-#: views.py
-msgid "Expected"
-msgstr "Erwartet"
-
-#: views.py
+#: views.py:525
 msgid "Showing overview:"
 msgstr "Übersicht angezeigt:"
 
-#: views.py
+#: views.py:526
 msgid "Back to current view"
 msgstr "Zur aktuellen Ansicht"
 
-#: views.py:491 views.py:498
+#: views.py:558 views.py:565
 msgid "Subscriptions updated."
 msgstr "Abonnements aktualisiert."
 
-#: views.py:503
+#: views.py:570
 msgid "My subscriptions"
 msgstr "Meine Abonnements"
 
-#: views.py:516
+#: views.py:583
 msgid "Only superusers may configure notifications."
 msgstr "Nur Superuser dürfen Benachrichtigungen konfigurieren."
 
-#: views.py:542
+#: views.py:615
 msgid "Notification settings saved."
 msgstr "Benachrichtigungseinstellungen gespeichert."
 
-#: views.py:593
+#: views.py:683
 msgid "Only superusers may see the notification statistics."
 msgstr "Nur Superuser dürfen die Benachrichtigungsstatistik sehen."

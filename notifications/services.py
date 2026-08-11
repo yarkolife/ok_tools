@@ -10,6 +10,7 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.utils import timezone
 from notifications import config
+from notifications import process_state
 from notifications import registry
 from notifications.models import NotificationEvent
 from notifications.models import NotificationSuppression
@@ -180,6 +181,7 @@ def backfill_action_items(user, codes: List[str]) -> int:
                 category=registry.CATEGORY_ACTION_REQUIRED)
         .exclude(id__in=existing)
     )
+    events = process_state.exclude_inactive_events(events)
     rows = [UserNotification(user=user, event=event) for event in events]
     if not rows:
         return 0

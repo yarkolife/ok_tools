@@ -73,15 +73,16 @@ def own_authority(db):
 # format
 # ---------------------------------------------------------------------------
 
-def test_format_mismatch_reports_wrong_resolution(synced, storage, preset):
+def test_format_mismatch_reports_wrong_resolution(
+        synced, storage, preset, license):
     """A file that is not 1920x1080 has to be converted."""
     from media_files.models import VideoFile
 
     VideoFile.objects.create(
-        number=1, filename='ok.mp4', storage_location=storage,
+        number=999999, filename='ok.mp4', storage_location=storage,
         file_path='/tmp/playout/ok.mp4', width=1920, height=1080, fps=25.0)
     VideoFile.objects.create(
-        number=2, filename='hd.mp4', storage_location=storage,
+        number=license.number, filename='hd.mp4', storage_location=storage,
         file_path='/tmp/playout/hd.mp4', width=1280, height=720, fps=25.0)
 
     findings = run_check('media_files.format_mismatch')
@@ -91,16 +92,21 @@ def test_format_mismatch_reports_wrong_resolution(synced, storage, preset):
     assert 'resolution' in findings[0].payload['deviation']
 
 
-def test_format_mismatch_tolerates_ffprobe_rounding(synced, storage, preset):
+def test_format_mismatch_tolerates_ffprobe_rounding(
+        synced, storage, preset, license):
     """25.000001 fps is fine; 30 is not."""
     from media_files.models import VideoFile
 
-    VideoFile.objects.create(
-        number=1, filename='rounded.mp4', storage_location=storage,
+    rounded = VideoFile.objects.create(
+        number=license.number, filename='rounded.mp4', storage_location=storage,
         file_path='/tmp/playout/rounded.mp4',
         width=1920, height=1080, fps=24.999)
+
+    assert run_check('media_files.format_mismatch') == []
+
+    rounded.delete()
     VideoFile.objects.create(
-        number=2, filename='thirty.mp4', storage_location=storage,
+        number=license.number, filename='thirty.mp4', storage_location=storage,
         file_path='/tmp/playout/thirty.mp4',
         width=1920, height=1080, fps=30.0)
 
@@ -125,24 +131,40 @@ def test_format_mismatch_needs_a_preset(synced, storage, db):
 # reels and covers
 # ---------------------------------------------------------------------------
 
-def _plan_own_license(license_obj, authority, days_ahead=1):
-    """Put a license on the plan and make it an own production."""
+def _plan_own_license(license_obj, authority, storage, days_ahead=1):
+    """Put a confirmed own production with a full video on the plan."""
+    from media_files.models import VideoFile
     from planung.models import TagesPlan
 
     profile = license_obj.profile
     profile.media_authority = authority
     profile.save()
+    license_obj.confirmed = True
+    license_obj.confirmed_at = timezone.now()
+    license_obj.save(update_fields=['confirmed', 'confirmed_at'])
+    VideoFile.objects.create(
+        number=license_obj.number,
+        filename=f'{license_obj.number}.mp4',
+        storage_location=storage,
+        file_path=f'/tmp/playout/{license_obj.number}.mp4',
+        license=license_obj,
+    )
     TagesPlan.objects.create(
         datum=timezone.localdate() + timedelta(days=days_ahead),
-        json_plan={'items': [{
-            'number': license_obj.number, 'start': '18:00',
-            'duration': 60, 'title': license_obj.title}]})
+        json_plan={
+            'planned': True,
+            'draft': False,
+            'items': [{
+                'number': license_obj.number, 'start': '18:00',
+                'duration': 60, 'title': license_obj.title,
+            }],
+        })
 
 
 def test_missing_reel_reports_own_planned_production(synced, license,
-                                                     own_authority):
+                                                     own_authority, storage):
     """An own production going on air soon and no reel rendered."""
-    _plan_own_license(license, own_authority)
+    _plan_own_license(license, own_authority, storage)
 
     findings = run_check('media_files.missing_reel')
 
@@ -150,11 +172,12 @@ def test_missing_reel_reports_own_planned_production(synced, license,
     assert findings[0].payload['number'] == license.number
 
 
-def test_missing_reel_ignores_other_channels(synced, license, own_authority):
+def test_missing_reel_ignores_other_channels(synced, license, own_authority,
+                                             storage):
     """Material of another channel is not our reel to make."""
     from registration.models import MediaAuthority
 
-    _plan_own_license(license, own_authority)
+    _plan_own_license(license, own_authority, storage)
     other = MediaAuthority.objects.create(name='OK Other')
     profile = license.profile
     profile.media_authority = other
@@ -168,7 +191,7 @@ def test_missing_reel_is_closed_by_an_existing_reel(synced, license,
     """A rendered reel is registered as a preview clip."""
     from media_files.models import VideoFile
 
-    _plan_own_license(license, own_authority)
+    _plan_own_license(license, own_authority, storage)
     VideoFile.objects.create(
         number=license.number, filename=f'{license.number}_reel.mp4',
         storage_location=storage,
@@ -178,12 +201,47 @@ def test_missing_reel_is_closed_by_an_existing_reel(synced, license,
     assert run_check('media_files.missing_reel') == []
 
 
+def test_missing_assets_wait_for_confirmation_and_full_video(
+        synced, license, own_authority):
+    """Cover and reel are not the next step while confirmation/video blocks."""
+    from planung.models import TagesPlan
+
+    profile = license.profile
+    profile.media_authority = own_authority
+    profile.save()
+    TagesPlan.objects.create(
+        datum=timezone.localdate() + timedelta(days=1),
+        json_plan={
+            'planned': True,
+            'draft': False,
+            'items': [{
+                'number': license.number,
+                'start': '18:00',
+                'title': license.title,
+            }],
+        })
+
+    assert run_check('media_files.missing_reel') == []
+    assert run_check('media_files.missing_cover') == []
+
+
+def test_missing_assets_ignore_live_contributions(
+        synced, license, own_authority, storage):
+    """A planned stream needs neither a generated cover nor a reel."""
+    _plan_own_license(license, own_authority, storage)
+    license.__class__.objects.filter(pk=license.pk).update(is_live=True)
+
+    assert run_check('media_files.missing_reel') == []
+    assert run_check('media_files.missing_cover') == []
+
+
 def test_missing_cover_reports_own_planned_production(synced, license,
-                                                      own_authority, tmp_path):
+                                                      own_authority, storage,
+                                                      tmp_path):
     """Covers live on disk, so the check looks at the cover directory."""
     from media_files.models import MediaFilesConfig
 
-    _plan_own_license(license, own_authority)
+    _plan_own_license(license, own_authority, storage)
     media_config = MediaFilesConfig.get_config()
     media_config.cover_enabled = True
     media_config.cover_output_dir = str(tmp_path)
@@ -213,27 +271,61 @@ def test_missing_asset_checks_need_the_own_authority(synced, license, db):
 # ---------------------------------------------------------------------------
 
 def test_confirmed_without_video_reports_blocked_licenses(synced, license):
-    """An approved license without a file cannot be planned."""
+    """Staff is alerted only after uploads and indexing had time to finish."""
     license.confirmed = True
-    license.confirmed_at = timezone.now()
-    license.save(update_fields=['confirmed'])
+    license.confirmed_at = timezone.now() - timedelta(days=4)
+    license.save(update_fields=['confirmed', 'confirmed_at'])
 
     findings = run_check('licenses.confirmed_without_video')
 
     assert [item.obj.pk for item in findings] == [license.pk]
 
 
+def test_confirmed_live_license_needs_no_video(synced, license):
+    """Confirmation completes the video step for a live stream."""
+    license.confirmed = True
+    license.confirmed_at = timezone.now()
+    license.is_live = True
+    license.save(update_fields=['confirmed', 'confirmed_at', 'is_live'])
+
+    assert run_check('licenses.confirmed_without_video') == []
+
+
 def test_orphan_video_reports_unlinked_files(synced, storage):
     """A file the scan could not link to a license needs a human."""
+    from media_files.models import VideoFile
+    from notifications.models import NotificationEventTypeConfig
+
+    NotificationEventTypeConfig.objects.filter(
+        code='media_files.orphan_video').update(
+            params={
+                'days': 30,
+                'grace_hours': 24,
+                'storage_location_ids': [storage.pk],
+            })
+
+    orphan = VideoFile.objects.create(
+        number=999, filename='orphan.mp4', storage_location=storage,
+        file_path='/tmp/playout/orphan.mp4', is_available=True)
+    VideoFile.objects.filter(pk=orphan.pk).update(
+        created_at=timezone.now() - timedelta(hours=25))
+
+    findings = run_check('media_files.orphan_video')
+
+    assert [item.obj.pk for item in findings] == [orphan.pk]
+
+
+def test_orphan_video_ignores_unselected_storage(synced, storage):
+    """An empty folder selection deliberately disables this notification."""
     from media_files.models import VideoFile
 
     orphan = VideoFile.objects.create(
         number=999, filename='orphan.mp4', storage_location=storage,
         file_path='/tmp/playout/orphan.mp4', is_available=True)
+    VideoFile.objects.filter(pk=orphan.pk).update(
+        created_at=timezone.now() - timedelta(hours=25))
 
-    findings = run_check('media_files.orphan_video')
-
-    assert [item.obj.pk for item in findings] == [orphan.pk]
+    assert run_check('media_files.orphan_video') == []
 
 
 def test_storage_low_uses_the_threshold(synced, storage):
@@ -248,6 +340,65 @@ def test_storage_low_uses_the_threshold(synced, storage):
 
     assert [item.obj.pk for item in findings] == [storage.pk]
     assert findings[0].payload['free_percent'] < 100
+
+
+def test_unmounted_storage_is_a_problem(synced, db, tmp_path):
+    """An unreadable NAS must not be mistaken for healthy free space."""
+    from media_files.models import StorageLocation
+
+    missing = StorageLocation.objects.create(
+        name='Offline NAS',
+        path=str(tmp_path / 'not-mounted'),
+        storage_type='ARCHIVE',
+        is_active=True,
+    )
+
+    findings = run_check('media_files.storage_unavailable')
+
+    assert [item.obj.pk for item in findings] == [missing.pk]
+
+
+def test_ready_reel_requires_manual_posting_today(
+        synced, license, own_authority, storage):
+    """A prepared reel becomes human work on its contribution's air date."""
+    from media_files.models import VideoFile
+    from planung.models import TagesPlan
+
+    license.profile.media_authority = own_authority
+    license.profile.save()
+    license.confirmed = True
+    license.confirmed_at = timezone.now()
+    license.save(update_fields=['confirmed', 'confirmed_at'])
+    VideoFile.objects.create(
+        number=license.number,
+        filename=f'{license.number}.mp4',
+        storage_location=storage,
+        file_path=f'{license.number}.mp4',
+        license=license,
+    )
+    VideoFile.objects.create(
+        number=license.number,
+        filename=f'{license.number}_reel.mp4',
+        storage_location=storage,
+        file_path=f'{license.number}_reel.mp4',
+        is_preview=True,
+    )
+    TagesPlan.objects.create(
+        datum=timezone.localdate(),
+        json_plan={
+            'planned': True,
+            'draft': False,
+            'items': [{
+                'number': license.number,
+                'start': '18:00',
+                'title': license.title,
+            }],
+        },
+    )
+
+    findings = run_check('media_files.reel_post_today')
+
+    assert [item.obj.pk for item in findings] == [license.pk]
 
 
 def test_not_aired_reports_missed_broadcasts(synced, db):
@@ -286,6 +437,45 @@ def test_task_failures_are_grouped_by_task(synced, db):
 # signals
 # ---------------------------------------------------------------------------
 
+def test_committed_plan_emits_missing_asset_events_immediately(
+        synced, license, own_authority, storage):
+    """A newly committed plan need not wait for tomorrow's digest scan."""
+    from media_files.models import VideoFile
+    from planung.models import TagesPlan
+
+    profile = license.profile
+    profile.media_authority = own_authority
+    profile.save()
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        license.confirmed = True
+        license.confirmed_at = timezone.now()
+        license.save(update_fields=['confirmed', 'confirmed_at'])
+        VideoFile.objects.create(
+            number=license.number,
+            filename=f'{license.number}.mp4',
+            storage_location=storage,
+            file_path=f'/tmp/playout/{license.number}.mp4',
+            license=license,
+        )
+        TagesPlan.objects.create(
+            datum=timezone.localdate() + timedelta(days=1),
+            json_plan={
+                'planned': True,
+                'draft': False,
+                'items': [{
+                    'number': license.number,
+                    'start': '18:00',
+                    'title': license.title,
+                }],
+            })
+
+    assert set(NotificationEvent.objects.filter(
+        object_id=license.pk).values_list('event_type', flat=True)) == {
+            'media_files.missing_cover',
+            'media_files.missing_reel',
+        }
+
+
 def test_failed_operation_creates_a_problem_event(synced, storage):
     """A failed render is reported, a successful one is not."""
     from media_files.models import FileOperation
@@ -306,8 +496,29 @@ def test_failed_operation_creates_a_problem_event(synced, storage):
     assert events.count() == 1
 
 
-def test_job_result_goes_to_its_owner_only(synced, db, user_dict):
-    """A render result concerns whoever started it, not the whole module."""
+def test_successful_retry_resolves_file_operation_problem(synced, storage):
+    """A recovered automatic operation no longer asks for attention."""
+    from media_files.models import FileOperation
+    from media_files.models import VideoFile
+    from notifications.process_state import inactive_event_ids
+
+    video = VideoFile.objects.create(
+        number=1, filename='beitrag.mp4', storage_location=storage,
+        file_path='/tmp/playout/beitrag.mp4')
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        FileOperation.objects.create(
+            video_file=video, operation_type='RENDER', status='FAILED',
+            error_message='ffmpeg exited with 1')
+    event = NotificationEvent.objects.get(
+        event_type='media_files.operation_failed')
+    FileOperation.objects.create(
+        video_file=video, operation_type='RENDER', status='SUCCESS')
+
+    assert event.pk in inactive_event_ids([event])
+
+
+def test_failed_job_goes_to_its_owner_only(synced, db, user_dict):
+    """Only a failed render needs its initiator's attention."""
     from notifications import selectors
     from ok_tools.testing import create_user
     from tools.models import SlideshowProject
@@ -319,8 +530,12 @@ def test_job_result_goes_to_its_owner_only(synced, db, user_dict):
 
     with TestCase.captureOnCommitCallbacks(execute=True):
         SlideshowProject.objects.create(
-            name='Testshow', created_by=owner, status='completed')
+            name='Successful show', created_by=owner, status='completed')
+        SlideshowProject.objects.create(
+            name='Failed show', created_by=owner, status='failed')
 
     assert UserNotification.objects.filter(
-        user=owner, event__event_type='tools.job_finished').count() == 1
+        user=owner, event__event_type='tools.job_failed').count() == 1
+    assert not NotificationEvent.objects.filter(
+        event_type='tools.job_finished').exists()
     assert UserNotification.objects.filter(user=other).count() == 0

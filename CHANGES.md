@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-08-11 (Version 4.42.0)
+==========================
+
+* **notifications: Human-attention workflow instead of a system activity feed**
+  * Normal automation no longer creates work: discovering or indexing a video and successful slideshow/audio jobs stay silent. Orphan files are checked only in explicitly selected storage locations and wait for the automatic-linking grace period; confirmed licenses wait for uploads and indexing, and missed broadcasts allow a configurable playout delay.
+  * Rental obligations now follow the real lifecycle. New draft requests require confirmation, today's pick-ups and returns exclude old appointments, missed pick-ups become a separate action, and today's confirmed room bookings remind staff that somebody has to be present. Confirmation, issue resolution, issue/return completion or rescheduling close the corresponding task from current model state.
+  * The license/media/planning chain exposes only the current blocker: confirmation precedes a manual Nextcloud download, a pending upload suppresses the generic missing-video reminder, an approaching committed plan owns the urgent missing-video task, Live contributions bypass file assets, and Cover/Reel checks start only when their prerequisites hold. Ready reels create a manual posting task on their broadcast day.
+  * Stored action and problem events now resolve automatically across Rental, licenses, media operations, storage, Austausch, Planung, tools, registration and Celery. A successful retry closes the corresponding failure; repeated scans keep one active row per condition; aging entries escalate the original confirmation/verification task instead of duplicating it.
+  * Added active-storage-unavailable detection. An unreadable NAS path is now a visible technical problem instead of merely producing a log warning, while the Problems overview counts only incidents whose cause still exists.
+  * Added focused lifecycle coverage; the notifications suite now contains 88 passing tests. German catalogue remains fully translated.
+
 2026-08-09 (Version 4.41.0)
 ==========================
 

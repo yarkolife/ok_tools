@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 from notifications import config
 from notifications import presets
+from notifications import process_state
 from notifications import registry
 from notifications.models import NotificationEvent
 from notifications.models import Subscription
@@ -134,6 +135,17 @@ def feed(user, request=None, limit: int = 50, since=None,
     return queryset
 
 
+def active_problem_events(user, request=None):
+    """Return only technical problems whose cause still exists."""
+    queryset = feed(
+        user,
+        request,
+        limit=0,
+        filters={'category': registry.CATEGORY_PROBLEM},
+    )
+    return process_state.exclude_inactive_events(queryset)
+
+
 def open_action_items(user, request=None,
                       filters: Optional[Dict[str, Any]] = None,
                       include_snoozed: bool = False):
@@ -160,7 +172,8 @@ def open_action_items(user, request=None,
             Q(snoozed_until__isnull=True)
             | Q(snoozed_until__lte=timezone.now()))
     queryset = apply_filters(queryset, filters or {}, prefix='event')
-    return exclude_suppressed(queryset, event_path='event')
+    queryset = exclude_suppressed(queryset, event_path='event')
+    return process_state.exclude_inactive_action_items(queryset)
 
 
 def snoozed_action_items(user, request=None,
@@ -177,7 +190,8 @@ def snoozed_action_items(user, request=None,
         .select_related('event', 'event__content_type')
     )
     queryset = apply_filters(queryset, filters or {}, prefix='event')
-    return exclude_suppressed(queryset, event_path='event')
+    queryset = exclude_suppressed(queryset, event_path='event')
+    return process_state.exclude_inactive_action_items(queryset)
 
 
 def handled_action_items(user, request=None,
@@ -210,11 +224,22 @@ def status_by_event(user, events) -> Dict[int, str]:
     rows = UserNotification.objects.filter(
         user=user, event_id__in=ids
     ).values_list('event_id', 'dismissed_at', 'snoozed_until')
+    inactive = process_state.inactive_event_ids(events)
 
-    result = {}
+    result = {
+        event.pk: 'resolved' for event in events if event.pk in inactive
+    }
+    result.update({
+        event.pk: 'open'
+        for event in events
+        if event.category == registry.CATEGORY_PROBLEM
+        and event.pk not in inactive
+    })
     for event_id, dismissed_at, snoozed_until in rows:
         if dismissed_at is not None:
             result[event_id] = 'handled'
+        elif event_id in inactive:
+            result[event_id] = 'resolved'
         elif snoozed_until is not None and snoozed_until > now:
             result[event_id] = 'snoozed'
         else:

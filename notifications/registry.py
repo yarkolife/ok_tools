@@ -46,12 +46,13 @@ MODULE_LABELS: Dict[str, Any] = {
 
 @dataclass(frozen=True)
 class ParamSpec:
-    """A single configurable number of a check."""
+    """A single configurable value of a check."""
 
     name: str
     label: Any
-    default: int
+    default: Any
     help_text: Any = ''
+    kind: str = 'number'
 
 
 @dataclass(frozen=True)
@@ -84,9 +85,13 @@ class EventType:
         """Return the human readable name of the owning module."""
         return MODULE_LABELS.get(self.module, self.module)
 
-    def default_params(self) -> Dict[str, int]:
+    def default_params(self) -> Dict[str, Any]:
         """Return the parameter defaults as a plain dict."""
-        return {spec.name: spec.default for spec in self.params}
+        return {
+            spec.name: list(spec.default)
+            if spec.kind == 'storage_locations' else spec.default
+            for spec in self.params
+        }
 
 
 _REGISTRY: Dict[str, EventType] = {}

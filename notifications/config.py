@@ -8,6 +8,7 @@ subscriptions) lives in :mod:`notifications.selectors`.
 from django.conf import settings
 from notifications import registry
 from notifications.models import NotificationEventTypeConfig
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -69,16 +70,26 @@ def is_enabled(code: str) -> bool:
     return bool(config and config.enabled)
 
 
-def get_params(code: str) -> Dict[str, int]:
+def get_params(code: str) -> Dict[str, Any]:
     """Return the effective parameters: registry defaults plus stored values."""
     event_type = registry.get(code)
     if event_type is None:
         return {}
     params = event_type.default_params()
+    specs = {spec.name: spec for spec in event_type.params}
     config = get_type_config(code)
     if config and isinstance(config.params, dict):
         for key, value in config.params.items():
             if key in params:
+                spec = specs[key]
+                if spec.kind == 'storage_locations':
+                    if not isinstance(value, (list, tuple)):
+                        continue
+                    params[key] = [
+                        int(item) for item in value
+                        if str(item).isdigit()
+                    ]
+                    continue
                 try:
                     params[key] = int(value)
                 except (TypeError, ValueError):

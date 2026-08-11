@@ -73,6 +73,42 @@ def test_pickup_due_ignores_issued_rentals(synced, rental_request):
     assert len(run_check('rental.return_due_today')) == 1
 
 
+def test_past_pickup_is_not_expected_today(synced, rental_request):
+    """A missed appointment is an exception, not today's expectation."""
+    rental_request.requested_start_date = (
+        timezone.now() - timedelta(days=2))
+    rental_request.save(update_fields=['requested_start_date'])
+
+    assert run_check('rental.pickup_due_today') == []
+    findings = run_check('rental.pickup_overdue')
+    assert [item.obj.pk for item in findings] == [rental_request.pk]
+
+
+def test_room_booking_is_a_human_expectation(synced, rental_request):
+    """Staff sees that somebody has to open a booked room today."""
+    from rental.models import Room
+    from rental.models import RoomRental
+
+    rental_request.requested_start_date = timezone.now() + timedelta(hours=1)
+    rental_request.requested_end_date = timezone.now() + timedelta(hours=2)
+    rental_request.save(update_fields=[
+        'requested_start_date', 'requested_end_date'])
+    room = Room.objects.create(name='Studio', capacity=5)
+    booking = RoomRental.objects.create(
+        rental_request=rental_request,
+        room=room,
+        people_count=3,
+    )
+    rental_request.rental_type = 'room'
+    rental_request.save(update_fields=['rental_type'])
+
+    findings = run_check('rental.room_due_today')
+
+    assert [item.obj.pk for item in findings] == [booking.pk]
+    assert findings[0].payload['room'] == 'Studio'
+    assert run_check('rental.pickup_due_today') == []
+
+
 def test_overdue_respects_the_grace_period(synced, rental_request):
     """A rental one hour late is not yet overdue with a one day grace."""
     rental_request.status = 'issued'
@@ -112,10 +148,20 @@ def test_overdue_escalates_in_steps(synced, rental_request):
 # licenses
 # ---------------------------------------------------------------------------
 
+def test_unconfirmed_aging_ignores_legacy_backlog(synced, license):
+    """Ancient abandoned licenses do not flood the daily work queue."""
+    license.__class__.objects.filter(pk=license.pk).update(
+        created_at=timezone.now() - timedelta(days=365), confirmed=False)
+
+    assert run_check('licenses.unconfirmed_aging') == []
+
 def test_nextcloud_pending_reports_an_upload_without_a_video(synced, license):
     """An upload nobody downloaded yet is the whole point of this check."""
     from licenses.models import NextcloudVideoFile
 
+    license.confirmed = True
+    license.confirmed_at = timezone.now()
+    license.save(update_fields=['confirmed', 'confirmed_at'])
     NextcloudVideoFile.objects.create(
         license=license,
         nextcloud_file_id='42',
@@ -172,6 +218,21 @@ def test_nextcloud_pending_ignores_deleted_uploads(synced, license):
     assert run_check('licenses.nextcloud_download_pending') == []
 
 
+def test_nextcloud_pending_waits_for_license_confirmation(synced, license):
+    """Confirmation remains the only visible blocker for an unsigned case."""
+    from licenses.models import NextcloudVideoFile
+
+    NextcloudVideoFile.objects.create(
+        license=license,
+        nextcloud_file_id='42',
+        filename='beitrag.mp4',
+        user_uploaded=True,
+        is_deleted=False,
+    )
+
+    assert run_check('licenses.nextcloud_download_pending') == []
+
+
 # ---------------------------------------------------------------------------
 # austausch
 # ---------------------------------------------------------------------------
@@ -210,6 +271,8 @@ def test_plan_missing_reports_empty_and_absent_days(synced, db):
 
     today = timezone.localdate()
     TagesPlan.objects.create(datum=today + timedelta(days=1), json_plan={
+        'planned': True,
+        'draft': False,
         'items': [{'number': 1, 'start': '18:00', 'duration': 60}]})
     TagesPlan.objects.create(
         datum=today + timedelta(days=2), json_plan={'items': []})
@@ -233,10 +296,16 @@ def test_plan_missing_video_reports_numbers_without_media(synced, db):
     from planung.models import TagesPlan
 
     today = timezone.localdate()
-    TagesPlan.objects.create(datum=today, json_plan={'items': [
-        {'number': 111, 'start': '18:00', 'duration': 60, 'title': 'Hat Video'},
-        {'number': 222, 'start': '19:00', 'duration': 60, 'title': 'Kein Video'},
-    ]})
+    TagesPlan.objects.create(datum=today, json_plan={
+        'planned': True,
+        'draft': False,
+        'items': [
+            {'number': 111, 'start': '18:00', 'duration': 60,
+             'title': 'Hat Video'},
+            {'number': 222, 'start': '19:00', 'duration': 60,
+             'title': 'Kein Video'},
+        ],
+    })
     storage = StorageLocation.objects.create(
         name='Playout', path='/tmp/playout', storage_type='PLAYOUT')
     VideoFile.objects.create(
@@ -247,6 +316,86 @@ def test_plan_missing_video_reports_numbers_without_media(synced, db):
 
     assert len(findings) == 1
     assert findings[0].payload['number'] == 222
+
+
+def test_plan_missing_video_ignores_live_contributions(
+        synced, license):
+    """A live stream intentionally has no physical video file."""
+    from planung.models import TagesPlan
+
+    license.is_live = True
+    license.save(update_fields=['is_live'])
+    TagesPlan.objects.create(
+        datum=timezone.localdate(),
+        json_plan={'items': [{
+            'number': license.number,
+            'start': '18:00',
+            'duration': 60,
+            'title': license.title,
+        }]})
+
+    assert run_check('planung.plan_missing_video') == []
+
+
+def test_live_contribution_is_expected_today(synced, license):
+    """A committed live contribution appears in today's overview."""
+    from planung.models import TagesPlan
+
+    license.is_live = True
+    license.save(update_fields=['is_live'])
+    TagesPlan.objects.create(
+        datum=timezone.localdate(),
+        json_plan={
+            'planned': True,
+            'draft': False,
+            'items': [{
+                'number': license.number,
+                'start': '18:00',
+                'duration': 60,
+                'title': license.title,
+                'is_live': True,
+            }],
+        })
+
+    findings = run_check('planung.live_today')
+
+    assert registry.get('planung.live_today').expectation is True
+    assert len(findings) == 1
+    assert findings[0].payload['number'] == license.number
+    assert findings[0].payload['live'] is True
+    assert findings[0].payload['url'].endswith(
+        f'?start={timezone.localdate().isoformat()}')
+
+
+def test_existing_missing_video_action_resolves_when_marked_live(
+        synced, license):
+    """A previously stored missing-video task disappears after switching live."""
+    from notifications.process_state import inactive_event_ids
+    from notifications.services import emit
+    from planung.models import TagesPlan
+
+    plan = TagesPlan.objects.create(
+        datum=timezone.localdate(),
+        json_plan={
+            'planned': True,
+            'draft': False,
+            'items': [{
+                'number': license.number,
+                'start': '18:00',
+                'title': license.title,
+            }],
+        })
+    finding = run_check('planung.plan_missing_video')[0]
+    event = emit(
+        'planung.plan_missing_video',
+        obj=plan,
+        payload=finding.payload,
+        dedup_key=finding.dedup_key,
+    )
+
+    license.__class__.objects.filter(pk=license.pk).update(is_live=True)
+
+    assert event.pk in inactive_event_ids([event])
 
 
 # ---------------------------------------------------------------------------
@@ -275,6 +424,16 @@ def test_unverified_aging_ignores_verified_profiles(synced, user):
     assert run_check('registration.unverified_aging') == []
 
 
+def test_unverified_aging_ignores_legacy_backlog(synced, user):
+    """The daily queue is not an archive-cleanup list."""
+    from registration.models import Profile
+
+    Profile.objects.filter(pk=user.profile.pk).update(
+        created_at=timezone.now() - timedelta(days=365), verified=False)
+
+    assert run_check('registration.unverified_aging') == []
+
+
 # ---------------------------------------------------------------------------
 # signals
 # ---------------------------------------------------------------------------
@@ -293,14 +452,42 @@ def test_new_profile_signal_creates_an_event(synced, db, user_dict):
     assert user_dict['email'] in event.message
 
 
-def test_new_video_signal_skips_preview_clips(synced, db):
-    """Rendered reels are produced by the system and need no review."""
+def test_new_rental_task_resolves_after_confirmation(synced, user):
+    """Confirming a request closes the shared task for every subscriber."""
+    from django.test import TestCase
+    from notifications.process_state import inactive_event_ids
+    from rental.models import RentalRequest
+
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        rental = RentalRequest.objects.create(
+            user=user,
+            created_by=user,
+            project_name='Interview',
+            purpose='Production',
+            requested_start_date=timezone.now() + timedelta(days=1),
+            requested_end_date=timezone.now() + timedelta(days=2),
+            status='draft',
+        )
+    event = NotificationEvent.objects.get(event_type='rental.new_request')
+
+    rental.status = 'reserved'
+    rental.save(update_fields=['status'])
+
+    assert event.pk in inactive_event_ids([event])
+
+
+def test_new_video_signal_leaves_normal_indexing_to_automation(synced, db):
+    """Finding a file is normal and creates no human attention item."""
     from django.test import TestCase
     from media_files.models import StorageLocation
     from media_files.models import VideoFile
+    from notifications.models import NotificationEventTypeConfig
 
     storage = StorageLocation.objects.create(
         name='Playout', path='/tmp/playout', storage_type='PLAYOUT')
+    NotificationEventTypeConfig.objects.filter(
+        code='media_files.new_video').update(
+            params={'storage_location_ids': [storage.pk]})
     with TestCase.captureOnCommitCallbacks(execute=True):
         VideoFile.objects.create(
             number=1, filename='reel.mp4', storage_location=storage,
@@ -311,8 +498,35 @@ def test_new_video_signal_skips_preview_clips(synced, db):
 
     events = NotificationEvent.objects.filter(
         event_type='media_files.new_video')
-    assert events.count() == 1
-    assert 'beitrag.mp4' in events.first().message
+    assert events.count() == 0
+
+
+def test_new_video_signal_does_not_report_monitored_locations(synced, db):
+    """Even monitored locations stay quiet while automation can proceed."""
+    from django.test import TestCase
+    from media_files.models import StorageLocation
+    from media_files.models import VideoFile
+    from notifications.models import NotificationEventTypeConfig
+
+    monitored = StorageLocation.objects.create(
+        name='Incoming', path='/tmp/incoming', storage_type='CUSTOM')
+    ignored = StorageLocation.objects.create(
+        name='Playout', path='/tmp/playout', storage_type='PLAYOUT')
+    NotificationEventTypeConfig.objects.filter(
+        code='media_files.new_video').update(
+            params={'storage_location_ids': [monitored.pk]})
+
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        VideoFile.objects.create(
+            number=1, filename='incoming.mp4', storage_location=monitored,
+            file_path='/tmp/incoming/incoming.mp4')
+        VideoFile.objects.create(
+            number=2, filename='playout.mp4', storage_location=ignored,
+            file_path='/tmp/playout/playout.mp4')
+
+    events = NotificationEvent.objects.filter(
+        event_type='media_files.new_video')
+    assert not events.exists()
 
 
 # ---------------------------------------------------------------------------

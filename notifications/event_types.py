@@ -20,6 +20,20 @@ from notifications.registry import register
 # rental
 # ---------------------------------------------------------------------------
 
+RENTAL_NEW_REQUEST = register(EventType(
+    code='rental.new_request',
+    module='rental',
+    label=_('Rental request waiting for confirmation'),
+    description=_(
+        'A person submitted a rental request that a staff member has to '
+        'review and confirm.'),
+    message=_('{project_name} ({user})'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    model='rental.RentalRequest',
+    settings_flag='RENTAL_ENABLED',
+))
+
 # Expectation: recomputed on every render, never stored. A rental moved to
 # another day has to disappear without leaving a row behind.
 RENTAL_PICKUP_DUE = register(EventType(
@@ -60,6 +74,43 @@ RENTAL_RETURN_DUE = register(EventType(
             label=_('Days ahead'),
             default=0,
             help_text=_('0 shows today only, 1 also shows tomorrow.'),
+        ),
+    ),
+))
+
+RENTAL_ROOM_DUE = register(EventType(
+    code='rental.room_due_today',
+    module='rental',
+    label=_('Rooms to open today'),
+    description=_(
+        'Confirmed room bookings that require somebody to be present.'),
+    message=_('{start}: {room} — {project_name} ({user})'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SCAN,
+    expectation=True,
+    model='rental.RoomRental',
+    settings_flag='RENTAL_ENABLED',
+))
+
+RENTAL_PICKUP_OVERDUE = register(EventType(
+    code='rental.pickup_overdue',
+    module='rental',
+    label=_('Equipment was not picked up'),
+    description=_(
+        'The agreed pick-up time has passed and the reservation still '
+        'requires staff attention.'),
+    message=_('{project_name} ({user}), {days_late} days late'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SCAN,
+    model='rental.RentalRequest',
+    settings_flag='RENTAL_ENABLED',
+    params=(
+        ParamSpec(
+            name='grace_hours',
+            label=_('Grace period (hours)'),
+            default=2,
+            help_text=_(
+                'Wait this long after the agreed pick-up before alerting.'),
         ),
     ),
 ))
@@ -113,7 +164,9 @@ LICENSE_NEW_UNCONFIRMED = register(EventType(
     code='licenses.new_unconfirmed',
     module='licenses',
     label=_('New license waiting for confirmation'),
-    description=_('A license was created and still needs to be confirmed.'),
+    description=_(
+        'Confirmation is the current blocker. The video and broadcast '
+        'assets are checked only after this step is complete.'),
     message=_('License {number}: {title}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SIGNAL,
@@ -137,6 +190,14 @@ LICENSE_UNCONFIRMED_AGING = register(EventType(
             label=_('Days to wait'),
             default=7,
             help_text=_('Report a license once it has waited this many days.'),
+        ),
+        ParamSpec(
+            name='lookback_days',
+            label=_('Maximum pending age (days)'),
+            default=90,
+            help_text=_(
+                'Ignore legacy records older than this instead of turning '
+                'the notification centre into an archive cleanup list.'),
         ),
     ),
 ))
@@ -163,13 +224,22 @@ LICENSE_CONFIRMED_WITHOUT_VIDEO = register(EventType(
     module='licenses',
     label=_('Confirmed license without a video file'),
     description=_(
-        'The license is approved but has no video, so it cannot be planned.'),
+        'Confirmation is complete, but no available full video was found. '
+        'Link or import the video before continuing the broadcast workflow.'),
     message=_('License {number}: {title}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SCAN,
     model='licenses.License',
     settings_flag='LICENSES_ENABLED',
     params=(
+        ParamSpec(
+            name='wait_days',
+            label=_('Wait after confirmation (days)'),
+            default=3,
+            help_text=_(
+                'Allow uploads and automatic indexing to finish before '
+                'asking staff to follow up.'),
+        ),
         ParamSpec(
             name='days',
             label=_('Confirmed within (days)'),
@@ -227,7 +297,8 @@ MEDIA_MISSING_REEL = register(EventType(
     module='media_files',
     label=_('Planned own production without a reel'),
     description=_(
-        'An own production is scheduled soon and no reel was rendered yet.'),
+        'The license is confirmed, its full video is available and the own '
+        'production is scheduled, but no reel was rendered yet.'),
     message=_('{date}: {number} {title}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SCAN,
@@ -248,7 +319,8 @@ MEDIA_MISSING_COVER = register(EventType(
     module='media_files',
     label=_('Planned own production without a cover'),
     description=_(
-        'An own production is scheduled soon and no cover image exists.'),
+        'The license is confirmed, its full video is available and the own '
+        'production is scheduled, but no cover image exists.'),
     message=_('{date}: {number} {title}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SCAN,
@@ -276,6 +348,22 @@ MEDIA_ORPHAN_VIDEO = register(EventType(
     model='media_files.VideoFile',
     settings_flag='MEDIA_FILES_ENABLED',
     params=(
+        ParamSpec(
+            name='storage_location_ids',
+            label=_('Storage locations to monitor'),
+            default=(),
+            help_text=_(
+                'Only files in the selected locations are checked. No '
+                'location means no unlinked-video notifications.'),
+            kind='storage_locations',
+        ),
+        ParamSpec(
+            name='grace_hours',
+            label=_('Automatic linking grace period (hours)'),
+            default=24,
+            help_text=_(
+                'Alert only after automatic license linking had time to run.'),
+        ),
         ParamSpec(
             name='days',
             label=_('Added within (days)'),
@@ -315,6 +403,34 @@ MEDIA_STORAGE_LOW = register(EventType(
             help_text=_('Report when less than this share of space is free.'),
         ),
     ),
+))
+
+MEDIA_STORAGE_UNAVAILABLE = register(EventType(
+    code='media_files.storage_unavailable',
+    module='media_files',
+    label=_('Storage is unavailable'),
+    description=_(
+        'An active storage location cannot be read and needs technical '
+        'attention.'),
+    message=_('{name}: {path}'),
+    category=CATEGORY_PROBLEM,
+    source=SOURCE_SCAN,
+    model='media_files.StorageLocation',
+    settings_flag='MEDIA_FILES_ENABLED',
+))
+
+MEDIA_REEL_POST_TODAY = register(EventType(
+    code='media_files.reel_post_today',
+    module='media_files',
+    label=_('Post the reel today'),
+    description=_(
+        'A reel is ready for a contribution airing today and has to be '
+        'published manually.'),
+    message=_('{start}: {number} {title}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SCAN,
+    model='licenses.License',
+    settings_flag='MEDIA_FILES_ENABLED',
 ))
 
 
@@ -402,6 +518,22 @@ PLAN_MISSING_VIDEO = register(EventType(
 ))
 
 
+PLAN_LIVE_TODAY = register(EventType(
+    code='planung.live_today',
+    module='planung',
+    label=_('Live broadcast today'),
+    description=_(
+        'A planned live contribution is streamed today and needs no video '
+        'file, cover or reel.'),
+    message=_('{start}: {number} {title}'),
+    category=CATEGORY_INFO,
+    source=SOURCE_SCAN,
+    expectation=True,
+    model='planung.TagesPlan',
+    settings_flag='PLANUNG_ENABLED',
+))
+
+
 PLAN_NOT_AIRED = register(EventType(
     code='planung.not_aired',
     module='planung',
@@ -414,6 +546,14 @@ PLAN_NOT_AIRED = register(EventType(
     model='planung.AirReport',
     settings_flag='PLANUNG_ENABLED',
     params=(
+        ParamSpec(
+            name='grace_minutes',
+            label=_('Start grace period (minutes)'),
+            default=5,
+            help_text=_(
+                'Allow a short playout delay before reporting a missed '
+                'broadcast.'),
+        ),
         ParamSpec(
             name='days',
             label=_('Look back (days)'),
@@ -434,6 +574,19 @@ TOOLS_JOB_FINISHED = register(EventType(
     module='tools',
     label=_('Render job finished'),
     description=_('A slideshow or audio job you started has ended.'),
+    message=_('{job}: {status}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    settings_flag='TOOLS_ENABLED',
+))
+
+TOOLS_JOB_FAILED = register(EventType(
+    code='tools.job_failed',
+    module='tools',
+    label=_('Render job failed'),
+    description=_(
+        'A slideshow or audio job needs attention after ending with an '
+        'error.'),
     message=_('{job}: {status}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SIGNAL,
@@ -488,7 +641,7 @@ REGISTRATION_UNVERIFIED_AGING = register(EventType(
     label=_('Profile unverified for too long'),
     description=_('The profile has been waiting for verification for a while.'),
     message=_('{name} ({email})'),
-    category=CATEGORY_INFO,
+    category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SCAN,
     model='registration.Profile',
     params=(
@@ -497,6 +650,14 @@ REGISTRATION_UNVERIFIED_AGING = register(EventType(
             label=_('Days to wait'),
             default=14,
             help_text=_('Report a profile once it has waited this many days.'),
+        ),
+        ParamSpec(
+            name='lookback_days',
+            label=_('Maximum pending age (days)'),
+            default=90,
+            help_text=_(
+                'Ignore legacy records older than this instead of turning '
+                'the notification centre into an archive cleanup list.'),
         ),
     ),
 ))
