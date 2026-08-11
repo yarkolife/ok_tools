@@ -1,18 +1,17 @@
-from datetime import datetime
-from datetime import timedelta
-from django.conf import settings
+from .config import get_rental_working_hours
+from .config import get_rental_working_hours_summary_text
 from .formatting import format_booked_period
 from .models import EquipmentSet
 from .models import EquipmentSetItem
 from .models import RentalIssue
 from .models import RentalItem
 from .models import RentalRequest
+from .models import RentalSigningSession
+from .models import RentalSigningSessionStatus
 from .models import RentalTransaction
 from .models import Room
 from .models import RoomImage
 from .models import RoomRental
-from .config import get_rental_working_hours
-from .config import get_rental_working_hours_summary_text
 from .permissions import CanCreateRentalRequest
 from .permissions import IsAuthenticatedAndMemberOrReadOnly
 from .permissions import StaffCanIssuePermission
@@ -30,18 +29,32 @@ from .services.rental_email import send_reminder_email
 from .services.rental_email import send_return_receipt_email
 from .working_hours import get_day_working_window
 from .working_hours import validate_working_hours_period
+from datetime import datetime
+from datetime import timedelta
+from defusedxml.ElementTree import fromstring as defused_fromstring
+from defusedxml.common import DefusedXmlException
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.cache import cache
 from django.db import transaction
+from django.db.models import Case
+from django.db.models import CharField
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import Q
+from django.db.models import Value
+from django.db.models import When
 from django.http import FileResponse
 from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseForbidden
+from django.http import HttpResponseNotFound
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -54,37 +67,28 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from django.views.generic import TemplateView
+from django.views.generic import View
 from django_filters.rest_framework import DjangoFilterBackend
 from inventory.models import Category
 from inventory.models import InventoryItem
 from inventory.models import Organization
-from types import SimpleNamespace
-from rental.services.inventory_service_interface import inventory_service
 from registration.models import OKUser
 from registration.models import Profile
+from rental.services.inventory_service_interface import inventory_service
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-import json
+from types import SimpleNamespace
+from typing import Any
 import base64
 import io
+import json
 import logging
 import mimetypes
 import qrcode
 import uuid
 import xml.etree.ElementTree as ET
-from defusedxml.ElementTree import fromstring as defused_fromstring
-from defusedxml.common import DefusedXmlException
-from django.core.cache import cache
-from django.http import HttpResponse
-from django.http import HttpResponseBadRequest
-from django.http import HttpResponseForbidden
-from django.http import HttpResponseNotFound
-from django.views.generic import View
-from typing import Any
-from .models import RentalSigningSession
-from .models import RentalSigningSessionStatus
 
 
 logger = logging.getLogger('django')
@@ -912,6 +916,84 @@ class RentalListView(StaffRequiredMixin, ListView):
     context_object_name = 'rentals'
     paginate_by = 40
 
+    SORT_DEFAULT_DIRECTIONS = {
+        'id': 'desc',
+        'project': 'asc',
+        'time': 'asc',
+        'status': 'asc',
+        'items': 'desc',
+    }
+
+    def _sorting(self):
+        """Return a validated sort key and direction from the query string."""
+        sort = self.request.GET.get('sort', 'id')
+        if sort not in self.SORT_DEFAULT_DIRECTIONS:
+            sort = 'id'
+        direction = self.request.GET.get(
+            'direction', self.SORT_DEFAULT_DIRECTIONS[sort])
+        if direction not in ('asc', 'desc'):
+            direction = self.SORT_DEFAULT_DIRECTIONS[sort]
+        return sort, direction
+
+    def _apply_sorting(self, queryset, now):
+        """Apply one of the explicitly supported list-header orderings."""
+        sort, direction = self._sorting()
+        prefix = '-' if direction == 'desc' else ''
+
+        if sort == 'project':
+            fields = (
+                'project_name',
+                'user__profile__last_name',
+                'user__profile__first_name',
+                'user__email',
+                'pk',
+            )
+        elif sort == 'time':
+            fields = ('requested_start_date', 'requested_end_date', 'pk')
+        elif sort == 'status':
+            queryset = queryset.annotate(
+                list_status=Case(
+                    When(
+                        status='issued',
+                        requested_end_date__lt=now,
+                        then=Value('overdue'),
+                    ),
+                    default=F('status'),
+                    output_field=CharField(),
+                ),
+            )
+            fields = ('list_status', 'requested_start_date', 'pk')
+        elif sort == 'items':
+            queryset = queryset.annotate(
+                list_item_count=Count('items', distinct=True),
+                list_room_count=Count('room_rentals', distinct=True),
+            ).annotate(
+                list_content_count=(
+                    F('list_item_count') + F('list_room_count')),
+            )
+            fields = (
+                'list_content_count',
+                'list_item_count',
+                'list_room_count',
+                'pk',
+            )
+        else:
+            fields = ('created_at', 'pk')
+
+        return queryset.order_by(*(f'{prefix}{field}' for field in fields))
+
+    def _query_url(self, **updates):
+        """Build a list URL while preserving the other active controls."""
+        params = self.request.GET.copy()
+        params.pop('page', None)
+        for key, value in updates.items():
+            if value in (None, ''):
+                params.pop(key, None)
+            else:
+                params[key] = value
+        query = params.urlencode()
+        return f'?{query}' if query else '?'
+
     def get_queryset(self):
         queryset = RentalRequest.objects.select_related(
             'user',
@@ -969,7 +1051,7 @@ class RentalListView(StaffRequiredMixin, ListView):
         elif kind == 'inventory':
             queryset = queryset.filter(items__isnull=False).distinct()
 
-        return queryset.order_by('-created_at')
+        return self._apply_sorting(queryset, now)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1028,6 +1110,47 @@ class RentalListView(StaffRequiredMixin, ListView):
         context['current_q'] = self.request.GET.get('q', '')
         context['current_user_kind'] = self.request.GET.get('user_kind', '')
         context['current_kind'] = self.request.GET.get('kind', '')
+        current_sort, current_direction = self._sorting()
+        header_labels = {
+            'id': _('Rental ID'),
+            'project': _('Project / User'),
+            'time': _('Time'),
+            'status': _('Status'),
+            'items': _('Items'),
+        }
+        context['sort_headers'] = []
+        for key, label in header_labels.items():
+            active = key == current_sort
+            if active:
+                next_direction = (
+                    'desc' if current_direction == 'asc' else 'asc')
+            else:
+                next_direction = self.SORT_DEFAULT_DIRECTIONS[key]
+            context['sort_headers'].append({
+                'key': key,
+                'label': label,
+                'active': active,
+                'direction': current_direction if active else '',
+                'aria_sort': (
+                    'ascending' if active and current_direction == 'asc'
+                    else 'descending' if active
+                    else 'none'
+                ),
+                'url': self._query_url(
+                    sort=key, direction=next_direction),
+            })
+        context['current_sort'] = current_sort
+        context['current_direction'] = current_direction
+        context['status_urls'] = {
+            'all': self._query_url(status=None),
+            'reserved': self._query_url(status='reserved'),
+            'issued': self._query_url(status='issued'),
+            'overdue': self._query_url(status='overdue'),
+            'returned': self._query_url(status='returned'),
+        }
+        page_params = self.request.GET.copy()
+        page_params.pop('page', None)
+        context['pagination_query'] = page_params.urlencode()
         context['i18n_bundle'] = _i18n_bundle()
         context['is_paginated'] = True
         context['sidebar'] = {
@@ -1582,7 +1705,7 @@ def api_get_filter_options(request):
         JsonResponse: Available filter options for inventory
     """
     from django.conf import settings
-    
+
     # Get user_id if provided
     user_id = request.GET.get('user_id', None)
     
@@ -3322,8 +3445,8 @@ class InventoryCalendarDayView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/inventory_calendar_day.html'
 
     def get_context_data(self, **kwargs):
-        from django.utils import timezone
         from datetime import timedelta
+        from django.utils import timezone
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date')
         try:
@@ -3417,8 +3540,8 @@ class RoomCalendarDayView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/room_calendar_day.html'
 
     def get_context_data(self, **kwargs):
-        from django.utils import timezone
         from datetime import timedelta
+        from django.utils import timezone
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date')
         try:
@@ -3440,9 +3563,10 @@ class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/room_calendar_week.html'
 
     def get_context_data(self, **kwargs):
-        from django.utils import timezone
+        from .models import Room
+        from .models import RoomRental
         from datetime import timedelta
-        from .models import Room, RoomRental
+        from django.utils import timezone
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date')
         try:
@@ -3511,10 +3635,11 @@ class RoomCalendarMonthView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/room_calendar_month.html'
 
     def get_context_data(self, **kwargs):
-        from django.utils import timezone
+        from .models import Room
+        from .models import RoomRental
         from datetime import timedelta
+        from django.utils import timezone
         import calendar
-        from .models import Room, RoomRental
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date')
         try:
@@ -3586,8 +3711,8 @@ class InventoryCalendarWeekView(StaffRequiredMixin, TemplateView):
     template_name = 'rental/inventory_calendar_week.html'
 
     def get_context_data(self, **kwargs):
-        from django.utils import timezone
         from datetime import timedelta
+        from django.utils import timezone
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date')
         try:
@@ -3926,10 +4051,11 @@ def api_inventory_calendar(request):
     For week mode: returns 7 days per item with occupied/available (any overlap in day).
     """
     try:
-        from datetime import datetime, timedelta
+        from .models import RentalItem
+        from datetime import datetime
+        from datetime import timedelta
         from django.utils import timezone
         from django.utils.dateparse import parse_date
-        from .models import RentalItem
 
         mode = request.GET.get('mode', 'day')
         day = parse_date(request.GET.get('date') or '') or timezone.now().date()
@@ -4243,9 +4369,9 @@ def api_search_inventory_items(request):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
 
+        from .services import RentalService
         from django.utils import timezone
         from django.utils.dateparse import parse_datetime
-        from .services import RentalService
         from inventory.models import InventoryItem
 
         # Start with all items available for rent (don't filter by status for search)

@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-08-11 (Version 4.43.0)
+==========================
+
+* **rental: Sortable rental list headers**
+  * Rental ID, project/user, time, derived status and combined inventory/room counts can be ordered in either direction for every status view.
+  * Status tabs, search, user/content filters and pagination preserve the selected ordering; query parameters are validated against an explicit allowlist.
+
 2026-08-11 (Version 4.42.0)
 ==========================
 

@@ -5,7 +5,6 @@ categories mirror ``RentalConfig.get_organizations_for``.
 """
 
 from datetime import timedelta
-
 from django.test import RequestFactory
 from django.test import TestCase
 from django.utils import timezone
@@ -19,6 +18,8 @@ from rental.models import RentalRequest
 from rental.models import Room
 from rental.models import RoomRental
 from rental.views import RentalListView
+from urllib.parse import parse_qs
+from urllib.parse import urlsplit
 
 
 class RentalListFilterTests(TestCase):
@@ -44,12 +45,13 @@ class RentalListFilterTests(TestCase):
                                    member=member, rental_only=rental_only)
         return user
 
-    def _rental(self, user, *, with_item=False, with_room=False):
-        now = timezone.now()
+    def _rental(self, user, *, with_item=False, with_room=False,
+                project='P', status='reserved', start=None):
+        now = start or timezone.now()
         rr = RentalRequest.objects.create(
-            user=user, created_by=self.staff, project_name='P', purpose='x',
+            user=user, created_by=self.staff, project_name=project, purpose='x',
             requested_start_date=now, requested_end_date=now + timedelta(days=1),
-            status='reserved')
+            status=status)
         if with_item:
             RentalItem.objects.create(
                 rental_request=rr, inventory_item=self.item,
@@ -62,13 +64,16 @@ class RentalListFilterTests(TestCase):
         return rr
 
     def _count(self, **params):
+        return self._queryset(**params).count()
+
+    def _queryset(self, **params):
         request = self.factory.get('/rental/admin/', params)
         request.user = self.staff
         view = RentalListView()
         view.request = request
         view.kwargs = {}
         view.args = ()
-        return view.get_queryset().count()
+        return view.get_queryset()
 
     def test_user_category_filter_partitions_all_rentals(self):
         self._rental(self._user('u@x.com'))                          # user
@@ -113,3 +118,107 @@ class RentalListFilterTests(TestCase):
             rental_request=rr, inventory_item=item2, quantity_requested=1)
         # Two items on one rental must still count the rental once.
         self.assertEqual(self._count(kind='inventory'), 1)
+
+    def test_project_sorting_works_for_every_stored_status(self):
+        """The same allowlisted ordering applies before any status tab."""
+        for status in ('draft', 'reserved', 'issued', 'returned', 'cancelled'):
+            alpha = self._rental(
+                self._user(f'{status}-a@x.com'), project='Alpha',
+                status=status)
+            zulu = self._rental(
+                self._user(f'{status}-z@x.com'), project='Zulu',
+                status=status)
+
+            ascending = list(self._queryset(
+                status=status, sort='project', direction='asc').values_list(
+                    'pk', flat=True))
+            descending = list(self._queryset(
+                status=status, sort='project', direction='desc').values_list(
+                    'pk', flat=True))
+
+            self.assertEqual(ascending, [alpha.pk, zulu.pk])
+            self.assertEqual(descending, [zulu.pk, alpha.pk])
+
+    def test_overdue_tab_can_be_sorted_by_time(self):
+        """The derived overdue filter uses the same time header ordering."""
+        now = timezone.now()
+        earlier = self._rental(
+            self._user('early@x.com'), status='issued',
+            start=now - timedelta(days=5))
+        later = self._rental(
+            self._user('late@x.com'), status='issued',
+            start=now - timedelta(days=3))
+
+        result = list(self._queryset(
+            status='overdue', sort='time', direction='asc').values_list(
+                'pk', flat=True))
+
+        self.assertEqual(result, [earlier.pk, later.pk])
+
+    def test_items_sort_counts_inventory_and_rooms(self):
+        """The Items header orders by all content displayed in that column."""
+        user = self._user('content@x.com')
+        empty = self._rental(user, project='Empty')
+        inventory = self._rental(user, with_item=True, project='Inventory')
+        mixed = self._rental(
+            user, with_item=True, with_room=True, project='Mixed')
+
+        result = list(self._queryset(
+            sort='items', direction='desc').values_list('pk', flat=True))
+
+        self.assertEqual(result, [mixed.pk, inventory.pk, empty.pk])
+
+    def test_invalid_sort_parameters_fall_back_to_latest_first(self):
+        """Arbitrary query values never become database ordering clauses."""
+        user = self._user('safe@x.com')
+        older = self._rental(user, project='Older')
+        newer = self._rental(user, project='Newer')
+        RentalRequest.objects.filter(pk=older.pk).update(
+            created_at=timezone.now() - timedelta(days=1))
+
+        result = list(self._queryset(
+            sort='__unsafe', direction='sideways').values_list(
+                'pk', flat=True))
+
+        self.assertEqual(result, [newer.pk, older.pk])
+
+    def test_sort_links_preserve_filters_in_rendered_page(self):
+        """Header clicks and pagination keep the active list controls."""
+        self.client.force_login(self.staff)
+
+        response = self.client.get('/rental/admin/', {
+            'status': 'reserved',
+            'user_kind': 'member',
+            'kind': 'rooms',
+            'sort': 'time',
+            'direction': 'asc',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        headers = response.context['sort_headers']
+        self.assertEqual(
+            [header['key'] for header in headers],
+            ['id', 'project', 'time', 'status', 'items'],
+        )
+        project_query = parse_qs(urlsplit(headers[1]['url']).query)
+        self.assertEqual(project_query, {
+            'status': ['reserved'],
+            'user_kind': ['member'],
+            'kind': ['rooms'],
+            'sort': ['project'],
+            'direction': ['asc'],
+        })
+        time_header = headers[2]
+        self.assertTrue(time_header['active'])
+        self.assertEqual(time_header['aria_sort'], 'ascending')
+        self.assertEqual(
+            parse_qs(urlsplit(time_header['url']).query)['direction'],
+            ['desc'],
+        )
+        self.assertEqual(parse_qs(response.context['pagination_query']), {
+            'status': ['reserved'],
+            'user_kind': ['member'],
+            'kind': ['rooms'],
+            'sort': ['time'],
+            'direction': ['asc'],
+        })

@@ -816,6 +816,37 @@ html, body {
   background: var(--bg-sub);
   border-bottom: 1px solid var(--line);
 }
+.list-head .align-right {
+  display: flex;
+  justify-content: flex-end;
+}
+.sort-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+  transition: color .15s ease;
+}
+.sort-heading:hover,
+.sort-heading:focus-visible,
+.sort-heading.is-active {
+  color: var(--accent);
+}
+.sort-heading:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 2px;
+}
+.sort-heading svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
 .inventory-calendar-day .rental-list {
   background: #fff;
   border: 1px solid var(--line);

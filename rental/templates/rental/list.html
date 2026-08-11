@@ -49,31 +49,31 @@
 </div>
 
 <div class="stat-bar">
-  <a href="?{% if current_q %}q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
+  <a href="{{ status_urls.all }}"
      class="stat-cell {% if not current_status %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.all }}</div>
     <div class="l">{% trans "All" %}</div>
   </a>
-  <a href="?status=reserved{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
+  <a href="{{ status_urls.reserved }}"
      class="stat-cell {% if current_status == 'reserved' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.reserved }}</div>
     <div class="l"><span class="dot dot-blue"></span>{% trans "Reserved" %}</div>
   </a>
-  <a href="?status=issued{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
+  <a href="{{ status_urls.issued }}"
      class="stat-cell {% if current_status == 'issued' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.issued }}</div>
     <div class="l"><span class="dot dot-amber"></span>{% trans "Issued" %}</div>
   </a>
-  <a href="?status=overdue{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
+  <a href="{{ status_urls.overdue }}"
      class="stat-cell {% if current_status == 'overdue' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.overdue }}</div>
     <div class="l"><span class="dot dot-red"></span>{% trans "Overdue" %}</div>
   </a>
-  <a href="?status=returned{% if current_q %}&q={{ current_q }}{% endif %}{% if current_user_kind %}&user_kind={{ current_user_kind }}{% endif %}{% if current_kind %}&kind={{ current_kind }}{% endif %}"
+  <a href="{{ status_urls.returned }}"
      class="stat-cell {% if current_status == 'returned' %}active{% endif %}"
      style="text-decoration:none;color:inherit">
     <div class="n">{{ counts.returned }}</div>
@@ -83,6 +83,8 @@
 
 <form method="get" class="list-toolbar">
   {% if current_status %}<input type="hidden" name="status" value="{{ current_status }}">{% endif %}
+  <input type="hidden" name="sort" value="{{ current_sort }}">
+  <input type="hidden" name="direction" value="{{ current_direction }}">
   <div class="filters" style="margin:0;flex:1">
     <div class="search" style="max-width:360px">
       <i class="fas fa-search"></i>
@@ -111,11 +113,28 @@
 
 <div class="rental-list">
   <div class="list-head">
-    <div>{% trans "Rental ID" %}</div>
-    <div>{% trans "Project / User" %}</div>
-    <div>{% trans "Time" %}</div>
-    <div>{% trans "Status" %}</div>
-    <div style="text-align:right">{% trans "Items" %}</div>
+    {% for header in sort_headers %}
+      <div role="columnheader" aria-sort="{{ header.aria_sort }}"
+           class="{% if header.key == 'items' %}align-right{% endif %}">
+        <a class="sort-heading {% if header.active %}is-active{% endif %}"
+           href="{{ header.url }}">
+          <span>{{ header.label }}</span>
+          {% if header.active and header.direction == 'asc' %}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m18 15-6-6-6 6"></path>
+            </svg>
+          {% elif header.active %}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m6 9 6 6 6-6"></path>
+            </svg>
+          {% else %}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7 15 5 5 5-5M7 9l5-5 5 5"></path>
+            </svg>
+          {% endif %}
+        </a>
+      </div>
+    {% endfor %}
     <div></div>
     <div></div>
   </div>
@@ -201,13 +220,13 @@
   <nav class="mt-3 d-flex justify-content-center">
     <ul class="pagination pagination-sm">
       {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹</a></li>
+        <li class="page-item"><a class="page-link" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">‹</a></li>
       {% endif %}
       <li class="page-item disabled"><span class="page-link">
         {{ page_obj.number }} / {{ paginator.num_pages }}
       </span></li>
       {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">›</a></li>
+        <li class="page-item"><a class="page-link" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">›</a></li>
       {% endif %}
     </ul>
   </nav>
