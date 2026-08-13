@@ -87,6 +87,14 @@ services:
       - ./deployment/99-custom-nginx-config.sh:/docker-entrypoint.d/99-custom-nginx-config.sh:ro
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
+    # nginx reads the certificate once at startup and keeps it in memory, so a
+    # renewed certificate on disk changes nothing until a reload. certbot runs in
+    # its own container and cannot reach the nginx process (no docker socket, by
+    # design), so a certbot --deploy-hook cannot do it either. Instead nginx
+    # reloads itself every 6h: renewal happens 30 days before expiry, so the
+    # window is far larger than the reload interval. nginx stays in the
+    # foreground, so if it dies the container still exits and restarts.
+    command: ["/bin/sh", "-c", "while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g 'daemon off;'"]
     depends_on:
       - web
       - certbot
@@ -103,6 +111,11 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     depends_on:
       - web
+    # The whole renewal schedule is this in-container loop, so if the container
+    # dies renewal stops silently until someone notices an expired certificate.
+    # That is exactly what happened in June 2026. Every other service here is
+    # unless-stopped; certbot was the only one without a restart policy.
+    restart: unless-stopped
 
   celery_worker:
     build:

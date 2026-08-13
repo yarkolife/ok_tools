@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-08-13 (Version 4.44.1)
+==========================
+
+* **deployment: Keep the TLS certificate renewing without supervision**
+  * ``certbot`` now restarts with ``unless-stopped`` like every other service. The entire renewal schedule is a loop inside that container, so when it exited in June 2026 renewal stopped silently and the production certificate expired; it was the only service in the compose file without a restart policy.
+  * ``nginx`` reloads itself every 6h. It reads the certificate once at startup and keeps it in memory, so a renewed file on disk was not actually served until the container happened to restart. A certbot ``--deploy-hook`` cannot do this instead: it runs inside the certbot container, which has no route to the nginx process short of mounting the docker socket.
+  * ``diagnose.sh`` now reports stopped services and the expiry of the certificate actually served on port 443. ``docker compose ps`` without ``-a`` lists only running containers, so the dead certbot was missing from the output rather than flagged as a problem.
+
 2026-08-13 (Version 4.44.0)
 ==========================
 
