@@ -83,6 +83,21 @@ class OKUser(AbstractUser):
         verbose_name_plural = _('Users')
 
 
+def default_media_authority_name():
+    """
+    Return the configured short organization name.
+
+    Deliberately a callable rather than ``settings.OK_NAME_SHORT`` directly:
+    makemigrations freezes a plain default into the migration as a literal, so
+    every installation with a different OK_NAME_SHORT saw pending model changes
+    and generated its own AlterField - 0009 recorded 'OKMQ', 0014 recorded
+    'OK Merseburg', and each one made the other installations look stale. A
+    callable is serialized as a reference to this function, which is identical
+    everywhere, while the value is still read from settings at runtime.
+    """
+    return settings.OK_NAME_SHORT
+
+
 class MediaAuthority(models.Model):
     """
     Model for a MediaAuthority.
@@ -93,7 +108,7 @@ class MediaAuthority(models.Model):
 
     name = models.CharField(
         _('Media Authority'),
-        default=settings.OK_NAME_SHORT,
+        default=default_media_authority_name,
         max_length=150,
         unique=True)
     
