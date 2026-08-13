@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-08-13 (Version 4.44.2)
+==========================
+
+* **deployment: Production update fixes found while restoring TLS**
+  * ``nginx`` renders its configuration again under the custom reload command. The image entrypoint runs ``/docker-entrypoint.d/*`` only when its first argument is literally ``nginx``, so the ``/bin/sh`` command introduced in 4.44.1 silently skipped the template rendering and nginx came up on the stock config - no TLS listener, no ACME location. The command now execs ``/docker-entrypoint.sh nginx``.
+  * ``update.sh`` no longer aborts while copying an unchanged nginx entrypoint script. ``deployment/`` is root-owned from the installer, so the copy fell through to an unguarded ``sudo`` that could not prompt for a password, and ``set -e`` killed the run mid-update. The copy is skipped when the files already match, sudo is used only when it works without a prompt, and the failure path names the ``chown`` that fixes it.
+  * Requests with an unknown ``Host`` are refused by nginx instead of reaching Django. Scanners hitting the bare IP produced a 400 ``DisallowedHost`` traceback per request; a ``default_server`` now answers 444 and rejects the TLS handshake rather than presenting the certificate.
+
+* **registration: MediaAuthority default no longer churns migrations**
+  * ``MediaAuthority.name`` used ``default=settings.OK_NAME_SHORT``, which makemigrations freezes into the migration as a literal. Each installation therefore recorded its own value (``0009`` holds ``OKMQ``, ``0014`` holds ``OK Merseburg``) and made every other installation report unapplied model changes. The default is now a module-level callable, serialized as a stable function reference while the value is still read from settings at runtime. The accompanying ``AlterField`` does not alter the database schema.
+
 2026-08-13 (Version 4.44.1)
 ==========================
 
