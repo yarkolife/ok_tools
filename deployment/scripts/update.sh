@@ -915,17 +915,34 @@ if grep -q "^DOMAIN_NAME=" "$PRODUCTION_DIR/.env" && [ ! -z "$(grep '^DOMAIN_NAM
             fi
         }
     fi
-    # Copy file with sudo if needed
-    if cp -f "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null; then
-        chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || sudo chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null || true
+    # Copy the nginx entrypoint script into place.
+    #
+    # deployment/ is usually root-owned (the installer creates it with sudo), so
+    # a plain cp fails for a non-root operator and the sudo fallback then blocks
+    # on a password it cannot read from a non-interactive shell. Under `set -e`
+    # that aborted the entire update - and did so while copying a file that was
+    # already byte-identical, which is how the 2026-08-13 production update died
+    # halfway through. So: skip when unchanged, and only reach for sudo when it
+    # actually works without a prompt.
+    NGINX_ENTRYPOINT_SRC="$PROJECT_DIR/deployment/nginx-entrypoint.sh"
+    NGINX_ENTRYPOINT_DEST="$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+    if cmp -s "$NGINX_ENTRYPOINT_SRC" "$NGINX_ENTRYPOINT_DEST" 2>/dev/null; then
+        print_info "nginx entrypoint script already up to date"
+    elif cp -f "$NGINX_ENTRYPOINT_SRC" "$NGINX_ENTRYPOINT_DEST" 2>/dev/null; then
+        chmod +x "$NGINX_ENTRYPOINT_DEST" 2>/dev/null || true
+        print_success "nginx entrypoint script updated"
+    elif command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+        sudo cp -f "$NGINX_ENTRYPOINT_SRC" "$NGINX_ENTRYPOINT_DEST"
+        sudo chmod +x "$NGINX_ENTRYPOINT_DEST"
+        print_success "nginx entrypoint script updated (via sudo)"
     else
-        if command -v sudo >/dev/null 2>&1; then
-            sudo cp -f "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
-            sudo chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
-        else
-            print_error "Cannot copy nginx entrypoint script - insufficient permissions and sudo not available"
-            exit 1
-        fi
+        print_error "Cannot update the nginx entrypoint script:"
+        print_error "  $NGINX_ENTRYPOINT_DEST"
+        print_info "The file differs from the repository version but is not writable,"
+        print_info "and sudo is not available without a password prompt."
+        print_info "Fix the ownership once, then re-run this script:"
+        echo "   sudo chown -R $CURRENT_USER:$CURRENT_USER $PRODUCTION_DIR/deployment"
+        exit 1
     fi
 else
     # Check if it's Local Network or Localhost
