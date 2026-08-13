@@ -43,6 +43,29 @@ http {
         "0.0.0.0" "${DOMAIN_NAME}";
     }
 
+# Catch-all for requests whose Host matches no server below - scanners probing
+# the bare IP address, mostly. Without this they fall through to the first
+# server block, get proxied to Django and produce a 400 DisallowedHost with a
+# full traceback in the application log for every hit.
+#
+# 444 closes the connection without sending a response. ssl_reject_handshake
+# refuses the TLS handshake outright, so no certificate is presented to a client
+# that never asked for this host by name - which also keeps the certificate from
+# being served to anyone scanning the address space.
+#
+# Note for local installations: nginx-entrypoint.sh builds its own HTTP-only
+# config from the first 37 lines of this template, so this block is deliberately
+# below that cut and applies to domain deployments only.
+server {
+    listen 80 default_server;
+    listen 443 ssl default_server;
+    server_name _;
+
+    ssl_reject_handshake on;
+
+    return 444;
+}
+
 # HTTP server (redirects to HTTPS)
 server {
     listen 80;
