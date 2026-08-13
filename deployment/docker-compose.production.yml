@@ -92,9 +92,16 @@ services:
     # its own container and cannot reach the nginx process (no docker socket, by
     # design), so a certbot --deploy-hook cannot do it either. Instead nginx
     # reloads itself every 6h: renewal happens 30 days before expiry, so the
-    # window is far larger than the reload interval. nginx stays in the
-    # foreground, so if it dies the container still exits and restarts.
-    command: ["/bin/sh", "-c", "while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g 'daemon off;'"]
+    # window is far larger than the reload interval.
+    #
+    # The exec of /docker-entrypoint.sh is required, not decoration: that script
+    # runs /docker-entrypoint.d/* (which renders nginx.conf from the template)
+    # only when its first argument is literally "nginx". A command starting with
+    # /bin/sh silently skips it and nginx comes up on the stock localhost config
+    # with no TLS and no ACME challenge location. Passing "nginx" here restores
+    # that, and exec keeps nginx in the foreground as PID 1 so a crash still
+    # exits the container and triggers the restart policy.
+    command: ["/bin/sh", "-c", "while :; do sleep 6h & wait $${!}; nginx -s reload; done & exec /docker-entrypoint.sh nginx -g 'daemon off;'"]
     depends_on:
       - web
       - certbot
