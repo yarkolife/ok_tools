@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-08-13 (Version 4.44.0)
+==========================
+
+* **notifications: One way into the centre, and a link that does the work**
+  * Removed the daily summary block from the admin start page. The header bell and the ``Benachrichtigungen`` menu entry are the two entry points; a third copy of today's list only repeated the bell and pushed the module menu down the page.
+  * "Planned own production without a reel" now offers the Reel Studio prefilled from the license — title, author, category, description, duration, broadcast day/time and the source video — instead of only naming the number. The link appears as an action in the row and as the primary button in the detail drawer.
+  * The prefill moved out of the license admin into ``licenses/reel_prefill.py`` and is shared by the admin action, the change-form button and the notification, so all three land on the identical form. It is built while reading, never stored, because the broadcast date and the source video can change after the event was written, and it stays empty when the Reel Studio is not configured.
+
 2026-08-11 (Version 4.43.0)
 ==========================
 

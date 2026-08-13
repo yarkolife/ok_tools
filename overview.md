@@ -247,7 +247,8 @@ graph TB
   - `visibility.py`: Mirrors admin visibility so a subscription never widens access
   - `tasks.py`: Daily scan and retention cleanup
 - **Key Features**:
-  - Summary block on the admin start page and a responsive React notification center
+  - A responsive React notification center, reached from the header bell and the admin menu; the admin start page carries no summary block
+  - Entries that describe one piece of work hand over the form that does it: a planned production without a reel links straight into the prefilled Reel Studio
   - Interactive overview cards, rich event details, a bottom drawer and a prominent live-expectations panel
   - Object-specific action links into license, rental, media, exchange and planning workflows
   - Facts stored, expectations recomputed on render and never stored
@@ -811,7 +812,7 @@ For questions about the architecture or development setup, please refer to:
 - Deployment guides: `deployment/README.md`
 - Architecture reports: `architecture/` directory
 
-**Last Updated**: August 2026
+**Last Updated**: 13 August 2026
 **Version**: 1.6
 
 ## API Documentation

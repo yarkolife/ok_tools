@@ -201,6 +201,59 @@ def test_missing_reel_is_closed_by_an_existing_reel(synced, license,
     assert run_check('media_files.missing_reel') == []
 
 
+def _configure_reel_studio(enabled=True):
+    """Configure ToolsConfig so the Reel Studio counts as usable."""
+    from tools.models import ToolsConfig
+
+    config_obj = ToolsConfig.get_config()
+    config_obj.reel_studio_enabled = enabled
+    config_obj.reel_render_url = 'http://reel.example:8011'
+    config_obj.reel_render_api_key = 'secret-key'
+    config_obj.save()
+    return config_obj
+
+
+def _reel_feed_row(client, license_obj, authority, storage, admin_user):
+    """Store the reel finding and return its row as the feed page serves it."""
+    from notifications import selectors
+    from notifications.process_state import refresh_missing_asset_events
+
+    selectors.set_subscriptions(admin_user, ['media_files'], [])
+    _plan_own_license(license_obj, authority, storage)
+    refresh_missing_asset_events()
+    client.force_login(admin_user)
+
+    response = client.get('/admin/notifications/')
+    rows = response.context_data['notifications_data']['rows']
+    return next(
+        row for row in rows
+        if row['eventType'] == 'media_files.missing_reel')
+
+
+def test_missing_reel_hands_over_the_prefilled_reel_studio(
+        synced, license, own_authority, storage, client, admin_user):
+    """The entry offers the render form; the number alone is not the work."""
+    _configure_reel_studio()
+
+    row = _reel_feed_row(client, license, own_authority, storage, admin_user)
+
+    assert row['actionUrl'].startswith('/tools/reel-studio/?')
+    assert 'output_name=' in row['actionUrl']
+    assert 'video_id=' in row['actionUrl']
+    assert row['actionLabel']
+
+
+def test_missing_reel_offers_no_link_without_a_reel_studio(
+        synced, license, own_authority, storage, client, admin_user):
+    """An unconfigured renderer must not produce a dead button."""
+    _configure_reel_studio(enabled=False)
+
+    row = _reel_feed_row(client, license, own_authority, storage, admin_user)
+
+    assert row['actionUrl'] == ''
+    assert row['actionLabel'] == ''
+
+
 def test_missing_assets_wait_for_confirmation_and_full_video(
         synced, license, own_authority):
     """Cover and reel are not the next step while confirmation/video blocks."""

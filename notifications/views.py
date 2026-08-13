@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from notifications import config
+from notifications import links
 from notifications import presets
 from notifications import registry
 from notifications import selectors
@@ -75,6 +76,11 @@ PAYLOAD_LABELS = {
     'user': _('Person'),
     'video_available': _('Video available'),
 }
+
+# Types that can hand over the finished work screen instead of the object.
+# "Planned own production without a reel" asks for one render, so the entry
+# offers the prefilled Reel Studio right away.
+REEL_ACTION_TYPES = ('media_files.missing_reel',)
 
 # The feed is not a separate list without actions: it is the "everything"
 # state of the same list, so the same bulk actions apply.
@@ -165,7 +171,24 @@ def _payload_details(payload):
     ]
 
 
-def _serialize_event(event, status='', item=None):
+def _reel_action_urls(events) -> dict:
+    """Return ``{event id: prefilled Reel Studio URL}`` for reel entries.
+
+    Built while reading, never stored: the link carries the broadcast date
+    and the source video, and both can still change after the notification
+    was written.
+    """
+    urls = {}
+    for event in events:
+        if event.event_type not in REEL_ACTION_TYPES:
+            continue
+        url = links.reel_studio_url((event.payload or {}).get('number'))
+        if url:
+            urls[event.pk] = url
+    return urls
+
+
+def _serialize_event(event, status='', item=None, action_url=''):
     """Build the reader-language JSON contract consumed by the React page."""
     spec = event.event_type_spec
     category_labels = dict(registry.CATEGORY_CHOICES)
@@ -199,6 +222,8 @@ def _serialize_event(event, status='', item=None):
             timezone.localtime(snoozed_until).strftime('%d.%m.%Y %H:%M')
             if snoozed_until else ''),
         'url': event.url,
+        'actionUrl': action_url,
+        'actionLabel': str(_('Create reel')) if action_url else '',
         'objectId': event.object_id,
         'details': _payload_details(event.payload),
     }
@@ -209,11 +234,13 @@ def _serialize_rows(user, rows, events_only=False):
     rows = list(rows)
     events = [row if events_only else row.event for row in rows]
     statuses = selectors.status_by_event(user, events)
+    action_urls = _reel_action_urls(events)
     return [
         _serialize_event(
             event,
             status=statuses.get(event.pk, ''),
             item=None if events_only else row,
+            action_url=action_urls.get(event.pk, ''),
         )
         for row, event in zip(rows, events)
     ]
@@ -276,6 +303,8 @@ def _serialize_expectation_rows(groups):
                 'statusLabel': str(_('Expected')),
                 'snoozedUntil': '',
                 'url': item['url'],
+                'actionUrl': '',
+                'actionLabel': '',
                 'objectId': '',
                 'details': item['details'],
             })

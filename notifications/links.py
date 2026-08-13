@@ -65,6 +65,22 @@ def planung_calendar_url(day=None) -> str:
     return _with_query(url, start=day.isoformat())
 
 
+def reel_studio_url(number) -> str:
+    """Return the Reel Studio prefilled for a license number, or ''.
+
+    "Planned own production without a reel" asks for exactly one piece of
+    work; the entry hands over the render form instead of the license, so
+    nobody has to search for the number first.
+    """
+    if not number:
+        return ''
+    try:
+        from licenses.reel_prefill import studio_url_for_number
+    except Exception:
+        return ''
+    return studio_url_for_number(number) or ''
+
+
 def work_url(default: str, resolved: Optional[str]) -> str:
     """Prefer the working screen, fall back to the admin change page."""
     return resolved or default

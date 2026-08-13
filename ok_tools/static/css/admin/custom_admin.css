@@ -88,28 +88,12 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Notifications: daily summary block, feed pages and the header indicator.
+   Notifications: feed pages and the header indicator.
    Colours come from the admin CSS variables so both themes keep working.
    --------------------------------------------------------------------------- */
 
-.notifications-summary {
-    margin-bottom: 16px !important;
-}
-
 .notifications-summary-body {
     padding: 12px 16px;
-}
-
-.notifications-group {
-    margin: 12px 0 4px;
-    font-size: 0.8125rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--body-quiet-color);
-}
-
-.notifications-group:first-child {
-    margin-top: 0;
 }
 
 .notifications-list {
@@ -136,19 +120,6 @@
 .notifications-empty {
     color: var(--body-quiet-color);
     margin: 0;
-}
-
-.notifications-count {
-    display: inline-block;
-    min-width: 18px;
-    padding: 0 5px;
-    margin-left: 8px;
-    border-radius: 9px;
-    background: var(--error-fg, #ba2121);
-    color: #fff;
-    font-size: 0.6875rem;
-    line-height: 18px;
-    text-align: center;
 }
 
 .notifications-inline-form {

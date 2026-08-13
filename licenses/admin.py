@@ -1,3 +1,4 @@
+from . import reel_prefill
 from .forms import ImportJSONForm
 from .forms import RangeNumericForm
 from .generate_file import generate_license_file
@@ -1225,158 +1226,28 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
             actions.pop('create_reel_action', None)
         return actions
 
+    # The prefill itself lives in ``licenses.reel_prefill``: the notification
+    # about a planned own production without a reel links to the same form,
+    # and two implementations would drift into two different links.
+
     @staticmethod
     def _reel_plan_info(license_obj):
-        """Find the broadcast plan entry for a license.
-
-        Picks the latest plan (by date) that contains this license; if several
-        items match within it, the last one wins. Returns (date, start_time) as
-        (date|None, "HH:MM").
-        """
-        try:
-            from planung.models import TagesPlan
-        except Exception:
-            return None, ''
-
-        # Match by license_id first, fall back to the license number.
-        for key, value in (('license_id', license_obj.id),
-                           ('number', license_obj.number)):
-            plan = (
-                TagesPlan.objects
-                .filter(json_plan__items__contains=[{key: value}])
-                .order_by('-datum')
-                .first()
-            )
-            if not plan:
-                continue
-            matches = [
-                it for it in (plan.json_plan or {}).get('items', [])
-                if isinstance(it, dict) and it.get(key) == value
-            ]
-            if not matches:
-                continue
-            item = matches[-1]  # last value if several
-            uhr = (item.get('start') or '')[:5]  # "18:00:00" -> "18:00"
-            return plan.datum, uhr
-        return None, ''
+        """Return the broadcast plan entry as (date|None, "HH:MM")."""
+        return reel_prefill.plan_info(license_obj)
 
     @classmethod
     def _reel_sendetermin(cls, license_obj):
         """German broadcast day+date and time, e.g. ('Samstag, 27.06.', '18:00')."""
-        plan_date, uhr = cls._reel_plan_info(license_obj)
-        if not plan_date:
-            return '', ''
-        weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
-                    'Freitag', 'Samstag', 'Sonntag']
-        tag = f"{weekdays[plan_date.weekday()]}, {plan_date:%d.%m.}"
-        return tag, uhr
+        return reel_prefill.sendetermin(license_obj)
 
     @staticmethod
     def _reel_video_file(license_obj):
-        """Pick the best video file for a reel: prefer playout, then archive.
-
-        Falls back to the license's primary video file when no copy can be
-        ranked (e.g. a single custom-storage file).
-        """
-        from media_files.utils import is_reel_filename
-        from tools.services.okmq_reel import share_prefix_for
-
-        def is_full_source(vf):
-            return (
-                vf is not None
-                and bool(getattr(vf, 'is_available', False))
-                and not bool(getattr(vf, 'is_preview', False))
-                and not is_reel_filename(getattr(vf, 'filename', '') or '')
-                and not is_reel_filename(getattr(vf, 'file_path', '') or '')
-            )
-
-        try:
-            from media_files.models import VideoFile
-            candidates = list(
-                VideoFile.objects
-                .filter(number=license_obj.number, is_available=True)
-                .exclude(is_preview=True)
-                .select_related('storage_location')
-            )
-        except Exception:
-            candidates = []
-        candidates = [vf for vf in candidates if is_full_source(vf)]
-
-        primary = None
-        try:
-            primary = license_obj.get_video_file()
-        except Exception:
-            primary = None
-        if is_full_source(primary) and primary not in candidates:
-            candidates.append(primary)
-        if not candidates:
-            return None
-
-        # playout (0) before archive (1) before anything else (2); newest first.
-        rank = {'playout': 0, 'archive': 1}
-
-        def sort_key(vf):
-            prefix = share_prefix_for(getattr(vf, 'storage_location', None))
-            return (rank.get(prefix, 2), -(vf.id or 0))
-
-        candidates.sort(key=sort_key)
-        return candidates[0]
+        """Pick the best video file for a reel: prefer playout, then archive."""
+        return reel_prefill.video_file(license_obj)
 
     def _reel_studio_url(self, license_obj):
         """Build the Reel Studio URL prefilled from a license, or '' if unavailable."""
-        from django.utils.http import urlencode
-        from tools.models import ToolsConfig
-
-        config = ToolsConfig.get_config()
-        try:
-            video_file = self._reel_video_file(license_obj)
-        except Exception:
-            video_file = None
-
-        # Use the broadcast date for the filename (not today), fall back to now.
-        plan_date, _plan_uhr = self._reel_plan_info(license_obj)
-        name_date = plan_date or timezone.now()
-        try:
-            output_name = (config.reel_output_name_pattern or '').format(
-                number=license_obj.number, date=name_date)
-        except Exception:
-            output_name = ''
-
-        duration = ''
-        if license_obj.duration:
-            duration = str(int(license_obj.duration.total_seconds()))
-
-        autor = ''
-        if license_obj.profile_id:
-            autor = str(license_obj.profile).strip()
-
-        sendung = ''
-        if license_obj.category_id:
-            sendung = (getattr(license_obj.category, 'name', '') or '').strip()
-
-        se_tag, se_uhr = self._reel_sendetermin(license_obj)
-
-        params = {
-            'title': license_obj.title or '',
-            'output_name': output_name,
-            'autor': autor,
-            'sendung': sendung,
-            'description': license_obj.description or '',
-            'dauer': duration,
-            'se_tag': se_tag,
-            'se_uhr': se_uhr,
-        }
-        if video_file is not None and getattr(video_file, 'id', None):
-            # Build a path relative to the renderer's share root
-            # (playout/ = Sendedaten, archive/ = FilmArchiv).
-            from tools.services.okmq_reel import share_relative_path
-            params['video'] = share_relative_path(
-                getattr(video_file, 'file_path', ''),
-                getattr(video_file, 'storage_location', None))
-            # Pass the video id so the Reel Studio can show an inline player for
-            # picking the start second manually.
-            params['video_id'] = video_file.id
-        return f"{reverse('tools:reel_studio')}?{urlencode(params)}"
+        return reel_prefill.studio_url(license_obj)
 
     @admin.action(description=_('Reel im Reel-Studio erstellen'))
     def create_reel_action(self, request, queryset):

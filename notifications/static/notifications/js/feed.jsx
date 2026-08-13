@@ -290,6 +290,12 @@
           {row.snoozedUntil ? <small className="snooze-time">{row.snoozedUntil}</small> : null}
         </div>
         <div className="row-actions" onClick={(event) => event.stopPropagation()}>
+          {row.actionUrl ? (
+            <a href={row.actionUrl} className="row-action-primary"
+               title={row.actionLabel} aria-label={row.actionLabel}>
+              <i className="fas fa-film" aria-hidden="true"></i>
+            </a>
+          ) : null}
           {row.url ? (
             <a href={row.url} title={initial.i18n.viewItem} aria-label={initial.i18n.viewItem}>
               <i className="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
@@ -394,7 +400,10 @@
           ) : null}
         </div>
         <div className="drawer-actions">
-          {row.url ? <a className="button primary" href={row.url}>
+          {row.actionUrl ? <a className="button primary" href={row.actionUrl}>
+            <i className="fas fa-film" aria-hidden="true"></i>{row.actionLabel}
+          </a> : null}
+          {row.url ? <a className={`button ${row.actionUrl ? 'ghost' : 'primary'}`} href={row.url}>
             {initial.i18n.viewItem}<i className="fas fa-arrow-right" aria-hidden="true"></i>
           </a> : null}
         </div>

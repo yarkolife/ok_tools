@@ -1,10 +1,14 @@
-"""Template tags that surface notifications inside the admin.
+"""Template tag that surfaces notifications inside the admin.
 
-The tags live in ``ok_tools`` because the admin base templates load them
-unconditionally while the app itself is optional. The templates they render
-live in the ``notifications`` app, which is where their strings belong: the
-tags return an empty string when the app is not installed, so those
-templates are never looked up in that case.
+The tag lives in ``ok_tools`` because the admin base templates load it
+unconditionally while the app itself is optional. The template it renders
+lives in the ``notifications`` app, which is where its strings belong: the
+tag returns an empty string when the app is not installed, so that template
+is never looked up in that case.
+
+The admin index carries no summary block: the bell in the header and the
+``Benachrichtigungen`` menu are the two ways into the notification centre,
+and a third copy of today's list on the dashboard only repeated them.
 """
 
 from django import template
@@ -28,32 +32,6 @@ def _staff_user(context):
     if not user or not user.is_authenticated or not user.is_staff:
         return None
     return user
-
-
-@register.simple_tag(takes_context=True)
-def notifications_summary(context):
-    """Render today's summary block for the admin index page."""
-    user = _staff_user(context)
-    if user is None:
-        return ''
-
-    from notifications import selectors
-    request = context.get('request')
-    try:
-        payload = {
-            'expectations': selectors.expectations(user, request),
-            'action_items': selectors.open_action_items(user, request)[:10],
-            'action_count': selectors.action_count(user, request),
-            'new_count': selectors.new_count(user, request),
-            'feed': selectors.feed(user, request, limit=10),
-            'has_subscriptions': bool(selectors.subscribed_types(user, request)),
-        }
-    except Exception:
-        logger.exception('Could not build the notification summary block')
-        return ''
-
-    return mark_safe(render_to_string(
-        'notifications/summary_block.html', payload, request=request))
 
 
 @register.simple_tag(takes_context=True)

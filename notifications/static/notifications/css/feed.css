@@ -528,6 +528,9 @@ button, input, select { font: inherit; }
   cursor: pointer;
 }
 .row-actions a:hover, .row-actions button:hover { background: #fff; color: var(--brand); box-shadow: inset 0 0 0 1px var(--line); }
+/* The one action the row exists for, not another way to open the object. */
+.row-actions a.row-action-primary { color: var(--brand); background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+.row-actions a.row-action-primary:hover { color: #fff; background: var(--brand); box-shadow: none; }
 
 .empty-state { min-height: 220px; display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--ink-3); }
 .empty-state strong { font-size: 12px; font-weight: 500; }
@@ -641,8 +644,8 @@ button, input, select { font: inherit; }
 .drawer-description dl { display: grid; grid-template-columns: minmax(90px, .7fr) minmax(130px, 1.3fr); gap: 4px 10px; margin: 0; font-size: 9.5px; }
 .drawer-description dt { color: var(--ink-3); font-weight: 500; }
 .drawer-description dd { margin: 0; overflow-wrap: anywhere; color: var(--ink-2); }
-.drawer-actions { display: flex; align-items: flex-start; padding-top: 20px; }
-.drawer-actions .button { width: 100%; justify-content: space-between; }
+.drawer-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; padding-top: 20px; }
+.drawer-actions .button { flex: 1 1 100%; justify-content: space-between; }
 
 .notification-flashes { position: fixed; z-index: 100; top: 62px; right: 18px; display: grid; gap: 6px; }
 .notification-flash { max-width: 360px; padding: 10px 13px; border: 1px solid #b9d6c2; border-radius: var(--radius); background: #eff9f2; color: #356a46; box-shadow: var(--shadow-md); font-size: 11px; }
@@ -658,7 +661,7 @@ button, input, select { font: inherit; }
   .expectation-card { margin: 0; }
   .detail-drawer { grid-template-columns: 1fr 1fr 1.5fr; }
   .drawer-actions { grid-column: 1 / -1; padding-top: 0; }
-  .drawer-actions .button { width: auto; }
+  .drawer-actions .button { flex: 0 1 auto; width: auto; }
 }
 
 @media (max-width: 900px) {
