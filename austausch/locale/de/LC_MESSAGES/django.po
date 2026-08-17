@@ -1504,6 +1504,19 @@ msgstr ""
 "Keine Elemente zum Exportieren: Alle ausgewählten wurden bereits erfolgreich "
 "exportiert oder haben kein Video/PDF."
 
+#: austausch/admin.py austausch/templates/austausch/feed.html
+#: austausch/templates/austausch/feed_admin.html
+msgid "Retry"
+msgstr "Erneut versuchen"
+
+#: austausch/admin.py
+msgid "Import or retry selected items"
+msgstr "Ausgewählte Einträge importieren oder erneut versuchen"
+
+#: austausch/api.py
+msgid "No new or failed items found to import"
+msgstr "Keine neuen oder fehlgeschlagenen Einträge zum Importieren gefunden"
+
 #~ msgid "License number"
 #~ msgstr "Freistellungsnummer"
 

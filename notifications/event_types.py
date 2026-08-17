@@ -319,8 +319,8 @@ MEDIA_MISSING_COVER = register(EventType(
     module='media_files',
     label=_('Planned own production without a cover'),
     description=_(
-        'The license is confirmed, its full video is available and the own '
-        'production is scheduled, but no cover image exists.'),
+        'The license is confirmed, its full video is available and its '
+        'premiere is scheduled, but no cover image exists.'),
     message=_('{date}: {number} {title}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SCAN,

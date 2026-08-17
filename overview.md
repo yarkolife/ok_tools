@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Resilient room booking and Austausch recovery**: Room calendars distinguish past slots, prevent selecting them, and link occupied blocks directly to rental details. Period edits validate working hours plus room and inventory conflicts before synchronizing linked room reservations. Austausch imports fall back to synchronized JSON metadata during remote API outages, failed entries expose retry actions, and a later successful attempt resolves the old notification. Missing-cover actions are now limited to premieres without an existing contribution.
 - **Sortable rental overview**: Every status view in the rental dashboard can order rows by rental ID, project/user, scheduled time, derived status, or the combined inventory and room count. Header clicks toggle direction while status tabs, search, user/content filters and pagination retain the active ordering through validated query parameters.
 - **Interactive admin notification center**: The `notifications` app provides a responsive React work surface matching the rental process UI. It is a human-attention queue rather than a system activity log: a row exists only when staff must decide, perform manual work, be present for another person, or recover automation after its grace period/retries. Rental confirmation, pick-up, return and room-opening obligations follow their domain status; the license → Nextcloud → video → committed plan → Cover/Reel/Live chain exposes only its current blocker; ready reels become posting work on the air date. Successful jobs and ordinary video indexing stay silent, and unlinked-video checks inspect only storage locations explicitly selected in notification settings. Stored actions and technical incidents resolve from current model state for every subscriber, and the Problems card excludes recovered failures. Rich rows expose translated details and object-specific actions, while five overview cards filter today's expectations, new events, open actions, postponed items or active problems. Links open the exact rental, exchange, license, media or planning context. Delivery remains page rendering only: no polling or websockets. Three gate levels stay separate — module flag, per-channel switch and personal subscription — and visibility mirrors `ModelAdmin.has_view_permission`. The JSX bundle is part of the production `build:js` pipeline and is collected with the other static assets during deployment.
 - **Photo previews across rental admin, and view-served room photos**: Inventory item photos in the admin open in an in-page lightbox and load a downscaled preview (≈1600 px) rather than the full original; room photos are streamed through a staff-only view (with a cached `?size=thumb` variant) so they render even when nginx runs on a separate VM from the app's media folder. Room and inventory thumbnails now appear across the room calendar (day/week/month) and inventory calendar day view, and every such thumbnail zooms into a full-screen lightbox — matching the item photos on the rental process wizard, where room photos are now zoomable too. When an item or room has several photos, the lightbox is a carousel: arrows, a counter, and Left/Right keys page through them, using one shared lightbox script across the rental frontend and the inventory/room admin. The room calendar day page also gained its localization bundle so its timeline renders in German. The rental dashboard gained working filters: a room/inventory content filter and a user-category filter (users, members, employees, rental-only) that mirrors the rental configuration.
@@ -213,7 +214,7 @@ graph TB
 - **Key Features**:
   - Rental request lifecycle management
   - Equipment availability checking
-  - Room scheduling and conflict detection
+  - Room scheduling with disabled past slots, direct detail links and conflict-safe period edits
   - Equipment set templates
   - Transaction history tracking
   - Service layer for business logic (`RentalService`)
@@ -255,6 +256,7 @@ graph TB
   - Three separate gate levels: settings flag, channel switch, personal subscription
   - Subscription presets instead of Django groups
   - Twenty-four event types across rental, licenses, media_files, austausch, planung, registration, tools and system, all declared in code
+  - Missing-cover action items are limited to premiere licenses with no previous contribution
   - Filters (module, type, date range, age) with bulk actions, plus postponing until tomorrow and permanent suppression per object
   - Adoption report (`stats.py`, admin page and `notification_stats` command) built only from data the feature already records
 

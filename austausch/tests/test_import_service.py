@@ -1,10 +1,7 @@
-import pytest
-from unittest.mock import patch
-
 from austausch.models import ExchangeChannelAuth
 from austausch.models import ExchangeConfig
-from austausch.models import ExchangeItem
 from austausch.models import ExchangeImport
+from austausch.models import ExchangeItem
 from austausch.models import ImportedLicenseMapping
 from austausch.services.import_service import ImportService
 from licenses.models import Category
@@ -13,6 +10,9 @@ from media_files.models import StorageLocation
 from media_files.models import VideoFile
 from ok_tools.testing import create_user
 from registration.models import Profile
+from unittest.mock import patch
+import pytest
+import requests
 
 
 @pytest.mark.django_db
@@ -237,6 +237,53 @@ class TestImportServiceIdentity:
         assert import_record.license.media_authority_exchange_allowed is True
         assert import_record.license.media_authority_exchange_allowed_other_states is True
         assert mocked_delay.call_count == 1
+
+    @patch('austausch.tasks.download_exchange_files_task.delay')
+    @patch('austausch.services.import_service.requests.get')
+    def test_api_channel_falls_back_to_synchronized_json_on_tls_failure(
+            self, mocked_get, mocked_delay):
+        """A temporary remote API failure must not block a JSON-backed import."""
+        self._ensure_exchange_config()
+        user, _profile = self._create_user_with_profile()
+        mocked_get.side_effect = requests.exceptions.SSLError(
+            'certificate verify failed: certificate has expired'
+        )
+
+        channel_auth = ExchangeChannelAuth.objects.create(
+            channel_name='ok magdeburg',
+            supports_oktools_api=True,
+            metadata_api_base_url='https://portal.ok-magdeburg.de',
+            metadata_api_token='secret-token',
+            is_active=True,
+        )
+        item = ExchangeItem.objects.create(
+            contribution_id=3847,
+            filename='3847_07-26-GOQUEER_40min.mp4',
+            file_path='/exchange/3847_07-26-GOQUEER_40min.mp4',
+            channel='ok magdeburg',
+            title='GOQUEER',
+            description='Metadata synchronized from meta.json',
+            file_type='video',
+            is_oktools_managed=True,
+            allow_exchange=True,
+        )
+        service = ImportService(item, user)
+
+        with patch.object(service.service, 'check_file_exists', return_value=False):
+            import_record, _ = service.import_item()
+
+        import_record.refresh_from_db()
+        channel_auth.refresh_from_db()
+        assert import_record.status == 'pending_download'
+        assert import_record.license.title == 'GOQUEER'
+        assert import_record.license.description == 'Metadata synchronized from meta.json'
+        assert 'certificate has expired' in channel_auth.last_error
+        assert ImportedLicenseMapping.objects.filter(
+            source_channel='ok magdeburg',
+            remote_license_number=3847,
+            local_license=import_record.license,
+        ).exists()
+        mocked_delay.assert_called_once()
 
 
 @pytest.mark.django_db

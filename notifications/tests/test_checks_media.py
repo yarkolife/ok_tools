@@ -307,6 +307,38 @@ def test_missing_cover_reports_own_planned_production(synced, license,
     assert run_check('media_files.missing_cover') == []
 
 
+def test_missing_cover_ignores_license_with_previous_contribution(
+        synced, license, contribution_dict, own_authority, storage):
+    """Only the premiere needs a cover; repetitions reuse existing assets."""
+    from ok_tools.testing import create_contribution
+
+    _plan_own_license(license, own_authority, storage)
+    create_contribution(license, contribution_dict)
+
+    assert run_check('media_files.missing_cover') == []
+
+
+def test_missing_cover_event_resolves_after_first_contribution(
+        synced, license, contribution_dict, own_authority, storage):
+    """A stored cover task disappears once the premiere was broadcast."""
+    from notifications.process_state import inactive_event_ids
+    from notifications.services import emit
+    from ok_tools.testing import create_contribution
+
+    _plan_own_license(license, own_authority, storage)
+    finding = run_check('media_files.missing_cover')[0]
+    event = emit(
+        'media_files.missing_cover',
+        obj=finding.obj,
+        payload=finding.payload,
+        dedup_key=finding.dedup_key,
+    )
+
+    create_contribution(license, contribution_dict)
+
+    assert event.pk in inactive_event_ids([event])
+
+
 def test_missing_asset_checks_need_the_own_authority(synced, license, db):
     """Without the own authority we would report other channels as ours."""
     from registration.models import OrganizationConfig
@@ -567,6 +599,38 @@ def test_successful_retry_resolves_file_operation_problem(synced, storage):
     FileOperation.objects.create(
         video_file=video, operation_type='RENDER', status='SUCCESS')
 
+    assert event.pk in inactive_event_ids([event])
+
+
+def test_successful_retry_resolves_exchange_import_problem(synced):
+    """A later completed Austausch import resolves the earlier failure."""
+    from austausch.models import ExchangeImport
+    from austausch.models import ExchangeItem
+    from notifications.process_state import inactive_event_ids
+
+    item = ExchangeItem.objects.create(
+        contribution_id=3847,
+        filename='3847_07-26-GOQUEER_40min.mp4',
+        file_path='/exchange/3847_07-26-GOQUEER_40min.mp4',
+        channel='ok magdeburg',
+        file_type='video',
+        import_status='failed',
+    )
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        failed = ExchangeImport.objects.create(
+            exchange_item=item,
+            status='failed',
+            error_message='certificate verify failed',
+        )
+    event = NotificationEvent.objects.get(
+        event_type='austausch.import_failed')
+
+    ExchangeImport.objects.create(
+        exchange_item=item,
+        status='completed',
+    )
+
+    assert event.dedup_key.endswith(f'|{failed.pk}')
     assert event.pk in inactive_event_ids([event])
 
 

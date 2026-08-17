@@ -174,24 +174,31 @@ function TimelineRow({ room }) {
         </div>
       </div>
       <div className="tl-bar">
-        {blocks.map((b, i) => (
-          <div
-            key={i}
-            className={cls('tl-seg', b.status)}
-            style={{
-              width: `${(b.count / total) * 100}%`,
-              marginRight: b.key === '__free__' ? '2px' : undefined,
-            }}
-            title={b.status === 'occupied' && b.info
-              ? `${b.info.user_name} · ${b.info.project}\n${b.time} — ${b.endTime}${b.info.people_count > 1 ? '\n' + b.info.people_count + ' people' : ''}`
-              : t('available', 'Available')
-            }
-          >
-            {b.status === 'occupied' && b.info && b.count >= 2 && (
-              <span className="tl-seg-text">{b.info.user_name}</span>
-            )}
-          </div>
-        ))}
+        {blocks.map((b, i) => {
+          const isBooking = b.status === 'occupied' && b.info;
+          const Segment = isBooking ? 'a' : 'div';
+          const title = isBooking
+            ? `${b.info.user_name} · ${b.info.project}\n${b.time} — ${b.endTime}${b.info.people_count > 1 ? '\n' + b.info.people_count + ' people' : ''}`
+            : b.status === 'past'
+              ? t('room.past', 'Past')
+              : t('available', 'Available');
+          return (
+            <Segment
+              key={i}
+              className={cls('tl-seg', b.status)}
+              href={isBooking ? b.info.detail_url : undefined}
+              style={{
+                width: `${(b.count / total) * 100}%`,
+                marginRight: b.key === '__free__' ? '2px' : undefined,
+              }}
+              title={title}
+            >
+              {isBooking && b.count >= 2 && (
+                <span className="tl-seg-text">{b.info.user_name}</span>
+              )}
+            </Segment>
+          );
+        })}
       </div>
     </div>
   );

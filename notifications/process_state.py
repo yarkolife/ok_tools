@@ -234,11 +234,17 @@ def _missing_asset_activity(events: List[NotificationEvent]) -> Set[int]:
         .values_list('number', flat=True)
     )
     eligible_numbers = confirmed & numbers_with_video(confirmed)
+    Contribution = apps.get_model('contributions.Contribution')
+    repeated_numbers = set(
+        Contribution.objects.filter(license__number__in=eligible_numbers)
+        .values_list('license__number', flat=True)
+    )
+    premiere_numbers = eligible_numbers - repeated_numbers
     missing_by_type = {
         'media_files.missing_reel': (
             eligible_numbers - numbers_with_reel(eligible_numbers)),
         'media_files.missing_cover': (
-            eligible_numbers - numbers_with_cover(eligible_numbers)),
+            premiere_numbers - numbers_with_cover(premiere_numbers)),
     }
     active = set()
     for event in events:

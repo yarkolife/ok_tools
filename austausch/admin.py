@@ -1,10 +1,5 @@
 """Django admin configuration for Austausch module."""
 
-from django.contrib import admin
-from django.utils.translation import gettext_lazy as _
-from django.utils.html import format_html
-from django.urls import reverse
-
 from .models import ExchangeChannelAuth
 from .models import ExchangeConfig
 from .models import ExchangeImport
@@ -12,6 +7,10 @@ from .models import ExchangeItem
 from .models import ExportToServerRun
 from .models import ImportedLicenseMapping
 from .tasks import import_exchange_item_task
+from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 
 class ExchangeChannelAuthInline(admin.TabularInline):
@@ -240,13 +239,13 @@ class ExchangeItemAdmin(admin.ModelAdmin):
     
     def actions_column(self, obj):
         """Action buttons column."""
-        if obj.import_status == 'new':
+        if obj.import_status in ('new', 'failed'):
             url = reverse('austausch:api_import', args=[obj.id])
             return format_html(
                 '<a href="{}" class="button" onclick="return confirm(\'{}\')">{}</a>',
                 url,
                 _('Import this item?'),
-                _('Import')
+                _('Retry') if obj.import_status == 'failed' else _('Import')
             )
         elif obj.import_status == 'imported' and obj.imported_license:
             url = reverse('admin:licenses_license_change', args=[obj.imported_license.id])
@@ -257,7 +256,7 @@ class ExchangeItemAdmin(admin.ModelAdmin):
     def import_selected_items(self, request, queryset):
         """Admin action to import selected items."""
         count = 0
-        for item in queryset.filter(import_status='new'):
+        for item in queryset.filter(import_status__in=['new', 'failed']):
             try:
                 # Import synchronously in admin (or could use Celery task)
                 from .services.import_service import ImportService
@@ -276,7 +275,7 @@ class ExchangeItemAdmin(admin.ModelAdmin):
             _('Successfully imported {} items.').format(count),
             level='SUCCESS'
         )
-    import_selected_items.short_description = _('Import selected items')
+    import_selected_items.short_description = _('Import or retry selected items')
 
 
 @admin.register(ExchangeImport)

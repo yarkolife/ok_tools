@@ -471,9 +471,9 @@
                     {% trans 'Preview' %}
                 </button>
                 {% endif %}
-                {% if item.import_status == 'new' %}
+                {% if item.import_status == 'new' or item.import_status == 'failed' %}
                 <button type="button" class="button default" onclick="importItem({{ item.id }}, '{{ item.filename|escapejs }}')">
-                    {% trans 'Import' %}
+                    {% if item.import_status == 'failed' %}{% trans 'Retry' %}{% else %}{% trans 'Import' %}{% endif %}
                 </button>
                 {% elif item.import_status == 'imported' %}
                 {% if item.imported_license %}
@@ -574,8 +574,11 @@ function openVideoPlayer(itemId, filename) {
     
     // Show/hide import button
     const importBtn = document.getElementById('importFromModalBtn');
-    if (importStatus === 'new') {
+    if (importStatus === 'new' || importStatus === 'failed') {
         importBtn.style.display = 'inline-block';
+        importBtn.textContent = importStatus === 'failed'
+            ? '{% trans "Retry" %}'
+            : '{% trans "Import" %}';
     } else {
         importBtn.style.display = 'none';
     }
@@ -765,4 +768,3 @@ function importSelected() {
 </script>
 
 {% endblock %}
-

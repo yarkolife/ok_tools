@@ -541,7 +541,9 @@ function RoomPicker({ rooms, setRooms, options, initial, period }) {
     while (mins < endMins) {
       const h = String(Math.floor(mins / 60)).padStart(2, '0');
       const m = String(mins % 60).padStart(2, '0');
-      slots.push(`${h}:${m}`);
+      const time = `${h}:${m}`;
+      const slotStart = new Date(`${dateStr}T${time}:00`);
+      if (slotStart >= new Date()) slots.push(time);
       mins += 30;
     }
     return slots;
@@ -688,16 +690,23 @@ function RoomDayStrip({ initial, roomId, date, startTime, endTime }) {
       <div style={{display: 'flex', gap: 1, height: 20, borderRadius: 4, overflow: 'hidden'}}>
         {slots.map((s, i) => {
           const busy = s.status === 'occupied';
+          const past = s.status === 'past';
           const picked = inSelection(s.time);
           const tip = busy
             ? `${s.time} · ${s.info?.start_time}–${s.info?.end_time} · ${s.info?.user_name || ''} ${s.info?.project ? '(' + s.info.project + ')' : ''}`.trim()
-            : `${s.time} · ${t('room.free', 'free')}`;
+            : past
+              ? `${s.time} · ${t('room.past', 'past')}`
+              : `${s.time} · ${t('room.free', 'free')}`;
           return (
             <div key={i} title={tip}
                  style={{
                    flex: 1,
-                   background: busy ? 'oklch(0.72 0.15 28)' : 'oklch(0.88 0.09 145)',
-                   outline: picked ? '2px solid var(--ink-2, #333)' : 'none',
+                   background: busy
+                     ? 'oklch(0.72 0.15 28)'
+                     : past
+                       ? 'oklch(0.82 0.02 250)'
+                       : 'oklch(0.88 0.09 145)',
+                   outline: picked && !past ? '2px solid var(--ink-2, #333)' : 'none',
                    outlineOffset: -2,
                  }} />
           );
@@ -710,13 +719,14 @@ function RoomDayStrip({ initial, roomId, date, startTime, endTime }) {
       <div className="tiny muted" style={{marginTop: 4, display: 'flex', gap: 12}}>
         <span><span style={{display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: 'oklch(0.88 0.09 145)', marginRight: 4}}></span>{t('room.free', 'free')}</span>
         <span><span style={{display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: 'oklch(0.72 0.15 28)', marginRight: 4}}></span>{t('room.busy', 'booked')}</span>
+        <span><span style={{display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: 'oklch(0.82 0.02 250)', marginRight: 4}}></span>{t('room.past', 'past')}</span>
       </div>
     </div>
   );
 }
 
 function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, checking, result, onCheck, onConfirm, onCancel, initial }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = _fmtDT(new Date()).slice(0, 10);
   const periodStart = period?.from ? period.from.slice(0, 10) : today;
   const periodEnd = period?.to ? period.to.slice(0, 10) : today;
   const periodStartTime = period?.from ? period.from.slice(11, 16) : '';
@@ -741,8 +751,14 @@ function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, che
   const startDayIdx = startDate ? (new Date(startDate + 'T00:00:00').getDay() === 0 ? 6 : new Date(startDate + 'T00:00:00').getDay() - 1) : -1;
   const startDayHours = wh[String(startDayIdx)];
   const dayClosed = startDayHours && !startDayHours.enabled;
+  const endDayIdx = endDate ? (new Date(endDate + 'T00:00:00').getDay() === 0 ? 6 : new Date(endDate + 'T00:00:00').getDay() - 1) : -1;
+  const endDayHours = wh[String(endDayIdx)];
+  const noFutureSlots = (
+    (startDayHours?.enabled && startSlots.length === 0)
+    || (endDayHours?.enabled && endSlots.length === 0)
+  );
 
-  const canCheck = startDate && startTime && endDate && endTime && !dayClosed;
+  const canCheck = startDate && startTime && endDate && endTime && !dayClosed && !noFutureSlots;
   const canConfirm = result && result.is_available;
 
   return (
@@ -755,8 +771,9 @@ function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, che
         </div>
         <div>
           <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.start_time', 'Start time')}</label>
-          {startSlots.length > 0 ? (
-            <select className="form-select form-select-sm" value={startTime} onChange={e => setStartTime(e.target.value)}>
+          {startDayHours?.enabled ? (
+            <select className="form-select form-select-sm" value={startTime} disabled={startSlots.length === 0} onChange={e => setStartTime(e.target.value)}>
+              {startSlots.length === 0 && <option value="">—</option>}
               {startSlots.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           ) : (
@@ -771,8 +788,9 @@ function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, che
         </div>
         <div>
           <label className="muted tiny" style={{display: 'block', marginBottom: 2}}>{t('room.end_time', 'End time')}</label>
-          {endSlots.length > 0 ? (
-            <select className="form-select form-select-sm" value={endTime} onChange={e => setEndTime(e.target.value)}>
+          {endDayHours?.enabled ? (
+            <select className="form-select form-select-sm" value={endTime} disabled={endSlots.length === 0} onChange={e => setEndTime(e.target.value)}>
+              {endSlots.length === 0 && <option value="">—</option>}
               {endSlots.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           ) : (
@@ -785,6 +803,12 @@ function RoomDateTimeForm({ room, wh, period, getTimeSlots, getDefaultTimes, che
       {dayClosed && (
         <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginTop: 6}}>
           <i className="fas fa-triangle-exclamation me-1"></i>{t('room.day_closed', 'Selected day is closed.')}
+        </div>
+      )}
+
+      {!dayClosed && noFutureSlots && (
+        <div className="tiny" style={{color: 'oklch(0.45 0.14 28)', marginTop: 6}}>
+          <i className="fas fa-clock me-1"></i>{t('room.no_future_slots', 'No reservable time remains on this day.')}
         </div>
       )}
 

@@ -303,11 +303,11 @@ msgstr "Geplante Eigenproduktion ohne Cover"
 
 #: event_types.py:322
 msgid ""
-"The license is confirmed, its full video is available and the own production "
-"is scheduled, but no cover image exists."
+"The license is confirmed, its full video is available and its premiere is "
+"scheduled, but no cover image exists."
 msgstr ""
 "Die Sendeerlaubnis ist genehmigt, das vollständige Video ist verfügbar und "
-"die Eigenproduktion ist eingeplant, aber es ist noch kein Cover vorhanden."
+"die Premiere ist eingeplant, aber es ist noch kein Cover vorhanden."
 
 #: event_types.py:343
 msgid "Video without a license"

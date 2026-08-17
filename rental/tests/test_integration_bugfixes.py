@@ -4,15 +4,15 @@ Integration tests verifying the rental flow works after bug fixes.
 All test descriptions are in English per project rules.
 """
 
-import json
-from unittest.mock import patch
-
-import pytest
+from datetime import datetime
+from datetime import time
 from django.db import connection
 from django.urls import reverse
 from django.utils import timezone
-
 from ok_tools.testing import create_user
+from unittest.mock import patch
+import json
+import pytest
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -409,3 +409,163 @@ def test_inventory_access_check_uses_rental_config_organizations(db):
 
     assert RentalService.check_user_inventory_access(borrower, allowed_item.id) is True
     assert RentalService.check_user_inventory_access(borrower, denied_item.id) is False
+
+
+@pytest.mark.django_db
+def test_change_period_rejects_room_conflict_and_synchronizes_free_period(
+        db, client):
+    """Editing a rental period is atomic and keeps its room dates aligned."""
+    from rental.models import RentalRequest
+    from rental.models import Room
+    from rental.models import RoomRental
+
+    staff_user = _create_staff_user()
+    borrower = _create_regular_user('period-borrower@example.com')
+    other_borrower = _create_regular_user('other-period-borrower@example.com')
+    client.force_login(staff_user)
+    room = Room.objects.create(name='Editing Room', capacity=4, is_active=True)
+
+    original_day = timezone.localdate() + timezone.timedelta(days=1)
+    while original_day.weekday() >= 5:
+        original_day += timezone.timedelta(days=1)
+    conflict_day = original_day + timezone.timedelta(days=1)
+    while conflict_day.weekday() >= 5:
+        conflict_day += timezone.timedelta(days=1)
+
+    original_start = timezone.make_aware(
+        datetime.combine(original_day, time(hour=10)))
+    original_end = original_start + timezone.timedelta(hours=1)
+    rental = RentalRequest.objects.create(
+        user=borrower,
+        created_by=staff_user,
+        project_name='Period to edit',
+        purpose='Test conflict validation',
+        requested_start_date=original_start,
+        requested_end_date=original_end,
+        status='reserved',
+        rental_type='room',
+    )
+    room_rental = RoomRental.objects.create(
+        rental_request=rental,
+        room=room,
+        people_count=2,
+        requested_start_date=original_start,
+        requested_end_date=original_end,
+    )
+
+    conflict_start = timezone.make_aware(
+        datetime.combine(conflict_day, time(hour=11)))
+    conflict_end = conflict_start + timezone.timedelta(hours=2)
+    conflicting_rental = RentalRequest.objects.create(
+        user=other_borrower,
+        created_by=staff_user,
+        project_name='Existing reservation',
+        purpose='Blocks the room',
+        requested_start_date=conflict_start,
+        requested_end_date=conflict_end,
+        status='reserved',
+        rental_type='room',
+    )
+    RoomRental.objects.create(
+        rental_request=conflicting_rental,
+        room=room,
+        people_count=1,
+        requested_start_date=conflict_start,
+        requested_end_date=conflict_end,
+    )
+
+    response = client.post(
+        reverse('rental:api_change_rental_period', args=[rental.pk]),
+        data=json.dumps({
+            'from': timezone.localtime(conflict_start).strftime('%Y-%m-%dT%H:%M'),
+            'to': timezone.localtime(conflict_end).strftime('%Y-%m-%dT%H:%M'),
+        }),
+        content_type='application/json',
+    )
+
+    assert response.status_code == 409
+    rental.refresh_from_db()
+    room_rental.refresh_from_db()
+    assert rental.requested_start_date == original_start
+    assert room_rental.requested_start_date == original_start
+
+    free_start = timezone.make_aware(
+        datetime.combine(conflict_day, time(hour=14)))
+    free_end = free_start + timezone.timedelta(hours=1)
+    response = client.post(
+        reverse('rental:api_change_rental_period', args=[rental.pk]),
+        data=json.dumps({
+            'from': timezone.localtime(free_start).strftime('%Y-%m-%dT%H:%M'),
+            'to': timezone.localtime(free_end).strftime('%Y-%m-%dT%H:%M'),
+        }),
+        content_type='application/json',
+    )
+
+    assert response.status_code == 200
+    rental.refresh_from_db()
+    room_rental.refresh_from_db()
+    assert rental.requested_start_date == free_start.replace(second=0, microsecond=0)
+    assert rental.requested_end_date == free_end.replace(second=0, microsecond=0)
+    assert room_rental.requested_start_date == rental.requested_start_date
+    assert room_rental.requested_end_date == rental.requested_end_date
+
+
+@pytest.mark.django_db
+def test_room_schedule_marks_past_slots_and_links_reservations(db, client):
+    """The day API distinguishes past time and exposes booking detail links."""
+    from rental.models import RentalRequest
+    from rental.models import Room
+    from rental.models import RoomRental
+
+    staff_user = _create_staff_user()
+    borrower = _create_regular_user('calendar-borrower@example.com')
+    client.force_login(staff_user)
+    room = Room.objects.create(name='Calendar Room', capacity=2, is_active=True)
+    now = timezone.now()
+    past_start = now - timezone.timedelta(hours=1)
+    past_end = past_start + timezone.timedelta(minutes=30)
+    future_start = now + timezone.timedelta(days=1)
+    future_end = future_start + timezone.timedelta(hours=1)
+    rental = RentalRequest.objects.create(
+        user=borrower,
+        created_by=staff_user,
+        project_name='Linked reservation',
+        purpose='Test calendar link',
+        requested_start_date=future_start,
+        requested_end_date=future_end,
+        status='reserved',
+        rental_type='room',
+    )
+    RoomRental.objects.create(
+        rental_request=rental,
+        room=room,
+        people_count=2,
+        requested_start_date=future_start,
+        requested_end_date=future_end,
+    )
+
+    with patch('rental.views._iter_time_slots', return_value=[
+        (past_start, past_end),
+    ]):
+        response = client.get(reverse('rental:api_room_schedule'), {
+            'start_date': timezone.localdate().isoformat(),
+            'end_date': timezone.localdate().isoformat(),
+        })
+
+    assert response.status_code == 200
+    assert response.json()['rooms'][0]['schedule'][0]['slots'][0]['status'] == 'past'
+
+    future_date = timezone.localtime(future_start).date()
+    slot_end = future_start + timezone.timedelta(minutes=30)
+    with patch('rental.views._iter_time_slots', return_value=[
+        (future_start, slot_end),
+    ]):
+        response = client.get(reverse('rental:api_room_schedule'), {
+            'start_date': future_date.isoformat(),
+            'end_date': future_date.isoformat(),
+        })
+
+    slot = response.json()['rooms'][0]['schedule'][0]['slots'][0]
+    assert slot['status'] == 'occupied'
+    assert slot['info']['detail_url'] == reverse(
+        'rental:rental_detail', args=[rental.pk])

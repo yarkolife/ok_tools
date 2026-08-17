@@ -580,15 +580,24 @@ def check_missing_reel(params: Dict[str, int]) -> List[Finding]:
 
 @scan_check('media_files.missing_cover')
 def check_missing_cover(params: Dict[str, int]) -> List[Finding]:
-    """Find own productions going on air soon without a cover image."""
+    """Find premieres of own productions going on air without a cover."""
     from media_files.utils import numbers_with_cover
 
     entries, own = _own_planned_entries(params.get('horizon_days', 3))
     if own is None or not entries:
         return []
+    Contribution = apps.get_model('contributions.Contribution')
+    repeated_numbers = set(
+        Contribution.objects.filter(license__number__in=own)
+        .values_list('license__number', flat=True)
+    )
+    premiere_entries = [
+        entry for entry in entries
+        if entry['number'] not in repeated_numbers
+    ]
     return _missing_asset_findings(
-        'media_files.missing_cover', entries,
-        numbers_with_cover({entry['number'] for entry in entries}))
+        'media_files.missing_cover', premiere_entries,
+        numbers_with_cover({entry['number'] for entry in premiere_entries}))
 
 
 @scan_check('media_files.reel_post_today')

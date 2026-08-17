@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.44.2
-**Last Updated**: 13 August 2026
+**Current Version**: 4.45.0
+**Last Updated**: 17 August 2026
 
 Features
 ========
@@ -103,6 +103,7 @@ Features
   - Support for multiple exchange folders and channels
   - Export to server (``/austausch/feed/``): upload video, PDF, JSON and optional thumbnail to Nextcloud WebDAV via a step-by-step wizard and Celery task
   - Auto-generates a cover thumbnail into the export hand-off directory during export when cover generation is enabled, so exchanged content always ships with a thumbnail
+  - Falls back to synchronized JSON metadata when a channel's remote OK-Tools API is unavailable, with retry actions for failed imports
   - Optional module (enabled via AUSTAUSCH_ENABLED setting)
 
 - **Tools Module** - Utility tools for content creation and processing
@@ -147,6 +148,8 @@ Features
   - REST API endpoints for rental operations
   - Calendar view for rental scheduling
   - Week and month calendar views for room booking schedules
+  - Past room slots are disabled and visually separated; occupied day-calendar blocks open the corresponding rental detail
+  - Period edits reject room or inventory conflicts and atomically synchronize linked room reservations
   - Automatic rental expiration management via cron jobs
   - Configurable automatic return reminder emails for issued rentals, tracked so each rental is reminded once unless delivery fails
 

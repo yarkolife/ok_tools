@@ -1,13 +1,17 @@
-from datetime import timedelta
-from .models import RentalItem, RentalRequest
 from .formatting import format_booked_period
-from .models import Room, RoomRental
+from .models import RentalItem
+from .models import RentalRequest
+from .models import Room
+from .models import RoomRental
 from .services import RentalService
+from .working_hours import validate_working_hours_period
+from datetime import timedelta
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db import transaction
 from django.db.models import Count
+from django.db.models import Q
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -401,9 +405,66 @@ def api_change_rental_period(request, rental_id):
     if end_dt <= start_dt:
         return JsonResponse({'success': False, 'error': _('End date must be after start date.')}, status=400)
 
-    rental.requested_start_date = start_dt
-    rental.requested_end_date = end_dt
-    rental.save(update_fields=['requested_start_date', 'requested_end_date', 'updated_at'])
+    if start_dt < timezone.now():
+        return JsonResponse({
+            'success': False,
+            'error': _('Start date must not be in the past.'),
+        }, status=400)
+
+    is_valid_period, error_message = validate_working_hours_period(
+        start_dt,
+        end_dt,
+    )
+    if not is_valid_period:
+        return JsonResponse({
+            'success': False,
+            'error': error_message,
+        }, status=400)
+
+    room_rentals = list(rental.room_rentals.select_related('room'))
+    for room_rental in room_rentals:
+        if not room_rental.room.is_available_for_time(
+            start_dt,
+            end_dt,
+            exclude_rental_request=rental.pk,
+        ):
+            return JsonResponse({
+                'success': False,
+                'error': _(
+                    'Room "{room}" is not available for the selected time period.'
+                ).format(room=room_rental.room.name),
+            }, status=409)
+
+    for rental_item in rental.items.select_related('inventory_item'):
+        available_quantity = RentalService.get_available_quantity_for_period(
+            rental_item.inventory_item_id,
+            start_dt,
+            end_dt,
+            exclude_rental_request=rental.pk,
+        )
+        if available_quantity < rental_item.quantity_requested:
+            return JsonResponse({
+                'success': False,
+                'error': _(
+                    'Item "{item}" is not available for the selected time period.'
+                ).format(item=rental_item.inventory_item.description),
+            }, status=409)
+
+    with transaction.atomic():
+        rental.requested_start_date = start_dt
+        rental.requested_end_date = end_dt
+        rental.save(update_fields=[
+            'requested_start_date',
+            'requested_end_date',
+            'updated_at',
+        ])
+        for room_rental in room_rentals:
+            room_rental.requested_start_date = start_dt
+            room_rental.requested_end_date = end_dt
+            room_rental.save(update_fields=[
+                'requested_start_date',
+                'requested_end_date',
+            ])
 
     return JsonResponse({
         'success': True,

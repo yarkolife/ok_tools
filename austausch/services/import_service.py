@@ -1,27 +1,5 @@
 """Service for importing exchange items into OK-Tools."""
 
-import os
-import hashlib
-import logging
-import re
-import unicodedata
-import requests
-from pathlib import Path
-from datetime import timedelta
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from difflib import SequenceMatcher
-from django.utils import timezone
-from django.core.exceptions import ValidationError
-from django.db import transaction
-
-from licenses.models import License, Category
-from licenses.admin import get_profile_by_name, create_profile_by_name, get_category_by_id, get_category_by_name
-from media_files.models import VideoFile, StorageLocation
-from registration.models import Profile, MediaAuthority
 from ..models import ExchangeChannelAuth
 from ..models import ExchangeConfig
 from ..models import ExchangeImport
@@ -29,6 +7,34 @@ from ..models import ExchangeItem
 from ..models import ImportedLicenseMapping
 from .metadata_normalizer import normalize_exchange_metadata
 from .nextcloud_exchange_service import NextcloudExchangeService
+from datetime import timedelta
+from difflib import SequenceMatcher
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.utils import timezone
+from licenses.admin import create_profile_by_name
+from licenses.admin import get_category_by_id
+from licenses.admin import get_category_by_name
+from licenses.admin import get_profile_by_name
+from licenses.models import Category
+from licenses.models import License
+from media_files.models import StorageLocation
+from media_files.models import VideoFile
+from pathlib import Path
+from registration.models import MediaAuthority
+from registration.models import Profile
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+import hashlib
+import logging
+import os
+import re
+import requests
+import unicodedata
+
 
 logger = logging.getLogger('django')
 
@@ -346,11 +352,19 @@ class ImportService:
             )
             remote_metadata = {}
             if uses_remote_api:
-                remote_metadata = self._fetch_remote_metadata(
-                    channel_auth,
-                    int(self.exchange_item.contribution_id),
-                )
-                remote_metadata = normalize_exchange_metadata(remote_metadata)
+                try:
+                    remote_metadata = self._fetch_remote_metadata(
+                        channel_auth,
+                        int(self.exchange_item.contribution_id),
+                    )
+                    remote_metadata = normalize_exchange_metadata(remote_metadata)
+                except Exception:
+                    logger.warning(
+                        "Remote metadata is unavailable for exchange item %s; "
+                        "falling back to the synchronized meta.json data.",
+                        self.exchange_item.id,
+                        exc_info=True,
+                    )
             
             # Check for potential duplicates before creating license
             potential_duplicates = None
@@ -959,8 +973,8 @@ class ImportService:
         Returns:
             VideoFile instance
         """
-        from media_files.utils import extract_video_metadata_fast
         from django.utils import timezone
+        from media_files.utils import extract_video_metadata_fast
         
         video_file_path = Path(video_path)
         relative_path = video_file_path.name  # Just filename for now

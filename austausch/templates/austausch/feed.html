@@ -193,9 +193,9 @@
                         <small>{{ item.discovered_at|date:"Y-m-d H:i" }}</small>
                     </td>
                     <td>
-                        {% if item.import_status == 'new' %}
+                        {% if item.import_status == 'new' or item.import_status == 'failed' %}
                         <button class="btn btn-sm btn-primary import-btn" data-item-id="{{ item.id }}" data-filename="{{ item.filename }}">
-                            <i class="bi bi-download me-1"></i>{% trans 'Import' %}
+                            <i class="bi bi-download me-1"></i>{% if item.import_status == 'failed' %}{% trans 'Retry' %}{% else %}{% trans 'Import' %}{% endif %}
                         </button>
                         {% elif item.import_status == 'imported' %}
                         {% if item.imported_license %}
@@ -310,4 +310,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
-

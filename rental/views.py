@@ -400,7 +400,9 @@ def _i18n_bundle():
         'room.end_date': _('End date'),
         'room.end_time': _('End time'),
         'room.not_available': _('Not available'),
+        'room.no_future_slots': _('No reservable time remains on this day.'),
         'room.open': _('Open'),
+        'room.past': _('past'),
         'room.remove': _('Remove'),
         'room.reserve': _('Reserve room'),
         'room.restricted': _('Restricted'),
@@ -5070,7 +5072,11 @@ def api_get_room_schedule(request):
                     slot_start = timezone.localtime(slot_start_aware)
                     slot_end = timezone.localtime(slot_end_aware)
 
-                    slot_status = 'available'
+                    slot_status = (
+                        'past'
+                        if slot_start_aware < timezone.now()
+                        else 'available'
+                    )
                     slot_info = None
 
                     for rental in room_rentals:
@@ -5123,6 +5129,10 @@ def api_get_room_schedule(request):
                                     'start_time': rental_start_local.strftime('%H:%M'),
                                     'end_time': rental_end_local.strftime('%H:%M'),
                                     'rental_request_id': rental.rental_request.id,
+                                    'detail_url': reverse(
+                                        'rental:rental_detail',
+                                        args=[rental.rental_request.id],
+                                    ),
                                     'user_email': user.email if hasattr(user, 'email') and user.email else ''
                                 }
                                 break

@@ -1,23 +1,29 @@
 """API endpoints for Austausch module."""
 
-from django.shortcuts import get_object_or_404
+from .models import ExchangeConfig
+from .models import ExchangeImport
+from .models import ExchangeItem
+from .models import ExportToServerRun
+from .serializers import ExchangeImportSerializer
+from .serializers import ExchangeItemSerializer
+from .services.import_service import ImportService
+from .services.import_service import similarity_ratio
+from .services.nextcloud_exchange_service import NextcloudExchangeService
+from celery.result import AsyncResult
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.throttling import UserRateThrottle
-from rest_framework.permissions import BasePermission
-import logging
-
-from celery.result import AsyncResult
+from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 from licenses.models import License
 from licenses.serializers import LicenseMetadataSerializer
-from .models import ExchangeItem, ExchangeImport, ExchangeConfig, ExportToServerRun
-from .serializers import ExchangeItemSerializer, ExchangeImportSerializer
-from .services.import_service import ImportService, similarity_ratio
-from .services.nextcloud_exchange_service import NextcloudExchangeService
+from rest_framework import status
+from rest_framework.permissions import BasePermission
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
+from rest_framework.views import APIView
+import logging
+
 
 logger = logging.getLogger('django')
 
@@ -369,11 +375,14 @@ class ImportBatchExchangeItemsView(APIView):
             )
         
         # Get items
-        items = ExchangeItem.objects.filter(id__in=item_ids, import_status='new')
+        items = ExchangeItem.objects.filter(
+            id__in=item_ids,
+            import_status__in=['new', 'failed'],
+        )
         if not items.exists():
             return Response({
                 'status': 'error',
-                'error': 'No new items found to import'
+                'error': _('No new or failed items found to import')
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Import each item
@@ -439,10 +448,11 @@ class DownloadExchangeFileView(APIView):
         Returns:
             FileResponse with thumbnail if successful, None otherwise
         """
-        from pathlib import Path
         from django.http import FileResponse
+        from media_files.utils import generate_thumbnail_from_http_range
+        from media_files.utils import generate_thumbnail_from_http_url
+        from pathlib import Path
         from urllib.parse import quote
-        from media_files.utils import generate_thumbnail_from_http_url, generate_thumbnail_from_http_range
         
         logger.info(f"Generating thumbnail for exchange_item {exchange_item.id}, video: {exchange_item.file_path}")
         
@@ -522,8 +532,8 @@ class DownloadExchangeFileView(APIView):
             file_path = exchange_item.file_path
         elif file_type == 'thumbnail':
             # Check if thumbnail is available locally or in Nextcloud
-            from pathlib import Path
             from django.http import FileResponse
+            from pathlib import Path
             
             logger.info(f"Thumbnail request for exchange_item {exchange_item.id}, thumbnail_path: {exchange_item.thumbnail_path}")
             
@@ -595,7 +605,7 @@ class DownloadExchangeFileView(APIView):
         
         import os
         import requests
-        
+
         # Determine content type based on file extension
         # For thumbnails, use the thumbnail file extension, not the video filename
         if file_type == 'thumbnail':
@@ -742,7 +752,7 @@ class ExportToServerStatusView(APIView):
         Response with task status and progress
         """
         from django.utils import timezone
-        
+
         # Get the run - try task_id first, then run_id, then latest
         task_id_param = request.query_params.get('task_id')
         
@@ -805,4 +815,3 @@ class ExportToServerStatusView(APIView):
             'completed_at': run.completed_at.isoformat() if run.completed_at else None,
             'mode': run.mode,
         })
-

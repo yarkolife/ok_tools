@@ -4609,3 +4609,25 @@ msgstr ""
 msgid "The selected end time is outside the configured working hours."
 msgstr ""
 "Die gewählte Endzeit liegt außerhalb der konfigurierten Arbeitszeiten."
+
+#: rental/views.py
+msgid "past"
+msgstr "vergangen"
+
+#: rental/views_api.py
+#, python-brace-format
+msgid "Room \"{room}\" is not available for the selected time period."
+msgstr "Der Raum \"{room}\" ist im gewählten Zeitraum nicht verfügbar."
+
+#: rental/views_api.py
+#, python-brace-format
+msgid "Item \"{item}\" is not available for the selected time period."
+msgstr "Der Artikel \"{item}\" ist im gewählten Zeitraum nicht verfügbar."
+
+#: rental/views.py
+msgid "No reservable time remains on this day."
+msgstr "An diesem Tag ist keine reservierbare Zeit mehr verfügbar."
+
+#: rental/views_api.py
+msgid "Start date must not be in the past."
+msgstr "Das Startdatum darf nicht in der Vergangenheit liegen."

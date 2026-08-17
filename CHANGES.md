@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+2026-08-17 (Version 4.45.0)
+==========================
+
+* **rental: Safer room scheduling and period changes**
+  * Past room slots are visually distinct and cannot be selected, while occupied calendar blocks link directly to the rental detail.
+  * Period edits validate working hours plus room and inventory conflicts before atomically synchronizing the rental and its room reservations.
+
+* **austausch: Recover imports after remote metadata outages**
+  * API-backed channels fall back to synchronized ``meta.json`` metadata when the remote endpoint is temporarily unavailable.
+  * Failed feed and admin imports can be retried, and a later completed attempt automatically resolves the earlier notification.
+
+* **notifications: Report missing covers only for premieres**
+  * Licenses with an existing contribution are treated as repeats and no longer create missing-cover action items.
+
 2026-08-13 (Version 4.44.2)
 ==========================
 
