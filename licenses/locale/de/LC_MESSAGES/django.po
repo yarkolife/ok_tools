@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-06 20:50+0200\n"
+"POT-Creation-Date: 2026-08-18 16:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Deutsch <LL@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: licenses/admin.py:39 licenses/admin.py:279 licenses/forms.py:260
+#: licenses/admin.py:40 licenses/admin.py:280 licenses/forms.py:260
 #: licenses/templates/admin/filter_datetime_range.html:18
 #: licenses/templates/admin/licenses/rescan_mediathek.html:153
 msgid "Date from"
 msgstr "Datum von"
 
-#: licenses/admin.py:44 licenses/admin.py:289 licenses/forms.py:265
+#: licenses/admin.py:45 licenses/admin.py:290 licenses/forms.py:265
 #: licenses/templates/admin/filter_datetime_range.html:36
 #: licenses/templates/admin/licenses/rescan_mediathek.html:157
 msgid "Date to"
 msgstr "Datum bis"
 
-#: licenses/admin.py:49 licenses/forms.py:270
+#: licenses/admin.py:50 licenses/forms.py:270
 msgid "Only licenses stored in OK media library"
 msgstr "Nur Freistellungen, die in der OK-Mediathek gespeichert sind"
 
-#: licenses/admin.py:52 licenses/forms.py:273
+#: licenses/admin.py:53 licenses/forms.py:273
 msgid ""
 "If enabled, include only licenses with “Store in OK media library” set to "
 "Yes."
@@ -41,69 +41,69 @@ msgstr ""
 "Wenn aktiviert, werden nur Freistellungen mit „In OK-Mediathek speichern“ = "
 "Ja eingeschlossen."
 
-#: licenses/admin.py:63 licenses/forms.py:284
+#: licenses/admin.py:64 licenses/forms.py:284
 msgid "Date from must be earlier than or equal to Date to."
 msgstr "Datum von muss früher oder gleich Datum bis sein."
 
-#: licenses/admin.py:257 licenses/admin.py:386 licenses/admin.py:1410
-#: licenses/models.py:233 licenses/models.py:648 licenses/models.py:756
+#: licenses/admin.py:258 licenses/admin.py:387 licenses/admin.py:1281
+#: licenses/models.py:233 licenses/models.py:677 licenses/models.py:785
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: licenses/admin.py:281 licenses/admin.py:286 licenses/forms.py:238
+#: licenses/admin.py:282 licenses/admin.py:287 licenses/forms.py:238
 msgid "From"
 msgstr "Von"
 
-#: licenses/admin.py:284 licenses/templates/admin/filter_datetime_range.html:27
+#: licenses/admin.py:285 licenses/templates/admin/filter_datetime_range.html:27
 msgid "Time from"
 msgstr "Uhrzeit von"
 
-#: licenses/admin.py:291 licenses/admin.py:296 licenses/forms.py:242
+#: licenses/admin.py:292 licenses/admin.py:297 licenses/forms.py:242
 msgid "To"
 msgstr "Bis"
 
-#: licenses/admin.py:294 licenses/templates/admin/filter_datetime_range.html:45
+#: licenses/admin.py:295 licenses/templates/admin/filter_datetime_range.html:45
 msgid "Time to"
 msgstr "Uhrzeit bis"
 
-#: licenses/admin.py:365 licenses/models.py:240
+#: licenses/admin.py:366 licenses/models.py:240
 msgid "Number"
 msgstr "Nummer"
 
-#: licenses/admin.py:366 licenses/models.py:84
+#: licenses/admin.py:367 licenses/models.py:84
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:27
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:42
 #: licenses/templates/licenses/list.html:71
 msgid "Title"
 msgstr "Titel"
 
-#: licenses/admin.py:367 licenses/models.py:91
+#: licenses/admin.py:368 licenses/models.py:91
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: licenses/admin.py:368 licenses/models.py:98
+#: licenses/admin.py:369 licenses/models.py:98
 msgid "Description"
 msgstr "Beschreibung"
 
-#: licenses/admin.py:369 licenses/admin.py:1393 licenses/admin.py:2575
+#: licenses/admin.py:370 licenses/admin.py:1264 licenses/admin.py:2453
 #: licenses/models.py:250
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:31
 msgid "Profile"
 msgstr "Profil"
 
-#: licenses/admin.py:370
+#: licenses/admin.py:371
 msgid "Profile ID"
 msgstr "Profil-ID"
 
-#: licenses/admin.py:371 licenses/models.py:104
+#: licenses/admin.py:372 licenses/models.py:104
 msgid "Further involved persons"
 msgstr "Weitere beteiligte Personen"
 
-#: licenses/admin.py:372 licenses/models.py:109
+#: licenses/admin.py:373 licenses/models.py:109
 msgid "Duration"
 msgstr "Dauer"
 
-#: licenses/admin.py:373 licenses/admin.py:1399 licenses/models.py:49
+#: licenses/admin.py:374 licenses/admin.py:1270 licenses/models.py:49
 #: licenses/models.py:71 licenses/models.py:259
 #: licenses/templates/licenses/details.html:41
 #: licenses/templates/licenses/list.html:36
@@ -111,94 +111,94 @@ msgstr "Dauer"
 msgid "Category"
 msgstr "Kategorie"
 
-#: licenses/admin.py:374 licenses/models.py:117
+#: licenses/admin.py:375 licenses/models.py:117
 msgid "Suggested broadcast date"
 msgstr "Vorgeschlagenes Sendedatum"
 
-#: licenses/admin.py:375
+#: licenses/admin.py:376
 msgid "Suggested broadcast time"
 msgstr "Vorgeschlagene Sendezeit"
 
-#: licenses/admin.py:376 licenses/models.py:123
+#: licenses/admin.py:377 licenses/models.py:123
 msgid "Repetitions allowed"
 msgstr "Wiederholungen erlaubt"
 
-#: licenses/admin.py:379
+#: licenses/admin.py:380
 msgid "Media Authority exchange allowed"
 msgstr "Austausch zwischen OK/Bürgermedien erlaubt"
 
-#: licenses/admin.py:382 licenses/models.py:141
+#: licenses/admin.py:383 licenses/models.py:141
 msgid "Youth protection necessary"
 msgstr "Jugendschutz notwendig"
 
-#: licenses/admin.py:384 licenses/models.py:156
+#: licenses/admin.py:385 licenses/models.py:156
 msgid "Store in OK media library"
 msgstr "In OK-Mediathek speichern"
 
-#: licenses/admin.py:385 licenses/models.py:286
+#: licenses/admin.py:386 licenses/models.py:286
 msgid "Screen Board"
 msgstr "Bildschirm-Board"
 
-#: licenses/admin.py:435
+#: licenses/admin.py:436
 msgid "Creation year"
 msgstr "Erstellungsjahr"
 
-#: licenses/admin.py:442
+#: licenses/admin.py:443
 msgid "This year"
 msgstr "Dieses Jahr"
 
-#: licenses/admin.py:443
+#: licenses/admin.py:444
 msgid "Last year"
 msgstr "Letztes Jahr"
 
-#: licenses/admin.py:458 licenses/admin.py:490
+#: licenses/admin.py:459 licenses/admin.py:491
 #, python-format
 msgid "Invalid value %(value)s."
 msgstr "Ungültiger Wert %(value)s."
 
-#: licenses/admin.py:466
+#: licenses/admin.py:467
 msgid "without contributions"
 msgstr "ohne Beiträge"
 
-#: licenses/admin.py:472 licenses/admin.py:504 licenses/admin.py:526
-#: licenses/admin.py:1096 licenses/forms.py:24
+#: licenses/admin.py:473 licenses/admin.py:505 licenses/admin.py:527
+#: licenses/admin.py:1097 licenses/forms.py:24
 #: licenses/templates/licenses/details.html:63
 msgid "Yes"
 msgstr "Ja"
 
-#: licenses/admin.py:473 licenses/admin.py:505 licenses/admin.py:527
-#: licenses/admin.py:1101 licenses/forms.py:25
+#: licenses/admin.py:474 licenses/admin.py:506 licenses/admin.py:528
+#: licenses/admin.py:1102 licenses/forms.py:25
 #: licenses/templates/licenses/details.html:65
 msgid "No"
 msgstr "Nein"
 
-#: licenses/admin.py:498
+#: licenses/admin.py:499
 msgid "Global Producer"
 msgstr "Globaler Produzent"
 
-#: licenses/admin.py:520
+#: licenses/admin.py:521
 #, fuzzy
 #| msgid "Mediathek URL"
 msgid "Has Mediathek URL"
 msgstr "Mediathek-URL"
 
-#: licenses/admin.py:542
+#: licenses/admin.py:543
 msgid "Has video"
 msgstr "Hat Video"
 
-#: licenses/admin.py:548 licenses/admin.py:889 licenses/admin.py:1048
+#: licenses/admin.py:549 licenses/admin.py:890 licenses/admin.py:1049
 msgid "Available"
 msgstr "Verfügbar"
 
-#: licenses/admin.py:549 licenses/admin.py:889 licenses/admin.py:1061
+#: licenses/admin.py:550 licenses/admin.py:890 licenses/admin.py:1062
 msgid "Not available"
 msgstr "Nicht verfügbar"
 
-#: licenses/admin.py:550 licenses/admin.py:1081
+#: licenses/admin.py:551 licenses/admin.py:1082
 msgid "No video"
 msgstr "Kein Video"
 
-#: licenses/admin.py:608
+#: licenses/admin.py:609
 msgid ""
 "The corresponding profile is not verified. The License can not be confirmed "
 "until the profile is verified."
@@ -206,17 +206,17 @@ msgstr ""
 "Das zugehörige Profil ist nicht verifiziert. Die Freistellung kann erst "
 "genehmigt werden, nachdem das Profil verifiziert wurde."
 
-#: licenses/admin.py:649
+#: licenses/admin.py:650
 #, python-format
 msgid "Maximum 4 tags allowed. You provided %(count)d tags."
 msgstr ""
 "Maximal 4 Schlagwörter erlaubt. Sie haben %(count)d Schlagwörter angegeben."
 
-#: licenses/admin.py:656
+#: licenses/admin.py:657
 msgid "Empty tags are not allowed."
 msgstr "Leere Schlagwörter sind nicht erlaubt."
 
-#: licenses/admin.py:666
+#: licenses/admin.py:667
 msgid ""
 "Enter tags separated by commas. Maximum 4 tags allowed. Example: "
 "documentary, local, culture, news"
@@ -224,152 +224,158 @@ msgstr ""
 "Geben Sie Schlagwörter durch Kommas getrennt ein. Maximal 4 Schlagwörter "
 "erlaubt. Beispiel: Dokumentation, lokal, Kultur, Nachrichten"
 
-#: licenses/admin.py:786
+#: licenses/admin.py:787
 msgid "title, subtitle, number, description, further persons"
 msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen"
 
-#: licenses/admin.py:789 licenses/templates/licenses/create.html:31
+#: licenses/admin.py:790 licenses/templates/licenses/create.html:31
 #: licenses/templates/licenses/update.html:37
 msgid "Basic Information"
 msgstr "Grundinformationen"
 
-#: licenses/admin.py:792
+#: licenses/admin.py:793
 msgid "Content Details"
 msgstr "Beitragsdetails"
 
-#: licenses/admin.py:795
+#: licenses/admin.py:796
 msgid "Broadcasting Permissions"
 msgstr "Sendeberechtigungen"
 
-#: licenses/admin.py:803
+#: licenses/admin.py:804
 msgid "Youth Protection"
 msgstr "Jugendschutz"
 
-#: licenses/admin.py:806
+#: licenses/admin.py:807
 msgid "Media Library & Special Formats"
 msgstr "Mediathek & Spezialformate"
 
-#: licenses/admin.py:809
+#: licenses/admin.py:810
 msgid "Status & Metadata"
 msgstr "Status & Metadaten"
 
-#: licenses/admin.py:824
+#: licenses/admin.py:825
 msgid "Number is auto-generated but can be manually changed if needed."
 msgstr ""
 "Die Nummer wird automatisch generiert, kann aber bei Bedarf manuell geändert "
 "werden."
 
-#: licenses/admin.py:908
+#: licenses/admin.py:909
 msgid "Duration mismatch"
 msgstr "Abweichende Dauer"
 
-#: licenses/admin.py:909 licenses/models.py:419 licenses/models.py:430
-#: licenses/models.py:687 licenses/templates/licenses/list.html:262
+#: licenses/admin.py:910 licenses/models.py:419 licenses/models.py:430
+#: licenses/models.py:716 licenses/templates/licenses/list.html:300
 msgid "License"
 msgstr "Freistellung"
 
-#: licenses/admin.py:911
+#: licenses/admin.py:912
 msgid "Sync from Video"
 msgstr "Von Video übernehmen"
 
-#: licenses/admin.py:923
+#: licenses/admin.py:924
 msgid "Render Video with Overlays"
 msgstr "Video mit Overlays rendern"
 
-#: licenses/admin.py:934
+#: licenses/admin.py:935
 msgid "Reel erstellen"
 msgstr ""
 
-#: licenses/admin.py:960
+#: licenses/admin.py:961
 msgid "No video file found"
 msgstr "Keine Videodatei gefunden"
 
-#: licenses/admin.py:962
+#: licenses/admin.py:963
 msgid "Search for Video"
 msgstr "Video suchen"
 
-#: licenses/admin.py:967 licenses/templates/licenses/create.html:490
+#: licenses/admin.py:968 licenses/templates/licenses/create.html:492
+#: licenses/templates/licenses/create.html:1456
 #: licenses/templates/licenses/list.html:227
+#: licenses/templates/licenses/list.html:263
 msgid "Video File"
 msgstr "Videodatei"
 
-#: licenses/admin.py:987 licenses/admin.py:999
+#: licenses/admin.py:988 licenses/admin.py:1000
 msgid "Refresh URL"
 msgstr "URL aktualisieren"
 
-#: licenses/admin.py:989
+#: licenses/admin.py:990
 msgid "Clear URL"
 msgstr "URL löschen"
 
-#: licenses/admin.py:997
+#: licenses/admin.py:998
 #, fuzzy
 #| msgid "Mediathek URL"
 msgid "No mediathek URL set"
 msgstr "Mediathek-URL"
 
-#: licenses/admin.py:1002 licenses/models.py:162
+#: licenses/admin.py:1003 licenses/models.py:162
 msgid "Mediathek URL"
 msgstr "Mediathek-URL"
 
-#: licenses/admin.py:1056
+#: licenses/admin.py:1057
 msgid "Player"
 msgstr "Player"
 
-#: licenses/admin.py:1076
+#: licenses/admin.py:1077
+msgid "Nextcloud Photo"
+msgstr "Nextcloud-Foto"
+
+#: licenses/admin.py:1077
 msgid "Nextcloud Video"
 msgstr "Nextcloud-Video"
 
-#: licenses/admin.py:1086
+#: licenses/admin.py:1087
 msgid "Video"
 msgstr "Video"
 
-#: licenses/admin.py:1104 licenses/models.py:188
+#: licenses/admin.py:1105 licenses/models.py:188
 #: licenses/templates/admin/licenses_change_form_edit.html:309
-#: licenses/templates/licenses/create.html:392
+#: licenses/templates/licenses/create.html:394
 #: licenses/templates/licenses/update.html:381
 msgid "Signature"
 msgstr "Unterschrift"
 
-#: licenses/admin.py:1115
+#: licenses/admin.py:1116
 msgid "Digital signature is present"
 msgstr "Digitale Signatur ist vorhanden"
 
-#: licenses/admin.py:1120
+#: licenses/admin.py:1121
 msgid "No digital signature"
 msgstr "Keine digitale Signatur"
 
-#: licenses/admin.py:1123 licenses/templates/licenses/sign_session.html:14
+#: licenses/admin.py:1124 licenses/templates/licenses/sign_session.html:14
 msgid "Digital Signature"
 msgstr "Digitale Signatur"
 
-#: licenses/admin.py:1381
+#: licenses/admin.py:1252
 msgid "Reel im Reel-Studio erstellen"
 msgstr ""
 
-#: licenses/admin.py:1387
+#: licenses/admin.py:1258
 msgid "Bitte genau eine Lizenz auswählen, um ein Reel zu erstellen."
 msgstr ""
 
-#: licenses/admin.py:1398
+#: licenses/admin.py:1269
 msgid "Media Authority"
 msgstr "Offener Kanal/Bürgermedium"
 
-#: licenses/admin.py:1412
+#: licenses/admin.py:1283
 msgid "Confirm selected Licenses"
 msgstr "Ausgewählte Freistellungen genehmigen"
 
-#: licenses/admin.py:1417
+#: licenses/admin.py:1288
 #, python-format
 msgid "%d License was successfully confirmed."
 msgid_plural "%d Licenses were successfully confirmed."
 msgstr[0] "%d Freistellung wurde erfolgreich genehmigt."
 msgstr[1] "%d Freistellungen wurden erfolgreich genehmigt."
 
-#: licenses/admin.py:1422
+#: licenses/admin.py:1293
 msgid "Unconfirm selected Licenses"
 msgstr "Genehmigung der ausgewählten Freistellungen zurückziehen"
 
-#: licenses/admin.py:1427
+#: licenses/admin.py:1298
 #, python-format
 msgid "%d License was successfully unconfirmed."
 msgid_plural "%d Licenses were successfully unconfirmed."
@@ -377,33 +383,33 @@ msgstr[0] "Genehmigung für %d Freistellung wurde erfolgreich zurückgezogen."
 msgstr[1] ""
 "Genehmigungen für %d Freistellungen wurden erfolgreich zurückgezogen."
 
-#: licenses/admin.py:1432
+#: licenses/admin.py:1303
 msgid "Cover-Bild erzeugen / neu erzeugen"
 msgstr ""
 
-#: licenses/admin.py:1442
+#: licenses/admin.py:1313
 msgid ""
 "Kein Cover-Ausgabeverzeichnis konfiguriert. Bitte in der Mediendateien-"
 "Konfiguration einen Cover-Speicherort wählen oder den austausch-Thumbnail-"
 "Pfad setzen."
 msgstr ""
 
-#: licenses/admin.py:1465
+#: licenses/admin.py:1336
 #, python-format
 msgid ""
 "Cover: %(generated)d erzeugt, %(skipped)d übersprungen, %(failed)d "
 "fehlgeschlagen."
 msgstr ""
 
-#: licenses/admin.py:1470
+#: licenses/admin.py:1341
 msgid "Create a copy of selected licenses"
 msgstr "Kopie der ausgewählten Freistellungen erstellen"
 
-#: licenses/admin.py:1481
+#: licenses/admin.py:1352
 msgid "License copies created successfully."
 msgstr "Kopien der Freistellungen wurden erfolgreich erstellt."
 
-#: licenses/admin.py:1498
+#: licenses/admin.py:1369
 #, python-format
 msgid ""
 "The corresponding profile of %(obj)s is not verified. The License can not be "
@@ -412,214 +418,214 @@ msgstr ""
 "Das zugehörige Profil von %(obj)s ist nicht verifiziert. Die Freistellung "
 "kann erst genehmigt werden, nachdem das Profil verifiziert wurde."
 
-#: licenses/admin.py:1567
+#: licenses/admin.py:1438
 msgid "Signature deleted."
 msgstr "Signatur gelöscht."
 
-#: licenses/admin.py:1593
+#: licenses/admin.py:1464
 msgid "Duration synced from video: {} → {}"
 msgstr "Dauer vom Video übernommen: {} → {}"
 
-#: licenses/admin.py:1599
+#: licenses/admin.py:1470
 msgid "No video file found for this license."
 msgstr "Für diese Freistellung wurde keine Videodatei gefunden."
 
-#: licenses/admin.py:1605
+#: licenses/admin.py:1476
 msgid "Video file has no duration information."
 msgstr "Die Videodatei enthält keine Dauerinformation."
 
-#: licenses/admin.py:1717
+#: licenses/admin.py:1588
 msgid "Cover-Varianten erzeugen & auswählen…"
 msgstr ""
 
-#: licenses/admin.py:1726
+#: licenses/admin.py:1597
 msgid "Bitte genau eine Lizenz auswählen."
 msgstr ""
 
-#: licenses/admin.py:1737
+#: licenses/admin.py:1608
 msgid ""
 "Kein zugängliches Video gefunden oder es konnte kein Standbild erzeugt "
 "werden. Es wurden keine Varianten erzeugt."
 msgstr ""
 
-#: licenses/admin.py:1760
+#: licenses/admin.py:1631
 msgid "Cover-Generierung ist deaktiviert."
 msgstr ""
 
-#: licenses/admin.py:1766
+#: licenses/admin.py:1637
 msgid "Kein Cover-Ausgabeverzeichnis konfiguriert."
 msgstr ""
 
-#: licenses/admin.py:1782
+#: licenses/admin.py:1653
 msgid "Variante nicht gefunden."
 msgstr ""
 
-#: licenses/admin.py:1788
+#: licenses/admin.py:1659
 #, python-format
 msgid "Variante %(v)d als Cover für %(n)s übernommen."
 msgstr ""
 
-#: licenses/admin.py:1839
+#: licenses/admin.py:1710
 #, python-format
 msgid "Cover-Variante auswählen — %(n)s"
 msgstr ""
 
-#: licenses/admin.py:1870
+#: licenses/admin.py:1741
 #, python-format
 msgid "Zeitpunkt %(s)d s übernommen — Varianten neu erzeugt."
 msgstr ""
 
-#: licenses/admin.py:1875
+#: licenses/admin.py:1746
 msgid "Frame zu diesem Zeitpunkt konnte nicht erzeugt werden."
 msgstr ""
 
-#: licenses/admin.py:1893
+#: licenses/admin.py:1764
 msgid "Varianten erzeugt."
 msgstr ""
 
-#: licenses/admin.py:1897
+#: licenses/admin.py:1768
 msgid ""
 "Kein zugängliches Video gefunden oder es konnte kein Standbild erzeugt "
 "werden."
 msgstr ""
 
-#: licenses/admin.py:1920
+#: licenses/admin.py:1791
 #, python-format
 msgid "Frame %(f)d übernommen — Varianten neu erzeugt."
 msgstr ""
 
-#: licenses/admin.py:1923
+#: licenses/admin.py:1794
 msgid "Frame nicht gefunden."
 msgstr ""
 
-#: licenses/admin.py:1939
+#: licenses/admin.py:1810
 #, python-format
 msgid "Mediathek URL refresh queued for license #%(number)s."
 msgstr "Mediathek-URL-Aktualisierung für Freistellung #%(number)s eingereiht."
 
-#: licenses/admin.py:1956
+#: licenses/admin.py:1827
 #, python-format
 msgid "Mediathek URL cleared for license #%(number)s."
 msgstr "Mediathek-URL für Freistellung #%(number)s gelöscht."
 
-#: licenses/admin.py:1987
+#: licenses/admin.py:1858
 msgid "Mediathek rescan has been queued in the background."
 msgstr ""
 
-#: licenses/admin.py:2003
+#: licenses/admin.py:1874
 #: licenses/templates/admin/licenses/license/change_list.html:8
 #: licenses/templates/admin/licenses/rescan_mediathek.html:9
 #: licenses/templates/admin/licenses/rescan_mediathek.html:143
 msgid "Rescan mediathek links"
 msgstr "Mediathek-Links neu scannen"
 
-#: licenses/admin.py:2022
+#: licenses/admin.py:1893
 msgid "Scanning storages for video"
 msgstr "Speicherorte werden nach Video durchsucht"
 
-#: licenses/admin.py:2053
+#: licenses/admin.py:1924
 msgid "Video found and linked to license"
 msgstr "Video gefunden und mit der Freistellung verknüpft"
 
-#: licenses/admin.py:2058
+#: licenses/admin.py:1929
 msgid "Video with number"
 msgstr "Video mit Nummer"
 
-#: licenses/admin.py:2058
+#: licenses/admin.py:1929
 msgid "not found in storages"
 msgstr "in den Speicherorten nicht gefunden"
 
-#: licenses/admin.py:2059
+#: licenses/admin.py:1930
 msgid "Make sure the file exists and starts with the number"
 msgstr ""
 "Stellen Sie sicher, dass die Datei existiert und mit der Nummer beginnt"
 
-#: licenses/admin.py:2065
+#: licenses/admin.py:1936
 msgid "Error linking video"
 msgstr "Fehler beim Verknüpfen des Videos"
 
-#: licenses/admin.py:2068
+#: licenses/admin.py:1939
 msgid "Search completed. Check the results"
 msgstr "Suche abgeschlossen. Überprüfen Sie die Ergebnisse"
 
-#: licenses/admin.py:2071
+#: licenses/admin.py:1942
 #, python-format
 msgid "License #%(id)s not found"
 msgstr "Freistellung #%(id)s nicht gefunden"
 
-#: licenses/admin.py:2073
+#: licenses/admin.py:1944
 #, python-format
 msgid "Error searching for video: %(error)s"
 msgstr "Fehler bei der Videosuche: %(error)s"
 
-#: licenses/admin.py:2078
+#: licenses/admin.py:1949
 msgid "Search for videos in storage"
 msgstr "Suche nach Videos im Speicher"
 
-#: licenses/admin.py:2108
+#: licenses/admin.py:1979
 msgid "Videos found and linked for"
 msgstr "Videos gefunden und verknüpft für"
 
-#: licenses/admin.py:2108 licenses/admin.py:2114
+#: licenses/admin.py:1979 licenses/admin.py:1985
 msgid "licenses"
 msgstr "Freistellungen"
 
-#: licenses/admin.py:2108 licenses/admin.py:2114
+#: licenses/admin.py:1979 licenses/admin.py:1985
 msgid "license"
 msgstr "Freistellung"
 
-#: licenses/admin.py:2114
+#: licenses/admin.py:1985
 msgid "No videos found for"
 msgstr "Keine Videos gefunden für"
 
-#: licenses/admin.py:2120
+#: licenses/admin.py:1991
 msgid "Search errors"
 msgstr "Suchfehler"
 
-#: licenses/admin.py:2124
+#: licenses/admin.py:1995
 #, fuzzy
 #| msgid "Create a copy of selected licenses"
 msgid "Clear mediathek URL for selected licenses"
 msgstr "Kopie der ausgewählten Freistellungen erstellen"
 
-#: licenses/admin.py:2137
+#: licenses/admin.py:2008
 #, python-format
 msgid "%d license mediathek URL was cleared."
 msgid_plural "%d license mediathek URLs were cleared."
 msgstr[0] ""
 msgstr[1] ""
 
-#: licenses/admin.py:2144
+#: licenses/admin.py:2015
 #, fuzzy
 #| msgid "Create a copy of selected licenses"
 msgid "Refresh mediathek URL for selected licenses"
 msgstr "Kopie der ausgewählten Freistellungen erstellen"
 
-#: licenses/admin.py:2161
+#: licenses/admin.py:2032
 #, python-format
 msgid "%d mediathek refresh task was queued."
 msgid_plural "%d mediathek refresh tasks were queued."
 msgstr[0] ""
 msgstr[1] ""
 
-#: licenses/admin.py:2180
+#: licenses/admin.py:2051
 msgid "Session expired. Please try importing again."
 msgstr "Sitzung abgelaufen. Bitte versuchen Sie den Import erneut."
 
-#: licenses/admin.py:2224 licenses/admin.py:2444
+#: licenses/admin.py:2095 licenses/admin.py:2315
 #, python-format
 msgid "License \"%(title)s\" successfully imported."
 msgstr "Freistellung \"%(title)s\" erfolgreich importiert."
 
-#: licenses/admin.py:2239
+#: licenses/admin.py:2110
 msgid "Error creating license: {}"
 msgstr "Fehler beim Erstellen der Freistellung: {}"
 
-#: licenses/admin.py:2252
+#: licenses/admin.py:2123
 msgid "Import cancelled."
 msgstr "Import abgebrochen."
 
-#: licenses/admin.py:2299
+#: licenses/admin.py:2170
 #, python-format
 msgid ""
 "Profile not found for senderResponsible: %(name)s. Created new profile "
@@ -628,7 +634,7 @@ msgstr ""
 "Profil für senderResponsible: %(name)s nicht gefunden. Neues Profil wurde "
 "automatisch erstellt."
 
-#: licenses/admin.py:2308
+#: licenses/admin.py:2179
 #, python-format
 msgid ""
 "No profile found for senderResponsible: %(name)s. targetChannel is required "
@@ -637,7 +643,7 @@ msgstr ""
 "Kein Profil für senderResponsible: %(name)s gefunden. targetChannel ist "
 "erforderlich, um ein neues Profil zu erstellen."
 
-#: licenses/admin.py:2322
+#: licenses/admin.py:2193
 #, python-format
 msgid ""
 "No profile found for targetChannel: %(channel)s. Please create a profile "
@@ -646,75 +652,83 @@ msgstr ""
 "Kein Profil für targetChannel: %(channel)s gefunden. Bitte erstellen Sie das "
 "Profil manuell im Adminbereich."
 
-#: licenses/admin.py:2336
+#: licenses/admin.py:2207
 msgid "Either senderResponsible or targetChannel is required in JSON file."
 msgstr ""
 "Im JSON-Dokument ist entweder senderResponsible oder targetChannel "
 "erforderlich."
 
-#: licenses/admin.py:2363 licenses/admin.py:2370
+#: licenses/admin.py:2234 licenses/admin.py:2241
 msgid "Gastbeitrag"
 msgstr "Gastbeitrag"
 
-#: licenses/admin.py:2460
+#: licenses/admin.py:2331
 msgid "Invalid JSON file: {}"
 msgstr "Ungültige JSON-Datei: {}"
 
-#: licenses/admin.py:2468
+#: licenses/admin.py:2339
 msgid "Error importing license: {}"
 msgstr "Fehler beim Importieren der Freistellung: {}"
 
-#: licenses/admin.py:2529
+#: licenses/admin.py:2404
 msgid "File Information"
 msgstr "Dateiinformationen"
 
-#: licenses/admin.py:2532 licenses/models.py:707
+#: licenses/admin.py:2407 licenses/models.py:736
 #: licenses/templates/licenses/list.html:28
 #: licenses/templates/licenses/list.html:73
 msgid "Status"
 msgstr "Status"
 
-#: licenses/admin.py:2559
+#: licenses/admin.py:2410
+msgid "Local Storage"
+msgstr "Lokaler Speicher"
+
+#: licenses/admin.py:2437
 msgid "License Number"
 msgstr "Freistellungsnummer"
 
-#: licenses/admin.py:2583 licenses/admin.py:2584
-#: licenses/templates/licenses/update.html:439
+#: licenses/admin.py:2461
+msgid "Download again"
+msgstr "Erneut herunterladen"
+
+#: licenses/admin.py:2461 licenses/admin.py:2463
+#: licenses/templates/licenses/update.html:450
 msgid "Download"
 msgstr "Herunterladen"
 
-#: licenses/admin.py:2595
+#: licenses/admin.py:2474
 msgid "Cannot download: file is marked deleted."
 msgstr "Download nicht möglich: Datei ist als gelöscht markiert."
 
-#: licenses/admin.py:2602
+#: licenses/admin.py:2481
 #, python-format
 msgid "Download queued for \"%(filename)s\"."
 msgstr "Download für \"%(filename)s\" in Warteschlange."
 
-#: licenses/admin.py:2630
+#: licenses/admin.py:2509
 #, python-format
 msgid "Queued download for %(count)d file."
 msgid_plural "Queued download for %(count)d files."
 msgstr[0] "Download für %(count)d Datei in Warteschlange."
 msgstr[1] "Download für %(count)d Dateien in Warteschlange."
 
-#: licenses/admin.py:2636
+#: licenses/admin.py:2515
 #, python-format
 msgid "Skipped %(count)d deleted file."
 msgid_plural "Skipped %(count)d deleted files."
 msgstr[0] "%(count)d gelöschte Datei übersprungen."
 msgstr[1] "%(count)d gelöschte Dateien übersprungen."
 
-#: licenses/admin.py:2639
+#: licenses/admin.py:2518
 msgid "Download selected to storage"
 msgstr "Ausgewählte in den Speicher herunterladen"
 
-#: licenses/admin.py:2657 licenses/models.py:528
+#: licenses/admin.py:2536 licenses/models.py:557
 msgid "Send notifications to (Media Authorities)"
 msgstr "Benachrichtigungen an (Medienanstalten)"
 
-#: licenses/admin.py:2659
+#: licenses/admin.py:2538
 msgid ""
 "Send status emails only to users whose profile belongs to one of these Media "
 "Authorities (Offene Kanäle/Bürgermedien). Empty = send to all."
@@ -722,19 +736,19 @@ msgstr ""
 "Status-E-Mails nur an Nutzer senden, deren Profil zu einer dieser "
 "Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle."
 
-#: licenses/admin.py:2702
+#: licenses/admin.py:2581
 msgid "Email Notifications"
 msgstr "E-Mail-Benachrichtigungen"
 
-#: licenses/admin.py:2705
+#: licenses/admin.py:2584
 msgid "Storage Settings"
 msgstr "Speicher-Einstellungen"
 
-#: licenses/admin.py:2708
+#: licenses/admin.py:2591
 msgid "Screen Board Settings"
 msgstr "Bildschirmtafel-Einstellungen"
 
-#: licenses/admin.py:2711
+#: licenses/admin.py:2594
 msgid "Freistellung Print Form"
 msgstr ""
 
@@ -772,7 +786,7 @@ msgstr "Ungültiges Format. Bitte verwenden Sie das Format hh:mm:ss oder mm:ss."
 msgid "The duration field is required."
 msgstr "Das Dauerfeld ist erforderlich."
 
-#: licenses/forms.py:198 licenses/templates/licenses/update.html:499
+#: licenses/forms.py:198 licenses/templates/licenses/update.html:518
 msgid "Save"
 msgstr "Speichern"
 
@@ -784,7 +798,7 @@ msgstr "JSON-Datei"
 msgid "Upload a JSON file with license data"
 msgstr "JSON-Datei mit Freistellungsdaten hochladen"
 
-#: licenses/generate_file.py:562
+#: licenses/generate_file.py:564
 msgid "license.pdf"
 msgstr "freistellung.pdf"
 
@@ -851,6 +865,11 @@ msgid "Delete old signing sessions and expire stale pending sessions."
 msgstr ""
 "Alte Signatursitzungen löschen und veraltete ausstehende Sitzungen als "
 "abgelaufen markieren."
+
+#: licenses/media_types.py:53
+#, python-format
+msgid "Invalid file format. Supported formats: %(formats)s."
+msgstr "Ungültiges Dateiformat. Unterstützte Formate: %(formats)s."
 
 #: licenses/models.py:24
 msgid "not necessary"
@@ -931,7 +950,7 @@ msgstr "Maximal 4 Tags"
 msgid "Base64 encoded signature image"
 msgstr "Base64-kodiertes Unterschriftsbild"
 
-#: licenses/models.py:195 licenses/models.py:718
+#: licenses/models.py:195 licenses/models.py:747
 #, fuzzy
 #| msgid "Signature"
 msgid "Signature SVG"
@@ -941,7 +960,7 @@ msgstr "Unterschrift"
 msgid "Primary SVG signature data"
 msgstr ""
 
-#: licenses/models.py:202 licenses/models.py:723
+#: licenses/models.py:202 licenses/models.py:752
 #, fuzzy
 #| msgid "Signature"
 msgid "Signature points"
@@ -951,7 +970,7 @@ msgstr "Unterschrift"
 msgid "Biometric signature stroke points (x,y,time,pressure)."
 msgstr ""
 
-#: licenses/models.py:210 licenses/models.py:729
+#: licenses/models.py:210 licenses/models.py:758
 #, fuzzy
 #| msgid "Signature Method"
 msgid "Signature metadata"
@@ -961,7 +980,7 @@ msgstr "Unterschriftsmethode"
 msgid "Signature metadata such as device, user-agent, and capture details."
 msgstr ""
 
-#: licenses/models.py:218 licenses/models.py:735
+#: licenses/models.py:218 licenses/models.py:764
 #, fuzzy
 #| msgid "Signature Method"
 msgid "Signature method"
@@ -985,7 +1004,7 @@ msgstr "Digitale Signatur ist vorhanden"
 
 #: licenses/models.py:263 licenses/templates/licenses/list.html:31
 #: licenses/templates/licenses/list.html:100
-#: licenses/templates/licenses/list.html:671
+#: licenses/templates/licenses/list.html:709
 msgid "Confirmed"
 msgstr "Genehmigt"
 
@@ -1080,35 +1099,62 @@ msgstr "Gelöscht am"
 msgid "When file was deleted from Nextcloud"
 msgstr "Wann die Datei aus Nextcloud gelöscht wurde"
 
-#: licenses/models.py:485
+#: licenses/models.py:480
+msgid "Downloaded at"
+msgstr "Heruntergeladen am"
+
+#: licenses/models.py:481
+msgid "When the file was downloaded from Nextcloud to local storage"
+msgstr "Wann die Datei von Nextcloud in den lokalen Speicher heruntergeladen wurde"
+
+#: licenses/models.py:487
+msgid "Local path"
+msgstr "Lokaler Pfad"
+
+#: licenses/models.py:488
+msgid "Path of the downloaded copy in local storage"
+msgstr "Pfad der heruntergeladenen Kopie im lokalen Speicher"
+
+#: licenses/models.py:504
 msgid "Nextcloud Video File"
 msgstr "Nextcloud-Videodatei"
 
-#: licenses/models.py:486
+#: licenses/models.py:505
 msgid "Nextcloud Video Files"
 msgstr "Nextcloud-Videodateien"
 
-#: licenses/models.py:496
+#: licenses/models.py:515
 msgid "Screen Board Duration (seconds)"
 msgstr "Bildschirm-Board-Dauer (Sekunden)"
 
-#: licenses/models.py:497
+#: licenses/models.py:516
 msgid "Fixed duration for screen board display in seconds"
 msgstr "Feste Dauer für die Anzeige auf dem Bildschirm-Board in Sekunden"
 
-#: licenses/models.py:504
+#: licenses/models.py:523
 msgid "Download Storage Path"
 msgstr "Download-Speicherpfad"
 
-#: licenses/models.py:505
+#: licenses/models.py:524
 msgid "Local path for downloaded files"
 msgstr "Lokaler Pfad für heruntergeladene Dateien"
 
-#: licenses/models.py:510
+#: licenses/models.py:529
+msgid "Download Nextcloud files automatically"
+msgstr "Nextcloud-Dateien automatisch herunterladen"
+
+#: licenses/models.py:531
+msgid ""
+"Download a file to local storage as soon as it was uploaded to Nextcloud, "
+"without pressing \"Download\" in the admin. Requires a configured download "
+"storage path and a running Celery worker on the \"download\" queue."
+msgstr "Lädt eine Datei automatisch in den lokalen Speicher, sobald sie nach Nextcloud hochgeladen wurde – ohne im Admin auf „Herunterladen“ zu klicken. Erfordert einen konfigurierten Speicherpfad und einen laufenden Celery-Worker für die Warteschlange „download“."
+
+#: licenses/models.py:539
 msgid "Create VideoFile on Nextcloud download"
 msgstr "VideoFile beim Nextcloud-Download anlegen"
 
-#: licenses/models.py:512
+#: licenses/models.py:541
 msgid ""
 "After downloading a Nextcloud video to disk, create a VideoFile in "
 "media_files so it shows as Player in the license list immediately. Requires "
@@ -1121,11 +1167,11 @@ msgstr ""
 "Download-Pfad unter einer StorageLocation liegt. Wenn deaktiviert, wird nur "
 "die Datei gespeichert; ein Speicher-Scan kann den VideoFile später anlegen."
 
-#: licenses/models.py:521
+#: licenses/models.py:550
 msgid "Send status emails"
 msgstr "Status-E-Mails senden"
 
-#: licenses/models.py:522
+#: licenses/models.py:551
 msgid ""
 "Send email notifications about video status (upload, scheduling, broadcast "
 "dates)."
@@ -1133,7 +1179,7 @@ msgstr ""
 "E-Mail-Benachrichtigungen über den Videostatus senden (Upload, Planung, "
 "Sendezeiten)."
 
-#: licenses/models.py:530
+#: licenses/models.py:559
 msgid ""
 "Send status emails only to users whose profile belongs to one of these Media "
 "Authorities (Offene Kanäle/Bürgermedien). Empty = send to all. Use to "
@@ -1143,195 +1189,195 @@ msgstr ""
 "Medienanstalten (Offene Kanäle/Bürgermedien) gehört. Leer = an alle senden. "
 "Verwenden Sie dies, um auf \"eigene\" Organisation(en) einzuschränken."
 
-#: licenses/models.py:539
+#: licenses/models.py:568
 msgid "Freistellung enabled"
 msgstr ""
 
-#: licenses/models.py:540
+#: licenses/models.py:569
 msgid ""
 "Enable freistellung-specific text overlays and staff signature in the "
 "generated PDF."
 msgstr ""
 
-#: licenses/models.py:547
+#: licenses/models.py:576
 msgid "Freistellung city"
 msgstr ""
 
-#: licenses/models.py:548
+#: licenses/models.py:577
 msgid "City name for \"Ort, Datum\" in the Freistellung print form."
 msgstr ""
 
-#: licenses/models.py:556
+#: licenses/models.py:585
 msgid "Freistellung signature user"
 msgstr ""
 
-#: licenses/models.py:558
+#: licenses/models.py:587
 msgid ""
 "Staff member whose signature appears on the Freistellung print form. When "
 "this user confirms a license, their signature is added to the PDF."
 msgstr ""
 
-#: licenses/models.py:567
+#: licenses/models.py:596
 msgid "Freistellung signature text"
 msgstr ""
 
-#: licenses/models.py:568
+#: licenses/models.py:597
 msgid "Text below the signature on the Freistellung print form."
 msgstr ""
 
-#: licenses/models.py:575
+#: licenses/models.py:604
 #, fuzzy
 #| msgid "Special settings and youth protection"
 msgid "Sendezeit text (no youth protection)"
 msgstr "Spezialeinstellungen und Jugendschutz"
 
-#: licenses/models.py:576
+#: licenses/models.py:605
 msgid ""
 "Text for \"Sendezeit gem. JMStV zu beachten\" when no youth protection is "
 "needed."
 msgstr ""
 
-#: licenses/models.py:583
+#: licenses/models.py:612
 #, fuzzy
 #| msgid "Special settings and youth protection"
 msgid "Sendezeit text (with youth protection)"
 msgstr "Spezialeinstellungen und Jugendschutz"
 
-#: licenses/models.py:585
+#: licenses/models.py:614
 msgid ""
 "Text for \"Sendezeit gem. JMStV zu beachten\" and \"Sendezeit ab\" when "
 "youth protection is needed. Use \\n for line break."
 msgstr ""
 
-#: licenses/models.py:594
+#: licenses/models.py:623
 msgid "Sendezeit time"
 msgstr ""
 
-#: licenses/models.py:595
+#: licenses/models.py:624
 msgid ""
 "Time for \"Sendezeit ab ___ Uhr\" in the Freistellung print form (e.g. "
 "22:00)."
 msgstr ""
 
-#: licenses/models.py:599 licenses/models.py:600 licenses/models.py:604
+#: licenses/models.py:628 licenses/models.py:629 licenses/models.py:633
 msgid "Licenses Configuration"
 msgstr "Freistellungen-Konfiguration"
 
-#: licenses/models.py:621
+#: licenses/models.py:650
 msgid "Video uploaded"
 msgstr "Video hochgeladen"
 
-#: licenses/models.py:622
+#: licenses/models.py:651
 msgid "Draft scheduled"
 msgstr "Entwurf geplant"
 
-#: licenses/models.py:623
+#: licenses/models.py:652
 msgid "Planned scheduled"
 msgstr "Geplant eingeplant"
 
-#: licenses/models.py:624
+#: licenses/models.py:653
 msgid "Contributions available"
 msgstr "Beiträge verfügbar"
 
 # --- Mediathek published email ---
-#: licenses/models.py:625
+#: licenses/models.py:654
 msgid "Mediathek published"
 msgstr "In Mediathek veröffentlicht"
 
 # --- License notification events (models + email templates) ---
-#: licenses/models.py:637
+#: licenses/models.py:666
 msgid "License number"
 msgstr "Freistellungsnummer"
 
-#: licenses/models.py:639
+#: licenses/models.py:668
 msgid "License number used for matching and deduplication."
 msgstr "Freistellungsnummer zur Zuordnung und Deduplizierung."
 
-#: licenses/models.py:642
+#: licenses/models.py:671
 msgid "Event type"
 msgstr "Ereignistyp"
 
-#: licenses/models.py:653
+#: licenses/models.py:682
 msgid "Payload"
 msgstr "Daten"
 
-#: licenses/models.py:657
+#: licenses/models.py:686
 msgid ""
 "Optional structured data about the event (e.g., schedule time, filenames)."
 msgstr ""
 "Optionale strukturierte Daten zum Ereignis (z. B. Sendezeit, Dateinamen)."
 
-#: licenses/models.py:661
+#: licenses/models.py:690
 msgid "License Notification Event"
 msgstr "Freistellung-Benachrichtigungsereignis"
 
-#: licenses/models.py:662
+#: licenses/models.py:691
 msgid "License Notification Events"
 msgstr "Freistellung-Benachrichtigungsereignisse"
 
-#: licenses/models.py:674 licenses/templates/licenses/list.html:32
+#: licenses/models.py:703 licenses/templates/licenses/list.html:32
 #: licenses/templates/licenses/list.html:102
-#: licenses/templates/licenses/list.html:673
+#: licenses/templates/licenses/list.html:711
 msgid "Pending"
 msgstr "Ausstehend"
 
-#: licenses/models.py:675
+#: licenses/models.py:704
 #, fuzzy
 #| msgid "Signature"
 msgid "Signed"
 msgstr "Unterschrift"
 
-#: licenses/models.py:676
+#: licenses/models.py:705
 #, fuzzy
 #| msgid "Expires at:"
 msgid "Expired"
 msgstr "Läuft ab am:"
 
-#: licenses/models.py:677
+#: licenses/models.py:706
 #, fuzzy
 #| msgid "Cancel"
 msgid "Cancelled"
 msgstr "Abbrechen"
 
-#: licenses/models.py:695
+#: licenses/models.py:724
 msgid "Owner"
 msgstr ""
 
-#: licenses/models.py:700
+#: licenses/models.py:729
 msgid "Token"
 msgstr ""
 
-#: licenses/models.py:714
+#: licenses/models.py:743
 #, fuzzy
 #| msgid "Expires at:"
 msgid "Expires at"
 msgstr "Läuft ab am:"
 
-#: licenses/models.py:741
+#: licenses/models.py:770
 #, fuzzy
 #| msgid "Sign here"
 msgid "Signer IP"
 msgstr "Hier unterschreiben"
 
-#: licenses/models.py:746
+#: licenses/models.py:775
 #, fuzzy
 #| msgid "Sign here"
 msgid "Signer user agent"
 msgstr "Hier unterschreiben"
 
-#: licenses/models.py:751
+#: licenses/models.py:780
 #, fuzzy
 #| msgid "Signature"
 msgid "Signed at"
 msgstr "Unterschrift"
 
-#: licenses/models.py:762
+#: licenses/models.py:791
 #, fuzzy
 #| msgid "Signing session expired."
 msgid "Signing Session"
 msgstr "Die Signatursitzung ist abgelaufen."
 
-#: licenses/models.py:763
+#: licenses/models.py:792
 #, fuzzy
 #| msgid "Signing session expired."
 msgid "Signing Sessions"
@@ -1431,7 +1477,7 @@ msgstr "Suchen"
 
 #: licenses/templates/admin/filter_datetime_range.html:79
 #: licenses/templates/admin/filter_numeric_range.html:84
-#: licenses/templates/licenses/create.html:451
+#: licenses/templates/licenses/create.html:453
 msgid "Reset"
 msgstr "Zurücksetzen"
 
@@ -1530,8 +1576,8 @@ msgstr "Neue Freistellung erstellen, auch wenn Duplikate existieren"
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:84
 #: licenses/templates/admin/licenses/import_json.html:39
 #: licenses/templates/admin/licenses/rescan_mediathek.html:172
-#: licenses/templates/licenses/create.html:444
-#: licenses/templates/licenses/update.html:501
+#: licenses/templates/licenses/create.html:446
+#: licenses/templates/licenses/update.html:520
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -1600,7 +1646,7 @@ msgid "Draw Signature"
 msgstr "Unterschrift zeichnen"
 
 #: licenses/templates/admin/licenses_change_form_edit.html:316
-#: licenses/templates/licenses/create.html:360
+#: licenses/templates/licenses/create.html:362
 #: licenses/templates/licenses/update.html:346
 msgid "Sign with Phone (QR)"
 msgstr "Mit dem Telefon unterschreiben (QR)"
@@ -1916,7 +1962,7 @@ msgstr "Video hochgeladen für Freistellung #%(license_number)s"
 
 #: licenses/templates/licenses/create.html:5
 #: licenses/templates/licenses/create.html:6
-#: licenses/templates/licenses/create.html:448
+#: licenses/templates/licenses/create.html:450
 #: licenses/templates/licenses/list.html:19
 msgid "Create License"
 msgstr "Freistellung erstellen"
@@ -2038,8 +2084,9 @@ msgstr ""
 "sein koennten (z.B. Gewalt, Schockbilder, anstoessige Sprache)."
 
 #: licenses/templates/licenses/create.html:328
-#: licenses/templates/licenses/create.html:482
-#: licenses/templates/licenses/update.html:426
+#: licenses/templates/licenses/create.html:484
+#: licenses/templates/licenses/create.html:1454
+#: licenses/templates/licenses/update.html:430
 msgid "Video Upload"
 msgstr "Video-Upload"
 
@@ -2053,33 +2100,40 @@ msgstr ""
 "um Ihre Videodatei hinzuzufügen."
 
 #: licenses/templates/licenses/create.html:332
-#: licenses/templates/licenses/create.html:494
+#: licenses/templates/licenses/create.html:496
+#: licenses/templates/licenses/create.html:1457
 #: licenses/templates/licenses/list.html:231
-#: licenses/templates/licenses/update.html:471
+#: licenses/templates/licenses/list.html:264
+#: licenses/templates/licenses/update.html:489
 msgid "Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB."
 msgstr "Unterstützte Formate: mp4, mov, avi, mkv, webm. Maximale Größe: 20GB."
 
-#: licenses/templates/licenses/create.html:342
+#: licenses/templates/licenses/create.html:334
+msgid ""
+"For a screen board you can upload a photo (jpg, jpeg, png, webp) instead."
+msgstr "Für eine Bildschirmtafel können Sie stattdessen ein Foto hochladen (jpg, jpeg, png, webp)."
+
+#: licenses/templates/licenses/create.html:344
 #: licenses/templates/licenses/update.html:326
 msgid "Signature Method"
 msgstr "Unterschriftsmethode"
 
-#: licenses/templates/licenses/create.html:344
+#: licenses/templates/licenses/create.html:346
 msgid "Choose one method. QR phone signing is recommended."
 msgstr ""
 "Wählen Sie eine Methode. Die QR-Signatur mit dem Telefon wird empfohlen."
 
-#: licenses/templates/licenses/create.html:351
+#: licenses/templates/licenses/create.html:353
 #: licenses/templates/licenses/update.html:337
 msgid "Sign Here Now"
 msgstr "Jetzt hier unterschreiben"
 
-#: licenses/templates/licenses/create.html:370
+#: licenses/templates/licenses/create.html:372
 #: licenses/templates/licenses/update.html:357
 msgid "Sign with phone (QR)"
 msgstr "Mit dem Telefon unterschreiben (QR)"
 
-#: licenses/templates/licenses/create.html:372
+#: licenses/templates/licenses/create.html:374
 msgid ""
 "Scan the QR code and sign on your phone. The signature will sync to the "
 "canvas here."
@@ -2087,24 +2141,24 @@ msgstr ""
 "Scannen Sie den QR-Code und unterschreiben Sie auf Ihrem Telefon. Die "
 "Unterschrift wird hier mit der Zeichenfläche synchronisiert."
 
-#: licenses/templates/licenses/create.html:373
+#: licenses/templates/licenses/create.html:375
 #: licenses/templates/licenses/update.html:362
 #, fuzzy
 #| msgid "Creating..."
 msgid "Preparing QR signing session..."
 msgstr "Erstelle..."
 
-#: licenses/templates/licenses/create.html:379
+#: licenses/templates/licenses/create.html:381
 #: licenses/templates/licenses/update.html:368
 msgid "Scan QR and sign on your phone."
 msgstr "QR-Code scannen und auf dem Telefon unterschreiben."
 
-#: licenses/templates/licenses/create.html:394
+#: licenses/templates/licenses/create.html:396
 #: licenses/templates/licenses/update.html:383
 msgid "Please sign here"
 msgstr "Bitte hier unterschreiben"
 
-#: licenses/templates/licenses/create.html:396
+#: licenses/templates/licenses/create.html:398
 #, python-format
 msgid ""
 "\n"
@@ -2121,32 +2175,33 @@ msgstr ""
 "zu senden.\n"
 "                "
 
-#: licenses/templates/licenses/create.html:403
+#: licenses/templates/licenses/create.html:405
 msgid "Signature synchronized from phone."
 msgstr "Unterschrift vom Telefon synchronisiert."
 
-#: licenses/templates/licenses/create.html:409
+#: licenses/templates/licenses/create.html:411
 #: licenses/templates/licenses/update.html:391
 msgid "Sign here"
 msgstr "Hier unterschreiben"
 
-#: licenses/templates/licenses/create.html:418
+#: licenses/templates/licenses/create.html:420
 #: licenses/templates/licenses/sign_session.html:38
 #: licenses/templates/licenses/update.html:400
 msgid "Clear Signature"
 msgstr "Unterschrift löschen"
 
-#: licenses/templates/licenses/create.html:421
+#: licenses/templates/licenses/create.html:423
 #: licenses/templates/licenses/update.html:403
 msgid "Please sign in the box above."
 msgstr "Bitte unterschreiben Sie im Feld oben."
 
 # License created modal messages
-#: licenses/templates/licenses/create.html:467
+#: licenses/templates/licenses/create.html:469
 msgid "License successfully created"
 msgstr "Freistellung erfolgreich erstellt"
 
-#: licenses/templates/licenses/create.html:485
+#: licenses/templates/licenses/create.html:487
+#: licenses/templates/licenses/create.html:1455
 msgid ""
 "You can now upload a video for this license or do this later from the "
 "license list."
@@ -2154,21 +2209,21 @@ msgstr ""
 "Sie können jetzt ein Video für diese Freistellung hochladen oder dies später "
 "aus der Freistellungsliste erledigen."
 
-#: licenses/templates/licenses/create.html:511
+#: licenses/templates/licenses/create.html:513
 msgid "Go to Overview"
 msgstr "Zur Übersicht"
 
-#: licenses/templates/licenses/create.html:515
+#: licenses/templates/licenses/create.html:517
 #: licenses/templates/licenses/list.html:247
-#: licenses/templates/licenses/update.html:475
+#: licenses/templates/licenses/update.html:494
 msgid "Upload"
 msgstr "Hochladen"
 
-#: licenses/templates/licenses/create.html:1022
+#: licenses/templates/licenses/create.html:1024
 msgid "Are you sure you want to reset all inputs?"
 msgstr "Sind Sie sicher, dass Sie alle Eingaben zurücksetzen möchten?"
 
-#: licenses/templates/licenses/create.html:1137
+#: licenses/templates/licenses/create.html:1139
 #, fuzzy
 #| msgid ""
 #| "QR method selected (recommended). Generate a QR session and sign on your "
@@ -2180,232 +2235,275 @@ msgstr ""
 "QR-Methode ausgewählt (empfohlen). Erstellen Sie eine QR-Sitzung und "
 "unterschreiben Sie vor dem Absenden auf Ihrem Telefon."
 
-#: licenses/templates/licenses/create.html:1139
+#: licenses/templates/licenses/create.html:1141
 #, fuzzy
 #| msgid "Please sign in the box above."
 msgid "Draw signature directly in the box above."
 msgstr "Bitte unterschreiben Sie im Feld oben."
 
-#: licenses/templates/licenses/create.html:1174
-#: licenses/templates/licenses/update.html:1014
+#: licenses/templates/licenses/create.html:1176
+#: licenses/templates/licenses/update.html:1033
 #, fuzzy
 #| msgid "Not allowed to use this signing session."
 msgid "Failed to check signing session."
 msgstr "Sie sind nicht berechtigt, diese Signatursitzung zu verwenden."
 
-#: licenses/templates/licenses/create.html:1192
-#: licenses/templates/licenses/update.html:1038
+#: licenses/templates/licenses/create.html:1194
+#: licenses/templates/licenses/update.html:1057
 #, fuzzy
 #| msgid "Signature synchronized from phone."
 msgid "Signature received from phone and synchronized here."
 msgstr "Unterschrift vom Telefon synchronisiert."
 
-#: licenses/templates/licenses/create.html:1202
-#: licenses/templates/licenses/update.html:1045 licenses/views.py:1048
+#: licenses/templates/licenses/create.html:1204
+#: licenses/templates/licenses/update.html:1064 licenses/views.py:1067
 msgid "Signing session expired."
 msgstr "Die Signatursitzung ist abgelaufen."
 
-#: licenses/templates/licenses/create.html:1204
-#: licenses/templates/licenses/create.html:1250
-#: licenses/templates/licenses/update.html:1047
-#: licenses/templates/licenses/update.html:1092
+#: licenses/templates/licenses/create.html:1206
+#: licenses/templates/licenses/create.html:1252
+#: licenses/templates/licenses/update.html:1066
+#: licenses/templates/licenses/update.html:1111
 msgid "Waiting for phone signature..."
 msgstr "Warten auf Unterschrift vom Telefon..."
 
-#: licenses/templates/licenses/create.html:1225
-#: licenses/templates/licenses/update.html:1072
+#: licenses/templates/licenses/create.html:1227
+#: licenses/templates/licenses/update.html:1091
 msgid "Creating signing session..."
 msgstr ""
 
-#: licenses/templates/licenses/create.html:1238
-#: licenses/templates/licenses/update.html:1084
+#: licenses/templates/licenses/create.html:1240
+#: licenses/templates/licenses/update.html:1103
 #, fuzzy
 #| msgid "Not allowed to use this signing session."
 msgid "Failed to create signing session."
 msgstr "Sie sind nicht berechtigt, diese Signatursitzung zu verwenden."
 
-#: licenses/templates/licenses/create.html:1249
-#: licenses/templates/licenses/update.html:1091
+#: licenses/templates/licenses/create.html:1251
+#: licenses/templates/licenses/update.html:1110
 msgid "Expires at:"
 msgstr "Läuft ab am:"
 
-#: licenses/templates/licenses/create.html:1322
+#: licenses/templates/licenses/create.html:1324
 msgid "Creating..."
 msgstr "Erstelle..."
 
-#: licenses/templates/licenses/create.html:1335
+#: licenses/templates/licenses/create.html:1337
 msgid "Please complete phone signing first, or switch to Sign Here Now."
 msgstr ""
 "Bitte schließen Sie zuerst die Unterschrift auf dem Telefon ab oder wechseln "
 "Sie zu \"Jetzt hier unterschreiben\"."
 
-#: licenses/templates/licenses/create.html:1376
+#: licenses/templates/licenses/create.html:1378
 msgid "License was successfully created and digitally signed."
 msgstr "Freistellung wurde erfolgreich erstellt und digital signiert."
 
-#: licenses/templates/licenses/create.html:1383
+#: licenses/templates/licenses/create.html:1385
 msgid "License was successfully created."
 msgstr "Freistellung wurde erfolgreich erstellt."
 
-#: licenses/templates/licenses/create.html:1387
+#: licenses/templates/licenses/create.html:1389
 msgid "Open PDF"
 msgstr "PDF öffnen"
 
-#: licenses/templates/licenses/create.html:1391
+#: licenses/templates/licenses/create.html:1393
 msgid "Please print the document, sign it, and send it to our email address."
 msgstr ""
 "Bitte drucken Sie das Dokument aus, unterschreiben Sie es und senden Sie es "
 "an unsere E-Mail-Adresse."
 
-#: licenses/templates/licenses/create.html:1440
-#: licenses/templates/licenses/list.html:283
-#: licenses/templates/licenses/update.html:1203
+#: licenses/templates/licenses/create.html:1445
+#: licenses/templates/licenses/list.html:321
+#: licenses/templates/licenses/update.html:1222
 msgid "calculating..."
 msgstr "berechnen..."
 
-#: licenses/templates/licenses/create.html:1441
-#: licenses/templates/licenses/list.html:284
-#: licenses/templates/licenses/update.html:1204
+#: licenses/templates/licenses/create.html:1446
+#: licenses/templates/licenses/list.html:322
+#: licenses/templates/licenses/update.html:1223
 msgid "sec"
 msgstr "Sek"
 
-#: licenses/templates/licenses/create.html:1442
-#: licenses/templates/licenses/list.html:285
-#: licenses/templates/licenses/update.html:1205
+#: licenses/templates/licenses/create.html:1447
+#: licenses/templates/licenses/list.html:323
+#: licenses/templates/licenses/update.html:1224
 msgid "min"
 msgstr "Min"
 
-#: licenses/templates/licenses/create.html:1443
-#: licenses/templates/licenses/list.html:286
-#: licenses/templates/licenses/update.html:1206
+#: licenses/templates/licenses/create.html:1448
+#: licenses/templates/licenses/list.html:324
+#: licenses/templates/licenses/update.html:1225
 msgid "h"
 msgstr "h"
 
-#: licenses/templates/licenses/create.html:1516
-#: licenses/templates/licenses/list.html:362
-#: licenses/templates/licenses/update.html:1278
+#: licenses/templates/licenses/create.html:1460
+#: licenses/templates/licenses/list.html:267
+msgid "Please select a video file first."
+msgstr "Bitte wählen Sie zuerst eine Videodatei aus."
+
+#: licenses/templates/licenses/create.html:1461
+#: licenses/templates/licenses/list.html:268
+#: licenses/templates/licenses/update.html:1419
+msgid "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm."
+msgstr ""
+"Ungültiges Dateiformat. Unterstützte Formate: mp4, mov, avi, mkv, webm."
+
+#: licenses/templates/licenses/create.html:1462
+#: licenses/templates/licenses/list.html:269
+#: licenses/templates/licenses/update.html:1545
+msgid "Video uploaded successfully!"
+msgstr "Video erfolgreich hochgeladen!"
+
+#: licenses/templates/licenses/create.html:1465
+#: licenses/templates/licenses/update.html:427
+msgid "Photo Upload"
+msgstr "Foto-Upload"
+
+#: licenses/templates/licenses/create.html:1466
+msgid ""
+"You can now upload the photo for this screen board or do this later from the "
+"license list."
+msgstr "Sie können jetzt das Foto für diese Bildschirmtafel hochladen oder das später in der Übersicht nachholen."
+
+#: licenses/templates/licenses/create.html:1467
+#: licenses/templates/licenses/list.html:273
+#: licenses/templates/licenses/update.html:472
+msgid "Photo or video file"
+msgstr "Foto- oder Videodatei"
+
+#: licenses/templates/licenses/create.html:1468
+#: licenses/templates/licenses/list.html:274
+#: licenses/templates/licenses/update.html:487
+msgid ""
+"Supported formats: jpg, jpeg, png, webp, mp4, mov, avi, mkv, webm. Maximum "
+"size: 20GB."
+msgstr "Unterstützte Formate: jpg, jpeg, png, webp, mp4, mov, avi, mkv, webm. Maximale Größe: 20 GB."
+
+#: licenses/templates/licenses/create.html:1471
+#: licenses/templates/licenses/list.html:277
+msgid "Please select a photo first."
+msgstr "Bitte wählen Sie zuerst ein Foto aus."
+
+#: licenses/templates/licenses/create.html:1472
+#: licenses/templates/licenses/list.html:278
+#: licenses/templates/licenses/update.html:1419
+msgid ""
+"Invalid file format. Supported formats: jpg, jpeg, png, webp, mp4, mov, avi, "
+"mkv, webm."
+msgstr "Ungültiges Dateiformat. Unterstützte Formate: jpg, jpeg, png, webp, mp4, mov, avi, mkv, webm."
+
+#: licenses/templates/licenses/create.html:1473
+#: licenses/templates/licenses/list.html:279
+msgid "File uploaded successfully!"
+msgstr "Datei erfolgreich hochgeladen!"
+
+#: licenses/templates/licenses/create.html:1562
+#: licenses/templates/licenses/list.html:400
+#: licenses/templates/licenses/update.html:1297
 #, fuzzy
 #| msgid "Upload failed with status"
 msgid "Chunk upload failed with status"
 msgstr "Upload fehlgeschlagen mit Status"
 
-#: licenses/templates/licenses/create.html:1521
-#: licenses/templates/licenses/list.html:367
-#: licenses/templates/licenses/update.html:1283
+#: licenses/templates/licenses/create.html:1567
+#: licenses/templates/licenses/list.html:405
+#: licenses/templates/licenses/update.html:1302
 #, fuzzy
 #| msgid "Network error during upload"
 msgid "Network error during chunk upload"
 msgstr "Netzwerkfehler beim Upload"
 
-#: licenses/templates/licenses/create.html:1540
-#: licenses/templates/licenses/list.html:386
-#: licenses/templates/licenses/update.html:1301
+#: licenses/templates/licenses/create.html:1586
+#: licenses/templates/licenses/list.html:424
+#: licenses/templates/licenses/update.html:1320
 #, fuzzy
 #| msgid "Failed to get upload token"
 msgid "Failed to create upload folder"
 msgstr "Fehler beim Abrufen des Upload-Tokens"
 
-#: licenses/templates/licenses/create.html:1544
-#: licenses/templates/licenses/list.html:390
-#: licenses/templates/licenses/update.html:1305
+#: licenses/templates/licenses/create.html:1590
+#: licenses/templates/licenses/list.html:428
+#: licenses/templates/licenses/update.html:1324
 #, fuzzy
 #| msgid "Network error during upload"
 msgid "Network error creating upload folder"
 msgstr "Netzwerkfehler beim Upload"
 
-#: licenses/templates/licenses/create.html:1560
-#: licenses/templates/licenses/list.html:406
-#: licenses/templates/licenses/update.html:1321
+#: licenses/templates/licenses/create.html:1606
+#: licenses/templates/licenses/list.html:444
+#: licenses/templates/licenses/update.html:1340
 #, fuzzy
 #| msgid "Upload failed with status"
 msgid "File assembly failed with status"
 msgstr "Upload fehlgeschlagen mit Status"
 
-#: licenses/templates/licenses/create.html:1565
-#: licenses/templates/licenses/list.html:411
-#: licenses/templates/licenses/update.html:1326
+#: licenses/templates/licenses/create.html:1611
+#: licenses/templates/licenses/list.html:449
+#: licenses/templates/licenses/update.html:1345
 #, fuzzy
 #| msgid "Network error during upload"
 msgid "Network error during file assembly"
 msgstr "Netzwerkfehler beim Upload"
 
-#: licenses/templates/licenses/create.html:1606
-#: licenses/templates/licenses/list.html:452
-#: licenses/templates/licenses/update.html:1367
+#: licenses/templates/licenses/create.html:1652
+#: licenses/templates/licenses/list.html:490
+#: licenses/templates/licenses/update.html:1386
 msgid "Upload failed with status"
 msgstr "Upload fehlgeschlagen mit Status"
 
-#: licenses/templates/licenses/create.html:1611
-#: licenses/templates/licenses/list.html:457
-#: licenses/templates/licenses/update.html:1372
+#: licenses/templates/licenses/create.html:1657
+#: licenses/templates/licenses/list.html:495
+#: licenses/templates/licenses/update.html:1391
 msgid "Network error during upload"
 msgstr "Netzwerkfehler beim Upload"
 
-#: licenses/templates/licenses/create.html:1615
-#: licenses/templates/licenses/list.html:461
+#: licenses/templates/licenses/create.html:1661
+#: licenses/templates/licenses/list.html:499
 msgid "Upload was cancelled"
 msgstr "Upload wurde abgebrochen"
 
-#: licenses/templates/licenses/create.html:1636
-#: licenses/templates/licenses/list.html:482
-msgid "Please select a video file first."
-msgstr "Bitte wählen Sie zuerst eine Videodatei aus."
-
-#: licenses/templates/licenses/create.html:1645
-#: licenses/templates/licenses/list.html:493
-#: licenses/templates/licenses/update.html:1390
+#: licenses/templates/licenses/create.html:1691
+#: licenses/templates/licenses/list.html:531
+#: licenses/templates/licenses/update.html:1409
 msgid "File is too large. Maximum size is 20GB."
 msgstr "Datei ist zu groß. Maximale Größe ist 20GB."
 
-#: licenses/templates/licenses/create.html:1654
-#: licenses/templates/licenses/list.html:503
-#: licenses/templates/licenses/update.html:1400
-msgid "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm."
-msgstr ""
-"Ungültiges Dateiformat. Unterstützte Formate: mp4, mov, avi, mkv, webm."
-
-#: licenses/templates/licenses/create.html:1662
-#: licenses/templates/licenses/list.html:512
-#: licenses/templates/licenses/update.html:1427
+#: licenses/templates/licenses/create.html:1708
+#: licenses/templates/licenses/list.html:550
+#: licenses/templates/licenses/update.html:1446
 msgid "Getting upload token..."
 msgstr "Upload-Token wird abgerufen..."
 
-#: licenses/templates/licenses/create.html:1676
-#: licenses/templates/licenses/create.html:1681
-#: licenses/templates/licenses/list.html:527
-#: licenses/templates/licenses/list.html:532
-#: licenses/templates/licenses/update.html:1453
-#: licenses/templates/licenses/update.html:1458
+#: licenses/templates/licenses/create.html:1722
+#: licenses/templates/licenses/create.html:1727
+#: licenses/templates/licenses/list.html:565
+#: licenses/templates/licenses/list.html:570
+#: licenses/templates/licenses/update.html:1472
+#: licenses/templates/licenses/update.html:1477
 msgid "Failed to get upload token"
 msgstr "Fehler beim Abrufen des Upload-Tokens"
 
-#: licenses/templates/licenses/create.html:1713
-#: licenses/templates/licenses/list.html:579
-#: licenses/templates/licenses/update.html:1490
+#: licenses/templates/licenses/create.html:1759
+#: licenses/templates/licenses/list.html:617
+#: licenses/templates/licenses/update.html:1509
 msgid "Retrying with direct upload..."
 msgstr ""
 
-#: licenses/templates/licenses/create.html:1721
-#: licenses/templates/licenses/list.html:588
-#: licenses/templates/licenses/update.html:1499
+#: licenses/templates/licenses/create.html:1767
+#: licenses/templates/licenses/list.html:626
+#: licenses/templates/licenses/update.html:1518
 msgid "Confirming upload..."
 msgstr "Upload wird bestätigt..."
 
-#: licenses/templates/licenses/create.html:1739
-#: licenses/templates/licenses/list.html:606
-#: licenses/templates/licenses/list.html:611
-#: licenses/templates/licenses/update.html:1517
-#: licenses/templates/licenses/update.html:1522
+#: licenses/templates/licenses/create.html:1785
+#: licenses/templates/licenses/list.html:644
+#: licenses/templates/licenses/list.html:649
+#: licenses/templates/licenses/update.html:1536
+#: licenses/templates/licenses/update.html:1541
 msgid "Failed to confirm upload"
 msgstr "Fehler beim Bestätigen des Uploads"
 
-#: licenses/templates/licenses/create.html:1751
-#: licenses/templates/licenses/list.html:622
-#: licenses/templates/licenses/update.html:1526
-msgid "Video uploaded successfully!"
-msgstr "Video erfolgreich hochgeladen!"
-
-#: licenses/templates/licenses/create.html:1754
+#: licenses/templates/licenses/create.html:1800
 #, fuzzy
 #| msgid "Upload"
 msgid "Uploaded"
@@ -2481,11 +2579,17 @@ msgid "Copy"
 msgstr "Kopieren"
 
 #: licenses/templates/licenses/list.html:138
-msgid "Video already uploaded"
-msgstr "Video bereits hochgeladen"
+msgid "File already uploaded"
+msgstr "Datei bereits hochgeladen"
+
+#: licenses/templates/licenses/list.html:143
+#: licenses/templates/licenses/list.html:272
+msgid "Upload Photo"
+msgstr "Foto hochladen"
 
 #: licenses/templates/licenses/list.html:143
 #: licenses/templates/licenses/list.html:219
+#: licenses/templates/licenses/list.html:262
 msgid "Upload Video"
 msgstr "Video hochladen"
 
@@ -2537,7 +2641,7 @@ msgstr "Letzte"
 msgid "Close"
 msgstr "Schließen"
 
-#: licenses/templates/licenses/list.html:726
+#: licenses/templates/licenses/list.html:764
 msgid "Are you sure you want to delete this license?"
 msgstr "Sind Sie sicher, dass Sie diese Freistellung löschen möchten?"
 
@@ -2599,7 +2703,7 @@ msgid "Edit %(object)s"
 msgstr "%(object)s bearbeiten"
 
 #: licenses/templates/licenses/update.html:19
-#: licenses/templates/licenses/update.html:495
+#: licenses/templates/licenses/update.html:514
 msgid "Back to overview"
 msgstr "Zurück zur Übersicht"
 
@@ -2629,44 +2733,47 @@ msgstr ""
 "Öffnen Sie die Signaturseite auf Ihrem Telefon und synchronisieren Sie die "
 "Unterschrift hierher zurück."
 
-#: licenses/templates/licenses/update.html:428
+#: licenses/templates/licenses/update.html:435
+msgid "Upload the photo of the screen board to Nextcloud (optional)"
+msgstr "Foto der Bildschirmtafel zu Nextcloud hochladen (optional)"
+
+#: licenses/templates/licenses/update.html:437
 msgid "Upload a video file to Nextcloud (optional)"
 msgstr "Videodatei nach Nextcloud hochladen (optional)"
 
-#: licenses/templates/licenses/update.html:436
-msgid "Current video:"
-msgstr "Aktuelles Video:"
+#: licenses/templates/licenses/update.html:447
+msgid "Current file:"
+msgstr "Aktuelle Datei:"
 
-#: licenses/templates/licenses/update.html:445 licenses/views.py:697
-#: licenses/views.py:802
-msgid "Video already uploaded. Cannot upload second video."
-msgstr ""
-"Video bereits hochgeladen. Zweites Video kann nicht hochgeladen werden."
+#: licenses/templates/licenses/update.html:456 licenses/views.py:702
+#: licenses/views.py:815
+msgid "File already uploaded. Cannot upload a second file."
+msgstr "Es wurde bereits eine Datei hochgeladen. Eine zweite Datei ist nicht möglich."
 
-#: licenses/templates/licenses/update.html:460
+#: licenses/templates/licenses/update.html:474
 #, fuzzy
 #| msgid "Video File"
 msgid "Video file"
 msgstr "Videodatei"
 
-#: licenses/templates/licenses/update.html:778
+#: licenses/templates/licenses/update.html:797
 msgid "Recommended: sign on phone for better handwriting quality."
 msgstr ""
 "Empfohlen: Auf dem Telefon unterschreiben für bessere Handschriftqualität."
 
-#: licenses/templates/licenses/update.html:780
+#: licenses/templates/licenses/update.html:799
 msgid "Sign directly in the field below using mouse/stylus."
 msgstr "Direkt im Feld unten mit Maus/Stylus unterschreiben."
 
-#: licenses/templates/licenses/update.html:1140
+#: licenses/templates/licenses/update.html:1159
 msgid "Saving..."
 msgstr "Speichern..."
 
-#: licenses/templates/licenses/update.html:1426
+#: licenses/templates/licenses/update.html:1445
 msgid "Uploading..."
 msgstr "Hochladen..."
 
-#: licenses/templates/licenses/update.html:1433
+#: licenses/templates/licenses/update.html:1452
 msgid "Error: Could not determine license ID."
 msgstr "Fehler: Freistellungs-ID konnte nicht ermittelt werden."
 
@@ -2678,45 +2785,45 @@ msgstr ""
 "Tags durch Kommas getrennt eingeben (z.B. beitrag1, beitrag2, beitrag3). "
 "Maximal 4 Tags erlaubt."
 
-#: licenses/views.py:287 licenses/views.py:961 licenses/views.py:1041
+#: licenses/views.py:291 licenses/views.py:980 licenses/views.py:1060
 #, fuzzy
 #| msgid "Signing session is not signed yet."
 msgid "Signing session not found."
 msgstr "Die Signatursitzung ist noch nicht unterschrieben."
 
-#: licenses/views.py:293
+#: licenses/views.py:297
 msgid "Not allowed to use this signing session."
 msgstr "Sie sind nicht berechtigt, diese Signatursitzung zu verwenden."
 
-#: licenses/views.py:296
+#: licenses/views.py:300
 msgid "Signing session is not signed yet."
 msgstr "Die Signatursitzung ist noch nicht unterschrieben."
 
-#: licenses/views.py:306
+#: licenses/views.py:310
 msgid "Signing session has no signature payload."
 msgstr "Die Signatursitzung enthält keine Signaturdaten."
 
-#: licenses/views.py:311 licenses/views.py:678 licenses/views.py:767
-#: licenses/views.py:874 licenses/views.py:904
+#: licenses/views.py:315 licenses/views.py:683 licenses/views.py:774
+#: licenses/views.py:893 licenses/views.py:923
 msgid "License not found."
 msgstr "Freistellung nicht gefunden."
 
-#: licenses/views.py:424
+#: licenses/views.py:429
 #, python-format
 msgid "License %(license)s successfully created."
 msgstr "Freistellung %(license)s erfolgreich erstellt."
 
-#: licenses/views.py:548
+#: licenses/views.py:553
 #, python-format
 msgid "License %(license)s successfully copied."
 msgstr "Freistellung %(license)s erfolgreich kopiert."
 
-#: licenses/views.py:576
+#: licenses/views.py:581
 #, python-format
 msgid "License %(license)s successfully updated."
 msgstr "Freistellung %(license)s erfolgreich aktualisiert."
 
-#: licenses/views.py:628
+#: licenses/views.py:633
 #, python-format
 msgid ""
 "The License %(license)s is already confirmed and therefor no longer editable."
@@ -2724,70 +2831,74 @@ msgstr ""
 "Die Freistellung %(license)s ist bereits genehmigt und daher nicht mehr "
 "bearbeitbar."
 
-#: licenses/views.py:669 licenses/views.py:758
+#: licenses/views.py:674 licenses/views.py:765
 msgid "Nextcloud integration is disabled."
 msgstr "Nextcloud-Integration ist deaktiviert."
 
-#: licenses/views.py:685
-msgid "Cannot upload video to confirmed license."
-msgstr "Video kann nicht zu einer genehmigten Freistellung hochgeladen werden."
+#: licenses/views.py:690
+msgid "Cannot upload a file to a confirmed license."
+msgstr "Zu einer genehmigten Freistellung kann keine Datei hochgeladen werden."
 
-#: licenses/views.py:740
+#: licenses/views.py:747
 #, python-format
 msgid "Failed to create upload token: %(error)s"
 msgstr "Fehler beim Erstellen des Upload-Tokens: %(error)s"
 
-#: licenses/views.py:784
+#: licenses/views.py:791
 msgid "Invalid request data."
 msgstr "Ungültige Anfragedaten."
 
-#: licenses/views.py:790
+#: licenses/views.py:797
 msgid "Filename is required."
 msgstr "Dateiname ist erforderlich."
 
-#: licenses/views.py:816
+#: licenses/views.py:829
 msgid "File not found in Nextcloud. Upload may have failed."
 msgstr "Datei nicht in Nextcloud gefunden. Upload könnte fehlgeschlagen sein."
 
-#: licenses/views.py:849
+#: licenses/views.py:861
+msgid "Photo uploaded successfully."
+msgstr "Foto erfolgreich hochgeladen."
+
+#: licenses/views.py:863
 msgid "Video uploaded successfully."
 msgstr "Video erfolgreich hochgeladen."
 
-#: licenses/views.py:861
+#: licenses/views.py:880
 #, python-format
 msgid "Failed to confirm upload: %(error)s"
 msgstr "Fehler beim Bestätigen des Uploads: %(error)s"
 
-#: licenses/views.py:877
+#: licenses/views.py:896
 msgid "Cannot update a confirmed license."
 msgstr "Eine genehmigte Freistellung kann nicht aktualisiert werden."
 
-#: licenses/views.py:890
+#: licenses/views.py:909
 msgid "Failed to save signature."
 msgstr "Signatur konnte nicht gespeichert werden."
 
-#: licenses/views.py:907
+#: licenses/views.py:926
 msgid "Cannot sign a confirmed license."
 msgstr "Eine genehmigte Freistellung kann nicht unterschrieben werden."
 
-#: licenses/views.py:967
+#: licenses/views.py:986
 msgid "Not allowed."
 msgstr "Nicht erlaubt."
 
-#: licenses/views.py:1037
+#: licenses/views.py:1056
 msgid "Too many requests. Please try again later."
 msgstr "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
 
-#: licenses/views.py:1044
+#: licenses/views.py:1063
 msgid "Signing session is not active."
 msgstr "Die Signatursitzung ist nicht aktiv."
 
-#: licenses/views.py:1126
+#: licenses/views.py:1145
 #, python-format
 msgid "Cannot delete confirmed license %(license)s"
 msgstr "Genehmigte Freistellung %(license)s kann nicht gelöscht werden"
 
-#: licenses/views.py:1140
+#: licenses/views.py:1159
 #, python-format
 msgid "License %(license)s successfully deleted."
 msgstr "Freistellung %(license)s erfolgreich gelöscht."
@@ -2796,44 +2907,3 @@ msgstr "Freistellung %(license)s erfolgreich gelöscht."
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr ""
 "Tags durch Kommas getrennt eingeben (z.B. beitrag1, beitrag2, beitrag3)"
-
-#~ msgid "License Information"
-#~ msgstr "Freistellungsinformationen"
-
-#~ msgid "Update the license details"
-#~ msgstr "Freistellungsdaten aktualisieren"
-
-#~ msgid "Signature submitted successfully. You can close this page."
-#~ msgstr ""
-#~ "Unterschrift erfolgreich gesendet. Sie können diese Seite schließen."
-
-#~ msgid "No video file provided."
-#~ msgstr "Keine Videodatei bereitgestellt."
-
-#~ msgid "Video file is too large. Maximum size is 20GB."
-#~ msgstr "Videodatei ist zu groß. Maximale Größe ist 20GB."
-
-#, python-format
-#~ msgid "Failed to upload video: %(error)s"
-#~ msgstr "Fehler beim Hochladen des Videos: %(error)s"
-
-#~ msgid "Session ID required."
-#~ msgstr "Sitzungs-ID erforderlich."
-
-#~ msgid "Upload session not found."
-#~ msgstr "Upload-Sitzung nicht gefunden."
-
-#~ msgid ""
-#~ "Retention in days for signed/expired/cancelled sessions (default: 7)."
-#~ msgstr ""
-#~ "Aufbewahrungsdauer in Tagen für signierte/abgelaufene/abgebrochene "
-#~ "Sitzungen (Standard: 7)."
-
-#~ msgid "Other Federal States"
-#~ msgstr "Andere Bundesländer"
-
-#~ msgid "Upload Video Later"
-#~ msgstr "Video später hochladen"
-
-#~ msgid "You can watch it here: %(mediathek_url)s"
-#~ msgstr "Sie können es hier ansehen: %(mediathek_url)s"

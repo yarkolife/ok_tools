@@ -422,10 +422,21 @@
         <div class="card shadow-sm border-0 mb-4" id="video-upload-card">
             <div class="card-header bg-transparent border-bottom">
                 <h5 class="card-title mb-1">
+                    {% if object.is_screen_board %}
+                    <i class="bi bi-image text-primary me-2"></i>
+                    {% trans 'Photo Upload' %}
+                    {% else %}
                     <i class="bi bi-camera-video text-primary me-2"></i>
                     {% trans 'Video Upload' %}
+                    {% endif %}
                 </h5>
-                <p class="card-subtitle">{% trans 'Upload a video file to Nextcloud (optional)' %}</p>
+                <p class="card-subtitle">
+                    {% if object.is_screen_board %}
+                    {% trans 'Upload the photo of the screen board to Nextcloud (optional)' %}
+                    {% else %}
+                    {% trans 'Upload a video file to Nextcloud (optional)' %}
+                    {% endif %}
+                </p>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -433,7 +444,7 @@
                         {% if nextcloud_video %}
                         <div class="alert alert-info mb-3">
                             <i class="bi bi-info-circle me-2"></i>
-                            <strong>{% trans 'Current video:' %}</strong> {{ nextcloud_video.filename }}
+                            <strong>{% trans 'Current file:' %}</strong> {{ nextcloud_video.filename }}
                             {% if nextcloud_video.nextcloud_url %}
                             <a href="{{ nextcloud_video.nextcloud_url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
                                 <i class="bi bi-download me-1"></i>{% trans 'Download' %}
@@ -442,7 +453,7 @@
                         </div>
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle me-2"></i>
-                            {% trans 'Video already uploaded. Cannot upload second video.' %}
+                            {% trans 'File already uploaded. Cannot upload a second file.' %}
                         </div>
                         {% else %}
                         {% if form.video_file %}
@@ -457,18 +468,26 @@
                         {% endif %}
                         {% else %}
                         <label for="id_video_file" class="form-label">
+                            {% if object.is_screen_board %}
+                            <i class="bi bi-file-earmark-image me-1"></i>{% trans 'Photo or video file' %}
+                            {% else %}
                             <i class="bi bi-file-earmark-play me-1"></i>{% trans 'Video file' %}
+                            {% endif %}
                         </label>
                         <input
                             type="file"
                             id="id_video_file"
                             name="video_file"
                             class="form-control"
-                            accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm"
+                            accept="{% if object.is_screen_board %}image/*,video/*{% else %}video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm{% endif %}"
                         >
                         {% endif %}
                         <div class="form-text">
+                            {% if object.is_screen_board %}
+                            {% trans 'Supported formats: jpg, jpeg, png, webp, mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}
+                            {% else %}
                             {% trans 'Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}
+                            {% endif %}
                         </div>
                         <div class="mt-3">
                             <button type="button" class="btn btn-primary" id="upload-video-button">
@@ -1393,11 +1412,11 @@
                         return;
                     }
 
-                    // Validate file extension
-                    const allowedExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+                    // Validate file extension (screen boards also accept photos)
+                    const allowedExtensions = {% if object.is_screen_board %}['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mov', 'avi', 'mkv', 'webm']{% else %}['mp4', 'mov', 'avi', 'mkv', 'webm']{% endif %};
                     const fileExtension = file.name.split('.').pop().toLowerCase();
                     if (!allowedExtensions.includes(fileExtension)) {
-                        alert('{% trans "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm." %}');
+                        alert({% if object.is_screen_board %}'{% trans "Invalid file format. Supported formats: jpg, jpeg, png, webp, mp4, mov, avi, mkv, webm." %}'{% else %}'{% trans "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm." %}'{% endif %});
                         e.target.value = '';
                         uploadStatus.textContent = '';
                         return;
@@ -1523,7 +1542,7 @@ const file = videoFileInput.files[0];
                     }
 
                     // Success!
-                    uploadStatus.innerHTML = '<small class="text-success"><i class="bi bi-check-circle me-1"></i>{% trans "Video uploaded successfully!" %}</small>';
+                    uploadStatus.innerHTML = '<small class="text-success"><i class="bi bi-check-circle me-1"></i>' + (confirmData.message || '{% trans "Video uploaded successfully!" %}') + '</small>';
                     videoFileInput.value = '';
 
                     // Reload page after 1 second to show the uploaded video

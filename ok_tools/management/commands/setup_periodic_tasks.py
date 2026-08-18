@@ -59,6 +59,7 @@ class Command(BaseCommand):
             'cleanup_old_file_operations': ('CELERY_BEAT_CLEANUP_OLD_FILE_OPERATIONS', '0 1 * * 0'),
             'cleanup_missing_files': ('CELERY_BEAT_CLEANUP_MISSING_FILES', '0 5 * * 0'),
             'cleanup_deleted_nextcloud_videos': ('CELERY_BEAT_CLEANUP_DELETED_NEXTCLOUD_VIDEOS', '0 2 * * *'),
+            'download_pending_nextcloud_videos': ('CELERY_BEAT_DOWNLOAD_PENDING_NEXTCLOUD_VIDEOS', '*/20 * * * *'),
             'sync_exchange_folders': ('CELERY_BEAT_SYNC_EXCHANGE', '0 2 * * *'),
             'cleanup_old_tool_projects': ('CELERY_BEAT_CLEANUP_TOOL_PROJECTS', '0 4 * * 0'),
             'cleanup_old_audio_normalize_jobs': ('CELERY_BEAT_CLEANUP_AUDIO_NORMALIZE_JOBS', '0 4 * * 0'),

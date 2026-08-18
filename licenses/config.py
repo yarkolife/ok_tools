@@ -29,6 +29,17 @@ def get_send_status_emails() -> bool:
         return True
 
 
+def get_auto_download_to_storage() -> bool:
+    """Return whether Nextcloud uploads are downloaded to storage automatically."""
+    try:
+        from .models import LicensesConfig
+        config = LicensesConfig.get_config()
+        return bool(getattr(config, "auto_download_to_storage", True))
+    except Exception:
+        # Default to enabled if config is not available.
+        return True
+
+
 def get_notification_media_authority_names() -> list:
     """
     Return list of MediaAuthority names to send license notifications to.

@@ -1074,7 +1074,7 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
                 if nextcloud_video:
                     return format_html(
                         '<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> {}</span>',
-                        _('Nextcloud Video')
+                        _('Nextcloud Photo') if nextcloud_video.is_image else _('Nextcloud Video')
                     )
 
             return format_html(
@@ -2373,6 +2373,7 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
         'file_size',
         'uploaded_at',
         'user_uploaded',
+        'downloaded_at',
         'is_deleted',
         'deleted_at',
         'download_to_storage_button',
@@ -2382,6 +2383,7 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
         'user_uploaded',
         'uploaded_at',
         'deleted_at',
+        'downloaded_at',
     )
     search_fields = (
         'filename',
@@ -2391,6 +2393,8 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
     readonly_fields = (
         'uploaded_at',
         'deleted_at',
+        'downloaded_at',
+        'local_path',
     )
     autocomplete_fields = ['license']
 
@@ -2402,6 +2406,9 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
         }),
         (_('Status'), {
             'fields': ('user_uploaded', 'is_deleted', 'uploaded_at', 'deleted_at')
+        }),
+        (_('Local Storage'), {
+            'fields': ('downloaded_at', 'local_path')
         }),
     )
 
@@ -2451,7 +2458,8 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
         if obj.is_deleted:
             return '-'
         url = reverse('admin:licenses_nextcloudvideofile_download', args=[obj.pk])
-        return format_html('<a class="button" href="{}">{}</a>', url, _('Download'))
+        label = _('Download again') if obj.downloaded_at else _('Download')
+        return format_html('<a class="button" href="{}">{}</a>', url, label)
     download_to_storage_button.short_description = _('Download')
 
     def download_to_storage_view(self, request, video_id: int):
@@ -2467,7 +2475,7 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
                 messages.WARNING
             )
         else:
-            download_nextcloud_video_file_to_storage.delay(video.pk)
+            download_nextcloud_video_file_to_storage.delay(video.pk, force=True)
             self.message_user(
                 request,
                 _('Download queued for "%(filename)s".') % {'filename': video.filename},
@@ -2492,7 +2500,7 @@ class NextcloudVideoFileAdmin(admin.ModelAdmin):
             if video.is_deleted:
                 skipped += 1
                 continue
-            download_nextcloud_video_file_to_storage.delay(video.pk)
+            download_nextcloud_video_file_to_storage.delay(video.pk, force=True)
             queued += 1
 
         if queued:
@@ -2574,7 +2582,11 @@ class LicensesConfigAdmin(admin.ModelAdmin):
             'fields': ('send_status_emails', 'notification_media_authority_names'),
         }),
         (_('Storage Settings'), {
-            'fields': ('download_storage_path', 'create_videofile_on_nextcloud_download'),
+            'fields': (
+                'download_storage_path',
+                'auto_download_to_storage',
+                'create_videofile_on_nextcloud_download',
+            ),
         }),
         (_('Screen Board Settings'), {
             'fields': ('screen_board_duration',),

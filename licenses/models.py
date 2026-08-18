@@ -474,6 +474,25 @@ class NextcloudVideoFile(models.Model):
         verbose_name=_('Deleted at'),
         help_text=_('When file was deleted from Nextcloud'),
     )
+    downloaded_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Downloaded at'),
+        help_text=_('When the file was downloaded from Nextcloud to local storage'),
+    )
+    local_path = models.CharField(
+        max_length=1000,
+        blank=True,
+        default='',
+        verbose_name=_('Local path'),
+        help_text=_('Path of the downloaded copy in local storage'),
+    )
+
+    @property
+    def is_image(self) -> bool:
+        """Whether the uploaded file is a photo (screen board) and not a video."""
+        from licenses.media_types import is_image_filename
+        return is_image_filename(self.filename)
 
     def __str__(self) -> str:
         """Return string representation."""
@@ -503,6 +522,16 @@ class LicensesConfig(models.Model):
         default='/app/media/',
         verbose_name=_('Download Storage Path'),
         help_text=_('Local path for downloaded files')
+    )
+
+    auto_download_to_storage = models.BooleanField(
+        default=True,
+        verbose_name=_('Download Nextcloud files automatically'),
+        help_text=_(
+            'Download a file to local storage as soon as it was uploaded to Nextcloud, '
+            'without pressing "Download" in the admin. Requires a configured download '
+            'storage path and a running Celery worker on the "download" queue.'
+        ),
     )
 
     create_videofile_on_nextcloud_download = models.BooleanField(

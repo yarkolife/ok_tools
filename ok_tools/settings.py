@@ -924,6 +924,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ok_tools.tasks.run_cleanup_deleted_nextcloud_videos_task',
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_DELETED_NEXTCLOUD_VIDEOS', '0 2 * * *'),
     },
+    'download_pending_nextcloud_videos': {
+        'task': 'licenses.tasks.download_pending_nextcloud_videos',
+        'schedule': parse_crontab_env('CELERY_BEAT_DOWNLOAD_PENDING_NEXTCLOUD_VIDEOS', '*/20 * * * *'),
+    },
     'cleanup_signing_sessions': {
         'task': 'ok_tools.tasks.run_cleanup_signing_sessions_task',
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_SIGNING_SESSIONS', '30 2 * * *'),

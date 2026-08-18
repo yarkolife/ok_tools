@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+2026-08-18 (Version 4.46.0)
+==========================
+
+* **licenses: Automatic Nextcloud downloads**
+  * A file uploaded to Nextcloud is fetched into local storage on its own, using the same path and naming as the manual Download button (``LicensesConfig.download_storage_path``, ``<number>_<filename>``). The new ``auto_download_to_storage`` switch in Storage Settings turns the automation off.
+  * Each file is downloaded exactly once. ``NextcloudVideoFile`` records the download time and local path; moving or deleting the local copy afterwards never triggers a second download. Repeats stay a manual decision — the admin buttons force a fresh download.
+  * A catch-up task (``licenses.tasks.download_pending_nextcloud_videos``, beat ``CELERY_BEAT_DOWNLOAD_PENDING_NEXTCLOUD_VIDEOS``, every 20 minutes) queues uploads whose signal was missed, e.g. while the download worker was down. Migration ``0029`` marks pre-existing files as handled so the archive is not pulled in bulk.
+  * Downloaded photos no longer create a ``VideoFile`` in media_files, and the license list shows them as "Nextcloud Photo".
+
+* **licenses: Photo upload for screen boards**
+  * A license marked as screen board (Bildschirmtafel) accepts photos (jpg, jpeg, png, webp) in addition to videos. The upload dialogs in the license list, the "license created" modal and the update page switch to photo mode automatically.
+  * ``ConfirmUploadView`` now validates the file extension against what the license accepts; previously any file type was recorded.
+
 2026-08-17 (Version 4.45.0)
 ==========================
 

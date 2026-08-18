@@ -330,6 +330,8 @@
                     {% trans 'You can upload a video file after creating the license. Go to the license list and use the upload button to add your video file.' %}
                     <br>
                     <small>{% trans 'Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}</small>
+                    <br>
+                    <small>{% trans 'For a screen board you can upload a photo (jpg, jpeg, png, webp) instead.' %}</small>
                 </p>
             </div>
         </div>
@@ -479,18 +481,18 @@
                 <div id="video-upload-section">
                     <h6 class="mb-3">
                         <i class="bi bi-cloud-upload me-2"></i>
-                        {% trans 'Video Upload' %}
+                        <span id="upload-modal-title">{% trans 'Video Upload' %}</span>
                     </h6>
-                    <p class="text-muted mb-3">
+                    <p class="text-muted mb-3" id="upload-modal-intro">
                         {% trans 'You can now upload a video for this license or do this later from the license list.' %}
                     </p>
                     <div class="mb-3">
                         <label for="modal-video-file" class="form-label">
                             <i class="bi bi-file-earmark-play me-1"></i>
-                            {% trans 'Video File' %}
+                            <span id="upload-file-label">{% trans 'Video File' %}</span>
                         </label>
                         <input type="file" class="form-control" id="modal-video-file" accept="video/*">
-                        <div class="form-text">
+                        <div class="form-text" id="upload-file-hint">
                             {% trans 'Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB.' %}
                         </div>
                     </div>
@@ -1394,7 +1396,10 @@
                                 `;
                             }
                             
-                            // Show success modal
+                            // Show success modal (photo mode for screen boards)
+                            if (typeof applyUploadMode === 'function') {
+                                applyUploadMode(Boolean(data.is_screen_board));
+                            }
                             const modal = new bootstrap.Modal(document.getElementById('licenseCreatedModal'));
                             modal.show();
                         } else {
@@ -1443,6 +1448,47 @@
         return Math.round(seconds / 3600) + ' {% trans "h" %}';
     }
     
+    // Screen boards (Bildschirmtafel) are photos, so they accept image files too.
+    const UPLOAD_MODES = {
+        video: {
+            title: '{% trans "Video Upload" %}',
+            intro: '{% trans "You can now upload a video for this license or do this later from the license list." %}',
+            label: '{% trans "Video File" %}',
+            hint: '{% trans "Supported formats: mp4, mov, avi, mkv, webm. Maximum size: 20GB." %}',
+            accept: 'video/*',
+            extensions: ['mp4', 'mov', 'avi', 'mkv', 'webm'],
+            missingFile: '{% trans "Please select a video file first." %}',
+            invalidFormat: '{% trans "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm." %}',
+            success: '{% trans "Video uploaded successfully!" %}'
+        },
+        photo: {
+            title: '{% trans "Photo Upload" %}',
+            intro: '{% trans "You can now upload the photo for this screen board or do this later from the license list." %}',
+            label: '{% trans "Photo or video file" %}',
+            hint: '{% trans "Supported formats: jpg, jpeg, png, webp, mp4, mov, avi, mkv, webm. Maximum size: 20GB." %}',
+            accept: 'image/*,video/*',
+            extensions: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mov', 'avi', 'mkv', 'webm'],
+            missingFile: '{% trans "Please select a photo first." %}',
+            invalidFormat: '{% trans "Invalid file format. Supported formats: jpg, jpeg, png, webp, mp4, mov, avi, mkv, webm." %}',
+            success: '{% trans "File uploaded successfully!" %}'
+        }
+    };
+    let currentUploadMode = UPLOAD_MODES.video;
+
+    function applyUploadMode(isScreenBoard) {
+        currentUploadMode = isScreenBoard ? UPLOAD_MODES.photo : UPLOAD_MODES.video;
+        const titleEl = document.getElementById('upload-modal-title');
+        const introEl = document.getElementById('upload-modal-intro');
+        const labelEl = document.getElementById('upload-file-label');
+        const hintEl = document.getElementById('upload-file-hint');
+        const inputEl = document.getElementById('modal-video-file');
+        if (titleEl) titleEl.textContent = currentUploadMode.title;
+        if (introEl) introEl.textContent = currentUploadMode.intro;
+        if (labelEl) labelEl.textContent = currentUploadMode.label;
+        if (hintEl) hintEl.textContent = currentUploadMode.hint;
+        if (inputEl) inputEl.setAttribute('accept', currentUploadMode.accept);
+    }
+
     // Chunked upload settings from Django settings
     const CHUNKED_ENABLED = {{ NEXTCLOUD_CHUNKED_UPLOAD_ENABLED|default:"true"|lower }};  // Enable/disable chunked upload
     const CHUNK_THRESHOLD = {{ NEXTCLOUD_CHUNK_THRESHOLD|default:"104857600" }};  // 100MB default
@@ -1633,7 +1679,7 @@
         if (!fileInput.files || fileInput.files.length === 0) {
             statusDiv.className = 'alert alert-warning';
             statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>{% trans "Please select a video file first." %}';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>' + currentUploadMode.missingFile;
             return;
         }
         
@@ -1646,12 +1692,12 @@
             return;
         }
         
-        const allowedExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+        const allowedExtensions = currentUploadMode.extensions;
         const fileExtension = file.name.split('.').pop().toLowerCase();
         if (!allowedExtensions.includes(fileExtension)) {
             statusDiv.className = 'alert alert-danger';
             statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>{% trans "Invalid file format. Supported formats: mp4, mov, avi, mkv, webm." %}';
+            statusDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + currentUploadMode.invalidFormat;
             return;
         }
         
@@ -1748,7 +1794,7 @@
             statusDiv.className = 'alert alert-success';
             statusDiv.style.display = 'block';
             statusDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + 
-                (confirmData.message || '{% trans "Video uploaded successfully!" %}');
+                (confirmData.message || currentUploadMode.success);
             
             uploadButton.disabled = true;
             uploadButton.innerHTML = '<i class="bi bi-check me-2"></i>{% trans "Uploaded" %}';

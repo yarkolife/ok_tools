@@ -1,5 +1,7 @@
 """Celery tasks for licenses module."""
 
+from .config import get_auto_download_to_storage
+from .media_types import is_image_filename
 from .models import License
 from .models import LicenseNotificationEvent
 from .models import LicenseNotificationEventType
@@ -30,13 +32,19 @@ logger = logging.getLogger('django')
 
 
 @shared_task(name='licenses.tasks.download_nextcloud_video_file_to_storage', queue='download', bind=True, max_retries=3)
-def download_nextcloud_video_file_to_storage(self, nextcloud_video_file_id: int, download_dir: str | None = None) -> str:
+def download_nextcloud_video_file_to_storage(
+    self,
+    nextcloud_video_file_id: int,
+    download_dir: str | None = None,
+    force: bool = False,
+) -> str:
     """
     Download a Nextcloud video to local storage.
 
     Args:
         nextcloud_video_file_id: NextcloudVideoFile PK
         download_dir: Override download directory (optional)
+        force: Download again even if the file is already in local storage
 
     Returns:
         Local file path as string
@@ -47,6 +55,17 @@ def download_nextcloud_video_file_to_storage(self, nextcloud_video_file_id: int,
     video = NextcloudVideoFile.objects.select_related('license').get(pk=nextcloud_video_file_id)
     if video.is_deleted:
         raise RuntimeError(f"Nextcloud video is marked deleted (id={video.pk})")
+
+    if not force and video.downloaded_at:
+        # Downloaded once already. Moving or deleting the local copy afterwards
+        # is a deliberate decision, so it is never fetched again on its own —
+        # use the Download button in the admin for that.
+        logger.info(
+            "Nextcloud file #%s was already downloaded on %s, skipping",
+            video.pk,
+            video.downloaded_at,
+        )
+        return video.local_path or ''
 
     config = LicensesConfig.get_config()
     storage_path = (download_dir or config.download_storage_path or '').strip()
@@ -71,9 +90,17 @@ def download_nextcloud_video_file_to_storage(self, nextcloud_video_file_id: int,
             raise RuntimeError("Download failed")
         logger.info(f"Downloaded Nextcloud video #{video.pk} to {local_path}")
 
-        # Optionally create VideoFile in media_files so it shows as Player immediately
-        if getattr(settings, "MEDIA_FILES_ENABLED", False) and getattr(
-            config, "create_videofile_on_nextcloud_download", False
+        NextcloudVideoFile.objects.filter(pk=video.pk).update(
+            downloaded_at=timezone.now(),
+            local_path=str(local_path),
+        )
+
+        # Optionally create VideoFile in media_files so it shows as Player immediately.
+        # Screen board photos are no videos, so they are only stored on disk.
+        if (
+            getattr(settings, "MEDIA_FILES_ENABLED", False)
+            and getattr(config, "create_videofile_on_nextcloud_download", False)
+            and not is_image_filename(video.filename)
         ):
             try:
                 _create_videofile_after_download(
@@ -92,6 +119,137 @@ def download_nextcloud_video_file_to_storage(self, nextcloud_video_file_id: int,
         return str(local_path)
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
+
+
+def _existing_local_copy(video: NextcloudVideoFile) -> str | None:
+    """
+    Return the path of an already available local copy, or None.
+
+    Files that were downloaded before this bookkeeping existed are recognised
+    through media_files, so the automatic download does not fetch gigabytes
+    that are already on disk.
+    """
+    if not getattr(settings, "MEDIA_FILES_ENABLED", False):
+        return None
+
+    if is_image_filename(video.filename):
+        # Photos are not tracked in media_files.
+        return None
+
+    license_number = getattr(video.license, 'number', None)
+    if not license_number:
+        return None
+
+    try:
+        from media_files.models import VideoFile
+        import re
+
+        def normalize(name: str) -> str:
+            return re.sub(r'[^a-zA-Z0-9._-]', '_', Path(name or '').name).lower()
+
+        wanted = normalize(video.filename)
+        if not wanted:
+            return None
+        candidates = {wanted, f"{license_number}_{wanted}"}
+
+        for video_file in VideoFile.objects.select_related('storage_location').filter(
+            number=license_number,
+            is_available=True,
+        ):
+            names = {normalize(video_file.file_path), normalize(video_file.filename)}
+            if not (names & candidates):
+                continue
+            path = video_file.full_path
+            if Path(path).exists():
+                return path
+        return None
+    except Exception:
+        logger.debug(
+            "Could not check media_files for an existing copy of Nextcloud file #%s",
+            video.pk,
+            exc_info=True,
+        )
+        return None
+
+
+def enqueue_nextcloud_download(video: NextcloudVideoFile) -> bool:
+    """
+    Queue the automatic download of a Nextcloud file to local storage.
+
+    Returns True when the download task was queued. Nothing is queued when the
+    automatic download is switched off, no storage path is configured, or the
+    file is deleted or already downloaded.
+    """
+    if not settings.NEXTCLOUD_ENABLED:
+        return False
+
+    if not get_auto_download_to_storage():
+        return False
+
+    if getattr(video, 'is_deleted', False) or video.downloaded_at:
+        return False
+
+    config = LicensesConfig.get_config()
+    if not (config.download_storage_path or '').strip():
+        logger.warning(
+            "Automatic download skipped for Nextcloud file #%s: "
+            "download_storage_path is not configured",
+            video.pk,
+        )
+        return False
+
+    local_copy = _existing_local_copy(video)
+    if local_copy:
+        NextcloudVideoFile.objects.filter(pk=video.pk).update(
+            downloaded_at=timezone.now(),
+            local_path=local_copy,
+        )
+        logger.info(
+            "Nextcloud file #%s is already in local storage (%s), no download needed",
+            video.pk,
+            local_copy,
+        )
+        return False
+
+    try:
+        download_nextcloud_video_file_to_storage.delay(video.pk)
+    except Exception:
+        logger.exception(
+            "Could not queue automatic download for Nextcloud file #%s", video.pk
+        )
+        return False
+
+    logger.info("Queued automatic download for Nextcloud file #%s", video.pk)
+    return True
+
+
+@shared_task(name='licenses.tasks.download_pending_nextcloud_videos')
+def download_pending_nextcloud_videos(limit: int = 100) -> int:
+    """
+    Queue downloads for Nextcloud files that are not in local storage yet.
+
+    Catch-up sweep for files whose upload signal was missed, e.g. because the
+    worker was down or the storage path was configured later.
+    """
+    if not settings.NEXTCLOUD_ENABLED:
+        return 0
+
+    if not get_auto_download_to_storage():
+        return 0
+
+    pending = NextcloudVideoFile.objects.filter(
+        is_deleted=False,
+        downloaded_at__isnull=True,
+    ).order_by('uploaded_at')[:limit]
+
+    queued = 0
+    for video in pending:
+        if enqueue_nextcloud_download(video):
+            queued += 1
+
+    if queued:
+        logger.info("Queued %s pending Nextcloud download(s)", queued)
+    return queued
 
 
 def _create_videofile_after_download(

@@ -8,15 +8,37 @@ from __future__ import annotations
 
 import logging
 
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from .config import get_send_status_emails
 from .models import LicenseNotificationEvent, LicenseNotificationEventType, NextcloudVideoFile
 from .tasks import enqueue_license_notification_email
+from .tasks import enqueue_nextcloud_download
 
 
 logger = logging.getLogger("django")
+
+
+@receiver(post_save, sender=NextcloudVideoFile)
+def download_nextcloud_file_automatically(sender, instance: NextcloudVideoFile, created: bool, **kwargs) -> None:
+    """Fetch a freshly uploaded Nextcloud file into local storage without manual action."""
+    if not created:
+        return
+
+    if getattr(instance, "is_deleted", False) or instance.downloaded_at:
+        return
+
+    def _enqueue_download() -> None:
+        try:
+            enqueue_nextcloud_download(instance)
+        except Exception:
+            logger.exception(
+                "Failed to queue automatic download for Nextcloud file %s", instance.pk
+            )
+
+    transaction.on_commit(_enqueue_download)
 
 
 @receiver(post_save, sender=NextcloudVideoFile)

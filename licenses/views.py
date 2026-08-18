@@ -1,5 +1,9 @@
 from . import forms
 from .generate_file import generate_license_file
+from .media_types import allowed_extensions
+from .media_types import is_allowed_filename
+from .media_types import is_image_filename
+from .media_types import unsupported_format_message
 from .models import License
 from .models import NextcloudVideoFile
 from .models import SigningSession
@@ -413,6 +417,7 @@ class CreateLicenseView(generic.CreateView):
                 'license_number': self.object.number,
                 'title': self.object.title,
                 'has_signature': has_signature,
+                'is_screen_board': bool(self.object.is_screen_board),
                 'pdf_url': reverse('licenses:print', kwargs={'pk': self.object.pk}),
             })
         
@@ -682,7 +687,7 @@ class GetUploadTokenView(generic.View):
         if license.confirmed:
             return http.JsonResponse({
                 'success': False,
-                'error': _('Cannot upload video to confirmed license.')
+                'error': _('Cannot upload a file to a confirmed license.')
             }, status=400)
         
         # Check if video already exists
@@ -694,7 +699,7 @@ class GetUploadTokenView(generic.View):
         if existing_video:
             return http.JsonResponse({
                 'success': False,
-                'error': _('Video already uploaded. Cannot upload second video.')
+                'error': _('File already uploaded. Cannot upload a second file.')
             }, status=400)
         
         try:
@@ -728,6 +733,8 @@ class GetUploadTokenView(generic.View):
                 'upload_url': share_data['upload_url'],
                 'session_id': upload_session_id,
                 'license_number': license.number,
+                'is_screen_board': bool(license.is_screen_board),
+                'allowed_extensions': list(allowed_extensions(license.is_screen_board)),
             })
             
         except Exception as e:
@@ -789,6 +796,12 @@ class ConfirmUploadView(generic.View):
                 'success': False,
                 'error': _('Filename is required.')
             }, status=400)
+
+        if not is_allowed_filename(filename, license.is_screen_board):
+            return http.JsonResponse({
+                'success': False,
+                'error': unsupported_format_message(license.is_screen_board)
+            }, status=400)
         
         # Check if video already exists
         existing_video = NextcloudVideoFile.objects.filter(
@@ -799,7 +812,7 @@ class ConfirmUploadView(generic.View):
         if existing_video:
             return http.JsonResponse({
                 'success': False,
-                'error': _('Video already uploaded. Cannot upload second video.')
+                'error': _('File already uploaded. Cannot upload a second file.')
             }, status=400)
         
         try:
@@ -844,9 +857,15 @@ class ConfirmUploadView(generic.View):
                     del request.session[share_key]
                     request.session.modified = True
             
+            message = (
+                _('Photo uploaded successfully.')
+                if is_image_filename(filename)
+                else _('Video uploaded successfully.')
+            )
+
             return http.JsonResponse({
                 'success': True,
-                'message': _('Video uploaded successfully.'),
+                'message': message,
                 'filename': filename,
                 'file_size': actual_size,
             })
