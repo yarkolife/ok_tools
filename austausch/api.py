@@ -800,9 +800,18 @@ class ExportToServerStatusView(APIView):
                     celery_progress = celery_result.info
             except Exception:
                 pass
-        
+
+        # A worker restarted mid-export leaves the run "running" forever, so tell
+        # the caller when no live worker holds the task any more.
+        orphaned = bool((run.details or {}).get('orphaned'))
+        if not run.completed_at and task_id and not orphaned:
+            orphaned = self._is_orphaned(task_id, run.started_at)
+        if orphaned:
+            task_status = 'interrupted'
+
         return Response({
             'status': task_status,
+            'orphaned': orphaned,
             'run_id': run.id,
             'task_id': task_id,
             'celery_status': celery_status,
@@ -815,3 +824,19 @@ class ExportToServerStatusView(APIView):
             'completed_at': run.completed_at.isoformat() if run.completed_at else None,
             'mode': run.mode,
         })
+
+    @staticmethod
+    def _is_orphaned(task_id, started_at):
+        """Whether no live Celery worker holds ``task_id`` any more."""
+        from django.conf import settings
+        from django.utils import timezone
+        from datetime import timedelta
+        from ok_tools.celery_health import get_live_task_ids_cached
+
+        hint_minutes = getattr(settings, 'CELERY_STALE_TASK_HINT_MINUTES', 15)
+        if not started_at or started_at > timezone.now() - timedelta(minutes=hint_minutes):
+            return False
+        live_task_ids = get_live_task_ids_cached()
+        if live_task_ids is None:
+            return False
+        return str(task_id) not in live_task_ids

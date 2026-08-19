@@ -269,6 +269,37 @@ function Stepper({ steps, active, setActive }) {
   );
 }
 
+/* Availability badge shared by the guided catalog and the quick-scan list.
+   `stock` is the serializer's qty block ({avail, total, reserved, issued});
+   the backend also sends a ready-made `status_label` for unavailable items. */
+function availabilityLabel(stock, conflict, statusLabel) {
+  if (statusLabel) return statusLabel;
+  const q = stock || {};
+  if (conflict && q.issued) return t('tag.issued', 'Issued');
+  if (conflict && q.reserved) return t('tag.reserved', 'Reserved');
+  if (conflict) return t('tag.booked', 'Booked');
+  return q.avail > 0 ? t('tag.in_stock', 'In stock') : t('tag.out', 'Out');
+}
+
+function ItemStatusTag({ stock, conflict, statusLabel, showCounts = true }) {
+  const q = stock || {};
+  const label = availabilityLabel(stock, conflict, statusLabel);
+  const free = !conflict && q.avail > 0;
+  // Reserved/issued counts are shown even when the item is still available, so
+  // an item wrongly left in "issued" state is visible at scan time.
+  const notes = [];
+  if (showCounts && q.reserved) notes.push(`${q.reserved} ${t('wiz.reserved', 'reserved')}`);
+  if (showCounts && q.issued) notes.push(`${q.issued} ${t('wiz.issued_count', 'issued')}`);
+  return (
+    <div>
+      <span className={cls('tag', free ? 'tag-ok' : 'tag-hold')}>
+        {!free && <i className="fas fa-lock" style={{fontSize: 9}}></i>}{label}
+      </span>
+      {notes.length > 0 && <div className="muted tiny mt-1">{notes.join(' · ')}</div>}
+    </div>
+  );
+}
+
 /* ===== STEP 1 — Items & rooms ===== */
 function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
   const [activeTab, setActiveTab] = React.useState(initial.categories[0]?.id || '');
@@ -427,12 +458,6 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
             {items.map(item => {
               const chosen = inCart(item.id);
               const canChoose = item.qty.avail > 0 && !item.conflict;
-              const availabilityLabel = item.status_label || (
-                item.conflict && item.qty.issued ? t('tag.issued', 'Issued') :
-                item.conflict && item.qty.reserved ? t('tag.reserved', 'Reserved') :
-                item.conflict ? t('tag.booked', 'Booked') :
-                item.qty.avail > 0 ? t('tag.in_stock', 'In stock') : t('tag.out', 'Out')
-              );
               return (
                 <div key={item.id}
                      className={cls('item-row', chosen && 'selected', !canChoose && !chosen && 'unavailable')}
@@ -453,9 +478,8 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
                   </div>
                   <div className="meta">{item.qty.avail}/{item.qty.total} {t('wiz.available', 'available')}</div>
                   <div>
-                    {!canChoose
-                      ? <span className="tag tag-hold"><i className="fas fa-lock" style={{fontSize: 9}}></i>{availabilityLabel}</span>
-                      : <span className="tag tag-ok">{availabilityLabel}</span>}
+                    <ItemStatusTag stock={item.qty} conflict={item.conflict}
+                                   statusLabel={item.status_label} showCounts={false} />
                   </div>
                   <div className="meta" style={{textAlign: 'right'}}>
                     {item.qty.reserved ? `${item.qty.reserved} ${t('wiz.reserved','reserved')}` : t('wiz.free','Free')}
@@ -891,14 +915,15 @@ function CartSummary({ cart, setQty, removeItem, rooms }) {
 }
 
 /* ===== STEP 2 — User ===== */
-function StepUser({ initial, selected, setSelected }) {
-  const [q, setQ] = React.useState('');
+/* User lookup shared by the guided user step and the quick-mode picker:
+   the preloaded list is filtered in the browser and merged with a debounced
+   remote search so users outside that list are findable too. */
+function useUserSearch(initial, q) {
   const [remoteUsers, setRemoteUsers] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
-  // Debounced remote search when user types
   React.useEffect(() => {
-    if (!q || q.length < 2) { setRemoteUsers([]); return; }
+    if (!q || q.length < 2) { setRemoteUsers([]); setLoading(false); return; }
     setLoading(true);
     const timer = setTimeout(() => {
       apiGet(initial.urls.users_search + '?q=' + encodeURIComponent(q))
@@ -909,12 +934,20 @@ function StepUser({ initial, selected, setSelected }) {
     return () => clearTimeout(timer);
   }, [q]);
 
-  // Merge local + remote, deduplicate by id
+  const needle = (q || '').toLowerCase();
   const localFiltered = (initial.users || []).filter(u =>
-    !q || u.name.toLowerCase().includes(q.toLowerCase()) || u.org.toLowerCase().includes(q.toLowerCase())
+    !needle || u.name.toLowerCase().includes(needle) || u.org.toLowerCase().includes(needle)
   );
   const seen = new Set(localFiltered.map(u => u.id));
-  const merged = [...localFiltered, ...(remoteUsers || []).filter(u => !seen.has(u.id))];
+  return {
+    users: [...localFiltered, ...(remoteUsers || []).filter(u => !seen.has(u.id))],
+    loading,
+  };
+}
+
+function StepUser({ initial, selected, setSelected }) {
+  const [q, setQ] = React.useState('');
+  const { users: merged, loading } = useUserSearch(initial, q);
 
   return (
     <div>
@@ -1284,12 +1317,101 @@ function StepReview({ user, period, cart, rooms, project, setProject, purpose, s
   );
 }
 
+/* Compact type-ahead user picker for quick mode. A plain <select> listing every
+   user is unusable once the account list grows, so search the same way the
+   guided step does and show the pick inline. */
+function QuickUserPicker({ initial, user, setUser, onPicked }) {
+  const [q, setQ] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const { users, loading } = useUserSearch(initial, q);
+  const boxRef = React.useRef(null);
+
+  // Close the menu when the operator clicks anywhere else.
+  React.useEffect(() => {
+    if (!open) return;
+    const onPointerDown = e => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, [open]);
+
+  const pick = u => { setUser(u); setQ(''); setOpen(false); if (onPicked) onPicked(u); };
+
+  if (user) {
+    return (
+      <div className="d-flex align-items-center" style={{gap: 8, minWidth: 0}}>
+        <Avatar user={user} size={26} />
+        <div style={{minWidth: 0}}>
+          <div className="text-truncate" style={{fontWeight: 500, fontSize: 13}}>{user.name}</div>
+          <div className="muted tiny text-truncate">{user.org}</div>
+        </div>
+        <button className="btn btn-ghost btn-sm ms-auto" type="button"
+                title={t('wiz.clear', 'Clear')}
+                onClick={() => { setUser(null); setQ(''); setOpen(true); }}>
+          <i className="fas fa-times muted"></i>
+        </button>
+      </div>
+    );
+  }
+
+  const options = users.slice(0, 20);
+  return (
+    <div ref={boxRef} style={{position: 'relative'}}>
+      <div className="input-group input-group-sm">
+        <span className="input-group-text"><i className="fas fa-search"></i></span>
+        <input type="text" className="form-control"
+               placeholder={t('wiz.search_user', 'Search by name, email, student ID…')}
+               value={q}
+               onFocus={() => setOpen(true)}
+               onChange={e => { setQ(e.target.value); setOpen(true); }}
+               onKeyDown={e => {
+                 if (e.key === 'Escape') setOpen(false);
+                 // Enter picks the only remaining match, so a keyboard-only
+                 // operator never has to reach for the mouse.
+                 if (e.key === 'Enter' && options.length === 1) {
+                   e.preventDefault();
+                   pick(options[0]);
+                 }
+               }} />
+      </div>
+      {open && (
+        <div className="quick-user-menu">
+          {loading && <div className="muted tiny p-2">{t('loading', 'Loading…')}</div>}
+          {!loading && options.length === 0 && (
+            <div className="muted tiny p-2">{t('wiz.no_users', 'No users match your search.')}</div>
+          )}
+          {options.map(u => (
+            <div key={u.id} className="quick-user-option" onClick={() => pick(u)}>
+              <Avatar user={u} size={26} />
+              <div style={{minWidth: 0}}>
+                <div className="text-truncate" style={{fontWeight: 500, fontSize: 13}}>{u.name}</div>
+                <div className="muted tiny text-truncate">{u.org}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ===== Quick mode ===== */
 function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod }) {
   const [scan, setScan] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const [feedback, setFeedback] = React.useState(null);
   const debounceRef = React.useRef(null);
+  const scanRef = React.useRef(null);
+
+  // The scan field is disabled while the lookup runs, which makes the browser
+  // drop focus. Restore it as soon as the request settles so the operator can
+  // keep scanning without touching the mouse.
+  React.useEffect(() => {
+    if (!busy && scanRef.current) scanRef.current.focus();
+  }, [busy]);
+
+  const setQty = (id, qty) => setCart(cc => cc.map(x => x.id === id ? { ...x, qty } : x));
 
   const addByScan = async () => {
     if (!scan.trim()) return;
@@ -1304,7 +1426,9 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
       const data = await apiGet(`${initial.urls.inventory_search}?${params}`);
       const hit = data.items?.[0];
       if (hit) {
-        setCart(c => c.some(x => x.id === hit.id) ? c : [...c, { ...hit, qty: 1 }]);
+        // `qty` on a cart entry is the requested count, so move the serializer's
+        // availability block to `stock` before it gets overwritten.
+        setCart(c => c.some(x => x.id === hit.id) ? c : [...c, { ...hit, stock: hit.qty, qty: 1 }]);
         beep(800, 100);
         setFeedback('success');
         setTimeout(() => setFeedback(null), 500);
@@ -1349,11 +1473,8 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
         <div className="quick-row">
           <div>
             <div className="muted tiny mb-1" style={{textTransform: 'uppercase', fontWeight: 600}}>{t('wiz.user','User')}</div>
-            <select className="form-select form-select-sm" value={user?.id || ''}
-                    onChange={e => setUser(initial.users.find(u => String(u.id) === e.target.value))}>
-              <option value="">—</option>
-              {initial.users.map(u => <option key={u.id} value={u.id}>{u.name} — {u.org}</option>)}
-            </select>
+            <QuickUserPicker initial={initial} user={user} setUser={setUser}
+                             onPicked={() => scanRef.current && scanRef.current.focus()} />
           </div>
           <div>
             <div className="muted tiny mb-1" style={{textTransform: 'uppercase', fontWeight: 600}}>{t('wiz.pickup','Pickup')}</div>
@@ -1370,6 +1491,7 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
             <div className="input-group input-group-sm">
               <span className="input-group-text"><i className="fas fa-barcode"></i></span>
               <input className="form-control" placeholder="INV-…" autoFocus
+                     ref={scanRef}
                      style={scanInputStyle}
                      disabled={busy}
                      value={scan} onChange={e => setScan(e.target.value)}
@@ -1385,8 +1507,12 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
       </div>
 
       <div className="surface p-0">
-        {cart.map((c, i) => (
-          <div key={c.id} style={{display: 'grid', gridTemplateColumns: '28px 1fr 100px 60px', gap: 10,
+        {cart.map((c, i) => {
+          const qty = c.qty || 0;
+          const total = c.stock && c.stock.total;
+          const max = total > 0 ? total : Infinity;
+          return (
+          <div key={c.id} style={{display: 'grid', gridTemplateColumns: '28px 1fr 150px 108px 44px', gap: 10,
                                      padding: '10px 14px', borderBottom: '1px solid var(--line)', alignItems: 'center',
                                      fontSize: 13}}>
             <div className="muted mono">{i + 1}</div>
@@ -1394,13 +1520,26 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
               <div style={{fontWeight: 500}}>{c.name}</div>
               <div className="muted tiny mono">{c.num}</div>
             </div>
-            <div className="mono">× {c.qty}</div>
+            <div>
+              <ItemStatusTag stock={c.stock} conflict={c.conflict} statusLabel={c.status_label} />
+            </div>
+            <div className="input-group input-group-sm" style={{maxWidth: 108}}>
+              <button className="btn btn-ghost" type="button"
+                      disabled={qty <= 1}
+                      onClick={() => setQty(c.id, Math.max(1, qty - 1))}>−</button>
+              <input className="form-control text-center mono" readOnly
+                     value={total > 0 ? `${qty}/${total}` : qty} />
+              <button className="btn btn-ghost" type="button"
+                      disabled={qty >= max}
+                      onClick={() => setQty(c.id, Math.min(max, qty + 1))}>+</button>
+            </div>
             <button className="btn btn-ghost btn-sm"
                     onClick={() => setCart(cc => cc.filter(x => x.id !== c.id))}>
               <i className="fas fa-times muted"></i>
             </button>
           </div>
-        ))}
+          );
+        })}
         {cart.length === 0 && (
           <div className="muted p-3 text-center">
             {t('wiz.scan_hint', 'Scan or enter an inventory code above to add items.')}

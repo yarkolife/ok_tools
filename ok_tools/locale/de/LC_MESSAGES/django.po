@@ -6635,3 +6635,28 @@ msgid ""
 msgstr ""
 "Welcher Offene Kanal diese Installation ist. Dient dazu, Eigenproduktionen "
 "von Material anderer Kanäle zu unterscheiden."
+
+#: ok_tools/admin_celery.py
+msgid "Interrupted (worker gone)"
+msgstr "Abgebrochen (Worker nicht mehr vorhanden)"
+
+#: ok_tools/admin_celery.py
+#, python-format
+msgid ""
+"The worker that was running this task no longer exists; the last reported "
+"status was: %(status)s"
+msgstr ""
+"Der Worker, der diese Aufgabe ausgeführt hat, existiert nicht mehr; zuletzt "
+"gemeldeter Status: %(status)s"
+
+#: ok_tools/celery_health.py
+msgid "The worker running this task no longer exists."
+msgstr "Der Worker, der diese Aufgabe ausgeführt hat, existiert nicht mehr."
+
+#: ok_tools/celery_health.py
+msgid ""
+"The worker running this export no longer exists; the export was interrupted."
+msgstr ""
+"Der Worker, der diesen Export ausgeführt hat, existiert nicht mehr; der "
+"Export wurde abgebrochen."
+

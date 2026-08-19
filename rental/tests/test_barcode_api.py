@@ -92,6 +92,24 @@ class BarcodeApiTests(TestCase):
         self.assertEqual(ri.quantity_returned, 1)
         self.assertFalse(data['complete'])
 
+    def test_scan_return_rejects_display_code(self):
+        """The return page used to send R-YYMM-NNNN, which is not the pk."""
+        self._create_item('OK-SCAN-CODE')
+        rental = self._create_rental()
+        display_code = f"R-{rental.created_at.strftime('%y%m')}-{rental.pk:04d}"
+
+        url = reverse('rental:api_scan_return_item')
+        resp = self.client.post(
+            url,
+            data=json.dumps({
+                'rental_id': display_code,
+                'inventory_number': 'OK-SCAN-CODE',
+            }),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn('error', resp.json())
+
     def test_scan_return_item_not_found(self):
         self._create_item('OK-SCAN-OTHER')
         rental = self._create_rental()

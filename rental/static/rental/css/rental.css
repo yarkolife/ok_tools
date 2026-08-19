@@ -932,6 +932,24 @@ html, body {
   grid-template-columns: 1.2fr 1fr 1fr 1fr auto;
   gap: 10px; align-items: center;
 }
+/* Let the fr columns shrink: without this a long user name widens its own
+   column and squeezes the scan field. */
+.quick-panel .quick-row > * { min-width: 0; }
+/* Type-ahead user picker in quick mode */
+.quick-user-menu {
+  position: absolute; z-index: 30; top: 100%; left: 0; right: 0;
+  margin-top: 4px; max-height: 260px; overflow-y: auto;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+.quick-user-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; cursor: pointer;
+  border-bottom: 1px solid var(--line);
+}
+.quick-user-option:last-child { border-bottom: 0; }
+.quick-user-option:hover,
+.quick-user-option.active { background: var(--bg); }
 
 .btn-outline-light {
   color: rgba(255, 255, 255, 0.96) !important;

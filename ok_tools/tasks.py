@@ -218,3 +218,24 @@ def send_return_reminders_task():
     except Exception as e:
         logger.error(f"Error occurred during send return reminders task: {e}")
         raise
+
+
+@shared_task(name='ok_tools.tasks.cleanup_stale_task_results_task')
+def cleanup_stale_task_results_task(older_than_minutes=60):
+    """Close out Celery tasks whose worker vanished (restart, deploy, OOM).
+
+    Such tasks never write a terminal state, so without this they stay in
+    PROGRESS forever and have to be deleted by hand in the admin.
+    """
+    from ok_tools.celery_health import cleanup_orphaned_task_results
+
+    logger.info("Starting cleanup of stale Celery task results.")
+    summary = cleanup_orphaned_task_results(older_than_minutes=older_than_minutes)
+    if summary['skipped']:
+        logger.warning("No Celery worker answered; stale task cleanup skipped.")
+    else:
+        logger.info(
+            "Stale task cleanup finished: %s orphaned, %s closed.",
+            summary['orphaned'], summary['closed'],
+        )
+    return summary

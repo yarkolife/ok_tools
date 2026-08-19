@@ -309,6 +309,11 @@
         <strong>{% translate "Completed at" %}</strong>
         {% if run.completed_at %}
           <span>{{ run.completed_at|localtime|date:"Y-m-d H:i:s" }}</span>
+          {% if run.details.orphaned %}
+            <span style="color:#ba2121; font-size:12px; display:block;">
+              {% translate "Interrupted: the worker running this export no longer exists." %}
+            </span>
+          {% endif %}
         {% else %}
           <span class="running-badge">{% translate "Still running…" %}</span>
         {% endif %}
@@ -453,6 +458,14 @@
     progressBar.style.width = progress + '%';
     progressPercent.textContent = progress + '%';
     
+    // The worker was restarted mid-export: stop pretending the task is alive.
+    if (data.orphaned || data.status === 'interrupted') {
+      isRunning = false;
+      progressStatus.textContent = '{% translate "Interrupted: the worker running this export no longer exists." %}';
+      progressStatus.style.color = '#ba2121';
+      return;
+    }
+
     if (statusText === 'uploading') {
       progressStatus.textContent = '{% translate "Uploading file…" %}';
     } else if (statusText === 'processing' || statusText === '') {

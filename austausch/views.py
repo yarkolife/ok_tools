@@ -310,6 +310,27 @@ def _filter_license_numbers_by_authority_and_flags(license_numbers, config):
     return sorted(qs.values_list('number', flat=True).distinct())
 
 
+def _split_license_numbers_by_authority_and_flags(license_numbers, config):
+    """Split numbers into (kept, rejected) by media authority and exchange flags.
+
+    Returning the rejected numbers as well lets the caller say *which* entries
+    were dropped instead of only that nothing was left.
+    """
+    kept = _filter_license_numbers_by_authority_and_flags(license_numbers, config)
+    kept_set = set(kept)
+    rejected = [number for number in license_numbers if number not in kept_set]
+    return kept, sorted(set(rejected))
+
+
+def _format_license_number_list(license_numbers, limit=15):
+    """Render a short, comma-separated preview of license numbers for messages."""
+    numbers = list(license_numbers)
+    preview = ', '.join(str(number) for number in numbers[:limit])
+    if len(numbers) > limit:
+        preview += ', …'
+    return preview
+
+
 def _get_already_exported_license_numbers() -> set[int]:
     """
     Return set of license numbers that were already successfully exported.
@@ -357,12 +378,13 @@ def export_to_server_step1(request):
             if not ids:
                 ctx['error'] = _('Enter at least one license number.')
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
-            ids = _filter_license_numbers_by_authority_and_flags(ids, config)
+            ids, rejected = _split_license_numbers_by_authority_and_flags(ids, config)
             if not ids:
                 ctx['error'] = _(
-                    'No licenses match: Default Media Authority (when set) and at least one of '
-                    'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
-                )
+                    'None of the entered license numbers (%(numbers)s) may be exported: the Default '
+                    'Media Authority (when set) and at least one of Exchange SA, Exchange outside '
+                    'SA, or In OK-Mediathek are required.'
+                ) % {'numbers': _format_license_number_list(rejected)}
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
             already = _get_already_exported_license_numbers()
             ids = [i for i in ids if i not in already]
@@ -379,7 +401,10 @@ def export_to_server_step1(request):
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
             ids = _get_planung_license_numbers(date_from, date_to)
             if not ids:
-                ctx['error'] = _('No license numbers found in Planung for the selected date range.')
+                ctx['error'] = _(
+                    'No license numbers found in Planung between %(date_from)s and %(date_to)s. '
+                    'Check the date range, or enter the license numbers directly.'
+                ) % {'date_from': date_from, 'date_to': date_to}
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
             ids = _filter_planung_exclude_early_premiere(ids, date_from, date_to)
             if not ids:
@@ -388,17 +413,28 @@ def export_to_server_step1(request):
                     '(premiere was before the selected date range).'
                 )
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
-            ids = _filter_license_numbers_by_authority_and_flags(ids, config)
+            ids, rejected = _split_license_numbers_by_authority_and_flags(ids, config)
             if not ids:
                 ctx['error'] = _(
-                    'No licenses match: Default Media Authority (when set) and at least one of '
-                    'Exchange SA, Exchange outside SA, or In OK-Mediathek required.'
-                )
+                    'Planung found %(count)s license number(s) for this date range (%(numbers)s), '
+                    'but none of them may be exported: the Default Media Authority (when set) and '
+                    'at least one of Exchange SA, Exchange outside SA, or In OK-Mediathek are required.'
+                ) % {
+                    'count': len(rejected),
+                    'numbers': _format_license_number_list(rejected),
+                }
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
             already = _get_already_exported_license_numbers()
+            exported_now = [i for i in ids if i in already]
             ids = [i for i in ids if i not in already]
             if not ids:
-                ctx['error'] = _('All license numbers from Planung were already successfully exported.')
+                ctx['error'] = _(
+                    'All %(count)s license number(s) from Planung were already successfully '
+                    'exported (%(numbers)s).'
+                ) % {
+                    'count': len(exported_now),
+                    'numbers': _format_license_number_list(exported_now),
+                }
                 return render(request, 'austausch/export_to_server_step1.html', ctx)
             request.session['export_to_server'] = {'mode': 'licenses', 'ids': ids}
             return redirect(reverse('austausch:export_to_server_step2'))

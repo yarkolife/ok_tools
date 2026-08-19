@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+2026-08-19 (Version 4.47.0)
+==========================
+
+* **rental: Barcode scanning fixes on the return page**
+  * The return page sent the human-readable rental code (``R-2608-0284``) instead of the numeric primary key, so every scan on ``/rental/admin/return/<id>/`` failed regardless of the item. ``api_scan_return_item`` now also rejects a non-numeric ``rental_id`` with a clear 400 instead of raising.
+  * Scan errors are shown as text under the field instead of a 500 ms red border, and the input regains focus once the request settles so the next scan needs no mouse.
+  * German translations for the scan API responses were fuzzy, wrong ("Item not found in this rental" read as "Diese Ausleihe schließen?") or empty; the return page labels were missing from the i18n bundle entirely.
+
+* **rental: Quick mode is usable with a barcode scanner**
+  * The user ``<select>`` listing every account is replaced by a type-ahead picker sharing the guided step's search (local list plus debounced ``api_users_search``), so users outside the preloaded list are findable. Enter picks a single match and moves focus to the scan field.
+  * Scanned items show their full availability status — In stock / Booked / Reserved / Issued plus reserved and issued counts — so an item wrongly left in "issued" state is visible at scan time. The badge logic is shared with the guided catalog.
+  * Quantities can be changed in place with +/− instead of only removing the row.
+
+* **rental: Return receipt email was sent in English**
+  * ``rental_return_receipt_*`` templates fell back to their English msgids because every entry was fuzzy or untranslated in the German catalog.
+
+* **ok_tools: Recover Celery tasks whose worker disappeared**
+  * A worker restarted mid-task (deploy, OOM) never writes a terminal state, leaving ``TaskResult`` in PROGRESS forever. ``ok_tools.celery_health`` asks the live workers which task ids they hold and closes the rest as FAILURE with an explanatory traceback, also closing any ``ExportToServerRun`` left open by the same task.
+  * Runs from Celery beat (``cleanup_stale_task_results``, ``CELERY_BEAT_CLEANUP_STALE_TASKS``, every 15 minutes) or manually via ``manage.py cleanup_stale_tasks [--dry-run]``. Thresholds: ``CELERY_STALE_TASK_MINUTES`` (default 60) and ``CELERY_STALE_TASK_HINT_MINUTES`` (default 15).
+  * When no worker answers the inspect ping the sweep is skipped, so a transient broker outage never fails running tasks.
+  * The Celery admin shows "Interrupted (worker gone)" instead of a neutral "In progress", and the export status API/result page report the run as interrupted instead of polling forever.
+
+* **austausch: Precise export error messages**
+  * The Planung and license-number modes now name the date range, the license numbers that failed the media authority / exchange flag filter, and the numbers that were already exported, instead of one generic "No licenses match" for every cause.
+
 2026-08-18 (Version 4.46.0)
 ==========================
 

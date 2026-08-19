@@ -332,10 +332,12 @@ def _i18n_bundle():
         'wiz.no_items': _('No items match your search.'),
         'wiz.tap_to_add': _('Tap + to add items.'),
         'wiz.clear': _('Clear'),
+        'wiz.no_users': _('No users match your search.'),
         'wiz.of': _('of'),
         'wiz.free': _('free'),
         'wiz.per_room': _('per room'),
         'wiz.reserved': _('Reserved'),
+        'wiz.issued_count': _('issued'),
         'wiz.scan': _('Scan item'),
         'wiz.scan_hint': _('Scan barcode to add item'),
         'wiz.confirm': _('Confirm'),
@@ -431,6 +433,10 @@ def _i18n_bundle():
         'err.return': _('Could not submit return: '),
         'ret.returning': _('returning'),
         'ret.items': _('items'),
+        'ret.scan_barcode': _('Scan Barcode'),
+        'ret.scan_ph': _('Scan or type inventory number…'),
+        'ret.scan_failed': _('Scan failed.'),
+        'ret.returned': _('returned'),
         'ret.progress': _('Progress'),
         'ret.checked': _('checked'),
         'ret.issues': _('Issues'),
@@ -4523,6 +4529,16 @@ def api_scan_return_item(request):
     if not rental_id or not inventory_number:
         return JsonResponse(
             {'error': _('Missing required fields: rental_id and inventory_number')},
+            status=400,
+        )
+
+    # Clients must send the numeric primary key, not the display code
+    # (``R-2608-0284``); comparing that to an integer column raises ValueError.
+    try:
+        rental_id = int(rental_id)
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {'error': _('Invalid rental_id: a numeric rental id is required.')},
             status=400,
         )
 

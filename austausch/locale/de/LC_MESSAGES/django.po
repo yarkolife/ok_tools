@@ -1522,3 +1522,54 @@ msgstr "Keine neuen oder fehlgeschlagenen Einträge zum Importieren gefunden"
 
 #~ msgid "Broadcast date (premiere)"
 #~ msgstr "Sendedatum (Premiere)"
+
+#: austausch/views.py
+#, python-format
+msgid ""
+"No license numbers found in Planung between %(date_from)s and %(date_to)s. "
+"Check the date range, or enter the license numbers directly."
+msgstr ""
+"Zwischen %(date_from)s und %(date_to)s wurden in der Planung keine "
+"Freistellungsnummern gefunden. Prüfen Sie den Zeitraum oder geben Sie die "
+"Freistellungsnummern direkt ein."
+
+#: austausch/views.py
+#, python-format
+msgid ""
+"Planung found %(count)s license number(s) for this date range (%(numbers)s), "
+"but none of them may be exported: the Default Media Authority (when set) and "
+"at least one of Exchange SA, Exchange outside SA, or In OK-Mediathek are "
+"required."
+msgstr ""
+"Die Planung hat für diesen Zeitraum %(count)s Freistellungsnummer(n) "
+"gefunden (%(numbers)s), von denen keine exportiert werden darf: erforderlich "
+"sind die Standard-Medienanstalt (sofern gesetzt) und mindestens eines von "
+"Austausch ST, Austausch außerhalb ST oder In OK-Mediathek."
+
+#: austausch/views.py
+#, python-format
+msgid ""
+"All %(count)s license number(s) from Planung were already successfully "
+"exported (%(numbers)s)."
+msgstr ""
+"Alle %(count)s Freistellungsnummer(n) aus der Planung wurden bereits "
+"erfolgreich exportiert (%(numbers)s)."
+
+#: austausch/views.py
+#, python-format
+msgid ""
+"None of the entered license numbers (%(numbers)s) may be exported: the "
+"Default Media Authority (when set) and at least one of Exchange SA, Exchange "
+"outside SA, or In OK-Mediathek are required."
+msgstr ""
+"Keine der eingegebenen Freistellungsnummern (%(numbers)s) darf exportiert "
+"werden: erforderlich sind die Standard-Medienanstalt (sofern gesetzt) und "
+"mindestens eines von Austausch ST, Austausch außerhalb ST oder In "
+"OK-Mediathek."
+
+#: austausch/templates/austausch/export_to_server_result.html
+msgid "Interrupted: the worker running this export no longer exists."
+msgstr ""
+"Abgebrochen: Der Worker, der diesen Export ausgeführt hat, existiert nicht "
+"mehr."
+

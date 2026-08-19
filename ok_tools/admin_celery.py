@@ -24,6 +24,7 @@ except ImportError:
     from django.contrib.admin import ModelAdmin as BasePeriodicTaskAdmin
 
 from django_celery_results.models import TaskResult
+from ok_tools.celery_health import is_orphaned_task_result
 
 
 TASK_DISPLAY_NAMES = {
@@ -819,7 +820,11 @@ try:
             return tuple(dict.fromkeys([*super().get_readonly_fields(request, obj), *custom_fields]))
 
         def readable_status(self, obj):
-            """Display the Celery status with a translated label."""
+            """Display the Celery status with a translated label.
+
+            A task whose worker was restarted mid-run keeps its last reported
+            status forever, so say so instead of showing a plain "in progress".
+            """
             label = TASK_STATUS_NAMES.get(obj.status, obj.status or _('Unknown'))
             colors = {
                 'FAILURE': '#ba2121',
@@ -828,6 +833,14 @@ try:
                 'SUCCESS': '#118811',
             }
             color = colors.get(obj.status, 'var(--body-fg)')
+            if is_orphaned_task_result(obj):
+                return format_html(
+                    '<strong style="color: #ba2121;">{}</strong><br>'
+                    '<span style="color: #ba2121; font-size: 11px;">{}</span>',
+                    _('Interrupted (worker gone)'),
+                    _('The worker that was running this task no longer exists; '
+                      'the last reported status was: %(status)s') % {'status': label},
+                )
             return format_html('<strong style="color: {};">{}</strong>', color, label)
         readable_status.short_description = _('Status')
         readable_status.admin_order_field = 'status'

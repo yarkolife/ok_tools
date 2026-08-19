@@ -44,7 +44,15 @@ function ReturnScreen({ rental, items, urls }) {
   const [scanValue, setScanValue] = React.useState('');
   const [scanBusy, setScanBusy] = React.useState(false);
   const [scanFeedback, setScanFeedback] = React.useState(null);
+  const [scanError, setScanError] = React.useState('');
   const scanDebounce = React.useRef(null);
+  const scanInputRef = React.useRef(null);
+
+  // The input is disabled while a scan is in flight, which drops the focus.
+  // Put it back as soon as the request settles so the next scan just works.
+  React.useEffect(() => {
+    if (!scanBusy && scanInputRef.current) scanInputRef.current.focus();
+  }, [scanBusy]);
 
   const setRet = (id, patch) => setReturns(xs => xs.map(x => x.id === id ? { ...x, ...patch } : x));
   const checkAll = () => setReturns(xs => xs.map(x => ({ ...x, qtyReturned: x.total, condition: x.condition || 'ok' })));
@@ -55,8 +63,10 @@ function ReturnScreen({ rental, items, urls }) {
     scanDebounce.current = setTimeout(() => { scanDebounce.current = null; }, 300);
     setScanBusy(true);
     try {
+      // rental.pk is the numeric primary key; rental.id is the human-readable
+      // code (R-2608-0284) the backend cannot look up.
       const data = await apiPost(urls.scan_return, {
-        rental_id: rental.id,
+        rental_id: rental.pk,
         inventory_number: scanValue.trim(),
       });
       const idx = returns.findIndex(r => r.id === data.rental_item_id);
@@ -64,10 +74,12 @@ function ReturnScreen({ rental, items, urls }) {
         setRet(data.rental_item_id, { qtyReturned: data.quantity_returned });
       }
       beep(800, 100);
+      setScanError('');
       setScanFeedback('success');
       setTimeout(() => setScanFeedback(null), 500);
     } catch (e) {
       beep(300, 200);
+      setScanError(e.message || t('ret.scan_failed', 'Scan failed.'));
       setScanFeedback('error');
       setTimeout(() => setScanFeedback(null), 500);
     }
@@ -121,12 +133,18 @@ function ReturnScreen({ rental, items, urls }) {
               <span className="input-group-text"><i className="fas fa-barcode"></i></span>
               <input type="text" className="form-control"
                      autoFocus
+                     ref={scanInputRef}
                      disabled={scanBusy}
                      value={scanValue}
                      onChange={e => { setScanValue(e.target.value); if (e.target.value.includes('\n') || e.target.value.includes('\r')) handleScan(); }}
                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleScan(); } }}
                      placeholder={t('ret.scan_ph', 'Scan or type inventory number…')} />
             </div>
+            {scanError && (
+              <div className="tiny mt-1" style={{color: 'oklch(0.55 0.18 28)', fontWeight: 500}}>
+                <i className="fas fa-triangle-exclamation me-1"></i>{scanError}
+              </div>
+            )}
           </div>
           <div className="text-end" style={{minWidth: 120}}>
             <div className="muted tiny" style={{textTransform: 'uppercase', letterSpacing: '.04em', fontWeight: 600}}>

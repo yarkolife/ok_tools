@@ -1978,18 +1978,17 @@ msgstr ""
 #: rental/templates/email/rental_return_receipt_body.txt:1
 #, python-format
 msgid "Hello %(user_name)s,"
-msgstr ""
+msgstr "Hallo %(user_name)s,"
 
 #: rental/templates/email/rental_return_receipt_body.html:10
 #: rental/templates/email/rental_return_receipt_body.txt:3
-#, fuzzy, python-format
-#| msgid ""
-#| "Your rental request #%(rental_id)s in %(ok_name)s has been declined."
+#, python-format
 msgid ""
 "We received the returned equipment for rental request #%(rental_id)s in "
 "%(ok_name)s."
 msgstr ""
-"Deine Ausleihanfrage Nr. %(rental_id)s in %(ok_name)s wurde abgelehnt."
+"Wir haben die zurückgegebenen Geräte zur Ausleihanfrage Nr. %(rental_id)s in "
+"%(ok_name)s erhalten."
 
 #: rental/templates/email/rental_return_receipt_body.html:12
 #: rental/templates/email/rental_return_receipt_body.txt:5
@@ -1997,53 +1996,43 @@ msgid "Rental Details"
 msgstr "Ausleihdetails"
 
 #: rental/templates/email/rental_return_receipt_body.html:15
-#, fuzzy
-#| msgid "Returned"
 msgid "Returned on"
-msgstr "Zurückgegeben"
+msgstr "Zurückgegeben am"
 
 #: rental/templates/email/rental_return_receipt_body.html:19
 #: rental/templates/email/rental_return_receipt_body.txt:10
-#, fuzzy
-#| msgid "Returned Rentals"
 msgid "Returned equipment"
-msgstr "Zurückgegebene Ausleihen"
+msgstr "Zurückgegebene Geräte"
 
 #: rental/templates/email/rental_return_receipt_body.html:27
-#, fuzzy
-#| msgid "Return date"
 msgid "Return note"
-msgstr "Rückgabedatum"
+msgstr "Rückgabehinweis"
 
 #: rental/templates/email/rental_return_receipt_body.html:29
 #: rental/templates/email/rental_return_receipt_body.txt:18
 msgid "Thank you for returning the equipment."
-msgstr ""
+msgstr "Vielen Dank für die Rückgabe der Geräte."
 
 #: rental/templates/email/rental_return_receipt_body.html:30
 #: rental/templates/email/rental_return_receipt_body.txt:19
-#, fuzzy, python-format
-#| msgid "Email: %(user_email)s"
+#, python-format
 msgid "E-mail: %(contact_email)s"
-msgstr "E-Mail: %(user_email)s"
+msgstr "E-Mail: %(contact_email)s"
 
 #: rental/templates/email/rental_return_receipt_body.txt:7
-#, fuzzy, python-format
-#| msgid "Returned on time"
+#, python-format
 msgid "Returned on: %(returned_at)s"
-msgstr "Pünktlich zurückgegeben"
+msgstr "Zurückgegeben am: %(returned_at)s"
 
 #: rental/templates/email/rental_return_receipt_body.txt:16
-#, fuzzy, python-format
-#| msgid "Return Items"
+#, python-format
 msgid "Return note: %(note)s"
-msgstr "Beiträge zurückgeben"
+msgstr "Rückgabehinweis: %(note)s"
 
 #: rental/templates/email/rental_return_receipt_subject.txt:1
-#, fuzzy, python-format
-#| msgid "Rental request #%(rental_id)s has been declined"
+#, python-format
 msgid "Rental request #%(rental_id)s — return receipt"
-msgstr "Ausleihanfrage Nr. %(rental_id)s wurde abgelehnt"
+msgstr "Ausleihanfrage Nr. %(rental_id)s — Rückgabebestätigung"
 
 #: rental/templates/rental/_sidebar.html:4
 msgid "Workflows"
@@ -4251,30 +4240,24 @@ msgid "Equipment Set \"{name}\" was successfully deleted."
 msgstr "Ausrüstungsset \"{name}\" wurde erfolgreich gelöscht."
 
 #: rental/views.py:4155
-#, fuzzy
-#| msgid "Missing required parameters"
 msgid "Missing required parameter: num"
-msgstr "Erforderliche Parameter fehlen"
+msgstr "Erforderlicher Parameter fehlt: num"
 
 #: rental/views.py:4198
 msgid "Missing required fields: rental_id and inventory_number"
-msgstr ""
+msgstr "Erforderliche Felder fehlen: rental_id und inventory_number"
 
 #: rental/views.py:4209
 msgid "Rental not found or not in issued status"
-msgstr ""
+msgstr "Ausleihe nicht gefunden oder nicht im Status „ausgegeben“"
 
 #: rental/views.py:4220
-#, fuzzy
-#| msgid "Close this rental?"
 msgid "Item not found in this rental"
-msgstr "Diese Ausleihe schließen?"
+msgstr "Artikel gehört nicht zu dieser Ausleihe"
 
 #: rental/views.py:4226
-#, fuzzy
-#| msgid "This request has already been processed."
 msgid "All issued quantities have already been returned"
-msgstr "Diese Anfrage wurde bereits bearbeitet."
+msgstr "Alle ausgegebenen Mengen wurden bereits zurückgegeben"
 
 #: rental/views.py:4304 rental/views.py:4360
 #, python-brace-format
@@ -4631,3 +4614,28 @@ msgstr "An diesem Tag ist keine reservierbare Zeit mehr verfügbar."
 #: rental/views_api.py
 msgid "Start date must not be in the past."
 msgstr "Das Startdatum darf nicht in der Vergangenheit liegen."
+
+#: rental/views.py
+msgid "Scan Barcode"
+msgstr "Barcode scannen"
+
+#: rental/views.py
+msgid "Scan or type inventory number…"
+msgstr "Inventarnummer scannen oder eingeben…"
+
+#: rental/views.py
+msgid "Scan failed."
+msgstr "Scan fehlgeschlagen."
+
+#: rental/views.py
+msgid "returned"
+msgstr "zurückgegeben"
+
+#: rental/views.py
+msgid "Invalid rental_id: a numeric rental id is required."
+msgstr "Ungültige rental_id: Es wird eine numerische Ausleih-ID benötigt."
+
+#: rental/views.py
+msgid "No users match your search."
+msgstr "Keine Nutzer entsprechen der Suche."
+

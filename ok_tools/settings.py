@@ -864,6 +864,12 @@ CELERYD_FORCE_EXECV = True
 # Use django-celery-beat scheduler (allows managing periodic tasks via admin)
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
+# How long a task may sit in PROGRESS/STARTED without a live worker before the
+# stale-task sweep closes it as FAILURE, and the (shorter) age at which the
+# admin already flags it as orphaned.
+CELERY_STALE_TASK_MINUTES = get_env('CELERY_STALE_TASK_MINUTES', default=60, cast=int)
+CELERY_STALE_TASK_HINT_MINUTES = get_env('CELERY_STALE_TASK_HINT_MINUTES', default=15, cast=int)
+
 # Celery Beat Schedule from environment variables
 # Note: Tasks can also be managed via django-celery-beat admin interface
 CELERY_BEAT_SCHEDULE = {
@@ -954,6 +960,13 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'tools.tasks.cleanup_old_video_render_operations_task',
         'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_VIDEO_RENDER_OPERATIONS', '0 4 * * 0'),
         'kwargs': {'older_than_days': 30, 'keep_failed': True},
+    },
+    # Tasks whose worker was restarted mid-run never reach a terminal state, so
+    # sweep them up instead of leaving them "in progress" forever.
+    'cleanup_stale_task_results': {
+        'task': 'ok_tools.tasks.cleanup_stale_task_results_task',
+        'schedule': parse_crontab_env('CELERY_BEAT_CLEANUP_STALE_TASKS', '*/15 * * * *'),
+        'kwargs': {'older_than_minutes': CELERY_STALE_TASK_MINUTES},
     },
 }
 
