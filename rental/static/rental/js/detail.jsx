@@ -788,7 +788,7 @@ function ChangeUserModal({ urls, onClose, onChanged }) {
               <Avatar user={u} size={32} />
               <div style={{minWidth:0}}>
                 <div style={{fontWeight:500}}>{u.name}</div>
-                <div className="muted tiny">{u.org} · <RoleBadge role={u.role} /> · {u.past || 0} {t('user.past_rentals','past rentals')}</div>
+                <div className="muted tiny">{u.org} · <RoleBadge role={u.role} roleKey={u.role_key} /> · {u.past || 0} {t('user.past_rentals','past rentals')}</div>
               </div>
               {selected && selected.id === u.id && <i className="fas fa-check" style={{color:'var(--brand)',marginLeft:'auto'}}></i>}
             </div>

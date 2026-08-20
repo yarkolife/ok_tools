@@ -962,7 +962,7 @@ function StepUser({ initial, selected, setSelected }) {
               <Avatar user={u} size={32} />
               <div style={{minWidth: 0}}>
                 <div className="name">{u.name}</div>
-                <div className="org">{u.org} · <RoleBadge role={u.role} /> · {u.past || 0} {t('user.past_rentals','past rentals')}</div>
+                <div className="org">{u.org} · <RoleBadge role={u.role} roleKey={u.role_key} /> · {u.past || 0} {t('user.past_rentals','past rentals')}</div>
                 {u.warn && <div className="mt-1 tiny" style={{color: 'oklch(0.45 0.14 28)'}}>
                   <i className="fas fa-triangle-exclamation me-1"></i>{u.warn}
                 </div>}
@@ -1329,7 +1329,10 @@ function QuickUserPicker({ initial, user, setUser, onPicked }) {
         <Avatar user={user} size={26} />
         <div style={{minWidth: 0}}>
           <div className="text-truncate" style={{fontWeight: 500, fontSize: 13}}>{user.name}</div>
-          <div className="muted tiny text-truncate">{user.org}</div>
+          <div className="tiny text-truncate d-flex align-items-center" style={{gap: 4}}>
+            <RoleBadge role={user.role} roleKey={user.role_key} />
+            <span className="muted text-truncate">{user.org}</span>
+          </div>
         </div>
         <button className="btn btn-ghost btn-sm ms-auto" type="button"
                 title={t('wiz.clear', 'Clear')}
@@ -1371,7 +1374,10 @@ function QuickUserPicker({ initial, user, setUser, onPicked }) {
               <Avatar user={u} size={26} />
               <div style={{minWidth: 0}}>
                 <div className="text-truncate" style={{fontWeight: 500, fontSize: 13}}>{u.name}</div>
-                <div className="muted tiny text-truncate">{u.org}</div>
+                <div className="tiny text-truncate d-flex align-items-center" style={{gap: 4}}>
+                  <RoleBadge role={u.role} roleKey={u.role_key} />
+                  <span className="muted text-truncate">{u.org}</span>
+                </div>
               </div>
             </div>
           ))}

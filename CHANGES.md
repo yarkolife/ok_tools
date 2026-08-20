@@ -11,6 +11,10 @@ CHANGELOG
   * The success/error tone while scanning is now a setting (``RentalConfig.scan_sound_enabled``, **off by default**) instead of always sounding; ``beep`` lives in ``shared.jsx`` and reads the new ``rr-flags`` payload.
   * Signature method cards keep readable text in every state (5.7:1 at rest, 4.5:1 on the filled hover state) instead of grey-on-blue.
 
+* **rental: User category visible wherever a user is picked**
+  * ``serialize_user`` classified a rental-only profile as a plain user; it now reports all four categories (employee, member, rental-only, user) in the same order ``RentalConfig.get_organizations_for`` uses, and adds a language independent ``role_key`` next to the label. Every screen fed by that serializer is corrected: the guided user step, the quick picker, the return workflow, the rental detail page and the lists.
+  * The quick-mode picker shows the category badge for each match and for the selected user, and its dropdown may grow past its narrow grid cell so name, badge and organization stay readable.
+
 * **notifications: Reels only where a reel has something to point at**
   * ``media_files.missing_reel`` and ``media_files.reel_post_today`` now report premieres (a licence without a contribution) and repeats that already carry a Mediathek URL. A repeat without a Mediathek link produced work nobody could complete.
   * The horizon of the reel check was already configurable as "days before broadcast" (``horizon_days``, default 3) under Notification settings; no change was needed there.

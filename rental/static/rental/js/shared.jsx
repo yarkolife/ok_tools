@@ -133,13 +133,21 @@ function Avatar({ user, size }) {
   );
 }
 
-function RoleBadge({ role }) {
-  const roleMap = {
+function RoleBadge({ role, roleKey }) {
+  // `roleKey` comes from the serializer and is language independent; the name
+  // map stays as a fallback for callers that only pass the translated label.
+  const keyMap = {
+    employee: 'role-staff',
+    member: 'role-member',
+    rental_only: 'role-rental-only',
+    user: 'role-user',
+  };
+  const nameMap = {
     'Mitarbeiter': 'role-staff',
     'Mitglied': 'role-member',
     'Nutzer': 'role-user',
   };
-  const cls = roleMap[role] || 'role-user';
+  const cls = keyMap[roleKey] || nameMap[role] || 'role-user';
   return <span className={`role-badge ${cls}`}>{role}</span>;
 }
 

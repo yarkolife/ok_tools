@@ -162,12 +162,17 @@ def serialize_user(user):
     if profile and profile.media_authority:
         org = profile.media_authority.full_name or profile.media_authority.name or '—'
 
+    # Same order as RentalConfig.get_organizations_for: staff win, then the
+    # mutually exclusive profile flags, then plain user. `role_key` is the
+    # stable value the frontend styles on; `role` is only the label.
     if user and user.is_staff:
-        role = _('Staff')
+        role_key, role = 'employee', _('Staff')
     elif profile and profile.member:
-        role = _('Member')
+        role_key, role = 'member', _('Member')
+    elif profile and profile.rental_only:
+        role_key, role = 'rental_only', _('Rental only')
     else:
-        role = _('User')
+        role_key, role = 'user', _('User')
 
     rental_count = getattr(user, 'rental_count', None)
     if rental_count is not None:
@@ -185,6 +190,7 @@ def serialize_user(user):
         'name': name,
         'org': org,
         'role': str(role),
+        'role_key': role_key,
         'past': past_count,
         'past_count': past_count,
         'phone': ((profile.phone_number or profile.mobile_number) if profile else ''),

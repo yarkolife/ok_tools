@@ -4687,3 +4687,8 @@ msgstr ""
 msgid "Audible feedback while scanning on the issue and return screens."
 msgstr ""
 "Akustische Rückmeldung beim Scannen auf den Ausgabe- und Rückgabeseiten."
+
+#: rental/views.py
+msgid "Rental only"
+msgstr "Nur Ausleihe"
+

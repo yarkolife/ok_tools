@@ -345,6 +345,17 @@ html, body {
 .role-member { color: oklch(0.35 0.08 160); background: oklch(0.96 0.03 160); }
 .role-staff { color: oklch(0.35 0.09 250); background: oklch(0.96 0.04 250); }
 .role-user { color: oklch(0.40 0.02 0); background: oklch(0.95 0.01 0); }
+.role-rental-only { color: oklch(0.40 0.10 70); background: oklch(0.96 0.04 70); }
+
+/* The quick panel gives the picker one narrow grid cell, so the badge there
+   has to stay compact and never push the org name out of view. */
+.quick-row .role-badge,
+.quick-user-menu .role-badge {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 10px;
+  flex: 0 0 auto;
+}
 
 /* Pill status big */
 .status-pill {
@@ -938,6 +949,9 @@ html, body {
 /* Type-ahead user picker in quick mode */
 .quick-user-menu {
   position: absolute; z-index: 30; top: 100%; left: 0; right: 0;
+  /* The picker sits in a narrow grid cell; the menu may grow past it so the
+     name, the role badge and the organization all stay readable. */
+  min-width: 340px;
   margin-top: 4px; max-height: 260px; overflow-y: auto;
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow-md);
