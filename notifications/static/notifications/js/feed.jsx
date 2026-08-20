@@ -66,6 +66,11 @@
             <span>{initial.i18n.postponed}</span>
             <span className="sidebar-count warn">{initial.stats.snoozed}</span>
           </a>
+          <a className="sidebar-link" href={viewUrl('delegated')}>
+            <i className="fas fa-user-check" aria-hidden="true"></i>
+            <span>{initial.i18n.delegated}</span>
+            <span className="sidebar-count">{initial.stats.delegated}</span>
+          </a>
           <a className="sidebar-link" href={viewUrl('handled')}>
             <i className="fas fa-circle-check" aria-hidden="true"></i>
             <span>{initial.i18n.handled}</span>
@@ -131,6 +136,7 @@
               ['all', initial.i18n.all],
               ['open', initial.i18n.open],
               ['snoozed', initial.i18n.postponed],
+              ['delegated', initial.i18n.delegated],
               ['handled', initial.i18n.handled],
             ].map(([value, label]) => (
               <a key={value} className={initial.view === value ? 'active' : ''}
@@ -215,6 +221,10 @@
         ['wake', 'fa-clock-rotate-left', initial.i18n.showAgain],
         ['done', 'fa-check', initial.i18n.markHandled],
       ];
+    } else if (view === 'delegated') {
+      primaryActions = [
+        ['revoke_delegation', 'fa-rotate-left', initial.i18n.takeBack],
+      ];
     } else {
       primaryActions = [
         ['done', 'fa-check', initial.i18n.markHandled],
@@ -248,6 +258,22 @@
             <i className={`fas ${icon}`} aria-hidden="true"></i>{label}
           </button>
         ))}
+        {view !== 'handled' && view !== 'delegated'
+          && (initial.colleagues || []).length > 0 ? (
+          <span className="delegate-control">
+            <select name="delegate_to" aria-label={initial.i18n.delegateTo}
+                    defaultValue="">
+              <option value="">{initial.i18n.delegateTo}</option>
+              {initial.colleagues.map((colleague) => (
+                <option key={colleague.id} value={colleague.id}>{colleague.name}</option>
+              ))}
+            </select>
+            <button className="button ghost" type="submit" name="action" value="delegate"
+                    disabled={!canSubmit}>
+              <i className="fas fa-user-check" aria-hidden="true"></i>{initial.i18n.delegate}
+            </button>
+          </span>
+        ) : null}
         <button className="button ghost danger" type="submit" name="action" value="suppress"
                 disabled={!canSubmit}
                 onClick={(event) => {
@@ -288,6 +314,18 @@
         <div>
           <span className={`state-chip state-${row.status || 'info'}`}>{row.statusLabel}</span>
           {row.snoozedUntil ? <small className="snooze-time">{row.snoozedUntil}</small> : null}
+          {row.delegatedTo ? (
+            <small className="delegation-note">
+              <i className="fas fa-user-check" aria-hidden="true"></i>
+              {initial.i18n.delegatedTo} {row.delegatedTo}
+            </small>
+          ) : null}
+          {row.delegatedBy ? (
+            <small className="delegation-note">
+              <i className="fas fa-user-arrow-left-to-line" aria-hidden="true"></i>
+              {initial.i18n.delegatedBy} {row.delegatedBy}
+            </small>
+          ) : null}
         </div>
         <div className="row-actions" onClick={(event) => event.stopPropagation()}>
           {row.actionUrl ? (

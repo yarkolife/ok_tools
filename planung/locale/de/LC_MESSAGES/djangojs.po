@@ -413,3 +413,16 @@ msgstr "Trotzdem mit den vorhandenen Dateien rendern?"
 
 #~ msgid "Programme preview status request failed."
 #~ msgstr "Statusanfrage für die Programmvorschau fehlgeschlagen."
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid "Youth protection: broadcast only allowed between"
+msgstr "Jugendschutz: Ausstrahlung nur erlaubt zwischen"
+
+#: planung/static/planung/js/calendar_weeks.js
+msgid ""
+"Youth protection: these items may not be broadcast at the planned time and "
+"the day cannot be saved:"
+msgstr ""
+"Jugendschutz: Diese Beiträge dürfen zur geplanten Zeit nicht gesendet werden, "
+"der Tag kann nicht gespeichert werden:"
+

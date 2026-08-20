@@ -298,7 +298,10 @@ MEDIA_MISSING_REEL = register(EventType(
     label=_('Planned own production without a reel'),
     description=_(
         'The license is confirmed, its full video is available and the own '
-        'production is scheduled, but no reel was rendered yet.'),
+        'production is scheduled, but no reel was rendered yet. Only premieres '
+        '(no contribution yet) and repeats that already have a Mediathek URL '
+        'are reported — a repeat without a Mediathek link has nothing for '
+        'the reel to point at.'),
     message=_('{date}: {number} {title}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SCAN,
@@ -425,12 +428,34 @@ MEDIA_REEL_POST_TODAY = register(EventType(
     label=_('Post the reel today'),
     description=_(
         'A reel is ready for a contribution airing today and has to be '
-        'published manually.'),
+        'published manually. Like the missing-reel check, only premieres and '
+        'repeats with a Mediathek URL are reported.'),
     message=_('{start}: {number} {title}'),
     category=CATEGORY_ACTION_REQUIRED,
     source=SOURCE_SCAN,
     model='licenses.License',
     settings_flag='MEDIA_FILES_ENABLED',
+))
+
+
+# ---------------------------------------------------------------------------
+# reminders -- staff written, not derived from any data
+# ---------------------------------------------------------------------------
+
+MANUAL_REMINDER = register(EventType(
+    code='reminders.manual',
+    module='reminders',
+    label=_('Manual reminder'),
+    description=_(
+        'A recurring or one-off reminder entered by staff under '
+        '"Manual reminders". Everybody subscribed to this channel receives '
+        'it on the day it is due.'),
+    message=_('{title}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SCAN,
+    # Deliberately no `model`: visibility must follow the subscription alone,
+    # not admin rights on the reminder object, so any staff member can be
+    # reminded of something they do not administer.
 ))
 
 

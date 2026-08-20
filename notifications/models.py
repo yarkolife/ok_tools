@@ -2,10 +2,14 @@ from datetime import time
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from notifications import registry
+import calendar
 import json
 import logging
 
@@ -136,6 +140,30 @@ class UserNotification(models.Model):
         blank=True,
         help_text=_('Hidden from the list until this moment.'),
     )
+    # Delegation keeps exactly one person responsible: the sender's copy is
+    # parked (not deleted) so they can still see where the work went and take
+    # it back, while the receiver gets a normal open item.
+    delegated_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='delegated_notifications',
+        verbose_name=_('Delegated to'),
+    )
+    delegated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='received_delegations',
+        verbose_name=_('Delegated by'),
+    )
+    delegated_at = models.DateTimeField(
+        _('Delegated at'),
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _('User notification')
@@ -154,6 +182,11 @@ class UserNotification(models.Model):
     def is_snoozed(self) -> bool:
         """Return whether this item is currently postponed."""
         return bool(self.snoozed_until and self.snoozed_until > timezone.now())
+
+    @property
+    def is_delegated_away(self) -> bool:
+        """Return whether somebody else took this item over."""
+        return self.delegated_to_id is not None
 
 
 class Subscription(models.Model):
@@ -367,6 +400,143 @@ class NotificationConfig(models.Model):
                 'Could not sync the notification digest schedule',
                 exc_info=True,
             )
+
+
+class ManualReminder(models.Model):
+    """A reminder written by staff instead of produced by a check.
+
+    Some recurring obligations have no trace in the data at all -- "send the
+    TV listings to the newspaper on Wednesday" is one of them. Those are
+    entered here and then travel through the normal machinery: they become
+    events, and whoever subscribed to the reminders channel receives them.
+    """
+
+    FREQUENCY_ONCE = 'once'
+    FREQUENCY_WEEKLY = 'weekly'
+    FREQUENCY_MONTHLY = 'monthly'
+    FREQUENCY_CHOICES = (
+        (FREQUENCY_ONCE, _('Once, on a date')),
+        (FREQUENCY_WEEKLY, _('Every week')),
+        (FREQUENCY_MONTHLY, _('Every month')),
+    )
+
+    WEEKDAY_CHOICES = (
+        (0, _('Monday')),
+        (1, _('Tuesday')),
+        (2, _('Wednesday')),
+        (3, _('Thursday')),
+        (4, _('Friday')),
+        (5, _('Saturday')),
+        (6, _('Sunday')),
+    )
+
+    title = models.CharField(
+        _('Title'),
+        max_length=200,
+        help_text=_('Shown as the reminder itself, e.g. '
+                    '"Send the TV listings to the newspaper".'),
+    )
+    message = models.TextField(
+        _('Details'),
+        blank=True,
+        help_text=_('Optional: what exactly has to be done.'),
+    )
+    url = models.URLField(
+        _('Link'),
+        blank=True,
+        help_text=_('Optional: where the work is done.'),
+    )
+    active = models.BooleanField(
+        _('Active'),
+        default=True,
+    )
+    frequency = models.CharField(
+        _('Repeat'),
+        max_length=10,
+        choices=FREQUENCY_CHOICES,
+        default=FREQUENCY_WEEKLY,
+    )
+    run_date = models.DateField(
+        _('Date'),
+        null=True,
+        blank=True,
+        help_text=_('Only for "Once, on a date".'),
+    )
+    weekday = models.PositiveSmallIntegerField(
+        _('Weekday'),
+        choices=WEEKDAY_CHOICES,
+        null=True,
+        blank=True,
+        help_text=_('Only for "Every week".'),
+    )
+    day_of_month = models.PositiveSmallIntegerField(
+        _('Day of month'),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(31)],
+        help_text=_('Only for "Every month". A month that is shorter uses '
+                    'its last day.'),
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='manual_reminders',
+        verbose_name=_('Created by'),
+    )
+    created_at = models.DateTimeField(
+        _('Created at'),
+        auto_now_add=True,
+    )
+
+    class Meta:
+        verbose_name = _('Manual reminder')
+        verbose_name_plural = _('Manual reminders')
+        ordering = ['title']
+
+    def __str__(self):
+        """Return the reminder title."""
+        return self.title
+
+    def clean(self):
+        """Require exactly the field the chosen repeat rule needs."""
+        super().clean()
+        if self.frequency == self.FREQUENCY_ONCE and not self.run_date:
+            raise ValidationError(
+                {'run_date': _('A date is required for a one-off reminder.')})
+        if self.frequency == self.FREQUENCY_WEEKLY and self.weekday is None:
+            raise ValidationError(
+                {'weekday': _('A weekday is required for a weekly reminder.')})
+        if (self.frequency == self.FREQUENCY_MONTHLY
+                and not self.day_of_month):
+            raise ValidationError({
+                'day_of_month': _('A day of month is required for a monthly '
+                                  'reminder.'),
+            })
+
+    def schedule_label(self):
+        """Return the repeat rule in words, for lists and the feed."""
+        if self.frequency == self.FREQUENCY_ONCE:
+            return str(self.run_date or '')
+        if self.frequency == self.FREQUENCY_WEEKLY:
+            return str(dict(self.WEEKDAY_CHOICES).get(self.weekday, ''))
+        return _('Day %(day)s of the month') % {'day': self.day_of_month}
+
+    def is_due(self, on_date) -> bool:
+        """Return whether this reminder falls on ``on_date``."""
+        if not self.active:
+            return False
+        if self.frequency == self.FREQUENCY_ONCE:
+            return self.run_date == on_date
+        if self.frequency == self.FREQUENCY_WEEKLY:
+            return self.weekday == on_date.weekday()
+        if not self.day_of_month:
+            return False
+        # February has no 30th: a reminder configured for a day the month does
+        # not have is due on that month's last day instead of being skipped.
+        last_day = calendar.monthrange(on_date.year, on_date.month)[1]
+        return on_date.day == min(self.day_of_month, last_day)
 
 
 class UserNotificationState(models.Model):

@@ -45,6 +45,7 @@
 
     {{ initial_json|json_script:"wizard-initial" }}
     {{ i18n_strings|json_script:"rr-i18n" }}
+{{ flags_json|json_script:"rr-flags" }}
 
     <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
             integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
@@ -52,6 +53,7 @@
     <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
             integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
             crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
     <script src="{% static 'rental/js/lightbox.js' %}"></script>
     <script src="{% static 'rental/js/build/shared.js' %}"></script>
     <script src="{% static 'rental/js/build/wizard.js' %}"></script>

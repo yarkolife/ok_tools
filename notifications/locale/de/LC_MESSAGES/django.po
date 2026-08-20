@@ -1479,3 +1479,179 @@ msgstr "Benachrichtigungseinstellungen gespeichert."
 #: views.py:712
 msgid "Only superusers may see the notification statistics."
 msgstr "Nur Superuser dürfen die Benachrichtigungsstatistik sehen."
+
+#: notifications/registry.py
+msgid "Reminders"
+msgstr "Erinnerungen"
+
+#: notifications/event_types.py
+msgid "Manual reminder"
+msgstr "Manuelle Erinnerung"
+
+#: notifications/event_types.py
+msgid ""
+"A recurring or one-off reminder entered by staff under \"Manual reminders\". "
+"Everybody subscribed to this channel receives it on the day it is due."
+msgstr ""
+"Eine wiederkehrende oder einmalige Erinnerung, die unter \"Manuelle "
+"Erinnerungen\" eingetragen wurde. Alle, die diesen Kanal abonniert haben, "
+"erhalten sie am fälligen Tag."
+
+#: notifications/models.py
+msgid "Manual reminders"
+msgstr "Manuelle Erinnerungen"
+
+#: notifications/models.py
+msgid "Once, on a date"
+msgstr "Einmalig, an einem Datum"
+
+#: notifications/models.py
+msgid "Every week"
+msgstr "Jede Woche"
+
+#: notifications/models.py
+msgid "Every month"
+msgstr "Jeden Monat"
+
+#: notifications/models.py
+msgid ""
+"Shown as the reminder itself, e.g. \"Send the TV listings to the newspaper\"."
+msgstr ""
+"Wird als Erinnerung angezeigt, z. B. \"Programm an die Zeitung schicken\"."
+
+#: notifications/models.py
+msgid "Optional: what exactly has to be done."
+msgstr "Optional: Was genau zu tun ist."
+
+#: notifications/models.py
+msgid "Optional: where the work is done."
+msgstr "Optional: Wo die Arbeit erledigt wird."
+
+#: notifications/models.py
+msgid "Repeat"
+msgstr "Wiederholung"
+
+#: notifications/models.py
+msgid "Only for \"Once, on a date\"."
+msgstr "Nur für \"Einmalig, an einem Datum\"."
+
+#: notifications/models.py
+msgid "Weekday"
+msgstr "Wochentag"
+
+#: notifications/models.py
+msgid "Only for \"Every week\"."
+msgstr "Nur für \"Jede Woche\"."
+
+#: notifications/models.py
+msgid "Day of month"
+msgstr "Tag im Monat"
+
+#: notifications/models.py
+msgid ""
+"Only for \"Every month\". A month that is shorter uses its last day."
+msgstr ""
+"Nur für \"Jeden Monat\". Ein kürzerer Monat verwendet seinen letzten Tag."
+
+#: notifications/models.py
+#, python-format
+msgid "Day %(day)s of the month"
+msgstr "Tag %(day)s im Monat"
+
+#: notifications/models.py
+msgid "A date is required for a one-off reminder."
+msgstr "Für eine einmalige Erinnerung ist ein Datum erforderlich."
+
+#: notifications/models.py
+msgid "A weekday is required for a weekly reminder."
+msgstr "Für eine wöchentliche Erinnerung ist ein Wochentag erforderlich."
+
+#: notifications/models.py
+msgid "A day of month is required for a monthly reminder."
+msgstr "Für eine monatliche Erinnerung ist ein Tag im Monat erforderlich."
+
+#: notifications/models.py
+msgid "Delegated to"
+msgstr "Delegiert an"
+
+#: notifications/models.py
+msgid "Delegated by"
+msgstr "Delegiert von"
+
+#: notifications/models.py
+msgid "Delegated at"
+msgstr "Delegiert am"
+
+#: notifications/views.py
+msgid "Delegated"
+msgstr "Delegiert"
+
+#: notifications/views.py
+msgid "Delegate"
+msgstr "Delegieren"
+
+#: notifications/views.py
+msgid "Delegate to…"
+msgstr "Delegieren an…"
+
+#: notifications/views.py
+msgid "Take back"
+msgstr "Zurückholen"
+
+#: notifications/views.py
+msgid "Select the colleague to delegate to."
+msgstr "Bitte die Kollegin oder den Kollegen zum Delegieren auswählen."
+
+#: notifications/views.py
+msgid "Nothing was delegated."
+msgstr "Es wurde nichts delegiert."
+
+#: notifications/views.py
+#, python-format
+msgid "%(count)d entry was delegated to %(name)s."
+msgid_plural "%(count)d entries were delegated to %(name)s."
+msgstr[0] "%(count)d Eintrag wurde an %(name)s delegiert."
+msgstr[1] "%(count)d Einträge wurden an %(name)s delegiert."
+
+#: notifications/views.py
+#, python-format
+msgid "%(count)d entry was taken back."
+msgid_plural "%(count)d entries were taken back."
+msgstr[0] "%(count)d Eintrag wurde zurückgeholt."
+msgstr[1] "%(count)d Einträge wurden zurückgeholt."
+
+#: notifications/admin.py
+msgid "When"
+msgstr "Wann"
+
+#: notifications/admin.py
+msgid ""
+"Fill in only the field belonging to the chosen repeat rule. Reminders reach "
+"everybody subscribed to the \"Reminders\" channel on the day they are due."
+msgstr ""
+"Nur das Feld ausfüllen, das zur gewählten Wiederholung gehört. Erinnerungen "
+"erreichen am fälligen Tag alle, die den Kanal \"Erinnerungen\" abonniert "
+"haben."
+
+#: notifications/event_types.py
+msgid ""
+"The license is confirmed, its full video is available and the own production "
+"is scheduled, but no reel was rendered yet. Only premieres (no contribution "
+"yet) and repeats that already have a Mediathek URL are reported — a repeat "
+"without a Mediathek link has nothing for the reel to point at."
+msgstr ""
+"Die Freistellung ist bestätigt, das vollständige Video liegt vor und die "
+"Eigenproduktion ist geplant, aber es wurde noch kein Reel gerendert. Gemeldet "
+"werden nur Premieren (noch kein Beitrag vorhanden) und Wiederholungen, die "
+"bereits eine Mediathek-URL haben — eine Wiederholung ohne Mediathek-Link "
+"hat kein Ziel, auf das das Reel verweisen könnte."
+
+#: notifications/event_types.py
+msgid ""
+"A reel is ready for a contribution airing today and has to be published "
+"manually. Like the missing-reel check, only premieres and repeats with a "
+"Mediathek URL are reported."
+msgstr ""
+"Für einen heute laufenden Beitrag liegt ein Reel bereit, das manuell "
+"veröffentlicht werden muss. Wie bei der Reel-Prüfung werden nur Premieren "
+"und Wiederholungen mit Mediathek-URL gemeldet."

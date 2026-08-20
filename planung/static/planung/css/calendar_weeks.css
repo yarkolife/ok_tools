@@ -644,3 +644,13 @@
   50% { opacity: 0.6; }
   100% { opacity: 1; }
 }
+
+/* Item planned outside the broadcast window its age rating allows. Saving is
+   refused server-side, so the row is marked while it can still be moved. */
+#licenseTable tbody tr.yp-violation > td {
+    background-color: #fff1f1;
+}
+#licenseTable tbody tr.yp-violation > td:first-child {
+    box-shadow: inset 3px 0 0 #dc3545;
+}
+

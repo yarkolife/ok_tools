@@ -565,6 +565,34 @@ def _missing_asset_findings(code: str, entries, have_numbers) -> List[Finding]:
     return findings
 
 
+def _reel_relevant_numbers(numbers):
+    """Restrict reel work to material a reel would actually promote.
+
+    A reel advertises something the audience can watch: a premiere (the licence
+    has no contribution yet), or a repeat that is available in the Mediathek.
+    A repeat without a Mediathek link has nothing to link to, so asking for a
+    reel would only produce noise.
+    """
+    License = apps.get_model('licenses.License')
+    Contribution = apps.get_model('contributions.Contribution')
+
+    numbers = set(numbers)
+    if not numbers:
+        return numbers
+    repeated = set(
+        Contribution.objects.filter(license__number__in=numbers)
+        .values_list('license__number', flat=True)
+    )
+    premieres = numbers - repeated
+    in_mediathek = set(
+        License.objects.filter(number__in=repeated)
+        .exclude(mediathek_url='')
+        .exclude(mediathek_url__isnull=True)
+        .values_list('number', flat=True)
+    )
+    return premieres | in_mediathek
+
+
 @scan_check('media_files.missing_reel')
 def check_missing_reel(params: Dict[str, int]) -> List[Finding]:
     """Find own productions going on air soon without a rendered reel."""
@@ -572,6 +600,10 @@ def check_missing_reel(params: Dict[str, int]) -> List[Finding]:
 
     entries, own = _own_planned_entries(params.get('horizon_days', 3))
     if own is None or not entries:
+        return []
+    relevant = _reel_relevant_numbers({entry['number'] for entry in entries})
+    entries = [entry for entry in entries if entry['number'] in relevant]
+    if not entries:
         return []
     return _missing_asset_findings(
         'media_files.missing_reel', entries,
@@ -608,6 +640,10 @@ def check_reel_post_today(params: Dict[str, int]) -> List[Finding]:
     entries, own = _own_planned_entries(0)
     if own is None or not entries:
         return []
+    relevant = _reel_relevant_numbers({entry['number'] for entry in entries})
+    entries = [entry for entry in entries if entry['number'] in relevant]
+    if not entries:
+        return []
     reel_numbers = numbers_with_reel(
         {entry['number'] for entry in entries})
     License = apps.get_model('licenses.License')
@@ -632,6 +668,39 @@ def check_reel_post_today(params: Dict[str, int]) -> List[Finding]:
         )
         for entry in entries if entry['number'] in reel_numbers
     ]
+
+
+# ---------------------------------------------------------------------------
+# reminders
+# ---------------------------------------------------------------------------
+
+
+@scan_check('reminders.manual')
+def check_manual_reminders(params: Dict[str, int]) -> List[Finding]:
+    """Return the staff written reminders that are due today.
+
+    One finding per reminder and day, so a weekly reminder reappears every
+    week instead of being deduplicated away after the first time.
+    """
+    ManualReminder = apps.get_model('notifications.ManualReminder')
+
+    today = timezone.localdate()
+    findings = []
+    for reminder in ManualReminder.objects.filter(active=True):
+        if not reminder.is_due(today):
+            continue
+        findings.append(Finding(
+            obj=reminder,
+            dedup_key=f'reminders.manual|{reminder.pk}|{today:%Y-%m-%d}',
+            payload={
+                'title': reminder.title,
+                'message': reminder.message,
+                'schedule': str(reminder.schedule_label()),
+                'date': today.strftime('%d.%m.%Y'),
+                'url': reminder.url,
+            },
+        ))
+    return findings
 
 
 # ---------------------------------------------------------------------------

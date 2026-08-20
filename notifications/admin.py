@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
+from notifications.models import ManualReminder
 from notifications.models import NotificationConfig
 from notifications.models import NotificationEvent
 from notifications.models import NotificationSuppression
@@ -99,3 +100,40 @@ class SubscriptionAdmin(admin.ModelAdmin):
     def has_module_permission(self, request):
         """Hide the model from the index for non-superusers."""
         return request.user.is_superuser
+
+
+@admin.register(ManualReminder)
+class ManualReminderAdmin(admin.ModelAdmin):
+    """Reminders staff write themselves, for work the data cannot show."""
+
+    list_display = ('title', 'repeat', 'active', 'created_by')
+    list_filter = ('active', 'frequency')
+    search_fields = ('title', 'message')
+    readonly_fields = ('created_by', 'created_at')
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'message', 'url', 'active'),
+        }),
+        (_('When'), {
+            'fields': ('frequency', 'run_date', 'weekday', 'day_of_month'),
+            'description': _(
+                'Fill in only the field belonging to the chosen repeat rule. '
+                'Reminders reach everybody subscribed to the "Reminders" '
+                'channel on the day they are due.'),
+        }),
+        (_('Meta'), {
+            'fields': ('created_by', 'created_at'),
+        }),
+    )
+
+    def repeat(self, obj):
+        """Return the repeat rule in words."""
+        return f'{obj.get_frequency_display()} — {obj.schedule_label()}'
+    repeat.short_description = _('Repeat')
+
+    def save_model(self, request, obj, form, change):
+        """Record who wrote the reminder."""
+        if obj.created_by_id is None:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+

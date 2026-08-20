@@ -46,6 +46,65 @@ def _time_to_seconds(value: str) -> int:
     return h * 3600 + m * 60 + s
 
 
+def _seconds_to_label(seconds: int) -> str:
+    """Render absolute seconds as HH:MM, wrapping past midnight."""
+    seconds = int(seconds) % 86400
+    return f"{seconds // 3600:02d}:{(seconds % 3600) // 60:02d}"
+
+
+def check_youth_protection(items: list[dict]) -> list[dict]:
+    """Return errors for items scheduled outside their allowed window.
+
+    The age rating comes from the licence; the window it may be aired in is
+    configured per rating in the admin. Material that may not be shown during
+    the day is rejected here rather than after it has gone out.
+    """
+    from licenses.models import License
+    from licenses.models import YouthProtectionWindow
+
+    windows = YouthProtectionWindow.enforced_windows()
+    if not windows or not items:
+        return []
+
+    numbers = {item["number"] for item in items}
+    categories = dict(
+        License.objects.filter(number__in=numbers)
+        .values_list("number", "youth_protection_category")
+    )
+
+    errors: list[dict] = []
+    for idx, item in enumerate(items):
+        window = windows.get(categories.get(item["number"]))
+        if window is None:
+            continue
+        start_seconds = _time_to_seconds(item["start"])
+        if window.allows(start_seconds, item["duration"]):
+            continue
+        end_label = _seconds_to_label(start_seconds + item["duration"])
+        errors.append({
+            "field": f"items[{idx}].start",
+            "message": _(
+                "%(title)s (%(number)s) is rated %(rating)s and may only be "
+                "broadcast between %(from)s and %(to)s. Planned "
+                "%(start)s-%(end)s."
+            ) % {
+                "title": item.get("title") or item["number"],
+                "number": item["number"],
+                "rating": window.get_category_display(),
+                "from": window.start_time.strftime("%H:%M"),
+                "to": window.end_time.strftime("%H:%M"),
+                "start": _seconds_to_label(start_seconds),
+                "end": end_label,
+            },
+            "youth_protection": {
+                "category": window.category,
+                "allowed_from": window.start_time.strftime("%H:%M"),
+                "allowed_until": window.end_time.strftime("%H:%M"),
+            },
+        })
+    return errors
+
+
 def validate_day_plan_payload(data: dict) -> ValidatedPlanPayload:
     """Validate and normalize payload used by day-plan API."""
     errors: list[dict] = []
@@ -126,6 +185,11 @@ def validate_day_plan_payload(data: dict) -> ValidatedPlanPayload:
                     "conflicts_with": prev_idx,
                 }
             )
+
+    # Youth protection needs the licences, so it runs once the items are
+    # normalized and only when the payload is otherwise sound.
+    if not errors:
+        errors.extend(check_youth_protection(normalized_items))
 
     if errors:
         raise PlanningValidationError(errors=errors, warnings=warnings)

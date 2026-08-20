@@ -4639,3 +4639,51 @@ msgstr "Ungültige rental_id: Es wird eine numerische Ausleih-ID benötigt."
 msgid "No users match your search."
 msgstr "Keine Nutzer entsprechen der Suche."
 
+#: rental/views.py
+msgid "Sign on paper"
+msgstr "Auf Papier unterschreiben"
+
+#: rental/views.py
+msgid "Print the issue slip and sign it by hand"
+msgstr "Ausgabeschein drucken und von Hand unterschreiben"
+
+#: rental/views.py
+msgid "Issue slip"
+msgstr "Ausgabeschein"
+
+#: rental/views.py
+msgid ""
+"Items of different owners are printed on different forms. Print each slip "
+"the rental needs."
+msgstr ""
+"Beiträge unterschiedlicher Eigentümer werden auf unterschiedlichen "
+"Formularen gedruckt. Bitte jeden benötigten Schein drucken."
+
+#: rental/views.py
+msgid "Done"
+msgstr "Fertig"
+
+#: rental/views.py
+msgid "Please set the pickup and return time."
+msgstr "Bitte Abhol- und Rückgabezeit festlegen."
+
+#: rental/models.py
+msgid "Scanner feedback sound"
+msgstr "Signalton beim Scannen"
+
+#: rental/models.py
+msgid "Barcode scanning"
+msgstr "Barcode-Scannen"
+
+#: rental/models.py
+msgid ""
+"Play a short tone when a barcode scan succeeds or fails. Off by default, "
+"because a shared counter gets noisy."
+msgstr ""
+"Kurzer Ton, wenn ein Barcode-Scan gelingt oder fehlschlägt. Standardmäßig "
+"aus, weil es an einem gemeinsam genutzten Tresen sonst laut wird."
+
+#: rental/admin.py
+msgid "Audible feedback while scanning on the issue and return screens."
+msgstr ""
+"Akustische Rückmeldung beim Scannen auf den Ausgabe- und Rückgabeseiten."

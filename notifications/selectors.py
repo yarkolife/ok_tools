@@ -159,18 +159,38 @@ def open_action_items(user, request=None,
     Postponed items are hidden until their moment has come.
     """
     codes = [event_type.code for event_type in subscribed_types(user, request)]
-    if not codes:
-        return UserNotification.objects.none()
     queryset = (
         UserNotification.objects
-        .filter(user=user, dismissed_at__isnull=True,
-                event__event_type__in=codes)
-        .select_related('event', 'event__content_type')
+        .filter(user=user, dismissed_at__isnull=True, delegated_to__isnull=True)
+        .filter(Q(event__event_type__in=codes)
+                | Q(delegated_by__isnull=False))
+        .select_related('event', 'event__content_type',
+                        'delegated_by', 'delegated_by__profile')
     )
     if not include_snoozed:
         queryset = queryset.filter(
             Q(snoozed_until__isnull=True)
             | Q(snoozed_until__lte=timezone.now()))
+    queryset = apply_filters(queryset, filters or {}, prefix='event')
+    queryset = exclude_suppressed(queryset, event_path='event')
+    return process_state.exclude_inactive_action_items(queryset)
+
+
+def delegated_action_items(user, request=None,
+                           filters: Optional[Dict[str, Any]] = None):
+    """Return the still-open items this user handed to somebody else.
+
+    They are out of the open list but not out of sight: the sender stays able
+    to see who has them and to take them back.
+    """
+    queryset = (
+        UserNotification.objects
+        .filter(user=user, dismissed_at__isnull=True,
+                delegated_to__isnull=False)
+        .select_related('event', 'event__content_type',
+                        'delegated_to', 'delegated_to__profile')
+        .order_by('-delegated_at')
+    )
     queryset = apply_filters(queryset, filters or {}, prefix='event')
     queryset = exclude_suppressed(queryset, event_path='event')
     return process_state.exclude_inactive_action_items(queryset)

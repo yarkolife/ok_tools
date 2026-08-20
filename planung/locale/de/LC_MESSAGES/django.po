@@ -1145,3 +1145,13 @@ msgstr "Benutzerprofil fehlt"
 
 #~ msgid "API keys are managed in the admin token list:"
 #~ msgstr "API-Schlüssel werden in der Admin-Tokenliste verwaltet:"
+
+#: planung/services/validation_service.py
+#, python-format
+msgid ""
+"%(title)s (%(number)s) is rated %(rating)s and may only be broadcast between "
+"%(from)s and %(to)s. Planned %(start)s-%(end)s."
+msgstr ""
+"%(title)s (%(number)s) ist mit %(rating)s eingestuft und darf nur zwischen "
+"%(from)s und %(to)s gesendet werden. Geplant %(start)s-%(end)s."
+

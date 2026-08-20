@@ -256,6 +256,76 @@ def wake(user, event_ids: List[int]) -> int:
     )
 
 
+def delegate(user, event_ids: List[int], to_user) -> int:
+    """Hand action items over to another staff member. Returns how many.
+
+    The sender keeps a parked copy pointing at the receiver: responsibility
+    moves to exactly one person, but the sender can still see where the work
+    went and take it back with :func:`revoke_delegation`.
+    """
+    if not event_ids or to_user is None:
+        return 0
+    if to_user.pk == user.pk or not to_user.is_active or not to_user.is_staff:
+        return 0
+
+    rows = list(
+        UserNotification.objects
+        .filter(user=user, event_id__in=event_ids, dismissed_at__isnull=True)
+        .select_related('event')
+    )
+    if not rows:
+        return 0
+
+    now = timezone.now()
+    events = [row.event for row in rows]
+    # The receiver may already hold the same item, e.g. because both are
+    # subscribed; then only the sender's side changes.
+    UserNotification.objects.bulk_create(
+        [
+            UserNotification(user=to_user, event=event,
+                             delegated_by=user, delegated_at=now)
+            for event in events
+        ],
+        ignore_conflicts=True,
+    )
+    UserNotification.objects.filter(
+        user=to_user, event__in=events, dismissed_at__isnull=False,
+    ).update(dismissed_at=None, snoozed_until=None,
+             delegated_by=user, delegated_at=now)
+
+    return (
+        UserNotification.objects
+        .filter(pk__in=[row.pk for row in rows])
+        .update(delegated_to=to_user, delegated_at=now, snoozed_until=None)
+    )
+
+
+def revoke_delegation(user, event_ids: List[int]) -> int:
+    """Take delegated items back. Returns how many rows changed."""
+    if not event_ids:
+        return 0
+    rows = list(
+        UserNotification.objects
+        .filter(user=user, event_id__in=event_ids,
+                delegated_to__isnull=False)
+        .values_list('event_id', 'delegated_to_id')
+    )
+    if not rows:
+        return 0
+    # Remove the copy that was created for the receiver, but never one they
+    # had on their own account before the delegation.
+    for event_id, receiver_id in rows:
+        UserNotification.objects.filter(
+            user_id=receiver_id, event_id=event_id,
+            delegated_by=user,
+        ).delete()
+    return (
+        UserNotification.objects
+        .filter(user=user, event_id__in=[event_id for event_id, _r in rows])
+        .update(delegated_to=None, delegated_at=None)
+    )
+
+
 def suppress_events(event_ids: List[int], *, user=None,
                     reason: str = '') -> int:
     """Silence the objects behind the given events. Returns how many."""

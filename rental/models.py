@@ -993,6 +993,12 @@ class RentalConfig(models.Model):
         verbose_name=_('Show item photos'),
         help_text=_('Show inventory item photos on the rental process and dashboard pages')
     )
+    scan_sound_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Scanner feedback sound'),
+        help_text=_('Play a short tone when a barcode scan succeeds or fails. '
+                    'Off by default, because a shared counter gets noisy.'),
+    )
     show_room_photos = models.BooleanField(
         default=False,
         verbose_name=_('Show room photos'),

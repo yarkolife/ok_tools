@@ -131,9 +131,12 @@ def delete_day_plan(*, iso_date, user) -> None:
 
 def enrich_plan_items(items: list[dict]) -> list[dict]:
     """Enrich stored items with actual license/video metadata."""
+    from licenses.models import YouthProtectionWindow
+
     license_numbers = [item.get("number") for item in items if item.get("number")]
     licenses_dict = {}
     video_files_dict = {}
+    youth_windows = YouthProtectionWindow.enforced_windows()
 
     if license_numbers:
         licenses = License.objects.filter(number__in=license_numbers).select_related("profile", "video_file")
@@ -167,6 +170,17 @@ def enrich_plan_items(items: list[dict]) -> list[dict]:
 
         enriched_item["duration"] = duration_seconds
         enriched_item["license_id"] = license_obj.id
+        # Carried along so a plan saved before a window changed is still shown
+        # as violating it when the day is reopened.
+        window = youth_windows.get(license_obj.youth_protection_category)
+        enriched_item["youth_protection"] = None if window is None else {
+            "category": window.category,
+            "label": str(window.get_category_display()),
+            "allowed_from": window.start_time.strftime("%H:%M"),
+            "allowed_until": window.end_time.strftime("%H:%M"),
+            "window_start_seconds": window._seconds(window.start_time),
+            "window_length_seconds": window.length_seconds(),
+        }
 
         if license_obj.profile:
             author_name = f"{license_obj.profile.first_name or ''} {license_obj.profile.last_name or ''}".strip()

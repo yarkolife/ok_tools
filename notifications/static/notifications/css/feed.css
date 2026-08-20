@@ -514,6 +514,21 @@ button, input, select { font: inherit; }
 .state-expected { color: #3f66aa; background: #eef4ff; }
 .snooze-time { display: block; margin-top: 3px; color: var(--ink-3); font-size: 8.5px; }
 
+/* Delegation: who holds an item, and the picker that hands it over. */
+.delegation-note {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-3);
+  font-size: 8.5px;
+}
+.delegation-note i { margin-right: 3px; }
+.delegate-control { display: inline-flex; align-items: center; gap: 4px; }
+.delegate-control select {
+  max-width: 190px;
+  font-size: 11px;
+  padding: 3px 6px;
+}
+
 .row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
 .row-actions a, .row-actions button {
   width: 25px;

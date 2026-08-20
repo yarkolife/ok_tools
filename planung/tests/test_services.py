@@ -46,8 +46,13 @@ def test__planung__validation__rejects_overlap():
     assert any("overlap" in e["message"].lower() for e in exc.value.errors)
 
 
+@pytest.mark.django_db
 def test__planung__validation__normalizes_valid_payload():
-    """Validation returns normalized strongly typed payload."""
+    """Validation returns normalized strongly typed payload.
+
+    Needs the database because validation also checks the youth protection
+    window of every licence in the payload.
+    """
     payload = {
         "date": "2026-02-07",
         "items": [

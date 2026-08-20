@@ -2907,3 +2907,40 @@ msgstr "Freistellung %(license)s erfolgreich gelöscht."
 msgid "Enter tags separated by commas (e.g., tag1, tag2, tag3)"
 msgstr ""
 "Tags durch Kommas getrennt eingeben (z.B. beitrag1, beitrag2, beitrag3)"
+
+#: licenses/models.py
+msgid "Youth protection broadcast window"
+msgstr "Jugendschutz-Sendezeitfenster"
+
+#: licenses/models.py
+msgid "Youth protection broadcast windows"
+msgstr "Jugendschutz-Sendezeitfenster"
+
+#: licenses/models.py
+msgid "Enforce this window"
+msgstr "Fenster erzwingen"
+
+#: licenses/models.py
+msgid "When off, this category may be planned at any time."
+msgstr "Wenn aus, darf diese Kategorie zu jeder Zeit geplant werden."
+
+#: licenses/models.py
+msgid "Broadcast allowed from"
+msgstr "Ausstrahlung erlaubt ab"
+
+#: licenses/models.py
+msgid "Broadcast allowed until"
+msgstr "Ausstrahlung erlaubt bis"
+
+#: licenses/models.py
+msgid ""
+"Earlier than the start time means the window crosses midnight, e.g. "
+"22:00-06:00."
+msgstr ""
+"Eine Zeit vor der Startzeit bedeutet, dass das Fenster über Mitternacht "
+"reicht, z. B. 22:00-06:00."
+
+#: licenses/admin.py
+msgid "Broadcast window"
+msgstr "Sendezeitfenster"
+

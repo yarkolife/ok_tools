@@ -6,6 +6,7 @@ from .models import Category
 from .models import License
 from .models import LicensesConfig
 from .models import NextcloudVideoFile
+from .models import YouthProtectionWindow
 from .widgets import TagsInputWidget
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
@@ -2595,3 +2596,37 @@ class LicensesConfigAdmin(admin.ModelAdmin):
             'fields': ('freistellung_city',),
         }),
     )
+
+
+@admin.register(YouthProtectionWindow)
+class YouthProtectionWindowAdmin(admin.ModelAdmin):
+    """Broadcast windows the planning module enforces per age rating."""
+
+    list_display = ('get_category_display', 'window', 'enabled')
+    list_editable = ('enabled',)
+    list_display_links = ('get_category_display',)
+    ordering = ('category',)
+
+    def get_category_display(self, obj):
+        """Return the translated age rating."""
+        return obj.get_category_display()
+    get_category_display.short_description = _('Youth protection category')
+    get_category_display.admin_order_field = 'category'
+
+    def window(self, obj):
+        """Return the configured window as HH:MM-HH:MM."""
+        return obj.label()
+    window.short_description = _('Broadcast window')
+
+    def has_add_permission(self, request):
+        """Allow adding only categories that have no window yet."""
+        from .models import YouthProtectionCategory
+
+        configured = set(
+            YouthProtectionWindow.objects.values_list('category', flat=True))
+        available = {
+            value for value, _label in YouthProtectionCategory.choices
+            if value != YouthProtectionCategory.NONE
+        }
+        return bool(available - configured)
+

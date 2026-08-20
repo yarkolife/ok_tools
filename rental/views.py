@@ -276,6 +276,13 @@ def serialize_item(rental_item):
     }
 
 
+def _frontend_flags():
+    """Return the switches the React islands read from ``rr-flags``."""
+    from .config import get_rental_scan_sound_enabled
+
+    return {'scan_sound': bool(get_rental_scan_sound_enabled())}
+
+
 def _i18n_bundle():
     return {
         # Status pills
@@ -333,6 +340,16 @@ def _i18n_bundle():
         'wiz.tap_to_add': _('Tap + to add items.'),
         'wiz.clear': _('Clear'),
         'wiz.no_users': _('No users match your search.'),
+        'wiz.need_period': _('Please set the pickup and return time.'),
+        'sig.qr_title': _('Sign with phone'),
+        'sig.print': _('Sign on paper'),
+        'sig.print_desc': _('Print the issue slip and sign it by hand'),
+        'sig.print_multi': _('Items of different owners are printed on '
+                             'different forms. Print each slip the rental '
+                             'needs.'),
+        'btn.print': _('Print'),
+        'btn.done': _('Done'),
+        'btn.close': _('Close'),
         'wiz.of': _('of'),
         'wiz.free': _('free'),
         'wiz.per_room': _('per room'),
@@ -1283,6 +1300,7 @@ class RentalProcessView(StaffRequiredMixin, TemplateView):
                 'pending_approval_count': RentalRequest.objects.filter(status='draft').count(),
             },
             'i18n_strings': _i18n_bundle(),
+            'flags_json': _frontend_flags(),
         })
         return context
 
@@ -2509,6 +2527,7 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             'equipment_set_details': reverse('rental:api_equipment_set_details', args=[0]),
         }
         context['i18n_strings'] = _i18n_bundle()
+        context['flags_json'] = _frontend_flags()
         context['sidebar_active'] = 'list'
         _add_sidebar_counts(context)
 
@@ -2516,32 +2535,7 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
 
     def _build_print_slip_urls(self, rental):
         """Build print form URLs grouped by template (MSA vs non-MSA)."""
-        has_msa = False
-        has_non_msa = False
-        msa_org_id = None
-        print_slips = []
-        for item in rental.items.select_related('inventory_item__owner'):
-            owner = item.inventory_item.owner
-            if not owner:
-                continue
-            if owner.name == 'MSA':
-                has_msa = True
-                msa_org_id = owner.pk
-            else:
-                has_non_msa = True
-        if has_msa and msa_org_id:
-            print_slips.append({
-                'org_id': msa_org_id,
-                'org_name': 'MSA',
-                'url': reverse('rental:print_form', args=[msa_org_id, rental.pk]),
-            })
-        if has_non_msa:
-            print_slips.append({
-                'org_id': 0,
-                'org_name': str(_('Other')),
-                'url': reverse('rental:print_form', args=[0, rental.pk]),
-            })
-        return print_slips
+        return build_print_slip_urls(rental)
 
     def _build_timeline(self, rental):
         is_room_only = rental.items.count() == 0 and rental.room_rentals.count() > 0
@@ -2644,6 +2638,7 @@ class RentalReturnView(StaffRequiredMixin, TemplateView):
                 'scan_return': reverse('rental:api_scan_return_item'),
             }
             context['i18n_strings'] = _i18n_bundle()
+            context['flags_json'] = _frontend_flags()
         except RentalRequest.DoesNotExist:
             context['error'] = _('Rental request not found')
 
@@ -2902,6 +2897,40 @@ def duplicate_rental(request, rental_id):
     return redirect('rental:rental_detail', rental_id=duplicate.pk)
 
 
+def build_print_slip_urls(rental):
+    """Build print form URLs grouped by template (MSA vs non-MSA).
+
+    Items of different owners are printed on different forms, so a rental can
+    need more than one slip; callers show one link per entry.
+    """
+    has_msa = False
+    has_non_msa = False
+    msa_org_id = None
+    print_slips = []
+    for item in rental.items.select_related('inventory_item__owner'):
+        owner = item.inventory_item.owner
+        if not owner:
+            continue
+        if owner.name == 'MSA':
+            has_msa = True
+            msa_org_id = owner.pk
+        else:
+            has_non_msa = True
+    if has_msa and msa_org_id:
+        print_slips.append({
+            'org_id': msa_org_id,
+            'org_name': 'MSA',
+            'url': reverse('rental:print_form', args=[msa_org_id, rental.pk]),
+        })
+    if has_non_msa:
+        print_slips.append({
+            'org_id': 0,
+            'org_name': str(_('Other')),
+            'url': reverse('rental:print_form', args=[0, rental.pk]),
+        })
+    return print_slips
+
+
 @login_required
 @staff_member_required
 def print_slip(request, rental_id):
@@ -3041,10 +3070,24 @@ def quick_issue(request):
     if not result.get('success'):
         return JsonResponse({'error': result.get('error', _('Could not issue rental'))}, status=400)
     rental = get_object_or_404(RentalRequest, id=result['rental_id'])
+    # Quick mode signs the rental right after issuing it, so hand back the
+    # per-rental signature endpoints instead of making the client build them.
     return JsonResponse({
         'success': True,
         'rental_id': rental.pk,
         'detail_url': reverse('rental:rental_detail', args=[rental.pk]),
+        'has_signature': rental.has_any_signature(),
+        'signature_urls': {
+            'save_signature': reverse('rental:save_signature', args=[rental.pk]),
+            'create_sign_session': reverse(
+                'rental:create_sign_session', args=[rental.pk]),
+            # Signing on paper is a valid alternative, and a rental with items
+            # of several owners needs one slip per owner.
+            'print_slips': build_print_slip_urls(rental) or [{
+                'org_name': str(_('Issue slip')),
+                'url': reverse('rental:print_slip', args=[rental.pk]),
+            }],
+        },
     })
 
 
@@ -3563,6 +3606,7 @@ class RoomCalendarDayView(StaffRequiredMixin, TemplateView):
         context['next_day'] = day + timedelta(days=1)
         context['sidebar_active'] = 'room_calendar'
         context['i18n_strings'] = _i18n_bundle()
+        context['flags_json'] = _frontend_flags()
         _add_sidebar_counts(context)
         return context
 

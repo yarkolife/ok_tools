@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+2026-08-20 (Version 4.48.0)
+==========================
+
+* **rental: Signature and scanner handling in quick issue**
+  * Quick issue opens the same signature dialog the detail page uses once the rental exists, so a scanner-driven hand-over can be signed on the spot. The dialog gained a third option, "sign on paper", which offers the issue slips directly; a rental holding items of several owners lists one slip per owner. Signing stays optional.
+  * ``SignatureModal`` moved from ``detail.jsx`` into ``shared.jsx`` so both bundles use one implementation, and the wizard page loads ``signature_pad``.
+  * Quick mode no longer accepts a pickup in the past or outside the opening hours: the fields start from the next valid slot, carry a ``min``, and are corrected on blur and on submit. The return is always kept strictly after the pickup.
+  * The success/error tone while scanning is now a setting (``RentalConfig.scan_sound_enabled``, **off by default**) instead of always sounding; ``beep`` lives in ``shared.jsx`` and reads the new ``rr-flags`` payload.
+  * Signature method cards keep readable text in every state (5.7:1 at rest, 4.5:1 on the filled hover state) instead of grey-on-blue.
+
+* **notifications: Reels only where a reel has something to point at**
+  * ``media_files.missing_reel`` and ``media_files.reel_post_today`` now report premieres (a licence without a contribution) and repeats that already carry a Mediathek URL. A repeat without a Mediathek link produced work nobody could complete.
+  * The horizon of the reel check was already configurable as "days before broadcast" (``horizon_days``, default 3) under Notification settings; no change was needed there.
+
+* **notifications: Manual reminders**
+  * ``ManualReminder`` holds recurring or one-off reminders staff write themselves, for obligations that leave no trace in the data ("send the TV listings to the newspaper on Wednesday"). They travel through the normal machinery as ``reminders.manual`` events, and the new "Reminders" channel is subscribed to like any other. A monthly reminder configured for a day a month does not have falls on that month's last day.
+
+* **notifications: Delegating an action item**
+  * An item can be handed to another staff member. Responsibility moves to exactly one person: the sender's copy is parked in a new "Delegated" view showing who holds it and can be taken back, while the receiver gets a normal open item.
+  * A delegated item reaches its receiver even when they subscribe to nothing at all, and the colleague picker lists profile names rather than bare e-mail addresses.
+
+* **planung/licenses: Youth protection broadcast windows**
+  * ``YouthProtectionWindow`` configures, per age rating, the window it may be aired in (seeded with 20:00-06:00 for 12, 22:00-06:00 for 16, 23:00-06:00 for 18) and can be switched off per rating.
+  * Saving a day plan is refused when a rated item lies outside its window, naming the allowed time; the planner marks the offending row and says so while it can still be moved. Windows and items crossing midnight are handled on a circular clock.
+
 2026-08-19 (Version 4.47.0)
 ==========================
 

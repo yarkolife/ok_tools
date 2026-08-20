@@ -186,6 +186,56 @@ def test_missing_reel_ignores_other_channels(synced, license, own_authority,
     assert run_check('media_files.missing_reel') == []
 
 
+def _make_repeat(license_obj):
+    """Give the licence a contribution, which makes the airing a repeat."""
+    from contributions.models import Contribution
+
+    return Contribution.objects.create(
+        license=license_obj,
+        broadcast_date=timezone.now() - timedelta(days=30),
+        live=False,
+    )
+
+
+def test_missing_reel_skips_a_repeat_without_a_mediathek_url(
+        synced, license, own_authority, storage):
+    """A repeat the audience cannot watch anywhere needs no reel."""
+    _plan_own_license(license, own_authority, storage)
+    _make_repeat(license)
+
+    assert run_check('media_files.missing_reel') == []
+
+
+def test_missing_reel_reports_a_repeat_that_is_in_the_mediathek(
+        synced, license, own_authority, storage):
+    """A repeat with a Mediathek link is something a reel can point at."""
+    _plan_own_license(license, own_authority, storage)
+    _make_repeat(license)
+    license.mediathek_url = 'https://mediathek.example/watch/1'
+    license.save(update_fields=['mediathek_url'])
+
+    findings = run_check('media_files.missing_reel')
+
+    assert len(findings) == 1
+    assert findings[0].payload['number'] == license.number
+
+
+def test_reel_post_today_skips_a_repeat_without_a_mediathek_url(
+        synced, license, own_authority, storage):
+    """The publishing reminder follows the same rule as the reel check."""
+    from media_files.models import VideoFile
+
+    _plan_own_license(license, own_authority, storage, days_ahead=0)
+    VideoFile.objects.create(
+        number=license.number, filename=f'{license.number}_reel.mp4',
+        storage_location=storage,
+        file_path=f'/tmp/playout/{license.number}_reel.mp4',
+        is_preview=True)
+    _make_repeat(license)
+
+    assert run_check('media_files.reel_post_today') == []
+
+
 def test_missing_reel_is_closed_by_an_existing_reel(synced, license,
                                                     own_authority, storage):
     """A rendered reel is registered as a preview clip."""

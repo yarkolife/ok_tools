@@ -1,23 +1,8 @@
 /* =========================================================
    rental/static/rental/js/return.jsx
    React island for rental_return.html.
-   Depends on: shared.jsx (cls, fmtDateShort, apiPost, t, Avatar)
+   Depends on: shared.jsx (cls, fmtDateShort, apiPost, t, Avatar, beep)
    ========================================================= */
-
-function beep(freq, dur) {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = freq;
-    osc.type = 'square';
-    gain.gain.value = 0.1;
-    osc.start();
-    osc.stop(ctx.currentTime + dur / 1000);
-  } catch (e) {}
-}
 
 function ReturnScreen({ rental, items, urls }) {
   const [returns, setReturns] = React.useState(() =>

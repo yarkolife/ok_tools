@@ -77,21 +77,6 @@ function snapToWorkingHours(date, workingHours) {
   return d;
 }
 
-function beep(freq, dur) {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = freq;
-    osc.type = 'square';
-    gain.gain.value = 0.1;
-    osc.start();
-    osc.stop(ctx.currentTime + dur / 1000);
-  } catch (e) {}
-}
-
 /* ===== Root ===== */
 function WizardScreen({ initial }) {
   // initial = {
@@ -1413,6 +1398,61 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
 
   const setQty = (id, qty) => setCart(cc => cc.map(x => x.id === id ? { ...x, qty } : x));
 
+  // Quick mode used to accept any typed value, including dates in the past or
+  // outside the opening hours -- the backend then refused the issue with an
+  // error the operator only saw after scanning everything. Correct the value
+  // as soon as the field is left instead.
+  const workingHours = initial.working_hours;
+  const nowInput = _fmtDT(new Date());
+
+  const normalize = (raw, notBefore) => {
+    if (!raw) return '';
+    const parsed = new Date(raw);
+    if (isNaN(parsed)) return '';
+    const floor = notBefore ? new Date(notBefore) : new Date();
+    const snapped = snapToWorkingHours(parsed < floor ? floor : parsed,
+                                       workingHours);
+    return _fmtDT(snapped);
+  };
+
+  // The return has to stay strictly after the pickup: snapping both to the
+  // same opening time would otherwise produce a rental of zero length.
+  const normalizeReturn = (raw, from) => {
+    const candidate = normalize(raw, from);
+    if (!from) return candidate;
+    if (candidate && new Date(candidate) > new Date(from)) return candidate;
+    const nextDay = new Date(from);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return _fmtDT(snapToWorkingHours(nextDay, workingHours));
+  };
+
+  const normalizeFrom = () => setPeriod(p => {
+    const from = normalize(p.from);
+    if (!from) return p;
+    return { ...p, from, to: normalizeReturn(p.to, from) };
+  });
+
+  const normalizeTo = () => setPeriod(p => {
+    const to = normalizeReturn(p.to, p.from);
+    return to === p.to ? p : { ...p, to };
+  });
+
+  // Start from a usable period instead of two empty fields: quick mode exists
+  // to hand something over right now.
+  React.useEffect(() => {
+    setPeriod(p => {
+      if (p.from && p.to) return p;
+      const from = snapToWorkingHours(new Date(), workingHours);
+      const to = new Date(from);
+      to.setDate(to.getDate() + 1);
+      return {
+        ...p,
+        from: p.from || _fmtDT(from),
+        to: p.to || _fmtDT(snapToWorkingHours(to, workingHours)),
+      };
+    });
+  }, []);
+
   const addByScan = async () => {
     if (!scan.trim()) return;
     if (debounceRef.current) return;
@@ -1449,15 +1489,34 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
     }
   };
 
+  // The rental exists before it is signed, so the modal gets the real
+  // per-rental endpoints and the QR flow works exactly as on the detail page.
+  const [signFor, setSignFor] = React.useState(null);
+
   const issueNow = async () => {
     if (!user || cart.length === 0) return;
+    // The operator can press the button without ever leaving a date field, so
+    // correct the period here too rather than letting the backend refuse it.
+    const from = normalize(period.from);
+    const to = normalizeReturn(period.to, from);
+    if (!from || !to) {
+      alert(t('wiz.need_period', 'Please set the pickup and return time.'));
+      return;
+    }
+    if (from !== period.from || to !== period.to) {
+      setPeriod(p => ({ ...p, from, to }));
+    }
     setBusy(true);
     try {
       const r = await apiPost(initial.urls.quick_issue, {
-        user_id: user.id, from: period.from, to: period.to,
+        user_id: user.id, from, to,
         items: cart.map(c => ({ id: c.id, qty: c.qty })),
       });
-      window.location = r.detail_url;
+      if (r.has_signature || !r.signature_urls) {
+        window.location = r.detail_url;
+        return;
+      }
+      setSignFor({ urls: r.signature_urls, detailUrl: r.detail_url });
     } catch (e) { alert(e.message); setBusy(false); }
   };
 
@@ -1469,6 +1528,13 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
 
   return (
     <div>
+      {signFor && (
+        <SignatureModal
+          urls={signFor.urls}
+          onSigned={() => { window.location = signFor.detailUrl; }}
+          onClose={() => { window.location = signFor.detailUrl; }}
+        />
+      )}
       <div className="quick-panel">
         <div className="quick-row">
           <div>
@@ -1479,12 +1545,16 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod 
           <div>
             <div className="muted tiny mb-1" style={{textTransform: 'uppercase', fontWeight: 600}}>{t('wiz.pickup','Pickup')}</div>
             <input type="datetime-local" className="form-control form-control-sm"
-                   value={period.from} onChange={e => setPeriod(p => ({...p, from: e.target.value}))} />
+                   min={nowInput}
+                   value={period.from} onBlur={normalizeFrom}
+                   onChange={e => setPeriod(p => ({...p, from: e.target.value}))} />
           </div>
           <div>
             <div className="muted tiny mb-1" style={{textTransform: 'uppercase', fontWeight: 600}}>{t('wiz.return_by','Return by')}</div>
             <input type="datetime-local" className="form-control form-control-sm"
-                   value={period.to} onChange={e => setPeriod(p => ({...p, to: e.target.value}))} />
+                   min={period.from || nowInput}
+                   value={period.to} onBlur={normalizeTo}
+                   onChange={e => setPeriod(p => ({...p, to: e.target.value}))} />
           </div>
           <div>
             <div className="muted tiny mb-1" style={{textTransform: 'uppercase', fontWeight: 600}}>{t('wiz.scan','Scan')}</div>

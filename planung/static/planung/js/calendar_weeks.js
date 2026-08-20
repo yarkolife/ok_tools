@@ -257,8 +257,24 @@
       return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
     }
 
+    // Youth protection: an age-rated item must fit entirely inside its allowed
+    // window. Window and item may both cross midnight, so the check runs on a
+    // circular clock, exactly like the server-side validation.
+    function youthProtectionFits(yp, startSec, durationSec) {
+      if (!yp) return true;
+      const length = yp.window_length_seconds || 86400;
+      const offset = ((startSec - (yp.window_start_seconds || 0)) % 86400 + 86400) % 86400;
+      return offset + Math.max(durationSec || 0, 0) <= length;
+    }
+
+    function youthProtectionOf($row) {
+      const raw = $row.data('youth-protection');
+      return raw || null;
+    }
+
     function recalculateSchedule() {
       let currentEndSec = blockStart;
+      const ypBlocked = [];
 
       $('#licenseTable tbody tr:not(.gap-row)').each(function (idx) {
         const $row = $(this);
@@ -330,6 +346,28 @@
           }
         }
         
+        const duration0 = plannedItems[idx] ? plannedItems[idx].duration : (function () {
+          const durationText = $row.find('td').eq(5).text();
+          if (!durationText) return 0;
+          const parts = durationText.split(':').map(Number);
+          if (parts.length === 2) return parts[0] * 60 + parts[1];
+          return 0;
+        })();
+        const yp = youthProtectionOf($row);
+        const ypViolated = !youthProtectionFits(yp, startSec, duration0);
+        if (ypViolated) {
+          bgColor = '#ffd4d4';
+          const ypText = gettext('Youth protection: broadcast only allowed between')
+            + ' ' + yp.allowed_from + ' – ' + yp.allowed_until + ' (' + yp.label + ')';
+          title = title ? title + ' • ' + ypText : ypText;
+        }
+        $row.toggleClass('yp-violation', ypViolated);
+        if (ypViolated) {
+          ypBlocked.push(
+            $row.data('license-number') + ' (' + yp.label + ': '
+            + yp.allowed_from + '–' + yp.allowed_until + ')');
+        }
+
         $input.css('background-color', bgColor).attr('title', title);
 
         const duration = plannedItems[idx] ? plannedItems[idx].duration : (function () {
@@ -361,6 +399,15 @@
         // (used for positioning next auto-mode videos)
         currentEndSec = Math.max(currentEndSec, endSec);
       });
+
+      // Saving is refused server-side for these, so say why while there is
+      // still time to move the item.
+      if (ypBlocked.length > 0) {
+        showInlineNotice(
+          gettext('Youth protection: these items may not be broadcast at the '
+                  + 'planned time and the day cannot be saved:')
+          + ' ' + ypBlocked.join(', '));
+      }
 
       updateRemainingTime();
     }
@@ -499,6 +546,7 @@
                       '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
                       '</tr>');
                     $row.data('is-live', isLive);
+                    $row.data('youth-protection', item.youth_protection || null);
                     $('#licenseTable tbody').append($row);
 
                     const $input = $row.find('.start-time-input');
@@ -909,6 +957,7 @@
           '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
           '</tr>');
         $row.data('is-live', isLive);
+        $row.data('youth-protection', data.youth_protection || null);
 
         const $input = $row.find('.start-time-input');
         setDesiredTime($input, startTimeDisplay);

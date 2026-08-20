@@ -987,3 +987,38 @@ html, body {
   min-width: 0;
   background: var(--bg, #f8f9fa);
 }
+
+/* Signature method cards. The theme fills .btn-outline-primary on hover and
+   focus but keeps a light-blue text colour, which left the description line
+   unreadable on the filled background; both lines are pinned here instead. */
+.btn.sig-choice {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.btn.sig-choice .sig-choice-desc {
+  font-size: 11px;
+  /* Explicit greys: the muted token used elsewhere only reaches 4.1:1 on
+     white, which is under WCAG AA for text this small. */
+  color: #626861;
+  line-height: 1.35;
+}
+.btn.sig-choice:hover,
+.btn.sig-choice:focus,
+.btn.sig-choice:focus-visible,
+.btn.sig-choice:active,
+.btn.sig-choice.active {
+  color: #fff;
+}
+.btn.sig-choice:hover .sig-choice-desc,
+.btn.sig-choice:focus .sig-choice-desc,
+.btn.sig-choice:focus-visible .sig-choice-desc,
+.btn.sig-choice:active .sig-choice-desc,
+.btn.sig-choice.active .sig-choice-desc {
+  color: rgba(255, 255, 255, 0.96);
+}
+

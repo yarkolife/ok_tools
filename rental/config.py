@@ -31,6 +31,17 @@ def get_rental_show_item_photos():
         return str(value).lower() in ('true', '1', 'yes', 'on')
 
 
+def get_rental_scan_sound_enabled():
+    """Get whether barcode scanning plays a success/error tone."""
+    try:
+        from .models import RentalConfig
+        config = RentalConfig.get_config()
+        return config.scan_sound_enabled
+    except Exception:
+        value = os.getenv('RENTAL_SCAN_SOUND_ENABLED', 'false')
+        return str(value).lower() in ('true', '1', 'yes', 'on')
+
+
 def get_rental_show_room_photos():
     """Get whether to show room photos on rental frontends."""
     try:

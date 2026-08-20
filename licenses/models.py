@@ -36,6 +36,90 @@ class YouthProtectionCategory(models.TextChoices):
         return ''
 
 
+class YouthProtectionWindow(models.Model):
+    """Broadcast window a youth protection category may be aired in.
+
+    The category lives on the licence, but *when* that category may go on air
+    is an editorial/legal decision that differs per station and changes over
+    time, so it is configured here instead of being hard-coded. Windows
+    normally wrap around midnight (e.g. 22:00-06:00); see ``allows``.
+    """
+
+    #: Times the station usually starts/ends restricted material with.
+    DEFAULTS = {
+        'from_12': (datetime.time(20, 0), datetime.time(6, 0)),
+        'from_16': (datetime.time(22, 0), datetime.time(6, 0)),
+        'from_18': (datetime.time(23, 0), datetime.time(6, 0)),
+    }
+
+    category = models.CharField(
+        _('Youth protection category'),
+        max_length=255,
+        unique=True,
+        choices=YouthProtectionCategory.choices,
+    )
+    enabled = models.BooleanField(
+        _('Enforce this window'),
+        default=True,
+        help_text=_('When off, this category may be planned at any time.'),
+    )
+    start_time = models.TimeField(
+        _('Broadcast allowed from'),
+        default=datetime.time(22, 0),
+    )
+    end_time = models.TimeField(
+        _('Broadcast allowed until'),
+        default=datetime.time(6, 0),
+        help_text=_('Earlier than the start time means the window crosses '
+                    'midnight, e.g. 22:00-06:00.'),
+    )
+
+    class Meta:
+        verbose_name = _('Youth protection broadcast window')
+        verbose_name_plural = _('Youth protection broadcast windows')
+        ordering = ['category']
+
+    def __str__(self):
+        """Return the category with its window."""
+        return f'{self.get_category_display()}: {self.label()}'
+
+    def label(self):
+        """Return the window as ``HH:MM-HH:MM`` for messages and the UI."""
+        return (f'{self.start_time.strftime("%H:%M")}'
+                f'-{self.end_time.strftime("%H:%M")}')
+
+    @staticmethod
+    def _seconds(value):
+        """Return seconds since midnight for a ``time``."""
+        return value.hour * 3600 + value.minute * 60 + value.second
+
+    def length_seconds(self):
+        """Return the window length, counting a wrap around midnight."""
+        start = self._seconds(self.start_time)
+        end = self._seconds(self.end_time)
+        length = (end - start) % 86400
+        # start == end is read as "the whole day", not "no time at all":
+        # an operator clearing both fields should not block everything.
+        return 86400 if length == 0 else length
+
+    def allows(self, start_seconds, duration_seconds):
+        """Whether an item fits fully inside this window.
+
+        Both the window and the item may cross midnight, so the check is done
+        on a circular clock: measure the item's start as an offset from the
+        window start and require the whole duration to fit before the end.
+        """
+        offset = (int(start_seconds) - self._seconds(self.start_time)) % 86400
+        return offset + max(int(duration_seconds), 0) <= self.length_seconds()
+
+    @classmethod
+    def enforced_windows(cls):
+        """Return ``{category: window}`` for every enforced category."""
+        return {
+            window.category: window
+            for window in cls.objects.filter(enabled=True)
+            if window.category != YouthProtectionCategory.NONE
+        }
 
 
 class Category(models.Model):

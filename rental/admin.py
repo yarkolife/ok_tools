@@ -587,6 +587,13 @@ class RentalConfigAdmin(admin.ModelAdmin):
             ),
             'description': _('Show item and room photos on the rental frontend pages.'),
         }),
+        (_('Barcode scanning'), {
+            'fields': (
+                'scan_sound_enabled',
+            ),
+            'description': _('Audible feedback while scanning on the issue and '
+                             'return screens.'),
+        }),
         (_('Working hours'), {
             'fields': (
                 ('monday_start_time', 'monday_end_time'),

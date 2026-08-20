@@ -18,13 +18,16 @@ from django.utils.translation import ngettext
 from notifications import config
 from notifications import links
 from notifications import presets
+from django.contrib.auth import get_user_model
 from notifications import registry
 from notifications import selectors
 from notifications import stats
 from notifications.models import NotificationConfig
 from notifications.models import NotificationEventTypeConfig
+from notifications.services import delegate
 from notifications.services import mark_done
 from notifications.services import reopen
+from notifications.services import revoke_delegation
 from notifications.services import snooze
 from notifications.services import suppress_events
 from notifications.services import wake
@@ -87,14 +90,25 @@ REEL_ACTION_TYPES = ('media_files.missing_reel',)
 VIEW_OPEN = 'open'
 VIEW_SNOOZED = 'snoozed'
 VIEW_HANDLED = 'handled'
+VIEW_DELEGATED = 'delegated'
 VIEW_ALL = 'all'
-VIEWS = (VIEW_OPEN, VIEW_SNOOZED, VIEW_HANDLED, VIEW_ALL)
+VIEWS = (VIEW_OPEN, VIEW_SNOOZED, VIEW_HANDLED, VIEW_DELEGATED, VIEW_ALL)
 
 
 def _redirect(name: str, query: str = '') -> HttpResponseRedirect:
     """Redirect back to one of the notification pages, keeping the filters."""
     url = reverse(f'admin:{name}')
     return HttpResponseRedirect(f'{url}?{query}' if query else url)
+
+
+def _delegate_target(request):
+    """Return the staff member picked as the delegation target, or None."""
+    raw = (request.POST.get('delegate_to') or '').strip()
+    if not raw.isdigit():
+        return None
+    User = get_user_model()
+    return User.objects.filter(
+        pk=int(raw), is_active=True, is_staff=True).first()
 
 
 def _selected_ids(request, user, filters) -> List[int]:
@@ -111,6 +125,8 @@ def _selected_ids(request, user, filters) -> List[int]:
             queryset = selectors.snoozed_action_items(user, request, filters)
         elif view == VIEW_HANDLED:
             queryset = selectors.handled_action_items(user, request, filters)
+        elif view == VIEW_DELEGATED:
+            queryset = selectors.delegated_action_items(user, request, filters)
         elif view == VIEW_ALL:
             return list(
                 selectors.feed(user, request, limit=0, filters=filters)
@@ -226,7 +242,29 @@ def _serialize_event(event, status='', item=None, action_url=''):
         'actionLabel': str(_('Create reel')) if action_url else '',
         'objectId': event.object_id,
         'details': _payload_details(event.payload),
+        'delegatedTo': _user_label(getattr(item, 'delegated_to', None)),
+        'delegatedBy': _user_label(getattr(item, 'delegated_by', None)),
     }
+
+
+def _user_label(user):
+    """Return a readable name for a delegation partner, or ''.
+
+    The name lives on the profile, not on the user row, so a list built from
+    ``get_full_name`` alone would show nothing but e-mail addresses.
+    """
+    if user is None:
+        return ''
+    profile = getattr(user, 'profile', None)
+    first = (getattr(profile, 'first_name', '') or '').strip()
+    last = (getattr(profile, 'last_name', '') or '').strip()
+    name = ' '.join(part for part in (first, last) if part)
+    if not name:
+        name = (user.get_full_name() or '').strip()
+    if not name:
+        return user.email
+    # Keep the address as a disambiguator: two colleagues can share a name.
+    return f'{name} ({user.email})' if user.email else name
 
 
 def _serialize_rows(user, rows, events_only=False):
@@ -356,6 +394,33 @@ def feed_view(request):
                     woken) % {'count': woken})
             else:
                 messages.warning(request, _('Nothing was selected.'))
+        elif action == 'delegate':
+            to_user = _delegate_target(request)
+            if to_user is None:
+                messages.warning(
+                    request, _('Select the colleague to delegate to.'))
+            else:
+                handed = delegate(
+                    user, _selected_ids(request, user, filters), to_user)
+                if handed:
+                    messages.success(request, ngettext(
+                        '%(count)d entry was delegated to %(name)s.',
+                        '%(count)d entries were delegated to %(name)s.',
+                        handed) % {
+                            'count': handed,
+                            'name': _user_label(to_user)})
+                else:
+                    messages.warning(request, _('Nothing was delegated.'))
+        elif action == 'revoke_delegation':
+            taken_back = revoke_delegation(
+                user, _selected_ids(request, user, filters))
+            if taken_back:
+                messages.success(request, ngettext(
+                    '%(count)d entry was taken back.',
+                    '%(count)d entries were taken back.',
+                    taken_back) % {'count': taken_back})
+            else:
+                messages.warning(request, _('Nothing was selected.'))
         elif action == 'suppress':
             silenced = suppress_events(
                 _selected_ids(request, user, filters), user=user,
@@ -377,11 +442,14 @@ def feed_view(request):
     open_items = selectors.open_action_items(user, request, filters)
     snoozed_items = selectors.snoozed_action_items(user, request, filters)
     handled_items = selectors.handled_action_items(user, request, filters)
+    delegated_items = selectors.delegated_action_items(user, request, filters)
 
     if view == VIEW_SNOOZED:
         rows = snoozed_items
     elif view == VIEW_HANDLED:
         rows = handled_items
+    elif view == VIEW_DELEGATED:
+        rows = delegated_items
     elif view == VIEW_ALL:
         rows = selectors.feed(user, request, limit=0, filters=filters)
     else:
@@ -405,10 +473,12 @@ def feed_view(request):
     overview_problem_events = selectors.active_problem_events(user, request)
     overview_new_events = selectors.feed(
         user, request, limit=PAGE_SIZE, since=state.last_seen_at)
+    overview_delegated_items = selectors.delegated_action_items(user, request)
     counts = {
         'open': overview_open_items.count(),
         'snoozed': overview_snoozed_items.count(),
         'handled': overview_handled_items.count(),
+        'delegated': overview_delegated_items.count(),
         'problems': overview_problem_events.count(),
     }
     filter_context = _filter_context(user, request, filters)
@@ -435,6 +505,15 @@ def feed_view(request):
             **counts,
         },
         'view': view,
+        # Only staff can act on notifications, so only staff can receive one.
+        'colleagues': [
+            {'id': colleague.pk, 'name': _user_label(colleague)}
+            for colleague in get_user_model().objects
+            .filter(is_active=True, is_staff=True)
+            .exclude(pk=user.pk)
+            .select_related('profile')
+            .order_by('profile__last_name', 'profile__first_name', 'email')[:200]
+        ],
         'shownCount': paginator.count,
         'totalActionCount': selectors.action_count(user, request),
         'hasSubscriptions': bool(selectors.subscribed_types(user, request)),
@@ -538,6 +617,12 @@ def feed_view(request):
             'todayExpectations': str(_("Today's expectations")),
             'noExpectations': str(_('Nothing is expected today.')),
             'viewItem': str(_('Open working screen')),
+            'delegated': str(_('Delegated')),
+            'delegate': str(_('Delegate')),
+            'delegateTo': str(_('Delegate to…')),
+            'delegatedTo': str(_('Delegated to')),
+            'delegatedBy': str(_('Delegated by')),
+            'takeBack': str(_('Take back')),
             'details': str(_('Details')),
             'description': str(_('Description')),
             'notification': str(_('Notification')),

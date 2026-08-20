@@ -75,8 +75,29 @@ def get_license_by_number(request, number):
             "author": author_name,
             "sender_responsible": sender_responsible,
             "license_id": license.id,
+            # Lets the planner flag a forbidden slot while the item is being
+            # placed instead of only when the day is saved.
+            "youth_protection": _youth_protection_info(license),
         }
     )
+
+
+def _youth_protection_info(license_obj):
+    """Return the enforced broadcast window of a licence, or ``None``."""
+    from licenses.models import YouthProtectionWindow
+
+    window = YouthProtectionWindow.enforced_windows().get(
+        license_obj.youth_protection_category)
+    if window is None:
+        return None
+    return {
+        "category": window.category,
+        "label": window.get_category_display(),
+        "allowed_from": window.start_time.strftime("%H:%M"),
+        "allowed_until": window.end_time.strftime("%H:%M"),
+        "window_start_seconds": window._seconds(window.start_time),
+        "window_length_seconds": window.length_seconds(),
+    }
 
 
 @require_POST
