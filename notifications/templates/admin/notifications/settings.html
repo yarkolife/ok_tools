@@ -70,6 +70,15 @@
                           <option disabled>{% translate "No active storage locations" %}</option>
                         {% endfor %}
                       </select>
+                    {% elif param.kind == "choice" %}
+                      <select id="{{ param.field }}" name="{{ param.field }}">
+                        {% for choice in param.choices %}
+                          <option value="{{ choice.value }}"
+                                  {% if choice.selected %}selected{% endif %}>
+                            {{ choice.label }}
+                          </option>
+                        {% endfor %}
+                      </select>
                     {% else %}
                       <input type="number" id="{{ param.field }}" name="{{ param.field }}"
                              value="{{ param.value }}" min="0" step="1">

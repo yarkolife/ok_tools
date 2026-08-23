@@ -90,6 +90,12 @@ def get_params(code: str) -> Dict[str, Any]:
                         if str(item).isdigit()
                     ]
                     continue
+                if spec.kind == 'choice':
+                    # A value that is no longer offered falls back to the
+                    # default rather than reaching the check.
+                    if value in {option for option, _label in spec.choices}:
+                        params[key] = value
+                    continue
                 try:
                     params[key] = int(value)
                 except (TypeError, ValueError):

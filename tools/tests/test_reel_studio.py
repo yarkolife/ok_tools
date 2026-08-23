@@ -471,6 +471,40 @@ class DailyReelReminderTest(TestCase):
         self.assertEqual(context['reels'][0]['start_time'], '')
         self.assertIn('Sendezeit oder Reel prüfen', str(context['reels'][0]['warnings'][0]))
 
+    def test_context_carries_the_licence_description(self):
+        from tools.tasks import build_daily_reel_reminder_context
+
+        plan_date = date(2026, 7, 4)
+        license_obj = self._license('with-desc@example.com', 'With Description')
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+
+        context = build_daily_reel_reminder_context(plan_date)
+
+        self.assertEqual(context['reels'][0]['description'], 'Description')
+
+    def test_email_contains_the_description(self):
+        """The post is written from the description, so it has to be in the mail."""
+        from planung.models import TagesPlan
+        from tools.tasks import send_daily_reel_reminder
+
+        plan_date = date(2026, 7, 4)
+        # A missing Mediathek URL makes the task retry instead of sending.
+        license_obj = self._license(
+            'desc-mail@example.com', 'Desc Mail',
+            mediathek_url='https://lokalmedial.example/w/desc')
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+        TagesPlan.objects.create(
+            datum=plan_date,
+            json_plan={'items': [{'number': license_obj.number, 'start': '09:00:00'}]},
+        )
+
+        send_daily_reel_reminder(plan_date.isoformat())
+
+        body = mail.outbox[0].body
+        self.assertIn('Description', body)
+        # Before the broadcast responsibility, where the reader looks first.
+        self.assertLess(body.index('Description'), body.index('Reel-Download:'))
+
     def test_task_sends_email_with_links_after_tags(self):
         from planung.models import TagesPlan
         from tools.tasks import send_daily_reel_reminder

@@ -565,14 +565,18 @@ def _missing_asset_findings(code: str, entries, have_numbers) -> List[Finding]:
     return findings
 
 
-def _reel_relevant_numbers(numbers):
+def _reel_relevant_numbers(numbers, scope=None):
     """Restrict reel work to material a reel would actually promote.
 
-    A reel advertises something the audience can watch: a premiere (the licence
-    has no contribution yet), or a repeat that is available in the Mediathek.
-    A repeat without a Mediathek link has nothing to link to, so asking for a
-    reel would only produce noise.
+    A reel advertises something the audience can watch. A premiere -- a licence
+    without a contribution yet -- always qualifies. A repeat only qualifies
+    when it is in the Mediathek, and whether such repeats are wanted at all is
+    the ``scope`` setting; a repeat that is nowhere online is never reported,
+    because the reel would have nothing to point at.
     """
+    from notifications.event_types import REEL_SCOPE_PREMIERES
+    from notifications.event_types import REEL_SCOPE_PREMIERES_AND_MEDIATHEK
+
     License = apps.get_model('licenses.License')
     Contribution = apps.get_model('contributions.Contribution')
 
@@ -584,6 +588,11 @@ def _reel_relevant_numbers(numbers):
         .values_list('license__number', flat=True)
     )
     premieres = numbers - repeated
+    if scope == REEL_SCOPE_PREMIERES:
+        return premieres
+    if scope not in (None, REEL_SCOPE_PREMIERES_AND_MEDIATHEK):
+        logger.warning('Unknown reel scope %r, falling back to %r',
+                       scope, REEL_SCOPE_PREMIERES_AND_MEDIATHEK)
     in_mediathek = set(
         License.objects.filter(number__in=repeated)
         .exclude(mediathek_url='')
@@ -601,7 +610,8 @@ def check_missing_reel(params: Dict[str, int]) -> List[Finding]:
     entries, own = _own_planned_entries(params.get('horizon_days', 3))
     if own is None or not entries:
         return []
-    relevant = _reel_relevant_numbers({entry['number'] for entry in entries})
+    relevant = _reel_relevant_numbers({entry['number'] for entry in entries},
+                                      params.get('scope'))
     entries = [entry for entry in entries if entry['number'] in relevant]
     if not entries:
         return []
@@ -640,7 +650,8 @@ def check_reel_post_today(params: Dict[str, int]) -> List[Finding]:
     entries, own = _own_planned_entries(0)
     if own is None or not entries:
         return []
-    relevant = _reel_relevant_numbers({entry['number'] for entry in entries})
+    relevant = _reel_relevant_numbers({entry['number'] for entry in entries},
+                                      params.get('scope'))
     entries = [entry for entry in entries if entry['number'] in relevant]
     if not entries:
         return []

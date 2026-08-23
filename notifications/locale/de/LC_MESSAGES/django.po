@@ -1655,3 +1655,25 @@ msgstr ""
 "Für einen heute laufenden Beitrag liegt ein Reel bereit, das manuell "
 "veröffentlicht werden muss. Wie bei der Reel-Prüfung werden nur Premieren "
 "und Wiederholungen mit Mediathek-URL gemeldet."
+
+#: notifications/event_types.py
+msgid "Which broadcasts need a reel"
+msgstr "Für welche Sendungen ein Reel nötig ist"
+
+#: notifications/event_types.py
+msgid "Premieres and repeats with a Mediathek URL"
+msgstr "Premieren und Wiederholungen mit Mediathek-URL"
+
+#: notifications/event_types.py
+msgid "Premieres only"
+msgstr "Nur Premieren"
+
+#: notifications/event_types.py
+msgid ""
+"A premiere is a licence that has no contribution yet. A repeat without a "
+"Mediathek URL is never reported, because the reel would have nothing to "
+"point at."
+msgstr ""
+"Eine Premiere ist eine Freistellung, zu der es noch keinen Beitrag gibt. "
+"Eine Wiederholung ohne Mediathek-URL wird nie gemeldet, weil das Reel dann "
+"kein Ziel hätte."

@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-08-21 (Version 4.49.0)
+==========================
+
+* **notifications: Reel scope is now a setting**
+  * ``media_files.missing_reel`` and ``media_files.reel_post_today`` gained a "which broadcasts need a reel" parameter: premieres and repeats with a Mediathek URL (the default, unchanged behaviour) or premieres only. A repeat without a Mediathek URL is still never reported under either choice, because the reel would have nothing to point at.
+  * ``ParamSpec`` learned a ``choice`` kind, rendered as a select on the notification settings page and validated against the declared options on save and on read; an unknown stored value falls back to the default instead of reaching the check.
+
+* **tools: Description in the daily reel reminder**
+  * The reminder email lists the licence description for every reel, in the text and the HTML body, so the post can be written from the mail itself.
+
 2026-08-20 (Version 4.48.0)
 ==========================
 

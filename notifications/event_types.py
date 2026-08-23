@@ -289,6 +289,28 @@ MEDIA_FORMAT_MISMATCH = register(EventType(
     ),
 ))
 
+# What a reel is asked for. A reel advertises something the audience can watch,
+# so a repeat that is nowhere online has nothing to link to; whether such a
+# repeat should still be promoted is an editorial decision, not a fixed rule.
+REEL_SCOPE_PREMIERES = 'premieres'
+REEL_SCOPE_PREMIERES_AND_MEDIATHEK = 'premieres_and_mediathek'
+REEL_SCOPE_CHOICES = (
+    (REEL_SCOPE_PREMIERES_AND_MEDIATHEK,
+     _('Premieres and repeats with a Mediathek URL')),
+    (REEL_SCOPE_PREMIERES, _('Premieres only')),
+)
+REEL_SCOPE_PARAM = ParamSpec(
+    name='scope',
+    label=_('Which broadcasts need a reel'),
+    default=REEL_SCOPE_PREMIERES_AND_MEDIATHEK,
+    kind='choice',
+    choices=REEL_SCOPE_CHOICES,
+    help_text=_('A premiere is a licence that has no contribution yet. A '
+                'repeat without a Mediathek URL is never reported, because '
+                'the reel would have nothing to point at.'),
+)
+
+
 # Reel and cover are two separate types on purpose: a channel may produce
 # covers but no reels, and one combined type could not be switched off
 # halfway.
@@ -314,6 +336,7 @@ MEDIA_MISSING_REEL = register(EventType(
             default=3,
             help_text=_('Warn this many days before the broadcast date.'),
         ),
+        REEL_SCOPE_PARAM,
     ),
 ))
 
@@ -435,6 +458,7 @@ MEDIA_REEL_POST_TODAY = register(EventType(
     source=SOURCE_SCAN,
     model='licenses.License',
     settings_flag='MEDIA_FILES_ENABLED',
+    params=(REEL_SCOPE_PARAM,),
 ))
 
 

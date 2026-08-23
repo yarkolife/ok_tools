@@ -220,6 +220,67 @@ def test_missing_reel_reports_a_repeat_that_is_in_the_mediathek(
     assert findings[0].payload['number'] == license.number
 
 
+def _set_scope(code, scope):
+    """Store the reel scope the way the settings page would."""
+    from notifications.models import NotificationEventTypeConfig
+
+    row, _created = NotificationEventTypeConfig.objects.get_or_create(
+        code=code, defaults={'enabled': True, 'params': {}})
+    params = dict(row.params or {})
+    params['scope'] = scope
+    row.params = params
+    row.save(update_fields=['params'])
+
+
+def test_reel_scope_premieres_only_drops_mediathek_repeats(
+        synced, license, own_authority, storage):
+    """With "premieres only" a repeat is skipped even if it is online."""
+    _plan_own_license(license, own_authority, storage)
+    _make_repeat(license)
+    license.mediathek_url = 'https://mediathek.example/watch/1'
+    license.save(update_fields=['mediathek_url'])
+    _set_scope('media_files.missing_reel', 'premieres')
+
+    assert run_check('media_files.missing_reel') == []
+
+
+def test_reel_scope_premieres_only_keeps_premieres(
+        synced, license, own_authority, storage):
+    """A premiere is reported under either setting."""
+    _plan_own_license(license, own_authority, storage)
+    _set_scope('media_files.missing_reel', 'premieres')
+
+    assert len(run_check('media_files.missing_reel')) == 1
+
+
+def test_reel_scope_defaults_to_including_mediathek_repeats(
+        synced, license, own_authority, storage):
+    """Without an explicit choice the wider scope stays in force."""
+    from notifications import config
+
+    _plan_own_license(license, own_authority, storage)
+    _make_repeat(license)
+    license.mediathek_url = 'https://mediathek.example/watch/1'
+    license.save(update_fields=['mediathek_url'])
+
+    assert config.get_params('media_files.missing_reel')['scope'] == (
+        'premieres_and_mediathek')
+    assert len(run_check('media_files.missing_reel')) == 1
+
+
+def test_unknown_reel_scope_falls_back_to_the_default(
+        synced, license, own_authority, storage):
+    """A value no longer offered must not silently disable the check."""
+    from notifications import config
+
+    _plan_own_license(license, own_authority, storage)
+    _set_scope('media_files.missing_reel', 'nonsense')
+
+    assert config.get_params('media_files.missing_reel')['scope'] == (
+        'premieres_and_mediathek')
+    assert len(run_check('media_files.missing_reel')) == 1
+
+
 def test_reel_post_today_skips_a_repeat_without_a_mediathek_url(
         synced, license, own_authority, storage):
     """The publishing reminder follows the same rule as the reel check."""

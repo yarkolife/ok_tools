@@ -7,6 +7,7 @@
     <strong>{% if reel.start_time %}{{ reel.start_time }} - {% endif %}{{ reel.title }}</strong><br>
     #{{ reel.number }}
   </p>
+  {% if reel.description %}<p>{{ reel.description|linebreaksbr }}</p>{% endif %}
   <p>
     {% trans "Broadcast responsibility" %}: {{ reel.sender_responsible|default:"-" }}<br>
     {% if reel.other_times %}{% trans "Additional broadcast times" %}: {{ reel.other_times|join:", " }}<br>{% endif %}

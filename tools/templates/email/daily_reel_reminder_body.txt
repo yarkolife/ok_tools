@@ -2,7 +2,8 @@
 
 {% for reel in reels %}
 {% if reel.start_time %}{{ reel.start_time }} - {% endif %}{{ reel.title }} (#{{ reel.number }})
-{% trans "Broadcast responsibility" %}: {{ reel.sender_responsible|default:"-" }}
+{% if reel.description %}{% trans "Description" %}: {{ reel.description }}
+{% endif %}{% trans "Broadcast responsibility" %}: {{ reel.sender_responsible|default:"-" }}
 {% if reel.other_times %}{% trans "Additional broadcast times" %}: {{ reel.other_times|join:", " }}{% endif %}
 {% for warning in reel.warnings %}{% trans "Note" %}: {{ warning }}
 {% endfor %}{% if reel.tags %}{% trans "Tags" %}: {{ reel.tags|join:", " }}{% endif %}

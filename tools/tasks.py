@@ -257,6 +257,12 @@ def build_daily_reel_reminder_context(
         title = (
             getattr(license_obj, 'title', '') if license_obj else ''
         ) or str(first_match.get('title') or '').strip() or video.filename
+        # The description is the text the post is written from, so it travels
+        # with the reminder instead of forcing a lookup in the licence.
+        description = str(
+            (getattr(license_obj, 'description', '') if license_obj else '')
+            or str(first_match.get('description') or '')
+        ).strip()
 
         warnings = []
         if not matches:
@@ -277,6 +283,7 @@ def build_daily_reel_reminder_context(
             'number': number,
             'filename': filename,
             'title': title,
+            'description': description,
             'sender_responsible': sender_responsible,
             'start_time': start_time,
             'other_times': other_times,

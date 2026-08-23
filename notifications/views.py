@@ -719,6 +719,12 @@ def settings_view(request):
                         if value.isdigit()
                     ]
                     continue
+                if spec.kind == 'choice':
+                    raw = request.POST.get(field, '')
+                    allowed = {value for value, _label in spec.choices}
+                    params[spec.name] = (
+                        raw if raw in allowed else spec.default)
+                    continue
                 raw = request.POST.get(field, '')
                 try:
                     params[spec.name] = int(raw)
@@ -766,7 +772,15 @@ def settings_view(request):
                                     effective.get(param.name, [])),
                             }
                             for location in storage_locations
-                        ] if param.kind == 'storage_locations' else [],
+                        ] if param.kind == 'storage_locations' else [
+                            {
+                                'value': value,
+                                'label': str(label),
+                                'selected': effective.get(
+                                    param.name, param.default) == value,
+                            }
+                            for value, label in param.choices
+                        ] if param.kind == 'choice' else [],
                     }
                     for param in event_type.params
                 ],

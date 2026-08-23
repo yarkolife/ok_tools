@@ -53,7 +53,10 @@ class ParamSpec:
     label: Any
     default: Any
     help_text: Any = ''
+    # 'number' | 'storage_locations' | 'choice'
     kind: str = 'number'
+    # ((value, label), ...) -- only for kind='choice'.
+    choices: Tuple[Tuple[str, Any], ...] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True)
@@ -93,6 +96,13 @@ class EventType:
             if spec.kind == 'storage_locations' else spec.default
             for spec in self.params
         }
+
+    def param_spec(self, name: str) -> Optional[ParamSpec]:
+        """Return one parameter declaration by name, or None."""
+        for spec in self.params:
+            if spec.name == name:
+                return spec
+        return None
 
 
 _REGISTRY: Dict[str, EventType] = {}
