@@ -10,6 +10,7 @@ CHANGELOG
 
 * **tools: Description in the daily reel reminder**
   * The reminder email lists the licence description for every reel, in the text and the HTML body, so the post can be written from the mail itself.
+  * The plain text body is no longer autoescaped. Quotes, ``&`` and ``<`` in a description reached the reader as ``&quot;``, ``&amp;`` and ``&lt;``; the HTML body keeps escaping, as it must.
 
 2026-08-20 (Version 4.48.0)
 ==========================

@@ -368,7 +368,8 @@ class DailyReelReminderTest(TestCase):
         self.assertEqual(delays, [300, 600, 900, 900, 900])
         self.assertEqual(sum(delays), 3600)
 
-    def _license(self, email, title, tags=None, mediathek_url=''):
+    def _license(self, email, title, tags=None, mediathek_url='',
+                 description='Description'):
         producer = create_user(
             {
                 'email': email,
@@ -391,7 +392,7 @@ class DailyReelReminderTest(TestCase):
                 'category': default_category(),
                 'title': title,
                 'subtitle': '',
-                'description': 'Description',
+                'description': description,
                 'further_persons': '',
                 'duration': timedelta(minutes=20),
                 'suggested_date': None,
@@ -504,6 +505,29 @@ class DailyReelReminderTest(TestCase):
         self.assertIn('Description', body)
         # Before the broadcast responsibility, where the reader looks first.
         self.assertLess(body.index('Description'), body.index('Reel-Download:'))
+
+    def test_text_body_keeps_the_description_unescaped(self):
+        """A plain text mail must not carry HTML entities from autoescaping."""
+        from planung.models import TagesPlan
+        from tools.tasks import send_daily_reel_reminder
+
+        plan_date = date(2026, 7, 4)
+        license_obj = self._license(
+            'escaping@example.com', 'Escaping',
+            mediathek_url='https://lokalmedial.example/w/esc',
+            description='Mit "Künstlicher Intelligenz" & viel Fleiß <gemacht>')
+        self._reel_video(license_obj, f'{license_obj.number}_Reel_260704.mp4')
+        TagesPlan.objects.create(
+            datum=plan_date,
+            json_plan={'items': [{'number': license_obj.number, 'start': '09:00:00'}]},
+        )
+
+        send_daily_reel_reminder(plan_date.isoformat())
+
+        body = mail.outbox[0].body
+        self.assertIn('"Künstlicher Intelligenz" & viel Fleiß <gemacht>', body)
+        for entity in ('&quot;', '&amp;', '&lt;', '&gt;', '&#x27;'):
+            self.assertNotIn(entity, body)
 
     def test_task_sends_email_with_links_after_tags(self):
         from planung.models import TagesPlan

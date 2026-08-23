@@ -1,4 +1,4 @@
-{% load i18n %}{% blocktranslate with date=date|date:"d.m.Y" %}Please do not forget to publish today's stories for {{ date }}:{% endblocktranslate %}
+{% load i18n %}{% autoescape off %}{% blocktranslate with date=date|date:"d.m.Y" %}Please do not forget to publish today's stories for {{ date }}:{% endblocktranslate %}
 
 {% for reel in reels %}
 {% if reel.start_time %}{{ reel.start_time }} - {% endif %}{{ reel.title }} (#{{ reel.number }})
@@ -10,4 +10,4 @@
 {% trans "Reel download" %}: {{ reel.download_url }}
 {% if reel.mediathek_url %}{% trans "Mediathek" %}: {{ reel.mediathek_url }}{% endif %}
 
-{% endfor %}
+{% endfor %}{% endautoescape %}
