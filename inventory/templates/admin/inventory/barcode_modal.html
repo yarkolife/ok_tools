@@ -164,6 +164,11 @@
                     <span>{% trans "Roll label" %}</span>
                     <span style="color:#6c757d;font-size:11px;">(70 × 32 mm)</span>
                 </label>
+                <label class="barcode-format-label" id="rotate-option" style="display:none;">
+                    <input type="checkbox" id="label-rotate" onchange="loadBarcodes(buildUrl())">
+                    <span>{% trans "Rotate 90°" %}</span>
+                    <span style="color:#6c757d;font-size:11px;">{% trans "for printers with portrait media" %}</span>
+                </label>
             </div>
             <div id="barcode-content">
                 <div class="barcode-loading">{% trans "Loading..." %}</div>
@@ -217,17 +222,40 @@ function loadBarcodes(url) {
         });
 }
 
-function selectFormat(value) {
+function currentFormat() {
+    const checked = document.querySelector('input[name="label-format"]:checked');
+    return checked ? checked.value : 'standard';
+}
+
+/* Rotation only applies to the roll layouts, so the checkbox follows them. */
+function buildUrl() {
+    const format = currentFormat();
+    const isRoll = format.startsWith('roll_');
+    const rotateBox = document.getElementById('label-rotate');
+    document.getElementById('rotate-option').style.display = isRoll ? '' : 'none';
+    if (!isRoll) {
+        rotateBox.checked = false;
+    }
+
     const url = new URL(baseUrl, window.location.origin);
-    if (value && value !== 'standard') {
-        url.searchParams.set('format', value);
+    if (format && format !== 'standard') {
+        url.searchParams.set('format', format);
     } else {
         url.searchParams.delete('format');
     }
-    loadBarcodes(url.toString());
+    if (isRoll && rotateBox.checked) {
+        url.searchParams.set('rotate', '90');
+    } else {
+        url.searchParams.delete('rotate');
+    }
+    return url.toString();
 }
 
-loadBarcodes(baseUrl);
+function selectFormat(value) {
+    loadBarcodes(buildUrl());
+}
+
+loadBarcodes(buildUrl());
 
 function closeBarcodeModal() {
     document.getElementById('barcodeModal').style.display = 'none';

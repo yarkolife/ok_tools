@@ -7,7 +7,13 @@
   <style>
     /* Roll labels: one label per page, printed edge to edge on endless media.
        The sizes come from the format definition in BarcodePrintView so both
-       roll variants share this stylesheet. */
+       roll variants share this stylesheet.
+
+       With ``rotate=90`` the page is turned sideways: the sheet becomes
+       height x width and the content is rotated inside it. That is what label
+       printers need whose media is defined portrait (25 x 51 mm) — otherwise
+       the driver rotates the landscape page on its own and a single label
+       ends up spread over two physical labels. */
     .label-grid {
       --label-w: {{ label_width }}mm;
       --label-h: {{ label_height }}mm;
@@ -16,7 +22,16 @@
       --fs-num: {% if label_width > 60 %}9pt{% else %}7.5pt{% endif %};
       --fs-meta: {% if label_width > 60 %}6.5pt{% else %}5.5pt{% endif %};
     }
+    /* The page box: the label as the printer feeds it. */
     .label {
+      width: {% if rotate %}var(--label-h){% else %}var(--label-w){% endif %};
+      height: {% if rotate %}var(--label-w){% else %}var(--label-h){% endif %};
+      box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
+    }
+    /* The content box: always the label read horizontally. */
+    .label-inner {
       width: var(--label-w);
       height: var(--label-h);
       padding: var(--pad);
@@ -28,6 +43,13 @@
       overflow: hidden;
       font-family: 'Inter', Arial, sans-serif;
       color: #000;
+      {% if rotate %}
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      transform: translateX(var(--label-h)) rotate(90deg);
+      {% endif %}
     }
     /* Top row: what the item is, plus who owns it. */
     .label .head {
@@ -77,8 +99,9 @@
     }
 
     @media print {
-      @page { size: {{ label_width }}mm {{ label_height }}mm; margin: 0; }
-      body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @page { size: {% if rotate %}{{ label_height }}mm {{ label_width }}mm{% else %}{{ label_width }}mm {{ label_height }}mm{% endif %}; margin: 0; }
+      html, body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .label-grid { display: block; margin: 0; padding: 0; }
       .no-print { display: none !important; }
       .label { page-break-after: always; break-after: page; }
       .label:last-child { page-break-after: auto; break-after: auto; }
@@ -92,7 +115,7 @@
       .btn-back { background: #e5e7eb; color: #333; }
       .label-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, var(--label-w));
+        grid-template-columns: repeat(auto-fill, {% if rotate %}var(--label-h){% else %}var(--label-w){% endif %});
         gap: 4mm;
         justify-content: center;
         padding: 6mm;
@@ -109,19 +132,21 @@
   <div class="label-grid">
     {% for item in items %}
     <div class="label">
-      <div class="head">
-        {% if item.description and item.description != item.inventory_number %}
-        <span class="desc">{{ item.description }}</span>
-        {% else %}
-        <span class="desc"></span>
+      <div class="label-inner">
+        <div class="head">
+          {% if item.description and item.description != item.inventory_number %}
+          <span class="desc">{{ item.description }}</span>
+          {% else %}
+          <span class="desc"></span>
+          {% endif %}
+          {% if item.owner %}<span class="owner">{{ item.owner }}</span>{% endif %}
+        </div>
+        {{ item.barcode_svg|safe }}
+        <div class="num">{{ item.inventory_number }}</div>
+        {% if item.location %}
+        <div class="loc">{{ item.location }}</div>
         {% endif %}
-        {% if item.owner %}<span class="owner">{{ item.owner }}</span>{% endif %}
       </div>
-      {{ item.barcode_svg|safe }}
-      <div class="num">{{ item.inventory_number }}</div>
-      {% if item.location %}
-      <div class="loc">{{ item.location }}</div>
-      {% endif %}
     </div>
     {% endfor %}
   </div>

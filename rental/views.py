@@ -4839,11 +4839,14 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
     """
     Print barcode labels for selected inventory items.
 
-    GET /rental/barcode/print/?ids=1,2,3&format=roll_51x25
+    GET /rental/barcode/print/?ids=1,2,3&format=roll_51x25&rotate=90
     Renders a page with barcode SVGs for the given inventory item IDs.
     Returns 400 if the ids parameter is missing or empty.
     Supported formats are the keys of ``BARCODE_LABEL_FORMATS``; an unknown
     value falls back to the A4 sheet layout.
+    ``rotate=90`` turns the roll layout sideways for label printers whose
+    media is defined portrait (25 x 51 instead of 51 x 25); without it the
+    driver rotates the page itself and one label spills over two.
     """
 
     def get_label_format(self):
@@ -4854,6 +4857,10 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
 
     def get_template_names(self):
         return [self.get_label_format()['template']]
+
+    def get_rotation(self):
+        """Return 90 when the roll layout should be printed sideways, else 0."""
+        return 90 if self.request.GET.get('rotate') == '90' else 0
 
     def dispatch(self, request, *args, **kwargs):
         ids_param = request.GET.get('ids', '')
@@ -4896,6 +4903,7 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
         context['items'] = items_data
         context['label_width'] = label_format.get('width')
         context['label_height'] = label_format.get('height')
+        context['rotate'] = self.get_rotation()
         return context
 
 

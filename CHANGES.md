@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-09-16 (Version 4.50.0)
+==========================
+
+* **rental: Roll labels can be printed sideways**
+  * ``BarcodePrintView`` accepts ``rotate=90`` for the roll layouts: the ``@page`` size becomes height x width and the label content is turned inside it. Label printers whose media is defined portrait (25 x 51 instead of 51 x 25) rotated the landscape page themselves, which spread a single label over two physical ones.
+  * The format chooser in the inventory admin offers the rotation as a checkbox next to the two roll formats, and hides it for the A4 sheet layouts.
+  * The roll stylesheet now zeroes the ``html``/``body`` margins for print explicitly, so a browser default margin cannot shift the content off the label.
+
+* **inventory: Drop the leftover ``device_name`` column**
+  * Migration 0029 removed ``Inspection.device_name`` from the model, but on databases whose schema came from an older dump the column survived with its ``NOT NULL`` constraint. Django does not write a column it no longer knows, so every insert failed and the admin's "add inspection" page returned a 500. Migration 0044 drops it if it is still there; the data moved to ``target_part`` back in 0028.
+
 2026-08-21 (Version 4.49.0)
 ==========================
 

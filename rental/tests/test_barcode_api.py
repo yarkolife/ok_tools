@@ -171,10 +171,12 @@ class BarcodePrintViewTests(TestCase):
             quantity=1,
         )
 
-    def _print(self, label_format=None):
+    def _print(self, label_format=None, rotate=None):
         url = reverse('rental:barcode_print') + f'?ids={self.item.id}'
         if label_format:
             url += f'&format={label_format}'
+        if rotate:
+            url += f'&rotate={rotate}'
         return self.client.get(url)
 
     def test_standard_label_shows_location_and_owner(self):
@@ -205,6 +207,19 @@ class BarcodePrintViewTests(TestCase):
                 self.assertIn('viewBox=', html)
                 self.assertNotIn('<text', html)
                 self.assertEqual(html.count('OK-PRINT-1'), 1)
+
+    def test_rotated_roll_swaps_page_size_and_turns_the_content(self):
+        """rotate=90 prints the label sideways for portrait label media."""
+        html = self._print('roll_51x25', rotate='90').content.decode()
+        self.assertIn('size: 25mm 51mm', html)
+        self.assertIn('rotate(90deg)', html)
+
+    def test_roll_is_not_rotated_without_the_parameter(self):
+        for rotate in (None, '180', 'yes'):
+            with self.subTest(rotate=rotate):
+                html = self._print('roll_51x25', rotate=rotate).content.decode()
+                self.assertIn('size: 51mm 25mm', html)
+                self.assertNotIn('rotate(90deg)', html)
 
     def test_unknown_format_falls_back_to_standard(self):
         resp = self._print('does-not-exist')
