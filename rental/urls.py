@@ -47,6 +47,7 @@ from .views import send_reminder
 from .views import swap_rental_item
 from .views import api_barcode_lookup
 from .views import api_cancel_rental
+from .views import api_print_labels
 from .views import api_confirm_rental
 from .views import api_check_room_availability
 from .views import api_create_equipment_set
@@ -216,6 +217,7 @@ urlpatterns = [
     path('print/okmq/<int:rental_id>/', print_form_okmq_redirect, name='print_form_okmq'),
     path('print/pick-list/<int:rental_id>/', PrintPickListView.as_view(), name='print_pick_list'),
     path('barcode/print/', BarcodePrintView.as_view(), name='barcode_print'),
+    path('barcode/print-direct/', api_print_labels, name='barcode_print_direct'),
     path('room-image/<int:image_id>/', serve_room_image, name='room_image'),
     path('api/rental/<int:rental_id>/print-info/', api_get_rental_print_info, name='api_rental_print_info'),
 

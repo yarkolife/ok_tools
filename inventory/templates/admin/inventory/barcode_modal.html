@@ -180,6 +180,11 @@
             <button type="button" class="btn btn-outline-primary" onclick="window.open(currentUrl, '_blank')">
                 {% trans "Open in new tab" %}
             </button>
+            {% if label_printer_ready %}
+            <button type="button" class="btn btn-primary" id="btn-direct-print" onclick="printOnLabelPrinter()">
+                {% trans "Send to label printer" %}
+            </button>
+            {% endif %}
             <button type="button" class="btn btn-primary" onclick="printBarcodes()">
                 <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom;">
                     <polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"></path><rect x="6" y="14" width="12" height="8"></rect>
@@ -192,6 +197,9 @@
 
 <script>
 const baseUrl = '{{ barcode_url }}';
+const directPrintUrl = '{{ direct_print_url }}';
+const csrfToken = '{{ csrf_token }}';
+const itemIds = {{ item_ids|safe }};
 let currentUrl = baseUrl;
 
 function loadBarcodes(url) {
@@ -269,6 +277,37 @@ function printBarcodes() {
     w.document.write('</head><body>' + document.getElementById('barcode-content').innerHTML + '</body></html>');
     w.document.close();
     w.print();
+}
+
+/* The label printer takes the label geometry inside the job, so this path
+   needs no paper size, margin or orientation set up on the workstation. It
+   only works for the roll formats, which are the ones with a physical size. */
+function printOnLabelPrinter() {
+    const button = document.getElementById('btn-direct-print');
+    const format = currentFormat();
+    if (!format.startsWith('roll_')) {
+        alert('{% trans "Choose a roll format to print on the label printer." %}');
+        return;
+    }
+
+    button.disabled = true;
+    fetch(directPrintUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({ids: itemIds, format: format}),
+    })
+        .then(r => r.json().then(data => ({ok: r.ok, data})))
+        .then(({ok, data}) => {
+            if (!ok) {
+                throw new Error(data.error || '{% trans "Printing failed" %}');
+            }
+            closeBarcodeModal();
+        })
+        .catch(error => alert(error.message))
+        .then(() => { button.disabled = false; });
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBarcodeModal(); });

@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-09-17 (Version 4.51.0)
+==========================
+
+* **rental: Roll labels straight to a network label printer**
+  * A TSPL label printer (TSC TE210 and relatives) can be configured in the rental configuration by host, port, resolution, roll gap, density and speed. With a host set, the barcode dialog offers "Send to label printer" for the two roll formats.
+  * ``LabelPrinterService`` renders the same layout the roll template prints — description and owner, Code 128 bars, inventory number, location — as TSPL and sends it to port 9100 over a raw socket. ``SIZE`` and ``GAP`` travel inside the job, so no workstation needs a media size, margin or orientation configured, and every machine produces the same label. Text that would not fit is cut to the label instead of running over its edge, and the job selects code page 1252 so umlauts arrive as the printer expects them.
+  * ``POST /rental/barcode/print-direct/`` is staff only, takes the printer address from the configuration and never from the request, refuses the A4 sheet formats, and answers an unreachable printer with its address and reason instead of a stack trace.
+
 2026-09-16 (Version 4.50.0)
 ==========================
 

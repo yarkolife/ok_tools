@@ -6660,3 +6660,22 @@ msgstr ""
 "Der Worker, der diesen Export ausgeführt hat, existiert nicht mehr; der "
 "Export wurde abgebrochen."
 
+#: inventory/templates/admin/inventory/barcode_modal.html
+msgid "Send to label printer"
+msgstr "An Etikettendrucker senden"
+
+#: inventory/templates/admin/inventory/barcode_modal.html
+msgid "Choose a roll format to print on the label printer."
+msgstr "Für den Etikettendrucker bitte ein Rollenformat wählen."
+
+#: inventory/templates/admin/inventory/barcode_modal.html
+msgid "Printing failed"
+msgstr "Druck fehlgeschlagen"
+
+#: inventory/templates/admin/inventory/barcode_modal.html
+msgid "Rotate 90°"
+msgstr "Um 90° drehen"
+
+#: inventory/templates/admin/inventory/barcode_modal.html
+msgid "for printers with portrait media"
+msgstr "für Drucker mit hochformatigem Medium"

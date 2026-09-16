@@ -594,6 +594,18 @@ class RentalConfigAdmin(admin.ModelAdmin):
             'description': _('Audible feedback while scanning on the issue and '
                              'return screens.'),
         }),
+        (_('Label printer'), {
+            'fields': (
+                'label_printer_host',
+                ('label_printer_port', 'label_printer_dpi'),
+                ('label_gap_mm', 'label_printer_density', 'label_printer_speed'),
+            ),
+            'description': _('A network label printer speaking TSPL (e.g. TSC '
+                             'TE210). With a host set, roll labels can be sent '
+                             'to it directly, which needs no media size, margin '
+                             'or orientation set up on the workstation. Leave '
+                             'the host empty to print through the browser only.'),
+        }),
         (_('Working hours'), {
             'fields': (
                 ('monday_start_time', 'monday_end_time'),

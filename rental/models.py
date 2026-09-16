@@ -1,7 +1,10 @@
 from datetime import date
 from datetime import datetime
 from datetime import time
+from decimal import Decimal
 from django.conf import settings
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -1097,6 +1100,49 @@ class RentalConfig(models.Model):
         verbose_name=_('Sunday closing time'),
     )
 
+    # Network label printer speaking TSPL (e.g. TSC TE210) reached over a raw
+    # socket on port 9100. Printing through the browser needs the media size
+    # configured on every workstation; the printer takes it in the job itself.
+    label_printer_host = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Label printer host'),
+        help_text=_('IP address or hostname of the TSPL label printer. '
+                    'Leave empty to print labels through the browser only.'),
+    )
+    label_printer_port = models.PositiveIntegerField(
+        default=9100,
+        verbose_name=_('Label printer port'),
+        help_text=_('Raw socket port of the label printer, usually 9100.'),
+    )
+    label_printer_dpi = models.PositiveIntegerField(
+        default=203,
+        choices=((203, '203 dpi'), (300, '300 dpi')),
+        verbose_name=_('Label printer resolution'),
+        help_text=_('Print head resolution, used to convert millimetres to dots.'),
+    )
+    label_gap_mm = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        default=Decimal('2.0'),
+        verbose_name=_('Label gap (mm)'),
+        help_text=_('Distance between two labels on the roll. Measure it: a '
+                    'wrong value makes the printer feed past the next label.'),
+    )
+    label_printer_density = models.PositiveSmallIntegerField(
+        default=8,
+        validators=[MinValueValidator(0), MaxValueValidator(15)],
+        verbose_name=_('Print density'),
+        help_text=_('Heat setting from 0 to 15. Raise it when the bars come '
+                    'out grey, lower it when they bleed.'),
+    )
+    label_printer_speed = models.PositiveSmallIntegerField(
+        default=4,
+        validators=[MinValueValidator(1), MaxValueValidator(12)],
+        verbose_name=_('Print speed (inch/s)'),
+        help_text=_('Printing speed in inches per second.'),
+    )
+
     user_organizations = models.ManyToManyField(
         'inventory.Organization',
         blank=True,
@@ -1121,6 +1167,11 @@ class RentalConfig(models.Model):
         related_name='rental_config_rental_only',
         verbose_name=_("Rental only organizations"),
     )
+
+    @property
+    def label_printer_configured(self) -> bool:
+        """Return whether labels can be sent straight to a label printer."""
+        return bool(self.label_printer_host.strip())
 
     @classmethod
     def get_organizations_for(cls, user):

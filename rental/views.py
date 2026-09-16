@@ -4,6 +4,7 @@ from .formatting import format_booked_period
 from .models import EquipmentSet
 from .models import EquipmentSetItem
 from .models import RentalIssue
+from .models import RentalConfig
 from .models import RentalItem
 from .models import RentalRequest
 from .models import RentalSigningSession
@@ -24,6 +25,9 @@ from .serializers import RentalRequestSerializer
 from .serializers import RentalTransactionSerializer
 from .services import RentalService
 from .services.barcode_service import BarcodeService
+from .services.label_printer_service import LabelPrinterError
+from .services.label_printer_service import LabelPrinterService
+from .services.label_printer_service import PrinterSettings
 from .services.rental_email import send_issued_confirmation_email
 from .services.rental_email import send_reminder_email
 from .services.rental_email import send_return_receipt_email
@@ -65,6 +69,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django.views.generic import View
@@ -4905,6 +4910,78 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
         context['label_height'] = label_format.get('height')
         context['rotate'] = self.get_rotation()
         return context
+
+
+@login_required
+@staff_member_required
+@require_POST
+def api_print_labels(request):
+    """
+    Send labels for the given inventory items straight to the label printer.
+
+    POST /rental/barcode/print-direct/ with ``{"ids": [1, 2], "format": "roll_51x25"}``
+
+    The printer is the one configured in the rental configuration, never one
+    named by the request, and the job carries the label geometry itself, so
+    no workstation needs a media size set up for it. Only the roll formats
+    have a physical size and can be printed this way.
+    """
+    try:
+        payload = json.loads(request.body or '{}')
+    except ValueError:
+        return JsonResponse({'error': _('Invalid request body')}, status=400)
+
+    item_ids = payload.get('ids') or []
+    if not isinstance(item_ids, list) or not item_ids:
+        return JsonResponse(
+            {'error': _('Missing required parameter: ids')}, status=400)
+    try:
+        item_ids = [int(item_id) for item_id in item_ids]
+    except (TypeError, ValueError):
+        return JsonResponse({'error': _('Invalid item id format')}, status=400)
+
+    label_format = BARCODE_LABEL_FORMATS.get(payload.get('format'))
+    if not label_format or not label_format.get('width'):
+        return JsonResponse(
+            {'error': _('This label format cannot be sent to the label '
+                        'printer. Choose a roll format.')}, status=400)
+
+    config = RentalConfig.get_config()
+    if not config.label_printer_configured:
+        return JsonResponse(
+            {'error': _('No label printer is configured. Set its address in '
+                        'the rental configuration.')}, status=409)
+
+    items = InventoryItem.objects.filter(
+        id__in=item_ids).select_related('location', 'location__parent', 'owner')
+    labels = [
+        {
+            'inventory_number': item.inventory_number,
+            'description': item.description,
+            'location': str(item.location) if item.location else '',
+            'owner': item.owner.name if item.owner else '',
+        }
+        for item in items
+    ]
+    if not labels:
+        return JsonResponse({'error': _('No items found')}, status=404)
+
+    try:
+        printed = LabelPrinterService.print_items(
+            labels,
+            label_format['width'],
+            label_format['height'],
+            PrinterSettings.from_config(config),
+        )
+    except LabelPrinterError as error:
+        logger.warning('Label printing failed: %s', error)
+        return JsonResponse(
+            {'error': _('The label printer could not be reached: %(reason)s')
+                % {'reason': str(error)}},
+            status=502,
+        )
+
+    return JsonResponse({'printed': printed})
 
 
 @login_required

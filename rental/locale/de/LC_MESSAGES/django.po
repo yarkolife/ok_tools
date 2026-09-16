@@ -4692,3 +4692,99 @@ msgstr ""
 msgid "Rental only"
 msgstr "Nur Ausleihe"
 
+#: rental/models.py
+msgid "Label printer host"
+msgstr "Etikettendrucker-Adresse"
+
+#: rental/models.py
+msgid ""
+"IP address or hostname of the TSPL label printer. Leave empty to print "
+"labels through the browser only."
+msgstr ""
+"IP-Adresse oder Hostname des TSPL-Etikettendruckers. Leer lassen, um "
+"Etiketten nur über den Browser zu drucken."
+
+#: rental/models.py
+msgid "Label printer port"
+msgstr "Etikettendrucker-Port"
+
+#: rental/models.py
+msgid "Raw socket port of the label printer, usually 9100."
+msgstr "Socket-Port des Etikettendruckers, üblicherweise 9100."
+
+#: rental/models.py
+msgid "Label printer resolution"
+msgstr "Auflösung des Etikettendruckers"
+
+#: rental/models.py
+msgid "Print head resolution, used to convert millimetres to dots."
+msgstr "Auflösung des Druckkopfs; rechnet Millimeter in Punkte um."
+
+#: rental/models.py
+msgid "Label gap (mm)"
+msgstr "Etikettenabstand (mm)"
+
+#: rental/models.py
+msgid ""
+"Distance between two labels on the roll. Measure it: a wrong value "
+"makes the printer feed past the next label."
+msgstr ""
+"Abstand zwischen zwei Etiketten auf der Rolle. Bitte nachmessen: Ein "
+"falscher Wert lässt den Drucker über das nächste Etikett hinausfahren."
+
+#: rental/models.py
+msgid "Print density"
+msgstr "Schwärzung"
+
+#: rental/models.py
+msgid ""
+"Heat setting from 0 to 15. Raise it when the bars come out grey, lower "
+"it when they bleed."
+msgstr ""
+"Hitzewert von 0 bis 15. Erhöhen, wenn die Balken grau bleiben; "
+"verringern, wenn sie verlaufen."
+
+#: rental/models.py
+msgid "Print speed (inch/s)"
+msgstr "Druckgeschwindigkeit (Zoll/s)"
+
+#: rental/models.py
+msgid "Printing speed in inches per second."
+msgstr "Druckgeschwindigkeit in Zoll pro Sekunde."
+
+#: rental/admin.py
+msgid "Label printer"
+msgstr "Etikettendrucker"
+
+#: rental/admin.py
+msgid ""
+"A network label printer speaking TSPL (e.g. TSC TE210). With a host "
+"set, roll labels can be sent to it directly, which needs no media "
+"size, margin or orientation set up on the workstation. Leave the host "
+"empty to print through the browser only."
+msgstr ""
+"Ein Netzwerk-Etikettendrucker mit TSPL (z. B. TSC TE210). Ist eine "
+"Adresse eingetragen, lassen sich Rollenetiketten direkt an ihn senden; "
+"am Arbeitsplatz müssen dann weder Etikettengröße noch Ränder oder "
+"Ausrichtung eingestellt werden. Leer lassen, um nur über den Browser "
+"zu drucken."
+
+#: rental/views.py
+msgid ""
+"This label format cannot be sent to the label printer. Choose a roll "
+"format."
+msgstr ""
+"Dieses Etikettenformat kann nicht an den Etikettendrucker gesendet "
+"werden. Bitte ein Rollenformat wählen."
+
+#: rental/views.py
+msgid ""
+"No label printer is configured. Set its address in the rental "
+"configuration."
+msgstr ""
+"Es ist kein Etikettendrucker eingerichtet. Bitte die Adresse in der "
+"Verleih-Konfiguration eintragen."
+
+#: rental/views.py
+msgid "The label printer could not be reached: %(reason)s"
+msgstr "Der Etikettendrucker ist nicht erreichbar: %(reason)s"

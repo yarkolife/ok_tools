@@ -395,15 +395,24 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         return form
 
     def print_barcodes_action(self, request, queryset):
+        from rental.models import RentalConfig
+
         ids = ','.join(str(obj.id) for obj in queryset)
         try:
             url = reverse('rental:barcode_print') + f'?ids={ids}'
         except Exception:
             url = f'/rental/barcode/print/?ids={ids}'
-        
+        try:
+            direct_url = reverse('rental:barcode_print_direct')
+        except Exception:
+            direct_url = '/rental/barcode/print-direct/'
+
         from django.template.response import TemplateResponse
         return TemplateResponse(request, 'admin/inventory/barcode_modal.html', {
             'barcode_url': url,
+            'direct_print_url': direct_url,
+            'label_printer_ready': RentalConfig.get_config().label_printer_configured,
+            'item_ids': [obj.id for obj in queryset],
             'items_count': queryset.count()
         })
 
