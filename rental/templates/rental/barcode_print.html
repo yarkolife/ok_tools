@@ -12,15 +12,27 @@
              display: flex; flex-direction: column; align-items: center; justify-content: center;
              overflow: hidden; font-family: 'Inter', Arial, sans-serif; }
     .label svg { display: block; max-width: 45mm; max-height: 14mm; height: auto; }
-    /* Number and owner share a row so the location still fits on 30mm. */
-    .label .numrow { display: flex; align-items: baseline; gap: 2mm; max-width: 45mm; }
-    .label .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; margin-top: 1mm; }
-    .label .owner { font-size: 8px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-    .label .desc { font-size: 8px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45mm; }
-    /* Location paths can be long, so allow two lines and clip the rest. */
-    .label .loc { font-size: 6.5px; color: #666; text-align: center; max-width: 45mm; line-height: 1.15;
-                  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
-                  overflow: hidden; }
+    /* One rule set for every configurable row: which line it is decides the
+       weight, the row's size how large, and a run marked as a code prints
+       larger still, so a shelf number reads from across the room. */
+    .label .line { max-width: 45mm; line-height: 1.2; font-size: 8px;
+                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .label .align-center { text-align: center; }
+    .label .align-left { text-align: left; }
+    .label .align-right { text-align: right; }
+    .label .size-small { font-size: 6.5px; }
+    .label .size-large { font-size: 10px; }
+    .label .line-number_owner, .label .line-number { font-size: 10px; margin-bottom: .5mm; }
+    .label .run-number { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+    .label .run-owner { font-weight: 700; text-transform: uppercase; }
+    .label .line-description { font-weight: 700; }
+    .label .line-location { color: #666; }
+    .label .run-code { font-size: 1.5em; font-weight: 700; color: #000; }
+    /* A location is the one row allowed to wrap: its path can be long, and
+       its codes are what has to stay visible. */
+    .label .line-location { white-space: normal; display: -webkit-box;
+                            -webkit-line-clamp: 2; line-clamp: 2;
+                            -webkit-box-orient: vertical; text-overflow: clip; }
 
     /* Print-only styles */
     @media print {
@@ -49,17 +61,15 @@
   <div class="label-grid">
     {% for item in items %}
     <div class="label">
+      {% for row in item.rows %}
+      {% if row.kind == 'barcode' %}
       {{ item.barcode_svg|safe }}
-      <div class="numrow">
-        <span class="num">{{ item.inventory_number }}</span>
-        {% if item.owner %}<span class="owner">{{ item.owner }}</span>{% endif %}
+      {% else %}
+      <div class="line line-{{ row.content }} size-{{ row.size }} align-{{ row.align }}">
+        {% for run in row.runs %}<span class="run run-{{ run.role }}">{{ run.text }}</span>{% endfor %}
       </div>
-      {% if item.description and item.description != item.inventory_number %}
-      <div class="desc">{{ item.description|truncatechars:30 }}</div>
       {% endif %}
-      {% if item.location %}
-      <div class="loc">{{ item.location }}</div>
-      {% endif %}
+      {% endfor %}
     </div>
     {% endfor %}
   </div>

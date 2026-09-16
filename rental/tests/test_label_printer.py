@@ -41,10 +41,44 @@ class TSPLJobTests(TestCase):
         )
         self.assertIn('"Kabeltrommel 10m"', tspl)
         self.assertIn('"OKMQ"', tspl)
-        self.assertIn('"Ausleihe -> Regal 6"', tspl)
+        self.assertIn('"Ausleihe"', tspl)
+        self.assertIn('"Regal "', tspl)
         self.assertIn('BARCODE ', tspl)
         self.assertIn('"128"', tspl)
         self.assertIn('"OK-000481"', tspl)
+
+    def test_the_shelf_code_prints_larger_than_the_words_beside_it(self):
+        """The code is what someone reads from across the room."""
+        tspl = self._label(location='Ausleihe -> Regal 6')
+
+        def font_of(text):
+            line = [ln for ln in tspl.splitlines()
+                    if ln.endswith(f'"{text}"')][0]
+            return line.split('"')[1]
+
+        self.assertEqual(font_of('Regal '), '1')
+        self.assertEqual(font_of('6'), '2')
+
+    def test_the_number_and_the_owner_read_above_the_bars(self):
+        """The layout puts what identifies the item first."""
+        tspl = self._label(owner='OKMQ', description='Kabeltrommel 10m')
+        order = [
+            index for index, line in enumerate(tspl.splitlines())
+            if line.endswith(('"OK-000481"', '"OKMQ"', '"Kabeltrommel 10m"'))
+            or line.startswith('BARCODE ')
+        ]
+        rows = [tspl.splitlines()[index] for index in order]
+        self.assertTrue(rows[0].endswith('"OK-000481"'))
+        self.assertTrue(rows[1].endswith('"OKMQ"'))
+        self.assertTrue(rows[2].startswith('BARCODE '))
+        self.assertTrue(rows[3].endswith('"Kabeltrommel 10m"'))
+
+    def test_a_location_that_would_not_fit_is_shortened_not_cut(self):
+        """Abbreviating the words keeps every level and every code."""
+        tspl = self._label(
+            location='Ausleihe -> Stativschrank -> Ton / MIX Stative')
+        self.assertIn('"Stat."', tspl)
+        self.assertNotIn('"Stativschrank"', tspl)
 
     def test_everything_stays_inside_the_label(self):
         """No element may start past the label edge or run over it."""

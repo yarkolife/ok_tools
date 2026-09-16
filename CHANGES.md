@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+2026-09-19 (Version 4.53.0)
+==========================
+
+* **rental: A label says what its format tells it to say**
+  * ``LabelLine`` describes a label format row by row — content, size, alignment — and one layout engine (``rental.label_layout``) feeds both the TSPL renderer and the HTML templates, so a format prints the same on paper and on the roll. A format without lines prints the default layout.
+  * That default layout is the one asked for: inventory number and owner above the bars, then the description, then the location. It replaces the old order on the roll labels and on the A4 sheet alike.
+  * A location prints its shelf codes — the "3" of "Schrank 3" — a whole font size larger than the words beside them, which is what makes a label readable across a room. Installations whose locations carry no such codes turn it off per line.
+  * A location that would not fit is shortened rather than cut: first the words are abbreviated ("Schrank" to "Schr."), then levels are dropped from the front, the last level and every code always surviving.
+  * The description no longer overprints the owner. The printer's fonts advance about a third wider than their nominal cell, measured on a TE210, and reserving the nominal width made the two columns collide.
+
+* **rental: Roll label type sizes reached the stylesheet unlocalised**
+  * The type scale introduced in 4.52.0 passed through Django's localisation, so a German locale wrote ``--fs-desc: 6,0pt`` — not a CSS length. Every font size on a roll label silently fell back to the browser default of 16px.
+
 2026-09-18 (Version 4.52.0)
 ==========================
 

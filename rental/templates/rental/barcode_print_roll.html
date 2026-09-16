@@ -1,9 +1,14 @@
-{% load i18n static %}
+{% load i18n l10n static %}
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <title>{% trans "Barcode Labels" %} {{ label_width }}×{{ label_height }} mm — OK Tools</title>
+  {% comment %}
+    The German locale writes 6,0 for 6.0, which is not a CSS length: every
+    size below has to reach the stylesheet unlocalised.
+  {% endcomment %}
+  {% localize off %}
   <style>
     /* Roll labels: one label per page, printed edge to edge on endless media.
        The sizes and the type scale come from the format definition, derived
@@ -51,51 +56,41 @@
       transform: translateX(var(--label-h)) rotate(90deg);
       {% endif %}
     }
-    /* Top row: what the item is, plus who owns it. */
-    .label .head {
+    /* One rule set for every configurable row: which line it is decides the
+       weight, the row's size decides how large, and a run marked as a code
+       prints larger still — that is what makes a shelf number readable from
+       across the room. */
+    .label .line {
       width: 100%;
-      display: flex;
-      align-items: baseline;
-      gap: 1.5mm;
-      font-size: var(--fs-desc);
       line-height: 1.15;
-    }
-    .label .desc {
-      flex: 1;
-      min-width: 0;
-      font-weight: 700;
+      font-size: var(--fs-desc);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .label .owner {
+    .label .align-center { text-align: center; }
+    .label .align-left { text-align: left; }
+    .label .align-right { text-align: right; }
+    .label .size-small { font-size: var(--fs-meta); }
+    .label .size-large { font-size: var(--fs-num); }
+    .label .line-number_owner,
+    .label .line-number { font-size: var(--fs-num); }
+    .label .run-number {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
       font-weight: 700;
-      white-space: nowrap;
-      text-transform: uppercase;
+      letter-spacing: .02em;
     }
+    .label .run-owner { font-weight: 700; text-transform: uppercase; }
+    .label .line-description { font-weight: 700; }
+    .label .line-location { color: #333; }
+    .label .run-code { font-size: 1.5em; font-weight: 700; }
+    /* A roll label has no second line to give a location, so the path was
+       already shortened to fit; the tall codes must not stretch the row. */
+    .label .line-location { line-height: 1; }
     .label svg {
       display: block;
       max-width: 100%;
       height: auto;
-    }
-    .label .num {
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      font-size: var(--fs-num);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: .02em;
-    }
-    /* Location may be a deep path, so allow two lines and clip the rest. */
-    .label .loc {
-      width: 100%;
-      font-size: var(--fs-meta);
-      line-height: 1.15;
-      text-align: center;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
 
     @media print {
@@ -123,6 +118,7 @@
       .label { background: white; border: 1px dashed #ccc; }
     }
   </style>
+  {% endlocalize %}
 </head>
 <body>
   <div class="no-print">
@@ -133,19 +129,15 @@
     {% for item in items %}
     <div class="label">
       <div class="label-inner">
-        <div class="head">
-          {% if item.description and item.description != item.inventory_number %}
-          <span class="desc">{{ item.description }}</span>
-          {% else %}
-          <span class="desc"></span>
-          {% endif %}
-          {% if item.owner %}<span class="owner">{{ item.owner }}</span>{% endif %}
-        </div>
+        {% for row in item.rows %}
+        {% if row.kind == 'barcode' %}
         {{ item.barcode_svg|safe }}
-        <div class="num">{{ item.inventory_number }}</div>
-        {% if item.location %}
-        <div class="loc">{{ item.location }}</div>
+        {% else %}
+        <div class="line line-{{ row.content }} size-{{ row.size }} align-{{ row.align }}">
+          {% for run in row.runs %}<span class="run run-{{ run.role }}">{{ run.text }}</span>{% endfor %}
+        </div>
         {% endif %}
+        {% endfor %}
       </div>
     </div>
     {% endfor %}

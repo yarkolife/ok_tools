@@ -4,6 +4,7 @@ from .forms import RentalTransactionForm
 from .models import EquipmentSet
 from .models import EquipmentSetItem
 from .models import LabelFormat
+from .models import LabelLine
 from .models import RentalConfig
 from .models import RentalIssue
 from .models import RentalItem
@@ -557,6 +558,18 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
         return False
 
 
+class LabelLineInline(admin.TabularInline):
+    """The lines a label format prints, in order."""
+
+    model = LabelLine
+    extra = 0
+    verbose_name_plural = _('Label lines — what this label prints')
+    classes = ('label-lines',)
+    fields = ('position', 'content', 'size', 'align', 'shorten_words',
+              'highlight_codes', 'drop_leading_segments')
+    ordering = ('position', 'pk')
+
+
 @admin.register(LabelFormat)
 class LabelFormatAdmin(admin.ModelAdmin):
     """Admin interface for the label sizes the print dialog offers."""
@@ -567,6 +580,7 @@ class LabelFormatAdmin(admin.ModelAdmin):
     list_filter = ('is_active',)
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
+    inlines = [LabelLineInline]
 
     fieldsets = (
         (None, {
@@ -577,6 +591,10 @@ class LabelFormatAdmin(admin.ModelAdmin):
         }),
         (_('Availability'), {
             'fields': ('is_active', 'sort_order'),
+            'description': _('A format without lines prints the default '
+                             'layout: inventory number and owner, the '
+                             'barcode, the description, then the location '
+                             'with its codes enlarged.'),
         }),
     )
 

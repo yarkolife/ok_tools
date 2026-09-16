@@ -92,9 +92,42 @@ def typography(width_mm: int, height_mm: int) -> dict:
     }
 
 
+# How wide an average glyph runs in the label fonts, as a share of the font
+# size. Slightly generous, because the rows that matter are bold.
+_GLYPH_WIDTH_EM = 0.55
+_MM_PER_PT = 25.4 / 72
+
+
+def html_row_fits(width_mm: int, type_scale: dict):
+    """Return a test for whether a row still fits across an HTML label.
+
+    The browser is the one that lays the text out, so this can only estimate
+    — but without an estimate a long location would either wrap off a 25 mm
+    label or be cut mid-path. Estimating lets the layout shorten the path the
+    same way the label printer does, which also keeps both renderings alike.
+    """
+    inner_mm = width_mm - 2 * type_scale['pad_mm']
+    sizes = {
+        'small': type_scale['fs_meta_pt'],
+        'normal': type_scale['fs_desc_pt'],
+        'large': type_scale['fs_num_pt'],
+    }
+
+    def fits(row) -> bool:
+        font_mm = sizes.get(row.size, type_scale['fs_desc_pt']) * _MM_PER_PT
+        width = sum(
+            len(run.text) * run.scale * _GLYPH_WIDTH_EM * font_mm
+            for run in row.runs
+        )
+        return width <= inner_mm
+
+    return fits
+
+
 def _from_row(row) -> dict:
     """Return the layout definition for a ``LabelFormat`` row."""
     return {
+        'lines': [line.to_spec() for line in row.lines.all()],
         'key': row.slug,
         'template': ROLL_TEMPLATE,
         'name': row.name,
@@ -129,7 +162,8 @@ def resolve(key: Optional[str]) -> Optional[dict]:
         return None
     if key in SHEET_FORMATS:
         return _from_sheet(key)
-    row = LabelFormat.objects.filter(slug=key, is_active=True).first()
+    row = LabelFormat.objects.filter(
+        slug=key, is_active=True).prefetch_related('lines').first()
     return _from_row(row) if row else None
 
 
@@ -144,7 +178,9 @@ def choices() -> List[dict]:
 
     formats = [_from_sheet(key) for key in SHEET_FORMATS]
     formats += [
-        _from_row(row) for row in LabelFormat.objects.filter(is_active=True)
+        _from_row(row)
+        for row in LabelFormat.objects.filter(is_active=True).prefetch_related(
+            'lines')
     ]
     return formats
 

@@ -1,4 +1,5 @@
 from . import label_formats
+from . import label_layout
 from .config import get_rental_working_hours
 from .config import get_rental_working_hours_summary_text
 from .formatting import format_booked_period
@@ -4838,6 +4839,14 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
         ).select_related('category', 'location', 'location__parent', 'owner')
 
         label_format = self.get_label_format()
+        lines = label_layout.lines_for(label_format)
+        # A roll label has one line per row and no room to spare, so a long
+        # location is shortened to fit just as the label printer shortens it.
+        # An A4 sheet label is roomier and lets a location wrap instead.
+        fits = None
+        if label_format.get('width'):
+            fits = label_formats.html_row_fits(
+                label_format['width'], label_format['typography'])
         items_data = []
         for item in items:
             try:
@@ -4845,13 +4854,19 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
                     item.inventory_number, **label_format['writer'])
             except (ValueError, Exception):
                 barcode_svg = ''
-            items_data.append({
-                'id': item.id,
+            fields = {
                 'inventory_number': item.inventory_number,
                 'description': item.description,
                 'location': str(item.location) if item.location else '',
                 'owner': item.owner.name if item.owner else '',
+            }
+            items_data.append({
+                'id': item.id,
                 'barcode_svg': barcode_svg,
+                # The rows the label prints, shared with the TSPL renderer
+                # so a format looks the same on paper and on the roll.
+                'rows': label_layout.build_rows(fields, lines, fits=fits),
+                **fields,
             })
 
         context['items'] = items_data
@@ -4925,6 +4940,7 @@ def api_print_labels(request):
                 PrinterSettings.from_config(config),
                 gap_mm=label_formats.gap_for(label_format, config),
             ),
+            label_layout.lines_for(label_format),
         )
     except LabelPrinterError as error:
         logger.warning('Label printing failed: %s', error)

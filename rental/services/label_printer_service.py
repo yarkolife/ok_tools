@@ -7,17 +7,28 @@ wrong setting there spreads one label over two. A TSPL printer instead takes
 the label geometry inside the job: ``SIZE`` and ``GAP`` describe the roll,
 so the same job prints identically from any machine.
 
-The layout mirrors ``rental/barcode_print_roll.html``: description and owner
-on the top line, the Code 128 barcode below, the inventory number under the
-bars and the location at the bottom.
+What the label says is decided in :mod:`rental.label_layout` and shared with
+the HTML templates; this module only knows how to draw a row with the
+printer's own fonts.
 """
 
 from __future__ import annotations
 
+from ..label_layout import ALIGN_LEFT
+from ..label_layout import ALIGN_RIGHT
+from ..label_layout import DEFAULT_LINES
+from ..label_layout import LineSpec
+from ..label_layout import Run
+from ..label_layout import SIZE_LARGE
+from ..label_layout import SIZE_SCALE
+from ..label_layout import SIZE_SMALL
+from ..label_layout import build_rows
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Iterable
 from typing import List
+from typing import Optional
+from typing import Sequence
 import socket
 
 
@@ -25,11 +36,14 @@ DOTS_PER_INCH_DEFAULT = 203
 MM_PER_INCH = Decimal('25.4')
 SOCKET_TIMEOUT_SECONDS = 5
 
-# Cell sizes of the printer's internal bitmap fonts, in dots at 203 dpi.
-# Only the two the layout uses are listed.
+# The printer's internal bitmap fonts, in dots at 203 dpi: the nominal cell
+# the characters are drawn in, and how far a character actually advances,
+# measured on a TE210. The advance is the wider of the two and is what the
+# layout has to reserve.
 _FONT_SMALL = '1'
 _FONT_NORMAL = '2'
 _FONT_CELL = {_FONT_SMALL: (8, 12), _FONT_NORMAL: (12, 20)}
+_FONT_ADVANCE = {_FONT_SMALL: 11, _FONT_NORMAL: 16}
 
 # TSPL takes its strings in double quotes, with a backslash escape inside.
 _ESCAPES = (('\\', '\\\\'), ('"', '\\"'))
@@ -74,22 +88,120 @@ def _escape(text: str) -> str:
     return text
 
 
-def _fit(text: str, font: str, width_dots: int, scale: int = 1) -> str:
-    """Return ``text`` cut to what fits into ``width_dots``.
+def row_number(item: dict) -> str:
+    """Return the inventory number the bars encode."""
+    return str(item.get('inventory_number') or '').strip()
 
-    The internal fonts are fixed width, so the number of characters that fit
-    is simply the available width divided by the cell width. TSPL neither
-    wraps nor shortens by itself; an overlong description would print over
-    the label edge and, on the last line, over the next label.
+
+def _advance(font: str, scale: float) -> int:
+    """Return how far one character of ``font`` moves the cursor, in dots.
+
+    The nominal cell of the printer's internal fonts is narrower than what
+    they actually advance: measured on a TE210, a line of font 2 runs about a
+    third wider than 12 dots per character would suggest. Estimating a
+    character as too narrow is what makes two columns collide, so the
+    measured advance is used and rounded up.
     """
-    cell_width = _FONT_CELL[font][0] * scale
-    limit = max(width_dots // cell_width, 0)
-    return text[:limit]
+    return int(round(_FONT_ADVANCE[font] * scale))
 
 
-def _text_width(text: str, font: str, scale: int = 1) -> int:
-    """Return the width ``text`` occupies in dots."""
-    return len(text) * _FONT_CELL[font][0] * scale
+def _base_font(size: str) -> str:
+    """Return the printer font a row of this size prints in."""
+    return _FONT_SMALL if size == SIZE_SMALL else _FONT_NORMAL
+
+
+def _run_font(row, run):
+    """Return the font and whole-number multiplier a run prints at.
+
+    The printer scales its bitmap fonts in whole steps, so a run that asks to
+    stand out — a shelf code among the words of a location — moves up to the
+    next font, or to double size when it is already on the larger one. That
+    is what makes the codes readable from across the room while the words
+    beside them stay out of the way.
+    """
+    font = _base_font(row.size)
+    scale = 2 if row.size == SIZE_LARGE else 1
+    if run.scale > 1.0:
+        if font == _FONT_SMALL:
+            font = _FONT_NORMAL
+        else:
+            scale *= 2
+    return font, scale
+
+
+def _run_width(row, run) -> int:
+    """Return the width of a run in dots."""
+    font, scale = _run_font(row, run)
+    return len(run.text) * _advance(font, scale)
+
+
+def _run_height(row, run) -> int:
+    """Return the height of a run in dots."""
+    font, scale = _run_font(row, run)
+    return _FONT_CELL[font][1] * scale
+
+
+def _row_width(row) -> int:
+    """Return the width of a whole text row in dots."""
+    return sum(_run_width(row, run) for run in row.runs)
+
+
+def _row_height(row) -> int:
+    """Return the height of a text row in dots, its tallest run deciding."""
+    default = _FONT_CELL[_base_font(row.size)][1]
+    return max((_run_height(row, run) for run in row.runs), default=default)
+
+
+def _row_commands(row, margin: int, inner: int, y: int, height: int) -> list:
+    """Return the TSPL for one text row, clipped to the label.
+
+    Runs of different size share a baseline, so a small word does not float
+    above the larger code standing next to it.
+    """
+    runs, width = _clip(row, inner)
+    if row.align == ALIGN_RIGHT:
+        x = margin + max(inner - width, 0)
+    elif row.align == ALIGN_LEFT:
+        x = margin
+    else:
+        x = margin + max((inner - width) // 2, 0)
+
+    commands = []
+    for run in runs:
+        run_width = _run_width(row, run)
+        if run.text.strip():
+            font, scale = _run_font(row, run)
+            baseline = y + height - _run_height(row, run)
+            commands.append(
+                f'TEXT {x},{baseline},"{font}",0,{scale},{scale},'
+                f'"{_escape(run.text)}"')
+        x += run_width
+    return commands
+
+
+def _clip(row, inner: int):
+    """Return the runs of ``row`` cut to ``inner`` dots, and their width.
+
+    TSPL neither wraps nor shortens by itself, so a row that is still too
+    long after the layout did what it could is cut here; otherwise it would
+    print over the label edge and, on the last row, over the next label.
+    """
+    kept, width = [], 0
+    for run in row.runs:
+        run_width = _run_width(row, run)
+        if width + run_width <= inner:
+            kept.append(run)
+            width += run_width
+            continue
+        per_char = max(_run_width(row, Run('x', scale=run.scale)), 1)
+        room = max((inner - width) // per_char, 0)
+        text = run.text[:room].rstrip()
+        if text:
+            cut = Run(text, scale=run.scale, role=run.role)
+            kept.append(cut)
+            width += _run_width(row, cut)
+        break
+    return kept, width
 
 
 class LabelPrinterService:
@@ -101,6 +213,7 @@ class LabelPrinterService:
         width_mm: int,
         height_mm: int,
         settings: PrinterSettings,
+        lines: Optional[Sequence[LineSpec]] = None,
     ) -> str:
         """Return the TSPL job for one label.
 
@@ -110,6 +223,8 @@ class LabelPrinterService:
             width_mm: Label width in millimetres.
             height_mm: Label height in millimetres.
             settings: Printer and media settings.
+            lines: The label's configured lines; the default layout is used
+                when none are given.
 
         Returns:
             The TSPL commands for a single label, newline separated.
@@ -122,17 +237,11 @@ class LabelPrinterService:
         # over the opposite one.
         offset_x = int(settings.offset_x_mm * dots_per_mm)
         offset_y = int(settings.offset_y_mm * dots_per_mm)
-        margin = int(Decimal('2') * dots_per_mm) + max(offset_x, 0)
-        inner = width_dots - margin - int(Decimal('2') * dots_per_mm)
+        edge = int(Decimal('2') * dots_per_mm)
+        margin = edge + max(offset_x, 0)
+        inner = width_dots - margin - edge
 
-        number = str(item.get('inventory_number') or '').strip()
-        description = str(item.get('description') or '').strip()
-        owner = str(item.get('owner') or '').strip()
-        location = str(item.get('location') or '').strip()
-        if description == number:
-            description = ''
-
-        lines = [
+        commands = [
             f'SIZE {width_mm} mm,{height_mm} mm',
             f'GAP {settings.gap_mm} mm,0 mm',
             f'DENSITY {settings.density}',
@@ -141,71 +250,42 @@ class LabelPrinterService:
             'CLS',
         ]
 
-        # The rows of the label, top to bottom, and how tall each one is.
-        # The bars take 40% of the label; the rest of the height is shared
-        # out evenly, so a label without a location is not top heavy.
-        head_height = _FONT_CELL[_FONT_NORMAL][1]
-        number_height = _FONT_CELL[_FONT_NORMAL][1]
-        location_height = _FONT_CELL[_FONT_SMALL][1]
+        rows = build_rows(
+            item,
+            lines or DEFAULT_LINES,
+            fits=lambda row: _row_width(row) <= inner,
+        )
+        if not rows:
+            commands.append('PRINT 1,1')
+            return '\n'.join(commands) + '\n'
+
+        # The bars take 40% of the label; what is left of the height is
+        # shared out evenly, so a label missing a line is not top heavy.
         bar_height = int(Decimal(height_mm) * dots_per_mm * Decimal('0.4'))
-        has_head = bool(description or owner)
-        rows = [
-            head_height if has_head else 0,
-            bar_height,
-            number_height,
-            location_height if location else 0,
+        heights = [
+            bar_height if row.kind == 'barcode' else _row_height(row)
+            for row in rows
         ]
-        present = [row for row in rows if row]
         usable = height_dots - offset_y
-        spacing = max((usable - sum(present)) // (len(present) + 1), 2)
+        spacing = max((usable - sum(heights)) // (len(heights) + 1), 2)
 
         y = offset_y + spacing
-        if has_head:
-            # The owner keeps its full width on the right, the description
-            # gets whatever is left of it.
-            owner_width = _text_width(owner, _FONT_NORMAL) if owner else 0
-            if owner:
-                owner_x = margin + inner - owner_width
-                lines.append(
-                    f'TEXT {owner_x},{y},"{_FONT_NORMAL}",0,1,1,'
-                    f'"{_escape(owner)}"')
-            if description:
-                room = inner - owner_width - (8 if owner else 0)
-                text = _fit(description, _FONT_NORMAL, room)
-                if text:
-                    lines.append(
-                        f'TEXT {margin},{y},"{_FONT_NORMAL}",0,1,1,'
-                        f'"{_escape(text)}"')
-            y += head_height + spacing
+        for row, height in zip(rows, heights):
+            if row.kind == 'barcode':
+                number = row_number(item)
+                narrow = LabelPrinterService._narrow_bar(number, inner)
+                bar_width = LabelPrinterService._code128_width(number, narrow)
+                bar_x = margin + max((inner - bar_width) // 2, 0)
+                commands.append(
+                    f'BARCODE {bar_x},{y},"128",{height},0,0,{narrow},'
+                    f'{narrow * 2},"{_escape(number)}"')
+            else:
+                commands.extend(
+                    _row_commands(row, margin, inner, y, height))
+            y += height + spacing
 
-        # The bars are centred and as wide as the label allows: a wider
-        # narrow bar scans more reliably, but a long number on a small label
-        # has to give it up again to stay inside the edges.
-        narrow = LabelPrinterService._narrow_bar(number, inner)
-        bar_width = LabelPrinterService._code128_width(number, narrow)
-        bar_x = margin + max((inner - bar_width) // 2, 0)
-        lines.append(
-            f'BARCODE {bar_x},{y},"128",{bar_height},0,0,{narrow},'
-            f'{narrow * 2},"{_escape(number)}"')
-        y += bar_height + spacing
-
-        number_x = margin + max(
-            (inner - _text_width(number, _FONT_NORMAL)) // 2, 0)
-        lines.append(
-            f'TEXT {number_x},{y},"{_FONT_NORMAL}",0,1,1,'
-            f'"{_escape(number)}"')
-        y += number_height + spacing
-
-        if location:
-            text = _fit(location, _FONT_SMALL, inner)
-            location_x = margin + max(
-                (inner - _text_width(text, _FONT_SMALL)) // 2, 0)
-            lines.append(
-                f'TEXT {location_x},{y},"{_FONT_SMALL}",0,1,1,'
-                f'"{_escape(text)}"')
-
-        lines.append('PRINT 1,1')
-        return '\n'.join(lines) + '\n'
+        commands.append('PRINT 1,1')
+        return '\n'.join(commands) + '\n'
 
     @staticmethod
     def build_job(
@@ -213,6 +293,7 @@ class LabelPrinterService:
         width_mm: int,
         height_mm: int,
         settings: PrinterSettings,
+        lines: Optional[Sequence[LineSpec]] = None,
     ) -> bytes:
         """Return the TSPL job for all ``items``, ready to be sent.
 
@@ -221,7 +302,8 @@ class LabelPrinterService:
         character outside it is replaced instead of failing the job.
         """
         labels: List[str] = [
-            LabelPrinterService.build_label(item, width_mm, height_mm, settings)
+            LabelPrinterService.build_label(
+                item, width_mm, height_mm, settings, lines)
             for item in items
         ]
         job = 'CODEPAGE 1252\n' + ''.join(labels)
@@ -253,13 +335,14 @@ class LabelPrinterService:
         width_mm: int,
         height_mm: int,
         settings: PrinterSettings,
+        lines: Optional[Sequence[LineSpec]] = None,
     ) -> int:
         """Build and send the labels, returning how many were sent."""
         items = list(items)
         if not items:
             return 0
         payload = LabelPrinterService.build_job(
-            items, width_mm, height_mm, settings)
+            items, width_mm, height_mm, settings, lines)
         LabelPrinterService.send(payload, settings)
         return len(items)
 

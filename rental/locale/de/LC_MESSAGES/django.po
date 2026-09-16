@@ -4878,3 +4878,117 @@ msgid ""
 msgstr ""
 "Barcode-Geometrie und Schriftgrößen werden aus diesen Millimetern "
 "berechnet; für eine neue Rolle ist sonst nichts einzutragen."
+
+#: rental/models.py
+msgid "Inventory number and owner"
+msgstr "Inventarnummer und Eigentümer"
+
+#: rental/models.py
+msgid "Inventory number"
+msgstr "Inventarnummer"
+
+#: rental/models.py
+msgid "Barcode"
+msgstr "Barcode"
+
+#: rental/models.py
+msgid "Small"
+msgstr "Klein"
+
+#: rental/models.py
+msgid "Normal"
+msgstr "Normal"
+
+#: rental/models.py
+msgid "Large"
+msgstr "Groß"
+
+#: rental/models.py
+msgid "Left"
+msgstr "Links"
+
+#: rental/models.py
+msgid "Centred"
+msgstr "Zentriert"
+
+#: rental/models.py
+msgid "Right"
+msgstr "Rechts"
+
+#: rental/models.py
+msgid "Position"
+msgstr "Position"
+
+#: rental/models.py
+msgid "Lines print in this order, top to bottom."
+msgstr "Die Zeilen werden in dieser Reihenfolge gedruckt, von oben nach unten."
+
+#: rental/models.py
+msgid "Content"
+msgstr "Inhalt"
+
+#: rental/models.py
+msgid "Alignment"
+msgstr "Ausrichtung"
+
+#: rental/models.py
+msgid "Shorten words when needed"
+msgstr "Wörter bei Bedarf kürzen"
+
+#: rental/models.py
+msgid ""
+"Abbreviates the words of a location that would not fit (\"Schrank\" "
+"becomes \"Schr.\"), keeping the codes intact. Only applies to the "
+"location line."
+msgstr ""
+"Kürzt die Wörter eines Standorts, der sonst nicht passt („Schrank“ "
+"wird zu „Schr.“), die Kennungen bleiben unangetastet. Gilt nur für die "
+"Standortzeile."
+
+#: rental/models.py
+msgid "Enlarge the codes"
+msgstr "Kennungen vergrößern"
+
+#: rental/models.py
+msgid ""
+"Prints the number or letter that ends a location level larger than the "
+"words around it. Turn this off where locations carry no such codes. "
+"Location line only."
+msgstr ""
+"Druckt die Zahl oder den Buchstaben am Ende einer Standortebene größer "
+"als die Wörter davor. Ausschalten, wo Standorte keine solchen "
+"Kennungen haben. Nur für die Standortzeile."
+
+#: rental/models.py
+msgid "Drop leading location levels"
+msgstr "Vordere Standortebenen weglassen"
+
+#: rental/models.py
+msgid ""
+"Leaves out this many levels from the front of a location, for a first "
+"level everybody knows anyway."
+msgstr ""
+"Lässt so viele Ebenen am Anfang eines Standorts weg — für eine erste "
+"Ebene, die ohnehin jeder kennt."
+
+#: rental/models.py
+msgid "Label line"
+msgstr "Etikettenzeile"
+
+#: rental/models.py
+msgid "Label lines"
+msgstr "Etikettenzeilen"
+
+#: rental/admin.py
+msgid "Label lines — what this label prints"
+msgstr "Etikettenzeilen — was dieses Etikett druckt"
+
+#: rental/admin.py
+msgid ""
+"A format without lines prints the default layout: inventory number and "
+"owner, the barcode, the description, then the location with its codes "
+"enlarged."
+msgstr ""
+"Ein Format ohne Zeilen druckt die Standardaufteilung: Inventarnummer "
+"und Eigentümer, den Barcode, die Beschreibung und zuletzt den Standort "
+"mit vergrößerten Kennungen."

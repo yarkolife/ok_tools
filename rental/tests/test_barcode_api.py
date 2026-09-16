@@ -203,8 +203,25 @@ class BarcodePrintViewTests(TestCase):
         resp = self._print()
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, 'rental/barcode_print.html')
-        self.assertContains(resp, 'Ausleihe -&gt; Schrank 3 -&gt; Regal 3')
+        # The location prints as runs now, its shelf codes marked up so they
+        # can print larger than the words around them.
+        self.assertContains(resp, 'Ausleihe')
+        self.assertContains(resp, 'Schrank ')
+        self.assertContains(resp, 'run-code')
         self.assertContains(resp, 'OKMQ')
+
+    def test_the_sheet_label_reads_number_owner_bars_name_location(self):
+        """The order the rows print in, top to bottom."""
+        html = self._print().content.decode()
+        # Only the markup, since the stylesheet above it names every row too.
+        body = html[html.index('<div class="label-grid">'):]
+        positions = [
+            body.index('line-number_owner'),
+            body.index('<svg'),
+            body.index('line-description'),
+            body.index('line-location'),
+        ]
+        self.assertEqual(positions, sorted(positions))
 
     def test_roll_formats_use_roll_template_and_page_size(self):
         for label_format, size in (

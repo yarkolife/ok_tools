@@ -1,3 +1,4 @@
+from . import label_layout
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -1330,6 +1331,110 @@ class LabelFormat(models.Model):
     def size_label(self) -> str:
         """Return the size as it is shown next to the name."""
         return f'{self.width_mm} × {self.height_mm} mm'
+
+
+class LabelLine(models.Model):
+    """One line of a label format: what it shows and how large.
+
+    A label is described rather than hard coded, because what belongs on it
+    differs per installation: a house whose locations carry no shelf codes
+    wants nothing highlighted, and a house that prints no owner wants that
+    line gone.
+    """
+
+    class Content(models.TextChoices):
+        """What a line puts on the label."""
+
+        NUMBER_OWNER = label_layout.CONTENT_NUMBER_OWNER, \
+            _('Inventory number and owner')
+        NUMBER = label_layout.CONTENT_NUMBER, _('Inventory number')
+        OWNER = label_layout.CONTENT_OWNER, _('Owner')
+        BARCODE = label_layout.CONTENT_BARCODE, _('Barcode')
+        DESCRIPTION = label_layout.CONTENT_DESCRIPTION, _('Description')
+        LOCATION = label_layout.CONTENT_LOCATION, _('Location')
+
+    class Size(models.TextChoices):
+        """How large a line prints, relative to the label."""
+
+        SMALL = label_layout.SIZE_SMALL, _('Small')
+        NORMAL = label_layout.SIZE_NORMAL, _('Normal')
+        LARGE = label_layout.SIZE_LARGE, _('Large')
+
+    class Align(models.TextChoices):
+        """Where a line sits across the label."""
+
+        LEFT = label_layout.ALIGN_LEFT, _('Left')
+        CENTER = label_layout.ALIGN_CENTER, _('Centred')
+        RIGHT = label_layout.ALIGN_RIGHT, _('Right')
+
+    label_format = models.ForeignKey(
+        'LabelFormat',
+        on_delete=models.CASCADE,
+        related_name='lines',
+        verbose_name=_('Label format'),
+    )
+    position = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name=_('Position'),
+        help_text=_('Lines print in this order, top to bottom.'),
+    )
+    content = models.CharField(
+        max_length=20,
+        choices=Content.choices,
+        verbose_name=_('Content'),
+    )
+    size = models.CharField(
+        max_length=10,
+        choices=Size.choices,
+        default=Size.NORMAL,
+        verbose_name=_('Size'),
+    )
+    align = models.CharField(
+        max_length=10,
+        choices=Align.choices,
+        default=Align.CENTER,
+        verbose_name=_('Alignment'),
+    )
+    shorten_words = models.BooleanField(
+        default=True,
+        verbose_name=_('Shorten words when needed'),
+        help_text=_('Abbreviates the words of a location that would not fit '
+                    '("Schrank" becomes "Schr."), keeping the codes intact. '
+                    'Only applies to the location line.'),
+    )
+    highlight_codes = models.BooleanField(
+        default=True,
+        verbose_name=_('Enlarge the codes'),
+        help_text=_('Prints the number or letter that ends a location level '
+                    'larger than the words around it. Turn this off where '
+                    'locations carry no such codes. Location line only.'),
+    )
+    drop_leading_segments = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name=_('Drop leading location levels'),
+        help_text=_('Leaves out this many levels from the front of a '
+                    'location, for a first level everybody knows anyway.'),
+    )
+
+    class Meta:
+        ordering = ('position', 'pk')
+        verbose_name = _('Label line')
+        verbose_name_plural = _('Label lines')
+
+    def __str__(self):
+        """Return the line's content and size."""
+        return f'{self.get_content_display()} ({self.get_size_display()})'
+
+    def to_spec(self) -> label_layout.LineSpec:
+        """Return the line as the layout engine's own definition."""
+        return label_layout.LineSpec(
+            content=self.content,
+            size=self.size,
+            align=self.align,
+            shorten_words=self.shorten_words,
+            highlight_codes=self.highlight_codes,
+            drop_leading_segments=self.drop_leading_segments,
+        )
 
 
 class RentalSigningSessionStatus(models.TextChoices):
