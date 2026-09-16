@@ -4788,3 +4788,93 @@ msgstr ""
 #: rental/views.py
 msgid "The label printer could not be reached: %(reason)s"
 msgstr "Der Etikettendrucker ist nicht erreichbar: %(reason)s"
+
+#: rental/models.py
+msgid "Horizontal offset (mm)"
+msgstr "Horizontaler Versatz (mm)"
+
+#: rental/models.py
+msgid ""
+"Moves the printed content to the right. Use it when the roll does not "
+"sit centred under the print head."
+msgstr ""
+"Verschiebt den Druck nach rechts. Nützlich, wenn die Rolle nicht "
+"mittig unter dem Druckkopf liegt."
+
+#: rental/models.py
+msgid "Top offset (mm)"
+msgstr "Oberer Versatz (mm)"
+
+#: rental/models.py
+msgid ""
+"Moves the printed content down, away from the top edge. The content is "
+"laid out in what is left of the label, so nothing is pushed over the "
+"bottom edge."
+msgstr ""
+"Verschiebt den Druck nach unten, weg von der Oberkante. Der Inhalt "
+"wird auf der verbleibenden Fläche angeordnet, sodass nichts über die "
+"Unterkante hinausrutscht."
+
+#: rental/models.py
+msgid "Key"
+msgstr "Schlüssel"
+
+#: rental/models.py
+msgid ""
+"Identifies the format in the print URL. Changing it breaks links that "
+"were already handed out."
+msgstr ""
+"Bezeichnet das Format in der Druck-URL. Wird er geändert, "
+"funktionieren bereits weitergegebene Links nicht mehr."
+
+#: rental/models.py
+msgid "Shown in the format chooser, e.g. \"Roll label\"."
+msgstr "Wird in der Formatauswahl angezeigt, z. B. „Rollenetikett“."
+
+#: rental/models.py
+msgid "Width (mm)"
+msgstr "Breite (mm)"
+
+#: rental/models.py
+msgid "Height (mm)"
+msgstr "Höhe (mm)"
+
+#: rental/models.py
+msgid "Gap (mm)"
+msgstr "Abstand (mm)"
+
+#: rental/models.py
+msgid ""
+"Distance to the next label on this roll. Leave empty to use the gap "
+"from the label printer settings."
+msgstr ""
+"Abstand zum nächsten Etikett auf dieser Rolle. Leer lassen, um den "
+"Abstand aus den Etikettendrucker-Einstellungen zu verwenden."
+
+#: rental/models.py
+msgid "Offered in the print dialog"
+msgstr "Im Druckdialog anbieten"
+
+#: rental/models.py
+msgid "Label format"
+msgstr "Etikettenformat"
+
+#: rental/models.py
+msgid "Label formats"
+msgstr "Etikettenformate"
+
+#: rental/admin.py
+msgid "Size"
+msgstr "Größe"
+
+#: rental/admin.py
+msgid "Availability"
+msgstr "Verfügbarkeit"
+
+#: rental/admin.py
+msgid ""
+"The barcode geometry and the type sizes are derived from these "
+"millimetres, so a new roll needs nothing else."
+msgstr ""
+"Barcode-Geometrie und Schriftgrößen werden aus diesen Millimetern "
+"berechnet; für eine neue Rolle ist sonst nichts einzutragen."

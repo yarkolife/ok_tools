@@ -1142,6 +1142,27 @@ class RentalConfig(models.Model):
         verbose_name=_('Print speed (inch/s)'),
         help_text=_('Printing speed in inches per second.'),
     )
+    label_offset_x_mm = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=Decimal('0.0'),
+        validators=[MinValueValidator(Decimal('-10')),
+                    MaxValueValidator(Decimal('10'))],
+        verbose_name=_('Horizontal offset (mm)'),
+        help_text=_('Moves the printed content to the right. Use it when the '
+                    'roll does not sit centred under the print head.'),
+    )
+    label_offset_y_mm = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=Decimal('0.0'),
+        validators=[MinValueValidator(Decimal('-10')),
+                    MaxValueValidator(Decimal('10'))],
+        verbose_name=_('Top offset (mm)'),
+        help_text=_('Moves the printed content down, away from the top edge. '
+                    'The content is laid out in what is left of the label, so '
+                    'nothing is pushed over the bottom edge.'),
+    )
 
     user_organizations = models.ManyToManyField(
         'inventory.Organization',
@@ -1248,6 +1269,67 @@ class RentalConfig(models.Model):
             'start': start_time if enabled else None,
             'end': end_time if enabled else None,
         }
+
+
+class LabelFormat(models.Model):
+    """A physical label size barcode labels can be printed on.
+
+    The two roll sizes the module started with were hand tuned; every other
+    size derives its barcode geometry and type sizes from those two, so a new
+    roll only needs its millimetres entered here.
+    """
+
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        verbose_name=_('Key'),
+        help_text=_('Identifies the format in the print URL. Changing it '
+                    'breaks links that were already handed out.'),
+    )
+    name = models.CharField(
+        max_length=100,
+        verbose_name=_('Name'),
+        help_text=_('Shown in the format chooser, e.g. "Roll label".'),
+    )
+    width_mm = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(20), MaxValueValidator(200)],
+        verbose_name=_('Width (mm)'),
+    )
+    height_mm = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(10), MaxValueValidator(200)],
+        verbose_name=_('Height (mm)'),
+    )
+    gap_mm = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name=_('Gap (mm)'),
+        help_text=_('Distance to the next label on this roll. Leave empty to '
+                    'use the gap from the label printer settings.'),
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_('Offered in the print dialog'),
+    )
+    sort_order = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name=_('Sort order'),
+    )
+
+    class Meta:
+        ordering = ('sort_order', 'width_mm', 'height_mm')
+        verbose_name = _('Label format')
+        verbose_name_plural = _('Label formats')
+
+    def __str__(self):
+        """Return the name together with the size it prints."""
+        return f'{self.name} ({self.width_mm} × {self.height_mm} mm)'
+
+    @property
+    def size_label(self) -> str:
+        """Return the size as it is shown next to the name."""
+        return f'{self.width_mm} × {self.height_mm} mm'
 
 
 class RentalSigningSessionStatus(models.TextChoices):

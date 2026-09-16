@@ -6,8 +6,8 @@
   <title>{% trans "Barcode Labels" %} {{ label_width }}×{{ label_height }} mm — OK Tools</title>
   <style>
     /* Roll labels: one label per page, printed edge to edge on endless media.
-       The sizes come from the format definition in BarcodePrintView so both
-       roll variants share this stylesheet.
+       The sizes and the type scale come from the format definition, derived
+       from the label's millimetres, so every roll size shares this sheet.
 
        With ``rotate=90`` the page is turned sideways: the sheet becomes
        height x width and the content is rotated inside it. That is what label
@@ -17,10 +17,10 @@
     .label-grid {
       --label-w: {{ label_width }}mm;
       --label-h: {{ label_height }}mm;
-      --pad: {% if label_width > 60 %}2mm{% else %}1.5mm{% endif %};
-      --fs-desc: {% if label_width > 60 %}7.5pt{% else %}6pt{% endif %};
-      --fs-num: {% if label_width > 60 %}9pt{% else %}7.5pt{% endif %};
-      --fs-meta: {% if label_width > 60 %}6.5pt{% else %}5.5pt{% endif %};
+      --pad: {{ pad_mm }}mm;
+      --fs-desc: {{ fs_desc_pt }}pt;
+      --fs-num: {{ fs_num_pt }}pt;
+      --fs-meta: {{ fs_meta_pt }}pt;
     }
     /* The page box: the label as the printer feeds it. */
     .label {

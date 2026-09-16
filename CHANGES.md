@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-09-18 (Version 4.52.0)
+==========================
+
+* **rental: Any label size, and a print offset for the roll**
+  * Label sizes are data now: ``LabelFormat`` holds a name, the millimetres and an optional roll gap, and the print dialog offers every active row. The two sizes the module shipped with are migrated into it under their existing keys, so links already handed out keep working.
+  * The barcode geometry and the type scale are derived from the label's millimetres instead of being tuned per format, interpolated through the two sizes that were tuned by hand. A new roll needs nothing but its size entered. The narrow bar widens with the label and narrows again when a long inventory number would otherwise run over the edge.
+  * ``label_offset_x_mm`` and ``label_offset_y_mm`` move the printed content away from the edges for a roll that does not sit square under the print head. The offset trims the usable area rather than displacing the finished layout, so moving content away from the top can never push it over the bottom.
+
 2026-09-17 (Version 4.51.0)
 ==========================
 

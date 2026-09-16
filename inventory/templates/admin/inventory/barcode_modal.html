@@ -144,26 +144,16 @@
         <div class="barcode-modal-body">
             <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
                 <strong style="font-size:14px;">{% trans "Format selection" %}</strong>
+                {% for fmt in label_formats %}
                 <label class="barcode-format-label">
-                    <input type="radio" name="label-format" value="standard" checked onchange="selectFormat(this.value)">
-                    <span>{% trans "A4 sheet" %}</span>
-                    <span style="color:#6c757d;font-size:11px;">(50 × 30 mm)</span>
+                    <input type="radio" name="label-format" value="{{ fmt.key }}"
+                           data-roll="{% if fmt.width %}1{% else %}0{% endif %}"
+                           {% if forloop.first %}checked{% endif %}
+                           onchange="selectFormat()">
+                    <span>{% trans fmt.name %}</span>
+                    <span style="color:#6c757d;font-size:11px;">({{ fmt.size_label }})</span>
                 </label>
-                <label class="barcode-format-label">
-                    <input type="radio" name="label-format" value="compact" onchange="selectFormat(this.value)">
-                    <span>{% trans "A4 sheet, compact" %}</span>
-                    <span style="color:#6c757d;font-size:11px;">(40 × 15 mm)</span>
-                </label>
-                <label class="barcode-format-label">
-                    <input type="radio" name="label-format" value="roll_51x25" onchange="selectFormat(this.value)">
-                    <span>{% trans "Roll label" %}</span>
-                    <span style="color:#6c757d;font-size:11px;">(51 × 25 mm)</span>
-                </label>
-                <label class="barcode-format-label">
-                    <input type="radio" name="label-format" value="roll_70x32" onchange="selectFormat(this.value)">
-                    <span>{% trans "Roll label" %}</span>
-                    <span style="color:#6c757d;font-size:11px;">(70 × 32 mm)</span>
-                </label>
+                {% endfor %}
                 <label class="barcode-format-label" id="rotate-option" style="display:none;">
                     <input type="checkbox" id="label-rotate" onchange="loadBarcodes(buildUrl())">
                     <span>{% trans "Rotate 90°" %}</span>
@@ -230,15 +220,25 @@ function loadBarcodes(url) {
         });
 }
 
+function currentInput() {
+    return document.querySelector('input[name="label-format"]:checked');
+}
+
 function currentFormat() {
-    const checked = document.querySelector('input[name="label-format"]:checked');
+    const checked = currentInput();
     return checked ? checked.value : 'standard';
 }
 
-/* Rotation only applies to the roll layouts, so the checkbox follows them. */
+/* Rotation and the label printer only apply to formats with a physical size,
+   which the server marks on the radio; the key itself says nothing. */
+function isRollFormat() {
+    const checked = currentInput();
+    return Boolean(checked && checked.dataset.roll === '1');
+}
+
 function buildUrl() {
     const format = currentFormat();
-    const isRoll = format.startsWith('roll_');
+    const isRoll = isRollFormat();
     const rotateBox = document.getElementById('label-rotate');
     document.getElementById('rotate-option').style.display = isRoll ? '' : 'none';
     if (!isRoll) {
@@ -259,7 +259,7 @@ function buildUrl() {
     return url.toString();
 }
 
-function selectFormat(value) {
+function selectFormat() {
     loadBarcodes(buildUrl());
 }
 
@@ -284,11 +284,11 @@ function printBarcodes() {
    only works for the roll formats, which are the ones with a physical size. */
 function printOnLabelPrinter() {
     const button = document.getElementById('btn-direct-print');
-    const format = currentFormat();
-    if (!format.startsWith('roll_')) {
+    if (!isRollFormat()) {
         alert('{% trans "Choose a roll format to print on the label printer." %}');
         return;
     }
+    const format = currentFormat();
 
     button.disabled = true;
     fetch(directPrintUrl, {

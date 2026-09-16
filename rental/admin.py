@@ -3,6 +3,7 @@ from .forms import RentalRequestAdminForm
 from .forms import RentalTransactionForm
 from .models import EquipmentSet
 from .models import EquipmentSetItem
+from .models import LabelFormat
 from .models import RentalConfig
 from .models import RentalIssue
 from .models import RentalItem
@@ -556,6 +557,35 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
         return False
 
 
+@admin.register(LabelFormat)
+class LabelFormatAdmin(admin.ModelAdmin):
+    """Admin interface for the label sizes the print dialog offers."""
+
+    list_display = ('name', 'size_label', 'slug', 'gap_mm', 'is_active',
+                    'sort_order')
+    list_editable = ('is_active', 'sort_order')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'slug', ('width_mm', 'height_mm'), 'gap_mm'),
+            'description': _('The barcode geometry and the type sizes are '
+                             'derived from these millimetres, so a new roll '
+                             'needs nothing else.'),
+        }),
+        (_('Availability'), {
+            'fields': ('is_active', 'sort_order'),
+        }),
+    )
+
+    @admin.display(description=_('Size'))
+    def size_label(self, obj):
+        """Return the label size for the changelist."""
+        return obj.size_label
+
+
 @admin.register(RentalConfig)
 class RentalConfigAdmin(admin.ModelAdmin):
     """Admin interface for RentalConfig model."""
@@ -599,6 +629,7 @@ class RentalConfigAdmin(admin.ModelAdmin):
                 'label_printer_host',
                 ('label_printer_port', 'label_printer_dpi'),
                 ('label_gap_mm', 'label_printer_density', 'label_printer_speed'),
+                ('label_offset_x_mm', 'label_offset_y_mm'),
             ),
             'description': _('A network label printer speaking TSPL (e.g. TSC '
                              'TE210). With a host set, roll labels can be sent '

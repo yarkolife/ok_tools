@@ -49,6 +49,8 @@ class PrinterSettings:
     gap_mm: Decimal = Decimal('2.0')
     density: int = 8
     speed: int = 4
+    offset_x_mm: Decimal = Decimal('0.0')
+    offset_y_mm: Decimal = Decimal('0.0')
 
     @classmethod
     def from_config(cls, config) -> 'PrinterSettings':
@@ -60,6 +62,8 @@ class PrinterSettings:
             gap_mm=config.label_gap_mm,
             density=config.label_printer_density,
             speed=config.label_printer_speed,
+            offset_x_mm=config.label_offset_x_mm,
+            offset_y_mm=config.label_offset_y_mm,
         )
 
 
@@ -113,8 +117,13 @@ class LabelPrinterService:
         dots_per_mm = Decimal(settings.dpi) / MM_PER_INCH
         width_dots = int(Decimal(width_mm) * dots_per_mm)
         height_dots = int(Decimal(height_mm) * dots_per_mm)
-        margin = int(Decimal('2') * dots_per_mm)
-        inner = width_dots - 2 * margin
+        # The offsets trim the usable area rather than displacing the finished
+        # layout, so moving the content away from one edge can never push it
+        # over the opposite one.
+        offset_x = int(settings.offset_x_mm * dots_per_mm)
+        offset_y = int(settings.offset_y_mm * dots_per_mm)
+        margin = int(Decimal('2') * dots_per_mm) + max(offset_x, 0)
+        inner = width_dots - margin - int(Decimal('2') * dots_per_mm)
 
         number = str(item.get('inventory_number') or '').strip()
         description = str(item.get('description') or '').strip()
@@ -147,9 +156,10 @@ class LabelPrinterService:
             location_height if location else 0,
         ]
         present = [row for row in rows if row]
-        spacing = max((height_dots - sum(present)) // (len(present) + 1), 2)
+        usable = height_dots - offset_y
+        spacing = max((usable - sum(present)) // (len(present) + 1), 2)
 
-        y = spacing
+        y = offset_y + spacing
         if has_head:
             # The owner keeps its full width on the right, the description
             # gets whatever is left of it.
@@ -168,9 +178,10 @@ class LabelPrinterService:
                         f'"{_escape(text)}"')
             y += head_height + spacing
 
-        # The bars are centred; a narrow bar of 2 dots keeps a ten character
-        # number well inside a 51 mm label and stays readable for a scanner.
-        narrow = 2
+        # The bars are centred and as wide as the label allows: a wider
+        # narrow bar scans more reliably, but a long number on a small label
+        # has to give it up again to stay inside the edges.
+        narrow = LabelPrinterService._narrow_bar(number, inner)
         bar_width = LabelPrinterService._code128_width(number, narrow)
         bar_x = margin + max((inner - bar_width) // 2, 0)
         lines.append(
@@ -251,6 +262,18 @@ class LabelPrinterService:
             items, width_mm, height_mm, settings)
         LabelPrinterService.send(payload, settings)
         return len(items)
+
+    @staticmethod
+    def _narrow_bar(value: str, available_dots: int) -> int:
+        """Return the widest narrow bar of ``value`` that fits the label.
+
+        Kept between 1 and 4 dots: below 1 there is nothing to print, and
+        past 4 the bars only eat the space the text needs.
+        """
+        modules = LabelPrinterService._code128_width(value, 1)
+        if modules <= 0:
+            return 1
+        return max(min(available_dots // modules, 4), 1)
 
     @staticmethod
     def _code128_width(value: str, narrow: int) -> int:

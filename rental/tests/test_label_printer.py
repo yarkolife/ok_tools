@@ -6,6 +6,7 @@ from inventory.models import InventoryItem
 from inventory.models import Location
 from inventory.models import Organization
 from registration.models import OKUser as User
+from rental.models import LabelFormat
 from rental.models import RentalConfig
 from rental.services.label_printer_service import LabelPrinterError
 from rental.services.label_printer_service import LabelPrinterService
@@ -70,6 +71,48 @@ class TSPLJobTests(TestCase):
         bar_width = ((len('OK-000481') + 2) * 11 + 13) * narrow
         self.assertLessEqual(bar_x + bar_width, width_dots)
 
+    def test_a_top_offset_moves_the_content_down(self):
+        """The offset is the knob for a roll that sits high under the head."""
+        def first_y(tspl):
+            line = [ln for ln in tspl.splitlines()
+                    if ln.startswith(('TEXT ', 'BARCODE '))][0]
+            return int(line.split()[1].split(',')[1])
+
+        offset_dots = int(3 * 203 / 25.4)
+        plain = first_y(self._label(description='Kabeltrommel 10m'))
+        shifted = first_y(LabelPrinterService.build_label(
+            {'inventory_number': 'OK-000481',
+             'description': 'Kabeltrommel 10m'},
+            51, 25,
+            PrinterSettings(host='192.0.2.10', offset_y_mm=Decimal('3.0')),
+        ))
+        # Nothing may be printed above the offset line, and since the rows are
+        # redistributed over what is left, the first one does not travel the
+        # full offset.
+        self.assertGreaterEqual(shifted, offset_dots)
+        self.assertGreater(shifted, plain)
+        self.assertLessEqual(shifted - plain, offset_dots)
+
+    def test_an_offset_never_pushes_content_over_the_far_edge(self):
+        """The offset trims the usable area instead of displacing the layout."""
+        height_dots = int(25 * 203 / 25.4)
+        width_dots = int(51 * 203 / 25.4)
+        tspl = LabelPrinterService.build_label(
+            {'inventory_number': 'OK-000481',
+             'description': 'Kabeltrommel 10m',
+             'owner': 'OKMQ',
+             'location': 'Ausleihe -> Regal 6'},
+            51, 25,
+            PrinterSettings(host='192.0.2.10', offset_x_mm=Decimal('4.0'),
+                            offset_y_mm=Decimal('6.0')),
+        )
+        for line in tspl.splitlines():
+            if not line.startswith(('TEXT ', 'BARCODE ')):
+                continue
+            x, y = (int(v) for v in line.split()[1].split(',')[:2])
+            self.assertLess(y, height_dots, line)
+            self.assertLess(x, width_dots, line)
+
     def test_the_number_is_not_repeated_as_the_description(self):
         tspl = self._label(description='OK-000481')
         self.assertEqual(tspl.count('"OK-000481"'), 2)  # barcode plus number
@@ -118,7 +161,14 @@ class DirectPrintEndpointTests(TestCase):
         )
         config = RentalConfig.get_config()
         config.label_printer_host = '192.0.2.10'
+        config.label_gap_mm = Decimal('2.0')
         config.save()
+        # The roll formats come from a data migration, which a transactional
+        # test elsewhere can wipe out of the reused test database.
+        self.label_format, _created = LabelFormat.objects.get_or_create(
+            slug='roll_51x25',
+            defaults={'name': 'Roll label', 'width_mm': 51, 'height_mm': 25},
+        )
         self.url = reverse('rental:barcode_print_direct')
 
     def _post(self, **payload):
@@ -143,6 +193,28 @@ class DirectPrintEndpointTests(TestCase):
         settings = send.call_args[0][1]
         self.assertEqual(settings.host, '192.0.2.10')
         self.assertEqual(settings.port, 9100)
+
+    def test_any_configured_label_size_reaches_the_printer(self):
+        """A new roll needs its millimetres entered, nothing more."""
+        LabelFormat.objects.create(
+            slug='roll_100x50', name='Big roll label',
+            width_mm=100, height_mm=50)
+        with mock.patch.object(LabelPrinterService, 'send') as send:
+            resp = self._post(format='roll_100x50')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'SIZE 100 mm,50 mm', send.call_args[0][0])
+
+    def test_a_format_may_carry_the_gap_of_its_own_roll(self):
+        self.label_format.gap_mm = Decimal('3.0')
+        self.label_format.save()
+        with mock.patch.object(LabelPrinterService, 'send') as send:
+            self._post()
+        self.assertIn(b'GAP 3.0 mm', send.call_args[0][0])
+
+    def test_without_its_own_gap_a_format_uses_the_printer_setting(self):
+        with mock.patch.object(LabelPrinterService, 'send') as send:
+            self._post()
+        self.assertIn(b'GAP 2.0 mm', send.call_args[0][0])
 
     def test_sheet_formats_are_refused(self):
         """An A4 sheet layout has no physical label size to send."""

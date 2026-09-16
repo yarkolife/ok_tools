@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from inventory.models import InventoryItem, Location, Organization
-from rental.models import RentalItem, RentalRequest
+from rental.models import LabelFormat, RentalItem, RentalRequest
 
 User = get_user_model()
 
@@ -170,6 +170,26 @@ class BarcodePrintViewTests(TestCase):
             owner=self.owner,
             quantity=1,
         )
+        self._ensure_roll_formats()
+
+    def _ensure_roll_formats(self):
+        """Recreate the seeded roll formats.
+
+        The rows come from a data migration, which a transactional test
+        elsewhere can wipe out of the reused test database.
+        """
+        for slug, width, height in (
+            ('roll_51x25', 51, 25),
+            ('roll_70x32', 70, 32),
+        ):
+            LabelFormat.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'name': 'Roll label',
+                    'width_mm': width,
+                    'height_mm': height,
+                },
+            )
 
     def _print(self, label_format=None, rotate=None):
         url = reverse('rental:barcode_print') + f'?ids={self.item.id}'
@@ -220,6 +240,28 @@ class BarcodePrintViewTests(TestCase):
                 html = self._print('roll_51x25', rotate=rotate).content.decode()
                 self.assertIn('size: 51mm 25mm', html)
                 self.assertNotIn('rotate(90deg)', html)
+
+    def test_any_configured_label_size_prints(self):
+        """A size nobody tuned by hand still lays out sensibly."""
+        LabelFormat.objects.create(
+            slug='roll_100x50', name='Big roll label',
+            width_mm=100, height_mm=50)
+        resp = self._print('roll_100x50')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'rental/barcode_print_roll.html')
+        html = resp.content.decode()
+        self.assertIn('size: 100mm 50mm', html)
+        # The type scale grows with the label instead of stepping to one of
+        # two fixed values.
+        self.assertNotIn('--fs-desc: 6pt', html)
+        self.assertIn('OK-PRINT-1', html)
+
+    def test_an_inactive_format_is_not_offered(self):
+        LabelFormat.objects.create(
+            slug='roll_retired', name='Retired', width_mm=60, height_mm=40,
+            is_active=False)
+        resp = self._print('roll_retired')
+        self.assertTemplateUsed(resp, 'rental/barcode_print.html')
 
     def test_unknown_format_falls_back_to_standard(self):
         resp = self._print('does-not-exist')

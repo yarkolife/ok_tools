@@ -395,6 +395,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         return form
 
     def print_barcodes_action(self, request, queryset):
+        from rental import label_formats
         from rental.models import RentalConfig
 
         ids = ','.join(str(obj.id) for obj in queryset)
@@ -411,6 +412,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         return TemplateResponse(request, 'admin/inventory/barcode_modal.html', {
             'barcode_url': url,
             'direct_print_url': direct_url,
+            'label_formats': label_formats.choices(),
             'label_printer_ready': RentalConfig.get_config().label_printer_configured,
             'item_ids': [obj.id for obj in queryset],
             'items_count': queryset.count()

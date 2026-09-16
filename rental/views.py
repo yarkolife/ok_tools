@@ -1,10 +1,11 @@
+from . import label_formats
 from .config import get_rental_working_hours
 from .config import get_rental_working_hours_summary_text
 from .formatting import format_booked_period
 from .models import EquipmentSet
 from .models import EquipmentSetItem
-from .models import RentalIssue
 from .models import RentalConfig
+from .models import RentalIssue
 from .models import RentalItem
 from .models import RentalRequest
 from .models import RentalSigningSession
@@ -33,6 +34,7 @@ from .services.rental_email import send_reminder_email
 from .services.rental_email import send_return_receipt_email
 from .working_hours import get_day_working_window
 from .working_hours import validate_working_hours_period
+from dataclasses import replace
 from datetime import datetime
 from datetime import timedelta
 from defusedxml.ElementTree import fromstring as defused_fromstring
@@ -4788,58 +4790,6 @@ def serve_room_image(request, image_id):
     return FileResponse(fh, content_type=content_type or 'application/octet-stream')
 
 
-"""Label layouts offered by :class:`BarcodePrintView`.
-
-``writer`` holds the ``SVGWriter`` options. Every layout prints the inventory
-number itself, so ``write_text`` stays off and python-barcode does not repeat
-it under the bars. ``width``/``height`` are the physical label size in mm and
-drive the roll stylesheet and its ``@page`` size.
-"""
-BARCODE_LABEL_FORMATS = {
-    'standard': {
-        'template': 'rental/barcode_print.html',
-        'writer': {
-            'module_width': 0.3,
-            'module_height': 12.0,
-            'quiet_zone': 2.0,
-            'write_text': False,
-        },
-    },
-    'compact': {
-        'template': 'rental/barcode_print_compact.html',
-        'writer': {
-            'module_width': 0.22,
-            'module_height': 7.0,
-            'quiet_zone': 1.0,
-            'write_text': False,
-        },
-    },
-    'roll_51x25': {
-        'template': 'rental/barcode_print_roll.html',
-        'writer': {
-            'module_width': 0.28,
-            'module_height': 9.0,
-            'quiet_zone': 1.5,
-            'write_text': False,
-        },
-        'width': 51,
-        'height': 25,
-    },
-    'roll_70x32': {
-        'template': 'rental/barcode_print_roll.html',
-        'writer': {
-            'module_width': 0.38,
-            'module_height': 11.0,
-            'quiet_zone': 2.0,
-            'write_text': False,
-        },
-        'width': 70,
-        'height': 32,
-    },
-}
-DEFAULT_BARCODE_LABEL_FORMAT = 'standard'
-
-
 class BarcodePrintView(StaffRequiredMixin, TemplateView):
     """
     Print barcode labels for selected inventory items.
@@ -4847,8 +4797,9 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
     GET /rental/barcode/print/?ids=1,2,3&format=roll_51x25&rotate=90
     Renders a page with barcode SVGs for the given inventory item IDs.
     Returns 400 if the ids parameter is missing or empty.
-    Supported formats are the keys of ``BARCODE_LABEL_FORMATS``; an unknown
-    value falls back to the A4 sheet layout.
+    Supported formats are the two A4 sheet layouts plus every active
+    ``LabelFormat`` row, addressed by its slug; an unknown value falls back
+    to the A4 sheet layout.
     ``rotate=90`` turns the roll layout sideways for label printers whose
     media is defined portrait (25 x 51 instead of 51 x 25); without it the
     driver rotates the page itself and one label spills over two.
@@ -4856,9 +4807,7 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
 
     def get_label_format(self):
         """Return the requested label format definition, or the default one."""
-        key = self.request.GET.get('format', DEFAULT_BARCODE_LABEL_FORMAT)
-        return BARCODE_LABEL_FORMATS.get(
-            key, BARCODE_LABEL_FORMATS[DEFAULT_BARCODE_LABEL_FORMAT])
+        return label_formats.resolve_or_default(self.request.GET.get('format'))
 
     def get_template_names(self):
         return [self.get_label_format()['template']]
@@ -4909,6 +4858,7 @@ class BarcodePrintView(StaffRequiredMixin, TemplateView):
         context['label_width'] = label_format.get('width')
         context['label_height'] = label_format.get('height')
         context['rotate'] = self.get_rotation()
+        context.update(label_format.get('typography') or {})
         return context
 
 
@@ -4940,7 +4890,7 @@ def api_print_labels(request):
     except (TypeError, ValueError):
         return JsonResponse({'error': _('Invalid item id format')}, status=400)
 
-    label_format = BARCODE_LABEL_FORMATS.get(payload.get('format'))
+    label_format = label_formats.resolve(payload.get('format'))
     if not label_format or not label_format.get('width'):
         return JsonResponse(
             {'error': _('This label format cannot be sent to the label '
@@ -4971,7 +4921,10 @@ def api_print_labels(request):
             labels,
             label_format['width'],
             label_format['height'],
-            PrinterSettings.from_config(config),
+            replace(
+                PrinterSettings.from_config(config),
+                gap_mm=label_formats.gap_for(label_format, config),
+            ),
         )
     except LabelPrinterError as error:
         logger.warning('Label printing failed: %s', error)
