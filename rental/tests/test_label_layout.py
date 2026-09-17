@@ -29,6 +29,32 @@ class LocationRunTests(TestCase):
         self.assertEqual([run.text for run in runs if run.role == 'code'],
                          ['B2'])
 
+    def test_a_bare_letter_is_a_code_too(self):
+        """'Fach B' names the compartment as surely as 'Fach 8' does."""
+        runs = self._runs('Ausleihe -> Schrank 3 -> Fach B')
+        self.assertEqual([run.text for run in runs if run.role == 'code'],
+                         ['3', 'B'])
+
+    def test_codes_are_recognised_in_every_usual_shape(self):
+        for segment, code in (
+            ('Fach B', 'B'),
+            ('Fach AB', 'AB'),
+            ('Fach B12', 'B12'),
+            ('Regal 3a', '3a'),
+            ('Raum12', '12'),
+            ('B', 'B'),
+        ):
+            with self.subTest(segment=segment):
+                self.assertEqual(label_layout.split_code(segment)[1], code)
+
+    def test_the_last_letters_of_a_word_are_not_a_code(self):
+        """Only a letter standing apart counts, or every word would end big."""
+        for segment in ('Seminarraum', 'Keller', 'Ton / MIX Stative',
+                        'Ton / MIX', 'OK-000032', 'Podc-Stat'):
+            with self.subTest(segment=segment):
+                self.assertEqual(label_layout.split_code(segment),
+                                 (segment, ''))
+
     def test_a_location_without_codes_stays_one_run(self):
         """Not every house numbers its shelves."""
         runs = self._runs('Seminarraum')

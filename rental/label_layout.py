@@ -44,10 +44,34 @@ ALIGN_RIGHT = 'right'
 LOCATION_SEPARATOR = ' > '
 
 # A location segment usually ends in the code that actually identifies the
-# place — "Schrank 3", "Regal 4", "Fach B2". The words in front of it are
-# context; the code is what someone reads from two metres away.
-_SEGMENT = re.compile(r'^(?P<words>.*?)[\s]*(?P<code>[0-9]{1,3}[A-Za-z]?|[A-Za-z]?[0-9]{1,3})$')
+# place — "Schrank 3", "Regal 4", "Fach B", "Fach B2". The words in front of
+# it are context; the code is what someone reads from two metres away.
+#
+# A code standing as its own word may be digits with an optional letter
+# ("3", "3a"), or one or two letters with optional digits ("B", "AB", "B12").
+# Letters only count as a code when they stand apart: glued to a word they
+# are just its last letters, and "Seminarraum" must not become "Seminarrau"
+# plus a large "m". Digits glued to a word ("Raum12") still count, since no
+# word ends in a digit.
+_CODE_TOKEN = re.compile(r'^(?:[0-9]{1,3}[A-Za-z]?|[A-Za-z]{1,2}[0-9]{0,3})$')
+_GLUED_DIGITS = re.compile(r'^(?P<words>.*\D)(?P<code>[0-9]{1,3}[A-Za-z]?)$')
 _SPLIT = re.compile(r'\s*(?:->|→|>)\s*')
+
+
+def split_code(segment: str):
+    """Return the words of a location level and the code ending it.
+
+    Returns:
+        ``(words, code)``; ``code`` is empty when the level carries none.
+    """
+    segment = segment.strip()
+    words, _space, last = segment.rpartition(' ')
+    if _CODE_TOKEN.match(last):
+        return words.strip(), last
+    glued = _GLUED_DIGITS.match(segment)
+    if glued:
+        return glued.group('words').strip(), glued.group('code')
+    return segment, ''
 
 
 @dataclass
@@ -143,20 +167,19 @@ def location_runs(
         for index, segment in enumerate(parts):
             if index:
                 runs.append(Run(LOCATION_SEPARATOR))
-            match = _SEGMENT.match(segment)
-            if not match or not highlight_codes:
+            words, code = split_code(segment)
+            if not code or not highlight_codes:
                 words = segment
                 if short:
                     words = ' '.join(
                         shorten_word(word) for word in segment.split())
                 runs.append(Run(words))
                 continue
-            words = match.group('words')
             if short:
                 words = ' '.join(shorten_word(word) for word in words.split())
             if words:
                 runs.append(Run(words + ' '))
-            runs.append(Run(match.group('code'), scale=1.5, role='code'))
+            runs.append(Run(code, scale=1.5, role='code'))
         return runs
 
     candidates = [build(segments, False)]

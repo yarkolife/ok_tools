@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2026-09-19 (Version 4.53.1)
+==========================
+
+* **rental: A bare letter ends a location level too**
+  * "Fach B" printed its "B" at word size, because a code had to contain a digit. A level now also ends in a code when its last word is one or two letters, optionally followed by digits ("B", "AB", "B12"). Letters count only when they stand apart, so the last letters of a word — "Seminarraum" — are never mistaken for one.
+
 2026-09-19 (Version 4.53.0)
 ==========================
 

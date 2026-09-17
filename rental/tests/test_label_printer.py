@@ -59,6 +59,13 @@ class TSPLJobTests(TestCase):
         self.assertEqual(font_of('Regal '), '1')
         self.assertEqual(font_of('6'), '2')
 
+    def test_a_letter_code_prints_larger_as_well(self):
+        tspl = self._label(location='Ausleihe -> Schrank 3 -> Fach B')
+        big = [ln for ln in tspl.splitlines()
+               if ln.startswith('TEXT ') and ',"2",' in ln]
+        self.assertTrue(any(ln.endswith('"B"') for ln in big), tspl)
+        self.assertTrue(any(ln.endswith('"3"') for ln in big), tspl)
+
     def test_the_number_and_the_owner_read_above_the_bars(self):
         """The layout puts what identifies the item first."""
         tspl = self._label(owner='OKMQ', description='Kabeltrommel 10m')
