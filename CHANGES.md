@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-10-13 (Version 4.59.0)
+==========================
+
+* **planung: The playout pull API returns everything and no longer fails**
+  * ``GET /api/v1/media`` is paged: ``page`` and ``limit`` (default 2000, max 5000), with ``total`` and ``next`` in the response. It used to stop at 2000 rows, copies included, so new numbers never came out — with or without ``updated_since``. Pages are cut by filename, so the copies of one file stay together.
+  * ``updated_since`` also returns the files of licenses edited since then. ``License.updated_at`` is new (migration ``licenses.0032``, existing licenses start at their creation time); until now an edited title, category or age rating only reached the playout when the file itself changed.
+  * ``GET /api/v1/media?id=18951,18626`` looks records up by license number. A license without a file comes back with ``filename: null``.
+  * ``GET /api/v1/schedule`` answered 500 for every day that had a number with several files (e.g. an archive and a playout copy). The rows are now built like the "Send schedule" push and carry ``position``, ``date``, ``start_time``, ``end_time``, ``kind``, ``media_id``, ``title`` and ``live_source_name``; rows without a file have ``media_filename: null``. ``start`` carries the local UTC offset instead of labelling local time as UTC, and ``HH:MM:SS`` durations are no longer read as 0.
+  * The API help on the calendar-weeks page describes the actual responses.
+
 2026-10-13 (Version 4.58.0)
 ==========================
 

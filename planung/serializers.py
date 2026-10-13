@@ -37,7 +37,10 @@ class MediaItemSerializer(serializers.Serializer):
     """Single media metadata item returned by GET /api/v1/media."""
 
     id = serializers.CharField(help_text="License number (as string)")
-    filename = serializers.CharField(help_text="Video file filename")
+    filename = serializers.CharField(
+        allow_null=True,
+        help_text="Video file filename; null for a license without a file (id lookup)",
+    )
     title = serializers.CharField(allow_blank=True, default="")
     author = serializers.CharField(allow_blank=True, default="")
     description = serializers.CharField(allow_blank=True, default="")
@@ -55,15 +58,27 @@ class MediaListResponseSerializer(serializers.Serializer):
     """Response wrapper for GET /api/v1/media."""
 
     items = MediaItemSerializer(many=True)
+    total = serializers.IntegerField(help_text="Number of items over all pages")
+    page = serializers.IntegerField()
+    limit = serializers.IntegerField()
+    next = serializers.URLField(allow_null=True, help_text="URL of the next page")
 
 
 class ScheduleItemSerializer(serializers.Serializer):
     """Single schedule item returned by GET /api/v1/schedule."""
 
-    id = serializers.CharField()
-    start = serializers.CharField(help_text="ISO 8601 datetime string")
+    id = serializers.CharField(help_text="plan-{pk}-pos-{position}")
+    position = serializers.IntegerField(min_value=1)
+    date = serializers.CharField(help_text="Plan day, YYYY-MM-DD")
+    start = serializers.CharField(help_text="ISO 8601 datetime with the local UTC offset")
+    start_time = serializers.CharField(allow_blank=True, help_text="Local HH:MM:SS")
+    end_time = serializers.CharField(allow_blank=True, help_text="Local HH:MM:SS")
     duration_sec = serializers.IntegerField(min_value=0)
-    media_filename = serializers.CharField(allow_blank=True, default="")
+    kind = serializers.CharField(help_text="video, live or placeholder (Freistellung)")
+    media_id = serializers.CharField(allow_null=True, help_text="License number (as string)")
+    title = serializers.CharField(allow_blank=True, default="")
+    media_filename = serializers.CharField(allow_null=True, help_text="null for rows without a file")
+    live_source_name = serializers.CharField(allow_null=True, help_text="Live rows only")
 
 
 class ScheduleListResponseSerializer(serializers.Serializer):

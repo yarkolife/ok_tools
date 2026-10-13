@@ -319,6 +319,12 @@ class License(ExportModelOperationsMixin('license'), models.Model):
         db_index=True,
     )
 
+    updated_at = models.DateTimeField(
+        _('Updated at'),
+        auto_now=True,
+        db_index=True,
+    )
+
     # a visible identification number (not djangos id)
     number = models.IntegerField(
         _('Number'),

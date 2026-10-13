@@ -2944,3 +2944,6 @@ msgstr ""
 msgid "Broadcast window"
 msgstr "Sendezeitfenster"
 
+
+msgid "Updated at"
+msgstr "Geändert am"

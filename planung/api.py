@@ -8,8 +8,14 @@ Endpoints served by OK Tools for an external playout adapter:
     POST /api/integrations/incoming/<connector_id> — incoming webhook receiver
 """
 
+from datetime import datetime
+from datetime import time
+from datetime import timedelta
 from django.apps import apps
+from django.db.models import Min
+from django.db.models import Q
 from django.utils.dateparse import parse_datetime
+from django.utils.timezone import get_current_timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
@@ -25,6 +31,8 @@ from planung.serializers import ScheduleItemSerializer
 from planung.serializers import _author_name
 from planung.serializers import _duration_seconds
 from planung.serializers import _sender_name
+from planung.services.playout_import_service import \
+    build_playout_schedule_payload
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -65,8 +73,8 @@ def _media_item(vf, license_obj) -> dict:
         raw_rating = getattr(license_obj, "youth_protection_category", "") or ""
         age_rating = _AGE_RATING_MAP.get(raw_rating, "")
     return {
-        "id": str(vf.number),
-        "filename": vf.filename,
+        "id": str(vf.number) if vf else "",
+        "filename": vf.filename if vf else None,
         "title": getattr(license_obj, "title", "") or "" if license_obj else "",
         "author": _author_name(license_obj) if license_obj else "",
         "description": getattr(license_obj, "description", "") or "" if license_obj else "",
@@ -77,15 +85,127 @@ def _media_item(vf, license_obj) -> dict:
     }
 
 
+MEDIA_PAGE_LIMIT_DEFAULT = 2000
+MEDIA_PAGE_LIMIT_MAX = 5000
+
+
+def _page_params(request) -> tuple[int, int]:
+    """Return validated ``page`` and ``limit`` query params."""
+    try:
+        page = int(request.query_params.get("page") or 1)
+        limit = int(request.query_params.get("limit") or MEDIA_PAGE_LIMIT_DEFAULT)
+    except ValueError:
+        raise ValidationError({"detail": _("page and limit must be integers.")})
+    if page < 1 or limit < 1:
+        raise ValidationError({"detail": _("page and limit must be positive.")})
+    return page, min(limit, MEDIA_PAGE_LIMIT_MAX)
+
+
+def _number_list(raw: str | None) -> list[int] | None:
+    """Parse a comma-separated list of license numbers, None when absent."""
+    if raw is None:
+        return None
+    numbers = []
+    for part in raw.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            numbers.append(int(part))
+        except ValueError:
+            raise ValidationError({"id": _("License numbers must be integers.")})
+    return numbers
+
+
+def _media_items_for_filenames(VideoFile, filenames: list[str]) -> list[dict]:
+    """Build one media item per filename, keeping the order of ``filenames``."""
+    if VideoFile is None or not filenames:
+        return []
+    video_files = list(
+        VideoFile.objects.filter(
+            is_available=True, is_preview=False, filename__in=filenames,
+        )
+        .select_related(
+            "license",
+            "license__profile__media_authority",
+            "license__category",
+        )
+        .order_by("number", "filename", "pk")
+    )
+
+    # Only one copy of a file carries the OneToOne license link; copies in
+    # other storages or versions share the number, so resolve by number.
+    licenses_by_number = {
+        lic.number: lic
+        for lic in License.objects.filter(
+            number__in={vf.number for vf in video_files}
+        ).select_related("profile__media_authority", "category")
+    }
+
+    items_by_filename = {}
+    for vf in video_files:
+        license_obj = vf.license or licenses_by_number.get(vf.number)
+        existing = items_by_filename.get(vf.filename)
+        if existing is not None and (existing[1] is not None or license_obj is None):
+            continue
+        items_by_filename[vf.filename] = (vf, license_obj)
+
+    return [
+        _media_item(*items_by_filename[filename])
+        for filename in filenames
+        if filename in items_by_filename
+    ]
+
+
+def _license_only_item(license_obj: License) -> dict:
+    """Build a media item for a license that has no file yet."""
+    item = _media_item(None, license_obj)
+    item["id"] = str(license_obj.number)
+    return item
+
+
+def _schedule_item(plan: TagesPlan, row: dict) -> dict:
+    """Map one schedule push row to a GET /api/v1/schedule item."""
+    position = row["position"]
+    start_time = row.get("start") or ""
+    duration_sec = int(row.get("duration_sec") or 0)
+    start_dt = _plan_datetime(plan.datum, start_time)
+    end_time = ""
+    if start_dt is not None:
+        end_time = (start_dt + timedelta(seconds=duration_sec)).strftime("%H:%M:%S")
+    return {
+        "id": f"plan-{plan.pk}-pos-{position}",
+        "position": position,
+        "date": plan.datum.isoformat(),
+        "start": start_dt.isoformat() if start_dt else plan.datum.isoformat(),
+        "start_time": start_time,
+        "end_time": end_time,
+        "duration_sec": duration_sec,
+        "kind": row.get("kind", ""),
+        "media_id": row.get("media_id"),
+        "title": row.get("title", "") or "",
+        "media_filename": row.get("filename") or None,
+        "live_source_name": row.get("live_source_name") or None,
+    }
+
+
 class MediaListView(APIView):
     """GET /api/v1/media — Return media metadata for playout pull.
 
     Query params:
-        updated_since  — ISO 8601 datetime, return only records modified after this
+        updated_since  — ISO 8601 datetime, return only records whose file or
+                         license was modified after this
         filename       — Comma-separated filenames, return only matching records
+        id             — Comma-separated license numbers, return only matching
+                         records; a license without a file comes back with
+                         ``filename: null``
+        page           — 1-based page number (default 1)
+        limit          — items per page (default 2000, max 5000)
 
     Response: {"items": [{id, filename, title, author, description, year,
-    category, age_rating, sender}, ...]} — one item per filename.
+    category, age_rating, sender}, ...], "total", "page", "limit", "next"}
+    — one item per filename, ordered by number and filename. ``next`` is the
+    URL of the following page or null on the last one.
     """
 
     authentication_classes = [PlayoutApiKeyAuthentication]
@@ -93,64 +213,104 @@ class MediaListView(APIView):
 
     def get(self, request):
         """Handle GET /api/v1/media."""
+        page, limit = _page_params(request)
         VideoFile = _get_video_file_model()
-        if VideoFile is None:
-            return Response({"items": []})
-
-        updated_since = request.query_params.get("updated_since")
-        filename_param = request.query_params.get("filename")
+        numbers = _number_list(request.query_params.get("id"))
 
         qs = (
-            VideoFile.objects
-            .filter(is_available=True, is_preview=False)
-            .select_related(
-                "license",
-                "license__profile__media_authority",
-                "license__category",
-            )
+            VideoFile.objects.filter(is_available=True, is_preview=False)
+            if VideoFile is not None else None
         )
 
+        updated_since = request.query_params.get("updated_since")
         if updated_since:
             dt = parse_datetime(updated_since)
             if dt is None:
                 raise ValidationError(
                     {"updated_since": _("Invalid ISO 8601 datetime format.")}
                 )
-            qs = qs.filter(updated_at__gte=dt)
+            if qs is not None:
+                # Metadata lives on the license, so an edited license counts
+                # as a change of all its files.
+                changed_numbers = License.objects.filter(
+                    updated_at__gte=dt,
+                ).values("number")
+                qs = qs.filter(
+                    Q(updated_at__gte=dt) | Q(number__in=changed_numbers)
+                )
 
-        if filename_param:
+        filename_param = request.query_params.get("filename")
+        if filename_param and qs is not None:
             sep = request.query_params.get("filename_sep", ",")
             filenames = [f.strip() for f in filename_param.split(sep) if f.strip()]
             if filenames:
                 qs = qs.filter(filename__in=filenames)
 
-        qs = qs.order_by("number", "filename", "pk")[:2000]
-        video_files = list(qs)
+        if numbers is not None and qs is not None:
+            qs = qs.filter(number__in=numbers)
 
-        # Only one copy of a file carries the OneToOne license link; copies in
-        # other storages or versions share the number, so resolve by number.
-        licenses_by_number = {
-            lic.number: lic
-            for lic in License.objects.filter(
-                number__in={vf.number for vf in video_files}
-            ).select_related("profile__media_authority", "category")
-        }
+        # Page over distinct filenames, not rows: copies of one file in other
+        # storages must not be split across pages.
+        filenames_page: list[str] = []
+        total_files = 0
+        if qs is not None:
+            keys = (
+                qs.values("filename")
+                .annotate(first_number=Min("number"))
+                .order_by("first_number", "filename")
+            )
+            total_files = keys.count()
+            offset = (page - 1) * limit
+            filenames_page = [
+                row["filename"] for row in keys[offset:offset + limit]
+            ]
 
-        items_by_filename = {}
-        for vf in video_files:
-            license_obj = vf.license or licenses_by_number.get(vf.number)
-            existing = items_by_filename.get(vf.filename)
-            if existing is not None and (existing[1] is not None or license_obj is None):
-                continue
-            items_by_filename[vf.filename] = (vf, license_obj)
+        items = _media_items_for_filenames(VideoFile, filenames_page)
 
-        items = [
-            _media_item(vf, license_obj)
-            for vf, license_obj in items_by_filename.values()
-        ]
+        # Licenses asked for by number that have no file at all.
+        missing_licenses: list[License] = []
+        if numbers:
+            with_files = set()
+            if VideoFile is not None:
+                with_files = set(
+                    VideoFile.objects.filter(
+                        number__in=numbers, is_available=True, is_preview=False,
+                    ).values_list("number", flat=True)
+                )
+            missing_licenses = list(
+                License.objects.filter(number__in=numbers)
+                .exclude(number__in=with_files)
+                .select_related("profile__media_authority", "category")
+                .order_by("number")
+            )
+
+        total = total_files + len(missing_licenses)
+        if page * limit >= total_files:
+            # License-only items follow the files, on the pages after them.
+            start = max(0, (page - 1) * limit - total_files)
+            room = limit - len(items)
+            items += [
+                _license_only_item(license_obj)
+                for license_obj in missing_licenses[start:start + room]
+            ]
+
+        next_url = None
+        if page * limit < total:
+            params = request.query_params.copy()
+            params["page"] = str(page + 1)
+            params["limit"] = str(limit)
+            next_url = request.build_absolute_uri(
+                f"{request.path}?{params.urlencode()}"
+            )
 
         serializer = MediaItemSerializer(items, many=True)
-        return Response({"items": serializer.data})
+        return Response({
+            "items": serializer.data,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "next": next_url,
+        })
 
 
 class ScheduleListView(APIView):
@@ -160,7 +320,11 @@ class ScheduleListView(APIView):
         from — ISO 8601 date/datetime, start of range (inclusive)
         to   — ISO 8601 date/datetime, end of range (inclusive)
 
-    Response: {"items": [{id, start, duration_sec, media_filename}, ...]}
+    Response: {"items": [{id, position, date, start, start_time, end_time,
+    duration_sec, kind, media_id, title, media_filename, live_source_name},
+    ...]}. Rows are built like the schedule push to the playout, so ``kind``
+    is ``video``, ``live`` or ``placeholder`` (Freistellung) and rows without
+    a file carry ``media_filename: null``.
     """
 
     authentication_classes = [PlayoutApiKeyAuthentication]
@@ -183,71 +347,22 @@ class ScheduleListView(APIView):
                 {"detail": _("Invalid ISO 8601 datetime format.")}
             )
 
-        date_from = dt_from.date() if hasattr(dt_from, "date") else dt_from
-        date_to = dt_to.date() if hasattr(dt_to, "date") else dt_to
-
         plans = TagesPlan.objects.filter(
-            datum__gte=date_from,
-            datum__lte=date_to,
+            datum__gte=dt_from.date(),
+            datum__lte=dt_to.date(),
         ).order_by("datum")
-
-        VideoFile = _get_video_file_model()
-        license_numbers = set()
-        for plan in plans:
-            for item in plan.json_plan.get("items", []):
-                number = item.get("number")
-                if number is not None:
-                    license_numbers.add(number)
-
-        licenses_by_number = {}
-        video_files_by_number = {}
-        if license_numbers:
-            licenses = License.objects.filter(
-                number__in=license_numbers
-            ).select_related("profile", "category")
-            licenses_by_number = {lic.number: lic for lic in licenses}
-
-            if VideoFile is not None:
-                vfs = VideoFile.objects.filter(
-                    number__in=license_numbers,
-                    is_available=True,
-                    is_preview=False,
-                ).select_related("storage_location")
-                for vf in vfs:
-                    existing = video_files_by_number.get(vf.number)
-                    if existing and existing.is_manual_primary:
-                        continue
-                    if not existing or vf.is_manual_primary:
-                        video_files_by_number[vf.number] = vf.filename
 
         items = []
         for plan in plans:
-            plan_items = plan.json_plan.get("items", [])
-            for position, plan_item in enumerate(plan_items, start=1):
-                number = plan_item.get("number")
-                start_time = plan_item.get("start", "")
-                duration_val = plan_item.get("duration", 0)
-
-                if isinstance(duration_val, (int, float)):
-                    duration_sec = int(duration_val)
-                else:
-                    duration_sec = 0
-
-                if number:
-                    event_id = f"plan-{plan.pk}-pos-{position}"
-                else:
-                    event_id = f"plan-{plan.pk}-pos-{position}"
-
-                start_iso = _build_start_iso(plan.datum, start_time)
-                media_filename = video_files_by_number.get(number, "") if number else ""
-
-                item = {
-                    "id": event_id,
-                    "start": start_iso,
-                    "duration_sec": duration_sec,
-                    "media_filename": media_filename,
-                }
-                items.append(item)
+            json_plan = plan.json_plan if isinstance(plan.json_plan, dict) else {}
+            plan_items = [
+                item for item in json_plan.get("items", []) if isinstance(item, dict)
+            ]
+            payload = build_playout_schedule_payload(
+                plan.datum, plan_items, draft=False, planned=True,
+            )
+            for row in payload["items"]:
+                items.append(_schedule_item(plan, row))
 
         serializer = ScheduleItemSerializer(items, many=True)
         return Response({"items": serializer.data})
@@ -361,25 +476,25 @@ class IncomingWebhookView(APIView):
         )
 
 
-def _build_start_iso(plan_date, start_time_str: str) -> str:
-    """Build an ISO 8601 datetime string from a plan date and start time.
+def _plan_datetime(plan_date, start_time_str: str) -> datetime | None:
+    """Return the plan row start as an aware datetime in the local time zone.
 
-    ``start_time_str`` may be ``HH:MM`` or ``HH:MM:SS`` or an empty string.
+    Plan times are local broadcast times; ``start_time_str`` may be
+    ``HH:MM`` or ``HH:MM:SS``. Returns None when it cannot be parsed.
     """
     if not start_time_str:
-        return plan_date.isoformat()
-
+        return None
     try:
         parts = start_time_str.split(":")
         hour = int(parts[0])
         minute = int(parts[1]) if len(parts) > 1 else 0
         second = int(parts[2]) if len(parts) > 2 else 0
-        from datetime import datetime
-        from datetime import timezone
-        dt = datetime(plan_date.year, plan_date.month, plan_date.day, hour, minute, second, tzinfo=timezone.utc)
-        return dt.isoformat()
+        naive = datetime.combine(plan_date, time(0)) + timedelta(
+            hours=hour, minutes=minute, seconds=second,
+        )
     except (ValueError, IndexError):
-        return plan_date.isoformat()
+        return None
+    return make_aware(naive, get_current_timezone())
 
 
 def _verify_hmac(body: bytes, secret: str, signature: str) -> bool:

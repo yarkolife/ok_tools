@@ -211,6 +211,23 @@ class TestMediaListView:
         assert len(data["items"]) == 0
 
     @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_updated_since_includes_edited_license(self, api_client, license_with_video):
+        """A license edit is a metadata change even when the file is untouched."""
+        from media_files.models import VideoFile
+
+        lic, vf = license_with_video
+        past = now() - timedelta(days=1)
+        VideoFile.objects.filter(pk=vf.pk).update(updated_at=past)
+        License.objects.filter(pk=lic.pk).update(updated_at=past)
+        since = (now() - timedelta(hours=1)).isoformat().replace("+00:00", "Z")
+        assert api_client.get(f"/api/v1/media?updated_since={since}").json()["items"] == []
+
+        lic.title = "Neuer Titel"
+        lic.save()
+        items = api_client.get(f"/api/v1/media?updated_since={since}").json()["items"]
+        assert [item["title"] for item in items] == ["Neuer Titel"]
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
     def test_filter_by_filename(self, api_client, license_with_video):
         lic, vf = license_with_video
         response = api_client.get(f"/api/v1/media?filename={vf.filename}")
@@ -227,6 +244,68 @@ class TestMediaListView:
         assert response.status_code == 200
         data = response.json()
         assert len(data["items"]) >= 1
+
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_pages_over_filenames(self, api_client, license_with_video):
+        from media_files.models import VideoFile
+
+        lic, vf = license_with_video
+        for index in range(2):
+            VideoFile.objects.create(
+                number=lic.number + 1 + index,
+                filename=f"extra_{index}.mp4",
+                storage_location=vf.storage_location,
+                file_path=f"extra_{index}.mp4",
+            )
+
+        first = api_client.get("/api/v1/media?limit=2").json()
+        assert first["total"] == 3
+        assert first["page"] == 1
+        assert [item["filename"] for item in first["items"]] == [
+            "test_show_ep01.mp4", "extra_0.mp4",
+        ]
+        assert first["next"].endswith("page=2")
+
+        second = api_client.get(first["next"]).json()
+        assert [item["filename"] for item in second["items"]] == ["extra_1.mp4"]
+        assert second["next"] is None
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_default_page_has_no_next(self, api_client, license_with_video):
+        data = api_client.get("/api/v1/media").json()
+        assert data["total"] == 1
+        assert data["limit"] == 2000
+        assert data["next"] is None
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_invalid_page_is_rejected(self, api_client, license_with_video):
+        assert api_client.get("/api/v1/media?page=0").status_code == 400
+        assert api_client.get("/api/v1/media?limit=x").status_code == 400
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_filter_by_id(self, api_client, license_with_video):
+        lic, vf = license_with_video
+        response = api_client.get(f"/api/v1/media?id={lic.number},999999")
+        assert response.status_code == 200
+        items = response.json()["items"]
+        assert len(items) == 1
+        assert items[0]["id"] == str(lic.number)
+        assert items[0]["filename"] == vf.filename
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_filter_by_id_license_without_file(self, api_client, license_with_video):
+        lic, vf = license_with_video
+        vf.delete()
+        items = api_client.get(f"/api/v1/media?id={lic.number}").json()["items"]
+        assert len(items) == 1
+        assert items[0]["id"] == str(lic.number)
+        assert items[0]["filename"] is None
+        assert items[0]["title"] == lic.title
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_filter_by_invalid_id(self, api_client, license_with_video):
+        assert api_client.get("/api/v1/media?id=abc").status_code == 400
 
 
 @pytest.mark.django_db
@@ -264,6 +343,84 @@ class TestScheduleListView:
         assert "start" in item
         assert "duration_sec" in item
         assert "media_filename" in item
+
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_schedule_row_matches_push_fields(self, api_client, day_plan, license_with_video):
+        lic, vf = license_with_video
+        item = api_client.get(
+            "/api/v1/schedule?from=2026-06-01&to=2026-06-01"
+        ).json()["items"][0]
+        assert item["id"] == f"plan-{day_plan.pk}-pos-1"
+        assert item["position"] == 1
+        assert item["date"] == "2026-06-01"
+        assert item["start"] == "2026-06-01T20:00:00+02:00"
+        assert item["start_time"] == "20:00:00"
+        assert item["end_time"] == "20:30:00"
+        assert item["kind"] == "video"
+        assert item["media_id"] == str(lic.number)
+        assert item["title"] == lic.title
+        assert item["media_filename"] == vf.filename
+        assert item["live_source_name"] is None
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_copies_in_two_storages_do_not_fail(self, api_client, day_plan, license_with_video):
+        """A number with several files used to crash the schedule with a 500."""
+        from media_files.models import StorageLocation
+        from media_files.models import VideoFile
+
+        lic, vf = license_with_video
+        archive = StorageLocation.objects.create(
+            name="Test Archive", storage_type="ARCHIVE", path="/mnt/archive/",
+        )
+        VideoFile.objects.create(
+            number=lic.number,
+            filename=vf.filename,
+            storage_location=archive,
+            file_path=vf.filename,
+        )
+        response = api_client.get("/api/v1/schedule?from=2026-06-01&to=2026-06-01")
+        assert response.status_code == 200
+        assert response.json()["items"][0]["media_filename"] == vf.filename
+
+    @override_settings(MEDIA_FILES_ENABLED=True)
+    def test_rows_without_file(self, api_client, license_with_video):
+        lic, vf = license_with_video
+        vf.delete()
+        live = License.objects.create(
+            profile=lic.profile,
+            category=default_category(),
+            title="Stadtrat live",
+            duration=timedelta(hours=1),
+            further_persons="",
+            is_live=True,
+            repetitions_allowed=False,
+            media_authority_exchange_allowed=False,
+            youth_protection_necessary=False,
+            store_in_ok_media_library=False,
+        )
+        TagesPlan.objects.create(
+            datum=date(2026, 10, 20),
+            json_plan={"items": [
+                {"number": lic.number, "start": "18:00", "duration": 600},
+                {"number": live.number, "start": "18:10", "duration": "01:00:00"},
+                {"start": "19:10", "duration": 60, "title": "Pause"},
+            ]},
+        )
+        response = api_client.get("/api/v1/schedule?from=2026-10-20&to=2026-10-20")
+        assert response.status_code == 200
+        placeholder, live_row, free_row = response.json()["items"]
+        assert placeholder["kind"] == "placeholder"
+        assert placeholder["media_id"] == str(lic.number)
+        assert placeholder["media_filename"] is None
+        assert live_row["kind"] == "live"
+        assert live_row["media_id"] == str(live.number)
+        assert live_row["live_source_name"] == "Stadtrat live"
+        assert live_row["duration_sec"] == 3600
+        assert live_row["end_time"] == "19:10:00"
+        assert free_row["kind"] == "placeholder"
+        assert free_row["media_id"] is None
+        assert free_row["title"] == "Pause"
 
 
 @pytest.mark.django_db

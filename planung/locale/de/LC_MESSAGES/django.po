@@ -1155,3 +1155,27 @@ msgstr ""
 "%(title)s (%(number)s) ist mit %(rating)s eingestuft und darf nur zwischen "
 "%(from)s und %(to)s gesendet werden. Geplant %(start)s-%(end)s."
 
+
+msgid "Comma-separated license numbers. A license without a file is returned with filename null."
+msgstr "Kommagetrennte Lizenznummern. Eine Lizenz ohne Datei wird mit filename null geliefert."
+
+msgid "Page number, starting at 1. Follow next until it is null."
+msgstr "Seitennummer ab 1. next folgen, bis es null ist."
+
+msgid "Items per page, default 2000, maximum 5000"
+msgstr "Einträge pro Seite, Standard 2000, höchstens 5000"
+
+msgid "The id field is the license number as a string. Use updated_since for incremental sync, filename or id for backfill. Results are paged: follow next until it is null."
+msgstr "Das Feld id ist die Lizenznummer als Zeichenkette. updated_since dient dem inkrementellen Abgleich, filename oder id dem Nachladen. Die Ergebnisse sind seitenweise: next folgen, bis es null ist."
+
+msgid "Dates must be in ISO 8601 format. The id field follows the pattern plan-{pk}-pos-{position}. Times are local broadcast times; start carries the UTC offset. kind is video, live or placeholder (Freistellung); rows without a file have media_filename null."
+msgstr "Datumsangaben im Format ISO 8601. Das Feld id folgt dem Muster plan-{pk}-pos-{position}. Zeiten sind lokale Sendezeiten; start enthält den UTC-Versatz. kind ist video, live oder placeholder (Freistellung); Zeilen ohne Datei haben media_filename null."
+
+msgid "page and limit must be integers."
+msgstr "page und limit müssen ganze Zahlen sein."
+
+msgid "page and limit must be positive."
+msgstr "page und limit müssen positiv sein."
+
+msgid "License numbers must be integers."
+msgstr "Lizenznummern müssen ganze Zahlen sein."

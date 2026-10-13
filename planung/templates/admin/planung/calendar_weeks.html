@@ -122,8 +122,8 @@
       required: "{% trans 'Required' %}",
       optional: "{% trans 'Optional' %}",
       note: "{% trans 'Note:' %}",
-      noteMedia: "{% trans 'The id field is the license number as a string. Use updated_since for incremental sync or filename for backfill.' %}",
-      noteSchedule: "{% trans 'Dates must be in ISO 8601 format. The id field follows the pattern plan-{pk}-pos-{position}.' %}",
+      noteMedia: "{% trans 'The id field is the license number as a string. Use updated_since for incremental sync, filename or id for backfill. Results are paged: follow next until it is null.' %}",
+      noteSchedule: "{% trans 'Dates must be in ISO 8601 format. The id field follows the pattern plan-{pk}-pos-{position}. Times are local broadcast times; start carries the UTC offset. kind is video, live or placeholder (Freistellung); rows without a file have media_filename null.' %}",
       noteAirReport: "{% trans 'Each report confirms a media item was actually broadcast. The external_id identifies the report in the playout system.' %}",
       noteWebhook: "{% trans 'The connector_id in the URL identifies the source system. If HMAC is configured, include the X-Signature-256 header.' %}",
       getMedia: "{% trans 'Get all media' %}",
@@ -214,6 +214,24 @@
                   <td>{% trans 'Comma-separated filenames for specific file lookup' %}</td>
                   <td><code>video1.mp4,video2.mp4</code></td>
                 </tr>
+                <tr>
+                  <td><code>id</code></td>
+                  <td>string (${playoutI18n.optional})</td>
+                  <td>{% trans 'Comma-separated license numbers. A license without a file is returned with filename null.' %}</td>
+                  <td><code>18951,18626</code></td>
+                </tr>
+                <tr>
+                  <td><code>page</code></td>
+                  <td>integer (${playoutI18n.optional})</td>
+                  <td>{% trans 'Page number, starting at 1. Follow next until it is null.' %}</td>
+                  <td><code>2</code></td>
+                </tr>
+                <tr>
+                  <td><code>limit</code></td>
+                  <td>integer (${playoutI18n.optional})</td>
+                  <td>{% trans 'Items per page, default 2000, maximum 5000' %}</td>
+                  <td><code>500</code></td>
+                </tr>
               </tbody>
             </table>
 
@@ -241,9 +259,17 @@
       "filename": "sardinien_2022.mp4",
       "title": "Sardinien 2022",
       "author": "Jochen Spie\u00df",
-      "description": "Eine Reise durch Nordsardinien"
+      "description": "Eine Reise durch Nordsardinien",
+      "year": 2022,
+      "category": "Reise",
+      "age_rating": "",
+      "sender": "OK Merseburg"
     }
-  ]
+  ],
+  "total": 3120,
+  "page": 1,
+  "limit": 2000,
+  "next": "https://portal.example/api/v1/media?page=2&amp;limit=2000"
 }</code></pre>
             <button class="copy-btn" onclick="copyPlayoutToClipboard(playoutMediaResponseExample, playoutI18n.copyResponseCopied)">${playoutI18n.copy}</button>
 
@@ -294,13 +320,18 @@
             <pre><code>{
   "items": [
     {
-      "id": "plan-42-pos-0",
+      "id": "plan-42-pos-1",
+      "position": 1,
       "date": "2025-06-09",
+      "start": "2025-06-09T18:00:00+02:00",
       "start_time": "18:00:00",
       "end_time": "18:28:53",
-      "media_filename": "sardinien_2022.mp4",
+      "duration_sec": 1733,
+      "kind": "video",
+      "media_id": "14755",
       "title": "Sardinien 2022",
-      "duration_seconds": 1733
+      "media_filename": "sardinien_2022.mp4",
+      "live_source_name": null
     }
   ]
 }</code></pre>
@@ -402,10 +433,11 @@
 
     // Response/curl examples for copy buttons
     const playoutMediaResponseExample = JSON.stringify({
-      "items": [{"id": "14755", "filename": "sardinien_2022.mp4", "title": "Sardinien 2022", "author": "Jochen Spie\u00df", "description": "Eine Reise durch Nordsardinien"}]
+      "items": [{"id": "14755", "filename": "sardinien_2022.mp4", "title": "Sardinien 2022", "author": "Jochen Spie\u00df", "description": "Eine Reise durch Nordsardinien", "year": 2022, "category": "Reise", "age_rating": "", "sender": "OK Merseburg"}],
+      "total": 3120, "page": 1, "limit": 2000, "next": "https://portal.example/api/v1/media?page=2&limit=2000"
     }, null, 2);
     const playoutScheduleResponseExample = JSON.stringify({
-      "items": [{"id": "plan-42-pos-0", "date": "2025-06-09", "start_time": "18:00:00", "end_time": "18:28:53", "media_filename": "sardinien_2022.mp4", "title": "Sardinien 2022", "duration_seconds": 1733}]
+      "items": [{"id": "plan-42-pos-1", "position": 1, "date": "2025-06-09", "start": "2025-06-09T18:00:00+02:00", "start_time": "18:00:00", "end_time": "18:28:53", "duration_sec": 1733, "kind": "video", "media_id": "14755", "title": "Sardinien 2022", "media_filename": "sardinien_2022.mp4", "live_source_name": null}]
     }, null, 2);
     const playoutAirReportsCurlExample = `curl -X POST -H "X-API-Key: YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
