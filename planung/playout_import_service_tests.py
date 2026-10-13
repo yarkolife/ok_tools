@@ -252,6 +252,7 @@ def test__playout_schedule__builds_live_item_with_metadata(license):
     assert item["start"] == "05:00:00"
     assert item["duration_sec"] == 3600
     assert item["kind"] == "live"
+    assert item["media_id"] == str(license.number)
     assert item["is_live"] is True
     assert item["live_source_name"] == "Direkt Stadtrat"
     assert item["title"] == "Direkt Stadtrat"
@@ -298,7 +299,35 @@ def test__playout_schedule__builds_license_without_video_as_placeholder(license)
     assert item["category"] == str(license.category.name)
     assert item["youth_protection"] == "12"
     assert item["placeholder_filename"] == "news_1900.mp4"
+    assert item["media_id"] == str(license.number)
     assert "filename" not in item
+
+
+@pytest.mark.django_db
+def test__playout_schedule__unknown_number_keeps_media_id():
+    """Rows whose number has no license still carry the number as media_id."""
+    payload = playout_import_service.build_playout_schedule_payload(
+        plan_date=date(2026, 10, 20),
+        plan_items=[{"number": 987654, "start": "20:00", "duration": 600, "title": "X"}],
+        draft=False,
+        planned=True,
+    )
+
+    item = payload["items"][0]
+    assert item["kind"] == "placeholder"
+    assert item["media_id"] == "987654"
+
+
+@pytest.mark.django_db
+def test__playout_import__items_carry_media_id(license):
+    """Metadata items carry the license number as media_id."""
+    from types import SimpleNamespace
+
+    video_file = SimpleNamespace(filename="clip.mp4", duration=None)
+    item = playout_import_service._build_item(license, video_file)
+
+    assert item is not None
+    assert item["media_id"] == str(license.number)
 
 
 @pytest.mark.django_db

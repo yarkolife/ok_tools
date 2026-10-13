@@ -121,6 +121,7 @@ def _build_item(license_obj: License, video_file: Any) -> dict[str, Any] | None:
     category = getattr(license_obj, "category", None)
 
     item: dict[str, Any] = {
+        "media_id": str(license_obj.number),
         "filename": filename,
         "title": getattr(license_obj, "title", "") or "",
         "description": getattr(license_obj, "description", "") or "",
@@ -437,6 +438,8 @@ def build_playout_schedule_payload(
                 "title": plan_item.get("title", ""),
                 "youth_protection": "0+",
             }
+            if number:
+                item["media_id"] = str(number)
             filename = _placeholder_filename(plan_item)
             if filename:
                 item["placeholder_filename"] = filename
@@ -450,6 +453,7 @@ def build_playout_schedule_payload(
             "start": _start_time(plan_item.get("start", "")),
             "duration_sec": _duration_sec(plan_item.get("duration", 0)),
             "kind": kind,
+            "media_id": str(license_obj.number),
             "title": getattr(license_obj, "title", "") or "",
             "youth_protection": _youth_protection_label(license_obj),
         }

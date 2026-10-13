@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-10-13 (Version 4.58.0)
+==========================
+
+* **planung: Ondea receives the license number with every programme**
+  * Both pushes from the calendar-weeks page ("Send media metadata" and "Send schedule") carry ``media_id`` — the license number as a string, the same value as ``id`` in ``GET /api/v1/media``.
+  * In ``POST /api/schedule/import/oktools`` every row has it: with a file (``video``), without a file (``placeholder``) and live. A row whose number has no license still sends that number.
+
 2026-10-02 (Version 4.57.0)
 ==========================
 
