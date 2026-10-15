@@ -143,6 +143,10 @@ msgstr "Bildschirm-Board"
 msgid "Creation year"
 msgstr "Erstellungsjahr"
 
+#: licenses/admin.py
+msgid "Author age"
+msgstr "Alter des Autors"
+
 #: licenses/admin.py:443
 msgid "This year"
 msgstr "Dieses Jahr"

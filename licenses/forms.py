@@ -243,6 +243,36 @@ class RangeNumericForm(forms.Form):
         )
 
 
+class RangeIntegerForm(forms.Form):
+    """A form for a non-negative integer range filter."""
+
+    name = None
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the form."""
+        self.name = kwargs.pop('name')
+        super().__init__(*args, **kwargs)
+
+        self.fields[self.name + '_from'] = forms.IntegerField(
+            label='',
+            min_value=0,
+            required=False,
+            widget=forms.NumberInput(attrs={
+                'min': 0,
+                'placeholder': _('From'),
+            }),
+        )
+        self.fields[self.name + '_to'] = forms.IntegerField(
+            label='',
+            min_value=0,
+            required=False,
+            widget=forms.NumberInput(attrs={
+                'min': 0,
+                'placeholder': _('To'),
+            }),
+        )
+
+
 class ImportJSONForm(forms.Form):
     """Form for importing License from JSON file."""
 

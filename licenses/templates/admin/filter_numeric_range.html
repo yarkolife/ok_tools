@@ -81,7 +81,7 @@
 
         <div class="controls">
             <input type="submit" class="button" value="{% translate 'Search' %}">
-            <a title="{% translate 'Reset' %}" class="button" href="?">{% translate 'Reset' %}</a>
+            <a title="{% translate 'Reset' %}" class="button" href="{{ choice.query_string }}">{% translate 'Reset' %}</a>
         </div>
 </form>
 </div>

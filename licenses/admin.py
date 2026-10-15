@@ -1,5 +1,6 @@
 from . import reel_prefill
 from .forms import ImportJSONForm
+from .forms import RangeIntegerForm
 from .forms import RangeNumericForm
 from .generate_file import generate_license_file
 from .models import Category
@@ -26,6 +27,7 @@ from import_export.admin import ExportMixin
 from import_export.fields import Field
 from import_export.forms import ExportForm
 from ok_tools.datetime import TZ
+from rangefilter.filters import DateRangeFilter
 from rangefilter.filters import DateTimeRangeFilter
 from registration.models import MediaAuthority
 from registration.models import Profile
@@ -74,6 +76,18 @@ class TranslatedDateTimeRangeFilter(DateTimeRangeFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         super().__init__(field, request, params, model, model_admin, field_path)
         self.title = "Erstellt am"
+
+
+class CompatibleDateRangeFilter(DateRangeFilter):
+    """DateRangeFilter compatible with list-valued Django 6 parameters."""
+
+    def get_form(self, _request):
+        """Normalize query parameter lists before binding the range form."""
+        form_data = {
+            key: value[0] if isinstance(value, list) and value else value
+            for key, value in self.used_parameters.items()
+        }
+        return self._get_form_class()(form_data or None)
 
 
 from austausch.services.metadata_normalizer import normalize_exchange_metadata
@@ -728,7 +742,116 @@ class DurationRangeFilter(admin.FieldListFilter):
         return ({
             'request': self.request,
             'parameter_name': self.parameter_name,
+            'query_string': changelist.get_query_string(
+                {},
+                remove=self.expected_parameters(),
+            ),
             'form': RangeNumericForm(name=self.parameter_name, data={
+                self.parameter_name + '_from': from_value,
+                self.parameter_name + '_to': to_value,
+            }),
+        }, )
+
+
+class AuthorAgeRangeFilter(admin.FieldListFilter):
+    """Filter licenses by the current age of their author."""
+
+    parameter_name = 'profile_age'
+    template = 'admin/filter_numeric_range.html'
+
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        super().__init__(
+            field,
+            request,
+            params,
+            model,
+            model_admin,
+            field_path,
+        )
+        self.title = _('Author age')
+
+    @staticmethod
+    def _age_value(value):
+        """Return a valid non-negative age or None."""
+        if isinstance(value, list):
+            value = value[0] if value else None
+
+        if value in (None, ''):
+            return None
+
+        try:
+            age = int(value)
+        except (TypeError, ValueError):
+            return None
+
+        return age if age >= 0 else None
+
+    @staticmethod
+    def _years_ago(today, years):
+        """Return the calendar date ``years`` before today."""
+        try:
+            return today.replace(year=today.year - years)
+        except ValueError:
+            # February 29 does not exist in non-leap target years.
+            return today.replace(month=2, day=28, year=today.year - years)
+
+    def queryset(self, request, queryset):
+        """Apply inclusive minimum and maximum age boundaries."""
+        age_from = self._age_value(
+            self.used_parameters.get(self.parameter_name + '_from')
+        )
+        age_to = self._age_value(
+            self.used_parameters.get(self.parameter_name + '_to')
+        )
+        today = timezone.localdate()
+
+        if age_from is not None:
+            latest_birthday_for_minimum_age = self._years_ago(
+                today,
+                age_from,
+            )
+            queryset = queryset.filter(
+                profile__birthday__lte=latest_birthday_for_minimum_age
+            )
+
+        if age_to is not None:
+            birthday_cutoff_for_maximum_age = self._years_ago(
+                today,
+                age_to + 1,
+            )
+            queryset = queryset.filter(
+                profile__birthday__gt=birthday_cutoff_for_maximum_age
+            )
+
+        return queryset
+
+    def expected_parameters(self):
+        """Return the supported query string parameters."""
+        return [
+            self.parameter_name + '_from',
+            self.parameter_name + '_to',
+        ]
+
+    def choices(self, changelist):
+        """Return the range form and a reset URL preserving other filters."""
+        from_value = self.used_parameters.get(
+            self.parameter_name + '_from'
+        )
+        to_value = self.used_parameters.get(self.parameter_name + '_to')
+
+        if isinstance(from_value, list):
+            from_value = from_value[0] if from_value else None
+        if isinstance(to_value, list):
+            to_value = to_value[0] if to_value else None
+
+        return ({
+            'request': self.request,
+            'parameter_name': self.parameter_name,
+            'query_string': changelist.get_query_string(
+                {},
+                remove=self.expected_parameters(),
+            ),
+            'form': RangeIntegerForm(name=self.parameter_name, data={
                 self.parameter_name + '_from': from_value,
                 self.parameter_name + '_to': to_value,
             }),
@@ -1263,8 +1386,9 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     list_filter = [
         AutocompleteFilterFactory(_('Profile'), 'profile'),
-        'created_at',
+        ('created_at', CompatibleDateRangeFilter),
         YearFilter,
+        ('profile__birthday', AuthorAgeRangeFilter),
         ('duration', DurationRangeFilter),
         AutocompleteFilterFactory(
             _('Media Authority'), 'profile__media_authority'),
@@ -1531,12 +1655,12 @@ class LicenseAdmin(ExportMixin, admin.ModelAdmin):
 
     def cover_image_view(self, request, number, kind, idx):
         """Stream a candidate/frame image from disk (works outside MEDIA_ROOT)."""
-        import os
-
-        from django.http import FileResponse, Http404
-
+        from django.http import FileResponse
+        from django.http import Http404
         from media_files.covers.config import get_cover_config
-        from media_files.covers.storage import candidates_dir, frames_dir
+        from media_files.covers.storage import candidates_dir
+        from media_files.covers.storage import frames_dir
+        import os
 
         if not self._cover_enabled():
             raise Http404
@@ -2629,4 +2753,3 @@ class YouthProtectionWindowAdmin(admin.ModelAdmin):
             if value != YouthProtectionCategory.NONE
         }
         return bool(available - configured)
-

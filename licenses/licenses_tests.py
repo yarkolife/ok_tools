@@ -1,14 +1,17 @@
 from .admin import LicenseAdmin
 from .admin import WithoutContributionFilter
 from .admin import YearFilter
-from .tasks import send_license_notification_email
 from .models import License
 from .models import YouthProtectionCategory
 from .models import default_category
+from .tasks import send_license_notification_email
 from contributions.models import Contribution
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.urls import reverse_lazy
+from django.utils import timezone
+from django.utils import translation
 from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
@@ -23,9 +26,6 @@ from registration.models import Profile
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from unittest.mock import patch
-from django.test import override_settings
-from django.utils import timezone
-from django.utils import translation
 from urllib.error import HTTPError
 import datetime
 import pytest
@@ -813,6 +813,84 @@ def test__licenses__admin__DurationRangeFilter__1(
     assert license3.title not in browser.contents
 
 
+def test__licenses__admin__DateRangeFilter(browser, license_dict, user):
+    """Filter licenses by an inclusive creation date range."""
+    license_dict['title'] = 'license_before_date_range'
+    license_before = create_license(user.profile, license_dict)
+    License.objects.filter(pk=license_before.pk).update(
+        created_at=datetime.datetime(2024, 12, 31, 23, 59, tzinfo=TZ)
+    )
+
+    license_dict['title'] = 'license_inside_date_range'
+    license_inside = create_license(user.profile, license_dict)
+    License.objects.filter(pk=license_inside.pk).update(
+        created_at=datetime.datetime(2025, 6, 15, 12, 0, tzinfo=TZ)
+    )
+
+    license_dict['title'] = 'license_after_date_range'
+    license_after = create_license(user.profile, license_dict)
+    License.objects.filter(pk=license_after.pk).update(
+        created_at=datetime.datetime(2026, 1, 1, 0, 0, tzinfo=TZ)
+    )
+
+    browser.login_admin()
+    browser.open(
+        f'{A_LICENSE_URL}?created_at__range__gte=2025-01-01'
+        '&created_at__range__lte=2025-12-31'
+    )
+
+    assert license_before.title not in browser.contents
+    assert license_inside.title in browser.contents
+    assert license_after.title not in browser.contents
+
+
+def test__licenses__admin__AuthorAgeRangeFilter(
+        browser, license_dict, user_dict):
+    """Filter licenses by inclusive current author age boundaries."""
+    def _create_license_for_author(email, birthday, title):
+        author_data = user_dict.copy()
+        author_data['email'] = email
+        author_data['birthday'] = birthday
+        author = create_user(author_data)
+        license_dict['title'] = title
+        return create_license(author.profile, license_dict)
+
+    age_17 = _create_license_for_author(
+        'age17@example.com',
+        '15.10.2009',
+        'license_author_age_17',
+    )
+    age_18 = _create_license_for_author(
+        'age18@example.com',
+        '15.10.2008',
+        'license_author_age_18',
+    )
+    age_30 = _create_license_for_author(
+        'age30@example.com',
+        '16.10.1995',
+        'license_author_age_30',
+    )
+    age_31 = _create_license_for_author(
+        'age31@example.com',
+        '15.10.1995',
+        'license_author_age_31',
+    )
+
+    browser.login_admin()
+    with patch(
+        'licenses.admin.timezone.localdate',
+        return_value=datetime.date(2026, 10, 15),
+    ):
+        browser.open(
+            f'{A_LICENSE_URL}?profile_age_from=18&profile_age_to=30'
+        )
+
+    assert age_17.title not in browser.contents
+    assert age_18.title in browser.contents
+    assert age_30.title in browser.contents
+    assert age_31.title not in browser.contents
+
+
 # API Tests
 
 
@@ -1051,7 +1129,7 @@ def test__licenses__api__LicenseMetadataView__planung_time_extraction(
     """API endpoint extracts correct time from planung TagesPlan."""
     from datetime import date
     from planung.models import TagesPlan
-    
+
     # Create a TagesPlan with specific time
     plan_date = date(2025, 9, 27)
     plan_data = {

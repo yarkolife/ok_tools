@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.59.0
-**Last Updated**: 13 October 2026
+**Current Version**: 4.60.0
+**Last Updated**: 15 October 2026
 
 Features
 ========
@@ -22,6 +22,7 @@ Features
 
 - **License Management** - Manage broadcasting licenses with tags and metadata export
   - License creation and confirmation workflow
+  - Admin filtering by inclusive license creation-date and current-author-age ranges
   - Multi-method digital signatures (draw on page or sign via phone QR)
   - Signature payload v2 support (SVG, biometric points, metadata)
   - Nextcloud video file integration

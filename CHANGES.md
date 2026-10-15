@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-10-15 (Version 4.60.0)
+==========================
+
+* **licenses: Filter licenses by creation date and author age**
+  * The license admin supports inclusive creation-date and current-author-age ranges that can be combined with the existing filters.
+  * Range reset links preserve the other active filters, and the new author-age label is translated into German.
+
 2026-10-13 (Version 4.59.0)
 ==========================
 
