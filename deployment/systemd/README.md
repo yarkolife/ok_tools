@@ -5,14 +5,23 @@ boot **and only after** its NAS / custom bind-mount host paths are mounted.
 
 Why this matters: if Docker starts the containers before `/mnt/nas` (or another
 NAS/export path) is mounted, Docker creates an empty directory at the mount
-point and the app silently reads/writes the wrong location. `RequiresMountsFor=`
-makes systemd wait for those mounts (and pull in automount units) first.
+point and the app silently reads/writes the wrong location. An
+`ExecStartPre=` helper waits for those mounts first (accessing the path also
+triggers systemd automounts).
+
+`RequiresMountsFor=` is deliberately not used: if the NAS is not reachable yet
+at boot, the mount fails once, systemd skips the unit and never retries, and
+the site stays down until someone starts it by hand. With the helper the unit
+waits up to 5 minutes, then fails and `Restart=on-failure` (every 30s, no start
+limit) tries again until the mounts appear.
 
 ## Files
 
 - `ok-tools.service` — unit template. `__PRODUCTION_DIR__` and `__DOCKER_BIN__`
   are substituted at install time. `Type=oneshot` + `RemainAfterExit=yes` wraps
   `docker compose up -d` / `down`.
+- `ok-tools-wait-mounts.sh` — waits until each given path is on a real mount;
+  installed root-owned to `/usr/local/lib/ok-tools/`.
 - `../scripts/install-systemd.sh` — renders the unit into
   `/etc/systemd/system/ok-tools.service`, generates the mount dependency drop-in
   from `.env`, then `daemon-reload` + `enable`.
@@ -38,8 +47,8 @@ and writes them into
 `/etc/systemd/system/ok-tools.service.d/10-mounts.conf` as:
 
 ```ini
-[Unit]
-RequiresMountsFor=/mnt/nas /mnt/austausch_export
+[Service]
+ExecStartPre=/usr/local/lib/ok-tools/ok-tools-wait-mounts.sh /mnt/nas /mnt/austausch_export
 ```
 
 If a required path is not modelled in `.env` (e.g. an austausch export target),
@@ -61,7 +70,7 @@ Re-run the script after changing mount paths in `.env`.
 
 ```bash
 systemctl status ok-tools
-systemctl show ok-tools -p RequiresMountsFor -p After   # confirm deps
+systemctl cat ok-tools                                  # confirm drop-in
 sudo systemctl start ok-tools
 sudo systemctl stop ok-tools
 ```

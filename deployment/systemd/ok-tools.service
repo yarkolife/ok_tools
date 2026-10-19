@@ -3,22 +3,25 @@ Description=OK Tools production stack (Docker Compose)
 Documentation=https://github.com/OKMQ/ok_tools
 # The stack needs the Docker daemon and the network to be up first.
 Requires=docker.service
-After=docker.service network-online.target
+After=docker.service network-online.target remote-fs.target
 Wants=network-online.target
+# Keep retrying forever: a production stack must not give up after a few
+# failed starts (e.g. NAS still booting after a power outage).
+StartLimitIntervalSec=0
 #
 # Host bind-mount paths (NAS / custom mounts declared in .env) must be mounted
 # BEFORE the containers start, otherwise Docker creates empty local dirs on top
 # of the mount point and the app writes into the wrong place.
 #
-# The concrete dependency line is NOT hard-coded here, because the paths are
-# host-specific. install-systemd.sh generates it from .env into the drop-in
+# This is NOT done with RequiresMountsFor=: if the mount fails once at boot
+# (NAS not reachable yet), systemd skips the unit and never retries, so the
+# site stays down until someone starts it by hand. Instead install-systemd.sh
+# generates the drop-in
 #   /etc/systemd/system/ok-tools.service.d/10-mounts.conf
-# as, for example:
-#   [Unit]
-#   RequiresMountsFor=/mnt/nas /mnt/austausch_export
-#
-# RequiresMountsFor= is preferred over listing *.mount units by hand: systemd
-# resolves the needed mount (and automount) units itself and waits for them.
+# with an ExecStartPre= that waits for the host-specific paths, for example:
+#   [Service]
+#   ExecStartPre=/usr/local/lib/ok-tools/ok-tools-wait-mounts.sh /mnt/nas
+# If the wait times out the unit fails and Restart=on-failure tries again.
 
 [Service]
 Type=oneshot
@@ -31,6 +34,8 @@ ExecStop=__DOCKER_BIN__ compose down
 ExecReload=__DOCKER_BIN__ compose up -d --remove-orphans
 # Image pulls / builds on first boot can take a while.
 TimeoutStartSec=0
+Restart=on-failure
+RestartSec=30s
 
 [Install]
 WantedBy=multi-user.target

@@ -1189,7 +1189,7 @@ chmod +x "$PRODUCTION_DIR"/*.sh 2>/dev/null
 print_success "Management scripts created"
 
 # Optional: install systemd unit so the stack auto-starts on boot, after its
-# NAS/custom bind-mount host paths are mounted (RequiresMountsFor from .env).
+# NAS/custom bind-mount host paths are mounted (ExecStartPre wait helper, paths from .env).
 if [ -t 0 ]; then
     echo ""
     read -r -p "Install systemd unit to auto-start the stack on boot? [y/N] " INSTALL_SYSTEMD
