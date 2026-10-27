@@ -1030,6 +1030,44 @@ class RentalService:
             }
     
     @staticmethod
+    def reopen_rental(rental_id):
+        """
+        Reopen a cancelled rental as a draft.
+
+        Only rentals cancelled before anything was issued can be reopened;
+        the draft can then be edited and confirmed again, which re-runs the
+        normal reservation flow.
+
+        Args:
+            rental_id: ID of the rental request to reopen
+
+        Returns:
+            dict: Result with success status and message
+        """
+        from django.shortcuts import get_object_or_404
+        from django.utils.translation import gettext as _
+
+        rental_request = get_object_or_404(RentalRequest, id=rental_id)
+
+        if rental_request.status != 'cancelled':
+            return {
+                'success': False,
+                'error': _('Only cancelled rentals can be reopened'),
+            }
+
+        if rental_request.items.filter(quantity_issued__gt=0).exists():
+            return {
+                'success': False,
+                'error': _('Rentals with issued items cannot be reopened'),
+            }
+
+        rental_request.status = 'draft'
+        rental_request.actual_end_date = None
+        rental_request.save(update_fields=['status', 'actual_end_date'])
+
+        return {'success': True, 'status': rental_request.status}
+
+    @staticmethod
     def return_items(items_data, user):
         """
         Return selected items (creates RentalTransaction 'return').

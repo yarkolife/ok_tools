@@ -260,7 +260,14 @@ def serialize_rental(rental):
         'status': effective_status,
         'from_at': rental.requested_start_date.isoformat() if rental.requested_start_date else None,
         'to_at': rental.requested_end_date.isoformat() if rental.requested_end_date else None,
-        'to_iso': rental.requested_end_date.strftime('%Y-%m-%dT%H:%M') if rental.requested_end_date else '',
+        'from_iso': (
+            timezone.localtime(rental.requested_start_date).strftime('%Y-%m-%dT%H:%M')
+            if rental.requested_start_date else ''
+        ),
+        'to_iso': (
+            timezone.localtime(rental.requested_end_date).strftime('%Y-%m-%dT%H:%M')
+            if rental.requested_end_date else ''
+        ),
         'overdue_days': overdue_days,
         'user': serialize_user(rental.user),
         'issued_by': _user_display_name(rental.created_by) if rental.created_by else None,
@@ -545,6 +552,7 @@ def _i18n_bundle():
         'sig.draw_empty': _('Please draw a signature first.'),
         'confirm.mark_issued': _('Mark this rental as issued?'),
         'confirm.cancel': _('Cancel this rental?'),
+        'confirm.reopen': _('Reopen this rental as a draft?'),
         'confirm.close': _('Close this rental?'),
         'confirm.remove': _('Remove this item from the rental?'),
         'confirm.draft': _('Confirm this rental? It will become reserved.'),
@@ -571,6 +579,7 @@ def _i18n_bundle():
         'btn.cancel_rental': _('Cancel rental'),
         'btn.close_rental': _('Close rental'),
         'btn.confirm': _('Confirm'),
+        'btn.reopen': _('Reopen'),
         'btn.send_reminder': _('Send reminder'),
         'btn.add_item': _('Add item'),
         'btn.remove': _('Remove from rental'),
@@ -638,6 +647,7 @@ def _i18n_bundle():
         'err.update_room': _('Could not update room'),
         'err.remove_room': _('Could not remove room'),
         'err.add_room': _('Could not add room'),
+        'err.load_rooms': _('Could not load rooms: '),
         'user.past_rentals': _('past rentals'),
         'wiz.items_rooms': _('Items & rooms'),
         'wiz.return': _('Return'),
@@ -1942,6 +1952,13 @@ def api_get_rooms(request):
             except:
                 pass
 
+        # The add-room modal sends local wall-clock values without an offset;
+        # comparing those naive datetimes against timezone.now() raises.
+        if start_date and timezone.is_naive(start_date):
+            start_date = timezone.make_aware(start_date)
+        if end_date and timezone.is_naive(end_date):
+            end_date = timezone.make_aware(end_date)
+
         rooms = Room.objects.filter(is_active=True)
 
         result = []
@@ -2510,6 +2527,7 @@ class RentalDetailView(StaffRequiredMixin, TemplateView):
             'extend': reverse('rental:extend', args=[rental.pk]),
             'mark_issued': reverse('rental:mark_issued', args=[rental.pk]),
             'cancel': reverse('rental:cancel', args=[rental.pk]),
+            'reopen': reverse('rental:reopen', args=[rental.pk]),
             'close': reverse('rental:close', args=[rental.pk]),
             'send_reminder': reverse('rental:send_reminder', args=[rental.pk]),
             'report_issue': reverse('rental:report_issue', args=[rental.pk]),
@@ -2746,6 +2764,17 @@ def cancel_rental(request, rental_id):
     if result.get('success'):
         return JsonResponse({'ok': True, **result})
     return JsonResponse({'error': result.get('error', _('Could not cancel rental'))}, status=400)
+
+
+@login_required
+@staff_member_required
+def reopen_rental(request, rental_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': _('Method not allowed')}, status=405)
+    result = RentalService.reopen_rental(rental_id)
+    if result.get('success'):
+        return JsonResponse({'ok': True, **result})
+    return JsonResponse({'error': result.get('error', _('Could not reopen rental'))}, status=400)
 
 
 @login_required
@@ -5808,6 +5837,13 @@ def api_get_rooms_user(request):
                         end_date = timezone.make_aware(timezone.datetime.combine(date_only, timezone.datetime.max.time()))
             except:
                 pass
+
+        # The add-room modal sends local wall-clock values without an offset;
+        # comparing those naive datetimes against timezone.now() raises.
+        if start_date and timezone.is_naive(start_date):
+            start_date = timezone.make_aware(start_date)
+        if end_date and timezone.is_naive(end_date):
+            end_date = timezone.make_aware(end_date)
 
         rooms = Room.objects.filter(is_active=True)
 

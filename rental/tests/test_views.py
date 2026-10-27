@@ -489,3 +489,87 @@ def test__rental__views__api_cancel_rental__success():
         data = json.loads(response.content)
         assert data["success"] is True
         assert data["message"]
+
+
+@pytest.mark.django_db
+def test__rental__views__api_get_rooms__accepts_naive_datetimes(client):
+    """The add-room modal sends offset-less datetimes; they must not raise."""
+    from rental.models import Room
+
+    staff = User.objects.create_user(email="rooms-staff@example.com", password="pwd", is_staff=True)
+    Room.objects.create(name='Naive Room', capacity=2, is_active=True)
+    client.force_login(staff)
+    day = (timezone.localtime() + timedelta(days=7)).date().isoformat()
+
+    response = client.get(
+        reverse('rental:api_rooms_available'),
+        {'start_date': f'{day}T15:30', 'end_date': f'{day}T18:00'},
+    )
+
+    assert response.status_code == 200
+    rooms = response.json()['rooms']
+    assert [r['name'] for r in rooms] == ['Naive Room']
+    assert rooms[0]['is_available'] is True
+
+
+@pytest.mark.django_db
+def test__rental__views__reopen_rental__cancelled_becomes_draft(client):
+    """A cancelled rental can be reopened as an editable draft."""
+    staff = User.objects.create_user(email="reopen-staff@example.com", password="pwd", is_staff=True)
+    borrower = User.objects.create_user(email="reopen-user@example.com", password="pwd")
+    rental = create_rental_request(borrower, staff, status='cancelled')
+    rental.actual_end_date = timezone.now()
+    rental.save(update_fields=['actual_end_date'])
+    client.force_login(staff)
+
+    response = client.post(reverse('rental:reopen', args=[rental.pk]))
+
+    assert response.status_code == 200
+    rental.refresh_from_db()
+    assert rental.status == 'draft'
+    assert rental.actual_end_date is None
+
+
+@pytest.mark.django_db
+def test__rental__views__reopen_rental__rejects_non_cancelled(client):
+    """Only cancelled rentals can be reopened."""
+    staff = User.objects.create_user(email="reopen-staff2@example.com", password="pwd", is_staff=True)
+    borrower = User.objects.create_user(email="reopen-user2@example.com", password="pwd")
+    rental = create_rental_request(borrower, staff, status='reserved')
+    client.force_login(staff)
+
+    response = client.post(reverse('rental:reopen', args=[rental.pk]))
+
+    assert response.status_code == 400
+    rental.refresh_from_db()
+    assert rental.status == 'reserved'
+
+
+@pytest.mark.django_db
+def test__rental__views__reopen_rental__rejects_issued_items(client):
+    """A rental cancelled after items were issued stays cancelled."""
+    from inventory.models import InventoryItem
+    from inventory.models import Location
+    from inventory.models import Organization
+    from rental.models import RentalItem
+
+    staff = User.objects.create_user(email="reopen-staff3@example.com", password="pwd", is_staff=True)
+    borrower = User.objects.create_user(email="reopen-user3@example.com", password="pwd")
+    rental = create_rental_request(borrower, staff, status='cancelled')
+    item = InventoryItem.objects.create(
+        inventory_number='OK-REOPEN',
+        description='Reopen Item',
+        quantity=1,
+        status='in_stock',
+        available_for_rent=True,
+        owner=Organization.objects.create(name='Reopen Org'),
+        location=Location.objects.create(name='Reopen Location'),
+    )
+    RentalItem.objects.create(rental_request=rental, inventory_item=item, quantity_requested=1, quantity_issued=1)
+    client.force_login(staff)
+
+    response = client.post(reverse('rental:reopen', args=[rental.pk]))
+
+    assert response.status_code == 400
+    rental.refresh_from_db()
+    assert rental.status == 'cancelled'

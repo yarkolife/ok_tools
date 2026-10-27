@@ -42,6 +42,7 @@ from .views import serve_room_image
 from .views import print_slip
 from .views import quick_issue
 from .views import remove_item_from_rental
+from .views import reopen_rental
 from .views import report_issue
 from .views import send_reminder
 from .views import swap_rental_item
@@ -200,6 +201,7 @@ urlpatterns = [
     path('rental/<int:rental_id>/extend/', extend_rental, name='extend'),
     path('rental/<int:rental_id>/mark-issued/', mark_issued, name='mark_issued'),
     path('rental/<int:rental_id>/cancel/', cancel_rental, name='cancel'),
+    path('rental/<int:rental_id>/reopen/', reopen_rental, name='reopen'),
     path('rental/<int:rental_id>/remove-item/', remove_item_from_rental, name='remove_item'),
     path('rental/<int:rental_id>/swap-item/', swap_rental_item, name='swap_item'),
     path('rental/<int:rental_id>/close/', close_rental, name='close'),

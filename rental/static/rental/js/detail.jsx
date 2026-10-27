@@ -58,6 +58,13 @@ function ActionBar({ rental, urls }) {
     catch (e) { alert(e.message); setBusy(false); }
   };
 
+  const doReopen = async () => {
+    if (!confirm(t('confirm.reopen', 'Reopen this rental as a draft?'))) return;
+    setBusy(true);
+    try { await apiPost(urls.reopen, {}); window.location.reload(); }
+    catch (e) { alert(e.message); setBusy(false); }
+  };
+
   const doSendReminder = async () => {
     setBusy(true);
     try {
@@ -175,6 +182,11 @@ function ActionBar({ rental, urls }) {
               <i className="fas fa-lock me-1"></i>{t('btn.close', 'Close rental')}
             </button>
           )}
+          {status === 'cancelled' && (
+            <button className="btn btn-primary btn-sm" onClick={doReopen} disabled={busy}>
+              <i className="fas fa-rotate-left me-1"></i>{t('btn.reopen', 'Reopen')}
+            </button>
+          )}
           {status === 'draft' && (
             <button className="btn btn-success btn-sm" onClick={doConfirm} disabled={busy}>
               <i className="fas fa-check-circle me-1"></i>{t('btn.confirm', 'Confirm')}
@@ -203,12 +215,16 @@ function ActionBar({ rental, urls }) {
                 <i className="fas fa-envelope"></i>{t('menu.resend_email', 'Resend confirmation')}</button></li>
               <li><a className="dropdown-item" href={urls.export_pdf}>
                 <i className="fas fa-file-export"></i>{t('menu.export_pdf', 'Export as PDF')}</a></li>
-              <li><hr className="dropdown-divider" /></li>
-              <li>
-                <button className="dropdown-item" style={{color:'oklch(0.45 0.13 28)'}} onClick={doCancel}>
-                  <i className="fas fa-ban"></i>{t('menu.cancel', 'Cancel rental')}
-                </button>
-              </li>
+              {['draft', 'reserved', 'issued'].includes(status) && (
+                <>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <button className="dropdown-item" style={{color:'oklch(0.45 0.13 28)'}} onClick={doCancel}>
+                      <i className="fas fa-ban"></i>{t('menu.cancel', 'Cancel rental')}
+                    </button>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </div>
@@ -954,18 +970,23 @@ function EditableRoomRow({ room, canEdit, urls }) {
 /* ---------- Add Room Modal ---------- */
 function AddRoomModal({ rental, urls, existingRooms, onClose }) {
   const today = new Date().toISOString().slice(0, 10);
+  // Default to the rental's own period so the list shows what is free then.
+  const [fromDate, fromTime] = (rental.from_iso || '').split('T');
+  const [toDate, toTime] = (rental.to_iso || '').split('T');
   const [rooms, setRooms] = React.useState([]);
   const [selectedRoom, setSelectedRoom] = React.useState(null);
-  const [startDate, setStartDate] = React.useState(today);
-  const [startTime, setStartTime] = React.useState('10:00');
-  const [endDate, setEndDate] = React.useState(today);
-  const [endTime, setEndTime] = React.useState('17:30');
+  const [startDate, setStartDate] = React.useState(fromDate || today);
+  const [startTime, setStartTime] = React.useState(fromTime || '10:00');
+  const [endDate, setEndDate] = React.useState(toDate || fromDate || today);
+  const [endTime, setEndTime] = React.useState(toTime || '17:30');
   const [busy, setBusy] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState(null);
 
   React.useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const params = new URLSearchParams({
           start_date: `${startDate}T${startTime}`,
@@ -977,6 +998,8 @@ function AddRoomModal({ rental, urls, existingRooms, onClose }) {
         setSelectedRoom(null);
       } catch (e) {
         console.debug('Failed to load rooms:', e);
+        setRooms([]);
+        setLoadError(e.message || String(e));
       }
       setLoading(false);
     };
@@ -1008,8 +1031,35 @@ function AddRoomModal({ rental, urls, existingRooms, onClose }) {
           {t('add_room.title', 'Add room to rental')}
         </h6>
 
+        <div style={{display:'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, marginBottom: 16}}>
+          <div>
+            <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_date', 'Start date')}</label>
+            <input type="date" className="form-control form-control-sm" value={startDate}
+                   onChange={e => { setStartDate(e.target.value); setEndDate(e.target.value); }} min={today} />
+          </div>
+          <div>
+            <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_time', 'Start time')}</label>
+            <input type="time" className="form-control form-control-sm" value={startTime} step="1800"
+                   onChange={e => setStartTime(e.target.value)} />
+          </div>
+          <div>
+            <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_date', 'End date')}</label>
+            <input type="date" className="form-control form-control-sm" value={endDate}
+                   onChange={e => setEndDate(e.target.value)} min={startDate || today} />
+          </div>
+          <div>
+            <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_time', 'End time')}</label>
+            <input type="time" className="form-control form-control-sm" value={endTime} step="1800"
+                   onChange={e => setEndTime(e.target.value)} />
+          </div>
+        </div>
+
         {loading ? (
           <div className="p-3 text-center muted">{t('common.loading', 'Loading…')}</div>
+        ) : loadError ? (
+          <div className="p-3 text-center" style={{color:'oklch(0.5 0.14 28)'}}>
+            {t('err.load_rooms', 'Could not load rooms: ')}{loadError}
+          </div>
         ) : rooms.length === 0 ? (
           <div className="p-3 muted text-center">{t('add_room.no_rooms', 'No rooms available.')}</div>
         ) : (
@@ -1037,30 +1087,6 @@ function AddRoomModal({ rental, urls, existingRooms, onClose }) {
           </div>
         )}
 
-        {selectedRoom && (
-          <div style={{display:'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, marginBottom: 16}}>
-            <div>
-              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_date', 'Start date')}</label>
-              <input type="date" className="form-control form-control-sm" value={startDate}
-                     onChange={e => { setStartDate(e.target.value); setEndDate(e.target.value); }} min={today} />
-            </div>
-            <div>
-              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.start_time', 'Start time')}</label>
-              <input type="time" className="form-control form-control-sm" value={startTime} step="1800"
-                     onChange={e => setStartTime(e.target.value)} />
-            </div>
-            <div>
-              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_date', 'End date')}</label>
-              <input type="date" className="form-control form-control-sm" value={endDate}
-                     onChange={e => setEndDate(e.target.value)} min={startDate || today} />
-            </div>
-            <div>
-              <label className="muted tiny" style={{display:'block', marginBottom: 2}}>{t('room.end_time', 'End time')}</label>
-              <input type="time" className="form-control form-control-sm" value={endTime} step="1800"
-                     onChange={e => setEndTime(e.target.value)} />
-            </div>
-          </div>
-        )}
 
         <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
           <button className="btn btn-ghost btn-sm" onClick={onClose}>{t('btn.cancel', 'Cancel')}</button>

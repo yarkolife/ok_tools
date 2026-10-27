@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-10-27 (Version 4.61.0)
+==========================
+
+* **rental: Adding a room to an existing rental works again**
+  * ``GET /rental/api/rooms-available/`` answered 500 for the offset-less times the "Add room" dialog sends, so the dialog always showed "No rooms available". The times are now read as local time.
+  * The dialog starts with the rental's own period instead of today, shows the date and time fields before a room is picked, and reports a loading error instead of claiming there are no rooms.
+  * Wrong or untranslated (fuzzy) German texts on the rental pages are fixed, e.g. "Keine Räume verfügbar.", "Raum hinzufügen", "Speichern".
+* **rental: Cancelled rentals can be reopened**
+  * A cancelled rental gets a "Wiederherstellen" button that turns it back into a draft, so it can be edited and confirmed again instead of being recreated. Rentals cancelled after items were issued stay cancelled.
+  * The "Ausleihe stornieren" menu entry is hidden for rentals that are already cancelled, returned or closed.
+
 2026-10-15 (Version 4.60.0)
 ==========================
 
