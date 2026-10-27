@@ -62,8 +62,9 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 # Get current user info for file ownership
-# If running with sudo, try to get the original user from SUDO_USER
-if [ -n "${SUDO_USER:-}" ]; then
+# If running as root via sudo, try to get the original user from SUDO_USER.
+# A stale SUDO_USER in a non-root environment must not override the real user.
+if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ]; then
     CURRENT_USER="$SUDO_USER"
     CURRENT_UID=$(id -u "$SUDO_USER" 2>/dev/null || echo "$(id -u)")
     CURRENT_GID=$(id -g "$SUDO_USER" 2>/dev/null || echo "$(id -g)")
