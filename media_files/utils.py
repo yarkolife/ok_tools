@@ -44,6 +44,24 @@ def is_reel_filename(filename: str) -> bool:
     return bool(re.search(r'(^|_)reel($|_)', stem))
 
 
+def storage_root_problem(storage_path: str) -> Optional[str]:
+    """
+    Return why a storage root cannot be trusted, or None if it looks mounted.
+
+    An unmounted NAS share usually leaves an empty mount point behind, so an
+    empty directory is treated as unavailable just like a missing one.
+    """
+    try:
+        if not os.path.isdir(storage_path):
+            return f"storage path is not a directory: {storage_path}"
+        with os.scandir(storage_path) as entries:
+            if next(entries, None) is None:
+                return f"storage path is empty: {storage_path}"
+    except OSError as e:
+        return f"storage path is not readable: {storage_path} ({e})"
+    return None
+
+
 def scan_directory(storage_location, supported_formats=None) -> list:
     """
     Scan directory for video files.

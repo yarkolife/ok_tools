@@ -1335,6 +1335,24 @@ class VideoFileAdmin(admin.ModelAdmin):
                 level=messages.WARNING,
             )
     
+    @staticmethod
+    def _storage_unreachable(video, storage_problems):
+        """Return True if the video's storage root is missing, empty or unreadable.
+
+        An unmounted NAS share makes every file look missing, so records must
+        never be deleted based on such a storage. Results are cached per
+        storage in ``storage_problems`` for the duration of one action.
+        """
+        from media_files.utils import storage_root_problem
+
+        storage_id = video.storage_location_id
+        if storage_id not in storage_problems:
+            problem = storage_root_problem(video.storage_location.path)
+            storage_problems[storage_id] = problem
+            if problem:
+                logger.error(f'Cleanup skipped for storage {video.storage_location.name}: {problem}')
+        return bool(storage_problems[storage_id])
+
     @admin.action(description=_('Delete selected records without video'))
     def delete_records_without_video_action(self, request, queryset):
         """
@@ -1348,9 +1366,15 @@ class VideoFileAdmin(admin.ModelAdmin):
         found_count = 0
         error_count = 0
         read_only_count = 0
+        unreachable_count = 0
+        storage_problems = {}
         
         for video in queryset:
             try:
+                if self._storage_unreachable(video, storage_problems):
+                    unreachable_count += 1
+                    continue
+
                 # Check if file exists on disk (handle read-only storage gracefully)
                 file_exists = False
                 try:
@@ -1399,6 +1423,12 @@ class VideoFileAdmin(admin.ModelAdmin):
                 request,
                 _('{} file(s) could not be checked (storage may be read-only)').format(read_only_count),
                 level='info',
+            )
+        if unreachable_count > 0:
+            self.message_user(
+                request,
+                _('{} file(s) skipped because their storage is unavailable or empty').format(unreachable_count),
+                level='error',
             )
         if found_count == 0:
             self.message_user(
@@ -3068,11 +3098,17 @@ class VideoFileAdmin(admin.ModelAdmin):
         found_count = 0
         error_count = 0
         read_only_count = 0
+        unreachable_count = 0
+        storage_problems = {}
         
         for video in queryset:
             try:
                 if not video.is_available:
                     # Skip files already marked as unavailable
+                    continue
+
+                if self._storage_unreachable(video, storage_problems):
+                    unreachable_count += 1
                     continue
                 
                 # Check if file exists on disk (handle read-only storage gracefully)
@@ -3129,13 +3165,19 @@ class VideoFileAdmin(admin.ModelAdmin):
                 _('{} file(s) could not be checked (storage may be read-only)').format(read_only_count),
                 level='info'
             )
-        if found_count == 0:
+        if unreachable_count > 0:
+            self.message_user(
+                request,
+                _('{} file(s) skipped because their storage is unavailable or empty').format(unreachable_count),
+                level='error'
+            )
+        if found_count == 0 and unreachable_count == 0:
             self.message_user(
                 request,
                 _('No files to check (all selected files are already marked as unavailable)'),
                 level='info'
             )
-        elif deleted_count == 0 and read_only_count == 0:
+        elif found_count > 0 and deleted_count == 0 and read_only_count == 0:
             self.message_user(
                 request,
                 _('All checked files exist on disk'),

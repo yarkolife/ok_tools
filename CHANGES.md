@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-10-27 (Version 4.61.1)
+==========================
+
+* **media_files: Missing-file cleanup no longer wipes records when the NAS is down**
+  * ``cleanup_missing_files`` skips a storage whose root is missing, empty (an unmounted share) or unreadable, and checks every file before touching anything. A storage with more than 20 % of its files missing is skipped as well; ``--max-missing-ratio`` changes the limit and ``--force`` overrides it.
+  * Skipped storages make the command, and with it the weekly Celery task, fail with an error that names them, instead of reporting a clean run.
+  * The admin actions "Cleanup records for files missing from disk" and "Delete selected records without video" skip records whose storage is unavailable or empty and say so.
+
 2026-10-27 (Version 4.61.0)
 ==========================
 

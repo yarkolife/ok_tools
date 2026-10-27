@@ -3724,3 +3724,6 @@ msgstr ""
 
 #~ msgid "Video Encode Presets"
 #~ msgstr "Video-Kodierungsvoreinstellungen"
+
+msgid "{} file(s) skipped because their storage is unavailable or empty"
+msgstr "{} Datei(en) übersprungen, weil ihr Speicherort nicht verfügbar oder leer ist"

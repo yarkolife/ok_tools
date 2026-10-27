@@ -558,3 +558,95 @@ class IntegrationTests(TestCase):
         
         self.assertEqual(operation.video_file, video)
         self.assertEqual(operation.status, 'SUCCESS')
+
+
+class CleanupMissingFilesCommandTests(TestCase):
+    """cleanup_missing_files must not wipe records when a storage is unreachable."""
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.storage = StorageLocation.objects.create(
+            name="Cleanup Storage",
+            storage_type="ARCHIVE",
+            path=self.temp_dir,
+            is_active=True,
+        )
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def _video(self, number, on_disk=True):
+        filename = f"{number}_video.mp4"
+        if on_disk:
+            (Path(self.temp_dir) / filename).touch()
+        return VideoFile.objects.create(
+            number=number,
+            filename=filename,
+            storage_location=self.storage,
+            file_path=filename,
+            is_available=True,
+        )
+
+    def _run(self, *args):
+        from io import StringIO
+        call_command("cleanup_missing_files", "--all-storages", *args, stdout=StringIO())
+
+    def test_deletes_records_below_missing_ratio(self):
+        for number in range(10000, 10009):
+            self._video(number)
+        missing = self._video(10009, on_disk=False)
+
+        self._run()
+
+        self.assertFalse(VideoFile.objects.filter(pk=missing.pk).exists())
+        self.assertEqual(VideoFile.objects.count(), 9)
+
+    def test_skips_storage_above_missing_ratio(self):
+        for number in range(10000, 10007):
+            self._video(number)
+        for number in range(10007, 10010):
+            self._video(number, on_disk=False)
+
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            self._run()
+
+        self.assertEqual(VideoFile.objects.count(), 10)
+
+    def test_force_deletes_above_missing_ratio(self):
+        for number in range(10000, 10007):
+            self._video(number)
+        for number in range(10007, 10010):
+            self._video(number, on_disk=False)
+
+        self._run("--force")
+
+        self.assertEqual(VideoFile.objects.count(), 7)
+
+    def test_skips_empty_storage_root(self):
+        """An empty mount point (unmounted NAS) must not delete anything."""
+        for number in range(10000, 10003):
+            self._video(number, on_disk=False)
+
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            self._run("--force")
+
+        self.assertEqual(VideoFile.objects.count(), 3)
+
+    def test_skips_missing_storage_root(self):
+        self._video(10000, on_disk=False)
+        self.storage.path = str(Path(self.temp_dir) / "not-mounted")
+        self.storage.save(update_fields=["path"])
+
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            self._run("--force")
+
+        self.assertEqual(VideoFile.objects.count(), 1)
+
+    def test_storage_without_records_is_not_an_error(self):
+        self._run()
+
+        self.assertEqual(VideoFile.objects.count(), 0)
