@@ -1249,7 +1249,9 @@ print_info "Docker image build options:"
 echo "  1) Build with cache (faster, recommended for regular updates)"
 echo "  2) Build without cache (full rebuild, use when dependencies changed)"
 echo ""
-read -p "Choose build option (1 or 2, default: 1): " -t 10 BUILD_OPTION
+# Without a terminal (or on timeout) read fails; fall back to option 1 so
+# set -e does not abort the update after the containers were stopped.
+read -p "Choose build option (1 or 2, default: 1): " -t 10 BUILD_OPTION || BUILD_OPTION=1
 echo ""
 
 # Normalize BUILD_OPTION - default to 1 if empty or invalid
@@ -1430,7 +1432,7 @@ if ! docker compose ps --format "table {{.Service}}\t{{.Status}}"; then
     exit 1
 fi
 
-UNHEALTHY_CONTAINERS=$(docker compose ps --format "table {{.Service}}\t{{.Status}}" | grep -i "unhealthy" | awk '{print $1}' | grep -v "SERVICE")
+UNHEALTHY_CONTAINERS=$(docker compose ps --format "table {{.Service}}\t{{.Status}}" | grep -i "unhealthy" | awk '{print $1}' | grep -v "SERVICE" || true)
 if [ -n "$UNHEALTHY_CONTAINERS" ]; then
     print_warning "The following containers are unhealthy:"
     echo "$UNHEALTHY_CONTAINERS"
