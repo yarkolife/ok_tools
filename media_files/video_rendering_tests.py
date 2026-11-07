@@ -45,6 +45,15 @@ def test_encode_args_force_h264_level_4_1():
     assert args[args.index("-level:v") + 1] == "4.1"
 
 
+def test_encode_args_disable_b_frames():
+    """B-frames make ffmpeg write an MP4 edit list that CasparCG mishandles."""
+    encode = load_encode_preset("1080p25_9000k")
+
+    args = _encode_args(encode)
+
+    assert args[args.index("-bf") + 1] == "0"
+
+
 @pytest.mark.django_db
 @override_settings(VIDEO_OVERLAY_RENDERING_ENABLED=False)
 def test_management_command_refuses_when_disabled():

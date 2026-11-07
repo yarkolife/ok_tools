@@ -1052,6 +1052,7 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
             '-preset', encode.x264_preset,
             '-profile:v', encode.x264_profile,
             '-level:v', '4.1',
+            '-bf', '0',  # No B-frames -> no MP4 edit list (CasparCG playout)
             '-b:v', f'{encode.video_bitrate_k}k',
             '-maxrate', f'{int(encode.video_bitrate_k * 1.5)}k',
             '-bufsize', f'{encode.video_bitrate_k * 2}k',

@@ -1204,6 +1204,11 @@ def _encode_args(p: EncodePreset) -> List[str]:
         p.x264_profile,
         "-level:v",
         "4.1",
+        # No B-frames: their reorder delay makes ffmpeg delay the video with
+        # an MP4 edit list, which CasparCG mishandles. The legacy files that
+        # play fine have none. (See also _concat_ts_to_mp4.)
+        "-bf",
+        "0",
         "-pix_fmt",
         p.pix_fmt,
         "-b:v",
@@ -1225,6 +1230,55 @@ def _encode_args(p: EncodePreset) -> List[str]:
         "-af",
         LOUDNORM_FILTER,
     ]
+
+
+def _stream_start_times(path: str) -> dict:
+    """Return {"video": start, "audio": start} (seconds) of the first streams."""
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe", "-v", "error",
+                "-show_entries", "stream=codec_type,start_time",
+                "-of", "csv=p=0",
+                path,
+            ],
+            capture_output=True, text=True, timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        logger.warning("ffprobe start_time failed for %s: %s", path, exc)
+        return {}
+    starts: dict = {}
+    for line in (result.stdout or "").splitlines():
+        parts = line.strip().split(",")
+        if len(parts) < 2 or parts[0] in starts:
+            continue
+        try:
+            starts[parts[0]] = float(parts[1])
+        except ValueError:
+            continue
+    return starts
+
+
+def _concat_ts_to_mp4(concat_input: str, out_path: str) -> None:
+    """
+    Remux concatenated MPEG-TS segments into an MP4 whose video starts at 0.
+
+    The AAC encoder's priming samples (1024 = 21.3 ms at 48 kHz) are not
+    marked as such in MPEG-TS, so the audio there starts that much before the
+    video. A plain remux then delays the video by an MP4 edit list, which
+    CasparCG mishandles. Shifting all timestamps back by the gap puts the
+    video at 0 and the priming before 0, so the muxer trims it with an audio
+    edit list, exactly as a direct MP4 encode does. Sync is unchanged.
+    """
+    first_segment = concat_input.removeprefix("concat:").split("|", 1)[0]
+    starts = _stream_start_times(first_segment)
+    gap = starts.get("video", 0.0) - starts.get("audio", starts.get("video", 0.0))
+
+    cmd = ["ffmpeg", "-y", "-i", concat_input, "-c", "copy", "-bsf:a", "aac_adtstoasc"]
+    if 0.0 < gap < 1.0:
+        cmd.extend(["-output_ts_offset", f"{-gap:.6f}", "-avoid_negative_ts", "disabled"])
+    cmd.append(out_path)
+    _run(cmd)
 
 
 def _render_segment_to_ts(
@@ -1387,18 +1441,7 @@ def render_with_intro_outro(
         )
 
         concat_input = f"concat:{intro_ts}|{main_ts}|{outro_ts}"
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-i",
-            concat_input,
-            "-c",
-            "copy",
-            "-bsf:a",
-            "aac_adtstoasc",
-            str(out_path),
-        ]
-        _run(cmd)
+        _concat_ts_to_mp4(concat_input, str(out_path))
 
         return RenderArtifacts(output_mp4=str(out_path))
 
@@ -1483,18 +1526,7 @@ def render_with_overlays_on_main_edges(
         )
 
         concat_input = f"concat:{intro_ts}|{main_ts}|{outro_ts}" if mid > 0.01 else f"concat:{intro_ts}|{outro_ts}"
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-i",
-            concat_input,
-            "-c",
-            "copy",
-            "-bsf:a",
-            "aac_adtstoasc",
-            str(out_path),
-        ]
-        _run(cmd)
+        _concat_ts_to_mp4(concat_input, str(out_path))
 
         return RenderArtifacts(output_mp4=str(out_path))
 
@@ -1599,17 +1631,6 @@ def render_preview_overlays_on_main_edges(
         )
 
         concat_input = f"concat:{intro_ts}|{outro_ts}"
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-i",
-            concat_input,
-            "-c",
-            "copy",
-            "-bsf:a",
-            "aac_adtstoasc",
-            str(out_path),
-        ]
-        _run(cmd)
+        _concat_ts_to_mp4(concat_input, str(out_path))
 
         return RenderArtifacts(output_mp4=str(out_path))
