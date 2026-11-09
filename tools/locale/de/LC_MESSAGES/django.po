@@ -3787,3 +3787,19 @@ msgstr "Gerendertes Reel nicht gefunden"
 
 #~ msgid "Custom hook selected."
 #~ msgstr "Eigener Hook ausgewählt."
+
+#: tools/templates/tools/video_render.html
+msgid "Source for rendering"
+msgstr "Quelle für das Rendering"
+
+#: tools/templates/tools/video_render.html
+msgid "The selected file is a preview or an already rendered version; the original is rendered instead."
+msgstr "Die ausgewählte Datei ist eine Vorschau oder eine bereits gerenderte Version; gerendert wird stattdessen das Original."
+
+#: tools/templates/tools/video_render.html
+msgid "No original video found"
+msgstr "Kein Originalvideo gefunden"
+
+#: tools/templates/tools/video_render.html
+msgid "Only previews or rendered versions exist for this license; rendering is not possible."
+msgstr "Zu dieser Freistellung gibt es nur Vorschauen oder gerenderte Versionen; Rendern ist nicht möglich."

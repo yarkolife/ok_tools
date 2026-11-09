@@ -799,6 +799,7 @@ class VideoRenderView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
                 "media_files_enabled": True,
                 "video": video,
                 "license": license_obj,
+                "render_source": VideoFile.render_source_for(license_obj.number, fallback=video),
                 "styles": all_styles,
                 "title_styles": title_styles,
                 "subtitle_styles": subtitle_styles,

@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block title %}{% trans "Video Render (Overlays)" %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans "Video Render (Overlays)" %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -16,8 +17,8 @@
 <style>
     .tool-container { padding: 20px; max-width: 1100px; }
     .section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 10px;
         padding: 18px;
         margin-bottom: 18px;
@@ -37,7 +38,7 @@
         padding: 8px 12px;
         border: 1px solid #d1d5db;
         border-radius: 8px;
-        background: #fff;
+        background: var(--ok-surface, #fff);
         font-size: 14px;
         box-sizing: border-box;
     }
@@ -58,12 +59,12 @@
 
     /* Lightweight styles for style cards (from legacy render page) */
     .checkbox-item { border: 2px solid #e5e7eb; border-radius: 10px; padding: 14px; }
-    .checkbox-item:hover { border-color: #417690; }
+    .checkbox-item:hover { border-color: var(--ok-brand, #417690); }
     .checkbox-label { font-weight: 700; margin-bottom: 6px; }
     .element-style-selection { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
     .style-preview { display: flex; gap: 12px; overflow-x: auto; padding: 8px 0; }
     .style-card { border: 2px solid #e5e7eb; border-radius: 10px; overflow: hidden; min-width: 200px; background: #111827; color: #fff; cursor: pointer; flex: 0 0 auto; }
-    .style-card.selected { border-color: #417690; box-shadow: 0 0 0 2px #e7f3ff; }
+    .style-card.selected { border-color: var(--ok-brand, #417690); box-shadow: 0 0 0 2px #e7f3ff; }
     .style-card-preview { height: 110px; background: #000; display:flex; align-items:center; justify-content:center; position:relative; }
     .style-card-info { padding: 10px; background: #1f2937; }
     .style-card-name { font-weight: 700; font-size: 12px; }
@@ -135,6 +136,20 @@
                     <input type="text" value="#{{ license.number }} - {{ license.title }}" readonly>
                 </div>
             </div>
+            <div class="row">
+                <div class="field" style="min-width: 360px; flex: 1;">
+                    <label>{% trans "Source for rendering" %}</label>
+                    {% if render_source %}
+                        <input type="text" value="{{ render_source.filename }}{% if render_source.storage_location %} ({{ render_source.storage_location.name }}){% endif %}" readonly>
+                        {% if render_source.id != video.id %}
+                            <div class="hint">{% trans "The selected file is a preview or an already rendered version; the original is rendered instead." %}</div>
+                        {% endif %}
+                    {% else %}
+                        <input type="text" value="{% trans 'No original video found' %}" readonly>
+                        <div class="hint">{% trans "Only previews or rendered versions exist for this license; rendering is not possible." %}</div>
+                    {% endif %}
+                </div>
+            </div>
 
             <div class="video-wrap">
                 <video controls preload="metadata">
@@ -166,7 +181,7 @@
                                         {% if style.preview_type == "modern_title" %}
                                             <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
                                                 <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% elif style.preview_type == "lower_third_left" %}
                                             <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
@@ -265,7 +280,7 @@
                                         {% elif style.preview_type == "modern_title" %}
                                             <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
                                                 <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% elif style.preview_type == "lower_third_left" %}
                                             <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
@@ -385,7 +400,7 @@
                                         {% elif style.preview_type == "modern_title" %}
                                             <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
                                                 <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% else %}
                                             <div style="text-align: center; font-size: 12px;">{% trans "Preview" %}</div>
@@ -448,7 +463,7 @@
                                         {% elif style.preview_type == "modern_title" %}
                                             <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
                                                 <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% else %}
                                             <div style="text-align: center; font-size: 12px;">{% trans "Preview" %}</div>
@@ -548,7 +563,7 @@ async function searchMediaByNumber() {
             return;
         }
         out.innerHTML = items.map(v => `
-            <div style="padding:10px; border:1px solid #e5e7eb; border-radius:10px; margin-bottom:10px; background:#fff;">
+            <div style="padding:10px; border:1px solid #e5e7eb; border-radius:10px; margin-bottom:10px; background:var(--ok-surface, #fff);">
                 <div style="font-weight:700;">#${v.number} — ${v.filename}</div>
                 <div class="hint">${v.storage_location || ''}</div>
                 <div class="actions" style="margin-top:8px;">

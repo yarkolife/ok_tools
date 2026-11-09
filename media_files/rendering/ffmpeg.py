@@ -1446,6 +1446,13 @@ def render_with_intro_outro(
         return RenderArtifacts(output_mp4=str(out_path))
 
 
+# A middle part shorter than this is not rendered on its own: less than a
+# frame gives a video stream without frames, and loudnorm on a few
+# milliseconds of audio returns NaN ("Input contains (near) NaN/+-Inf").
+# The time goes to the last segment instead.
+MIN_MIDDLE_SECONDS = 0.5
+
+
 def render_with_overlays_on_main_edges(
     *,
     main_video: str,
@@ -1469,6 +1476,11 @@ def render_with_overlays_on_main_edges(
     seg = max(0.1, float(segment_duration))
     seg = min(seg, max(dur / 2.0, 0.1))
     mid = max(dur - 2.0 * seg, 0.0)
+    render_middle = mid >= MIN_MIDDLE_SECONDS
+    # Without a middle part the last segment starts right after the first
+    # one, so no frames are lost and none are doubled.
+    outro_ss = max(dur - seg, 0.0) if render_middle else seg
+    outro_t = seg if render_middle else max(dur - seg, 0.0)
 
     with tempfile.TemporaryDirectory(prefix="oktools_render_") as tmp:
         intro_ts = str(Path(tmp) / "intro.ts")
@@ -1486,7 +1498,7 @@ def render_with_overlays_on_main_edges(
             ss=0.0, t=seg,
             source_fps=main_fps, is_vfr=main_vfr,
         )
-        if mid > 0.01:
+        if render_middle:
             # Middle part: no overlay.
             # We render it as a segment with ss/t so concat timings align.
             cmd = ["ffmpeg", "-y", "-ss", str(seg), "-t", str(mid), "-i", main_video]
@@ -1510,7 +1522,7 @@ def render_with_overlays_on_main_edges(
             cmd.extend(["-shortest", "-f", "mpegts", main_ts])
             _run(cmd, timeout=_render_timeout(mid))
         else:
-            # If the video is very short, just skip the middle.
+            # Too short for a segment of its own (see MIN_MIDDLE_SECONDS).
             Path(main_ts).write_bytes(b"")
 
         _render_segment_to_ts(
@@ -1519,13 +1531,14 @@ def render_with_overlays_on_main_edges(
             encode,
             outro_layers,
             ctx,
-            ss=max(dur - seg, 0.0),
-            t=seg,
+            ss=outro_ss,
+            t=outro_t,
             source_fps=main_fps,
             is_vfr=main_vfr,
         )
 
-        concat_input = f"concat:{intro_ts}|{main_ts}|{outro_ts}" if mid > 0.01 else f"concat:{intro_ts}|{outro_ts}"
+        concat_input = (f"concat:{intro_ts}|{main_ts}|{outro_ts}" if render_middle
+                        else f"concat:{intro_ts}|{outro_ts}")
         _concat_ts_to_mp4(concat_input, str(out_path))
 
         return RenderArtifacts(output_mp4=str(out_path))

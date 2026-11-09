@@ -304,27 +304,10 @@ def render_video(request):
         except License.DoesNotExist:
             return JsonResponse({'success': False, 'error': _('License not found')}, status=404)
         
-        # Get the original source video (not rendered versions)
-        # Rendered videos have file_path starting with "rendered/"
-        all_videos = VideoFile.objects.filter(
-            number=license_obj.number,
-            is_available=True
-        ).order_by('-created_at')
-        
-        # Find source video (not in rendered/ directory)
-        source_video = None
-        for video in all_videos:
-            # Skip videos in rendered directory
-            if video.file_path.startswith('rendered/'):
-                continue
-            source_video = video
-            break
-        
-        # If no source video found, try license-linked video
-        if not source_video and hasattr(license_obj, 'video_file') and license_obj.video_file:
-            linked_video = license_obj.video_file
-            if linked_video.file_path and not linked_video.file_path.startswith('rendered/'):
-                source_video = linked_video
+        # The original, never a preview or an already rendered _vN version
+        linked_video = getattr(license_obj, 'video_file', None)
+        source_video = VideoFile.render_source_for(
+            license_obj.number, fallback=linked_video)
         
         if not source_video:
             return JsonResponse({

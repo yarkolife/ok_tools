@@ -1457,25 +1457,10 @@ class VideoRenderSubmitView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        # Pick a source video: prefer a non-rendered version for this license number
-        source_video = None
-        try:
-            all_videos = (
-                VideoFile.objects
-                .filter(number=license_obj.number, is_available=True)
-                .order_by("-created_at")
-            )
-            for v in all_videos:
-                if not (v.file_path or "").startswith("rendered/"):
-                    source_video = v
-                    break
-        except Exception:
-            source_video = None
-
-        if not source_video:
-            # Fallback to selected video if it is not in rendered/
-            if selected_video.file_path and not selected_video.file_path.startswith("rendered/"):
-                source_video = selected_video
+        # The original of this license number, never a preview or an
+        # already rendered _vN version (see VideoFile.render_source_for)
+        source_video = VideoFile.render_source_for(
+            license_obj.number, fallback=selected_video)
 
         if not source_video:
             return Response(

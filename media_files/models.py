@@ -469,6 +469,41 @@ class VideoFile(models.Model):
         """Return True for rendered version filenames ending with _vN."""
         return bool(re.search(r'_v\d+$', self.filename.rsplit('.', 1)[0]))
 
+    def is_render_output(self):
+        """True for files made by the renderer: previews, _vN versions and
+        anything under rendered/. They must never be used as a source."""
+        return bool(
+            self.is_preview
+            or self.has_version_suffix()
+            or (self.file_path or '').startswith('rendered/')
+        )
+
+    @classmethod
+    def render_source_for(cls, number, fallback=None):
+        """Return the original video to render for a license number.
+
+        Previews and rendered versions are stored next to the original, so
+        "the newest file" picked the preview or a _v1 after a first render
+        (a later render then failed on the 10 s preview, or produced _v1_v1
+        with the overlays twice). Order: the version marked as primary by
+        hand, then the oldest original (the first upload).
+
+        ``fallback`` (e.g. the license's linked video) is used when no
+        available original matches, if it is not a render output itself.
+        """
+        candidates = (
+            cls.objects
+            .filter(number=number, is_available=True, is_preview=False)
+            .exclude(file_path__startswith='rendered/')
+            .order_by('-is_manual_primary', 'created_at', 'id')
+        )
+        for video in candidates:
+            if not video.has_version_suffix():
+                return video
+        if fallback is not None and not fallback.is_render_output():
+            return fallback
+        return None
+
     def is_primary_version(self):
         """Check if this is the primary (best quality) version."""
         versions = self.get_all_versions()
